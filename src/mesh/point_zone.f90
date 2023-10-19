@@ -37,11 +37,15 @@ module point_zone
   use utils, only: neko_error, nonlinear_index
   use dofmap, only: dofmap_t
   use json_module, only: json_file
+  use neko_config, only: NEKO_BCKND_DEVICE
+  use device
+  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
   implicit none
   private
 
   type, public, abstract :: point_zone_t
      integer, allocatable :: mask(:)
+     type(c_ptr) :: mask_d
      type(stack_i4_t), private :: scratch
      integer :: size = 0
      logical, private :: finalized = .false.
@@ -129,6 +133,10 @@ contains
     this%size = 0
 
     call this%scratch%free()
+
+    if (c_associated(this%mask_d)) then
+       call device_free(this%mask_d)
+    end if
     
   end subroutine point_zone_free_base
 
@@ -151,6 +159,11 @@ contains
        this%size = this%scratch%size()
        
        call this%scratch%clear()
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(this%mask, this%mask_d, this%size)
+          call device_memcpy(this%mask, this%mask_d, this%size, HOST_TO_DEVICE)
+       end if
 
        this%finalized = .true.
        
