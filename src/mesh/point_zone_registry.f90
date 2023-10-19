@@ -46,7 +46,7 @@ module point_zone_registry
      !> list of point_zones stored
      type(point_zone_wrapper_t), allocatable :: point_zones(:)
      !> number of registered point_zones
-     integer, private :: n
+     integer, private :: n = 0
      !> the size the point_zones array is increased by upon reallocation
      integer, private :: expansion_size
    contains
@@ -176,7 +176,6 @@ contains
     !
     if (.not. allocated(this%point_zones)) then
        allocate(this%point_zones(this%expansion_size))
-       this%n = this%expansion_size
     end if
 
     call json_get(json, "name", str_read)
@@ -192,7 +191,7 @@ contains
     ! init.
     !
     if (this%n_point_zones() .eq. this%get_size()) then
-       call this%expand()
+      call this%expand()
     end if
 
     this%n = this%n + 1

@@ -17,7 +17,7 @@ materialLibrary1 = GetMaterialLibrary()
 
 # Create a new 'Render View'
 renderView1 = CreateView('RenderView')
-renderView1.ViewSize = [2977, 1848]
+renderView1.ViewSize = [1045, 815]
 renderView1.AxesGrid = 'GridAxes3DActor'
 renderView1.CenterOfRotation = [0.5, 0.5, 0.5]
 renderView1.StereoType = 'Crystal Eyes'
@@ -39,7 +39,7 @@ SetActiveView(None)
 # create new layout object 'Layout #1'
 layout1 = CreateLayout(name='Layout #1')
 layout1.AssignView(0, renderView1)
-layout1.SetSize(2977, 1848)
+layout1.SetSize(1045, 815)
 
 # ----------------------------------------------------------------
 # restore active view
@@ -75,7 +75,7 @@ field0nek5000Display = Show(field0nek5000, renderView1, 'UnstructuredGridReprese
 
 # trace defaults for the display properties.
 field0nek5000Display.Representation = 'Wireframe'
-field0nek5000Display.ColorArrayName = [None, '']
+field0nek5000Display.ColorArrayName = ['POINTS', '']
 field0nek5000Display.Opacity = 0.14
 field0nek5000Display.SelectTCoordArray = 'None'
 field0nek5000Display.SelectNormalArray = 'None'
@@ -96,7 +96,7 @@ field0nek5000Display.DataAxesGrid = 'GridAxesRepresentation'
 field0nek5000Display.PolarAxes = 'PolarAxesRepresentation'
 field0nek5000Display.ScalarOpacityUnitDistance = 0.04948716593053934
 field0nek5000Display.OpacityArrayName = ['POINTS', 'temperature']
-field0nek5000Display.SelectInputVectors = [None, '']
+field0nek5000Display.SelectInputVectors = ['POINTS', '']
 field0nek5000Display.WriteLog = ''
 
 # init the 'PiecewiseFunction' selected for 'ScaleTransferFunction'
@@ -146,7 +146,7 @@ clip1Display.PolarAxes = 'PolarAxesRepresentation'
 clip1Display.ScalarOpacityFunction = temperaturePWF
 clip1Display.ScalarOpacityUnitDistance = 0.06917648482996253
 clip1Display.OpacityArrayName = ['POINTS', 'temperature']
-clip1Display.SelectInputVectors = [None, '']
+clip1Display.SelectInputVectors = ['POINTS', '']
 clip1Display.WriteLog = ''
 
 # init the 'PiecewiseFunction' selected for 'ScaleTransferFunction'
