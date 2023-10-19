@@ -263,7 +263,7 @@ contains
     end do
 
     if (.not. found) then
-       call neko_error("Field " // trim(name) // &
+       call neko_error("Point zone " // trim(name) // &
             " could not be found in the registry")
     end if
   end function get_point_zone_by_name
