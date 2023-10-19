@@ -43,7 +43,7 @@ module point_zone
   type, public, abstract :: point_zone_t
      integer, allocatable :: mask(:)
      type(stack_i4_t), private :: scratch
-     integer :: size
+     integer :: size = 0
      logical, private :: finalized = .false.
      character(len=200) :: name
    contains
