@@ -39,6 +39,7 @@ module box_point_zone
   use json_utils, only: json_get
   use json_module, only: json_file
   use math, only: abscmp
+  use logger, only: neko_log
   implicit none
   private
 
@@ -76,6 +77,8 @@ contains
     zmin = values(1)
     zmax = values(2)
     call json_get(json, "name", str_read)
+
+    call neko_log%message("INIT BOX "//trim(str_read))
 
     call box_point_zone_init_common(this, dof%size(), trim(str_read), xmin, &
          xmax, ymin, ymax, zmin, zmax)

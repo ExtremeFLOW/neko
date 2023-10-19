@@ -36,9 +36,11 @@
 module point_zone_fctry
   use point_zone, only: point_zone_t
   use box_point_zone, only: box_point_zone_t
+  use sphere_point_zone, only: sphere_point_zone_t
   use json_module, only: json_file
   use json_utils, only: json_get
   use dofmap, only: dofmap_t
+  use logger, only: neko_log
   use utils, only: neko_error
   implicit none
   private
@@ -56,9 +58,14 @@ module point_zone_fctry
       call json_get(json, "geometry", zone_type)
 
       if (trim(zone_type) .eq. "box") then
+         call neko_log%message("Allocating a box!")
          allocate(box_point_zone_t::point_zone)
+      else if (trim(zone_type) .eq. "sphere") then
+         call neko_log%message("Allocating a sphere!")
+         allocate(sphere_point_zone_t::point_zone)
       else
-         call neko_error("Unknown source term "//trim(zone_type))
+         call neko_error("Unknown source term "//trim(zone_type)//"! Valid &
+              &source terms are 'box', 'sphere'.")
       end if
 
     end subroutine point_zone_factory

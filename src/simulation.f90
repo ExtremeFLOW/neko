@@ -44,6 +44,7 @@ module simulation
   use simulation_component_global, only : neko_simcomps
   use json_module, only : json_file_t => json_file
   use json_utils, only : json_get_or_default
+  use point_zone_registry, only: neko_point_zone_registry
   implicit none
   private
 
@@ -74,6 +75,11 @@ contains
     if (found .and. len_trim(restart_file) .gt. 0) then
        call simulation_restart(C, t)
     end if
+
+    !> Initialize point_zones registry
+    call neko_log%message("initializing point zone registry")
+    call neko_point_zone_registry%init(C%params, C%fluid%u%dof)
+    call neko_log%message("DONE initializing point zone registry")
 
     !> Call stats, samplers and user-init before time loop
     call neko_log%section('Postprocessing')       
