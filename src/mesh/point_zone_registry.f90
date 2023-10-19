@@ -251,9 +251,10 @@ contains
     class(point_zone_registry_t), target, intent(in) :: this
     character(len=*), intent(in) :: name
     class(*), pointer :: pz
-    logical :: found = .false.
+    logical :: found
     integer :: i
 
+    found = .false.
     do i=1, this%n_point_zones()
        if (trim(this%point_zones(i)%pz%name) .eq. trim(name)) then
           pz => this%point_zones(i)%pz
