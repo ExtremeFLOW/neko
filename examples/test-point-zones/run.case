@@ -49,7 +49,7 @@
     "point_zones": 
     [
       {
-  	"name": "myzone",
+  	"name": "mybox",
 	"geometry": "box",
 	"x_bounds": [0.4, 0.6],  
 	"y_bounds": [0.4, 0.6],  
