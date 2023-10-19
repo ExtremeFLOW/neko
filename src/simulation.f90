@@ -72,7 +72,15 @@ contains
     
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
+       ! Restart the case
        call simulation_restart(C, t)
+       
+       ! Restart the simulation components
+       if (allocated(neko_simcomps)) then
+         do i=1, size(neko_simcomps)
+            call neko_simcomps(i)%simcomp%restart(t)
+         end do
+       end if
     end if
 
     !> Call stats, samplers and user-init before time loop
