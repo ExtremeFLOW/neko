@@ -32,7 +32,7 @@
 !
 ! Implements a point zone registry for storing point zones
 module point_zone_registry
-  use point_zone, only : point_zone_t
+  use point_zone, only : point_zone_t, point_zone_wrapper_t
   use point_zone_fctry, only: point_zone_factory
   use dofmap, only : dofmap_t
   use utils, only : neko_error
@@ -42,13 +42,9 @@ module point_zone_registry
   implicit none
   private
 
-  type, private :: registry_point_zone_t
-     class(point_zone_t), allocatable :: pz
-  end type registry_point_zone_t
-
   type :: point_zone_registry_t
      !> list of point_zones stored
-     type(registry_point_zone_t), private, allocatable :: point_zones(:)
+     type(point_zone_wrapper_t), allocatable :: point_zones(:)
      !> number of registered point_zones
      integer, private :: n
      !> the size the point_zones array is increased by upon reallocation
@@ -157,7 +153,7 @@ contains
   !> expand the point_zones array so as to accomodate more point_zones
   subroutine expand(this)
     class(point_zone_registry_t), intent(inout) :: this
-    type(registry_point_zone_t), allocatable :: temp(:)
+    type(point_zone_wrapper_t), allocatable :: temp(:)
     integer :: i
 
     allocate(temp(this%n + this%expansion_size))
@@ -254,8 +250,8 @@ contains
   function get_point_zone_by_name(this, name) result(pz)
     class(point_zone_registry_t), target, intent(in) :: this
     character(len=*), intent(in) :: name
-    class(point_zone_t), pointer :: pz
-    logical :: found
+    class(*), pointer :: pz
+    logical :: found = .false.
     integer :: i
 
     do i=1, this%n_point_zones()

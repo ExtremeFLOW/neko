@@ -39,7 +39,6 @@ module box_point_zone
   use json_utils, only: json_get
   use json_module, only: json_file
   use math, only: abscmp
-  use logger, only: neko_log
   implicit none
   private
 
@@ -77,8 +76,6 @@ contains
     zmin = values(1)
     zmax = values(2)
     call json_get(json, "name", str_read)
-
-    call neko_log%message("INIT BOX "//trim(str_read))
 
     call box_point_zone_init_common(this, dof%size(), trim(str_read), xmin, &
          xmax, ymin, ymax, zmin, zmax)
@@ -139,19 +136,18 @@ contains
     logical :: in_x, in_y, in_z
 
     ! inside x if xmin <= x <= xmax
-    in_x = ( (x .gt. this%xmin .or. abscmp(x, this%xmin)) .or. &
-             (x .lt. this%xmax .or. abscmp(x, this%xmax)))
+    in_x = ( (x .gt. this%xmin .and. x .lt. this%xmax) .or. &
+             (abscmp(x, this%xmin) .or. abscmp(x, this%xmax)))
 
     ! inside y if ymin <= y <= ymax
-    in_y = ( (y .gt. this%ymin .or. abscmp(y, this%ymin)) .or. &
-             (y .lt. this%ymax .or. abscmp(y, this%ymax)))
+    in_y = ( (y .gt. this%ymin .and. y .lt. this%ymax) .or. &
+             (abscmp(y, this%ymin) .or. abscmp(y, this%ymax)))
 
     ! inside z if zmin <= z <= zmax
-    in_z = ( (z .gt. this%zmin .or. abscmp(z, this%zmin)) .or. &
-             (z .lt. this%zmax .or. abscmp(z, this%zmax)))
+    in_z = ( (z .gt. this%zmin .and. z .lt. this%zmax) .or. &
+             (abscmp(z, this%zmin) .or. abscmp(z, this%zmax)))
 
     is_inside = in_x .and. in_y .and. in_z
-
   end function box_point_zone_criterion
 
 end module box_point_zone

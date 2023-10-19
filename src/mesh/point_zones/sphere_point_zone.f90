@@ -39,7 +39,6 @@ module sphere_point_zone
   use json_utils, only: json_get
   use json_module, only: json_file
   use math, only: abscmp
-  use logger, only: neko_log
   implicit none
   private
 
@@ -74,7 +73,6 @@ contains
     radius = value
     call json_get(json, "name", str_read)
 
-    call neko_log%message("INIT SPHERE "//trim(str_read))
     call sphere_point_zone_init_common(this, dof%size(), trim(str_read), x0, &
          y0, z0, radius)
 

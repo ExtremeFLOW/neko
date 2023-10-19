@@ -2,7 +2,7 @@
 "version": 1.0,
 "case": {
     "mesh_file": "box.nmsh",
-    "output_at_end": false,
+    "output_at_end": true,
     "output_boundary": false,
     "end_time": 2e-3,
     "timestep": 2e-3,
@@ -20,7 +20,7 @@
         "rho": 1,
         "mu": 1,
         "initial_condition": {
-            "type": "uniform",
+            "type": "user",
 	    "value": [1.0, 0.0, 0.0]
         },
         "velocity_solver": {
@@ -40,20 +40,26 @@
         "output_control": "simulationtime",
         "output_value": 1,
     },
+    "scalar": {
+	"enabled": true,
+	"Pr": 1.0,
+	"lambda": 1.0,
+	"cp": 1.0
+    },
     "point_zones": 
     [
       {
   	"name": "myzone",
 	"geometry": "box",
 	"x_bounds": [0.4, 0.6],  
-	"y_bounds": [0.0, 1.0],  
-	"z_bounds": [0.1, 0.8]  
+	"y_bounds": [0.4, 0.6],  
+	"z_bounds": [0.4, 0.6]  
       },
       {
   	"name": "mysphere",
 	"geometry": "sphere",
-	"center": [0.5, 0.5, 0.5],
-	"radius": 0.2  
+	"center": [0.15, 0.15, 0.15],
+	"radius": 0.2
       }
    ],
   }

@@ -45,7 +45,7 @@ module point_zone
      type(stack_i4_t), private :: scratch
      integer :: size = 0
      logical, private :: finalized = .false.
-     character(len=200) :: name
+     character(len=80) :: name
    contains
      procedure, pass(this) :: init_base => point_zone_init_base
      procedure, pass(this) :: free_base => point_zone_free_base
@@ -59,6 +59,10 @@ module point_zone
      procedure(point_zone_criterion), pass(this), deferred :: criterion
      
   end type point_zone_t
+
+  type, public :: point_zone_wrapper_t
+     class(point_zone_t), allocatable :: pz
+  end type point_zone_wrapper_t
 
   abstract interface
      pure function point_zone_criterion(this, x, y, z, ix, iy, iz, ie) result(is_inside)
