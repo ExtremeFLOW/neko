@@ -32,11 +32,12 @@
 !
 !> Connectivity edge type
 module edge
-  use num_types, only : i2, i4
+  use num_types, only : i4
   use utils, only : neko_error
   use polytope, only : polytope_t
   use vertex, only : vertex_t, vertex_ptr
-  use alignment_edge, only : alignment_edge_t
+  use alignment_edge, only : alignment_edge_t, algn_edge_proc_i4_ptr,&
+       & algn_edge_proc_i8_ptr, algn_edge_proc_dp_ptr
   implicit none
   private
 
@@ -87,8 +88,15 @@ module edge
      !> edge pointer
      type(edge_ptr) :: edge
      !> Relative edge alignment
-     integer(i2) :: alignment = -1
-     !> alignment operator
+     integer(i4) :: alignment = -1
+     !> edge specific transformations
+     type(algn_edge_proc_i4_ptr) :: trns_f_i4, trns_i_i4, trns_inv_f_i4,&
+          & trns_inv_i_i4
+     type(algn_edge_proc_i8_ptr) :: trns_f_i8, trns_i_i8, trns_inv_f_i8,&
+          & trns_inv_i_i8
+     type(algn_edge_proc_dp_ptr) :: trns_f_dp, trns_i_dp, trns_inv_f_dp,&
+          & trns_inv_i_dp
+     !> general alignment operator
      type(alignment_edge_t) :: algn_op
    contains
      !> Initialise aligned edge
@@ -209,7 +217,7 @@ contains
     class(edge_t), intent(in) :: this
     class(polytope_t), intent(in) :: other
     logical, intent(out) :: equal
-    integer(i2), intent(out) :: algn
+    integer(i4), intent(out) :: algn
     type(alignment_edge_t) :: algn_op
     integer(i4), dimension(2) :: trans = [1, 2]
 
@@ -221,15 +229,16 @@ contains
        equal = (this%id() == other%id())
        ! sanity check; check vertices discarding orientation
        if (equal) then
+          call algn_op%init()
           select type(other)
           type is (edge_t)
              ! check all the alignment options
              do algn = 0, algn_op%nop()
-                call algn_op%trans_i4(.true., algn, 2, trans)
+                call algn_op%trns_f_i4(algn)%obj(2, trans)
                 equal = (this%facet(1)%obj.eq.other%facet(trans(1))%obj).and.&
                      &(this%facet(2)%obj.eq.other%facet(trans(2))%obj)
                 if (equal) return
-                call algn_op%trans_inv_i4(.true., algn, 2, trans)
+                call algn_op%trns_inv_f_i4(algn)%obj(2, trans)
              end do
           class default
              equal = .false.
@@ -253,7 +262,7 @@ contains
     class(edge_t), intent(in) :: this
     class(polytope_t), intent(in) :: other
     logical :: equal
-    integer(i2) :: algn
+    integer(i4) :: algn
 
     call this%eq_algn(other, equal, algn)
 
@@ -266,13 +275,27 @@ contains
   subroutine edge_aligned_init(this, edge, algn)
     class(edge_aligned_t), intent(inout) :: this
     type(edge_t), intent(in), target :: edge
-    integer(i2), intent(in) :: algn
+    integer(i4), intent(in) :: algn
 
     call this%free()
-
+    ! set global edge pointer
     this%edge%obj => edge
+    ! set relative alignment transformation
+    call this%algn_op%init()
     if ((algn >= 0).and.(algn <= this%algn_op%nop())) then
        this%alignment = algn
+       this%trns_f_i4%obj => this%algn_op%trns_f_i4(algn)%obj
+       this%trns_i_i4%obj => this%algn_op%trns_i_i4(algn)%obj
+       this%trns_inv_f_i4%obj => this%algn_op%trns_inv_f_i4(algn)%obj
+       this%trns_inv_i_i4%obj => this%algn_op%trns_inv_i_i4(algn)%obj
+       this%trns_f_i8%obj => this%algn_op%trns_f_i8(algn)%obj
+       this%trns_i_i8%obj => this%algn_op%trns_i_i8(algn)%obj
+       this%trns_inv_f_i8%obj => this%algn_op%trns_inv_f_i8(algn)%obj
+       this%trns_inv_i_i8%obj => this%algn_op%trns_inv_i_i8(algn)%obj
+       this%trns_f_dp%obj => this%algn_op%trns_f_dp(algn)%obj
+       this%trns_i_dp%obj => this%algn_op%trns_i_dp(algn)%obj
+       this%trns_inv_f_dp%obj => this%algn_op%trns_inv_f_dp(algn)%obj
+       this%trns_inv_i_dp%obj => this%algn_op%trns_inv_i_dp(algn)%obj
     else
        call neko_error('Not proper alignment.')
     end if
@@ -286,6 +309,18 @@ contains
 
     this%edge%obj => null()
     this%alignment = -1
+    this%trns_f_i4%obj => null()
+    this%trns_i_i4%obj => null()
+    this%trns_inv_f_i4%obj => null()
+    this%trns_inv_i_i4%obj => null()
+    this%trns_f_i8%obj => null()
+    this%trns_i_i8%obj => null()
+    this%trns_inv_f_i8%obj => null()
+    this%trns_inv_i_i8%obj => null()
+    this%trns_f_dp%obj => null()
+    this%trns_i_dp%obj => null()
+    this%trns_inv_f_dp%obj => null()
+    this%trns_inv_i_dp%obj => null()
 
     return
   end subroutine edge_aligned_free
@@ -323,7 +358,7 @@ contains
        vrt(2) = this%edge%obj%facet(2)%obj%id()
        vrto(1) = other%facet(1)%obj%id()
        vrto(2) = other%facet(2)%obj%id()
-       call this%algn_op%trans_i4(.true., this%alignment, 2, vrto)
+       call this%trns_f_i4%obj( 2, vrto)
        aligned = (vrt(1) == vrto(1)).and.(vrt(2) == vrto(2))
     else
        call neko_error('Edges not equal')

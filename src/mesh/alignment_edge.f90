@@ -32,170 +32,297 @@
 !
 !> Edge alignment operators
 module alignment_edge
-  use num_types, only : i2, i4, i8, dp
+  use num_types, only : i4, i8, dp
   use utils, only : neko_error
   implicit none
   private
 
-  public :: alignment_edge_t
+  public :: alignment_edge_t, algn_edge_proc_i4_ptr, algn_edge_proc_i8_ptr,&
+       & algn_edge_proc_dp_ptr
 
   !> number of operations different from identity
-  integer(i2), parameter :: NEKO_EDGE_NOPERATION = 1
+  integer(i4), parameter :: NEKO_EDGE_NOPERATION = 1
+
+  !> procedure pointer type; i4
+  type :: algn_edge_proc_i4_ptr
+     procedure(transform_i4), pointer, nopass :: obj
+  end type algn_edge_proc_i4_ptr
+  !> procedure pointer type; i8
+  type :: algn_edge_proc_i8_ptr
+     procedure(transform_i8), pointer, nopass :: obj
+  end type algn_edge_proc_i8_ptr
+  !> procedure pointer type; dp
+  type :: algn_edge_proc_dp_ptr
+     procedure(transform_dp), pointer, nopass :: obj
+  end type algn_edge_proc_dp_ptr
 
   !> Type containing set of edge alignment operators
+  !! @details There are two main operations : identity (I) and row
+  !! permutation (P).
+  !! @note In this case inverse operators are not necessary, but I keep
+  !! code consistent with quad structure. The same about identity operation.
+  !! It is not really needed, but i keep it just to have it complete.
   type :: alignment_edge_t
      !> number of different operations excluding identity
-     integer(i2), private :: noperation_ = NEKO_EDGE_NOPERATION
+     integer(i4), private :: noperation_ = NEKO_EDGE_NOPERATION
+     !> Direct array transformations for whole array
+     type(algn_edge_proc_i4_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_f_i4
+     type(algn_edge_proc_i8_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_f_i8
+     type(algn_edge_proc_dp_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_f_dp
+     !> Direct array transformations for array interior
+     type(algn_edge_proc_i4_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_i_i4
+     type(algn_edge_proc_i8_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_i_i8
+     type(algn_edge_proc_dp_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_i_dp
+     !> Inverse array transformations for whole array
+     type(algn_edge_proc_i4_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_inv_f_i4
+     type(algn_edge_proc_i8_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_inv_f_i8
+     type(algn_edge_proc_dp_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_inv_f_dp
+     !> Inverse array transformations for array interior
+     type(algn_edge_proc_i4_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_inv_i_i4
+     type(algn_edge_proc_i8_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_inv_i_i8
+     type(algn_edge_proc_dp_ptr),&
+          & dimension(0 : NEKO_EDGE_NOPERATION) :: trns_inv_i_dp
    contains
-     !> return number of operations
+     !> Initialise procedure pointers
+     procedure, pass(this) :: init => edge_init
+     !> Return number of operations
      procedure, pass(this) :: nop => edge_noperation_get
-     !> array transformation
-     procedure, pass(this) :: trans_i4 => transform_edge_i4
-     procedure, pass(this) :: trans_i8 => transform_edge_i8
-     procedure, pass(this) :: trans_dp => transform_edge_dp
-     !> general transformation
-     generic :: trans => trans_i4, trans_i8, trans_dp
-     !> inverse array transformation
-     procedure, pass(this) :: trans_inv_i4 => transform_edge_i4
-     procedure, pass(this) :: trans_inv_i8 => transform_edge_i8
-     procedure, pass(this) :: trans_inv_dp => transform_edge_dp
-     !> general transformation
-     generic :: trans_inv => trans_inv_i4, trans_inv_i8, trans_inv_dp
   end type alignment_edge_t
 
+  ! Abstract types for different transformations; various types
+  abstract interface
+     pure subroutine transform_i4(sz, edg)
+       import i4
+       integer(i4), intent(in) :: sz
+       integer(i4), dimension(sz), intent(inout) :: edg
+     end subroutine transform_i4
+
+     pure subroutine transform_i8(sz, edg)
+       import i4
+       import i8
+       integer(i4), intent(in) :: sz
+       integer(i8), dimension(sz), intent(inout) :: edg
+     end subroutine transform_i8
+
+     pure subroutine transform_dp(sz, edg)
+       import i4
+       import dp
+       integer(i4), intent(in) :: sz
+       real(dp), dimension(sz), intent(inout) :: edg
+     end subroutine transform_dp
+  end interface
+
 contains
+  !> @brief Initialise procedure pointers
+  subroutine edge_init(this)
+    class(alignment_edge_t), intent(inout) :: this
+
+    ! Identity transformation is added for completeness; in general not needed
+    ! Direct transformation of full array, different types
+    this%trns_f_i4(0)%obj => transform_edge_I_i4
+    this%trns_f_i4(1)%obj => transform_edge_P_full_i4
+    this%trns_f_i8(0)%obj => transform_edge_I_i8
+    this%trns_f_i8(1)%obj => transform_edge_P_full_i8
+    this%trns_f_dp(0)%obj => transform_edge_I_dp
+    this%trns_f_dp(1)%obj => transform_edge_P_full_dp
+    ! Direct transformation of array interior, different types
+    this%trns_i_i4(0)%obj => transform_edge_I_i4
+    this%trns_i_i4(1)%obj => transform_edge_P_int_i4
+    this%trns_i_i8(0)%obj => transform_edge_I_i8
+    this%trns_i_i8(1)%obj => transform_edge_P_int_i8
+    this%trns_i_dp(0)%obj => transform_edge_I_dp
+    this%trns_i_dp(1)%obj => transform_edge_P_int_dp
+    ! Inverse transformation of full array, different types
+    this%trns_inv_f_i4(0)%obj => transform_edge_I_i4
+    this%trns_inv_f_i4(1)%obj => transform_edge_P_full_i4
+    this%trns_inv_f_i8(0)%obj => transform_edge_I_i8
+    this%trns_inv_f_i8(1)%obj => transform_edge_P_full_i8
+    this%trns_inv_f_dp(0)%obj => transform_edge_I_dp
+    this%trns_inv_f_dp(1)%obj => transform_edge_P_full_dp
+    ! Inverse transformation of array interior, different types
+    this%trns_inv_i_i4(0)%obj => transform_edge_I_i4
+    this%trns_inv_i_i4(1)%obj => transform_edge_P_int_i4
+    this%trns_inv_i_i8(0)%obj => transform_edge_I_i8
+    this%trns_inv_i_i8(1)%obj => transform_edge_P_int_i8
+    this%trns_inv_i_dp(0)%obj => transform_edge_I_dp
+    this%trns_inv_i_dp(1)%obj => transform_edge_P_int_dp
+
+    return
+  end subroutine edge_init
+
   !> @brief Get number of operations
   !! @return   noperation
   pure function edge_noperation_get(this) result(noperation)
     class(alignment_edge_t), intent(in) :: this
-    integer(i2) :: noperation
+    integer(i4) :: noperation
     noperation = this%noperation_
   end function edge_noperation_get
 
-  !> @brief Transform single integer array rank 1
-  !! @parameter[in]     ifbnd    do we include boundary points
-  !! @parameter[in]     algn     edge relative alignment
+  !> @brief Identity transformation, single integer array
   !! @parameter[in]     sz       array size
   !! @parameter[inout]  edg      edge data
-  subroutine transform_edge_i4(this, ifbnd, algn, sz, edg)
-    class(alignment_edge_t), intent(in) :: this
-    logical, intent(in) :: ifbnd
-    integer(i2), intent(in) :: algn
+  pure subroutine transform_edge_I_i4(sz, edg)
+    integer(i4), intent(in) :: sz
+    integer(i4), dimension(sz), intent(inout) :: edg
+
+    return
+  end subroutine transform_edge_I_i4
+
+  !> @brief Permutation transformation, single integer, full array
+  !! @parameter[in]     sz       array size
+  !! @parameter[inout]  edg      edge data
+  pure subroutine transform_edge_P_full_i4(sz, edg)
     integer(i4), intent(in) :: sz
     integer(i4), dimension(sz), intent(inout) :: edg
     ! local variables
     integer(i4) :: istart, il, itmp1, itmp2
     integer(i4) :: iedg
 
-    ! check alignment type; zero means identity; nothing to do
-    if (algn /= 0) then
-       ! do we work on boundary points?
-       if (ifbnd) then
-          istart = 1
-       else
-          istart = 2
-       end if
-       ! apply transformations
-       ! P - permutation
-       select case(algn)
-       case(1) ! P
-          itmp1 = sz + 1
-          do il = istart, sz/2
-             itmp2 = itmp1 - il
-             iedg = edg(il)
-             edg(il) = edg(itmp2)
-             edg(itmp2) = iedg
-          end do
-       case default
-          call neko_error('Edge alignment not initialised properly')
-       end select
-    end if
+    itmp1 = sz + 1
+    do il = 1, sz/2
+       itmp2 = itmp1 - il
+       iedg = edg(il)
+       edg(il) = edg(itmp2)
+       edg(itmp2) = iedg
+    end do
 
     return
-  end subroutine transform_edge_i4
+  end subroutine transform_edge_P_full_i4
 
-  !> @brief Transform double integer array rank 1
-  !! @parameter[in]     ifbnd    do we include boundary points
-  !! @parameter[in]     algn     edge relative alignment
+  !> @brief Permutation transformation, single integer, array interior
   !! @parameter[in]     sz       array size
   !! @parameter[inout]  edg      edge data
-  subroutine transform_edge_i8(this, ifbnd, algn, sz, edg)
-    class(alignment_edge_t), intent(in) :: this
-    logical, intent(in) :: ifbnd
-    integer(i2), intent(in) :: algn
+  pure subroutine transform_edge_P_int_i4(sz, edg)
+    integer(i4), intent(in) :: sz
+    integer(i4), dimension(sz), intent(inout) :: edg
+    ! local variables
+    integer(i4) :: istart, il, itmp1, itmp2
+    integer(i4) :: iedg
+
+    itmp1 = sz + 1
+    do il = 2, sz/2
+       itmp2 = itmp1 - il
+       iedg = edg(il)
+       edg(il) = edg(itmp2)
+       edg(itmp2) = iedg
+    end do
+
+    return
+  end subroutine transform_edge_P_int_i4
+
+  !> @brief Identity transformation, double integer array
+  !! @parameter[in]     sz       array size
+  !! @parameter[inout]  edg      edge data
+  pure subroutine transform_edge_I_i8(sz, edg)
+    integer(i4), intent(in) :: sz
+    integer(i8), dimension(sz), intent(inout) :: edg
+
+    return
+  end subroutine transform_edge_I_i8
+
+  !> @brief Permutation transformation, double integer, full array
+  !! @parameter[in]     sz       array size
+  !! @parameter[inout]  edg      edge data
+  pure subroutine transform_edge_P_full_i8(sz, edg)
     integer(i4), intent(in) :: sz
     integer(i8), dimension(sz), intent(inout) :: edg
     ! local variables
-    integer(i4) :: istart, il, itmp1, itmp2
+    integer(i4) :: il, itmp1, itmp2
     integer(i8) :: iedg
 
-    ! check alignment type; zero means identity; nothing to do
-    if (algn /= 0) then
-       ! do we work on boundary points?
-       if (ifbnd) then
-          istart = 1
-       else
-          istart = 2
-       end if
-       ! apply transformations
-       ! P - permutation
-       select case(algn)
-       case(1) ! P
-          itmp1 = sz + 1
-          do il = istart, sz/2
-             itmp2 = itmp1 - il
-             iedg = edg(il)
-             edg(il) = edg(itmp2)
-             edg(itmp2) = iedg
-          end do
-       case default
-          call neko_error('Edge alignment not initialised properly')
-       end select
-    end if
+    itmp1 = sz + 1
+    do il = 1, sz/2
+       itmp2 = itmp1 - il
+       iedg = edg(il)
+       edg(il) = edg(itmp2)
+       edg(itmp2) = iedg
+    end do
 
     return
-  end subroutine transform_edge_i8
+  end subroutine transform_edge_P_full_i8
 
-  !> @brief Transform double real array rank 1
-  !! @parameter[in]     ifbnd    do we include boundary points
-  !! @parameter[in]     algn     edge relative alignment
+  !> @brief Permutation transformation, double integer, array interior
   !! @parameter[in]     sz       array size
   !! @parameter[inout]  edg      edge data
-  subroutine transform_edge_dp(this, ifbnd, algn, sz, edg)
-    class(alignment_edge_t), intent(in) :: this
-    logical, intent(in) :: ifbnd
-    integer(i2), intent(in) :: algn
+  pure subroutine transform_edge_P_int_i8(sz, edg)
+    integer(i4), intent(in) :: sz
+    integer(i8), dimension(sz), intent(inout) :: edg
+    ! local variables
+    integer(i4) :: il, itmp1, itmp2
+    integer(i8) :: iedg
+
+    itmp1 = sz + 1
+    do il = 2, sz/2
+       itmp2 = itmp1 - il
+       iedg = edg(il)
+       edg(il) = edg(itmp2)
+       edg(itmp2) = iedg
+    end do
+
+    return
+  end subroutine transform_edge_P_int_i8
+
+  !> @brief Identity transformation, double precision array
+  !! @parameter[in]     sz       array size
+  !! @parameter[inout]  edg      edge data
+  pure subroutine transform_edge_I_dp(sz, edg)
+    integer(i4), intent(in) :: sz
+    real(dp), dimension(sz), intent(inout) :: edg
+
+    return
+  end subroutine transform_edge_I_dp
+
+  !> @brief Permutation transformation, double precision, full array
+  !! @parameter[in]     sz       array size
+  !! @parameter[inout]  edg      edge data
+  pure subroutine transform_edge_P_full_dp(sz, edg)
     integer(i4), intent(in) :: sz
     real(dp), dimension(sz), intent(inout) :: edg
     ! local variables
-    integer(i4) :: istart, il, itmp1, itmp2
+    integer(i4) :: il, itmp1, itmp2
     real(dp) :: redg
 
-    ! check alignment type; zero means identity; nothing to do
-    if (algn /= 0) then
-       ! do we work on boundary points?
-       if (ifbnd) then
-          istart = 1
-       else
-          istart = 2
-       end if
-       ! apply transformations
-       ! P - permutation
-       select case(algn)
-       case(1) ! P
-          itmp1 = sz + 1
-          do il = istart, sz/2
-             itmp2 = itmp1 - il
-             redg = edg(il)
-             edg(il) = edg(itmp2)
-             edg(itmp2) = redg
-          end do
-       case default
-          call neko_error('Edge alignment not initialised properly')
-       end select
-    end if
+    itmp1 = sz + 1
+    do il = 1, sz/2
+       itmp2 = itmp1 - il
+       redg = edg(il)
+       edg(il) = edg(itmp2)
+       edg(itmp2) = redg
+    end do
 
     return
-  end subroutine transform_edge_dp
+  end subroutine transform_edge_P_full_dp
+
+  !> @brief Permutation transformation, double precision, array interior
+  !! @parameter[in]     sz       array size
+  !! @parameter[inout]  edg      edge data
+  pure subroutine transform_edge_P_int_dp(sz, edg)
+    integer(i4), intent(in) :: sz
+    real(dp), dimension(sz), intent(inout) :: edg
+    ! local variables
+    integer(i4) :: il, itmp1, itmp2
+    real(dp) :: redg
+
+    itmp1 = sz + 1
+    do il = 2, sz/2
+       itmp2 = itmp1 - il
+       redg = edg(il)
+       edg(il) = edg(itmp2)
+       edg(itmp2) = redg
+    end do
+
+    return
+  end subroutine transform_edge_P_int_dp
 
 end module alignment_edge
