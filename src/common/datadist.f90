@@ -42,8 +42,8 @@ module datadist
      integer :: pe_size     !< Size of communicator in the given dist.
      integer :: L               
      integer :: R
-     integer :: M
-     integer :: Ip
+     integer :: M !< Total, global, size
+     integer :: Ip !< Number of local values on this process
   end type dist_t
 
   !> Load-balanced linear distribution \f$ M = PL + R \f$
