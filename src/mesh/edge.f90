@@ -163,7 +163,7 @@ contains
     class(edge_t), intent(in) :: this
     logical :: selfp
 
-    selfp = this%facet(1)%obj.eq.this%facet(2)%obj
+    selfp = this%facet(1)%obj%id() == this%facet(2)%obj%id()
 
     return
   end function edge_self_periodic
@@ -227,7 +227,8 @@ contains
     if (equal) then
        ! check global id
        equal = (this%id() == other%id())
-       ! sanity check; check vertices discarding orientation
+       ! check vertices getting possible orientation (doesn't work for
+       ! self-periodic)
        if (equal) then
           call algn_op%init()
           select type(other)
