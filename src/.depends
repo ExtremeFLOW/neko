@@ -53,12 +53,12 @@ mesh/mesh.o : mesh/mesh.f90 mesh/curve.o adt/uset.o math/math.o mesh/zone.o comm
 mesh/octree.o : mesh/octree.f90 common/utils.o mesh/point.o config/num_types.o 
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o 
-mesh/alignment.o : mesh/alignment.f90 config/num_types.o common/utils.o 
-mesh/alignment_edge.o : mesh/alignment_edge.f90 config/num_types.o common/utils.o mesh/alignment.o 
-mesh/alignment_quad.o : mesh/alignment_quad.f90 config/num_types.o common/utils.o mesh/alignment.o 
+mesh/alignment_edge.o : mesh/alignment_edge.f90 config/num_types.o common/utils.o 
+mesh/alignment_quad.o : mesh/alignment_quad.f90 config/num_types.o common/utils.o 
 mesh/polytope.o : mesh/polytope.f90 common/utils.o config/num_types.o mesh/entity.o 
 mesh/vertex.o : mesh/vertex.f90 config/num_types.o mesh/polytope.o 
 mesh/edge.o : mesh/edge.f90 config/num_types.o mesh/polytope.o mesh/vertex.o mesh/alignment_edge.o 
+mesh/face.o : mesh/face.f90 config/num_types.o mesh/polytope.o mesh/vertex.o mesh/edge.o 
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 
 field/scratch_registry.o : field/scratch_registry.f90 common/utils.o sem/dofmap.o field/field.o config/num_types.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 

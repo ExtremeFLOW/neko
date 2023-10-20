@@ -1,14 +1,14 @@
 @test
 subroutine test_alignment_edge_i4
   use pfunit
-  use num_types, only : i4, i8, dp
+  use num_types, only : i2, i4, i8, dp
   use alignment_edge, only : alignment_edge_t
   implicit none
   type(alignment_edge_t) :: edge
   integer(i4), parameter :: sz = 5
   integer(i4), dimension(sz) :: edg
   integer(i4), dimension(sz, 2) :: edg_bnd, edg_int
-  integer(i4) :: il, jl
+  integer(i2) :: il, jl
 
   ! initialise various operations
   ! I - identity
@@ -27,38 +27,34 @@ subroutine test_alignment_edge_i4
   edg_int(1, 2) = edg_bnd(1, 1)
   edg_int(sz, 2) = edg_bnd(sz, 1)
 
-  ! initialise edge
-  call edge%init()
+  ! check number of operations
+  @assertEqual(int(edge%nop(), i4), 1_i4)
 
   ! full edge test
-  do il = 1, 2
-     call edge%set_algn(il - 1)
+  do il = 0, edge%nop()
      ! direct
      edg(:) = edg_bnd(:, 1)
-     call edge%trans(.true., edg)
-     @assertEqual(edge%algn(), il -1)
+     call edge%trans(.true., il, sz, edg)
      do jl = 1, sz
-        @assertEqual(edg(jl), edg_bnd(jl, il))
+        @assertEqual(edg(jl), edg_bnd(jl, il + 1))
      end do
      ! inverse
-     call edge%trans_inv(.true., edg)
+     call edge%trans_inv(.true., il, sz, edg)
      do jl = 1, sz
         @assertEqual(edg(jl), edg_bnd(jl, 1))
      end do
   end do
 
   ! interior edge test
-  do il = 1, 2
-     call edge%set_algn(il - 1)
+  do il = 0, edge%nop()
      ! direct
      edg(:) = edg_bnd(:, 1)
-     call edge%trans(.false., edg)
-     @assertEqual(edge%algn(), il -1)
+     call edge%trans(.false., il, sz, edg)
      do jl = 1, sz
-        @assertEqual(edg(jl), edg_int(jl, il))
+        @assertEqual(edg(jl), edg_int(jl, il + 1))
      end do
      ! inverse
-     call edge%trans_inv(.false., edg)
+     call edge%trans_inv(.false., il, sz, edg)
      do jl = 1, sz
         @assertEqual(edg(jl), edg_bnd(jl, 1))
      end do
@@ -69,14 +65,14 @@ end subroutine test_alignment_edge_i4
 @test
 subroutine test_alignment_edge_i8
   use pfunit
-  use num_types, only : i4, i8, dp
+  use num_types, only : i2, i4, i8, dp
   use alignment_edge, only : alignment_edge_t
   implicit none
   type(alignment_edge_t) :: edge
   integer(i4), parameter :: sz = 4
   integer(i8), dimension(sz) :: edg
   integer(i8), dimension(sz, 2) :: edg_bnd, edg_int
-  integer(i4) :: il, jl
+  integer(i2) :: il, jl
 
   ! initialise various operations
   ! I - identity
@@ -95,38 +91,34 @@ subroutine test_alignment_edge_i8
   edg_int(1, 2) = edg_bnd(1, 1)
   edg_int(sz, 2) = edg_bnd(sz, 1)
 
-  ! initialise edge
-  call edge%init()
+  ! check number of operations
+  @assertEqual(int(edge%nop(), i4), 1)
 
   ! full edge test
-  do il = 1, 2
-     call edge%set_algn(il - 1)
+  do il = 0, edge%nop()
      ! direct
      edg(:) = edg_bnd(:, 1)
-     call edge%trans(.true., edg)
-     @assertEqual(edge%algn(), il -1)
+     call edge%trans(.true., il, sz, edg)
      do jl = 1, sz
-        @assertEqual(edg(jl), edg_bnd(jl, il))
+        @assertEqual(edg(jl), edg_bnd(jl, il + 1))
      end do
      ! inverse
-     call edge%trans_inv(.true., edg)
+     call edge%trans_inv(.true., il, sz, edg)
      do jl = 1, sz
         @assertEqual(edg(jl), edg_bnd(jl, 1))
      end do
   end do
 
   ! interior edge test
-  do il = 1, 2
-     call edge%set_algn(il - 1)
+  do il = 0, edge%nop()
      ! direct
      edg(:) = edg_bnd(:, 1)
-     call edge%trans(.false., edg)
-     @assertEqual(edge%algn(), il -1)
+     call edge%trans(.false., il, sz, edg)
      do jl = 1, sz
-        @assertEqual(edg(jl), edg_int(jl, il))
+        @assertEqual(edg(jl), edg_int(jl, il + 1))
      end do
      ! inverse
-     call edge%trans_inv(.false., edg)
+     call edge%trans_inv(.false., il, sz, edg)
      do jl = 1, sz
         @assertEqual(edg(jl), edg_bnd(jl, 1))
      end do
@@ -137,14 +129,14 @@ end subroutine test_alignment_edge_i8
 @test
 subroutine test_alignment_edge_dp
   use pfunit
-  use num_types, only : i4, i8, dp
+  use num_types, only : i2, i4, i8, dp
   use alignment_edge, only : alignment_edge_t
   implicit none
   type(alignment_edge_t) :: edge
   integer(i4), parameter :: sz = 4
   real(dp), dimension(sz) :: edg
   real(dp), dimension(sz, 2) :: edg_bnd, edg_int
-  integer(i4) :: il, jl
+  integer(i2) :: il, jl
 
   ! initialise various operations
   ! I - identity
@@ -163,38 +155,34 @@ subroutine test_alignment_edge_dp
   edg_int(1, 2) = edg_bnd(1, 1)
   edg_int(sz, 2) = edg_bnd(sz, 1)
 
-  ! initialise edge
-  call edge%init()
+  ! check number of operations
+  @assertEqual(int(edge%nop(), i4), 1)
 
   ! full edge test
-  do il = 1, 2
-     call edge%set_algn(il - 1)
+  do il = 0, edge%nop()
      ! direct
      edg(:) = edg_bnd(:, 1)
-     call edge%trans(.true., edg)
-     @assertEqual(edge%algn(), il -1)
+     call edge%trans(.true., il, sz, edg)
      do jl = 1, sz
-        @assertEqual(edg(jl), edg_bnd(jl, il), tolerance=1d-14)
+        @assertEqual(edg(jl), edg_bnd(jl, il + 1), tolerance=1d-14)
      end do
      ! inverse
-     call edge%trans_inv(.true., edg)
+     call edge%trans_inv(.true., il, sz, edg)
      do jl = 1, sz
         @assertEqual(edg(jl), edg_bnd(jl, 1), tolerance=1d-14)
      end do
   end do
 
   ! interior edge test
-  do il = 1, 2
-     call edge%set_algn(il - 1)
+  do il = 0, edge%nop()
      ! direct
      edg(:) = edg_bnd(:, 1)
-     call edge%trans(.false., edg)
-     @assertEqual(edge%algn(), il -1)
+     call edge%trans(.false., il, sz, edg)
      do jl = 1, sz
-        @assertEqual(edg(jl), edg_int(jl, il), tolerance=1d-14)
+        @assertEqual(edg(jl), edg_int(jl, il + 1), tolerance=1d-14)
      end do
      ! inverse
-     call edge%trans_inv(.false., edg)
+     call edge%trans_inv(.false., il, sz, edg)
      do jl = 1, sz
         @assertEqual(edg(jl), edg_bnd(jl, 1), tolerance=1d-14)
      end do

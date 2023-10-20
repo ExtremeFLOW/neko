@@ -40,7 +40,7 @@ module edge
   implicit none
   private
 
-  public :: edge_t, edge_ptr, edge_aligned_t
+  public :: edge_t, edge_ptr, edge_aligned_t, edge_aligned_ptr
 
   ! object information
   integer(i4), parameter :: NEKO_EDGE_DIM = 1
@@ -70,6 +70,8 @@ module edge
      procedure, pass(this) :: fct => edge_facet
      !> Return vertices shared by edges
      procedure, pass(this) :: fct_share => edge_facet_share
+     !> Get alignment info
+     procedure, pass(this) :: eq_algn => edge_equal_align
      !> Edge equality including vertex information
      procedure, pass(this) :: equal => edge_equal
      generic :: operator(.eq.) => equal
@@ -82,8 +84,12 @@ module edge
 
   !> Edge with alignment information
   type :: edge_aligned_t
+     !> edge pointer
      type(edge_ptr) :: edge
-     type(alignment_edge_t) :: algn
+     !> Relative edge alignment
+     integer(i2) :: alignment = -1
+     !> alignment operator
+     type(alignment_edge_t) :: algn_op
    contains
      !> Initialise aligned edge
      procedure, pass(this) :: init => edge_aligned_init
@@ -91,9 +97,16 @@ module edge
      procedure, pass(this) :: free => edge_aligned_free
      !> Return edge pointer
      procedure, pass(this) :: edgep => edge_aligned_edgep
+     !> Return edge relative alignment
+     procedure, pass(this) :: algn => edge_aligned_alignment_get
      !> Test alignment
      procedure, pass(this) :: test => edge_aligned_test
   end type edge_aligned_t
+
+  !> Pointer to an aligned edge type
+  type ::  edge_aligned_ptr
+     type(edge_aligned_t), pointer :: obj
+  end type edge_aligned_ptr
 
 contains
 
@@ -171,42 +184,36 @@ contains
     class(edge_t), intent(in) :: this, other
     integer(i4), intent(out) :: ishare
     integer(i4), dimension(2, 4), intent(out) :: facetp
+    integer(i4) :: il, jl
 
     ishare = 0
     facetp(:,:) = 0
-    if (this%facet(1)%obj%id() == other%facet(1)%obj%id()) then
-       ishare = ishare + 1
-       facetp(1,ishare) = 1
-       facetp(2,ishare) = 1
-    end if
-    if (this%facet(1)%obj%id() == other%facet(2)%obj%id()) then
-       ishare = ishare + 1
-       facetp(1,ishare) = 1
-       facetp(2,ishare) = 2
-    end if
-    if (this%facet(2)%obj%id() == other%facet(1)%obj%id()) then
-       ishare = ishare + 1
-       facetp(1,ishare) = 2
-       facetp(2,ishare) = 1
-    end if
-    if (this%facet(2)%obj%id() == other%facet(2)%obj%id()) then
-       ishare = ishare + 1
-       facetp(1,ishare) = 2
-       facetp(2,ishare) = 2
-    end if
+    do il = 1, this%nfacet
+       do jl = 1, other%nfacet
+          if (this%facet(il)%obj%id() == other%facet(jl)%obj%id()) then
+             ishare = ishare + 1
+             facetp(1,ishare) = il
+             facetp(2,ishare) = jl
+          end if
+       end do
+    end do
 
     return
   end subroutine edge_facet_share
 
   !> @brief Check if two edges are the same
-  !! @note No special treatment of self-periodic edges
+  !! @note Alignment for self-periodic edges will not be correct
   !! @parameter[in]  other    second edge
   !! @return   equal
-  function edge_equal(this, other) result(equal)
+  subroutine edge_equal_align(this, other, equal, algn)
     class(edge_t), intent(in) :: this
     class(polytope_t), intent(in) :: other
-    logical :: equal
+    logical, intent(out) :: equal
+    integer(i2), intent(out) :: algn
+    type(alignment_edge_t) :: algn_op
+    integer(i4), dimension(2) :: trans = [1, 2]
 
+    algn = -1
     ! check polygon information
     equal = this%equal_poly(other)
     if (equal) then
@@ -216,18 +223,40 @@ contains
        if (equal) then
           select type(other)
           type is (edge_t)
-             equal = ((this%facet(1)%obj%id() == other%facet(1)%obj%id()).and.&
-                  &(this%facet(2)%obj%id() == other%facet(2)%obj%id())).or.&
-                  &((this%facet(1)%obj%id() == other%facet(2)%obj%id()).and.&
-                  &(this%facet(2)%obj%id() == other%facet(1)%obj%id()))
-             if (.not.equal) then
-                ! Something wrong; edge with the same global id should have
-                ! the same facets
-                call neko_error('Mismatch in edge and vertex global id')
-             end if
+             ! check all the alignment options
+             do algn = 0, algn_op%nop()
+                call algn_op%trans_i4(.true., algn, 2, trans)
+                equal = (this%facet(1)%obj.eq.other%facet(trans(1))%obj).and.&
+                     &(this%facet(2)%obj.eq.other%facet(trans(2))%obj)
+                if (equal) return
+                call algn_op%trans_inv_i4(.true., algn, 2, trans)
+             end do
+          class default
+             equal = .false.
           end select
+          if (.not.equal) then
+             ! Something wrong; edge with the same global id should have
+             ! the same type and the same facets
+             call neko_error('Mismatch in edge and vertex global id')
+          end if
        end if
     end if
+
+    return
+  end subroutine edge_equal_align
+
+  !> @brief Check if two edges are the same
+  !! @note No special treatment of self-periodic edges
+  !! @parameter[in]  other    second edge
+  !! @return   equal
+  function edge_equal(this, other) result(equal)
+    class(edge_t), intent(in) :: this
+    class(polytope_t), intent(in) :: other
+    logical :: equal
+    integer(i2) :: algn
+
+    call this%eq_algn(other, equal, algn)
+
     return
   end function edge_equal
 
@@ -237,13 +266,16 @@ contains
   subroutine edge_aligned_init(this, edge, algn)
     class(edge_aligned_t), intent(inout) :: this
     type(edge_t), intent(in), target :: edge
-    integer(i4), intent(in) :: algn
+    integer(i2), intent(in) :: algn
 
     call this%free()
 
     this%edge%obj => edge
-    call this%algn%init()
-    call this%algn%set_algn(algn)
+    if ((algn >= 0).and.(algn <= this%algn_op%nop())) then
+       this%alignment = algn
+    else
+       call neko_error('Not proper alignment.')
+    end if
 
     return
   end subroutine edge_aligned_init
@@ -253,7 +285,7 @@ contains
     class(edge_aligned_t), intent(inout) :: this
 
     this%edge%obj => null()
-    call this%algn%set_nop(-1)
+    this%alignment = -1
 
     return
   end subroutine edge_aligned_free
@@ -267,8 +299,16 @@ contains
     return
   end subroutine edge_aligned_edgep
 
+  !> @brief Get relative edge alignment
+  !! @return   alignment
+  pure function edge_aligned_alignment_get(this) result(alignment)
+    class(edge_aligned_t), intent(in) :: this
+    integer(i4) :: alignment
+    alignment = this%alignment
+  end function edge_aligned_alignment_get
+
   !> @brief Check if two edges are properly aligned
-  !! @note No special treatment of self-periodic edges
+  !! @note No special treatment of self-periodic edges, so this is not checked
   !! @parameter[in]  other    second edge
   !! @return   aligned
   function edge_aligned_test(this, other) result(aligned)
@@ -283,7 +323,7 @@ contains
        vrt(2) = this%edge%obj%facet(2)%obj%id()
        vrto(1) = other%facet(1)%obj%id()
        vrto(2) = other%facet(2)%obj%id()
-       call this%algn%trans_i4(.true., vrto)
+       call this%algn_op%trans_i4(.true., this%alignment, 2, vrto)
        aligned = (vrt(1) == vrto(1)).and.(vrt(2) == vrto(2))
     else
        call neko_error('Edges not equal')

@@ -30,67 +30,67 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Edge alignment
+!> Quad alignment operators
 module alignment_quad
-  use num_types, only : i4, i8, dp
+  use num_types, only : i2, i4, i8, dp
   use utils, only : neko_error
-  use alignment, only : alignment_t
   implicit none
   private
 
   public :: alignment_quad_t
 
   !> number of operations different from identity
-  integer, parameter :: NEKO_QUAD_NOPERATION = 7
+  integer(i2), parameter :: NEKO_QUAD_NOPERATION = 7
 
-  !> Base type for polytope alignment
-  type, extends(alignment_t) :: alignment_quad_t
+  !> Type containing set of quad alignment operators
+  type :: alignment_quad_t
+     !> number of different operations excluding identity
+     integer(i2), private :: noperation_ = NEKO_QUAD_NOPERATION
    contains
-     !> Set quad specific operation number
-     procedure, pass(this) :: init => alignment_quad_init
+     !> return number of operations
+     procedure, pass(this) :: nop => quad_noperation_get
      !> array transformation
-     procedure, pass(this) :: trans_i4 => transfrorm_quad_i4
-     procedure, pass(this) :: trans_i8 => transfrorm_quad_i8
-     procedure, pass(this) :: trans_dp => transfrorm_quad_dp
+     procedure, pass(this) :: trans_i4 => transform_quad_i4
+     procedure, pass(this) :: trans_i8 => transform_quad_i8
+     procedure, pass(this) :: trans_dp => transform_quad_dp
      !> general transformation
      generic :: trans => trans_i4, trans_i8, trans_dp
      !> inverse array transformation
-     procedure, pass(this) :: trans_inv_i4 => transfrorm_inv_quad_i4
-     procedure, pass(this) :: trans_inv_i8 => transfrorm_inv_quad_i8
-     procedure, pass(this) :: trans_inv_dp => transfrorm_inv_quad_dp
+     procedure, pass(this) :: trans_inv_i4 => transform_inv_quad_i4
+     procedure, pass(this) :: trans_inv_i8 => transform_inv_quad_i8
+     procedure, pass(this) :: trans_inv_dp => transform_inv_quad_dp
      !> general transformation
      generic :: trans_inv => trans_inv_i4, trans_inv_i8, trans_inv_dp
   end type alignment_quad_t
 
 contains
-  !> @brief Set quad specific operation number
-  subroutine  alignment_quad_init(this)
-    class(alignment_quad_t), intent(inout) :: this
-    call this%set_nop(NEKO_QUAD_NOPERATION)
-    return
-  end subroutine alignment_quad_init
+  !> @brief Get number of operations
+  !! @return   noperation
+  pure function quad_noperation_get(this) result(noperation)
+    class(alignment_quad_t), intent(in) :: this
+    integer(i2) :: noperation
+    noperation = this%noperation_
+  end function quad_noperation_get
 
   !> @brief Transform single integer array rank 2
   !! @parameter[in]     ifbnd    do we include boundary point
+  !! @parameter[in]     algn     quad relative alignment
+  !! @parameter[in]     sz       array size
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  subroutine transfrorm_quad_i4(this, ifbnd, fcs, work)
+  subroutine transform_quad_i4(this, ifbnd, algn, sz, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
-    integer(i4), dimension(:, :), intent(inout) :: fcs
-    integer(i4), dimension(:), intent(inout) :: work
+    integer(i2), intent(in) :: algn
+    integer(i4), intent(in) :: sz
+    integer(i4), dimension(sz, sz), intent(inout) :: fcs
+    integer(i4), dimension(sz), intent(inout) :: work
     ! local variables
-    integer(i4) :: algn, sz, istart, iend, il, jl
+    integer(i4) :: istart, iend, il, jl
     integer(i4) :: iface
 
     ! check alignment type; zero means identity; nothing to do
-    algn = this%algn()
     if (algn /= 0) then
-       ! face size
-       ! I assume face is a square matrix and work has the same size
-       ! possible place for check
-       sz = size(fcs, 1, i4)
-
        ! do we work on boundary points?
        if (ifbnd) then
           istart = 1
@@ -217,29 +217,27 @@ contains
     end if
 
     return
-  end subroutine transfrorm_quad_i4
+  end subroutine transform_quad_i4
 
   !> @brief Transform double integer array rank 2
   !! @parameter[in]     ifbnd    do we include boundary point
+  !! @parameter[in]     algn     quad relative alignment
+  !! @parameter[in]     sz       array size
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  subroutine transfrorm_quad_i8(this, ifbnd, fcs, work)
+  subroutine transform_quad_i8(this, ifbnd, algn, sz, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
-    integer(i8), dimension(:, :), intent(inout) :: fcs
-    integer(i8), dimension(:), intent(inout) :: work
+    integer(i2), intent(in) :: algn
+    integer(i4), intent(in) :: sz
+    integer(i8), dimension(sz, sz), intent(inout) :: fcs
+    integer(i8), dimension(sz), intent(inout) :: work
     ! local variables
-    integer(i4) :: algn, sz, istart, iend, il, jl
+    integer(i4) :: istart, iend, il, jl
     integer(i8) :: iface
 
     ! check alignment type; zero means identity; nothing to do
-    algn = this%algn()
     if (algn /= 0) then
-       ! face size
-       ! I assume face is a square matrix and work has the same size
-       ! possible place for check
-       sz = size(fcs, 1, i4)
-
        ! do we work on boundary points?
        if (ifbnd) then
           istart = 1
@@ -366,29 +364,27 @@ contains
     end if
 
     return
-  end subroutine transfrorm_quad_i8
+  end subroutine transform_quad_i8
 
   !> @brief Transform double real array rank 2
   !! @parameter[in]     ifbnd    do we include boundary point
+  !! @parameter[in]     algn     quad relative alignment
+  !! @parameter[in]     sz       array size
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  subroutine transfrorm_quad_dp(this, ifbnd, fcs, work)
+  subroutine transform_quad_dp(this, ifbnd, algn, sz, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
-    real(dp), dimension(:, :), intent(inout) :: fcs
-    real(dp), dimension(:), intent(inout) :: work
+    integer(i2), intent(in) :: algn
+    integer(i4), intent(in) :: sz
+    real(dp), dimension(sz, sz), intent(inout) :: fcs
+    real(dp), dimension(sz), intent(inout) :: work
     ! local variables
-    integer(i4) :: algn, sz, istart, iend, il, jl
+    integer(i4) :: istart, iend, il, jl
     real(dp) :: rface
 
     ! check alignment type; zero means identity; nothing to do
-    algn = this%algn()
     if (algn /= 0) then
-       ! face size
-       ! I assume face is a square matrix and work has the same size
-       ! possible place for check
-       sz = size(fcs, 1, i4)
-
        ! do we work on boundary points?
        if (ifbnd) then
           istart = 1
@@ -515,29 +511,27 @@ contains
     end if
 
     return
-  end subroutine transfrorm_quad_dp
+  end subroutine transform_quad_dp
 
   !> @brief Inverse transform single integer array rank 2
   !! @parameter[in]     ifbnd    do we include boundary point
+  !! @parameter[in]     algn     quad relative alignment
+  !! @parameter[in]     sz       array size
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  subroutine transfrorm_inv_quad_i4(this, ifbnd, fcs, work)
+  subroutine transform_inv_quad_i4(this, ifbnd, algn, sz, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
-    integer(i4), dimension(:, :), intent(inout) :: fcs
-    integer(i4), dimension(:), intent(inout) :: work
+    integer(i2), intent(in) :: algn
+    integer(i4), intent(in) :: sz
+    integer(i4), dimension(sz, sz), intent(inout) :: fcs
+    integer(i4), dimension(sz), intent(inout) :: work
     ! local variables
-    integer(i4) :: algn, sz, istart, iend, il, jl
+    integer(i4) :: istart, iend, il, jl
     integer(i4) :: iface
 
     ! check alignment type; zero means identity; nothing to do
-    algn = this%algn()
     if (algn /= 0) then
-       ! face size
-       ! I assume face is a square matrix and work has the same size
-       ! possible place for check
-       sz = size(fcs, 1, i4)
-
        ! do we work on boundary points?
        if (ifbnd) then
           istart = 1
@@ -664,29 +658,27 @@ contains
     end if
 
     return
-  end subroutine transfrorm_inv_quad_i4
+  end subroutine transform_inv_quad_i4
 
   !> @brief Inverse transform double integer array rank 2
   !! @parameter[in]     ifbnd    do we include boundary point
+  !! @parameter[in]     algn     quad relative alignment
+  !! @parameter[in]     sz       array size
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  subroutine transfrorm_inv_quad_i8(this, ifbnd, fcs, work)
+  subroutine transform_inv_quad_i8(this, ifbnd, algn, sz, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
-    integer(i8), dimension(:, :), intent(inout) :: fcs
-    integer(i8), dimension(:), intent(inout) :: work
+    integer(i2), intent(in) :: algn
+    integer(i4), intent(in) :: sz
+    integer(i8), dimension(sz, sz), intent(inout) :: fcs
+    integer(i8), dimension(sz), intent(inout) :: work
     ! local variables
-    integer(i4) :: algn, sz, istart, iend, il, jl
+    integer(i4) :: istart, iend, il, jl
     integer(i8) :: iface
 
     ! check alignment type; zero means identity; nothing to do
-    algn = this%algn()
     if (algn /= 0) then
-       ! face size
-       ! I assume face is a square matrix and work has the same size
-       ! possible place for check
-       sz = size(fcs, 1, i4)
-
        ! do we work on boundary points?
        if (ifbnd) then
           istart = 1
@@ -813,29 +805,27 @@ contains
     end if
 
     return
-  end subroutine transfrorm_inv_quad_i8
+  end subroutine transform_inv_quad_i8
 
   !> @brief Inverse transform double real array rank 2
   !! @parameter[in]     ifbnd    do we include boundary point
+  !! @parameter[in]     algn     quad relative alignment
+  !! @parameter[in]     sz       array size
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  subroutine transfrorm_inv_quad_dp(this, ifbnd, fcs, work)
+  subroutine transform_inv_quad_dp(this, ifbnd, algn, sz, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
-    real(dp), dimension(:, :), intent(inout) :: fcs
-    real(dp), dimension(:), intent(inout) :: work
+    integer(i2), intent(in) :: algn
+    integer(i4), intent(in) :: sz
+    real(dp), dimension(sz, sz), intent(inout) :: fcs
+    real(dp), dimension(sz), intent(inout) :: work
     ! local variables
-    integer(i4) :: algn, sz, istart, iend, il, jl
+    integer(i4) :: istart, iend, il, jl
     real(dp) :: rface
 
     ! check alignment type; zero means identity; nothing to do
-    algn = this%algn()
     if (algn /= 0) then
-       ! face size
-       ! I assume face is a square matrix and work has the same size
-       ! possible place for check
-       sz = size(fcs, 1, i4)
-
        ! do we work on boundary points?
        if (ifbnd) then
           istart = 1
@@ -962,6 +952,6 @@ contains
     end if
 
     return
-  end subroutine transfrorm_inv_quad_dp
+  end subroutine transform_inv_quad_dp
 
 end module alignment_quad

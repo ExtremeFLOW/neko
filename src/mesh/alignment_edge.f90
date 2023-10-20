@@ -30,62 +30,65 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Edge alignment
+!> Edge alignment operators
 module alignment_edge
-  use num_types, only : i4, i8, dp
+  use num_types, only : i2, i4, i8, dp
   use utils, only : neko_error
-  use alignment, only : alignment_t
   implicit none
   private
 
   public :: alignment_edge_t
 
   !> number of operations different from identity
-  integer, parameter :: NEKO_EDGE_NOPERATION = 1
+  integer(i2), parameter :: NEKO_EDGE_NOPERATION = 1
 
-  !> Base type for polytope alignment
-  type, extends(alignment_t) :: alignment_edge_t
+  !> Type containing set of edge alignment operators
+  type :: alignment_edge_t
+     !> number of different operations excluding identity
+     integer(i2), private :: noperation_ = NEKO_EDGE_NOPERATION
    contains
-     !> Set edge specific operation number
-     procedure, pass(this) :: init => alignment_edge_init
+     !> return number of operations
+     procedure, pass(this) :: nop => edge_noperation_get
      !> array transformation
-     procedure, pass(this) :: trans_i4 => transfrorm_edge_i4
-     procedure, pass(this) :: trans_i8 => transfrorm_edge_i8
-     procedure, pass(this) :: trans_dp => transfrorm_edge_dp
+     procedure, pass(this) :: trans_i4 => transform_edge_i4
+     procedure, pass(this) :: trans_i8 => transform_edge_i8
+     procedure, pass(this) :: trans_dp => transform_edge_dp
      !> general transformation
      generic :: trans => trans_i4, trans_i8, trans_dp
      !> inverse array transformation
-     procedure, pass(this) :: trans_inv_i4 => transfrorm_edge_i4
-     procedure, pass(this) :: trans_inv_i8 => transfrorm_edge_i8
-     procedure, pass(this) :: trans_inv_dp => transfrorm_edge_dp
+     procedure, pass(this) :: trans_inv_i4 => transform_edge_i4
+     procedure, pass(this) :: trans_inv_i8 => transform_edge_i8
+     procedure, pass(this) :: trans_inv_dp => transform_edge_dp
      !> general transformation
      generic :: trans_inv => trans_inv_i4, trans_inv_i8, trans_inv_dp
   end type alignment_edge_t
 
 contains
-  !> @brief Set edge specific operation number
-  subroutine  alignment_edge_init(this)
-    class(alignment_edge_t), intent(inout) :: this
-    call this%set_nop(NEKO_EDGE_NOPERATION)
-    return
-  end subroutine alignment_edge_init
+  !> @brief Get number of operations
+  !! @return   noperation
+  pure function edge_noperation_get(this) result(noperation)
+    class(alignment_edge_t), intent(in) :: this
+    integer(i2) :: noperation
+    noperation = this%noperation_
+  end function edge_noperation_get
 
   !> @brief Transform single integer array rank 1
   !! @parameter[in]     ifbnd    do we include boundary points
+  !! @parameter[in]     algn     edge relative alignment
+  !! @parameter[in]     sz       array size
   !! @parameter[inout]  edg      edge data
-  subroutine transfrorm_edge_i4(this, ifbnd, edg)
+  subroutine transform_edge_i4(this, ifbnd, algn, sz, edg)
     class(alignment_edge_t), intent(in) :: this
     logical, intent(in) :: ifbnd
-    integer(i4), dimension(:), intent(inout) :: edg
+    integer(i2), intent(in) :: algn
+    integer(i4), intent(in) :: sz
+    integer(i4), dimension(sz), intent(inout) :: edg
     ! local variables
-    integer(i4) :: algn, sz, istart, il, itmp1, itmp2
+    integer(i4) :: istart, il, itmp1, itmp2
     integer(i4) :: iedg
 
     ! check alignment type; zero means identity; nothing to do
-    algn = this%algn()
     if (algn /= 0) then
-       ! edge size
-       sz = size(edg, 1, i4)
        ! do we work on boundary points?
        if (ifbnd) then
           istart = 1
@@ -109,24 +112,25 @@ contains
     end if
 
     return
-  end subroutine transfrorm_edge_i4
+  end subroutine transform_edge_i4
 
   !> @brief Transform double integer array rank 1
   !! @parameter[in]     ifbnd    do we include boundary points
+  !! @parameter[in]     algn     edge relative alignment
+  !! @parameter[in]     sz       array size
   !! @parameter[inout]  edg      edge data
-  subroutine transfrorm_edge_i8(this, ifbnd, edg)
+  subroutine transform_edge_i8(this, ifbnd, algn, sz, edg)
     class(alignment_edge_t), intent(in) :: this
     logical, intent(in) :: ifbnd
-    integer(i8), dimension(:), intent(inout) :: edg
+    integer(i2), intent(in) :: algn
+    integer(i4), intent(in) :: sz
+    integer(i8), dimension(sz), intent(inout) :: edg
     ! local variables
-    integer(i4) :: algn, sz, istart, il, itmp1, itmp2
+    integer(i4) :: istart, il, itmp1, itmp2
     integer(i8) :: iedg
 
     ! check alignment type; zero means identity; nothing to do
-    algn = this%algn()
     if (algn /= 0) then
-       ! edge size
-       sz = size(edg, 1, i4)
        ! do we work on boundary points?
        if (ifbnd) then
           istart = 1
@@ -150,24 +154,25 @@ contains
     end if
 
     return
-  end subroutine transfrorm_edge_i8
+  end subroutine transform_edge_i8
 
   !> @brief Transform double real array rank 1
   !! @parameter[in]     ifbnd    do we include boundary points
+  !! @parameter[in]     algn     edge relative alignment
+  !! @parameter[in]     sz       array size
   !! @parameter[inout]  edg      edge data
-  subroutine transfrorm_edge_dp(this, ifbnd, edg)
+  subroutine transform_edge_dp(this, ifbnd, algn, sz, edg)
     class(alignment_edge_t), intent(in) :: this
     logical, intent(in) :: ifbnd
-    real(dp), dimension(:), intent(inout) :: edg
+    integer(i2), intent(in) :: algn
+    integer(i4), intent(in) :: sz
+    real(dp), dimension(sz), intent(inout) :: edg
     ! local variables
-    integer(i4) :: algn, sz, istart, il, itmp1, itmp2
+    integer(i4) :: istart, il, itmp1, itmp2
     real(dp) :: redg
 
     ! check alignment type; zero means identity; nothing to do
-    algn = this%algn()
     if (algn /= 0) then
-       ! edge size
-       sz = size(edg, 1, i4)
        ! do we work on boundary points?
        if (ifbnd) then
           istart = 1
@@ -191,6 +196,6 @@ contains
     end if
 
     return
-  end subroutine transfrorm_edge_dp
+  end subroutine transform_edge_dp
 
 end module alignment_edge
