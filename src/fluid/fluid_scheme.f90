@@ -82,6 +82,9 @@ module fluid_scheme
      type(field_t), pointer :: v => null() !< y-component of Velocity
      type(field_t), pointer :: w => null() !< z-component of Velocity
      type(field_t), pointer :: p => null() !< Pressure
+     type(field_t), pointer :: u_int => null() !< x-component of Velocity int
+     type(field_t), pointer :: v_int => null() !< y-component of Velocity int
+     type(field_t), pointer :: w_int => null() !< z-component of Velocity int
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
@@ -522,6 +525,14 @@ contains
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
     this%p => neko_field_registry%get_field('p')
+    
+    !! Interpolated fields in time
+    call neko_field_registry%add_field(this%dm_Xh, 'u_int')
+    call neko_field_registry%add_field(this%dm_Xh, 'v_int')
+    call neko_field_registry%add_field(this%dm_Xh, 'w_int')
+    this%u_int => neko_field_registry%get_field('u_int')
+    this%v_int => neko_field_registry%get_field('v_int')
+    this%w_int => neko_field_registry%get_field('w_int')
 
     !
     ! Setup pressure boundary conditions
@@ -648,6 +659,10 @@ contains
     nullify(this%v)
     nullify(this%w)
     nullify(this%p)
+    
+    nullify(this%u_int)
+    nullify(this%v_int)
+    nullify(this%w_int)
 
     if (associated(this%f_x)) then
       call this%f_x%free()

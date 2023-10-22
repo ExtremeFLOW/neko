@@ -146,6 +146,9 @@ contains
     this%n = this%n + 1
     n = this%n
     this%output_list(this%n)%outp => out
+    
+    !> Set the real sampling time to interpolate
+    this%output_list(this%n)%outp%real_sampling_time = write_par
 
     if (trim(write_control) .eq. "org") then
        this%controllers(n) = this%controllers(1)
@@ -244,6 +247,11 @@ contains
              call neko_log%message(log_buf)
 
              call samp%output_list(i)%outp%sample(t)
+
+             !> After sampling, set the real sampling time of the next sample
+             sampl%output_list(i)%outp%real_sampling_time = &
+             sampl%output_list(i)%outp%real_sampling_time + &
+             this%controllers(i)%time_interval
 
              call this%controllers(i)%register_execution()
           end if

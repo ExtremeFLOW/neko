@@ -65,6 +65,7 @@ module scalar_scheme
      type(field_t), pointer :: v       !< y-component of Velocity
      type(field_t), pointer :: w       !< z-component of Velocity
      type(field_t), pointer :: s       !< the scalar
+     type(field_t), pointer :: s_int       !< the scalar
      type(space_t), pointer :: Xh      !< Function space \f$ X_h \f$
      type(dofmap_t), pointer :: dm_Xh  !< Dofmap associated with \f$ X_h \f$
      type(gs_t), pointer :: gs_Xh      !< Gather-scatter associated with \f$ X_h \f$
@@ -265,6 +266,9 @@ contains
     this%msh => msh
     call neko_field_registry%add_field(this%dm_Xh, 's')
     this%s => neko_field_registry%get_field('s')
+    
+    call neko_field_registry%add_field(this%dm_Xh, 's_int')
+    this%s_int => neko_field_registry%get_field('s_int')
 
     this%gs_Xh => gs_Xh
     this%c_Xh => c_Xh
