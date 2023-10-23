@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Connectivity edge type
-module edge
+module edge_cnn
   use num_types, only : i4
   use utils, only : neko_error
-  use polytope, only : polytope_t
-  use vertex, only : vertex_t, vertex_ptr
+  use polytope_cnn, only : polytope_cnn_t
+  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
   use alignment_edge, only : alignment_edge_t, alignment_edge_op_set_t
   implicit none
   private
 
-  public :: edge_t, edge_ptr, edge_aligned_t, edge_aligned_ptr
+  public :: edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
 
   ! object information
   integer(i4), parameter :: NEKO_EDGE_DIM = 1
@@ -56,9 +56,9 @@ module edge
   !! Node numbering
   !!      1+-----+2    +----> r
   !! @endverbatim
-  type, extends(polytope_t) :: edge_t
+  type, extends(polytope_cnn_t) :: edge_cnn_t
      !> Facet pointers
-     type(vertex_ptr), dimension(:), allocatable :: facet
+     type(vertex_cnn_ptr), dimension(:), allocatable :: facet
    contains
      !> Initialise edge
      procedure, pass(this) :: init => edge_init
@@ -70,22 +70,22 @@ module edge
      procedure, pass(this) :: fct => edge_facet
      !> Return vertices shared by edges
      procedure, pass(this) :: fct_share => edge_facet_share
-     !> Get alignment info
+     !> Check equality and get relative alignment info
      procedure, pass(this) :: eq_algn => edge_equal_align
      !> Edge equality including vertex information
      procedure, pass(this) :: equal => edge_equal
      generic :: operator(.eq.) => equal
-  end type edge_t
+  end type edge_cnn_t
 
   !> Pointer to an edge type
-  type ::  edge_ptr
-     type(edge_t), pointer :: obj
-  end type edge_ptr
+  type ::  edge_cnn_ptr
+     type(edge_cnn_t), pointer :: obj
+  end type edge_cnn_ptr
 
   !> Edge with alignment information
-  type :: edge_aligned_t
+  type :: edge_aligned_cnn_t
      !> edge pointer
-     type(edge_ptr) :: edge
+     type(edge_cnn_ptr) :: edge
      !> alignment operator
      type(alignment_edge_op_set_t) :: algn_op
    contains
@@ -99,12 +99,7 @@ module edge
      procedure, pass(this) :: algn => edge_aligned_alignment_get
      !> Test alignment
      procedure, pass(this) :: test => edge_aligned_test
-  end type edge_aligned_t
-
-  !> Pointer to an aligned edge type
-  type ::  edge_aligned_ptr
-     type(edge_aligned_t), pointer :: obj
-  end type edge_aligned_ptr
+  end type edge_aligned_cnn_t
 
 contains
 
@@ -113,9 +108,9 @@ contains
   !! @parameter[in]   id     unique id
   !! @parameter[in]   vrt1, vrt2  bounding vertices
   subroutine edge_init(this, id, vrt1, vrt2)
-    class(edge_t), intent(inout) :: this
+    class(edge_cnn_t), intent(inout) :: this
     integer(i4), intent(in) :: id
-    type(vertex_t), intent(in), target :: vrt1, vrt2
+    type(vertex_cnn_t), intent(in), target :: vrt1, vrt2
 
     call this%free()
 
@@ -132,7 +127,7 @@ contains
 
   !> @brief Free edge data
   subroutine edge_free(this)
-    class(edge_t), intent(inout) :: this
+    class(edge_cnn_t), intent(inout) :: this
     !local variables
     integer(i4) :: il
 
@@ -150,7 +145,7 @@ contains
   !> @brief Check if edge is self-periodic
   !! @return   selfp
   pure function edge_self_periodic(this) result(selfp)
-    class(edge_t), intent(in) :: this
+    class(edge_cnn_t), intent(in) :: this
     logical :: selfp
 
     selfp = (this%facet(1)%obj%id() == this%facet(2)%obj%id())
@@ -161,8 +156,8 @@ contains
   !> @brief Return pointers to edge facets
   !! @parameter[out]  facet   facet pointers array
   subroutine edge_facet(this, facet)
-    class(edge_t), intent(in) :: this
-    type(vertex_ptr), dimension(:), allocatable, intent(out) :: facet
+    class(edge_cnn_t), intent(in) :: this
+    type(vertex_cnn_ptr), dimension(:), allocatable, intent(out) :: facet
     integer(i4) :: il
 
     allocate(facet(this%nfacet))
@@ -173,13 +168,13 @@ contains
     return
   end subroutine edge_facet
 
-  !> @brief Return pointers to facets shared by edges
+  !> @brief Return positions of facets shared by edges
   !! @note Edges can be self-periodic
   !! @parameter[in]   other   second edge
   !! @parameter[out]  ishare  number of shared vertices
   !! @parameter[out]  facetp  integer position of shared vertices
   pure subroutine edge_facet_share(this, other, ishare, facetp)
-    class(edge_t), intent(in) :: this, other
+    class(edge_cnn_t), intent(in) :: this, other
     integer(i4), intent(out) :: ishare
     integer(i4), dimension(:, :), allocatable, intent(out) :: facetp
     integer(i4) :: il, jl
@@ -205,8 +200,8 @@ contains
   !! @parameter[in]  other    second edge
   !! @return   equal
   subroutine edge_equal_align(this, other, equal, algn)
-    class(edge_t), intent(in) :: this
-    class(polytope_t), intent(in) :: other
+    class(edge_cnn_t), intent(in) :: this
+    class(polytope_cnn_t), intent(in) :: other
     logical, intent(out) :: equal
     integer(i4), intent(out) :: algn
     type(alignment_edge_t) :: algn_op
@@ -223,7 +218,7 @@ contains
        if (equal) then
           call algn_op%init()
           select type(other)
-          type is (edge_t)
+          type is (edge_cnn_t)
              ! check all the alignment options
              do algn = 0, algn_op%nop()
                 call algn_op%trns_f_i4(algn)%obj(2, trans)
@@ -251,8 +246,8 @@ contains
   !! @parameter[in]  other    second edge
   !! @return   equal
   function edge_equal(this, other) result(equal)
-    class(edge_t), intent(in) :: this
-    class(polytope_t), intent(in) :: other
+    class(edge_cnn_t), intent(in) :: this
+    class(polytope_cnn_t), intent(in) :: other
     logical :: equal
     integer(i4) :: algn
 
@@ -265,8 +260,8 @@ contains
   !! @parameter[in]   edge   edge
   !! @parameter[in]   algn   alignment
   subroutine edge_aligned_init(this, edge, algn)
-    class(edge_aligned_t), intent(inout) :: this
-    type(edge_t), intent(in), target :: edge
+    class(edge_aligned_cnn_t), intent(inout) :: this
+    type(edge_cnn_t), intent(in), target :: edge
     integer(i4), intent(in) :: algn
 
     call this%free()
@@ -280,7 +275,7 @@ contains
 
   !> @brief Free edge with alignment information
   subroutine edge_aligned_free(this)
-    class(edge_aligned_t), intent(inout) :: this
+    class(edge_aligned_cnn_t), intent(inout) :: this
 
     this%edge%obj => null()
     call this%algn_op%free()
@@ -291,8 +286,8 @@ contains
   !> @brief Return pointers to the edge
   !! @parameter[out]  edge   edge pointer
   subroutine edge_aligned_edgep(this, edge)
-    class(edge_aligned_t), intent(in) :: this
-    type(edge_ptr), intent(out) :: edge
+    class(edge_aligned_cnn_t), intent(in) :: this
+    type(edge_cnn_ptr), intent(out) :: edge
     edge%obj => this%edge%obj
     return
   end subroutine edge_aligned_edgep
@@ -300,9 +295,10 @@ contains
   !> @brief Get relative edge alignment
   !! @return   alignment
   pure function edge_aligned_alignment_get(this) result(alignment)
-    class(edge_aligned_t), intent(in) :: this
+    class(edge_aligned_cnn_t), intent(in) :: this
     integer(i4) :: alignment
     alignment = this%algn_op%alignment
+    return
   end function edge_aligned_alignment_get
 
   !> @brief Check if two edges are properly aligned
@@ -310,8 +306,8 @@ contains
   !! @parameter[in]  other    second edge
   !! @return   aligned
   function edge_aligned_test(this, other) result(aligned)
-    class(edge_aligned_t), intent(in) :: this
-    class(edge_t), intent(in) :: other
+    class(edge_aligned_cnn_t), intent(in) :: this
+    class(edge_cnn_t), intent(in) :: other
     logical :: aligned
     integer(i4), dimension(2) :: vrt, vrto
 
@@ -330,4 +326,4 @@ contains
     return
   end function edge_aligned_test
 
-end module edge
+end module edge_cnn

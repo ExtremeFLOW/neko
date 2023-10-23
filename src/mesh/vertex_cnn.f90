@@ -31,14 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Connectivity vertex type
-module vertex
+module vertex_cnn
   use num_types, only : i2, i4
   use utils, only : neko_error
-  use polytope, only : polytope_t
+  use polytope_cnn, only : polytope_cnn_t
   implicit none
   private
 
-  public :: vertex_t, vertex_ptr
+  public :: vertex_cnn_t, vertex_cnn_ptr
 
   ! object information
   integer(i4), parameter :: NEKO_VERTEX_DIM = 0
@@ -49,24 +49,24 @@ module vertex
   !> Vertex type for global communication
   !! @details Vertex as the only realisation of zero-dimensional polytope
   !! (monon) and contains unique global id only. Vertex has no alignment.
-  type, extends(polytope_t) :: vertex_t
+  type, extends(polytope_cnn_t) :: vertex_cnn_t
    contains
      procedure, pass(this) :: init => vertex_init
      procedure, pass(this) :: equal => vertex_equal
      generic :: operator(.eq.) => equal
-  end type vertex_t
+  end type vertex_cnn_t
 
   !> Pointer to a vertex type
-  type ::  vertex_ptr
-     type(vertex_t), pointer :: obj
-  end type vertex_ptr
+  type ::  vertex_cnn_ptr
+     type(vertex_cnn_t), pointer :: obj
+  end type vertex_cnn_ptr
 
 contains
 
   !> @brief Initialise vertex with global id
   !! @parameter[in]   id     unique id
   subroutine vertex_init(this, id)
-    class(vertex_t), intent(inout) :: this
+    class(vertex_cnn_t), intent(inout) :: this
     integer(i4), intent(in) :: id
 
     call this%set_dim(NEKO_VERTEX_DIM)
@@ -80,8 +80,8 @@ contains
   !> @brief Check if two vertices are the same
   !! @return   equal
   pure function vertex_equal(this, other) result(equal)
-    class(vertex_t), intent(in) :: this
-    class(polytope_t), intent(in) :: other
+    class(vertex_cnn_t), intent(in) :: this
+    class(polytope_cnn_t), intent(in) :: other
     logical :: equal
 
     ! check polygon information
@@ -93,4 +93,4 @@ contains
     return
   end function vertex_equal
 
-end module vertex
+end module vertex_cnn

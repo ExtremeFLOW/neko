@@ -2,9 +2,9 @@
 subroutine test_vertex_init
   use pfunit
   use num_types, only : i4
-  use vertex, only : vertex_t
+  use vertex_cnn, only : vertex_cnn_t
   implicit none
-  type(vertex_t) :: vertex, vertexo
+  type(vertex_cnn_t) :: vertex, vertexo
   integer(i4) :: dim, nfacet, nridge, npeak, id1, id2
 
   ! test setting polytopes

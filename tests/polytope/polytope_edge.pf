@@ -2,12 +2,12 @@
 subroutine test_edge_init
   use pfunit
   use num_types, only : i4
-  use vertex, only : vertex_t, vertex_ptr
-  use edge, only : edge_t
+  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
+  use edge_cnn, only : edge_cnn_t
   implicit none
-  type(vertex_t) :: vertex1, vertex2, vertex3, vertex4
-  type(vertex_ptr), dimension(:), allocatable :: facet
-  type(edge_t) :: edge1, edge2
+  type(vertex_cnn_t) :: vertex1, vertex2, vertex3, vertex4
+  type(vertex_cnn_ptr), dimension(:), allocatable :: facet
+  type(edge_cnn_t) :: edge1, edge2
   integer(i4) :: ishare
   integer(i4), dimension(:, :), allocatable :: facetp
 
@@ -89,13 +89,13 @@ end subroutine test_edge_init
 subroutine test_edge_alignment
   use pfunit
   use num_types, only : i4
-  use vertex, only : vertex_t, vertex_ptr
-  use edge, only : edge_t, edge_ptr, edge_aligned_t
+  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
+  use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
   implicit none
-  type(vertex_t) :: vertex1, vertex2
-  type(edge_ptr) :: edgep
-  type(edge_t) :: edge1, edge2
-  type(edge_aligned_t) :: edgea
+  type(vertex_cnn_t) :: vertex1, vertex2
+  type(edge_cnn_ptr) :: edgep
+  type(edge_cnn_t) :: edge1, edge2
+  type(edge_aligned_cnn_t) :: edgea
 
   call vertex1%init(1)
   call vertex2%init(2)
