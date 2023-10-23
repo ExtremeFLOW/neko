@@ -339,11 +339,9 @@ contains
     !
     call C%s%init(C%end_time)
     if (scalar) then
-       C%f_out = fluid_output_t(C%fluid, C%scalar, C%tlag, &
-                                path=trim(output_directory))
+       C%f_out = fluid_output_t(C%fluid, C%scalar, path=trim(output_directory))
     else
-       C%f_out = fluid_output_t(C%fluid, tlag=C%tlag, &
-                                path=trim(output_directory))
+       C%f_out = fluid_output_t(C%fluid, path=trim(output_directory))
     end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&

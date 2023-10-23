@@ -43,11 +43,6 @@ module fluid_output
   !> Fluid output
   type, public, extends(output_t) :: fluid_output_t
      type(field_list_t) :: fluid
-     type(field_list_t) :: fluid_lag
-     type(field_list_t) :: fluid_int
-     real(kind=rp) :: real_sampling_time
-     real(kind=rp), pointer :: tlag
-     type(time_interpolator_t) :: time_interpolator
    contains
      procedure, pass(this) :: sample => fluid_output_sample
   end type fluid_output_t
@@ -58,10 +53,9 @@ module fluid_output
 
 contains
 
-  function fluid_output_init(fluid, scalar, tlag, name, path) result(this)
+  function fluid_output_init(fluid, scalar, name, path) result(this)
     class(fluid_scheme_t), intent(in), target :: fluid
     class(scalar_scheme_t), intent(in), optional, target :: scalar
-    real(kind=rp), intent(in), optional, target :: tlag
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     type(fluid_output_t) :: this
@@ -85,40 +79,19 @@ contains
 
     if (present(scalar)) then
        allocate(this%fluid%fields(5))
-       allocate(this%fluid_lag%fields(5))
     else
        allocate(this%fluid%fields(4))
-       allocate(this%fluid_lag%fields(4))
-    end if
- 
-    if (present(tlag)) then
-       this%tlag => tlag
     end if
 
     this%fluid%fields(1)%f => fluid%p
     this%fluid%fields(2)%f => fluid%u
     this%fluid%fields(3)%f => fluid%v
     this%fluid%fields(4)%f => fluid%w
-    
-    this%fluid_int%fields(1)%f => fluid%p
-    this%fluid_int%fields(2)%f => fluid%u_int
-    this%fluid_int%fields(3)%f => fluid%v_int
-    this%fluid_int%fields(4)%f => fluid%w_int
-    
-    this%fluid_lag%fields(1)%f => fluid%p
-    this%fluid_lag%fields(2)%f => fluid%ulag%lf(1)
-    this%fluid_lag%fields(3)%f => fluid%vlag%lf(1)
-    this%fluid_lag%fields(4)%f => fluid%wlag%lf(1)
 
     if (present(scalar)) then
        this%fluid%fields(5)%f => scalar%s
-       this%fluid_int%fields(5)%f => scalar%s_int%lf(1)
-       this%fluid_lag%fields(5)%f => scalar%slag%lf(1)
     end if
     
-    !Initialize time interpolator 
-    this%time_interpolator%init(2)
-
   end function fluid_output_init
 
   !> Sample a fluid solution at time @a t
@@ -127,21 +100,9 @@ contains
     real(kind=rp), intent(in) :: t
     integer :: i
 
-    !> Interpolate to the required time
-    !! Note that real_sampling_time is updated in the sampler
-    !! after each call to sample is done
-    associate(fields     => this%fluid%fields,     &
-              fields_lag => this%fluid_lag%fields, &
-              fields_int => this%fluid_int%fields)
-      do i = 1, size(fields)
-         this%time_interpolator%interpolate(this%real_sampling_time, &
-         fields_int(i), this%tlag(1),fields_lag(i), t, fields(i))
-      end do
-    end associate
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       associate(fields => this%fluid_int%fields)
+       associate(fields => this%fluid%fields)
          do i = 1, size(fields)
             call device_memcpy(fields(i)%f%x, fields(i)%f%x_d, &
                  fields(i)%f%dof%size(), DEVICE_TO_HOST)
@@ -150,7 +111,7 @@ contains
 
     end if
        
-    call this%file_%write(this%fluid_int, this%real_sampling_time)
+    call this%file_%write(this%fluid, t)
 
   end subroutine fluid_output_sample
   
