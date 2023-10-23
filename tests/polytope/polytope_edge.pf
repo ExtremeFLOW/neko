@@ -9,7 +9,7 @@ subroutine test_edge_init
   type(vertex_ptr), dimension(:), allocatable :: facet
   type(edge_t) :: edge1, edge2
   integer(i4) :: ishare
-  integer(i4), dimension(2, 4) :: facetp
+  integer(i4), dimension(:, :), allocatable :: facetp
 
   call vertex1%init(1)
   call vertex2%init(2)
@@ -39,12 +39,15 @@ subroutine test_edge_init
   ! This test is implementation dependent, so not sure how to deal with it not
   ! to make a code very complex
   call edge1%fct_share(edge1, ishare, facetp)
+  @assertEqual(size(facetp, 1), 2)
+  @assertEqual(size(facetp, 2), 4)
   @assertEqual(ishare, 2)
   @assertEqual(facetp(1, 1), 1)
   @assertEqual(facetp(2, 1), 1)
   @assertEqual(facetp(1, 2), 2)
   @assertEqual(facetp(2, 2), 2)
   call edge2%init(2, vertex2, vertex1)
+  deallocate(facetp)
   call edge1%fct_share(edge2, ishare, facetp)
   @assertEqual(ishare, 2)
   @assertEqual(facetp(1, 1), 1)
@@ -52,6 +55,7 @@ subroutine test_edge_init
   @assertEqual(facetp(1, 2), 2)
   @assertEqual(facetp(2, 2), 1)
   call edge2%init(2, vertex2, vertex3)
+  deallocate(facetp)
   call edge1%fct_share(edge2, ishare, facetp)
   @assertEqual(ishare, 1)
   @assertEqual(facetp(1, 1), 2)
@@ -59,6 +63,7 @@ subroutine test_edge_init
   @assertEqual(facetp(1, 2), 0)
   @assertEqual(facetp(2, 2), 0)
   call edge2%init(2, vertex1, vertex1)
+  deallocate(facetp)
   call edge1%fct_share(edge2, ishare, facetp)
   @assertEqual(ishare, 2)
   @assertEqual(facetp(1, 1), 1)
@@ -66,6 +71,7 @@ subroutine test_edge_init
   @assertEqual(facetp(1, 2), 1)
   @assertEqual(facetp(2, 2), 2)
   call edge1%init(1, vertex1, vertex1)
+  deallocate(facetp)
   call edge1%fct_share(edge2, ishare, facetp)
   @assertEqual(ishare, 4)
   @assertEqual(facetp(1, 1), 1)
@@ -76,6 +82,7 @@ subroutine test_edge_init
   @assertEqual(facetp(2, 3), 1)
   @assertEqual(facetp(1, 4), 2)
   @assertEqual(facetp(2, 4), 2)
+  deallocate(facetp)
 end subroutine test_edge_init
 
 @test

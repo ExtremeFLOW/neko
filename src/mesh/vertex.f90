@@ -48,7 +48,7 @@ module vertex
 
   !> Vertex type for global communication
   !! @details Vertex as the only realisation of zero-dimensional polytope
-  !! contains unique global id only. Vertex has no alignment.
+  !! (monon) and contains unique global id only. Vertex has no alignment.
   type, extends(polytope_t) :: vertex_t
    contains
      procedure, pass(this) :: init => vertex_init

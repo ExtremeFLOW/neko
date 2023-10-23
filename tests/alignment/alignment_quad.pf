@@ -366,3 +366,207 @@ subroutine test_alignment_quad_dp
   end do
 
 end subroutine test_alignment_quad_dp
+
+@test
+subroutine test_alignment_quad_op_set_i4
+  use pfunit
+  use num_types, only : i4, i8, dp
+  use alignment_quad, only : alignment_quad_t, alignment_quad_op_set_t
+  implicit none
+  type(alignment_quad_t) :: quadv
+  type(alignment_quad_op_set_t) :: quads
+  integer(i4), parameter :: sz = 5
+  integer(i4), dimension(sz) :: work
+  integer(i4), dimension(sz, sz) :: fcsv, fcss
+  integer(i4), dimension(sz, sz) :: fcs_bnd
+  integer(i4) :: il, jl, kl
+
+  ! initial condition
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(il, jl) = il -1 + (jl - 1)*sz
+     end do
+  end do
+
+  call quadv%init()
+
+  ! full face test
+  do il = 0, quadv%nop()
+     ! direct
+     fcsv(:, :) = fcs_bnd(:, :)
+     fcss(:, :) = fcs_bnd(:, :)
+     call quadv%trns_f_i4(il)%obj(sz, fcsv, work)
+     call quads%init(il)
+     call quads%trns_f_i4%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcsv(kl, jl), fcss(kl, jl))
+        end do
+     end do
+     ! inverse
+     call quads%trns_inv_f_i4%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
+        end do
+     end do
+  end do
+
+  ! interior face test
+  do il = 0, quadv%nop()
+     ! direct
+     fcsv(:, :) = fcs_bnd(:, :)
+     fcss(:, :) = fcs_bnd(:, :)
+     call quadv%trns_i_i4(il)%obj(sz, fcsv, work)
+     call quads%init(il)
+     call quads%trns_i_i4%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcsv(kl, jl), fcss(kl, jl))
+        end do
+     end do
+     ! inverse
+     call quads%trns_inv_i_i4%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
+        end do
+     end do
+  end do
+end subroutine test_alignment_quad_op_set_i4
+
+@test
+subroutine test_alignment_quad_op_set_i8
+  use pfunit
+  use num_types, only : i4, i8, dp
+  use alignment_quad, only : alignment_quad_t, alignment_quad_op_set_t
+  implicit none
+  type(alignment_quad_t) :: quadv
+  type(alignment_quad_op_set_t) :: quads
+  integer(i4), parameter :: sz = 5
+  integer(i8), dimension(sz) :: work
+  integer(i8), dimension(sz, sz) :: fcsv, fcss
+  integer(i8), dimension(sz, sz) :: fcs_bnd
+  integer(i4) :: il, jl, kl
+
+  ! initial condition
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(il, jl) = il -1 + (jl - 1)*sz
+     end do
+  end do
+
+  call quadv%init()
+
+  ! full face test
+  do il = 0, quadv%nop()
+     ! direct
+     fcsv(:, :) = fcs_bnd(:, :)
+     fcss(:, :) = fcs_bnd(:, :)
+     call quadv%trns_f_i8(il)%obj(sz, fcsv, work)
+     call quads%init(il)
+     call quads%trns_f_i8%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcsv(kl, jl), fcss(kl, jl))
+        end do
+     end do
+     ! inverse
+     call quads%trns_inv_f_i8%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
+        end do
+     end do
+  end do
+
+  ! interior face test
+  do il = 0, quadv%nop()
+     ! direct
+     fcsv(:, :) = fcs_bnd(:, :)
+     fcss(:, :) = fcs_bnd(:, :)
+     call quadv%trns_i_i8(il)%obj(sz, fcsv, work)
+     call quads%init(il)
+     call quads%trns_i_i8%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcsv(kl, jl), fcss(kl, jl))
+        end do
+     end do
+     ! inverse
+     call quads%trns_inv_i_i8%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
+        end do
+     end do
+  end do
+end subroutine test_alignment_quad_op_set_i8
+
+@test
+subroutine test_alignment_quad_op_set_dp
+  use pfunit
+  use num_types, only : i4, i8, dp
+  use alignment_quad, only : alignment_quad_t, alignment_quad_op_set_t
+  implicit none
+  type(alignment_quad_t) :: quadv
+  type(alignment_quad_op_set_t) :: quads
+  integer(i4), parameter :: sz = 5
+  real(dp), dimension(sz) :: work
+  real(dp), dimension(sz, sz) :: fcsv, fcss
+  real(dp), dimension(sz, sz) :: fcs_bnd
+  integer(i4) :: il, jl, kl
+
+  ! initial condition
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(il, jl) = il -1 + (jl - 1)*sz
+     end do
+  end do
+
+  call quadv%init()
+
+  ! full face test
+  do il = 0, quadv%nop()
+     ! direct
+     fcsv(:, :) = fcs_bnd(:, :)
+     fcss(:, :) = fcs_bnd(:, :)
+     call quadv%trns_f_dp(il)%obj(sz, fcsv, work)
+     call quads%init(il)
+     call quads%trns_f_dp%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcsv(kl, jl), fcss(kl, jl))
+        end do
+     end do
+     ! inverse
+     call quads%trns_inv_f_dp%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
+        end do
+     end do
+  end do
+
+  ! interior face test
+  do il = 0, quadv%nop()
+     ! direct
+     fcsv(:, :) = fcs_bnd(:, :)
+     fcss(:, :) = fcs_bnd(:, :)
+     call quadv%trns_i_dp(il)%obj(sz, fcsv, work)
+     call quads%init(il)
+     call quads%trns_i_dp%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcsv(kl, jl), fcss(kl, jl))
+        end do
+     end do
+     ! inverse
+     call quads%trns_inv_i_dp%obj(sz, fcss, work)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
+        end do
+     end do
+  end do
+end subroutine test_alignment_quad_op_set_dp
