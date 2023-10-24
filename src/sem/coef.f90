@@ -148,6 +148,7 @@ module coefs
      procedure, private, pass(this) :: init_all => coef_init_all
      procedure, pass(this) :: free => coef_free
      procedure, pass(this) :: get_normal => coef_get_normal
+     procedure, pass(this) :: get_area => coef_get_area
      generic :: init => init_empty, init_all
   end type coef_t
   
@@ -990,6 +991,22 @@ contains
         normal(3) = this%nz(i, j, facet, e)
       end select
   end function coef_get_normal
+
+  pure function coef_get_area(this, i, j, k, e, facet) result(area)
+    class(coef_t), intent(in) :: this
+    integer, intent(in) :: i, j, k, e, facet
+    real(kind=rp) :: area
+      
+    select case (facet)               
+      case(1,2)
+        area = this%area(j, k, facet, e)
+      case(3,4)
+        area = this%area(i, k, facet, e)
+      case(5,6)
+        area = this%area(i, j, facet, e)
+      end select
+  end function coef_get_area
+
 
   !> Generate facet area and surface normals
   subroutine coef_generate_area_and_normal(coef)
