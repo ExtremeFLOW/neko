@@ -48,7 +48,8 @@ module operators
   implicit none
   private
 
-  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, lambda2op
+  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
+            lambda2op, strain_rate
   
 contains
   
