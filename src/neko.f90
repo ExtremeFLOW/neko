@@ -76,6 +76,7 @@ module neko
   use jobctrl
   use device
   use device_math
+  use map_1d
   use cpr
   use fluid_stats
   use field_list, only : field_list_t
@@ -86,6 +87,7 @@ module neko
   use probes
   use spectral_error_indicator
   use system
+  use drag_torque
   use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry
   use simulation_component_global, only : simcomps_global_init
