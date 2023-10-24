@@ -19,6 +19,7 @@ neko_fortran_SOURCES = \
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
+	sem/local_interpolation.f90 \
 	math/math.f90\
 	math/mathops.f90\
 	math/fast3d.f90\
@@ -157,7 +158,7 @@ neko_fortran_SOURCES = \
 	common/statistics.f90\
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
-	common/probes.F90\
+	simulation_components/probes.F90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
