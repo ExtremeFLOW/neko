@@ -169,6 +169,9 @@ contains
     type(field_t), intent(inout) :: p
 
 
+    if (tstep .eq. 0) return
+    if (mod(tstep,100) .ne. 0) return 
+
     !> Send data to data processor
     call dstream%stream(u, v, w, p, coef)  
 

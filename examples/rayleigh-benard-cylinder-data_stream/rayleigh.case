@@ -4,7 +4,7 @@
     "mesh_file": "cylinder.nmsh",
     "output_at_end": true,
     "output_boundary": true,
-    "end_time": 250,
+    "end_time": 1,
     "timestep": 2e-3,
     "output_checkpoints": true,
     "checkpoint_control": "simulationtime",
@@ -42,7 +42,7 @@
             "max_iterations": 800
         },
         "output_control": "simulationtime",
-        "output_value": 1,
+        "output_value": 10,
         "boundary_types": [
             "w"
         ]
@@ -50,17 +50,6 @@
     "scalar": {
         "enabled": true,
         "Pr": 1.0
-    },
-    "simulation_components": 
-    [
-      {
-        "type": "probes",
-        "compute_control": "simulationtime",
-        "compute_value"    : 1,
-        "points_file":  "probes.csv",
-        "output_file":  "output.csv",
-        "fields": ["w","s"]
-       }
-     ]
+    }
 }
 }
