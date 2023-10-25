@@ -157,7 +157,8 @@ contains
     real(kind=rp)     :: write_par
     character(len=:), allocatable  :: write_control
     real(kind=rp)     :: T_end
-    
+    integer :: how_many_samples
+
     s => neko_field_registry%get_field('s')
     
     !> Initialize the spectral error indicator
@@ -235,6 +236,21 @@ contains
     if (this%field_write_control%nsteps .eq. 0) then
        this%field_write_control%nexecutions = &
                int(t / this%field_write_control%time_interval) + 1
+    end if
+
+    !> Initialize the sampling interval for stats
+    if (t .gt. 0) then
+       if (pe_rank .eq. 0) then 
+          write(*,*) 'restarting the value for last stat sample '
+       end if
+       !> find how many samples have been taken
+       how_many_samples = floor(t/this%sample_control%time_interval)
+       !> Update the time since the last sample based on the information
+       this%t_last_sample = how_many_samples * &
+                            this%sample_control%time_interval
+       if (pe_rank .eq. 0) then 
+          write(*,*) 'last sample was at t= ', this%t_last_sample
+       end if
     end if
 
     !> Initialize the files
@@ -720,129 +736,129 @@ contains
 
        call device_memcpy(this%work_field%x, &
                           this%work_field%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
 
        call device_memcpy(this%uzt%x, &
                           this%uzt%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
 
        call device_memcpy(this%dtdx%x, &
                           this%dtdx%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
 
        call device_memcpy(this%dtdy%x, &
                           this%dtdy%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
 
        call device_memcpy(this%dtdz%x, &
                           this%dtdz%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%div_dtdX%x, &
                           this%div_dtdX%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%dtdn%x, &
                           this%dtdn%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%dudx%x, &
                           this%dudx%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%dudy%x, &
                           this%dudy%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%dudz%x, &
                           this%dudz%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%dvdx%x, &
                           this%dvdx%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%dvdy%x, &
                           this%dvdy%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%dvdz%x, &
                           this%dvdz%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%dwdx%x, &
                           this%dwdx%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%dwdy%x, &
                           this%dwdy%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%dwdz%x, &
                           this%dwdz%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%eps_k%x, &
                           this%eps_k%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%eps_t%x, &
                           this%eps_t%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        !> Mean quantities
        
        call device_memcpy(this%mean_t%mf%x, &
                           this%mean_t%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%mean_uxt%mf%x, &
                           this%mean_uxt%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%mean_uyt%mf%x, &
                           this%mean_uyt%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%mean_uzt%mf%x, &
                           this%mean_uzt%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%mean_dtdx%mf%x, &
                           this%mean_dtdx%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%mean_dtdy%mf%x, &
                           this%mean_dtdy%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%mean_dtdz%mf%x, &
                           this%mean_dtdz%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%mean_dtdn%mf%x, &
                           this%mean_dtdn%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%mean_eps_k%mf%x, &
                           this%mean_eps_k%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%mean_eps_t%mf%x, &
                           this%mean_eps_t%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
 
        call device_memcpy(this%mean_speri_u%mf%x, &
                           this%mean_speri_u%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
 
        call device_memcpy(this%mean_speri_v%mf%x, &
                           this%mean_speri_v%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
 
        call device_memcpy(this%mean_speri_w%mf%x, &
                           this%mean_speri_w%mf%x_d, &
-                          n,DEVICE_TO_HOST)
+                          n,DEVICE_TO_HOST,sync=.true.)
        
     end if
 
@@ -1077,6 +1093,7 @@ contains
     sqrtPr_Ra = sqrt(Pr/Ra)*0.5_rp
 
     !Energy dissipation epsv=0.5*(du_i/dx_j+du_j/dx_i)**2*sqrt(Pr/Ra)
+    ! Some explanation https://www.cfd-online.com/Wiki/Introduction_to_turbulence/Turbulence_kinetic_energy
     if (NEKO_BCKND_DEVICE .eq. 1) then 
         call device_rzero(eps_k%x_d,n)
         

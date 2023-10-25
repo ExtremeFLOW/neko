@@ -256,7 +256,7 @@ contains
        (NEKO_BCKND_OPENCL .eq. 1)) then 
 
       call device_memcpy(u_hat%x,u_hat%x_d, n, &
-                         DEVICE_TO_HOST)
+                         DEVICE_TO_HOST,sync=.true.)
     end if
 
   end subroutine transform_to_spec_or_phys
