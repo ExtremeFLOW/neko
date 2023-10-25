@@ -1,0 +1,3 @@
+[submodule "examples/rayleigh-benard-cylinder-data_stream/examples/rayleigh-benard-cylinder-data_stream/spMoDePy"]
+	path = examples/rayleigh-benard-cylinder-data_stream/examples/rayleigh-benard-cylinder-data_stream/spMoDePy
+	url = https://github.com/adperezm/spMoDePy.git
