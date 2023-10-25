@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-! Implements a point zone registry for storing point zones
+! Implements a point zone registry for storing point zones.
 module point_zone_registry
   use point_zone, only : point_zone_t, point_zone_wrapper_t
   use point_zone_fctry, only: point_zone_factory
@@ -43,22 +43,35 @@ module point_zone_registry
   private
 
   type :: point_zone_registry_t
-     !> list of point_zones stored
+     !> List of point_zones stored.
      type(point_zone_wrapper_t), allocatable :: point_zones(:)
-     !> number of registered point_zones
+     !> Number of registered point_zones.
      integer, private :: n = 0
-     !> the size the point_zones array is increased by upon reallocation
+     !> The size the point_zones array is increased by upon reallocation.
      integer, private :: expansion_size
    contains
+     !> Expand the point_zones array so as to accomodate more point_zones.
      procedure, private, pass(this) :: expand
+     !> Constructor, reading from json point zones.
      procedure, pass(this) :: init => point_zone_registry_init
+     !> Destructor.
      procedure, pass(this) :: free => point_zone_registry_free
+     !> Adds a point zone object to the registry from a json object.
      procedure, pass(this) :: add_point_zone_from_json
+     !> Returns the number of point zones in the registry.
      procedure, pass(this) :: n_point_zones
+     !> Retrieves a point zone in the registry by its index in the 
+     !! `point_zones` array.
      procedure, pass(this) :: get_point_zone_by_index
+     !> Retrieves a point zone in the registry by its name.
      procedure, pass(this) :: get_point_zone_by_name
+     !> Returns the expansion size with which the `point_zone_registry_t`
+     !! was initialized.
      procedure, pass(this) :: get_expansion_size
+     !> Returns the total size of the `point_zones` array (not the number of 
+     !! point zones in the registry!).
      procedure, pass(this) :: get_size
+     !> Checks if a point zone exists in the registry.
      procedure, pass(this) :: point_zone_exists
      generic :: get_point_zone => get_point_zone_by_index, get_point_zone_by_name
      generic :: add_point_zone => add_point_zone_from_json
@@ -69,10 +82,10 @@ module point_zone_registry
 
 contains
   !> Constructor, reading from json point zones.
-  !! @param json Json file object
-  !! @param dof Dofmap to map the point zone from GLL points
-  !! @param size Size of the point zone registry
-  !! @param expansion_size Expansion size for the point zone registry
+  !! @param json Json file object.
+  !! @param dof Dofmap to map the point zone from GLL points.
+  !! @param size Size of the point zone registry.
+  !! @param expansion_size Expansion size for the point zone registry.
   !! @note At this stage, the point_zone registry is only allocated
   !! if we find anything in the `case.point_zones` json path. Any
   !! point_zones that are not defined in that way will need to be added
@@ -131,7 +144,7 @@ contains
 
   end subroutine point_zone_registry_init
 
-  !> Destructor
+  !> Destructor.
   subroutine point_zone_registry_free(this)
     class(point_zone_registry_t), intent(inout):: this
     integer :: i
@@ -150,7 +163,7 @@ contains
     this%expansion_size = 0
   end subroutine point_zone_registry_free
 
-  !> expand the point_zones array so as to accomodate more point_zones
+  !> Expand the point_zones array so as to accomodate more point_zones.
   subroutine expand(this)
     class(point_zone_registry_t), intent(inout) :: this
     type(point_zone_wrapper_t), allocatable :: temp(:)
@@ -162,6 +175,9 @@ contains
 
   end subroutine expand
 
+  !> Adds a point zone object to the registry from a json object.
+  !! @param json Json object from which to initialize the point zone.
+  !! @param dof Dofmap from which to map the point zone.
   subroutine add_point_zone_from_json(this, json, dof)
     class(point_zone_registry_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -206,7 +222,7 @@ contains
     !    write(*,*) "HTABLE DATA, ", this%name_index_map%get(key, i)
   end subroutine add_point_zone_from_json
 
-  !> Get the number of point_zones stored in the registry
+  !> Returns the number of point zones in the registry.
   pure function n_point_zones(this) result(n)
     class(point_zone_registry_t), intent(in) :: this
     integer :: n
@@ -214,7 +230,10 @@ contains
     n = this%n
   end function n_point_zones
 
-  !> Get the size of the point_zones array
+  !> Returns the total size of the `point_zones` array (not the number of 
+  !! point zones in the registry!).
+  !! @note Use `n_point_zones()` to retrieve the actual number of point
+  !! zones in the registry.
   pure function get_size(this) result(n)
     class(point_zone_registry_t), intent(in) :: this
     integer :: n
@@ -222,7 +241,8 @@ contains
     n = size(this%point_zones)
   end function get_size
 
-  !> Get the expansion size
+  !> Returns the expansion size with which the `point_zone_registry_t`
+  !! was initialized.
   pure function get_expansion_size(this) result(n)
     class(point_zone_registry_t), intent(in) :: this
     integer :: n
@@ -230,7 +250,9 @@ contains
     n = this%expansion_size
   end function get_expansion_size
 
-  !> Get pointer to a stored point_zone by index
+  !> Retrieves a point zone in the registry by its index in the 
+  !! `point_zones` array.
+  !! @param i Index in the `point_zones` array.
   function get_point_zone_by_index(this, i) result(pz)
     class(point_zone_registry_t), target, intent(in) :: this
     integer, intent(in) :: i
@@ -245,11 +267,12 @@ contains
     pz => this%point_zones(i)%pz
   end function get_point_zone_by_index
 
-  !> Get pointer to a stored point_zone by point_zone name
+  !> Retrieves a point zone in the registry by its name.
+  !! @param name Name of the point zone.
   function get_point_zone_by_name(this, name) result(pz)
     class(point_zone_registry_t), target, intent(in) :: this
     character(len=*), intent(in) :: name
-    class(*), pointer :: pz
+    class(point_zone_t), pointer :: pz
     logical :: found
     integer :: i
 
@@ -268,7 +291,8 @@ contains
     end if
   end function get_point_zone_by_name
 
-  !> Check if a point_zone with a given name is already in the registry
+  !> Checks if a point zone exists in the registry.
+  !! @param name Name of the point zone.
   function point_zone_exists(this, name) result(found)
     class(point_zone_registry_t), target, intent(in) :: this
     character(len=*), intent(in) :: name
