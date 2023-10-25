@@ -144,15 +144,15 @@ contains
   !! @param k 2nd nonlinear index of the GLL point.
   !! @param l 3rd nonlinear index of the GLL point.
   !! @param e element index of the GLL point.
-  pure function sphere_point_zone_criterion(this, x, y, z, ix, iy, iz, ie) result(is_inside)
+  pure function sphere_point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
     class(sphere_point_zone_t), intent(in) :: this
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
     real(kind=rp), intent(in) :: z
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
+    integer, intent(in) :: j
+    integer, intent(in) :: k
+    integer, intent(in) :: l
+    integer, intent(in) :: e
     logical :: is_inside
 
     real(kind=rp) :: dist_from_center
