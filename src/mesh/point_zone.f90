@@ -43,48 +43,74 @@ module point_zone
   implicit none
   private
 
+  !> Base abstract type for point zones.
   type, public, abstract :: point_zone_t
+     !> List of linear indices of the GLL points in the zone. 
      integer, allocatable :: mask(:)
+     !> List of linear indices of the GLL points in the zone on the device.
      type(c_ptr) :: mask_d
+     !> Scratch stack of integers to build the list mask.
      type(stack_i4_t), private :: scratch
+     !> Size of the point zone mask.
      integer :: size = 0
+     !> Flag to indicate if point_zone_finalize has been called and the mask
+     !! has been built.
      logical, private :: finalized = .false.
+     !> Name of the point zone (used for retrieval in the point_zone_registry).
      character(len=80) :: name
    contains
+     !> Constructor for the point_zone_t base type.
      procedure, pass(this) :: init_base => point_zone_init_base
+     !> Destructor for the point_zone_t base type.
      procedure, pass(this) :: free_base => point_zone_free_base
+     !> Builds the mask from the scratch stack.
      procedure, pass(this) :: finalize => point_zone_finalize
+     !> Adds a point's linear index to the scratch stack.
      procedure, pass(this) :: add => point_zone_add
+     !> Maps the GLL points that verify a point_zone's `criterion` by adding
+     !! them to the stack.
      procedure, pass(this) :: map => point_zone_map
      !> The common constructor using a JSON object.
      procedure(point_zone_init), pass(this), deferred :: init
      !> Destructor.
      procedure(point_zone_free), pass(this), deferred :: free
+     !> Defines the criterion of selection of a GLL point to the point_zone.
      procedure(point_zone_criterion), pass(this), deferred :: criterion
-     
   end type point_zone_t
 
+  !> A helper type to build a list of polymorphic point_zones.
   type, public :: point_zone_wrapper_t
      class(point_zone_t), allocatable :: pz
   end type point_zone_wrapper_t
 
   abstract interface
-     pure function point_zone_criterion(this, x, y, z, ix, iy, iz, ie) result(is_inside)
+     !> Defines the criterion of selection of a GLL point to the point_zone.
+     !! @param x x-coordinate of the GLL point
+     !! @param y y-coordinate of the GLL point
+     !! @param z z-coordinate of the GLL point
+     !! @param j 1st nonlinear index of the GLL point
+     !! @param k 2nd nonlinear index of the GLL point
+     !! @param l 3rd nonlinear index of the GLL point
+     !! @param e element index of the GLL point
+     pure function point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
        import :: point_zone_t
        import :: rp
        class(point_zone_t), intent(in) :: this
        real(kind=rp), intent(in) :: x
        real(kind=rp), intent(in) :: y
        real(kind=rp), intent(in) :: z
-       integer, intent(in) :: ix
-       integer, intent(in) :: iy
-       integer, intent(in) :: iz
-       integer, intent(in) :: ie
+       integer, intent(in) :: j
+       integer, intent(in) :: k
+       integer, intent(in) :: l
+       integer, intent(in) :: e
        logical :: is_inside
      end function point_zone_criterion
   end interface
 
   abstract interface
+     !> The common constructor using a JSON object.
+     !! @param json Json object for the point zone
+     !! @param dof Dofmap of all GLL points from which to map the point zone
      subroutine point_zone_init(this, json, dof)
        import :: point_zone_t
        import :: json_file
@@ -96,6 +122,7 @@ module point_zone
   end interface
 
   abstract interface
+     !> Destructor
      subroutine point_zone_free(this)
        import :: point_zone_t
        class(point_zone_t), intent(inout) :: this
@@ -104,7 +131,9 @@ module point_zone
 
 contains
 
-  !> Initialize a point zone
+  !> Constructor for the point_zone_t base type.
+  !! @param size Size of the scratch stack.
+  !! @param name Name of the point zone
   subroutine point_zone_init_base(this, size, name)
     class(point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
@@ -122,7 +151,7 @@ contains
 
   end subroutine point_zone_init_base
 
-  !> Deallocate a point zone
+  !> Destructor for the point_zone_t base type.
   subroutine point_zone_free_base(this)
     class(point_zone_t), intent(inout) :: this
     if (allocated(this%mask)) then
@@ -140,8 +169,7 @@ contains
     
   end subroutine point_zone_free_base
 
-  !> Finalize a zone list
-  !! @details Create a static list of integers
+  !> Builds the mask from the scratch stack.
   subroutine point_zone_finalize(this)
     class(point_zone_t), intent(inout) :: this
     integer, pointer :: tp(:)
@@ -171,7 +199,10 @@ contains
     
   end subroutine point_zone_finalize
 
-  !> Add a point linear index to an unfinalized zone
+  !> Adds a point's linear index to the scratch stack.
+  !! @param idx Linear index of the point to add.
+  !! @note The linear index of a point `(j,k,l,e)` can be retrieved using the 
+  !! subroutine `linear_index(j,k,l,e,lx)` in the `utils` module.
   subroutine point_zone_add(this, idx)
     class(point_zone_t), intent(inout) :: this
     integer, intent(inout) :: idx
@@ -184,8 +215,8 @@ contains
     
   end subroutine point_zone_add
 
-  !> Map the GLL points which are in the point_zone, according to
-  !! the given criterion (zone specific)
+  !> Maps the GLL points that verify a point_zone's `criterion` by adding
+  !! them to the stack.
   !! @param dof Dofmap of points to go through
   subroutine point_zone_map(this, dof)
     class(point_zone_t), intent(inout) :: this
