@@ -254,16 +254,19 @@ contains
 
   subroutine drag_torque_pt(dgtq,x,y,z,s11, s22, s33, s12, s13, s23,&
                             p,n1, n2, n3,v)
-    real(kind=rp) :: dgtq(3,4)
-    real(kind=rp) :: x 
-    real(kind=rp) :: y
-    real(kind=rp) :: z
-    real(kind=rp) :: p
-    real(kind=rp) :: v
-    real(kind=rp) :: n1, n2, n3, r1, r2, r3
-    real(kind=rp) :: s11, s21, s31, s12, s22, s32, s13, s23, s33
-
+    real(kind=rp), intent(inout) :: dgtq(3,4)
+    real(kind=rp), intent(in) :: x 
+    real(kind=rp), intent(in) :: y
+    real(kind=rp), intent(in) :: z
+    real(kind=rp), intent(in) :: p
+    real(kind=rp), intent(in) :: v
+    real(kind=rp), intent(in) :: n1, n2, n3
+    real(kind=rp), intent(in) :: s11, s12, s22, s13, s23, s33
+    real(kind=rp) ::  s21, s31, s32, r1, r2, r3 
     call rzero(dgtq,12)
+    s21 = s12
+    s32 = s23
+    s31 = s13
     !pressure drag
     dgtq(1,1) = p*n1  
     dgtq(2,1) = p*n2
