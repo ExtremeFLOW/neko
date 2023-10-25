@@ -83,13 +83,47 @@ subroutine test_edge_init
   @assertEqual(facetp(1, 4), 2)
   @assertEqual(facetp(2, 4), 2)
   deallocate(facetp)
+
 end subroutine test_edge_init
+
+@test
+subroutine test_edge_eq_algn
+  use pfunit
+  use num_types, only : i4
+  use vertex_cnn, only : vertex_cnn_t
+  use edge_cnn, only : edge_cnn_t
+  implicit none
+  type(vertex_cnn_t) :: vertex1, vertex2
+  type(edge_cnn_t) :: edge1, edge2
+  logical :: equal
+  integer(i4) :: algn
+
+  ! Vertices for edges
+  call vertex1%init(1)
+  call vertex2%init(2)
+
+  ! reference edge
+  call edge1%init(1, vertex1, vertex2)
+
+  ! Test transformations
+  ! Identity
+  call edge1%eq_algn(edge1, equal, algn)
+  @assertTrue(equal)
+  @assertEqual(algn, 0)
+  ! Permutation
+  call edge2%init(1, vertex2, vertex1)
+  call edge1%eq_algn(edge2, equal, algn)
+  @assertTrue(equal)
+  @assertEqual(algn, 1)
+
+  return
+end subroutine test_edge_eq_algn
 
 @test
 subroutine test_edge_alignment
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
+  use vertex_cnn, only : vertex_cnn_t
   use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
   implicit none
   type(vertex_cnn_t) :: vertex1, vertex2

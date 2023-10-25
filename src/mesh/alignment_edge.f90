@@ -40,7 +40,7 @@ module alignment_edge
   public :: alignment_edge_t, alignment_edge_op_set_t
 
   !> number of operations different from identity
-  integer(i4), parameter :: NEKO_EDGE_NOPERATION = 1
+  integer(i4), public, parameter :: NEKO_EDGE_NOPERATION = 1
 
   !> procedure pointer type; i4
   type :: algn_edge_proc_i4_ptr
@@ -223,6 +223,82 @@ contains
     noperation = this%noperation_
   end function edge_noperation_get
 
+  !> @brief Initialise alignment and procedure pointers
+  !! @parameter[in]   algn   alignment
+  subroutine edge_op_set_init(this, algn)
+    class(alignment_edge_op_set_t), intent(inout) :: this
+    integer(i4), intent(in) :: algn
+
+    call this%free()
+
+    ! set relative alignment transformation
+    if ((algn >= 0).and.(algn <= NEKO_EDGE_NOPERATION)) then
+       this%alignment = algn
+    else
+       call neko_error('Not proper alignment.')
+    end if
+    select case(algn)
+    case(0)
+       ! Direct transformation of full array, different types
+       this%trns_f_i4%obj => transform_edge_I_i4
+       this%trns_f_i8%obj => transform_edge_I_i8
+       this%trns_f_dp%obj => transform_edge_I_dp
+       ! Direct transformation of array interior, different types
+       this%trns_i_i4%obj => transform_edge_I_i4
+       this%trns_i_i8%obj => transform_edge_I_i8
+       this%trns_i_dp%obj => transform_edge_I_dp
+       ! Inverse transformation of full array, different types
+       this%trns_inv_f_i4%obj => transform_edge_I_i4
+       this%trns_inv_f_i8%obj => transform_edge_I_i8
+       this%trns_inv_f_dp%obj => transform_edge_I_dp
+       ! Inverse transformation of array interior, different types
+       this%trns_inv_i_i4%obj => transform_edge_I_i4
+       this%trns_inv_i_i8%obj => transform_edge_I_i8
+       this%trns_inv_i_dp%obj => transform_edge_I_dp
+    case(1)
+       ! Direct transformation of full array, different types
+       this%trns_f_i4%obj => transform_edge_P_full_i4
+       this%trns_f_i8%obj => transform_edge_P_full_i8
+       this%trns_f_dp%obj => transform_edge_P_full_dp
+       ! Direct transformation of array interior, different types
+       this%trns_i_i4%obj => transform_edge_P_int_i4
+       this%trns_i_i8%obj => transform_edge_P_int_i8
+       this%trns_i_dp%obj => transform_edge_P_int_dp
+       ! Inverse transformation of full array, different types
+       this%trns_inv_f_i4%obj => transform_edge_P_full_i4
+       this%trns_inv_f_i8%obj => transform_edge_P_full_i8
+       this%trns_inv_f_dp%obj => transform_edge_P_full_dp
+       ! Inverse transformation of array interior, different types
+       this%trns_inv_i_i4%obj => transform_edge_P_int_i4
+       this%trns_inv_i_i8%obj => transform_edge_P_int_i8
+       this%trns_inv_i_dp%obj => transform_edge_P_int_dp
+    end select
+
+    return
+  end subroutine edge_op_set_init
+
+  !> @brief Free alignment and procedure pointers
+  subroutine edge_op_set_free(this)
+    class(alignment_edge_op_set_t), intent(inout) :: this
+
+    this%alignment = -1
+    ! free pointers
+    this%trns_f_i4%obj => null()
+    this%trns_f_i8%obj => null()
+    this%trns_f_dp%obj => null()
+    this%trns_i_i4%obj => null()
+    this%trns_i_i8%obj => null()
+    this%trns_i_dp%obj => null()
+    this%trns_inv_f_i4%obj => null()
+    this%trns_inv_f_i8%obj => null()
+    this%trns_inv_f_dp%obj => null()
+    this%trns_inv_i_i4%obj => null()
+    this%trns_inv_i_i8%obj => null()
+    this%trns_inv_i_dp%obj => null()
+
+    return
+  end subroutine edge_op_set_free
+
   !> @brief Identity transformation, single integer array
   !! @parameter[in]     sz       array size
   !! @parameter[inout]  edg      edge data
@@ -378,81 +454,5 @@ contains
 
     return
   end subroutine transform_edge_P_int_dp
-
-  !> @brief Initialise alignment and procedure pointers
-  !! @parameter[in]   algn   alignment
-  subroutine edge_op_set_init(this, algn)
-    class(alignment_edge_op_set_t), intent(inout) :: this
-    integer(i4), intent(in) :: algn
-
-    call this%free()
-
-    ! set relative alignment transformation
-    if ((algn >= 0).and.(algn <= NEKO_EDGE_NOPERATION)) then
-       this%alignment = algn
-    else
-       call neko_error('Not proper alignment.')
-    end if
-    select case(algn)
-    case(0)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_edge_I_i4
-       this%trns_f_i8%obj => transform_edge_I_i8
-       this%trns_f_dp%obj => transform_edge_I_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_edge_I_i4
-       this%trns_i_i8%obj => transform_edge_I_i8
-       this%trns_i_dp%obj => transform_edge_I_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_edge_I_i4
-       this%trns_inv_f_i8%obj => transform_edge_I_i8
-       this%trns_inv_f_dp%obj => transform_edge_I_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_edge_I_i4
-       this%trns_inv_i_i8%obj => transform_edge_I_i8
-       this%trns_inv_i_dp%obj => transform_edge_I_dp
-    case(1)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_edge_P_full_i4
-       this%trns_f_i8%obj => transform_edge_P_full_i8
-       this%trns_f_dp%obj => transform_edge_P_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_edge_P_int_i4
-       this%trns_i_i8%obj => transform_edge_P_int_i8
-       this%trns_i_dp%obj => transform_edge_P_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_edge_P_full_i4
-       this%trns_inv_f_i8%obj => transform_edge_P_full_i8
-       this%trns_inv_f_dp%obj => transform_edge_P_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_edge_P_int_i4
-       this%trns_inv_i_i8%obj => transform_edge_P_int_i8
-       this%trns_inv_i_dp%obj => transform_edge_P_int_dp
-    end select
-
-    return
-  end subroutine edge_op_set_init
-
-  !> @brief Free alignment and procedure pointers
-  subroutine edge_op_set_free(this)
-    class(alignment_edge_op_set_t), intent(inout) :: this
-
-    this%alignment = -1
-    ! free pointers
-    this%trns_f_i4%obj => null()
-    this%trns_f_i8%obj => null()
-    this%trns_f_dp%obj => null()
-    this%trns_i_i4%obj => null()
-    this%trns_i_i8%obj => null()
-    this%trns_i_dp%obj => null()
-    this%trns_inv_f_i4%obj => null()
-    this%trns_inv_f_i8%obj => null()
-    this%trns_inv_f_dp%obj => null()
-    this%trns_inv_i_i4%obj => null()
-    this%trns_inv_i_i8%obj => null()
-    this%trns_inv_i_dp%obj => null()
-
-    return
-  end subroutine edge_op_set_free
 
 end module alignment_edge

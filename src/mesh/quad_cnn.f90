@@ -1,0 +1,310 @@
+! Copyright (c) 2018-2023, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Connectivity quadrilateral type
+module quad_cnn
+  use num_types, only : i4
+  use utils, only : neko_error
+  use polytope_cnn, only : polytope_cnn_t
+  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
+  use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t,&
+       & NEKO_EDGE_NFACET
+  use face_cnn, only : face_cnn_t
+  use alignment_quad, only : alignment_quad_t, alignment_quad_op_set_t
+  implicit none
+  private
+
+  public :: quad_cnn_t, quad_cnn_ptr
+
+  ! object information
+  integer(i4), public, parameter :: NEKO_QUAD_NFACET = 4
+  integer(i4), public, parameter :: NEKO_QUAD_NRIDGE = 4
+  integer(i4), public, parameter :: NEKO_QUAD_NPEAK = 0
+
+  !> Quad type for global communication
+  !! @details Quad is one of the realisations of face containing 4 facets
+  !! (edges) and 4 ridges (vertices). Quad is and object with alignment.
+  !! Facets are oriented according to the numbers of ridges from the one with
+  !! the smaller number towards the one with the bigger number.This corresponds
+  !! to the data alignment in the data array.
+  !! @verbatim
+  !! Facet and ridge numbering (symmetric notation)
+  !!
+  !!         f_4            ^ s
+  !!    r_3-------r_4       |
+  !!      |       |         |
+  !! f_1  |       |  f_2    |
+  !!      |       |         |
+  !!    r_1-------r_2       +-------> r
+  !!         f_3
+  !!
+  !! @endverbatim
+  type, extends(face_cnn_t) :: quad_cnn_t
+   contains!> Initialise quad
+     procedure, pass(this) :: init => quad_init
+     !> Check equality and get relative alignment info
+     procedure, pass(this) :: eq_algn => quad_equal_align
+     !> Quad equality including edge and vertex information
+     procedure, pass(this) :: equal => quad_equal
+     generic :: operator(.eq.) => equal
+  end type quad_cnn_t
+
+  !> Pointer to a quad type
+  type ::  quad_cnn_ptr
+     type(quad_cnn_t), pointer :: obj
+  end type quad_cnn_ptr
+
+  !> Quad with alignment information
+  type :: quad_aligned_cnn_t
+     !> edge pointer
+     type(quad_cnn_ptr) :: quad
+     !> alignment operator
+     type(alignment_quad_op_set_t) :: algn_op
+   contains
+     !> Initialise aligned quad
+!     procedure, pass(this) :: init => quad_aligned_init
+     !> Free aligned quad
+!     procedure, pass(this) :: free => quad_aligned_free
+     !> Return quad pointer
+!     procedure, pass(this) :: quadp => quad_aligned_edgep
+     !> Return quad relative alignment
+!     procedure, pass(this) :: algn => quad_aligned_alignment_get
+     !> Test alignment
+!     procedure, pass(this) :: test => quad_aligned_test
+  end type quad_aligned_cnn_t
+
+  ! Lookup tables
+  !> Facet corner to ridge
+  integer, parameter, dimension(2, 4) :: fct_to_rdg = reshape((/1,3, &
+       & 2,4, 1,2, 3,4 /), shape(fct_to_rdg))
+  !> Facets connected to the ridge
+  integer, parameter, dimension(2, 4) :: rdg_to_fct = reshape((/1,3, &
+       & 2,3, 1,4, 2,4 /), shape(rdg_to_fct))
+  !> Ridge to the facet corners (-1 means ridge is not part of the facet)
+  integer, parameter, dimension(4, 4) :: rdg_to_fctc = reshape((/1,-1,1,-1, &
+       & -1,1,2,-1, 2,-1,-1,1, -1,2,-1,2 /), shape(rdg_to_fctc))
+
+contains
+  !> @brief Initialise quad with global id and four edges
+  !! @details Edges order defines face orientation
+  !! @parameter[in]   id                        unique id
+  !! @parameter[in]   edg1, edg2, edg3, edg4    bounding edges
+  subroutine quad_init(this, id, edg1, edg2, edg3, edg4)
+    class(quad_cnn_t), intent(inout) :: this
+    integer(i4), intent(in) :: id
+    type(edge_aligned_cnn_t), intent(in), target :: edg1, edg2, edg3, edg4
+    integer(i4) :: il, jl, ifct1, ifct2, icrn1, icrn2
+    integer(i4), dimension(NEKO_EDGE_NFACET) :: rdg1, rdg2
+    type(vertex_cnn_ptr) :: vrt1, vrt2
+    logical :: equal
+
+    ! init_dim calls free
+    call this%init_dim()
+
+    call this%set_nelem(NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE,&
+         & NEKO_QUAD_NPEAK)
+    call this%set_id(id)
+    ! get facet pointers
+    allocate(this%facet(NEKO_QUAD_NFACET))
+    this%facet(1) = edg1
+    this%facet(2) = edg2
+    this%facet(3) = edg3
+    this%facet(4) = edg4
+
+    ! THIS SHOULD BE IN DIFFERENT PLACE
+    ! Check if edges are consistent. Self-periodicity is allowed, but vertices
+    ! should not be messed up
+    do il = 1, NEKO_QUAD_NFACET - 1
+       do jl = il + 1, NEKO_QUAD_NFACET
+          equal = this%facet(il)%edge%obj.eq.this%facet(jl)%edge%obj
+       end do
+    end do
+
+    ! Get ridge pointers checking quad structure and edge orientation
+    ! no special treatment of self-periodic edges
+    allocate(this%ridge(NEKO_QUAD_NRIDGE))
+    do il = 1, NEKO_QUAD_NRIDGE
+       ! find proper vertices
+       ifct1 = rdg_to_fct(1, il)
+       ifct2 = rdg_to_fct(2, il)
+       icrn1 = rdg_to_fctc(ifct1, il)
+       icrn2 = rdg_to_fctc(ifct2, il)
+       rdg1(:) = -1
+       rdg2(:) = -1
+       rdg1(icrn1) = 1
+       rdg2(icrn2) = 1
+       ! relative orientation
+       call this%facet(ifct1)%algn_op%trns_f_i4%obj(NEKO_EDGE_NFACET, rdg1)
+       call this%facet(ifct2)%algn_op%trns_f_i4%obj(NEKO_EDGE_NFACET, rdg2)
+       ! get vertices
+       do jl = 1, NEKO_EDGE_NFACET
+          if (rdg1(jl) == 1) then
+             vrt1%obj => this%facet(ifct1)%edge%obj%facet(jl)%obj
+          end if
+          if (rdg2(jl) == 1) then
+             vrt2%obj => this%facet(ifct2)%edge%obj%facet(jl)%obj
+          end if
+       end do
+       if (vrt1%obj%id() == vrt2%obj%id()) then
+          this%ridge(il)%obj => vrt1%obj
+       else
+          call neko_error('Inconsistent edge vertices in the quad.')
+       end if
+    end do
+
+    return
+  end subroutine quad_init
+
+  !> @brief Check if two quads are the same
+  !! @note Alignment for self-periodic quads will not be correct
+  !! @parameter[in]  other    second quad
+  !! @return   equal
+  subroutine quad_equal_align(this, other, equal, algn)
+    class(quad_cnn_t), intent(in) :: this
+    class(polytope_cnn_t), intent(in) :: other
+    logical, intent(out) :: equal
+    integer(i4), intent(out) :: algn
+    type(alignment_quad_t) :: algn_op
+    integer(i4), parameter :: sz = 3
+    integer(i4), dimension(sz, sz) :: trans
+    integer(i4), dimension(sz) :: work
+    integer(i4), dimension(NEKO_QUAD_NFACET) :: mapf
+    integer(i4), dimension(NEKO_QUAD_NRIDGE) :: mapr
+    integer(i4) :: il, algnl
+    logical :: equall
+
+    algn = -1
+    ! check polygon information
+    equal = this%equal_poly(other)
+    if (equal) then
+       ! check global id
+       equal = (this%id() == other%id())
+       ! check edges/vertices getting possible orientation (doesn't work for
+       ! self-periodic)
+       if (equal) then
+          call algn_op%init()
+          select type(other)
+          type is (quad_cnn_t)
+             ! check all the alignment options
+             ! mark faces
+             trans(1, 2) = 1
+             trans(3, 2) = 2
+             trans(2, 1) = 3
+             trans(2, 3) = 4
+             ! mark vertices
+             trans(1, 1) = 1
+             trans(3, 1) = 2
+             trans(1, 3) = 3
+             trans(3, 3) = 4
+             alignment : do algn = 0, algn_op%nop()
+                call algn_op%trns_inv_f_i4(algn)%obj(sz, trans, work)
+                ! get mappings for
+                ! facet
+                mapf(1) = trans(1, 2)
+                mapf(2) = trans(3, 2)
+                mapf(3) = trans(2, 1)
+                mapf(4) = trans(2, 3)
+                ! ridge
+                mapr(1) = trans(1, 1)
+                mapr(2) = trans(3, 1)
+                mapr(3) = trans(1, 3)
+                mapr(4) = trans(3, 3)
+                equal = .true.
+                ! check ridges
+                do il = 1, this%nridge
+                   equal = equal.and.(this%ridge(il)%obj%id() == &
+                        & other%ridge(mapr(il))%obj%id())
+                end do
+                if (equal) then
+                   ! check facets discarding orientation (covered by vertices)
+                   do il = 1, this%nfacet
+                      equal = equal.and.(this%facet(il)%edge%obj.eq.&
+                           & other%facet(mapf(il))%edge%obj)
+                   end do
+                   if (equal) return
+                end if
+                call algn_op%trns_f_i4(algn)%obj(sz, trans, work)
+             end do alignment
+          class default
+             equal = .false.
+          end select
+          if (.not.equal) then
+             ! Something wrong; quads with the same global id should have
+             ! the same type and the same facets/ridges
+             call neko_error('Mismatch in quad, edge and vertex global id')
+          end if
+       end if
+    end if
+
+    return
+  end subroutine quad_equal_align
+
+  !> @brief Check if two quads are the same
+  !! @note No special treatment of self-periodic quads
+  !! @parameter[in]  other    second quad
+  !! @return   equal
+  function quad_equal(this, other) result(equal)
+    class(quad_cnn_t), intent(in) :: this
+    class(polytope_cnn_t), intent(in) :: other
+    logical :: equal
+    integer(i4) :: algn
+
+    call this%eq_algn(other, equal, algn)
+
+    return
+  end function quad_equal
+
+  !> @brief Check if two quads are properly aligned
+  !! @note No special treatment of self-periodic quads, so this is not checked
+  !! @parameter[in]  other    second quad
+  !! @return   aligned
+!!$  function quad_aligned_test(this, other) result(aligned)
+!!$    class(quadrilateral_aligned_t), intent(in) :: this
+!!$    class(quadrilateral_t), intent(in) :: other
+!!$    logical :: aligned
+!!$    integer(i4), dimension(3, 3) :: vrt, vrto
+!!$
+!!$    ! only equal edges can be checked
+!!$    if (this%edge%obj.eq.other) then
+!!$       vrt(1) = this%edge%obj%facet(1)%obj%id()
+!!$       vrt(2) = this%edge%obj%facet(2)%obj%id()
+!!$       vrto(1) = other%facet(1)%obj%id()
+!!$       vrto(2) = other%facet(2)%obj%id()
+!!$       call this%algn_op%trns_f_i4%obj( 2, vrto)
+!!$       aligned = (vrt(1) == vrto(1)).and.(vrt(2) == vrto(2))
+!!$    else
+!!$       call neko_error('Edges not equal')
+!!$    end if
+!!$
+!!$    return
+!!$  end function edge_aligned_test
+end module quad_cnn

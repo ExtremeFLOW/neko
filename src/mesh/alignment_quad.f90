@@ -40,7 +40,7 @@ module alignment_quad
   public :: alignment_quad_t, alignment_quad_op_set_t
 
   !> number of operations different from identity
-  integer(i4), parameter :: NEKO_QUAD_NOPERATION = 7
+  integer(i4), public, parameter :: NEKO_QUAD_NOPERATION = 7
 
   !> procedure pointer type; i4
   type :: algn_quad_proc_i4_ptr
@@ -298,6 +298,184 @@ contains
     integer(i4) :: noperation
     noperation = this%noperation_
   end function quad_noperation_get
+
+  !> @brief Initialise alignment and procedure pointers
+  !! @parameter[in]   algn   alignment
+  subroutine quad_op_set_init(this, algn)
+    class(alignment_quad_op_set_t), intent(inout) :: this
+    integer(i4), intent(in) :: algn
+
+    call this%free()
+
+    ! set relative alignment transformation
+    if ((algn >= 0).and.(algn <= NEKO_QUAD_NOPERATION)) then
+       this%alignment = algn
+    else
+       call neko_error('Not proper alignment.')
+    end if
+    select case(algn)
+    case(0)
+       ! Direct transformation of full array, different types
+       this%trns_f_i4%obj => transform_quad_I_i4
+       this%trns_f_i8%obj => transform_quad_I_i8
+       this%trns_f_dp%obj => transform_quad_I_dp
+       ! Direct transformation of array interior, different types
+       this%trns_i_i4%obj => transform_quad_I_i4
+       this%trns_i_i8%obj => transform_quad_I_i8
+       this%trns_i_dp%obj => transform_quad_I_dp
+       ! Inverse transformation of full array, different types
+       this%trns_inv_f_i4%obj => transform_quad_I_i4
+       this%trns_inv_f_i8%obj => transform_quad_I_i8
+       this%trns_inv_f_dp%obj => transform_quad_I_dp
+       ! Inverse transformation of array interior, different types
+       this%trns_inv_i_i4%obj => transform_quad_I_i4
+       this%trns_inv_i_i8%obj => transform_quad_I_i8
+       this%trns_inv_i_dp%obj => transform_quad_I_dp
+    case(1)
+       ! Direct transformation of full array, different types
+       this%trns_f_i4%obj => transform_quad_T_full_i4
+       this%trns_f_i8%obj => transform_quad_T_full_i8
+       this%trns_f_dp%obj => transform_quad_T_full_dp
+       ! Direct transformation of array interior, different types
+       this%trns_i_i4%obj => transform_quad_T_int_i4
+       this%trns_i_i8%obj => transform_quad_T_int_i8
+       this%trns_i_dp%obj => transform_quad_T_int_dp
+       ! Inverse transformation of full array, different types
+       this%trns_inv_f_i4%obj => transform_quad_T_full_i4
+       this%trns_inv_f_i8%obj => transform_quad_T_full_i8
+       this%trns_inv_f_dp%obj => transform_quad_T_full_dp
+       ! Inverse transformation of array interior, different types
+       this%trns_inv_i_i4%obj => transform_quad_T_int_i4
+       this%trns_inv_i_i8%obj => transform_quad_T_int_i8
+       this%trns_inv_i_dp%obj => transform_quad_T_int_dp
+    case(2)
+       ! Direct transformation of full array, different types
+       this%trns_f_i4%obj => transform_quad_PX_full_i4
+       this%trns_f_i8%obj => transform_quad_PX_full_i8
+       this%trns_f_dp%obj => transform_quad_PX_full_dp
+       ! Direct transformation of array interior, different types
+       this%trns_i_i4%obj => transform_quad_PX_int_i4
+       this%trns_i_i8%obj => transform_quad_PX_int_i8
+       this%trns_i_dp%obj => transform_quad_PX_int_dp
+       ! Inverse transformation of full array, different types
+       this%trns_inv_f_i4%obj => transform_quad_PX_full_i4
+       this%trns_inv_f_i8%obj => transform_quad_PX_full_i8
+       this%trns_inv_f_dp%obj => transform_quad_PX_full_dp
+       ! Inverse transformation of array interior, different types
+       this%trns_inv_i_i4%obj => transform_quad_PX_int_i4
+       this%trns_inv_i_i8%obj => transform_quad_PX_int_i8
+       this%trns_inv_i_dp%obj => transform_quad_PX_int_dp
+    case(3)
+       ! Direct transformation of full array, different types
+       this%trns_f_i4%obj => transform_quad_PXT_full_i4
+       this%trns_f_i8%obj => transform_quad_PXT_full_i8
+       this%trns_f_dp%obj => transform_quad_PXT_full_dp
+       ! Direct transformation of array interior, different types
+       this%trns_i_i4%obj => transform_quad_PXT_int_i4
+       this%trns_i_i8%obj => transform_quad_PXT_int_i8
+       this%trns_i_dp%obj => transform_quad_PXT_int_dp
+       ! Inverse transformation of full array, different types
+       this%trns_inv_f_i4%obj => transform_quad_PYT_full_i4
+       this%trns_inv_f_i8%obj => transform_quad_PYT_full_i8
+       this%trns_inv_f_dp%obj => transform_quad_PYT_full_dp
+       ! Inverse transformation of array interior, different types
+       this%trns_inv_i_i4%obj => transform_quad_PYT_int_i4
+       this%trns_inv_i_i8%obj => transform_quad_PYT_int_i8
+       this%trns_inv_i_dp%obj => transform_quad_PYT_int_dp
+    case(4)
+       ! Direct transformation of full array, different types
+       this%trns_f_i4%obj => transform_quad_PYT_full_i4
+       this%trns_f_i8%obj => transform_quad_PYT_full_i8
+       this%trns_f_dp%obj => transform_quad_PYT_full_dp
+       ! Direct transformation of array interior, different types
+       this%trns_i_i4%obj => transform_quad_PYT_int_i4
+       this%trns_i_i8%obj => transform_quad_PYT_int_i8
+       this%trns_i_dp%obj => transform_quad_PYT_int_dp
+       ! Inverse transformation of full array, different types
+       this%trns_inv_f_i4%obj => transform_quad_PXT_full_i4
+       this%trns_inv_f_i8%obj => transform_quad_PXT_full_i8
+       this%trns_inv_f_dp%obj => transform_quad_PXT_full_dp
+       ! Inverse transformation of array interior, different types
+       this%trns_inv_i_i4%obj => transform_quad_PXT_int_i4
+       this%trns_inv_i_i8%obj => transform_quad_PXT_int_i8
+       this%trns_inv_i_dp%obj => transform_quad_PXT_int_dp
+    case(5)
+       ! Direct transformation of full array, different types
+       this%trns_f_i4%obj => transform_quad_PY_full_i4
+       this%trns_f_i8%obj => transform_quad_PY_full_i8
+       this%trns_f_dp%obj => transform_quad_PY_full_dp
+       ! Direct transformation of array interior, different types
+       this%trns_i_i4%obj => transform_quad_PY_int_i4
+       this%trns_i_i8%obj => transform_quad_PY_int_i8
+       this%trns_i_dp%obj => transform_quad_PY_int_dp
+       ! Inverse transformation of full array, different types
+       this%trns_inv_f_i4%obj => transform_quad_PY_full_i4
+       this%trns_inv_f_i8%obj => transform_quad_PY_full_i8
+       this%trns_inv_f_dp%obj => transform_quad_PY_full_dp
+       ! Inverse transformation of array interior, different types
+       this%trns_inv_i_i4%obj => transform_quad_PY_int_i4
+       this%trns_inv_i_i8%obj => transform_quad_PY_int_i8
+       this%trns_inv_i_dp%obj => transform_quad_PY_int_dp
+    case(6)
+       ! Direct transformation of full array, different types
+       this%trns_f_i4%obj => transform_quad_PXPYT_full_i4
+       this%trns_f_i8%obj => transform_quad_PXPYT_full_i8
+       this%trns_f_dp%obj => transform_quad_PXPYT_full_dp
+       ! Direct transformation of array interior, different types
+       this%trns_i_i4%obj => transform_quad_PXPYT_int_i4
+       this%trns_i_i8%obj => transform_quad_PXPYT_int_i8
+       this%trns_i_dp%obj => transform_quad_PXPYT_int_dp
+       ! Inverse transformation of full array, different types
+       this%trns_inv_f_i4%obj => transform_quad_PXPYT_full_i4
+       this%trns_inv_f_i8%obj => transform_quad_PXPYT_full_i8
+       this%trns_inv_f_dp%obj => transform_quad_PXPYT_full_dp
+       ! Inverse transformation of array interior, different types
+       this%trns_inv_i_i4%obj => transform_quad_PXPYT_int_i4
+       this%trns_inv_i_i8%obj => transform_quad_PXPYT_int_i8
+       this%trns_inv_i_dp%obj => transform_quad_PXPYT_int_dp
+    case(7)
+       ! Direct transformation of full array, different types
+       this%trns_f_i4%obj => transform_quad_PXPY_full_i4
+       this%trns_f_i8%obj => transform_quad_PXPY_full_i8
+       this%trns_f_dp%obj => transform_quad_PXPY_full_dp
+       ! Direct transformation of array interior, different types
+       this%trns_i_i4%obj => transform_quad_PXPY_int_i4
+       this%trns_i_i8%obj => transform_quad_PXPY_int_i8
+       this%trns_i_dp%obj => transform_quad_PXPY_int_dp
+       ! Inverse transformation of full array, different types
+       this%trns_inv_f_i4%obj => transform_quad_PXPY_full_i4
+       this%trns_inv_f_i8%obj => transform_quad_PXPY_full_i8
+       this%trns_inv_f_dp%obj => transform_quad_PXPY_full_dp
+       ! Inverse transformation of array interior, different types
+       this%trns_inv_i_i4%obj => transform_quad_PXPY_int_i4
+       this%trns_inv_i_i8%obj => transform_quad_PXPY_int_i8
+       this%trns_inv_i_dp%obj => transform_quad_PXPY_int_dp
+    end select
+
+    return
+  end subroutine quad_op_set_init
+
+  !> @brief Free alignment and procedure pointers
+  subroutine quad_op_set_free(this)
+    class(alignment_quad_op_set_t), intent(inout) :: this
+
+    this%alignment = -1
+    ! free pointers
+    this%trns_f_i4%obj => null()
+    this%trns_f_i8%obj => null()
+    this%trns_f_dp%obj => null()
+    this%trns_i_i4%obj => null()
+    this%trns_i_i8%obj => null()
+    this%trns_i_dp%obj => null()
+    this%trns_inv_f_i4%obj => null()
+    this%trns_inv_f_i8%obj => null()
+    this%trns_inv_f_dp%obj => null()
+    this%trns_inv_i_i4%obj => null()
+    this%trns_inv_i_i8%obj => null()
+    this%trns_inv_i_dp%obj => null()
+
+    return
+  end subroutine quad_op_set_free
 
   !> @brief Identity transformation, single integer array
   !! @parameter[in]     sz       array size
@@ -1150,183 +1328,5 @@ contains
 
     return
   end subroutine transform_quad_PXPY_int_dp
-
-  !> @brief Initialise alignment and procedure pointers
-  !! @parameter[in]   algn   alignment
-  subroutine quad_op_set_init(this, algn)
-    class(alignment_quad_op_set_t), intent(inout) :: this
-    integer(i4), intent(in) :: algn
-
-    call this%free()
-
-    ! set relative alignment transformation
-    if ((algn >= 0).and.(algn <= NEKO_QUAD_NOPERATION)) then
-       this%alignment = algn
-    else
-       call neko_error('Not proper alignment.')
-    end if
-    select case(algn)
-    case(0)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_quad_I_i4
-       this%trns_f_i8%obj => transform_quad_I_i8
-       this%trns_f_dp%obj => transform_quad_I_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_quad_I_i4
-       this%trns_i_i8%obj => transform_quad_I_i8
-       this%trns_i_dp%obj => transform_quad_I_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_quad_I_i4
-       this%trns_inv_f_i8%obj => transform_quad_I_i8
-       this%trns_inv_f_dp%obj => transform_quad_I_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_quad_I_i4
-       this%trns_inv_i_i8%obj => transform_quad_I_i8
-       this%trns_inv_i_dp%obj => transform_quad_I_dp
-    case(1)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_quad_T_full_i4
-       this%trns_f_i8%obj => transform_quad_T_full_i8
-       this%trns_f_dp%obj => transform_quad_T_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_quad_T_int_i4
-       this%trns_i_i8%obj => transform_quad_T_int_i8
-       this%trns_i_dp%obj => transform_quad_T_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_quad_T_full_i4
-       this%trns_inv_f_i8%obj => transform_quad_T_full_i8
-       this%trns_inv_f_dp%obj => transform_quad_T_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_quad_T_int_i4
-       this%trns_inv_i_i8%obj => transform_quad_T_int_i8
-       this%trns_inv_i_dp%obj => transform_quad_T_int_dp
-    case(2)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_quad_PX_full_i4
-       this%trns_f_i8%obj => transform_quad_PX_full_i8
-       this%trns_f_dp%obj => transform_quad_PX_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_quad_PX_int_i4
-       this%trns_i_i8%obj => transform_quad_PX_int_i8
-       this%trns_i_dp%obj => transform_quad_PX_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_quad_PX_full_i4
-       this%trns_inv_f_i8%obj => transform_quad_PX_full_i8
-       this%trns_inv_f_dp%obj => transform_quad_PX_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_quad_PX_int_i4
-       this%trns_inv_i_i8%obj => transform_quad_PX_int_i8
-       this%trns_inv_i_dp%obj => transform_quad_PX_int_dp
-    case(3)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_quad_PXT_full_i4
-       this%trns_f_i8%obj => transform_quad_PXT_full_i8
-       this%trns_f_dp%obj => transform_quad_PXT_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_quad_PXT_int_i4
-       this%trns_i_i8%obj => transform_quad_PXT_int_i8
-       this%trns_i_dp%obj => transform_quad_PXT_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_quad_PYT_full_i4
-       this%trns_inv_f_i8%obj => transform_quad_PYT_full_i8
-       this%trns_inv_f_dp%obj => transform_quad_PYT_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_quad_PYT_int_i4
-       this%trns_inv_i_i8%obj => transform_quad_PYT_int_i8
-       this%trns_inv_i_dp%obj => transform_quad_PYT_int_dp
-    case(4)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_quad_PYT_full_i4
-       this%trns_f_i8%obj => transform_quad_PYT_full_i8
-       this%trns_f_dp%obj => transform_quad_PYT_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_quad_PYT_int_i4
-       this%trns_i_i8%obj => transform_quad_PYT_int_i8
-       this%trns_i_dp%obj => transform_quad_PYT_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_quad_PXT_full_i4
-       this%trns_inv_f_i8%obj => transform_quad_PXT_full_i8
-       this%trns_inv_f_dp%obj => transform_quad_PXT_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_quad_PXT_int_i4
-       this%trns_inv_i_i8%obj => transform_quad_PXT_int_i8
-       this%trns_inv_i_dp%obj => transform_quad_PXT_int_dp
-    case(5)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_quad_PY_full_i4
-       this%trns_f_i8%obj => transform_quad_PY_full_i8
-       this%trns_f_dp%obj => transform_quad_PY_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_quad_PY_int_i4
-       this%trns_i_i8%obj => transform_quad_PY_int_i8
-       this%trns_i_dp%obj => transform_quad_PY_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_quad_PY_full_i4
-       this%trns_inv_f_i8%obj => transform_quad_PY_full_i8
-       this%trns_inv_f_dp%obj => transform_quad_PY_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_quad_PY_int_i4
-       this%trns_inv_i_i8%obj => transform_quad_PY_int_i8
-       this%trns_inv_i_dp%obj => transform_quad_PY_int_dp
-    case(6)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_quad_PXPYT_full_i4
-       this%trns_f_i8%obj => transform_quad_PXPYT_full_i8
-       this%trns_f_dp%obj => transform_quad_PXPYT_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_quad_PXPYT_int_i4
-       this%trns_i_i8%obj => transform_quad_PXPYT_int_i8
-       this%trns_i_dp%obj => transform_quad_PXPYT_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_quad_PXPYT_full_i4
-       this%trns_inv_f_i8%obj => transform_quad_PXPYT_full_i8
-       this%trns_inv_f_dp%obj => transform_quad_PXPYT_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_quad_PXPYT_int_i4
-       this%trns_inv_i_i8%obj => transform_quad_PXPYT_int_i8
-       this%trns_inv_i_dp%obj => transform_quad_PXPYT_int_dp
-    case(7)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_quad_PXPY_full_i4
-       this%trns_f_i8%obj => transform_quad_PXPY_full_i8
-       this%trns_f_dp%obj => transform_quad_PXPY_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_quad_PXPY_int_i4
-       this%trns_i_i8%obj => transform_quad_PXPY_int_i8
-       this%trns_i_dp%obj => transform_quad_PXPY_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_quad_PXPY_full_i4
-       this%trns_inv_f_i8%obj => transform_quad_PXPY_full_i8
-       this%trns_inv_f_dp%obj => transform_quad_PXPY_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_quad_PXPY_int_i4
-       this%trns_inv_i_i8%obj => transform_quad_PXPY_int_i8
-       this%trns_inv_i_dp%obj => transform_quad_PXPY_int_dp
-    end select
-
-    return
-  end subroutine quad_op_set_init
-
-  !> @brief Free alignment and procedure pointers
-  subroutine quad_op_set_free(this)
-    class(alignment_quad_op_set_t), intent(inout) :: this
-
-    this%alignment = -1
-    ! free pointers
-    this%trns_f_i4%obj => null()
-    this%trns_f_i8%obj => null()
-    this%trns_f_dp%obj => null()
-    this%trns_i_i4%obj => null()
-    this%trns_i_i8%obj => null()
-    this%trns_i_dp%obj => null()
-    this%trns_inv_f_i4%obj => null()
-    this%trns_inv_f_i8%obj => null()
-    this%trns_inv_f_dp%obj => null()
-    this%trns_inv_i_i4%obj => null()
-    this%trns_inv_i_i8%obj => null()
-    this%trns_inv_i_dp%obj => null()
-
-    return
-  end subroutine quad_op_set_free
 
 end module alignment_quad

@@ -43,7 +43,7 @@ module face_cnn
   public :: face_cnn_t
 
   ! object information
-  integer(i4), parameter :: NEKO_FACE_DIM = 2
+  integer(i4), public, parameter :: NEKO_FACE_DIM = 2
 
   !> Base type for an abstract two-dimensional polytope (polygon)
   !! @details There are multiple possible realisation, so it is just
@@ -58,7 +58,7 @@ module face_cnn
      procedure, pass(this) :: init_dim => face_init_dim
      !> Free face data
      procedure, pass(this) :: free => face_free
-     !> Is edged self-periodic
+     !> Is face self-periodic
      procedure, pass(this) :: selfp => face_self_periodic
      !> Get pointers to facets
      procedure, pass(this) :: fct => face_facet
@@ -140,12 +140,12 @@ contains
   !! @parameter[out]  facet   facet pointers array
   subroutine face_facet(this, facet)
     class(face_cnn_t), intent(in) :: this
-    type(edge_cnn_ptr), dimension(:), allocatable, intent(out) :: facet
+    type(edge_aligned_cnn_t), dimension(:), allocatable, intent(out) :: facet
     integer(i4) :: il
 
     allocate(facet(this%nfacet))
     do il = 1, this%nfacet
-       facet(il)%obj => this%facet(il)%edge%obj
+       facet(il) = this%facet(il)
     end do
 
     return

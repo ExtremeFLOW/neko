@@ -41,10 +41,10 @@ module vertex_cnn
   public :: vertex_cnn_t, vertex_cnn_ptr
 
   ! object information
-  integer(i4), parameter :: NEKO_VERTEX_DIM = 0
-  integer(i4), parameter :: NEKO_VERTEX_NFACET = 0
-  integer(i4), parameter :: NEKO_VERTEX_NRIDGE = 0
-  integer(i4), parameter :: NEKO_VERTEX_NPEAK = 0
+  integer(i4), public, parameter :: NEKO_VERTEX_DIM = 0
+  integer(i4), public, parameter :: NEKO_VERTEX_NFACET = 0
+  integer(i4), public, parameter :: NEKO_VERTEX_NRIDGE = 0
+  integer(i4), public, parameter :: NEKO_VERTEX_NPEAK = 0
 
   !> Vertex type for global communication
   !! @details Vertex as the only realisation of zero-dimensional polytope

@@ -43,10 +43,10 @@ module edge_cnn
   public :: edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
 
   ! object information
-  integer(i4), parameter :: NEKO_EDGE_DIM = 1
-  integer(i4), parameter :: NEKO_EDGE_NFACET = 2
-  integer(i4), parameter :: NEKO_EDGE_NRIDGE = 0
-  integer(i4), parameter :: NEKO_EDGE_NPEAK = 0
+  integer(i4), public, parameter :: NEKO_EDGE_DIM = 1
+  integer(i4), public, parameter :: NEKO_EDGE_NFACET = 2
+  integer(i4), public, parameter :: NEKO_EDGE_NRIDGE = 0
+  integer(i4), public, parameter :: NEKO_EDGE_NPEAK = 0
 
   !> Edge type for global communication
   !! @details Edge as the only realisation of one-dimensional polytope (dion)
@@ -54,7 +54,7 @@ module edge_cnn
   !! alignment.
   !! @verbatim
   !! Node numbering
-  !!      1+-----+2    +----> r
+  !!      f_1-----f_2    +----> r
   !! @endverbatim
   type, extends(polytope_cnn_t) :: edge_cnn_t
      !> Facet pointers
@@ -118,6 +118,7 @@ contains
     call this%set_nelem(NEKO_EDGE_NFACET, NEKO_EDGE_NRIDGE,&
          & NEKO_EDGE_NPEAK)
     call this%set_id(id)
+    ! get facet pointers
     allocate(this%facet(NEKO_EDGE_NFACET))
     this%facet(1)%obj => vrt1
     this%facet(2)%obj => vrt2
@@ -205,7 +206,7 @@ contains
     logical, intent(out) :: equal
     integer(i4), intent(out) :: algn
     type(alignment_edge_t) :: algn_op
-    integer(i4), dimension(2) :: trans = [1, 2]
+    integer(i4), dimension(NEKO_EDGE_NFACET) :: trans
 
     algn = -1
     ! check polygon information
@@ -220,12 +221,14 @@ contains
           select type(other)
           type is (edge_cnn_t)
              ! check all the alignment options
+             trans(1) = 1
+             trans(2) = 2
              do algn = 0, algn_op%nop()
-                call algn_op%trns_f_i4(algn)%obj(2, trans)
+                call algn_op%trns_inv_f_i4(algn)%obj(NEKO_EDGE_NFACET, trans)
                 equal = (this%facet(1)%obj.eq.other%facet(trans(1))%obj).and.&
                      &(this%facet(2)%obj.eq.other%facet(trans(2))%obj)
                 if (equal) return
-                call algn_op%trns_inv_f_i4(algn)%obj(2, trans)
+                call algn_op%trns_f_i4(algn)%obj(NEKO_EDGE_NFACET, trans)
              end do
           class default
              equal = .false.
@@ -309,7 +312,7 @@ contains
     class(edge_aligned_cnn_t), intent(in) :: this
     class(edge_cnn_t), intent(in) :: other
     logical :: aligned
-    integer(i4), dimension(2) :: vrt, vrto
+    integer(i4), dimension(NEKO_EDGE_NFACET) :: vrt, vrto
 
     ! only equal edges can be checked
     if (this%edge%obj.eq.other) then
@@ -317,7 +320,7 @@ contains
        vrt(2) = this%edge%obj%facet(2)%obj%id()
        vrto(1) = other%facet(1)%obj%id()
        vrto(2) = other%facet(2)%obj%id()
-       call this%algn_op%trns_f_i4%obj( 2, vrto)
+       call this%algn_op%trns_f_i4%obj(NEKO_EDGE_NFACET, vrto)
        aligned = (vrt(1) == vrto(1)).and.(vrt(2) == vrto(2))
     else
        call neko_error('Edges not equal')
