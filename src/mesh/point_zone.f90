@@ -85,13 +85,13 @@ module point_zone
 
   abstract interface
      !> Defines the criterion of selection of a GLL point to the point_zone.
-     !! @param x x-coordinate of the GLL point
-     !! @param y y-coordinate of the GLL point
-     !! @param z z-coordinate of the GLL point
-     !! @param j 1st nonlinear index of the GLL point
-     !! @param k 2nd nonlinear index of the GLL point
-     !! @param l 3rd nonlinear index of the GLL point
-     !! @param e element index of the GLL point
+     !! @param x x-coordinate of the GLL point.
+     !! @param y y-coordinate of the GLL point.
+     !! @param z z-coordinate of the GLL point.
+     !! @param j 1st nonlinear index of the GLL point.
+     !! @param k 2nd nonlinear index of the GLL point.
+     !! @param l 3rd nonlinear index of the GLL point.
+     !! @param e element index of the GLL point.
      pure function point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
        import :: point_zone_t
        import :: rp
@@ -109,8 +109,8 @@ module point_zone
 
   abstract interface
      !> The common constructor using a JSON object.
-     !! @param json Json object for the point zone
-     !! @param dof Dofmap of all GLL points from which to map the point zone
+     !! @param json Json object for the point zone.
+     !! @param dof Dofmap of all GLL points from which to map the point zone.
      subroutine point_zone_init(this, json, dof)
        import :: point_zone_t
        import :: json_file
@@ -122,7 +122,7 @@ module point_zone
   end interface
 
   abstract interface
-     !> Destructor
+     !> Destructor.
      subroutine point_zone_free(this)
        import :: point_zone_t
        class(point_zone_t), intent(inout) :: this
@@ -133,7 +133,7 @@ contains
 
   !> Constructor for the point_zone_t base type.
   !! @param size Size of the scratch stack.
-  !! @param name Name of the point zone
+  !! @param name Name of the point zone.
   subroutine point_zone_init_base(this, size, name)
     class(point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
@@ -217,7 +217,7 @@ contains
 
   !> Maps the GLL points that verify a point_zone's `criterion` by adding
   !! them to the stack.
-  !! @param dof Dofmap of points to go through
+  !! @param dof Dofmap of points to go through.
   subroutine point_zone_map(this, dof)
     class(point_zone_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
