@@ -30,8 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-! Implements a box geometry subset
-
+! Implements a box geometry subset.
 module box_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
@@ -42,6 +41,10 @@ module box_point_zone
   implicit none
   private
 
+  !> A box-shaped point zone.
+  !! @details As defined here, a box is described by its `x,y,z` bounds,
+  !! specified in the json file as e.g. `"x_bounds": [<xmin>, <xmax>]"`, 
+  !! etc for `y` and `z` coordinates.
   type, public, extends(point_zone_t) :: box_point_zone_t
      real(kind=rp) :: xmin
      real(kind=rp) :: xmax
@@ -50,13 +53,19 @@ module box_point_zone
      real(kind=rp) :: zmin
      real(kind=rp) :: zmax
    contains
+     !> Constructor from json object file.
      procedure, pass(this) :: init => box_point_zone_init_from_json
+     !> Destructor.
      procedure, pass(this) :: free => box_point_zone_free
+     !> Defines the criterion of selection of a GLL point in the box point zone.
      procedure, pass(this) :: criterion => box_point_zone_criterion
   end type box_point_zone_t
 
 contains
 
+  !> Constructor from json object file.
+  !! @param json Json object file.
+  !! @param dof Dofmap from which to map the zone.
   subroutine box_point_zone_init_from_json(this, json, dof)
     class(box_point_zone_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -86,6 +95,15 @@ contains
 
   end subroutine box_point_zone_init_from_json
 
+  !> Initializes a box point zone from its coordinates.
+  !! @param size Size of the scratch stack.
+  !! @param name Name of the box point zone.
+  !! @param xmin Lower x-bound of the box coordinates.
+  !! @param xmax Upper x-bound of the box coordinates.
+  !! @param ymin Lower y-bound of the box coordinates.
+  !! @param ymax Upper y-bound of the box coordinates.
+  !! @param zmin Lower z-bound of the box coordinates.
+  !! @param zmax Upper z-bound of the box coordinates.
   subroutine box_point_zone_init_common(this, size, name, xmin, xmax, ymin, ymax, &
        zmin, zmax)
     class(box_point_zone_t), intent(inout) :: this
@@ -109,10 +127,9 @@ contains
 
   end subroutine box_point_zone_init_common
 
+  !> Destructor.
   subroutine box_point_zone_free(this)
     class(box_point_zone_t), intent(inout) :: this
-
-    call this%free_base()
 
     this%xmin = 0.0_rp
     this%xmax = 0.0_rp
@@ -121,17 +138,34 @@ contains
     this%zmin = 0.0_rp
     this%zmax = 0.0_rp
 
+    call this%free_base()
+
   end subroutine box_point_zone_free
 
-  pure function box_point_zone_criterion(this, x, y, z, ix, iy, iz, ie) result(is_inside)
+  !> Defines the criterion of selection of a GLL point in the box point zone.
+  !! In the case of a box point zone, an `x,y,z` GLL point is considered as 
+  !! being inside the zone if:
+  !! \f{eqnarray*}{
+  !!    x_{min} \le x \le x_{max} \\
+  !!    y_{min} \le y \le y_{max} \\
+  !!    z_{min} \le z \le z_{max} \\
+  !! \f}
+  !! @param x x-coordinate of the GLL point.
+  !! @param y y-coordinate of the GLL point.
+  !! @param z z-coordinate of the GLL point.
+  !! @param j 1st nonlinear index of the GLL point.
+  !! @param k 2nd nonlinear index of the GLL point.
+  !! @param l 3rd nonlinear index of the GLL point.
+  !! @param e element index of the GLL point.
+  pure function box_point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
     class(box_point_zone_t), intent(in) :: this
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
     real(kind=rp), intent(in) :: z
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
+    integer, intent(in) :: j
+    integer, intent(in) :: k
+    integer, intent(in) :: l
+    integer, intent(in) :: e
     logical :: is_inside
     logical :: in_x, in_y, in_z
 
