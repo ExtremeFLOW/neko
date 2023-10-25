@@ -32,7 +32,6 @@
 !
 !
 !> Defines a factory subroutine for point zones.
-
 module point_zone_fctry
   use point_zone, only: point_zone_t
   use box_point_zone, only: box_point_zone_t
@@ -47,7 +46,11 @@ module point_zone_fctry
   public :: point_zone_factory
 
   contains
-
+    
+    !> Point zone factory. Constructs, initializes, and maps the
+    !! point zone object.
+    !! @param json JSON object initializing the point zone.
+    !! @param dof Dofmap from which to map the point zone.
     subroutine point_zone_factory(point_zone, json, dof)
       class(point_zone_t), allocatable, intent(inout) :: point_zone
       type(json_file), intent(inout) :: json
