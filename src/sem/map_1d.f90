@@ -123,7 +123,6 @@ contains
             if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
          end if
       end do
-      print *, glmax(min_vals, n), glb_min
     end do
     this%n_el_lvls = glimax(this%el_lvl,nelv)
     write(*,*) 'number of element levels', this%n_el_lvls
