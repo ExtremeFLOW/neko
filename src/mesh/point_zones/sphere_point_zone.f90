@@ -30,8 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-! Implements a sphere geometry subset
-
+! Implements a sphere geometry subset.
 module sphere_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
@@ -41,20 +40,30 @@ module sphere_point_zone
   use math, only: abscmp
   implicit none
   private
-
+  
+  !> A sphere-shaped point zone.
+  !! @details As defined here, a sphere is described by its center of 
+  !! coordinates `x0,y0,z0` and its radius, specified in the json file
+  !! as e.g. `"center": [<x0>, <y0>, <z0>]", "radius": <r>`.
   type, public, extends(point_zone_t) :: sphere_point_zone_t
      real(kind=rp) :: x0
      real(kind=rp) :: y0
      real(kind=rp) :: z0
      real(kind=rp) :: radius
    contains
+     !> Constructor from json object file.
      procedure, pass(this) :: init => sphere_point_zone_init_from_json
+     !> Destructor.
      procedure, pass(this) :: free => sphere_point_zone_free
+     !> Defines the criterion of selection of a GLL point in the sphere point zone.
      procedure, pass(this) :: criterion => sphere_point_zone_criterion
   end type sphere_point_zone_t
 
 contains
 
+  !> Constructor from json object file.
+  !! @param json Json object file.
+  !! @param dof Dofmap from which to map the zone.
   subroutine sphere_point_zone_init_from_json(this, json, dof)
     class(sphere_point_zone_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -81,7 +90,14 @@ contains
     call this%finalize()
 
   end subroutine sphere_point_zone_init_from_json
-
+  
+  !> Initializes a sphere point zone from its center coordinates and radius.
+  !! @param size Size of the scratch stack.
+  !! @param name Name of the sphere point zone.
+  !! @param x0 Sphere center's x-coordinate.
+  !! @param y0 Sphere center's y-coordinate.
+  !! @param z0 Sphere center's z-coordinate.
+  !! @param radius Sphere radius.
   subroutine sphere_point_zone_init_common(this, size, name, x0, y0, z0, radius)
     class(sphere_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
@@ -100,6 +116,7 @@ contains
 
   end subroutine sphere_point_zone_init_common
 
+  !> Destructor.
   subroutine sphere_point_zone_free(this)
     class(sphere_point_zone_t), intent(inout) :: this
 
@@ -112,6 +129,21 @@ contains
 
   end subroutine sphere_point_zone_free
 
+  !> Defines the criterion of selection of a GLL point in the sphere point zone.
+  !! A GLL point of coordinates \f$ \vec{X} = (x, y, z) \f$ is considered as being 
+  !! inside the zone if:
+  !! \f{eqnarray*}{
+  !!    |\vec{X} - \vec{X_0}|^2 \le r
+  !! \f}
+  !! Where \f$ r \f$ is the radius of the sphere and \f$ \vec{X_0} = (x_0, y_0, z_0) \f$
+  !! the coordinates of its center.
+  !! @param x x-coordinate of the GLL point.
+  !! @param y y-coordinate of the GLL point.
+  !! @param z z-coordinate of the GLL point.
+  !! @param j 1st nonlinear index of the GLL point.
+  !! @param k 2nd nonlinear index of the GLL point.
+  !! @param l 3rd nonlinear index of the GLL point.
+  !! @param e element index of the GLL point.
   pure function sphere_point_zone_criterion(this, x, y, z, ix, iy, iz, ie) result(is_inside)
     class(sphere_point_zone_t), intent(in) :: this
     real(kind=rp), intent(in) :: x
