@@ -36,7 +36,7 @@ module ax_helm
   implicit none
   private 
 
-  !> CPU matrix-vector product for a Helmholz problem.
+  !> CPU matrix-vector product for a Helmholtz problem.
   type, public, extends(ax_t) :: ax_helm_t
    contains
      !> Compute the product.
