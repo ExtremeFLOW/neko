@@ -111,7 +111,7 @@ contains
  
   end subroutine ax_helm_compute
 
-  !> Generic CPU kernel for the Helmholz matrix-vector product.
+  !> Generic CPU kernel for the Helmholtz matrix-vector product.
   subroutine ax_helm_lx(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G11, G22, G33, G12, G13, G23, n, lx)
     integer, intent(in) :: n, lx
