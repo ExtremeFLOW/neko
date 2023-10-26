@@ -64,6 +64,8 @@ program rea2nbin_dirichlet
   call nmsh_file%write(msh)
   call msh%free()
   
+  call execute_command_line("rm temp.readirichlet")
+  
   call neko_finalize
 
 end program rea2nbin_dirichlet
