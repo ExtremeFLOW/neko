@@ -44,7 +44,7 @@ module ax_helm_fctry
 
 contains
 
-  !> Factory routine for the a Helmholz problem matrix-vector product.
+  !> Factory routine for the a Helmholtz problem matrix-vector product.
   !! The selection is based on the compute backend.
   !! @param Ax The matrix-vector product type to be allocated.
   subroutine ax_helm_factory(Ax)
