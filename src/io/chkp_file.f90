@@ -368,11 +368,11 @@ contains
        end do
        call this%global_interp%init(dof,tol=tol)
        call this%global_interp%find_points(x_coord,y_coord,z_coord,u%dof%size())
-    else
-       call this%space_interp%init(this%sim_Xh, this%chkp_Xh) 
        deallocate(x_coord)
        deallocate(y_coord)
        deallocate(z_coord)
+    else
+       call this%space_interp%init(this%sim_Xh, this%chkp_Xh) 
     end if
     dof_offset = int(msh%offset_el, i8) * int(this%chkp_Xh%lxyz, i8)
     n_glb_dofs = int(this%chkp_Xh%lxyz, i8) * int(msh%glb_nelv, i8)    
