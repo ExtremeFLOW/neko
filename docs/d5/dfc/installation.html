@@ -96,9 +96,9 @@ $(document).ready(function(){initNavTree('d5/dfc/installation.html','../../'); i
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_pages_installation"></a> </p>
-<h1><a class="anchor" id="autotoc_md34"></a>
+<h1><a class="anchor" id="autotoc_md37"></a>
 Dependencies</h1>
-<h2><a class="anchor" id="autotoc_md35"></a>
+<h2><a class="anchor" id="autotoc_md38"></a>
 Building JSON Fortran</h2>
 <p>Download and compile, at least version 0.7.1 of JSON Fortran from the main repository. </p><dl class="section note"><dt>Note</dt><dd>Neko requires JSON Fortran to be configured with <code>USE_GNU_INSTALL_CONVENTION</code>.</dd></dl>
 <div class="fragment"><div class="line">git clone --depth=1 https://github.com/jacobwilliams/json-fortran.git</div>
@@ -108,7 +108,7 @@ Building JSON Fortran</h2>
 </div><!-- fragment --><p> Now ad the installation path to <code>PKG_CONFIG_PATH</code> (and if needed <code>LD_LIBRARY_PATH</code>). </p><dl class="section note"><dt>Note</dt><dd>On certain systems <code>lib</code> should be substituted with <code>lib64</code></dd></dl>
 <div class="fragment"><div class="line">export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH</div>
 <div class="line">export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md36"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md39"></a>
 Building gslib (optional)</h2>
 <p>If you have a Nek5000 installation, use:</p>
 <div class="fragment"><div class="line">export GSLIB=/path/to/Nek5000/3rd_party/gslib/gslib/src</div>
@@ -125,10 +125,10 @@ Building gslib (optional)</h2>
 <div class="fragment"><div class="line">--with-gslib=${GSLIB}</div>
 </div><!-- fragment --><p>Make sure you see the following message during the configuration:</p>
 <div class="fragment"><div class="line">checking for fgslib_gs_setup in -lgs... yes</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md37"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md40"></a>
 Building ParMETIS (optional)</h2>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000001">Todo:</a></b></dt><dd>Needs to be written</dd></dl>
-<h2><a class="anchor" id="autotoc_md38"></a>
+<h2><a class="anchor" id="autotoc_md41"></a>
 Bulding PFunit (optional)</h2>
 <p>To build the PFunit testing framework, please refers to the <a class="el" href="../../d5/d75/testing.html">Testing</a> page </p>
 </div></div><!-- contents -->
@@ -138,7 +138,7 @@ Bulding PFunit (optional)</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Tue Oct 3 2023 13:13:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 27 2023 01:20:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -1,12 +1,11 @@
 <map id="utils::neko_warning" name="utils::neko_warning">
-<area shape="rect" id="node1" title=" " alt="" coords="795,202,943,229"/>
+<area shape="rect" id="node1" title=" " alt="" coords="795,173,943,199"/>
 <area shape="rect" id="node2" href="$da/d5b/namespacedata__streamer.html#af48fb46251b09f987f2fddf675d164e8" title="Destructor wraps the adios2 finalize routine. Closes insitu writer." alt="" coords="573,5,728,47"/>
 <area shape="rect" id="node3" href="$da/d5b/namespacedata__streamer.html#a8e1a944a5c382146d8adf6c1fa322fac" title="Constructor Wraps the adios2 set&#45;up." alt="" coords="573,71,728,112"/>
 <area shape="rect" id="node4" href="$da/d5b/namespacedata__streamer.html#a0eae98ba957f143866fed34053ab22ea" title="streamer wraps the adios2 stream function." alt="" coords="573,136,728,177"/>
 <area shape="rect" id="node5" href="$dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="555,202,747,229"/>
 <area shape="rect" id="node8" href="$da/d16/namespacefile.html#a0167c68d0b7fa85eed2bb23f5a1cd6d2" title="Set a file&#39;s header, mainly for csv_file for now." alt="" coords="576,253,725,279"/>
-<area shape="rect" id="node9" href="$d2/d4d/namespaceprobes.html#aa04b0be79f1c799ec49b80b145027a0e" title="Maps x,y,z to r,s,t coordinates. The result of the mapping for each point can be found in the followi..." alt="" coords="573,303,728,330"/>
-<area shape="rect" id="node10" href="$d9/d30/namespacestack.html#a8703c4c59b20a3e1d79a7c5b32c7dcd3" title="Initialize a stack of arbitrary type." alt="" coords="587,354,715,381"/>
+<area shape="rect" id="node9" href="$d9/d30/namespacestack.html#a8703c4c59b20a3e1d79a7c5b32c7dcd3" title="Initialize a stack of arbitrary type." alt="" coords="587,303,715,330"/>
 <area shape="rect" id="node6" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,202,507,229"/>
 <area shape="rect" id="node7" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,202,233,229"/>
 </map>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['neko_20manual_8471',['Neko Manual',['../index.html',1,'']]]
+  ['installing_20neko_8451',['Installing Neko',['../d5/dfc/installation.html',1,'index']]]
 ];

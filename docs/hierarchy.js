@@ -5,7 +5,7 @@ var hierarchy =
       [ "advection::adv_dealias_t", "d8/db2/structadvection_1_1adv__dealias__t.html", null ],
       [ "advection::adv_no_dealias_t", "d3/d92/structadvection_1_1adv__no__dealias__t.html", null ]
     ] ],
-    [ "fld_file::array_ptr_t", "d3/dd1/structfld__file_1_1array__ptr__t.html", null ],
+    [ "structs::array_ptr_t", "dd/d8c/structstructs_1_1array__ptr__t.html", null ],
     [ "time_based_controller::assignment(=)", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08.html", null ],
     [ "ax_product::ax_compute", "dd/def/interfaceax__product_1_1ax__compute.html", null ],
     [ "ax_product::ax_t", "d3/d2c/structax__product_1_1ax__t.html", [
@@ -160,6 +160,7 @@ var hierarchy =
       [ "vtk_file::vtk_file_t", "d8/d43/structvtk__file_1_1vtk__file__t.html", null ]
     ] ],
     [ "generic_file::generic_file_write", "dd/d86/interfacegeneric__file_1_1generic__file__write.html", null ],
+    [ "global_interpolation::global_interpolation_t", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html", null ],
     [ "gs_bcknd::gs_backend_free", "d6/d28/interfacegs__bcknd_1_1gs__backend__free.html", null ],
     [ "gs_bcknd::gs_backend_init", "dc/d59/interfacegs__bcknd_1_1gs__backend__init.html", null ],
     [ "gs_bcknd::gs_bcknd_t", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html", [
@@ -307,6 +308,7 @@ var hierarchy =
     [ "logger::log_t", "d0/d7b/structlogger_1_1log__t.html", null ],
     [ "map::map_init", "d2/d3d/interfacemap_1_1map__init.html", null ],
     [ "map::map_t", "da/d40/structmap_1_1map__t.html", null ],
+    [ "material_properties::material_properties_t", "d1/dd5/structmaterial__properties_1_1material__properties__t.html", null ],
     [ "matrix::matrix_t", "da/d95/structmatrix_1_1matrix__t.html", null ],
     [ "mean_flow::mean_flow_t", "dc/d45/structmean__flow_1_1mean__flow__t.html", null ],
     [ "mean_sqr_flow::mean_sqr_flow_t", "d8/d91/structmean__sqr__flow_1_1mean__sqr__flow__t.html", null ],
@@ -341,8 +343,6 @@ var hierarchy =
       [ "mean_flow_output::mean_flow_output_t", "db/dca/structmean__flow__output_1_1mean__flow__output__t.html", null ],
       [ "mean_sqr_flow_output::mean_sqr_flow_output_t", "d4/de3/structmean__sqr__flow__output_1_1mean__sqr__flow__output__t.html", null ]
     ] ],
-    [ "parameters::param_io_t", "d1/dc0/structparameters_1_1param__io__t.html", null ],
-    [ "parameters::param_t", "d0/d30/structparameters_1_1param__t.html", null ],
     [ "parmetis::parmetis_v3_partgeom", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom.html", null ],
     [ "parmetis::parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", null ],
     [ "precon::pc_solve", "df/db4/interfaceprecon_1_1pc__solve.html", null ],
@@ -489,6 +489,7 @@ var hierarchy =
     [ "system::system_cpuid", "d7/d90/interfacesystem_1_1system__cpuid.html", null ],
     [ "tet_mesh::tet_mesh_t", "db/d3a/structtet__mesh_1_1tet__mesh__t.html", null ],
     [ "time_based_controller::time_based_controller_t", "db/de7/structtime__based__controller_1_1time__based__controller__t.html", null ],
+    [ "time_interpolator::time_interpolator_t", "d8/d85/structtime__interpolator_1_1time__interpolator__t.html", null ],
     [ "time_scheme_controller::time_scheme_controller_t", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html", null ],
     [ "time_scheme::time_scheme_t", "de/da4/structtime__scheme_1_1time__scheme__t.html", [
       [ "ab_time_scheme::ab_time_scheme_t", "d2/d88/structab__time__scheme_1_1ab__time__scheme__t.html", null ],
@@ -511,6 +512,7 @@ var hierarchy =
     ] ],
     [ "user_intf::user_final_modules", "d9/dfa/interfaceuser__intf_1_1user__final__modules.html", null ],
     [ "user_intf::user_initialize_modules", "de/d4e/interfaceuser__intf_1_1user__initialize__modules.html", null ],
+    [ "user_intf::user_material_properties", "dd/db6/interfaceuser__intf_1_1user__material__properties.html", null ],
     [ "user_intf::user_t", "d7/da0/structuser__intf_1_1user__t.html", null ],
     [ "user_intf::usercheck", "d3/d11/interfaceuser__intf_1_1usercheck.html", null ],
     [ "user_intf::useric", "d1/daa/interfaceuser__intf_1_1useric.html", null ],
@@ -532,7 +534,6 @@ var hierarchy =
     [ "vector::vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", null ],
     [ "vector::vector_t", "d3/d5b/structvector_1_1vector__t.html", null ],
     [ "pnpn_residual::vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", null ],
-    [ "parameters::write(formatted)", "d7/df0/interfaceparameters_1_1write_07formatted_08.html", null ],
     [ "zone::zone_t", "d7/dda/structzone_1_1zone__t.html", [
       [ "zone::zone_periodic_t", "dc/d98/structzone_1_1zone__periodic__t.html", null ]
     ] ]

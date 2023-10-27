@@ -7,7 +7,7 @@ var namespacescalar__scheme =
     [ "scalar_scheme_add_bcs", "da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc", null ],
     [ "scalar_scheme_bc_apply", "da/de3/namespacescalar__scheme.html#a3138fee30913756330c6d00ba6ff5d59", null ],
     [ "scalar_scheme_free", "da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b", null ],
-    [ "scalar_scheme_init", "da/de3/namespacescalar__scheme.html#ab0997036dc87ff64d18d916f89f07f97", null ],
+    [ "scalar_scheme_init", "da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae", null ],
     [ "scalar_scheme_precon_factory", "da/de3/namespacescalar__scheme.html#a9ab0bf4dfdd4312aef79f94f07faa1f8", null ],
     [ "scalar_scheme_set_source", "da/de3/namespacescalar__scheme.html#aa2e2ec76d1ac637557264208b46829eb", null ],
     [ "scalar_scheme_set_user_bc", "da/de3/namespacescalar__scheme.html#a6517270e082d67db1bff9656832b4bf9", null ],

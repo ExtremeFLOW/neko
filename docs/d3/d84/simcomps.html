@@ -96,14 +96,14 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_pages_simcomps"></a></p>
-<h1><a class="anchor" id="autotoc_md17"></a>
+<h1><a class="anchor" id="autotoc_md20"></a>
 What are simulation components?</h1>
 <p>Simulation components, or simcomps fo short, incapsulate additional functionality that may be useful for certain cases but not necessary to run the solver. This can include computation and output of additional fields, in-situ post-processing operations, data sampling, etc.</p>
 <p>By design, simulation components can tap into every aspect of the simulation, so they can be quite powerful. As the code grows, we expect to add more and more simcomps to the code.</p>
-<h1><a class="anchor" id="autotoc_md18"></a>
+<h1><a class="anchor" id="autotoc_md21"></a>
 Adding simulation components to the case</h1>
 <p>Each simcomp is defined as a single JSON object at are added to an array of objects called <code>simulation_components</code>, which resides directly under the <code>case</code> object.</p>
-<h1><a class="anchor" id="autotoc_md19"></a>
+<h1><a class="anchor" id="autotoc_md22"></a>
 Controling execution and file output</h1>
 <p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <code>compute_control</code> and <code>compute_value</code> parameters for the computation and the <code>output_control and</code> and <code>output_value</code> for the output to disk. The paramters for the <code>_control</code> values are the same as for the fluid and checkpointing.</p>
 <p>For example, in the <code>tgv</code> example case the <code>vorticity</code> component is executed once per 50 time steps. </p><div class="fragment"><div class="line">{</div>
@@ -112,9 +112,9 @@ Controling execution and file output</h1>
 <div class="line">    &quot;compute_value&quot;: 50</div>
 <div class="line">}</div>
 </div><!-- fragment --><p> If no parameters for the <code>output_</code> parametersare provided, they areset to be the same as for <code>compute_</code>.</p>
-<h1><a class="anchor" id="autotoc_md20"></a>
+<h1><a class="anchor" id="autotoc_md23"></a>
 List of simulation components</h1>
-<h1><a class="anchor" id="autotoc_md21"></a>
+<h1><a class="anchor" id="autotoc_md24"></a>
 Vorticity</h1>
 <p>Computes the vorticity field an stores in the field registry as <code>omega_x</code>, <code>omega_y</code> and <code>omega_z</code>. Currently produces no output. </p>
 </div></div><!-- contents -->
@@ -124,7 +124,7 @@ Vorticity</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Tue Oct 3 2023 13:13:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 27 2023 01:20:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

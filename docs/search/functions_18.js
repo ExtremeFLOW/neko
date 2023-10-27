@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['x_5fupdate_7351',['x_update',['../dd/d47/namespacemath.html#a705aede90b9b2421ab4111ebdcfc18eb',1,'math']]]
+  ['x_5fupdate_7360',['x_update',['../dd/d47/namespacemath.html#a705aede90b9b2421ab4111ebdcfc18eb',1,'math']]]
 ];

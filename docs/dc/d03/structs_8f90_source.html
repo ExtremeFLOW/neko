@@ -106,11 +106,17 @@ $(document).ready(function(){initNavTree('dc/d03/structs_8f90_source.html','../.
 <div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="../../d0/d10/structstructs_1_1struct__curve__t.html#aeae795452ea3d79c602bd20558189de0">    9</a></span>&#160;    <span class="keywordtype">integer</span> :: curve_type(12)</div>
 <div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="../../d0/d10/structstructs_1_1struct__curve__t.html#a58bef19f528c8feeaa7ab09c4be94937">   10</a></span>&#160;    <span class="keywordtype">integer</span> :: el_idx</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  <span class="keyword">end type </span><a class="code" href="../../d0/d10/structstructs_1_1struct__curve__t.html">struct_curve_t</a></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d2/d74/namespacestructs.html">structs</a></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
+<div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="../../dd/d8c/structstructs_1_1array__ptr__t.html">   14</a></span>&#160;  <span class="keyword">type</span>, <span class="keyword">public</span> :: <a class="code" href="../../dd/d8c/structstructs_1_1array__ptr__t.html">array_ptr_t</a></div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="../../dd/d8c/structstructs_1_1array__ptr__t.html#ac3ea145aab83c38b6741142db9b05bbf">   15</a></span>&#160;<span class="keywordtype">     real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">pointer</span> :: x(:)</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  <span class="keyword">end type </span><a class="code" href="../../dd/d8c/structstructs_1_1array__ptr__t.html">array_ptr_t</a></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d2/d74/namespacestructs.html">structs</a></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_aab47a6c4827cb5c6bbd741a44c87e956"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">num_types::dp</a></div><div class="ttdeci">integer, parameter, public dp</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00009">num_types.f90:9</a></div></div>
+<div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
 <div class="ttc" id="anamespacestructs_html"><div class="ttname"><a href="../../d2/d74/namespacestructs.html">structs</a></div><div class="ttdoc">Defines structs that are used... Dont know if we should keep it though.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d03/structs_8f90_source.html#l00002">structs.f90:2</a></div></div>
+<div class="ttc" id="astructstructs_1_1array__ptr__t_html"><div class="ttname"><a href="../../dd/d8c/structstructs_1_1array__ptr__t.html">structs::array_ptr_t</a></div><div class="ttdoc">Pointer to array.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d03/structs_8f90_source.html#l00014">structs.f90:14</a></div></div>
 <div class="ttc" id="astructstructs_1_1struct__curve__t_html"><div class="ttname"><a href="../../d0/d10/structstructs_1_1struct__curve__t.html">structs::struct_curve_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d03/structs_8f90_source.html#l00007">structs.f90:7</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -118,7 +124,7 @@ $(document).ready(function(){initNavTree('dc/d03/structs_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../dc/d03/structs_8f90.html">structs.f90</a></li>
-    <li class="footer">Generated on Tue Oct 3 2023 13:13:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 27 2023 01:20:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

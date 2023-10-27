@@ -105,13 +105,13 @@ $(document).ready(function(){initNavTree('d3/d48/scalar__residual__cpu_8f90_sour
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;  </div>
 <div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="../../db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html">    9</a></span>&#160;  <span class="keyword">type</span>, <span class="keyword">public</span>, <span class="keyword">extends</span>(<a class="code" href="../../de/de3/structscalar__residual_1_1scalar__residual__t.html">scalar_residual_t</a>) :: <a class="code" href="../../db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html">scalar_residual_cpu_t</a></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;   <span class="keyword">contains</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="../../db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html#abe1e1e6487e69f7ca8f9daac65128fb5">   11</a></span>&#160;     <span class="keywordtype">procedure</span>, <span class="keywordtype">nopass</span> :: compute =&gt; <a class="code" href="../../da/d78/namespacescalar__residual__cpu.html#a75d4b30a5c26b79cc00733a7371f9dec">scalar_residual_cpu_compute</a></div>
+<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="../../db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html#abe1e1e6487e69f7ca8f9daac65128fb5">   11</a></span>&#160;     <span class="keywordtype">procedure</span>, <span class="keywordtype">nopass</span> :: compute =&gt; <a class="code" href="../../da/d78/namespacescalar__residual__cpu.html#aa3d264e4caa57c16d5739df3ce56a738">scalar_residual_cpu_compute</a></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  <span class="keyword">end type </span><a class="code" href="../../db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html">scalar_residual_cpu_t</a></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">contains</span></div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
-<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="../../da/d78/namespacescalar__residual__cpu.html#a75d4b30a5c26b79cc00733a7371f9dec">   16</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../da/d78/namespacescalar__residual__cpu.html#a75d4b30a5c26b79cc00733a7371f9dec">scalar_residual_cpu_compute</a>(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &amp;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;      Pr, Re, rho, bd, dt, n)</div>
+<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="../../da/d78/namespacescalar__residual__cpu.html#aa3d264e4caa57c16d5739df3ce56a738">   16</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../da/d78/namespacescalar__residual__cpu.html#aa3d264e4caa57c16d5739df3ce56a738">scalar_residual_cpu_compute</a>(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &amp;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;      lambda, rhocp, bd, dt, n)</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: Ax</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordtype">type</span>(mesh_t), <span class="keywordtype">intent(inout)</span> :: msh</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordtype">type</span>(space_t), <span class="keywordtype">intent(inout)</span> :: Xh    </div>
@@ -119,34 +119,33 @@ $(document).ready(function(){initNavTree('d3/d48/scalar__residual__cpu_8f90_sour
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: s_res</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keywordtype">type</span>(source_scalar_t), <span class="keywordtype">intent(inout)</span> :: f_Xh</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: c_Xh</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: pr</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: re</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: rho</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: bd</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: dt</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;       c_xh%h1(i,1,1,1) = 1/(pr*re)</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;       <span class="comment">! todo :should not be just rho here.</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;       c_xh%h2(i,1,1,1) = rho * (bd / dt)</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    c_xh%ifh2 = .true.</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keyword">call </span>ax%compute(s_res%x, s%x, c_xh, msh, xh)</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;       s_res%x(i,1,1,1) = (-s_res%x(i,1,1,1)) + f_xh%s(i,1,1,1)</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../da/d78/namespacescalar__residual__cpu.html#a75d4b30a5c26b79cc00733a7371f9dec">scalar_residual_cpu_compute</a>  </div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;     </div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">end module </span><a class="code" href="../../da/d78/namespacescalar__residual__cpu.html">scalar_residual_cpu</a></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: lambda</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: rhocp</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: bd</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: dt</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;       c_xh%h1(i,1,1,1) = lambda</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;       <span class="comment">! todo :should not be just rho here.</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;       c_xh%h2(i,1,1,1) = rhocp * (bd / dt)</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    c_xh%ifh2 = .true.</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keyword">call </span>ax%compute(s_res%x, s%x, c_xh, msh, xh)</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;       s_res%x(i,1,1,1) = (-s_res%x(i,1,1,1)) + f_xh%s(i,1,1,1)</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../da/d78/namespacescalar__residual__cpu.html#aa3d264e4caa57c16d5739df3ce56a738">scalar_residual_cpu_compute</a>  </div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;     </div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keyword">end module </span><a class="code" href="../../da/d78/namespacescalar__residual__cpu.html">scalar_residual_cpu</a></div>
 <div class="ttc" id="anamespacegather__scatter_html"><div class="ttname"><a href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></div><div class="ttdoc">Gather-scatter.</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l00034">gather_scatter.f90:34</a></div></div>
 <div class="ttc" id="anamespaceoperators_html"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html">operators</a></div><div class="ttdoc">Operators.</div><div class="ttdef"><b>Definition:</b> <a href="../../dd/dbf/operators_8f90_source.html#l00034">operators.f90:34</a></div></div>
 <div class="ttc" id="anamespacescalar__residual__cpu_html"><div class="ttname"><a href="../../da/d78/namespacescalar__residual__cpu.html">scalar_residual_cpu</a></div><div class="ttdoc">Residuals in the Pn-Pn formulation (CPU version)</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d48/scalar__residual__cpu_8f90_source.html#l00002">scalar_residual_cpu.f90:2</a></div></div>
-<div class="ttc" id="anamespacescalar__residual__cpu_html_a75d4b30a5c26b79cc00733a7371f9dec"><div class="ttname"><a href="../../da/d78/namespacescalar__residual__cpu.html#a75d4b30a5c26b79cc00733a7371f9dec">scalar_residual_cpu::scalar_residual_cpu_compute</a></div><div class="ttdeci">subroutine scalar_residual_cpu_compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, bd, dt, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d48/scalar__residual__cpu_8f90_source.html#l00016">scalar_residual_cpu.f90:18</a></div></div>
+<div class="ttc" id="anamespacescalar__residual__cpu_html_aa3d264e4caa57c16d5739df3ce56a738"><div class="ttname"><a href="../../da/d78/namespacescalar__residual__cpu.html#aa3d264e4caa57c16d5739df3ce56a738">scalar_residual_cpu::scalar_residual_cpu_compute</a></div><div class="ttdeci">subroutine scalar_residual_cpu_compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda, rhocp, bd, dt, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d48/scalar__residual__cpu_8f90_source.html#l00016">scalar_residual_cpu.f90:18</a></div></div>
 <div class="ttc" id="anamespacescalar__residual_html"><div class="ttname"><a href="../../dc/de7/namespacescalar__residual.html">scalar_residual</a></div><div class="ttdoc">Defines the residual for the scalar transport equation.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d30/scalar__residual_8f90_source.html#l00034">scalar_residual.f90:34</a></div></div>
 <div class="ttc" id="astructscalar__residual_1_1scalar__residual__t_html"><div class="ttname"><a href="../../de/de3/structscalar__residual_1_1scalar__residual__t.html">scalar_residual::scalar_residual_t</a></div><div class="ttdoc">Abstract type to compute scalar residual.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d30/scalar__residual_8f90_source.html#l00047">scalar_residual.f90:47</a></div></div>
 <div class="ttc" id="astructscalar__residual__cpu_1_1scalar__residual__cpu__t_html"><div class="ttname"><a href="../../db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html">scalar_residual_cpu::scalar_residual_cpu_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d48/scalar__residual__cpu_8f90_source.html#l00009">scalar_residual_cpu.f90:9</a></div></div>
@@ -156,7 +155,7 @@ $(document).ready(function(){initNavTree('d3/d48/scalar__residual__cpu_8f90_sour
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_0691d6202b68dc26b40b4865e3c53c6d.html">scalar</a></li><li class="navelem"><a class="el" href="../../dir_2653fa9efdd5e9b917421fe205d94cd2.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_3f110bf08cf6e925d8ffbed17e25ef24.html">cpu</a></li><li class="navelem"><a class="el" href="../../d3/d48/scalar__residual__cpu_8f90.html">scalar_residual_cpu.f90</a></li>
-    <li class="footer">Generated on Tue Oct 3 2023 13:13:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 27 2023 01:20:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

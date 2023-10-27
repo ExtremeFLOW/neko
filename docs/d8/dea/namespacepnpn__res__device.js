@@ -6,6 +6,6 @@ var namespacepnpn__res__device =
     [ "pnpn_prs_res_part2_hip", "d6/df7/interfacepnpn__res__device_1_1pnpn__prs__res__part2__hip.html", "d6/df7/interfacepnpn__res__device_1_1pnpn__prs__res__part2__hip" ],
     [ "pnpn_prs_res_part3_hip", "dd/d12/interfacepnpn__res__device_1_1pnpn__prs__res__part3__hip.html", "dd/d12/interfacepnpn__res__device_1_1pnpn__prs__res__part3__hip" ],
     [ "pnpn_vel_res_update_hip", "d1/d79/interfacepnpn__res__device_1_1pnpn__vel__res__update__hip.html", "d1/d79/interfacepnpn__res__device_1_1pnpn__vel__res__update__hip" ],
-    [ "pnpn_prs_res_device_compute", "d8/dea/namespacepnpn__res__device.html#aacb7ac637cf2f47a08c51bdc46d9b874", null ],
-    [ "pnpn_vel_res_device_compute", "d8/dea/namespacepnpn__res__device.html#ac12c4ed2b0599d1a6f612ea8ed2910be", null ]
+    [ "pnpn_prs_res_device_compute", "d8/dea/namespacepnpn__res__device.html#a59d926fd1cfc56254cdd2575d4b977ac", null ],
+    [ "pnpn_vel_res_device_compute", "d8/dea/namespacepnpn__res__device.html#a55ee2fb2b8a79727bd59543ce201fe58", null ]
 ];

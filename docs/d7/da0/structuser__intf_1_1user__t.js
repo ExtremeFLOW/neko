@@ -5,6 +5,7 @@ var structuser__intf_1_1user__t =
     [ "fluid_user_f_vector", "d7/da0/structuser__intf_1_1user__t.html#a7530a0d1e6e2a31a5c49cb524ac69974", null ],
     [ "fluid_user_ic", "d7/da0/structuser__intf_1_1user__t.html#a35c539e2ba57c773797d183685fe2fca", null ],
     [ "fluid_user_if", "d7/da0/structuser__intf_1_1user__t.html#ae627890c5ff5e9ca1d52af5a319fed40", null ],
+    [ "material_properties", "d7/da0/structuser__intf_1_1user__t.html#aa24a668c1ddd6d222fa5d609f357c6c5", null ],
     [ "scalar_user_bc", "d7/da0/structuser__intf_1_1user__t.html#a0025e2f103eac46f346c1177460ddf49", null ],
     [ "scalar_user_f", "d7/da0/structuser__intf_1_1user__t.html#a316156503a0f8e380f57228f91977020", null ],
     [ "scalar_user_f_vector", "d7/da0/structuser__intf_1_1user__t.html#a1412a7a3c96a0da84cafe2c931d796a2", null ],

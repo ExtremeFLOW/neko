@@ -264,8 +264,7 @@ var annotated_dup =
       [ "file_t", "d6/dae/structfile_1_1file__t.html", "d6/dae/structfile_1_1file__t" ]
     ] ],
     [ "fld_file", "d9/d41/namespacefld__file.html", [
-      [ "fld_file_t", "dd/d2f/structfld__file_1_1fld__file__t.html", "dd/d2f/structfld__file_1_1fld__file__t" ],
-      [ "array_ptr_t", "d3/dd1/structfld__file_1_1array__ptr__t.html", "d3/dd1/structfld__file_1_1array__ptr__t" ]
+      [ "fld_file_t", "dd/d2f/structfld__file_1_1fld__file__t.html", "dd/d2f/structfld__file_1_1fld__file__t" ]
     ] ],
     [ "fld_file_data", "d9/dfd/namespacefld__file__data.html", [
       [ "fld_file_data_t", "db/da1/structfld__file__data_1_1fld__file__data__t.html", "db/da1/structfld__file__data_1_1fld__file__data__t" ]
@@ -315,6 +314,9 @@ var annotated_dup =
       [ "generic_file_t", "d5/d37/structgeneric__file_1_1generic__file__t.html", "d5/d37/structgeneric__file_1_1generic__file__t" ],
       [ "generic_file_write", "dd/d86/interfacegeneric__file_1_1generic__file__write.html", "dd/d86/interfacegeneric__file_1_1generic__file__write" ],
       [ "generic_file_read", "d5/d27/interfacegeneric__file_1_1generic__file__read.html", "d5/d27/interfacegeneric__file_1_1generic__file__read" ]
+    ] ],
+    [ "global_interpolation", "dd/de1/namespaceglobal__interpolation.html", [
+      [ "global_interpolation_t", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html", "dc/df3/structglobal__interpolation_1_1global__interpolation__t" ]
     ] ],
     [ "gmres", "dc/d48/namespacegmres.html", [
       [ "gmres_t", "df/db9/structgmres_1_1gmres__t.html", "df/db9/structgmres_1_1gmres__t" ]
@@ -455,6 +457,9 @@ var annotated_dup =
     [ "map_file", "dc/da2/namespacemap__file.html", [
       [ "map_file_t", "de/d14/structmap__file_1_1map__file__t.html", "de/d14/structmap__file_1_1map__file__t" ]
     ] ],
+    [ "material_properties", "d8/d15/namespacematerial__properties.html", [
+      [ "material_properties_t", "d1/dd5/structmaterial__properties_1_1material__properties__t.html", "d1/dd5/structmaterial__properties_1_1material__properties__t" ]
+    ] ],
     [ "math", "dd/d47/namespacemath.html", [
       [ "abscmp", "de/d34/interfacemath_1_1abscmp.html", "de/d34/interfacemath_1_1abscmp" ]
     ] ],
@@ -545,11 +550,6 @@ var annotated_dup =
     [ "output", "dd/d93/namespaceoutput.html", [
       [ "output_t", "dd/d5f/structoutput_1_1output__t.html", "dd/d5f/structoutput_1_1output__t" ],
       [ "output_sample", "dd/df1/interfaceoutput_1_1output__sample.html", "dd/df1/interfaceoutput_1_1output__sample" ]
-    ] ],
-    [ "parameters", "d4/d52/namespaceparameters.html", [
-      [ "param_t", "d0/d30/structparameters_1_1param__t.html", "d0/d30/structparameters_1_1param__t" ],
-      [ "param_io_t", "d1/dc0/structparameters_1_1param__io__t.html", "d1/dc0/structparameters_1_1param__io__t" ],
-      [ "write(formatted)", "d7/df0/interfaceparameters_1_1write_07formatted_08.html", "d7/df0/interfaceparameters_1_1write_07formatted_08" ]
     ] ],
     [ "parmetis", "d1/dd7/namespaceparmetis.html", [
       [ "parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway" ],
@@ -759,7 +759,8 @@ var annotated_dup =
       [ "stl_file_t", "d0/dab/structstl__file_1_1stl__file__t.html", "d0/dab/structstl__file_1_1stl__file__t" ]
     ] ],
     [ "structs", "d2/d74/namespacestructs.html", [
-      [ "struct_curve_t", "d0/d10/structstructs_1_1struct__curve__t.html", "d0/d10/structstructs_1_1struct__curve__t" ]
+      [ "struct_curve_t", "d0/d10/structstructs_1_1struct__curve__t.html", "d0/d10/structstructs_1_1struct__curve__t" ],
+      [ "array_ptr_t", "dd/d8c/structstructs_1_1array__ptr__t.html", "dd/d8c/structstructs_1_1array__ptr__t" ]
     ] ],
     [ "sx_jacobi", "dd/d6e/namespacesx__jacobi.html", [
       [ "sx_jacobi_t", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html", "d4/d41/structsx__jacobi_1_1sx__jacobi__t" ]
@@ -787,6 +788,9 @@ var annotated_dup =
     [ "time_based_controller", "d5/d11/namespacetime__based__controller.html", [
       [ "time_based_controller_t", "db/de7/structtime__based__controller_1_1time__based__controller__t.html", "db/de7/structtime__based__controller_1_1time__based__controller__t" ],
       [ "assignment(=)", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08.html", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08" ]
+    ] ],
+    [ "time_interpolator", "d7/d12/namespacetime__interpolator.html", [
+      [ "time_interpolator_t", "d8/d85/structtime__interpolator_1_1time__interpolator__t.html", "d8/d85/structtime__interpolator_1_1time__interpolator__t" ]
     ] ],
     [ "time_scheme", "dd/d54/namespacetime__scheme.html", [
       [ "time_scheme_t", "de/da4/structtime__scheme_1_1time__scheme__t.html", "de/da4/structtime__scheme_1_1time__scheme__t" ],
@@ -819,6 +823,7 @@ var annotated_dup =
       [ "usermsh", "da/dd1/interfaceuser__intf_1_1usermsh.html", "da/dd1/interfaceuser__intf_1_1usermsh" ],
       [ "usercheck", "d3/d11/interfaceuser__intf_1_1usercheck.html", "d3/d11/interfaceuser__intf_1_1usercheck" ],
       [ "user_final_modules", "d9/dfa/interfaceuser__intf_1_1user__final__modules.html", "d9/dfa/interfaceuser__intf_1_1user__final__modules" ],
+      [ "user_material_properties", "dd/db6/interfaceuser__intf_1_1user__material__properties.html", "dd/db6/interfaceuser__intf_1_1user__material__properties" ],
       [ "user_t", "d7/da0/structuser__intf_1_1user__t.html", "d7/da0/structuser__intf_1_1user__t" ]
     ] ],
     [ "uset", "df/da5/namespaceuset.html", [

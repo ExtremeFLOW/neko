@@ -116,14 +116,14 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:aacb7ac637cf2f47a08c51bdc46d9b874"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dea/namespacepnpn__res__device.html#aacb7ac637cf2f47a08c51bdc46d9b874">pnpn_prs_res_device_compute</a> (p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)</td></tr>
-<tr class="separator:aacb7ac637cf2f47a08c51bdc46d9b874"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac12c4ed2b0599d1a6f612ea8ed2910be"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dea/namespacepnpn__res__device.html#ac12c4ed2b0599d1a6f612ea8ed2910be">pnpn_vel_res_device_compute</a> (Ax, u, v, w, u_res, v_res, w_res, p, f_x, f_y, f_z, c_Xh, msh, Xh, Re, rho, bd, dt, n)</td></tr>
-<tr class="separator:ac12c4ed2b0599d1a6f612ea8ed2910be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59d926fd1cfc56254cdd2575d4b977ac"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dea/namespacepnpn__res__device.html#a59d926fd1cfc56254cdd2575d4b977ac">pnpn_prs_res_device_compute</a> (p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)</td></tr>
+<tr class="separator:a59d926fd1cfc56254cdd2575d4b977ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55ee2fb2b8a79727bd59543ce201fe58"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dea/namespacepnpn__res__device.html#a55ee2fb2b8a79727bd59543ce201fe58">pnpn_vel_res_device_compute</a> (Ax, u, v, w, u_res, v_res, w_res, p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)</td></tr>
+<tr class="separator:a55ee2fb2b8a79727bd59543ce201fe58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="aacb7ac637cf2f47a08c51bdc46d9b874"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aacb7ac637cf2f47a08c51bdc46d9b874">&#9670;&nbsp;</a></span>pnpn_prs_res_device_compute()</h2>
+<a id="a59d926fd1cfc56254cdd2575d4b977ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59d926fd1cfc56254cdd2575d4b977ac">&#9670;&nbsp;</a></span>pnpn_prs_res_device_compute()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -243,7 +243,7 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
-          <td class="paramname"><em>Re</em>, </td>
+          <td class="paramname"><em>mu</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -268,15 +268,15 @@ Functions/Subroutines</h2></td></tr>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d8/dea/namespacepnpn__res__device_aacb7ac637cf2f47a08c51bdc46d9b874_cgraph.png" border="0" usemap="#ad8/dea/namespacepnpn__res__device_aacb7ac637cf2f47a08c51bdc46d9b874_cgraph" alt=""/></div>
-<map name="ad8/dea/namespacepnpn__res__device_aacb7ac637cf2f47a08c51bdc46d9b874_cgraph" id="ad8/dea/namespacepnpn__res__device_aacb7ac637cf2f47a08c51bdc46d9b874_cgraph">
+<div class="center"><img src="../../d8/dea/namespacepnpn__res__device_a59d926fd1cfc56254cdd2575d4b977ac_cgraph.png" border="0" usemap="#ad8/dea/namespacepnpn__res__device_a59d926fd1cfc56254cdd2575d4b977ac_cgraph" alt=""/></div>
+<map name="ad8/dea/namespacepnpn__res__device_a59d926fd1cfc56254cdd2575d4b977ac_cgraph" id="ad8/dea/namespacepnpn__res__device_a59d926fd1cfc56254cdd2575d4b977ac_cgraph">
 <area shape="rect" title=" " alt="" coords="5,378,196,419"/>
 <area shape="rect" href="../../dd/d30/namespaceoperators.html#a0567ee7595ffc5b3ad3e1cf7359b112b" title="Compute DT*X (entire field) This needs to be revised... the loop over n1,n2 is probably unesccssary." alt="" coords="277,107,397,133"/>
 <area shape="rect" href="../../dd/d30/namespaceoperators.html#af453af505205377ba31a868d33f4a197" title=" " alt="" coords="279,177,395,204"/>
 <area shape="rect" href="../../d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912" title=" " alt="" coords="247,229,427,270"/>
 <area shape="rect" href="../../d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title=" " alt="" coords="259,294,416,335"/>
-<area shape="rect" href="../../d4/d66/pnpn__res_8cu.html#a46d7fa984d288b53248930c7b562bae3" title=" " alt="" coords="244,360,431,387"/>
-<area shape="rect" href="../../df/d4b/pnpn__res_8c.html#aaa32232882058f8bcd81696682f8d2ab" title=" " alt="" coords="733,403,883,445"/>
+<area shape="rect" href="../../d4/d66/pnpn__res_8cu.html#af64a7f09510056e94871bf99c327701d" title=" " alt="" coords="244,360,431,387"/>
+<area shape="rect" href="../../df/d4b/pnpn__res_8c.html#a374afb77ede232d6f96c3df58c704b66" title=" " alt="" coords="733,403,883,445"/>
 <area shape="rect" href="../../d4/d66/pnpn__res_8cu.html#a2fd7c133bdd5bb66430c9153240f70cb" title=" " alt="" coords="244,461,431,488"/>
 <area shape="rect" href="../../df/d4b/pnpn__res_8c.html#a6ef5029e9556cc27d3076a0350dcf6c6" title=" " alt="" coords="733,486,883,527"/>
 <area shape="rect" href="../../d4/d66/pnpn__res_8cu.html#a866701e52b8188e86c1d70eb9d022484" title=" " alt="" coords="244,563,431,589"/>
@@ -300,8 +300,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="ac12c4ed2b0599d1a6f612ea8ed2910be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac12c4ed2b0599d1a6f612ea8ed2910be">&#9670;&nbsp;</a></span>pnpn_vel_res_device_compute()</h2>
+<a id="a55ee2fb2b8a79727bd59543ce201fe58"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55ee2fb2b8a79727bd59543ce201fe58">&#9670;&nbsp;</a></span>pnpn_vel_res_device_compute()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -397,7 +397,7 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
-          <td class="paramname"><em>Re</em>, </td>
+          <td class="paramname"><em>mu</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -440,8 +440,8 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d8/dea/namespacepnpn__res__device_ac12c4ed2b0599d1a6f612ea8ed2910be_cgraph.png" border="0" usemap="#ad8/dea/namespacepnpn__res__device_ac12c4ed2b0599d1a6f612ea8ed2910be_cgraph" alt=""/></div>
-<map name="ad8/dea/namespacepnpn__res__device_ac12c4ed2b0599d1a6f612ea8ed2910be_cgraph" id="ad8/dea/namespacepnpn__res__device_ac12c4ed2b0599d1a6f612ea8ed2910be_cgraph">
+<div class="center"><img src="../../d8/dea/namespacepnpn__res__device_a55ee2fb2b8a79727bd59543ce201fe58_cgraph.png" border="0" usemap="#ad8/dea/namespacepnpn__res__device_a55ee2fb2b8a79727bd59543ce201fe58_cgraph" alt=""/></div>
+<map name="ad8/dea/namespacepnpn__res__device_a55ee2fb2b8a79727bd59543ce201fe58_cgraph" id="ad8/dea/namespacepnpn__res__device_a55ee2fb2b8a79727bd59543ce201fe58_cgraph">
 <area shape="rect" title=" " alt="" coords="5,155,196,197"/>
 <area shape="rect" href="../../d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612" title=" " alt="" coords="265,49,422,90"/>
 <area shape="rect" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Equals wgradm1 in nek5000. Gradient of velocity vectors." alt="" coords="275,213,412,240"/>
@@ -470,7 +470,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/dea/namespacepnpn__res__device.html">pnpn_res_device</a></li>
-    <li class="footer">Generated on Tue Oct 3 2023 13:13:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 27 2023 01:20:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -109,8 +109,9 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a504ade55d11b152b56001c6d487a1cf7"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#a504ade55d11b152b56001c6d487a1cf7">scalar_pnpn_init</a> (this, msh, coef, gs, params)</td></tr>
-<tr class="separator:a504ade55d11b152b56001c6d487a1cf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af70b26869059aa4be9721e2b29202e27"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#af70b26869059aa4be9721e2b29202e27">scalar_pnpn_init</a> (this, msh, coef, gs, params, user, material_properties)</td></tr>
+<tr class="memdesc:af70b26869059aa4be9721e2b29202e27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../db/d56/namespacescalar__pnpn.html#af70b26869059aa4be9721e2b29202e27">More...</a><br /></td></tr>
+<tr class="separator:af70b26869059aa4be9721e2b29202e27"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9cb374a82558fd2a9518313a098672b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#ae9cb374a82558fd2a9518313a098672b">scalar_pnpn_free</a> (this)</td></tr>
 <tr class="separator:ae9cb374a82558fd2a9518313a098672b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a46d007d95d86c36b8cdc002e735a1125"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#a46d007d95d86c36b8cdc002e735a1125">scalar_pnpn_step</a> (this, t, tstep, dt, ext_bdf)</td></tr>
@@ -143,12 +144,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00185">185</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00208">208</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
-<a id="a504ade55d11b152b56001c6d487a1cf7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a504ade55d11b152b56001c6d487a1cf7">&#9670;&nbsp;</a></span>scalar_pnpn_init()</h2>
+<a id="af70b26869059aa4be9721e2b29202e27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af70b26869059aa4be9721e2b29202e27">&#9670;&nbsp;</a></span>scalar_pnpn_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -181,7 +182,19 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(json_file), intent(inout), target&#160;</td>
-          <td class="paramname"><em>params</em>&#160;</td>
+          <td class="paramname"><em>params</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), intent(in), target&#160;</td>
+          <td class="paramname"><em>user</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d1/dd5/structmaterial__properties_1_1material__properties__t.html">material_properties_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>material_properties</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -191,21 +204,36 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00098">98</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p>Constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">msh</td><td>The mesh. </td></tr>
+    <tr><td class="paramname">coef</td><td>The coefficients. </td></tr>
+    <tr><td class="paramname">gs</td><td>The gather-scatter. </td></tr>
+    <tr><td class="paramname">params</td><td>The case parameter file in json. </td></tr>
+    <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../db/d56/namespacescalar__pnpn_a504ade55d11b152b56001c6d487a1cf7_cgraph.png" border="0" usemap="#adb/d56/namespacescalar__pnpn_a504ade55d11b152b56001c6d487a1cf7_cgraph" alt=""/></div>
-<map name="adb/d56/namespacescalar__pnpn_a504ade55d11b152b56001c6d487a1cf7_cgraph" id="adb/d56/namespacescalar__pnpn_a504ade55d11b152b56001c6d487a1cf7_cgraph">
-<area shape="rect" title=" " alt="" coords="5,179,152,221"/>
+<div class="center"><img src="../../db/d56/namespacescalar__pnpn_af70b26869059aa4be9721e2b29202e27_cgraph.png" border="0" usemap="#adb/d56/namespacescalar__pnpn_af70b26869059aa4be9721e2b29202e27_cgraph" alt=""/></div>
+<map name="adb/d56/namespacescalar__pnpn_af70b26869059aa4be9721e2b29202e27_cgraph" id="adb/d56/namespacescalar__pnpn_af70b26869059aa4be9721e2b29202e27_cgraph">
+<area shape="rect" title="Constructor." alt="" coords="5,223,152,265"/>
 <area shape="rect" href="../../d3/d69/namespaceadvection.html#a27316124e9b4a37c9ae00ec700953ed4" title="A factory for advection_t decendants." alt="" coords="211,49,370,90"/>
 <area shape="rect" href="../../d8/dbc/namespaceax__helm__fctry.html#a752579c6d570903a2f38dd01a98a0807" title=" " alt="" coords="201,114,380,155"/>
-<area shape="rect" href="../../d2/dd3/namespacerhs__maker__fctry.html#a82ed202652887c07758d242887869dce" title=" " alt="" coords="213,179,368,221"/>
-<area shape="rect" href="../../d2/dd3/namespacerhs__maker__fctry.html#abe3ce643553952f6d3fa023951e4a216" title=" " alt="" coords="213,245,368,286"/>
-<area shape="rect" href="../../dd/daa/namespacescalar__residual__fctry.html#a90b130272e53d882fb406662d150edb5" title=" " alt="" coords="200,310,381,351"/>
+<area shape="rect" href="../../d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="231,180,350,207"/>
+<area shape="rect" href="../../d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="233,231,348,257"/>
+<area shape="rect" href="../../d2/dd3/namespacerhs__maker__fctry.html#a82ed202652887c07758d242887869dce" title=" " alt="" coords="213,282,368,323"/>
+<area shape="rect" href="../../d2/dd3/namespacerhs__maker__fctry.html#abe3ce643553952f6d3fa023951e4a216" title=" " alt="" coords="213,347,368,389"/>
+<area shape="rect" href="../../dd/daa/namespacescalar__residual__fctry.html#a90b130272e53d882fb406662d150edb5" title=" " alt="" coords="200,413,381,454"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="439,5,589,32"/>
 <area shape="rect" href="../../d3/d69/namespaceadvection.html#a155e772f99b667b81fe8a8c30c6aedb7" title="Constructor." alt="" coords="429,56,599,83"/>
 <area shape="rect" href="../../d3/d69/namespaceadvection.html#a646ee7d2b5eaded46dd282b6c5899d44" title="Constructor." alt="" coords="445,107,583,149"/>
+<area shape="rect" href="../../d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="454,231,574,257"/>
 </map>
 </div>
 
@@ -264,7 +292,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>We assume that no change of boundary conditions occurs between elements. I.e. we do not apply gsop here like in Nek5000 Apply dirichlet</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00226">226</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00249">249</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -274,7 +302,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d56/namespacescalar__pnpn.html">scalar_pnpn</a></li>
-    <li class="footer">Generated on Tue Oct 3 2023 13:13:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 27 2023 01:20:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -9,7 +9,9 @@ var structchkp__file_1_1chkp__file__t =
     [ "chkp_xh", "dd/dd2/structchkp__file_1_1chkp__file__t.html#af771a920b1c36e3c264743c8029c5631", null ],
     [ "counter", "dd/dd2/structchkp__file_1_1chkp__file__t.html#a590608acce62212a28ba15a094caa5b4", null ],
     [ "fname", "dd/dd2/structchkp__file_1_1chkp__file__t.html#a751e18551cff4a19fae3ab607f6dffba", null ],
-    [ "interp", "dd/dd2/structchkp__file_1_1chkp__file__t.html#a7fa58e683b4116f8e03421190812e030", null ],
+    [ "global_interp", "dd/dd2/structchkp__file_1_1chkp__file__t.html#aae23b0a52a44f640efc2ba0dbe31a06a", null ],
+    [ "mesh2mesh", "dd/dd2/structchkp__file_1_1chkp__file__t.html#a63f2e33ab30f00fd264b3c010cbedeae", null ],
     [ "sim_xh", "dd/dd2/structchkp__file_1_1chkp__file__t.html#a14dde2dfb24f2d73f73730250428166c", null ],
+    [ "space_interp", "dd/dd2/structchkp__file_1_1chkp__file__t.html#ac389703b2bfd3d1cc509b3e6f4b2e4bb", null ],
     [ "start_counter", "dd/dd2/structchkp__file_1_1chkp__file__t.html#af9ee98e9248b3cc3d7ac7ed5b98eb9a7", null ]
 ];

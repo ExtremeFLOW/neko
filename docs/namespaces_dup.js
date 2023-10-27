@@ -189,6 +189,7 @@ var namespaces_dup =
     [ "fluid_volflow", "d6/d21/namespacefluid__volflow.html", "d6/d21/namespacefluid__volflow" ],
     [ "gather_scatter", "d0/d78/namespacegather__scatter.html", "d0/d78/namespacegather__scatter" ],
     [ "generic_file", "dc/d92/namespacegeneric__file.html", "dc/d92/namespacegeneric__file" ],
+    [ "global_interpolation", "dd/de1/namespaceglobal__interpolation.html", "dd/de1/namespaceglobal__interpolation" ],
     [ "gmres", "dc/d48/namespacegmres.html", "dc/d48/namespacegmres" ],
     [ "gmres_device", "de/df2/namespacegmres__device.html", "de/df2/namespacegmres__device" ],
     [ "gmres_sx", "d5/d6a/namespacegmres__sx.html", "d5/d6a/namespacegmres__sx" ],
@@ -224,6 +225,7 @@ var namespaces_dup =
     [ "logger", "d8/da0/namespacelogger.html", "d8/da0/namespacelogger" ],
     [ "map", "d3/dca/namespacemap.html", "d3/dca/namespacemap" ],
     [ "map_file", "dc/da2/namespacemap__file.html", "dc/da2/namespacemap__file" ],
+    [ "material_properties", "d8/d15/namespacematerial__properties.html", "d8/d15/namespacematerial__properties" ],
     [ "math", "dd/d47/namespacemath.html", "dd/d47/namespacemath" ],
     [ "mathops", "d2/dd4/namespacemathops.html", [
       [ "opadd2cm", "d2/dd4/namespacemathops.html#ae4d1c9dd22e798372b3e22ec432b54c0", null ],
@@ -386,7 +388,6 @@ var namespaces_dup =
       [ "opr_xsmm_opgrad", "d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50", null ]
     ] ],
     [ "output", "dd/d93/namespaceoutput.html", "dd/d93/namespaceoutput" ],
-    [ "parameters", "d4/d52/namespaceparameters.html", "d4/d52/namespaceparameters" ],
     [ "parmetis", "d1/dd7/namespaceparmetis.html", "d1/dd7/namespaceparmetis" ],
     [ "pipecg", "de/d49/namespacepipecg.html", "de/d49/namespacepipecg" ],
     [ "pipecg_device", "da/d46/namespacepipecg__device.html", "da/d46/namespacepipecg__device" ],
@@ -648,6 +649,7 @@ var namespaces_dup =
     [ "tet", "d6/df0/namespacetet.html", "d6/df0/namespacetet" ],
     [ "tet_mesh", "d4/d59/namespacetet__mesh.html", "d4/d59/namespacetet__mesh" ],
     [ "time_based_controller", "d5/d11/namespacetime__based__controller.html", "d5/d11/namespacetime__based__controller" ],
+    [ "time_interpolator", "d7/d12/namespacetime__interpolator.html", "d7/d12/namespacetime__interpolator" ],
     [ "time_scheme", "dd/d54/namespacetime__scheme.html", "dd/d54/namespacetime__scheme" ],
     [ "time_scheme_controller", "dc/dfb/namespacetime__scheme__controller.html", "dc/dfb/namespacetime__scheme__controller" ],
     [ "tri", "df/d69/namespacetri.html", "df/d69/namespacetri" ],

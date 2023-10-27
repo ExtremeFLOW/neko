@@ -109,8 +109,8 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:ae15a1c81e1a78d4cc67f2a25082ffb3e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#ae15a1c81e1a78d4cc67f2a25082ffb3e">fluid_pnpn_init</a> (this, msh, lx, params, user)</td></tr>
-<tr class="separator:ae15a1c81e1a78d4cc67f2a25082ffb3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24a6187aed087af84495969693831775"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a24a6187aed087af84495969693831775">fluid_pnpn_init</a> (this, msh, lx, params, user, material_properties)</td></tr>
+<tr class="separator:a24a6187aed087af84495969693831775"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2582bae4203cde06a4a72c54aebd215"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#aa2582bae4203cde06a4a72c54aebd215">fluid_pnpn_free</a> (this)</td></tr>
 <tr class="separator:aa2582bae4203cde06a4a72c54aebd215"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1f64dff0cbe099b5f4d17299d02c8622"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a1f64dff0cbe099b5f4d17299d02c8622">fluid_pnpn_step</a> (this, t, tstep, dt, ext_bdf)</td></tr>
@@ -144,12 +144,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00271">271</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00274">274</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
-<a id="ae15a1c81e1a78d4cc67f2a25082ffb3e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae15a1c81e1a78d4cc67f2a25082ffb3e">&#9670;&nbsp;</a></span>fluid_pnpn_init()</h2>
+<a id="a24a6187aed087af84495969693831775"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24a6187aed087af84495969693831775">&#9670;&nbsp;</a></span>fluid_pnpn_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -182,7 +182,13 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), intent(in)&#160;</td>
-          <td class="paramname"><em>user</em>&#160;</td>
+          <td class="paramname"><em>user</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d1/dd5/structmaterial__properties_1_1material__properties__t.html">material_properties_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>material_properties</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -192,12 +198,12 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dc/da3/namespacefluid__pnpn_ae15a1c81e1a78d4cc67f2a25082ffb3e_cgraph.png" border="0" usemap="#adc/da3/namespacefluid__pnpn_ae15a1c81e1a78d4cc67f2a25082ffb3e_cgraph" alt=""/></div>
-<map name="adc/da3/namespacefluid__pnpn_ae15a1c81e1a78d4cc67f2a25082ffb3e_cgraph" id="adc/da3/namespacefluid__pnpn_ae15a1c81e1a78d4cc67f2a25082ffb3e_cgraph">
+<div class="center"><img src="../../dc/da3/namespacefluid__pnpn_a24a6187aed087af84495969693831775_cgraph.png" border="0" usemap="#adc/da3/namespacefluid__pnpn_a24a6187aed087af84495969693831775_cgraph" alt=""/></div>
+<map name="adc/da3/namespacefluid__pnpn_a24a6187aed087af84495969693831775_cgraph" id="adc/da3/namespacefluid__pnpn_a24a6187aed087af84495969693831775_cgraph">
 <area shape="rect" title=" " alt="" coords="5,252,197,279"/>
 <area shape="rect" href="../../d3/d69/namespaceadvection.html#a27316124e9b4a37c9ae00ec700953ed4" title="A factory for advection_t decendants." alt="" coords="255,49,414,90"/>
 <area shape="rect" href="../../d8/dbc/namespaceax__helm__fctry.html#a752579c6d570903a2f38dd01a98a0807" title=" " alt="" coords="245,114,424,155"/>
@@ -278,7 +284,7 @@ Here is the call graph for this function:</div>
 </dl>
 <p>We assume that no change of boundary conditions occurs between elements. I.e. we do not apply gsop here like in Nek5000 Apply dirichlet</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00341">341</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00344">344</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -288,7 +294,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html">fluid_pnpn</a></li>
-    <li class="footer">Generated on Tue Oct 3 2023 13:13:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 27 2023 01:20:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

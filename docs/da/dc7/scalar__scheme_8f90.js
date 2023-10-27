@@ -7,7 +7,7 @@ var scalar__scheme_8f90 =
     [ "scalar_scheme_add_bcs", "da/dc7/scalar__scheme_8f90.html#a52d0bdcd6d81c223bb1e543b0d504bfc", null ],
     [ "scalar_scheme_bc_apply", "da/dc7/scalar__scheme_8f90.html#a3138fee30913756330c6d00ba6ff5d59", null ],
     [ "scalar_scheme_free", "da/dc7/scalar__scheme_8f90.html#a57f35ef15b838ab8da7ab18d002a352b", null ],
-    [ "scalar_scheme_init", "da/dc7/scalar__scheme_8f90.html#ab0997036dc87ff64d18d916f89f07f97", null ],
+    [ "scalar_scheme_init", "da/dc7/scalar__scheme_8f90.html#a442e39894b529b2b2644ad3adba880ae", null ],
     [ "scalar_scheme_precon_factory", "da/dc7/scalar__scheme_8f90.html#a9ab0bf4dfdd4312aef79f94f07faa1f8", null ],
     [ "scalar_scheme_set_source", "da/dc7/scalar__scheme_8f90.html#aa2e2ec76d1ac637557264208b46829eb", null ],
     [ "scalar_scheme_set_user_bc", "da/dc7/scalar__scheme_8f90.html#a6517270e082d67db1bff9656832b4bf9", null ],

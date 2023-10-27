@@ -1,3 +1,8 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$d1/dc0/structparameters_1_1param__io__t.html" title=" " alt="" coords="5,5,184,32"/>
+<area shape="rect" id="node1" href="$dd/d5f/structoutput_1_1output__t.html" title="Abstract type defining an output type." alt="" coords="5,129,132,156"/>
+<area shape="rect" id="node2" href="$da/d51/structchkp__output_1_1chkp__output__t.html" title=" " alt="" coords="180,5,383,32"/>
+<area shape="rect" id="node3" href="$de/d0d/structfluid__output_1_1fluid__output__t.html" title="Fluid output." alt="" coords="214,57,349,98"/>
+<area shape="rect" id="node4" href="$d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html" title=" " alt="" coords="202,122,361,163"/>
+<area shape="rect" id="node5" href="$db/dca/structmean__flow__output_1_1mean__flow__output__t.html" title=" " alt="" coords="188,187,375,229"/>
+<area shape="rect" id="node6" href="$d4/de3/structmean__sqr__flow__output_1_1mean__sqr__flow__output__t.html" title=" " alt="" coords="187,253,376,294"/>
 </map>

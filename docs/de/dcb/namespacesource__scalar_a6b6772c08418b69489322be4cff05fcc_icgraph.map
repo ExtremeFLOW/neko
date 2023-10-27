@@ -1,5 +1,4 @@
 <map id="source_scalar::source_scalar_init" name="source_scalar::source_scalar_init">
-<area shape="rect" id="node1" title="Initialize a source_scalar term f." alt="" coords="447,5,609,47"/>
-<area shape="rect" id="node2" href="$da/de3/namespacescalar__scheme.html#ab0997036dc87ff64d18d916f89f07f97" title="Initialize all related components of the current scheme." alt="" coords="232,5,399,47"/>
-<area shape="rect" id="node3" href="$dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a0faad26f6aa595ddb321601cfecdafba" title=" " alt="" coords="5,5,184,47"/>
+<area shape="rect" id="node1" title="Initialize a source_scalar term f." alt="" coords="220,5,383,47"/>
+<area shape="rect" id="node2" href="$da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="5,5,172,47"/>
 </map>

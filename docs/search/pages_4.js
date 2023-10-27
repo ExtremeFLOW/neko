@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['publication_20list_8472',['Publication List',['../dd/ddd/publication-list.html',1,'']]]
+  ['neko_20manual_8452',['Neko Manual',['../index.html',1,'']]]
 ];

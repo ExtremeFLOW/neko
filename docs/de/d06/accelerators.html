@@ -96,12 +96,12 @@ $(document).ready(function(){initNavTree('de/d06/accelerators.html','../../'); i
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_pages_accelerators"></a> </p>
-<h1><a class="anchor" id="autotoc_md22"></a>
+<h1><a class="anchor" id="autotoc_md25"></a>
 Device abstraction layer</h1>
 <p>Neko has a device abstraction layer (<a class="el" href="../../d4/d2a/device_8F90.html">device.F90</a>) to manage device memory, data transfer and kernel invocations directly from a familiar Fortran interface, targeting all supported accelerator backends.</p>
-<h2><a class="anchor" id="autotoc_md23"></a>
+<h2><a class="anchor" id="autotoc_md26"></a>
 Memory management</h2>
-<h3><a class="anchor" id="autotoc_md24"></a>
+<h3><a class="anchor" id="autotoc_md27"></a>
 Allocation/deallocation</h3>
 <p>Allocating device memory can be done via the low-level <a class="el" href="../../d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device.">device::device_alloc</a> function, which takes a C pointer and requested size (in bytes) as arguments (see below). The pointer points to the allocated device memory if the allocation is successful. <br  />
  </p><div class="fragment"><div class="line"><span class="keywordtype">type</span>(c_ptr) :: x_d</div>
@@ -111,7 +111,7 @@ Allocation/deallocation</h3>
 </div><!-- fragment --><p>To deallocate device memory, call <a class="el" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device.">device::device_free</a> as shown below. </p><div class="fragment"><div class="line"><span class="keywordtype">type</span>(c_ptr) :: x_d</div>
 <div class="line">...</div>
 <div class="line"><span class="keyword">call </span>device_free(x_d)</div>
-</div><!-- fragment --> <h3><a class="anchor" id="autotoc_md25"></a>
+</div><!-- fragment --> <h3><a class="anchor" id="autotoc_md28"></a>
 Associate data on host and device</h3>
 <p>It is often helpful to associate a Fortran array with an array allocated on the device. This can be done via the <a class="el" href="../../d6/d17/interfacedevice_1_1device__associate.html" title="Associate a Fortran array to a (allocated) device pointer.">device::device_associate</a> routine, which takes a Fortran array <code>x</code> of type <code>integer</code>, <code>integer(i8)</code>, <code>real(kind=sp)</code> or <code>real(kind=dp)</code> (of maximum rank four) and a device pointer <code>x_d</code> as arguments. </p><div class="fragment"><div class="line"><span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: x(:)</div>
 <div class="line"><span class="keywordtype">type</span>(c_ptr) :: x_d</div>
@@ -128,7 +128,7 @@ Associate data on host and device</h3>
 <div class="line">   x_d = device_get_ptr(x)</div>
 <div class="line"><span class="keyword">end </span>if</div>
 </div><!-- fragment --></dd></dl>
-<h3><a class="anchor" id="autotoc_md26"></a>
+<h3><a class="anchor" id="autotoc_md29"></a>
 Map a host array to a device</h3>
 <p>Since allocation and association is such an ordinary operation, Neko provides a combined routine <a class="el" href="../../da/db0/interfacedevice_1_1device__map.html" title="Map a Fortran array to a device (allocate and associate)">device::device_map</a> which takes a Fortran array <code>x</code> of type <code>integer</code>, <code>integer(i8)</code>, <code>real(kind=sp)</code> or <code>real(kind=dp)</code>, its size <code>n</code> (<b>Note</b> number of entries, not size in bytes as for <code>device_allocate</code>) and a C pointer <code>x_d</code> to the (to be allocated) device memory. </p><div class="fragment"><div class="line"><span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: x(:)</div>
 <div class="line"><span class="keywordtype">type</span>(c_ptr) :: x_d</div>
@@ -137,7 +137,7 @@ Map a host array to a device</h3>
 <div class="line"><span class="keyword">allocate</span>(x(n))</div>
 <div class="line">...</div>
 <div class="line"><span class="keyword">call </span>device_map(x, x_d, n)</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md27"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md30"></a>
 Data transfer</h3>
 <p>To copy data between host and device (and device to use) use the routine <a class="el" href="../../d6/dac/interfacedevice_1_1device__memcpy.html" title="Copy data between host and device (or device and device)">device::device_memcpy</a> which takes a Fortran array <code>x</code> of type <code>integer</code>, <code>integer(i8)</code>, <code>real(kind=sp)</code> or <code>real(kind=dp)</code>, its size <code>n</code> and the direction as the third argument which can either be <code>HOST_TO_DEVICE</code> to copy data to the device, or <code>DEVICE_TO_HOST</code> to retrieve data from the device. </p><div class="fragment"><div class="line"><span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: x(:)</div>
 <div class="line"><span class="keywordtype">type</span>(c_ptr) :: x_d</div>
@@ -158,7 +158,7 @@ Data transfer</h3>
 <div class="line"><span class="keyword">call </span>device_memcpy_cptr(y_d, x_d, s, device_to_device)</div>
 </div><!-- fragment --></dd></dl>
 <dl class="section attention"><dt>Attention</dt><dd>It is the programmers' responsibility to make sure that device arrays are kept in sync with the associated host array. Neko does not perform any implicit data movement.</dd></dl>
-<h2><a class="anchor" id="autotoc_md28"></a>
+<h2><a class="anchor" id="autotoc_md31"></a>
 Offload work</h2>
 <p>To offload work to a device, most routines in Neko have a device version prefixed with <code>device_&lt;name of routine&gt;</code>. These routines have the same arguments as the host equivalent, but one must pass device pointers instead of Fortran arrays.</p>
 <p>For example, we call the <code><a class="el" href="../../dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition .">math::add2</a></code> routine to add two arrays together on the host. </p><div class="fragment"><div class="line"><span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: x(:), y(:)</div>
@@ -185,7 +185,7 @@ Offload work</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Tue Oct 3 2023 13:13:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 27 2023 01:20:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

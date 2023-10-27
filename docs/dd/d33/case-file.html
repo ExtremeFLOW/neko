@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_pages_case_file"></a> The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is heirarchical and, and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
-<h1><a class="anchor" id="autotoc_md1"></a>
+<h1><a class="anchor" id="autotoc_md3"></a>
 High-level structure</h1>
 <p>The current high-level structure of the case file is shown below.</p>
 <div class="fragment"><div class="line">{</div>
@@ -110,7 +110,7 @@ High-level structure</h1>
 <div class="line">    }</div>
 <div class="line">}</div>
 </div><!-- fragment --><p> The <code>version</code> keywords is reserved to track changes in the format of the file. The the subsections below we list all the configuration options for each of the high-level objects. Some parameters will have default values, and are therefore optional.</p>
-<h1><a class="anchor" id="autotoc_md2"></a>
+<h1><a class="anchor" id="autotoc_md4"></a>
 Output frequency control</h1>
 <p>A common scheme for controlling the output frequency is applied for various outputs. It is described already now in order to clarify the meaning of several parameters found in the tables below.</p>
 <p>The frequency is controlled by two paramters, ending with <code>_control</code> and <code>_value</code>, respectively. The latter name is perhaps not ideal, but it is somewhat difficult to come up with a good one, suggestions are welcome.</p>
@@ -120,7 +120,7 @@ Output frequency control</h1>
 <li><code>nsamples</code>, then <code>_value</code> is the total number of outputs that will be performed in the course of the simulation.</li>
 <li><code>never</code>, then <code>_value</code> is ignored and output is never performed.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md3"></a>
+<h1><a class="anchor" id="autotoc_md5"></a>
 The &lt;tt&gt;case&lt;/tt&gt; object</h1>
 <p>This object is mostly used as a high-level container for all the other objects, but also defines several parameters that pertain to the simulation as a whole.</p>
 <table class="markdownTable">
@@ -151,7 +151,7 @@ The &lt;tt&gt;case&lt;/tt&gt; object</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>job_timelimit</code>   </td><td class="markdownTableBodyNone">The maximum wall clock duration of the simulation.   </td><td class="markdownTableBodyNone">String formatted as HH:MM:SS   </td><td class="markdownTableBodyNone">No limit   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md4"></a>
+<h1><a class="anchor" id="autotoc_md6"></a>
 Numerics</h1>
 <p>Used to define the properties of the numerical discretization.</p>
 <table class="markdownTable">
@@ -166,10 +166,16 @@ Numerics</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>dealiased_polynomial order</code>   </td><td class="markdownTableBodyNone">The polynomial order in the higher-order space used in the dealising.   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>3/2(polynomial_order + 1) - 1</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md5"></a>
+<h1><a class="anchor" id="autotoc_md7"></a>
 Fluid</h1>
 <p>The configuration of the fluid solver and the flow problem. Contains multiple subobjects for various parts of the setup.</p>
-<h2><a class="anchor" id="autotoc_md6"></a>
+<h2><a class="anchor" id="autotoc_md8"></a>
+Material properties</h2>
+<p>As per the governing equations, Neko requires the value of the density and dynamic viscosity to define the flow problem. These can be provided as <code>rho</code> and <code>mu</code> in the case file.</p>
+<p>Alternatively, one may opt to provide the Reynolds number, <code>Re</code>, which corresponds to a non-dimensional formulation of the Navier-Stokes equations. This formulation can effectively be obtained by setting \( \rho = 1 \) and \( \mu = 1/Re \). This is exactly what Neko does under the hood, when <code>Re</code> is provided in the case file.</p>
+<p>Note that if both <code>Re</code> and any of the dimensional material properties are provided, the simulation will issue an error.</p>
+<p>As an alternative to providing material properties in the case file, it is possible to do that in a special routine in the user file. This is demonstrated in the <code>rayleigh-benard-cylinder</code> example. Ultimately, both <code>rho</code> and <code>mu</code> have to be set in the subroutine, but it can be based on arbitrary computations and arbitrary parameters read from the case file. Additionally, this allows to change the material properties in time.</p>
+<h2><a class="anchor" id="autotoc_md9"></a>
 Inflow boundary conditions</h2>
 <p>The object <code>inflow_condition</code> is used to specify velocity values at a Dirichlet boundary. This does not necessarily have to be an inflow boundary, so the name is not so good, and will most likely be changed along with type changes in the code. Since not all cases have Dirichlet boundaries (note, the special case of a no-slip boundary is treated separately in the configuration), this object is not obligatory. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
 <ol type="1">
@@ -177,7 +183,7 @@ Inflow boundary conditions</h2>
 <li><code>uniform</code>, the value is a constant vector, looked up under the <code>value</code> keyword.</li>
 <li><code>blasius</code>, a Blasius profile is prescribed. Its properties are looked up in the <code>case.fluid.blasius</code> object, see below.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md7"></a>
+<h2><a class="anchor" id="autotoc_md10"></a>
 Initial conditions</h2>
 <p>The object <code>initial_condition</code> is used to provide initial conditions. It is mandatory. Note that this currently pertains to both the fluid, but also scalars. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
 <ol type="1">
@@ -185,7 +191,7 @@ Initial conditions</h2>
 <li><code>uniform</code>, the value is a constant vector, looked up under the <code>value</code> keyword.</li>
 <li><code>blasius</code>, a Blasius profile is prescribed. Its properties are looked up in the <code>case.fluid.blasius</code> object, see below.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md8"></a>
+<h2><a class="anchor" id="autotoc_md11"></a>
 Blasius profile</h2>
 <p>The <code>blasius</code> object is used to specify the Blasius profile that can be used for the initial and inflow condition. The boundary cannot be tilted with respect to the coordinate axes. It requires the following parameters:</p>
 <ol type="1">
@@ -200,17 +206,18 @@ Blasius profile</h2>
 </ul>
 </li>
 </ol>
-<h2><a class="anchor" id="autotoc_md9"></a>
-Source term</h2>
-<p>The <code><a class="el" href="../../de/de7/namespacesource__term.html" title="Implements the source_term_t type and a wrapper source_term_wrapper_t.">source_term</a></code> object should be used to specify the source term in the momentum equation. The object is not mandatory, by default no forcing term is present. The forcing is selected using the <code>type</code> keyword.</p>
+<h2><a class="anchor" id="autotoc_md12"></a>
+Source terms</h2>
+<p>The <code>source_terms</code> object should be used to specify the source terms in the momentum equation. The object is not mandatory, by default no forcing term is present. Each source term, is itself a JSON object, so <code>source_terms</code> is just an array of them. Note that with respect to the governing equations, the source terms define \( f^u \), meaning that the values are then multiplied by the density.</p>
+<p>For each source, the <code>type</code> keyword defines the kind of forcing that will be introduced. The following types are currently implemented.</p>
 <ol type="1">
-<li><code>noforce</code>, no forcing. This is the default value.</li>
-<li><code>user</code>, the values are set inside the compiled user file, using the pointwise user file subroutine.</li>
+<li><code>constant</code>, constant forcing. Strength defined by the <code>values</code> array with 3 reals corresponding to the 3 components of the forcing.</li>
+<li><code>user_pointwise</code>, the values are set inside the compiled user file, using the pointwise user file subroutine. Only works on CPUs!</li>
 </ol>
 <ol type="1">
 <li><code>user_vector</code>, the values are set inside the compiled user file, using the non-pointwise user file subroutine. Should be used when running on the GPU.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md10"></a>
+<h2><a class="anchor" id="autotoc_md13"></a>
 Boundary types</h2>
 <p>The optional <code>boundary_types</code> keyword can be used to specify boundary conditions. The reason for it being optional, is that some conditions can be specified directly inside the mesh file. In particular, this happens when Nek5000 <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code> files are converted to <code>.nmsh</code>. Periodic boundary conditions are <em>always</em> defined inside the mesh file.</p>
 <p>The value of the keyword is an array of strings, with the following possible values:</p><ul>
@@ -223,7 +230,7 @@ Boundary types</h2>
 <li><code>on+dong</code>, an <code>on</code> boundary using the Dong condition, ensuring that the wall-normal velocity is directed outwards.</li>
 </ul>
 <p>In some cases, only some boundary types have to be provided. For example, when one has periodic boundaries, like in the channel flow example. In this case, to put the specification of the boundary at the right index, preceding boundary types can be marked with an empty string. For example, if boundaries with index 1 and 2 are periodic, and the third one is a wall, we can set. </p><div class="fragment"><div class="line">&quot;boundary_types&quot;: [&quot;&quot;, &quot;&quot;, &quot;w&quot;]</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md11"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md14"></a>
 Linear solver configuration</h1>
 <p>The mandatory <code>velocity_solver</code> and <code>pressure_solver</code> objects are used to configure the solvers for the momentum and pressure-Poisson equation. The following keywords are used, with the corresponding options.</p>
 <ul>
@@ -245,7 +252,7 @@ Linear solver configuration</h1>
 <li><code>max_iterations</code>, maximum number of iterations before giving up.</li>
 <li><code>projection_space_size</code>, size of the vector space used for accelerating the solution procedure. If 0, then the projection space is not used. More important for the pressure equation.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<h2><a class="anchor" id="autotoc_md15"></a>
 Flow rate forcing</h2>
 <p>The optional <code>flow_rate_force</code> object can be used to force a particular flow rate through the domain. Useful for channel and pipe flows. The configuration uses the following parameters:</p>
 <ul>
@@ -253,7 +260,7 @@ Flow rate forcing</h2>
 <li><code>value</code>, the desired flow rate.</li>
 <li><code>use_averaged_flow</code>, whether <code>value</code> specifies the domain-averaged (bulk) velocity or the volume flow rate.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md13"></a>
+<h2><a class="anchor" id="autotoc_md16"></a>
 Full parameter table</h2>
 <p>All the parameters are summarized in the table below. This includes all the subobjects discussed above, as well as keyword parameters that can be described concisely directly in the table.</p>
 <table class="markdownTable">
@@ -318,23 +325,29 @@ Full parameter table</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>freeze</code>   </td><td class="markdownTableBodyNone">Whether to fix the velocity field at initial conditions.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md14"></a>
+<h1><a class="anchor" id="autotoc_md17"></a>
 Scalar</h1>
-<p>The scalar object allows to add a scalar transport equation to the solution. The solution variable is called <code>s</code>, but saved as <code>temperature</code> in the fld files. Some properties of the object are inherited from <code>fluid</code>: the properties of the linear solver, the value of the density and the Re number, and the output control.</p>
+<p>The scalar object allows to add a scalar transport equation to the solution. The solution variable is called <code>s</code>, but saved as <code>temperature</code> in the fld files. Some properties of the object are inherited from <code>fluid</code>: the properties of the linear solver, the value of the density, and the output control.</p>
+<p>The scalar equation requires defining additional material properties: the specific heat capacity and thermal conductivity. These are provided as <code>cp</code> and <code>lambda</code>. Similarly to the fluid, one can provide the Peclet number, <code>Pe</code>, as an alternative. In this case, <code>cp</code> is set to 1 and <code>lambda</code> to the inverse of <code>Pe</code>.</p>
 <p>The boundary conditions for the scalar are specified through the <code>boundary_types</code> keyword. It is possible to directly specify a uniform value for a Dirichlet boundary. The syntax is, e.g. <code>d=1</code>, to set the value to 1, see the Ryleigh-Benard example case.</p>
+<p>Note that the source term configuration for the scalar currently differs from that of the fluid. This will be addressed in a future release. For now, the <code><a class="el" href="../../de/de7/namespacesource__term.html" title="Implements the source_term_t type and a wrapper source_term_wrapper_t.">source_term</a></code> keyword should be used, set to either <code>noforce</code> (no forcing), <code>user</code> (same as <code>user_pointwise</code> for the fluid), and <code>user_vector</code> (same as for the fluid).</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissable values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>enabled</code>   </td><td class="markdownTableBodyNone">Whether to enable the scalar computation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>Pr</code>   </td><td class="markdownTableBodyNone">The Prandtl number.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>Pe</code>   </td><td class="markdownTableBodyNone">The Peclet number.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>cp</code>   </td><td class="markdownTableBodyNone">Specific heat cpacity.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>lambda</code>   </td><td class="markdownTableBodyNone">Thermal conductivity.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>source_term.type</code>   </td><td class="markdownTableBodyNone">Source term in the momentum equation.   </td><td class="markdownTableBodyNone"><code>noforce</code>, <code>user</code>, <code>user_vector</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>boundary_types</code>   </td><td class="markdownTableBodyNone">Boundary types/conditions labels.   </td><td class="markdownTableBodyNone">Array of strings   </td><td class="markdownTableBodyNone">-   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md15"></a>
+<h1><a class="anchor" id="autotoc_md18"></a>
 Statistics</h1>
 <p>This object adds the collection of statistics for the flud fields. For additional details on the workflow, see the corresponding page in the user manual.</p>
 <table class="markdownTable">
@@ -347,7 +360,7 @@ Statistics</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>sampling_interval</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">10   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md16"></a>
+<h1><a class="anchor" id="autotoc_md19"></a>
 Simulation components</h1>
 <p>Simulation components enable the user to perform various additional operations, which are not strictly necessary to run the solver. An example could be computing and output of additional fields, e.g. vorticity.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a sperate page of the manual. </p>
@@ -358,7 +371,7 @@ Simulation components</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Tue Oct 3 2023 13:13:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 27 2023 01:20:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

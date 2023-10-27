@@ -10,6 +10,7 @@ var structcase_1_1case__t =
     [ "f_out", "db/d7a/structcase_1_1case__t.html#a165cdddf3f6276422b3e77902fc50957", null ],
     [ "f_stats_output", "db/d7a/structcase_1_1case__t.html#a226e8a1475fd9e88992b2c925287275a", null ],
     [ "fluid", "db/d7a/structcase_1_1case__t.html#a888466771ac023403b048a1f69262a5a", null ],
+    [ "material_properties", "db/d7a/structcase_1_1case__t.html#a2da3b6233580ca5fa82e03c5817c4dca", null ],
     [ "msh", "db/d7a/structcase_1_1case__t.html#a248a24b1212aa88b2a1345ccb6e72cf6", null ],
     [ "params", "db/d7a/structcase_1_1case__t.html#a0cec46707c2d83ee1f9e1cedfc8ea63e", null ],
     [ "q", "db/d7a/structcase_1_1case__t.html#a0217c67492188605dee5b11e3409edbd", null ],
