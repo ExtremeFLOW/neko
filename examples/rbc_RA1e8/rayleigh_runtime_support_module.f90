@@ -244,7 +244,7 @@ contains
           write(*,*) 'restarting the value for last stat sample '
        end if
        !> find how many samples have been taken
-       how_many_samples = floor(t/this%sample_control%time_interval)
+       how_many_samples = int(t/this%sample_control%time_interval)
        !> Update the time since the last sample based on the information
        this%t_last_sample = how_many_samples * &
                             this%sample_control%time_interval
