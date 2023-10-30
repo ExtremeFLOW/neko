@@ -36,7 +36,7 @@ docker run --rm -v /home/user/case:/case 6a9febfaa645 bin/bash -c "cd /case && m
 ```
 
 The `--rm` flag tells Docker to remove the container after the run is finished.
-Note that we use the image ID form before as the third argument. As the run
+Note that we use the image ID from before as the third argument. As the run
 command we simply use `bash`, followed by a sequence of commands to actually
 execute the case. The commands are chained using `&&`, so one can easily add
 additional steps, for example, running `makeneko`.
