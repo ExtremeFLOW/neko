@@ -116,13 +116,14 @@ contains
     ! count self periodic edges
     itmp = 0
     do il = 1, this%nfacet - 1
-       do jl = il + 1, this%nfacet - 1
+       do jl = il + 1, this%nfacet
           selfp = this%facet(il)%edge%obj.eq.this%facet(jl)%edge%obj
           if (selfp) itmp = itmp + 1
        end do
     end do
+    ! count self periodic vertices
     do il = 1, this%nridge - 1
-       do jl = il + 1, this%nridge - 1
+       do jl = il + 1, this%nridge
           selfp = (this%ridge(il)%obj%id() == this%ridge(jl)%obj%id())
           if (selfp) itmp = itmp + 1
        end do
