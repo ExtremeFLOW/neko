@@ -156,6 +156,7 @@ subroutine test_quad_init
 
   return
 end subroutine test_quad_init
+
 @test
 subroutine test_quad_eq_algn
   use pfunit
@@ -288,3 +289,143 @@ subroutine test_quad_eq_algn
 
   return
 end subroutine test_quad_eq_algn
+
+@test
+subroutine test_quad_elignment
+  use pfunit
+  use num_types, only : i4
+  use vertex_cnn, only : vertex_cnn_t
+  use edge_cnn, only : edge_cnn_t, edge_aligned_cnn_t
+  use quad_cnn, only : quad_cnn_t, quad_cnn_ptr, quad_aligned_cnn_t
+  implicit none
+  type(vertex_cnn_t) :: vertex1, vertex2, vertex3, vertex4
+  type(edge_cnn_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8
+  type(edge_aligned_cnn_t) :: edgea1, edgea2, edgea3, edgea4, edgea5, edgea6,&
+       & edgea7, edgea8
+  type(quad_cnn_t) :: quad1, quad2
+  type(quad_cnn_ptr) :: quadp
+  type(quad_aligned_cnn_t) :: quada
+
+
+
+
+  ! Vertices for two quads
+  call vertex1%init(1)
+  call vertex2%init(2)
+  call vertex3%init(3)
+  call vertex4%init(4)
+
+  ! The reference quad
+  call edge1%init(1, vertex1, vertex3)
+  call edge2%init(2, vertex2, vertex4)
+  call edge3%init(3, vertex1, vertex2)
+  call edge4%init(4, vertex3, vertex4)
+  call edgea1%init(edge1, 0)
+  call edgea2%init(edge2, 0)
+  call edgea3%init(edge3, 0)
+  call edgea4%init(edge4, 0)
+  call quad1%init(1, edgea1, edgea2, edgea3, edgea4)
+  call quada%init(quad1, 0)
+
+  ! check pointers
+  call quada%facep(quadp)
+  @assertTrue(quada%face%obj.eq.quad1)
+  @assertTrue(quadp%obj.eq.quad1)
+
+  ! check alignment test
+  ! Identity
+  @assertTrue(quada%test(quad1))
+  ! T { 1, 3, 2, 4 }
+  call edge5%init(3, vertex1, vertex2)
+  call edge6%init(4, vertex3, vertex4)
+  call edge7%init(1, vertex1, vertex3)
+  call edge8%init(2, vertex2, vertex4)
+  call edgea5%init(edge5, 0)
+  call edgea6%init(edge6, 0)
+  call edgea7%init(edge7, 0)
+  call edgea8%init(edge8, 0)
+  call quad2%init(1, edgea5, edgea6, edgea7, edgea8)
+  @assertFalse(quada%test(quad2))
+  call quada%init(quad1, 1)
+  @assertTrue(quada%test(quad2))
+  ! PX { 2, 1, 4, 3 }
+  call edge5%init(2, vertex2, vertex4)
+  call edge6%init(1, vertex1, vertex3)
+  call edge7%init(3, vertex2, vertex1)
+  call edge8%init(4, vertex4, vertex3)
+  call edgea5%init(edge5, 0)
+  call edgea6%init(edge6, 0)
+  call edgea7%init(edge7, 0)
+  call edgea8%init(edge8, 0)
+  call quad2%init(1, edgea5, edgea6, edgea7, edgea8)
+  @assertFalse(quada%test(quad2))
+  call quada%init(quad1, 2)
+  @assertTrue(quada%test(quad2))
+  ! PXT { 2, 4, 1, 3 }
+  call edge5%init(3, vertex2, vertex1)
+  call edge6%init(4, vertex4, vertex3)
+  call edge7%init(2, vertex2, vertex4)
+  call edge8%init(1, vertex1, vertex3)
+  call edgea5%init(edge5, 0)
+  call edgea6%init(edge6, 0)
+  call edgea7%init(edge7, 0)
+  call edgea8%init(edge8, 0)
+  call quad2%init(1, edgea5, edgea6, edgea7, edgea8)
+  @assertFalse(quada%test(quad2))
+  call quada%init(quad1, 3)
+  @assertTrue(quada%test(quad2))
+  ! PYT { 3, 1, 4, 2 }
+  call edge5%init(4, vertex3, vertex4)
+  call edge6%init(3, vertex1, vertex2)
+  call edge7%init(1, vertex3, vertex1)
+  call edge8%init(2, vertex4, vertex2)
+  call edgea5%init(edge5, 0)
+  call edgea6%init(edge6, 0)
+  call edgea7%init(edge7, 0)
+  call edgea8%init(edge8, 0)
+  call quad2%init(1, edgea5, edgea6, edgea7, edgea8)
+  @assertFalse(quada%test(quad2))
+  call quada%init(quad1, 4)
+  @assertTrue(quada%test(quad2))
+  ! PY { 3, 4, 1, 2 }
+  call edge5%init(1, vertex3, vertex1)
+  call edge6%init(2, vertex4, vertex2)
+  call edge7%init(4, vertex3, vertex4)
+  call edge8%init(3, vertex1, vertex2)
+  call edgea5%init(edge5, 0)
+  call edgea6%init(edge6, 0)
+  call edgea7%init(edge7, 0)
+  call edgea8%init(edge8, 0)
+  call quad2%init(1, edgea5, edgea6, edgea7, edgea8)
+  @assertFalse(quada%test(quad2))
+  call quada%init(quad1, 5)
+  @assertTrue(quada%test(quad2))
+  ! PXPYT { 4, 2, 3, 1 }
+  call edge5%init(4, vertex4, vertex3)
+  call edge6%init(3, vertex2, vertex1)
+  call edge7%init(2, vertex4, vertex2)
+  call edge8%init(1, vertex3, vertex1)
+  call edgea5%init(edge5, 0)
+  call edgea6%init(edge6, 0)
+  call edgea7%init(edge7, 0)
+  call edgea8%init(edge8, 0)
+  call quad2%init(1, edgea5, edgea6, edgea7, edgea8)
+  @assertFalse(quada%test(quad2))
+  call quada%init(quad1, 6)
+  @assertTrue(quada%test(quad2))
+  ! PXPY { 4, 3, 2, 1 }
+  call edge5%init(2, vertex4, vertex2)
+  call edge6%init(1, vertex3, vertex1)
+  call edge7%init(4, vertex4, vertex3)
+  call edge8%init(3, vertex2, vertex1)
+  call edgea5%init(edge5, 0)
+  call edgea6%init(edge6, 0)
+  call edgea7%init(edge7, 0)
+  call edgea8%init(edge8, 0)
+  call quad2%init(1, edgea5, edgea6, edgea7, edgea8)
+  @assertFalse(quada%test(quad2))
+  call quada%init(quad1, 7)
+  @assertTrue(quada%test(quad2))
+
+  return
+end subroutine test_quad_elignment

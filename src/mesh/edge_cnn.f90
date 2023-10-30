@@ -286,7 +286,7 @@ contains
     return
   end subroutine edge_aligned_free
 
-  !> @brief Return pointers to the edge
+  !> @brief Return pointer to the edge
   !! @parameter[out]  edge   edge pointer
   subroutine edge_aligned_edgep(this, edge)
     class(edge_aligned_cnn_t), intent(in) :: this
@@ -320,7 +320,7 @@ contains
        vrt(2) = this%edge%obj%facet(2)%obj%id()
        vrto(1) = other%facet(1)%obj%id()
        vrto(2) = other%facet(2)%obj%id()
-       call this%algn_op%trns_f_i4%obj(NEKO_EDGE_NFACET, vrto)
+       call this%algn_op%trns_inv_f_i4%obj(NEKO_EDGE_NFACET, vrto)
        aligned = (vrt(1) == vrto(1)).and.(vrt(2) == vrto(2))
     else
        call neko_error('Edges not equal')

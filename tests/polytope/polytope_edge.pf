@@ -141,6 +141,7 @@ subroutine test_edge_alignment
   ! check pointers
   call edgea%edgep(edgep)
   @assertTrue(edgea%edge%obj.eq.edge1)
+  @assertTrue(edgep%obj.eq.edge1)
 
   ! check alignment test
   @assertTrue(edgea%test(edge1))

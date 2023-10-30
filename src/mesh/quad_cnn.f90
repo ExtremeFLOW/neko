@@ -43,7 +43,7 @@ module quad_cnn
   implicit none
   private
 
-  public :: quad_cnn_t, quad_cnn_ptr
+  public :: quad_cnn_t, quad_cnn_ptr, quad_aligned_cnn_t
 
   ! object information
   integer(i4), public, parameter :: NEKO_QUAD_NFACET = 4
@@ -86,20 +86,20 @@ module quad_cnn
   !> Quad with alignment information
   type :: quad_aligned_cnn_t
      !> edge pointer
-     type(quad_cnn_ptr) :: quad
+     type(quad_cnn_ptr) :: face
      !> alignment operator
      type(alignment_quad_op_set_t) :: algn_op
    contains
      !> Initialise aligned quad
-!     procedure, pass(this) :: init => quad_aligned_init
+     procedure, pass(this) :: init => quad_aligned_init
      !> Free aligned quad
-!     procedure, pass(this) :: free => quad_aligned_free
+     procedure, pass(this) :: free => quad_aligned_free
      !> Return quad pointer
-!     procedure, pass(this) :: quadp => quad_aligned_edgep
+     procedure, pass(this) :: facep => quad_aligned_quadp
      !> Return quad relative alignment
-!     procedure, pass(this) :: algn => quad_aligned_alignment_get
+     procedure, pass(this) :: algn => quad_aligned_alignment_get
      !> Test alignment
-!     procedure, pass(this) :: test => quad_aligned_test
+     procedure, pass(this) :: test => quad_aligned_test
   end type quad_aligned_cnn_t
 
   ! Lookup tables
@@ -225,7 +225,7 @@ contains
              trans(3, 1) = 2
              trans(1, 3) = 3
              trans(3, 3) = 4
-             alignment : do algn = 0, algn_op%nop()
+             do algn = 0, algn_op%nop()
                 call algn_op%trns_inv_f_i4(algn)%obj(sz, trans, work)
                 ! get mappings for
                 ! facet
@@ -253,7 +253,7 @@ contains
                    if (equal) return
                 end if
                 call algn_op%trns_f_i4(algn)%obj(sz, trans, work)
-             end do alignment
+             end do
           class default
              equal = .false.
           end select
@@ -283,28 +283,95 @@ contains
     return
   end function quad_equal
 
+  !> @brief Initialise quad with alignment information
+  !! @parameter[in]   quad   quad
+  !! @parameter[in]   algn   alignment
+  subroutine quad_aligned_init(this, quad, algn)
+    class(quad_aligned_cnn_t), intent(inout) :: this
+    type(quad_cnn_t), intent(in), target :: quad
+    integer(i4), intent(in) :: algn
+
+    call this%free()
+    ! set global edge pointer
+    this%face%obj => quad
+    ! set relative alignment transformation
+    call this%algn_op%init(algn)
+
+    return
+  end subroutine quad_aligned_init
+
+  !> @brief Free quad with alignment information
+  subroutine quad_aligned_free(this)
+    class(quad_aligned_cnn_t), intent(inout) :: this
+
+    this%face%obj => null()
+    call this%algn_op%free()
+
+    return
+  end subroutine quad_aligned_free
+
+  !> @brief Return pointer to the quad
+  !! @parameter[out]  quad   quad pointer
+  subroutine quad_aligned_quadp(this, quad)
+    class(quad_aligned_cnn_t), intent(in) :: this
+    type(quad_cnn_ptr), intent(out) :: quad
+    quad%obj => this%face%obj
+    return
+  end subroutine quad_aligned_quadp
+
+  !> @brief Get relative quad alignment
+  !! @return   alignment
+  pure function quad_aligned_alignment_get(this) result(alignment)
+    class(quad_aligned_cnn_t), intent(in) :: this
+    integer(i4) :: alignment
+    alignment = this%algn_op%alignment
+    return
+  end function quad_aligned_alignment_get
+
   !> @brief Check if two quads are properly aligned
   !! @note No special treatment of self-periodic quads, so this is not checked
   !! @parameter[in]  other    second quad
   !! @return   aligned
-!!$  function quad_aligned_test(this, other) result(aligned)
-!!$    class(quadrilateral_aligned_t), intent(in) :: this
-!!$    class(quadrilateral_t), intent(in) :: other
-!!$    logical :: aligned
-!!$    integer(i4), dimension(3, 3) :: vrt, vrto
-!!$
-!!$    ! only equal edges can be checked
-!!$    if (this%edge%obj.eq.other) then
-!!$       vrt(1) = this%edge%obj%facet(1)%obj%id()
-!!$       vrt(2) = this%edge%obj%facet(2)%obj%id()
-!!$       vrto(1) = other%facet(1)%obj%id()
-!!$       vrto(2) = other%facet(2)%obj%id()
-!!$       call this%algn_op%trns_f_i4%obj( 2, vrto)
-!!$       aligned = (vrt(1) == vrto(1)).and.(vrt(2) == vrto(2))
-!!$    else
-!!$       call neko_error('Edges not equal')
-!!$    end if
-!!$
-!!$    return
-!!$  end function edge_aligned_test
+  function quad_aligned_test(this, other) result(aligned)
+    class(quad_aligned_cnn_t), intent(in) :: this
+    class(quad_cnn_t), intent(in) :: other
+    logical :: aligned
+    integer(i4), parameter :: sz = 3
+    integer(i4), dimension(sz, sz) :: elm, elmo
+    integer(i4), dimension(sz) :: work
+
+    ! only equal quads can be checked
+    if (this%face%obj.eq.other) then
+       ! edges
+       elm(1, 2) = this%face%obj%facet(1)%edge%obj%id()
+       elm(3, 2) = this%face%obj%facet(2)%edge%obj%id()
+       elm(2, 1) = this%face%obj%facet(3)%edge%obj%id()
+       elm(2, 3) = this%face%obj%facet(4)%edge%obj%id()
+       ! vertices
+       elm(1, 1) = this%face%obj%ridge(1)%obj%id()
+       elm(3, 1) = this%face%obj%ridge(2)%obj%id()
+       elm(1, 3) = this%face%obj%ridge(3)%obj%id()
+       elm(3, 3) = this%face%obj%ridge(4)%obj%id()
+       ! edges
+       elmo(1, 2) = other%facet(1)%edge%obj%id()
+       elmo(3, 2) = other%facet(2)%edge%obj%id()
+       elmo(2, 1) = other%facet(3)%edge%obj%id()
+       elmo(2, 3) = other%facet(4)%edge%obj%id()
+       ! vertices
+       elmo(1, 1) = other%ridge(1)%obj%id()
+       elmo(3, 1) = other%ridge(2)%obj%id()
+       elmo(1, 3) = other%ridge(3)%obj%id()
+       elmo(3, 3) = other%ridge(4)%obj%id()
+       call this%algn_op%trns_inv_f_i4%obj( sz, elmo, work)
+       aligned = (elm(1, 1) == elmo(1, 1)).and.(elm(1, 2) == elmo(1, 2)).and.&
+            &(elm(1, 3) == elmo(1, 3)).and.(elm(2, 1) == elmo(2, 1)).and.&
+            &(elm(2, 3) == elmo(2, 3)).and.(elm(3, 1) == elmo(3, 1)).and.&
+            &(elm(3, 2) == elmo(3, 2)).and.(elm(3, 3) == elmo(3, 3))
+    else
+       call neko_error('Quads not equal')
+    end if
+
+    return
+  end function quad_aligned_test
+
 end module quad_cnn
