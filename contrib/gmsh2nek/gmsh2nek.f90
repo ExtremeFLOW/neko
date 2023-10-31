@@ -69,10 +69,10 @@
  
       if (option.eq.2) then
          call read_input_name
-		 if(aorb.eq.0) then
-         call gmsh_read_2d_ascii
+         if(aorb.eq.0) then
+           call gmsh_read_2d_ascii
          elseif(aorb.eq.1) then
-         call gmsh_read_2d_binary
+           call gmsh_read_2d_binary
          endif
          call convert_2d
          call setbc_2d
@@ -98,10 +98,11 @@
       subroutine read_input_name
 
       use SIZE
+      use neko
       character*80 charline
-      real A
+      real(kind=rp) A
       integer B
-	  
+  
       character(1) re2nam1(80)
       character(1) mshnam1(32)
       character(32) fname
@@ -114,10 +115,10 @@
       call blank  (re2nam1, 80)
       call chcopy (mshnam1,fname,32)
       call chcopy (re2nam1,fname,80)
-	  
+  
       call chcopy(mshnam1(len+1) ,'.msh' , 4)
       call chcopy(re2nam1(len+1) ,'.re2' , 4)
-	  
+
       call blank (mshname, 32)
       call blank (re2name, 80)
       call chcopy (mshname,mshnam1,len+4)
@@ -127,14 +128,14 @@
       read(301,*) charline
       read(301,*) A,aorb,B
       close(301)
-	  
+
       if ((A.ge.3.0).or.(A.lt.2.0)) then
       write(6,*) 'ERROR: invalid msh file format!'  
       STOP
       endif
-	  
+
 ! aorb indicates ascii or binary file
-	  
+
       return 
       end
 !-----------------------------------------------------------------------
@@ -150,26 +151,26 @@
       integer A,B,C,elemType
 
       equivalence(mshnam2,mshnam3)
-      equivalence(charline,charlin1) 	  
+      equivalence(charline,charlin1)
 
-      call chcopy(mshnam2,mshname,32)	  
+      call chcopy(mshnam2,mshname,32)
       len = ltrunc(mshnam2,32)
       call chcopy(mshnam3(len+1) ,'_1' , 2)
 
 
       call blank (charline,80)
       call chcopy(charlin1(1),'cp ',3)
-	
+
       len = ltrunc(mshname,32)
       call chcopy(charlin1(4),mshname,len)
-	
+
       len = ltrunc(charline,80)
       call chcopy(charlin1(len+1),' ',1)
 
       len2 = ltrunc(mshnam2,32)
       call chcopy(charlin1(len+2),mshnam2,len2)
 
-      call system(charline)	  
+      call system(charline)
 
       call blank (charline,80)
 
@@ -217,7 +218,7 @@
 ! now we know total node number, allocate memory size.
       allocate ( node_xyz       (3,totalNode))
       allocate ( node_line      (2,totalNode))
-      allocate ( node_quad      (4,totalNode))	  
+      allocate ( node_quad      (4,totalNode))
       call rzero(node_xyz,      3*totalNode)
       call rzero_int(node_line,     2*totalNode) 
       call rzero_int(node_quad,     4*totalNode)
@@ -234,7 +235,7 @@
       read(300,*)
       read(299,*)charline ! "$Elements"
       read(300,*)
-	  
+
       read(299,*)totalElem
       read(300,*)
 
@@ -249,7 +250,7 @@
       do iElem= 1,totalElem
       read(299,*) A,elemType
 
-	  ! detemine element type
+! detemine element type
       if (elemType.eq.8) then ! if line3
       totalLine = totalLine + 1
       read(300,*) A,B,C, &
@@ -297,7 +298,7 @@
       else 
        ! unknown element type 
        ! only line3 and quad8/9 elements are accepted.
-	    write (6,*) 'ERROR: unknown element type'
+        write (6,*) 'ERROR: unknown element type'
         write (6,*) 'only line3 and quad8/9 elements are accepted'
         write (6,*) 'please choose "set order 2" option to set all elements to 2nd order'
         write (6,*) 'please uncheck "save all elements" when exporting mesh'
@@ -319,10 +320,10 @@
  
       call blank (charline,80)
       call chcopy(charlin1(1),'rm ',3)
-	
+
       len = ltrunc(mshnam2,32)
       call chcopy(charlin1(4),mshnam2,len)
-	
+
       call system(charline)
 
       return
@@ -335,17 +336,17 @@
 
       character*1   singlechar(100)
       character*100 charline
- 	  logical ifbswap
+      logical ifbswap
       integer idummy(100),buf(100),buf1(100)
       integer bone,nlength
       integer elem_type,num_elm_follow,num_tags
       integer fileid
-	 
+
       fileid = 302
-	  
-	  ! read msh file in binary format.
+  
+! read msh file in binary format.
       open(unit=fileid,file=mshname,access="stream",form="unformatted",status="old")
-	  
+  
       ! read two lines.
 ! ------------------------------------------------------------------
       call bread_line(fileid,singlechar,nlength)
@@ -361,7 +362,7 @@
        ifbswap = .false.
       else
        ifbswap = .true.
-      endif	   
+      endif
 
 ! loop to find $PhysicalNames
       do while (.true.) 
@@ -393,7 +394,7 @@
         if(A.EQ.1) ibc_a = ibc_a + 1
       enddo
       bcNumber = ibc_a
-	  
+
 ! 2. loop lines to $Node
 ! loop to find Nodes section
       do while (.true.) 
@@ -413,7 +414,7 @@
 ! allocate memory size for node array
       allocate ( node_xyz       (3,totalNode))
       allocate ( node_line      (2,totalNode))
-      allocate ( node_quad      (4,totalNode))	  
+      allocate ( node_quad      (4,totalNode))
       call rzero(node_xyz,      3*totalNode)
       call rzero_int(node_line,     2*totalNode) 
       call rzero_int(node_quad,     4*totalNode)
@@ -452,7 +453,7 @@
       do while (.true.) 
       read(fileid) elem_type,num_elm_follow, num_tags
 
-	    if (elem_type.eq.8) then ! if line3
+      if (elem_type.eq.8) then ! if line3
           do iLine= 1,num_elm_follow
           totalLine = totalLine + 1
           read(fileid) idummy(1),&
@@ -465,7 +466,7 @@
               call endian_swap_4(line_array(i,totalLine))
             enddo
           endif
-		  
+  
           do inode = 1,2
           call addTo_node_line(line_array(2+inode,totalLine),totalLine)
           enddo
@@ -477,8 +478,8 @@
           enddo
 
           enddo
-	   elseif (elem_type.eq.16) then ! quad 8
-	       do iQuad= 1,num_elm_follow
+          elseif (elem_type.eq.16) then ! quad 8
+           do iQuad= 1,num_elm_follow
            totalQuad = totalQuad + 1
            read(fileid) idummy(1),&
            quad_array(1,totalQuad),quad_array(2,totalQuad),&
@@ -499,7 +500,7 @@
 
            enddo
        elseif (elem_type.eq.10) then ! quad 9
-	       do iQuad= 1,num_elm_follow
+       do iQuad= 1,num_elm_follow
            totalQuad = totalQuad + 1
            read(fileid) idummy(1),&
            quad_array(1,totalQuad),quad_array(2,totalQuad),&
@@ -508,7 +509,7 @@
            quad_array(7,totalQuad),quad_array(8,totalQuad),&
            quad_array(9,totalQuad),quad_array(10,totalQuad),&
            quad_array(11,totalQuad)
-		
+
            if(ifbswap) then
              do i = 1,11
                call endian_swap_4(quad_array(i,totalQuad))
@@ -523,7 +524,7 @@
       else
        ! unknown element type 
        ! only line3 and quad8/9 elements are accepted.
-	    write (6,*) 'ERRPOR: unknown element type'
+        write (6,*) 'ERRPOR: unknown element type'
         write (6,*) 'only line3 and quad8/9 elements are accepted'
         write (6,*) 'please choose "set order 2" option to set all elements to 2nd order'
         write (6,*) 'please uncheck "save all elements" when exporting mesh'
@@ -559,26 +560,26 @@
       integer A,B,C,elemType
 
       equivalence(mshnam2,mshnam3)
-      equivalence(charline,charlin1) 	  
+      equivalence(charline,charlin1) 
 
-      call chcopy(mshnam2,mshname,32)	  
+      call chcopy(mshnam2,mshname,32)  
       len = ltrunc(mshnam2,32)
       call chcopy(mshnam3(len+1) ,'_1' , 2)
 
 
       call blank (charline,80)
       call chcopy(charlin1(1),'cp ',3)
-	
+
       len = ltrunc(mshname,32)
       call chcopy(charlin1(4),mshname,len)
-	
+
       len = ltrunc(charline,80)
       call chcopy(charlin1(len+1),' ',1)
 
       len2 = ltrunc(mshnam2,32)
       call chcopy(charlin1(len+2),mshnam2,len2)
 
-      call system(charline)	  
+      call system(charline)
 
       call blank (charline,80)
 
@@ -623,7 +624,7 @@
 
 ! now we know total node number, allocate memory size.
       allocate ( node_xyz       (3,totalNode))
-      allocate ( node_quad      (4,totalNode))	  
+      allocate ( node_quad      (4,totalNode))  
       allocate ( node_hex       (8,totalNode))
       call rzero(node_xyz,      3*totalNode)
       call rzero_int(node_quad,     4*totalNode) 
@@ -641,13 +642,13 @@
       read(300,*)
       read(299,*)charline ! "$Elements"
       read(300,*)
-	  
+  
       read(299,*)totalElem
       read(300,*)
 ! msh (version2, ascci) only tells us the total element number,
 ! including all quad+hex elements.
 ! but we do not know the specific number of quads and hexs
-      allocate ( quad_array       (11,totalElem)) 	  
+      allocate ( quad_array       (11,totalElem))
       allocate ( hex_array        (29,totalElem)) 
       call rzero_int(quad_array,      11*totalElem)
       call rzero_int(hex_array,       29*totalElem) 
@@ -658,7 +659,7 @@
       do iElem= 1,totalElem
       read(299,*) A,elemType
 
-	  ! detemine element type
+! detemine element type
       if (elemType.eq.16) then ! if quad8
       totalQuad = totalQuad + 1
       read(300,*) A,B,C, &
@@ -671,7 +672,7 @@
       do inode = 1,4
       call addTo_node_quad(quad_array(2+inode,totalQuad),totalQuad)
       enddo
-	    
+    
       do ibc= 1,bcNumber
         if(quad_array(1,totalQuad).eq.bcID(1,ibc)) then
           bcID(2,ibc) =   bcID(2,ibc) + 1
@@ -691,13 +692,13 @@
       do inode = 1,4
       call addTo_node_quad(quad_array(2+inode,totalQuad),totalQuad)
       enddo 
-	  
+  
       do ibc= 1,bcNumber
         if(quad_array(1,totalQuad).eq.bcID(1,ibc)) then
           bcID(2,ibc) =   bcID(2,ibc) + 1
         endif
       enddo
-	 
+ 
       elseif (elemType.eq.17) then ! if hex20
       totalHex = totalHex + 1
       read(300,*) A,B,C,&
@@ -712,7 +713,7 @@
       hex_array(17,totalHex),hex_array(18,totalHex),&
       hex_array(19,totalHex),hex_array(20,totalHex),&
       hex_array(21,totalHex),hex_array(22,totalHex)
-	 
+ 
       do inode = 1,8
       call addTo_node_hex(hex_array(2+inode,totalHex),totalHex)
       enddo
@@ -743,7 +744,7 @@
       else 
        ! unknown element type 
        ! only quad8/9 and hex20/27 elements are accepted.
-	    write (6,*) 'ERRPOR: unknown element type'
+        write (6,*) 'ERRPOR: unknown element type'
         write (6,*) 'only quad8/9 and hex20/27 elements are accepted'
         write (6,*) 'please choose "set order 2" option to set all elements to 2nd order'
         write (6,*) 'please uncheck "save all elements" when exporting mesh'
@@ -765,10 +766,10 @@
  
       call blank (charline,80)
       call chcopy(charlin1(1),'rm ',3)
-	
+
       len = ltrunc(mshnam2,32)
       call chcopy(charlin1(4),mshnam2,len)
-	
+
       call system(charline)
 
       return
@@ -783,17 +784,17 @@
 
       character*1   singlechar(100)
       character*100 charline
- 	  logical ifbswap
+      logical ifbswap
       integer idummy(100),buf(100),buf1(100)
       integer bone,nlength
       integer elem_type,num_elm_follow,num_tags
       integer fileid
-	 
+ 
       fileid = 302
-	  
-	  ! read msh file in binary format.
+  
+! read msh file in binary format.
       open(unit=fileid,file=mshname,access="stream",form="unformatted",status="old")
-	  
+  
       ! read two lines.
 ! ------------------------------------------------------------------
       call bread_line(fileid,singlechar,nlength)
@@ -809,7 +810,7 @@
        ifbswap = .false.
       else
        ifbswap = .true.
-      endif	   
+      endif
 
 ! loop to find $PhysicalNames
       do while (.true.) 
@@ -841,7 +842,7 @@
         if(A.EQ.2) ibc_a = ibc_a + 1
       enddo
       bcNumber = ibc_a
-	  
+  
 ! 2. loop lines to $Node
 ! loop to find Nodes section
       do while (.true.) 
@@ -860,13 +861,13 @@
 
 ! allocate memory size for node array
       allocate ( node_xyz       (3,totalNode))
-      allocate ( node_quad      (4,totalNode))	  
+      allocate ( node_quad      (4,totalNode))  
       allocate ( node_hex       (8,totalNode))
       call rzero(node_xyz,      3*totalNode)
       call rzero_int(node_quad,     4*totalNode) 
       call rzero_int(node_hex,      8*totalNode)
-	 
-	 
+ 
+ 
 ! 2. Get total node number, loop all nodes
       do inode = 1,totalNode
       read(fileid) idummy(1),node_xyz(1,inode),node_xyz(2,inode)&
@@ -892,7 +893,7 @@
 
 ! 3. Get total element number
 ! allocate memory size for element array
-      allocate ( quad_array       (11,totalElem)) 	  
+      allocate ( quad_array       (11,totalElem))
       allocate ( hex_array        (29,totalElem)) 
       call rzero_int(quad_array,      11*totalElem)
       call rzero_int(hex_array,       29*totalElem) 
@@ -903,8 +904,8 @@
       do while (.true.) 
        read(fileid) elem_type,num_elm_follow, num_tags
 
-	   if (elem_type.eq.16) then ! quad 8
-	       do iQuad= 1,num_elm_follow
+       if (elem_type.eq.16) then ! quad 8
+       do iQuad= 1,num_elm_follow
            totalQuad = totalQuad + 1
            read(fileid) idummy(1),&
            quad_array(1,totalQuad),quad_array(2,totalQuad),&
@@ -922,7 +923,7 @@
            do inode = 1,4
              call addTo_node_quad(quad_array(2+inode,totalQuad),totalQuad)
            enddo
-		   
+   
            do ibc= 1,bcNumber
              if(quad_array(1,totalQuad).eq.bcID(1,ibc)) then
              bcID(2,ibc) =   bcID(2,ibc) + 1
@@ -931,7 +932,7 @@
 
            enddo
        elseif (elem_type.eq.10) then ! quad 9
-	       do iQuad= 1,num_elm_follow
+       do iQuad= 1,num_elm_follow
            totalQuad = totalQuad + 1
            read(fileid) idummy(1),&
            quad_array(1,totalQuad),quad_array(2,totalQuad),&
@@ -940,7 +941,7 @@
            quad_array(7,totalQuad),quad_array(8,totalQuad),&
            quad_array(9,totalQuad),quad_array(10,totalQuad),&
            quad_array(11,totalQuad)
-		
+
            if(ifbswap) then
              do i = 1,11
                call endian_swap_4(quad_array(i,totalQuad))
@@ -958,8 +959,8 @@
            enddo
 
            enddo
-	  elseif (elem_type.eq.17) then ! if hex20
-	       do iHex= 1,num_elm_follow
+           elseif (elem_type.eq.17) then ! if hex20
+           do iHex= 1,num_elm_follow
            totalHex = totalHex + 1
            read(fileid) idummy(1),&
            hex_array(1,totalHex),hex_array(2,totalHex),&
@@ -973,20 +974,20 @@
            hex_array(17,totalHex),hex_array(18,totalHex),&
            hex_array(19,totalHex),hex_array(20,totalHex),&
            hex_array(21,totalHex),hex_array(22,totalHex)
-		  
+  
            if(ifbswap) then
              do i = 1,22
                call endian_swap_4(hex_array(i,totalHex))
              enddo
            endif
 
-	       do inode = 1,8
+           do inode = 1,8
              call addTo_node_hex(hex_array(2+inode,totalHex),totalHex)
            enddo
 
            enddo
-	  elseif (elem_type.eq.12) then ! if hex20
-	       do iHex= 1,num_elm_follow
+           elseif (elem_type.eq.12) then ! if hex20
+           do iHex= 1,num_elm_follow
            totalHex = totalHex + 1
            read(fileid) idummy(1),&
            hex_array(1,totalHex),hex_array(2,totalHex),&
@@ -1004,7 +1005,7 @@
            hex_array(25,totalHex),hex_array(26,totalHex),&
            hex_array(27,totalHex),hex_array(28,totalHex),&
            hex_array(29,totalHex)
-		   
+   
            if(ifbswap) then
              do i = 1,29
                call endian_swap_4(hex_array(i,totalHex))
@@ -1019,7 +1020,7 @@
       else
        ! unknown element type 
        ! only quad8/9 and hex20/27 elements are accepted.
-	    write (6,*) 'ERRPOR: unknown element type'
+        write (6,*) 'ERRPOR: unknown element type'
         write (6,*) 'only quad8/9 and hex20/27 elements are accepted'
         write (6,*) 'please choose "set order 2" option to set all elements to 2nd order'
         write (6,*) 'please uncheck "save all elements" when exporting mesh'
@@ -1071,7 +1072,7 @@
       call rzero_int(quad_line_array,  4*num_elem)
 
       allocate (r_or_l(num_elem))
-	  call rzero_int(r_or_l,num_elem)
+      call rzero_int(r_or_l,num_elem)
 
 ! need a test to figure out if element is right-hand or left-hand.
       do iQuad = 1, totalQuad
@@ -1204,7 +1205,7 @@
 ! search boundary using loop in all quads.
       do iquad = 1,totalQuad
          physicalTag = quad_array(1,iquad)
-	     do inode = 1,4
+      do inode = 1,4
           quadnode(inode) = quad_array(inode+2,iquad) ! first 4 nodes of quad
          enddo
 
@@ -1215,7 +1216,7 @@
          do inode = 1,4
             do i = 1,8
                ! find all hex id related to the nodes in this quad.
-			   ! there will be duplicated hex id 
+               ! there will be duplicated hex id 
                if(node_hex(i,quadnode(inode)).gt.0) then
                iaddhex = iaddhex + 1
                fhex(iaddhex) = node_hex(i,quadnode(inode))
@@ -1234,8 +1235,8 @@
        do iaddhex1 = 2,addhex  ! loop in fhex 
             ifnew = .TRUE.
             do iaddhex2 =1,iaddhex_nd ! loop in fhex_nd
-			! if duplicate hex id, ifnew = false
-             if(fhex(iaddhex1).eq.fhex_nd(iaddhex2)) ifnew=.FALSE.		
+! if duplicate hex id, ifnew = false
+             if(fhex(iaddhex1).eq.fhex_nd(iaddhex2)) ifnew=.FALSE.
             enddo
             if(ifnew) then
               iaddhex_nd = iaddhex_nd + 1
@@ -1252,14 +1253,14 @@
            do ifnode = 1,4
            fnode(ifnode)=hex_array(hex_face_node(ifnode,iface)+2,ihex)
            enddo
-			  ! fnode is the node ids of hex face
-			  ! quadnode is the node ids of quad
+! fnode is the node ids of hex face
+! quadnode is the node ids of quad
            imatch = 0 
            call ifquadmatch(imatch,fnode,quadnode)
            if(imatch.eq.1) then
              hex_face_array(iface,ihex) = physicalTag
              if(hex_face_array(iface,ihex).eq.1) flag1 = flag1 +1
-		     goto 1100
+             goto 1100
            endif
          enddo
        enddo
@@ -1305,6 +1306,7 @@
 !!-----------------------------------------------------------------
       subroutine setbc_2d
       use SIZE
+      use neko
 !  set boundary condition for 2d mesh
 !  read from a file casename.bc
 
@@ -1317,7 +1319,7 @@
       data quad_face_node_right /1,2,2,3,3,4,4,1/ ! RIGHT HAND SIDE ELEMENT
       integer quad_face_node_left(2,4)
       data quad_face_node_left /2,1,1,4,4,3,3,2/  ! LEFT HAND SIDE ELEMENT
-	 
+ 
       integer parray(2,2,totalLine)
 
       character*3 ubc
@@ -1325,10 +1327,10 @@
       integer ip,np,ipe,ipe2,nipe(2)
       integer ptags(2)
       integer lnode(2)
-      real pvec(3)
-      real fpxyz(3,2)
-      real AB_v(3),AD_v(3),farea,product_v(3)
-      real dist,distMax,ptol
+      real(kind=rp) pvec(3)
+      real(kind=rp) fpxyz(3,2)
+      real(kind=rp) AB_v(3),AD_v(3),farea,product_v(3)
+      real(kind=rp) dist,distMax,ptol
 
 ! boundary condition summary
       write(6,*) '******************************************************'
@@ -1341,7 +1343,7 @@
   
       write(6,*) 'Enter number of periodic boundary surface pairs:'
       read (5,*) nbc
-	  
+
       if(nbc.le.0) return
   
       do ibc = 1,nbc 
@@ -1362,9 +1364,9 @@
             enddo
           enddo
           nipe(1) = ipe
-	  
+  
           ipe = 0
-	      do iquad = 1,totalQuad
+          do iquad = 1,totalQuad
             do iline = 1,4
                if(bc(5,iline,iquad).eq.ptags(2)) then
                 ipe = ipe + 1
@@ -1468,7 +1470,7 @@
              if ((iquad.ne.iquad3).or.(iline.ne.iline3)) then
                 nperror = nperror + 1
              endif
-          enddo		  
+          enddo
 
           if (nperror.gt.0) then
           write(6,*)'doing periodic check for surface',ptags(1)
@@ -1488,6 +1490,7 @@
 !--------------------------------------------------------------------
       subroutine setbc_3d
       use SIZE
+      use neko
 !  set boundary condition for 3d mesh
 !  read from a file casename.bc
 
@@ -1503,10 +1506,10 @@
       integer ip,np,ipe,ipe2,nipe(2)
       integer ptags(2)
       integer fnode(4)
-      real pvec(3)
-      real fpxyz(3,2)
-      real AB_v(3),AD_v(3),farea,product_v(3)
-      real dist,distMax,ptol
+      real(kind=rp) pvec(3)
+      real(kind=rp) fpxyz(3,2)
+      real(kind=rp) AB_v(3),AD_v(3),farea,product_v(3)
+      real(kind=rp) dist,distMax,ptol
  
 ! boundary condition summary
       write(6,*) '******************************************************'
@@ -1543,7 +1546,7 @@
           nipe(1) = ipe
 	  
           ipe = 0
-	      do ihex = 1, totalHex
+          do ihex = 1, totalHex
             do iface = 1,6
                if(bc(5,iface,ihex).eq.ptags(2)) then
                 ipe = ipe + 1
@@ -1645,7 +1648,7 @@
       write(6,*) 'Please set boundary conditions to all non-periodic boundaries'
       write(6,*) 'in .usr file usrdat2() subroutine'
       write(6,*) '******************************************************'
-	  
+
       return
       end
 !-----------------------------------------------------------------------
@@ -1708,9 +1711,9 @@
       subroutine write_xyz
 
       use SIZE
-
-      real     xx(8), yy(8), zz(8)
-      real*8   rgroup, buf2(30)
+      use neko
+      real(kind=rp)     xx(8), yy(8), zz(8)
+      real(kind=double)   rgroup, buf2(30)
 
       integer isym2pre(8)   ! Symmetric-to-prenek vertex ordering
       data    isym2pre    / 1 , 2 , 4 , 3 , 5 , 6 , 8 , 7 /
@@ -1965,8 +1968,8 @@
       end
 !-----------------------------------------------------------------------
       subroutine map2reg_3di_e(uf,n,uc,m) ! Fine, uniform pt
-
-      real uf(n,n,n),uc(m,m,m)
+      use neko
+      real(kind=rp) uf(n,n,n),uc(m,m,m)
 
       parameter (l=50)
       common /cmap3d/ j(l*l),jt(l*l),v(l*l*l),w(l*l*l),z(l)
@@ -2009,8 +2012,8 @@
 !        jt  = transpose of interpolation matrix
 !        m   = number of points on z grid
 !        n   = number of points on g grid
-
-      real j(n,m),jt(m,n),g(n),z(m)
+      use neko
+      real(kind=rp) j(n,m),jt(m,n),g(n),z(m)
 
       mpoly  = m-1
       do i=1,n
@@ -2088,7 +2091,8 @@
 !             stencil extending over x(0),x(1),...x(n).
 !
 !
-      real x(0:n),c(0:n,0:m)
+      use neko        
+      real(kind=rp) x(0:n),c(0:n,0:m)
 
       c1       = 1.
       c4       = x(0) - xx
@@ -2124,7 +2128,8 @@
       end
 !-----------------------------------------------------------------------
       subroutine transpose(a,lda,b,ldb)
-      real a(lda,1),b(ldb,1)
+      use neko        
+      real(kind=rp)  a(lda,1),b(ldb,1)
 
       do j=1,ldb
          do i=1,lda
@@ -2154,7 +2159,8 @@
 !
 !     Generate equaly spaced np points on the interval [-1:1]
 !
-      real z(1)
+      use neko        
+      real(kind=rp) z(1)
 
       dz = 2./(np-1)
       z(1) = -1.
@@ -2167,7 +2173,8 @@
       end
 !-----------------------------------------------------------------------
       subroutine rzero(a,n)
-      real A(1)
+      use neko, only : rp        
+      real(kind=rp) A(1)
       DO 100 I = 1, N
  100     A(I) = 0.0
       return
@@ -2215,7 +2222,7 @@
       var_swap1(8) = var_swap2(1)
 
       call chcopy(var,var_swap1,8)
-	  
+  
       return
       end
 !-----------------------------------------------------------------------
@@ -2226,8 +2233,8 @@
       character*1 singlechar(1)
 
       nlength = 0
-      do nlength = 1,100	  
-	  read(fileid) singlechar(nlength)
+      do nlength = 1,100
+        read(fileid) singlechar(nlength)
       !write(6,*) singlechar(nlength)
       if (singlechar(nlength).eq.char(10)) then
       return
@@ -2343,16 +2350,16 @@
       integer quad, rfflag
       integer node(4)
       real vec12(3),vec14(3),cz
-	  
+  
       do inode = 1,4
          node(inode) = quad_array(inode+2,quad)
       enddo
 
       do i = 1,3
-	     vec12(i) = node_xyz(i,node(2)) - node_xyz(i,node(1))
-	     vec14(i) = node_xyz(i,node(4)) - node_xyz(i,node(1))
+         vec12(i) = node_xyz(i,node(2)) - node_xyz(i,node(1))
+         vec14(i) = node_xyz(i,node(4)) - node_xyz(i,node(1))
       enddo
-	  
+  
       cz = vec12(1)*vec14(2) - vec12(2)*vec14(1)
 
       if(cz.gt.0.0) rfflag = 0 ! right hand element
@@ -2420,7 +2427,7 @@
       else
        imatch2 =0
       endif
-	  
+  
        imatch = imatch1*imatch2
  
       return
