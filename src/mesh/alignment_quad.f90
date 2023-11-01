@@ -308,7 +308,7 @@ contains
     call this%free()
 
     ! set relative alignment transformation
-    if ((algn >= 0).and.(algn <= NEKO_QUAD_NOPERATION)) then
+    if ((algn >= 0) .and. (algn <= NEKO_QUAD_NOPERATION)) then
        this%alignment = algn
     else
        call neko_error('Not proper alignment.')

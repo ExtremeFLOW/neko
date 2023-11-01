@@ -58,10 +58,11 @@ mesh/alignment_edge.o : mesh/alignment_edge.f90 config/num_types.o common/utils.
 mesh/alignment_quad.o : mesh/alignment_quad.f90 config/num_types.o common/utils.o 
 mesh/polytope_cnn.o : mesh/polytope_cnn.f90 common/utils.o config/num_types.o mesh/entity.o 
 mesh/vertex_cnn.o : mesh/vertex_cnn.f90 config/num_types.o mesh/polytope_cnn.o 
-mesh/edge_cnn.o : mesh/edge_cnn.f90 config/num_types.o mesh/polytope_cnn.o mesh/vertex_cnn.o mesh/alignment_edge.o 
+mesh/edge_cnn.o : mesh/edge_cnn.f90 config/num_types.o common/utils.o mesh/polytope_cnn.o mesh/vertex_cnn.o mesh/alignment_edge.o 
 mesh/face_cnn.o : mesh/face_cnn.f90 config/num_types.o mesh/polytope_cnn.o mesh/vertex_cnn.o mesh/edge_cnn.o 
-mesh/quad_cnn.o : mesh/quad_cnn.f90 config/num_types.o mesh/polytope_cnn.o mesh/vertex_cnn.o mesh/edge_cnn.o mesh/face_cnn.o mesh/alignment_quad.o 
+mesh/quad_cnn.o : mesh/quad_cnn.f90 config/num_types.o common/utils.o mesh/polytope_cnn.o mesh/vertex_cnn.o mesh/edge_cnn.o mesh/face_cnn.o mesh/alignment_quad.o 
 mesh/cell_cnn.o : mesh/cell_cnn.f90 config/num_types.o mesh/polytope_cnn.o mesh/vertex_cnn.o mesh/edge_cnn.o 
+mesh/hex_cnn.o : mesh/hex_cnn.f90 config/num_types.o common/utils.o mesh/polytope_cnn.o mesh/vertex_cnn.o mesh/edge_cnn.o mesh/quad_cnn.o mesh/cell_cnn.o 
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 
 field/scratch_registry.o : field/scratch_registry.f90 common/utils.o sem/dofmap.o field/field.o config/num_types.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 

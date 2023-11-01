@@ -44,7 +44,6 @@ module quad_cnn
   private
 
   public :: quad_cnn_t, quad_cnn_ptr, quad_aligned_cnn_t
-
   ! object information
   integer(i4), public, parameter :: NEKO_QUAD_NFACET = 4
   integer(i4), public, parameter :: NEKO_QUAD_NRIDGE = 4
@@ -60,11 +59,11 @@ module quad_cnn
   !! Facet and ridge numbering (symmetric notation)
   !!
   !!         f_4            ^ s
-  !!    r_3-------r_4       |
+  !!   r_3+-------+r_4      |
   !!      |       |         |
   !! f_1  |       |  f_2    |
   !!      |       |         |
-  !!    r_1-------r_2       +-------> r
+  !!   r_1+-------+r_2      +-------> r
   !!         f_3
   !!
   !! @endverbatim
@@ -113,6 +112,31 @@ module quad_cnn
   integer, parameter, dimension(4, 4) :: rdg_to_fctc = reshape((/1,-1,1,-1, &
        & -1,1,2,-1, 2,-1,-1,1, -1,2,-1,2 /), shape(rdg_to_fctc))
 
+  !> Transformation of the edge alignment (0,1) with respect to the edge
+  !! position on the quad and the quad alignment
+  integer, public, parameter, dimension(0:1, 4, 0:7) :: quad_to_edg_algn =&
+       & reshape((/&
+       & 0,1 , 0,1 , 0,1 , 0,1 , & ! I
+       & 0,1 , 0,1 , 0,1 , 0,1 , & ! T
+       & 0,1 , 0,1 , 1,0 , 1,0 , & ! PX
+       & 0,1 , 0,1 , 1,0 , 1,0 , & ! PXT
+       & 1,0 , 1,0 , 0,1 , 0,1 , & ! PYT
+       & 1,0 , 1,0 , 0,1 , 0,1 , & ! PY
+       & 1,0 , 1,0 , 1,0 , 1,0 , & ! PXPYT
+       & 1,0 , 1,0 , 1,0 , 1,0   & ! PXPY
+       &/), shape(quad_to_edg_algn))
+  integer, public, parameter, dimension(0:1, 4, 0:7) :: quad_to_edg_algn_inv =&
+       & reshape((/&
+       & 0,1 , 0,1 , 0,1 , 0,1 , & ! I
+       & 0,1 , 0,1 , 0,1 , 0,1 , & ! T
+       & 0,1 , 0,1 , 1,0 , 1,0 , & ! PX
+       & 1,0 , 1,0 , 0,1 , 0,1 , & ! PYT
+       & 0,1 , 0,1 , 1,0 , 1,0 , & ! PXT
+       & 1,0 , 1,0 , 0,1 , 0,1 , & ! PY
+       & 1,0 , 1,0 , 1,0 , 1,0 , & ! PXPYT
+       & 1,0 , 1,0 , 1,0 , 1,0   & ! PXPY
+       &/), shape(quad_to_edg_algn))
+
 contains
   !> @brief Initialise quad with global id and four edges
   !! @details Edges order defines face orientation
@@ -122,10 +146,12 @@ contains
     class(quad_cnn_t), intent(inout) :: this
     integer(i4), intent(in) :: id
     type(edge_aligned_cnn_t), intent(in), target :: edg1, edg2, edg3, edg4
-    integer(i4) :: il, jl, ifct1, ifct2, icrn1, icrn2
-    integer(i4), dimension(NEKO_EDGE_NFACET) :: rdg1, rdg2
-    type(vertex_cnn_ptr) :: vrt1, vrt2
+    integer(i4) :: il, jl, ifct, icrn
+    integer(i4), dimension(NEKO_EDGE_NFACET) :: rdg
+    type(vertex_cnn_ptr), dimension(2) :: vrt
     logical :: equal
+
+    call this%free()
 
     ! init_dim calls free
     call this%init_dim()
@@ -140,7 +166,7 @@ contains
     this%facet(3) = edg3
     this%facet(4) = edg4
 
-    ! THIS SHOULD BE IN DIFFERENT PLACE
+    ! THIS SHOULD BE IN DIFFERENT PLACE; It checks internal consistency of edges
     ! Check if edges are consistent. Self-periodicity is allowed, but vertices
     ! should not be messed up
     do il = 1, NEKO_QUAD_NFACET - 1
@@ -154,28 +180,19 @@ contains
     allocate(this%ridge(NEKO_QUAD_NRIDGE))
     do il = 1, NEKO_QUAD_NRIDGE
        ! find proper vertices
-       ifct1 = rdg_to_fct(1, il)
-       ifct2 = rdg_to_fct(2, il)
-       icrn1 = rdg_to_fctc(ifct1, il)
-       icrn2 = rdg_to_fctc(ifct2, il)
-       rdg1(:) = -1
-       rdg2(:) = -1
-       rdg1(icrn1) = 1
-       rdg2(icrn2) = 1
-       ! relative orientation
-       call this%facet(ifct1)%algn_op%trns_f_i4%obj(NEKO_EDGE_NFACET, rdg1)
-       call this%facet(ifct2)%algn_op%trns_f_i4%obj(NEKO_EDGE_NFACET, rdg2)
-       ! get vertices
-       do jl = 1, NEKO_EDGE_NFACET
-          if (rdg1(jl) == 1) then
-             vrt1%obj => this%facet(ifct1)%edge%obj%facet(jl)%obj
-          end if
-          if (rdg2(jl) == 1) then
-             vrt2%obj => this%facet(ifct2)%edge%obj%facet(jl)%obj
-          end if
+       do jl = 1, 2
+          ifct = rdg_to_fct(jl, il)
+          icrn = rdg_to_fctc(ifct, il)
+          ! mark vertices
+          rdg(1) = 1
+          rdg(2) = 2
+          ! transformation
+          call this%facet(ifct)%algn_op%trns_f_i4%obj(NEKO_EDGE_NFACET, rdg)
+          ! extract vertex
+          vrt(jl)%obj => this%facet(ifct)%edge%obj%facet(rdg(icrn))%obj
        end do
-       if (vrt1%obj%id() == vrt2%obj%id()) then
-          this%ridge(il)%obj => vrt1%obj
+       if (vrt(1)%obj%id() == vrt(2)%obj%id()) then
+          this%ridge(il)%obj => vrt(1)%obj
        else
           call neko_error('Inconsistent edge vertices in the quad.')
        end if

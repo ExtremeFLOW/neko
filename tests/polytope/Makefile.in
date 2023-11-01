@@ -13,7 +13,8 @@ check: polytope_test
 
 polytope_test_TESTS := polytope_vertex.pf\
 		       polytope_edge.pf\
-		       polytope_quad.pf
+		       polytope_quad.pf\
+		       polytope_hex.pf
 polytope_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
 $(eval $(call make_pfunit_test,polytope_test))
 

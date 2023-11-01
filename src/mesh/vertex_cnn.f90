@@ -32,8 +32,7 @@
 !
 !> Connectivity vertex type
 module vertex_cnn
-  use num_types, only : i2, i4
-  use utils, only : neko_error
+  use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
   implicit none
   private

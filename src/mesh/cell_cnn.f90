@@ -33,7 +33,6 @@
 !> Connectivity cell abstract type
 module cell_cnn
   use num_types, only : i4
-  use utils, only : neko_error
   use polytope_cnn, only : polytope_cnn_t
   use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
   use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
@@ -49,25 +48,21 @@ module cell_cnn
   !! @details There are multiple possible realisation, so it is just
   !! an abstract type providing common functionality
   type, extends(polytope_cnn_t), abstract :: cell_cnn_t
-     !> Facets are aligned
+     !> Ridges are aligned
      type(edge_aligned_cnn_t), dimension(:), allocatable :: ridge
-     !> Ridge pointers
+     !> Peak pointers
      type(vertex_cnn_ptr), dimension(:), allocatable :: peak
    contains
-     !> Initialise face dimension
+     !> Initialise cell dimension
      procedure, pass(this) :: init_dim => cell_init_dim
-     !> Free face data
-     procedure, pass(this) :: free => cell_free
-     !> Is face self-periodic
-     procedure, pass(this) :: selfp => cell_self_periodic
-     !> Get pointers to facets
-     procedure, pass(this) :: rdg => cell_ridge
      !> Get pointers to ridges
+     procedure, pass(this) :: rdg => cell_ridge
+     !> Get pointers to peaks
      procedure, pass(this) :: pek => cell_peak
-     !> Return edges shared by faces
+     !> Return edges shared by cells
      procedure, pass(this) :: rdg_share => cell_ridge_share
-     !> Return vertices shared by faces
-     procedure, pass(this) :: peak_share => cell_peak_share
+     !> Return vertices shared by cells
+     procedure, pass(this) :: pek_share => cell_peak_share
   end type cell_cnn_t
 
 contains
@@ -76,69 +71,10 @@ contains
   subroutine cell_init_dim(this)
     class(cell_cnn_t), intent(inout) :: this
 
-    call this%free()
-
     call this%set_dim(NEKO_CELL_DIM)
 
     return
   end subroutine cell_init_dim
-
-  !> @brief Free cell data
-  !! @note Not everything can be deallocated here
-  subroutine cell_free(this)
-    class(cell_cnn_t), intent(inout) :: this
-    !local variables
-    integer(i4) :: il
-
-    call this%set_dim(-1)
-    if (allocated(this%ridge)) then
-       do il = 1, this%nridge
-          this%ridge(il)%edge%obj => null()
-       end do
-       deallocate(this%ridge)
-    end if
-    if (allocated(this%peak)) then
-       do il = 1, this%npeak
-          this%peak(il)%obj => null()
-       end do
-       deallocate(this%peak)
-    end if
-
-    return
-  end subroutine cell_free
-
-  !> @brief Check if cell is self-periodic
-  !! @note Not everything can be checked here
-  !! @return   selfp
-  function cell_self_periodic(this) result(selfp)
-    class(cell_cnn_t), intent(in) :: this
-    logical :: selfp
-    integer(i4) :: il, jl, itmp
-
-    ! faces cannot be checked here
-    ! count self periodic edges
-    itmp = 0
-    do il = 1, this%nridge - 1
-       do jl = il + 1, this%nridge
-          selfp = this%ridge(il)%edge%obj.eq.this%ridge(jl)%edge%obj
-          if (selfp) itmp = itmp + 1
-       end do
-    end do
-    ! count self periodic vertices
-    do il = 1, this%npeak - 1
-       do jl = il + 1, this%npeak
-          selfp = (this%peak(il)%obj%id() == this%peak(jl)%obj%id())
-          if (selfp) itmp = itmp + 1
-       end do
-    end do
-    if (itmp == 0) then
-       selfp = .false.
-    else
-       selfp = .true.
-    end if
-
-    return
-  end function cell_self_periodic
 
   !> @brief Return pointers to cell ridges
   !! @parameter[out]  ridge   ridge pointers array
@@ -186,7 +122,7 @@ contains
     ridgep(:,:) = 0
     do il = 1, this%nridge
        do jl = 1, other%nridge
-          if (this%ridge(il)%edge%obj.eq.other%ridge(jl)%edge%obj) then
+          if (this%ridge(il)%edge%obj .eq. other%ridge(jl)%edge%obj) then
              ishare = ishare + 1
              ridgep(1,ishare) = il
              ridgep(2,ishare) = jl

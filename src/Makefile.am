@@ -56,6 +56,7 @@ neko_fortran_SOURCES = \
 	mesh/face_cnn.f90\
 	mesh/quad_cnn.f90\
 	mesh/cell_cnn.f90\
+	mesh/hex_cnn.f90\
 	adt/htable.f90\
 	adt/uset.f90\
 	adt/stack.f90\

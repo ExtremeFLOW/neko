@@ -77,6 +77,7 @@ EXTRA_DIST = \
 	polytope/polytope_vertex.pf\
 	polytope/polytope_edge.pf\
 	polytope/polytope_quad.pf\
+	polytope/polytope_hex.pf\
 	mesh/mesh_parallel.pf\
 	quad/quad.pf\
 	gather_scatter/gather_scatter_parallel.pf\

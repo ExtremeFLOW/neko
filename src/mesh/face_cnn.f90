@@ -33,7 +33,6 @@
 !> Connectivity face abstract type
 module face_cnn
   use num_types, only : i4
-  use utils, only : neko_error
   use polytope_cnn, only : polytope_cnn_t
   use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
   use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
@@ -92,7 +91,7 @@ contains
     call this%set_dim(-1)
     if (allocated(this%facet)) then
        do il = 1, this%nfacet
-          this%facet(il)%edge%obj => null()
+          call this%facet(il)%free()
        end do
        deallocate(this%facet)
     end if
