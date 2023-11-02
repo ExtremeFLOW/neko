@@ -58,7 +58,7 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module math
-  use num_types, only : rp, dp, sp, qp
+  use num_types, only : rp, dp, sp, qp, i4
   use comm
   implicit none
   private
@@ -80,7 +80,24 @@ module math
        glsum, glmax, glmin, chsign, vlmax, invcol1, invcol3, invers2, vcross, &
        vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, add2s1, add2s2, &
        addsqr2s2, cmult2, invcol2, col2, col3, subcol3, add3s2, subcol4, addcol3,&
-       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort
+       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort, swap, &
+       reord, flipv
+
+  interface sort
+     module procedure sortdp, sorti4
+  end interface sort
+
+  interface swap
+     module procedure swapdp, swapi4
+  end interface swap
+
+  interface reord
+     module procedure reorddp, reordi4
+  end interface reord
+
+  interface flipv
+     module procedure flipvdp, flipvi4
+  end interface flipv
 
 contains
 
@@ -730,8 +747,9 @@ contains
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc4
-  !> Use Heap Sort (p 231 Num. Rec., 1st Ed.)
-  subroutine sort(a,ind,n)
+
+  !> Heap Sort for double precision arrays (p 231 Num. Rec., 1st Ed.)
+  subroutine sortdp(a,ind,n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: a(n)
     integer, intent(inout) :: ind(n)
@@ -742,10 +760,10 @@ contains
     end do
 
     if (n.le.1) return
-    
+
     l=n/2+1
     ir=n
-    do while (.true.) 
+    do while (.true.)
        if (l.gt.1) then
           l=l-1
           aa  = a  (l)
@@ -764,7 +782,7 @@ contains
        endif
        i=l
        j=l+l
-       do while (j .le. ir) 
+       do while (j .le. ir)
           if (j.lt.ir) then
              if ( a(j).lt.a(j+1) ) j=j+1
           endif
@@ -780,6 +798,172 @@ contains
        a(i) = aa
        ind(i) = ii
     end do
-  end subroutine sort
+  end subroutine sortdp
+
+  !> Heap Sort for single integer arrays  (p 231 Num. Rec., 1st Ed.)
+  subroutine sorti4(a, ind, n)
+    integer, intent(in) :: n
+    integer(i4), intent(inout) :: a(n)
+    integer, intent(inout) :: ind(n)
+    integer(i4) :: aa
+    integer :: j, ir, i, ii, l
+    do j = 1, n
+       ind(j) = j
+    end do
+
+    if (n.le.1) return
+
+    l = n/2+1
+    ir = n
+    do while (.true.)
+       if (l.gt.1) then
+          l=l-1
+          aa  = a  (l)
+          ii  = ind(l)
+       else
+          aa =   a(ir)
+          ii = ind(ir)
+          a(ir) =   a( 1)
+          ind(ir) = ind( 1)
+          ir=ir-1
+          if (ir.eq.1) then
+             a(1) = aa
+             ind(1) = ii
+             return
+          endif
+       endif
+       i=l
+       j=l+l
+       do while (j .le. ir)
+          if (j.lt.ir) then
+             if ( a(j).lt.a(j+1) ) j=j+1
+          endif
+          if (aa.lt.a(j)) then
+             a(i) = a(j)
+             ind(i) = ind(j)
+             i=j
+             j=j+j
+          else
+             j=ir+1
+          endif
+       end do
+       a(i) = aa
+       ind(i) = ii
+    end do
+  end subroutine sorti4
+
+  !> sort double precision array acording to ind vector
+  subroutine swapdp(b, ind, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: b(n)
+    integer, intent(inout) :: ind(n)
+    real(kind=rp) :: temp(n)
+    integer :: i, jj
+
+    do i = 1, n
+       temp(i)=b(i)
+    end do
+    do i = 1, n
+       jj=ind(i)
+       b(i)=temp(jj)
+    end do
+
+  end subroutine swapdp
+
+  !> sort single integer array acording to ind vector
+  subroutine swapi4(b, ind, n)
+    integer, intent(in) :: n
+    integer(i4), intent(inout) :: b(n)
+    integer, intent(inout) :: ind(n)
+    integer(i4) :: temp(n)
+    integer :: i, jj
+
+    do i = 1, n
+       temp(i)=b(i)
+    end do
+    do i = 1, n
+       jj=ind(i)
+       b(i)=temp(jj)
+    end do
+
+  end subroutine swapi4
+
+  !> reorder double precision array - inverse of swap
+  subroutine reorddp(b, ind, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: b(n)
+    integer, intent(inout) :: ind(n)
+    real(kind=rp) :: temp(n)
+    integer :: i, jj
+
+    do i = 1, n
+       temp(i) = b(i)
+    end do
+    do i = 1, n
+       jj = ind(i)
+       b(jj) = temp(i)
+    end do
+
+  end subroutine reorddp
+
+  !> reorder single integer array - inverse of swap
+  subroutine reordi4(b, ind, n)
+    integer, intent(in) :: n
+    integer(i4), intent(inout) :: b(n)
+    integer, intent(inout) :: ind(n)
+    integer(i4) :: temp(n)
+    integer :: i, jj
+
+    do i = 1, n
+       temp(i)=b(i)
+    end do
+    do i = 1, n
+       jj=ind(i)
+       b(jj)=temp(i)
+    end do
+
+  end subroutine reordi4
+
+  !> Flip double precision vector b and ind
+  subroutine flipvdp(b, ind, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: b(n)
+    integer, intent(inout) :: ind(n)
+    real(kind=rp) :: temp(n)
+    integer :: tempind(n)
+    integer :: i, jj
+
+    do i = 1, n
+       jj = n+1-i
+       temp(jj) = b(i)
+       tempind(jj) = ind(i)
+    end do
+    do i = 1,n
+       b(i) = temp(i)
+       ind(i) = tempind(i)
+    end do
+
+  end subroutine flipvdp
+
+  !> Flip single integer vector b and ind
+  subroutine flipvi4(b, ind, n)
+    integer, intent(in) :: n
+    integer(i4), intent(inout) :: b(n)
+    integer, intent(inout) :: ind(n)
+    integer(i4) :: temp(n)
+    integer :: tempind(n)
+    integer :: i, jj
+
+    do i = 1, n
+       jj = n+1-i
+       temp(jj) = b(i)
+       tempind(jj) = ind(i)
+    end do
+    do i = 1,n
+       b(i) = temp(i)
+       ind(i) = tempind(i)
+    end do
+
+  end subroutine flipvi4
 
 end module math
