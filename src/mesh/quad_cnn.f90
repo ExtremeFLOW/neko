@@ -187,7 +187,7 @@ contains
           rdg(1) = 1
           rdg(2) = 2
           ! transformation
-          call this%facet(ifct)%algn_op%trns_f_i4%obj(NEKO_EDGE_NFACET, rdg)
+          call this%facet(ifct)%algn_op%trns_inv_f_i4%obj(NEKO_EDGE_NFACET, rdg)
           ! extract vertex
           vrt(jl)%obj => this%facet(ifct)%edge%obj%facet(rdg(icrn))%obj
        end do
