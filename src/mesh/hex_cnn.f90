@@ -402,6 +402,7 @@ contains
     class(polytope_cnn_t), intent(in) :: other
     logical :: equal
 
+    equal = .false.
 !!    call this%eq_algn(other, equal, algn)
 
     return
