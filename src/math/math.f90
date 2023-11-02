@@ -748,13 +748,18 @@ contains
 
   end function glsc4
 
-  !> Heap Sort for double precision arrays (p 231 Num. Rec., 1st Ed.)
+  !> Heap Sort for double precision arrays
+  !! @details Following p 231 Num. Rec., 1st Ed.
+  !! @param[inout]   a     vector to be sorted
+  !! @param[out]     ind   permutation array
+  !! @param[in]      n     array size
   subroutine sortdp(a,ind,n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: a(n)
-    integer, intent(inout) :: ind(n)
+    integer, intent(out) :: ind(n)
     real(kind=rp) :: aa
     integer :: j, ir, i, ii, l
+
     do j = 1, n
        ind(j)=j
     end do
@@ -798,15 +803,21 @@ contains
        a(i) = aa
        ind(i) = ii
     end do
+    return
   end subroutine sortdp
 
-  !> Heap Sort for single integer arrays  (p 231 Num. Rec., 1st Ed.)
+  !> Heap Sort for single integer arrays
+  !! @details Following p 231 Num. Rec., 1st Ed.
+  !! @param[inout]   a     vector to be sorted
+  !! @param[out]     ind   permutation array
+  !! @param[in]      n     array size
   subroutine sorti4(a, ind, n)
     integer, intent(in) :: n
     integer(i4), intent(inout) :: a(n)
-    integer, intent(inout) :: ind(n)
+    integer, intent(out) :: ind(n)
     integer(i4) :: aa
     integer :: j, ir, i, ii, l
+
     do j = 1, n
        ind(j) = j
     end do
@@ -850,13 +861,17 @@ contains
        a(i) = aa
        ind(i) = ii
     end do
+    return
   end subroutine sorti4
 
   !> sort double precision array acording to ind vector
+  !! @param[inout]   b     vector to be reordered
+  !! @param[in]      ind   permutation array
+  !! @param[in]      n     array size
   subroutine swapdp(b, ind, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: b(n)
-    integer, intent(inout) :: ind(n)
+    integer, intent(in) :: ind(n)
     real(kind=rp) :: temp(n)
     integer :: i, jj
 
@@ -867,14 +882,17 @@ contains
        jj=ind(i)
        b(i)=temp(jj)
     end do
-
+    return
   end subroutine swapdp
 
   !> sort single integer array acording to ind vector
+  !! @param[inout]   b     vector to be reordered
+  !! @param[in]      ind   permutation array
+  !! @param[in]      n     array size
   subroutine swapi4(b, ind, n)
     integer, intent(in) :: n
     integer(i4), intent(inout) :: b(n)
-    integer, intent(inout) :: ind(n)
+    integer, intent(in) :: ind(n)
     integer(i4) :: temp(n)
     integer :: i, jj
 
@@ -885,14 +903,17 @@ contains
        jj=ind(i)
        b(i)=temp(jj)
     end do
-
+    return
   end subroutine swapi4
 
   !> reorder double precision array - inverse of swap
+  !! @param[inout]   b     vector to be reordered
+  !! @param[in]      ind   permutation array
+  !! @param[in]      n     array size
   subroutine reorddp(b, ind, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: b(n)
-    integer, intent(inout) :: ind(n)
+    integer, intent(in) :: ind(n)
     real(kind=rp) :: temp(n)
     integer :: i, jj
 
@@ -903,14 +924,17 @@ contains
        jj = ind(i)
        b(jj) = temp(i)
     end do
-
+    return
   end subroutine reorddp
 
   !> reorder single integer array - inverse of swap
+  !! @param[inout]   b     vector to be reordered
+  !! @param[in]      ind   permutation array
+  !! @param[in]      n     array size
   subroutine reordi4(b, ind, n)
     integer, intent(in) :: n
     integer(i4), intent(inout) :: b(n)
-    integer, intent(inout) :: ind(n)
+    integer, intent(in) :: ind(n)
     integer(i4) :: temp(n)
     integer :: i, jj
 
@@ -921,10 +945,13 @@ contains
        jj=ind(i)
        b(jj)=temp(i)
     end do
-
+    return
   end subroutine reordi4
 
   !> Flip double precision vector b and ind
+  !! @param[inout]   b     vector to be reordered
+  !! @param[inout]   ind   permutation array
+  !! @param[in]      n     array size
   subroutine flipvdp(b, ind, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: b(n)
@@ -942,10 +969,13 @@ contains
        b(i) = temp(i)
        ind(i) = tempind(i)
     end do
-
+    return
   end subroutine flipvdp
 
   !> Flip single integer vector b and ind
+  !! @param[inout]   b     vector to be reordered
+  !! @param[inout]   ind   permutation array
+  !! @param[in]      n     array size
   subroutine flipvi4(b, ind, n)
     integer, intent(in) :: n
     integer(i4), intent(inout) :: b(n)
@@ -963,7 +993,7 @@ contains
        b(i) = temp(i)
        ind(i) = tempind(i)
     end do
-
+    return
   end subroutine flipvi4
 
 end module math
