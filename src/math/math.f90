@@ -76,13 +76,6 @@ module math
      module procedure sabscmp, dabscmp, qabscmp
   end interface abscmp
 
-  public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
-       glsum, glmax, glmin, chsign, vlmax, invcol1, invcol3, invers2, vcross, &
-       vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, add2s1, add2s2, &
-       addsqr2s2, cmult2, invcol2, col2, col3, subcol3, add3s2, subcol4, addcol3,&
-       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort, swap, &
-       reord, flipv
-
   interface sort
      module procedure sortdp, sorti4
   end interface sort
@@ -98,6 +91,13 @@ module math
   interface flipv
      module procedure flipvdp, flipvi4
   end interface flipv
+
+  public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
+       glsum, glmax, glmin, chsign, vlmax, invcol1, invcol3, invers2, vcross, &
+       vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, add2s1, add2s2, &
+       addsqr2s2, cmult2, invcol2, col2, col3, subcol3, add3s2, subcol4, addcol3,&
+       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort, swap, &
+       reord, flipv
 
 contains
 
@@ -803,7 +803,6 @@ contains
        a(i) = aa
        ind(i) = ii
     end do
-    return
   end subroutine sortdp
 
   !> Heap Sort for single integer arrays
@@ -861,7 +860,6 @@ contains
        a(i) = aa
        ind(i) = ii
     end do
-    return
   end subroutine sorti4
 
   !> sort double precision array acording to ind vector
@@ -882,7 +880,6 @@ contains
        jj=ind(i)
        b(i)=temp(jj)
     end do
-    return
   end subroutine swapdp
 
   !> sort single integer array acording to ind vector
@@ -903,7 +900,6 @@ contains
        jj=ind(i)
        b(i)=temp(jj)
     end do
-    return
   end subroutine swapi4
 
   !> reorder double precision array - inverse of swap
@@ -924,7 +920,6 @@ contains
        jj = ind(i)
        b(jj) = temp(i)
     end do
-    return
   end subroutine reorddp
 
   !> reorder single integer array - inverse of swap
@@ -945,7 +940,6 @@ contains
        jj=ind(i)
        b(jj)=temp(i)
     end do
-    return
   end subroutine reordi4
 
   !> Flip double precision vector b and ind
@@ -969,7 +963,6 @@ contains
        b(i) = temp(i)
        ind(i) = tempind(i)
     end do
-    return
   end subroutine flipvdp
 
   !> Flip single integer vector b and ind
@@ -993,7 +986,6 @@ contains
        b(i) = temp(i)
        ind(i) = tempind(i)
     end do
-    return
   end subroutine flipvi4
 
 end module math
