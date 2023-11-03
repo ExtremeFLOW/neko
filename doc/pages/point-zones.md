@@ -52,14 +52,14 @@ A sphere is defined by its center and its radius.
 Any point zone defined in the case file will be stored in a point
 zone registry, `neko_point_zone_registry`, from which it can be retrieved by its name:
 
-```fortran
+```f90
 class(point_zone_t), pointer :: my_point_zone
 my_point_zone => neko_point_zone_registry%get_point_zone("myzone")
 ```
 
 Once a `point_zone_t` object is retrieved, it can be used for e.g. applying 
 a source term to a localized zone, as demonstrated below:
-```fortan
+```f90
   subroutine forcing(f,t)
     class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
