@@ -1,10 +1,14 @@
 # Installing Neko {#installation}
 
-## Dependencies
+Neko can be installed in various ways, either building directly from source, manually compiling all dependencies and Neko or via Spack. Pre-built Docker images are also provided for each release of Neko.
 
-### Building JSON Fortran 
+## Building from source
 
-Download and compile, at least  version 0.7.1 of JSON Fortran from the main repository.
+### Dependencies
+
+#### Building JSON Fortran 
+
+Download and compile, at least version 0.7.1 of JSON Fortran from the main repository.
 @note Neko requires JSON Fortran to be configured with `USE_GNU_INSTALL_CONVENTION`.
 
 ``` shell
@@ -21,7 +25,7 @@ export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH
 export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
 ```
 
-### Building gslib (optional)
+#### Building gslib (optional)
 
 If you have a Nek5000 installation, use:
 
@@ -62,10 +66,32 @@ Make sure you see the following message during the configuration:
 checking for fgslib_gs_setup in -lgs... yes
 ```
 
-### Building ParMETIS (optional)
+#### Building ParMETIS (optional)
 
 @todo Needs to be written
 
-### Bulding PFunit (optional)
+#### Bulding PFunit (optional)
 
 To build the PFunit testing framework, please refers to the \subpage testing page
+
+## Installing via Spack
+Neko is distributed as part of the package manager Spack as `neko`. The package can install releases of Neko as well as the latest commit to the `develop` branch, for most of Neko's supported backends. For a list of all supported variants, see `spack info neko`
+
+### Quick start guide with Spack
+
+To install a CPU build of Neko using Spack, follow the steps below:
+
+``` shell 
+$ git clone https://github.com/spack/spack.git
+$ cd spack
+$ . share/spack/setup-env.sh
+$ spack install neko
+```
+For a GPU build using e.g. CUDA, change the last line to :
+
+``` shell
+$ spack install neko+cuda
+```
+
+For a more detailed guide on getting started with Spack, please refer to the offical documentation: 
+https://spack.readthedocs.io/en/latest/getting_started.html
