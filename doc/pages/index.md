@@ -20,6 +20,8 @@ Technology.
 
 \subpage simcomps
 
+\subpage point-zones
+
 \subpage accelerators
 
 \subpage statistics-guide
