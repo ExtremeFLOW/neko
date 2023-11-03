@@ -34,7 +34,7 @@
 module face_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
+  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr, vertex_ncnf_cnn_t
   use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
   implicit none
   private
@@ -50,8 +50,8 @@ module face_cnn
   type, extends(polytope_cnn_t), abstract :: face_cnn_t
      !> Facets are aligned
      type(edge_aligned_cnn_t), dimension(:), allocatable :: facet
-     !> Ridge pointers
-     type(vertex_cnn_ptr), dimension(:), allocatable :: ridge
+     !> Ridges (vertices with hanging information)
+     type(vertex_ncnf_cnn_t), dimension(:), allocatable :: ridge
    contains
      !> Initialise face dimension
      procedure, pass(this) :: init_dim => face_init_dim
@@ -97,7 +97,7 @@ contains
     end if
     if (allocated(this%ridge)) then
        do il = 1, this%nridge
-          this%ridge(il)%obj => null()
+          call this%ridge(il)%free()
        end do
        deallocate(this%ridge)
     end if
@@ -123,7 +123,8 @@ contains
     ! count self periodic vertices
     do il = 1, this%nridge - 1
        do jl = il + 1, this%nridge
-          selfp = (this%ridge(il)%obj%id() == this%ridge(jl)%obj%id())
+          selfp = (this%ridge(il)%vertex%obj%id() == &
+               & this%ridge(jl)%vertex%obj%id())
           if (selfp) itmp = itmp + 1
        end do
     end do
@@ -160,7 +161,7 @@ contains
 
     allocate(ridge(this%nridge))
     do il = 1, this%nridge
-       ridge(il)%obj => this%ridge(il)%obj
+       ridge(il)%obj => this%ridge(il)%vertex%obj
     end do
 
     return
@@ -182,7 +183,7 @@ contains
     facetp(:,:) = 0
     do il = 1, this%nfacet
        do jl = 1, other%nfacet
-          if (this%facet(il)%edge%obj.eq.other%facet(jl)%edge%obj) then
+          if (this%facet(il)%edge%obj .eq. other%facet(jl)%edge%obj) then
              ishare = ishare + 1
              facetp(1,ishare) = il
              facetp(2,ishare) = jl
@@ -209,7 +210,8 @@ contains
     ridgep(:,:) = 0
     do il = 1, this%nridge
        do jl = 1, other%nridge
-          if (this%ridge(il)%obj%id() == other%ridge(jl)%obj%id()) then
+          if (this%ridge(il)%vertex%obj%id() == &
+               & other%ridge(jl)%vertex%obj%id()) then
              ishare = ishare + 1
              ridgep(1,ishare) = il
              ridgep(2,ishare) = jl

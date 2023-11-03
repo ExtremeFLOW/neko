@@ -35,7 +35,7 @@ module edge_cnn
   use num_types, only : i4
   use utils, only : neko_error
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
+  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr, vertex_ncnf_cnn_t
   use alignment_edge, only : alignment_edge_t, alignment_edge_op_set_t
   implicit none
   private
@@ -57,8 +57,8 @@ module edge_cnn
   !!      f_1-----f_2    +----> r
   !! @endverbatim
   type, extends(polytope_cnn_t) :: edge_cnn_t
-     !> Facet pointers
-     type(vertex_cnn_ptr), dimension(:), allocatable :: facet
+     !> Facets (vertices with hanging information)
+     type(vertex_ncnf_cnn_t), dimension(:), allocatable :: facet
    contains
      !> Initialise edge
      procedure, pass(this) :: init => edge_init
@@ -120,8 +120,8 @@ contains
     call this%set_id(id)
     ! get facet pointers
     allocate(this%facet(NEKO_EDGE_NFACET))
-    this%facet(1)%obj => vrt1
-    this%facet(2)%obj => vrt2
+    call this%facet(1)%init(vrt1)
+    call this%facet(2)%init(vrt2)
 
     return
   end subroutine edge_init
@@ -135,7 +135,7 @@ contains
     call this%set_dim(-1)
     if (allocated(this%facet)) then
        do il = 1, this%nfacet
-          this%facet(il)%obj => null()
+          call this%facet(il)%free()
        end do
        deallocate(this%facet)
     end if
@@ -149,12 +149,12 @@ contains
     class(edge_cnn_t), intent(in) :: this
     logical :: selfp
 
-    selfp = (this%facet(1)%obj%id() == this%facet(2)%obj%id())
+    selfp = (this%facet(1)%vertex%obj%id() == this%facet(2)%vertex%obj%id())
 
     return
   end function edge_self_periodic
 
-  !> @brief Return pointers to edge facets
+  !> @brief Return edge facets
   !! @parameter[out]  facet   facet pointers array
   subroutine edge_facet(this, facet)
     class(edge_cnn_t), intent(in) :: this
@@ -163,7 +163,7 @@ contains
 
     allocate(facet(this%nfacet))
     do il = 1, this%nfacet
-       facet(il)%obj => this%facet(il)%obj
+       facet(il)%obj => this%facet(il)%vertex%obj
     end do
 
     return
@@ -185,7 +185,8 @@ contains
     facetp(:,:) = 0
     do il = 1, this%nfacet
        do jl = 1, other%nfacet
-          if (this%facet(il)%obj%id() == other%facet(jl)%obj%id()) then
+          if (this%facet(il)%vertex%obj%id() == &
+               & other%facet(jl)%vertex%obj%id()) then
              ishare = ishare + 1
              facetp(1,ishare) = il
              facetp(2,ishare) = jl
@@ -225,8 +226,10 @@ contains
              trans(2) = 2
              do algn = 0, algn_op%nop()
                 call algn_op%trns_inv_f_i4(algn)%obj(NEKO_EDGE_NFACET, trans)
-                equal = (this%facet(1)%obj.eq.other%facet(trans(1))%obj).and.&
-                     &(this%facet(2)%obj.eq.other%facet(trans(2))%obj)
+                equal = (this%facet(1)%vertex%obj .eq. &
+                     & other%facet(trans(1))%vertex%obj) .and. &
+                     & (this%facet(2)%vertex%obj .eq. &
+                     & other%facet(trans(2))%vertex%obj)
                 if (equal) return
                 call algn_op%trns_f_i4(algn)%obj(NEKO_EDGE_NFACET, trans)
              end do
@@ -316,10 +319,10 @@ contains
 
     ! only equal edges can be checked
     if (this%edge%obj.eq.other) then
-       vrt(1) = this%edge%obj%facet(1)%obj%id()
-       vrt(2) = this%edge%obj%facet(2)%obj%id()
-       vrto(1) = other%facet(1)%obj%id()
-       vrto(2) = other%facet(2)%obj%id()
+       vrt(1) = this%edge%obj%facet(1)%vertex%obj%id()
+       vrt(2) = this%edge%obj%facet(2)%vertex%obj%id()
+       vrto(1) = other%facet(1)%vertex%obj%id()
+       vrto(2) = other%facet(2)%vertex%obj%id()
        call this%algn_op%trns_inv_f_i4%obj(NEKO_EDGE_NFACET, vrto)
        aligned = (vrt(1) == vrto(1)).and.(vrt(2) == vrto(2))
     else

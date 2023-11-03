@@ -57,7 +57,7 @@ mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o
 mesh/alignment_edge.o : mesh/alignment_edge.f90 config/num_types.o common/utils.o 
 mesh/alignment_quad.o : mesh/alignment_quad.f90 config/num_types.o common/utils.o 
 mesh/polytope_cnn.o : mesh/polytope_cnn.f90 common/utils.o config/num_types.o mesh/entity.o 
-mesh/vertex_cnn.o : mesh/vertex_cnn.f90 config/num_types.o mesh/polytope_cnn.o 
+mesh/vertex_cnn.o : mesh/vertex_cnn.f90 config/num_types.o common/utils.o mesh/polytope_cnn.o 
 mesh/edge_cnn.o : mesh/edge_cnn.f90 config/num_types.o common/utils.o mesh/polytope_cnn.o mesh/vertex_cnn.o mesh/alignment_edge.o 
 mesh/face_cnn.o : mesh/face_cnn.f90 config/num_types.o mesh/polytope_cnn.o mesh/vertex_cnn.o mesh/edge_cnn.o 
 mesh/quad_cnn.o : mesh/quad_cnn.f90 config/num_types.o common/utils.o mesh/polytope_cnn.o mesh/vertex_cnn.o mesh/edge_cnn.o mesh/face_cnn.o mesh/alignment_quad.o 

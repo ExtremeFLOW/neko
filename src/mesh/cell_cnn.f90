@@ -34,7 +34,7 @@
 module cell_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
+  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr, vertex_ncnf_cnn_t
   use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
   implicit none
   private
@@ -51,7 +51,7 @@ module cell_cnn
      !> Ridges are aligned
      type(edge_aligned_cnn_t), dimension(:), allocatable :: ridge
      !> Peak pointers
-     type(vertex_cnn_ptr), dimension(:), allocatable :: peak
+     type(vertex_ncnf_cnn_t), dimension(:), allocatable :: peak
    contains
      !> Initialise cell dimension
      procedure, pass(this) :: init_dim => cell_init_dim
@@ -100,7 +100,7 @@ contains
 
     allocate(peak(this%npeak))
     do il = 1, this%npeak
-       peak(il)%obj => this%peak(il)%obj
+       peak(il)%obj => this%peak(il)%vertex%obj
     end do
 
     return
@@ -149,7 +149,8 @@ contains
     peakp(:,:) = 0
     do il = 1, this%npeak
        do jl = 1, other%npeak
-          if (this%peak(il)%obj%id() == other%peak(jl)%obj%id()) then
+          if (this%peak(il)%vertex%obj%id() == &
+               & other%peak(jl)%vertex%obj%id()) then
              ishare = ishare + 1
              peakp(1,ishare) = il
              peakp(2,ishare) = jl

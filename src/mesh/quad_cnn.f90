@@ -171,7 +171,7 @@ contains
     ! should not be messed up
     do il = 1, NEKO_QUAD_NFACET - 1
        do jl = il + 1, NEKO_QUAD_NFACET
-          equal = this%facet(il)%edge%obj.eq.this%facet(jl)%edge%obj
+          equal = this%facet(il)%edge%obj .eq. this%facet(jl)%edge%obj
        end do
     end do
 
@@ -189,10 +189,10 @@ contains
           ! transformation
           call this%facet(ifct)%algn_op%trns_inv_f_i4%obj(NEKO_EDGE_NFACET, rdg)
           ! extract vertex
-          vrt(jl)%obj => this%facet(ifct)%edge%obj%facet(rdg(icrn))%obj
+          vrt(jl)%obj => this%facet(ifct)%edge%obj%facet(rdg(icrn))%vertex%obj
        end do
        if (vrt(1)%obj%id() == vrt(2)%obj%id()) then
-          this%ridge(il)%obj => vrt(1)%obj
+          call this%ridge(il)%init(vrt(1)%obj)
        else
           call neko_error('Inconsistent edge vertices in the quad.')
        end if
@@ -258,13 +258,13 @@ contains
                 equal = .true.
                 ! check ridges
                 do il = 1, this%nridge
-                   equal = equal.and.(this%ridge(il)%obj%id() == &
-                        & other%ridge(mapr(il))%obj%id())
+                   equal = equal.and.(this%ridge(il)%vertex%obj%id() == &
+                        & other%ridge(mapr(il))%vertex%obj%id())
                 end do
                 if (equal) then
                    ! check facets discarding orientation (covered by vertices)
                    do il = 1, this%nfacet
-                      equal = equal.and.(this%facet(il)%edge%obj.eq.&
+                      equal = equal.and.(this%facet(il)%edge%obj .eq. &
                            & other%facet(mapf(il))%edge%obj)
                    end do
                    if (equal) return
@@ -365,25 +365,25 @@ contains
        elm(2, 1) = this%face%obj%facet(3)%edge%obj%id()
        elm(2, 3) = this%face%obj%facet(4)%edge%obj%id()
        ! vertices
-       elm(1, 1) = this%face%obj%ridge(1)%obj%id()
-       elm(3, 1) = this%face%obj%ridge(2)%obj%id()
-       elm(1, 3) = this%face%obj%ridge(3)%obj%id()
-       elm(3, 3) = this%face%obj%ridge(4)%obj%id()
+       elm(1, 1) = this%face%obj%ridge(1)%vertex%obj%id()
+       elm(3, 1) = this%face%obj%ridge(2)%vertex%obj%id()
+       elm(1, 3) = this%face%obj%ridge(3)%vertex%obj%id()
+       elm(3, 3) = this%face%obj%ridge(4)%vertex%obj%id()
        ! edges
        elmo(1, 2) = other%facet(1)%edge%obj%id()
        elmo(3, 2) = other%facet(2)%edge%obj%id()
        elmo(2, 1) = other%facet(3)%edge%obj%id()
        elmo(2, 3) = other%facet(4)%edge%obj%id()
        ! vertices
-       elmo(1, 1) = other%ridge(1)%obj%id()
-       elmo(3, 1) = other%ridge(2)%obj%id()
-       elmo(1, 3) = other%ridge(3)%obj%id()
-       elmo(3, 3) = other%ridge(4)%obj%id()
+       elmo(1, 1) = other%ridge(1)%vertex%obj%id()
+       elmo(3, 1) = other%ridge(2)%vertex%obj%id()
+       elmo(1, 3) = other%ridge(3)%vertex%obj%id()
+       elmo(3, 3) = other%ridge(4)%vertex%obj%id()
        call this%algn_op%trns_inv_f_i4%obj( sz, elmo, work)
-       aligned = (elm(1, 1) == elmo(1, 1)).and.(elm(1, 2) == elmo(1, 2)).and.&
-            &(elm(1, 3) == elmo(1, 3)).and.(elm(2, 1) == elmo(2, 1)).and.&
-            &(elm(2, 3) == elmo(2, 3)).and.(elm(3, 1) == elmo(3, 1)).and.&
-            &(elm(3, 2) == elmo(3, 2)).and.(elm(3, 3) == elmo(3, 3))
+       aligned = (elm(1, 1) == elmo(1, 1)) .and. (elm(1, 2) == elmo(1, 2)).and.&
+            &(elm(1, 3) == elmo(1, 3)) .and. (elm(2, 1) == elmo(2, 1)) .and. &
+            &(elm(2, 3) == elmo(2, 3)) .and. (elm(3, 1) == elmo(3, 1)) .and. &
+            &(elm(3, 2) == elmo(3, 2)) .and. (elm(3, 3) == elmo(3, 3))
     else
        call neko_error('Quads not equal')
     end if

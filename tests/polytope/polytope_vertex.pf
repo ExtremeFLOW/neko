@@ -27,3 +27,26 @@ subroutine test_vertex_init
   call vertexo%init(id2)
   @assertFalse(vertex.eq.vertexo)
 end subroutine test_vertex_init
+
+@test
+subroutine test_vertex_nonconforming
+  use pfunit
+  use num_types, only : i4
+  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_t
+  implicit none
+  type(vertex_cnn_t) :: vertex
+  type(vertex_ncnf_cnn_t) :: vertex_ncnf
+  integer(i4) :: id, hng, itmp
+
+  id = 1
+  call vertex%init(id)
+  call vertex_ncnf%init(vertex)
+  @assertTrue(vertex .eq. vertex_ncnf%vertex%obj)
+  itmp = vertex_ncnf%hng()
+  @assertEqual(itmp, 0)
+  hng = 1
+  call vertex_ncnf%set_hng(hng)
+  itmp = vertex_ncnf%hng()
+  @assertEqual(itmp, hng)
+
+end subroutine test_vertex_nonconforming

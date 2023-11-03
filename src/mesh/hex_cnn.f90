@@ -225,12 +225,12 @@ contains
           mapr(3) = trans(1, 3)
           mapr(4) = trans(3, 3)
           ! extract vertex
-          vrtp(jl)%obj => this%facet(ifct)%face%obj%ridge(mapr(icrn))%obj
+          vrtp(jl)%obj => this%facet(ifct)%face%obj%ridge(mapr(icrn))%vertex%obj
        end do
        ! is it a proper vertex
        if ((vrtp(1)%obj%id() == vrtp(2)%obj%id()) .and. &
             & (vrtp(1)%obj%id() == vrtp(3)%obj%id())) then
-          this%peak(il)%obj => vrtp(1)%obj
+          call this%peak(il)%init(vrtp(1)%obj)
        else
           call neko_error('Inconsistent face vertices in the hex.')
        end if
@@ -267,12 +267,13 @@ contains
                & mapf(icrn), this%facet(ifct)%algn_op%alignment)
        end do
        ! is it a proper edge
-       if ((edgp(1)%obj .eq. edgp(2)%obj) .and.&
+       if ((edgp(1)%obj .eq. edgp(2)%obj) .and. &
             & (edg_algn(1) == edg_algn(2))) then
           call this%ridge(il)%init(edgp(1)%obj, edg_algn(1))
           ! compare with local edge to check alignment
-          call edg%init(edgp(1)%obj%id(), this%peak(rdg_to_pek(1, il))%obj, &
-               & this%peak(rdg_to_pek(2, il))%obj)
+          call edg%init(edgp(1)%obj%id(), &
+               & this%peak(rdg_to_pek(1, il))%vertex%obj, &
+               & this%peak(rdg_to_pek(2, il))%vertex%obj)
           equal = this%ridge(il)%test(edg)
           if (.not.equal) &
                & call neko_error('Inconsistent edge alignment in the hex.')
@@ -305,7 +306,7 @@ contains
     end if
     if (allocated(this%peak)) then
        do il = 1, this%npeak
-          this%peak(il)%obj => null()
+          call this%peak(il)%free()
        end do
        deallocate(this%peak)
     end if
@@ -324,21 +325,22 @@ contains
     itmp = 0
     do il = 1, this%nfacet - 1
        do jl = il + 1, this%nfacet
-          selfp = this%facet(il)%face%obj.eq.this%facet(jl)%face%obj
+          selfp = this%facet(il)%face%obj .eq. this%facet(jl)%face%obj
           if (selfp) itmp = itmp + 1
        end do
     end do
     ! count self periodic edges
     do il = 1, this%nridge - 1
        do jl = il + 1, this%nridge
-          selfp = this%ridge(il)%edge%obj.eq.this%ridge(jl)%edge%obj
+          selfp = this%ridge(il)%edge%obj .eq. this%ridge(jl)%edge%obj
           if (selfp) itmp = itmp + 1
        end do
     end do
     ! count self periodic vertices
     do il = 1, this%npeak - 1
        do jl = il + 1, this%npeak
-          selfp = (this%peak(il)%obj%id() == this%peak(jl)%obj%id())
+          selfp = (this%peak(il)%vertex%obj%id() == &
+               & this%peak(jl)%vertex%obj%id())
           if (selfp) itmp = itmp + 1
        end do
     end do

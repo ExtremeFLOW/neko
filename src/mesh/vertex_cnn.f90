@@ -33,11 +33,12 @@
 !> Connectivity vertex type
 module vertex_cnn
   use num_types, only : i4
+  use utils, only : neko_error
   use polytope_cnn, only : polytope_cnn_t
   implicit none
   private
 
-  public :: vertex_cnn_t, vertex_cnn_ptr
+  public :: vertex_cnn_t, vertex_cnn_ptr, vertex_ncnf_cnn_t, vertex_ncnf_cnn_ptr
 
   ! object information
   integer(i4), public, parameter :: NEKO_VERTEX_DIM = 0
@@ -50,7 +51,9 @@ module vertex_cnn
   !! (monon) and contains unique global id only. Vertex has no alignment.
   type, extends(polytope_cnn_t) :: vertex_cnn_t
    contains
+     !> Initialise vertex
      procedure, pass(this) :: init => vertex_init
+     !> vertex equality check
      procedure, pass(this) :: equal => vertex_equal
      generic :: operator(.eq.) => equal
   end type vertex_cnn_t
@@ -59,6 +62,34 @@ module vertex_cnn
   type ::  vertex_cnn_ptr
      type(vertex_cnn_t), pointer :: obj
   end type vertex_cnn_ptr
+
+  !> Vertex type for nonconforming meshes
+  !! @details Vertex can be either independent (located at edge, face, cell
+  !! corner of all neighbours; marked 0), facet hanging (located at facet
+  !! centre of some neighbours in case of faces or cells; marked 1) or
+  !! ridge hanging (located at ridge centre of some neighbours in case of
+  !! cells; marked 2). There are no operations on vertex, so no procedure
+  !! pointers.
+  type :: vertex_ncnf_cnn_t
+     ! vertex pointer
+     type(vertex_cnn_ptr) :: vertex
+     !> hanging information
+     integer(i4) :: hanging = 0
+   contains
+     !> Initialise vertex pointer
+     procedure, pass(this) :: init => vertex_hanging_init
+     !> Free vertex data
+     procedure, pass(this) :: free => vertex_hanging_free
+     !> Set hanging information
+     procedure, pass(this) :: set_hng => vertex_hanging_set
+     !> Get hanging information
+     procedure, pass(this) :: hng => vertex_hanging_get
+  end type vertex_ncnf_cnn_t
+
+  !> Pointer to a hanging vertex type
+  type ::  vertex_ncnf_cnn_ptr
+     type(vertex_ncnf_cnn_t), pointer :: obj
+  end type vertex_ncnf_cnn_ptr
 
 contains
 
@@ -91,5 +122,45 @@ contains
     end if
     return
   end function vertex_equal
+
+  !> @brief Initialise vertex pointer
+  !! @parameter[in]   vrt     vertex
+  subroutine vertex_hanging_init(this, vrt)
+    class(vertex_ncnf_cnn_t), intent(inout) :: this
+    type(vertex_cnn_t), target, intent(in) :: vrt
+    call this%free()
+    this%vertex%obj => vrt
+    return
+  end subroutine vertex_hanging_init
+
+  !> @brief free vertex pointer and hanging information
+  subroutine vertex_hanging_free(this)
+    class(vertex_ncnf_cnn_t), intent(inout) :: this
+    this%vertex%obj => null()
+    this%hanging = 0
+    return
+  end subroutine vertex_hanging_free
+
+  !> @brief Set hanging information
+  !! @parameter[in]   hng     hanging information
+  subroutine vertex_hanging_set(this, hng)
+    class(vertex_ncnf_cnn_t), intent(inout) :: this
+    integer(i4), intent(in) :: hng
+    if (hng >= 0 .and. hng <= 2) then
+       this%hanging = hng
+    else
+       call neko_error('Inconsistent vertex hanging information.')
+    end if
+    return
+  end subroutine vertex_hanging_set
+
+  !> @brief Get hanging information
+  !! @return   hng
+  pure function vertex_hanging_get(this) result(hng)
+    class(vertex_ncnf_cnn_t), intent(in) :: this
+    integer(i4) :: hng
+    hng = this%hanging
+    return
+  end function vertex_hanging_get
 
 end module vertex_cnn
