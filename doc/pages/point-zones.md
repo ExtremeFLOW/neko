@@ -2,11 +2,13 @@
 # Point zones {#point-zones}
 ## What are point zones?
 
-Point zones are subsections of the computational domain containing GLL points
-which are selected based on a given geometrical criterion.
-
-These zones can then be used in different contexts, e.g. 
-localized source terms, probes...
+Point zones are subsections of the computational domain which are 
+selected based on a given geometrical criterion. A point zone is 
+defined by the `point_zone_t` abstract type. Each `point_zone_t` object has
+a unique `name` attribute, and a `mask` containing a list of linear indices
+referring to the GLL points whose coordinates verify the above-mentioned
+geometrical criterion. Zones can then be used in different contexts, e.g. 
+applying a localized source term, probing a particular zone of interest...
 
 ## Predefined geometrical shapes
 
@@ -48,8 +50,29 @@ A sphere is defined by its center and its radius.
 ## Using point zones
 
 Any point zone defined in the case file will be stored in a point
-zone registry, `neko_point_zone_registry`, from which it can be retrieved.
-~~~~~~~~~~~~~~{.f90}
+zone registry, `neko_point_zone_registry`, from which it can be retrieved by its name:
+
+```fortran
 class(point_zone_t), pointer :: my_point_zone
 my_point_zone => neko_point_zone_registry%get_point_zone("myzone")
-~~~~~~~~~~~~~~
+```
+
+Once a `point_zone_t` object is retrieved, it can be used for e.g. applying 
+a source term to a localized zone, as demonstrated below:
+```fortan
+  subroutine forcing(f,t)
+    class(fluid_user_source_term_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
+
+    integer :: i, nlindex(4)
+    class(point_zone_t), pointer :: my_point_zone
+    
+    my_point_zone => neko_point_zone_registry%get_point_zone("myzone")
+
+    ! Assign a constant forcing to my_point_zone
+    do i = 1, my_point_zone%size
+       f%u(my_point_zone%mask(i), 1, 1, 1) = 2.0
+    end do
+
+  end subroutine forcing
+```
