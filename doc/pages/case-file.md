@@ -24,7 +24,8 @@ The current high-level structure of the case file is shown below.
         "fluid": {}
         "scalar": {}
         "statistics": {}
-        "simulation_components" : {}
+        "simulation_components" : []
+        "point_zones" : []
     }
 }
 ~~~~~~~~~~~~~~~
@@ -285,4 +286,12 @@ which are not strictly necessary to run the solver. An example could be
 computing and output of additional fields, e.g. vorticity.
 
 A more detailed description as well as a  full list of available components and
- their setup is provided in a sperate page of the manual.
+ their setup is provided in a [separate page of the manual](simcomps.md).
+
+## Point zones
+Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.
+
+A point zone object defined in the case file can be retrieved from the point zone registry, `neko_point_zone_registry`, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.
+
+A more detailed description as well as a  full list of available components and
+ their setup is provided in a [separate page of the manual](point-zones.md).
