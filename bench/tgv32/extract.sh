@@ -3,4 +3,4 @@
 # Extract time and enstrophy from neko output on stdin
 
 echo "# Time Enstrophy"
-grep -a Enstrophy | cut -d" " -f3,8
+awk '/enst:/ {print($3, $NF)}' $1
