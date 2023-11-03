@@ -38,7 +38,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-20.04, macos-12]
+        os: [ubuntu-20.04, macos-13]
         compiler: [gfortran-10, gfortran-11, gfortran-12]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
@@ -49,17 +49,17 @@ jobs:
           compiler: gfortran-12
         - os: ubuntu-20.04
           backend: opencl
-        - os: macos-12
+        - os: macos-13
           compiler: gfortran-10
-        - os: macos-12
+        - os: macos-13
           backend: cuda
-        - os: macos-12
+        - os: macos-13
           backend: hip
         include:
         - os: ubuntu-20.04
           setup-env: |
             sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
-        - os: macos-12
+        - os: macos-13
           setup-env: brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
     env:
       FC: ${{ matrix.compiler }}
