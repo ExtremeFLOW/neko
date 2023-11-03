@@ -7,8 +7,8 @@ selected based on a given geometrical criterion. A point zone is
 defined by the `point_zone_t` abstract type. Each `point_zone_t` object has
 a unique `name` attribute, and a `mask` containing a list of linear indices
 referring to the GLL points whose coordinates verify the above-mentioned
-geometrical criterion. Zones can then be used in different contexts, e.g. 
-applying a localized source term, probing a particular zone of interest...
+geometrical criterion. Zones can then be used for different purposes, an example 
+being applying a localized source term or probing a particular zone of interest.
 
 ## Predefined geometrical shapes
 
@@ -47,24 +47,24 @@ A sphere is defined by its center and its radius.
 ]
 ~~~~~~~~~~~~~~~
 
+## User-defined geometrical shapes
+
+The current version of Neko does not support user-defined shapes from the case 
+file. That said, shapes can be defined manually into new types by extending 
+`point_zone_t` and implementing the abstract `criterion` interface.
+
 ## Using point zones
 
-Any point zone defined in the case file will be stored in a point
-zone registry, `neko_point_zone_registry`, from which it can be retrieved by its name:
-
-```fortran
-class(point_zone_t), pointer :: my_point_zone
-my_point_zone => neko_point_zone_registry%get_point_zone("myzone")
-```
-
-Once a `point_zone_t` object is retrieved, it can be used for e.g. applying 
-a source term to a localized zone, as demonstrated below:
+Point zones defined in the case file are stored in a point zone registry, 
+`neko_point_zone_registry`. The point zone registry allows for the retrieval of
+any `point_zone_t` object when needed. Once a `point_zone_t` object is 
+retrieved, it can be used for e.g. applying a source term to a localized zone, as demonstrated below:
 ```fortan
   subroutine forcing(f,t)
     class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
 
-    integer :: i, nlindex(4)
+    integer :: i
     class(point_zone_t), pointer :: my_point_zone
     
     my_point_zone => neko_point_zone_registry%get_point_zone("myzone")
