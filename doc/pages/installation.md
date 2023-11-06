@@ -112,7 +112,7 @@ $ wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-4.0.3.tar.gz
 $ tar xzf parmetis-4.0.3.tar.gz && cd parmetis-4.0.3 && make config prefix=/parmetis_install_path
 $ make -j$(nproc) && make install
 ```
-@note ParMETIS might not install `metis.h`; if this is the case, repeat the same `make config ...` and `make install` from the metis subfolder.
+@note ParMETIS might not install `metis.h`, check if it is found in `/parmetis_install_path/include`.  If this is not the case, repeat the same `make config prefix=/parmetis_install_path` and `make install` commands from the `metis` subfolder.
 
 ### Bulding PFunit (optional)
 
