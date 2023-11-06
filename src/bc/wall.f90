@@ -35,7 +35,7 @@ module wall
   use device_wall
   use num_types
   use dirichlet
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 

@@ -32,9 +32,9 @@
 !
 module element
   use num_types
-  use entity
-  use tuple
-  use point
+  use entity, only : entity_t
+  use tuple, only : tuple_t
+  use point, only : point_ptr, point_t
   implicit none
   private 
 

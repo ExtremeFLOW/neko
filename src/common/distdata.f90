@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,9 @@
 !
 !> Distributed mesh data
 module distdata
-  use stack
-  use tuple
-  use uset
+  use stack, only : stack_i4t2_t
+  use tuple, only : tuple_i4_t
+  use uset, only : uset_i4_t
   implicit none
   private
 

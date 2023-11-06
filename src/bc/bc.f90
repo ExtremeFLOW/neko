@@ -35,14 +35,14 @@ module bc
   use neko_config
   use num_types
   use device
-  use dofmap
-  use space
-  use mesh
-  use zone
-  use stack
-  use tuple
-  use utils
-  use, intrinsic :: iso_c_binding
+  use dofmap, only : dofmap_t
+  use space, only : space_t
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use facet_zone, only : facet_zone_t
+  use stack, only : stack_i4t2_t
+  use tuple, only : tuple_i4_t
+  use utils, only : neko_error, linear_index
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
   
@@ -260,7 +260,7 @@ contains
   !! @param bc_zone Boundary zone to be marked.
   subroutine bc_mark_zone(this, bc_zone)
     class(bc_t), intent(inout) :: this
-    class(zone_t), intent(inout) :: bc_zone
+    class(facet_zone_t), intent(inout) :: bc_zone
     integer :: i
     do i = 1, bc_zone%size
        call this%marked_facet%push(bc_zone%facet_el(i))
@@ -275,7 +275,7 @@ contains
   !! @param bc_label List of boundary condition labels.
   subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels)
     class(bc_t), intent(inout) :: this
-    class(zone_t), intent(inout) :: bc_zones(:)
+    class(facet_zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
     character(len=20) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     integer :: i, j, k, msh_bc_type 

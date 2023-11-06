@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,17 @@
 !
 !> Defines GPU aware MPI gather-scatter communication
 module gs_device_mpi
-  use neko_config
-  use num_types
-  use gs_comm
+  use num_types, only : rp, c_rp
+  use gs_comm, only : gs_comm_t
   use gs_ops
-  use stack
-  use mpi_f08
-  use comm
+  use stack, only : stack_i4_t
+  use comm, only : pe_size, pe_rank
+  use htable, only : htable_i4_t
   use device
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t
   implicit none
+  private
 
   !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_mpi_buf_t
@@ -57,7 +59,7 @@ module gs_device_mpi
 
   !> Gather-scatter communication using device MPI.
   !! The arrays are indexed per PE like @a send_pe and @ recv_pe.
-  type, extends(gs_comm_t) :: gs_device_mpi_t
+  type, public, extends(gs_comm_t) :: gs_device_mpi_t
      type(gs_device_mpi_buf_t) :: send_buf
      type(gs_device_mpi_buf_t) :: recv_buf
      type(c_ptr), allocatable :: stream(:)

@@ -32,9 +32,15 @@
 !
 !> Derivative kernels for SX-Aurora
 module sx_dudxyz
-  use num_types
+  use num_types, only : rp
   use math
   implicit none
+  private
+
+  public :: sx_dudxyz_lx, sx_dudxyz_lx14, sx_dudxyz_lx13, sx_dudxyz_lx12, &
+       sx_dudxyz_lx11, sx_dudxyz_lx10, sx_dudxyz_lx9, sx_dudxyz_lx8, &
+       sx_dudxyz_lx7, sx_dudxyz_lx6, sx_dudxyz_lx5, sx_dudxyz_lx4, &
+       sx_dudxyz_lx3, sx_dudxyz_lx2
 
 contains
 

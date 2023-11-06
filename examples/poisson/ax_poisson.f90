@@ -1,6 +1,7 @@
 module ax_poisson
-  use ax_product
+  use ax_product  
   use mxm_wrapper
+  use math
   implicit none
 
   type, public, extends(ax_t) :: ax_poisson_t
@@ -32,6 +33,7 @@ contains
   end subroutine ax_poisson_compute
   
   subroutine ax_e(w, u, g11, g22, g33, ur, us, ut, wk, lx, D, Dt)
+    integer, intent(inout) :: lx
     real(kind=rp), intent(inout) :: w(lx**3)
     real(kind=rp), intent(inout) :: u(lx**3)
     real(kind=rp), intent(inout) :: g11(lx**3)
@@ -43,7 +45,6 @@ contains
     real(kind=rp), intent(inout) :: wk(lx**3)
     real(kind=rp), intent(inout) :: D(lx, lx)
     real(kind=rp), intent(inout) :: Dt(lx, lx)
-    integer, intent(inout) :: lx
     real(kind=rp) :: wr, ws, wt
     integer :: i, n
   
@@ -64,14 +65,13 @@ contains
   end subroutine ax_e
   
   subroutine local_grad3(ur, us, ut, u, n, D, Dt)
-    
+    integer, intent(inout) :: n    
     real(kind=rp), intent(inout) :: ur(0:n, 0:n, 0:n)
     real(kind=rp), intent(inout) :: us(0:n, 0:n, 0:n)
     real(kind=rp), intent(inout) :: ut(0:n, 0:n, 0:n)
     real(kind=rp), intent(inout) :: u(0:n, 0:n, 0:n)
     real(kind=rp), intent(inout) :: D(0:n, 0:n)
     real(kind=rp), intent(inout) :: Dt(0:n, 0:n)
-    integer, intent(inout) :: n
     integer :: m1, m2, k
   
     m1 = n + 1
@@ -86,7 +86,7 @@ contains
   end subroutine local_grad3
   
   subroutine local_grad3_t(u,ur,us,ut,N,D,Dt,w)
-  
+    integer, intent(inout) :: n  
     real(kind=rp), intent(inout) :: ur(0:n, 0:n, 0:n)
     real(kind=rp), intent(inout) :: us(0:n, 0:n, 0:n)
     real(kind=rp), intent(inout) :: ut(0:n, 0:n, 0:n)
@@ -94,7 +94,6 @@ contains
     real(kind=rp), intent(inout) :: D(0:n, 0:n)
     real(kind=rp), intent(inout) :: Dt(0:n, 0:n)
     real(kind=rp), intent(inout) :: w(0:n, 0:n, 0:n)
-    integer, intent(inout) :: n
     integer :: m1, m2, m3, k
   
     m1 = n + 1

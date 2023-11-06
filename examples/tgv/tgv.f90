@@ -86,7 +86,7 @@ contains
     integer tstep
 
     ! initialize work arrays for postprocessing
-    call field_init(w1, u%dof, 'work1')
+    call w1%init(u%dof, 'work1')
 
     ! call usercheck also for tstep=0
     tstep = 0
@@ -177,7 +177,7 @@ contains
     type(json_file), intent(inout) :: params
 
     ! Deallocate the fields
-    call field_free(w1)
+    call w1%free()
 
   end subroutine user_finalize
 

@@ -5,8 +5,9 @@
 !! The fld_file_data_t should dynamically update each time one reads a new fld file
 !! Martin Karp 1/2-2023
 module fld_file_data
-  use vector
+  use num_types, only : rp
   use math
+  use vector, only : vector_t, vector_ptr_t
   implicit none
   private
   
@@ -35,7 +36,6 @@ module fld_file_data
      integer :: meta_nsamples = 0 !< number of samples specified in .nek5000 file
      integer :: meta_start_counter = 0 !< number of first field
      character(len=1024) :: fld_series_fname !< name of fld series as specified in .nek5000 (meta) file
-
    contains
      procedure, pass(this) :: init => fld_file_data_init
      procedure, pass(this) :: free => fld_file_data_free
@@ -46,6 +46,7 @@ module fld_file_data
   end type fld_file_data_t
 
 contains
+  
   !> Initialise a fld_file_data object with nelv elements with a offset_nel
   subroutine fld_file_data_init(this, nelv, offset_el)
     class(fld_file_data_t), intent(inout) :: this

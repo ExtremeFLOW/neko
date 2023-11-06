@@ -35,8 +35,8 @@ module fluid_fctry
   use fluid_scheme, only : fluid_scheme_t
 !  use fluid_plan1, only : fluid_plan1_t
   use fluid_pnpn, only : fluid_pnpn_t    
+  use utils, only : neko_error
   use neko_config
-  use utils
   implicit none
 
 contains

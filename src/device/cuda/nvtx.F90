@@ -1,9 +1,10 @@
 !> Interface to NVTX
 module nvtx
-  use iso_c_binding
+  use, intrinsic :: iso_c_binding
   implicit none
+  private
 
-  integer, private, parameter :: NVTX_MAX_LEN = 256
+  integer, parameter :: NVTX_MAX_LEN = 256
 
 #ifdef HAVE_NVTX
   interface nvtxRangePushA
@@ -18,7 +19,8 @@ module nvtx
      end subroutine nvtxRangePop
   end interface nvtxRangePop
 
-
+  public :: nvtxStartRange, nvtxRangePushA, nvtxRangePop
+  
 contains
   
   subroutine nvtxStartRange(name)

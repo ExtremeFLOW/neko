@@ -38,18 +38,20 @@ module neko
   use logger
   use math
   use speclib
-  use dofmap
+  use dofmap, only : dofmap_t
   use space
   use htable
   use uset
   use stack
   use tuple
-  use mesh
-  use mesh_field
+  use mesh, only : mesh_t
+  use point
+  use mesh_field, only : mesh_fld_t
   use map
   use mxm_wrapper
+  use global_interpolation
   use file
-  use field
+  use field, only : field_t
   use mpi_types
   use gather_scatter
   use coefs
@@ -59,7 +61,6 @@ module neko
   use krylov_fctry
   use precon_fctry
   use ax_helm_fctry
-  use precon
   use ax_product
   use neko_config
   use case
@@ -74,16 +75,28 @@ module neko
   use signal
   use jobctrl
   use device
+  use device_math
   use cpr
   use fluid_stats
-  use field_list  
+  use field_list, only : field_list_t
+  use fluid_user_source_term
   use vector
+  use tensor
   use simulation_component
   use probes
+  use spectral_error_indicator
   use system
-  use field_registry, only : neko_field_registry    
+  use field_registry, only : neko_field_registry
   use scratch_registry, only : neko_scratch_registry
   use simulation_component_global, only : simcomps_global_init
+  use data_streamer
+  use time_interpolator
+  use point_interpolator, only : point_interpolator_t
+  use point_zone, only: point_zone_t
+  use box_point_zone, only: box_point_zone_t
+  use sphere_point_zone, only: sphere_point_zone_t
+  use point_zone_registry, only: neko_point_zone_registry
+  use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
 
@@ -107,8 +120,6 @@ contains
 
     call neko_log%init()
     call neko_field_registry%init()
-    
-    
 
     if (pe_rank .eq. 0) then
        write(*,*) ''

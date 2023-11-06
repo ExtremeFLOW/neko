@@ -32,7 +32,7 @@
 !
 !> Gradient kernels
 module cpu_opgrad
-  use num_types
+  use num_types, only : rp
   implicit none
 
 contains

@@ -35,7 +35,7 @@ module vector
   use neko_config
   use num_types
   use device
-  use device_math
+  use device_math, only : device_copy, device_cfill
   use utils
   use, intrinsic :: iso_c_binding
   implicit none

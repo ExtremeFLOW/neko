@@ -38,7 +38,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-20.04, macos-12]
+        os: [ubuntu-20.04, macos-13]
         compiler: [gfortran-10, gfortran-11, gfortran-12]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
@@ -49,17 +49,17 @@ jobs:
           compiler: gfortran-12
         - os: ubuntu-20.04
           backend: opencl
-        - os: macos-12
+        - os: macos-13
           compiler: gfortran-10
-        - os: macos-12
+        - os: macos-13
           backend: cuda
-        - os: macos-12
+        - os: macos-13
           backend: hip
         include:
         - os: ubuntu-20.04
           setup-env: |
             sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
-        - os: macos-12
+        - os: macos-13
           setup-env: brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
     env:
       FC: ${{ matrix.compiler }}
@@ -218,10 +218,7 @@ jobs:
         include:
         - os: ubuntu-20.04
           setup-env: |
-            cd /tmp && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-            sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-            sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" 
-            sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic 
+            wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list && sudo apt-get update -y && sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
             source /opt/intel/oneapi/setvars.sh
             sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
             printenv >> $GITHUB_ENV

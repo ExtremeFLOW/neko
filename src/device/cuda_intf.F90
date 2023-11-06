@@ -32,7 +32,7 @@
 !
 !> Fortran CUDA interface
 module cuda_intf
-  use utils
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   !$ use omp_lib
   implicit none

@@ -30,29 +30,41 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Routines to interpolate scalar/vector fields
+!> Routines to interpolate fields on a given element 
+!! on a point in that element with given r,s,t coordinates
 module point_interpolator
-  use tensor, only: triple_tensor_product
-  use coefs, only: coef_t
+  use tensor, only: triple_tensor_product, tnsr3d_el_list
   use space, only: space_t, GL, GLL
   use num_types, only: rp
   use point, only: point_t
   use math, only: abscmp
-  use fast3d, only: fd_weights_full
+  use fast3d, only: fd_weights_full, setup_intp
   use utils, only: neko_error
-
-  !> Field interpolator to artbitrary points within an element.
-  type :: point_interpolator_t
+  use field, only: field_t
+  use field_list, only: field_list_t
+  use device
+  use device_math, only: device_rzero
+  use neko_config, only: NEKO_BCKND_DEVICE
+  implicit none
+  private
+  
+  !> Field interpolator to arbitrary points within an element.
+  !! Tailored for experimentation, and convenience, not performance
+  !! Does all interpolation on the CPU.
+  !! Only considers one element
+  !! If performant interpolation on many elements is required
+  !! Look at local_interpolator_t, similar but with less functionality
+  type, public :: point_interpolator_t
      !> First space.
      type(space_t), pointer :: Xh => null()
-     !> Pointer to coefficients.
-     type(coef_t), pointer :: coef => null()
    contains
      !> Constructor.
      procedure, pass(this) :: init => point_interpolator_init
      !> Destructor.
      procedure, pass(this) :: free => point_interpolator_free
-     !> Interpolates a scalar field \f$ X \f on a set of points.
+     !> Computes interpolation weights \f$ w_r, w_s, w_t \f$ for a list of points.
+     procedure, pass(this) :: compute_weights => point_interpolator_compute_weights
+     !> Interpolates a scalar field \f$ X \f$ on a set of points.
      procedure, pass(this) :: point_interpolator_interpolate_scalar
      !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of points.
      procedure, pass(this) :: point_interpolator_interpolate_vector
@@ -72,18 +84,17 @@ module point_interpolator
 contains
 
   !> Initialization of point interpolation.
-  !! @param coef Coefficients.
-  subroutine point_interpolator_init(this, coef)
+  !! @param xh Function space.
+  subroutine point_interpolator_init(this, Xh)
     class(point_interpolator_t), intent(inout), target :: this
-    type(coef_t), intent(inout), target :: coef
+    type(space_t), intent(in), target :: Xh
 
-    if ((coef%xh%t .eq. GL) .or. (coef%xh%t .eq. GLL)) then
+    if ((Xh%t .eq. GL) .or. (Xh%t .eq. GLL)) then
     else
        call neko_error('Unsupported interpolation')
     end if
 
-    this%Xh => coef%xh
-    this%coef => coef
+    this%Xh => Xh
 
   end subroutine point_interpolator_init
 
@@ -91,16 +102,42 @@ contains
   subroutine point_interpolator_free(this)
     class(point_interpolator_t), intent(inout) :: this
 
-    if (associated(this%xh)) this%xh => null()
-    if (associated(this%coef)) this%coef => null()
+    if (associated(this%Xh)) this%Xh => null()
 
   end subroutine point_interpolator_free
+
+  !> Computes interpolation weights \f$ w_r, w_s, w_t \f$ for a
+  !! list of points.
+  !! @param r local r-coordinates.
+  !! @param s local s-coordinates.
+  !! @param t local t-coordinates.
+  !! @param wr Weights in the r-direction.
+  !! @param ws Weights in the s-direction.
+  !! @param wt Weights in the t-direction.
+  !! @note `wr`, `ws` and `wt` must be arrays of dimensions `(lx, N)` where `N`
+  !! is the number of points (size of the `r`,`s`,`t` arrays).
+  subroutine point_interpolator_compute_weights(this, r, s, t, wr, ws, wt)
+    class(point_interpolator_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: r(:), s(:), t(:)
+    real(kind=rp), intent(inout) :: wr(:,:), ws(:,:), wt(:,:)
+
+    integer :: N, i, lx
+    lx = this%Xh%lx
+    N = size(r)
+
+    do i = 1, N
+       call fd_weights_full(r(i), this%Xh%zg(:,1), lx-1, 0, wr(:,i))
+       call fd_weights_full(s(i), this%Xh%zg(:,2), lx-1, 0, ws(:,i))
+       call fd_weights_full(t(i), this%Xh%zg(:,3), lx-1, 0, wt(:,i))
+    end do
+
+  end subroutine point_interpolator_compute_weights
 
   !> Interpolates a scalar field \f$ X \f$ on a set of \f$ N \f$ points
   !! \f$ \mathbf{r}_i , i\in[1,N]\f$. Returns a vector of N coordinates
   !! \f$ [x_i(\mathbf{r}_i)], i\in[1,N]\f$.
   !! @param rst r,s,t coordinates.
-  !! @param X Values of the field \f$ X \f$ at GLL points.
+  !! @param X Values of the field \f$ X \f$ at GLL points in one element.
   function point_interpolator_interpolate_scalar(this, rst, X) result(res)
     class(point_interpolator_t), intent(in) :: this
     type(point_t), intent(in) :: rst(:)
@@ -116,14 +153,13 @@ contains
 
     N = size(rst)
     allocate(res(N))
+
     !
     ! Compute weights and perform interpolation for the first point
     !
-
     call fd_weights_full(real(rst(1)%x(1), rp), this%Xh%zg(:,1), lx-1, 0, hr)
     call fd_weights_full(real(rst(1)%x(2), rp), this%Xh%zg(:,2), ly-1, 0, hs)
     call fd_weights_full(real(rst(1)%x(3), rp), this%Xh%zg(:,3), lz-1, 0, ht)
-
 
     ! And interpolate!
     call triple_tensor_product(res(1),X,lx,hr,hs,ht)
@@ -160,9 +196,9 @@ contains
   !! \f$ \mathbf{r}_i \f$. Returns an array of N points
   !! \f$ [x(\mathbf{r}_i), y(\mathbf{r}_i), z(\mathbf{r}_i)], i\in[1,N]\f$.
   !! @param N number of points (use `1` to interpolate a scalar).
-  !! @param X Values of the field \f$ X \f$ at GLL points.
-  !! @param Y Values of the field \f$ Y \f$ at GLL points.
-  !! @param Z Values of the field \f$ Z \f$ at GLL points.
+  !! @param X Values of the field \f$ X \f$ at GLL points in one element.
+  !! @param Y Values of the field \f$ Y \f$ at GLL points in one element.
+  !! @param Z Values of the field \f$ Z \f$ at GLL points in one element.
   function point_interpolator_interpolate_vector(this, rst, X, Y, Z) result(res)
     class(point_interpolator_t), intent(in) :: this
     type(point_t), intent(in) :: rst(:)
@@ -175,10 +211,10 @@ contains
     real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
     integer :: lx,ly,lz, i
     integer :: N
-    lx = this%xh%lx
-    ly = this%xh%ly
-    lz = this%xh%lz
-    
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
+
     N = size(rst)
     allocate(res(N))
     allocate(tmp(3, N))
@@ -197,7 +233,7 @@ contains
        res(1)%x = tmp(:, 1)
        return
     end if
-    
+
 
     !
     ! Loop through the rest of the points
@@ -234,9 +270,9 @@ contains
   !! \f$ [x(\mathbf{r}_i), y(\mathbf{r}_i), z(\mathbf{r}_i)], i\in[1,N]\f$.
   !! @param jac Jacobian.
   !! @param rst r,s,t coordinates;
-  !! @param X Values of the field \f$ X \f$ at GLL points.
-  !! @param Y Values of the field \f$ Y \f$ at GLL points.
-  !! @param Z Values of the field \f$ Z \f$ at GLL points.
+  !! @param X Values of the field \f$ X \f$ at GLL points in one element.
+  !! @param Y Values of the field \f$ Y \f$ at GLL points in one element.
+  !! @param Z Values of the field \f$ Z \f$ at GLL points in one element.
   function point_interpolator_interpolate_vector_jacobian(this, jac, rst, X, Y, Z) result(res)
     class(point_interpolator_t), intent(in) :: this
     real(kind=rp), intent(inout) :: jac(3,3)
@@ -265,21 +301,23 @@ contains
     ! Interpolate
     !
     call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,1))
-    res%x = dble(tmp)! Cast from rp -> point_t dp 
+    res%x = dble(tmp)! Cast from rp -> point_t dp
 
     !
     ! Build jacobian
     !
 
     ! d(x,y,z)/dr
-    call triple_tensor_product(jac(1,:), X,Y,Z, lx, hr(:,2), hs(:,1), ht(:,1))
+    call triple_tensor_product(tmp, X,Y,Z, lx, hr(:,2), hs(:,1), ht(:,1))
+    jac(1,:) = tmp
 
     ! d(x,y,z)/ds
-    call triple_tensor_product(jac(2,:), X,Y,Z, lx, hr(:,1), hs(:,2), ht(:,1))
+    call triple_tensor_product(tmp, X,Y,Z, lx, hr(:,1), hs(:,2), ht(:,1))
+    jac(2,:) = tmp
 
     ! d(x,y,z)/dt
-    call triple_tensor_product(jac(3,:), X,Y,Z, lx, hr(:,1), hs(:,1), ht(:,2))
-
+    call triple_tensor_product(tmp, X,Y,Z, lx, hr(:,1), hs(:,1), ht(:,2))
+    jac(3,:) = tmp
 
   end function point_interpolator_interpolate_vector_jacobian
 
@@ -297,12 +335,13 @@ contains
     real(kind=rp), intent(inout) :: Z(this%Xh%lx, this%Xh%ly, this%Xh%lz)
 
     real(kind=rp) :: jac(3,3)
+    real(kind=rp) :: tmp(3)
 
     real(kind=rp) :: hr(this%Xh%lx, 2), hs(this%Xh%ly, 2), ht(this%Xh%lz, 2)
     integer :: lx, ly, lz
-    lx = this%xh%lx
-    ly = this%xh%ly
-    lz = this%xh%lz
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
 
     ! Weights
     call fd_weights_full(real(rst%x(1), rp), this%Xh%zg(:,1), lx-1, 1, hr)
@@ -310,13 +349,17 @@ contains
     call fd_weights_full(real(rst%x(3), rp), this%Xh%zg(:,3), lz-1, 1, ht)
 
     ! d(x,y,z)/dr
-    call triple_tensor_product(jac(1,:), X, Y, Z, lx, hr(:,2), hs(:,1), ht(:,1))
+    call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,2), hs(:,1), ht(:,1))
+    jac(1,:) = tmp
 
     ! d(x,y,z)/ds
-    call triple_tensor_product(jac(2,:), X, Y, Z, lx, hr(:,1), hs(:,2), ht(:,1))
+    call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,1), hs(:,2), ht(:,1))
+    jac(2,:) = tmp
 
     ! d(x,y,z)/dt
-    call triple_tensor_product(jac(3,:), X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,2))
+    call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,2))
+    jac(3,:) = tmp
+
   end function point_interpolator_interpolate_jacobian
 
 end module point_interpolator

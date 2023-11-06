@@ -65,13 +65,11 @@ contains
 
       call case%params%get_core(core)
       call case%params%get('case.simulation_components', simcomp_object, found)
-
       do i=1, n_simcomps
          ! Create a new json containing just the subdict for this simcomp
          call core%get_child(simcomp_object, i, comp_pointer, found)
          call core%print_to_string(comp_pointer, buffer)
          call comp_subdict%load_from_string(buffer)
-
          call simulation_component_factory(neko_simcomps(i)%simcomp, &
                                            comp_subdict, case) 
       end do

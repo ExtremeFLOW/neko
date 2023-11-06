@@ -36,7 +36,10 @@ module nmsh_file
   use comm
   use mesh
   use utils
+  use point
+  use tuple
   use nmsh
+  use element
   use datadist
   use mpi_types
   use mpi_f08
@@ -114,7 +117,7 @@ contains
     nelv = dist%num_local()
     element_offset = dist%start_idx()
     
-    call mesh_init(msh, gdim, nelv)
+    call msh%init(gdim, nelv)
    
     call neko_log%message('Reading elements')
 
@@ -128,7 +131,7 @@ contains
              p(j) = point_t(nmsh_quad(i)%v(j)%v_xyz, nmsh_quad(i)%v(j)%v_idx)
           end do
           ! swap vertices to keep symmetric vertex numbering in neko
-          call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
+          call msh%add_element(i, p(1), p(2), p(4), p(3))
        end do
        deallocate(nmsh_quad)
        mpi_el_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(dist%num_global(),i8) * int(nmsh_quad_size,i8)
@@ -142,7 +145,7 @@ contains
              p(j) = point_t(nmsh_hex(i)%v(j)%v_xyz, nmsh_hex(i)%v(j)%v_idx)
           end do
           ! swap vertices to keep symmetric vertex numbering in neko
-          call mesh_add_element(msh, i, &
+          call msh%add_element(i, &
                p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
        end do
        deallocate(nmsh_hex)
@@ -174,20 +177,20 @@ contains
              el_idx = el_idx - msh%offset_el
              select case(nmsh_zone(i)%type)
              case(1)
-                call mesh_mark_wall_facet(msh, nmsh_zone(i)%f, el_idx)
+                call msh%mark_wall_facet(nmsh_zone(i)%f, el_idx)
              case(2)
-                call mesh_mark_inlet_facet(msh, nmsh_zone(i)%f, el_idx)
+                call msh%mark_inlet_facet(nmsh_zone(i)%f, el_idx)
              case(3)
-                call mesh_mark_outlet_facet(msh, nmsh_zone(i)%f, el_idx)
+                call msh%mark_outlet_facet(nmsh_zone(i)%f, el_idx)
              case(4)
-                call mesh_mark_sympln_facet(msh, nmsh_zone(i)%f, el_idx)
+                call msh%mark_sympln_facet(nmsh_zone(i)%f, el_idx)
              case(5)
-                call mesh_mark_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
+                call msh%mark_periodic_facet(nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
              case(6)
-                call mesh_mark_outlet_normal_facet(msh, nmsh_zone(i)%f, el_idx)
+                call msh%mark_outlet_normal_facet(nmsh_zone(i)%f, el_idx)
              case(7)
-                call mesh_mark_labeled_facet(msh, nmsh_zone(i)%f, el_idx,nmsh_zone(i)%p_f)
+                call msh%mark_labeled_facet(nmsh_zone(i)%f, el_idx,nmsh_zone(i)%p_f)
              end select
           end if
        end do
@@ -199,7 +202,7 @@ contains
              el_idx = el_idx - msh%offset_el
              select case(nmsh_zone(i)%type)
              case(5)
-                call mesh_apply_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
+                call msh%apply_periodic_facet(nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
              end select
           end if
@@ -224,7 +227,8 @@ contains
           el_idx = nmsh_curve(i)%e - msh%offset_el
           if (el_idx .gt. 0 .and. &
               el_idx .le. msh%nelv) then             
-             call mesh_mark_curve_element(msh, el_idx, nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
+             call msh%mark_curve_element(el_idx, &
+                  nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
           end if
              
        end do
@@ -235,7 +239,7 @@ contains
     call MPI_File_close(fh, ierr)
     call neko_log%message('Mesh read, setting up connectivity')
 
-    call mesh_finalize(msh)
+    call msh%finalize()
     call neko_log%message('Done setting up mesh and connectivity')
     
     call neko_log%end_section()
@@ -284,7 +288,7 @@ contains
     nelv = dist%num_local()
     element_offset = dist%start_idx()
     
-    call mesh_init(msh, gdim, nelv)
+    call msh%init(gdim, nelv)
    
     allocate(nmsh_quad(msh%nelv))
     mpi_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(element_offset,i8) * int(nmsh_quad_size,i8)
@@ -303,7 +307,7 @@ contains
           p(j+4) = point_t(coord, id)
        end do
        ! swap vertices to keep symmetric vertex numbering in neko
-       call mesh_add_element(msh, i, &
+       call msh%add_element(i, &
             p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
     end do
     deallocate(nmsh_quad)
@@ -331,13 +335,13 @@ contains
              el_idx = el_idx - msh%offset_el
              select case(nmsh_zone(i)%type)
              case(1)
-                call mesh_mark_wall_facet(msh, nmsh_zone(i)%f, el_idx)
+                call msh%mark_wall_facet(nmsh_zone(i)%f, el_idx)
              case(2)
-                call mesh_mark_inlet_facet(msh, nmsh_zone(i)%f, el_idx)
+                call msh%mark_inlet_facet(nmsh_zone(i)%f, el_idx)
              case(3)
-                call mesh_mark_outlet_facet(msh, nmsh_zone(i)%f, el_idx)
+                call msh%mark_outlet_facet(nmsh_zone(i)%f, el_idx)
              case(4)
-                call mesh_mark_sympln_facet(msh, nmsh_zone(i)%f, el_idx)
+                call msh%mark_sympln_facet(nmsh_zone(i)%f, el_idx)
              case(5)
                 nmsh_zone(i)%glb_pt_ids(3) = nmsh_zone(i)%glb_pt_ids(1)+msh%glb_nelv*8
                 nmsh_zone(i)%glb_pt_ids(4) = nmsh_zone(i)%glb_pt_ids(2)+msh%glb_nelv*8
@@ -353,12 +357,12 @@ contains
                    ids(4) = nmsh_zone(i)%glb_pt_ids(3)
                 end if
                 nmsh_zone(i)%glb_pt_ids = ids
-                call mesh_mark_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
+                call msh%mark_periodic_facet(nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, ids)
              case(6)
-                call mesh_mark_outlet_normal_facet(msh, nmsh_zone(i)%f, el_idx)
+                call msh%mark_outlet_normal_facet(nmsh_zone(i)%f, el_idx)
              case(7)
-                call mesh_mark_labeled_facet(msh, nmsh_zone(i)%f, el_idx,nmsh_zone(i)%p_f)
+                call msh%mark_labeled_facet(nmsh_zone(i)%f, el_idx,nmsh_zone(i)%p_f)
              end select
           end if
        end do
@@ -370,7 +374,7 @@ contains
              el_idx = el_idx - msh%offset_el
              select case(nmsh_zone(i)%type)
              case(5)
-                call mesh_apply_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
+                call msh%apply_periodic_facet(nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
              end select
           end if
@@ -378,32 +382,34 @@ contains
        !Do the same for extruded 3d points
        do el_idx = 1, nelv
           call msh%elements(el_idx)%e%facet_order(glb_pt_ids,5)
-          call mesh_mark_periodic_facet(msh, 6, el_idx, &
+          call msh%mark_periodic_facet(6, el_idx, &
                5, el_idx, glb_pt_ids%x)
           call msh%elements(el_idx)%e%facet_order(glb_pt_ids,5)
-          call mesh_mark_periodic_facet(msh, 5, el_idx, &
+          call msh%mark_periodic_facet(5, el_idx, &
                6, el_idx, glb_pt_ids%x)
        end do
        do el_idx = 1, nelv
           call msh%elements(el_idx)%e%facet_order(glb_pt_ids,5)
-          call mesh_apply_periodic_facet(msh, 6, el_idx, &
+          call msh%apply_periodic_facet(6, el_idx, &
                5, el_idx, glb_pt_ids%x)
           call msh%elements(el_idx)%e%facet_order(glb_pt_ids,5)
-          call mesh_apply_periodic_facet(msh, 5, el_idx, &
+          call msh%apply_periodic_facet(5, el_idx, &
                6, el_idx, glb_pt_ids%x)
        end do
        
        deallocate(nmsh_zone)
     end if
 
-    mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
+    mpi_offset = mpi_el_offset + &
+         int(MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
     call MPI_File_read_at_all(fh, mpi_offset, &
          ncurves, 1, MPI_INTEGER, status, ierr)
 
     if (ncurves .gt. 0) then
        
        allocate(nmsh_curve(ncurves))
-       mpi_offset = mpi_el_offset + int(2*MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
+       mpi_offset = mpi_el_offset + &
+            int(2*MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, &
             nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
        
@@ -411,7 +417,8 @@ contains
           el_idx = nmsh_curve(i)%e - msh%offset_el
           if (el_idx .gt. 0 .and. &
               el_idx .le. msh%nelv) then             
-             call mesh_mark_curve_element(msh, el_idx, nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
+             call msh%mark_curve_element(el_idx, &
+                  nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
           end if
              
        end do
@@ -421,7 +428,7 @@ contains
 
     call MPI_File_close(fh, ierr)
 
-    call mesh_finalize(msh)
+    call msh%finalize()
     
     call neko_log%end_section()
        
@@ -474,7 +481,7 @@ contains
     call MPI_File_write_all(fh, nelgv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_write_all(fh, msh%gdim, 1, MPI_INTEGER, status, ierr)
 
-    call mesh_reset_periodic_ids(msh)
+    call msh%reset_periodic_ids()
 
     if (msh%gdim .eq. 2) then
        allocate(nmsh_quad(msh%nelv))       

@@ -6,6 +6,10 @@
     "output_boundary": true,
     "end_time": 250,
     "timestep": 2e-3,
+    "output_checkpoints": true,
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 50,
+    "job_timelimit": "12:00:00",
     "numerics": {
         "time_order": 3,
         "polynomial_order": 7,
@@ -13,12 +17,13 @@
     },
     "fluid": {
         "scheme": "pnpn",
-        "rho": 1,
-        "mu": 1,
-        "Re": 10000,
-        "source_term": {
-            "type": "user_vector"
-        },
+        "Ra": 1e8,
+        "source_terms": 
+        [
+            {
+                "type": "user_vector"
+            }
+        ],
         "initial_condition": {
             "type": "user"
         },
@@ -45,6 +50,17 @@
     "scalar": {
         "enabled": true,
         "Pr": 1.0
-    }
+    },
+    "simulation_components": 
+    [
+      {
+        "type": "probes",
+        "compute_control": "simulationtime",
+        "compute_value"    : 1,
+        "points_file":  "probes.csv",
+        "output_file":  "output.csv",
+        "fields": ["w","s"]
+       }
+     ]
 }
 }

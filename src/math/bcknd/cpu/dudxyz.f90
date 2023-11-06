@@ -32,8 +32,7 @@
 !
 !> Derivative kernels
 module cpu_dudxyz
-  use num_types
-  use math
+  use num_types, only : rp
   implicit none
 
 contains

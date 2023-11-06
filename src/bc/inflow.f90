@@ -34,8 +34,8 @@
 module inflow
   use device_inflow
   use num_types
-  use dirichlet
-  use, intrinsic :: iso_c_binding
+  use dirichlet, only : dirichlet_t
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
   implicit none
   private
   

@@ -34,7 +34,10 @@ module rhs_maker_device
   use rhs_maker
   use device
   use utils
-  use, intrinsic :: iso_c_binding
+  use field_series, only : field_series_t
+  use field, only : field_t
+  use num_types, only : rp, c_rp
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 

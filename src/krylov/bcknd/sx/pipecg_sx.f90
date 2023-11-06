@@ -34,7 +34,7 @@
 module pipecg_sx
   use krylov
   use math
-  use num_types
+  use comm
   implicit none
   private
   
@@ -168,7 +168,7 @@ contains
 
     call this%M%solve(this%u, this%r, n)
     call Ax%compute(this%w, this%u, coef, x%msh, x%Xh)
-    call gs_op(gs_h, this%w, n, GS_OP_ADD)
+    call gs_h%op(this%w, n, GS_OP_ADD)
     call bc_list_apply(blst, this%w, n)
     
     rtr = glsc3(this%r, coef%mult, this%r, n)
@@ -199,7 +199,7 @@ contains
        
        call this%M%solve(this%mi, this%w, n)
        call Ax%compute(this%ni, this%mi, coef, x%msh, x%Xh)
-       call gs_op(gs_h, this%ni, n, GS_OP_ADD)
+       call gs_h%op(this%ni, n, GS_OP_ADD)
        call bc_list_apply(blst, this%ni, n)
 
        call MPI_Wait(request, status, ierr)

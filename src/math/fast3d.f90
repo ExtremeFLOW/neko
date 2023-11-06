@@ -59,9 +59,9 @@
 !
 !> Fast diagonalization methods from NEKTON
 module fast3d
-  use num_types
+  use num_types, only : rp
   use speclib
-  use math
+  use math, only : rzero
   implicit none
   private
 

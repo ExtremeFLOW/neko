@@ -38,7 +38,6 @@ module scalar_scheme
   use neko_config
   use checkpoint
   use num_types
-  use source
   use source_scalar
   use field
   use space
@@ -50,12 +49,15 @@ module scalar_scheme
   use precon_fctry
   use bc
   use mesh
+  use facet_zone
   use time_scheme_controller
   use logger
   use field_registry
   use usr_scalar
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
+  use user_intf, only : user_t
+  use material_properties, only : material_properties_t
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -79,13 +81,16 @@ module scalar_scheme
      type(json_file), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
-     real(kind=rp) :: Re                !< Reynolds number.
-     real(kind=rp) :: Pr                !< Prandtl number.
-     real(kind=rp) :: rho               !< Density.
+     !> Thermal diffusivity.
+     real(kind=rp), pointer :: lambda
+     !> Density.
+     real(kind=rp), pointer :: rho
+     !> Specific heat capacity.
+     real(kind=rp), pointer :: cp
      !> Boundary condition labels (if any)
      character(len=20), allocatable :: bc_labels(:)
    contains
-     procedure, pass(this) :: scalar_scheme_init
+     procedure, pass(this) :: scheme_init => scalar_scheme_init
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      procedure, pass(this) :: validate => scalar_scheme_validate
      procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
@@ -94,22 +99,26 @@ module scalar_scheme
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      procedure(scalar_scheme_free_intrf), pass(this), deferred :: free
      procedure(scalar_scheme_step_intrf), pass(this), deferred :: step
-     generic :: scheme_init => scalar_scheme_init
   end type scalar_scheme_t
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user,&
+                                         material_properties)
        import scalar_scheme_t
        import json_file
        import coef_t
        import gs_t
        import mesh_t
+       import user_t
+       import material_properties_t
        class(scalar_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh       
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
+       type(user_t), target, intent(in) :: user
+       type(material_properties_t), intent(inout) :: material_properties
      end subroutine scalar_scheme_init_intrf
   end interface
 
@@ -143,7 +152,7 @@ contains
   !! currently dirichlet 'd=X' and 'user' supported
   subroutine scalar_scheme_add_bcs(this, zones, bc_labels) 
     class(scalar_scheme_t), intent(inout) :: this 
-    type(zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
+    type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
     character(len=20), intent(in) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     character(len=20) :: bc_label
     integer :: i, j, bc_idx
@@ -192,13 +201,17 @@ contains
   !! @param gs_Xh The gather-scatter.
   !! @param params The case parameter file in json.
   !! @param scheme The name of the scalar scheme.
-  subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme)
+  !! @param user Type with user-defined procedures.
+  subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme, user, &
+                                material_properties)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: c_Xh
     type(gs_t), target, intent(inout) :: gs_Xh
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
+    type(user_t), target, intent(in) :: user
+    type(material_properties_t), target,  intent(inout) :: material_properties
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
@@ -218,9 +231,19 @@ contains
     call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
                   solver_abstol)
 
-    call json_get(params, 'case.fluid.Re', this%Re)
-    call json_get(params, 'case.fluid.rho', this%rho)
-    call json_get(params, 'case.scalar.Pr', this%Pr)
+    !
+    ! Material properties
+    !
+    this%rho => material_properties%rho
+    this%lambda => material_properties%lambda
+    this%cp => material_properties%cp
+
+    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
+    call neko_log%message(log_buf)
 
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
                              this%ksp_maxiter, 800)

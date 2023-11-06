@@ -32,10 +32,10 @@
 !
 !> Defines a triangular element
 module tri
-  use num_types
-  use element
-  use tuple
-  use point
+  use num_types, only : dp
+  use element, only : element_t
+  use tuple, only : tuple_t, tuple_i4_t
+  use point, only : point_t
   implicit none
   private
 

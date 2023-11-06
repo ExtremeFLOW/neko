@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,14 +33,16 @@
 !> Defines a mean field
 !
 module mean_field
+  use neko_config
   use stats_quant
-  use num_types
-  use field
-  use math
-  use field_registry
+  use num_types, only : rp
+  use field, only : field_t
+  use math, only : add2s2
+  use device_math, only : device_cmult, device_add2s2
   implicit none
+  private
   
-  type, extends(stats_quant_t) ::  mean_field_t
+  type, public, extends(stats_quant_t) ::  mean_field_t
      type(field_t), pointer :: f => null()
      type(field_t) :: mf
      real(kind=rp) :: time
@@ -71,7 +73,7 @@ contains
        write(name, '(A,A)') 'mean_',trim(f%name)
     end if
 
-    call field_init(this%mf,f%dof, name)
+    call this%mf%init(f%dof, name)
 
   end subroutine mean_field_init
 
@@ -82,7 +84,7 @@ contains
     if (associated(this%f)) then
        nullify(this%f)
     end if
-    call field_free(this%mf)
+    call this%mf%free()
 
   end subroutine mean_field_free
 

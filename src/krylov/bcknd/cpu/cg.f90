@@ -34,7 +34,7 @@
 module cg
   use krylov
   use math
-  use num_types
+  use comm
   implicit none
   private
 
@@ -168,7 +168,7 @@ contains
          end do
        
          call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
-         call gs_op(gs_h, w, n, GS_OP_ADD)
+         call gs_h%op(w, n, GS_OP_ADD)
          call bc_list_apply(blst, w, n)
          
          pap = glsc3(w, coef%mult, p(1,p_cur), n)

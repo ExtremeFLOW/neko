@@ -241,7 +241,7 @@ contains
     end if
 
     call Ax%compute(this%bb(1,this%m), x, coef, coef%msh, coef%Xh)
-    call gs_op_vector(gs_h, this%bb(1,this%m), n, GS_OP_ADD)
+    call gs_h%gs_op_vector(this%bb(1,this%m), n, GS_OP_ADD)
     call bc_list_apply_scalar(bclst, this%bb(1,this%m), n)
 
     if (NEKO_BCKND_DEVICE .eq. 1)  then

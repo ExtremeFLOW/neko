@@ -31,10 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module ax_helm_device
-  use device_math
   use ax_product
-  use num_types
-  use, intrinsic :: iso_c_binding
+  use device_math, only : device_addcol4
+  use device, only : device_get_ptr
+  use num_types, only : rp
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
   

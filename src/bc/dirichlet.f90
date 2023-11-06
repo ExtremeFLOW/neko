@@ -34,8 +34,8 @@
 module dirichlet
   use device_dirichlet
   use num_types
-  use bc
-  use, intrinsic :: iso_c_binding
+  use bc, only : bc_t
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 

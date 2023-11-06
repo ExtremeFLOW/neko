@@ -36,6 +36,7 @@ module flow_ic
   use neko_config
   use flow_profile
   use device_math
+  use device
   use field
   use utils
   use coefs
@@ -119,9 +120,9 @@ contains
     end if
     
     ! Ensure continuity across elements for initial conditions
-    call gs_op(gs, u%x, u%dof%size(), GS_OP_ADD) 
-    call gs_op(gs, v%x, v%dof%size(), GS_OP_ADD) 
-    call gs_op(gs, w%x, w%dof%size(), GS_OP_ADD) 
+    call gs%op(u%x, u%dof%size(), GS_OP_ADD) 
+    call gs%op(v%x, v%dof%size(), GS_OP_ADD) 
+    call gs%op(w%x, w%dof%size(), GS_OP_ADD) 
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(u%x_d, coef%mult_d, u%dof%size())

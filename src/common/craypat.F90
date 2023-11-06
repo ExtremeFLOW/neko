@@ -1,10 +1,10 @@
 !> Interface to CrayPat F77 API
 module craypat
-  use iso_c_binding
-  use stack
-  use utils
+  use, intrinsic :: iso_c_binding
+  use stack, only : stack_i4_t
+  use utils, only : neko_error
   implicit none
-
+  
   type(stack_i4_t), private :: region_depth
   logical, private :: craypat_on = .false.
 #ifdef CRAYPAT

@@ -32,7 +32,7 @@
 !
 !> Fortran HIP interface
 module hip_intf
-  use utils
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
 

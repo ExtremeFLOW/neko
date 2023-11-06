@@ -39,7 +39,6 @@ module fluid_output
   use device
   use output
   implicit none
-  private
 
   !> Fluid output
   type, public, extends(output_t) :: fluid_output_t

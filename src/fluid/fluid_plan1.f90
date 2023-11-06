@@ -34,18 +34,18 @@ contains
     !> Setup pressure field and related space \f$ Yh \f$
     lx2 = lx - 2        
     if (msh%gdim .eq. 2) then
-       call space_init(this%Yh, GLL, lx2, lx2)
+       call this%Yh%init(GLL, lx2, lx2)
     else
-       call space_init(this%Yh, GLL, lx2, lx2, lx2)
+       call this%Yh%init(GLL, lx2, lx2, lx2)
     end if
 
     this%dm_Yh = dofmap_t(msh, this%Yh)
         
-    call field_init(this%p, this%dm_Yh)
+    call this%p%init(this%dm_Yh)
 
     call gs_init(this%gs_Yh, this%dm_Yh)
 
-    call coef_init(this%c_Yh, this%gs_Yh)
+    call this%c_Yh%init(this%gs_Yh)
     
     call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Yh%size(), &
          param%ksp_prs, param%abstol_prs)
@@ -66,7 +66,7 @@ contains
 
     call gs_free(this%gs_Yh)
 
-    call coef_free(this%c_Yh)
+    call this%c_Yh%free()
     
   end subroutine fluid_plan1_free
 

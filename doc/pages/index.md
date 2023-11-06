@@ -16,15 +16,21 @@ Technology.
 
 \subpage installation
 
+\subpage governing-equations
+
 \subpage case-file
 
 \subpage simcomps
+
+\subpage point-zones
 
 \subpage accelerators
 
 \subpage statistics-guide
 
 \subpage code-style
+ 
+\subpage dev_patterns
 
 \subpage testing
 

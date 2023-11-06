@@ -37,13 +37,12 @@ module symmetry
   use num_types
   use dirichlet
   use bc
-  use device
   use coefs
   use math
   use utils
   use stack
   use tuple
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 

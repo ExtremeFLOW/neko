@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,12 @@
 !
 !> Defines an output
 module output
-  use num_types
+  use num_types, only : rp
   use file, only : file_t
   implicit none
 
   !> Abstract type defining an output type
-  type, abstract :: output_t
+  type, public, abstract :: output_t
      type(file_t) :: file_
    contains
      procedure, pass(this) :: init => output_init

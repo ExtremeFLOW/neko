@@ -35,6 +35,8 @@
 module simulation_component_fctry
   use simulation_component, only : simulation_component_t
   use vorticity, only : vorticity_t
+  use lambda2, only : lambda2_t
+  use probes, only : probes_t
   use json_module, only : json_file
   use case, only : case_t
   use json_utils, only : json_get
@@ -57,6 +59,12 @@ module simulation_component_fctry
 
        if (trim(simcomp_type) .eq. "vorticity") then 
           allocate(vorticity_t::simcomp)
+       end if
+       if (trim(simcomp_type) .eq. "lambda2") then 
+          allocate(lambda2_t::simcomp)
+       end if
+       if (trim(simcomp_type) .eq. "probes") then 
+          allocate(probes_t::simcomp)
        end if
        
        ! Initialize

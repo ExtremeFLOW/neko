@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ contains
 
     do i = 1, this%len
        name = trim(f%name)//'_lag'//char(i)
-       call field_init(this%lf(i), f%dof, name)
+       call this%lf(i)%init(this%f%dof, name)
     end do
 
   end subroutine field_series_init
@@ -83,7 +83,7 @@ contains
     end if
 
     do i = 1, this%len
-       call field_free(this%lf(i))
+       call this%lf(i)%free()
     end do
     
   end subroutine field_series_free

@@ -36,9 +36,9 @@ module krylov
   use ax_product
   use num_types
   use precon
-  use coefs    
-  use mesh
-  use field
+  use coefs, only : coef_t
+  use mesh, only : mesh_t
+  use field, only :field_t
   use utils
   use bc
   use identity

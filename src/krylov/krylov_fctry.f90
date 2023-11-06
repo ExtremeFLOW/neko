@@ -31,20 +31,24 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module krylov_fctry
-  use cg
-  use cg_sx
-  use cg_device
-  use cacg
-  use pipecg
-  use pipecg_sx
-  use pipecg_device
-  use bicgstab
-  use gmres
-  use gmres_sx
-  use gmres_device
-  use krylov
+  use cg, only : cg_t
+  use cg_sx, only : sx_cg_t
+  use cg_device, only : cg_device_t
+  use cacg, only : cacg_t
+  use pipecg, only : pipecg_t
+  use pipecg_sx, only : sx_pipecg_t
+  use pipecg_device, only : pipecg_device_t
+  use bicgstab, only : bicgstab_t
+  use gmres, only : gmres_t
+  use gmres_sx, only : sx_gmres_t
+  use gmres_device, only : gmres_device_t
+  use num_Types, only : rp
+  use krylov, only : ksp_t, ksp_monitor_t, pc_t
+  use utils, only : neko_error
   use neko_config
   implicit none
+
+  public :: krylov_solver_factory, krylov_solver_destroy
 
 contains
 

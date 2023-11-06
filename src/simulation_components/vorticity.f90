@@ -38,7 +38,7 @@ module vorticity
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
-  use field, only : field_t, field_free, field_init
+  use field, only : field_t
   use operators, only : curl
   use case, only : case_t
   implicit none
@@ -112,16 +112,16 @@ module vorticity
        this%omega_y => neko_field_registry%get_field_by_name("omega_y")
        this%omega_z => neko_field_registry%get_field_by_name("omega_z")
 
-       call field_init(this%temp1, this%u%dof)
-       call field_init(this%temp2, this%u%dof)
+       call this%temp1%init(this%u%dof)
+       call this%temp2%init(this%u%dof)
   end subroutine vorticity_init_from_attributes
 
   !> Destructor.
   subroutine vorticity_free(this)
        class(vorticity_t), intent(inout) :: this
        call this%free_base()
-       call field_free(this%temp1)
-       call field_free(this%temp2)
+       call this%temp1%free()
+       call this%temp2%free()
   end subroutine vorticity_free
 
   !> Compute the vorticity field.

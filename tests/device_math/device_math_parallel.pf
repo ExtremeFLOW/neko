@@ -6,6 +6,7 @@ module device_math_parallel
   use device_math  
   use neko_config
   use num_types
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
   @TestCase
@@ -47,7 +48,7 @@ contains
        
        call device_rzero(a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(0.0_rp, a(i), tolerance=NEKO_EPS)
@@ -61,7 +62,7 @@ contains
        
        call device_rzero(a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(0.0_rp, a(i), tolerance=NEKO_EPS)
@@ -86,7 +87,7 @@ contains
        
        call device_rone(a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(1.0_rp, a(i), tolerance=NEKO_EPS)
@@ -100,7 +101,7 @@ contains
        
        call device_rone(a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(1.0_rp, a(i), tolerance=NEKO_EPS)
@@ -135,7 +136,7 @@ contains
        call device_copy(b_d, a_d, n)
        
        call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
-       call device_memcpy(b, b_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(b, b_d, size(a), DEVICE_TO_HOST, sync=.true.)
     
        do i = 1, n
           @assertEqual(a(i), b(i))
@@ -161,7 +162,7 @@ contains
        
        call device_cfill(a_d, c, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i), tolerance=NEKO_EPS)
@@ -188,7 +189,7 @@ contains
        
        call device_cadd(a_d, c, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i), tolerance=NEKO_EPS)
@@ -221,7 +222,7 @@ contains
        
        call device_add2(a_d, b_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i))
@@ -254,7 +255,7 @@ contains
        
        call device_add2s1(a_d, b_d, c1, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i))
@@ -287,7 +288,7 @@ contains
        
        call device_add2s2(a_d, b_d, c1, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
 
        do i = 1, n
           @assertEqual(24.0_rp, a(i))
@@ -325,7 +326,7 @@ contains
        
        call device_add3s2(a_d, b_d, c_d, c1, c2, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
 
        do i = 1, n
           @assertEqual(84.0_rp, a(i))
@@ -353,7 +354,7 @@ contains
        
        call device_invcol1(a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(0.5_rp, a(i))
@@ -385,7 +386,7 @@ contains
        
        call device_invcol2(a_d, b_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(10.5_rp, a(i))
@@ -417,7 +418,7 @@ contains
        
        call device_col2(a_d, b_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i))
@@ -453,7 +454,7 @@ contains
        
        call device_col3(a_d, b_d, c_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i))
@@ -485,7 +486,7 @@ contains
        
        call device_sub2(a_d, b_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i))
@@ -521,7 +522,7 @@ contains
        
        call device_sub3(a_d, b_d, c_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(-19.0_rp, a(i))
@@ -557,7 +558,7 @@ contains
        
        call device_addcol3(a_d, b_d, c_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(4711.0_rp, a(i))
@@ -597,7 +598,7 @@ contains
        
        call device_addcol4(a_d, b_d, c_d, d_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(4711.0_rp, a(i))

@@ -59,13 +59,13 @@
 !
 !> Operators libxsmm backend
 module opr_xsmm
-  use num_types
+  use num_types, only : rp
   use mxm_wrapper
-  use space
-  use coefs
+  use space, only : space_t
+  use coefs, only : coef_t
   use math
-  use mesh
-  use field
+  use mesh, only : mesh_t
+  use field, only : field_t
   use gather_scatter
   use mathops
 #ifdef HAVE_LIBXSMM
@@ -395,9 +395,9 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
-    call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w1, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w2, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w3, GS_OP_ADD) 
     call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
 
   end subroutine opr_xsmm_curl

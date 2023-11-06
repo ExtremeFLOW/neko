@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,12 @@
 !
 !> Defines a sampler 
 module sampler
-  use num_types
   use output
   use comm
   use logger
-  use utils
+  use utils, only : neko_error
   use profiler
+  use num_types, only : rp, dp
   use time_based_controller, only : time_based_controller_t
   implicit none
   private

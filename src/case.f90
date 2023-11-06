@@ -59,6 +59,8 @@ module case
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
+  use point_zone_registry, only: neko_point_zone_registry
+  use material_properties, only : material_properties_t
   implicit none
   
   type :: case_t
@@ -79,6 +81,7 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar 
+     type(material_properties_t):: material_properties
   end type case_t
 
   interface case_init
@@ -186,6 +189,12 @@ contains
     !
     call C%usr%init()
     call C%usr%user_mesh_setup(C%msh)
+
+
+    !
+    ! Material properties
+    !
+    call C%material_properties%init(C%params, C%usr)
     
     !
     ! Setup fluid scheme
@@ -195,13 +204,18 @@ contains
 
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get poly order
-    call C%fluid%init(C%msh, lx, C%params)
+    call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
 
     
     !
     ! Setup scratch registry
     !
     neko_scratch_registry = scratch_registry_t(C%fluid%dm_Xh, 10, 10)
+
+    !
+    ! Initialize point_zones registry
+    !
+    call neko_point_zone_registry%init(C%params, C%fluid%u%dof)
 
     !
     ! Setup scalar scheme
@@ -214,7 +228,8 @@ contains
 
     if (scalar) then
        allocate(C%scalar)
-       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
+       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
+                          C%material_properties)
        call C%fluid%chkp%add_scalar(C%scalar%s)
     end if
 
@@ -229,24 +244,6 @@ contains
        end if
     end if
     
-    !
-    ! Setup source term
-    ! 
-    logical_val = C%params%valid_path('case.fluid.source_term')
-    call json_get_or_default(C%params, 'case.fluid.source_term.type',&
-                             string_val, 'noforce')
-
-    if (.not. logical_val .or. trim(string_val) .eq. 'noforce') then
-       call C%fluid%set_source(trim(string_val))
-    else
-       if (trim(string_val) .eq. 'user') then
-          call C%fluid%set_source(trim(string_val), usr_f=C%usr%fluid_user_f)
-       else if (trim(string_val) .eq. 'user_vector') then
-          call C%fluid%set_source(trim(string_val), &
-               usr_f_vec=C%usr%fluid_user_f_vector)
-       end if
-    end if
-
     ! Setup source term for the scalar
     ! @todo should be expanded for user sources etc. Now copies the fluid one
     if (scalar) then
@@ -465,7 +462,7 @@ contains
        deallocate(C%scalar)
     end if
 
-    call mesh_free(C%msh)
+    call C%msh%free()
 
     call C%s%free()
 

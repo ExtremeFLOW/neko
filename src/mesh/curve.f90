@@ -1,10 +1,10 @@
 !> Defines a domain as a subset of facets in a mesh
 module curve
-  use stack
+  use num_types, only : dp
+  use structs, only :struct_curve_t
+  use stack, only : stack_curve_t
   use utils
-  use structs
-  use point
-  use hex
+
   implicit none
   private
 

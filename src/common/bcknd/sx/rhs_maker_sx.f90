@@ -1,5 +1,8 @@
 module rhs_maker_sx
   use rhs_maker
+  use field_series, only : field_series_t
+  use field, only : field_t
+  use num_types, only : rp, c_rp
   use scratch_registry, only : neko_scratch_registry
   implicit none
   private
