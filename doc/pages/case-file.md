@@ -54,7 +54,7 @@ The three following options are possible.
 4. `never`, then `_value` is ignored and output is never performed.
 
 
-## The `case` object 
+## The case object 
 
 This object is mostly used as a high-level container for all the other objects,
 but also defines several parameters that pertain to the simulation as a whole.
