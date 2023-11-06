@@ -69,7 +69,7 @@ contains
     call neko_log%message(log_buf)
     write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
     call neko_log%message(log_buf)
-    
+
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
        call simulation_restart(C, t)
