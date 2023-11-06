@@ -130,12 +130,12 @@ contains
          end do
        end if
 
-       call C%usr%user_check(t, tstep,&
-            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
-
        call C%q%eval(t, C%dt, tstep)
        call C%s%sample(t, tstep)
          
+       call C%usr%user_check(t, tstep,&
+            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+
        call neko_log%end_section()
        
        call neko_log%end()
