@@ -326,7 +326,6 @@ if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
-		    contrib/gmsh2nek/Makefile\
 		    contrib/average_fields_in_time/Makefile\
 		    contrib/postprocess_fluid_stats/Makefile\
 		    contrib/average_field_in_space/Makefile\
