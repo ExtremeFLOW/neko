@@ -34,7 +34,6 @@
 module sphere_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use dofmap, only: dofmap_t
   use json_utils, only: json_get
   use json_module, only: json_file
   use math, only: abscmp
@@ -64,10 +63,10 @@ contains
   !> Constructor from json object file.
   !! @param json Json object file.
   !! @param dof Dofmap from which to map the zone.
-  subroutine sphere_point_zone_init_from_json(this, json, dof)
+  subroutine sphere_point_zone_init_from_json(this, json, size)
     class(sphere_point_zone_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(dofmap_t), intent(inout) :: dof
+    integer, intent(in) :: size
 
     character(len=:), allocatable :: str_read
     real(kind=rp), allocatable :: values(:)
@@ -82,12 +81,8 @@ contains
     radius = value
     call json_get(json, "name", str_read)
 
-    call sphere_point_zone_init_common(this, dof%size(), trim(str_read), x0, &
+    call sphere_point_zone_init_common(this, size, trim(str_read), x0, &
          y0, z0, radius)
-
-    call this%map(dof)
-
-    call this%finalize()
 
   end subroutine sphere_point_zone_init_from_json
   

@@ -68,7 +68,10 @@ module point_zone_fctry
               &source terms are 'box', 'sphere'.")
       end if
 
-      call point_zone%init(json, dof)
+      call point_zone%init(json, dof%size())
+
+      call point_zone%map(dof)
+      call point_zone%finalize()
 
     end subroutine point_zone_factory
 

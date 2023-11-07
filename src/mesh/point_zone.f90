@@ -110,14 +110,13 @@ module point_zone
   abstract interface
      !> The common constructor using a JSON object.
      !! @param json Json object for the point zone.
-     !! @param dof Dofmap of all GLL points from which to map the point zone.
-     subroutine point_zone_init(this, json, dof)
+     subroutine point_zone_init(this, json, size)
        import :: point_zone_t
        import :: json_file
        import :: dofmap_t
        class(point_zone_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
-       type(dofmap_t), intent(inout) :: dof
+       integer, intent(in) :: size
      end subroutine point_zone_init
   end interface
 

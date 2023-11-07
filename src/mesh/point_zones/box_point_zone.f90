@@ -34,7 +34,6 @@
 module box_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use dofmap, only: dofmap_t
   use json_utils, only: json_get
   use json_module, only: json_file
   use math, only: abscmp
@@ -66,10 +65,10 @@ contains
   !> Constructor from json object file.
   !! @param json Json object file.
   !! @param dof Dofmap from which to map the zone.
-  subroutine box_point_zone_init_from_json(this, json, dof)
+  subroutine box_point_zone_init_from_json(this, json, size)
     class(box_point_zone_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(dofmap_t), intent(inout) :: dof
+    integer, intent(in) :: size
 
     character(len=:), allocatable :: str_read
     real(kind=rp), allocatable :: values(:)
@@ -86,12 +85,8 @@ contains
     zmax = values(2)
     call json_get(json, "name", str_read)
 
-    call box_point_zone_init_common(this, dof%size(), trim(str_read), xmin, &
+    call box_point_zone_init_common(this, size, trim(str_read), xmin, &
          xmax, ymin, ymax, zmin, zmax)
-
-    call this%map(dof)
-
-    call this%finalize()
 
   end subroutine box_point_zone_init_from_json
 
