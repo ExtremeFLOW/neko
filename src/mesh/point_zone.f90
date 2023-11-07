@@ -110,6 +110,7 @@ module point_zone
   abstract interface
      !> The common constructor using a JSON object.
      !! @param json Json object for the point zone.
+     !! @param size Size with which to initialize the stack
      subroutine point_zone_init(this, json, size)
        import :: point_zone_t
        import :: json_file

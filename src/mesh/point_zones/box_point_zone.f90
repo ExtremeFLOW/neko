@@ -64,7 +64,7 @@ contains
 
   !> Constructor from json object file.
   !! @param json Json object file.
-  !! @param dof Dofmap from which to map the zone.
+  !! @param size Size with which to initialize the stack
   subroutine box_point_zone_init_from_json(this, json, size)
     class(box_point_zone_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
