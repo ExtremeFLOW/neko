@@ -4,6 +4,10 @@ Neko can be installed in various ways, either building directly from source, man
 
 ## Building from source
 
+To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are gslib and ParMETIS. 
+
+Follow the steps below to install the less common dependencies (e.g. JSON-Fortran).
+
 ### Dependencies
 
 #### Building JSON Fortran 
@@ -81,6 +85,86 @@ $ make -j$(nproc) && make install
 #### Bulding PFunit (optional)
 
 To build the PFunit testing framework, please refers to the \subpage testing page
+
+### Building Neko
+Neko uses autotools as its builds ystem. The first step is to run the `configure` script, located in the top directory.
+
+``` shell
+<path-to-neko>/configure FC=<Fortran compiler> CC=<C compiler> \
+                         MPIFC=<MPI Fortran compiler> MPICC=<MPI C ompiler> \
+                         FCFLAGS=<Fortran compiler flags> CFLAGS=<C compiler flags> \
+                         --prefix=<installation path> [options]
+```
+
+Options refers to either optional features or packages. 
+
+Features are enabled and disabled by passing either `--enable-FEATURE[=arg]` or `--disable-FEATURE` to `configure`. A list of currently supported features are given in the table below.
+
+Name                  |  Description
+----                  | ------------
+`--enable-real=Xp`    | Specify working precision of REAL types:<br>`sp` -- `REAL(kind=4)`<br>`dp` -- `REAL(kind=8)` (default)<br>`qp` -- `REAL(kind=16)`<br>
+`--enable-contrib`    | Compile various tools
+`--enable-device-mpi` | Enable device aware MPI
+
+Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--without-PACKAGE` to `configure`. A list of all supported optional packages are given in the table below.
+
+Name                            | Description
+----                            | -----------
+`--with-blas=<lib>`             | Use BLAS library `<lib>`
+`--with-lapack=<lib>`           | Use LAPACK library `<lib>`
+`--with-metis=DIR`              | Directory for metis
+`--with-metis-libdir=LIBDIR`    | Directory for metis library (if different)
+`--with-parmetis=DIR`           | Compile with support for parmetis library
+`--with-parmetis-libdir=LIBDIR` | Directory for parmetis library (if different)
+`--with-adios2=DIR`             | Compile with support for ADIOS2
+`--with-gslib=DIR`              | Compile with support for gslib
+`--with-libxsmm`                | Compile with support for libxsmm
+`--with-hip=DIR`                | Compile with HIP backend
+`--with-cuda=DIR`               | Compile with CUDA backend
+`--with-opencl=DIR`             | Compile with OpenCL backend
+`--with-nvtx=DIR`               | Compile with support for NVTX
+`--with-roctx=DIR`              | Compile with support for ROCTX
+`--with-pfunit=DIR`             | Directory for pFUnit (see \subpage testing)   
+
+@note Accelerators backends are not enabled as a feature in Neko, but rather via optional packages.
+
+Once configured, to compile and install Neko issue `make` followed by `make install`
+
+#### Compiling Neko for CPU or SX-Aurora
+
+For a standard CPU or SX-Aurora build of Neko, simply run the `configure` script as given above, using appropriate compilers and compiler flags, e.g:
+
+```shell
+$ ./configure FC=gfortran FCFLAGS="-O2 -pedantic -std=f2008" --prefix=/opt/pkg/neko 
+$ make && make install
+```
+
+#### Compiling Neko for NVIDIA GPUs
+To compile Neko for NVIDIA GPUs
+* Make sure you have the CUDA Toolkit installed (e.g. `nvidia-cuda-toolkit`)
+* Configure Neko to use CUDA using the `--with-cuda=/path/to/cuda` argument to `configure`, e.g.:
+```shell
+$ ./configure  --with-cuda=/usr/local/cuda
+```
+* CUDA compiler flags and options can be passed using `CUDA_CFLAGS`, `CUDA_ARCH` and `NVCC` respectively, e.g:
+```shell
+$ ./configure  --with-cuda=/usr/local/cuda CUDA_CFLAGS=-O3  CUDA_ARCH=-arch=sm_80 NVCC=/usr/local/cuda/bin/nvcc
+```
+* Build using `make && make install`    
+
+#### Compiling Neko for AMD GPUs
+To compile Neko for AMD GPUs
+* Make sure you have the ROCm Toolkit installed
+* Configure Neko to use HIP using the `--with-hip=/path/to/hip` argument to `configure`, e.g.:
+```shell
+$ ./configure  --with-hip=/opt/rocm/hip
+```
+* HIP compiler flags and options can be passed using HIP_HIPCC_FLAGS and HIPCC, respectively, e.g.:
+```shell
+$ ./configure  --with-hip=/opt/rocm/hip HIP_HIPCC_FLAGS=-O3  HIPCC=/opt/rocm/hip/bin/hipcc
+```
+
+@note More examples, and instructions for specific machines can be found on Neko's [user discussions](https://github.com/ExtremeFLOW/neko/discussions) pages.
 
 ## Installing via Spack
 Neko is distributed as part of the package manager Spack as `neko`. The package can install releases of Neko as well as the latest commit to the `develop` branch, for most of Neko's supported backends. For a list of all supported variants, see `spack info neko`
