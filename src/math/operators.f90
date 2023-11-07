@@ -234,18 +234,27 @@ contains
     
   end function cfl
   
-  !> Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i
+  !> Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i.
   !! Similar to comp_sij in Nek5000.
-  subroutine strain_rate(s11, s22, s33, s12, s13, s23, &
-                         u, v, w, coef)
-    type(field_t), intent(in) :: u, v, w !< velocity components
+  !! @param s11 The xx component of the strain rate.
+  !! @param s22 The yy component of the strain rate.
+  !! @param s33 The zz component of the strain rate.
+  !! @param s12 The xy component of the strain rate.
+  !! @param s13 The xz component of the strain rate.
+  !! @param s23 The yz component of the strain rate.
+  !! @param u The x component of the velocity field.
+  !! @param v The y component of the velocity field.
+  !! @param w The z component of the velocity field.
+  !! @param coef The SEM coefficients.
+  subroutine strain_rate(s11, s22, s33, s12, s13, s23, u, v, w, coef)
+    type(field_t), intent(in) :: u, v, w
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: s11(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s22(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s33(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s12(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
-    real(kind=rp), intent(inout) :: s23(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s13(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s23(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     
     type(c_ptr) :: s11_d, s22_d, s33_d, s12_d, s23_d, s13_d
     
