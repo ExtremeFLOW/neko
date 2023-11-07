@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,33 +30,39 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Krylov solver
+!> Implements the base abstract type for Krylov solvers plus helper types.
 module krylov
-  use gather_scatter
-  use ax_product
-  use num_types
-  use precon
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use ax_product, only : ax_t
+  use num_types, only: rp, c_rp
+  use precon,  only : pc_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
-  use field, only :field_t
-  use utils
-  use bc
-  use identity
-  use device_identity
+  use field, only : field_t
+  use utils, only : neko_error, neko_warning
+  use bc, only : bc_list_t, bc_list_apply_vector, bc_list_apply_scalar, &
+                 bc_list_apply
+  use identity, only : ident_t
+  use device_identity, only : device_ident_t
   use neko_config
   implicit none
+  private
 
   integer, public, parameter :: KSP_MAX_ITER = 1e4 !< Maximum number of iters.
   real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
+  !> Type for storing initial and final residuals in a Krylov solver.
   type, public :: ksp_monitor_t
+    !> Iteration number.
     integer :: iter
+    !> Initial residual.
     real(kind=rp) :: res_start
+    !> FInal residual
     real(kind=rp) :: res_final
   end type ksp_monitor_t
 
-  !> Base type for a canonical Krylov method, solving \f$ Ax = f \f$
+  !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
   type, public, abstract :: ksp_t
      class(pc_t), pointer :: M => null() !< Preconditioner
      real(kind=rp) :: rel_tol            !< Relative tolerance
@@ -115,6 +121,9 @@ module krylov
 contains
 
   !> Create a krylov solver
+  !! @param rel_tol Relative tolarance for converence.
+  !! @param rel_tol Absolute tolarance for converence.
+  !! @param M The preconditioner.
   subroutine krylov_init(this, rel_tol, abs_tol, M)    
     class(ksp_t), target, intent(inout) :: this
     real(kind=rp), optional, intent(in) :: rel_tol
@@ -158,7 +167,8 @@ contains
 
   end subroutine krylov_free
 
-  !> Setup a Krylov solvers preconditioners
+  !> Setup a Krylov solver's preconditioner.
+  !! @param M The preconditioner.
   subroutine krylov_set_pc(this, M)
     class(ksp_t), intent(inout) :: this
     class(pc_t), target, intent(in) :: M
