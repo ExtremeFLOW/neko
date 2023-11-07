@@ -31,12 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module pnpn_res_device
-  use gather_scatter
+  use gather_scatter, only : gs_t, GS_OP_ADD
   use operators
-  use field
-  use ax_product
-  use coefs
-  use facet_normal
+  use field, only : field_t
+  use ax_product, only : ax_t
+  use coefs, only : coef_t
+  use facet_normal, only : facet_normal_t
+  use mesh, only : mesh_t
+  use num_types, only : rp, c_rp
+  use space, only : space_t
   use device_math
   use device_mathops
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t

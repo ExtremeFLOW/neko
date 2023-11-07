@@ -32,15 +32,16 @@
 !
 !> Defines a Matrix-vector product
 module ax_product
-  use num_types
-  use coefs
-  use space
-  use field
-  use mesh
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use space, only : space_t
+  use field, only : field_t
+  use mesh, only : mesh_t
   implicit none
+  private
 
   !> Base type for a matrix-vector product providing \f$ Ax \f$
-  type, abstract :: ax_t
+  type, public, abstract :: ax_t
    contains
      procedure(ax_compute), nopass, deferred :: compute
   end type ax_t
