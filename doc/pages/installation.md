@@ -87,7 +87,7 @@ $ make -j$(nproc) && make install
 To build the PFunit testing framework, please refers to the \subpage testing page
 
 ### Building Neko
-Neko uses autotools as its builds ystem. The first step is to run the `configure` script, located in the top directory.
+Neko uses autotools as its build system. The first step is to run the `configure` script, located in the top directory.
 
 ``` shell
 <path-to-neko>/configure FC=<Fortran compiler> CC=<C compiler> \
