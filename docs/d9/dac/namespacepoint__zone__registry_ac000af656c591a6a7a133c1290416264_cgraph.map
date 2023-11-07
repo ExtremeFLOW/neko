@@ -1,0 +1,4 @@
+<map id="point_zone_registry::add_point_zone_from_json" name="point_zone_registry::add_point_zone_from_json">
+<area shape="rect" id="node1" title="Adds a point zone object to the registry from a json object." alt="" coords="5,5,209,47"/>
+<area shape="rect" id="node2" href="$df/deb/namespacepoint__zone__fctry.html#a1f5a6202e14f2b8bef64e0159d68b70b" title="Point zone factory. Constructs, initializes, and maps the point zone object." alt="" coords="257,5,428,47"/>
+</map>

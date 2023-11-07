@@ -46,6 +46,9 @@ var annotated_dup =
     [ "blasius", "de/da4/namespaceblasius.html", [
       [ "blasius_t", "d0/dca/structblasius_1_1blasius__t.html", "d0/dca/structblasius_1_1blasius__t" ]
     ] ],
+    [ "box_point_zone", "d0/d03/namespacebox__point__zone.html", [
+      [ "box_point_zone_t", "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html", "d4/d0c/structbox__point__zone_1_1box__point__zone__t" ]
+    ] ],
     [ "cacg", "d2/d10/namespacecacg.html", [
       [ "cacg_t", "de/d56/structcacg_1_1cacg__t.html", "de/d56/structcacg_1_1cacg__t" ]
     ] ],
@@ -239,6 +242,10 @@ var annotated_dup =
     ] ],
     [ "facet_normal", "d4/d86/namespacefacet__normal.html", [
       [ "facet_normal_t", "d1/d1e/structfacet__normal_1_1facet__normal__t.html", "d1/d1e/structfacet__normal_1_1facet__normal__t" ]
+    ] ],
+    [ "facet_zone", "df/db1/namespacefacet__zone.html", [
+      [ "facet_zone_t", "d2/d94/structfacet__zone_1_1facet__zone__t.html", "d2/d94/structfacet__zone_1_1facet__zone__t" ],
+      [ "facet_zone_periodic_t", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t" ]
     ] ],
     [ "fdm", "d3/d4c/namespacefdm.html", [
       [ "fdm_t", "de/d85/structfdm_1_1fdm__t.html", "de/d85/structfdm_1_1fdm__t" ],
@@ -447,6 +454,9 @@ var annotated_dup =
     [ "lambda2", "d0/d66/namespacelambda2.html", [
       [ "lambda2_t", "d6/db3/structlambda2_1_1lambda2__t.html", "d6/db3/structlambda2_1_1lambda2__t" ]
     ] ],
+    [ "local_interpolation", "da/d80/namespacelocal__interpolation.html", [
+      [ "local_interpolator_t", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html", "d4/df5/structlocal__interpolation_1_1local__interpolator__t" ]
+    ] ],
     [ "logger", "d8/da0/namespacelogger.html", [
       [ "log_t", "d0/d7b/structlogger_1_1log__t.html", "d0/d7b/structlogger_1_1log__t" ]
     ] ],
@@ -595,6 +605,16 @@ var annotated_dup =
     [ "point_interpolator", "df/d77/namespacepoint__interpolator.html", [
       [ "point_interpolator_t", "d6/d23/structpoint__interpolator_1_1point__interpolator__t.html", "d6/d23/structpoint__interpolator_1_1point__interpolator__t" ]
     ] ],
+    [ "point_zone", "dc/d5f/namespacepoint__zone.html", [
+      [ "point_zone_t", "d6/d13/structpoint__zone_1_1point__zone__t.html", "d6/d13/structpoint__zone_1_1point__zone__t" ],
+      [ "point_zone_wrapper_t", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t" ],
+      [ "point_zone_criterion", "d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html", "d7/dc6/interfacepoint__zone_1_1point__zone__criterion" ],
+      [ "point_zone_init", "d3/d1e/interfacepoint__zone_1_1point__zone__init.html", "d3/d1e/interfacepoint__zone_1_1point__zone__init" ],
+      [ "point_zone_free", "dc/d4e/interfacepoint__zone_1_1point__zone__free.html", "dc/d4e/interfacepoint__zone_1_1point__zone__free" ]
+    ] ],
+    [ "point_zone_registry", "d9/dac/namespacepoint__zone__registry.html", [
+      [ "point_zone_registry_t", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t" ]
+    ] ],
     [ "precon", "d0/dbb/namespaceprecon.html", [
       [ "pc_t", "d7/d3a/structprecon_1_1pc__t.html", "d7/d3a/structprecon_1_1pc__t" ],
       [ "pc_solve", "df/db4/interfaceprecon_1_1pc__solve.html", "df/db4/interfaceprecon_1_1pc__solve" ],
@@ -726,6 +746,9 @@ var annotated_dup =
     ] ],
     [ "spectral_error_indicator", "d9/de6/namespacespectral__error__indicator.html", [
       [ "spectral_error_indicator_t", "dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html", "dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t" ]
+    ] ],
+    [ "sphere_point_zone", "d9/dfe/namespacesphere__point__zone.html", [
+      [ "sphere_point_zone_t", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t" ]
     ] ],
     [ "stack", "d9/d30/namespacestack.html", [
       [ "stack_t", "d2/dbd/structstack_1_1stack__t.html", "d2/dbd/structstack_1_1stack__t" ],
@@ -862,9 +885,5 @@ var annotated_dup =
     ] ],
     [ "wall", "da/dd2/namespacewall.html", [
       [ "no_slip_wall_t", "dd/d9d/structwall_1_1no__slip__wall__t.html", "dd/d9d/structwall_1_1no__slip__wall__t" ]
-    ] ],
-    [ "zone", "d9/d63/namespacezone.html", [
-      [ "zone_t", "d7/dda/structzone_1_1zone__t.html", "d7/dda/structzone_1_1zone__t" ],
-      [ "zone_periodic_t", "dc/d98/structzone_1_1zone__periodic__t.html", "dc/d98/structzone_1_1zone__periodic__t" ]
     ] ]
 ];

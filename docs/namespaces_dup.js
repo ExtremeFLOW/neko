@@ -14,6 +14,7 @@ var namespaces_dup =
     [ "bdf_time_scheme", "d4/db4/namespacebdf__time__scheme.html", "d4/db4/namespacebdf__time__scheme" ],
     [ "bicgstab", "dd/d2f/namespacebicgstab.html", "dd/d2f/namespacebicgstab" ],
     [ "blasius", "de/da4/namespaceblasius.html", "de/da4/namespaceblasius" ],
+    [ "box_point_zone", "d0/d03/namespacebox__point__zone.html", "d0/d03/namespacebox__point__zone" ],
     [ "cacg", "d2/d10/namespacecacg.html", "d2/d10/namespacecacg" ],
     [ "case", "dd/da8/namespacecase.html", "dd/da8/namespacecase" ],
     [ "cg", "d9/df6/namespacecg.html", "d9/df6/namespacecg" ],
@@ -133,6 +134,7 @@ var namespaces_dup =
     [ "entity", "db/de9/namespaceentity.html", "db/de9/namespaceentity" ],
     [ "ext_time_scheme", "d2/d75/namespaceext__time__scheme.html", "d2/d75/namespaceext__time__scheme" ],
     [ "facet_normal", "d4/d86/namespacefacet__normal.html", "d4/d86/namespacefacet__normal" ],
+    [ "facet_zone", "df/db1/namespacefacet__zone.html", "df/db1/namespacefacet__zone" ],
     [ "fast3d", "dc/d5b/namespacefast3d.html", [
       [ "fd_weights_full", "dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4", null ],
       [ "semhat", "dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4", null ],
@@ -222,6 +224,7 @@ var namespaces_dup =
       [ "krylov_solver_factory", "d9/d77/namespacekrylov__fctry.html#a9fb7f0fdf5835de7960b8337b8085098", null ]
     ] ],
     [ "lambda2", "d0/d66/namespacelambda2.html", "d0/d66/namespacelambda2" ],
+    [ "local_interpolation", "da/d80/namespacelocal__interpolation.html", "da/d80/namespacelocal__interpolation" ],
     [ "logger", "d8/da0/namespacelogger.html", "d8/da0/namespacelogger" ],
     [ "map", "d3/dca/namespacemap.html", "d3/dca/namespacemap" ],
     [ "map_file", "dc/da2/namespacemap__file.html", "dc/da2/namespacemap__file" ],
@@ -402,6 +405,11 @@ var namespaces_dup =
     [ "pnpn_residual", "db/dea/namespacepnpn__residual.html", "db/dea/namespacepnpn__residual" ],
     [ "point", "d8/dbc/namespacepoint.html", "d8/dbc/namespacepoint" ],
     [ "point_interpolator", "df/d77/namespacepoint__interpolator.html", "df/d77/namespacepoint__interpolator" ],
+    [ "point_zone", "dc/d5f/namespacepoint__zone.html", "dc/d5f/namespacepoint__zone" ],
+    [ "point_zone_fctry", "df/deb/namespacepoint__zone__fctry.html", [
+      [ "point_zone_factory", "df/deb/namespacepoint__zone__fctry.html#a1f5a6202e14f2b8bef64e0159d68b70b", null ]
+    ] ],
+    [ "point_zone_registry", "d9/dac/namespacepoint__zone__registry.html", "d9/dac/namespacepoint__zone__registry" ],
     [ "precon", "d0/dbb/namespaceprecon.html", "d0/dbb/namespaceprecon" ],
     [ "precon_fctry", "dc/d51/namespaceprecon__fctry.html", [
       [ "precon_destroy", "dc/d51/namespaceprecon__fctry.html#a18ffcb1756eab1b82266908473cf1f99", null ],
@@ -508,6 +516,7 @@ var namespaces_dup =
       [ "zwgll", "dd/df0/namespacespeclib.html#a179445887767b2f79644d8831c0aaa4a", null ]
     ] ],
     [ "spectral_error_indicator", "d9/de6/namespacespectral__error__indicator.html", "d9/de6/namespacespectral__error__indicator" ],
+    [ "sphere_point_zone", "d9/dfe/namespacesphere__point__zone.html", "d9/dfe/namespacesphere__point__zone" ],
     [ "stack", "d9/d30/namespacestack.html", "d9/d30/namespacestack" ],
     [ "stats", "d4/de4/namespacestats.html", "d4/de4/namespacestats" ],
     [ "stats_quant", "dc/d65/namespacestats__quant.html", "dc/d65/namespacestats__quant" ],
@@ -663,6 +672,5 @@ var namespaces_dup =
     [ "vector", "d7/d34/namespacevector.html", "d7/d34/namespacevector" ],
     [ "vorticity", "dd/de3/namespacevorticity.html", "dd/de3/namespacevorticity" ],
     [ "vtk_file", "da/d92/namespacevtk__file.html", "da/d92/namespacevtk__file" ],
-    [ "wall", "da/dd2/namespacewall.html", "da/dd2/namespacewall" ],
-    [ "zone", "d9/d63/namespacezone.html", "d9/d63/namespacezone" ]
+    [ "wall", "da/dd2/namespacewall.html", "da/dd2/namespacewall" ]
 ];

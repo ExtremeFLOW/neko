@@ -1,6 +1,6 @@
 <map id="hsmg::hsmg_init" name="hsmg::hsmg_init">
 <area shape="rect" id="node1" title=" " alt="" coords="5,181,136,207"/>
-<area shape="rect" id="node2" href="$d8/dbc/namespaceax__helm__fctry.html#a752579c6d570903a2f38dd01a98a0807" title=" " alt="" coords="184,5,363,47"/>
+<area shape="rect" id="node2" href="$d8/dbc/namespaceax__helm__fctry.html#a752579c6d570903a2f38dd01a98a0807" title="Factory routine for the a Helmholtz problem matrix&#45;vector product. The selection is based on the comp..." alt="" coords="184,5,363,47"/>
 <area shape="rect" id="node3" href="$d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="214,71,333,98"/>
 <area shape="rect" id="node4" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="216,122,331,149"/>
 <area shape="rect" id="node6" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="193,173,353,215"/>

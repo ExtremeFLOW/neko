@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['lambda2_4739',['lambda2',['../d0/d66/namespacelambda2.html',1,'']]],
-  ['logger_4740',['logger',['../d8/da0/namespacelogger.html',1,'']]]
+  ['lambda2_4827',['lambda2',['../d0/d66/namespacelambda2.html',1,'']]],
+  ['local_5finterpolation_4828',['local_interpolation',['../da/d80/namespacelocal__interpolation.html',1,'']]],
+  ['logger_4829',['logger',['../d8/da0/namespacelogger.html',1,'']]]
 ];

@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -138,7 +138,7 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d3/d8f/namespacecomm.html">comm</a></div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../db/dfc/namespacemesh.html">mesh</a></div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d7/d48/namespacenmsh.html">nmsh</a></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d9/d63/namespacezone.html">zone</a></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/db1/namespacefacet__zone.html">facet_zone</a></div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d6/d0d/namespaceelement.html">element</a></div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keywordtype">private</span></div>
@@ -459,7 +459,7 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160; </div>
 <div class="line"><a name="l00366"></a><span class="lineno"><a class="line" href="../../db/dbb/namespaceredist.html#a95ec995daa3e10e200586e964ec37700">  366</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../db/dbb/namespaceredist.html#a95ec995daa3e10e200586e964ec37700">redist_zone</a>(msh, z, type, parts, new_dist, label)</div>
 <div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: msh</div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dda/structzone_1_1zone__t.html">zone_t</a>), <span class="keywordtype">intent(in)</span> :: z</div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html">facet_zone_t</a>), <span class="keywordtype">intent(in)</span> :: z</div>
 <div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: type</div>
 <div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d6/db2/structmesh__field_1_1mesh__fld__t.html">mesh_fld_t</a>), <span class="keywordtype">intent(in)</span> :: parts</div>
 <div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d6/d71/structstack_1_1stack__nz__t.html">stack_nz_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">allocatable</span> :: new_dist(:)</div>
@@ -474,7 +474,7 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;<span class="keywordflow">    end if</span></div>
 <div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;    </div>
 <div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;    <span class="keywordflow">select type</span>(zp =&gt; z)</div>
-<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../dc/d98/structzone_1_1zone__periodic__t.html">zone_periodic_t</a>)</div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html">facet_zone_periodic_t</a>)</div>
 <div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;       <span class="keywordflow">do</span> i = 1, zp%size</div>
 <div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;          zone_el =  zp%facet_el(i)%x(2)</div>
 <div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;          nmsh_zone%e = zp%facet_el(i)%x(2) + msh%offset_el</div>
@@ -485,7 +485,7 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;          nmsh_zone%type = <span class="keyword">type</span>          </div>
 <div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;          <span class="keyword">call </span>new_dist(parts%data(zone_el))%push(nmsh_zone)</div>
 <div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../d7/dda/structzone_1_1zone__t.html">zone_t</a>)</div>
+<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html">facet_zone_t</a>)</div>
 <div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;       <span class="keywordflow">do</span> i = 1, zp%size</div>
 <div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;          zone_el =  zp%facet_el(i)%x(2)</div>
 <div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;          nmsh_zone%e = zp%facet_el(i)%x(2) + msh%offset_el</div>
@@ -522,6 +522,7 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="ttc" id="anamespacecomm_html_a9f1fdc8cde3d5bdd6af8db18fc60fa44"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a9f1fdc8cde3d5bdd6af8db18fc60fa44">comm::pe_size</a></div><div class="ttdeci">integer pe_size</div><div class="ttdoc">MPI size of communicator.</div><div class="ttdef"><b>Definition:</b> <a href="../../d1/db1/comm_8F90_source.html#l00029">comm.F90:29</a></div></div>
 <div class="ttc" id="anamespacecurve_html"><div class="ttname"><a href="../../d0/d69/namespacecurve.html">curve</a></div><div class="ttdoc">Defines a domain as a subset of facets in a mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/dfc/curve_8f90_source.html#l00002">curve.f90:2</a></div></div>
 <div class="ttc" id="anamespaceelement_html"><div class="ttname"><a href="../../d6/d0d/namespaceelement.html">element</a></div><div class="ttdef"><b>Definition:</b> <a href="../../de/d31/element_8f90_source.html#l00033">element.f90:33</a></div></div>
+<div class="ttc" id="anamespacefacet__zone_html"><div class="ttname"><a href="../../df/db1/namespacefacet__zone.html">facet_zone</a></div><div class="ttdoc">Defines a zone as a subset of facets in a mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/dd2/facet__zone_8f90_source.html#l00034">facet_zone.f90:34</a></div></div>
 <div class="ttc" id="anamespacehtable_html"><div class="ttname"><a href="../../dc/df5/namespacehtable.html">htable</a></div><div class="ttdoc">Implements a hash table ADT.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/ddc/htable_8f90_source.html#l00036">htable.f90:36</a></div></div>
 <div class="ttc" id="anamespacemesh__field_html"><div class="ttname"><a href="../../da/dc3/namespacemesh__field.html">mesh_field</a></div><div class="ttdoc">Defines a mesh field.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d3c/mesh__field_8f90_source.html#l00035">mesh_field.f90:35</a></div></div>
 <div class="ttc" id="anamespacemesh_html"><div class="ttname"><a href="../../db/dfc/namespacemesh.html">mesh</a></div><div class="ttdoc">Defines a mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d0a/mesh_8f90_source.html#l00034">mesh.f90:34</a></div></div>
@@ -537,9 +538,10 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="ttc" id="anamespaceredist_html_a95ec995daa3e10e200586e964ec37700"><div class="ttname"><a href="../../db/dbb/namespaceredist.html#a95ec995daa3e10e200586e964ec37700">redist::redist_zone</a></div><div class="ttdeci">subroutine redist_zone(msh, z, type, parts, new_dist, label)</div><div class="ttdoc">Fill redistribution list for zone data.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d0d/redist_8f90_source.html#l00366">redist.f90:367</a></div></div>
 <div class="ttc" id="anamespaceredist_html_ae07ae81a5fb1331996356b54d531fa72"><div class="ttname"><a href="../../db/dbb/namespaceredist.html#ae07ae81a5fb1331996356b54d531fa72">redist::redist_curve</a></div><div class="ttdeci">subroutine redist_curve(msh, c, parts, new_dist)</div><div class="ttdoc">Fill redistribution list for zone data.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d0d/redist_8f90_source.html#l00407">redist.f90:408</a></div></div>
 <div class="ttc" id="anamespacestack_html"><div class="ttname"><a href="../../d9/d30/namespacestack.html">stack</a></div><div class="ttdoc">Implements a dynamic stack ADT.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/de6/stack_8f90_source.html#l00035">stack.f90:35</a></div></div>
-<div class="ttc" id="anamespacezone_html"><div class="ttname"><a href="../../d9/d63/namespacezone.html">zone</a></div><div class="ttdoc">Defines a zone as a subset of facets in a mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d5f/zone_8f90_source.html#l00034">zone.f90:34</a></div></div>
 <div class="ttc" id="astructcurve_1_1curve__t_html"><div class="ttname"><a href="../../dd/d69/structcurve_1_1curve__t.html">curve::curve_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d2/dfc/curve_8f90_source.html#l00012">curve.f90:12</a></div></div>
 <div class="ttc" id="astructelement_1_1element__t_html"><div class="ttname"><a href="../../d7/dd6/structelement_1_1element__t.html">element::element_t</a></div><div class="ttdoc">Base type for an element.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d31/element_8f90_source.html#l00044">element.f90:44</a></div></div>
+<div class="ttc" id="astructfacet__zone_1_1facet__zone__periodic__t_html"><div class="ttname"><a href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html">facet_zone::facet_zone_periodic_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d2/dd2/facet__zone_8f90_source.html#l00053">facet_zone.f90:53</a></div></div>
+<div class="ttc" id="astructfacet__zone_1_1facet__zone__t_html"><div class="ttname"><a href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html">facet_zone::facet_zone_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d2/dd2/facet__zone_8f90_source.html#l00041">facet_zone.f90:41</a></div></div>
 <div class="ttc" id="astructhtable_1_1htable__i4__t_html"><div class="ttname"><a href="../../db/d4d/structhtable_1_1htable__i4__t.html">htable::htable_i4_t</a></div><div class="ttdoc">Integer based hash table.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/ddc/htable_8f90_source.html#l00082">htable.f90:82</a></div></div>
 <div class="ttc" id="astructmesh_1_1mesh__t_html"><div class="ttname"><a href="../../d7/d28/structmesh_1_1mesh__t.html">mesh::mesh_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../de/d0a/mesh_8f90_source.html#l00060">mesh.f90:60</a></div></div>
 <div class="ttc" id="astructmesh__field_1_1mesh__fld__t_html"><div class="ttname"><a href="../../d6/db2/structmesh__field_1_1mesh__fld__t.html">mesh_field::mesh_fld_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../de/d3c/mesh__field_8f90_source.html#l00041">mesh_field.f90:41</a></div></div>
@@ -551,8 +553,6 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div class="ttc" id="astructstack_1_1stack__nc__t_html"><div class="ttname"><a href="../../dd/da0/structstack_1_1stack__nc__t.html">stack::stack_nc_t</a></div><div class="ttdoc">Neko curve info based stack.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/de6/stack_8f90_source.html#l00139">stack.f90:139</a></div></div>
 <div class="ttc" id="astructstack_1_1stack__nh__t_html"><div class="ttname"><a href="../../de/d19/structstack_1_1stack__nh__t.html">stack::stack_nh_t</a></div><div class="ttdoc">Neko hex element based stack.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/de6/stack_8f90_source.html#l00125">stack.f90:125</a></div></div>
 <div class="ttc" id="astructstack_1_1stack__nz__t_html"><div class="ttname"><a href="../../d6/d71/structstack_1_1stack__nz__t.html">stack::stack_nz_t</a></div><div class="ttdoc">Neko zone based stack.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/de6/stack_8f90_source.html#l00132">stack.f90:132</a></div></div>
-<div class="ttc" id="astructzone_1_1zone__periodic__t_html"><div class="ttname"><a href="../../dc/d98/structzone_1_1zone__periodic__t.html">zone::zone_periodic_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d5f/zone_8f90_source.html#l00053">zone.f90:53</a></div></div>
-<div class="ttc" id="astructzone_1_1zone__t_html"><div class="ttname"><a href="../../d7/dda/structzone_1_1zone__t.html">zone::zone_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d5f/zone_8f90_source.html#l00041">zone.f90:41</a></div></div>
 <div class="ttc" id="atensor_8cu_html_affe776513b24d84b39af8ab0930fef7f"><div class="ttname"><a href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a></div><div class="ttdeci">#define max(a, b)</div><div class="ttdef"><b>Definition:</b> <a href="../../d9/d0b/tensor_8cu_source.html#l00040">tensor.cu:40</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -560,7 +560,7 @@ $(document).ready(function(){initNavTree('d3/d0d/redist_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d0537398ec3fe72d8d4f5c6709d28acc.html">comm</a></li><li class="navelem"><a class="el" href="../../d3/d0d/redist_8f90.html">redist.f90</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -211,9 +211,10 @@ $(document).ready(function(){initNavTree('functions_s.html',''); initResizable()
 </li>
 <li>scratch
 : <a class="el" href="dd/d69/structcurve_1_1curve__t.html#ad212a379ec874a0a72a7d02ee94ce2f7">curve::curve_t</a>
+, <a class="el" href="d2/d94/structfacet__zone_1_1facet__zone__t.html#a169ea70a5c8cd40a19aeb90926082035">facet_zone::facet_zone_t</a>
 , <a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a12cfc524116d1dcd5e9a6506f7fbc2d7">fluid_scheme::fluid_scheme_t</a>
 , <a class="el" href="d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#a89d34ad0fc6cba7e956ad485665c0b96">fluid_volflow::fluid_volflow_t</a>
-, <a class="el" href="d7/dda/structzone_1_1zone__t.html#aca4621917d709928e522ee98876a5e24">zone::zone_t</a>
+, <a class="el" href="d6/d13/structpoint__zone_1_1point__zone__t.html#a4a648d9b6d2c23e6149567b974dc306a">point_zone::point_zone_t</a>
 </li>
 <li>section()
 : <a class="el" href="d0/d7b/structlogger_1_1log__t.html#a8e8a21257fcceb233e1b74cfc47b188d">logger::log_t</a>
@@ -233,6 +234,9 @@ $(document).ready(function(){initNavTree('functions_s.html',''); initResizable()
 </li>
 <li>send_pe
 : <a class="el" href="d5/d1c/structgs__comm_1_1gs__comm__t.html#a922bae84686dc75a7487fedf8544704a">gs_comm::gs_comm_t</a>
+</li>
+<li>seq_io
+: <a class="el" href="d7/dd3/structprobes_1_1probes__t.html#a5fba59b72e41c46907a1a19e3bed2cf3">probes::probes_t</a>
 </li>
 <li>seri_elr
 : <a class="el" href="dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a97f25f920ad650373f043e07701268db">spectral_error_indicator::spectral_error_indicator_t</a>
@@ -329,8 +333,8 @@ $(document).ready(function(){initNavTree('functions_s.html',''); initResizable()
 <li>set_vars()
 : <a class="el" href="d0/d88/structdong__outflow_1_1dong__outflow__t.html#a43b4e9070fc0879f1545298f5173421a">dong_outflow::dong_outflow_t</a>
 </li>
-<li>setup()
-: <a class="el" href="d7/dd3/structprobes_1_1probes__t.html#ad55113077b28ce2673830019df2d7654">probes::probes_t</a>
+<li>setup_offset()
+: <a class="el" href="d7/dd3/structprobes_1_1probes__t.html#a2f979e7dde0fc330bd39a6a74e4b24a7">probes::probes_t</a>
 </li>
 <li>shared_blk_len
 : <a class="el" href="dd/db8/structgather__scatter_1_1gs__t.html#a7c4eb92e844c1c1a23ebf38e5ff8eb9f">gather_scatter::gs_t</a>
@@ -389,9 +393,6 @@ $(document).ready(function(){initNavTree('functions_s.html',''); initResizable()
 <li>shared_wrk
 : <a class="el" href="db/d5b/structgs__sx_1_1gs__sx__t.html#a74adefae4eb0207baf84df3ce903f3de">gs_sx::gs_sx_t</a>
 </li>
-<li>show()
-: <a class="el" href="d7/dd3/structprobes_1_1probes__t.html#a7d9ff65c9d9536e7636689010010bba9">probes::probes_t</a>
-</li>
 <li>sig_u
 : <a class="el" href="dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#ab2370ef2271030994679b99abbf94f84">spectral_error_indicator::spectral_error_indicator_t</a>
 </li>
@@ -435,10 +436,12 @@ $(document).ready(function(){initNavTree('functions_s.html',''); initResizable()
 : <a class="el" href="d8/dd8/structbc_1_1bc__list__t.html#a1f4264c67da69ace7374a8e68d0880c5">bc::bc_list_t</a>
 , <a class="el" href="dd/d69/structcurve_1_1curve__t.html#a929f280cfa6505d9d48dd2c6ad27d25b">curve::curve_t</a>
 , <a class="el" href="d0/df0/structdofmap_1_1dofmap__t.html#ab2d3e1cd8cf04ce17467432e3c241849">dofmap::dofmap_t</a>
+, <a class="el" href="d2/d94/structfacet__zone_1_1facet__zone__t.html#abf16f2a1998ddc3f77a21feb3c59bc03">facet_zone::facet_zone_t</a>
 , <a class="el" href="d1/d6e/structfield__series_1_1field__series__t.html#aa3799b26d34f8402a28f8af638b9b38b">field_series::field_series_t</a>
 , <a class="el" href="db/da1/structfld__file__data_1_1fld__file__data__t.html#a307b4ccf24cb0fdfe3dd64882f7fc634">fld_file_data::fld_file_data_t</a>
 , <a class="el" href="d0/d2e/structhtable_1_1htable__t.html#a94370069f1191d8a0873af756ff471b7">htable::htable_t</a>
 , <a class="el" href="da/d95/structmatrix_1_1matrix__t.html#ad8c3290f31a445d0aeb128ff891510be">matrix::matrix_t</a>
+, <a class="el" href="d6/d13/structpoint__zone_1_1point__zone__t.html#a3b3e2210b38d6577561a7ff877a43325">point_zone::point_zone_t</a>
 , <a class="el" href="de/de8/structsampler_1_1sampler__t.html#a2e8ec3b0a56c51732df9255476184ecc">sampler::sampler_t</a>
 , <a class="el" href="d2/dbd/structstack_1_1stack__t.html#a8f26a017dc71f6225f4237de61007132">stack::stack_t</a>
 , <a class="el" href="d5/dff/structstats_1_1stats__t.html#a3d4ea0faed9650bcf645be42709fdd8e">stats::stats_t</a>
@@ -447,7 +450,6 @@ $(document).ready(function(){initNavTree('functions_s.html',''); initResizable()
 , <a class="el" href="d3/d19/structuset_1_1uset__r8__t.html#ae7bda95f312e28ed5ea085ee8ec201e0">uset::uset_r8_t</a>
 , <a class="el" href="d8/d9e/structuset_1_1uset__t.html#adbf7a86018d7243d686eae89f191122d">uset::uset_t</a>
 , <a class="el" href="d3/d5b/structvector_1_1vector__t.html#a3af7ec14cdab86750ff91242dea402ff">vector::vector_t</a>
-, <a class="el" href="d7/dda/structzone_1_1zone__t.html#aa3a3ed96b703892412c3c91d7bdd50b0">zone::zone_t</a>
 </li>
 <li>size_
 : <a class="el" href="d2/dbd/structstack_1_1stack__t.html#a8e6aa3301709211c1aad295879cb0e28">stack::stack_t</a>
@@ -572,7 +574,7 @@ $(document).ready(function(){initNavTree('functions_s.html',''); initResizable()
 : <a class="el" href="de/d85/structfdm_1_1fdm__t.html#a0eb2a6ca9d998a61f6d05d6dd00a343f">fdm::fdm_t</a>
 </li>
 <li>sympln
-: <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a9ba24195d5ede076c798c429dab9e329">mesh::mesh_t</a>
+: <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a96f7b0087fcd546f6a4d674f8e91fb06">mesh::mesh_t</a>
 </li>
 <li>sync_device()
 : <a class="el" href="d9/d88/structcheckpoint_1_1chkp__t.html#ac8640f2c7ed20aac20ae16a29a0723e4">checkpoint::chkp_t</a>
@@ -589,7 +591,7 @@ $(document).ready(function(){initNavTree('functions_s.html',''); initResizable()
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -275,38 +275,39 @@ $(document).ready(function(){initNavTree('d4/d6f/field__registry_8f90_source.htm
 <div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordtype">logical</span> :: found</div>
 <div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160; </div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <span class="keywordflow">do</span> i=1, this%n_fields()</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;       <span class="keywordflow">if</span> (this%fields(i)%name == name) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;          f =&gt; this%fields(i)</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;          found = .true.</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;          <span class="keywordflow">exit</span></div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160; </div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keywordflow">if</span> (.not. found) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Field &quot;</span> // name // &amp;</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;            <span class="stringliteral">&quot; could not be found in the registry&quot;</span>)</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d1/dc4/namespacefield__registry.html#aecce2a1da9ad053088cfbae139d9e2c3">get_field_by_name</a></div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160; </div>
-<div class="line"><a name="l00210"></a><span class="lineno"><a class="line" href="../../d1/dc4/namespacefield__registry.html#aa10c2573f49356e66e3eeb2075ffc979">  210</a></span>&#160;  <span class="keyword">function </span><a class="code" href="../../d1/dc4/namespacefield__registry.html#aa10c2573f49356e66e3eeb2075ffc979">field_exists</a>(this, name) <span class="keyword">result</span>(found)</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../dd/d96/structfield__registry_1_1field__registry__t.html">field_registry_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> ::name </div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    <span class="keywordtype">logical</span> :: found</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160; </div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    found = .false.</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <span class="keywordflow">do</span> i=1, this%n_fields()</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;       <span class="keywordflow">if</span> (this%fields(i)%name == name) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;          found = .true.</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;          <span class="keywordflow">exit</span></div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d1/dc4/namespacefield__registry.html#aa10c2573f49356e66e3eeb2075ffc979">field_exists</a></div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160; </div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    found = .false.</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keywordflow">do</span> i=1, this%n_fields()</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;       <span class="keywordflow">if</span> (this%fields(i)%name == name) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;          f =&gt; this%fields(i)</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;          found = .true.</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;          <span class="keywordflow">exit</span></div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160; </div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <span class="keywordflow">if</span> (.not. found) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Field &quot;</span> // name // &amp;</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;            <span class="stringliteral">&quot; could not be found in the registry&quot;</span>)</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d1/dc4/namespacefield__registry.html#aecce2a1da9ad053088cfbae139d9e2c3">get_field_by_name</a></div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160; </div>
+<div class="line"><a name="l00211"></a><span class="lineno"><a class="line" href="../../d1/dc4/namespacefield__registry.html#aa10c2573f49356e66e3eeb2075ffc979">  211</a></span>&#160;  <span class="keyword">function </span><a class="code" href="../../d1/dc4/namespacefield__registry.html#aa10c2573f49356e66e3eeb2075ffc979">field_exists</a>(this, name) <span class="keyword">result</span>(found)</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../dd/d96/structfield__registry_1_1field__registry__t.html">field_registry_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> ::name </div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <span class="keywordtype">logical</span> :: found</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160; </div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    found = .false.</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="keywordflow">do</span> i=1, this%n_fields()</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;       <span class="keywordflow">if</span> (this%fields(i)%name == name) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;          found = .true.</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;          <span class="keywordflow">exit</span></div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d1/dc4/namespacefield__registry.html#aa10c2573f49356e66e3eeb2075ffc979">field_exists</a></div>
 <div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160; </div>
 <div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160; </div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d1/dc4/namespacefield__registry.html">field_registry</a></div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160; </div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d1/dc4/namespacefield__registry.html">field_registry</a></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00040">utils.f90:40</a></div></div>
 <div class="ttc" id="anamespacedofmap_html"><div class="ttname"><a href="../../dd/dd2/namespacedofmap.html">dofmap</a></div><div class="ttdoc">Defines a mapping of the degrees of freedom.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00035">dofmap.f90:35</a></div></div>
 <div class="ttc" id="anamespacefield__registry_html"><div class="ttname"><a href="../../d1/dc4/namespacefield__registry.html">field_registry</a></div><div class="ttdoc">Defines a registry for storing solution fields.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d6f/field__registry_8f90_source.html#l00035">field_registry.f90:35</a></div></div>
@@ -317,7 +318,7 @@ $(document).ready(function(){initNavTree('d4/d6f/field__registry_8f90_source.htm
 <div class="ttc" id="anamespacefield__registry_html_a6722b2b3dba13aaff3bf5222aecbb643"><div class="ttname"><a href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">field_registry::neko_field_registry</a></div><div class="ttdeci">type(field_registry_t), target, public neko_field_registry</div><div class="ttdoc">Global field registry.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d6f/field__registry_8f90_source.html#l00066">field_registry.f90:66</a></div></div>
 <div class="ttc" id="anamespacefield__registry_html_a6f1b13ddfb226e6a1a302f78d72a4e41"><div class="ttname"><a href="../../d1/dc4/namespacefield__registry.html#a6f1b13ddfb226e6a1a302f78d72a4e41">field_registry::get_size</a></div><div class="ttdeci">pure integer function get_size(this)</div><div class="ttdoc">Get the size of the fields array.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d6f/field__registry_8f90_source.html#l00157">field_registry.f90:158</a></div></div>
 <div class="ttc" id="anamespacefield__registry_html_a8048b53df63f576a9703de7f57201918"><div class="ttname"><a href="../../d1/dc4/namespacefield__registry.html#a8048b53df63f576a9703de7f57201918">field_registry::n_fields</a></div><div class="ttdeci">pure integer function n_fields(this)</div><div class="ttdoc">Get the number of fields stored in the registry.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d6f/field__registry_8f90_source.html#l00149">field_registry.f90:150</a></div></div>
-<div class="ttc" id="anamespacefield__registry_html_aa10c2573f49356e66e3eeb2075ffc979"><div class="ttname"><a href="../../d1/dc4/namespacefield__registry.html#aa10c2573f49356e66e3eeb2075ffc979">field_registry::field_exists</a></div><div class="ttdeci">logical function field_exists(this, name)</div><div class="ttdoc">Check if a field with a given name is already in the registry.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d6f/field__registry_8f90_source.html#l00210">field_registry.f90:211</a></div></div>
+<div class="ttc" id="anamespacefield__registry_html_aa10c2573f49356e66e3eeb2075ffc979"><div class="ttname"><a href="../../d1/dc4/namespacefield__registry.html#aa10c2573f49356e66e3eeb2075ffc979">field_registry::field_exists</a></div><div class="ttdeci">logical function field_exists(this, name)</div><div class="ttdoc">Check if a field with a given name is already in the registry.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d6f/field__registry_8f90_source.html#l00211">field_registry.f90:212</a></div></div>
 <div class="ttc" id="anamespacefield__registry_html_ad50498d2f33da66aa905d4dab0e59083"><div class="ttname"><a href="../../d1/dc4/namespacefield__registry.html#ad50498d2f33da66aa905d4dab0e59083">field_registry::get_field_by_index</a></div><div class="ttdeci">type(field_t) function, pointer get_field_by_index(this, i)</div><div class="ttdoc">Get pointer to a stored field by index.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d6f/field__registry_8f90_source.html#l00173">field_registry.f90:174</a></div></div>
 <div class="ttc" id="anamespacefield__registry_html_ad603e72149d3486e965abfe97e0ff802"><div class="ttname"><a href="../../d1/dc4/namespacefield__registry.html#ad603e72149d3486e965abfe97e0ff802">field_registry::field_registry_init</a></div><div class="ttdeci">subroutine field_registry_init(this, size, expansion_size)</div><div class="ttdoc">Constructor, optionally taking initial registry and expansion size as argument.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d6f/field__registry_8f90_source.html#l00071">field_registry.f90:72</a></div></div>
 <div class="ttc" id="anamespacefield__registry_html_aecce2a1da9ad053088cfbae139d9e2c3"><div class="ttname"><a href="../../d1/dc4/namespacefield__registry.html#aecce2a1da9ad053088cfbae139d9e2c3">field_registry::get_field_by_name</a></div><div class="ttdeci">type(field_t) function, pointer get_field_by_name(this, name)</div><div class="ttdoc">Get pointer to a stored field by field name.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d6f/field__registry_8f90_source.html#l00188">field_registry.f90:189</a></div></div>
@@ -334,7 +335,7 @@ $(document).ready(function(){initNavTree('d4/d6f/field__registry_8f90_source.htm
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_f1f26b6a678699e1bc545555832794f2.html">field</a></li><li class="navelem"><a class="el" href="../../d4/d6f/field__registry_8f90.html">field_registry.f90</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

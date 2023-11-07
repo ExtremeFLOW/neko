@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -155,131 +155,144 @@ $(document).ready(function(){initNavTree('dd/de0/ax__helm__xsmm_8F90_source.html
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">! not be used for advertising or product endorsement purposes.</span></div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">!</span></div>
 <div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="../../d3/d57/namespaceax__helm__xsmm.html">   60</a></span>&#160;<span class="keyword">module</span> <a class="code" href="../../d3/d57/namespaceax__helm__xsmm.html">ax_helm_xsmm</a></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d2/dd1/namespaceax__product.html">ax_product</a></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html">mxm_wrapper</a></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/d48/namespacenum__types.html">num_types</a></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">#ifdef HAVE_LIBXSMM</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor"></span>  <span class="keywordtype">use </span>libxsmm, libxsmm_mmcall =&gt; libxsmm_dmmcall_abc</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor"></span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="keywordtype">private</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  </div>
-<div class="line"><a name="l00070"></a><span class="lineno"><a class="line" href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html">   70</a></span>&#160;  <span class="keyword">type</span>, <span class="keyword">public</span>, <span class="keyword">extends</span>(<a class="code" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>) :: <a class="code" href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html">ax_helm_xsmm_t</a></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;   <span class="keyword">contains</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html#a55d67c14c8396c5a255f6238c6db9bac">   72</a></span>&#160;     <span class="keywordtype">procedure</span>, <span class="keywordtype">nopass</span> :: compute =&gt; <a class="code" href="../../d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813">ax_helm_xsmm_compute</a></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="keyword">end type </span><a class="code" href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html">ax_helm_xsmm_t</a></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keyword">contains</span> </div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  </div>
-<div class="line"><a name="l00077"></a><span class="lineno"><a class="line" href="../../d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813">   77</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813">ax_helm_xsmm_compute</a>(w, u, coef, msh, Xh)</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordtype">type</span>(mesh_t), <span class="keywordtype">intent(inout)</span> :: msh</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">type</span>(space_t), <span class="keywordtype">intent(inout)</span> :: Xh</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: w(xh%lx, xh%ly, xh%lz, msh%nelv)</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: u(xh%lx, xh%ly, xh%lz, msh%nelv)</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  </div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dudr(xh%lx,xh%ly,xh%lz)</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: duds(xh%lx,xh%ly,xh%lz)</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dudt(xh%lx,xh%ly,xh%lz)</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tmp1(xh%lx,xh%ly,xh%lz)</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tmp2(xh%lx,xh%ly,xh%lz)</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tmp3(xh%lx,xh%ly,xh%lz)</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tm1(xh%lx,xh%ly,xh%lz)</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tm2(xh%lx,xh%ly,xh%lz)</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tm3(xh%lx,xh%ly,xh%lz)</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">integer</span> :: e, k, lxy, lxz, lyz, lxyz</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="preprocessor">#ifdef HAVE_LIBXSMM</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor"></span>    <span class="keywordtype">type</span>(libxsmm_dmmfunction), <span class="keywordtype">save</span> :: ax_helm_xmm1</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordtype">type</span>(libxsmm_dmmfunction), <span class="keywordtype">save</span> :: ax_helm_xmm2</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">type</span>(libxsmm_dmmfunction), <span class="keywordtype">save</span> :: ax_helm_xmm3</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">save</span> :: ax_helm_xsmm_lx = 0</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keywordtype">logical</span>, <span class="keywordtype">save</span> :: ax_helm_xsmm_init = .false.</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160; </div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    lxy = xh%lx*xh%ly</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    lxz = xh%lx*xh%lz</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    lyz = xh%ly*xh%lz</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    lxyz = xh%lx*xh%ly*xh%lz</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d2/dd1/namespaceax__product.html">ax_product</a>, <span class="keywordtype">only</span> : <a class="code" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d6/dbe/namespacecoefs.html">coefs</a>, <span class="keywordtype">only</span> : <a class="code" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d5/d0d/namespacespace.html">space</a>, <span class="keywordtype">only</span> : <a class="code" href="../../da/d99/structspace_1_1space__t.html">space_t</a></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../dc/da9/namespacefield.html">field</a>, <span class="keywordtype">only</span> : <a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../db/dfc/namespacemesh.html">mesh</a>, <span class="keywordtype">only</span> : <a class="code" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html">mxm_wrapper</a></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/d48/namespacenum__types.html">num_types</a></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="preprocessor">#ifdef HAVE_LIBXSMM</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor"></span>  <span class="keywordtype">use </span>libxsmm, libxsmm_mmcall =&gt; libxsmm_dmmcall_abc</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor"></span>  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="keywordtype">private</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  </div>
+<div class="line"><a name="l00075"></a><span class="lineno"><a class="line" href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html">   75</a></span>&#160;  <span class="keyword">type</span>, <span class="keyword">public</span>, <span class="keyword">extends</span>(<a class="code" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>) :: <a class="code" href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html">ax_helm_xsmm_t</a></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;   <span class="keyword">contains</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno"><a class="line" href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html#a55d67c14c8396c5a255f6238c6db9bac">   77</a></span>&#160;     <span class="keywordtype">procedure</span>, <span class="keywordtype">nopass</span> :: compute =&gt; <a class="code" href="../../d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813">ax_helm_xsmm_compute</a></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  <span class="keyword">end type </span><a class="code" href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html">ax_helm_xsmm_t</a></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="keyword">contains</span> </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  </div>
+<div class="line"><a name="l00082"></a><span class="lineno"><a class="line" href="../../d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813">   82</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813">ax_helm_xsmm_compute</a>(w, u, coef, msh, Xh)</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: msh</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <span class="keywordtype">intent(inout)</span> :: Xh</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span> :: coef</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: w(xh%lx, xh%ly, xh%lz, msh%nelv)</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: u(xh%lx, xh%ly, xh%lz, msh%nelv)</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dudr(xh%lx,xh%ly,xh%lz)</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: duds(xh%lx,xh%ly,xh%lz)</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dudt(xh%lx,xh%ly,xh%lz)</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tmp1(xh%lx,xh%ly,xh%lz)</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tmp2(xh%lx,xh%ly,xh%lz)</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tmp3(xh%lx,xh%ly,xh%lz)</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tm1(xh%lx,xh%ly,xh%lz)</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tm2(xh%lx,xh%ly,xh%lz)</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: tm3(xh%lx,xh%ly,xh%lz)</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">integer</span> :: e, k, lxy, lxz, lyz, lxyz</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="preprocessor">#ifdef HAVE_LIBXSMM</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="preprocessor"></span>    <span class="keywordtype">type</span>(libxsmm_dmmfunction), <span class="keywordtype">save</span> :: ax_helm_xmm1</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordtype">type</span>(libxsmm_dmmfunction), <span class="keywordtype">save</span> :: ax_helm_xmm2</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordtype">type</span>(libxsmm_dmmfunction), <span class="keywordtype">save</span> :: ax_helm_xmm3</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">save</span> :: ax_helm_xsmm_lx = 0</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordtype">logical</span>, <span class="keywordtype">save</span> :: ax_helm_xsmm_init = .false.</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordflow">if</span> (.not. ax_helm_xsmm_init .or. (ax_helm_xsmm_lx .ne. xh%lx)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;       <span class="keyword">call </span>libxsmm_dispatch(ax_helm_xmm1, xh%lx, xh%ly*xh%lz, xh%lx, &amp;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;            alpha=1d0, beta=0d0, prefetch=libxsmm_prefetch_auto)</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;       <span class="keyword">call </span>libxsmm_dispatch(ax_helm_xmm2, xh%lx, xh%ly, xh%ly, &amp;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;            alpha=1d0, beta=0d0, prefetch=libxsmm_prefetch_auto)</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;       <span class="keyword">call </span>libxsmm_dispatch(ax_helm_xmm3, xh%lx*xh%ly, xh%lz, xh%lz, &amp;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;            alpha=1d0, beta=0d0, prefetch=libxsmm_prefetch_auto)</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;       ax_helm_xsmm_init = .true.</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;       ax_helm_xsmm_lx = xh%lx</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  </div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordflow">do</span> e = 1, msh%nelv</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;       <span class="keywordflow">if</span>(msh%gdim .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(xh%dx, xh%lx,u(1,1,1,e), xh%lx, dudr, lyz)</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(u(1,1,1,e), xh%lx, xh%dyt, xh%ly, duds, xh%ly)</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;         <span class="keyword">call </span>col3(tmp1, dudr, coef%G11(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;         <span class="keyword">call </span>col3(tmp2, duds, coef%G22(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;         <span class="keywordflow">if</span> (msh%dfrmd_el(e)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;            <span class="keyword">call </span>addcol3(tmp1, duds, coef%G12(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;            <span class="keyword">call </span>addcol3(tmp2, dudr, coef%G12(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="keywordflow">         end if</span></div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;         <span class="keyword">call </span>col2(tmp1, coef%h1(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;         <span class="keyword">call </span>col2(tmp2, coef%h1(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(xh%dxt, xh%lx, tmp1, xh%lx, tm1, lyz)</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(tmp2, xh%lx, xh%dy, xh%ly, tm2, xh%ly)</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;         <span class="keyword">call </span>add3(w(1,1,1,e), tm1, tm2, lxyz)</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160; </div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;       <span class="comment">! 3D evaluation!</span></div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;      <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;         <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm1, xh%dx, u(1,1,1,e), dudr)</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;         <span class="keywordflow">do</span> k = 1,xh%lz</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;            <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm2, u(1,1,k,e), xh%dyt, duds(1,1,k))</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;<span class="keywordflow">         end do</span></div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;         <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm3, u(1,1,1,e), xh%dzt, dudt)</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;         <span class="keyword">call </span>col3(tmp1, dudr, coef%G11(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;         <span class="keyword">call </span>col3(tmp2, duds, coef%G22(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;         <span class="keyword">call </span>col3(tmp3, dudt, coef%G33(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;         <span class="keywordflow">if</span> (msh%dfrmd_el(e)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;            <span class="keyword">call </span>addcol3(tmp1, duds, coef%G12(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;            <span class="keyword">call </span>addcol3(tmp1, dudt, coef%G13(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;            <span class="keyword">call </span>addcol3(tmp2, dudr, coef%G12(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;            <span class="keyword">call </span>addcol3(tmp2, dudt, coef%G23(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;            <span class="keyword">call </span>addcol3(tmp3, dudr, coef%G13(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;            <span class="keyword">call </span>addcol3(tmp3, duds, coef%G23(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;<span class="keywordflow">         end if</span></div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;         <span class="keyword">call </span>col2(tmp1, coef%h1(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;         <span class="keyword">call </span>col2(tmp2, coef%h1(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;         <span class="keyword">call </span>col2(tmp3, coef%h1(1,1,1,e), lxyz)</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;         <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm1, xh%dxt, tmp1, tm1)</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;         <span class="keywordflow">do</span> k = 1,xh%lz</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;            <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm2, tmp2(1,1,k), xh%dy, tm2(1,1,k))</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;<span class="keywordflow">         end do</span></div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;         <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm3, tmp3, xh%dz, tm3)</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;         <span class="keyword">call </span>add4(w(1,1,1,e), tm1, tm2, tm3, lxyz)</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;<span class="keywordflow">       end if</span> </div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    </div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordflow">if</span> (coef%ifh2) <span class="keyword">call </span>addcol4 (w,coef%h2,coef%B,u,coef%dof%n_dofs)</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="preprocessor"></span> </div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813">ax_helm_xsmm_compute</a></div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;  </div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d3/d57/namespaceax__helm__xsmm.html">ax_helm_xsmm</a></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    lxy = xh%lx*xh%ly</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    lxz = xh%lx*xh%lz</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    lyz = xh%ly*xh%lz</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    lxyz = xh%lx*xh%ly*xh%lz</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160; </div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordflow">if</span> (.not. ax_helm_xsmm_init .or. (ax_helm_xsmm_lx .ne. xh%lx)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;       <span class="keyword">call </span>libxsmm_dispatch(ax_helm_xmm1, xh%lx, xh%ly*xh%lz, xh%lx, &amp;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;            alpha=1d0, beta=0d0, prefetch=libxsmm_prefetch_auto)</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;       <span class="keyword">call </span>libxsmm_dispatch(ax_helm_xmm2, xh%lx, xh%ly, xh%ly, &amp;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;            alpha=1d0, beta=0d0, prefetch=libxsmm_prefetch_auto)</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;       <span class="keyword">call </span>libxsmm_dispatch(ax_helm_xmm3, xh%lx*xh%ly, xh%lz, xh%lz, &amp;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;            alpha=1d0, beta=0d0, prefetch=libxsmm_prefetch_auto)</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;       ax_helm_xsmm_init = .true.</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;       ax_helm_xsmm_lx = xh%lx</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160; </div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  </div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <span class="keywordflow">do</span> e = 1, msh%nelv</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;       <span class="keywordflow">if</span>(msh%gdim .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(xh%dx, xh%lx,u(1,1,1,e), xh%lx, dudr, lyz)</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(u(1,1,1,e), xh%lx, xh%dyt, xh%ly, duds, xh%ly)</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;         <span class="keyword">call </span>col3(tmp1, dudr, coef%G11(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;         <span class="keyword">call </span>col3(tmp2, duds, coef%G22(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;         <span class="keywordflow">if</span> (msh%dfrmd_el(e)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;            <span class="keyword">call </span>addcol3(tmp1, duds, coef%G12(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;            <span class="keyword">call </span>addcol3(tmp2, dudr, coef%G12(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="keywordflow">         end if</span></div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;         <span class="keyword">call </span>col2(tmp1, coef%h1(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;         <span class="keyword">call </span>col2(tmp2, coef%h1(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(xh%dxt, xh%lx, tmp1, xh%lx, tm1, lyz)</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(tmp2, xh%lx, xh%dy, xh%ly, tm2, xh%ly)</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;         <span class="keyword">call </span>add3(w(1,1,1,e), tm1, tm2, lxyz)</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160; </div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;       <span class="comment">! 3D evaluation!</span></div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;      <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;         <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm1, xh%dx, u(1,1,1,e), dudr)</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;         <span class="keywordflow">do</span> k = 1,xh%lz</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;            <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm2, u(1,1,k,e), xh%dyt, duds(1,1,k))</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;<span class="keywordflow">         end do</span></div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;         <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm3, u(1,1,1,e), xh%dzt, dudt)</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;         <span class="keyword">call </span>col3(tmp1, dudr, coef%G11(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;         <span class="keyword">call </span>col3(tmp2, duds, coef%G22(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;         <span class="keyword">call </span>col3(tmp3, dudt, coef%G33(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;         <span class="keywordflow">if</span> (msh%dfrmd_el(e)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;            <span class="keyword">call </span>addcol3(tmp1, duds, coef%G12(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;            <span class="keyword">call </span>addcol3(tmp1, dudt, coef%G13(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;            <span class="keyword">call </span>addcol3(tmp2, dudr, coef%G12(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;            <span class="keyword">call </span>addcol3(tmp2, dudt, coef%G23(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;            <span class="keyword">call </span>addcol3(tmp3, dudr, coef%G13(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;            <span class="keyword">call </span>addcol3(tmp3, duds, coef%G23(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;<span class="keywordflow">         end if</span></div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;         <span class="keyword">call </span>col2(tmp1, coef%h1(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;         <span class="keyword">call </span>col2(tmp2, coef%h1(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;         <span class="keyword">call </span>col2(tmp3, coef%h1(1,1,1,e), lxyz)</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;         <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm1, xh%dxt, tmp1, tm1)</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;         <span class="keywordflow">do</span> k = 1,xh%lz</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;            <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm2, tmp2(1,1,k), xh%dy, tm2(1,1,k))</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;<span class="keywordflow">         end do</span></div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;         <span class="keyword">call </span>libxsmm_mmcall(ax_helm_xmm3, tmp3, xh%dz, tm3)</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;         <span class="keyword">call </span>add4(w(1,1,1,e), tm1, tm2, tm3, lxyz)</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="keywordflow">       end if</span> </div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    </div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="keywordflow">if</span> (coef%ifh2) <span class="keyword">call </span>addcol4 (w,coef%h2,coef%B,u,coef%dof%n_dofs)</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;<span class="preprocessor"></span> </div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813">ax_helm_xsmm_compute</a></div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;  </div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d3/d57/namespaceax__helm__xsmm.html">ax_helm_xsmm</a></div>
 <div class="ttc" id="anamespaceax__helm__xsmm_html"><div class="ttname"><a href="../../d3/d57/namespaceax__helm__xsmm.html">ax_helm_xsmm</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dd/de0/ax__helm__xsmm_8F90_source.html#l00060">ax_helm_xsmm.F90:60</a></div></div>
-<div class="ttc" id="anamespaceax__helm__xsmm_html_ac20549a607a115111fad2c42a8fdb813"><div class="ttname"><a href="../../d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813">ax_helm_xsmm::ax_helm_xsmm_compute</a></div><div class="ttdeci">subroutine ax_helm_xsmm_compute(w, u, coef, msh, Xh)</div><div class="ttdef"><b>Definition:</b> <a href="../../dd/de0/ax__helm__xsmm_8F90_source.html#l00077">ax_helm_xsmm.F90:78</a></div></div>
+<div class="ttc" id="anamespaceax__helm__xsmm_html_ac20549a607a115111fad2c42a8fdb813"><div class="ttname"><a href="../../d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813">ax_helm_xsmm::ax_helm_xsmm_compute</a></div><div class="ttdeci">subroutine ax_helm_xsmm_compute(w, u, coef, msh, Xh)</div><div class="ttdef"><b>Definition:</b> <a href="../../dd/de0/ax__helm__xsmm_8F90_source.html#l00082">ax_helm_xsmm.F90:83</a></div></div>
 <div class="ttc" id="anamespaceax__product_html"><div class="ttname"><a href="../../d2/dd1/namespaceax__product.html">ax_product</a></div><div class="ttdoc">Defines a Matrix-vector product.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dd6/ax_8f90_source.html#l00034">ax.f90:34</a></div></div>
+<div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
+<div class="ttc" id="anamespacefield_html"><div class="ttname"><a href="../../dc/da9/namespacefield.html">field</a></div><div class="ttdoc">Defines a field.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dc1/field_8f90_source.html#l00034">field.f90:34</a></div></div>
+<div class="ttc" id="anamespacemesh_html"><div class="ttname"><a href="../../db/dfc/namespacemesh.html">mesh</a></div><div class="ttdoc">Defines a mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d0a/mesh_8f90_source.html#l00034">mesh.f90:34</a></div></div>
 <div class="ttc" id="anamespacemxm__wrapper_html"><div class="ttname"><a href="../../d1/d15/namespacemxm__wrapper.html">mxm_wrapper</a></div><div class="ttdoc">Wrapper for all matrix-matrix product implementations.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d25/mxm__wrapper_8F90_source.html#l00002">mxm_wrapper.F90:2</a></div></div>
 <div class="ttc" id="anamespacemxm__wrapper_html_ab3632911ec4db7f1ffe82b006aa287ed"><div class="ttname"><a href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm_wrapper::mxm</a></div><div class="ttdeci">subroutine, public mxm(a, n1, b, n2, c, n3)</div><div class="ttdoc">Compute matrix-matrix product  for contiguously packed matrices A,B, and C.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d25/mxm__wrapper_8F90_source.html#l00028">mxm_wrapper.F90:29</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
-<div class="ttc" id="astructax__helm__xsmm_1_1ax__helm__xsmm__t_html"><div class="ttname"><a href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html">ax_helm_xsmm::ax_helm_xsmm_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dd/de0/ax__helm__xsmm_8F90_source.html#l00070">ax_helm_xsmm.F90:70</a></div></div>
-<div class="ttc" id="astructax__product_1_1ax__t_html"><div class="ttname"><a href="../../d3/d2c/structax__product_1_1ax__t.html">ax_product::ax_t</a></div><div class="ttdoc">Base type for a matrix-vector product providing .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dd6/ax_8f90_source.html#l00043">ax.f90:43</a></div></div>
+<div class="ttc" id="anamespacespace_html"><div class="ttname"><a href="../../d5/d0d/namespacespace.html">space</a></div><div class="ttdoc">Defines a function space.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/da4/space_8f90_source.html#l00034">space.f90:34</a></div></div>
+<div class="ttc" id="astructax__helm__xsmm_1_1ax__helm__xsmm__t_html"><div class="ttname"><a href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html">ax_helm_xsmm::ax_helm_xsmm_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dd/de0/ax__helm__xsmm_8F90_source.html#l00075">ax_helm_xsmm.F90:75</a></div></div>
+<div class="ttc" id="astructax__product_1_1ax__t_html"><div class="ttname"><a href="../../d3/d2c/structax__product_1_1ax__t.html">ax_product::ax_t</a></div><div class="ttdoc">Base type for a matrix-vector product providing .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dd6/ax_8f90_source.html#l00044">ax.f90:44</a></div></div>
+<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d85/coef_8f90_source.html#l00054">coef.f90:54</a></div></div>
+<div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dc1/field_8f90_source.html#l00046">field.f90:46</a></div></div>
+<div class="ttc" id="astructmesh_1_1mesh__t_html"><div class="ttname"><a href="../../d7/d28/structmesh_1_1mesh__t.html">mesh::mesh_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../de/d0a/mesh_8f90_source.html#l00060">mesh.f90:60</a></div></div>
+<div class="ttc" id="astructspace_1_1space__t_html"><div class="ttname"><a href="../../da/d99/structspace_1_1space__t.html">space::space_t</a></div><div class="ttdoc">The function space for the SEM solution fields.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/da4/space_8f90_source.html#l00062">space.f90:62</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_26325635ce1980a50826396f97882f13.html">xsmm</a></li><li class="navelem"><a class="el" href="../../dd/de0/ax__helm__xsmm_8F90.html">ax_helm_xsmm.F90</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

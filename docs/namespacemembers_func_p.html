@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -175,6 +175,9 @@ $(document).ready(function(){initNavTree('namespacemembers_func_p.html',''); ini
 <li>point_eq()
 : <a class="el" href="d8/dbc/namespacepoint.html#a42208f69a12ef243812a7f784ebcd2f3">point</a>
 </li>
+<li>point_euclid_dist()
+: <a class="el" href="d8/dbc/namespacepoint.html#ada5de3a268ca455d0d95dd01d1024eb0">point</a>
+</li>
 <li>point_gt()
 : <a class="el" href="d8/dbc/namespacepoint.html#a389ad2e35b45a106ddc0d845956e1797">point</a>
 </li>
@@ -192,9 +195,6 @@ $(document).ready(function(){initNavTree('namespacemembers_func_p.html',''); ini
 </li>
 <li>point_interpolator_init()
 : <a class="el" href="df/d77/namespacepoint__interpolator.html#afc54d901f92f4340c294ced1ea3a5246">point_interpolator</a>
-</li>
-<li>point_interpolator_interpolate_fields()
-: <a class="el" href="df/d77/namespacepoint__interpolator.html#aa6e25b1b3213a7194ed8864054248607">point_interpolator</a>
 </li>
 <li>point_interpolator_interpolate_jacobian()
 : <a class="el" href="df/d77/namespacepoint__interpolator.html#ae10ae860d6ec95fb423e1b43ab5244cb">point_interpolator</a>
@@ -223,6 +223,33 @@ $(document).ready(function(){initNavTree('namespacemembers_func_p.html',''); ini
 <li>point_subtract()
 : <a class="el" href="d8/dbc/namespacepoint.html#a4eb0c18b8424f076ed3c064b1d9a1c54">point</a>
 </li>
+<li>point_zone_add()
+: <a class="el" href="dc/d5f/namespacepoint__zone.html#a590efa6045b41622f5313456101c516d">point_zone</a>
+</li>
+<li>point_zone_exists()
+: <a class="el" href="d9/dac/namespacepoint__zone__registry.html#a6541a9977cd439ecc544d4bfced3262c">point_zone_registry</a>
+</li>
+<li>point_zone_factory()
+: <a class="el" href="df/deb/namespacepoint__zone__fctry.html#a1f5a6202e14f2b8bef64e0159d68b70b">point_zone_fctry</a>
+</li>
+<li>point_zone_finalize()
+: <a class="el" href="dc/d5f/namespacepoint__zone.html#ab89b8b69818fccb933f59eebc27e440b">point_zone</a>
+</li>
+<li>point_zone_free_base()
+: <a class="el" href="dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">point_zone</a>
+</li>
+<li>point_zone_init_base()
+: <a class="el" href="dc/d5f/namespacepoint__zone.html#a507936f9e00dbcb59306833ca04a718d">point_zone</a>
+</li>
+<li>point_zone_map()
+: <a class="el" href="dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d">point_zone</a>
+</li>
+<li>point_zone_registry_free()
+: <a class="el" href="d9/dac/namespacepoint__zone__registry.html#a30384502cfcbf3c59fddda61672d7795">point_zone_registry</a>
+</li>
+<li>point_zone_registry_init()
+: <a class="el" href="d9/dac/namespacepoint__zone__registry.html#af730a6ec3db804832f22383bbed9fbdc">point_zone_registry</a>
+</li>
 <li>pointwise_eval_driver()
 : <a class="el" href="d9/d33/namespacefluid__user__source__term.html#a1dc18540c3ee1eb3387c6b39f5f5cc66">fluid_user_source_term</a>
 </li>
@@ -235,26 +262,23 @@ $(document).ready(function(){initNavTree('namespacemembers_func_p.html',''); ini
 <li>print_proj_info()
 : <a class="el" href="d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">projection</a>
 </li>
-<li>probes_allocate_fields()
-: <a class="el" href="d2/d4d/namespaceprobes.html#a877cd14e1e02ec5eda97bd7f7a1e180c">probes</a>
-</li>
 <li>probes_debug()
 : <a class="el" href="d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">probes</a>
+</li>
+<li>probes_evaluate_and_write()
+: <a class="el" href="d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">probes</a>
 </li>
 <li>probes_free()
 : <a class="el" href="d2/d4d/namespaceprobes.html#a7718a4200ee572a7357b0ceb910c42a9">probes</a>
 </li>
-<li>probes_init()
-: <a class="el" href="d2/d4d/namespaceprobes.html#a79159fd6884a35da9a3b773b79e55e37">probes</a>
+<li>probes_init_from_attributes()
+: <a class="el" href="d2/d4d/namespaceprobes.html#a2c6791ea3573725c137b0b001be7b135">probes</a>
 </li>
-<li>probes_interpolate()
-: <a class="el" href="d2/d4d/namespaceprobes.html#aefc8860d2845f2d3f94fa744099ba019">probes</a>
+<li>probes_init_from_json()
+: <a class="el" href="d2/d4d/namespaceprobes.html#afb0ca751eadf5869b849ac2eef557885">probes</a>
 </li>
-<li>probes_map()
-: <a class="el" href="d2/d4d/namespaceprobes.html#aa04b0be79f1c799ec49b80b145027a0e">probes</a>
-</li>
-<li>probes_setup()
-: <a class="el" href="d2/d4d/namespaceprobes.html#a6a73bfc9f10d469a674c9dea7112f050">probes</a>
+<li>probes_setup_offset()
+: <a class="el" href="d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">probes</a>
 </li>
 <li>probes_show()
 : <a class="el" href="d2/d4d/namespaceprobes.html#a75970ed841060318618a648c631f38dc">probes</a>
@@ -283,7 +307,7 @@ $(document).ready(function(){initNavTree('namespacemembers_func_p.html',''); ini
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

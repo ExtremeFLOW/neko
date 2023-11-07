@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -99,13 +99,13 @@ $(document).ready(function(){initNavTree('df/d77/namespacepoint__interpolator.ht
 </div><!--header-->
 <div class="contents">
 
-<p>Routines to interpolate scalar/vector fields.  
+<p>Routines to interpolate fields on a given element on a point in that element with given r,s,t coordinates.  
 <a href="../../df/d77/namespacepoint__interpolator.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d23/structpoint__interpolator_1_1point__interpolator__t.html">point_interpolator_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Field interpolator to artbitrary points within an element.  <a href="../../d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Field interpolator to arbitrary points within an element. Tailored for experimentation, and convenience, not performance Does all interpolation on the CPU. Only considers one element If performant interpolation on many elements is required Look at local_interpolator_t, similar but with less functionality.  <a href="../../d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
@@ -131,12 +131,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ae10ae860d6ec95fb423e1b43ab5244cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) function, dimension(3, 3)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d77/namespacepoint__interpolator.html#ae10ae860d6ec95fb423e1b43ab5244cb">point_interpolator_interpolate_jacobian</a> (this, rst, X, Y, Z)</td></tr>
 <tr class="memdesc:ae10ae860d6ec95fb423e1b43ab5244cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs the Jacobian, returns a 3-by-3 array where \( [J(\mathbf{r}]_{ij} = \frac{d\mathbf{x}_i}{d\mathbf{r}_j}\).  <a href="../../df/d77/namespacepoint__interpolator.html#ae10ae860d6ec95fb423e1b43ab5244cb">More...</a><br /></td></tr>
 <tr class="separator:ae10ae860d6ec95fb423e1b43ab5244cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6e25b1b3213a7194ed8864054248607"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) function, dimension(:,:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d77/namespacepoint__interpolator.html#aa6e25b1b3213a7194ed8864054248607">point_interpolator_interpolate_fields</a> (this, rst, el_owners, sampled_fields_list, wr, ws, wt)</td></tr>
-<tr class="memdesc:aa6e25b1b3213a7194ed8864054248607"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interpolates a list of fields based on a set of element ids.  <a href="../../df/d77/namespacepoint__interpolator.html#aa6e25b1b3213a7194ed8864054248607">More...</a><br /></td></tr>
-<tr class="separator:aa6e25b1b3213a7194ed8864054248607"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Routines to interpolate scalar/vector fields. </p>
+<div class="textblock"><p>Routines to interpolate fields on a given element on a point in that element with given r,s,t coordinates. </p>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="af81d2b24f9d9cb447b62493589af79dc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af81d2b24f9d9cb447b62493589af79dc">&#9670;&nbsp;</a></span>point_interpolator_compute_weights()</h2>
@@ -216,7 +213,7 @@ Functions/Subroutines</h2></td></tr>
 </dl>
 <dl class="section note"><dt>Note</dt><dd><code>wr</code>, <code>ws</code> and <code>wt</code> must be arrays of dimensions <code>(lx, N)</code> where <code>N</code> is the number of points (size of the <code>r</code>,<code>s</code>,<code>t</code> arrays). </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00116">116</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00119">119</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -255,7 +252,7 @@ Here is the call graph for this function:</div>
 
 <p>Free pointers. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 
 </div>
 </div>
@@ -293,129 +290,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
-
-</div>
-</div>
-<a id="aa6e25b1b3213a7194ed8864054248607"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa6e25b1b3213a7194ed8864054248607">&#9670;&nbsp;</a></span>point_interpolator_interpolate_fields()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) function, dimension(:,:), allocatable point_interpolator::point_interpolator_interpolate_fields </td>
-          <td>(</td>
-          <td class="paramtype">class(<a class="el" href="../../d6/d23/structpoint__interpolator_1_1point__interpolator__t.html">point_interpolator_t</a>), intent(inout)&#160;</td>
-          <td class="paramname"><em>this</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), dimension(:), intent(inout), allocatable&#160;</td>
-          <td class="paramname"><em>rst</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">integer, dimension(:), intent(in), allocatable&#160;</td>
-          <td class="paramname"><em>el_owners</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), intent(inout)&#160;</td>
-          <td class="paramname"><em>sampled_fields_list</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), intent(inout)&#160;</td>
-          <td class="paramname"><em>wr</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), intent(inout)&#160;</td>
-          <td class="paramname"><em>ws</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), intent(inout)&#160;</td>
-          <td class="paramname"><em>wt</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Interpolates a list of fields based on a set of element ids. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">rst</td><td>r,s,t coordinates. </td></tr>
-    <tr><td class="paramname">el_owners</td><td>Array of element ids that "own" a given point <code>i</code>. </td></tr>
-    <tr><td class="paramname">sampled_fields_list</td><td>A list of fields to interpolate. </td></tr>
-    <tr><td class="paramname">wr</td><td>Weights in the r-direction of shape <code>(lx, N)</code> where <code>N</code> is the number of points to interpolate. </td></tr>
-    <tr><td class="paramname">ws</td><td>Weights in the s-direction of shape <code>(lx, N)</code> where <code>N</code> is the number of points to interpolate. </td></tr>
-    <tr><td class="paramname">wt</td><td>Weights in the t-direction of shape <code>(lx, N)</code> where <code>N</code> is the number of points to interpolate. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section note"><dt>Note</dt><dd>The weights can be generated with the subroutine <code>compute_weights</code>. </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00373">373</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../df/d77/namespacepoint__interpolator_aa6e25b1b3213a7194ed8864054248607_cgraph.png" border="0" usemap="#adf/d77/namespacepoint__interpolator_aa6e25b1b3213a7194ed8864054248607_cgraph" alt=""/></div>
-<map name="adf/d77/namespacepoint__interpolator_aa6e25b1b3213a7194ed8864054248607_cgraph" id="adf/d77/namespacepoint__interpolator_aa6e25b1b3213a7194ed8864054248607_cgraph">
-<area shape="rect" title="Interpolates a list of fields based on a set of element ids." alt="" coords="5,942,152,998"/>
-<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="205,931,354,958"/>
-<area shape="rect" href="../../dd/d8c/namespacetensor.html#a9578e54c6fd6906866131eec193169b0" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="200,982,359,1009"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#ab9029742eaa9e1d7e803ae63ff6acbab" title=" " alt="" coords="423,496,565,537"/>
-<area shape="rect" href="../../d1/d4a/namespacetensor__device.html#a976356a1bbd5b3fb673fcf68c87f8214" title=" " alt="" coords="413,945,575,987"/>
-<area shape="rect" href="../../db/de7/namespacetensor__sx.html#ae071947a47fce76a747cce85e4eb1894" title=" " alt="" coords="407,1011,581,1038"/>
-<area shape="rect" href="../../dd/d89/namespacetensor__xsmm.html#a1bb0471cd41ad48f1662e73e0bfe7e07" title=" " alt="" coords="414,1063,574,1104"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#a7e07912c8e880d7ee1fbbbc56b8b69a5" title=" " alt="" coords="637,5,780,47"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#a8cdc0662b216f8b84303ed277c022bbe" title=" " alt="" coords="637,71,780,112"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#aa06b6f41b27d44d97d9e2f01574b5b9a" title=" " alt="" coords="637,136,780,177"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#ae77d910a3ab05d3957b49777ca14caa8" title=" " alt="" coords="637,201,780,243"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#a3a6de5131fbc7510779b9c8ef36cc1a0" title=" " alt="" coords="637,267,780,308"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#aab793a339c0687c79bc7900678fb69d1" title=" " alt="" coords="637,332,780,373"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#aa2f01064487fad103dcb092ab7c9ef00" title=" " alt="" coords="637,397,780,439"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#a05a4ea77f39ddbfde40a138a5e025fef" title=" " alt="" coords="637,463,780,504"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#a696e2ada7416157cd89ed28ffdd4fd9f" title=" " alt="" coords="637,528,780,569"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#a20b3a7cc1da35d8d50150acc09230b28" title=" " alt="" coords="637,593,780,635"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#a186cd1b158e30749dd770469891f2f2f" title=" " alt="" coords="637,659,780,700"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#a2c99cd70ec5b443fc41b104a6b2ec00c" title=" " alt="" coords="637,724,780,765"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#ad20ec0eb2d5f3b2f9e2992ec77f665d3" title=" " alt="" coords="637,789,780,831"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#ac4c23f6cd1b590f937f96ecadce2dc9e" title=" " alt="" coords="637,855,780,896"/>
-<area shape="rect" href="../../d4/d59/namespacetensor__cpu.html#a42296075d9820de2c0664dcf7745a000" title=" " alt="" coords="637,920,780,961"/>
-<area shape="rect" href="../../d9/d0b/tensor_8cu.html#a781fdf8c8266a46a805cab7170ff37de" title=" " alt="" coords="635,986,782,1013"/>
-<area shape="rect" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="629,1070,788,1097"/>
-</map>
-</div>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../df/d77/namespacepoint__interpolator_aa6e25b1b3213a7194ed8864054248607_icgraph.png" border="0" usemap="#adf/d77/namespacepoint__interpolator_aa6e25b1b3213a7194ed8864054248607_icgraph" alt=""/></div>
-<map name="adf/d77/namespacepoint__interpolator_aa6e25b1b3213a7194ed8864054248607_icgraph" id="adf/d77/namespacepoint__interpolator_aa6e25b1b3213a7194ed8864054248607_icgraph">
-<area shape="rect" title="Interpolates a list of fields based on a set of element ids." alt="" coords="200,5,347,61"/>
-<area shape="rect" href="../../d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#a1a00f8e4383d75df6fa33e4a50b90328" title="Interpolates a scalar or vector field on a set of points." alt="" coords="5,5,152,61"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 
 </div>
 </div>
@@ -482,7 +357,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00327">327</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00330">330</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -548,12 +423,12 @@ Here is the caller graph for this function:</div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">rst</td><td>r,s,t coordinates. </td></tr>
-    <tr><td class="paramname">X</td><td>Values of the field \( X \) at GLL points. </td></tr>
+    <tr><td class="paramname">X</td><td>Values of the field \( X \) at GLL points in one element. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00138">138</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00141">141</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -569,7 +444,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../df/d77/namespacepoint__interpolator_a7689f68ebb0265b461cb9c89ab23a554_icgraph.png" border="0" usemap="#adf/d77/namespacepoint__interpolator_a7689f68ebb0265b461cb9c89ab23a554_icgraph" alt=""/></div>
 <map name="adf/d77/namespacepoint__interpolator_a7689f68ebb0265b461cb9c89ab23a554_icgraph" id="adf/d77/namespacepoint__interpolator_a7689f68ebb0265b461cb9c89ab23a554_icgraph">
 <area shape="rect" title="Interpolates a scalar field &#160;on a set of &#160;points . Returns a vector of N coordinates ." alt="" coords="200,5,347,61"/>
-<area shape="rect" href="../../d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#a1a00f8e4383d75df6fa33e4a50b90328" title="Interpolates a scalar or vector field on a set of points." alt="" coords="5,5,152,61"/>
+<area shape="rect" href="../../d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#af586e49329da60a0510bdf0ada15f8e1" title="Interpolates a scalar or vector field on a set of points." alt="" coords="5,5,152,61"/>
 </map>
 </div>
 
@@ -631,14 +506,14 @@ Here is the caller graph for this function:</div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">N</td><td>number of points (use <code>1</code> to interpolate a scalar). </td></tr>
-    <tr><td class="paramname">X</td><td>Values of the field \( X \) at GLL points. </td></tr>
-    <tr><td class="paramname">Y</td><td>Values of the field \( Y \) at GLL points. </td></tr>
-    <tr><td class="paramname">Z</td><td>Values of the field \( Z \) at GLL points. </td></tr>
+    <tr><td class="paramname">X</td><td>Values of the field \( X \) at GLL points in one element. </td></tr>
+    <tr><td class="paramname">Y</td><td>Values of the field \( Y \) at GLL points in one element. </td></tr>
+    <tr><td class="paramname">Z</td><td>Values of the field \( Z \) at GLL points in one element. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00199">199</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00202">202</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -654,7 +529,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../df/d77/namespacepoint__interpolator_a6369442e4f15fa851dd02e592a3d1310_icgraph.png" border="0" usemap="#adf/d77/namespacepoint__interpolator_a6369442e4f15fa851dd02e592a3d1310_icgraph" alt=""/></div>
 <map name="adf/d77/namespacepoint__interpolator_a6369442e4f15fa851dd02e592a3d1310_icgraph" id="adf/d77/namespacepoint__interpolator_a6369442e4f15fa851dd02e592a3d1310_icgraph">
 <area shape="rect" title="Interpolates a vector field &#160;on a set of &#160;points . Returns an array of N points ." alt="" coords="200,5,348,61"/>
-<area shape="rect" href="../../d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#a1a00f8e4383d75df6fa33e4a50b90328" title="Interpolates a scalar or vector field on a set of points." alt="" coords="5,5,152,61"/>
+<area shape="rect" href="../../d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#af586e49329da60a0510bdf0ada15f8e1" title="Interpolates a scalar or vector field on a set of points." alt="" coords="5,5,152,61"/>
 </map>
 </div>
 
@@ -723,14 +598,14 @@ Here is the caller graph for this function:</div>
   <table class="params">
     <tr><td class="paramname">jac</td><td>Jacobian. </td></tr>
     <tr><td class="paramname">rst</td><td>r,s,t coordinates; </td></tr>
-    <tr><td class="paramname">X</td><td>Values of the field \( X \) at GLL points. </td></tr>
-    <tr><td class="paramname">Y</td><td>Values of the field \( Y \) at GLL points. </td></tr>
-    <tr><td class="paramname">Z</td><td>Values of the field \( Z \) at GLL points. </td></tr>
+    <tr><td class="paramname">X</td><td>Values of the field \( X \) at GLL points in one element. </td></tr>
+    <tr><td class="paramname">Y</td><td>Values of the field \( Y \) at GLL points in one element. </td></tr>
+    <tr><td class="paramname">Z</td><td>Values of the field \( Z \) at GLL points in one element. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00273">273</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00276">276</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -758,7 +633,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../df/d77/namespacepoint__interpolator.html">point_interpolator</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

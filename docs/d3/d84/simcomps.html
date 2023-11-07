@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -96,14 +96,14 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_pages_simcomps"></a></p>
-<h1><a class="anchor" id="autotoc_md20"></a>
+<h1><a class="anchor" id="autotoc_md27"></a>
 What are simulation components?</h1>
 <p>Simulation components, or simcomps fo short, incapsulate additional functionality that may be useful for certain cases but not necessary to run the solver. This can include computation and output of additional fields, in-situ post-processing operations, data sampling, etc.</p>
 <p>By design, simulation components can tap into every aspect of the simulation, so they can be quite powerful. As the code grows, we expect to add more and more simcomps to the code.</p>
-<h1><a class="anchor" id="autotoc_md21"></a>
+<h1><a class="anchor" id="autotoc_md28"></a>
 Adding simulation components to the case</h1>
 <p>Each simcomp is defined as a single JSON object at are added to an array of objects called <code>simulation_components</code>, which resides directly under the <code>case</code> object.</p>
-<h1><a class="anchor" id="autotoc_md22"></a>
+<h1><a class="anchor" id="autotoc_md29"></a>
 Controling execution and file output</h1>
 <p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <code>compute_control</code> and <code>compute_value</code> parameters for the computation and the <code>output_control and</code> and <code>output_value</code> for the output to disk. The paramters for the <code>_control</code> values are the same as for the fluid and checkpointing.</p>
 <p>For example, in the <code>tgv</code> example case the <code>vorticity</code> component is executed once per 50 time steps. </p><div class="fragment"><div class="line">{</div>
@@ -112,11 +112,25 @@ Controling execution and file output</h1>
 <div class="line">    &quot;compute_value&quot;: 50</div>
 <div class="line">}</div>
 </div><!-- fragment --><p> If no parameters for the <code>output_</code> parametersare provided, they areset to be the same as for <code>compute_</code>.</p>
-<h1><a class="anchor" id="autotoc_md23"></a>
+<h1><a class="anchor" id="autotoc_md30"></a>
 List of simulation components</h1>
-<h1><a class="anchor" id="autotoc_md24"></a>
-Vorticity</h1>
-<p>Computes the vorticity field an stores in the field registry as <code>omega_x</code>, <code>omega_y</code> and <code>omega_z</code>. Currently produces no output. </p>
+<h2><a class="anchor" id="autotoc_md31"></a>
+vorticity</h2>
+<p>Computes the vorticity field an stores in the field registry as <code>omega_x</code>, <code>omega_y</code> and <code>omega_z</code>. Currently produces no output.</p>
+<h2><a class="anchor" id="autotoc_md32"></a>
+lambda2</h2>
+<p>Computes \( \lambda_2 \) for the velocity field and stores it in the normal output files as the first unused field. This means that \( \lambda_2 \) can be found in the temeprature field in then fld files if running without a scalar and s1 if neko is run with one scalar.</p>
+<h2><a class="anchor" id="autotoc_md33"></a>
+probes</h2>
+<p>Probes selected solution fields at the points given inside an input file. Example usage: </p><div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;probes&quot;,</div>
+<div class="line">  &quot;compute_control&quot;: &quot;simulationtime&quot;,</div>
+<div class="line">  &quot;compute_value&quot;    : 1,</div>
+<div class="line">  &quot;points_file&quot;:  &quot;probes.csv&quot;,</div>
+<div class="line">  &quot;output_file&quot;:  &quot;output.csv&quot;,</div>
+<div class="line">  &quot;fields&quot;: [&quot;w&quot;,&quot;s&quot;]</div>
+<div class="line">}</div>
+</div><!-- fragment --><p> This probes the fields 'w', and 's' in the points described by points.csv and outputs into output.csv every 1 time units. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
@@ -124,7 +138,7 @@ Vorticity</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

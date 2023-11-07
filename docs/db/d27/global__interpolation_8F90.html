@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -117,7 +117,7 @@ Modules</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#aed5605e24dd0355f7b4f4c4a1b1b6e6b">global_interpolation::global_interpolation_init</a> (this, dof, tol)</td></tr>
-<tr class="memdesc:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize user defined variables.  <a href="../../dd/de1/namespaceglobal__interpolation.html#aed5605e24dd0355f7b4f4c4a1b1b6e6b">More...</a><br /></td></tr>
+<tr class="memdesc:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate only local points.  <a href="../../dd/de1/namespaceglobal__interpolation.html#aed5605e24dd0355f7b4f4c4a1b1b6e6b">More...</a><br /></td></tr>
 <tr class="separator:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1da3dca9e49ce1adae0a90ab85e9deef"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a1da3dca9e49ce1adae0a90ab85e9deef">global_interpolation::global_interpolation_free</a> (this)</td></tr>
 <tr class="memdesc:a1da3dca9e49ce1adae0a90ab85e9deef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../dd/de1/namespaceglobal__interpolation.html#a1da3dca9e49ce1adae0a90ab85e9deef">More...</a><br /></td></tr>
@@ -131,9 +131,16 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a5dfe3afc61fac845acfadaef21e3465c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c">global_interpolation::global_interpolation_find_coords</a> (this, x, y, z, n_points)</td></tr>
 <tr class="memdesc:a5dfe3afc61fac845acfadaef21e3465c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <a href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c">More...</a><br /></td></tr>
 <tr class="separator:a5dfe3afc61fac845acfadaef21e3465c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a419e4bc704c8fcd7549a4de09f5dfbb3"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3">global_interpolation::global_interpolation_init_point_arrays</a> (this)</td></tr>
+<tr class="separator:a419e4bc704c8fcd7549a4de09f5dfbb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad8a5b77756f4c2b1b6efb26f7b0163a"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a">global_interpolation::global_interpolation_find_xyz</a> (this, xyz, n_points)</td></tr>
 <tr class="memdesc:aad8a5b77756f4c2b1b6efb26f7b0163a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <a href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a">More...</a><br /></td></tr>
 <tr class="separator:aad8a5b77756f4c2b1b6efb26f7b0163a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1d7dd757c992a82f1a201d671ce637d"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d">global_interpolation::global_interpolation_find_and_redist</a> (this, xyz, n_points)</td></tr>
+<tr class="memdesc:ac1d7dd757c992a82f1a201d671ce637d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <a href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d">More...</a><br /></td></tr>
+<tr class="separator:ac1d7dd757c992a82f1a201d671ce637d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae67a17085d264b5f5d490d1047042ee2"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2">global_interpolation::global_interpolation_redist</a> (this)</td></tr>
+<tr class="separator:ae67a17085d264b5f5d490d1047042ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73584112440598ad7dbbed3cfa9ee2d9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a73584112440598ad7dbbed3cfa9ee2d9">global_interpolation::global_interpolation_evaluate</a> (this, interp_values, field)</td></tr>
 <tr class="memdesc:a73584112440598ad7dbbed3cfa9ee2d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evalute the interpolated value in the points given a field on the dofmap.  <a href="../../dd/de1/namespaceglobal__interpolation.html#a73584112440598ad7dbbed3cfa9ee2d9">More...</a><br /></td></tr>
 <tr class="separator:a73584112440598ad7dbbed3cfa9ee2d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,7 +151,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../db/d27/global__interpolation_8F90.html">global_interpolation.F90</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -168,6 +168,35 @@ $(document).ready(function(){initNavTree('d9/dbd/tensor_8c_source.html','../../'
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;                                  NULL, &amp;global_item_size, &amp;local_item_size,</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;                                  0, NULL, NULL));</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;}</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
+<div class="line"><a name="l00075"></a><span class="lineno"><a class="line" href="../../d9/dbd/tensor_8c.html#ab25bcc507ceb1b1777403796cd1b28ab">   75</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="../../d9/dbd/tensor_8c.html#ab25bcc507ceb1b1777403796cd1b28ab">opencl_tnsr3d_el_list</a>(<span class="keywordtype">void</span> *<a class="code" href="../../de/d2d/cuda_2lambda2__kernel_8h.html#af0f5b6273fb70612c89045a51be35777">v</a>, <span class="keywordtype">int</span> *nv, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a645bbd28d9fb02d1462b694665060689">u</a>, <span class="keywordtype">int</span> *nu,</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;                           <span class="keywordtype">void</span> *A, <span class="keywordtype">void</span> *Bt, <span class="keywordtype">void</span> *Ct, <span class="keywordtype">int</span> *elements,</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;                           <span class="keywordtype">int</span> *n_points) {</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  cl_int err;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="keywordflow">if</span> (<a class="code" href="../../d1/df7/prgm__lib_8h.html#a00df40137174f47750c693b10760c069">tensor_program</a> == NULL)</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <a class="code" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6">opencl_kernel_jit</a>(tensor_kernel, (cl_program *) &amp;<a class="code" href="../../d1/df7/prgm__lib_8h.html#a00df40137174f47750c693b10760c069">tensor_program</a>);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  cl_kernel kernel = clCreateKernel(<a class="code" href="../../d1/df7/prgm__lib_8h.html#a00df40137174f47750c693b10760c069">tensor_program</a>, <span class="stringliteral">&quot;tnsr3d_el_kernel&quot;</span>, &amp;err);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(err);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(clSetKernelArg(kernel, 0, <span class="keyword">sizeof</span>(cl_mem), (<span class="keywordtype">void</span> *) &amp;<a class="code" href="../../de/d2d/cuda_2lambda2__kernel_8h.html#af0f5b6273fb70612c89045a51be35777">v</a>));</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(clSetKernelArg(kernel, 1, <span class="keyword">sizeof</span>(<span class="keywordtype">int</span>), nv));</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(clSetKernelArg(kernel, 2, <span class="keyword">sizeof</span>(cl_mem), (<span class="keywordtype">void</span> *) &amp;<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a645bbd28d9fb02d1462b694665060689">u</a>));</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(clSetKernelArg(kernel, 3, <span class="keyword">sizeof</span>(<span class="keywordtype">int</span>), nu));</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(clSetKernelArg(kernel, 4, <span class="keyword">sizeof</span>(cl_mem), (<span class="keywordtype">void</span> *) &amp;A));</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(clSetKernelArg(kernel, 5, <span class="keyword">sizeof</span>(cl_mem), (<span class="keywordtype">void</span> *) &amp;Bt));</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(clSetKernelArg(kernel, 6, <span class="keyword">sizeof</span>(cl_mem), (<span class="keywordtype">void</span> *) &amp;Ct));</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(clSetKernelArg(kernel, 7, <span class="keyword">sizeof</span>(cl_mem), (<span class="keywordtype">void</span> *) &amp;elements));</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(clSetKernelArg(kernel, 8, <span class="keyword">sizeof</span>(<span class="keywordtype">int</span>), n_points));</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  </div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> global_item_size = 256 * (*n_points);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> local_item_size = 256;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a>(clEnqueueNDRangeKernel((cl_command_queue) <a class="code" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>, kernel, 1,</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                                  NULL, &amp;global_item_size, &amp;local_item_size,</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;                                  0, NULL, NULL));</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;}</div>
 <div class="ttc" id="acuda_2conv1__kernel_8h_html_a645bbd28d9fb02d1462b694665060689"><div class="ttname"><a href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a645bbd28d9fb02d1462b694665060689">u</a></div><div class="ttdeci">__global__ void const T *__restrict__ u</div><div class="ttdef"><b>Definition:</b> <a href="../../d1/dd9/cuda_2conv1__kernel_8h_source.html#l00130">conv1_kernel.h:130</a></div></div>
 <div class="ttc" id="acuda_2lambda2__kernel_8h_html_af0f5b6273fb70612c89045a51be35777"><div class="ttname"><a href="../../de/d2d/cuda_2lambda2__kernel_8h.html#af0f5b6273fb70612c89045a51be35777">v</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ v</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d2d/cuda_2lambda2__kernel_8h_source.html#l00241">lambda2_kernel.h:241</a></div></div>
 <div class="ttc" id="adevice__config_8h_html"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html">device_config.h</a></div></div>
@@ -179,13 +208,14 @@ $(document).ready(function(){initNavTree('d9/dbd/tensor_8c_source.html','../../'
 <div class="ttc" id="aprgm__lib_8h_html"><div class="ttname"><a href="../../d1/df7/prgm__lib_8h.html">prgm_lib.h</a></div></div>
 <div class="ttc" id="aprgm__lib_8h_html_a00df40137174f47750c693b10760c069"><div class="ttname"><a href="../../d1/df7/prgm__lib_8h.html#a00df40137174f47750c693b10760c069">tensor_program</a></div><div class="ttdeci">void * tensor_program</div></div>
 <div class="ttc" id="atensor_8c_html_a1c1f3461770465a6b3d4d1b3358e8527"><div class="ttname"><a href="../../d9/dbd/tensor_8c.html#a1c1f3461770465a6b3d4d1b3358e8527">opencl_tnsr3d</a></div><div class="ttdeci">void opencl_tnsr3d(void *v, int *nv, void *u, int *nu, void *A, void *Bt, void *Ct, int *nel)</div><div class="ttdef"><b>Definition:</b> <a href="../../d9/dbd/tensor_8c_source.html#l00049">tensor.c:49</a></div></div>
+<div class="ttc" id="atensor_8c_html_ab25bcc507ceb1b1777403796cd1b28ab"><div class="ttname"><a href="../../d9/dbd/tensor_8c.html#ab25bcc507ceb1b1777403796cd1b28ab">opencl_tnsr3d_el_list</a></div><div class="ttdeci">void opencl_tnsr3d_el_list(void *v, int *nv, void *u, int *nu, void *A, void *Bt, void *Ct, int *elements, int *n_points)</div><div class="ttdef"><b>Definition:</b> <a href="../../d9/dbd/tensor_8c_source.html#l00075">tensor.c:75</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_a753435b69305af25b1972a8c16b18f4.html">opencl</a></li><li class="navelem"><a class="el" href="../../d9/dbd/tensor_8c.html">tensor.c</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

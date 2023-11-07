@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -111,7 +111,7 @@ Data Types</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#aed5605e24dd0355f7b4f4c4a1b1b6e6b">global_interpolation_init</a> (this, dof, tol)</td></tr>
-<tr class="memdesc:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize user defined variables.  <a href="../../dd/de1/namespaceglobal__interpolation.html#aed5605e24dd0355f7b4f4c4a1b1b6e6b">More...</a><br /></td></tr>
+<tr class="memdesc:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate only local points.  <a href="../../dd/de1/namespaceglobal__interpolation.html#aed5605e24dd0355f7b4f4c4a1b1b6e6b">More...</a><br /></td></tr>
 <tr class="separator:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1da3dca9e49ce1adae0a90ab85e9deef"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a1da3dca9e49ce1adae0a90ab85e9deef">global_interpolation_free</a> (this)</td></tr>
 <tr class="memdesc:a1da3dca9e49ce1adae0a90ab85e9deef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../dd/de1/namespaceglobal__interpolation.html#a1da3dca9e49ce1adae0a90ab85e9deef">More...</a><br /></td></tr>
@@ -125,9 +125,16 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a5dfe3afc61fac845acfadaef21e3465c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c">global_interpolation_find_coords</a> (this, x, y, z, n_points)</td></tr>
 <tr class="memdesc:a5dfe3afc61fac845acfadaef21e3465c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <a href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c">More...</a><br /></td></tr>
 <tr class="separator:a5dfe3afc61fac845acfadaef21e3465c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a419e4bc704c8fcd7549a4de09f5dfbb3"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3">global_interpolation_init_point_arrays</a> (this)</td></tr>
+<tr class="separator:a419e4bc704c8fcd7549a4de09f5dfbb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad8a5b77756f4c2b1b6efb26f7b0163a"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a">global_interpolation_find_xyz</a> (this, xyz, n_points)</td></tr>
 <tr class="memdesc:aad8a5b77756f4c2b1b6efb26f7b0163a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <a href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a">More...</a><br /></td></tr>
 <tr class="separator:aad8a5b77756f4c2b1b6efb26f7b0163a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1d7dd757c992a82f1a201d671ce637d"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d">global_interpolation_find_and_redist</a> (this, xyz, n_points)</td></tr>
+<tr class="memdesc:ac1d7dd757c992a82f1a201d671ce637d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <a href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d">More...</a><br /></td></tr>
+<tr class="separator:ac1d7dd757c992a82f1a201d671ce637d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae67a17085d264b5f5d490d1047042ee2"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2">global_interpolation_redist</a> (this)</td></tr>
+<tr class="separator:ae67a17085d264b5f5d490d1047042ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73584112440598ad7dbbed3cfa9ee2d9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a73584112440598ad7dbbed3cfa9ee2d9">global_interpolation_evaluate</a> (this, interp_values, field)</td></tr>
 <tr class="memdesc:a73584112440598ad7dbbed3cfa9ee2d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evalute the interpolated value in the points given a field on the dofmap.  <a href="../../dd/de1/namespaceglobal__interpolation.html#a73584112440598ad7dbbed3cfa9ee2d9">More...</a><br /></td></tr>
 <tr class="separator:a73584112440598ad7dbbed3cfa9ee2d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -160,7 +167,7 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(this%dof%size()), intent(in)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(this%dof%size()), intent(inout)&#160;</td>
           <td class="paramname"><em>field</em>&#160;</td>
         </tr>
         <tr>
@@ -185,7 +192,78 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00363">363</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00518">518</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+
+</div>
+</div>
+<a id="ac1d7dd757c992a82f1a201d671ce637d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1d7dd757c992a82f1a201d671ce637d">&#9670;&nbsp;</a></span>global_interpolation_find_and_redist()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine global_interpolation::global_interpolation_find_and_redist </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), intent(inout), allocatable&#160;</td>
+          <td class="paramname"><em>xyz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(inout)&#160;</td>
+          <td class="paramname"><em>n_points</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again. </p>
+<ul>
+<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
+<li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">xyz</td><td>The coordinates of the points. </td></tr>
+    <tr><td class="paramname">n_points</td><td>The number of points. </td></tr>
+  </table>
+  </dd>
+</dl>
+</li>
+</ul>
+<p>make deep copy incase xyz goes out of scope or deallocated</p>
+<p>Sets new points and redistributes them</p>
+
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00399">399</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_ac1d7dd757c992a82f1a201d671ce637d_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_ac1d7dd757c992a82f1a201d671ce637d_cgraph" alt=""/></div>
+<map name="add/de1/namespaceglobal__interpolation_ac1d7dd757c992a82f1a201d671ce637d_cgraph" id="add/de1/namespaceglobal__interpolation_ac1d7dd757c992a82f1a201d671ce637d_cgraph">
+<area shape="rect" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,73,165,129"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="454,95,549,122"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,33,373,89"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="421,162,581,218"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2" title=" " alt="" coords="213,113,373,169"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -215,15 +293,16 @@ Functions/Subroutines</h2></td></tr>
 
 <p>Common routine for finding the points. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00174">174</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00193">193</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_icgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_icgraph" alt=""/></div>
 <map name="add/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_icgraph" id="add/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_icgraph">
-<area shape="rect" title="Common routine for finding the points." alt="" coords="213,45,373,101"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,5,165,61"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,85,165,141"/>
+<area shape="rect" title="Common routine for finding the points." alt="" coords="213,85,373,141"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,5,165,61"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,85,165,141"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,165,165,221"/>
 </map>
 </div>
 
@@ -296,14 +375,15 @@ Here is the caller graph for this function:</div>
 </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00293">293</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00317">317</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_a5dfe3afc61fac845acfadaef21e3465c_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_a5dfe3afc61fac845acfadaef21e3465c_cgraph" alt=""/></div>
 <map name="add/de1/namespaceglobal__interpolation_a5dfe3afc61fac845acfadaef21e3465c_cgraph" id="add/de1/namespaceglobal__interpolation_a5dfe3afc61fac845acfadaef21e3465c_cgraph">
-<area shape="rect" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,5,165,61"/>
+<area shape="rect" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,45,165,101"/>
 <area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,5,373,61"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,85,373,141"/>
 </map>
 </div>
 
@@ -363,15 +443,16 @@ Here is the call graph for this function:</div>
 </ul>
 <p>make deep copy incase xyz goes out of scope or deallocated</p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00335">335</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00369">369</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_aad8a5b77756f4c2b1b6efb26f7b0163a_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_aad8a5b77756f4c2b1b6efb26f7b0163a_cgraph" alt=""/></div>
 <map name="add/de1/namespaceglobal__interpolation_aad8a5b77756f4c2b1b6efb26f7b0163a_cgraph" id="add/de1/namespaceglobal__interpolation_aad8a5b77756f4c2b1b6efb26f7b0163a_cgraph">
-<area shape="rect" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,24,165,80"/>
+<area shape="rect" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,56,165,112"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="246,5,341,32"/>
 <area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,56,373,112"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,136,373,192"/>
 </map>
 </div>
 
@@ -403,7 +484,7 @@ Here is the call graph for this function:</div>
 
 <p>Destructor. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00141">141</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00152">152</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 
 </div>
 </div>
@@ -433,7 +514,7 @@ Here is the call graph for this function:</div>
 
 <p>Destructor for point arrays. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00159">159</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00173">173</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 
 </div>
 </div>
@@ -469,8 +550,8 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Initialize user defined variables. </p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Evaluate only local points. </p>
+<p>Initialize user defined variables. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dof</td><td>Dofmap on which the interpolation is to be carried out. </td></tr>
     <tr><td class="paramname">tol</td><td>Tolerance for Newton iterations. </td></tr>
@@ -478,7 +559,97 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00104">104</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00114">114</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+
+</div>
+</div>
+<a id="a419e4bc704c8fcd7549a4de09f5dfbb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a419e4bc704c8fcd7549a4de09f5dfbb3">&#9670;&nbsp;</a></span>global_interpolation_init_point_arrays()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine global_interpolation::global_interpolation_init_point_arrays </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00344">344</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_a419e4bc704c8fcd7549a4de09f5dfbb3_icgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_a419e4bc704c8fcd7549a4de09f5dfbb3_icgraph" alt=""/></div>
+<map name="add/de1/namespaceglobal__interpolation_a419e4bc704c8fcd7549a4de09f5dfbb3_icgraph" id="add/de1/namespaceglobal__interpolation_a419e4bc704c8fcd7549a4de09f5dfbb3_icgraph">
+<area shape="rect" title=" " alt="" coords="421,73,581,129"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,81,165,137"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="213,33,373,89"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="213,113,373,169"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2" title=" " alt="" coords="213,193,373,249"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ae67a17085d264b5f5d490d1047042ee2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae67a17085d264b5f5d490d1047042ee2">&#9670;&nbsp;</a></span>global_interpolation_redist()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine global_interpolation::global_interpolation_redist </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Calculate which processes this proc has points on</p>
+<p>Sum number of points on all pes to compute n_new_points Store how many points to receive from each pe</p>
+<p>This could be avoided by adding all indices to a list</p>
+
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00441">441</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_cgraph" alt=""/></div>
+<map name="add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_cgraph" id="add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_cgraph">
+<area shape="rect" title=" " alt="" coords="5,24,165,80"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="246,5,341,32"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,56,373,112"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_icgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_icgraph" alt=""/></div>
+<map name="add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_icgraph" id="add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_icgraph">
+<area shape="rect" title=" " alt="" coords="213,5,373,61"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,5,165,61"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -488,7 +659,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html">global_interpolation</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

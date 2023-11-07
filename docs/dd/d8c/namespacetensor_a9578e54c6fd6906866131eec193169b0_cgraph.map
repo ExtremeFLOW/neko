@@ -1,9 +1,9 @@
 <map id="tensor::tnsr3d_el_list" name="tensor::tnsr3d_el_list">
-<area shape="rect" id="node1" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="5,982,164,1009"/>
+<area shape="rect" id="node1" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="5,1015,164,1042"/>
 <area shape="rect" id="node2" href="$d4/d59/namespacetensor__cpu.html#ab9029742eaa9e1d7e803ae63ff6acbab" title=" " alt="" coords="228,496,371,537"/>
-<area shape="rect" id="node18" href="$d1/d4a/namespacetensor__device.html#a976356a1bbd5b3fb673fcf68c87f8214" title=" " alt="" coords="218,945,381,987"/>
-<area shape="rect" id="node20" href="$db/de7/namespacetensor__sx.html#ae071947a47fce76a747cce85e4eb1894" title=" " alt="" coords="212,1011,387,1038"/>
-<area shape="rect" id="node21" href="$dd/d89/namespacetensor__xsmm.html#a1bb0471cd41ad48f1662e73e0bfe7e07" title=" " alt="" coords="219,1063,379,1104"/>
+<area shape="rect" id="node18" href="$d1/d4a/namespacetensor__device.html#a976356a1bbd5b3fb673fcf68c87f8214" title=" " alt="" coords="218,979,381,1020"/>
+<area shape="rect" id="node22" href="$db/de7/namespacetensor__sx.html#ae071947a47fce76a747cce85e4eb1894" title=" " alt="" coords="212,1045,387,1071"/>
+<area shape="rect" id="node23" href="$dd/d89/namespacetensor__xsmm.html#a1bb0471cd41ad48f1662e73e0bfe7e07" title=" " alt="" coords="219,1096,379,1137"/>
 <area shape="rect" id="node3" href="$d4/d59/namespacetensor__cpu.html#a7e07912c8e880d7ee1fbbbc56b8b69a5" title=" " alt="" coords="443,5,585,47"/>
 <area shape="rect" id="node4" href="$d4/d59/namespacetensor__cpu.html#a8cdc0662b216f8b84303ed277c022bbe" title=" " alt="" coords="443,71,585,112"/>
 <area shape="rect" id="node5" href="$d4/d59/namespacetensor__cpu.html#aa06b6f41b27d44d97d9e2f01574b5b9a" title=" " alt="" coords="443,136,585,177"/>
@@ -20,5 +20,7 @@
 <area shape="rect" id="node16" href="$d4/d59/namespacetensor__cpu.html#ac4c23f6cd1b590f937f96ecadce2dc9e" title=" " alt="" coords="443,855,585,896"/>
 <area shape="rect" id="node17" href="$d4/d59/namespacetensor__cpu.html#a42296075d9820de2c0664dcf7745a000" title=" " alt="" coords="443,920,585,961"/>
 <area shape="rect" id="node19" href="$d9/d0b/tensor_8cu.html#a781fdf8c8266a46a805cab7170ff37de" title=" " alt="" coords="441,986,587,1013"/>
-<area shape="rect" id="node22" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="435,1070,593,1097"/>
+<area shape="rect" id="node20" href="$d9/dbd/tensor_8c.html#ab25bcc507ceb1b1777403796cd1b28ab" title=" " alt="" coords="435,1037,593,1063"/>
+<area shape="rect" id="node21" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="641,1037,773,1063"/>
+<area shape="rect" id="node24" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="435,1103,593,1130"/>
 </map>

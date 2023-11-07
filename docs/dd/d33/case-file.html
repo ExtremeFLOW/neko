@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -106,7 +106,8 @@ High-level structure</h1>
 <div class="line">        &quot;fluid&quot;: {}</div>
 <div class="line">        &quot;scalar&quot;: {}</div>
 <div class="line">        &quot;statistics&quot;: {}</div>
-<div class="line">        &quot;simulation_components&quot; : {}</div>
+<div class="line">        &quot;simulation_components&quot; : []</div>
+<div class="line">        &quot;point_zones&quot; : []</div>
 <div class="line">    }</div>
 <div class="line">}</div>
 </div><!-- fragment --><p> The <code>version</code> keywords is reserved to track changes in the format of the file. The the subsections below we list all the configuration options for each of the high-level objects. Some parameters will have default values, and are therefore optional.</p>
@@ -121,7 +122,7 @@ Output frequency control</h1>
 <li><code>never</code>, then <code>_value</code> is ignored and output is never performed.</li>
 </ol>
 <h1><a class="anchor" id="autotoc_md5"></a>
-The &lt;tt&gt;case&lt;/tt&gt; object</h1>
+The case object</h1>
 <p>This object is mostly used as a high-level container for all the other objects, but also defines several parameters that pertain to the simulation as a whole.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -363,7 +364,12 @@ Statistics</h1>
 <h1><a class="anchor" id="autotoc_md19"></a>
 Simulation components</h1>
 <p>Simulation components enable the user to perform various additional operations, which are not strictly necessary to run the solver. An example could be computing and output of additional fields, e.g. vorticity.</p>
-<p>A more detailed description as well as a full list of available components and their setup is provided in a sperate page of the manual. </p>
+<p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../d3/d84/simcomps.html#md_pages_simcomps">separate page of the manual</a>.</p>
+<h1><a class="anchor" id="autotoc_md20"></a>
+Point zones</h1>
+<p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.</p>
+<p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
+<p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../da/dd0/point-zones.html#md_pages_point_zones">separate page of the manual</a>. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
@@ -371,7 +377,7 @@ Simulation components</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

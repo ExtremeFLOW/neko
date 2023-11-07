@@ -1,5 +1,4 @@
 <map id="tensor::tnsr3d_el_list" name="tensor::tnsr3d_el_list">
-<area shape="rect" id="node1" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="395,20,553,47"/>
-<area shape="rect" id="node2" href="$df/d77/namespacepoint__interpolator.html#aa6e25b1b3213a7194ed8864054248607" title="Interpolates a list of fields based on a set of element ids." alt="" coords="200,5,347,61"/>
-<area shape="rect" id="node3" href="$d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#a1a00f8e4383d75df6fa33e4a50b90328" title="Interpolates a scalar or vector field on a set of points." alt="" coords="5,5,152,61"/>
+<area shape="rect" id="node1" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="197,20,356,47"/>
+<area shape="rect" id="node2" href="$da/d80/namespacelocal__interpolation.html#a4707f5b542b2a511476d0bdf808ab48d" title="Interpolates a list of fields based on a set of element ids." alt="" coords="5,5,149,61"/>
 </map>

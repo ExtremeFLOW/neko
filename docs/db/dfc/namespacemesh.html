@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -778,7 +778,7 @@ Here is the call graph for this function:</div>
 
 <p>Generate element-to-element connectivity. </p>
 <dl class="section note"><dt>Note</dt><dd>We have to sweep through the facet map twice to make sure that both odd and even sides are marked </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000037">Todo:</a></b></dt><dd>These loop nests needs a lot of love... </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000036">Todo:</a></b></dt><dd>These loop nests needs a lot of love... </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l00441">441</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 <div class="dynheader">
@@ -837,7 +837,7 @@ Here is the caller graph for this function:</div>
 
 <p>Generate element-element connectivity via edges both between internal and between PEs. </p>
 <dl class="section attention"><dt>Attention</dt><dd>only for elements where facet .ne. edges </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000038">Todo:</a></b></dt><dd>move this into distdata </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000037">Todo:</a></b></dt><dd>move this into distdata </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l00846">846</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 <div class="dynheader">
@@ -987,9 +987,9 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>Generate a unique facet numbering. </p>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000039">Todo:</a></b></dt><dd>move this into distdata </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000040">Todo:</a></b></dt><dd>Move this into distdata as a method... </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000041">Todo:</a></b></dt><dd>Since we now the neigh. we can actually do p2p here... </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000038">Todo:</a></b></dt><dd>move this into distdata </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000039">Todo:</a></b></dt><dd>Move this into distdata as a method... </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000040">Todo:</a></b></dt><dd>Since we now the neigh. we can actually do p2p here... </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01090">1090</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 <div class="dynheader">
@@ -1299,7 +1299,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 
 <p>Return the local id of a point <em>p</em>. </p>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000042">Todo:</a></b></dt><dd>why do we still need to do this? </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000041">Todo:</a></b></dt><dd>why do we still need to do this? </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01870">1870</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -1341,7 +1341,7 @@ Here is the caller graph for this function:</div>
 
 <p>Check if the mesh has a point given its global index. </p>
 <dl class="section return"><dt>Returns</dt><dd>The local id of the point (if present) otherwise -1 </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000043">Todo:</a></b></dt><dd>Consider moving this to distdata </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000042">Todo:</a></b></dt><dd>Consider moving this to distdata </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">index</td><td>Global index </td></tr>
@@ -1377,8 +1377,8 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 <p>Only intialize if we generate connectivity</p>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000035">Todo:</a></b></dt><dd>resize onces final size is known </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000036">Todo:</a></b></dt><dd>resize onces final size is known Only init if we generate connectivity </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000034">Todo:</a></b></dt><dd>resize onces final size is known </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000035">Todo:</a></b></dt><dd>resize onces final size is known Only init if we generate connectivity </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l00219">219</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 <div class="dynheader">
@@ -2108,7 +2108,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/dfc/namespacemesh.html">mesh</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

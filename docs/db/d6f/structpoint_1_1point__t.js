@@ -1,6 +1,7 @@
 var structpoint_1_1point__t =
 [
     [ "assignment", "db/d6f/structpoint_1_1point__t.html#a2a757630ce149132a7ceb5c3a1c9c011", null ],
+    [ "dist", "db/d6f/structpoint_1_1point__t.html#ab15bfdf3a8b60207b851e9e0e68cb5b9", null ],
     [ "id", "db/d6f/structpoint_1_1point__t.html#a58495393a9c3120faaec90ce217d4f75", null ],
     [ "operator", "db/d6f/structpoint_1_1point__t.html#a0912a9ed076c20f94fea6f736a035036", null ],
     [ "operator", "db/d6f/structpoint_1_1point__t.html#a9ea5fcdb2eb9b8674de9596b92fdae57", null ],

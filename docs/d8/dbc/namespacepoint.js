@@ -5,6 +5,7 @@ var namespacepoint =
     [ "point_add", "d8/dbc/namespacepoint.html#adf10ffea141065b2c9c075b689e5fc2e", null ],
     [ "point_assign", "d8/dbc/namespacepoint.html#a928f67359c8af4dc8d535b92ff03c1c2", null ],
     [ "point_eq", "d8/dbc/namespacepoint.html#a42208f69a12ef243812a7f784ebcd2f3", null ],
+    [ "point_euclid_dist", "d8/dbc/namespacepoint.html#ada5de3a268ca455d0d95dd01d1024eb0", null ],
     [ "point_gt", "d8/dbc/namespacepoint.html#a389ad2e35b45a106ddc0d845956e1797", null ],
     [ "point_init", "d8/dbc/namespacepoint.html#a0c4f530ee9aee9785fb0e9f2a1094083", null ],
     [ "point_init_xyz", "d8/dbc/namespacepoint.html#a8338d266f1b69c28f2e1d5426d0c769f", null ],

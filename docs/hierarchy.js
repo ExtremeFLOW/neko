@@ -128,6 +128,9 @@ var hierarchy =
       ] ],
       [ "point::point_t", "db/d6f/structpoint_1_1point__t.html", null ]
     ] ],
+    [ "facet_zone::facet_zone_t", "d2/d94/structfacet__zone_1_1facet__zone__t.html", [
+      [ "facet_zone::facet_zone_periodic_t", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html", null ]
+    ] ],
     [ "fdm::fdm_t", "de/d85/structfdm_1_1fdm__t.html", null ],
     [ "field_list::field_list_t", "d3/d90/structfield__list_1_1field__list__t.html", null ],
     [ "field::field_ptr_t", "dc/dd8/structfield_1_1field__ptr__t.html", null ],
@@ -305,6 +308,7 @@ var hierarchy =
       [ "pipecg_sx::sx_pipecg_t", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html", null ]
     ] ],
     [ "krylov::ksp_t_free", "d6/dc8/interfacekrylov_1_1ksp__t__free.html", null ],
+    [ "local_interpolation::local_interpolator_t", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html", null ],
     [ "logger::log_t", "d0/d7b/structlogger_1_1log__t.html", null ],
     [ "map::map_init", "d2/d3d/interfacemap_1_1map__init.html", null ],
     [ "map::map_t", "da/d40/structmap_1_1map__t.html", null ],
@@ -371,7 +375,15 @@ var hierarchy =
     [ "pnpn_res_device::pnpn_vel_res_update_hip", "d1/d79/interfacepnpn__res__device_1_1pnpn__vel__res__update__hip.html", null ],
     [ "point_interpolator::point_interpolator_t", "d6/d23/structpoint__interpolator_1_1point__interpolator__t.html", null ],
     [ "point::point_ptr", "d7/d33/structpoint_1_1point__ptr.html", null ],
-    [ "probes::probes_t", "d7/dd3/structprobes_1_1probes__t.html", null ],
+    [ "point_zone::point_zone_criterion", "d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html", null ],
+    [ "point_zone::point_zone_free", "dc/d4e/interfacepoint__zone_1_1point__zone__free.html", null ],
+    [ "point_zone::point_zone_init", "d3/d1e/interfacepoint__zone_1_1point__zone__init.html", null ],
+    [ "point_zone_registry::point_zone_registry_t", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html", null ],
+    [ "point_zone::point_zone_t", "d6/d13/structpoint__zone_1_1point__zone__t.html", [
+      [ "box_point_zone::box_point_zone_t", "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html", null ],
+      [ "sphere_point_zone::sphere_point_zone_t", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html", null ]
+    ] ],
+    [ "point_zone::point_zone_wrapper_t", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html", null ],
     [ "projection::projection_t", "d5/dcf/structprojection_1_1projection__t.html", null ],
     [ "pnpn_residual::prs_res", "dc/d18/interfacepnpn__residual_1_1prs__res.html", null ],
     [ "stats::quantp_t", "d3/de2/structstats_1_1quantp__t.html", null ],
@@ -443,6 +455,7 @@ var hierarchy =
     [ "simulation_component::simulation_component_init", "d6/deb/interfacesimulation__component_1_1simulation__component__init.html", null ],
     [ "simulation_component::simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", [
       [ "lambda2::lambda2_t", "d6/db3/structlambda2_1_1lambda2__t.html", null ],
+      [ "probes::probes_t", "d7/dd3/structprobes_1_1probes__t.html", null ],
       [ "vorticity::vorticity_t", "da/d79/structvorticity_1_1vorticity__t.html", null ]
     ] ],
     [ "simulation_component::simulation_component_wrapper_t", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html", null ],
@@ -533,8 +546,5 @@ var hierarchy =
     [ "usr_scalar::usr_scalar_bc_eval", "d8/dbe/interfaceusr__scalar_1_1usr__scalar__bc__eval.html", null ],
     [ "vector::vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", null ],
     [ "vector::vector_t", "d3/d5b/structvector_1_1vector__t.html", null ],
-    [ "pnpn_residual::vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", null ],
-    [ "zone::zone_t", "d7/dda/structzone_1_1zone__t.html", [
-      [ "zone::zone_periodic_t", "dc/d98/structzone_1_1zone__periodic__t.html", null ]
-    ] ]
+    [ "pnpn_residual::vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", null ]
 ];

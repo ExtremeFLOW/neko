@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -123,6 +123,7 @@ $(document).ready(function(){initNavTree('functions.html',''); initResizable(); 
 <li>add()
 : <a class="el" href="d3/d5f/structfield_1_1field__t.html#ab60147726fcddfe9c7fc3aa2d7a2715a">field::field_t</a>
 , <a class="el" href="db/da1/structfld__file__data_1_1fld__file__data__t.html#a3a7203115ba0d79724462676aaa760ac">fld_file_data::fld_file_data_t</a>
+, <a class="el" href="d6/d13/structpoint__zone_1_1point__zone__t.html#a94be26c77060e0ac93b968df138da643">point_zone::point_zone_t</a>
 , <a class="el" href="de/de8/structsampler_1_1sampler__t.html#a44001b1d12cfdb501b19aa4a985ce806">sampler::sampler_t</a>
 , <a class="el" href="d5/dff/structstats_1_1stats__t.html#adce83bcbd72e17a47f9ef8f7033d2790">stats::stats_t</a>
 , <a class="el" href="d6/db2/structuset_1_1uset__i4__t.html#a952adcfdd17281d9a37fa8019931a058">uset::uset_i4_t</a>
@@ -142,7 +143,7 @@ $(document).ready(function(){initNavTree('functions.html',''); initResizable(); 
 : <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a01e4976c4a5261da1b9c61501c8a76cf">mesh::mesh_t</a>
 </li>
 <li>add_facet()
-: <a class="el" href="d7/dda/structzone_1_1zone__t.html#a744652c2fe8571e4e09208ead46d074b">zone::zone_t</a>
+: <a class="el" href="d2/d94/structfacet__zone_1_1facet__zone__t.html#a523ecb0f90ca2c069f716fc3f48bdd59">facet_zone::facet_zone_t</a>
 </li>
 <li>add_field()
 : <a class="el" href="d3/d5f/structfield_1_1field__t.html#ae319c570c541618bf561e9d049c20566">field::field_t</a>
@@ -155,10 +156,16 @@ $(document).ready(function(){initNavTree('functions.html',''); initResizable(); 
 : <a class="el" href="d9/d88/structcheckpoint_1_1chkp__t.html#a1771158e352d6ad3929e93218dd1a560">checkpoint::chkp_t</a>
 </li>
 <li>add_periodic_facet()
-: <a class="el" href="dc/d98/structzone_1_1zone__periodic__t.html#a8440cd4a481311074b5f894394bf0f3e">zone::zone_periodic_t</a>
+: <a class="el" href="d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a0869b15bc7ee278adb5f6352e33ebb35">facet_zone::facet_zone_periodic_t</a>
 </li>
 <li>add_point()
 : <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a8b0c2522ea7f8da5e8a379eaf04d5a84">mesh::mesh_t</a>
+</li>
+<li>add_point_zone()
+: <a class="el" href="dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html#a2d81276e1d36258ad45ef621369f5876">point_zone_registry::point_zone_registry_t</a>
+</li>
+<li>add_point_zone_from_json()
+: <a class="el" href="dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html#ac75408a7bc07e3611b54e98f6f5cdf40">point_zone_registry::point_zone_registry_t</a>
 </li>
 <li>add_quad()
 : <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#ace90f0233cfb9e9a9cbcc5480dbb8c3c">mesh::mesh_t</a>
@@ -186,8 +193,8 @@ $(document).ready(function(){initNavTree('functions.html',''); initResizable(); 
 <li>all_deformed()
 : <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a2a6883898281575fa2264702ef304731">mesh::mesh_t</a>
 </li>
-<li>allocate_fields()
-: <a class="el" href="d7/dd3/structprobes_1_1probes__t.html#a362016da56c00f60df01782189f19836">probes::probes_t</a>
+<li>all_points_local
+: <a class="el" href="dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a48afec930d38c8ab783a6b6b181a3368">global_interpolation::global_interpolation_t</a>
 </li>
 <li>alpha
 : <a class="el" href="db/d98/structcg_1_1cg__t.html#a9a68ccbc38e875d53acd6afe5b2af28d">cg::cg_t</a>
@@ -330,7 +337,7 @@ $(document).ready(function(){initNavTree('functions.html',''); initResizable(); 
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

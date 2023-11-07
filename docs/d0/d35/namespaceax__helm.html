@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -102,13 +102,16 @@ $(document).ready(function(){initNavTree('d0/d35/namespaceax__helm.html','../../
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d58/structax__helm_1_1ax__helm__t.html">ax_helm_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">CPU matrix-vector product for a Helmholtz problem.  <a href="../../d1/d58/structax__helm_1_1ax__helm__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a6d5644a63b2319389893612348b3d55e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e">ax_helm_compute</a> (w, u, coef, msh, Xh)</td></tr>
+<tr class="memdesc:a6d5644a63b2319389893612348b3d55e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the product.  <a href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e">More...</a><br /></td></tr>
 <tr class="separator:a6d5644a63b2319389893612348b3d55e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a77968eea69282ffd93d39264dac6ec7f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d35/namespaceax__helm.html#a77968eea69282ffd93d39264dac6ec7f">ax_helm_lx</a> (w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, h1, G11, G22, G33, G12, G13, G23, n, lx)</td></tr>
+<tr class="memdesc:a77968eea69282ffd93d39264dac6ec7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic CPU kernel for the Helmholtz matrix-vector product.  <a href="../../d0/d35/namespaceax__helm.html#a77968eea69282ffd93d39264dac6ec7f">More...</a><br /></td></tr>
 <tr class="separator:a77968eea69282ffd93d39264dac6ec7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acec5993018022914d3a5ded620e9cf20"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d35/namespaceax__helm.html#acec5993018022914d3a5ded620e9cf20">ax_helm_lx14</a> (w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, h1, G11, G22, G33, G12, G13, G23, n)</td></tr>
 <tr class="separator:acec5993018022914d3a5ded620e9cf20"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -182,15 +185,28 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00046">46</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p>Compute the product. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">w</td><td>Vector of size <em></em>(lx,ly,lz,nelv). </td></tr>
+    <tr><td class="paramname">u</td><td>Vector of size <em></em>(lx,ly,lz,nelv). </td></tr>
+    <tr><td class="paramname">coef</td><td>Coefficients. </td></tr>
+    <tr><td class="paramname">msh</td><td>Mesh. </td></tr>
+    <tr><td class="paramname">Xh</td><td>Function space \( X_h \). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>Since this is a performance-crtical routine, it is implemented in several kernels corresponding to different polynmial orders. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00061">61</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a6d5644a63b2319389893612348b3d55e_cgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a6d5644a63b2319389893612348b3d55e_cgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a6d5644a63b2319389893612348b3d55e_cgraph" id="ad0/d35/namespaceax__helm_a6d5644a63b2319389893612348b3d55e_cgraph">
-<area shape="rect" title=" " alt="" coords="5,360,212,387"/>
+<area shape="rect" title="Compute the product." alt="" coords="5,360,212,387"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#a7addeb46379b324b5c69d5ec07cef0bd" title="Returns ." alt="" coords="291,5,406,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a77968eea69282ffd93d39264dac6ec7f" title=" " alt="" coords="268,56,429,83"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a77968eea69282ffd93d39264dac6ec7f" title="Generic CPU kernel for the Helmholtz matrix&#45;vector product." alt="" coords="268,56,429,83"/>
 <area shape="rect" href="../../d0/d35/namespaceax__helm.html#a4c7a78b668c3edc249c7073580cb3ce0" title=" " alt="" coords="260,107,437,133"/>
 <area shape="rect" href="../../d0/d35/namespaceax__helm.html#a988379b29c140a0833ffeac672530aac" title=" " alt="" coords="260,157,437,184"/>
 <area shape="rect" href="../../d0/d35/namespaceax__helm.html#a5f7e52bfbfaacdfacee81a4e4cd96f19" title=" " alt="" coords="260,208,437,235"/>
@@ -333,14 +349,16 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00104">104</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p>Generic CPU kernel for the Helmholtz matrix-vector product. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00120">120</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a77968eea69282ffd93d39264dac6ec7f_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a77968eea69282ffd93d39264dac6ec7f_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a77968eea69282ffd93d39264dac6ec7f_icgraph" id="ad0/d35/namespaceax__helm_a77968eea69282ffd93d39264dac6ec7f_icgraph">
-<area shape="rect" title=" " alt="" coords="260,5,421,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" title="Generic CPU kernel for the Helmholtz matrix&#45;vector product." alt="" coords="260,5,421,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -464,14 +482,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00843">843</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00859">859</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a4c7a78b668c3edc249c7073580cb3ce0_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a4c7a78b668c3edc249c7073580cb3ce0_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a4c7a78b668c3edc249c7073580cb3ce0_icgraph" id="ad0/d35/namespaceax__helm_a4c7a78b668c3edc249c7073580cb3ce0_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,437,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -595,14 +613,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00695">695</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00711">711</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a988379b29c140a0833ffeac672530aac_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a988379b29c140a0833ffeac672530aac_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a988379b29c140a0833ffeac672530aac_icgraph" id="ad0/d35/namespaceax__helm_a988379b29c140a0833ffeac672530aac_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,437,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -726,14 +744,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00541">541</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00557">557</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a5f7e52bfbfaacdfacee81a4e4cd96f19_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a5f7e52bfbfaacdfacee81a4e4cd96f19_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a5f7e52bfbfaacdfacee81a4e4cd96f19_icgraph" id="ad0/d35/namespaceax__helm_a5f7e52bfbfaacdfacee81a4e4cd96f19_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,437,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -857,14 +875,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00380">380</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00396">396</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_aa0a50ae9cec89cfbf2d0b66ac75b7b76_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_aa0a50ae9cec89cfbf2d0b66ac75b7b76_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_aa0a50ae9cec89cfbf2d0b66ac75b7b76_icgraph" id="ad0/d35/namespaceax__helm_aa0a50ae9cec89cfbf2d0b66ac75b7b76_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,437,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -988,14 +1006,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00214">214</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00230">230</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_acec5993018022914d3a5ded620e9cf20_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_acec5993018022914d3a5ded620e9cf20_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_acec5993018022914d3a5ded620e9cf20_icgraph" id="ad0/d35/namespaceax__helm_acec5993018022914d3a5ded620e9cf20_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,437,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -1119,14 +1137,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01811">1811</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01827">1827</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_ae17cd93cd30cca057d2c9b678ce6e95a_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_ae17cd93cd30cca057d2c9b678ce6e95a_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_ae17cd93cd30cca057d2c9b678ce6e95a_icgraph" id="ad0/d35/namespaceax__helm_ae17cd93cd30cca057d2c9b678ce6e95a_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,429,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -1250,14 +1268,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01711">1711</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01727">1727</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a175d8f87f6f3ccd86d585e8219c8bee7_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a175d8f87f6f3ccd86d585e8219c8bee7_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a175d8f87f6f3ccd86d585e8219c8bee7_icgraph" id="ad0/d35/namespaceax__helm_a175d8f87f6f3ccd86d585e8219c8bee7_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,429,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -1381,14 +1399,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01605">1605</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01621">1621</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a7d899162a354aa3d3b064dab2b801336_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a7d899162a354aa3d3b064dab2b801336_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a7d899162a354aa3d3b064dab2b801336_icgraph" id="ad0/d35/namespaceax__helm_a7d899162a354aa3d3b064dab2b801336_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,429,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -1512,14 +1530,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01493">1493</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01509">1509</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_affca444f9c89bb0170725db92a54a7a6_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_affca444f9c89bb0170725db92a54a7a6_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_affca444f9c89bb0170725db92a54a7a6_icgraph" id="ad0/d35/namespaceax__helm_affca444f9c89bb0170725db92a54a7a6_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,429,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -1643,14 +1661,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01375">1375</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01391">1391</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a61730a3e5c3796086ead823050da6721_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a61730a3e5c3796086ead823050da6721_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a61730a3e5c3796086ead823050da6721_icgraph" id="ad0/d35/namespaceax__helm_a61730a3e5c3796086ead823050da6721_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,429,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -1774,14 +1792,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01251">1251</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01267">1267</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a03d21a660555caec3bb8df9361467f7d_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a03d21a660555caec3bb8df9361467f7d_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a03d21a660555caec3bb8df9361467f7d_icgraph" id="ad0/d35/namespaceax__helm_a03d21a660555caec3bb8df9361467f7d_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,429,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -1905,14 +1923,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01121">1121</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01137">1137</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a1455740e4bda1c2fdd804683eaef0739_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a1455740e4bda1c2fdd804683eaef0739_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a1455740e4bda1c2fdd804683eaef0739_icgraph" id="ad0/d35/namespaceax__helm_a1455740e4bda1c2fdd804683eaef0739_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,429,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -2036,14 +2054,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l00985">985</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html#l01001">1001</a> of file <a class="el" href="../../dd/dd9/ax__helm_8f90_source.html">ax_helm.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d35/namespaceax__helm_a0a7ff1435c746ebc38d78ea64a6ea40a_icgraph.png" border="0" usemap="#ad0/d35/namespaceax__helm_a0a7ff1435c746ebc38d78ea64a6ea40a_icgraph" alt=""/></div>
 <map name="ad0/d35/namespaceax__helm_a0a7ff1435c746ebc38d78ea64a6ea40a_icgraph" id="ad0/d35/namespaceax__helm_a0a7ff1435c746ebc38d78ea64a6ea40a_icgraph">
 <area shape="rect" title=" " alt="" coords="260,5,429,32"/>
-<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title=" " alt="" coords="5,5,212,32"/>
+<area shape="rect" href="../../d0/d35/namespaceax__helm.html#a6d5644a63b2319389893612348b3d55e" title="Compute the product." alt="" coords="5,5,212,32"/>
 </map>
 </div>
 
@@ -2055,7 +2073,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d35/namespaceax__helm.html">ax_helm</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -138,11 +138,14 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:adf10ffea141065b2c9c075b689e5fc2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the addition of 2 points \( p_{1} + p_{2} \).  <a href="../../d8/dbc/namespacepoint.html#adf10ffea141065b2c9c075b689e5fc2e">More...</a><br /></td></tr>
 <tr class="separator:adf10ffea141065b2c9c075b689e5fc2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4eb0c18b8424f076ed3c064b1d9a1c54"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dbc/namespacepoint.html#a4eb0c18b8424f076ed3c064b1d9a1c54">point_subtract</a> (p1, p2)</td></tr>
-<tr class="memdesc:a4eb0c18b8424f076ed3c064b1d9a1c54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the subtraction of 2 points \( p_{1} + p_{2} \).  <a href="../../d8/dbc/namespacepoint.html#a4eb0c18b8424f076ed3c064b1d9a1c54">More...</a><br /></td></tr>
+<tr class="memdesc:a4eb0c18b8424f076ed3c064b1d9a1c54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the subtraction of 2 points \( p_{1} - p_{2} \).  <a href="../../d8/dbc/namespacepoint.html#a4eb0c18b8424f076ed3c064b1d9a1c54">More...</a><br /></td></tr>
 <tr class="separator:a4eb0c18b8424f076ed3c064b1d9a1c54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9819a265bcbe215004f79a2a576d5877"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dbc/namespacepoint.html#a9819a265bcbe215004f79a2a576d5877">point_scalar_mult</a> (p, a)</td></tr>
 <tr class="memdesc:a9819a265bcbe215004f79a2a576d5877"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the multiplication of a point by a scalar \( a*p_{1} \).  <a href="../../d8/dbc/namespacepoint.html#a9819a265bcbe215004f79a2a576d5877">More...</a><br /></td></tr>
 <tr class="separator:a9819a265bcbe215004f79a2a576d5877"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada5de3a268ca455d0d95dd01d1024eb0"><td class="memItemLeft" align="right" valign="top">pure <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dbc/namespacepoint.html#ada5de3a268ca455d0d95dd01d1024eb0">point_euclid_dist</a> (p1, p2)</td></tr>
+<tr class="memdesc:ada5de3a268ca455d0d95dd01d1024eb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the Euclidean distance between two points \( \mid p_1 - p_2 \mid \).  <a href="../../d8/dbc/namespacepoint.html#ada5de3a268ca455d0d95dd01d1024eb0">More...</a><br /></td></tr>
+<tr class="separator:ada5de3a268ca455d0d95dd01d1024eb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf379207ff78c76c44b9533313fb5926"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dbc/namespacepoint.html#adf379207ff78c76c44b9533313fb5926">point_mat_mult</a> (A, x)</td></tr>
 <tr class="memdesc:adf379207ff78c76c44b9533313fb5926"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes matrix-vector product in \( \mathbb{R}^3 \): \( b = Ax \).  <a href="../../d8/dbc/namespacepoint.html#adf379207ff78c76c44b9533313fb5926">More...</a><br /></td></tr>
 <tr class="separator:adf379207ff78c76c44b9533313fb5926"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -186,7 +189,7 @@ Functions/Subroutines</h2></td></tr>
 
 <p>Returns the addition of 2 points \( p_{1} + p_{2} \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00189">189</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00190">190</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -235,7 +238,7 @@ Here is the caller graph for this function:</div>
 
 <p>Assigns coordinates <em>x</em> to a point. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -285,7 +288,7 @@ Here is the caller graph for this function:</div>
 <p>Check if \( p_{1} = p_{2} \). </p>
 <dl class="section note"><dt>Note</dt><dd>this only checks coordinates. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00123">123</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00124">124</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -295,6 +298,46 @@ Here is the caller graph for this function:</div>
 <area shape="rect" href="../../db/d6f/structpoint_1_1point__t.html#a9ea5fcdb2eb9b8674de9596b92fdae57" title=" " alt="" coords="5,5,176,32"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="ada5de3a268ca455d0d95dd01d1024eb0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada5de3a268ca455d0d95dd01d1024eb0">&#9670;&nbsp;</a></span>point_euclid_dist()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">pure <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) function point::point_euclid_dist </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), intent(in)&#160;</td>
+          <td class="paramname"><em>p1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), intent(in)&#160;</td>
+          <td class="paramname"><em>p2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the Euclidean distance between two points \( \mid p_1 - p_2 \mid \). </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00226">226</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 
 </div>
 </div>
@@ -335,7 +378,7 @@ Here is the caller graph for this function:</div>
 <p>Check if \( p_{1} &gt; p_{2} \). </p>
 <dl class="section note"><dt>Note</dt><dd>this only checks coordinates. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00175">175</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00176">176</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -393,7 +436,7 @@ Here is the caller graph for this function:</div>
 
 <p>Initialize a point from an array <em>x</em> of \( (x,y,z) \) coordinates. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 
 </div>
 </div>
@@ -445,7 +488,7 @@ Here is the caller graph for this function:</div>
 
 <p>Initialize a point from \( (x,y,z) \) coordinates. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 
 </div>
 </div>
@@ -486,7 +529,7 @@ Here is the caller graph for this function:</div>
 <p>Check if \( p_{1} &lt; p_{2} \). </p>
 <dl class="section note"><dt>Note</dt><dd>this only checks coordinates. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00157">157</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00158">158</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -537,7 +580,7 @@ Here is the caller graph for this function:</div>
 
 <p>Computes matrix-vector product in \( \mathbb{R}^3 \): \( b = Ax \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00225">225</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00237">237</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -587,7 +630,7 @@ Here is the caller graph for this function:</div>
 <p>Check if \( p_{1} \neq p_{2} \). </p>
 <dl class="section note"><dt>Note</dt><dd>this only checks coordinates. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00140">140</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00141">141</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -636,7 +679,7 @@ Here is the caller graph for this function:</div>
 
 <p>Returns the multiplication of a point by a scalar \( a*p_{1} \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00213">213</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00214">214</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -683,9 +726,9 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Returns the subtraction of 2 points \( p_{1} + p_{2} \). </p>
+<p>Returns the subtraction of 2 points \( p_{1} - p_{2} \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00201">201</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dc5/point_8f90_source.html#l00202">202</a> of file <a class="el" href="../../d8/dc5/point_8f90_source.html">point.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -704,7 +747,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/dbc/namespacepoint.html">point</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

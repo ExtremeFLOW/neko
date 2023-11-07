@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Neko: /home/runner/work/neko/neko/src/common/probes.F90 File Reference</title>
+<title>Neko: /home/runner/work/neko/neko/src/simulation_components/probes.F90 File Reference</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -115,9 +115,12 @@ Modules</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a79159fd6884a35da9a3b773b79e55e37"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#a79159fd6884a35da9a3b773b79e55e37">probes::probes_init</a> (this, t, params, xh)</td></tr>
-<tr class="memdesc:a79159fd6884a35da9a3b773b79e55e37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize user defined variables.  <a href="../../d2/d4d/namespaceprobes.html#a79159fd6884a35da9a3b773b79e55e37">More...</a><br /></td></tr>
-<tr class="separator:a79159fd6884a35da9a3b773b79e55e37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb0ca751eadf5869b849ac2eef557885"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#afb0ca751eadf5869b849ac2eef557885">probes::probes_init_from_json</a> (this, json, case)</td></tr>
+<tr class="memdesc:afb0ca751eadf5869b849ac2eef557885"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from json.  <a href="../../d2/d4d/namespaceprobes.html#afb0ca751eadf5869b849ac2eef557885">More...</a><br /></td></tr>
+<tr class="separator:afb0ca751eadf5869b849ac2eef557885"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c6791ea3573725c137b0b001be7b135"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#a2c6791ea3573725c137b0b001be7b135">probes::probes_init_from_attributes</a> (this, dof, output_file)</td></tr>
+<tr class="memdesc:a2c6791ea3573725c137b0b001be7b135"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize without json things.  <a href="../../d2/d4d/namespaceprobes.html#a2c6791ea3573725c137b0b001be7b135">More...</a><br /></td></tr>
+<tr class="separator:a2c6791ea3573725c137b0b001be7b135"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7718a4200ee572a7357b0ceb910c42a9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#a7718a4200ee572a7357b0ceb910c42a9">probes::probes_free</a> (this)</td></tr>
 <tr class="memdesc:a7718a4200ee572a7357b0ceb910c42a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d2/d4d/namespaceprobes.html#a7718a4200ee572a7357b0ceb910c42a9">More...</a><br /></td></tr>
 <tr class="separator:a7718a4200ee572a7357b0ceb910c42a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,32 +130,26 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a9a5fe480805cf73f0ed8ec0c532de369"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">probes::probes_debug</a> (this)</td></tr>
 <tr class="memdesc:a9a5fe480805cf73f0ed8ec0c532de369"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show the status of processor/element owner and error code for each point.  <a href="../../d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">More...</a><br /></td></tr>
 <tr class="separator:a9a5fe480805cf73f0ed8ec0c532de369"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a73bfc9f10d469a674c9dea7112f050"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#a6a73bfc9f10d469a674c9dea7112f050">probes::probes_setup</a> (this, coef)</td></tr>
-<tr class="memdesc:a6a73bfc9f10d469a674c9dea7112f050"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setup the probes for mapping process (with fgslib_findpts_setup).  <a href="../../d2/d4d/namespaceprobes.html#a6a73bfc9f10d469a674c9dea7112f050">More...</a><br /></td></tr>
-<tr class="separator:a6a73bfc9f10d469a674c9dea7112f050"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa04b0be79f1c799ec49b80b145027a0e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#aa04b0be79f1c799ec49b80b145027a0e">probes::probes_map</a> (this, coef)</td></tr>
-<tr class="memdesc:aa04b0be79f1c799ec49b80b145027a0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maps <code>x,y,z</code> to <code>r,s,t</code> coordinates. The result of the mapping for each point can be found in the following variables:  <a href="../../d2/d4d/namespaceprobes.html#aa04b0be79f1c799ec49b80b145027a0e">More...</a><br /></td></tr>
-<tr class="separator:aa04b0be79f1c799ec49b80b145027a0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aefc8860d2845f2d3f94fa744099ba019"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#aefc8860d2845f2d3f94fa744099ba019">probes::probes_interpolate</a> (this, t, tstep, write_output)</td></tr>
-<tr class="memdesc:aefc8860d2845f2d3f94fa744099ba019"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interpolate each probe from its <code>r,s,t</code> coordinates.  <a href="../../d2/d4d/namespaceprobes.html#aefc8860d2845f2d3f94fa744099ba019">More...</a><br /></td></tr>
-<tr class="separator:aefc8860d2845f2d3f94fa744099ba019"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a85aa831473bd438a029292e0800269b4"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#a85aa831473bd438a029292e0800269b4">probes::read_probe_locations</a> (this, points_file)</td></tr>
-<tr class="memdesc:a85aa831473bd438a029292e0800269b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the physical coordinates from a <code>csv</code> input file.  <a href="../../d2/d4d/namespaceprobes.html#a85aa831473bd438a029292e0800269b4">More...</a><br /></td></tr>
-<tr class="separator:a85aa831473bd438a029292e0800269b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab80f76a4304c6981c8b6568884a6f91f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#ab80f76a4304c6981c8b6568884a6f91f">probes::read_from_csv</a> (this, f, mat_in)</td></tr>
-<tr class="memdesc:ab80f76a4304c6981c8b6568884a6f91f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read and initialize the number of probes from a <code>csv</code> input file.  <a href="../../d2/d4d/namespaceprobes.html#ab80f76a4304c6981c8b6568884a6f91f">More...</a><br /></td></tr>
-<tr class="separator:ab80f76a4304c6981c8b6568884a6f91f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a877cd14e1e02ec5eda97bd7f7a1e180c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#a877cd14e1e02ec5eda97bd7f7a1e180c">probes::probes_allocate_fields</a> (this)</td></tr>
-<tr class="memdesc:a877cd14e1e02ec5eda97bd7f7a1e180c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate arrays according to previously initialized # of probes and fields.  <a href="../../d2/d4d/namespaceprobes.html#a877cd14e1e02ec5eda97bd7f7a1e180c">More...</a><br /></td></tr>
-<tr class="separator:a877cd14e1e02ec5eda97bd7f7a1e180c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac550f5297c326f7c18d84029598f907e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">probes::probes_setup_offset</a> (this)</td></tr>
+<tr class="memdesc:ac550f5297c326f7c18d84029598f907e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setup offset for rank 0.  <a href="../../d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">More...</a><br /></td></tr>
+<tr class="separator:ac550f5297c326f7c18d84029598f907e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8103306b5d86eb1da82c66855f449a9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">probes::probes_evaluate_and_write</a> (this, t, tstep)</td></tr>
+<tr class="memdesc:ac8103306b5d86eb1da82c66855f449a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interpolate each probe from its <code>r,s,t</code> coordinates.  <a href="../../d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">More...</a><br /></td></tr>
+<tr class="separator:ac8103306b5d86eb1da82c66855f449a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b34e65d345a973280a5c70b385752ad"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">probes::read_probe_locations</a> (this, xyz, n_local_probes, n_global_probes, points_file)</td></tr>
+<tr class="memdesc:a4b34e65d345a973280a5c70b385752ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the physical coordinates from a <code>csv</code> input file.  <a href="../../d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">More...</a><br /></td></tr>
+<tr class="separator:a4b34e65d345a973280a5c70b385752ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09cc65ba5144cca0c06bca7bdcba49e6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d4d/namespaceprobes.html#a09cc65ba5144cca0c06bca7bdcba49e6">probes::read_xyz_from_csv</a> (this, xyz, n_local_probes, n_global_probes, f)</td></tr>
+<tr class="memdesc:a09cc65ba5144cca0c06bca7bdcba49e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read and initialize the number of probes from a <code>csv</code> input file.  <a href="../../d2/d4d/namespaceprobes.html#a09cc65ba5144cca0c06bca7bdcba49e6">More...</a><br /></td></tr>
+<tr class="separator:a09cc65ba5144cca0c06bca7bdcba49e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d6/dfb/probes_8F90.html">probes.F90</a></li>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_702567638a028346607c31c39047d6bd.html">simulation_components</a></li><li class="navelem"><a class="el" href="../../d6/dfb/probes_8F90.html">probes.F90</a></li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

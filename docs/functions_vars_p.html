@@ -34,7 +34,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Neko
-   &#160;<span id="projectnumber">0.6.99</span>
+   &#160;<span id="projectnumber">0.7.0-rc1</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -121,16 +121,16 @@ $(document).ready(function(){initNavTree('functions_vars_p.html',''); initResiza
 : <a class="el" href="d5/d6a/structnmsh_1_1nmsh__zone__t.html#afef506ec39def7cd45d84ac8694038d7">nmsh::nmsh_zone_t</a>
 </li>
 <li>p_facet_el
-: <a class="el" href="dc/d98/structzone_1_1zone__periodic__t.html#abeaff5084ea0dc8e2b776df50c5a8d26">zone::zone_periodic_t</a>
+: <a class="el" href="d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a1a1b10001107b5ca8370cf841dd869f6">facet_zone::facet_zone_periodic_t</a>
 </li>
 <li>p_hat
 : <a class="el" href="dc/dd5/structbicgstab_1_1bicgstab__t.html#a5b114e0bc783e2a2c2d23b4a06f6a159">bicgstab::bicgstab_t</a>
 </li>
 <li>p_id_scratch
-: <a class="el" href="dc/d98/structzone_1_1zone__periodic__t.html#a66c830170bbdcdef66cf38ff10e1f0d5">zone::zone_periodic_t</a>
+: <a class="el" href="d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#aee17e4c9ad754863ba1e7be54b30516f">facet_zone::facet_zone_periodic_t</a>
 </li>
 <li>p_ids
-: <a class="el" href="dc/d98/structzone_1_1zone__periodic__t.html#a58bdcac24a5e4446d342c7479462f9fa">zone::zone_periodic_t</a>
+: <a class="el" href="d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#ac5ac96736caf5703239ac54b5500ed5e">facet_zone::facet_zone_periodic_t</a>
 </li>
 <li>p_mean
 : <a class="el" href="da/d8a/structfluid__stats_1_1fluid__stats__t.html#a1dbb831e24bd9292290eb43c4c755594">fluid_stats::fluid_stats_t</a>
@@ -139,7 +139,7 @@ $(document).ready(function(){initNavTree('functions_vars_p.html',''); initResiza
 : <a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#aca1f73c5c1c999f857ea6c7af5f94aa6">fluid_pnpn::fluid_pnpn_t</a>
 </li>
 <li>p_scratch
-: <a class="el" href="dc/d98/structzone_1_1zone__periodic__t.html#af9f8f0daf65a11984b8774973d80ea91">zone::zone_periodic_t</a>
+: <a class="el" href="d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#ab05e60852c223dce4b5c550e4cab2b0f">facet_zone::facet_zone_periodic_t</a>
 </li>
 <li>p_vol
 : <a class="el" href="d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#a37580765ccb454cd426178eca21b68d7">fluid_volflow::fluid_volflow_t</a>
@@ -196,7 +196,7 @@ $(document).ready(function(){initNavTree('functions_vars_p.html',''); initResiza
 : <a class="el" href="d6/d4a/structdatadist_1_1dist__t.html#adb8210d014ae8afeab926aa7022a804a">datadist::dist_t</a>
 </li>
 <li>periodic
-: <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a82f6e55195ab52a2da4072035d775571">mesh::mesh_t</a>
+: <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a9b2747b1f3ba6278bbc9a5a86b346136">mesh::mesh_t</a>
 </li>
 <li>point
 : <a class="el" href="d5/dae/structoctree_1_1oct__t.html#a19350429bf809b335b8c603428aa0b21">octree::oct_t</a>
@@ -205,6 +205,9 @@ $(document).ready(function(){initNavTree('functions_vars_p.html',''); initResiza
 </li>
 <li>point_neigh
 : <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a9b27b8dc50cf503ebe1ac3cb88034c2b">mesh::mesh_t</a>
+</li>
+<li>point_zones
+: <a class="el" href="dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html#a802f4c4335eb6d53f3f44271b72614f7">point_zone_registry::point_zone_registry_t</a>
 </li>
 <li>points
 : <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a4f3535a4b629654e036eb8bbc23c6115">mesh::mesh_t</a>
@@ -275,13 +278,16 @@ $(document).ready(function(){initNavTree('functions_vars_p.html',''); initResiza
 <li>pw
 : <a class="el" href="da/d8a/structfluid__stats_1_1fluid__stats__t.html#ae6edac6fced1943db032a3c3f4d70219">fluid_stats::fluid_stats_t</a>
 </li>
+<li>pz
+: <a class="el" href="dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html#a9893a525d705f2e5954261ca812597f8">point_zone::point_zone_wrapper_t</a>
+</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Wed Nov 1 2023 18:35:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 7 2023 15:40:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
