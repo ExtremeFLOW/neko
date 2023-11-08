@@ -33,6 +33,11 @@ for i in range(0,number_of_cases):
             crash_index = crash_files[-1]
             print("The last error log file encoutered was: " + crash_index)
 
+        if crash_index == "no_file":
+            print("The case has no log files. It has likely been processed by manager before")
+            print("Breaking process of this case")
+            continue
+
         logfile = open(crash_index, "r")
         log = logfile.readlines()
         number_of_lines = len(log)
