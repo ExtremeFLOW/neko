@@ -207,13 +207,11 @@ extern "C" {
           __syncthreads();
           
           // Push data
-          nvshmemx_double_put_block(dest + block_offset, src +
-                                    block_offset, dataSize, destRank);
-          __syncthreads();
-          
+	  nvshmemx_double_put_signal_nbi_block(dest + block_offset, src +
+	  				      block_offset, dataSize,
+	  				      notifyDone, counter, NVSHMEM_SIGNAL_SET, destRank);
           // Notify done to receiving rank, and wait for data from sending rank
           if (threadIdx.x == 0) {
-              nvshmemx_signal_op(notifyDone, counter, NVSHMEM_SIGNAL_SET, destRank);
               nvshmem_signal_wait_until(notifyDone, NVSHMEM_CMP_EQ, counter);
           }
       }
@@ -221,11 +219,21 @@ extern "C" {
     
   void cuda_gs_pack_and_push(void *u_d, void *sbuf_d, void *sdof_d,
                              int soffset, int n, cudaStream_t stream,
-                             int srank,  void *rbuf_d, int roffset, int rnbytes,
-                             int rrank, int counter, void* notifyDone, void* notifyReady)
+                             int srank,  void *rbuf_d, int roffset, int* remote_offset, int rnbytes,
+                             int rrank, int counter, void* notifyDone, void* notifyReady, int iter, int npes)
   {
+    
+      if(remote_offset[iter-1] == -1)
+      {
+          MPI_Sendrecv(&roffset, 1, MPI_INT,
+		       rrank, 0,
+		       &(remote_offset[iter-1]), 1, MPI_INT,
+		       srank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      }
+
       const int nthrds = 1024;
       const int nblcks = (n+nthrds-1)/nthrds;
+
       
       // TO DO investigate merging following 2 kernels (and also unpack).  
       gs_pack_kernel<real>
@@ -233,15 +241,13 @@ extern "C" {
                                           (int *) sdof_d + soffset, n);
       
       pushShmemKernel<<<nblcks,nthrds,0,stream>>>((real *) u_d,
-                                                  (real *) rbuf_d + roffset,
+						  (real *) rbuf_d + remote_offset[iter-1],
                                                   (real *) sbuf_d + soffset,
                                                   (int *) sdof_d + soffset,
                                                   srank, rrank, n, counter,
                                                   (uint64_t*) notifyDone,
                                                   (uint64_t*) notifyReady);
-      
-      // TO DO understand why this is required - crashes without it
-      cudaStreamSynchronize(stream);        
+
       CUDA_CHECK(cudaGetLastError());
   }   
 }

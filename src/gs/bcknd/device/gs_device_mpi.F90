@@ -51,6 +51,7 @@ module gs_device_mpi
   type, private :: gs_device_mpi_buf_t
      integer, allocatable :: ndofs(:)           !< Number of dofs
      integer, allocatable :: offset(:)          !< Offset into buf
+     integer, allocatable :: remote_offset(:)   !< Offset into buf for remote rank
      integer :: total                           !< Total number of dofs
      type(c_ptr) :: reqs = C_NULL_PTR           !< MPI request array in C
      type(c_ptr) :: buf_d = C_NULL_PTR          !< Device buffer
@@ -69,7 +70,7 @@ module gs_device_mpi
      type(c_ptr), allocatable :: event(:)
      integer :: nb_strtgy
      type(c_ptr) :: send_event = C_NULL_PTR          
-     integer :: nvshmem_counter = 0
+     integer :: nvshmem_counter = 1
      type(c_ptr), allocatable :: notifyDone(:)
      type(c_ptr), allocatable :: notifyReady(:)
    contains
@@ -132,13 +133,14 @@ module gs_device_mpi
 
   interface
      subroutine cuda_gs_pack_and_push(u_d, buf_d, dof_d, offset, n, stream, &
-                                      srank, rbuf_d, roffset, rnbytes, &
-                                      rrank, nvshmem_counter, notifyDone, notifyReady) &
+                                      srank, rbuf_d, roffset, remote_offset, rnbytes, &
+                                      rrank, nvshmem_counter, notifyDone, notifyReady, iter, npes) &
           bind(c, name='cuda_gs_pack_and_push')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: n, offset, srank, roffset, rnbytes, rrank, nvshmem_counter
+       integer(c_int), value :: n, offset, srank, roffset, rnbytes, rrank, nvshmem_counter, iter, npes
        type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, notifyDone, notifyReady
+       integer(c_int),dimension(*) ::  remote_offset
      end subroutine cuda_gs_pack_and_push
   end interface
 
@@ -250,7 +252,12 @@ contains
 
     allocate(this%ndofs(size(pe_order)))
     allocate(this%offset(size(pe_order)))
+    allocate(this%remote_offset(size(pe_order)))
 
+    do i = 1, size(pe_order)
+       this%remote_offset(i)=-1
+    end do
+    
     total = 0
     do i = 1, size(pe_order)
        this%ndofs(i) = dof_stack(pe_order(i))%size()
@@ -459,9 +466,12 @@ if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine b
        end do
     end if
  else
-    do i = 1, size(this%send_pe)
-       call device_stream_wait_event(this%stream(i), deps, 0)
-    end do
+    ! Using single stream for NVSHMEM for now.
+    ! Multi-stream works but is slower in some cases, more investigation required 
+    !    do i = 1, size(this%send_pe)
+    !       call device_stream_wait_event(this%stream(i), deps, 0)
+    !    end do
+    call device_stream_wait_event(strm, deps, 0)
  end if
   end subroutine gs_device_mpi_nbsend
 
@@ -549,22 +559,29 @@ if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine b
        
     end if
 
-    else ! NVSHMEM path
-       do i = 1, size(this%send_pe)
+ else ! NVSHMEM path
+    ! Using single stream for NVSHMEM for now.
+    ! Multi-stream works but is slower in some cases, more investigation required
+
+    do i = 1, size(this%send_pe)
        call cuda_gs_pack_and_push(u_d, &
             this%send_buf%buf_d, &
             this%send_buf%dof_d, &
             this%send_buf%offset(i), &
             this%send_buf%ndofs(i), &
-            this%stream(i), &
+            !this%stream(i), &
+            strm, &
             this%send_pe(i), &
             this%recv_buf%buf_d, &
             this%recv_buf%offset(i), &
+            this%recv_buf%remote_offset, &
             this%recv_buf%ndofs(i), &
             this%recv_pe(i), &
             this%nvshmem_counter, &
             this%notifyDone(i), &
-            this%notifyReady(i))
+            this%notifyReady(i), &
+            i, &
+            size(this%send_pe))
        this%nvshmem_counter=this%nvshmem_counter+1
     end do
 
@@ -574,15 +591,16 @@ if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine b
             this%recv_buf%dof_d, &
             this%recv_buf%offset(done_req), &
             this%recv_buf%ndofs(done_req), &
-            this%stream(done_req))
-       call device_event_record(this%event(done_req), this%stream(done_req))
+            !this%stream(done_req))
+            strm)
+!       call device_event_record(this%event(done_req), this%stream(done_req))
     end do
 
-    ! Sync non-blocking streams
-    do done_req = 1, size(this%recv_pe)
-       call device_stream_wait_event(strm, &
-            this%event(done_req), 0)
-    end do
+!    ! Sync non-blocking streams
+!    do done_req = 1, size(this%recv_pe)
+!       call device_stream_wait_event(strm, &
+!            this%event(done_req), 0)
+!    end do
 
     end if
 
