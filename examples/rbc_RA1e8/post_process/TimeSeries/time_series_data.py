@@ -1,3 +1,5 @@
+import numpy as np
+
 class time_series_data_c():
     
     def __init__(self, dat):

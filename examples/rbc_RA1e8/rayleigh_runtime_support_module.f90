@@ -243,14 +243,25 @@ contains
        if (pe_rank .eq. 0) then 
           write(*,*) 'restarting the value for last stat sample '
        end if
-       !> find how many samples have been taken
-       how_many_samples = int(t/this%sample_control%time_interval)
-       !> Update the time since the last sample based on the information
-       this%t_last_sample = how_many_samples * &
+       if (this%sample_control%nsteps .eq. 0) then 
+          !> find how many samples have been taken
+          how_many_samples = floor(t/this%sample_control%time_interval)
+          !> Update the time since the last sample based on the information
+          this%t_last_sample = how_many_samples * &
                             this%sample_control%time_interval
+       else if (this%sample_control%nsteps .gt. 0) then
+          this%t_last_sample = t
+       end if
+
        if (pe_rank .eq. 0) then 
           write(*,*) 'last sample was at t= ', this%t_last_sample
        end if
+
+
+
+
+
+
     end if
 
     !> Initialize the files
