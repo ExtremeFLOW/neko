@@ -39,7 +39,7 @@ for i in range(0,number_of_cases):
                 print(data_folder)
 
             print("splicing together the nusselt text files found")
-            path_to_spliced_file = "post_processing/nusselt_timeseries"
+            path_to_spliced_file = "/rbc_RA1e8/post_process/TimeSeries"
 
 
             # Collect the data from the multiple data paths
