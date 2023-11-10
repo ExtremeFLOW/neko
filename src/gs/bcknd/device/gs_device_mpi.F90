@@ -133,15 +133,24 @@ module gs_device_mpi
 
   interface
      subroutine cuda_gs_pack_and_push(u_d, buf_d, dof_d, offset, n, stream, &
-                                      srank, rbuf_d, roffset, remote_offset, rnbytes, &
-                                      rrank, nvshmem_counter, notifyDone, notifyReady, iter, npes) &
+                                      srank, rbuf_d, roffset, remote_offset, &
+                                      rrank, nvshmem_counter, notifyDone, notifyReady, iter) &
           bind(c, name='cuda_gs_pack_and_push')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: n, offset, srank, roffset, rnbytes, rrank, nvshmem_counter, iter, npes
+       integer(c_int), value :: n, offset, srank, roffset, rrank, nvshmem_counter, iter
        type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, notifyDone, notifyReady
        integer(c_int),dimension(*) ::  remote_offset
      end subroutine cuda_gs_pack_and_push
+  end interface
+  interface
+     subroutine cuda_gs_pack_and_push_wait(stream, nvshmem_counter, notifyDone) &
+          bind(c, name='cuda_gs_pack_and_push_wait')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: nvshmem_counter
+       type(c_ptr), value :: stream, notifyDone
+     end subroutine cuda_gs_pack_and_push_wait
   end interface
 
   interface
@@ -466,12 +475,12 @@ if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine b
        end do
     end if
  else
-    ! Using single stream for NVSHMEM for now.
-    ! Multi-stream works but is slower in some cases, more investigation required 
-    !    do i = 1, size(this%send_pe)
-    !       call device_stream_wait_event(this%stream(i), deps, 0)
-    !    end do
-    call device_stream_wait_event(strm, deps, 0)
+    do i = 1, size(this%send_pe)
+       call device_stream_wait_event(this%stream(i), deps, 0)
+       ! Not clear why this sync is required, but there seems to be a race condition
+       ! without it for certain run configs
+       call device_sync(this%stream(i))
+    end do
  end if
   end subroutine gs_device_mpi_nbsend
 
@@ -569,20 +578,22 @@ if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine b
             this%send_buf%dof_d, &
             this%send_buf%offset(i), &
             this%send_buf%ndofs(i), &
-            !this%stream(i), &
-            strm, &
+            this%stream(i), &
             this%send_pe(i), &
             this%recv_buf%buf_d, &
             this%recv_buf%offset(i), &
             this%recv_buf%remote_offset, &
-            this%recv_buf%ndofs(i), &
             this%recv_pe(i), &
             this%nvshmem_counter, &
             this%notifyDone(i), &
             this%notifyReady(i), &
-            i, &
-            size(this%send_pe))
+            i)
        this%nvshmem_counter=this%nvshmem_counter+1
+    end do
+    do i = 1, size(this%send_pe)
+       call cuda_gs_pack_and_push_wait(this%stream(i), &
+            this%nvshmem_counter - size(this%send_pe) + i - 1, &
+                 this%notifyDone(i))
     end do
 
     do done_req=1, size(this%recv_pe)
@@ -591,16 +602,15 @@ if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine b
             this%recv_buf%dof_d, &
             this%recv_buf%offset(done_req), &
             this%recv_buf%ndofs(done_req), &
-            !this%stream(done_req))
-            strm)
-!       call device_event_record(this%event(done_req), this%stream(done_req))
+            this%stream(done_req))
+       call device_event_record(this%event(done_req), this%stream(done_req))
     end do
 
-!    ! Sync non-blocking streams
-!    do done_req = 1, size(this%recv_pe)
-!       call device_stream_wait_event(strm, &
-!            this%event(done_req), 0)
-!    end do
+    ! Sync non-blocking streams
+    do done_req = 1, size(this%recv_pe)
+       call device_stream_wait_event(strm, &
+            this%event(done_req), 0)
+    end do
 
     end if
 

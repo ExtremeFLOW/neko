@@ -187,7 +187,7 @@ extern "C" {
       CUDA_CHECK(cudaGetLastError());
   }
 
-  __global__ void pushShmemKernel(real* u, real* dest, real* src, int* dof,
+  __global__ void pushShmemKernel(real* dest, real* src, int* dof,
                                   int destRank, int srcRank, int n,
                                   uint64_t counter, uint64_t* notifyDone,
                                   uint64_t* notifyReady)
@@ -210,17 +210,22 @@ extern "C" {
 	  nvshmemx_double_put_signal_nbi_block(dest + block_offset, src +
 	  				      block_offset, dataSize,
 	  				      notifyDone, counter, NVSHMEM_SIGNAL_SET, destRank);
+      }
+  }
+
+  __global__ void pushShmemKernelWait(uint64_t counter, uint64_t* notifyDone)
+  {
           // Notify done to receiving rank, and wait for data from sending rank
-          if (threadIdx.x == 0) {
+          if (blockIdx.x==0 && threadIdx.x == 0) {
               nvshmem_signal_wait_until(notifyDone, NVSHMEM_CMP_EQ, counter);
           }
-      }
   }
     
   void cuda_gs_pack_and_push(void *u_d, void *sbuf_d, void *sdof_d,
                              int soffset, int n, cudaStream_t stream,
-                             int srank,  void *rbuf_d, int roffset, int* remote_offset, int rnbytes,
-                             int rrank, int counter, void* notifyDone, void* notifyReady, int iter, int npes)
+                             int srank,  void *rbuf_d, int roffset, int* remote_offset,
+			     int rrank, int counter, void* notifyDone, void* notifyReady,
+			     int iter)
   {
     
       if(remote_offset[iter-1] == -1)
@@ -233,21 +238,24 @@ extern "C" {
 
       const int nthrds = 1024;
       const int nblcks = (n+nthrds-1)/nthrds;
-
       
       // TO DO investigate merging following 2 kernels (and also unpack).  
       gs_pack_kernel<real>
           <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) sbuf_d + soffset,
                                           (int *) sdof_d + soffset, n);
       
-      pushShmemKernel<<<nblcks,nthrds,0,stream>>>((real *) u_d,
-						  (real *) rbuf_d + remote_offset[iter-1],
+      pushShmemKernel<<<nblcks,nthrds,0,stream>>>((real *) rbuf_d + remote_offset[iter-1],
                                                   (real *) sbuf_d + soffset,
                                                   (int *) sdof_d + soffset,
                                                   srank, rrank, n, counter,
                                                   (uint64_t*) notifyDone,
                                                   (uint64_t*) notifyReady);
+      CUDA_CHECK(cudaGetLastError());
+  }
 
+  void cuda_gs_pack_and_push_wait(cudaStream_t stream, int counter, void* notifyDone)
+  {
+      pushShmemKernelWait<<<1,1,0,stream>>>(counter,(uint64_t*) notifyDone);
       CUDA_CHECK(cudaGetLastError());
   }   
 }
