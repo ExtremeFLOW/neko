@@ -324,7 +324,7 @@ contains
     character(len=LOG_SIZE) :: log_buf    
     logical :: found
 
-    call params%get('case.timestep', max_dt, found)
+    call params%get('case.max_timestep', max_dt, found)
     call params%get('case.constant_cfl', set_cfl, found)
 
     if (found .eqv. .true.) then
