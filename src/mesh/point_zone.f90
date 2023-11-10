@@ -48,7 +48,7 @@ module point_zone
      !> List of linear indices of the GLL points in the zone. 
      integer, allocatable :: mask(:)
      !> List of linear indices of the GLL points in the zone on the device.
-     type(c_ptr) :: mask_d
+     type(c_ptr) :: mask_d = c_null_ptr
      !> Scratch stack of integers to build the list mask.
      type(stack_i4_t), private :: scratch
      !> Size of the point zone mask.
