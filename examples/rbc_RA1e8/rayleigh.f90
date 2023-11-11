@@ -205,7 +205,12 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     logical :: get_spec_err_ind = .true.
-  
+
+
+    !> Determine if spectral error indicator needs to be calculated
+    call json_get_or_default(params, 'case.rbc_sampler.get_spec_err_ind',&
+                                          get_spec_err_ind, .true.)
+
 
     if (runtime_rbc%sample_control%check(t, tstep, .false.)) then
        
