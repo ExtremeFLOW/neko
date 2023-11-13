@@ -31,18 +31,33 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module ax_helm
-  use ax_product
+  use ax_product, only : ax_t
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use space, only : space_t
+  use field, only : field_t
+  use mesh, only : mesh_t
   use math, only : addcol4
   implicit none
   private 
 
+  !> CPU matrix-vector product for a Helmholtz problem.
   type, public, extends(ax_t) :: ax_helm_t
    contains
+     !> Compute the product.
      procedure, nopass :: compute => ax_helm_compute
   end type ax_helm_t
 
 contains 
 
+  !> Compute the product.
+  !! @param w Vector of size @a (lx,ly,lz,nelv).
+  !! @param u Vector of size @a (lx,ly,lz,nelv).
+  !! @param coef Coefficients.
+  !! @param msh Mesh.
+  !! @param Xh Function space \f$ X_h \f$.
+  !! @note Since this is a performance-crtical routine, it is implemented in
+  !! several kernels corresponding to different polynmial orders.
   subroutine ax_helm_compute(w, u, coef, msh, Xh)
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
@@ -101,6 +116,7 @@ contains
  
   end subroutine ax_helm_compute
 
+  !> Generic CPU kernel for the Helmholtz matrix-vector product.
   subroutine ax_helm_lx(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G11, G22, G33, G12, G13, G23, n, lx)
     integer, intent(in) :: n, lx

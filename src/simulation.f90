@@ -73,7 +73,7 @@ contains
     call neko_log%message(log_buf)
     write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
     call neko_log%message(log_buf)
-    
+
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
        ! Restart the case
@@ -139,14 +139,6 @@ contains
        end if                 
 
        call neko_log%section('Postprocessing')       
-       call C%q%eval(t, C%dt, tstep)
-       !> Sample is called after fluid step. Therefore, C%ulag(1) has 
-       !! u for the last time step
-       call C%s%sample(t, tstep)
-       
-       call C%usr%user_check(t, tstep,&
-            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
-         
        ! Execute all simulation components
        if (allocated(neko_simcomps)) then
          do i=1, size(neko_simcomps)
@@ -154,12 +146,19 @@ contains
          end do
        end if
 
+       call C%q%eval(t, C%dt, tstep)
+       call C%s%sample(t, tstep)
+
        ! Update material properties
        call C%usr%material_properties(t, tstep, C%material_properties%rho,&
                                       C%material_properties%mu, &
                                       C%material_properties%cp, &
                                       C%material_properties%lambda, &
                                       C%params)
+         
+       call C%usr%user_check(t, tstep,&
+            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+
        call neko_log%end_section()
        
        call neko_log%end()

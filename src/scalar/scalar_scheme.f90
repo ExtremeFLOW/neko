@@ -49,7 +49,7 @@ module scalar_scheme
   use precon_fctry
   use bc
   use mesh
-  use zone
+  use facet_zone
   use time_scheme_controller
   use logger
   use field_registry
@@ -152,7 +152,7 @@ contains
   !! currently dirichlet 'd=X' and 'user' supported
   subroutine scalar_scheme_add_bcs(this, zones, bc_labels) 
     class(scalar_scheme_t), intent(inout) :: this 
-    type(zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
+    type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
     character(len=20), intent(in) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     character(len=20) :: bc_label
     integer :: i, j, bc_idx

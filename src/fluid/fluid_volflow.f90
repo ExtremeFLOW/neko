@@ -61,7 +61,7 @@ module fluid_volflow
   use operators
   use num_types
   use mathops    
-  use krylov
+  use krylov, only : ksp_t, ksp_monitor_t
   use precon
   use dofmap
   use field
@@ -72,9 +72,13 @@ module fluid_volflow
   use neko_config
   use device_math
   use device_mathops
+  use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
   use json_utils, only: json_get
   use scratch_registry, only : scratch_registry_t
+  use bc, only : bc_list_t, bc_list_apply, bc_list_apply_vector, &
+                 bc_list_apply_scalar
+  use ax_product, only : ax_t
   implicit none
   private
   

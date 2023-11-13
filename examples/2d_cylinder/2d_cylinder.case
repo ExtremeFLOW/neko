@@ -39,8 +39,8 @@
       "max_iterations": 800
     },
 
-    "output_control": "samples",
-    "output_value": 100
+    "output_control": "nsamples",
+    "output_value": 20
   }
   }
 }
