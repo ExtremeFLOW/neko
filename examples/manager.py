@@ -76,12 +76,25 @@ for i in range(0,number_of_cases):
                 ind_limit = len(log) - 1 - line
                 break
 
+        
+
         print("--------Relevant lines in log file for job limit--------")
         if ind_limit == -1000:
             print("no job limit checkpoint written")
         else:
             for liness in range(0,5):
                 print(log[ind_limit+liness-2].strip())
+
+            # Find the dt that was used in this job limit
+            dt_joblimit = 0
+            for line in range(0,50):
+                indd = number_of_lines - ind_limit + line
+                if "dt" in inverted_log[indd]:
+                    print("dt is in: " + inverted_log[indd].strip())
+                    dt_joblimit = float(inverted_log[indd][29:-1])
+                    print("dt_joblimit = " + repr(dt_joblimit))
+                    break
+
 
         ind_chkp = -1000
         for line in range(0,number_of_lines):
@@ -96,6 +109,15 @@ for i in range(0,number_of_cases):
             for liness in range(0,5):
                 print(log[ind_chkp+liness-2].strip())
 
+            # Find the dt that was used in this job limit
+            dt_chkp = 0
+            for line in range(0,50):
+                indd = number_of_lines - ind_chkp + line
+                if "dt" in inverted_log[indd]:
+                    print("dt is in: " + inverted_log[indd].strip())
+                    dt_chkp = float(inverted_log[indd][29:-1])
+                    print("dt_chkp = " + repr(dt_chkp))
+                    break
     
         cont = input("Do you want to restart? [yes/no]")
         if cont=="yes":
@@ -129,7 +151,7 @@ for i in range(0,number_of_cases):
             option = int(input("Choose from which file to restart: [1]: joblimit.chkp, [2]: fluid.chkp, [3]: last rbc chkp "))
 
             file_names = [joblimit_index, fluid_index,lastcheck_index]
-
+            dts = [dt_joblimit, dt_chkp, 0]
 
             #===================================================
             fld_files = sorted(glob.glob(path+"field0.f*"))
@@ -158,7 +180,9 @@ for i in range(0,number_of_cases):
             f = open (path+"rayleigh.case", "r") 
             params_file = json.loads(f.read())
             f.close()
-       
+      
+            if dts[option-1] != 0:
+                params_file["case"]["timestep"] = dts[option-1]
             params_file["case"]["end_time"] = 700
             params_file["case"]["job_timelimit"] = "23:45:00"
             params_file["case"]["restart_file"] = chkp_file

@@ -13,6 +13,7 @@ module rbc
      
      !> Flow quantities
      type(field_t) :: work_field ! Field to perform operations
+     type(field_t) :: tt ! T ^2
      type(field_t) :: uxt ! u_z * T
      type(field_t) :: uyt ! u_z * T
      type(field_t) :: uzt ! u_z * T
@@ -35,6 +36,7 @@ module rbc
      
      !> Mean fields     
      type(mean_field_t) :: mean_t     ! Derivative wrt z
+     type(mean_field_t) :: mean_tt     ! Derivative wrt z
      type(mean_field_t) :: mean_uxt   ! Derivative wrt z
      type(mean_field_t) :: mean_uyt   ! Derivative wrt z
      type(mean_field_t) :: mean_uzt   ! Derivative wrt z
@@ -166,6 +168,7 @@ contains
     
     !> Initialize variables related to nusselt calculation
     call this%work_field%init( u%dof, 'work_field')
+    call this%tt%init( u%dof, 'tt')
     call this%uxt%init( u%dof, 'uxt')
     call this%uyt%init( u%dof, 'uyt')
     call this%uzt%init( u%dof, 'uzt')
@@ -200,6 +203,7 @@ contains
     
     !> Mean fields
     call this%mean_t%init( s, 'mean_t')
+    call this%mean_tt%init( this%tt, 'mean_tt')
     call this%mean_uxt%init( this%uxt, 'mean_uxt')
     call this%mean_uyt%init( this%uyt, 'mean_uyt')
     call this%mean_uzt%init( this%uzt, 'mean_uzt')
@@ -306,20 +310,21 @@ contains
     this%eps_l%fields(1)%f => this%eps_t
     this%eps_l%fields(2)%f => this%eps_k
 
-    allocate(this%mean_fields_l%fields(13))
+    allocate(this%mean_fields_l%fields(14))
     this%mean_fields_l%fields(1)%f => this%mean_t%mf
-    this%mean_fields_l%fields(2)%f => this%mean_uxt%mf
-    this%mean_fields_l%fields(3)%f => this%mean_uyt%mf
-    this%mean_fields_l%fields(4)%f => this%mean_uzt%mf
-    this%mean_fields_l%fields(5)%f => this%mean_dtdx%mf
-    this%mean_fields_l%fields(6)%f => this%mean_dtdy%mf
-    this%mean_fields_l%fields(7)%f => this%mean_dtdz%mf
-    this%mean_fields_l%fields(8)%f => this%mean_dtdn%mf
-    this%mean_fields_l%fields(9)%f => this%mean_eps_t%mf
-    this%mean_fields_l%fields(10)%f => this%mean_eps_k%mf
-    this%mean_fields_l%fields(11)%f => this%mean_speri_u%mf
-    this%mean_fields_l%fields(12)%f => this%mean_speri_v%mf
-    this%mean_fields_l%fields(13)%f => this%mean_speri_w%mf
+    this%mean_fields_l%fields(2)%f => this%mean_tt%mf
+    this%mean_fields_l%fields(3)%f => this%mean_uxt%mf
+    this%mean_fields_l%fields(4)%f => this%mean_uyt%mf
+    this%mean_fields_l%fields(5)%f => this%mean_uzt%mf
+    this%mean_fields_l%fields(6)%f => this%mean_dtdx%mf
+    this%mean_fields_l%fields(7)%f => this%mean_dtdy%mf
+    this%mean_fields_l%fields(8)%f => this%mean_dtdz%mf
+    this%mean_fields_l%fields(9)%f => this%mean_dtdn%mf
+    this%mean_fields_l%fields(10)%f => this%mean_eps_t%mf
+    this%mean_fields_l%fields(11)%f => this%mean_eps_k%mf
+    this%mean_fields_l%fields(12)%f => this%mean_speri_u%mf
+    this%mean_fields_l%fields(13)%f => this%mean_speri_v%mf
+    this%mean_fields_l%fields(14)%f => this%mean_speri_w%mf
 
 
     !> Initialize list to identify relevant facets in boundaries
@@ -420,6 +425,7 @@ contains
 
     ! Finalize variables related to nusselt calculation
     call this%work_field%free()
+    call this%tt%free()
     call this%uxt%free()
     call this%uyt%free()
     call this%uzt%free()
@@ -444,6 +450,7 @@ contains
     
     !> Mean fields
     call this%mean_t%free()
+    call this%mean_tt%free()
     call this%mean_uxt%free()
     call this%mean_uyt%free()
     call this%mean_uzt%free()
@@ -504,6 +511,7 @@ contains
     !> Write and reset mean fields
     call this%mf_mean_fields%write(this%mean_fields_l,t) 
     call this%mean_t%reset() 
+    call this%mean_tt%reset() 
     call this%mean_uxt%reset() 
     call this%mean_uyt%reset() 
     call this%mean_uzt%reset() 
@@ -587,6 +595,14 @@ contains
     call dudxyz (this%dwdy%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (this%dwdz%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
+
+    !> Temperature squared
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       call device_col3(this%tt%x_d,s%x_d,s%x_d,n)               
+    else
+       call col3(this%tt%x,s%x,s%x,n)                          
+    end if
+
     
     ! ======================== "Derived" ============================
     
@@ -649,6 +665,7 @@ contains
     class(rbc_t), intent(inout), target :: this
     real(kind=rp), intent(in) :: t
     call this%mean_t%update(t-this%t_last_sample)
+    call this%mean_tt%update(t-this%t_last_sample)
     call this%mean_uxt%update(t-this%t_last_sample)
     call this%mean_uyt%update(t-this%t_last_sample)
     call this%mean_uzt%update(t-this%t_last_sample)
@@ -821,6 +838,10 @@ contains
        
        call device_memcpy(this%mean_t%mf%x, &
                           this%mean_t%mf%x_d, &
+                          n,DEVICE_TO_HOST,sync=.true.)
+       
+       call device_memcpy(this%mean_tt%mf%x, &
+                          this%mean_tt%mf%x_d, &
                           n,DEVICE_TO_HOST,sync=.true.)
        
        call device_memcpy(this%mean_uxt%mf%x, &

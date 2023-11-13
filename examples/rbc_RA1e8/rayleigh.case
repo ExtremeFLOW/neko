@@ -61,6 +61,7 @@
     "rbc_sampler": {
         "output_control": "simulationtime",
         "calc_frequency": 0.05,
+	"get_spec_err_ind" : false
     },
     "rbc_field_writer": {
         "output_control": "simulationtime",
