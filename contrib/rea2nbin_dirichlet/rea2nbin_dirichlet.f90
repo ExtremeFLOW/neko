@@ -13,6 +13,7 @@ program rea2nbin_dirichlet
 
   if ((argc .lt. 1) .or. (argc .gt. 2)) then
      write(*,*) 'Usage: rea2nbin_dirichlet <reafile> <neko mesh>'
+     write(*,*) '       rea2nbin_dirichlet <re2file> <neko mesh>'
      stop
   end if
   
@@ -30,6 +31,11 @@ program rea2nbin_dirichlet
      write (*,*) ".rea format specified, creating temporary copy .readirichlet"
      call execute_command_line("cp "//trim(fname_in)//" temp.readirichlet")
      fname_in = "temp.readirichlet"
+     remove_at_end = .true.
+  else if (suffix .eq. "re2") then
+     write (*,*) ".re2 format specified, creating temporary copy .re2dirichlet"
+     call execute_command_line("cp "//trim(fname_in)//" temp.re2dirichlet")
+     fname_in = "temp.re2dirichlet"
      remove_at_end = .true.
   else if (suffix .ne. "readirichlet") then
      call neko_error("Invalid input format")
@@ -64,7 +70,7 @@ program rea2nbin_dirichlet
   call nmsh_file%write(msh)
   call msh%free()
   
-  call execute_command_line("rm temp.readirichlet")
+  call execute_command_line("rm temp.readirichlet temp.re2dirichlet")
   
   call neko_finalize
 
