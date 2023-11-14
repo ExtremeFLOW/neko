@@ -67,7 +67,8 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
-    integer :: nel, ndim, nelv, ierr
+    character(len=80) :: hdr_full
+    integer :: nel, ndim, nelv, ierr, nBCre2
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
@@ -96,9 +97,21 @@ contains
     v2_format = .false.
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     call neko_log%message('Reading binary NEKTON file ' // this%fname)
-    read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-    if (hdr_ver .eq. '#v002' .or. hdr_ver .eq. '#v003') then
+
+    read(9,'(a80)') hdr_full
+    read(hdr_full, '(a5)') hdr_ver
+
+    if (hdr_ver .eq. '#v004') then
+       read(hdr_full, '(a5,i16,i3,i16,i4,a36)') hdr_ver, nel, ndim, nelv, nBCre2, hdr_str
        v2_format = .true.
+    else if (hdr_ver .eq. '#v002' .or. hdr_ver .eq. '#v003') then
+       read(hdr_full, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
+       v2_format = .true.
+    else if (hdr_ver .eq. '#v001') then
+       read(hdr_full, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
+    end if
+
+    if (v2_format) then
        call MPI_Type_size(MPI_RE2V2_DATA_XY, re2_data_xy_size, ierr)
        call MPI_Type_size(MPI_RE2V2_DATA_XYZ, re2_data_xyz_size, ierr)
        call MPI_Type_size(MPI_RE2V2_DATA_CV, re2_data_cv_size, ierr)
@@ -550,7 +563,7 @@ contains
              call msh%get_facet_ids(sym_facet, el_idx, pids)
              call msh%mark_periodic_facet(sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
-          case ('MSH', 'msh')
+          case ('MSH', 'msh', 'EXO', 'exo')
              label = int(re2v2_data_bc(i)%bc_data(5))
              if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
                 call neko_error('Invalid label id (valid range [1,...,20])')

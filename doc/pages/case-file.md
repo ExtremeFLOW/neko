@@ -24,7 +24,8 @@ The current high-level structure of the case file is shown below.
         "fluid": {}
         "scalar": {}
         "statistics": {}
-        "simulation_components" : {}
+        "simulation_components" : []
+        "point_zones" : []
     }
 }
 ~~~~~~~~~~~~~~~
@@ -53,7 +54,7 @@ The three following options are possible.
 4. `never`, then `_value` is ignored and output is never performed.
 
 
-## The `case` object 
+## The case object 
 
 This object is mostly used as a high-level container for all the other objects,
 but also defines several parameters that pertain to the simulation as a whole.
@@ -87,6 +88,28 @@ Name                 | Description                                              
 
 The configuration of the fluid solver and the flow problem.
 Contains multiple subobjects for various parts of the setup.
+
+### Material properties
+As per the governing equations, Neko requires the value of the density and
+dynamic viscosity to define the flow problem. These can be provided as `rho` and
+`mu` in the case file.
+
+Alternatively, one may opt to provide the Reynolds number, `Re`, which
+corresponds to a non-dimensional formulation of the Navier-Stokes equations.
+This formulation can effectively be obtained by setting \f$ \rho = 1 \f$ and \f$
+\mu = 1/Re \f$. This is exactly what Neko does under the hood, when `Re` is
+provided in the case file. 
+
+Note that if both `Re` and any of the dimensional material properties are
+provided, the simulation will issue an error.
+
+As an alternative to providing material properties in the case file, it is
+possible to do that in a special routine in the user file. This is demonstrated
+in the `rayleigh-benard-cylinder` example. Ultimately, both `rho` and `mu` have
+to be set in the subroutine, but it can be based on arbitrary computations and
+arbitrary parameters read from the case file. Additionally, this allows to
+change the material properties in time.
+
 
 ### Inflow boundary conditions
 The object `inflow_condition` is used to specify velocity values at a Dirichlet
@@ -132,15 +155,21 @@ It requires  the following parameters:
    - `quartic`, quartic approximation.
    - `sin`, sine function approximation.
 
-### Source term
-The `source_term` object should be used to specify the source term in the
-momentum equation.
-The object is not mandatory, by default no forcing term is present.
-The forcing is selected using the `type` keyword.
+### Source terms
+The `source_terms` object should be used to specify the source terms in the
+momentum equation. The object is not mandatory, by default no forcing term is
+present. Each source term, is itself a JSON object, so `source_terms` is just an
+array of them. Note that with respect to the governing equations, the source
+terms define \f$ f^u \f$, meaning that the values are then multiplied by the
+density.
 
-1. `noforce`, no forcing. This is the default value.
-2. `user`, the values are set inside the compiled user file, using the pointwise
-   user file subroutine. 
+For each source, the `type` keyword defines the kind of forcing that will be
+introduced. The following types are currently implemented.
+
+1. `constant`, constant forcing. Strength defined by the `values` array with 3
+   reals corresponding to the 3 components of the forcing. 
+2. `user_pointwise`, the values are set inside the compiled user file, using the
+   pointwise user file subroutine. Only works on CPUs!
 2. `user_vector`, the values are set inside the compiled user file, using the 
    non-pointwise user file subroutine. Should be used when running on the GPU.
    
@@ -251,8 +280,13 @@ The scalar object allows to add a scalar transport equation to the solution.
 The solution variable is called `s`, but saved as `temperature` in the fld
  files. 
 Some properties of the object are inherited from `fluid`: the properties of the
-linear solver, the value of the density and the Re number, and the output
+linear solver, the value of the density, and the output
 control.
+
+The scalar equation requires defining additional material properties: the
+specific heat capacity and thermal conductivity. These are provided as `cp` and
+`lambda`. Similarly to the fluid, one can provide the Peclet number, `Pe`, as an
+alternative. In this case, `cp` is set to 1 and `lambda` to the inverse of `Pe`. 
 
 The boundary conditions for the scalar are specified through the
 `boundary_types` keyword.
@@ -260,10 +294,18 @@ It is possible to directly specify a uniform value for a Dirichlet boundary.
 The syntax is, e.g. `d=1`, to set the value to 1, see the Ryleigh-Benard
 example case.
 
+Note that the source term configuration for the scalar currently differs from
+that of the fluid. This will be addressed in a future release. For now, the
+`source_term` keyword should be used, set to either `noforce` (no forcing),
+`user` (same as `user_pointwise` for the fluid), and `user_vector` (same as for
+the fluid).
+
 Name               | Description                               | Admissable values                | Default value
 -------------------|-------------------------------------------|----------------------------------|--------------
 `enabled`          | Whether to enable the scalar computation. | `true` or `false`                | `true`
-`Pr`               | The Prandtl number.                       | Positive real                    | -
+`Pe`               | The Peclet number.                        | Positive real                    | -
+`cp`               | Specific heat cpacity.                    | Positive real                    | -
+`lambda`           | Thermal conductivity.                     | Positive real                    | -
 `source_term.type` | Source term in the momentum equation.     | `noforce`, `user`, `user_vector` | -
 `boundary_types`   | Boundary types/conditions labels.         | Array of strings                 | -
 
@@ -285,4 +327,12 @@ which are not strictly necessary to run the solver. An example could be
 computing and output of additional fields, e.g. vorticity.
 
 A more detailed description as well as a  full list of available components and
- their setup is provided in a sperate page of the manual.
+ their setup is provided in a [separate page of the manual](simcomps.md).
+
+## Point zones
+Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.
+
+A point zone object defined in the case file can be retrieved from the point zone registry, `neko_point_zone_registry`, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.
+
+A more detailed description as well as a  full list of available components and
+ their setup is provided in a [separate page of the manual](point-zones.md).

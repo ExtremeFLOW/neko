@@ -59,6 +59,7 @@ module case
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
+  use point_zone_registry, only: neko_point_zone_registry
   use material_properties, only : material_properties_t
   implicit none
   
@@ -211,6 +212,11 @@ contains
     ! Setup scratch registry
     !
     neko_scratch_registry = scratch_registry_t(C%fluid%dm_Xh, 10, 10)
+
+    !
+    ! Initialize point_zones registry
+    !
+    call neko_point_zone_registry%init(C%params, C%fluid%u%dof)
 
     !
     ! Setup scalar scheme

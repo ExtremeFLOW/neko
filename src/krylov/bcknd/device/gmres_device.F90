@@ -32,9 +32,20 @@
 !
 !> Defines various GMRES methods
 module gmres_device
-  use krylov
-  use math
-  use device_math
+  use krylov, only : ksp_t, ksp_monitor_t
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp, c_rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use device_identity, only : device_ident_t
+  use math, only : rone, rzero
+  use device_math, only : device_rzero, device_copy, device_glsc3, &
+                          device_add2s2, device_add2s1, device_rone, &
+                          device_cmult2, device_add2s2_many, device_glsc3_many,&
+                          device_sub2
   use device
   use comm
   use, intrinsic :: iso_c_binding

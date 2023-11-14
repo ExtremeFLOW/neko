@@ -86,12 +86,16 @@ module neko
   use probes
   use spectral_error_indicator
   use system
-  use field_registry, only : neko_field_registry    
+  use field_registry, only : neko_field_registry
   use scratch_registry, only : neko_scratch_registry
   use simulation_component_global, only : simcomps_global_init
   use data_streamer
   use time_interpolator
   use point_interpolator, only : point_interpolator_t
+  use point_zone, only: point_zone_t
+  use box_point_zone, only: box_point_zone_t
+  use sphere_point_zone, only: sphere_point_zone_t
+  use point_zone_registry, only: neko_point_zone_registry
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
@@ -116,8 +120,6 @@ contains
 
     call neko_log%init()
     call neko_field_registry%init()
-    
-    
 
     if (pe_rank .eq. 0) then
        write(*,*) ''
