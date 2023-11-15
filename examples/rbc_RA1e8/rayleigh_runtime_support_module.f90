@@ -103,9 +103,14 @@ module rbc
      !> Calculation controllers
      type(time_based_controller_t) :: sample_control
      type(time_based_controller_t) :: field_write_control
+     type(time_based_controller_t) :: data_stream_control
         
      !> for mean
      real(kind = rp):: eps_t_mean = 0_rp
+
+     !> for data stream
+     type(data_streamer_t) :: dstream
+     logical :: stream_data = .false.
 
    contains
      !> Constructor
@@ -160,6 +165,7 @@ contains
     character(len=:), allocatable  :: write_control
     real(kind=rp)     :: T_end
     integer :: how_many_samples
+    logical :: found
 
     s => neko_field_registry%get_field('s')
     
@@ -240,7 +246,35 @@ contains
     if (this%field_write_control%nsteps .eq. 0) then
        this%field_write_control%nexecutions = &
                int(t / this%field_write_control%time_interval) + 1
+    end if 
+    !! Field writer controller
+    call json_get(params, 'case.rbc_field_writer.output_control', &
+                                     write_control)
+    call json_get(params, 'case.rbc_field_writer.calc_frequency', &
+                                     write_par)    
+    call this%field_write_control%init(T_end, write_control, &
+                                      write_par)
+    if (this%field_write_control%nsteps .eq. 0) then
+       this%field_write_control%nexecutions = &
+               int(t / this%field_write_control%time_interval) + 1
     end if
+    !! Data stream controller
+    call json_get_or_default(params, 'case.rbc_data_streamer.stream_data',&
+                                   found, .false.)
+    if (found .eqv. .true.) then
+       call json_get(params, 'case.rbc_data_streamer.output_control', &
+                                     write_control)
+       call json_get(params, 'case.rbc_data_streamer.calc_frequency', &
+                                     write_par)    
+       call this%data_stream_control%init(T_end, write_control, &
+                                      write_par)
+       if (this%data_stream_control%nsteps .eq. 0) then
+          this%data_stream_control%nexecutions = &
+                  int(t / this%data_stream_control%time_interval) + 1
+       end if
+    end if
+
+
 
     !> Initialize the sampling interval for stats
     if (t .gt. 0) then
@@ -260,11 +294,6 @@ contains
        if (pe_rank .eq. 0) then 
           write(*,*) 'last sample was at t= ', this%t_last_sample
        end if
-
-
-
-
-
 
     end if
 
@@ -416,7 +445,19 @@ contains
     call this%mf_area%write(this%area_l,t)
     call this%mf_bm1%write(this%bm1,t)      
 
-   
+
+
+    !> Initialize data streamer
+    call json_get_or_default(params, 'case.rbc_data_streamer.stream_data',&
+                                   found, .false.)
+    if (found .eqv. .true.) then
+       !> Initialize the streamer object
+       call this%dstream%init(coef, 1)
+       this%stream_data = .true.
+    end if
+
+
+
   end subroutine rbc_init
 
 
@@ -495,6 +536,12 @@ contains
     
     !> Finalize the spectral error indicator
     call this%spectral_error_indicator%free()
+
+    if (this%stream_data .eqv. .true.) then
+       !> finalize the streamer object
+       call this%dstream%free()
+    end if
+
 
   end subroutine rbc_free
   

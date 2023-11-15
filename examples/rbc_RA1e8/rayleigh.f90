@@ -235,6 +235,20 @@ contains
     
     end if
 
+    !> Detmine if data should be streamed
+    if (runtime_rbc%stream_data) then
+       !> Stream data if controller works
+       if (runtime_rbc%data_stream_control%check(t, tstep, .false.)) then
+
+          !> stream data
+          call runtime_rbc%dstream%stream(u,v,w,p,coef)
+          
+          !> Register the execution of the controller
+          call runtime_rbc%data_stream_control%register_execution()
+    
+       end if
+    end if
+    
   end subroutine check
 
 end module user

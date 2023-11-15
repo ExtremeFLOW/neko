@@ -4,12 +4,15 @@
     "mesh_file": "cylinder.nmsh",
     "output_at_end": false,
     "output_boundary": true,
-    "end_time": 200,
+    "end_time": 220,
     "timestep": 2e-3,
+    "max_timestep": 2e-3,
+    "constant_cfl": 0.4,
     "output_checkpoints": true,
     "checkpoint_control": "simulationtime",
     "checkpoint_value": 50,
-    "job_timelimit": "11:45:00",
+    "job_timelimit": "02:00:00",
+    "restart_file": "ra1e11_t200.chkp",
     "numerics": {
         "time_order": 3,
         "polynomial_order": 7,
@@ -17,7 +20,7 @@
     },
     "fluid": {
         "scheme": "pnpn",
-        "Ra": 1e8,
+        "Ra": 1e11,
         "source_terms": 
         [
             {
@@ -42,7 +45,7 @@
             "max_iterations": 800
         },
         "output_control": "simulationtime",
-        "output_value": 1,
+        "output_value": 0.5,
         "boundary_types": [
             "w"
         ]
@@ -59,13 +62,18 @@
         "output_value": 10	
     },
     "rbc_sampler": {
-        "output_control": "simulationtime",
-        "calc_frequency": 0.05,
+        "output_control": "tsteps",
+        "calc_frequency": 10,
 	"get_spec_err_ind" : false
     },
     "rbc_field_writer": {
         "output_control": "simulationtime",
-        "calc_frequency": 10
+        "calc_frequency": 20
+    },
+    "rbc_data_streamer": {
+        "stream_data": true,
+        "output_control": "simulationtime",
+        "calc_frequency": 0.2
     }
 }
 }

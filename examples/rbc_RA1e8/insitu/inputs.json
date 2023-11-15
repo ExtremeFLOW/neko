@@ -1,0 +1,15 @@
+{
+"Version": 1.0,
+"case": {
+	"decomposition":"POD",
+	"execution": {
+		"type" :"fromAdios",
+		"adiosPath": "/scratch/adperez/adios2/scratch/adperez/miniconda3/.conda/envs/mypython3.9.5-spMoDePy/lib/python3.9/site-packages/adios2"	
+	},
+	"batch_size"         : 100,
+	"keep_modes"         : 100,
+ 	"fields"             : [0,1,2],
+	"casename"           : "insitu/data/field",
+        "dataPath"           : "insitu/"
+	}
+}
