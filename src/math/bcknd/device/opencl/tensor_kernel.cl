@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2023, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -85,6 +85,65 @@ __kernel void tnsr3d_kernel(__global real  * __restrict__  v,
     }
     v[ijk+e*nv*nv*nv] = tmp;
   }
+}
+
+__kernel void tnsr3d_el_kernel(__global real  * __restrict__  v,
+                               const int nv,
+                               __global const real * __restrict__ u,
+                               const int nu,
+                               __global const real * __restrict__ A,
+                               __global const real * __restrict__ Bt,
+                               __global const real * __restrict__ Ct,
+                               __global const int * __restrict__ elements,
+                               const int n_points) {
+  __local real shwork[2048];
+  __local real shwork2[2048];
+  
+  const int idx = get_local_id(0);
+  const int str = get_local_size(0);
+  const int pt = get_group_id(0);
+  const int e = elements[pt];
+
+  for (int ii = idx; ii< nu*nu*nv; ii += str) {
+    T tmp = 0.0;
+    int j = ii/nv;
+    int i = ii - j*nv;
+    for( int l = 0; l < nu; l++){
+      tmp += A[i+l*nv+pt*nv*nu]*u[l+nu*j+e*nu*nu*nu];
+    }
+    shwork[ii] = tmp;
+  }
+  
+  barrier(CLK_LOCAL_MEM_FENCE);
+  
+  for (int ijk = idx; ijk< nu*nv*nv; ijk += str) {
+    const int jk = ijk / nv;
+    const int i = ijk - jk * nv;
+    const int k = jk / nv;
+    const int j = jk - k * nv;
+    T tmp = 0.0;
+    const int ik2 = i + k*nv*nu; 
+    for( int l = 0; l < nu; l++){
+      tmp += Bt[l+j*nu+pt*nv*nu]*shwork[l*nv+ik2];
+    }
+    shwork2[ijk] = tmp;
+  }
+
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  for (int ijk = idx; ijk< nv*nv*nv; ijk += str) {
+    const int jk = ijk / nv;
+    const int i = ijk - jk * nv;
+    const int k = jk / nv;
+    const int j = jk - k * nv;
+    T tmp = 0.0;
+    const int ij2 = i + j*nv; 
+    for( int l = 0; l < nu; l++){
+      tmp += Ct[l+k*nu+pt*nv*nu]*shwork2[ij2 + l*nv*nv];
+    }
+    v[ijk+pt*nv*nv*nv] = tmp;
+  }
+
 }
 
 

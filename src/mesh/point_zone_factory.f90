@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,38 +30,49 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Krylov preconditioner
-module precon
-  use num_types, only : rp
+!
+!> Defines a factory subroutine for point zones.
+module point_zone_fctry
+  use point_zone, only: point_zone_t
+  use box_point_zone, only: box_point_zone_t
+  use sphere_point_zone, only: sphere_point_zone_t
+  use json_module, only: json_file
+  use json_utils, only: json_get
+  use dofmap, only: dofmap_t
+  use utils, only: neko_error
   implicit none
   private
-  
-  !> Defines a canonical Krylov preconditioner
-  type, public, abstract :: pc_t
-   contains
-     procedure(pc_solve), pass(this), deferred :: solve
-     procedure(pc_update), pass(this), deferred :: update
-  end type pc_t
 
-  !> Abstract interface for solving \f$ M z = r \f$
-  !!
-  !! @param z vector of length @a n
-  !! @param r vector of length @a n
-  abstract interface
-     subroutine pc_solve(this, z, r, n)
-       import rp
-       import :: pc_t
-       implicit none
-       integer, intent(in) :: n
-       class(pc_t), intent(inout) :: this
-       real(kind=rp), dimension(n), intent(inout) :: z
-       real(kind=rp), dimension(n), intent(inout) :: r
-     end subroutine pc_solve
-     subroutine pc_update(this)
-       import rp
-       import :: pc_t
-       implicit none
-       class(pc_t), intent(inout) :: this
-     end subroutine pc_update
-  end interface
-end module precon
+  public :: point_zone_factory
+
+  contains
+    
+    !> Point zone factory. Constructs, initializes, and maps the
+    !! point zone object.
+    !! @param json JSON object initializing the point zone.
+    !! @param dof Dofmap from which to map the point zone.
+    subroutine point_zone_factory(point_zone, json, dof)
+      class(point_zone_t), allocatable, intent(inout) :: point_zone
+      type(json_file), intent(inout) :: json
+      type(dofmap_t), intent(inout) :: dof
+      character(len=:), allocatable :: zone_type
+
+      call json_get(json, "geometry", zone_type)
+
+      if (trim(zone_type) .eq. "box") then
+         allocate(box_point_zone_t::point_zone)
+      else if (trim(zone_type) .eq. "sphere") then
+         allocate(sphere_point_zone_t::point_zone)
+      else
+         call neko_error("Unknown source term "//trim(zone_type)//"! Valid &
+              &source terms are 'box', 'sphere'.")
+      end if
+
+      call point_zone%init(json, dof%size())
+
+      call point_zone%map(dof)
+      call point_zone%finalize()
+
+    end subroutine point_zone_factory
+
+end module point_zone_fctry

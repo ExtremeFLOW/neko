@@ -44,7 +44,7 @@ module mesh
   use datadist
   use distdata
   use comm    
-  use zone, only : zone_t, zone_periodic_t
+  use facet_zone, only : facet_zone_t, facet_zone_periodic_t
   use math
   use uset, only : uset_i8_t
   use curve, only : curve_t
@@ -95,13 +95,13 @@ module mesh
 
      integer(2), allocatable :: facet_type(:,:) !< Facet type     
      
-     type(zone_t) :: wall                 !< Zone of wall facets
-     type(zone_t) :: inlet                !< Zone of inlet facets
-     type(zone_t) :: outlet               !< Zone of outlet facets
-     type(zone_t) :: outlet_normal        !< Zone of outlet normal facets
-     type(zone_t) :: sympln               !< Zone of symmetry plane facets
-     type(zone_t), allocatable :: labeled_zones(:) !< Zones with labeled facets
-     type(zone_periodic_t) :: periodic             !< Zones with periodic facets
+     type(facet_zone_t) :: wall                 !< Zone of wall facets
+     type(facet_zone_t) :: inlet                !< Zone of inlet facets
+     type(facet_zone_t) :: outlet               !< Zone of outlet facets
+     type(facet_zone_t) :: outlet_normal        !< Zone of outlet normal facets
+     type(facet_zone_t) :: sympln               !< Zone of symmetry plane facets
+     type(facet_zone_t), allocatable :: labeled_zones(:) !< Zones with labeled facets
+     type(facet_zone_periodic_t) :: periodic             !< Zones with periodic facets
      type(curve_t) :: curve                        !< Set of curved elements
 
      logical :: lconn = .false.                !< valid connectivity

@@ -43,7 +43,8 @@ module krylov_fctry
   use gmres_sx, only : sx_gmres_t
   use gmres_device, only : gmres_device_t
   use num_Types, only : rp
-  use krylov, only : ksp_t, ksp_monitor_t, pc_t
+  use krylov, only : ksp_t, ksp_monitor_t
+  use precon, only : pc_t
   use utils, only : neko_error
   use neko_config
   implicit none

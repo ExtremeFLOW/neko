@@ -32,10 +32,16 @@
 !
 !> Defines a pipelined Conjugate Gradient methods
 module pipecg_device
-  use krylov
-  use math
-  use num_types
-  use device_math
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp, c_rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, rzero, copy
+  use device_math, only : device_rzero, device_copy, device_glsc3
   use device
   use comm
   implicit none
