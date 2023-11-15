@@ -230,7 +230,7 @@ contains
        ! is it a proper vertex
        if ((vrtp(1)%obj%id() == vrtp(2)%obj%id()) .and. &
             & (vrtp(1)%obj%id() == vrtp(3)%obj%id())) then
-          call this%peak(il)%init(vrtp(1)%obj)
+          call this%peak(il)%init(vrtp(1)%obj, il)
        else
           call neko_error('Inconsistent face vertices in the hex.')
        end if

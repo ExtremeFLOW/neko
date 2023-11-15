@@ -34,7 +34,7 @@
 module cell_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr, vertex_ncnf_cnn_t
+  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_t, vertex_ncnf_cnn_ptr
   use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
   implicit none
   private
@@ -92,16 +92,18 @@ contains
   end subroutine cell_ridge
 
   !> @brief Return pointers to cell peaks
-  !! @parameter[out]  peak   peak pointers array
-  subroutine cell_peak(this, peak)
-    class(cell_cnn_t), intent(in) :: this
-    type(vertex_cnn_ptr), dimension(:), allocatable, intent(out) :: peak
-    integer(i4) :: il
+  !! @parameter[out]  peak   peak pointer
+  !! @parameter[in]   pos    peak position
+  subroutine cell_peak(this, peak, pos)
+    class(cell_cnn_t), target, intent(in) :: this
+    type(vertex_ncnf_cnn_ptr), intent(out) :: peak
+    integer(i4), intent(in) :: pos
 
-    allocate(peak(this%npeak))
-    do il = 1, this%npeak
-       peak(il)%obj => this%peak(il)%vertex%obj
-    end do
+    if ((pos > 0) .and. (pos <= this%npeak)) then
+       peak%obj => this%peak(pos)
+    else
+       peak%obj => null()
+    end if
 
     return
   end subroutine cell_peak

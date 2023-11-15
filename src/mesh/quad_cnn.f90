@@ -192,7 +192,7 @@ contains
           vrt(jl)%obj => this%facet(ifct)%edge%obj%facet(rdg(icrn))%vertex%obj
        end do
        if (vrt(1)%obj%id() == vrt(2)%obj%id()) then
-          call this%ridge(il)%init(vrt(1)%obj)
+          call this%ridge(il)%init(vrt(1)%obj, il)
        else
           call neko_error('Inconsistent edge vertices in the quad.')
        end if

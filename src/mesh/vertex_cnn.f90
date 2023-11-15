@@ -69,12 +69,15 @@ module vertex_cnn
   !! centre of some neighbours in case of faces or cells; marked 1) or
   !! ridge hanging (located at ridge centre of some neighbours in case of
   !! cells; marked 2). There are no operations on vertex, so no procedure
-  !! pointers.
+  !! pointers. It is always a component part of the higher-dimension object,
+  !! so position gives it's location in the object
   type :: vertex_ncnf_cnn_t
      ! vertex pointer
      type(vertex_cnn_ptr) :: vertex
      !> hanging information
      integer(i4) :: hanging = 0
+     !> position in the object
+     integer(i4) :: position = 0
    contains
      !> Initialise vertex pointer
      procedure, pass(this) :: init => vertex_hanging_init
@@ -84,6 +87,10 @@ module vertex_cnn
      procedure, pass(this) :: set_hng => vertex_hanging_set
      !> Get hanging information
      procedure, pass(this) :: hng => vertex_hanging_get
+     !> Set position information
+     procedure, pass(this) :: set_pos => vertex_position_set
+     !> Get position information
+     procedure, pass(this) :: pos => vertex_position_get
   end type vertex_ncnf_cnn_t
 
   !> Pointer to a hanging vertex type
@@ -125,11 +132,14 @@ contains
 
   !> @brief Initialise vertex pointer
   !! @parameter[in]   vrt     vertex
-  subroutine vertex_hanging_init(this, vrt)
+  !! @parameter[in]   pos     position in the object
+  subroutine vertex_hanging_init(this, vrt, pos)
     class(vertex_ncnf_cnn_t), intent(inout) :: this
     type(vertex_cnn_t), target, intent(in) :: vrt
+    integer(i4), intent(in) :: pos
     call this%free()
     this%vertex%obj => vrt
+    this%position = pos
     return
   end subroutine vertex_hanging_init
 
@@ -138,6 +148,7 @@ contains
     class(vertex_ncnf_cnn_t), intent(inout) :: this
     this%vertex%obj => null()
     this%hanging = 0
+    this%position = 0
     return
   end subroutine vertex_hanging_free
 
@@ -162,5 +173,23 @@ contains
     hng = this%hanging
     return
   end function vertex_hanging_get
+
+  !> @brief Set position information
+  !! @parameter[in]   pos     position information
+  pure subroutine vertex_position_set(this, pos)
+    class(vertex_ncnf_cnn_t), intent(inout) :: this
+    integer(i4), intent(in) :: pos
+    this%position = pos
+    return
+  end subroutine vertex_position_set
+
+  !> @brief Get position information
+  !! @return   pos
+  pure function vertex_position_get(this) result(pos)
+    class(vertex_ncnf_cnn_t), intent(in) :: this
+    integer(i4) :: pos
+    pos = this%position
+    return
+  end function vertex_position_get
 
 end module vertex_cnn

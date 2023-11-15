@@ -2,11 +2,11 @@
 subroutine test_edge_init
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
-  use edge_cnn, only : edge_cnn_t
+  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_ptr
+  use edge_cnn, only : NEKO_EDGE_NFACET, edge_cnn_t
   implicit none
   type(vertex_cnn_t) :: vertex1, vertex2, vertex3, vertex4
-  type(vertex_cnn_ptr), dimension(:), allocatable :: facet
+  type(vertex_ncnf_cnn_ptr), dimension(NEKO_EDGE_NFACET) :: facet
   type(edge_cnn_t) :: edge1, edge2
   integer(i4) :: ishare
   integer(i4), dimension(:, :), allocatable :: facetp
@@ -23,11 +23,13 @@ subroutine test_edge_init
   @assertFalse(edge1%selfp())
 
   ! facets pointers
-  call edge1%fct(facet)
-  @assertTrue(facet(1)%obj.eq.vertex1)
-  @assertTrue(facet(2)%obj.eq.vertex2)
-  @assertFalse(facet(2)%obj.eq.vertex1)
-  deallocate(facet)
+  call edge1%fct(facet(1), 1)
+  call edge1%fct(facet(2), 2)
+  @assertTrue(facet(1)%obj%vertex%obj.eq.vertex1)
+  @assertTrue(facet(2)%obj%vertex%obj.eq.vertex2)
+  @assertFalse(facet(2)%obj%vertex%obj.eq.vertex1)
+  @assertEqual(facet(1)%obj%pos(), 1)
+  @assertEqual(facet(2)%obj%pos(), 2)
 
   ! edge initialisation and equality
   call edge2%init(2, vertex3, vertex4)

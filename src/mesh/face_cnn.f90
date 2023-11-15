@@ -34,7 +34,7 @@
 module face_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr, vertex_ncnf_cnn_t
+  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_t, vertex_ncnf_cnn_ptr
   use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
   implicit none
   private
@@ -153,16 +153,18 @@ contains
   end subroutine face_facet
 
   !> @brief Return pointers to face ridges
-  !! @parameter[out]  ridge   ridge pointers array
-  subroutine face_ridge(this, ridge)
-    class(face_cnn_t), intent(in) :: this
-    type(vertex_cnn_ptr), dimension(:), allocatable, intent(out) :: ridge
-    integer(i4) :: il
+  !! @parameter[out]  ridge   ridge pointer
+  !! @parameter[in]   pos     ridge position
+  subroutine face_ridge(this, ridge, pos)
+    class(face_cnn_t), target, intent(in) :: this
+    type(vertex_ncnf_cnn_ptr), intent(out) :: ridge
+    integer(i4), intent(in) :: pos
 
-    allocate(ridge(this%nridge))
-    do il = 1, this%nridge
-       ridge(il)%obj => this%ridge(il)%vertex%obj
-    end do
+    if ((pos > 0) .and. (pos <= this%nridge)) then
+       ridge%obj => this%ridge(pos)
+    else
+       ridge%obj => null()
+    end if
 
     return
   end subroutine face_ridge

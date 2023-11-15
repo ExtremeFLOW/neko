@@ -35,7 +35,7 @@ module edge_cnn
   use num_types, only : i4
   use utils, only : neko_error
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr, vertex_ncnf_cnn_t
+  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_t, vertex_ncnf_cnn_ptr
   use alignment_edge, only : alignment_edge_t, alignment_edge_op_set_t
   implicit none
   private
@@ -120,8 +120,8 @@ contains
     call this%set_id(id)
     ! get facet pointers
     allocate(this%facet(NEKO_EDGE_NFACET))
-    call this%facet(1)%init(vrt1)
-    call this%facet(2)%init(vrt2)
+    call this%facet(1)%init(vrt1, 1)
+    call this%facet(2)%init(vrt2, 2)
 
     return
   end subroutine edge_init
@@ -154,17 +154,19 @@ contains
     return
   end function edge_self_periodic
 
-  !> @brief Return edge facets
-  !! @parameter[out]  facet   facet pointers array
-  subroutine edge_facet(this, facet)
-    class(edge_cnn_t), intent(in) :: this
-    type(vertex_cnn_ptr), dimension(:), allocatable, intent(out) :: facet
-    integer(i4) :: il
+  !> @brief Return edge facet at given position
+  !! @parameter[out]  facet   facet pointer
+  !! @parameter[in]   pos     facet position
+  subroutine edge_facet(this, facet, pos)
+    class(edge_cnn_t), target, intent(in) :: this
+    type(vertex_ncnf_cnn_ptr), intent(out) :: facet
+    integer(i4), intent(in) :: pos
 
-    allocate(facet(this%nfacet))
-    do il = 1, this%nfacet
-       facet(il)%obj => this%facet(il)%vertex%obj
-    end do
+    if ((pos > 0) .and. (pos <= NEKO_EDGE_NFACET)) then
+       facet%obj => this%facet(pos)
+    else
+       facet%obj => null()
+    end if
 
     return
   end subroutine edge_facet

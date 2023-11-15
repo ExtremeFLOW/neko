@@ -118,7 +118,7 @@ end subroutine test_hex_init
 subroutine hex_element_test(hex, quad, edge, vertex)
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
+  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_ptr
   use edge_cnn, only : edge_cnn_t, edge_aligned_cnn_t
   use quad_cnn, only : quad_cnn_t, quad_aligned_cnn_t
   use hex_cnn, only : hex_cnn_t, NEKO_HEX_NFACET, NEKO_HEX_NRIDGE,&
@@ -130,7 +130,7 @@ subroutine hex_element_test(hex, quad, edge, vertex)
   type(vertex_cnn_t), dimension(8), intent(in) :: vertex
   type(quad_aligned_cnn_t), dimension(:), allocatable :: facet
   type(edge_aligned_cnn_t), dimension(:), allocatable :: ridge
-  type(vertex_cnn_ptr), dimension(:), allocatable :: peak
+  type(vertex_ncnf_cnn_ptr) :: peak
   integer(i4) :: il
 
   ! facets
@@ -144,11 +144,11 @@ subroutine hex_element_test(hex, quad, edge, vertex)
      @assertTrue(ridge(il)%edge%obj .eq. edge(il))
   end do
   ! peaks
-  call hex%pek(peak)
   do il = 1, NEKO_HEX_NPEAK
-     @assertTrue(peak(il)%obj .eq. vertex(il))
+     call hex%pek(peak, il)
+     @assertTrue(peak%obj%vertex%obj .eq. vertex(il))
   end do
-  deallocate(facet, ridge, peak)
+  deallocate(facet, ridge)
 
   return
 end subroutine hex_element_test

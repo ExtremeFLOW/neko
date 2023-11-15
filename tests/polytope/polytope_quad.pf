@@ -2,9 +2,9 @@
 subroutine test_quad_init
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
+  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_ptr
   use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
-  use quad_cnn, only : quad_cnn_t
+  use quad_cnn, only : NEKO_QUAD_NRIDGE, quad_cnn_t
   implicit none
   type(vertex_cnn_t) :: vertex1, vertex2, vertex3, vertex4, vertex5, vertex6
   type(edge_cnn_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7
@@ -12,8 +12,8 @@ subroutine test_quad_init
        & edgea7
   type(quad_cnn_t) :: quad1, quad2
   type(edge_aligned_cnn_t), dimension(:), allocatable :: facet
-  type(vertex_cnn_ptr), dimension(:), allocatable :: ridge
-  integer(i4) :: ishare
+  type(vertex_ncnf_cnn_ptr), dimension(NEKO_QUAD_NRIDGE) :: ridge
+  integer(i4) :: ishare, il
   integer(i4), dimension(:, :), allocatable :: facetp
 
   ! Vertices for two quads
@@ -42,12 +42,14 @@ subroutine test_quad_init
   @assertTrue(facet(3)%edge%obj.eq.edge2)
   @assertTrue(facet(4)%edge%obj.eq.edge3)
   ! ridges
-  call quad1%rdg(ridge)
-  @assertTrue(ridge(1)%obj.eq.vertex1)
-  @assertTrue(ridge(2)%obj.eq.vertex1)
-  @assertTrue(ridge(3)%obj.eq.vertex2)
-  @assertTrue(ridge(4)%obj.eq.vertex2)
-  deallocate(facet, ridge)
+  do il = 1, NEKO_QUAD_NRIDGE
+     call quad1%rdg(ridge(il), il)
+  end do
+  @assertTrue(ridge(1)%obj%vertex%obj.eq.vertex1)
+  @assertTrue(ridge(2)%obj%vertex%obj.eq.vertex1)
+  @assertTrue(ridge(3)%obj%vertex%obj.eq.vertex2)
+  @assertTrue(ridge(4)%obj%vertex%obj.eq.vertex2)
+  deallocate(facet)
 
   ! self-periodic, 1D, Mobius strip
   ! edges
@@ -67,12 +69,14 @@ subroutine test_quad_init
   @assertTrue(facet(3)%edge%obj.eq.edge2)
   @assertTrue(facet(4)%edge%obj.eq.edge3)
   ! ridges
-  call quad1%rdg(ridge)
-  @assertTrue(ridge(1)%obj.eq.vertex1)
-  @assertTrue(ridge(2)%obj.eq.vertex2)
-  @assertTrue(ridge(3)%obj.eq.vertex2)
-  @assertTrue(ridge(4)%obj.eq.vertex1)
-  deallocate(facet, ridge)
+  do il = 1, NEKO_QUAD_NRIDGE
+     call quad1%rdg(ridge(il), il)
+  end do
+  @assertTrue(ridge(1)%obj%vertex%obj.eq.vertex1)
+  @assertTrue(ridge(2)%obj%vertex%obj.eq.vertex2)
+  @assertTrue(ridge(3)%obj%vertex%obj.eq.vertex2)
+  @assertTrue(ridge(4)%obj%vertex%obj.eq.vertex1)
+  deallocate(facet)
 
   ! non self-periodic; simple
   call edge1%init(1, vertex1, vertex3)
@@ -92,12 +96,14 @@ subroutine test_quad_init
   @assertTrue(facet(3)%edge%obj.eq.edge3)
   @assertTrue(facet(4)%edge%obj.eq.edge4)
   ! ridges
-  call quad1%rdg(ridge)
-  @assertTrue(ridge(1)%obj.eq.vertex1)
-  @assertTrue(ridge(2)%obj.eq.vertex2)
-  @assertTrue(ridge(3)%obj.eq.vertex3)
-  @assertTrue(ridge(4)%obj.eq.vertex4)
-  deallocate(facet, ridge)
+  do il = 1, NEKO_QUAD_NRIDGE
+     call quad1%rdg(ridge(il), il)
+  end do
+  @assertTrue(ridge(1)%obj%vertex%obj.eq.vertex1)
+  @assertTrue(ridge(2)%obj%vertex%obj.eq.vertex2)
+  @assertTrue(ridge(3)%obj%vertex%obj.eq.vertex3)
+  @assertTrue(ridge(4)%obj%vertex%obj.eq.vertex4)
+  deallocate(facet)
 
   ! non self-periodic; aligned
   call edge1%init(1, vertex3, vertex1)
@@ -117,12 +123,14 @@ subroutine test_quad_init
   @assertTrue(facet(3)%edge%obj.eq.edge3)
   @assertTrue(facet(4)%edge%obj.eq.edge4)
   ! ridges
-  call quad1%rdg(ridge)
-  @assertTrue(ridge(1)%obj.eq.vertex1)
-  @assertTrue(ridge(2)%obj.eq.vertex2)
-  @assertTrue(ridge(3)%obj.eq.vertex3)
-  @assertTrue(ridge(4)%obj.eq.vertex4)
-  deallocate(facet, ridge)
+  do il = 1, NEKO_QUAD_NRIDGE
+     call quad1%rdg(ridge(il), il)
+  end do
+  @assertTrue(ridge(1)%obj%vertex%obj.eq.vertex1)
+  @assertTrue(ridge(2)%obj%vertex%obj.eq.vertex2)
+  @assertTrue(ridge(3)%obj%vertex%obj.eq.vertex3)
+  @assertTrue(ridge(4)%obj%vertex%obj.eq.vertex4)
+  deallocate(facet)
 
   ! shared facets/ridges
   call edge1%init(1, vertex1, vertex3)
