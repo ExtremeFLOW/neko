@@ -136,17 +136,17 @@ subroutine hex_element_test(hex, quad, edge, vertex)
   ! facets
   call hex%fct(facet)
   do il = 1, NEKO_HEX_NFACET
-     @assertTrue(facet(il)%face%obj .eq. quad(il))
+     @assertTrue(facet(il)%face%ptr .eq. quad(il))
   end do
   ! ridges
   call hex%rdg(ridge)
   do il = 1, NEKO_HEX_NRIDGE
-     @assertTrue(ridge(il)%edge%obj .eq. edge(il))
+     @assertTrue(ridge(il)%edge%ptr .eq. edge(il))
   end do
   ! peaks
   do il = 1, NEKO_HEX_NPEAK
      call hex%pek(peak, il)
-     @assertTrue(peak%obj%vertex%obj .eq. vertex(il))
+     @assertTrue(peak%ptr%vertex%ptr .eq. vertex(il))
   end do
   deallocate(facet, ridge)
 

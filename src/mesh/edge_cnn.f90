@@ -79,7 +79,7 @@ module edge_cnn
 
   !> Pointer to an edge type
   type ::  edge_cnn_ptr
-     type(edge_cnn_t), pointer :: obj
+     type(edge_cnn_t), pointer :: ptr
   end type edge_cnn_ptr
 
   !> Edge with alignment information
@@ -149,7 +149,7 @@ contains
     class(edge_cnn_t), intent(in) :: this
     logical :: selfp
 
-    selfp = (this%facet(1)%vertex%obj%id() == this%facet(2)%vertex%obj%id())
+    selfp = (this%facet(1)%vertex%ptr%id() == this%facet(2)%vertex%ptr%id())
 
     return
   end function edge_self_periodic
@@ -163,9 +163,9 @@ contains
     integer(i4), intent(in) :: pos
 
     if ((pos > 0) .and. (pos <= NEKO_EDGE_NFACET)) then
-       facet%obj => this%facet(pos)
+       facet%ptr => this%facet(pos)
     else
-       facet%obj => null()
+       facet%ptr => null()
     end if
 
     return
@@ -187,8 +187,8 @@ contains
     facetp(:,:) = 0
     do il = 1, this%nfacet
        do jl = 1, other%nfacet
-          if (this%facet(il)%vertex%obj%id() == &
-               & other%facet(jl)%vertex%obj%id()) then
+          if (this%facet(il)%vertex%ptr%id() == &
+               & other%facet(jl)%vertex%ptr%id()) then
              ishare = ishare + 1
              facetp(1,ishare) = il
              facetp(2,ishare) = jl
@@ -227,13 +227,13 @@ contains
              trans(1) = 1
              trans(2) = 2
              do algn = 0, algn_op%nop()
-                call algn_op%trns_inv_f_i4(algn)%obj(NEKO_EDGE_NFACET, trans)
-                equal = (this%facet(1)%vertex%obj .eq. &
-                     & other%facet(trans(1))%vertex%obj) .and. &
-                     & (this%facet(2)%vertex%obj .eq. &
-                     & other%facet(trans(2))%vertex%obj)
+                call algn_op%trns_inv_f_i4(algn)%ptr(NEKO_EDGE_NFACET, trans)
+                equal = (this%facet(1)%vertex%ptr .eq. &
+                     & other%facet(trans(1))%vertex%ptr) .and. &
+                     & (this%facet(2)%vertex%ptr .eq. &
+                     & other%facet(trans(2))%vertex%ptr)
                 if (equal) return
-                call algn_op%trns_f_i4(algn)%obj(NEKO_EDGE_NFACET, trans)
+                call algn_op%trns_f_i4(algn)%ptr(NEKO_EDGE_NFACET, trans)
              end do
           class default
              equal = .false.
@@ -274,7 +274,7 @@ contains
 
     call this%free()
     ! set global edge pointer
-    this%edge%obj => edge
+    this%edge%ptr => edge
     ! set relative alignment transformation
     call this%algn_op%init(algn)
 
@@ -285,7 +285,7 @@ contains
   subroutine edge_aligned_free(this)
     class(edge_aligned_cnn_t), intent(inout) :: this
 
-    this%edge%obj => null()
+    this%edge%ptr => null()
     call this%algn_op%free()
 
     return
@@ -296,7 +296,7 @@ contains
   subroutine edge_aligned_edgep(this, edge)
     class(edge_aligned_cnn_t), intent(in) :: this
     type(edge_cnn_ptr), intent(out) :: edge
-    edge%obj => this%edge%obj
+    edge%ptr => this%edge%ptr
     return
   end subroutine edge_aligned_edgep
 
@@ -320,12 +320,12 @@ contains
     integer(i4), dimension(NEKO_EDGE_NFACET) :: vrt, vrto
 
     ! only equal edges can be checked
-    if (this%edge%obj.eq.other) then
-       vrt(1) = this%edge%obj%facet(1)%vertex%obj%id()
-       vrt(2) = this%edge%obj%facet(2)%vertex%obj%id()
-       vrto(1) = other%facet(1)%vertex%obj%id()
-       vrto(2) = other%facet(2)%vertex%obj%id()
-       call this%algn_op%trns_inv_f_i4%obj(NEKO_EDGE_NFACET, vrto)
+    if (this%edge%ptr.eq.other) then
+       vrt(1) = this%edge%ptr%facet(1)%vertex%ptr%id()
+       vrt(2) = this%edge%ptr%facet(2)%vertex%ptr%id()
+       vrto(1) = other%facet(1)%vertex%ptr%id()
+       vrto(2) = other%facet(2)%vertex%ptr%id()
+       call this%algn_op%trns_inv_f_i4%ptr(NEKO_EDGE_NFACET, vrto)
        aligned = (vrt(1) == vrto(1)).and.(vrt(2) == vrto(2))
     else
        call neko_error('Edges not equal')

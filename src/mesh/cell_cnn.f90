@@ -100,9 +100,9 @@ contains
     integer(i4), intent(in) :: pos
 
     if ((pos > 0) .and. (pos <= this%npeak)) then
-       peak%obj => this%peak(pos)
+       peak%ptr => this%peak(pos)
     else
-       peak%obj => null()
+       peak%ptr => null()
     end if
 
     return
@@ -124,7 +124,7 @@ contains
     ridgep(:,:) = 0
     do il = 1, this%nridge
        do jl = 1, other%nridge
-          if (this%ridge(il)%edge%obj .eq. other%ridge(jl)%edge%obj) then
+          if (this%ridge(il)%edge%ptr .eq. other%ridge(jl)%edge%ptr) then
              ishare = ishare + 1
              ridgep(1,ishare) = il
              ridgep(2,ishare) = jl
@@ -151,8 +151,8 @@ contains
     peakp(:,:) = 0
     do il = 1, this%npeak
        do jl = 1, other%npeak
-          if (this%peak(il)%vertex%obj%id() == &
-               & other%peak(jl)%vertex%obj%id()) then
+          if (this%peak(il)%vertex%ptr%id() == &
+               & other%peak(jl)%vertex%ptr%id()) then
              ishare = ishare + 1
              peakp(1,ishare) = il
              peakp(2,ishare) = jl

@@ -60,7 +60,7 @@ module vertex_cnn
 
   !> Pointer to a vertex type
   type ::  vertex_cnn_ptr
-     type(vertex_cnn_t), pointer :: obj
+     type(vertex_cnn_t), pointer :: ptr
   end type vertex_cnn_ptr
 
   !> Vertex type for nonconforming meshes
@@ -95,7 +95,7 @@ module vertex_cnn
 
   !> Pointer to a hanging vertex type
   type ::  vertex_ncnf_cnn_ptr
-     type(vertex_ncnf_cnn_t), pointer :: obj
+     type(vertex_ncnf_cnn_t), pointer :: ptr
   end type vertex_ncnf_cnn_ptr
 
 contains
@@ -138,7 +138,7 @@ contains
     type(vertex_cnn_t), target, intent(in) :: vrt
     integer(i4), intent(in) :: pos
     call this%free()
-    this%vertex%obj => vrt
+    this%vertex%ptr => vrt
     this%position = pos
     return
   end subroutine vertex_hanging_init
@@ -146,7 +146,7 @@ contains
   !> @brief free vertex pointer and hanging information
   subroutine vertex_hanging_free(this)
     class(vertex_ncnf_cnn_t), intent(inout) :: this
-    this%vertex%obj => null()
+    this%vertex%ptr => null()
     this%hanging = 0
     this%position = 0
     return

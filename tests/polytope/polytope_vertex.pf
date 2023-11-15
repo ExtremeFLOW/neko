@@ -42,7 +42,7 @@ subroutine test_vertex_nonconforming
   pos = 2
   call vertex%init(id)
   call vertex_ncnf%init(vertex, pos)
-  @assertTrue(vertex .eq. vertex_ncnf%vertex%obj)
+  @assertTrue(vertex .eq. vertex_ncnf%vertex%ptr)
   itmp = vertex_ncnf%pos()
   @assertEqual(itmp, pos)
   itmp = vertex_ncnf%hng()

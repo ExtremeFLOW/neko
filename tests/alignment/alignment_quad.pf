@@ -85,14 +85,14 @@ subroutine test_alignment_quad_i4
   do il = 0, quad%nop()
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad%trns_f_i4(il)%obj(sz, fcs, work)
+     call quad%trns_f_i4(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1))
         end do
      end do
      ! inverse
-     call quad%trns_inv_f_i4(il)%obj(sz, fcs, work)
+     call quad%trns_inv_f_i4(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
@@ -104,14 +104,14 @@ subroutine test_alignment_quad_i4
   do il = 0, quad%nop()
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad%trns_i_i4(il)%obj(sz, fcs, work)
+     call quad%trns_i_i4(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1))
         end do
      end do
      ! inverse
-     call quad%trns_inv_i_i4(il)%obj(sz, fcs, work)
+     call quad%trns_inv_i_i4(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
@@ -208,14 +208,14 @@ subroutine test_alignment_quad_i8
   do il = 0, quad%nop()
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad%trns_f_i8(il)%obj(sz, fcs, work)
+     call quad%trns_f_i8(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1))
         end do
      end do
      ! inverse
-     call quad%trns_inv_f_i8(il)%obj(sz, fcs, work)
+     call quad%trns_inv_f_i8(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
@@ -227,14 +227,14 @@ subroutine test_alignment_quad_i8
   do il = 0, quad%nop()
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad%trns_i_i8(il)%obj(sz, fcs, work)
+     call quad%trns_i_i8(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1))
         end do
      end do
      ! inverse
-     call quad%trns_inv_i_i8(il)%obj(sz, fcs, work)
+     call quad%trns_inv_i_i8(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
@@ -331,14 +331,14 @@ subroutine test_alignment_quad_dp
   do il = 0, quad%nop()
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad%trns_f_dp(il)%obj(sz, fcs, work)
+     call quad%trns_f_dp(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1), tolerance=1d-14)
         end do
      end do
      ! inverse
-     call quad%trns_inv_f_dp(il)%obj(sz, fcs, work)
+     call quad%trns_inv_f_dp(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance=1d-14)
@@ -350,14 +350,14 @@ subroutine test_alignment_quad_dp
   do il = 0, quad%nop()
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad%trns_i_dp(il)%obj(sz, fcs, work)
+     call quad%trns_i_dp(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1), tolerance=1d-14)
         end do
      end do
      ! inverse
-     call quad%trns_inv_i_dp(il)%obj(sz, fcs, work)
+     call quad%trns_inv_i_dp(il)%ptr(sz, fcs, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance=1d-14)
@@ -395,16 +395,16 @@ subroutine test_alignment_quad_op_set_i4
      ! direct
      fcsv(:, :) = fcs_bnd(:, :)
      fcss(:, :) = fcs_bnd(:, :)
-     call quadv%trns_f_i4(il)%obj(sz, fcsv, work)
+     call quadv%trns_f_i4(il)%ptr(sz, fcsv, work)
      call quads%init(il)
-     call quads%trns_f_i4%obj(sz, fcss, work)
+     call quads%trns_f_i4%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcsv(kl, jl), fcss(kl, jl))
         end do
      end do
      ! inverse
-     call quads%trns_inv_f_i4%obj(sz, fcss, work)
+     call quads%trns_inv_f_i4%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
@@ -417,16 +417,16 @@ subroutine test_alignment_quad_op_set_i4
      ! direct
      fcsv(:, :) = fcs_bnd(:, :)
      fcss(:, :) = fcs_bnd(:, :)
-     call quadv%trns_i_i4(il)%obj(sz, fcsv, work)
+     call quadv%trns_i_i4(il)%ptr(sz, fcsv, work)
      call quads%init(il)
-     call quads%trns_i_i4%obj(sz, fcss, work)
+     call quads%trns_i_i4%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcsv(kl, jl), fcss(kl, jl))
         end do
      end do
      ! inverse
-     call quads%trns_inv_i_i4%obj(sz, fcss, work)
+     call quads%trns_inv_i_i4%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
@@ -463,16 +463,16 @@ subroutine test_alignment_quad_op_set_i8
      ! direct
      fcsv(:, :) = fcs_bnd(:, :)
      fcss(:, :) = fcs_bnd(:, :)
-     call quadv%trns_f_i8(il)%obj(sz, fcsv, work)
+     call quadv%trns_f_i8(il)%ptr(sz, fcsv, work)
      call quads%init(il)
-     call quads%trns_f_i8%obj(sz, fcss, work)
+     call quads%trns_f_i8%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcsv(kl, jl), fcss(kl, jl))
         end do
      end do
      ! inverse
-     call quads%trns_inv_f_i8%obj(sz, fcss, work)
+     call quads%trns_inv_f_i8%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
@@ -485,16 +485,16 @@ subroutine test_alignment_quad_op_set_i8
      ! direct
      fcsv(:, :) = fcs_bnd(:, :)
      fcss(:, :) = fcs_bnd(:, :)
-     call quadv%trns_i_i8(il)%obj(sz, fcsv, work)
+     call quadv%trns_i_i8(il)%ptr(sz, fcsv, work)
      call quads%init(il)
-     call quads%trns_i_i8%obj(sz, fcss, work)
+     call quads%trns_i_i8%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcsv(kl, jl), fcss(kl, jl))
         end do
      end do
      ! inverse
-     call quads%trns_inv_i_i8%obj(sz, fcss, work)
+     call quads%trns_inv_i_i8%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
@@ -531,16 +531,16 @@ subroutine test_alignment_quad_op_set_dp
      ! direct
      fcsv(:, :) = fcs_bnd(:, :)
      fcss(:, :) = fcs_bnd(:, :)
-     call quadv%trns_f_dp(il)%obj(sz, fcsv, work)
+     call quadv%trns_f_dp(il)%ptr(sz, fcsv, work)
      call quads%init(il)
-     call quads%trns_f_dp%obj(sz, fcss, work)
+     call quads%trns_f_dp%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcsv(kl, jl), fcss(kl, jl))
         end do
      end do
      ! inverse
-     call quads%trns_inv_f_dp%obj(sz, fcss, work)
+     call quads%trns_inv_f_dp%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))
@@ -553,16 +553,16 @@ subroutine test_alignment_quad_op_set_dp
      ! direct
      fcsv(:, :) = fcs_bnd(:, :)
      fcss(:, :) = fcs_bnd(:, :)
-     call quadv%trns_i_dp(il)%obj(sz, fcsv, work)
+     call quadv%trns_i_dp(il)%ptr(sz, fcsv, work)
      call quads%init(il)
-     call quads%trns_i_dp%obj(sz, fcss, work)
+     call quads%trns_i_dp%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcsv(kl, jl), fcss(kl, jl))
         end do
      end do
      ! inverse
-     call quads%trns_inv_i_dp%obj(sz, fcss, work)
+     call quads%trns_inv_i_dp%ptr(sz, fcss, work)
      do jl = 1, sz
         do kl = 1, sz
            @assertEqual(fcss(kl, jl), fcs_bnd(kl, jl))

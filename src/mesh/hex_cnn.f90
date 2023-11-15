@@ -115,7 +115,7 @@ module hex_cnn
 
   !> Pointer to a hex type
   type ::  hex_cnn_ptr
-     type(hex_cnn_t), pointer :: obj
+     type(hex_cnn_t), pointer :: ptr
   end type hex_cnn_ptr
 
   ! Lookup tables
@@ -199,7 +199,7 @@ contains
     ! vertices should not be messed up
     do il = 1, NEKO_HEX_NFACET - 1
        do jl = il + 1, NEKO_HEX_NFACET
-          equal = this%facet(il)%face%obj.eq.this%facet(jl)%face%obj
+          equal = this%facet(il)%face%ptr.eq.this%facet(jl)%face%ptr
        end do
     end do
 
@@ -218,19 +218,19 @@ contains
           trans(1, 3) = 3
           trans(3, 3) = 4
           ! transformation
-          call this%facet(ifct)%algn_op%trns_inv_f_i4%obj( sz, trans, work)
+          call this%facet(ifct)%algn_op%trns_inv_f_i4%ptr( sz, trans, work)
           ! get vertex mapping
           mapr(1) = trans(1, 1)
           mapr(2) = trans(3, 1)
           mapr(3) = trans(1, 3)
           mapr(4) = trans(3, 3)
           ! extract vertex
-          vrtp(jl)%obj => this%facet(ifct)%face%obj%ridge(mapr(icrn))%vertex%obj
+          vrtp(jl)%ptr => this%facet(ifct)%face%ptr%ridge(mapr(icrn))%vertex%ptr
        end do
        ! is it a proper vertex
-       if ((vrtp(1)%obj%id() == vrtp(2)%obj%id()) .and. &
-            & (vrtp(1)%obj%id() == vrtp(3)%obj%id())) then
-          call this%peak(il)%init(vrtp(1)%obj, il)
+       if ((vrtp(1)%ptr%id() == vrtp(2)%ptr%id()) .and. &
+            & (vrtp(1)%ptr%id() == vrtp(3)%ptr%id())) then
+          call this%peak(il)%init(vrtp(1)%ptr, il)
        else
           call neko_error('Inconsistent face vertices in the hex.')
        end if
@@ -253,27 +253,27 @@ contains
           trans(2, 1) = 3
           trans(2, 3) = 4
           ! transformation
-          call this%facet(ifct)%algn_op%trns_inv_f_i4%obj( sz, trans, work)
+          call this%facet(ifct)%algn_op%trns_inv_f_i4%ptr( sz, trans, work)
           ! get edge mapping
           mapf(1) = trans(1, 2)
           mapf(2) = trans(3, 2)
           mapf(3) = trans(2, 1)
           mapf(4) = trans(2, 3)
           ! extract edge
-          edgp(jl)%obj => this%facet(ifct)%face%obj%facet(mapf(icrn))%edge%obj
+          edgp(jl)%ptr => this%facet(ifct)%face%ptr%facet(mapf(icrn))%edge%ptr
           ! extract alignment
           edg_algn(jl) = quad_to_edg_algn_inv( &
-               & this%facet(ifct)%face%obj%facet(mapf(icrn))%algn_op%alignment,&
+               & this%facet(ifct)%face%ptr%facet(mapf(icrn))%algn_op%alignment,&
                & mapf(icrn), this%facet(ifct)%algn_op%alignment)
        end do
        ! is it a proper edge
-       if ((edgp(1)%obj .eq. edgp(2)%obj) .and. &
+       if ((edgp(1)%ptr .eq. edgp(2)%ptr) .and. &
             & (edg_algn(1) == edg_algn(2))) then
-          call this%ridge(il)%init(edgp(1)%obj, edg_algn(1))
+          call this%ridge(il)%init(edgp(1)%ptr, edg_algn(1))
           ! compare with local edge to check alignment
-          call edg%init(edgp(1)%obj%id(), &
-               & this%peak(rdg_to_pek(1, il))%vertex%obj, &
-               & this%peak(rdg_to_pek(2, il))%vertex%obj)
+          call edg%init(edgp(1)%ptr%id(), &
+               & this%peak(rdg_to_pek(1, il))%vertex%ptr, &
+               & this%peak(rdg_to_pek(2, il))%vertex%ptr)
           equal = this%ridge(il)%test(edg)
           if (.not.equal) &
                & call neko_error('Inconsistent edge alignment in the hex.')
@@ -325,22 +325,22 @@ contains
     itmp = 0
     do il = 1, this%nfacet - 1
        do jl = il + 1, this%nfacet
-          selfp = this%facet(il)%face%obj .eq. this%facet(jl)%face%obj
+          selfp = this%facet(il)%face%ptr .eq. this%facet(jl)%face%ptr
           if (selfp) itmp = itmp + 1
        end do
     end do
     ! count self periodic edges
     do il = 1, this%nridge - 1
        do jl = il + 1, this%nridge
-          selfp = this%ridge(il)%edge%obj .eq. this%ridge(jl)%edge%obj
+          selfp = this%ridge(il)%edge%ptr .eq. this%ridge(jl)%edge%ptr
           if (selfp) itmp = itmp + 1
        end do
     end do
     ! count self periodic vertices
     do il = 1, this%npeak - 1
        do jl = il + 1, this%npeak
-          selfp = (this%peak(il)%vertex%obj%id() == &
-               & this%peak(jl)%vertex%obj%id())
+          selfp = (this%peak(il)%vertex%ptr%id() == &
+               & this%peak(jl)%vertex%ptr%id())
           if (selfp) itmp = itmp + 1
        end do
     end do
@@ -384,7 +384,7 @@ contains
     facetp(:,:) = 0
     do il = 1, this%nfacet
        do jl = 1, other%nfacet
-          if (this%facet(il)%face%obj.eq.other%facet(jl)%face%obj) then
+          if (this%facet(il)%face%ptr.eq.other%facet(jl)%face%ptr) then
              ishare = ishare + 1
              facetp(1,ishare) = il
              facetp(2,ishare) = jl

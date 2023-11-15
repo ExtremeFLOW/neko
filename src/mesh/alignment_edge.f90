@@ -44,15 +44,15 @@ module alignment_edge
 
   !> procedure pointer type; i4
   type :: algn_edge_proc_i4_ptr
-     procedure(transform_i4), pointer, nopass :: obj
+     procedure(transform_i4), pointer, nopass :: ptr
   end type algn_edge_proc_i4_ptr
   !> procedure pointer type; i8
   type :: algn_edge_proc_i8_ptr
-     procedure(transform_i8), pointer, nopass :: obj
+     procedure(transform_i8), pointer, nopass :: ptr
   end type algn_edge_proc_i8_ptr
   !> procedure pointer type; dp
   type :: algn_edge_proc_dp_ptr
-     procedure(transform_dp), pointer, nopass :: obj
+     procedure(transform_dp), pointer, nopass :: ptr
   end type algn_edge_proc_dp_ptr
 
   !> Type containing set of edge alignment operators
@@ -160,33 +160,33 @@ contains
 
     ! Identity transformation is added for completeness; in general not needed
     ! Direct transformation of full array, different types
-    this%trns_f_i4(0)%obj => transform_edge_I_i4
-    this%trns_f_i4(1)%obj => transform_edge_P_full_i4
-    this%trns_f_i8(0)%obj => transform_edge_I_i8
-    this%trns_f_i8(1)%obj => transform_edge_P_full_i8
-    this%trns_f_dp(0)%obj => transform_edge_I_dp
-    this%trns_f_dp(1)%obj => transform_edge_P_full_dp
+    this%trns_f_i4(0)%ptr => transform_edge_I_i4
+    this%trns_f_i4(1)%ptr => transform_edge_P_full_i4
+    this%trns_f_i8(0)%ptr => transform_edge_I_i8
+    this%trns_f_i8(1)%ptr => transform_edge_P_full_i8
+    this%trns_f_dp(0)%ptr => transform_edge_I_dp
+    this%trns_f_dp(1)%ptr => transform_edge_P_full_dp
     ! Direct transformation of array interior, different types
-    this%trns_i_i4(0)%obj => transform_edge_I_i4
-    this%trns_i_i4(1)%obj => transform_edge_P_int_i4
-    this%trns_i_i8(0)%obj => transform_edge_I_i8
-    this%trns_i_i8(1)%obj => transform_edge_P_int_i8
-    this%trns_i_dp(0)%obj => transform_edge_I_dp
-    this%trns_i_dp(1)%obj => transform_edge_P_int_dp
+    this%trns_i_i4(0)%ptr => transform_edge_I_i4
+    this%trns_i_i4(1)%ptr => transform_edge_P_int_i4
+    this%trns_i_i8(0)%ptr => transform_edge_I_i8
+    this%trns_i_i8(1)%ptr => transform_edge_P_int_i8
+    this%trns_i_dp(0)%ptr => transform_edge_I_dp
+    this%trns_i_dp(1)%ptr => transform_edge_P_int_dp
     ! Inverse transformation of full array, different types
-    this%trns_inv_f_i4(0)%obj => transform_edge_I_i4
-    this%trns_inv_f_i4(1)%obj => transform_edge_P_full_i4
-    this%trns_inv_f_i8(0)%obj => transform_edge_I_i8
-    this%trns_inv_f_i8(1)%obj => transform_edge_P_full_i8
-    this%trns_inv_f_dp(0)%obj => transform_edge_I_dp
-    this%trns_inv_f_dp(1)%obj => transform_edge_P_full_dp
+    this%trns_inv_f_i4(0)%ptr => transform_edge_I_i4
+    this%trns_inv_f_i4(1)%ptr => transform_edge_P_full_i4
+    this%trns_inv_f_i8(0)%ptr => transform_edge_I_i8
+    this%trns_inv_f_i8(1)%ptr => transform_edge_P_full_i8
+    this%trns_inv_f_dp(0)%ptr => transform_edge_I_dp
+    this%trns_inv_f_dp(1)%ptr => transform_edge_P_full_dp
     ! Inverse transformation of array interior, different types
-    this%trns_inv_i_i4(0)%obj => transform_edge_I_i4
-    this%trns_inv_i_i4(1)%obj => transform_edge_P_int_i4
-    this%trns_inv_i_i8(0)%obj => transform_edge_I_i8
-    this%trns_inv_i_i8(1)%obj => transform_edge_P_int_i8
-    this%trns_inv_i_dp(0)%obj => transform_edge_I_dp
-    this%trns_inv_i_dp(1)%obj => transform_edge_P_int_dp
+    this%trns_inv_i_i4(0)%ptr => transform_edge_I_i4
+    this%trns_inv_i_i4(1)%ptr => transform_edge_P_int_i4
+    this%trns_inv_i_i8(0)%ptr => transform_edge_I_i8
+    this%trns_inv_i_i8(1)%ptr => transform_edge_P_int_i8
+    this%trns_inv_i_dp(0)%ptr => transform_edge_I_dp
+    this%trns_inv_i_dp(1)%ptr => transform_edge_P_int_dp
 
     return
   end subroutine edge_init
@@ -198,18 +198,18 @@ contains
 
     ! free pointers
     do il = 0, NEKO_EDGE_NOPERATION
-       this%trns_f_i4(il)%obj => null()
-       this%trns_f_i8(il)%obj => null()
-       this%trns_f_dp(il)%obj => null()
-       this%trns_i_i4(il)%obj => null()
-       this%trns_i_i8(il)%obj => null()
-       this%trns_i_dp(il)%obj => null()
-       this%trns_inv_f_i4(il)%obj => null()
-       this%trns_inv_f_i8(il)%obj => null()
-       this%trns_inv_f_dp(il)%obj => null()
-       this%trns_inv_i_i4(il)%obj => null()
-       this%trns_inv_i_i8(il)%obj => null()
-       this%trns_inv_i_dp(il)%obj => null()
+       this%trns_f_i4(il)%ptr => null()
+       this%trns_f_i8(il)%ptr => null()
+       this%trns_f_dp(il)%ptr => null()
+       this%trns_i_i4(il)%ptr => null()
+       this%trns_i_i8(il)%ptr => null()
+       this%trns_i_dp(il)%ptr => null()
+       this%trns_inv_f_i4(il)%ptr => null()
+       this%trns_inv_f_i8(il)%ptr => null()
+       this%trns_inv_f_dp(il)%ptr => null()
+       this%trns_inv_i_i4(il)%ptr => null()
+       this%trns_inv_i_i8(il)%ptr => null()
+       this%trns_inv_i_dp(il)%ptr => null()
     end do
 
     return
@@ -240,38 +240,38 @@ contains
     select case(algn)
     case(0)
        ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_edge_I_i4
-       this%trns_f_i8%obj => transform_edge_I_i8
-       this%trns_f_dp%obj => transform_edge_I_dp
+       this%trns_f_i4%ptr => transform_edge_I_i4
+       this%trns_f_i8%ptr => transform_edge_I_i8
+       this%trns_f_dp%ptr => transform_edge_I_dp
        ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_edge_I_i4
-       this%trns_i_i8%obj => transform_edge_I_i8
-       this%trns_i_dp%obj => transform_edge_I_dp
+       this%trns_i_i4%ptr => transform_edge_I_i4
+       this%trns_i_i8%ptr => transform_edge_I_i8
+       this%trns_i_dp%ptr => transform_edge_I_dp
        ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_edge_I_i4
-       this%trns_inv_f_i8%obj => transform_edge_I_i8
-       this%trns_inv_f_dp%obj => transform_edge_I_dp
+       this%trns_inv_f_i4%ptr => transform_edge_I_i4
+       this%trns_inv_f_i8%ptr => transform_edge_I_i8
+       this%trns_inv_f_dp%ptr => transform_edge_I_dp
        ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_edge_I_i4
-       this%trns_inv_i_i8%obj => transform_edge_I_i8
-       this%trns_inv_i_dp%obj => transform_edge_I_dp
+       this%trns_inv_i_i4%ptr => transform_edge_I_i4
+       this%trns_inv_i_i8%ptr => transform_edge_I_i8
+       this%trns_inv_i_dp%ptr => transform_edge_I_dp
     case(1)
        ! Direct transformation of full array, different types
-       this%trns_f_i4%obj => transform_edge_P_full_i4
-       this%trns_f_i8%obj => transform_edge_P_full_i8
-       this%trns_f_dp%obj => transform_edge_P_full_dp
+       this%trns_f_i4%ptr => transform_edge_P_full_i4
+       this%trns_f_i8%ptr => transform_edge_P_full_i8
+       this%trns_f_dp%ptr => transform_edge_P_full_dp
        ! Direct transformation of array interior, different types
-       this%trns_i_i4%obj => transform_edge_P_int_i4
-       this%trns_i_i8%obj => transform_edge_P_int_i8
-       this%trns_i_dp%obj => transform_edge_P_int_dp
+       this%trns_i_i4%ptr => transform_edge_P_int_i4
+       this%trns_i_i8%ptr => transform_edge_P_int_i8
+       this%trns_i_dp%ptr => transform_edge_P_int_dp
        ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%obj => transform_edge_P_full_i4
-       this%trns_inv_f_i8%obj => transform_edge_P_full_i8
-       this%trns_inv_f_dp%obj => transform_edge_P_full_dp
+       this%trns_inv_f_i4%ptr => transform_edge_P_full_i4
+       this%trns_inv_f_i8%ptr => transform_edge_P_full_i8
+       this%trns_inv_f_dp%ptr => transform_edge_P_full_dp
        ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%obj => transform_edge_P_int_i4
-       this%trns_inv_i_i8%obj => transform_edge_P_int_i8
-       this%trns_inv_i_dp%obj => transform_edge_P_int_dp
+       this%trns_inv_i_i4%ptr => transform_edge_P_int_i4
+       this%trns_inv_i_i8%ptr => transform_edge_P_int_i8
+       this%trns_inv_i_dp%ptr => transform_edge_P_int_dp
     end select
 
     return
@@ -283,18 +283,18 @@ contains
 
     this%alignment = -1
     ! free pointers
-    this%trns_f_i4%obj => null()
-    this%trns_f_i8%obj => null()
-    this%trns_f_dp%obj => null()
-    this%trns_i_i4%obj => null()
-    this%trns_i_i8%obj => null()
-    this%trns_i_dp%obj => null()
-    this%trns_inv_f_i4%obj => null()
-    this%trns_inv_f_i8%obj => null()
-    this%trns_inv_f_dp%obj => null()
-    this%trns_inv_i_i4%obj => null()
-    this%trns_inv_i_i8%obj => null()
-    this%trns_inv_i_dp%obj => null()
+    this%trns_f_i4%ptr => null()
+    this%trns_f_i8%ptr => null()
+    this%trns_f_dp%ptr => null()
+    this%trns_i_i4%ptr => null()
+    this%trns_i_i8%ptr => null()
+    this%trns_i_dp%ptr => null()
+    this%trns_inv_f_i4%ptr => null()
+    this%trns_inv_f_i8%ptr => null()
+    this%trns_inv_f_dp%ptr => null()
+    this%trns_inv_i_i4%ptr => null()
+    this%trns_inv_i_i8%ptr => null()
+    this%trns_inv_i_dp%ptr => null()
 
     return
   end subroutine edge_op_set_free

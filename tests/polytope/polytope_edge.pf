@@ -25,11 +25,11 @@ subroutine test_edge_init
   ! facets pointers
   call edge1%fct(facet(1), 1)
   call edge1%fct(facet(2), 2)
-  @assertTrue(facet(1)%obj%vertex%obj.eq.vertex1)
-  @assertTrue(facet(2)%obj%vertex%obj.eq.vertex2)
-  @assertFalse(facet(2)%obj%vertex%obj.eq.vertex1)
-  @assertEqual(facet(1)%obj%pos(), 1)
-  @assertEqual(facet(2)%obj%pos(), 2)
+  @assertTrue(facet(1)%ptr%vertex%ptr.eq.vertex1)
+  @assertTrue(facet(2)%ptr%vertex%ptr.eq.vertex2)
+  @assertFalse(facet(2)%ptr%vertex%ptr.eq.vertex1)
+  @assertEqual(facet(1)%ptr%pos(), 1)
+  @assertEqual(facet(2)%ptr%pos(), 2)
 
   ! edge initialisation and equality
   call edge2%init(2, vertex3, vertex4)
@@ -142,8 +142,8 @@ subroutine test_edge_alignment
 
   ! check pointers
   call edgea%edgep(edgep)
-  @assertTrue(edgea%edge%obj.eq.edge1)
-  @assertTrue(edgep%obj.eq.edge1)
+  @assertTrue(edgea%edge%ptr.eq.edge1)
+  @assertTrue(edgep%ptr.eq.edge1)
 
   ! check alignment test
   @assertTrue(edgea%test(edge1))

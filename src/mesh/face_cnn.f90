@@ -116,15 +116,15 @@ contains
     itmp = 0
     do il = 1, this%nfacet - 1
        do jl = il + 1, this%nfacet
-          selfp = this%facet(il)%edge%obj.eq.this%facet(jl)%edge%obj
+          selfp = this%facet(il)%edge%ptr.eq.this%facet(jl)%edge%ptr
           if (selfp) itmp = itmp + 1
        end do
     end do
     ! count self periodic vertices
     do il = 1, this%nridge - 1
        do jl = il + 1, this%nridge
-          selfp = (this%ridge(il)%vertex%obj%id() == &
-               & this%ridge(jl)%vertex%obj%id())
+          selfp = (this%ridge(il)%vertex%ptr%id() == &
+               & this%ridge(jl)%vertex%ptr%id())
           if (selfp) itmp = itmp + 1
        end do
     end do
@@ -161,9 +161,9 @@ contains
     integer(i4), intent(in) :: pos
 
     if ((pos > 0) .and. (pos <= this%nridge)) then
-       ridge%obj => this%ridge(pos)
+       ridge%ptr => this%ridge(pos)
     else
-       ridge%obj => null()
+       ridge%ptr => null()
     end if
 
     return
@@ -185,7 +185,7 @@ contains
     facetp(:,:) = 0
     do il = 1, this%nfacet
        do jl = 1, other%nfacet
-          if (this%facet(il)%edge%obj .eq. other%facet(jl)%edge%obj) then
+          if (this%facet(il)%edge%ptr .eq. other%facet(jl)%edge%ptr) then
              ishare = ishare + 1
              facetp(1,ishare) = il
              facetp(2,ishare) = jl
@@ -212,8 +212,8 @@ contains
     ridgep(:,:) = 0
     do il = 1, this%nridge
        do jl = 1, other%nridge
-          if (this%ridge(il)%vertex%obj%id() == &
-               & other%ridge(jl)%vertex%obj%id()) then
+          if (this%ridge(il)%vertex%ptr%id() == &
+               & other%ridge(jl)%vertex%ptr%id()) then
              ishare = ishare + 1
              ridgep(1,ishare) = il
              ridgep(2,ishare) = jl
