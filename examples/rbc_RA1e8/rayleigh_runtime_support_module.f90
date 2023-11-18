@@ -73,6 +73,12 @@ module rbc
      real(kind=rp) :: heat_top_wall
      real(kind=rp) :: heat_side_wall
      real(kind=rp) :: heat_balance
+     real(kind=rp) :: nu_eps_k
+     real(kind=rp) :: nu_eps_t
+     real(kind=rp) :: bar_eps_k
+     real(kind=rp) :: bar_eps_t
+     real(kind=rp) :: eta_k !Globally averaged kolmogorov scale
+     real(kind=rp) :: eta_t !Globally averaged Batchelor scale
   
      !> field list for outputs
      type(field_list_t) :: area_l
@@ -730,11 +736,19 @@ contains
   end subroutine rbc_update_stats
 
   
-  subroutine rbc_get_integral_quantities(this, t, tstep, coef)
+  subroutine rbc_get_integral_quantities(this, t, tstep, coef, Ra, Pr)
     class(rbc_t), intent(inout), target :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout) :: coef 
+    real(kind=rp), intent(in) :: Ra
+    real(kind=rp), intent(in) :: Pr
+    real(kind=rp) :: lambda
+    real(kind=rp) :: mu
+   
+    mu = sqrt(Pr/Ra)
+    lambda = 1_rp/sqrt(Ra*Pr)
+
     
     ! ==================================================================
     ! ===================== " Calculations " ===========================
@@ -746,6 +760,32 @@ contains
     call average_from_weights(this%bar_uzt, this%uzt, &
                         this%work_field, coef%B, coef%volume)
     
+    !> Integrate thermal dissipation
+    this%bar_eps_t = 0_rp
+    call average_from_weights(this%bar_eps_t, this%eps_t, &
+                        this%work_field, coef%B, coef%volume)
+
+    !> Integrate kinetic dissipation
+    this%bar_eps_k = 0_rp
+    call average_from_weights(this%bar_eps_k, this%eps_k, &
+                        this%work_field, coef%B, coef%volume)
+
+    !> Calculate nusselt from thermal dissipaton
+    this%nu_eps_t = 1_rp/lambda*this%bar_eps_t
+            
+    !> Calculate nusselt from kinetic (the following two formulations are the same)
+    !this%nu_eps_k = 1 + 1_rp/lambda*this%bar_eps_k 
+    this%nu_eps_k = 1_rp + this%bar_eps_k/((mu**3_rp)*Ra/(Pr**2_rp))
+    
+    !> Calculate global kolmogorov scale
+    this%eta_k = 0_rp
+    this%eta_k = ((mu**3_rp)/(this%bar_eps_k))**(0.25_rp)
+    
+    !> Calculate global batchelor scale
+    this%eta_t = 0_rp
+    this%eta_t = ((lambda**3_rp)/(this%bar_eps_k))**(0.25_rp)
+
+
     !> Integrate vertical temperature derivatives at plates
     this%top_wall_bar_dtdz = 0_rp
     this%bot_wall_bar_dtdz = 0_rp
@@ -792,7 +832,16 @@ contains
        write(20,*) t,'', this%heat_top_wall, '', this%heat_bot_wall, '', &
                    this%heat_side_wall, '', this%heat_balance, '', &
                    this%bar_div_dtdX
-        close(20)
+       close(20)
+       
+       open(30,file="nu_eps.txt",position="append")
+       write(30,*) t,'', this%nu_eps_t, '', this%nu_eps_k
+       close(30)
+       
+       open(40,file="eta.txt",position="append")
+       write(40,*) t,'', this%eta_t, '', this%eta_k, &
+                     '', this%bar_eps_t, '', this%bar_eps_k
+       close(40)
     end if
 
 
@@ -1122,24 +1171,24 @@ contains
     real(kind=rp), intent(in) :: Ra
     real(kind=rp), intent(in) :: Pr
      
-    real(kind=rp) :: sqrtRaPr_inv
+    real(kind=rp) :: lambda
     integer :: n
 
     n = eps_t%dof%size()
-    sqrtRaPr_inv = 1_rp/sqrt(Ra*Pr)
+    lambda = 1_rp/sqrt(Ra*Pr)
 
     !Thermal dissipation epsT=(grad T)**2/sqrt(RaPr)
     !jorg did it as epsT=((dtdx)**2+(dtdy)**2+(dtdz)**2)/sqrt(RaPr)
     if (NEKO_BCKND_DEVICE .eq. 1) then 
         call device_rzero(eps_t%x_d,n)
-        call device_addsqr2s2(eps_t%x_d, dtdx%x_d, sqrtRaPr_inv, n)
-        call device_addsqr2s2(eps_t%x_d, dtdy%x_d, sqrtRaPr_inv, n)
-        call device_addsqr2s2(eps_t%x_d, dtdz%x_d, sqrtRaPr_inv, n)
+        call device_addsqr2s2(eps_t%x_d, dtdx%x_d, lambda, n)
+        call device_addsqr2s2(eps_t%x_d, dtdy%x_d, lambda, n)
+        call device_addsqr2s2(eps_t%x_d, dtdz%x_d, lambda, n)
     else
         call rzero(eps_t%x,n)
-        call addsqr2s2(eps_t%x, dtdx%x, sqrtRaPr_inv, n)
-        call addsqr2s2(eps_t%x, dtdy%x, sqrtRaPr_inv, n)
-        call addsqr2s2(eps_t%x, dtdz%x, sqrtRaPr_inv, n)
+        call addsqr2s2(eps_t%x, dtdx%x, lambda, n)
+        call addsqr2s2(eps_t%x, dtdy%x, lambda, n)
+        call addsqr2s2(eps_t%x, dtdz%x, lambda, n)
   
     end if
 
@@ -1165,11 +1214,11 @@ contains
     real(kind=rp), intent(in) :: Ra
     real(kind=rp), intent(in) :: Pr
      
-    real(kind=rp) :: sqrtPr_Ra, c1 = 1, c2 = 1
+    real(kind=rp) :: mu_half, c1 = 1, c2 = 1
     integer :: n
 
     n = eps_k%dof%size()
-    sqrtPr_Ra = sqrt(Pr/Ra)*0.5_rp
+    mu_half = sqrt(Pr/Ra)*0.5_rp ! 0.5*mu
 
     !Energy dissipation epsv=0.5*(du_i/dx_j+du_j/dx_i)**2*sqrt(Pr/Ra)
     ! Some explanation https://www.cfd-online.com/Wiki/Introduction_to_turbulence/Turbulence_kinetic_energy
@@ -1177,48 +1226,48 @@ contains
         call device_rzero(eps_k%x_d,n)
         
         call device_add3s2(work_field%x_d,dudx%x_d,dudx%x_d,c1,c1,n)
-        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, mu_half, n)
         call device_add3s2(work_field%x_d,dudy%x_d,dvdx%x_d,c1,c1,n)
-        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, mu_half, n)
         call device_add3s2(work_field%x_d,dudz%x_d,dwdx%x_d,c1,c1,n)
-        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, mu_half, n)
 
         call device_add3s2(work_field%x_d,dvdx%x_d,dudy%x_d,c1,c1,n)
-        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, mu_half, n)
         call device_add3s2(work_field%x_d,dvdy%x_d,dvdy%x_d,c1,c1,n)
-        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, mu_half, n)
         call device_add3s2(work_field%x_d,dvdz%x_d,dwdy%x_d,c1,c1,n)
-        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, mu_half, n)
 
         call device_add3s2(work_field%x_d,dwdx%x_d,dudz%x_d,c1,c1,n)
-        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, mu_half, n)
         call device_add3s2(work_field%x_d,dwdy%x_d,dvdz%x_d,c1,c1,n)
-        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, mu_half, n)
         call device_add3s2(work_field%x_d,dwdz%x_d,dwdz%x_d,c1,c1,n)
-        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, mu_half, n)
     else
         call rzero(eps_k%x,n)
         
         call add3s2(work_field%x,dudx%x,dudx%x,c1,c1,n)
-        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call addsqr2s2(eps_k%x, work_field%x, mu_half, n)
         call add3s2(work_field%x,dudy%x,dvdx%x,c1,c1,n)
-        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call addsqr2s2(eps_k%x, work_field%x, mu_half, n)
         call add3s2(work_field%x,dudz%x,dwdx%x,c1,c1,n)
-        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call addsqr2s2(eps_k%x, work_field%x, mu_half, n)
 
         call add3s2(work_field%x,dvdx%x,dudy%x,c1,c1,n)
-        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call addsqr2s2(eps_k%x, work_field%x, mu_half, n)
         call add3s2(work_field%x,dvdy%x,dvdy%x,c1,c1,n)
-        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call addsqr2s2(eps_k%x, work_field%x, mu_half, n)
         call add3s2(work_field%x,dvdz%x,dwdy%x,c1,c1,n)
-        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call addsqr2s2(eps_k%x, work_field%x, mu_half, n)
 
         call add3s2(work_field%x,dwdx%x,dudz%x,c1,c1,n)
-        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call addsqr2s2(eps_k%x, work_field%x, mu_half, n)
         call add3s2(work_field%x,dwdy%x,dvdz%x,c1,c1,n)
-        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call addsqr2s2(eps_k%x, work_field%x, mu_half, n)
         call add3s2(work_field%x,dwdz%x,dwdz%x,c1,c1,n)
-        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call addsqr2s2(eps_k%x, work_field%x, mu_half, n)
 
     end if
 

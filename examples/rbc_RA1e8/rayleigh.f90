@@ -217,7 +217,7 @@ contains
        !> Calculate at sampling time
        call runtime_rbc%calculate(t, tstep, coef, params, Ra, Pr, get_spec_err_ind)
        call runtime_rbc%update_stats(t)
-       call runtime_rbc%get_integral_quantities(t, tstep, coef)
+       call runtime_rbc%get_integral_quantities(t, tstep, coef, Ra, Pr)
 
        !> Register the execution of the controller
        call runtime_rbc%sample_control%register_execution()
@@ -235,7 +235,7 @@ contains
     
     end if
 
-    !> Detmine if data should be streamed
+    !> Determine if data should be streamed
     if (runtime_rbc%stream_data) then
        !> Stream data if controller works
        if (runtime_rbc%data_stream_control%check(t, tstep, .false.)) then
