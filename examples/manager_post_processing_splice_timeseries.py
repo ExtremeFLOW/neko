@@ -79,10 +79,12 @@ for i in range(0,number_of_cases):
 
             # Splice the data together
             ts_spliced = np.zeros((1, data.shape[1]+2))
+            print(len(ts_all))
             for i in range(0,len(ts_all)):
                 ts_spliced = np.append(ts_spliced, ts_all[i],axis=0)
             ts_spliced = ts_spliced[1:,:]
 
+            print("Data was spliced, now interpolating")
 
             # Find the min dt and interpolate to that
             dt = 10000
@@ -96,6 +98,8 @@ for i in range(0,number_of_cases):
             for i in range(1, data.shape[1]+2):
                 ts_interpolated[:,i] = np.interp(regular_t[:], ts_spliced[:,0], ts_spliced[:,i])
 
+
+            print("data was interpolated, now writting")
 
             # Save the array:
             np.savetxt(path_to_spliced_file + "/"+ case + "_original.txt", ts_spliced)
