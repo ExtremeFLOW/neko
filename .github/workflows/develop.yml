@@ -212,9 +212,6 @@ jobs:
         compiler: [ifort, ifx]
         precision: [sp, dp]
         backend: [cpu]
-        exclude:
-        - os: ubuntu-20.04
-          compiler: ifx
         include:
         - os: ubuntu-20.04
           setup-env: |
