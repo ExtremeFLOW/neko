@@ -239,7 +239,7 @@ jobs:
           git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
           cd json-fortran
           mkdir build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
+          env FC=${FC} cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
           make -j$(nproc) && make install && cd ../../
           cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
       - name: Setup json-fortran
