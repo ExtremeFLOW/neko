@@ -285,6 +285,7 @@ AC_CONFIG_FILES([Makefile\
 		 src/device/device_config.h\
 		 src/scripts/cltostring.sh\
 		 makeneko\
+		 makescript\
 		 neko.pc])
 
 # Config tests

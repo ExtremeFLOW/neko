@@ -1,0 +1,27 @@
+#!/bin/sh -e
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=${exec_prefix}/lib
+includedir_pkg=${prefix}/include/neko
+FC=@FC@
+FCFLAGS='@FCFLAGS@'
+
+printf "\n%s\n" 'N E K O build tool, Version @PACKAGE_VERSION@'
+printf "%s\n" '@NEKO_BUILD_INFO@'
+
+
+if [ -z "$1" ]
+  then
+      echo "No script provided"
+      exit 1
+fi
+printf '\n%s' "Building script NEKO ..."
+
+var=$1
+output_name=${var%.*}
+
+$FC $FCFLAGS -I$includedir_pkg -L$libdir $5 $4 $3 $2 $1\
+    -lneko @LDFLAGS@ @LIBS@ -o $output_name
+
+printf "%s\n" ' done!'

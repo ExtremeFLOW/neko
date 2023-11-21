@@ -12,9 +12,10 @@ SUBDIRS += doc
 endif
 
 
-bin_SCRIPTS = makeneko
+bin_SCRIPTS = makeneko makescript
 EXTRA_DIST = \
 	makeneko.in\
+	makescript.in\
 	regen.sh\
 	flinter_rc.yml\
 	bench/ax/setup.f90\
