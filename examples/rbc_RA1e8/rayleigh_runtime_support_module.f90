@@ -13,6 +13,7 @@ module rbc
      
      !> Flow quantities
      type(field_t) :: work_field ! Field to perform operations
+     type(field_t) :: work_field2 ! Field to perform operations
      type(field_t) :: tt ! T ^2
      type(field_t) :: uxt ! u_z * T
      type(field_t) :: uyt ! u_z * T
@@ -79,6 +80,10 @@ module rbc
      real(kind=rp) :: bar_eps_t
      real(kind=rp) :: eta_k !Globally averaged kolmogorov scale
      real(kind=rp) :: eta_t !Globally averaged Batchelor scale
+     real(kind=rp) :: tke ! turbulent kinetic energy in space
+     real(kind=rp) :: uuprime ! turbulent kinetic energy in x
+     real(kind=rp) :: vvprime ! "" in y
+     real(kind=rp) :: wwprime ! "" in z
   
      !> field list for outputs
      type(field_list_t) :: area_l
@@ -180,6 +185,7 @@ contains
     
     !> Initialize variables related to nusselt calculation
     call this%work_field%init( u%dof, 'work_field')
+    call this%work_field2%init( u%dof, 'work_field2')
     call this%tt%init( u%dof, 'tt')
     call this%uxt%init( u%dof, 'uxt')
     call this%uyt%init( u%dof, 'uyt')
@@ -472,6 +478,7 @@ contains
 
     ! Finalize variables related to nusselt calculation
     call this%work_field%free()
+    call this%work_field2%free()
     call this%tt%free()
     call this%uxt%free()
     call this%uyt%free()
@@ -745,6 +752,21 @@ contains
     real(kind=rp), intent(in) :: Pr
     real(kind=rp) :: lambda
     real(kind=rp) :: mu
+    
+    !> Input fields
+    type(field_t), pointer :: u
+    type(field_t), pointer :: v
+    type(field_t), pointer :: w
+    type(field_t), pointer :: p
+    type(field_t), pointer :: s
+    
+    !> Get the needed fields
+    u => neko_field_registry%get_field('u')
+    v => neko_field_registry%get_field('v')
+    w => neko_field_registry%get_field('w')
+    p => neko_field_registry%get_field('p')
+    s => neko_field_registry%get_field('s')
+
    
     mu = sqrt(Pr/Ra)
     lambda = 1_rp/sqrt(Ra*Pr)
@@ -816,6 +838,18 @@ contains
     call average_from_weights(this%bar_div_dtdX, this%div_dtdX, &
                         this%work_field, coef%B, coef%volume)
 
+
+    !> Get turbulent kinetic energy
+    this%uuprime = rms_in_space( u, this%work_field, this%work_field2, coef)
+    this%uuprime = this%uuprime**2
+
+    this%vvprime = rms_in_space( v, this%work_field, this%work_field2, coef)
+    this%vvprime = this%vvprime**2
+
+    this%wwprime = rms_in_space( w, this%work_field, this%work_field2, coef)
+    this%wwprime = this%wwprime**2
+
+    this%tke = 0.5_rp*(this%uuprime + this%vvprime + this%wwprime)
                             
     ! ==================================================================
     ! ===================== " IO operations " ==========================
@@ -842,6 +876,11 @@ contains
        write(40,*) t,'', this%eta_t, '', this%eta_k, &
                      '', this%bar_eps_t, '', this%bar_eps_k
        close(40)
+       
+       open(50,file="tke.txt",position="append")
+       write(50,*) t,'', this%tke, '', this%uuprime, &
+                     '', this%vvprime, '', this%wwprime
+       close(50)
     end if
 
 
@@ -1214,7 +1253,7 @@ contains
     real(kind=rp), intent(in) :: Ra
     real(kind=rp), intent(in) :: Pr
      
-    real(kind=rp) :: mu_half, c1 = 1, c2 = 1
+    real(kind=rp) :: mu_half, c1 = 1_rp, c2 = 1_rp
     integer :: n
 
     n = eps_k%dof%size()
@@ -1273,6 +1312,60 @@ contains
 
   end subroutine calculate_kinetic_dissipation
 
+
+  function rms_in_space( u, work_field, work_field2, coef) result(urms)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: work_field
+    type(field_t), intent(inout) :: work_field2
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp) :: urms
+    real(kind=rp) :: u_mean
+    integer :: n
+    real(kind=rp) :: c1 = 1_rp, c2 = 1_rp
+
+    n = u%dof%size()
+    
+    !get the mean of velocity in space
+    u_mean = 0_rp    
+    call average_from_weights(u_mean, u, &
+                        work_field2, coef%B, coef%volume)
+
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+        
+       call device_rzero(work_field%x_d,n)
+       call device_rzero(work_field2%x_d,n)
+
+       ! Substract the mean from the field
+       call device_copy(work_field2%x_d, u%x_d, n)
+       call device_cadd(work_field2%x_d, -1_rp * u_mean, n)
+
+       ! Square the value
+       call device_addsqr2s2(work_field%x_d, work_field2%x_d, c1, n)
+
+    else
+       
+       call rzero(work_field%x,n)
+       call rzero(work_field2%x,n)
+       
+       ! Substract the mean from the field
+       call copy(work_field2%x, u%x, n)
+       call cadd(work_field2%x, -1_rp * u_mean, n)
+
+       ! Square the value
+       call addsqr2s2(work_field%x, work_field2%x, c1 , n)
+       
+    end if
+
+    !Average in space again
+    urms = 0_rp    
+    call average_from_weights(urms, work_field, &
+                        work_field2, coef%B, coef%volume)
+
+    !get rms
+    urms = sqrt(urms)
+
+  end function rms_in_space
 
 end module rbc
 
