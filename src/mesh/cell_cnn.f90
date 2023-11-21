@@ -72,8 +72,6 @@ contains
     class(cell_cnn_t), intent(inout) :: this
 
     call this%set_dim(NEKO_CELL_DIM)
-
-    return
   end subroutine cell_init_dim
 
   !> @brief Return pointers to cell ridges
@@ -87,8 +85,6 @@ contains
     do il = 1, this%nridge
        ridge(il) = this%ridge(il)
     end do
-
-    return
   end subroutine cell_ridge
 
   !> @brief Return pointers to cell peaks
@@ -104,8 +100,6 @@ contains
     else
        peak%ptr => null()
     end if
-
-    return
   end subroutine cell_peak
 
   !> @brief Return positions of ridges shared by cells
@@ -131,8 +125,6 @@ contains
           end if
        end do
     end do
-
-    return
   end subroutine cell_ridge_share
 
   !> @brief Return positions of peaks shared by cells
@@ -159,8 +151,6 @@ contains
           end if
        end do
     end do
-
-    return
   end subroutine cell_peak_share
 
 end module cell_cnn

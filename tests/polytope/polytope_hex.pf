@@ -112,7 +112,6 @@ subroutine test_hex_init
   call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
   call hex_element_test(hex1, quad, edge, vertex)
 
-  return
 end subroutine test_hex_init
 
 subroutine hex_element_test(hex, quad, edge, vertex)
@@ -150,5 +149,4 @@ subroutine hex_element_test(hex, quad, edge, vertex)
   end do
   deallocate(facet, ridge)
 
-  return
 end subroutine hex_element_test

@@ -263,8 +263,6 @@ contains
     this%trns_inv_i_dp(5)%ptr => transform_quad_PY_int_dp
     this%trns_inv_i_dp(6)%ptr => transform_quad_PXPYT_int_dp
     this%trns_inv_i_dp(7)%ptr => transform_quad_PXPY_int_dp
-
-    return
   end subroutine quad_init
 
   !> @brief Free procedure pointers
@@ -287,8 +285,6 @@ contains
        this%trns_inv_i_i8(il)%ptr => null()
        this%trns_inv_i_dp(il)%ptr => null()
     end do
-
-    return
   end subroutine quad_free
 
   !> @brief Get number of operations
@@ -451,8 +447,6 @@ contains
        this%trns_inv_i_i8%ptr => transform_quad_PXPY_int_i8
        this%trns_inv_i_dp%ptr => transform_quad_PXPY_int_dp
     end select
-
-    return
   end subroutine quad_op_set_init
 
   !> @brief Free alignment and procedure pointers
@@ -473,8 +467,6 @@ contains
     this%trns_inv_i_i4%ptr => null()
     this%trns_inv_i_i8%ptr => null()
     this%trns_inv_i_dp%ptr => null()
-
-    return
   end subroutine quad_op_set_free
 
   !> @brief Identity transformation, single integer array
@@ -485,8 +477,6 @@ contains
     integer(i4), intent(in) :: sz
     integer(i4), dimension(sz, sz), intent(inout) :: fcs
     integer(i4), dimension(sz), intent(inout) :: work
-
-    return
   end subroutine transform_quad_I_i4
 
   !> @brief Transpose transformation, single integer, full array
@@ -508,8 +498,6 @@ contains
           fcs(jl, il) = iface
        end do
     end do
-
-    return
   end subroutine transform_quad_T_full_i4
 
   !> @brief Transpose transformation, single integer, array interior
@@ -531,8 +519,6 @@ contains
           fcs(jl, il) = iface
        end do
     end do
-
-    return
   end subroutine transform_quad_T_int_i4
 
   !> @brief Column permutation transformation, single integer, full array
@@ -554,8 +540,6 @@ contains
           fcs(sz + 1 - il, jl) = iface
        end do
     end do
-
-    return
   end subroutine transform_quad_PX_full_i4
 
   !> @brief Column permutation transformation, single integer, array interior
@@ -577,8 +561,6 @@ contains
           fcs(sz + 1 - il, jl) = iface
        end do
     end do
-
-    return
   end subroutine transform_quad_PX_int_i4
 
   !> @brief Row permutation transformation, single integer, full array
@@ -606,8 +588,6 @@ contains
     !      fcs(il, sz + 1 - jl) = iface
     !   end do
     !end do
-
-    return
   end subroutine transform_quad_PY_full_i4
 
   !> @brief Row permutation transformation, single integer, array interior
@@ -635,8 +615,6 @@ contains
     !      fcs(il, sz + 1 - jl) = iface
     !   end do
     !end do
-
-    return
   end subroutine transform_quad_PY_int_i4
 
   !> @brief PXT = TPY transformation, single integer, full array
@@ -650,8 +628,6 @@ contains
 
     call transform_quad_PX_full_i4(sz, fcs, work)
     call transform_quad_T_full_i4(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXT_full_i4
 
   !> @brief PXT = TPY transformation, single integer, array interior
@@ -665,8 +641,6 @@ contains
 
     call transform_quad_PX_int_i4(sz, fcs, work)
     call transform_quad_T_int_i4(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXT_int_i4
 
   !> @brief PYT = TPX transformation, single integer, full array
@@ -680,8 +654,6 @@ contains
 
     call transform_quad_PY_full_i4(sz, fcs, work)
     call transform_quad_T_full_i4(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PYT_full_i4
 
   !> @brief PYT = TPX transformation, single integer, array interior
@@ -695,8 +667,6 @@ contains
 
     call transform_quad_PY_int_i4(sz, fcs, work)
     call transform_quad_T_int_i4(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PYT_int_i4
 
   !> @brief PXPYT=PYPXT=TPYPX=TPXPY, single integer, full array
@@ -711,8 +681,6 @@ contains
     call transform_quad_PX_full_i4(sz, fcs, work)
     call transform_quad_PY_full_i4(sz, fcs, work)
     call transform_quad_T_full_i4(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPYT_full_i4
 
   !> @brief  PXPYT=PYPXT=TPYPX=TPXPY, single integer, array interior
@@ -727,8 +695,6 @@ contains
     call transform_quad_PX_int_i4(sz, fcs, work)
     call transform_quad_PY_int_i4(sz, fcs, work)
     call transform_quad_T_int_i4(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPYT_int_i4
 
   !> @brief PXPY = PYPX transformation, single integer, full array
@@ -742,8 +708,6 @@ contains
 
     call transform_quad_PX_full_i4(sz, fcs, work)
     call transform_quad_PY_full_i4(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPY_full_i4
 
   !> @brief  PXPY = PYPX transformation, single integer, array interior
@@ -757,8 +721,6 @@ contains
 
     call transform_quad_PX_int_i4(sz, fcs, work)
     call transform_quad_PY_int_i4(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPY_int_i4
 
   !> @brief Identity transformation, double integer array
@@ -769,8 +731,6 @@ contains
     integer(i4), intent(in) :: sz
     integer(i8), dimension(sz, sz), intent(inout) :: fcs
     integer(i8), dimension(sz), intent(inout) :: work
-
-    return
   end subroutine transform_quad_I_i8
 
   !> @brief Transpose transformation, double integer, full array
@@ -792,8 +752,6 @@ contains
           fcs(jl, il) = iface
        end do
     end do
-
-    return
   end subroutine transform_quad_T_full_i8
 
   !> @brief Transpose transformation, double integer, array interior
@@ -815,8 +773,6 @@ contains
           fcs(jl, il) = iface
        end do
     end do
-
-    return
   end subroutine transform_quad_T_int_i8
 
   !> @brief Column permutation transformation, double integer, full array
@@ -838,8 +794,6 @@ contains
           fcs(sz + 1 - il, jl) = iface
        end do
     end do
-
-    return
   end subroutine transform_quad_PX_full_i8
 
   !> @brief Column permutation transformation, double integer, array interior
@@ -861,8 +815,6 @@ contains
           fcs(sz + 1 - il, jl) = iface
        end do
     end do
-
-    return
   end subroutine transform_quad_PX_int_i8
 
   !> @brief Row permutation transformation, double integer, full array
@@ -890,8 +842,6 @@ contains
     !      fcs(il, sz + 1 - jl) = iface
     !   end do
     !end do
-
-    return
   end subroutine transform_quad_PY_full_i8
 
   !> @brief Row permutation transformation, double integer, array interior
@@ -919,8 +869,6 @@ contains
     !      fcs(il, sz + 1 - jl) = iface
     !   end do
     !end do
-
-    return
   end subroutine transform_quad_PY_int_i8
 
   !> @brief PXT = TPY transformation, double integer, full array
@@ -934,8 +882,6 @@ contains
 
     call transform_quad_PX_full_i8(sz, fcs, work)
     call transform_quad_T_full_i8(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXT_full_i8
 
   !> @brief PXT = TPY transformation, double integer, array interior
@@ -949,8 +895,6 @@ contains
 
     call transform_quad_PX_int_i8(sz, fcs, work)
     call transform_quad_T_int_i8(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXT_int_i8
 
   !> @brief PYT = TPX transformation, double integer, full array
@@ -964,8 +908,6 @@ contains
 
     call transform_quad_PY_full_i8(sz, fcs, work)
     call transform_quad_T_full_i8(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PYT_full_i8
 
   !> @brief PYT = TPX transformation, double integer, array interior
@@ -979,8 +921,6 @@ contains
 
     call transform_quad_PY_int_i8(sz, fcs, work)
     call transform_quad_T_int_i8(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PYT_int_i8
 
   !> @brief PXPYT=PYPXT=TPYPX=TPXPY, double integer, full array
@@ -995,8 +935,6 @@ contains
     call transform_quad_PX_full_i8(sz, fcs, work)
     call transform_quad_PY_full_i8(sz, fcs, work)
     call transform_quad_T_full_i8(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPYT_full_i8
 
   !> @brief  PXPYT=PYPXT=TPYPX=TPXPY, double integer, array interior
@@ -1011,8 +949,6 @@ contains
     call transform_quad_PX_int_i8(sz, fcs, work)
     call transform_quad_PY_int_i8(sz, fcs, work)
     call transform_quad_T_int_i8(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPYT_int_i8
 
   !> @brief PXPY = PYPX transformation, double integer, full array
@@ -1026,8 +962,6 @@ contains
 
     call transform_quad_PX_full_i8(sz, fcs, work)
     call transform_quad_PY_full_i8(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPY_full_i8
 
   !> @brief  PXPY = PYPX transformation, double integer, array interior
@@ -1041,8 +975,6 @@ contains
 
     call transform_quad_PX_int_i8(sz, fcs, work)
     call transform_quad_PY_int_i8(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPY_int_i8
 
   !> @brief Identity transformation, double precision array
@@ -1053,8 +985,6 @@ contains
     integer(i4), intent(in) :: sz
     real(dp), dimension(sz, sz), intent(inout) :: fcs
     real(dp), dimension(sz), intent(inout) :: work
-
-    return
   end subroutine transform_quad_I_dp
 
   !> @brief Transpose transformation, double precision, full array
@@ -1076,8 +1006,6 @@ contains
           fcs(jl, il) = rface
        end do
     end do
-
-    return
   end subroutine transform_quad_T_full_dp
 
   !> @brief Transpose transformation, double precision, array interior
@@ -1099,8 +1027,6 @@ contains
           fcs(jl, il) = rface
        end do
     end do
-
-    return
   end subroutine transform_quad_T_int_dp
 
   !> @brief Column permutation transformation, double precision, full array
@@ -1122,8 +1048,6 @@ contains
           fcs(sz + 1 - il, jl) = rface
        end do
     end do
-
-    return
   end subroutine transform_quad_PX_full_dp
 
   !> @brief Column permutation transformation, double precision, array interior
@@ -1145,8 +1069,6 @@ contains
           fcs(sz + 1 - il, jl) = rface
        end do
     end do
-
-    return
   end subroutine transform_quad_PX_int_dp
 
   !> @brief Row permutation transformation, double precision, full array
@@ -1174,8 +1096,6 @@ contains
     !      fcs(il, sz + 1 - jl) = rface
     !   end do
     !end do
-
-    return
   end subroutine transform_quad_PY_full_dp
 
   !> @brief Row permutation transformation, double precision, array interior
@@ -1203,8 +1123,6 @@ contains
     !      fcs(il, sz + 1 - jl) = rface
     !   end do
     !end do
-
-    return
   end subroutine transform_quad_PY_int_dp
 
   !> @brief PXT = TPY transformation, double precision, full array
@@ -1218,8 +1136,6 @@ contains
 
     call transform_quad_PX_full_dp(sz, fcs, work)
     call transform_quad_T_full_dp(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXT_full_dp
 
   !> @brief PXT = TPY transformation, double precision, array interior
@@ -1233,8 +1149,6 @@ contains
 
     call transform_quad_PX_int_dp(sz, fcs, work)
     call transform_quad_T_int_dp(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXT_int_dp
 
   !> @brief PYT = TPX transformation, double precision, full array
@@ -1248,8 +1162,6 @@ contains
 
     call transform_quad_PY_full_dp(sz, fcs, work)
     call transform_quad_T_full_dp(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PYT_full_dp
 
   !> @brief PYT = TPX transformation, double precision, array interior
@@ -1263,8 +1175,6 @@ contains
 
     call transform_quad_PY_int_dp(sz, fcs, work)
     call transform_quad_T_int_dp(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PYT_int_dp
 
   !> @brief PXPYT=PYPXT=TPYPX=TPXPY, double precision, full array
@@ -1279,8 +1189,6 @@ contains
     call transform_quad_PX_full_dp(sz, fcs, work)
     call transform_quad_PY_full_dp(sz, fcs, work)
     call transform_quad_T_full_dp(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPYT_full_dp
 
   !> @brief  PXPYT=PYPXT=TPYPX=TPXPY, double precision, array interior
@@ -1295,8 +1203,6 @@ contains
     call transform_quad_PX_int_dp(sz, fcs, work)
     call transform_quad_PY_int_dp(sz, fcs, work)
     call transform_quad_T_int_dp(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPYT_int_dp
 
   !> @brief PXPY = PYPX transformation, double precision, full array
@@ -1310,8 +1216,6 @@ contains
 
     call transform_quad_PX_full_dp(sz, fcs, work)
     call transform_quad_PY_full_dp(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPY_full_dp
 
   !> @brief  PXPY = PYPX transformation, double precision, array interior
@@ -1325,8 +1229,6 @@ contains
 
     call transform_quad_PX_int_dp(sz, fcs, work)
     call transform_quad_PY_int_dp(sz, fcs, work)
-
-    return
   end subroutine transform_quad_PXPY_int_dp
 
 end module alignment_quad

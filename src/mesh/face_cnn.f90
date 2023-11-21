@@ -34,7 +34,7 @@
 module face_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_t, vertex_ncnf_cnn_ptr
+  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
   use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
   implicit none
   private
@@ -51,7 +51,7 @@ module face_cnn
      !> Facets are aligned
      type(edge_aligned_cnn_t), dimension(:), allocatable :: facet
      !> Ridges (vertices with hanging information)
-     type(vertex_ncnf_cnn_t), dimension(:), allocatable :: ridge
+     type(vertex_cnn_ptr), dimension(:), allocatable :: ridge
    contains
      !> Initialise face dimension
      procedure, pass(this) :: init_dim => face_init_dim
@@ -76,10 +76,7 @@ contains
     class(face_cnn_t), intent(inout) :: this
 
     call this%free()
-
     call this%set_dim(NEKO_FACE_DIM)
-
-    return
   end subroutine face_init_dim
 
   !> @brief Free face data
@@ -97,12 +94,10 @@ contains
     end if
     if (allocated(this%ridge)) then
        do il = 1, this%nridge
-          call this%ridge(il)%free()
+          this%ridge(il)%ptr => null()
        end do
        deallocate(this%ridge)
     end if
-
-    return
   end subroutine face_free
 
   !> @brief Check if face is self-periodic
@@ -123,8 +118,7 @@ contains
     ! count self periodic vertices
     do il = 1, this%nridge - 1
        do jl = il + 1, this%nridge
-          selfp = (this%ridge(il)%vertex%ptr%id() == &
-               & this%ridge(jl)%vertex%ptr%id())
+          selfp = (this%ridge(il)%ptr%id() == this%ridge(jl)%ptr%id())
           if (selfp) itmp = itmp + 1
        end do
     end do
@@ -133,23 +127,21 @@ contains
     else
        selfp = .true.
     end if
-
-    return
   end function face_self_periodic
 
   !> @brief Return pointers to face facets
   !! @parameter[out]  facet   facet pointers array
-  subroutine face_facet(this, facet)
+  !! @parameter[in]   pos     facet position
+  subroutine face_facet(this, facet, pos)
     class(face_cnn_t), intent(in) :: this
-    type(edge_aligned_cnn_t), dimension(:), allocatable, intent(out) :: facet
-    integer(i4) :: il
+    type(edge_cnn_ptr), intent(out) :: facet
+    integer(i4), intent(in) :: pos
 
-    allocate(facet(this%nfacet))
-    do il = 1, this%nfacet
-       facet(il) = this%facet(il)
-    end do
-
-    return
+    if ((pos > 0) .and. (pos <= this%nfacet)) then
+       facet%ptr => this%facet(pos)%edge%ptr
+    else
+       facet%ptr => null()
+    end if
   end subroutine face_facet
 
   !> @brief Return pointers to face ridges
@@ -157,16 +149,14 @@ contains
   !! @parameter[in]   pos     ridge position
   subroutine face_ridge(this, ridge, pos)
     class(face_cnn_t), target, intent(in) :: this
-    type(vertex_ncnf_cnn_ptr), intent(out) :: ridge
+    type(vertex_cnn_ptr), intent(out) :: ridge
     integer(i4), intent(in) :: pos
 
     if ((pos > 0) .and. (pos <= this%nridge)) then
-       ridge%ptr => this%ridge(pos)
+       ridge%ptr => this%ridge(pos)%ptr
     else
        ridge%ptr => null()
     end if
-
-    return
   end subroutine face_ridge
 
   !> @brief Return positions of facets shared by faces
@@ -192,8 +182,6 @@ contains
           end if
        end do
     end do
-
-    return
   end subroutine face_facet_share
 
   !> @brief Return positions of ridges shared by faces
@@ -212,16 +200,14 @@ contains
     ridgep(:,:) = 0
     do il = 1, this%nridge
        do jl = 1, other%nridge
-          if (this%ridge(il)%vertex%ptr%id() == &
-               & other%ridge(jl)%vertex%ptr%id()) then
+          if (this%ridge(il)%ptr%id() == &
+               & other%ridge(jl)%ptr%id()) then
              ishare = ishare + 1
              ridgep(1,ishare) = il
              ridgep(2,ishare) = jl
           end if
        end do
     end do
-
-    return
   end subroutine face_ridge_share
 
 end module face_cnn

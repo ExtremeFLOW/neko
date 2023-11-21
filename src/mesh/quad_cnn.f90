@@ -50,7 +50,7 @@ module quad_cnn
   integer(i4), public, parameter :: NEKO_QUAD_NPEAK = 0
 
   !> Quad type for global communication
-  !! @details Quad is one of the realisations of face containing 4 facets
+  !! @details Quad is one of the realisations of the face containing 4 facets
   !! (edges) and 4 ridges (vertices). Quad is and object with alignment.
   !! Facets are oriented according to the numbers of ridges from the one with
   !! the smaller number towards the one with the bigger number.This corresponds
@@ -189,16 +189,14 @@ contains
           ! transformation
           call this%facet(ifct)%algn_op%trns_inv_f_i4%ptr(NEKO_EDGE_NFACET, rdg)
           ! extract vertex
-          vrt(jl)%ptr => this%facet(ifct)%edge%ptr%facet(rdg(icrn))%vertex%ptr
+          vrt(jl)%ptr => this%facet(ifct)%edge%ptr%facet(rdg(icrn))%ptr
        end do
        if (vrt(1)%ptr%id() == vrt(2)%ptr%id()) then
-          call this%ridge(il)%init(vrt(1)%ptr, il)
+          this%ridge(il)%ptr => vrt(1)%ptr
        else
           call neko_error('Inconsistent edge vertices in the quad.')
        end if
     end do
-
-    return
   end subroutine quad_init
 
   !> @brief Check if two quads are the same
@@ -258,8 +256,8 @@ contains
                 equal = .true.
                 ! check ridges
                 do il = 1, this%nridge
-                   equal = equal.and.(this%ridge(il)%vertex%ptr%id() == &
-                        & other%ridge(mapr(il))%vertex%ptr%id())
+                   equal = equal.and.(this%ridge(il)%ptr%id() == &
+                        & other%ridge(mapr(il))%ptr%id())
                 end do
                 if (equal) then
                    ! check facets discarding orientation (covered by vertices)
@@ -281,8 +279,6 @@ contains
           end if
        end if
     end if
-
-    return
   end subroutine quad_equal_align
 
   !> @brief Check if two quads are the same
@@ -296,8 +292,6 @@ contains
     integer(i4) :: algn
 
     call this%eq_algn(other, equal, algn)
-
-    return
   end function quad_equal
 
   !> @brief Initialise quad with alignment information
@@ -313,8 +307,6 @@ contains
     this%face%ptr => quad
     ! set relative alignment transformation
     call this%algn_op%init(algn)
-
-    return
   end subroutine quad_aligned_init
 
   !> @brief Free quad with alignment information
@@ -323,8 +315,6 @@ contains
 
     this%face%ptr => null()
     call this%algn_op%free()
-
-    return
   end subroutine quad_aligned_free
 
   !> @brief Return pointer to the quad
@@ -333,7 +323,6 @@ contains
     class(quad_aligned_cnn_t), intent(in) :: this
     type(quad_cnn_ptr), intent(out) :: quad
     quad%ptr => this%face%ptr
-    return
   end subroutine quad_aligned_quadp
 
   !> @brief Get relative quad alignment
@@ -342,7 +331,6 @@ contains
     class(quad_aligned_cnn_t), intent(in) :: this
     integer(i4) :: alignment
     alignment = this%algn_op%alignment
-    return
   end function quad_aligned_alignment_get
 
   !> @brief Check if two quads are properly aligned
@@ -365,20 +353,20 @@ contains
        elm(2, 1) = this%face%ptr%facet(3)%edge%ptr%id()
        elm(2, 3) = this%face%ptr%facet(4)%edge%ptr%id()
        ! vertices
-       elm(1, 1) = this%face%ptr%ridge(1)%vertex%ptr%id()
-       elm(3, 1) = this%face%ptr%ridge(2)%vertex%ptr%id()
-       elm(1, 3) = this%face%ptr%ridge(3)%vertex%ptr%id()
-       elm(3, 3) = this%face%ptr%ridge(4)%vertex%ptr%id()
+       elm(1, 1) = this%face%ptr%ridge(1)%ptr%id()
+       elm(3, 1) = this%face%ptr%ridge(2)%ptr%id()
+       elm(1, 3) = this%face%ptr%ridge(3)%ptr%id()
+       elm(3, 3) = this%face%ptr%ridge(4)%ptr%id()
        ! edges
        elmo(1, 2) = other%facet(1)%edge%ptr%id()
        elmo(3, 2) = other%facet(2)%edge%ptr%id()
        elmo(2, 1) = other%facet(3)%edge%ptr%id()
        elmo(2, 3) = other%facet(4)%edge%ptr%id()
        ! vertices
-       elmo(1, 1) = other%ridge(1)%vertex%ptr%id()
-       elmo(3, 1) = other%ridge(2)%vertex%ptr%id()
-       elmo(1, 3) = other%ridge(3)%vertex%ptr%id()
-       elmo(3, 3) = other%ridge(4)%vertex%ptr%id()
+       elmo(1, 1) = other%ridge(1)%ptr%id()
+       elmo(3, 1) = other%ridge(2)%ptr%id()
+       elmo(1, 3) = other%ridge(3)%ptr%id()
+       elmo(3, 3) = other%ridge(4)%ptr%id()
        call this%algn_op%trns_inv_f_i4%ptr( sz, elmo, work)
        aligned = (elm(1, 1) == elmo(1, 1)) .and. (elm(1, 2) == elmo(1, 2)).and.&
             &(elm(1, 3) == elmo(1, 3)) .and. (elm(2, 1) == elmo(2, 1)) .and. &
@@ -387,8 +375,6 @@ contains
     else
        call neko_error('Quads not equal')
     end if
-
-    return
   end function quad_aligned_test
 
 end module quad_cnn

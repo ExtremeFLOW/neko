@@ -2,17 +2,17 @@
 subroutine test_quad_init
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_ptr
+  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
   use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
-  use quad_cnn, only : NEKO_QUAD_NRIDGE, quad_cnn_t
+  use quad_cnn, only : NEKO_QUAD_NRIDGE, NEKO_QUAD_NFACET, quad_cnn_t
   implicit none
   type(vertex_cnn_t) :: vertex1, vertex2, vertex3, vertex4, vertex5, vertex6
   type(edge_cnn_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7
   type(edge_aligned_cnn_t) :: edgea1, edgea2, edgea3, edgea4, edgea5, edgea6,&
        & edgea7
   type(quad_cnn_t) :: quad1, quad2
-  type(edge_aligned_cnn_t), dimension(:), allocatable :: facet
-  type(vertex_ncnf_cnn_ptr), dimension(NEKO_QUAD_NRIDGE) :: ridge
+  type(edge_cnn_ptr), dimension(NEKO_QUAD_NFACET) :: facet
+  type(vertex_cnn_ptr), dimension(NEKO_QUAD_NRIDGE) :: ridge
   integer(i4) :: ishare, il
   integer(i4), dimension(:, :), allocatable :: facetp
 
@@ -36,20 +36,21 @@ subroutine test_quad_init
   call quad1%init(1, edgea1, edgea2, edgea3, edgea4)
   @assertTrue(quad1%selfp())
   ! facets
-  call quad1%fct(facet)
-  @assertTrue(facet(1)%edge%ptr.eq.edge1)
-  @assertTrue(facet(2)%edge%ptr.eq.edge1)
-  @assertTrue(facet(3)%edge%ptr.eq.edge2)
-  @assertTrue(facet(4)%edge%ptr.eq.edge3)
+  do il = 1, NEKO_QUAD_NFACET
+     call quad1%fct(facet(il), il)
+  end do
+  @assertTrue(facet(1)%ptr.eq.edge1)
+  @assertTrue(facet(2)%ptr.eq.edge1)
+  @assertTrue(facet(3)%ptr.eq.edge2)
+  @assertTrue(facet(4)%ptr.eq.edge3)
   ! ridges
   do il = 1, NEKO_QUAD_NRIDGE
      call quad1%rdg(ridge(il), il)
   end do
-  @assertTrue(ridge(1)%ptr%vertex%ptr.eq.vertex1)
-  @assertTrue(ridge(2)%ptr%vertex%ptr.eq.vertex1)
-  @assertTrue(ridge(3)%ptr%vertex%ptr.eq.vertex2)
-  @assertTrue(ridge(4)%ptr%vertex%ptr.eq.vertex2)
-  deallocate(facet)
+  @assertTrue(ridge(1)%ptr.eq.vertex1)
+  @assertTrue(ridge(2)%ptr.eq.vertex1)
+  @assertTrue(ridge(3)%ptr.eq.vertex2)
+  @assertTrue(ridge(4)%ptr.eq.vertex2)
 
   ! self-periodic, 1D, Mobius strip
   ! edges
@@ -63,20 +64,21 @@ subroutine test_quad_init
   call quad1%init(1, edgea1, edgea2, edgea3, edgea4)
   @assertTrue(quad1%selfp())
   ! facets
-  call quad1%fct(facet)
-  @assertTrue(facet(1)%edge%ptr.eq.edge1)
-  @assertTrue(facet(2)%edge%ptr.eq.edge1)
-  @assertTrue(facet(3)%edge%ptr.eq.edge2)
-  @assertTrue(facet(4)%edge%ptr.eq.edge3)
+  do il = 1, NEKO_QUAD_NFACET
+     call quad1%fct(facet(il), il)
+  end do
+  @assertTrue(facet(1)%ptr.eq.edge1)
+  @assertTrue(facet(2)%ptr.eq.edge1)
+  @assertTrue(facet(3)%ptr.eq.edge2)
+  @assertTrue(facet(4)%ptr.eq.edge3)
   ! ridges
   do il = 1, NEKO_QUAD_NRIDGE
      call quad1%rdg(ridge(il), il)
   end do
-  @assertTrue(ridge(1)%ptr%vertex%ptr.eq.vertex1)
-  @assertTrue(ridge(2)%ptr%vertex%ptr.eq.vertex2)
-  @assertTrue(ridge(3)%ptr%vertex%ptr.eq.vertex2)
-  @assertTrue(ridge(4)%ptr%vertex%ptr.eq.vertex1)
-  deallocate(facet)
+  @assertTrue(ridge(1)%ptr.eq.vertex1)
+  @assertTrue(ridge(2)%ptr.eq.vertex2)
+  @assertTrue(ridge(3)%ptr.eq.vertex2)
+  @assertTrue(ridge(4)%ptr.eq.vertex1)
 
   ! non self-periodic; simple
   call edge1%init(1, vertex1, vertex3)
@@ -90,20 +92,21 @@ subroutine test_quad_init
   call quad1%init(1, edgea1, edgea2, edgea3, edgea4)
   @assertFalse(quad1%selfp())
   ! facets
-  call quad1%fct(facet)
-  @assertTrue(facet(1)%edge%ptr.eq.edge1)
-  @assertTrue(facet(2)%edge%ptr.eq.edge2)
-  @assertTrue(facet(3)%edge%ptr.eq.edge3)
-  @assertTrue(facet(4)%edge%ptr.eq.edge4)
+  do il = 1, NEKO_QUAD_NFACET
+     call quad1%fct(facet(il), il)
+  end do
+  @assertTrue(facet(1)%ptr.eq.edge1)
+  @assertTrue(facet(2)%ptr.eq.edge2)
+  @assertTrue(facet(3)%ptr.eq.edge3)
+  @assertTrue(facet(4)%ptr.eq.edge4)
   ! ridges
   do il = 1, NEKO_QUAD_NRIDGE
      call quad1%rdg(ridge(il), il)
   end do
-  @assertTrue(ridge(1)%ptr%vertex%ptr.eq.vertex1)
-  @assertTrue(ridge(2)%ptr%vertex%ptr.eq.vertex2)
-  @assertTrue(ridge(3)%ptr%vertex%ptr.eq.vertex3)
-  @assertTrue(ridge(4)%ptr%vertex%ptr.eq.vertex4)
-  deallocate(facet)
+  @assertTrue(ridge(1)%ptr.eq.vertex1)
+  @assertTrue(ridge(2)%ptr.eq.vertex2)
+  @assertTrue(ridge(3)%ptr.eq.vertex3)
+  @assertTrue(ridge(4)%ptr.eq.vertex4)
 
   ! non self-periodic; aligned
   call edge1%init(1, vertex3, vertex1)
@@ -117,20 +120,21 @@ subroutine test_quad_init
   call quad1%init(1, edgea1, edgea2, edgea3, edgea4)
   @assertFalse(quad1%selfp())
   ! facets
-  call quad1%fct(facet)
-  @assertTrue(facet(1)%edge%ptr.eq.edge1)
-  @assertTrue(facet(2)%edge%ptr.eq.edge2)
-  @assertTrue(facet(3)%edge%ptr.eq.edge3)
-  @assertTrue(facet(4)%edge%ptr.eq.edge4)
+  do il = 1, NEKO_QUAD_NFACET
+     call quad1%fct(facet(il), il)
+  end do
+  @assertTrue(facet(1)%ptr.eq.edge1)
+  @assertTrue(facet(2)%ptr.eq.edge2)
+  @assertTrue(facet(3)%ptr.eq.edge3)
+  @assertTrue(facet(4)%ptr.eq.edge4)
   ! ridges
   do il = 1, NEKO_QUAD_NRIDGE
      call quad1%rdg(ridge(il), il)
   end do
-  @assertTrue(ridge(1)%ptr%vertex%ptr.eq.vertex1)
-  @assertTrue(ridge(2)%ptr%vertex%ptr.eq.vertex2)
-  @assertTrue(ridge(3)%ptr%vertex%ptr.eq.vertex3)
-  @assertTrue(ridge(4)%ptr%vertex%ptr.eq.vertex4)
-  deallocate(facet)
+  @assertTrue(ridge(1)%ptr.eq.vertex1)
+  @assertTrue(ridge(2)%ptr.eq.vertex2)
+  @assertTrue(ridge(3)%ptr.eq.vertex3)
+  @assertTrue(ridge(4)%ptr.eq.vertex4)
 
   ! shared facets/ridges
   call edge1%init(1, vertex1, vertex3)
@@ -162,7 +166,6 @@ subroutine test_quad_init
   @assertEqual(facetp(2, 2), 3)
   deallocate(facetp)
 
-  return
 end subroutine test_quad_init
 
 @test
@@ -295,7 +298,6 @@ subroutine test_quad_eq_algn
   @assertTrue(equal)
   @assertEqual(algn, 7)
 
-  return
 end subroutine test_quad_eq_algn
 
 @test
@@ -313,9 +315,6 @@ subroutine test_quad_elignment
   type(quad_cnn_t) :: quad1, quad2
   type(quad_cnn_ptr) :: quadp
   type(quad_aligned_cnn_t) :: quada
-
-
-
 
   ! Vertices for two quads
   call vertex1%init(1)
@@ -435,5 +434,4 @@ subroutine test_quad_elignment
   call quada%init(quad1, 7)
   @assertTrue(quada%test(quad2))
 
-  return
 end subroutine test_quad_elignment

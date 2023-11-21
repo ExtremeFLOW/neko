@@ -94,8 +94,6 @@ contains
        this%intp%ptr => transform_edge_I
        this%intpT%ptr => transform_edge_I
     end select
-
-    return
   end subroutine edge_op_set_init
 
   !> @brief Free hanging info and procedure pointers
@@ -106,8 +104,6 @@ contains
     ! free pointers
     this%intp%ptr => null()
     this%intpT%ptr => null()
-
-    return
   end subroutine edge_op_set_free
 
   !> @brief Identity transformation
@@ -116,8 +112,6 @@ contains
   pure subroutine transform_edge_I(sz, edg)
     integer(i4), intent(in) :: sz
     real(dp), dimension(sz), intent(inout) :: edg
-
-    return
   end subroutine transform_edge_I
 
 end module ncnf_interpolation_edge

@@ -225,7 +225,7 @@ contains
           mapr(3) = trans(1, 3)
           mapr(4) = trans(3, 3)
           ! extract vertex
-          vrtp(jl)%ptr => this%facet(ifct)%face%ptr%ridge(mapr(icrn))%vertex%ptr
+          vrtp(jl)%ptr => this%facet(ifct)%face%ptr%ridge(mapr(icrn))%ptr
        end do
        ! is it a proper vertex
        if ((vrtp(1)%ptr%id() == vrtp(2)%ptr%id()) .and. &
@@ -281,8 +281,6 @@ contains
           call neko_error('Inconsistent face edges in the hex.')
        end if
     end do
-
-    return
   end subroutine hex_init
 
   !> @brief Free hex data
@@ -310,8 +308,6 @@ contains
        end do
        deallocate(this%peak)
     end if
-
-    return
   end subroutine hex_free
 
   !> @brief Check if hex is self-periodic
@@ -349,8 +345,6 @@ contains
     else
        selfp = .true.
     end if
-
-    return
   end function hex_self_periodic
 
   !> @brief Return pointers to hex facets
@@ -364,8 +358,6 @@ contains
     do il = 1, this%nfacet
        facet(il) = this%facet(il)
     end do
-
-    return
   end subroutine hex_facet
 
   !> @brief Return positions of facets shared by hexes
@@ -391,8 +383,6 @@ contains
           end if
        end do
     end do
-
-    return
   end subroutine hex_facet_share
 
   !> @brief Check if two hexes are the same
@@ -406,8 +396,6 @@ contains
 
     equal = .false.
 !!    call this%eq_algn(other, equal, algn)
-
-    return
   end function hex_equal
 
 end module hex_cnn

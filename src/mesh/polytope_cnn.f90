@@ -75,7 +75,6 @@ contains
     class(polytope_cnn_t), intent(in) :: this
     integer(i4) :: dim
     dim = this%dim_
-    return
   end function polytope_dim_get
 
   !> @brief Set polytope dimension
@@ -84,7 +83,6 @@ contains
     class(polytope_cnn_t), intent(inout) :: this
     integer(i4), intent(in) :: dim
     this%dim_ = dim
-    return
   end subroutine polytope_dim_set
 
   !> @brief Get polytope elements numbers
@@ -97,7 +95,6 @@ contains
     nfacet = this%nfacet
     nridge = this%nridge
     npeak = this%npeak
-    return
   end subroutine polytope_element_number_get
 
   !> @brief Set polytope dimension
@@ -146,8 +143,6 @@ contains
     case default
        call neko_error('Unsupported polytope dimension')
     end select
-
-    return
   end subroutine polytope_element_number_set
 
   !> @brief Check if two polytopes have the same dimension and element number
@@ -162,7 +157,6 @@ contains
        call other%nelem(nfaceto, nridgeo, npeako)
        equal = (nfacet == nfaceto).and.(nridge == nridgeo).and.(npeak == npeako)
     end if
-    return
   end function polytope_equal
 
 end module polytope_cnn

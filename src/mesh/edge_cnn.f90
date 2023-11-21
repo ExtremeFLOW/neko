@@ -35,12 +35,14 @@ module edge_cnn
   use num_types, only : i4
   use utils, only : neko_error
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_t, vertex_ncnf_cnn_ptr
+  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
   use alignment_edge, only : alignment_edge_t, alignment_edge_op_set_t
+  use ncnf_interpolation_edge, only : ncnf_intp_edge_op_set_t
   implicit none
   private
 
-  public :: edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
+  public :: edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t, edge_ncnf_cnn_t,&
+       & edge_ncnf_cnn_ptr
 
   ! object information
   integer(i4), public, parameter :: NEKO_EDGE_DIM = 1
@@ -58,7 +60,7 @@ module edge_cnn
   !! @endverbatim
   type, extends(polytope_cnn_t) :: edge_cnn_t
      !> Facets (vertices with hanging information)
-     type(vertex_ncnf_cnn_t), dimension(:), allocatable :: facet
+     type(vertex_cnn_ptr), dimension(:), allocatable :: facet
    contains
      !> Initialise edge
      procedure, pass(this) :: init => edge_init
@@ -101,6 +103,74 @@ module edge_cnn
      procedure, pass(this) :: test => edge_aligned_test
   end type edge_aligned_cnn_t
 
+  !> Edge type for nonconforming meshes
+  !! @details Edge can be either independent (part of conforming interface or
+  !! parent; marked 0) or hanging. The meaning of hanging depends on the mesh
+  !! dimension. In 2D case edges are face facets and can be either the first
+  !! (marked 1) or the second (marked 2) half of a full edge. In 3D case hanging
+  !! edges can be either ridge hanging (edge is a component of the full ridge,
+  !! but neither of the two facets touching the ridge is hanging), or facet
+  !! hanging. Ridge hanging edges can be either the first (marked 1) or the
+  !! second (marked 2) half of the full edge. The facet hanging edges can be
+  !! either located in the middle of the facet (marked 5) or at the facet
+  !! border. In the last case they can correspond to the the first (marked 3)
+  !! or the second (marked 4) half of the full edge. See the diagram below for
+  !! clarification.
+  !! @verbatim
+  !! Example of edge marking for quad/hex meshes.
+  !! Hanging edge marking for two-dimensional nonconforming interface
+  !!  o...............o +...............o
+  !!  :               : |               :
+  !!  :               : 2               :
+  !!  :               : |               :
+  !!  +               : +               :
+  !!  |               : :               :
+  !!  1               : :               :
+  !!  |               : :               :
+  !!  +...............o o...............o
+  !! Hanging edge marking for three-dimensional nonconforming interface
+  !!
+  !!                     o                  +-------+
+  !!                     :                  |\       \
+  !!                     :                  2 \       \
+  !!                     :                  |  +-------+
+  !!                     +-------+          +  |       |
+  !!                     |\       \         :\ |       |
+  !!                     1 \       \        : \|       |
+  !!                     |  +-------+       :  +-------+
+  !!                     +  |       |       o
+  !!                      \ |       |
+  !!                       \|       |
+  !!                        +-------+
+  !!
+  !!  o...............o o...............o +---3---+.......o o.......+---4---+
+  !!  :               : :               : |       |       : :       |       |
+  !!  :               : :               : 4       5       : :       5       4
+  !!  :               : :               : |       |       : :       |       |
+  !!  +---5---+       : :       +---5---+ +---5---+       : :       +---5---+
+  !!  |       |       : :       |       | :               : :               :
+  !!  3       5       : :       5       3 :               : :               :
+  !!  |       |       : :       |       | :               : :               :
+  !!  +---3---+.......o o.......+---4---+ o...............o o...............o
+  !! @endverbatim
+  !! There are two different 1D interpolation operators corresponding the first
+  !! and the second half of the full edge (marked 1 and 2). The rest of the
+  !! options (marked 3, 4, and 5) result from the 2D face interpolations.
+  !! Edge is always a component part of the higher-dimension object, so
+  !! position gives it's location in the object.
+  type, extends(edge_aligned_cnn_t) :: edge_ncnf_cnn_t
+     !> interpolation operator
+     type(ncnf_intp_edge_op_set_t) :: intp_op
+     !> position in the object
+     integer(i4) :: position = 0
+   contains
+  end type edge_ncnf_cnn_t
+
+  !> Pointer to a nonconforming edge type
+  type ::  edge_ncnf_cnn_ptr
+     type(edge_ncnf_cnn_t), pointer :: ptr
+  end type edge_ncnf_cnn_ptr
+
 contains
 
   !> @brief Initialise edge with global id and vertices
@@ -120,10 +190,8 @@ contains
     call this%set_id(id)
     ! get facet pointers
     allocate(this%facet(NEKO_EDGE_NFACET))
-    call this%facet(1)%init(vrt1, 1)
-    call this%facet(2)%init(vrt2, 2)
-
-    return
+    this%facet(1)%ptr => vrt1
+    this%facet(2)%ptr => vrt2
   end subroutine edge_init
 
   !> @brief Free edge data
@@ -135,12 +203,10 @@ contains
     call this%set_dim(-1)
     if (allocated(this%facet)) then
        do il = 1, this%nfacet
-          call this%facet(il)%free()
+          this%facet(il)%ptr => null()
        end do
        deallocate(this%facet)
     end if
-
-    return
   end subroutine edge_free
 
   !> @brief Check if edge is self-periodic
@@ -149,9 +215,7 @@ contains
     class(edge_cnn_t), intent(in) :: this
     logical :: selfp
 
-    selfp = (this%facet(1)%vertex%ptr%id() == this%facet(2)%vertex%ptr%id())
-
-    return
+    selfp = (this%facet(1)%ptr%id() == this%facet(2)%ptr%id())
   end function edge_self_periodic
 
   !> @brief Return edge facet at given position
@@ -159,16 +223,14 @@ contains
   !! @parameter[in]   pos     facet position
   subroutine edge_facet(this, facet, pos)
     class(edge_cnn_t), target, intent(in) :: this
-    type(vertex_ncnf_cnn_ptr), intent(out) :: facet
+    type(vertex_cnn_ptr), intent(out) :: facet
     integer(i4), intent(in) :: pos
 
     if ((pos > 0) .and. (pos <= NEKO_EDGE_NFACET)) then
-       facet%ptr => this%facet(pos)
+       facet%ptr => this%facet(pos)%ptr
     else
        facet%ptr => null()
     end if
-
-    return
   end subroutine edge_facet
 
   !> @brief Return positions of facets shared by edges
@@ -187,16 +249,13 @@ contains
     facetp(:,:) = 0
     do il = 1, this%nfacet
        do jl = 1, other%nfacet
-          if (this%facet(il)%vertex%ptr%id() == &
-               & other%facet(jl)%vertex%ptr%id()) then
+          if (this%facet(il)%ptr%id() == other%facet(jl)%ptr%id()) then
              ishare = ishare + 1
              facetp(1,ishare) = il
              facetp(2,ishare) = jl
           end if
        end do
     end do
-
-    return
   end subroutine edge_facet_share
 
   !> @brief Check if two edges are the same
@@ -228,10 +287,9 @@ contains
              trans(2) = 2
              do algn = 0, algn_op%nop()
                 call algn_op%trns_inv_f_i4(algn)%ptr(NEKO_EDGE_NFACET, trans)
-                equal = (this%facet(1)%vertex%ptr .eq. &
-                     & other%facet(trans(1))%vertex%ptr) .and. &
-                     & (this%facet(2)%vertex%ptr .eq. &
-                     & other%facet(trans(2))%vertex%ptr)
+                equal = (this%facet(1)%ptr .eq. &
+                     & other%facet(trans(1))%ptr) .and. &
+                     & (this%facet(2)%ptr .eq. other%facet(trans(2))%ptr)
                 if (equal) return
                 call algn_op%trns_f_i4(algn)%ptr(NEKO_EDGE_NFACET, trans)
              end do
@@ -245,8 +303,6 @@ contains
           end if
        end if
     end if
-
-    return
   end subroutine edge_equal_align
 
   !> @brief Check if two edges are the same
@@ -260,8 +316,6 @@ contains
     integer(i4) :: algn
 
     call this%eq_algn(other, equal, algn)
-
-    return
   end function edge_equal
 
   !> @brief Initialise edge with alignment information
@@ -277,8 +331,6 @@ contains
     this%edge%ptr => edge
     ! set relative alignment transformation
     call this%algn_op%init(algn)
-
-    return
   end subroutine edge_aligned_init
 
   !> @brief Free edge with alignment information
@@ -287,8 +339,6 @@ contains
 
     this%edge%ptr => null()
     call this%algn_op%free()
-
-    return
   end subroutine edge_aligned_free
 
   !> @brief Return pointer to the edge
@@ -297,7 +347,6 @@ contains
     class(edge_aligned_cnn_t), intent(in) :: this
     type(edge_cnn_ptr), intent(out) :: edge
     edge%ptr => this%edge%ptr
-    return
   end subroutine edge_aligned_edgep
 
   !> @brief Get relative edge alignment
@@ -306,7 +355,6 @@ contains
     class(edge_aligned_cnn_t), intent(in) :: this
     integer(i4) :: alignment
     alignment = this%algn_op%alignment
-    return
   end function edge_aligned_alignment_get
 
   !> @brief Check if two edges are properly aligned
@@ -321,17 +369,15 @@ contains
 
     ! only equal edges can be checked
     if (this%edge%ptr.eq.other) then
-       vrt(1) = this%edge%ptr%facet(1)%vertex%ptr%id()
-       vrt(2) = this%edge%ptr%facet(2)%vertex%ptr%id()
-       vrto(1) = other%facet(1)%vertex%ptr%id()
-       vrto(2) = other%facet(2)%vertex%ptr%id()
+       vrt(1) = this%edge%ptr%facet(1)%ptr%id()
+       vrt(2) = this%edge%ptr%facet(2)%ptr%id()
+       vrto(1) = other%facet(1)%ptr%id()
+       vrto(2) = other%facet(2)%ptr%id()
        call this%algn_op%trns_inv_f_i4%ptr(NEKO_EDGE_NFACET, vrto)
        aligned = (vrt(1) == vrto(1)).and.(vrt(2) == vrto(2))
     else
        call neko_error('Edges not equal')
     end if
-
-    return
   end function edge_aligned_test
 
 end module edge_cnn

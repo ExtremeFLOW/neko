@@ -187,8 +187,6 @@ contains
     this%trns_inv_i_i8(1)%ptr => transform_edge_P_int_i8
     this%trns_inv_i_dp(0)%ptr => transform_edge_I_dp
     this%trns_inv_i_dp(1)%ptr => transform_edge_P_int_dp
-
-    return
   end subroutine edge_init
 
   !> @brief Free procedure pointers
@@ -211,8 +209,6 @@ contains
        this%trns_inv_i_i8(il)%ptr => null()
        this%trns_inv_i_dp(il)%ptr => null()
     end do
-
-    return
   end subroutine edge_free
 
   !> @brief Get number of operations
@@ -273,8 +269,6 @@ contains
        this%trns_inv_i_i8%ptr => transform_edge_P_int_i8
        this%trns_inv_i_dp%ptr => transform_edge_P_int_dp
     end select
-
-    return
   end subroutine edge_op_set_init
 
   !> @brief Free alignment and procedure pointers
@@ -295,8 +289,6 @@ contains
     this%trns_inv_i_i4%ptr => null()
     this%trns_inv_i_i8%ptr => null()
     this%trns_inv_i_dp%ptr => null()
-
-    return
   end subroutine edge_op_set_free
 
   !> @brief Identity transformation, single integer array
@@ -305,8 +297,6 @@ contains
   pure subroutine transform_edge_I_i4(sz, edg)
     integer(i4), intent(in) :: sz
     integer(i4), dimension(sz), intent(inout) :: edg
-
-    return
   end subroutine transform_edge_I_i4
 
   !> @brief Permutation transformation, single integer, full array
@@ -326,8 +316,6 @@ contains
        edg(il) = edg(itmp2)
        edg(itmp2) = iedg
     end do
-
-    return
   end subroutine transform_edge_P_full_i4
 
   !> @brief Permutation transformation, single integer, array interior
@@ -347,8 +335,6 @@ contains
        edg(il) = edg(itmp2)
        edg(itmp2) = iedg
     end do
-
-    return
   end subroutine transform_edge_P_int_i4
 
   !> @brief Identity transformation, double integer array
@@ -357,8 +343,6 @@ contains
   pure subroutine transform_edge_I_i8(sz, edg)
     integer(i4), intent(in) :: sz
     integer(i8), dimension(sz), intent(inout) :: edg
-
-    return
   end subroutine transform_edge_I_i8
 
   !> @brief Permutation transformation, double integer, full array
@@ -378,8 +362,6 @@ contains
        edg(il) = edg(itmp2)
        edg(itmp2) = iedg
     end do
-
-    return
   end subroutine transform_edge_P_full_i8
 
   !> @brief Permutation transformation, double integer, array interior
@@ -399,8 +381,6 @@ contains
        edg(il) = edg(itmp2)
        edg(itmp2) = iedg
     end do
-
-    return
   end subroutine transform_edge_P_int_i8
 
   !> @brief Identity transformation, double precision array
@@ -409,8 +389,6 @@ contains
   pure subroutine transform_edge_I_dp(sz, edg)
     integer(i4), intent(in) :: sz
     real(dp), dimension(sz), intent(inout) :: edg
-
-    return
   end subroutine transform_edge_I_dp
 
   !> @brief Permutation transformation, double precision, full array
@@ -430,8 +408,6 @@ contains
        edg(il) = edg(itmp2)
        edg(itmp2) = redg
     end do
-
-    return
   end subroutine transform_edge_P_full_dp
 
   !> @brief Permutation transformation, double precision, array interior
@@ -451,8 +427,6 @@ contains
        edg(il) = edg(itmp2)
        edg(itmp2) = redg
     end do
-
-    return
   end subroutine transform_edge_P_int_dp
 
 end module alignment_edge

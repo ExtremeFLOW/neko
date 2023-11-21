@@ -102,8 +102,6 @@ contains
        this%intp%ptr => transform_quad_I
        this%intpT%ptr => transform_quad_I
     end select
-
-    return
   end subroutine quad_op_set_init
 
   !> @brief Free hanging info and procedure pointers
@@ -115,7 +113,6 @@ contains
     this%intp%ptr => null()
     this%intpT%ptr => null()
 
-    return
   end subroutine quad_op_set_free
 
   !> @brief Identity transformation
@@ -125,7 +122,6 @@ contains
     integer(i4), intent(in) :: sz
     real(dp), dimension(sz, sz), intent(inout) :: fcs
 
-    return
   end subroutine transform_quad_I
 
 end module ncnf_interpolation_quad

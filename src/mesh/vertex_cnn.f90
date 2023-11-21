@@ -66,11 +66,35 @@ module vertex_cnn
   !> Vertex type for nonconforming meshes
   !! @details Vertex can be either independent (located at edge, face, cell
   !! corner of all neighbours; marked 0), facet hanging (located at facet
-  !! centre of some neighbours in case of faces or cells; marked 1) or
-  !! ridge hanging (located at ridge centre of some neighbours in case of
-  !! cells; marked 2). There are no operations on vertex, so no procedure
-  !! pointers. It is always a component part of the higher-dimension object,
-  !! so position gives it's location in the object
+  !! centre of parent neighbours in case of faces or cells; marked 1) or
+  !! ridge hanging (located at ridge centre of parent neighbours in case of
+  !! cells; marked 2). See the diagram below for clarification.
+  !! @verbatim
+  !! Example of vertex marking for quad/hex meshes.
+  !! Hanging vertex marking for two-dimensional nonconforming interface
+  !!  o...............o 0...............o
+  !!  :               : |               :
+  !!  :               : |               :
+  !!  :               : |               :
+  !!  1               : 1               :
+  !!  |               : :               :
+  !!  |               : :               :
+  !!  |               : :               :
+  !!  0...............o o...............o
+  !! Hanging vertex marking for three-dimensional nonconforming interface
+  !!  o...............o o...............o 0-------2.......o o.......2-------0
+  !!  :               : :               : |       |       : :       |       |
+  !!  :               : :               : |       |       : :       |       |
+  !!  :               : :               : |       |       : :       |       |
+  !!  2-------1       : :       1-------2 2-------1       : :       1-------2
+  !!  |       |       : :       |       | :               : :               :
+  !!  |       |       : :       |       | :               : :               :
+  !!  |       |       : :       |       | :               : :               :
+  !!  0-------2.......o o.......2-------0 o...............o o...............o
+  !! @endverbatim
+  !! There are no operations on vertex, so no procedure pointers.
+  !! Vertex is always a component part of the higher-dimension object, so
+  !! position gives its location in the object.
   type :: vertex_ncnf_cnn_t
      ! vertex pointer
      type(vertex_cnn_ptr) :: vertex
@@ -93,7 +117,7 @@ module vertex_cnn
      procedure, pass(this) :: pos => vertex_position_get
   end type vertex_ncnf_cnn_t
 
-  !> Pointer to a hanging vertex type
+  !> Pointer to a nonconforming vertex type
   type ::  vertex_ncnf_cnn_ptr
      type(vertex_ncnf_cnn_t), pointer :: ptr
   end type vertex_ncnf_cnn_ptr
@@ -110,8 +134,6 @@ contains
     call this%set_nelem(NEKO_VERTEX_NFACET, NEKO_VERTEX_NRIDGE,&
          & NEKO_VERTEX_NPEAK)
     call this%set_id(id)
-
-    return
   end subroutine vertex_init
 
   !> @brief Check if two vertices are the same
@@ -127,7 +149,6 @@ contains
        ! check global id
        equal = (this%id() == other%id())
     end if
-    return
   end function vertex_equal
 
   !> @brief Initialise vertex pointer
@@ -140,7 +161,6 @@ contains
     call this%free()
     this%vertex%ptr => vrt
     this%position = pos
-    return
   end subroutine vertex_hanging_init
 
   !> @brief free vertex pointer and hanging information
@@ -149,7 +169,6 @@ contains
     this%vertex%ptr => null()
     this%hanging = 0
     this%position = 0
-    return
   end subroutine vertex_hanging_free
 
   !> @brief Set hanging information
@@ -162,7 +181,6 @@ contains
     else
        call neko_error('Inconsistent vertex hanging information.')
     end if
-    return
   end subroutine vertex_hanging_set
 
   !> @brief Get hanging information
@@ -171,7 +189,6 @@ contains
     class(vertex_ncnf_cnn_t), intent(in) :: this
     integer(i4) :: hng
     hng = this%hanging
-    return
   end function vertex_hanging_get
 
   !> @brief Set position information
@@ -180,7 +197,6 @@ contains
     class(vertex_ncnf_cnn_t), intent(inout) :: this
     integer(i4), intent(in) :: pos
     this%position = pos
-    return
   end subroutine vertex_position_set
 
   !> @brief Get position information
@@ -189,7 +205,6 @@ contains
     class(vertex_ncnf_cnn_t), intent(in) :: this
     integer(i4) :: pos
     pos = this%position
-    return
   end function vertex_position_get
 
 end module vertex_cnn
