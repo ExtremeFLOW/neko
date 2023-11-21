@@ -218,8 +218,7 @@ jobs:
             wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list && sudo apt-get update -y && sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
             source /opt/intel/oneapi/setvars.sh
             sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
-            find /opt/intel/oneapi | grep ifort
-            echo $PATH | grep oneapi
+            which ifort
             printenv >> $GITHUB_ENV
     env:
       CC: icc
@@ -238,6 +237,7 @@ jobs:
       - name: Install json-fortran
         if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
         run: |
+          source /opt/intel/oneapi/setvars.sh
           git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
           cd json-fortran
           mkdir build && cd build
@@ -255,6 +255,7 @@ jobs:
       - name: Build
         run: |
           echo $PKG_CONFIG_PATH
+          source /opt/intel/oneapi/setvars.sh
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
