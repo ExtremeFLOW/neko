@@ -1,22 +1,47 @@
 program interpolate_to_unstructured_mesh
   use neko
-  use json_utils, only : json_get
+  use json_utils
+  use fld_io_controller, only : fld_io_controller_t
 
   implicit none
 
-  !> Variables to read the input parameters
+  !> Declare objects
   type(json_file) :: params
-  character(20) :: case_file = "inputs.json"
-  integer :: ierr, integer_val
-  character(len=:), allocatable :: json_buffer
- 
+  type(fld_io_controller_t) :: fld_ioc
 
-  !> Test
-  real(kind=rp) :: timestep
+  !> declare variables
+  integer :: i,j,k
 
   !> Initialize neko 
   call neko_init 
- 
+
+  !> Initialize the parameters
+  call init_params(params)
+
+  !> Initialize the file interpolator object
+  call fld_ioc%init(params)
+
+  do i=1, fld_ioc%number_of_files -1
+
+     call fld_ioc%step()
+
+  end do
+
+
+  !> Finalize neko
+  call neko_finalize
+
+end program interpolate_to_unstructured_mesh
+
+subroutine init_params(params)
+  use neko
+  use json_utils
+  
+  type(json_file), intent(inout) :: params
+  character(20) :: case_file = "inputs.json"
+  integer :: ierr, integer_val
+  character(len=:), allocatable :: json_buffer
+  
   !> Read input file
   if (pe_rank .eq. 0) then
       write(*,*)  trim(case_file)
@@ -32,16 +57,4 @@ program interpolate_to_unstructured_mesh
 
     deallocate(json_buffer)
 
-   
-
-    call json_get(params, 'case.test.test', timestep)
-    write(*,*) timestep
-
-    !call json_get_or_default(params, 'case.scalar.enabled', timestep,&
-    !                            10)
-
-
-  !> Finalize neko
-  call neko_finalize
-
-end program interpolate_to_unstructured_mesh
+end subroutine init_params
