@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Abstract type for abstract polytope class
+!> Abstract type for abstract polytope class for mesh connectivity
 module polytope_cnn
   use num_types, only : i2, i4
   use utils, only : neko_error
@@ -41,10 +41,10 @@ module polytope_cnn
   public :: polytope_cnn_t
 
   !> Base type for an abstract polytope
-  !! @details An abstract polytope  of dimension @a dim_ is a partially ordered
+  !! @details An abstract polytope of dimension @a dim_ is a partially ordered
   !! set of its lower dimension components: facets (dim -1), ridges (dim -2),
   !! peaks (dim -3)... I do not consider polytopes with dim > 3, so numbers of
-  !! facets(@a nfacet_) ridges(@a nridge_) and peaks (@a npeak_) are taken into
+  !! facets(@a nfacet) ridges(@a nridge) and peaks (@a npeak) are taken into
   !! account only.
   type, extends(entity_t), abstract :: polytope_cnn_t
      !> Polytope dimension
@@ -109,7 +109,7 @@ contains
     if (this%dim_ == -1) call neko_error('Polytope dimension not initialised')
     select case(this%dim_)
     case(0)
-       if ((nfacet /= 0).or.(nridge /= 0).or.(npeak /= 0)) then
+       if ((nfacet /= 0) .or. (nridge /= 0) .or. (npeak /= 0)) then
           call neko_error('Vertex has no elements.')
        else
           this%nfacet = 0
@@ -117,7 +117,7 @@ contains
           this%npeak = 0
        end if
     case(1)
-       if ((nfacet == 2).and.(nridge == 0).and.(npeak == 0)) then
+       if ((nfacet == 2) .and. (nridge == 0) .and. (npeak == 0)) then
           this%nfacet = 2
           this%nridge = 0
           this%npeak = 0
@@ -125,7 +125,7 @@ contains
            call neko_error('Edge contains two facets only.')
        end if
     case(2)
-       if ((nfacet > 0).and.(nridge > 0).and.(npeak == 0)) then
+       if ((nfacet > 0) .and. (nridge > 0) .and. (npeak == 0)) then
           this%nfacet = nfacet
           this%nridge = nridge
           this%npeak = 0
@@ -145,7 +145,7 @@ contains
     end select
   end subroutine polytope_element_number_set
 
-  !> @brief Check if two polytopes have the same dimension and element number
+  !> @brief Check if two polytopes have the same dimension and element numbers
   !! @return   equal
   pure function polytope_equal(this, other) result(equal)
     class(polytope_cnn_t), intent(in) :: this, other
@@ -155,7 +155,8 @@ contains
     if (equal) then
        call this%nelem(nfacet, nridge, npeak)
        call other%nelem(nfaceto, nridgeo, npeako)
-       equal = (nfacet == nfaceto).and.(nridge == nridgeo).and.(npeak == npeako)
+       equal = (nfacet == nfaceto) .and. (nridge == nridgeo) .and. &
+            & (npeak == npeako)
     end if
   end function polytope_equal
 

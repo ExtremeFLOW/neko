@@ -35,10 +35,10 @@ module hex_cnn
   use num_types, only : i4
   use utils, only : neko_error
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cnn_t, vertex_cnn_ptr
-  use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t,&
+  use vertex_cnn, only : vertex_cab_ptr
+  use edge_cnn, only : edge_cab_t, edge_cab_ptr,&
        & NEKO_EDGE_NFACET
-  use quad_cnn, only : quad_cnn_t, quad_cnn_ptr, quad_aligned_cnn_t,&
+  use quad_cnn, only : quad_aligned_cab_t,&
        & NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, quad_to_edg_algn_inv
   use cell_cnn, only : cell_cnn_t
   implicit none
@@ -96,7 +96,7 @@ module hex_cnn
   !! @endverbatim
   type, extends(cell_cnn_t) :: hex_cnn_t
      !> Facets are aligned
-     type(quad_aligned_cnn_t), dimension(:), allocatable :: facet
+     type(quad_aligned_cab_t), dimension(:), allocatable :: facet
    contains
      !> Initialise hex
      procedure, pass(this) :: init => hex_init
@@ -164,16 +164,16 @@ contains
   subroutine hex_init(this, id, qd1, qd2, qd3, qd4, qd5, qd6)
     class(hex_cnn_t), intent(inout) :: this
     integer(i4), intent(in) :: id
-    type(quad_aligned_cnn_t), intent(in), target :: qd1, qd2, qd3, qd4, qd5, qd6
+    type(quad_aligned_cab_t), intent(in), target :: qd1, qd2, qd3, qd4, qd5, qd6
     integer(i4) :: il, jl, ifct, icrn
     integer(i4), parameter :: sz = 3
     integer(i4), dimension(sz, sz) :: trans
     integer(i4), dimension(sz) :: work
     integer(i4), dimension(NEKO_QUAD_NFACET) :: mapf
     integer(i4), dimension(NEKO_QUAD_NRIDGE) :: mapr
-    type(vertex_cnn_ptr), dimension(3) :: vrtp
-    type(edge_cnn_ptr), dimension(2) :: edgp
-    type(edge_cnn_t) :: edg
+    type(vertex_cab_ptr), dimension(3) :: vrtp
+    type(edge_cab_ptr), dimension(2) :: edgp
+    type(edge_cab_t) :: edg
     integer(i4), dimension(2) :: edg_algn
     logical :: equal
 
@@ -269,7 +269,7 @@ contains
        ! is it a proper edge
        if ((edgp(1)%ptr .eq. edgp(2)%ptr) .and. &
             & (edg_algn(1) == edg_algn(2))) then
-          call this%ridge(il)%init(edgp(1)%ptr, edg_algn(1))
+          call this%ridge(il)%init_algn(edgp(1)%ptr, edg_algn(1))
           ! compare with local edge to check alignment
           call edg%init(edgp(1)%ptr%id(), &
                & this%peak(rdg_to_pek(1, il))%vertex%ptr, &
@@ -292,13 +292,13 @@ contains
     call this%set_dim(-1)
     if (allocated(this%facet)) then
        do il = 1, this%nfacet
-          call this%facet(il)%free()
+          call this%facet(il)%free_algn()
        end do
        deallocate(this%facet)
     end if
     if (allocated(this%ridge)) then
        do il = 1, this%nridge
-          call this%ridge(il)%free()
+          call this%ridge(il)%free_algn()
        end do
        deallocate(this%ridge)
     end if
@@ -351,7 +351,7 @@ contains
   !! @parameter[out]  facet   facet pointers array
   subroutine hex_facet(this, facet)
     class(hex_cnn_t), intent(in) :: this
-    type(quad_aligned_cnn_t), dimension(:), allocatable, intent(out) :: facet
+    type(quad_aligned_cab_t), dimension(:), allocatable, intent(out) :: facet
     integer(i4) :: il
 
     allocate(facet(this%nfacet))

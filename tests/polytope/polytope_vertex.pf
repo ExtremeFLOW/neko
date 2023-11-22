@@ -2,9 +2,9 @@
 subroutine test_vertex_init
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cnn_t
+  use vertex_cnn, only : vertex_cab_t
   implicit none
-  type(vertex_cnn_t) :: vertex, vertexo
+  type(vertex_cab_t) :: vertex, vertexo
   integer(i4) :: dim, nfacet, nridge, npeak, id1, id2
 
   ! test setting polytopes
@@ -32,11 +32,11 @@ end subroutine test_vertex_init
 subroutine test_vertex_nonconforming
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_t
+  use vertex_cnn, only : vertex_cab_t, vertex_ncnf_crl_t
   implicit none
-  type(vertex_cnn_t) :: vertex
-  type(vertex_ncnf_cnn_t) :: vertex_ncnf
-  integer(i4) :: id, hng, itmp, pos
+  type(vertex_cab_t) :: vertex
+  type(vertex_ncnf_crl_t) :: vertex_ncnf
+  integer(i4) :: id, hng, pos, itmp
 
   id = 1
   pos = 2

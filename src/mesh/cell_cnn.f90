@@ -30,12 +30,12 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Connectivity cell abstract type
+!> Connectivity cell abstract types
 module cell_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_t, vertex_ncnf_cnn_ptr
-  use edge_cnn, only : edge_cnn_t, edge_cnn_ptr, edge_aligned_cnn_t
+  use vertex_cnn, only : vertex_ncnf_crl_t, vertex_ncnf_crl_ptr
+  use edge_cnn, only : edge_aligned_cab_t
   implicit none
   private
 
@@ -49,9 +49,9 @@ module cell_cnn
   !! an abstract type providing common functionality
   type, extends(polytope_cnn_t), abstract :: cell_cnn_t
      !> Ridges are aligned
-     type(edge_aligned_cnn_t), dimension(:), allocatable :: ridge
+     type(edge_aligned_cab_t), dimension(:), allocatable :: ridge
      !> Peak pointers
-     type(vertex_ncnf_cnn_t), dimension(:), allocatable :: peak
+     type(vertex_ncnf_crl_t), dimension(:), allocatable :: peak
    contains
      !> Initialise cell dimension
      procedure, pass(this) :: init_dim => cell_init_dim
@@ -78,7 +78,7 @@ contains
   !! @parameter[out]  ridge   ridge pointers array
   subroutine cell_ridge(this, ridge)
     class(cell_cnn_t), intent(in) :: this
-    type(edge_aligned_cnn_t), dimension(:), allocatable, intent(out) :: ridge
+    type(edge_aligned_cab_t), dimension(:), allocatable, intent(out) :: ridge
     integer(i4) :: il
 
     allocate(ridge(this%nridge))
@@ -92,7 +92,7 @@ contains
   !! @parameter[in]   pos    peak position
   subroutine cell_peak(this, peak, pos)
     class(cell_cnn_t), target, intent(in) :: this
-    type(vertex_ncnf_cnn_ptr), intent(out) :: peak
+    type(vertex_ncnf_crl_ptr), intent(out) :: peak
     integer(i4), intent(in) :: pos
 
     if ((pos > 0) .and. (pos <= this%npeak)) then

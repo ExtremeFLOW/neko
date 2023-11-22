@@ -2,17 +2,17 @@
 subroutine test_hex_init
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cnn_t
-  use edge_cnn, only : edge_cnn_t, edge_aligned_cnn_t
-  use quad_cnn, only : quad_cnn_t, quad_aligned_cnn_t
+  use vertex_cnn, only : vertex_cab_t
+  use edge_cnn, only : edge_cab_t, edge_aligned_cab_t
+  use quad_cnn, only : quad_cab_t, quad_aligned_cab_t
   use hex_cnn, only : hex_cnn_t, fct_to_rdg, fct_to_pek, rdg_to_pek,&
        & NEKO_HEX_NFACET, NEKO_HEX_NRIDGE, NEKO_HEX_NPEAK
   implicit none
-  type(vertex_cnn_t), dimension(8) :: vertex
-  type(edge_cnn_t), dimension(12) :: edge
-  type(edge_aligned_cnn_t), dimension(12) :: edgea
-  type(quad_cnn_t), dimension(6) :: quad
-  type(quad_aligned_cnn_t), dimension(6) :: quada
+  type(vertex_cab_t), dimension(8) :: vertex
+  type(edge_cab_t), dimension(12) :: edge
+  type(edge_aligned_cab_t), dimension(12) :: edgea
+  type(quad_cab_t), dimension(6) :: quad
+  type(quad_aligned_cab_t), dimension(6) :: quada
   type(hex_cnn_t) :: hex1
   integer(i4) :: il
 
@@ -29,7 +29,7 @@ subroutine test_hex_init
   end do
   ! simple edge alignment
   do il = 1, NEKO_HEX_NRIDGE
-     call edgea(il)%init(edge(il), 0)
+     call edgea(il)%init_algn(edge(il), 0)
   end do
   ! quads
   do il = 1, NEKO_HEX_NFACET
@@ -38,7 +38,7 @@ subroutine test_hex_init
   end do
   ! simple quad alignment
   do il = 1, NEKO_HEX_NFACET
-     call quada(il)%init(quad(il), 0)
+     call quada(il)%init_algn(quad(il), 0)
   end do
   ! hex
   call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
@@ -49,66 +49,66 @@ subroutine test_hex_init
   ! I rotate face 1 built of edges (9, 11 ,5, 7) and vertices (1, 3, 5, 7)
   ! Identity { 1, 2, 3, 4 } already tested
   ! T { 1, 3, 2, 4 }
-  call edgea(1)%init(edge(5), 0)
-  call edgea(2)%init(edge(7), 0)
-  call edgea(3)%init(edge(9), 0)
-  call edgea(4)%init(edge(11), 0)
+  call edgea(1)%init_algn(edge(5), 0)
+  call edgea(2)%init_algn(edge(7), 0)
+  call edgea(3)%init_algn(edge(9), 0)
+  call edgea(4)%init_algn(edge(11), 0)
   call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init(quad(1), 1)
+  call quada(1)%init_algn(quad(1), 1)
   call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
   call hex_element_test(hex1, quad, edge, vertex)
   ! PX { 2, 1, 4, 3 }
-  call edgea(1)%init(edge(11), 0)
-  call edgea(2)%init(edge(9), 0)
-  call edgea(3)%init(edge(5), 1)
-  call edgea(4)%init(edge(7), 1)
+  call edgea(1)%init_algn(edge(11), 0)
+  call edgea(2)%init_algn(edge(9), 0)
+  call edgea(3)%init_algn(edge(5), 1)
+  call edgea(4)%init_algn(edge(7), 1)
   call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init(quad(1), 2)
+  call quada(1)%init_algn(quad(1), 2)
   call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
   call hex_element_test(hex1, quad, edge, vertex)
   ! PXT { 2, 4, 1, 3 }
-  call edgea(1)%init(edge(5), 1)
-  call edgea(2)%init(edge(7), 1)
-  call edgea(3)%init(edge(11), 0)
-  call edgea(4)%init(edge(9), 0)
+  call edgea(1)%init_algn(edge(5), 1)
+  call edgea(2)%init_algn(edge(7), 1)
+  call edgea(3)%init_algn(edge(11), 0)
+  call edgea(4)%init_algn(edge(9), 0)
   call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init(quad(1), 3)
+  call quada(1)%init_algn(quad(1), 3)
   call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
   call hex_element_test(hex1, quad, edge, vertex)
   ! PYT { 3, 1, 4, 2 }
-  call edgea(1)%init(edge(7), 0)
-  call edgea(2)%init(edge(5), 0)
-  call edgea(3)%init(edge(9), 1)
-  call edgea(4)%init(edge(11), 1)
+  call edgea(1)%init_algn(edge(7), 0)
+  call edgea(2)%init_algn(edge(5), 0)
+  call edgea(3)%init_algn(edge(9), 1)
+  call edgea(4)%init_algn(edge(11), 1)
   call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init(quad(1), 4)
+  call quada(1)%init_algn(quad(1), 4)
   call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
   call hex_element_test(hex1, quad, edge, vertex)
   ! PY { 3, 4, 1, 2 }
-  call edgea(1)%init(edge(9), 1)
-  call edgea(2)%init(edge(11), 1)
-  call edgea(3)%init(edge(7), 0)
-  call edgea(4)%init(edge(5), 0)
+  call edgea(1)%init_algn(edge(9), 1)
+  call edgea(2)%init_algn(edge(11), 1)
+  call edgea(3)%init_algn(edge(7), 0)
+  call edgea(4)%init_algn(edge(5), 0)
   call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init(quad(1), 5)
+  call quada(1)%init_algn(quad(1), 5)
   call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
   call hex_element_test(hex1, quad, edge, vertex)
   ! PXPYT { 4, 2, 3, 1 }
-  call edgea(1)%init(edge(7), 1)
-  call edgea(2)%init(edge(5), 1)
-  call edgea(3)%init(edge(11), 1)
-  call edgea(4)%init(edge(9), 1)
+  call edgea(1)%init_algn(edge(7), 1)
+  call edgea(2)%init_algn(edge(5), 1)
+  call edgea(3)%init_algn(edge(11), 1)
+  call edgea(4)%init_algn(edge(9), 1)
   call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init(quad(1), 6)
+  call quada(1)%init_algn(quad(1), 6)
   call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
   call hex_element_test(hex1, quad, edge, vertex)
   ! PXPY { 4, 3, 2, 1 }
-  call edgea(1)%init(edge(11), 1)
-  call edgea(2)%init(edge(9), 1)
-  call edgea(3)%init(edge(7), 1)
-  call edgea(4)%init(edge(5), 1)
+  call edgea(1)%init_algn(edge(11), 1)
+  call edgea(2)%init_algn(edge(9), 1)
+  call edgea(3)%init_algn(edge(7), 1)
+  call edgea(4)%init_algn(edge(5), 1)
   call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init(quad(1), 7)
+  call quada(1)%init_algn(quad(1), 7)
   call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
   call hex_element_test(hex1, quad, edge, vertex)
 
@@ -117,19 +117,19 @@ end subroutine test_hex_init
 subroutine hex_element_test(hex, quad, edge, vertex)
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cnn_t, vertex_ncnf_cnn_ptr
-  use edge_cnn, only : edge_cnn_t, edge_aligned_cnn_t
-  use quad_cnn, only : quad_cnn_t, quad_aligned_cnn_t
+  use vertex_cnn, only : vertex_cab_t, vertex_ncnf_crl_ptr
+  use edge_cnn, only : edge_cab_t, edge_aligned_cab_t
+  use quad_cnn, only : quad_cab_t, quad_aligned_cab_t
   use hex_cnn, only : hex_cnn_t, NEKO_HEX_NFACET, NEKO_HEX_NRIDGE,&
        & NEKO_HEX_NPEAK
   implicit none
   type(hex_cnn_t), intent(in) :: hex
-  type(quad_cnn_t), dimension(6), intent(in) :: quad
-  type(edge_cnn_t), dimension(12), intent(in) :: edge
-  type(vertex_cnn_t), dimension(8), intent(in) :: vertex
-  type(quad_aligned_cnn_t), dimension(:), allocatable :: facet
-  type(edge_aligned_cnn_t), dimension(:), allocatable :: ridge
-  type(vertex_ncnf_cnn_ptr) :: peak
+  type(quad_cab_t), dimension(6), intent(in) :: quad
+  type(edge_cab_t), dimension(12), intent(in) :: edge
+  type(vertex_cab_t), dimension(8), intent(in) :: vertex
+  type(quad_aligned_cab_t), dimension(:), allocatable :: facet
+  type(edge_aligned_cab_t), dimension(:), allocatable :: ridge
+  type(vertex_ncnf_crl_ptr) :: peak
   integer(i4) :: il
 
   ! facets
