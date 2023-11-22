@@ -278,8 +278,7 @@ contains
     end if
 
     if (scalar) then
-       call json_get_or_default(C%params, 'case.scalar.initial_condition.type',&
-                  string_val, 'uniform')
+       call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)

@@ -43,7 +43,7 @@ module scalar_ic
   use math, only : col2, cfill
   use user_intf, only : useric_scalar
   use json_module, only : json_file
-  use json_utils, only: json_get_or_default
+  use json_utils, only: json_get
   implicit none
   private
 
@@ -75,8 +75,7 @@ contains
     real(kind=rp) :: ic_value
 
     if (trim(type) .eq. 'uniform') then
-       call json_get_or_default(params, 'case.scalar.initial_condition.value', &
-                                ic_value, 0.0_rp)
+       call json_get(params, 'case.scalar.initial_condition.value', ic_value)
        call set_scalar_ic_uniform(s, ic_value)
     else
        call neko_error('Invalid initial condition')
