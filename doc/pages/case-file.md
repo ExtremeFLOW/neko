@@ -300,14 +300,16 @@ that of the fluid. This will be addressed in a future release. For now, the
 `user` (same as `user_pointwise` for the fluid), and `user_vector` (same as for
 the fluid).
 
-Name               | Description                               | Admissable values                | Default value
--------------------|-------------------------------------------|----------------------------------|--------------
-`enabled`          | Whether to enable the scalar computation. | `true` or `false`                | `true`
-`Pe`               | The Peclet number.                        | Positive real                    | -
-`cp`               | Specific heat cpacity.                    | Positive real                    | -
-`lambda`           | Thermal conductivity.                     | Positive real                    | -
-`source_term.type` | Source term in the momentum equation.     | `noforce`, `user`, `user_vector` | -
-`boundary_types`   | Boundary types/conditions labels.         | Array of strings                 | -
+Name                      | Description                               | Admissable values                | Default value
+-------------------       |-------------------------------------------|----------------------------------|--------------
+`enabled`                 | Whether to enable the scalar computation. | `true` or `false`                | `true`
+`Pe`                      | The Peclet number.                        | Positive real                    | -
+`cp`                      | Specific heat cpacity.                    | Positive real                    | -
+`lambda`                  | Thermal conductivity.                     | Positive real                    | -
+`source_term.type`        | Source term in the momentum equation.     | `noforce`, `user`, `user_vector` | -
+`boundary_types`          | Boundary types/conditions labels.         | Array of strings                 | -
+`initial_condition.type`  | Initial condition type.                   | `user`, `uniform`                | -
+`initial_condition.value` | Value of the velocity initial condition.  | Real                             | -
 
 ## Statistics
 
