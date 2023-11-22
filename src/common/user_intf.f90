@@ -231,7 +231,9 @@ contains
     call neko_error('Dummy user defined initial condition set')    
   end subroutine dummy_user_ic
 
-  !> Dummy user initial condition
+  !> Dummy user initial condition for scalar field
+  !! @param s Scalar field.
+  !! @param params JSON parameters.
   subroutine dummy_user_ic_scalar(s, params)
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params

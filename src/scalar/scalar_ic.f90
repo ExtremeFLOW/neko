@@ -56,13 +56,22 @@ module scalar_ic
 contains
 
   !> Set scalar initial condition (builtin)
+  !! @details Set scalar initial condition using one of the builtin types
+  !! currently supported:
+  !! - uniform.
+  !! @param s Scalar field.
+  !! @param coef Coefficient.
+  !! @param gs Gather-Scatter object.
+  !! @param type Type of initial condition.
+  !! @param params JSON parameters.
   subroutine set_scalar_ic_int(s, coef, gs, type, params)
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
     type(json_file), intent(inout) :: params
-    ! Variables for retrieving json parameters
+
+    ! Variables for retrieving JSON parameters
     real(kind=rp) :: ic_value
 
     if (trim(type) .eq. 'uniform') then
@@ -78,6 +87,12 @@ contains
   end subroutine set_scalar_ic_int
 
   !> Set scalar intial condition (user defined)
+  !! @details Set scalar initial condition using a user defined function.
+  !! @param s Scalar field.
+  !! @param coef Coefficient.
+  !! @param gs Gather-Scatter object.
+  !! @param usr_ic User defined initial condition function.
+  !! @param params JSON parameters.
   subroutine set_scalar_ic_usr(s, coef, gs, usr_ic, params)
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
@@ -91,6 +106,12 @@ contains
 
   end subroutine set_scalar_ic_usr
 
+  !> Set scalar initial condition (common)
+  !! @details Finalize scalar initial condition by distributing the initial
+  !! condition across elements and multiplying by the coefficient (if any).
+  !! @param s Scalar field.
+  !! @param coef Coefficient.
+  !! @param gs Gather-Scatter object.
   subroutine set_scalar_ic_common(s, coef, gs)
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
@@ -112,6 +133,9 @@ contains
   end subroutine set_scalar_ic_common
 
   !> Uniform initial condition
+  !! @details Set scalar initial condition to a uniform value across the domain.
+  !! @param s Scalar field.
+  !! @param ic_value Desired value of the scalar field.
   subroutine set_scalar_ic_uniform(s, ic_value)
     type(field_t), intent(inout) :: s
     real(kind=rp), intent(in) :: ic_value
