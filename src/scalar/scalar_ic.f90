@@ -32,18 +32,18 @@
 !
 !> Scalar initial condition
 module scalar_ic
-  use gather_scatter
-  use neko_config
-  use num_types
-  use device_math
-  use device
-  use field
-  use utils
-  use coefs
-  use math
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use device_math, only : device_col2
+  use device, only : device_memcpy, HOST_TO_DEVICE
+  use field, only : field_t
+  use utils, only : neko_error
+  use coefs, only : coef_t
+  use math, only : col2, cfill
   use user_intf, only : useric_scalar
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get_or_default
   implicit none
   private
 

@@ -46,7 +46,7 @@ module case
   use redist
   use sampler
   use flow_ic
-  use scalar_ic
+  use scalar_ic, only : set_scalar_ic
   use stats
   use file
   use utils
