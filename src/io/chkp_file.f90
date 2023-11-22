@@ -266,6 +266,8 @@ contains
     integer :: i, e
     type(dofmap_t) :: dof
 
+    !> Looping test
+    integer ::  ii, jj, kk
     
     select type(data)
     type is (chkp_t)       
@@ -286,6 +288,9 @@ contains
           msh => data%previous_mesh
           this%mesh2mesh = .true.
           tol = data%mesh2mesh_tol
+          if (pe_rank .eq. 0) then 
+             write(*,*) "Mesh to mesh activated - tolerance: ", tol
+          end if
        else !< The checkpoint was written on the same mesh
           msh => u%msh
           this%mesh2mesh = .false.
@@ -340,6 +345,9 @@ contains
        call this%chkp_Xh%init(GLL, lx, lx)
     end if
     if (this%mesh2mesh) then
+       if (pe_rank .eq. 0) then 
+          write(*,*) "Mesh to mesh activated - Displacing points with tol"
+       end if
        dof = dofmap_t(msh, this%chkp_Xh)
        allocate(x_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
        allocate(y_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
@@ -366,8 +374,34 @@ contains
              z_coord(i,1,1,e) = u%dof%z(i,1,1,e) - tol*(u%dof%z(i,1,1,e)-center_z)
           end do
        end do
+       if (pe_rank .eq. 0) then 
+          write(*,*) "Mesh to mesh activated - Initializing the interpolator"
+       end if
        call this%global_interp%init(dof,tol=tol)
-       call this%global_interp%find_points(x_coord,y_coord,z_coord,u%dof%size())
+       if (pe_rank .eq. 0) then 
+          write(*,*) "Mesh to mesh activated - Executing find points"
+          write(*,*) "Total number of points: ", u%dof%size()
+       end if
+       call this%global_interp%find_points(x_coord,y_coord,z_coord,u%dof%size()) 
+       !> Test finding more points progresiviely, uncomment and comment previous line
+       !  if findpts fails for your run.
+       ! 
+       ! kk = 0
+       ! do ii = 10, 1, -1 
+       !   
+       !   jj = int(u%dof%size()/(ii))
+       !   
+       !   if (pe_rank .eq. 0) then 
+       !      write(*,*) "Iteration", kk
+       !      write(*,*) "Finding this many points: ", jj
+       !   end if
+       !
+       ! 
+       !   call this%global_interp%find_points(x_coord,y_coord,z_coord,jj)
+       !   
+       !   kk=kk+1
+       !
+       !end do
        deallocate(x_coord)
        deallocate(y_coord)
        deallocate(z_coord)
@@ -459,6 +493,9 @@ contains
     call MPI_File_read_at_all(fh, byte_offset, read_array, &
                nel*this%chkp_Xh%lxyz, MPI_REAL_PRECISION, status, ierr)
     if (this%mesh2mesh) then
+       if (pe_rank .eq. 0) then 
+          write(*,*) "Mesh to mesh activated - Interpolating the read field"
+       end if
        x = 0.0_rp
        call this%global_interp%evaluate(x,read_array)
 
