@@ -1,0 +1,25 @@
+{
+"version": 1.0,
+"case": {
+    	"field_reader": {
+        	"mesh_name" : "cylinder.nmsh",
+        	"field_file_name": "mean_field0.fld",
+		"add_to_registry": 
+		{
+			"field_position_in_file": [1,2,3],
+			"field_name_in_registry": ["u_mean", "v_mean", "w_mean"]	
+		}
+     	},
+    	"simulation_components": 
+    	[
+      		{
+        		"type": "probes",
+        		"compute_control": "tsteps",
+        		"compute_value"    : 1,
+        		"points_file":  "coordinates.csv",
+        		"output_file":  "interpolated_fields.csv",
+        		"fields": ["u_mean","v_mean","w_mean"]
+       		}
+     ]
+}
+}

@@ -91,6 +91,8 @@ module probes
    contains
      !> Initialize from json
      procedure, pass(this) :: init => probes_init_from_json
+     !> Initialize in stand alone mode
+     procedure, pass(this) :: init_standalone => probes_init_standalone
      ! Actual constructor
      procedure, pass(this) :: init_from_attributes => &
           probes_init_from_attributes
@@ -141,6 +143,64 @@ contains
     if(allocated(xyz)) deallocate(xyz)
 
   end subroutine probes_init_from_json
+
+
+  !> Constructor from json.
+  subroutine probes_init_standalone(this, json, dm_Xh)
+    class(probes_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    class(dofmap_t), intent(inout), target :: dm_Xh 
+    real(kind=rp), allocatable :: xyz(:,:)
+    character(len=:), allocatable  :: output_file
+    character(len=:), allocatable  :: points_file
+    integer :: i, n_local_probes, n_global_probes
+    character(len=:), allocatable :: compute_control, output_control
+    real(kind=rp) :: compute_value, output_value, end_time
+    call this%free()
+
+    !> this%init_base(json, case) 
+    call json_get_or_default(json, "compute_control", compute_control, &
+                             "tsteps")
+    call json_get_or_default(json, "compute_value", compute_value, 1.0_rp) 
+
+    ! We default to output whenever we execute
+    call json_get_or_default(json, "output_control", output_control, &
+                             compute_control)
+    call json_get_or_default(json, "output_value", output_value, &
+                             compute_value)
+    
+    ! Get the end time
+    call json_get_or_default(json, "end_time", end_time, &
+                             1.0_rp)
+
+    call this%compute_controller%init(end_time, compute_control, &
+                                        compute_value)
+    call this%output_controller%init(end_time, output_control, &
+                                     output_value)
+
+    !> Read from case file
+    call json%info('fields', n_children=this%n_fields)
+    call json_get(json, 'fields', this%which_fields) 
+    !> Should be extended to not only csv
+    !! but also be possible to define in userfile for example
+    call json_get(json, 'points_file', points_file)
+    call json_get(json, 'output_file', output_file) 
+
+    allocate(this%sampled_fields%fields(this%n_fields))
+    do i = 1, this%n_fields
+       this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
+                                          trim(this%which_fields(i)))
+    end do
+    !> This is distributed as to make it similar to parallel file 
+    !! formats latera
+    !! Reads all into rank 0
+    call read_probe_locations(this, this%xyz, this%n_local_probes, &
+         this%n_global_probes, points_file)
+    call probes_show(this)
+    call this%init_from_attributes(dm_Xh, output_file)
+    if(allocated(xyz)) deallocate(xyz)
+
+  end subroutine probes_init_standalone
 
 
   !> Initialize without json things

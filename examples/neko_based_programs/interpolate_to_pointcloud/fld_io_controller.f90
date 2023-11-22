@@ -38,6 +38,14 @@ module fld_io_controller
      !> number of fields
      integer :: number_of_fields
 
+     !> Fields that should be added to the registry
+     logical :: add_fields_to_registry = .false.
+     integer :: n_fields_in_registry = 0
+     character(len=20), allocatable  :: field_in_registry_name(:)
+     integer, allocatable :: field_in_registry_position_in_file(:)
+     type(field_list_t) :: field_in_registry_pointer
+
+
    contains
      
      !> Initialize object.
@@ -45,6 +53,8 @@ module fld_io_controller
      
      !> Execute object.
      procedure, pass(this) :: step => step
+     
+     procedure, pass(this) :: synchronize_registry => synchronize_registry
      
      !> Destructor
      procedure, pass(this) :: free => finalize
@@ -61,9 +71,9 @@ contains
     integer :: i,j,k,lx, ierr
 
     !> Read from case file
-    call json_get(params, 'case.fields.mesh_name', &
+    call json_get(params, 'case.field_reader.mesh_name', &
          this%mesh_fname)
-    call json_get(params, 'case.fields.field_name', &
+    call json_get(params, 'case.field_reader.field_file_name', &
          this%field_fname)
 
     !!> Define the file names. The counters are defined in the .nek5000 file 
@@ -100,13 +110,68 @@ contains
     !> Point the field list to the data
     call this%field_file_data%get_list(this%fields,this%field_file_data%size())
 
+    !> See if some fields should be added to the registry
+    if (params%valid_path('case.field_reader.add_to_registry')) then
+       this%add_fields_to_registry = .true.
+    
+       call params%info('case.field_reader.add_to_registry.field_position_in_file', &
+             n_children=this%n_fields_in_registry)
+       call json_get(params, &
+            'case.field_reader.add_to_registry.field_position_in_file', &
+             this%field_in_registry_position_in_file)
+       call json_get(params, &
+            'case.field_reader.add_to_registry.field_name_in_registry', &
+             this%field_in_registry_name)
+
+       !> Add the fields to the registry
+       do i = 1, this%n_fields_in_registry
+          call neko_field_registry%add_field(this%dof, &
+                trim(this%field_in_registry_name(i)))
+       end do
+
+       !> Have a list to pointers to the fields in the registry for easy access
+       allocate(this%field_in_registry_pointer%fields(this%n_fields_in_registry))
+       do i = 1, this%n_fields_in_registry
+          this%field_in_registry_pointer%fields(i)%f => neko_field_registry%get_field(&
+                                          trim(this%field_in_registry_name(i)))
+       end do
+
+       !> syncrhonize the file and the registry
+       call this%synchronize_registry()
+   
+    end if    
 
   end subroutine initialize
+
+  subroutine synchronize_registry(this)
+    class(fld_io_controller_t), intent(inout) :: this
+    integer :: i,j,k,n
+
+    n =  this%dof%size()   
+    
+    !> Copy the data from field_file_data object to the field object
+    do i = 1, this%n_fields_in_registry
+       ! Copy the data from the file to our pointer
+       call copy(this%field_in_registry_pointer%fields(i)%f%x, &
+                 this%fields(this%field_in_registry_position_in_file(i))%v%x,n)
+       ! Put it also on device
+       if (NEKO_BCKND_DEVICE .eq. 1) then 
+         call device_memcpy(this%field_in_registry_pointer%fields(i)%f%x, &
+                            this%field_in_registry_pointer%fields(i)%f%x_d, &
+                            n,HOST_TO_DEVICE)
+       end if
+    end do
+     
+
+  end subroutine synchronize_registry
+
 
 
   subroutine finalize(this)
     class(fld_io_controller_t), intent(inout) :: this
      
+    if (allocated(this%field_in_registry_pointer%fields)) deallocate(this%field_in_registry_pointer%fields)
+    
     call this%Xh%free()
     call this%msh%free()
     call this%gs_h%free()
@@ -127,6 +192,11 @@ contains
 
     !> Point the field list to the data
     call this%field_file_data%get_list(this%fields,this%field_file_data%size())
+
+    if (this%add_fields_to_registry .eqv. .true.) then
+       !> syncrhonize the file and the registry
+       call this%synchronize_registry()
+    end if
 
   end subroutine step
  
