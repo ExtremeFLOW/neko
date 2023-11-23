@@ -41,8 +41,8 @@ module edge_cnn
   implicit none
   private
 
-  public :: edge_cab_t, edge_cab_ptr, edge_aligned_cab_t, edge_ncnf_crl_t,&
-       & edge_ncnf_crl_ptr
+  public :: edge_cab_t, edge_cab_ptr, edge_aligned_cab_t, edge_ncnf_cac_t,&
+       & edge_ncnf_cac_ptr
 
   ! object information
   integer(i4), public, parameter :: NEKO_EDGE_DIM = 1
@@ -58,7 +58,7 @@ module edge_cnn
   !! Node numbering
   !!      f_1-----f_2    +----> r
   !! @endverbatim
-  !! Its only realisations are components of higher-dimension objects.
+  !! Its only actualisation are components of higher-dimension objects.
   type, extends(polytope_cnn_t) :: edge_cab_t
      !> Facets (abstract vertices)
      type(vertex_cab_ptr), dimension(:), allocatable :: facet
@@ -104,7 +104,7 @@ module edge_cnn
      procedure, pass(this) :: test => edge_aligned_test
   end type edge_aligned_cab_t
 
-  !> Realisation of the abstract edge for nonconforming meshes
+  !> Actualisation of the abstract edge for nonconforming meshes
   !! @details Edge can be either independent (part of conforming interface or
   !! parent; marked 0) or hanging. The meaning of hanging depends on the mesh
   !! dimension. In 2D case edges are face facets and can be either the first
@@ -159,7 +159,7 @@ module edge_cnn
   !! options (marked 3, 4, and 5) result from the 2D face interpolations.
   !! Edge is always a component part of the higher-dimension object, so
   !! position gives it's location in the object.
-  type, extends(edge_aligned_cab_t) :: edge_ncnf_crl_t
+  type, extends(edge_aligned_cab_t) :: edge_ncnf_cac_t
      !> interpolation operator
      type(ncnf_intp_edge_op_set_t) :: intp_op
      !> position in the object
@@ -177,12 +177,12 @@ module edge_cnn
      procedure, pass(this) :: set_pos => edge_position_set
      !> Get position information
      procedure, pass(this) :: pos => edge_position_get
-  end type edge_ncnf_crl_t
+  end type edge_ncnf_cac_t
 
-  !> Pointer to a nonconforming edge realisation
-  type ::  edge_ncnf_crl_ptr
-     type(edge_ncnf_crl_t), pointer :: ptr
-  end type edge_ncnf_crl_ptr
+  !> Pointer to a nonconforming edge actualisation
+  type ::  edge_ncnf_cac_ptr
+     type(edge_ncnf_cac_t), pointer :: ptr
+  end type edge_ncnf_cac_ptr
 
 contains
 
@@ -398,7 +398,7 @@ contains
   !! @parameter[in]   algn    alignment
   !! @parameter[in]   pos     position in the object
   subroutine edge_hanging_init(this, edge, algn, pos)
-    class(edge_ncnf_crl_t), intent(inout) :: this
+    class(edge_ncnf_cac_t), intent(inout) :: this
     type(edge_cab_t), target, intent(in) :: edge
     integer(i4), intent(in) :: algn, pos
 
@@ -411,7 +411,7 @@ contains
 
   !> @brief Free aligned edge and hanging information
   subroutine edge_hanging_free(this)
-    class(edge_ncnf_crl_t), intent(inout) :: this
+    class(edge_ncnf_cac_t), intent(inout) :: this
     call this%free_algn()
     call this%intp_op%free()
     this%position = -1
@@ -420,7 +420,7 @@ contains
   !> @brief Set hanging information
   !! @parameter[in]   hng     hanging information
   subroutine edge_hanging_set(this, hng)
-    class(edge_ncnf_crl_t), intent(inout) :: this
+    class(edge_ncnf_cac_t), intent(inout) :: this
     integer(i4), intent(in) :: hng
     call this%intp_op%free()
     call this%intp_op%init(hng)
@@ -429,7 +429,7 @@ contains
   !> @brief Get hanging information
   !! @return   hng
   pure function edge_hanging_get(this) result(hng)
-    class(edge_ncnf_crl_t), intent(in) :: this
+    class(edge_ncnf_cac_t), intent(in) :: this
     integer(i4) :: hng
     hng = this%intp_op%hanging
   end function edge_hanging_get
@@ -437,7 +437,7 @@ contains
   !> @brief Set position information
   !! @parameter[in]   pos     position information
   pure subroutine edge_position_set(this, pos)
-    class(edge_ncnf_crl_t), intent(inout) :: this
+    class(edge_ncnf_cac_t), intent(inout) :: this
     integer(i4), intent(in) :: pos
     this%position = pos
   end subroutine edge_position_set
@@ -445,7 +445,7 @@ contains
   !> @brief Get position information
   !! @return   pos
   pure function edge_position_get(this) result(pos)
-    class(edge_ncnf_crl_t), intent(in) :: this
+    class(edge_ncnf_cac_t), intent(in) :: this
     integer(i4) :: pos
     pos = this%position
   end function edge_position_get

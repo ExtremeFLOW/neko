@@ -32,15 +32,18 @@ end subroutine test_vertex_init
 subroutine test_vertex_nonconforming
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cab_t, vertex_ncnf_crl_t
+  use vertex_cnn, only : vertex_cab_t, vertex_ncnf_cac_t
   implicit none
   type(vertex_cab_t) :: vertex
-  type(vertex_ncnf_crl_t) :: vertex_ncnf
+  type(vertex_ncnf_cac_t) :: vertex_ncnf
   integer(i4) :: id, hng, pos, itmp
 
+  ! The abstract vertex
   id = 1
-  pos = 2
   call vertex%init(id)
+
+  ! Nonconforming actualisation
+  pos = 2
   call vertex_ncnf%init(vertex, pos)
   @assertTrue(vertex .eq. vertex_ncnf%vertex%ptr)
   itmp = vertex_ncnf%pos()

@@ -34,19 +34,20 @@
 module face_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_cab_ptr
-  use edge_cnn, only : edge_cab_ptr, edge_aligned_cab_t
+  use vertex_cnn, only : vertex_cab_ptr, vertex_ncnf_cac_t, vertex_ncnf_cac_ptr
+  use edge_cnn, only : edge_cab_ptr, edge_aligned_cab_t, edge_ncnf_cac_t, &
+       & edge_ncnf_cac_ptr
   implicit none
   private
 
-  public :: face_cab_t
+  public :: face_cab_t, face_cac_t
 
   ! object information
   integer(i4), public, parameter :: NEKO_FACE_DIM = 2
 
   !> Base type for an abstract two-dimensional polytope (polygon)
   !! @details There are multiple possible realisation, so it is just
-  !! an abstract type providing common functionality for abstract objects
+  !! an abstract type providing common functionality for abstract objects.
   type, extends(polytope_cnn_t), abstract :: face_cab_t
      !> Facets (abstract aligned edges)
      type(edge_aligned_cab_t), dimension(:), allocatable :: facet
@@ -68,6 +69,35 @@ module face_cnn
      !> Return vertices shared by faces
      procedure, pass(this) :: rdg_share => face_ridge_share
   end type face_cab_t
+
+  !> Base type for an actualisation of a two-dimensional polytope (polyhedron)
+  !! @details There are multiple possible realisation, so it is just
+  !! an abstract type providing common functionality. As this object is not
+  !! abstract (in sense of connectivity) it consists of nonconforming
+  !! actualisation of vertices and edges. It could be used for both
+  !! two-dimensional runs and two-dimensional objects embedded in
+  !! three-dimensional mesh
+  type, extends(polytope_cnn_t), abstract :: face_cac_t
+     !> Facets (nonconforming actualisation of edges)
+     type(edge_ncnf_cac_t), dimension(:), allocatable :: facet
+     !> Ridges (nonconforming actualisation of vertices)
+     type(vertex_ncnf_cac_t), dimension(:), allocatable :: ridge
+   contains
+     !> Initialise face dimension
+     procedure, pass(this) :: init_dim => face_ac_init_dim
+     !> Free face data
+     procedure, pass(this) :: free => face_ac_free
+     !> Is face self-periodic
+     procedure, pass(this) :: selfp => face_ac_self_periodic
+     !> Get pointers to facets
+     procedure, pass(this) :: fct => face_ac_facet
+     !> Get pointers to ridges
+     procedure, pass(this) :: rdg => face_ac_ridge
+     !> Return edges shared by faces
+     procedure, pass(this) :: fct_share => face_ac_facet_share
+     !> Return vertices shared by faces
+     procedure, pass(this) :: rdg_share => face_ac_ridge_share
+  end type face_cac_t
 
 contains
 
@@ -172,13 +202,13 @@ contains
 
     allocate(facetp(2, this%nfacet * other%nfacet))
     ishare = 0
-    facetp(:,:) = 0
+    facetp(:, :) = 0
     do il = 1, this%nfacet
        do jl = 1, other%nfacet
           if (this%facet(il)%edge%ptr .eq. other%facet(jl)%edge%ptr) then
              ishare = ishare + 1
-             facetp(1,ishare) = il
-             facetp(2,ishare) = jl
+             facetp(1, ishare) = il
+             facetp(2, ishare) = jl
           end if
        end do
     end do
@@ -208,5 +238,145 @@ contains
        end do
     end do
   end subroutine face_ridge_share
+
+  !> @brief Initialise face dimension
+  subroutine face_ac_init_dim(this)
+    class(face_cac_t), intent(inout) :: this
+
+    call this%free()
+    call this%set_dim(NEKO_FACE_DIM)
+  end subroutine face_ac_init_dim
+
+  !> @brief Free face data
+  subroutine face_ac_free(this)
+    class(face_cac_t), intent(inout) :: this
+    !local variables
+    integer(i4) :: il
+
+    call this%set_dim(-1)
+    if (allocated(this%facet)) then
+       do il = 1, this%nfacet
+          call this%facet(il)%free()
+       end do
+       deallocate(this%facet)
+    end if
+    if (allocated(this%ridge)) then
+       do il = 1, this%nridge
+          call this%ridge(il)%free()
+       end do
+       deallocate(this%ridge)
+    end if
+  end subroutine face_ac_free
+
+  !> @brief Check if face is self-periodic
+  !! @return   selfp
+  function face_ac_self_periodic(this) result(selfp)
+    class(face_cac_t), intent(in) :: this
+    logical :: selfp
+    integer(i4) :: il, jl, itmp
+
+    ! count self periodic edges
+    itmp = 0
+    do il = 1, this%nfacet - 1
+       do jl = il + 1, this%nfacet
+          selfp = this%facet(il)%edge%ptr .eq. this%facet(jl)%edge%ptr
+          if (selfp) itmp = itmp + 1
+       end do
+    end do
+    ! count self periodic vertices
+    do il = 1, this%nridge - 1
+       do jl = il + 1, this%nridge
+          selfp = (this%ridge(il)%vertex%ptr%id() == &
+               & this%ridge(jl)%vertex%ptr%id())
+          if (selfp) itmp = itmp + 1
+       end do
+    end do
+    if (itmp == 0) then
+       selfp = .false.
+    else
+       selfp = .true.
+    end if
+  end function face_ac_self_periodic
+
+  !> @brief Return pointers to face facets
+  !! @parameter[out]  facet   facet pointers array
+  !! @parameter[in]   pos     facet position
+  subroutine face_ac_facet(this, facet, pos)
+    class(face_cac_t), target, intent(in) :: this
+    type(edge_ncnf_cac_ptr), intent(out) :: facet
+    integer(i4), intent(in) :: pos
+
+    if ((pos > 0) .and. (pos <= this%nfacet)) then
+       facet%ptr => this%facet(pos)
+    else
+       facet%ptr => null()
+    end if
+  end subroutine face_ac_facet
+
+  !> @brief Return pointers to face ridges
+  !! @parameter[out]  ridge   ridge pointer
+  !! @parameter[in]   pos     ridge position
+  subroutine face_ac_ridge(this, ridge, pos)
+    class(face_cac_t), target, intent(in) :: this
+    type(vertex_ncnf_cac_ptr), intent(out) :: ridge
+    integer(i4), intent(in) :: pos
+
+    if ((pos > 0) .and. (pos <= this%nridge)) then
+       ridge%ptr => this%ridge(pos)
+    else
+       ridge%ptr => null()
+    end if
+  end subroutine face_ac_ridge
+
+  !> @brief Return positions of facets shared by faces
+  !! @note Faces can be self-periodic
+  !! @parameter[in]   other   second face
+  !! @parameter[out]  ishare  number of shared edges
+  !! @parameter[out]  facetp  integer position of shared edges
+  subroutine face_ac_facet_share(this, other, ishare, facetp)
+    class(face_cac_t), intent(in) :: this, other
+    integer(i4), intent(out) :: ishare
+    integer(i4), dimension(:, :), allocatable, intent(out) :: facetp
+    integer(i4) :: il, jl
+
+    allocate(facetp(2, this%nfacet * other%nfacet))
+    ishare = 0
+    facetp(:, :) = 0
+    do il = 1, this%nfacet
+       do jl = 1, other%nfacet
+          if (this%facet(il)%edge%ptr .eq. other%facet(jl)%edge%ptr) then
+             ishare = ishare + 1
+             facetp(1, ishare) = il
+             facetp(2, ishare) = jl
+          end if
+       end do
+    end do
+  end subroutine face_ac_facet_share
+
+  !> @brief Return positions of ridges shared by faces
+  !! @note Faces can be self-periodic
+  !! @parameter[in]   other   second face
+  !! @parameter[out]  ishare  number of shared vertices
+  !! @parameter[out]  ridgep  integer position of shared vertices
+  pure subroutine face_ac_ridge_share(this, other, ishare, ridgep)
+    class(face_cac_t), intent(in) :: this, other
+    integer(i4), intent(out) :: ishare
+    integer(i4), dimension(:, :), allocatable, intent(out) :: ridgep
+    integer(i4) :: il, jl
+
+    allocate(ridgep(2, this%nridge * other%nridge))
+    ishare = 0
+    ridgep(:,:) = 0
+    do il = 1, this%nridge
+       do jl = 1, other%nridge
+          if (this%ridge(il)%vertex%ptr%id() == &
+               & other%ridge(jl)%vertex%ptr%id()) then
+             ishare = ishare + 1
+             ridgep(1,ishare) = il
+             ridgep(2,ishare) = jl
+          end if
+       end do
+    end do
+  end subroutine face_ac_ridge_share
 
 end module face_cnn

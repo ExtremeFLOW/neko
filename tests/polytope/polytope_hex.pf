@@ -3,17 +3,17 @@ subroutine test_hex_init
   use pfunit
   use num_types, only : i4
   use vertex_cnn, only : vertex_cab_t
-  use edge_cnn, only : edge_cab_t, edge_aligned_cab_t
-  use quad_cnn, only : quad_cab_t, quad_aligned_cab_t
-  use hex_cnn, only : hex_cnn_t, fct_to_rdg, fct_to_pek, rdg_to_pek,&
+  use edge_cnn, only : edge_cab_t
+  use quad_cnn, only : quad_cab_t, NEKO_QUAD_NFACET
+  use hex_cnn, only : hex_cac_t, fct_to_rdg, fct_to_pek, rdg_to_pek,&
        & NEKO_HEX_NFACET, NEKO_HEX_NRIDGE, NEKO_HEX_NPEAK
   implicit none
   type(vertex_cab_t), dimension(8) :: vertex
   type(edge_cab_t), dimension(12) :: edge
-  type(edge_aligned_cab_t), dimension(12) :: edgea
+  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
   type(quad_cab_t), dimension(6) :: quad
-  type(quad_aligned_cab_t), dimension(6) :: quada
-  type(hex_cnn_t) :: hex1
+  integer(i4), dimension(NEKO_HEX_NFACET) :: algnq
+  type(hex_cac_t) :: hex1
   integer(i4) :: il
 
   ! Vertices for hex
@@ -28,20 +28,16 @@ subroutine test_hex_init
           & vertex(rdg_to_pek(2, il)))
   end do
   ! simple edge alignment
-  do il = 1, NEKO_HEX_NRIDGE
-     call edgea(il)%init_algn(edge(il), 0)
-  end do
+  algne(:) = 0
   ! quads
   do il = 1, NEKO_HEX_NFACET
-     call quad(il)%init(il, edgea(fct_to_rdg(1, il)), edgea(fct_to_rdg(2, il)),&
-          & edgea(fct_to_rdg(3, il)), edgea(fct_to_rdg(4, il)))
+     call quad(il)%init(il, edge(fct_to_rdg(1, il)), edge(fct_to_rdg(2, il)),&
+          & edge(fct_to_rdg(3, il)), edge(fct_to_rdg(4, il)), algne)
   end do
   ! simple quad alignment
-  do il = 1, NEKO_HEX_NFACET
-     call quada(il)%init_algn(quad(il), 0)
-  end do
+  algnq(:) = 0
   ! hex
-  call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
+  call hex1%init(1, quad(1), quad(2), quad(3), quad(4), quad(5), quad(6), algnq)
   @assertFalse(hex1%selfp())
   call hex_element_test(hex1, quad, edge, vertex)
 
@@ -49,67 +45,52 @@ subroutine test_hex_init
   ! I rotate face 1 built of edges (9, 11 ,5, 7) and vertices (1, 3, 5, 7)
   ! Identity { 1, 2, 3, 4 } already tested
   ! T { 1, 3, 2, 4 }
-  call edgea(1)%init_algn(edge(5), 0)
-  call edgea(2)%init_algn(edge(7), 0)
-  call edgea(3)%init_algn(edge(9), 0)
-  call edgea(4)%init_algn(edge(11), 0)
-  call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init_algn(quad(1), 1)
-  call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
+  call quad(1)%init(1, edge(5), edge(7), edge(9), edge(11), algne)
+  algnq(1) = 1
+  call hex1%init(1, quad(1), quad(2), quad(3), quad(4), quad(5), quad(6), algnq)
   call hex_element_test(hex1, quad, edge, vertex)
   ! PX { 2, 1, 4, 3 }
-  call edgea(1)%init_algn(edge(11), 0)
-  call edgea(2)%init_algn(edge(9), 0)
-  call edgea(3)%init_algn(edge(5), 1)
-  call edgea(4)%init_algn(edge(7), 1)
-  call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init_algn(quad(1), 2)
-  call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
+  algne(:) = 0
+  algne(3) = 1
+  algne(4) = 1
+  call quad(1)%init(1, edge(11), edge(9), edge(5), edge(7), algne)
+  algnq(1) = 2
+  call hex1%init(1, quad(1), quad(2), quad(3), quad(4), quad(5), quad(6), algnq)
   call hex_element_test(hex1, quad, edge, vertex)
   ! PXT { 2, 4, 1, 3 }
-  call edgea(1)%init_algn(edge(5), 1)
-  call edgea(2)%init_algn(edge(7), 1)
-  call edgea(3)%init_algn(edge(11), 0)
-  call edgea(4)%init_algn(edge(9), 0)
-  call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init_algn(quad(1), 3)
-  call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
+  algne(:) = 0
+  algne(1) = 1
+  algne(2) = 1
+  call quad(1)%init(1, edge(5), edge(7), edge(11), edge(9), algne)
+  algnq(1) = 3
+  call hex1%init(1, quad(1), quad(2), quad(3), quad(4), quad(5), quad(6), algnq)
   call hex_element_test(hex1, quad, edge, vertex)
   ! PYT { 3, 1, 4, 2 }
-  call edgea(1)%init_algn(edge(7), 0)
-  call edgea(2)%init_algn(edge(5), 0)
-  call edgea(3)%init_algn(edge(9), 1)
-  call edgea(4)%init_algn(edge(11), 1)
-  call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init_algn(quad(1), 4)
-  call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
+  algne(:) = 0
+  algne(3) = 1
+  algne(4) = 1
+  call quad(1)%init(1, edge(7), edge(5), edge(9), edge(11), algne)
+  algnq(1) = 4
+  call hex1%init(1, quad(1), quad(2), quad(3), quad(4), quad(5), quad(6), algnq)
   call hex_element_test(hex1, quad, edge, vertex)
   ! PY { 3, 4, 1, 2 }
-  call edgea(1)%init_algn(edge(9), 1)
-  call edgea(2)%init_algn(edge(11), 1)
-  call edgea(3)%init_algn(edge(7), 0)
-  call edgea(4)%init_algn(edge(5), 0)
-  call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init_algn(quad(1), 5)
-  call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
+  algne(:) = 0
+  algne(1) = 1
+  algne(2) = 1
+  call quad(1)%init(1, edge(9), edge(11), edge(7), edge(5), algne)
+  algnq(1) = 5
+  call hex1%init(1, quad(1), quad(2), quad(3), quad(4), quad(5), quad(6), algnq)
   call hex_element_test(hex1, quad, edge, vertex)
   ! PXPYT { 4, 2, 3, 1 }
-  call edgea(1)%init_algn(edge(7), 1)
-  call edgea(2)%init_algn(edge(5), 1)
-  call edgea(3)%init_algn(edge(11), 1)
-  call edgea(4)%init_algn(edge(9), 1)
-  call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init_algn(quad(1), 6)
-  call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
+  algne(:) = 1
+  call quad(1)%init(1, edge(7), edge(5), edge(11), edge(9), algne)
+  algnq(1) = 6
+  call hex1%init(1, quad(1), quad(2), quad(3), quad(4), quad(5), quad(6), algnq)
   call hex_element_test(hex1, quad, edge, vertex)
   ! PXPY { 4, 3, 2, 1 }
-  call edgea(1)%init_algn(edge(11), 1)
-  call edgea(2)%init_algn(edge(9), 1)
-  call edgea(3)%init_algn(edge(7), 1)
-  call edgea(4)%init_algn(edge(5), 1)
-  call quad(1)%init(1, edgea(1), edgea(2), edgea(3), edgea(4))
-  call quada(1)%init_algn(quad(1), 7)
-  call hex1%init(1, quada(1), quada(2), quada(3), quada(4), quada(5), quada(6))
+  call quad(1)%init(1, edge(11), edge(9), edge(7), edge(5), algne)
+  algnq(1) = 7
+  call hex1%init(1, quad(1), quad(2), quad(3), quad(4), quad(5), quad(6), algnq)
   call hex_element_test(hex1, quad, edge, vertex)
 
 end subroutine test_hex_init
@@ -117,36 +98,38 @@ end subroutine test_hex_init
 subroutine hex_element_test(hex, quad, edge, vertex)
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cab_t, vertex_ncnf_crl_ptr
-  use edge_cnn, only : edge_cab_t, edge_aligned_cab_t
-  use quad_cnn, only : quad_cab_t, quad_aligned_cab_t
-  use hex_cnn, only : hex_cnn_t, NEKO_HEX_NFACET, NEKO_HEX_NRIDGE,&
+  use vertex_cnn, only : vertex_cab_t, vertex_ncnf_cac_ptr
+  use edge_cnn, only : edge_cab_t, edge_ncnf_cac_ptr
+  use quad_cnn, only : quad_cab_t, quad_ncnf_cac_ptr
+  use hex_cnn, only : hex_cac_t, NEKO_HEX_NFACET, NEKO_HEX_NRIDGE,&
        & NEKO_HEX_NPEAK
   implicit none
-  type(hex_cnn_t), intent(in) :: hex
+  type(hex_cac_t), intent(in) :: hex
   type(quad_cab_t), dimension(6), intent(in) :: quad
   type(edge_cab_t), dimension(12), intent(in) :: edge
   type(vertex_cab_t), dimension(8), intent(in) :: vertex
-  type(quad_aligned_cab_t), dimension(:), allocatable :: facet
-  type(edge_aligned_cab_t), dimension(:), allocatable :: ridge
-  type(vertex_ncnf_crl_ptr) :: peak
+  type(quad_ncnf_cac_ptr) :: facet
+  type(edge_ncnf_cac_ptr) :: ridge
+  type(vertex_ncnf_cac_ptr) :: peak
   integer(i4) :: il
 
   ! facets
-  call hex%fct(facet)
   do il = 1, NEKO_HEX_NFACET
-     @assertTrue(facet(il)%face%ptr .eq. quad(il))
+     call hex%fct(facet, il)
+     @assertTrue(facet%ptr%face%ptr .eq. quad(il))
   end do
   ! ridges
-  call hex%rdg(ridge)
   do il = 1, NEKO_HEX_NRIDGE
-     @assertTrue(ridge(il)%edge%ptr .eq. edge(il))
+     call hex%rdg(ridge, il)
+     @assertTrue(ridge%ptr%edge%ptr .eq. edge(il))
   end do
   ! peaks
   do il = 1, NEKO_HEX_NPEAK
      call hex%pek(peak, il)
      @assertTrue(peak%ptr%vertex%ptr .eq. vertex(il))
   end do
-  deallocate(facet, ridge)
 
 end subroutine hex_element_test
+
+! MISSING TESTS FOR SHARE AND EQUAL (EQUAL NOT FINALISED YET)
+! MISSING TESTS FOR NONCONFORMING VERSION (NOT FINALISED YET)

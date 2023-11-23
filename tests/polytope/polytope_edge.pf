@@ -157,19 +157,21 @@ subroutine test_edge_nonconforming
   use pfunit
   use num_types, only : i4
   use vertex_cnn, only : vertex_cab_t
-  use edge_cnn, only : edge_cab_t, edge_cab_ptr, edge_ncnf_crl_t
+  use edge_cnn, only : edge_cab_t, edge_ncnf_cac_t
   implicit none
   type(vertex_cab_t) :: vertex1, vertex2
-  type(edge_cab_ptr) :: edgep
   type(edge_cab_t) :: edge
-  type(edge_ncnf_crl_t) :: edge_ncnf
+  type(edge_ncnf_cac_t) :: edge_ncnf
   integer(i4) :: algn, hng, pos, itmp
 
+  ! The abstract edge
   call vertex1%init(1)
   call vertex2%init(2)
+  call edge%init(1, vertex1, vertex2)
+
+  ! Nonconforming actualisation
   algn = 0
   pos = 1
-  call edge%init(1, vertex1, vertex2)
   call edge_ncnf%init(edge, algn, pos)
   @assertTrue(edge .eq. edge_ncnf%edge%ptr)
   itmp = edge_ncnf%pos()

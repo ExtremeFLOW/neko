@@ -36,27 +36,27 @@ module hex_cnn
   use utils, only : neko_error
   use polytope_cnn, only : polytope_cnn_t
   use vertex_cnn, only : vertex_cab_ptr
-  use edge_cnn, only : edge_cab_t, edge_cab_ptr,&
+  use edge_cnn, only : edge_cab_t, edge_cab_ptr, &
        & NEKO_EDGE_NFACET
-  use quad_cnn, only : quad_aligned_cab_t,&
+  use quad_cnn, only : quad_cab_t, quad_ncnf_cac_t, quad_ncnf_cac_ptr, &
        & NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, quad_to_edg_algn_inv
-  use cell_cnn, only : cell_cnn_t
+  use cell_cnn, only : cell_cac_t
   implicit none
   private
 
-  public :: hex_cnn_t, hex_cnn_ptr
+  public :: hex_cac_t, hex_cac_ptr
 
   ! object information
   integer(i4), public, parameter :: NEKO_HEX_NFACET = 6
   integer(i4), public, parameter :: NEKO_HEX_NRIDGE = 12
   integer(i4), public, parameter :: NEKO_HEX_NPEAK = 8
 
-  !> Hex type for global communication
+  !> Type for hex actualisation in three-dimensional mesh
   !! @details Hex is one of the realisations of cell containing 6 facets
   !! (quads), 12 ridges (edges) and 8 peaks (vertices).
   !! Facets are oriented according to the numbers of ridges and peaks
   !! (from the peak with the smaller number towards the one with the bigger
-  !! number).This corresponds to the data alignment in the face data sub-array.
+  !! number). This corresponds to the data alignment in the face data sub-array.
   !! @verbatim
   !! Facet, ridge and peak numbering (symmetric notation)
   !!
@@ -94,9 +94,9 @@ module hex_cnn
   !!       p_5+--------+p_6   t
   !!
   !! @endverbatim
-  type, extends(cell_cnn_t) :: hex_cnn_t
+  type, extends(cell_cac_t) :: hex_cac_t
      !> Facets are aligned
-     type(quad_aligned_cab_t), dimension(:), allocatable :: facet
+     type(quad_ncnf_cac_t), dimension(:), allocatable :: facet
    contains
      !> Initialise hex
      procedure, pass(this) :: init => hex_init
@@ -111,60 +111,71 @@ module hex_cnn
      !> Hex equality including face, edge and vertex information
      procedure, pass(this) :: equal => hex_equal
      generic :: operator(.eq.) => equal
-  end type hex_cnn_t
+  end type hex_cac_t
 
-  !> Pointer to a hex type
-  type ::  hex_cnn_ptr
-     type(hex_cnn_t), pointer :: ptr
-  end type hex_cnn_ptr
+  !> Pointer to a hex actualisation
+  type ::  hex_cac_ptr
+     type(hex_cac_t), pointer :: ptr
+  end type hex_cac_ptr
 
   ! Lookup tables
   !> Facet edge to ridge
   integer, parameter, public, dimension(4, 6) :: fct_to_rdg = reshape((/ &
-       & 9,11,5,7 , 10,12,6,8 , 9,10,1,3 , 11,12,2,4 , 5,6,1,2 , 7,8,3,4 /), &
-       & shape(fct_to_rdg))
+       & 9, 11, 5, 7  ,  10, 12, 6, 8  ,  9, 10, 1, 3  ,  11, 12, 2, 4  , &
+       & 5, 6, 1, 2  ,  7, 8, 3, 4 /), shape(fct_to_rdg))
   !> Facet corner to peak
   integer, parameter, public, dimension(4, 6) :: fct_to_pek = reshape((/ &
-       & 1,3,5,7 , 2,4,6,8 , 1,2,5,6 , 3,4,7,8 , 1,2,3,4 , 5,6,7,8 /), &
-       & shape(fct_to_pek))
+       & 1, 3, 5, 7  ,  2, 4, 6, 8  ,  1, 2, 5, 6  ,  3, 4, 7, 8  , &
+       & 1, 2, 3, 4  ,  5, 6, 7, 8 /), shape(fct_to_pek))
   !> Ridge corner to peak
   integer, parameter, public, dimension(2, 12) :: rdg_to_pek = reshape((/&
-       & 1,2 , 3,4 , 5,6 , 7,8 , 1,3 , 2,4 , 5,7 , 6,8 , 1,5 , 2,6 , 3,7 ,&
-       & 4,8 /), shape(rdg_to_pek))
+       & 1, 2  ,  3, 4  ,  5, 6  ,  7, 8  ,  1, 3  ,  2, 4  ,  5, 7  , &
+       & 6, 8  ,  1, 5  ,  2, 6  ,  3, 7  ,  4, 8 /), shape(rdg_to_pek))
   !> Facets connected to the ridge
   integer, parameter, public, dimension(2, 12) :: rdg_to_fct = reshape((/&
-       & 3,5 , 4,5 , 3,6 , 4,6 , 1,5 , 2,5 , 1,6 , 2,6 , 1,3 , 2,3 , 1,4 ,&
-       & 2,4 /), shape(rdg_to_fct))
+       & 3, 5  ,  4, 5  ,  3, 6  ,  4, 6  ,  1, 5  ,  2, 5  ,  1, 6  , &
+       & 2, 6  ,  1, 3  ,  2, 3  ,  1, 4  ,  2, 4 /), shape(rdg_to_fct))
   !> Facets connected to the peak
   integer, parameter, public, dimension(3, 8) :: pek_to_fct = reshape((/&
-       & 1,3,5 , 2,3,5 , 1,4,5 , 2,4,5 , 1,3,6 , 2,3,6 , 1,4,6 , 2,4,6 /), &
-       & shape(pek_to_fct))
+       & 1, 3, 5  ,  2, 3, 5  ,  1, 4, 5  ,  2, 4, 5  ,  1, 3, 6  , &
+       & 2, 3, 6  ,  1, 4, 6  ,  2, 4, 6 /), shape(pek_to_fct))
   !> Ridges connected to the peak
   integer, parameter, public, dimension(3, 8) :: pek_to_rdg = reshape((/&
-       & 1,5,9 , 1,6,10 , 2,5,11 , 2,6,12 , 3,7,9 , 3,8,10 , 4,7,11 ,&
-       & 4,8,12 /), shape(pek_to_rdg))
+       & 1, 5, 9   ,  1, 6, 10  ,  2, 5, 11  ,  2, 6, 12  ,  3, 7, 9  , &
+       & 3, 8, 10  ,  4, 7, 11  ,  4, 8, 12 /), shape(pek_to_rdg))
   !> Ridge to the facet edge (-1 means ridge is not part of the facet)
   integer, parameter, dimension(6, 12) :: rdg_to_fcte = reshape((/&
-       & -1,-1, 3,-1, 3,-1 , -1,-1,-1, 3, 4,-1 , -1,-1, 4,-1,-1, 3 , &
-       & -1,-1,-1, 4,-1, 4 ,  3,-1,-1,-1, 1,-1 , -1, 3,-1,-1, 2,-1 , &
-       &  4,-1,-1,-1,-1, 1 , -1, 4,-1,-1,-1, 2 ,  1,-1, 1,-1,-1,-1 , &
-       & -1, 1, 2,-1,-1,-1 ,  2,-1,-1, 1,-1,-1 , -1, 2,-1, 2,-1,-1 /),&
+       & -1, -1,  3, -1,  3, -1   ,  -1, -1, -1,  3,  4, -1   , &
+       & -1, -1,  4, -1, -1,  3   ,  -1, -1, -1,  4, -1,  4   , &
+       &  3, -1, -1, -1,  1, -1   ,  -1,  3, -1, -1,  2, -1   , &
+       &  4, -1, -1, -1, -1,  1   ,  -1,  4, -1, -1, -1,  2   , &
+       &  1, -1,  1, -1, -1, -1   ,  -1,  1,  2, -1, -1, -1   , &
+       &  2, -1, -1,  1, -1, -1   ,  -1,  2, -1,  2, -1, -1  /),&
        & shape(rdg_to_fcte))
   !> Peak to the facet corners (-1 means peak is not part of the facet)
   integer, parameter, dimension(6, 8) :: pek_to_fctc = reshape((/&
-       &  1,-1, 1,-1, 1,-1 , -1, 1, 2,-1, 2,-1 ,  2,-1,-1, 1, 3,-1 , &
-       & -1, 2,-1, 2, 4,-1 ,  3,-1, 3,-1,-1, 1 , -1, 3, 4,-1,-1, 2 , &
-       &  4,-1,-1, 3,-1, 3 , -1, 4,-1, 4,-1, 4 /), shape(pek_to_fctc))
+       &  1, -1,  1, -1,  1, -1   ,  -1, 1,  2, -1,  2, -1  , &
+       &  2, -1, -1,  1,  3, -1   ,  -1, 2, -1,  2,  4, -1  , &
+       &  3, -1,  3, -1, -1,  1   ,  -1, 3,  4, -1, -1,  2  , &
+       &  4, -1, -1,  3, -1,  3   ,  -1, 4, -1,  4, -1,  4  /), &
+       & shape(pek_to_fctc))
 
 contains
   !> @brief Initialise hex with global id and six quads
   !! @details Quad order is important
   !! @parameter[in]   id                              unique id
   !! @parameter[in]   qd1, qd2, qd3, qd4, qd5, qd6    bounding quads
-  subroutine hex_init(this, id, qd1, qd2, qd3, qd4, qd5, qd6)
-    class(hex_cnn_t), intent(inout) :: this
+  !! @parameter[in]   algn                            quad alignment
+  !! @parameter[in]   hng_quad                        quad hanging info
+  !! @parameter[in]   hng_edge                        edge hanging info
+  subroutine hex_init(this, id, qd1, qd2, qd3, qd4, qd5, qd6, algn, hng_quad, &
+       & hng_edge)
+    class(hex_cac_t), intent(inout) :: this
     integer(i4), intent(in) :: id
-    type(quad_aligned_cab_t), intent(in), target :: qd1, qd2, qd3, qd4, qd5, qd6
+    type(quad_cab_t), intent(in), target :: qd1, qd2, qd3, qd4, qd5, qd6
+    integer(i4), dimension(NEKO_HEX_NFACET), intent(in) :: algn
+    integer(i4), dimension(NEKO_HEX_NFACET), optional, intent(in) :: hng_quad
+    integer(i4), dimension(NEKO_HEX_NRIDGE), optional, intent(in) :: hng_edge
     integer(i4) :: il, jl, ifct, icrn
     integer(i4), parameter :: sz = 3
     integer(i4), dimension(sz, sz) :: trans
@@ -182,24 +193,24 @@ contains
     ! init_dim calls free
     call this%init_dim()
 
-    call this%set_nelem(NEKO_HEX_NFACET, NEKO_HEX_NRIDGE,&
+    call this%set_nelem(NEKO_HEX_NFACET, NEKO_HEX_NRIDGE, &
          & NEKO_HEX_NPEAK)
     call this%set_id(id)
     ! get facet pointers
     allocate(this%facet(NEKO_HEX_NFACET))
-    this%facet(1) = qd1
-    this%facet(2) = qd2
-    this%facet(3) = qd3
-    this%facet(4) = qd4
-    this%facet(5) = qd5
-    this%facet(6) = qd6
+    call this%facet(1)%init(qd1, algn(1), 1)
+    call this%facet(2)%init(qd2, algn(2), 2)
+    call this%facet(3)%init(qd3, algn(3), 3)
+    call this%facet(4)%init(qd4, algn(4), 4)
+    call this%facet(5)%init(qd5, algn(5), 5)
+    call this%facet(6)%init(qd6, algn(6), 6)
 
     ! THIS SHOULD BE IN DIFFERENT PLACE; It checks internal consistency of faces
     ! Check if faces are consistent. Self-periodicity is allowed, but edges and
     ! vertices should not be messed up
     do il = 1, NEKO_HEX_NFACET - 1
        do jl = il + 1, NEKO_HEX_NFACET
-          equal = this%facet(il)%face%ptr.eq.this%facet(jl)%face%ptr
+          equal = this%facet(il)%face%ptr .eq. this%facet(jl)%face%ptr
        end do
     end do
 
@@ -269,36 +280,45 @@ contains
        ! is it a proper edge
        if ((edgp(1)%ptr .eq. edgp(2)%ptr) .and. &
             & (edg_algn(1) == edg_algn(2))) then
-          call this%ridge(il)%init_algn(edgp(1)%ptr, edg_algn(1))
+          call this%ridge(il)%init(edgp(1)%ptr, edg_algn(1), il)
           ! compare with local edge to check alignment
           call edg%init(edgp(1)%ptr%id(), &
                & this%peak(rdg_to_pek(1, il))%vertex%ptr, &
                & this%peak(rdg_to_pek(2, il))%vertex%ptr)
           equal = this%ridge(il)%test(edg)
-          if (.not.equal) &
+          if (.not. equal) &
                & call neko_error('Inconsistent edge alignment in the hex.')
        else
           call neko_error('Inconsistent face edges in the hex.')
        end if
     end do
+
+    ! Set proper hanging information
+    if (present(hng_quad)) then
+       call neko_error('Nothing done for nonconforming data yet.')
+    end if
+    if (present(hng_edge)) then
+       call neko_error('Nothing done for nonconforming data yet.')
+    end if
+
   end subroutine hex_init
 
   !> @brief Free hex data
   subroutine hex_free(this)
-    class(hex_cnn_t), intent(inout) :: this
+    class(hex_cac_t), intent(inout) :: this
     !local variables
     integer(i4) :: il
 
     call this%set_dim(-1)
     if (allocated(this%facet)) then
        do il = 1, this%nfacet
-          call this%facet(il)%free_algn()
+          call this%facet(il)%free()
        end do
        deallocate(this%facet)
     end if
     if (allocated(this%ridge)) then
        do il = 1, this%nridge
-          call this%ridge(il)%free_algn()
+          call this%ridge(il)%free()
        end do
        deallocate(this%ridge)
     end if
@@ -313,7 +333,7 @@ contains
   !> @brief Check if hex is self-periodic
   !! @return   selfp
   function hex_self_periodic(this) result(selfp)
-    class(hex_cnn_t), intent(in) :: this
+    class(hex_cac_t), intent(in) :: this
     logical :: selfp
     integer(i4) :: il, jl, itmp
 
@@ -349,15 +369,18 @@ contains
 
   !> @brief Return pointers to hex facets
   !! @parameter[out]  facet   facet pointers array
-  subroutine hex_facet(this, facet)
-    class(hex_cnn_t), intent(in) :: this
-    type(quad_aligned_cab_t), dimension(:), allocatable, intent(out) :: facet
-    integer(i4) :: il
+  !! @parameter[in]   pos     facet position
+  subroutine hex_facet(this, facet, pos)
+    class(hex_cac_t), target, intent(in) :: this
+    type(quad_ncnf_cac_ptr), intent(out) :: facet
+    integer(i4), intent(in) :: pos
 
-    allocate(facet(this%nfacet))
-    do il = 1, this%nfacet
-       facet(il) = this%facet(il)
-    end do
+    if ((pos > 0) .and. (pos <= this%nfacet)) then
+       facet%ptr => this%facet(pos)
+    else
+       facet%ptr => null()
+    end if
+
   end subroutine hex_facet
 
   !> @brief Return positions of facets shared by hexes
@@ -366,20 +389,20 @@ contains
   !! @parameter[out]  ishare  number of shared faces
   !! @parameter[out]  facetp  integer position of shared faces
   subroutine hex_facet_share(this, other, ishare, facetp)
-    class(hex_cnn_t), intent(in) :: this, other
+    class(hex_cac_t), intent(in) :: this, other
     integer(i4), intent(out) :: ishare
     integer(i4), dimension(:, :), allocatable, intent(out) :: facetp
     integer(i4) :: il, jl
 
     allocate(facetp(2, this%nfacet * other%nfacet))
     ishare = 0
-    facetp(:,:) = 0
+    facetp(:, :) = 0
     do il = 1, this%nfacet
        do jl = 1, other%nfacet
-          if (this%facet(il)%face%ptr.eq.other%facet(jl)%face%ptr) then
+          if (this%facet(il)%face%ptr .eq. other%facet(jl)%face%ptr) then
              ishare = ishare + 1
-             facetp(1,ishare) = il
-             facetp(2,ishare) = jl
+             facetp(1, ishare) = il
+             facetp(2, ishare) = jl
           end if
        end do
     end do
@@ -390,12 +413,12 @@ contains
   !! @parameter[in]  other    second hex
   !! @return   equal
   function hex_equal(this, other) result(equal)
-    class(hex_cnn_t), intent(in) :: this
+    class(hex_cac_t), intent(in) :: this
     class(polytope_cnn_t), intent(in) :: other
     logical :: equal
 
     equal = .false.
-!!    call this%eq_algn(other, equal, algn)
+    call neko_error('Not finished; missing sorting routines.')
   end function hex_equal
 
 end module hex_cnn

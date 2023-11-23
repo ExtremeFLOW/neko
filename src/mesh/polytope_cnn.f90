@@ -133,7 +133,7 @@ contains
            call neko_error('Face has no peaks.')
        end if
     case(3)
-       if ((nfacet > 0).and.(nridge > 0).and.(npeak > 0)) then
+       if ((nfacet > 0) .and. (nridge > 0) .and. (npeak > 0)) then
           this%nfacet = nfacet
           this%nridge = nridge
           this%npeak = npeak

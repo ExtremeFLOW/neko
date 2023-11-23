@@ -34,24 +34,26 @@
 module cell_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
-  use vertex_cnn, only : vertex_ncnf_crl_t, vertex_ncnf_crl_ptr
-  use edge_cnn, only : edge_aligned_cab_t
+  use vertex_cnn, only : vertex_ncnf_cac_t, vertex_ncnf_cac_ptr
+  use edge_cnn, only : edge_ncnf_cac_t, edge_ncnf_cac_ptr
   implicit none
   private
 
-  public :: cell_cnn_t
+  public :: cell_cac_t
 
   ! object information
   integer(i4), public, parameter :: NEKO_CELL_DIM = 3
 
-  !> Base type for an abstract three-dimensional polytope (polyhedron)
+  !> Base type for an actualisation of a three-dimensional polytope (polyhedron)
   !! @details There are multiple possible realisation, so it is just
-  !! an abstract type providing common functionality
-  type, extends(polytope_cnn_t), abstract :: cell_cnn_t
-     !> Ridges are aligned
-     type(edge_aligned_cab_t), dimension(:), allocatable :: ridge
-     !> Peak pointers
-     type(vertex_ncnf_crl_t), dimension(:), allocatable :: peak
+  !! an abstract type providing common functionality. As this object is not
+  !! abstract (in sense of connectivity) it consists of nonconforming
+  !! actualisation of vertices, edges, and faces.
+  type, extends(polytope_cnn_t), abstract :: cell_cac_t
+     !> Ridges (nonconforming actualisation of edges)
+     type(edge_ncnf_cac_t), dimension(:), allocatable :: ridge
+     !> Peak (nonconforming actualisation of vertices)
+     type(vertex_ncnf_cac_t), dimension(:), allocatable :: peak
    contains
      !> Initialise cell dimension
      procedure, pass(this) :: init_dim => cell_init_dim
@@ -63,36 +65,38 @@ module cell_cnn
      procedure, pass(this) :: rdg_share => cell_ridge_share
      !> Return vertices shared by cells
      procedure, pass(this) :: pek_share => cell_peak_share
-  end type cell_cnn_t
+  end type cell_cac_t
 
 contains
 
   !> @brief Initialise cell dimension
   subroutine cell_init_dim(this)
-    class(cell_cnn_t), intent(inout) :: this
+    class(cell_cac_t), intent(inout) :: this
 
     call this%set_dim(NEKO_CELL_DIM)
   end subroutine cell_init_dim
 
   !> @brief Return pointers to cell ridges
   !! @parameter[out]  ridge   ridge pointers array
-  subroutine cell_ridge(this, ridge)
-    class(cell_cnn_t), intent(in) :: this
-    type(edge_aligned_cab_t), dimension(:), allocatable, intent(out) :: ridge
-    integer(i4) :: il
+  !! @parameter[in]   pos     ridge position
+  subroutine cell_ridge(this, ridge, pos)
+    class(cell_cac_t), target, intent(in) :: this
+    type(edge_ncnf_cac_ptr), intent(out) :: ridge
+    integer(i4), intent(in) :: pos
 
-    allocate(ridge(this%nridge))
-    do il = 1, this%nridge
-       ridge(il) = this%ridge(il)
-    end do
+    if ((pos > 0) .and. (pos <= this%nridge)) then
+       ridge%ptr => this%ridge(pos)
+    else
+       ridge%ptr => null()
+    end if
   end subroutine cell_ridge
 
   !> @brief Return pointers to cell peaks
   !! @parameter[out]  peak   peak pointer
   !! @parameter[in]   pos    peak position
   subroutine cell_peak(this, peak, pos)
-    class(cell_cnn_t), target, intent(in) :: this
-    type(vertex_ncnf_crl_ptr), intent(out) :: peak
+    class(cell_cac_t), target, intent(in) :: this
+    type(vertex_ncnf_cac_ptr), intent(out) :: peak
     integer(i4), intent(in) :: pos
 
     if ((pos > 0) .and. (pos <= this%npeak)) then
@@ -108,20 +112,20 @@ contains
   !! @parameter[out]  ishare  number of shared edges
   !! @parameter[out]  ridgep  integer position of shared edges
   subroutine cell_ridge_share(this, other, ishare, ridgep)
-    class(cell_cnn_t), intent(in) :: this, other
+    class(cell_cac_t), intent(in) :: this, other
     integer(i4), intent(out) :: ishare
     integer(i4), dimension(:, :), allocatable, intent(out) :: ridgep
     integer(i4) :: il, jl
 
     allocate(ridgep(2, this%nridge * other%nridge))
     ishare = 0
-    ridgep(:,:) = 0
+    ridgep(:, :) = 0
     do il = 1, this%nridge
        do jl = 1, other%nridge
           if (this%ridge(il)%edge%ptr .eq. other%ridge(jl)%edge%ptr) then
              ishare = ishare + 1
-             ridgep(1,ishare) = il
-             ridgep(2,ishare) = jl
+             ridgep(1, ishare) = il
+             ridgep(2, ishare) = jl
           end if
        end do
     end do
@@ -133,21 +137,21 @@ contains
   !! @parameter[out]  ishare  number of shared vertices
   !! @parameter[out]  peakp   integer position of shared vertices
   pure subroutine cell_peak_share(this, other, ishare, peakp)
-    class(cell_cnn_t), intent(in) :: this, other
+    class(cell_cac_t), intent(in) :: this, other
     integer(i4), intent(out) :: ishare
     integer(i4), dimension(:, :), allocatable, intent(out) :: peakp
     integer(i4) :: il, jl
 
     allocate(peakp(2, this%npeak * other%npeak))
     ishare = 0
-    peakp(:,:) = 0
+    peakp(:, :) = 0
     do il = 1, this%npeak
        do jl = 1, other%npeak
           if (this%peak(il)%vertex%ptr%id() == &
                & other%peak(jl)%vertex%ptr%id()) then
              ishare = ishare + 1
-             peakp(1,ishare) = il
-             peakp(2,ishare) = jl
+             peakp(1, ishare) = il
+             peakp(2, ishare) = jl
           end if
        end do
     end do

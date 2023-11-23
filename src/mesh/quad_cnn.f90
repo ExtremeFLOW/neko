@@ -36,15 +36,15 @@ module quad_cnn
   use utils, only : neko_error
   use polytope_cnn, only : polytope_cnn_t
   use vertex_cnn, only : vertex_cab_ptr
-  use edge_cnn, only : edge_aligned_cab_t, NEKO_EDGE_NFACET
-  use face_cnn, only : face_cab_t
+  use edge_cnn, only : edge_cab_t, NEKO_EDGE_NFACET
+  use face_cnn, only : face_cab_t, face_cac_t
   use alignment_quad, only : alignment_quad_t, alignment_quad_op_set_t
   use ncnf_interpolation_quad, only : ncnf_intp_quad_op_set_t
   implicit none
   private
 
-  public :: quad_cab_t, quad_cab_ptr, quad_aligned_cab_t, quad_ncnf_crl_t,&
-       & quad_ncnf_crl_ptr
+  public :: quad_cab_t, quad_cab_ptr, quad_aligned_cab_t, quad_ncnf_cac_t,&
+       & quad_ncnf_cac_ptr, quad_cac_t, quad_cac_ptr
 
   ! object information
   integer(i4), public, parameter :: NEKO_QUAD_NFACET = 4
@@ -69,9 +69,10 @@ module quad_cnn
   !!         f_3
   !!
   !! @endverbatim
-  !! Abstract quad realisations are facets of cells.
+  !! Abstract quad actualisation are facets of cells.
   type, extends(face_cab_t) :: quad_cab_t
-   contains!> Initialise quad
+   contains
+     !> Initialise quad
      procedure, pass(this) :: init => quad_init
      !> Check equality and get relative alignment info
      procedure, pass(this) :: eq_algn => quad_equal_align
@@ -104,7 +105,7 @@ module quad_cnn
      procedure, pass(this) :: test => quad_aligned_test
   end type quad_aligned_cab_t
 
-  !> Realisation of the abstract quad for nonconforming meshes
+  !> Actualisation of the abstract quad for nonconforming meshes
   !! @details Quad can be either independent (part of conforming interface or
   !! parent; marked 0) or hanging. The hanging marking corresponds to the parent
   !! quad corner number adjacent to the child. See the diagram below for
@@ -127,7 +128,7 @@ module quad_cnn
   !! quarter of a parent quad occupied by the child.
   !! For 3D meshes quad is a facet of a cell, so position gives it's location
   !! in the cell.
-  type, extends(quad_aligned_cab_t) :: quad_ncnf_crl_t
+  type, extends(quad_aligned_cab_t) :: quad_ncnf_cac_t
      !> interpolation operator
      type(ncnf_intp_quad_op_set_t) :: intp_op
      !> position in the object
@@ -145,47 +146,67 @@ module quad_cnn
      procedure, pass(this) :: set_pos => quad_position_set
      !> Get position information
      procedure, pass(this) :: pos => quad_position_get
-  end type quad_ncnf_crl_t
+  end type quad_ncnf_cac_t
 
-  !> Pointer to a nonconforming quad realisation
-  type ::  quad_ncnf_crl_ptr
-     type(quad_ncnf_crl_t), pointer :: ptr
-  end type quad_ncnf_crl_ptr
+  !> Pointer to a nonconforming quad actualisation
+  type ::  quad_ncnf_cac_ptr
+     type(quad_ncnf_cac_t), pointer :: ptr
+  end type quad_ncnf_cac_ptr
+
+  !> Type for quad actualisation in two- or three-dimensional meshes
+  !! @details Quad actualisation is a "final" object not included in
+  !! the higher-dimension objects. That is why there is no orientation
+  !! defined in this case. For facet and ridge numbering see @a quad_cab_t
+  !! description.
+  type, extends(face_cac_t) :: quad_cac_t
+   contains
+     !> Initialise quad
+     procedure, pass(this) :: init => quad_ac_init
+     !> Quad equality including edge and vertex information
+     procedure, pass(this) :: equal => quad_ac_equal
+     generic :: operator(.eq.) => equal
+  end type quad_cac_t
+
+  !> Pointer to a quad actualisation
+  type ::  quad_cac_ptr
+     type(quad_cac_t), pointer :: ptr
+  end type quad_cac_ptr
 
   ! Lookup tables
   !> Facet corner to ridge
-  integer, parameter, dimension(2, 4) :: fct_to_rdg = reshape((/1,3, &
-       & 2,4, 1,2, 3,4 /), shape(fct_to_rdg))
+  integer, parameter, dimension(2, 4) :: fct_to_rdg = reshape((/1, 3,  &
+       & 2, 4,   1, 2,   3, 4 /), shape(fct_to_rdg))
   !> Facets connected to the ridge
-  integer, parameter, dimension(2, 4) :: rdg_to_fct = reshape((/1,3, &
-       & 2,3, 1,4, 2,4 /), shape(rdg_to_fct))
+  integer, parameter, dimension(2, 4) :: rdg_to_fct = reshape((/1, 3,  &
+       & 2, 3,   1, 4,   2, 4 /), shape(rdg_to_fct))
   !> Ridge to the facet corners (-1 means ridge is not part of the facet)
-  integer, parameter, dimension(4, 4) :: rdg_to_fctc = reshape((/1,-1,1,-1, &
-       & -1,1,2,-1, 2,-1,-1,1, -1,2,-1,2 /), shape(rdg_to_fctc))
+  integer, parameter, dimension(4, 4) :: rdg_to_fctc = reshape((/ &
+       & 1, -1, 1, -1,   -1, 1, 2, -1,   2, -1, -1, 1,   -1, 2, -1, 2 /), &
+       & shape(rdg_to_fctc))
 
   !> Transformation of the edge alignment (0,1) with respect to the edge
   !! position on the quad and the quad alignment
-  integer, public, parameter, dimension(0:1, 4, 0:7) :: quad_to_edg_algn =&
+  integer, public, parameter, dimension(0: 1, 4, 0: 7) :: quad_to_edg_algn =&
        & reshape((/&
-       & 0,1 , 0,1 , 0,1 , 0,1 , & ! I
-       & 0,1 , 0,1 , 0,1 , 0,1 , & ! T
-       & 0,1 , 0,1 , 1,0 , 1,0 , & ! PX
-       & 0,1 , 0,1 , 1,0 , 1,0 , & ! PXT
-       & 1,0 , 1,0 , 0,1 , 0,1 , & ! PYT
-       & 1,0 , 1,0 , 0,1 , 0,1 , & ! PY
-       & 1,0 , 1,0 , 1,0 , 1,0 , & ! PXPYT
-       & 1,0 , 1,0 , 1,0 , 1,0   & ! PXPY
+       & 0, 1  ,  0, 1  , 0, 1  , 0, 1  , & ! I
+       & 0, 1  ,  0, 1  , 0, 1  , 0, 1  , & ! T
+       & 0, 1  ,  0, 1  , 1, 0  , 1, 0  , & ! PX
+       & 0, 1  ,  0, 1  , 1, 0  , 1, 0  , & ! PXT
+       & 1, 0  ,  1, 0  , 0, 1  , 0, 1  , & ! PYT
+       & 1, 0  ,  1, 0  , 0, 1  , 0, 1  , & ! PY
+       & 1, 0  ,  1, 0  , 1, 0  , 1, 0  , & ! PXPYT
+       & 1, 0  ,  1, 0  , 1, 0  , 1, 0    & ! PXPY
        &/), shape(quad_to_edg_algn))
   integer, public, parameter, dimension(0:1, 4, 0:7) :: quad_to_edg_algn_inv =&
        & reshape((/&
-       & 0,1 , 0,1 , 0,1 , 0,1 , & ! I
-       & 0,1 , 0,1 , 0,1 , 0,1 , & ! T
-       & 0,1 , 0,1 , 1,0 , 1,0 , & ! PX
-       & 1,0 , 1,0 , 0,1 , 0,1 , & ! PYT
-       & 0,1 , 0,1 , 1,0 , 1,0 , & ! PXT
-       & 1,0 , 1,0 , 0,1 , 0,1 , & ! PY
-       & 1,0 , 1,0 , 1,0 , 1,0 , & ! PXPYT
-       & 1,0 , 1,0 , 1,0 , 1,0   & ! PXPY
+       & 0, 1  ,  0, 1  ,  0, 1  , 0, 1  , & ! I
+       & 0, 1  ,  0, 1  ,  0, 1  , 0, 1  , & ! T
+       & 0, 1  ,  0, 1  ,  1, 0  , 1, 0  , & ! PX
+       & 1, 0  ,  1, 0  ,  0, 1  , 0, 1  , & ! PYT
+       & 0, 1  ,  0, 1  ,  1, 0  , 1, 0  , & ! PXT
+       & 1, 0  ,  1, 0  ,  0, 1  , 0, 1  , & ! PY
+       & 1, 0  ,  1, 0  ,  1, 0  , 1, 0  , & ! PXPYT
+       & 1, 0  ,  1, 0  ,  1, 0  , 1, 0    & ! PXPY
        &/), shape(quad_to_edg_algn))
 
 contains
@@ -193,10 +214,12 @@ contains
   !! @details Edges order defines face orientation
   !! @parameter[in]   id                        unique id
   !! @parameter[in]   edg1, edg2, edg3, edg4    bounding edges
-  subroutine quad_init(this, id, edg1, edg2, edg3, edg4)
+  !! @parameter[in]   algn                      edge alignment
+  subroutine quad_init(this, id, edg1, edg2, edg3, edg4, algn)
     class(quad_cab_t), intent(inout) :: this
     integer(i4), intent(in) :: id
-    type(edge_aligned_cab_t), intent(in), target :: edg1, edg2, edg3, edg4
+    type(edge_cab_t), intent(in), target :: edg1, edg2, edg3, edg4
+    integer(i4), dimension(NEKO_QUAD_NFACET), intent(in) :: algn
     integer(i4) :: il, jl, ifct, icrn
     integer(i4), dimension(NEKO_EDGE_NFACET) :: rdg
     type(vertex_cab_ptr), dimension(2) :: vrt
@@ -207,15 +230,15 @@ contains
     ! init_dim calls free
     call this%init_dim()
 
-    call this%set_nelem(NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE,&
+    call this%set_nelem(NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
          & NEKO_QUAD_NPEAK)
     call this%set_id(id)
     ! get facet pointers
     allocate(this%facet(NEKO_QUAD_NFACET))
-    this%facet(1) = edg1
-    this%facet(2) = edg2
-    this%facet(3) = edg3
-    this%facet(4) = edg4
+    call this%facet(1)%init_algn(edg1, algn(1))
+    call this%facet(2)%init_algn(edg2, algn(2))
+    call this%facet(3)%init_algn(edg3, algn(3))
+    call this%facet(4)%init_algn(edg4, algn(4))
 
     ! THIS SHOULD BE IN DIFFERENT PLACE; It checks internal consistency of edges
     ! Check if edges are consistent. Self-periodicity is allowed, but vertices
@@ -397,7 +420,7 @@ contains
     integer(i4), dimension(sz) :: work
 
     ! only equal quads can be checked
-    if (this%face%ptr.eq.other) then
+    if (this%face%ptr .eq. other) then
        ! edges
        elm(1, 2) = this%face%ptr%facet(1)%edge%ptr%id()
        elm(3, 2) = this%face%ptr%facet(2)%edge%ptr%id()
@@ -420,9 +443,9 @@ contains
        elmo(3, 3) = other%ridge(4)%ptr%id()
        call this%algn_op%trns_inv_f_i4%ptr( sz, elmo, work)
        aligned = (elm(1, 1) == elmo(1, 1)) .and. (elm(1, 2) == elmo(1, 2)).and.&
-            &(elm(1, 3) == elmo(1, 3)) .and. (elm(2, 1) == elmo(2, 1)) .and. &
-            &(elm(2, 3) == elmo(2, 3)) .and. (elm(3, 1) == elmo(3, 1)) .and. &
-            &(elm(3, 2) == elmo(3, 2)) .and. (elm(3, 3) == elmo(3, 3))
+            & (elm(1, 3) == elmo(1, 3)) .and. (elm(2, 1) == elmo(2, 1)) .and. &
+            & (elm(2, 3) == elmo(2, 3)) .and. (elm(3, 1) == elmo(3, 1)) .and. &
+            & (elm(3, 2) == elmo(3, 2)) .and. (elm(3, 3) == elmo(3, 3))
     else
        call neko_error('Quads not equal')
     end if
@@ -433,7 +456,7 @@ contains
   !! @parameter[in]   algn    alignment
   !! @parameter[in]   pos     position in the object
   subroutine quad_hanging_init(this, quad, algn, pos)
-    class(quad_ncnf_crl_t), intent(inout) :: this
+    class(quad_ncnf_cac_t), intent(inout) :: this
     type(quad_cab_t), target, intent(in) :: quad
     integer(i4), intent(in) :: algn, pos
 
@@ -446,7 +469,7 @@ contains
 
    !> @brief Free aligned quad and hanging information
   subroutine quad_hanging_free(this)
-    class(quad_ncnf_crl_t), intent(inout) :: this
+    class(quad_ncnf_cac_t), intent(inout) :: this
     call this%free_algn()
     call this%intp_op%free()
     this%position = -1
@@ -455,7 +478,7 @@ contains
   !> @brief Set hanging information
   !! @parameter[in]   hng     hanging information
   subroutine quad_hanging_set(this, hng)
-    class(quad_ncnf_crl_t), intent(inout) :: this
+    class(quad_ncnf_cac_t), intent(inout) :: this
     integer(i4), intent(in) :: hng
     call this%intp_op%free()
     call this%intp_op%init(hng)
@@ -464,7 +487,7 @@ contains
   !> @brief Get hanging information
   !! @return   hng
   pure function quad_hanging_get(this) result(hng)
-    class(quad_ncnf_crl_t), intent(in) :: this
+    class(quad_ncnf_cac_t), intent(in) :: this
     integer(i4) :: hng
     hng = this%intp_op%hanging
   end function quad_hanging_get
@@ -472,7 +495,7 @@ contains
   !> @brief Set position information
   !! @parameter[in]   pos     position information
   pure subroutine quad_position_set(this, pos)
-    class(quad_ncnf_crl_t), intent(inout) :: this
+    class(quad_ncnf_cac_t), intent(inout) :: this
     integer(i4), intent(in) :: pos
     this%position = pos
   end subroutine quad_position_set
@@ -480,9 +503,93 @@ contains
   !> @brief Get position information
   !! @return   pos
   pure function quad_position_get(this) result(pos)
-    class(quad_ncnf_crl_t), intent(in) :: this
+    class(quad_ncnf_cac_t), intent(in) :: this
     integer(i4) :: pos
     pos = this%position
   end function quad_position_get
+
+  !> @brief Initialise quad with global id and four edges
+  !! @details Edges order defines face orientation
+  !! @parameter[in]   id                        unique id
+  !! @parameter[in]   edg1, edg2, edg3, edg4    bounding edges
+  !! @parameter[in]   algn                      edge alignment
+  !! @parameter[in]   hng_edge                  edge hanging info
+  subroutine quad_ac_init(this, id, edg1, edg2, edg3, edg4, algn, hng_edge)
+    class(quad_cac_t), intent(inout) :: this
+    integer(i4), intent(in) :: id
+    type(edge_cab_t), intent(in), target :: edg1, edg2, edg3, edg4
+    integer(i4), dimension(NEKO_QUAD_NFACET), intent(in) :: algn
+    integer(i4), dimension(NEKO_QUAD_NFACET), optional, intent(in) :: hng_edge
+    integer(i4) :: il, jl, ifct, icrn
+    integer(i4), dimension(NEKO_EDGE_NFACET) :: rdg
+    type(vertex_cab_ptr), dimension(2) :: vrt
+    logical :: equal
+
+    call this%free()
+
+    ! init_dim calls free
+    call this%init_dim()
+
+    call this%set_nelem(NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
+         & NEKO_QUAD_NPEAK)
+    call this%set_id(id)
+    ! get facet pointers
+    allocate(this%facet(NEKO_QUAD_NFACET))
+    call this%facet(1)%init(edg1, algn(1), 1)
+    call this%facet(2)%init(edg2, algn(2), 2)
+    call this%facet(3)%init(edg3, algn(3), 3)
+    call this%facet(4)%init(edg4, algn(4), 4)
+
+    ! THIS SHOULD BE IN DIFFERENT PLACE; It checks internal consistency of edges
+    ! Check if edges are consistent. Self-periodicity is allowed, but vertices
+    ! should not be messed up
+    do il = 1, NEKO_QUAD_NFACET - 1
+       do jl = il + 1, NEKO_QUAD_NFACET
+          equal = this%facet(il)%edge%ptr .eq. this%facet(jl)%edge%ptr
+       end do
+    end do
+
+    ! Get ridge pointers checking quad structure and edge orientation
+    ! no special treatment of self-periodic edges
+    allocate(this%ridge(NEKO_QUAD_NRIDGE))
+    do il = 1, NEKO_QUAD_NRIDGE
+       ! find proper vertices
+       do jl = 1, 2
+          ifct = rdg_to_fct(jl, il)
+          icrn = rdg_to_fctc(ifct, il)
+          ! mark vertices
+          rdg(1) = 1
+          rdg(2) = 2
+          ! transformation
+          call this%facet(ifct)%algn_op%trns_inv_f_i4%ptr(NEKO_EDGE_NFACET, rdg)
+          ! extract vertex
+          vrt(jl)%ptr => this%facet(ifct)%edge%ptr%facet(rdg(icrn))%ptr
+       end do
+       if (vrt(1)%ptr%id() == vrt(2)%ptr%id()) then
+          call this%ridge(il)%init(vrt(1)%ptr, il)
+       else
+          call neko_error('Inconsistent edge vertices in the quad.')
+       end if
+    end do
+
+    ! Set proper hanging information
+    if (present(hng_edge)) then
+       call neko_error('Nothing done for nonconforming data yet.')
+    end if
+
+  end subroutine quad_ac_init
+
+  !> @brief Check if two quads are the same
+  !! @note No special treatment of self-periodic hexes
+  !! @parameter[in]  other    second hex
+  !! @return   equal
+  function quad_ac_equal(this, other) result(equal)
+    class(quad_cac_t), intent(in) :: this
+    class(polytope_cnn_t), intent(in) :: other
+    logical :: equal
+
+    equal = .false.
+    call neko_error('Not finished; missing sorting routines.')
+  end function quad_ac_equal
 
 end module quad_cnn
