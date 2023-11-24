@@ -35,8 +35,8 @@ module face_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
   use vertex_cnn, only : vertex_cab_ptr, vertex_ncnf_cac_t, vertex_ncnf_cac_ptr
-  use edge_cnn, only : edge_cab_ptr, edge_aligned_cab_t, edge_2d_ncnf_cac_t, &
-       & edge_2d_ncnf_cac_ptr
+  use edge_cnn, only : edge_cab_ptr, edge_aligned_cab_t, edge_ncnf_cac_t, &
+       & edge_ncnf_cac_ptr
   implicit none
   private
 
@@ -48,11 +48,16 @@ module face_cnn
   !> Base type for an abstract two-dimensional polytope (polygon)
   !! @details There are multiple possible realisation, so it is just
   !! an abstract type providing common functionality for abstract objects.
+  !! It gives a list of facets (edges) and ridges (vertices) as well as
+  !! internal/external boundary condition (0 -internal, 1 - periodic, ....)
+  !! information in @a boundary field.
   type, extends(polytope_cnn_t), abstract :: face_cab_t
      !> Facets (abstract aligned edges)
      type(edge_aligned_cab_t), dimension(:), allocatable :: facet
      !> Ridges (abstract vertices)
      type(vertex_cab_ptr), dimension(:), allocatable :: ridge
+     !> Internal/external boundary condition flag
+     integer(i4) :: boundary = -1
    contains
      !> Initialise face dimension
      procedure, pass(this) :: init_dim => face_init_dim
@@ -68,6 +73,10 @@ module face_cnn
      procedure, pass(this) :: fct_share => face_facet_share
      !> Return vertices shared by faces
      procedure, pass(this) :: rdg_share => face_ridge_share
+     !> Set boundary information
+     procedure, pass(this) :: set_bnd => face_boundary_set
+     !> Get boundary information
+     procedure, pass(this) :: bnd => face_boundary_get
   end type face_cab_t
 
   !> Base type for an actualisation of a two-dimensional polytope (polyhedron)
@@ -76,10 +85,11 @@ module face_cnn
   !! abstract (in sense of connectivity) it consists of nonconforming
   !! actualisation of vertices and edges. It could be used for both
   !! two-dimensional runs and two-dimensional objects embedded in
-  !! three-dimensional mesh
+  !! three-dimensional mesh. It contains neither alignment nor boundary
+  !! information.
   type, extends(polytope_cnn_t), abstract :: face_cac_t
      !> Facets (nonconforming actualisation of edges)
-     type(edge_2d_ncnf_cac_t), dimension(:), allocatable :: facet
+     type(edge_ncnf_cac_t), dimension(:), allocatable :: facet
      !> Ridges (nonconforming actualisation of vertices)
      type(vertex_ncnf_cac_t), dimension(:), allocatable :: ridge
    contains
@@ -116,6 +126,7 @@ contains
     integer(i4) :: il
 
     call this%set_dim(-1)
+    this%boundary = -1
     if (allocated(this%facet)) then
        do il = 1, this%nfacet
           call this%facet(il)%free_algn()
@@ -239,6 +250,22 @@ contains
     end do
   end subroutine face_ridge_share
 
+  !> @brief Set boundary information
+  !! @parameter[in]   bnd     boundary information
+  pure subroutine face_boundary_set(this, bnd)
+    class(face_cab_t), intent(inout) :: this
+    integer(i4), intent(in) :: bnd
+    this%boundary = bnd
+  end subroutine face_boundary_set
+
+  !> @brief Get boundary information
+  !! @return   bnd
+  pure function face_boundary_get(this) result(bnd)
+    class(face_cab_t), intent(in) :: this
+    integer(i4) :: bnd
+    bnd = this%boundary
+  end function face_boundary_get
+
   !> @brief Initialise face dimension
   subroutine face_ac_init_dim(this)
     class(face_cac_t), intent(inout) :: this
@@ -303,7 +330,7 @@ contains
   !! @parameter[in]   pos     facet position
   subroutine face_ac_facet(this, facet, pos)
     class(face_cac_t), target, intent(in) :: this
-    type(edge_2d_ncnf_cac_ptr), intent(out) :: facet
+    type(edge_ncnf_cac_ptr), intent(out) :: facet
     integer(i4), intent(in) :: pos
 
     if ((pos > 0) .and. (pos <= this%nfacet)) then

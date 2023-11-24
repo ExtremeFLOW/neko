@@ -8,7 +8,7 @@ subroutine test_edge_init
   type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4
   type(vertex_cab_ptr), dimension(NEKO_EDGE_NFACET) :: facet
   type(edge_cab_t) :: edge1, edge2
-  integer(i4) :: ishare
+  integer(i4) :: bnde, ishare
   integer(i4), dimension(:, :), allocatable :: facetp
 
   call vertex1%init(1)
@@ -16,10 +16,11 @@ subroutine test_edge_init
   call vertex3%init(3)
   call vertex4%init(4)
 
+  bnde = 1
   ! self-periodic edge
-  call edge1%init(1, vertex1, vertex1)
+  call edge1%init(1, vertex1, vertex1, bnde)
   @assertTrue(edge1%selfp())
-  call edge1%init(1, vertex1, vertex2)
+  call edge1%init(1, vertex1, vertex2, bnde)
   @assertFalse(edge1%selfp())
 
   ! facets pointers
@@ -28,11 +29,14 @@ subroutine test_edge_init
   @assertTrue(facet(1)%ptr.eq.vertex1)
   @assertTrue(facet(2)%ptr.eq.vertex2)
   @assertFalse(facet(2)%ptr.eq.vertex1)
+  ! boundary value
+  ishare = edge1%bnd()
+  @assertEqual(ishare, bnde)
 
   ! edge initialisation and equality
-  call edge2%init(2, vertex3, vertex4)
+  call edge2%init(2, vertex3, vertex4, bnde)
   @assertFalse(edge1.eq.edge2)
-  call edge2%init(1, vertex2, vertex1)
+  call edge2%init(1, vertex2, vertex1, bnde)
   @assertTrue(edge1.eq.edge2)
 
   ! shared facets
@@ -46,7 +50,7 @@ subroutine test_edge_init
   @assertEqual(facetp(2, 1), 1)
   @assertEqual(facetp(1, 2), 2)
   @assertEqual(facetp(2, 2), 2)
-  call edge2%init(2, vertex2, vertex1)
+  call edge2%init(2, vertex2, vertex1, bnde)
   deallocate(facetp)
   call edge1%fct_share(edge2, ishare, facetp)
   @assertEqual(ishare, 2)
@@ -54,7 +58,7 @@ subroutine test_edge_init
   @assertEqual(facetp(2, 1), 2)
   @assertEqual(facetp(1, 2), 2)
   @assertEqual(facetp(2, 2), 1)
-  call edge2%init(2, vertex2, vertex3)
+  call edge2%init(2, vertex2, vertex3, bnde)
   deallocate(facetp)
   call edge1%fct_share(edge2, ishare, facetp)
   @assertEqual(ishare, 1)
@@ -62,7 +66,7 @@ subroutine test_edge_init
   @assertEqual(facetp(2, 1), 1)
   @assertEqual(facetp(1, 2), 0)
   @assertEqual(facetp(2, 2), 0)
-  call edge2%init(2, vertex1, vertex1)
+  call edge2%init(2, vertex1, vertex1, bnde)
   deallocate(facetp)
   call edge1%fct_share(edge2, ishare, facetp)
   @assertEqual(ishare, 2)
@@ -70,7 +74,7 @@ subroutine test_edge_init
   @assertEqual(facetp(2, 1), 1)
   @assertEqual(facetp(1, 2), 1)
   @assertEqual(facetp(2, 2), 2)
-  call edge1%init(1, vertex1, vertex1)
+  call edge1%init(1, vertex1, vertex1, bnde)
   deallocate(facetp)
   call edge1%fct_share(edge2, ishare, facetp)
   @assertEqual(ishare, 4)
@@ -96,14 +100,15 @@ subroutine test_edge_eq_algn
   type(vertex_cab_t) :: vertex1, vertex2
   type(edge_cab_t) :: edge1, edge2
   logical :: equal
-  integer(i4) :: algn
+  integer(i4) :: algn, bnde
 
   ! Vertices for edges
   call vertex1%init(1)
   call vertex2%init(2)
 
   ! reference edge
-  call edge1%init(1, vertex1, vertex2)
+  bnde = 1
+  call edge1%init(1, vertex1, vertex2, bnde)
 
   ! Test transformations
   ! Identity
@@ -111,7 +116,7 @@ subroutine test_edge_eq_algn
   @assertTrue(equal)
   @assertEqual(algn, 0)
   ! Permutation
-  call edge2%init(1, vertex2, vertex1)
+  call edge2%init(1, vertex2, vertex1, bnde)
   call edge1%eq_algn(edge2, equal, algn)
   @assertTrue(equal)
   @assertEqual(algn, 1)
@@ -129,12 +134,14 @@ subroutine test_edge_alignment
   type(edge_cab_ptr) :: edgep
   type(edge_cab_t) :: edge1, edge2
   type(edge_aligned_cab_t) :: edgea
+  integer(i4) :: bnde
 
   call vertex1%init(1)
   call vertex2%init(2)
 
-  call edge1%init(1, vertex1, vertex2)
-  call edge2%init(1, vertex2, vertex1)
+  bnde = 1
+  call edge1%init(1, vertex1, vertex2, bnde)
+  call edge2%init(1, vertex2, vertex1, bnde)
   call edgea%init_algn(edge1, 0)
 
   ! check pointers
@@ -153,65 +160,32 @@ subroutine test_edge_alignment
 end subroutine test_edge_alignment
 
 @test
-subroutine test_edge_3d_nonconforming
+subroutine test_edge_nonconforming
   use pfunit
   use num_types, only : i4
   use vertex_cnn, only : vertex_cab_t
-  use edge_cnn, only : edge_cab_t, edge_3d_ncnf_cac_t
+  use edge_cnn, only : edge_cab_t, edge_ncnf_cac_t
   implicit none
   type(vertex_cab_t) :: vertex1, vertex2
   type(edge_cab_t) :: edge
-  type(edge_3d_ncnf_cac_t) :: edge_ncnf
-  integer(i4) :: algn, hng, pos, itmp
+  type(edge_ncnf_cac_t) :: edge_ncnf
+  integer(i4) :: algn, bnde, hng, pos, itmp
 
   ! The abstract edge
   call vertex1%init(1)
   call vertex2%init(2)
-  call edge%init(1, vertex1, vertex2)
+  bnde = 1
+  call edge%init(1, vertex1, vertex2, bnde)
 
   ! Nonconforming actualisation
   algn = 0
   pos = 1
-  call edge_ncnf%init_3d(edge, algn, pos)
-  @assertTrue(edge .eq. edge_ncnf%edge%ptr)
-  itmp = edge_ncnf%pos()
-  @assertEqual(itmp, pos)
-  itmp = edge_ncnf%hng()
-  @assertEqual(itmp, 0)
-  hng = 1
-  call edge_ncnf%set_hng(hng)
-  itmp = edge_ncnf%hng()
-  @assertEqual(itmp, hng)
-
-end subroutine test_edge_3d_nonconforming
-
-@test
-subroutine test_edge_2d_nonconforming
-  use pfunit
-  use num_types, only : i4
-  use vertex_cnn, only : vertex_cab_t
-  use edge_cnn, only : edge_cab_t, edge_2d_ncnf_cac_t
-  implicit none
-  type(vertex_cab_t) :: vertex1, vertex2
-  type(edge_cab_t) :: edge
-  type(edge_2d_ncnf_cac_t) :: edge_ncnf
-  integer(i4) :: algn, hng, pos, bnd, itmp
-
-  ! The abstract edge
-  call vertex1%init(1)
-  call vertex2%init(2)
-  call edge%init(1, vertex1, vertex2)
-
-  ! Nonconforming actualisation
-  algn = 0
-  pos = 1
-  bnd = 1
-  call edge_ncnf%init_2d(edge, algn, pos, bnd)
+  call edge_ncnf%init(edge, algn, pos)
   @assertTrue(edge .eq. edge_ncnf%edge%ptr)
   itmp = edge_ncnf%pos()
   @assertEqual(itmp, pos)
   itmp = edge_ncnf%bnd()
-  @assertEqual(itmp, bnd)
+  @assertEqual(itmp, bnde)
   itmp = edge_ncnf%hng()
   @assertEqual(itmp, 0)
   hng = 1
@@ -219,4 +193,4 @@ subroutine test_edge_2d_nonconforming
   itmp = edge_ncnf%hng()
   @assertEqual(itmp, hng)
 
-end subroutine test_edge_2d_nonconforming
+end subroutine test_edge_nonconforming

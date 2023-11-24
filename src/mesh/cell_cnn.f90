@@ -35,7 +35,7 @@ module cell_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
   use vertex_cnn, only : vertex_ncnf_cac_t, vertex_ncnf_cac_ptr
-  use edge_cnn, only : edge_3d_ncnf_cac_t, edge_3d_ncnf_cac_ptr
+  use edge_cnn, only : edge_ncnf_cac_t, edge_ncnf_cac_ptr
   implicit none
   private
 
@@ -51,7 +51,7 @@ module cell_cnn
   !! actualisation of vertices, edges, and faces.
   type, extends(polytope_cnn_t), abstract :: cell_cac_t
      !> Ridges (nonconforming actualisation of edges)
-     type(edge_3d_ncnf_cac_t), dimension(:), allocatable :: ridge
+     type(edge_ncnf_cac_t), dimension(:), allocatable :: ridge
      !> Peak (nonconforming actualisation of vertices)
      type(vertex_ncnf_cac_t), dimension(:), allocatable :: peak
    contains
@@ -81,7 +81,7 @@ contains
   !! @parameter[in]   pos     ridge position
   subroutine cell_ridge(this, ridge, pos)
     class(cell_cac_t), target, intent(in) :: this
-    type(edge_3d_ncnf_cac_ptr), intent(out) :: ridge
+    type(edge_ncnf_cac_ptr), intent(out) :: ridge
     integer(i4), intent(in) :: pos
 
     if ((pos > 0) .and. (pos <= this%nridge)) then

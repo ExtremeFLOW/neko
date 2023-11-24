@@ -127,15 +127,12 @@ module quad_cnn
   !! There are four different 2D interpolation operators corresponding the
   !! quarter of a parent quad occupied by the child.
   !! For 3D meshes quad is a facet of a cell, so @a position gives it's location
-  !! in the cell. In addition @a boundary gives an information regarding
-  !! internal/external boundary condition (0 -internal, 1 - periodic, ....).
+  !! in the cell.
   type, extends(quad_aligned_cab_t) :: quad_ncnf_cac_t
      !> interpolation operator
      type(ncnf_intp_quad_op_set_t) :: intp_op
      !> Position in the object
      integer(i4) :: position = -1
-     !> Internal/external boundary condition flag
-     integer(i4) :: boundary = -1
    contains
      !> Initialise aligned quad pointer and position
      procedure, pass(this) :: init => quad_hanging_init
@@ -149,8 +146,6 @@ module quad_cnn
      procedure, pass(this) :: set_pos => quad_position_set
      !> Get position information
      procedure, pass(this) :: pos => quad_position_get
-     !> Set boundary information
-     procedure, pass(this) :: set_bnd => quad_boundary_set
      !> Get boundary information
      procedure, pass(this) :: bnd => quad_boundary_get
   end type quad_ncnf_cac_t
@@ -222,9 +217,10 @@ contains
   !! @parameter[in]   id                        unique id
   !! @parameter[in]   edg1, edg2, edg3, edg4    bounding edges
   !! @parameter[in]   algn                      edge alignment
-  subroutine quad_init(this, id, edg1, edg2, edg3, edg4, algn)
+  !! @parameter[in]   bnd                       quad boundary information
+  subroutine quad_init(this, id, edg1, edg2, edg3, edg4, algn, bnd)
     class(quad_cab_t), intent(inout) :: this
-    integer(i4), intent(in) :: id
+    integer(i4), intent(in) :: id, bnd
     type(edge_cab_t), intent(in), target :: edg1, edg2, edg3, edg4
     integer(i4), dimension(NEKO_QUAD_NFACET), intent(in) :: algn
     integer(i4) :: il, jl, ifct, icrn
@@ -240,6 +236,7 @@ contains
     call this%set_nelem(NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
          & NEKO_QUAD_NPEAK)
     call this%set_id(id)
+    this%boundary = bnd
     ! get facet pointers
     allocate(this%facet(NEKO_QUAD_NFACET))
     call this%facet(1)%init_algn(edg1, algn(1))
@@ -281,7 +278,8 @@ contains
   end subroutine quad_init
 
   !> @brief Check if two quads are the same
-  !! @note Alignment for self-periodic quads will not be correct
+  !! @note Alignment for self-periodic quads will not be correct. Moreover, I do
+  !! not compare boundary information.
   !! @parameter[in]  other    second quad
   !! @return   equal
   subroutine quad_equal_align(this, other, equal, algn)
@@ -363,7 +361,8 @@ contains
   end subroutine quad_equal_align
 
   !> @brief Check if two quads are the same
-  !! @note No special treatment of self-periodic quads
+  !! @note No special treatment of self-periodic quads. Moreover, I do
+  !! not compare boundary information.
   !! @parameter[in]  other    second quad
   !! @return   equal
   function quad_equal(this, other) result(equal)
@@ -462,16 +461,14 @@ contains
   !! @parameter[in]   quad    quad
   !! @parameter[in]   algn    alignment
   !! @parameter[in]   pos     position in the object
-  !! @parameter[in]   bnd     internal/external boundary information
-  subroutine quad_hanging_init(this, quad, algn, pos, bnd)
+  subroutine quad_hanging_init(this, quad, algn, pos)
     class(quad_ncnf_cac_t), intent(inout) :: this
     type(quad_cab_t), target, intent(in) :: quad
-    integer(i4), intent(in) :: algn, pos, bnd
+    integer(i4), intent(in) :: algn, pos
 
     call this%free()
     call this%init_algn(quad, algn)
     this%position = pos
-    this%boundary = bnd
     ! Assume not hanging edge
     call this%intp_op%init(0)
   end subroutine quad_hanging_init
@@ -482,7 +479,6 @@ contains
     call this%free_algn()
     call this%intp_op%free()
     this%position = -1
-    this%boundary = -1
   end subroutine quad_hanging_free
 
   !> @brief Set hanging information
@@ -518,20 +514,12 @@ contains
     pos = this%position
   end function quad_position_get
 
-  !> @brief Set boundary information
-  !! @parameter[in]   bnd     boundary information
-  pure subroutine quad_boundary_set(this, bnd)
-    class(quad_ncnf_cac_t), intent(inout) :: this
-    integer(i4), intent(in) :: bnd
-    this%boundary = bnd
-  end subroutine quad_boundary_set
-
   !> @brief Get boundary information
   !! @return   bnd
   pure function quad_boundary_get(this) result(bnd)
     class(quad_ncnf_cac_t), intent(in) :: this
     integer(i4) :: bnd
-    bnd = this%boundary
+    bnd = this%face%ptr%bnd()
   end function quad_boundary_get
 
   !> @brief Initialise quad with global id and four edges
@@ -539,13 +527,12 @@ contains
   !! @parameter[in]   id                        unique id
   !! @parameter[in]   edg1, edg2, edg3, edg4    bounding edges
   !! @parameter[in]   algn                      edge alignment
-  !! @parameter[in]   bnd                 internal/external boundary information
   !! @parameter[in]   hng_edge                  edge hanging info
-  subroutine quad_ac_init(this, id, edg1, edg2, edg3, edg4, algn, bnd, hng_edge)
+  subroutine quad_ac_init(this, id, edg1, edg2, edg3, edg4, algn, hng_edge)
     class(quad_cac_t), intent(inout) :: this
     integer(i4), intent(in) :: id
     type(edge_cab_t), intent(in), target :: edg1, edg2, edg3, edg4
-    integer(i4), dimension(NEKO_QUAD_NFACET), intent(in) :: algn, bnd
+    integer(i4), dimension(NEKO_QUAD_NFACET), intent(in) :: algn
     integer(i4), dimension(NEKO_QUAD_NFACET), optional, intent(in) :: hng_edge
     integer(i4) :: il, jl, ifct, icrn
     integer(i4), dimension(NEKO_EDGE_NFACET) :: rdg
@@ -562,10 +549,10 @@ contains
     call this%set_id(id)
     ! get facet pointers
     allocate(this%facet(NEKO_QUAD_NFACET))
-    call this%facet(1)%init_2d(edg1, algn(1), 1, bnd(1))
-    call this%facet(2)%init_2d(edg2, algn(2), 2, bnd(2))
-    call this%facet(3)%init_2d(edg3, algn(3), 3, bnd(3))
-    call this%facet(4)%init_2d(edg4, algn(4), 4, bnd(4))
+    call this%facet(1)%init(edg1, algn(1), 1)
+    call this%facet(2)%init(edg2, algn(2), 2)
+    call this%facet(3)%init(edg3, algn(3), 3)
+    call this%facet(4)%init(edg4, algn(4), 4)
 
     ! THIS SHOULD BE IN DIFFERENT PLACE; It checks internal consistency of edges
     ! Check if edges are consistent. Self-periodicity is allowed, but vertices
