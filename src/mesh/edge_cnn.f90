@@ -41,8 +41,8 @@ module edge_cnn
   implicit none
   private
 
-  public :: edge_cab_t, edge_cab_ptr, edge_aligned_cab_t, edge_ncnf_cac_t,&
-       & edge_ncnf_cac_ptr
+  public :: edge_cab_t, edge_cab_ptr, edge_aligned_cab_t, edge_3d_ncnf_cac_t,&
+       & edge_3d_ncnf_cac_ptr, edge_2d_ncnf_cac_t, edge_2d_ncnf_cac_ptr
 
   ! object information
   integer(i4), public, parameter :: NEKO_EDGE_DIM = 1
@@ -104,31 +104,19 @@ module edge_cnn
      procedure, pass(this) :: test => edge_aligned_test
   end type edge_aligned_cab_t
 
-  !> Actualisation of the abstract edge for nonconforming meshes
+  !> Actualisation of the abstract edge for 3D nonconforming meshes
   !! @details Edge can be either independent (part of conforming interface or
   !! parent; marked 0) or hanging. The meaning of hanging depends on the mesh
-  !! dimension. In 2D case edges are face facets and can be either the first
-  !! (marked 1) or the second (marked 2) half of a full edge. In 3D case hanging
-  !! edges can be either ridge hanging (edge is a component of the full ridge,
-  !! but neither of the two facets touching the ridge is hanging), or facet
-  !! hanging. Ridge hanging edges can be either the first (marked 1) or the
-  !! second (marked 2) half of the full edge. The facet hanging edges can be
-  !! either located in the middle of the facet (marked 5) or at the facet
-  !! border. In the last case they can correspond to the the first (marked 3)
-  !! or the second (marked 4) half of the full edge. See the diagram below for
-  !! clarification.
+  !! dimension. In 3D case hanging edges can be either ridge hanging (edge is
+  !! a component of the full ridge, but neither of the two facets touching the
+  !! ridge is hanging), or facet hanging. Ridge hanging edges can be either
+  !! the first (marked 1) or the second (marked 2) half of the full edge.
+  !! The facet hanging edges can be either located in the middle of the facet
+  !! (marked 5) or at the facet border. In the last case they can correspond
+  !! to the the first (marked 3) or the second (marked 4) half of the full
+  !! edge. See the diagram below for clarification.
   !! @verbatim
-  !! Example of edge marking for quad/hex meshes.
-  !! Hanging edge marking for two-dimensional nonconforming interface
-  !!  o...............o +...............o
-  !!  :               : |               :
-  !!  :               : 2               :
-  !!  :               : |               :
-  !!  +               : +               :
-  !!  |               : :               :
-  !!  1               : :               :
-  !!  |               : :               :
-  !!  +...............o o...............o
+  !! Example of edge marking for hex meshes.
   !! Hanging edge marking for three-dimensional nonconforming interface
   !!
   !!                     o                  +-------+
@@ -158,31 +146,75 @@ module edge_cnn
   !! and the second half of the full edge (marked 1 and 2). The rest of the
   !! options (marked 3, 4, and 5) result from the 2D face interpolations.
   !! Edge is always a component part of the higher-dimension object, so
-  !! position gives it's location in the object.
-  type, extends(edge_aligned_cab_t) :: edge_ncnf_cac_t
+  !! position gives it's location in the object. There is no boundary
+  !! information in this case.
+  type, extends(edge_aligned_cab_t) :: edge_3d_ncnf_cac_t
      !> interpolation operator
      type(ncnf_intp_edge_op_set_t) :: intp_op
      !> position in the object
-     integer(i4) :: position = 0
+     integer(i4) :: position = -1
    contains
      !> Initialise aligned edge pointer and position
-     procedure, pass(this) :: init => edge_hanging_init
+     procedure, pass(this) :: init_3d => edge_3d_hanging_init
      !> Free edge data
-     procedure, pass(this) :: free => edge_hanging_free
+     procedure, pass(this) :: free => edge_3d_hanging_free
      !> Set hanging information
-     procedure, pass(this) :: set_hng => edge_hanging_set
+     procedure, pass(this) :: set_hng => edge_3d_hanging_set
      !> Get hanging information
-     procedure, pass(this) :: hng => edge_hanging_get
+     procedure, pass(this) :: hng => edge_3d_hanging_get
      !> Set position information
-     procedure, pass(this) :: set_pos => edge_position_set
+     procedure, pass(this) :: set_pos => edge_3d_position_set
      !> Get position information
-     procedure, pass(this) :: pos => edge_position_get
-  end type edge_ncnf_cac_t
+     procedure, pass(this) :: pos => edge_3d_position_get
+  end type edge_3d_ncnf_cac_t
 
   !> Pointer to a nonconforming edge actualisation
-  type ::  edge_ncnf_cac_ptr
-     type(edge_ncnf_cac_t), pointer :: ptr
-  end type edge_ncnf_cac_ptr
+  type ::  edge_3d_ncnf_cac_ptr
+     type(edge_3d_ncnf_cac_t), pointer :: ptr
+  end type edge_3d_ncnf_cac_ptr
+
+  !> Actualisation of the abstract edge for 2D nonconforming meshes
+  !! @details Edge can be either independent (part of conforming interface or
+  !! parent; marked 0) or hanging. The meaning of hanging depends on the mesh
+  !! dimension. In 2D case edges are face facets and can be either the first
+  !! (marked 1) or the second (marked 2) half of a full edge. See the diagram
+  !! below for clarification.
+  !! @verbatim
+  !! Example of edge marking for quad meshes.
+  !! Hanging edge marking for two-dimensional nonconforming interface
+  !!  o...............o +...............o
+  !!  :               : |               :
+  !!  :               : 2               :
+  !!  :               : |               :
+  !!  +               : +               :
+  !!  |               : :               :
+  !!  1               : :               :
+  !!  |               : :               :
+  !!  +...............o o...............o
+  !! @endverbatim
+  !! There are two different 1D interpolation operators corresponding the first
+  !! and the second half of the full edge (marked 1 and 2).
+  !! For 3D meshes edge is a facet of a face, so @a position gives it's location
+  !! in the cell. In addition @a boundary gives an information regarding
+  !! internal/external boundary condition (0 -internal, 1 - periodic, ....).
+  type, extends(edge_3d_ncnf_cac_t) :: edge_2d_ncnf_cac_t
+     !> Internal/external boundary condition flag
+     integer(i4) :: boundary = -1
+   contains
+     !> Initialise 2D edge actualisation
+     procedure, pass(this) :: init_2d => edge_2d_hanging_init
+     !> Free edge data
+     procedure, pass(this) :: free => edge_2d_hanging_free
+     !> Set boundary information
+     procedure, pass(this) :: set_bnd => edge_2d_boundary_set
+     !> Get boundary information
+     procedure, pass(this) :: bnd => edge_2d_boundary_get
+  end type edge_2d_ncnf_cac_t
+
+  !> Pointer to a nonconforming 2D edge actualisation
+  type ::  edge_2d_ncnf_cac_ptr
+     type(edge_2d_ncnf_cac_t), pointer :: ptr
+  end type edge_2d_ncnf_cac_ptr
 
 contains
 
@@ -259,13 +291,13 @@ contains
 
     allocate(facetp(2, this%nfacet * other%nfacet))
     ishare = 0
-    facetp(:,:) = 0
+    facetp(:, :) = 0
     do il = 1, this%nfacet
        do jl = 1, other%nfacet
           if (this%facet(il)%ptr%id() == other%facet(jl)%ptr%id()) then
              ishare = ishare + 1
-             facetp(1,ishare) = il
-             facetp(2,ishare) = jl
+             facetp(1, ishare) = il
+             facetp(2, ishare) = jl
           end if
        end do
     end do
@@ -393,12 +425,12 @@ contains
     end if
   end function edge_aligned_test
 
-  !> @brief Initialise aligned edge pointer and position
+  !> @brief Initialise 3D edge actualisation
   !! @parameter[in]   edge    edge
   !! @parameter[in]   algn    alignment
   !! @parameter[in]   pos     position in the object
-  subroutine edge_hanging_init(this, edge, algn, pos)
-    class(edge_ncnf_cac_t), intent(inout) :: this
+  subroutine edge_3d_hanging_init(this, edge, algn, pos)
+    class(edge_3d_ncnf_cac_t), intent(inout) :: this
     type(edge_cab_t), target, intent(in) :: edge
     integer(i4), intent(in) :: algn, pos
 
@@ -407,47 +439,86 @@ contains
     this%position = pos
     ! Assume not hanging edge
     call this%intp_op%init(0)
-  end subroutine edge_hanging_init
+  end subroutine edge_3d_hanging_init
 
-  !> @brief Free aligned edge and hanging information
-  subroutine edge_hanging_free(this)
-    class(edge_ncnf_cac_t), intent(inout) :: this
+  !> @brief Free 3D edge actualisation
+  subroutine edge_3d_hanging_free(this)
+    class(edge_3d_ncnf_cac_t), intent(inout) :: this
     call this%free_algn()
     call this%intp_op%free()
     this%position = -1
-  end subroutine edge_hanging_free
+  end subroutine edge_3d_hanging_free
 
   !> @brief Set hanging information
   !! @parameter[in]   hng     hanging information
-  subroutine edge_hanging_set(this, hng)
-    class(edge_ncnf_cac_t), intent(inout) :: this
+  subroutine edge_3d_hanging_set(this, hng)
+    class(edge_3d_ncnf_cac_t), intent(inout) :: this
     integer(i4), intent(in) :: hng
     call this%intp_op%free()
     call this%intp_op%init(hng)
-  end subroutine edge_hanging_set
+  end subroutine edge_3d_hanging_set
 
   !> @brief Get hanging information
   !! @return   hng
-  pure function edge_hanging_get(this) result(hng)
-    class(edge_ncnf_cac_t), intent(in) :: this
+  pure function edge_3d_hanging_get(this) result(hng)
+    class(edge_3d_ncnf_cac_t), intent(in) :: this
     integer(i4) :: hng
     hng = this%intp_op%hanging
-  end function edge_hanging_get
+  end function edge_3d_hanging_get
 
   !> @brief Set position information
   !! @parameter[in]   pos     position information
-  pure subroutine edge_position_set(this, pos)
-    class(edge_ncnf_cac_t), intent(inout) :: this
+  pure subroutine edge_3d_position_set(this, pos)
+    class(edge_3d_ncnf_cac_t), intent(inout) :: this
     integer(i4), intent(in) :: pos
     this%position = pos
-  end subroutine edge_position_set
+  end subroutine edge_3d_position_set
 
   !> @brief Get position information
   !! @return   pos
-  pure function edge_position_get(this) result(pos)
-    class(edge_ncnf_cac_t), intent(in) :: this
+  pure function edge_3d_position_get(this) result(pos)
+    class(edge_3d_ncnf_cac_t), intent(in) :: this
     integer(i4) :: pos
     pos = this%position
-  end function edge_position_get
+  end function edge_3d_position_get
+
+  !> @brief Initialise 2D edge actualisation
+  !! @parameter[in]   edge    edge
+  !! @parameter[in]   algn    alignment
+  !! @parameter[in]   pos     position in the object
+  !! @parameter[in]   bnd     boundary information
+  subroutine edge_2d_hanging_init(this, edge, algn, pos, bnd)
+    class(edge_2d_ncnf_cac_t), intent(inout) :: this
+    type(edge_cab_t), target, intent(in) :: edge
+    integer(i4), intent(in) :: algn, pos, bnd
+
+    call this%free()
+    call this%init_3d(edge, algn, pos)
+    this%boundary = bnd
+  end subroutine edge_2d_hanging_init
+
+  !> @brief Free 2D edge actualisation
+  subroutine edge_2d_hanging_free(this)
+    class(edge_2d_ncnf_cac_t), intent(inout) :: this
+
+    call this%edge_3d_ncnf_cac_t%free()
+    this%boundary = -1
+  end subroutine edge_2d_hanging_free
+
+  !> @brief Set boundary information
+  !! @parameter[in]   bnd     boundary information
+  pure subroutine edge_2d_boundary_set(this, bnd)
+    class(edge_2d_ncnf_cac_t), intent(inout) :: this
+    integer(i4), intent(in) :: bnd
+    this%boundary = bnd
+  end subroutine edge_2d_boundary_set
+
+  !> @brief Get boundary information
+  !! @return   bnd
+  pure function edge_2d_boundary_get(this) result(bnd)
+    class(edge_2d_ncnf_cac_t), intent(in) :: this
+    integer(i4) :: bnd
+    bnd = this%boundary
+  end function edge_2d_boundary_get
 
 end module edge_cnn

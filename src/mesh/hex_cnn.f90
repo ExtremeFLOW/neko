@@ -166,14 +166,15 @@ contains
   !! @parameter[in]   id                              unique id
   !! @parameter[in]   qd1, qd2, qd3, qd4, qd5, qd6    bounding quads
   !! @parameter[in]   algn                            quad alignment
+  !! @parameter[in]   bnd                 internal/external boundary information
   !! @parameter[in]   hng_quad                        quad hanging info
   !! @parameter[in]   hng_edge                        edge hanging info
-  subroutine hex_init(this, id, qd1, qd2, qd3, qd4, qd5, qd6, algn, hng_quad, &
-       & hng_edge)
+  subroutine hex_init(this, id, qd1, qd2, qd3, qd4, qd5, qd6, algn, bnd, &
+       & hng_quad, hng_edge)
     class(hex_cac_t), intent(inout) :: this
     integer(i4), intent(in) :: id
     type(quad_cab_t), intent(in), target :: qd1, qd2, qd3, qd4, qd5, qd6
-    integer(i4), dimension(NEKO_HEX_NFACET), intent(in) :: algn
+    integer(i4), dimension(NEKO_HEX_NFACET), intent(in) :: algn, bnd
     integer(i4), dimension(NEKO_HEX_NFACET), optional, intent(in) :: hng_quad
     integer(i4), dimension(NEKO_HEX_NRIDGE), optional, intent(in) :: hng_edge
     integer(i4) :: il, jl, ifct, icrn
@@ -198,12 +199,12 @@ contains
     call this%set_id(id)
     ! get facet pointers
     allocate(this%facet(NEKO_HEX_NFACET))
-    call this%facet(1)%init(qd1, algn(1), 1)
-    call this%facet(2)%init(qd2, algn(2), 2)
-    call this%facet(3)%init(qd3, algn(3), 3)
-    call this%facet(4)%init(qd4, algn(4), 4)
-    call this%facet(5)%init(qd5, algn(5), 5)
-    call this%facet(6)%init(qd6, algn(6), 6)
+    call this%facet(1)%init(qd1, algn(1), 1, bnd(1))
+    call this%facet(2)%init(qd2, algn(2), 2, bnd(2))
+    call this%facet(3)%init(qd3, algn(3), 3, bnd(3))
+    call this%facet(4)%init(qd4, algn(4), 4, bnd(4))
+    call this%facet(5)%init(qd5, algn(5), 5, bnd(5))
+    call this%facet(6)%init(qd6, algn(6), 6, bnd(6))
 
     ! THIS SHOULD BE IN DIFFERENT PLACE; It checks internal consistency of faces
     ! Check if faces are consistent. Self-periodicity is allowed, but edges and
@@ -280,7 +281,7 @@ contains
        ! is it a proper edge
        if ((edgp(1)%ptr .eq. edgp(2)%ptr) .and. &
             & (edg_algn(1) == edg_algn(2))) then
-          call this%ridge(il)%init(edgp(1)%ptr, edg_algn(1), il)
+          call this%ridge(il)%init_3d(edgp(1)%ptr, edg_algn(1), il)
           ! compare with local edge to check alignment
           call edg%init(edgp(1)%ptr%id(), &
                & this%peak(rdg_to_pek(1, il))%vertex%ptr, &

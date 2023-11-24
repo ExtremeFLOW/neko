@@ -368,7 +368,7 @@ subroutine test_quad_nonconforming
   type(quad_cab_t) :: quad
   type(quad_ncnf_cac_t) :: quad_ncnf
   integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-  integer(i4) :: algn, hng, pos, itmp
+  integer(i4) :: algn, hng, pos, bnd, itmp
 
   ! The abstract quad
   call vertex1%init(1)
@@ -385,10 +385,13 @@ subroutine test_quad_nonconforming
   ! Nonconforming actualisation
   algn = 0
   pos = 1
-  call quad_ncnf%init(quad, algn, pos)
+  bnd = 1
+  call quad_ncnf%init(quad, algn, pos, bnd)
   @assertTrue(quad .eq. quad_ncnf%face%ptr)
   itmp = quad_ncnf%pos()
   @assertEqual(itmp, pos)
+  itmp = quad_ncnf%bnd()
+  @assertEqual(itmp, bnd)
   itmp = quad_ncnf%hng()
   @assertEqual(itmp, 0)
   hng = 1
@@ -403,17 +406,17 @@ subroutine test_quad_ac_init
   use pfunit
   use num_types, only : i4
   use vertex_cnn, only : vertex_cab_t, vertex_ncnf_cac_ptr
-  use edge_cnn, only : edge_cab_t, edge_ncnf_cac_ptr
+  use edge_cnn, only : edge_cab_t, edge_2d_ncnf_cac_ptr
   use quad_cnn, only : NEKO_QUAD_NRIDGE, NEKO_QUAD_NFACET, quad_cac_t
   implicit none
 
   type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4, vertex5, vertex6
   type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7
-  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
+  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne, bnde
   type(quad_cac_t) :: quad1, quad2
-  type(edge_ncnf_cac_ptr), dimension(NEKO_QUAD_NFACET) :: facet
+  type(edge_2d_ncnf_cac_ptr), dimension(NEKO_QUAD_NFACET) :: facet
   type(vertex_ncnf_cac_ptr), dimension(NEKO_QUAD_NRIDGE) :: ridge
-  integer(i4) :: ishare, il
+  integer(i4) :: itmp, il
   integer(i4), dimension(:, :), allocatable :: facetp
 
   ! Vertices for two quads
@@ -429,8 +432,13 @@ subroutine test_quad_ac_init
   call edge1%init(1, vertex1, vertex2)
   call edge2%init(2, vertex1, vertex1)
   call edge3%init(3, vertex2, vertex2)
+  ! simple alignment
   algne(:) = 0
-  call quad1%init(1, edge1, edge1, edge2, edge3, algne)
+  ! some boundary information
+  do il = 1, NEKO_QUAD_NFACET
+     bnde(il) = il
+  end do
+  call quad1%init(1, edge1, edge1, edge2, edge3, algne, bnde)
   @assertTrue(quad1%selfp())
 
   ! facets
@@ -441,6 +449,21 @@ subroutine test_quad_ac_init
   @assertTrue(facet(2)%ptr%edge%ptr .eq. edge1)
   @assertTrue(facet(3)%ptr%edge%ptr .eq. edge2)
   @assertTrue(facet(4)%ptr%edge%ptr .eq. edge3)
+  ! test position
+  do il = 1, NEKO_QUAD_NFACET
+     itmp = facet(il)%ptr%pos()
+     @assertEqual(itmp, il)
+  end do
+  ! test boundary
+  do il = 1, NEKO_QUAD_NFACET
+     itmp = facet(il)%ptr%bnd()
+     @assertEqual(itmp, bnde(il))
+  end do
+  ! test hanging
+  do il = 1, NEKO_QUAD_NFACET
+     itmp = facet(il)%ptr%hng()
+     @assertEqual(itmp, 0)
+  end do
   ! ridges
   do il = 1, NEKO_QUAD_NRIDGE
      call quad1%rdg(ridge(il), il)
@@ -449,6 +472,16 @@ subroutine test_quad_ac_init
   @assertTrue(ridge(2)%ptr%vertex%ptr .eq. vertex1)
   @assertTrue(ridge(3)%ptr%vertex%ptr .eq. vertex2)
   @assertTrue(ridge(4)%ptr%vertex%ptr .eq. vertex2)
+  ! test position
+  do il = 1, NEKO_QUAD_NRIDGE
+     itmp = ridge(il)%ptr%pos()
+     @assertEqual(itmp, il)
+  end do
+  ! test hanging
+  do il = 1, NEKO_QUAD_NFACET
+     itmp = facet(il)%ptr%hng()
+     @assertEqual(itmp, 0)
+  end do
 
 end subroutine test_quad_ac_init
 

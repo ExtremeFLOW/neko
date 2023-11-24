@@ -105,7 +105,7 @@ module quad_cnn
      procedure, pass(this) :: test => quad_aligned_test
   end type quad_aligned_cab_t
 
-  !> Actualisation of the abstract quad for nonconforming meshes
+  !> Actualisation of the abstract quad for 3D nonconforming meshes
   !! @details Quad can be either independent (part of conforming interface or
   !! parent; marked 0) or hanging. The hanging marking corresponds to the parent
   !! quad corner number adjacent to the child. See the diagram below for
@@ -126,13 +126,16 @@ module quad_cnn
   !! @endverbatim
   !! There are four different 2D interpolation operators corresponding the
   !! quarter of a parent quad occupied by the child.
-  !! For 3D meshes quad is a facet of a cell, so position gives it's location
-  !! in the cell.
+  !! For 3D meshes quad is a facet of a cell, so @a position gives it's location
+  !! in the cell. In addition @a boundary gives an information regarding
+  !! internal/external boundary condition (0 -internal, 1 - periodic, ....).
   type, extends(quad_aligned_cab_t) :: quad_ncnf_cac_t
      !> interpolation operator
      type(ncnf_intp_quad_op_set_t) :: intp_op
-     !> position in the object
-     integer(i4) :: position = 0
+     !> Position in the object
+     integer(i4) :: position = -1
+     !> Internal/external boundary condition flag
+     integer(i4) :: boundary = -1
    contains
      !> Initialise aligned quad pointer and position
      procedure, pass(this) :: init => quad_hanging_init
@@ -146,6 +149,10 @@ module quad_cnn
      procedure, pass(this) :: set_pos => quad_position_set
      !> Get position information
      procedure, pass(this) :: pos => quad_position_get
+     !> Set boundary information
+     procedure, pass(this) :: set_bnd => quad_boundary_set
+     !> Get boundary information
+     procedure, pass(this) :: bnd => quad_boundary_get
   end type quad_ncnf_cac_t
 
   !> Pointer to a nonconforming quad actualisation
@@ -154,10 +161,10 @@ module quad_cnn
   end type quad_ncnf_cac_ptr
 
   !> Type for quad actualisation in two- or three-dimensional meshes
-  !! @details Quad actualisation is a "final" object not included in
-  !! the higher-dimension objects. That is why there is no orientation
-  !! defined in this case. For facet and ridge numbering see @a quad_cab_t
-  !! description.
+  !! @details Quad actualisation is a "final" object not included in the higher-
+  !! dimension objects. That is why there is no orientation or boundary
+  !! condition defined in this case. The mesh can be purely 2D or embedded in
+  !! 3D mesh. For facet and ridge numbering see @ref quad_cab_t description.
   type, extends(face_cac_t) :: quad_cac_t
    contains
      !> Initialise quad
@@ -455,14 +462,16 @@ contains
   !! @parameter[in]   quad    quad
   !! @parameter[in]   algn    alignment
   !! @parameter[in]   pos     position in the object
-  subroutine quad_hanging_init(this, quad, algn, pos)
+  !! @parameter[in]   bnd     internal/external boundary information
+  subroutine quad_hanging_init(this, quad, algn, pos, bnd)
     class(quad_ncnf_cac_t), intent(inout) :: this
     type(quad_cab_t), target, intent(in) :: quad
-    integer(i4), intent(in) :: algn, pos
+    integer(i4), intent(in) :: algn, pos, bnd
 
     call this%free()
     call this%init_algn(quad, algn)
     this%position = pos
+    this%boundary = bnd
     ! Assume not hanging edge
     call this%intp_op%init(0)
   end subroutine quad_hanging_init
@@ -473,6 +482,7 @@ contains
     call this%free_algn()
     call this%intp_op%free()
     this%position = -1
+    this%boundary = -1
   end subroutine quad_hanging_free
 
   !> @brief Set hanging information
@@ -508,17 +518,34 @@ contains
     pos = this%position
   end function quad_position_get
 
+  !> @brief Set boundary information
+  !! @parameter[in]   bnd     boundary information
+  pure subroutine quad_boundary_set(this, bnd)
+    class(quad_ncnf_cac_t), intent(inout) :: this
+    integer(i4), intent(in) :: bnd
+    this%boundary = bnd
+  end subroutine quad_boundary_set
+
+  !> @brief Get boundary information
+  !! @return   bnd
+  pure function quad_boundary_get(this) result(bnd)
+    class(quad_ncnf_cac_t), intent(in) :: this
+    integer(i4) :: bnd
+    bnd = this%boundary
+  end function quad_boundary_get
+
   !> @brief Initialise quad with global id and four edges
   !! @details Edges order defines face orientation
   !! @parameter[in]   id                        unique id
   !! @parameter[in]   edg1, edg2, edg3, edg4    bounding edges
   !! @parameter[in]   algn                      edge alignment
+  !! @parameter[in]   bnd                 internal/external boundary information
   !! @parameter[in]   hng_edge                  edge hanging info
-  subroutine quad_ac_init(this, id, edg1, edg2, edg3, edg4, algn, hng_edge)
+  subroutine quad_ac_init(this, id, edg1, edg2, edg3, edg4, algn, bnd, hng_edge)
     class(quad_cac_t), intent(inout) :: this
     integer(i4), intent(in) :: id
     type(edge_cab_t), intent(in), target :: edg1, edg2, edg3, edg4
-    integer(i4), dimension(NEKO_QUAD_NFACET), intent(in) :: algn
+    integer(i4), dimension(NEKO_QUAD_NFACET), intent(in) :: algn, bnd
     integer(i4), dimension(NEKO_QUAD_NFACET), optional, intent(in) :: hng_edge
     integer(i4) :: il, jl, ifct, icrn
     integer(i4), dimension(NEKO_EDGE_NFACET) :: rdg
@@ -535,10 +562,10 @@ contains
     call this%set_id(id)
     ! get facet pointers
     allocate(this%facet(NEKO_QUAD_NFACET))
-    call this%facet(1)%init(edg1, algn(1), 1)
-    call this%facet(2)%init(edg2, algn(2), 2)
-    call this%facet(3)%init(edg3, algn(3), 3)
-    call this%facet(4)%init(edg4, algn(4), 4)
+    call this%facet(1)%init_2d(edg1, algn(1), 1, bnd(1))
+    call this%facet(2)%init_2d(edg2, algn(2), 2, bnd(2))
+    call this%facet(3)%init_2d(edg3, algn(3), 3, bnd(3))
+    call this%facet(4)%init_2d(edg4, algn(4), 4, bnd(4))
 
     ! THIS SHOULD BE IN DIFFERENT PLACE; It checks internal consistency of edges
     ! Check if edges are consistent. Self-periodicity is allowed, but vertices

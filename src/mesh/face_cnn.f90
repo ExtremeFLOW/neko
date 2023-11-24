@@ -35,8 +35,8 @@ module face_cnn
   use num_types, only : i4
   use polytope_cnn, only : polytope_cnn_t
   use vertex_cnn, only : vertex_cab_ptr, vertex_ncnf_cac_t, vertex_ncnf_cac_ptr
-  use edge_cnn, only : edge_cab_ptr, edge_aligned_cab_t, edge_ncnf_cac_t, &
-       & edge_ncnf_cac_ptr
+  use edge_cnn, only : edge_cab_ptr, edge_aligned_cab_t, edge_2d_ncnf_cac_t, &
+       & edge_2d_ncnf_cac_ptr
   implicit none
   private
 
@@ -79,7 +79,7 @@ module face_cnn
   !! three-dimensional mesh
   type, extends(polytope_cnn_t), abstract :: face_cac_t
      !> Facets (nonconforming actualisation of edges)
-     type(edge_ncnf_cac_t), dimension(:), allocatable :: facet
+     type(edge_2d_ncnf_cac_t), dimension(:), allocatable :: facet
      !> Ridges (nonconforming actualisation of vertices)
      type(vertex_ncnf_cac_t), dimension(:), allocatable :: ridge
    contains
@@ -227,13 +227,13 @@ contains
 
     allocate(ridgep(2, this%nridge * other%nridge))
     ishare = 0
-    ridgep(:,:) = 0
+    ridgep(:, :) = 0
     do il = 1, this%nridge
        do jl = 1, other%nridge
           if (this%ridge(il)%ptr%id() == other%ridge(jl)%ptr%id()) then
              ishare = ishare + 1
-             ridgep(1,ishare) = il
-             ridgep(2,ishare) = jl
+             ridgep(1, ishare) = il
+             ridgep(2, ishare) = jl
           end if
        end do
     end do
@@ -303,7 +303,7 @@ contains
   !! @parameter[in]   pos     facet position
   subroutine face_ac_facet(this, facet, pos)
     class(face_cac_t), target, intent(in) :: this
-    type(edge_ncnf_cac_ptr), intent(out) :: facet
+    type(edge_2d_ncnf_cac_ptr), intent(out) :: facet
     integer(i4), intent(in) :: pos
 
     if ((pos > 0) .and. (pos <= this%nfacet)) then
@@ -366,14 +366,14 @@ contains
 
     allocate(ridgep(2, this%nridge * other%nridge))
     ishare = 0
-    ridgep(:,:) = 0
+    ridgep(:, :) = 0
     do il = 1, this%nridge
        do jl = 1, other%nridge
           if (this%ridge(il)%vertex%ptr%id() == &
                & other%ridge(jl)%vertex%ptr%id()) then
              ishare = ishare + 1
-             ridgep(1,ishare) = il
-             ridgep(2,ishare) = jl
+             ridgep(1, ishare) = il
+             ridgep(2, ishare) = jl
           end if
        end do
     end do

@@ -153,15 +153,15 @@ subroutine test_edge_alignment
 end subroutine test_edge_alignment
 
 @test
-subroutine test_edge_nonconforming
+subroutine test_edge_3d_nonconforming
   use pfunit
   use num_types, only : i4
   use vertex_cnn, only : vertex_cab_t
-  use edge_cnn, only : edge_cab_t, edge_ncnf_cac_t
+  use edge_cnn, only : edge_cab_t, edge_3d_ncnf_cac_t
   implicit none
   type(vertex_cab_t) :: vertex1, vertex2
   type(edge_cab_t) :: edge
-  type(edge_ncnf_cac_t) :: edge_ncnf
+  type(edge_3d_ncnf_cac_t) :: edge_ncnf
   integer(i4) :: algn, hng, pos, itmp
 
   ! The abstract edge
@@ -172,7 +172,7 @@ subroutine test_edge_nonconforming
   ! Nonconforming actualisation
   algn = 0
   pos = 1
-  call edge_ncnf%init(edge, algn, pos)
+  call edge_ncnf%init_3d(edge, algn, pos)
   @assertTrue(edge .eq. edge_ncnf%edge%ptr)
   itmp = edge_ncnf%pos()
   @assertEqual(itmp, pos)
@@ -183,4 +183,40 @@ subroutine test_edge_nonconforming
   itmp = edge_ncnf%hng()
   @assertEqual(itmp, hng)
 
-end subroutine test_edge_nonconforming
+end subroutine test_edge_3d_nonconforming
+
+@test
+subroutine test_edge_2d_nonconforming
+  use pfunit
+  use num_types, only : i4
+  use vertex_cnn, only : vertex_cab_t
+  use edge_cnn, only : edge_cab_t, edge_2d_ncnf_cac_t
+  implicit none
+  type(vertex_cab_t) :: vertex1, vertex2
+  type(edge_cab_t) :: edge
+  type(edge_2d_ncnf_cac_t) :: edge_ncnf
+  integer(i4) :: algn, hng, pos, bnd, itmp
+
+  ! The abstract edge
+  call vertex1%init(1)
+  call vertex2%init(2)
+  call edge%init(1, vertex1, vertex2)
+
+  ! Nonconforming actualisation
+  algn = 0
+  pos = 1
+  bnd = 1
+  call edge_ncnf%init_2d(edge, algn, pos, bnd)
+  @assertTrue(edge .eq. edge_ncnf%edge%ptr)
+  itmp = edge_ncnf%pos()
+  @assertEqual(itmp, pos)
+  itmp = edge_ncnf%bnd()
+  @assertEqual(itmp, bnd)
+  itmp = edge_ncnf%hng()
+  @assertEqual(itmp, 0)
+  hng = 1
+  call edge_ncnf%set_hng(hng)
+  itmp = edge_ncnf%hng()
+  @assertEqual(itmp, hng)
+
+end subroutine test_edge_2d_nonconforming
