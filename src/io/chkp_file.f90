@@ -44,7 +44,8 @@ module chkp_file
   use mesh
   use math
   use interpolation
-  use mpi_types
+  use mpi_types, only : MPI_REAL_PREC_SIZE, &
+                        MPI_INTEGER_SIZE, MPI_DOUBLE_PRECISION_SIZE
   use comm
   use global_interpolation
   implicit none
