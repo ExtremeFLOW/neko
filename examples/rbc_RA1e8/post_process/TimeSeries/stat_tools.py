@@ -54,7 +54,21 @@ def adf_test(variable, granularity_for_iterations):
 
 def get_lag1_cor(t,fx,max_batch, plot):
     
-    batchsizes = np.arange(5000, max_batch, 5000)
+    min_batch = 5000
+    batch_increase = 5000
+    print(len(t))
+
+    batchsizes = np.arange(min_batch, max_batch, batch_increase)
+    print(batchsizes)
+    if len(batchsizes) <= 0:
+        print("Short time signal, modifying test batch sizes")
+        if len(t) < min_batch:
+            print("the lenght of the signal is shorter than the minimun selected batch size")
+            print("setting the optimal batch size to be half the length of the signal")
+            uncorrelated_batch_size = int(len(t)/2)
+
+            return uncorrelated_batch_size
+
     rho1_NOBM = np.zeros(len(batchsizes))
     var_NOBM = np.zeros(len(batchsizes))
     trueMean = np.mean(fx)

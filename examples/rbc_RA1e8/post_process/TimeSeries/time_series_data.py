@@ -30,7 +30,7 @@ class time_series_data_c():
 
         self.nu_v_transient_index = adf_test(self.nu_v, granularity_for_iterations)
         self.nu_a_transient_index = adf_test(self.nu_a, granularity_for_iterations)
-        self.nu_va_transient_index = adf_test(self.nu_v/self.nu_a, granularity_for_iterations)
+        #self.nu_va_transient_index = adf_test(self.nu_v/self.nu_a, granularity_for_iterations)
         self.nu_eps_t_transient_index = adf_test(self.nu_eps_t, granularity_for_iterations)
         self.nu_eps_k_transient_index = adf_test(self.nu_eps_k, granularity_for_iterations)
         self.tke_transient_index = adf_test(self.tke[np.where(self.tke > 0)], granularity_for_iterations)

@@ -121,13 +121,15 @@ class time_series_plotter_c():
                     ax[3,1].set_ylabel(r'$Ra$')
 
             if plot_transient_end==1:
-                ax[0,0].axvline(x=ts.t[ts.nu_a_transient_index], linestyle=':', color= "red", linewidth = 1)
-                ax[0,1].axvline(x=ts.t[ts.nu_v_transient_index], linestyle=':', color= "red", linewidth = 1)
-                ax[1,0].axvline(x=ts.t[ts.nu_eps_t_transient_index], linestyle=':', color= "red", linewidth = 1)
-                ax[1,1].axvline(x=ts.t[ts.nu_eps_k_transient_index], linestyle=':', color= "red", linewidth = 1)
+                ax[0,0].axvline(x=ts.t[ts.nu_a_transient_index]-ts.t[0], linestyle=':', color= "red", linewidth = 1)
+                ax[0,1].axvline(x=ts.t[ts.nu_v_transient_index]-ts.t[0], linestyle=':', color= "red", linewidth = 1)
+                ax[1,0].axvline(x=ts.t[ts.nu_eps_t_transient_index]-ts.t[0], linestyle=':', color= "red", linewidth = 1)
+                ax[1,1].axvline(x=ts.t[ts.nu_eps_k_transient_index]-ts.t[0], linestyle=':', color= "red", linewidth = 1)
                 # Correct for tke index in case some files did not have tke on them
-                tke_real_transient_index = np.where(ts.tke == 0)[0][-1] + ts.tke_transient_index
-                ax[2,0].axvline(x=ts.t[tke_real_transient_index], linestyle=':', color= "red", linewidth = 1)
+                tke_real_transient_index = ts.tke_transient_index
+                if len(np.where(ts.tke == 0)[0]) > 0:
+                    tke_real_transient_index += np.where(ts.tke == 0)[0][-1]
+                ax[2,0].axvline(x=ts.t[tke_real_transient_index]-ts.t[0], linestyle=':', color= "red", linewidth = 1)
                     
                 
             ax[0,0].grid(color = 'black', linestyle = '-', linewidth = 0.1)
