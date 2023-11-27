@@ -50,7 +50,6 @@ module probes
   use math, only: rzero, copy
   use tensor, only: trsp
   use comm
-  use mpi_types
   use device
   use file
   use csv_file

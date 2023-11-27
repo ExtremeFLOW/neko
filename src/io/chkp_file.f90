@@ -44,7 +44,7 @@ module chkp_file
   use mesh
   use math
   use interpolation
-  use mpi_types
+  use neko_mpi_types
   use comm
   use global_interpolation
   implicit none
