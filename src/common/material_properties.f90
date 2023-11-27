@@ -35,14 +35,14 @@ module material_properties
   use num_types, only: rp
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_core, json_value
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, neko_log_verbose
   use user_intf, only : user_t, dummy_user_material_properties, &
                         user_material_properties
   use utils, only : neko_warning, neko_error
   use comm, only : pe_rank
   implicit none
   private
-  
+
   !> Contains all the material properties necessary in the simulation.
   type, public :: material_properties_t
      !> Density, f$\rho \f$.
@@ -103,10 +103,10 @@ contains
 
           write(log_buf, '(A)') 'Non-dimensional fluid material properties &
                               & input.'
-          call neko_log%message(log_buf, lvl=2)
+          call neko_log%message(log_buf, lvl=neko_log_verbose)
           write(log_buf, '(A)') 'Density will be set to 1, dynamic viscosity to&
                               & 1/Re.'
-          call neko_log%message(log_buf, lvl=2)
+          call neko_log%message(log_buf, lvl=neko_log_verbose)
 
           ! Read Re into mu for further manipulation.
           call json_get(params, 'case.fluid.Re', this%mu)
@@ -120,7 +120,7 @@ contains
           ! Invert the Re to get viscosity.
           this%mu = 1.0_rp/this%mu
        ! Dimensional case
-       else 
+       else
           call json_get(params, 'case.fluid.mu', this%mu)
           call json_get(params, 'case.fluid.rho', this%rho)
        end if
@@ -152,10 +152,10 @@ contains
        else if (nondimensional) then
           write(log_buf, '(A)') 'Non-dimensional scalar material properties &
                               & input.'
-          call neko_log%message(log_buf, lvl=2)
+          call neko_log%message(log_buf, lvl=neko_log_verbose)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1, &
                               & conductivity to 1/Pe.'
-          call neko_log%message(log_buf, lvl=2)
+          call neko_log%message(log_buf, lvl=neko_log_verbose)
 
           ! Read Pe into lambda for further manipulation.
           call json_get(params, 'case.scalar.Pe', this%lambda)
@@ -168,7 +168,7 @@ contains
           ! Invert the Pe to get conductivity
           this%lambda = 1.0_rp/this%lambda
        ! Dimensional case
-       else 
+       else
           call json_get(params, 'case.scalar.lambda', this%lambda)
           call json_get(params, 'case.scalar.cp', this%cp)
        end if
