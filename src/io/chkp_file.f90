@@ -438,7 +438,9 @@ contains
     end if
     
     call MPI_File_close(fh, ierr)      
-    if (this%mesh2mesh) call this%global_interp%free()
+    if (this%mesh2mesh) then
+       call this%global_interp%free()
+    end if
     call this%space_interp%free()
     
   end subroutine chkp_file_read
