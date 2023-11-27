@@ -124,6 +124,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ad6ddd9f6847cc15209a87459cf18be22"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#ad6ddd9f6847cc15209a87459cf18be22">time_based_controller_register_execution</a> (this)</td></tr>
 <tr class="memdesc:ad6ddd9f6847cc15209a87459cf18be22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Increment <code>nexectutions</code>.  <a href="../../d5/d11/namespacetime__based__controller.html#ad6ddd9f6847cc15209a87459cf18be22">More...</a><br /></td></tr>
 <tr class="separator:ad6ddd9f6847cc15209a87459cf18be22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e3db6300d4890aff4663d15f41854a2"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#a5e3db6300d4890aff4663d15f41854a2">time_based_controller_set_counter</a> (this, t)</td></tr>
+<tr class="memdesc:a5e3db6300d4890aff4663d15f41854a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the counter based on a time (for restarts)  <a href="../../d5/d11/namespacetime__based__controller.html#a5e3db6300d4890aff4663d15f41854a2">More...</a><br /></td></tr>
+<tr class="separator:a5e3db6300d4890aff4663d15f41854a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Contains the <code><a class="el" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html" title="A utility type for determening whether an action should be executed based on the current time value....">time_based_controller_t</a></code> type. </p>
@@ -171,7 +174,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00155">155</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00158">158</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -232,7 +235,7 @@ Functions/Subroutines</h2></td></tr>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>In the logic, <code>nsteps</code> being zero corresponds to us not knowing the number of time-steps between executions and thus having to rely on <code>nexecutions</code>. This is done in anticipation of having a variable timestep. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00123">123</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00126">126</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -292,7 +295,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -322,7 +325,53 @@ Functions/Subroutines</h2></td></tr>
 
 <p>Increment <code>nexectutions</code>. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00168">168</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00171">171</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+
+</div>
+</div>
+<a id="a5e3db6300d4890aff4663d15f41854a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e3db6300d4890aff4663d15f41854a2">&#9670;&nbsp;</a></span>time_based_controller_set_counter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine time_based_controller::time_based_controller_set_counter </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html">time_based_controller_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
+          <td class="paramname"><em>t</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set the counter based on a time (for restarts) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">t</td><td>simulation time. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00180">180</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -332,7 +381,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d5/d11/namespacetime__based__controller.html">time_based_controller</a></li>
-    <li class="footer">Generated on Tue Nov 21 2023 13:13:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Mon Nov 27 2023 20:42:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

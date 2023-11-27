@@ -1,5 +1,14 @@
 var NAVTREEINDEX32 =
 {
+"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a00050b51324ca5e6876220c319a9d86b":[4,0,159,0,10],
+"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a05d2e7745752337567f3b979676a9cd2":[4,0,159,0,4],
+"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a0993501e34f5c56b7180a9b879e0d3f6":[4,0,159,0,19],
+"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a111d528ffe5e3af51b8ea7f0b25133dd":[4,0,159,0,24],
+"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a153918e8d79a0b9f6470cec166a0a784":[4,0,159,0,11],
+"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a1fa7ecfa7d8a92b3b7c46e79b77112b3":[4,0,159,0,13],
+"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a258f1e27558ab9e958b1d7181f8635dd":[4,0,159,0,23],
+"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a2c8654e8b307f9fbaaebf5e8e320d3b8":[4,0,159,0,25],
+"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a34f4d92879f656d4045e694e6ab39b28":[4,0,159,0,7],
 "dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a3952ba408bdb10e8ce5fcf8594d2df12":[4,0,159,0,18],
 "dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a43a5bd0d6eb6d5cb989540e21db37985":[4,0,159,0,12],
 "dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a4914135e9691401c5c5d2e75b4df3155":[4,0,159,0,17],
@@ -240,14 +249,5 @@ var NAVTREEINDEX32 =
 "de/d43/cuda_2vel__res__update__kernel_8h_source.html":[5,0,2,7,0,1,0,2],
 "de/d44/interfacehtable_1_1htable__hash.html":[4,0,89,2],
 "de/d44/interfacehtable_1_1htable__hash.html#a4ebaac06ef90a2e216520f951b98321c":[4,0,89,2,0],
-"de/d49/dirichlet_8hip.html":[5,0,2,1,0,0,1,0],
-"de/d49/dirichlet_8hip.html#a7ce1baf8a0387720497532ce823ade11":[5,0,2,1,0,0,1,0,1],
-"de/d49/dirichlet_8hip.html#a9e28f2988b0278ccc9b3370c110f1f34":[5,0,2,1,0,0,1,0,0],
-"de/d49/dirichlet_8hip_source.html":[5,0,2,1,0,0,1,0],
-"de/d49/namespacepipecg.html":[3,0,150],
-"de/d49/namespacepipecg.html#a307e86af8b2634dc977736ed67b0b3d5":[3,0,150,1],
-"de/d49/namespacepipecg.html#a5b7ba079d85030bb78c831e49f57aa2a":[3,0,150,2],
-"de/d49/namespacepipecg.html#a6807d33628cc1592077b2e091ea953a2":[3,0,150,4],
-"de/d49/namespacepipecg.html#ae519e8f58edbf66c6b746e28363de31f":[3,0,150,3],
-"de/d4e/interfaceuser__intf_1_1user__initialize__modules.html":[4,0,181,1]
+"de/d49/dirichlet_8hip.html":[5,0,2,1,0,0,1,0]
 };

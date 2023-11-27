@@ -7,6 +7,7 @@ var structlambda2_1_1lambda2__t =
     [ "init", "d6/db3/structlambda2_1_1lambda2__t.html#a6834cf9a1b6845195e0dd4303227c4f7", null ],
     [ "init_base", "d6/db3/structlambda2_1_1lambda2__t.html#a8947ddaa336d056de536e177e36018d1", null ],
     [ "init_from_attributes", "d6/db3/structlambda2_1_1lambda2__t.html#aa90cceb4d883c7f029e734af01360f99", null ],
+    [ "restart", "d6/db3/structlambda2_1_1lambda2__t.html#adbb62bbe31daaa62fad5a757139777c2", null ],
     [ "case", "d6/db3/structlambda2_1_1lambda2__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "d6/db3/structlambda2_1_1lambda2__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "lambda2", "d6/db3/structlambda2_1_1lambda2__t.html#a6abccd518f8be7b02678ce1b4f685f87", null ],

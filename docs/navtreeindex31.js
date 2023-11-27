@@ -1,5 +1,14 @@
 var NAVTREEINDEX31 =
 {
+"dd/da8/namespacecase.html":[3,0,14],
+"dd/da8/namespacecase.html#a20efb01f0f8bffbebddc5a23d9efaeab":[3,0,14,2],
+"dd/da8/namespacecase.html#a7afcfd035d13b3f9c55d8331a67247f3":[3,0,14,5],
+"dd/da8/namespacecase.html#aafbcf42646def4055093e901fc963efa":[3,0,14,4],
+"dd/da8/namespacecase.html#ae8960a3867b359b819ddafa169747832":[3,0,14,3],
+"dd/daa/namespacescalar__residual__fctry.html":[3,0,186],
+"dd/daa/namespacescalar__residual__fctry.html#a90b130272e53d882fb406662d150edb5":[3,0,186,0],
+"dd/daf/interfacedevice__math_1_1hip__addcol3.html":[4,0,38,19],
+"dd/daf/interfacedevice__math_1_1hip__addcol3.html#a16ddb1d372991a6e742939cafd4af16d":[4,0,38,19,0],
 "dd/db5/mathops_8cu.html":[5,0,2,11,0,1,0,11],
 "dd/db5/mathops_8cu.html#a1289f482b3e1dd687ca1ef4e1c4ae9cc":[5,0,2,11,0,1,0,11,2],
 "dd/db5/mathops_8cu.html#a3dd08286ff11f13f24302fc1d06c6bd0":[5,0,2,11,0,1,0,11,4],
@@ -240,14 +249,5 @@ var NAVTREEINDEX31 =
 "dd/df0/namespacespeclib.html#afba525acc7722b5df69a33f317915788":[3,0,200,19],
 "dd/df1/interfaceoutput_1_1output__sample.html":[4,0,120,1],
 "dd/df1/interfaceoutput_1_1output__sample.html#ae20164b34c3e3b002f1e74f31a49e9cf":[4,0,120,1,0],
-"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html":[4,0,159,0],
-"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a00050b51324ca5e6876220c319a9d86b":[4,0,159,0,10],
-"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a05d2e7745752337567f3b979676a9cd2":[4,0,159,0,4],
-"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a0993501e34f5c56b7180a9b879e0d3f6":[4,0,159,0,19],
-"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a111d528ffe5e3af51b8ea7f0b25133dd":[4,0,159,0,24],
-"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a153918e8d79a0b9f6470cec166a0a784":[4,0,159,0,11],
-"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a1fa7ecfa7d8a92b3b7c46e79b77112b3":[4,0,159,0,13],
-"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a258f1e27558ab9e958b1d7181f8635dd":[4,0,159,0,23],
-"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a2c8654e8b307f9fbaaebf5e8e320d3b8":[4,0,159,0,25],
-"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a34f4d92879f656d4045e694e6ab39b28":[4,0,159,0,7]
+"dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html":[4,0,159,0]
 };

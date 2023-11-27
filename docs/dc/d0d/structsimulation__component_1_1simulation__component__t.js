@@ -6,6 +6,7 @@ var structsimulation__component_1_1simulation__component__t =
     [ "free_base", "dc/d0d/structsimulation__component_1_1simulation__component__t.html#a7bb2d90019667d36151329287aced698", null ],
     [ "init", "dc/d0d/structsimulation__component_1_1simulation__component__t.html#afa4b97889bcd607a92b769c11444d542", null ],
     [ "init_base", "dc/d0d/structsimulation__component_1_1simulation__component__t.html#a8947ddaa336d056de536e177e36018d1", null ],
+    [ "restart", "dc/d0d/structsimulation__component_1_1simulation__component__t.html#adbb62bbe31daaa62fad5a757139777c2", null ],
     [ "case", "dc/d0d/structsimulation__component_1_1simulation__component__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "dc/d0d/structsimulation__component_1_1simulation__component__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "output_controller", "dc/d0d/structsimulation__component_1_1simulation__component__t.html#acc0e9937091f7dbbb6bc1e1c8b0b2c9f", null ]

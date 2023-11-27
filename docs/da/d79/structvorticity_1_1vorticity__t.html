@@ -213,6 +213,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7bb2d90019667d36151329287aced698"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#a7bb2d90019667d36151329287aced698">free_base</a> =&gt; simulation_component_free_base</td></tr>
 <tr class="memdesc:a7bb2d90019667d36151329287aced698"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for the <a class="el" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html" title="Base abstract class for simulation components.">simulation_component_t</a> (base) class.  <a href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#a7bb2d90019667d36151329287aced698">More...</a><br /></td></tr>
 <tr class="separator:a7bb2d90019667d36151329287aced698"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbb62bbe31daaa62fad5a757139777c2"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#adbb62bbe31daaa62fad5a757139777c2">restart</a> =&gt; simulation_component_restart_wrapper</td></tr>
+<tr class="memdesc:adbb62bbe31daaa62fad5a757139777c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for calling <code>set_counter</code> for the time based controllers. Serves as the public interface.  <a href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#adbb62bbe31daaa62fad5a757139777c2">More...</a><br /></td></tr>
+<tr class="separator:adbb62bbe31daaa62fad5a757139777c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ba845ff19b68d3e9966136c1b5a05b8"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#a1ba845ff19b68d3e9966136c1b5a05b8">compute</a> =&gt; simulation_component_compute_wrapper</td></tr>
 <tr class="memdesc:a1ba845ff19b68d3e9966136c1b5a05b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for calling <code>compute_</code> based on the <code>compute_controller</code>. Serves as the public interface.  <a href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#a1ba845ff19b68d3e9966136c1b5a05b8">More...</a><br /></td></tr>
 <tr class="separator:a1ba845ff19b68d3e9966136c1b5a05b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -280,7 +283,7 @@ Public Attributes</h2></td></tr>
 
 <p>Wrapper for calling <code>compute_</code> based on the <code>compute_controller</code>. Serves as the public interface. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -405,6 +408,32 @@ Public Attributes</h2></td></tr>
 <p>Actual constructor. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/d79/vorticity_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d6/d79/vorticity_8f90_source.html">vorticity.f90</a>.</p>
+
+</div>
+</div>
+<a id="adbb62bbe31daaa62fad5a757139777c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adbb62bbe31daaa62fad5a757139777c2">&#9670;&nbsp;</a></span>restart()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, pass(this) simulation_component::simulation_component_t::restart</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Wrapper for calling <code>set_counter</code> for the time based controllers. Serves as the public interface. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -640,7 +669,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/de3/namespacevorticity.html">vorticity</a></li><li class="navelem"><a class="el" href="../../da/d79/structvorticity_1_1vorticity__t.html">vorticity_t</a></li>
-    <li class="footer">Generated on Tue Nov 21 2023 13:13:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Mon Nov 27 2023 20:42:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

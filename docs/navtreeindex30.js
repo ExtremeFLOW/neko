@@ -1,5 +1,14 @@
 var NAVTREEINDEX30 =
 {
+"dd/d72/hip_2cdtp__kernel_8h.html#aae54bd3b08ffbb35b42e1aa71adde056":[5,0,2,11,0,1,1,2,23],
+"dd/d72/hip_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a":[5,0,2,11,0,1,1,2,10],
+"dd/d72/hip_2cdtp__kernel_8h.html#ac362bc5553a0c408f4c65f5a66545909":[5,0,2,11,0,1,1,2,12],
+"dd/d72/hip_2cdtp__kernel_8h.html#ad5cebda4bfa014cb7a1f859d5afb5cc1":[5,0,2,11,0,1,1,2,15],
+"dd/d72/hip_2cdtp__kernel_8h.html#adfd540294c7e40f92707442e10e507da":[5,0,2,11,0,1,1,2,24],
+"dd/d72/hip_2cdtp__kernel_8h.html#ae687dbe50139c5805369b59554bddc67":[5,0,2,11,0,1,1,2,1],
+"dd/d72/hip_2cdtp__kernel_8h.html#af0a31a22f8d53bcbb714ca51896c3db3":[5,0,2,11,0,1,1,2,2],
+"dd/d72/hip_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8":[5,0,2,11,0,1,1,2,9],
+"dd/d72/hip_2cdtp__kernel_8h.html#afa9cbc42a68a37ff6512f049d907f0a7":[5,0,2,11,0,1,1,2,21],
 "dd/d72/hip_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c":[5,0,2,11,0,1,1,2,8],
 "dd/d72/hip_2cdtp__kernel_8h_source.html":[5,0,2,11,0,1,1,2],
 "dd/d79/pnpn__res_8hip.html":[5,0,2,7,0,1,1,0],
@@ -240,14 +249,5 @@ var NAVTREEINDEX30 =
 "dd/da7/scratch__registry_8f90.html#a9d3257380ebb7584c3795672471c9565":[5,0,2,6,7,1],
 "dd/da7/scratch__registry_8f90.html#aafca68fc75e92344d9cd0c0ab845f363":[5,0,2,6,7,4],
 "dd/da7/scratch__registry_8f90.html#afb1bc184f4f227a11e70c464592cf7ef":[5,0,2,6,7,2],
-"dd/da7/scratch__registry_8f90_source.html":[5,0,2,6,7],
-"dd/da8/namespacecase.html":[3,0,14],
-"dd/da8/namespacecase.html#a20efb01f0f8bffbebddc5a23d9efaeab":[3,0,14,2],
-"dd/da8/namespacecase.html#a7afcfd035d13b3f9c55d8331a67247f3":[3,0,14,5],
-"dd/da8/namespacecase.html#aafbcf42646def4055093e901fc963efa":[3,0,14,4],
-"dd/da8/namespacecase.html#ae8960a3867b359b819ddafa169747832":[3,0,14,3],
-"dd/daa/namespacescalar__residual__fctry.html":[3,0,186],
-"dd/daa/namespacescalar__residual__fctry.html#a90b130272e53d882fb406662d150edb5":[3,0,186,0],
-"dd/daf/interfacedevice__math_1_1hip__addcol3.html":[4,0,38,19],
-"dd/daf/interfacedevice__math_1_1hip__addcol3.html#a16ddb1d372991a6e742939cafd4af16d":[4,0,38,19,0]
+"dd/da7/scratch__registry_8f90_source.html":[5,0,2,6,7]
 };

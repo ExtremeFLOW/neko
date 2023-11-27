@@ -7,5 +7,6 @@ var namespacesimulation__component =
     [ "simulation_component_compute", "dd/d93/interfacesimulation__component_1_1simulation__component__compute.html", "dd/d93/interfacesimulation__component_1_1simulation__component__compute" ],
     [ "simulation_component_compute_wrapper", "d2/def/namespacesimulation__component.html#afc6a3cfe6d91d6cbf93553890a61f1f3", null ],
     [ "simulation_component_free_base", "d2/def/namespacesimulation__component.html#a135635a04e38db1c618c0db82f48f206", null ],
-    [ "simulation_component_init_base", "d2/def/namespacesimulation__component.html#abf8cc433fd050a5544815447062a35a7", null ]
+    [ "simulation_component_init_base", "d2/def/namespacesimulation__component.html#abf8cc433fd050a5544815447062a35a7", null ],
+    [ "simulation_component_restart_wrapper", "d2/def/namespacesimulation__component.html#a56f57202b1848efb25d982b8b4480343", null ]
 ];

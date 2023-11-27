@@ -7,6 +7,7 @@ var structvorticity_1_1vorticity__t =
     [ "init", "da/d79/structvorticity_1_1vorticity__t.html#af7245077b0935c63acd7b5723428fd8f", null ],
     [ "init_base", "da/d79/structvorticity_1_1vorticity__t.html#a8947ddaa336d056de536e177e36018d1", null ],
     [ "init_from_attributes", "da/d79/structvorticity_1_1vorticity__t.html#a578872c533a4123d15ead883db9c9cc3", null ],
+    [ "restart", "da/d79/structvorticity_1_1vorticity__t.html#adbb62bbe31daaa62fad5a757139777c2", null ],
     [ "case", "da/d79/structvorticity_1_1vorticity__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "da/d79/structvorticity_1_1vorticity__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "omega_x", "da/d79/structvorticity_1_1vorticity__t.html#a2bbf3d40e56198e1fde3d9577ad35856", null ],

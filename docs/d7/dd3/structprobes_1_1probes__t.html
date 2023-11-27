@@ -215,6 +215,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7bb2d90019667d36151329287aced698"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#a7bb2d90019667d36151329287aced698">free_base</a> =&gt; simulation_component_free_base</td></tr>
 <tr class="memdesc:a7bb2d90019667d36151329287aced698"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for the <a class="el" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html" title="Base abstract class for simulation components.">simulation_component_t</a> (base) class.  <a href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#a7bb2d90019667d36151329287aced698">More...</a><br /></td></tr>
 <tr class="separator:a7bb2d90019667d36151329287aced698"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbb62bbe31daaa62fad5a757139777c2"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#adbb62bbe31daaa62fad5a757139777c2">restart</a> =&gt; simulation_component_restart_wrapper</td></tr>
+<tr class="memdesc:adbb62bbe31daaa62fad5a757139777c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for calling <code>set_counter</code> for the time based controllers. Serves as the public interface.  <a href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#adbb62bbe31daaa62fad5a757139777c2">More...</a><br /></td></tr>
+<tr class="separator:adbb62bbe31daaa62fad5a757139777c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ba845ff19b68d3e9966136c1b5a05b8"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#a1ba845ff19b68d3e9966136c1b5a05b8">compute</a> =&gt; simulation_component_compute_wrapper</td></tr>
 <tr class="memdesc:a1ba845ff19b68d3e9966136c1b5a05b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for calling <code>compute_</code> based on the <code>compute_controller</code>. Serves as the public interface.  <a href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html#a1ba845ff19b68d3e9966136c1b5a05b8">More...</a><br /></td></tr>
 <tr class="separator:a1ba845ff19b68d3e9966136c1b5a05b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -277,7 +280,7 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00063">63</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00062">62</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a1ba845ff19b68d3e9966136c1b5a05b8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1ba845ff19b68d3e9966136c1b5a05b8">&#9670;&nbsp;</a></span>compute()</h2>
@@ -301,7 +304,7 @@ Public Attributes</h2></td></tr>
 
 <p>Wrapper for calling <code>compute_</code> based on the <code>compute_controller</code>. Serves as the public interface. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -319,7 +322,7 @@ Public Attributes</h2></td></tr>
 
 <p>Interpolate each probe from its <code>r,s,t</code> coordinates. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00102">102</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00101">101</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -337,7 +340,7 @@ Public Attributes</h2></td></tr>
 
 <p>Destructor. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00098">98</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00097">97</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -381,7 +384,7 @@ Public Attributes</h2></td></tr>
 
 <p>Initialize from json. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00093">93</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00092">92</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -423,7 +426,33 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00095">95</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00094">94</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+
+</div>
+</div>
+<a id="adbb62bbe31daaa62fad5a757139777c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adbb62bbe31daaa62fad5a757139777c2">&#9670;&nbsp;</a></span>restart()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, pass(this) simulation_component::simulation_component_t::restart</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Wrapper for calling <code>set_counter</code> for the time based controllers. Serves as the public interface. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -441,7 +470,7 @@ Public Attributes</h2></td></tr>
 
 <p>Setup offset for I/O when using sequential write/read from rank 0. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00100">100</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00099">99</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -512,7 +541,7 @@ Public Attributes</h2></td></tr>
 
 <p>Output variables. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00089">89</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00088">88</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -528,7 +557,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00066">66</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00065">65</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -544,7 +573,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00087">87</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00086">86</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -560,7 +589,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00090">90</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00089">89</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -578,7 +607,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of output fields. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00065">65</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00064">64</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -596,7 +625,7 @@ Public Attributes</h2></td></tr>
 
 <p>Global number of probes (needed for i/o) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00068">68</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00067">67</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -614,7 +643,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of local elements per rank. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00078">78</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00077">77</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -630,7 +659,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00084">84</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00083">83</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -648,7 +677,7 @@ Public Attributes</h2></td></tr>
 
 <p>Allocated on rank 0. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00083">83</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00082">82</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -666,7 +695,7 @@ Public Attributes</h2></td></tr>
 
 <p>global offset for writing </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00070">70</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00069">69</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -682,7 +711,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00076">76</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00075">75</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -700,7 +729,7 @@ Public Attributes</h2></td></tr>
 
 <p>Interpolated values. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00074">74</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00073">73</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -716,7 +745,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00075">75</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00074">74</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -760,7 +789,7 @@ Public Attributes</h2></td></tr>
 
 <p>Fields to be probed. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00080">80</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00079">79</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -778,7 +807,7 @@ Public Attributes</h2></td></tr>
 
 <p>For output on rank 0. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00086">86</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00085">85</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -794,7 +823,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00081">81</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00080">80</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -812,7 +841,7 @@ Public Attributes</h2></td></tr>
 
 <p>x,y,z coordinates </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00072">72</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00071">71</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -825,7 +854,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/d4d/namespaceprobes.html">probes</a></li><li class="navelem"><a class="el" href="../../d7/dd3/structprobes_1_1probes__t.html">probes_t</a></li>
-    <li class="footer">Generated on Tue Nov 21 2023 13:13:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Mon Nov 27 2023 20:42:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
