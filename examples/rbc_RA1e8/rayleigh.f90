@@ -169,6 +169,27 @@ contains
     real(kind=rp) :: t
     type(json_file), intent(inout) :: param
 
+    type(field_t), pointer :: u, v, w, p, s
+    logical :: get_spec_err_ind = .true.
+    !> Determine if spectral error indicator needs to be calculated
+    call json_get_or_default(param, 'case.rbc_sampler.get_spec_err_ind',&
+                                          get_spec_err_ind, .true.)
+
+
+    !> If there is data in stats, write it out
+    if (runtime_rbc%data_in_stats) then
+       if (pe_rank.eq.0) then
+          write(*,*) "Sampling last time"
+       end if
+       call runtime_rbc%calculate(t, runtime_rbc%tstep, runtime_rbc%coef, &
+                                  param, Ra, Pr, get_spec_err_ind)
+       call runtime_rbc%update_stats(t)
+       if (pe_rank.eq.0) then
+          write(*,*) "Writing out accumulated user statistics"
+       end if
+       call runtime_rbc%write_stats(t)
+    end if
+
     call runtime_rbc%free()
   
   end subroutine user_finalize
@@ -206,6 +227,7 @@ contains
     type(field_t), intent(inout) :: p
     logical :: get_spec_err_ind = .true.
 
+    runtime_rbc%tstep = tstep
 
     !> Determine if spectral error indicator needs to be calculated
     call json_get_or_default(params, 'case.rbc_sampler.get_spec_err_ind',&
@@ -228,7 +250,8 @@ contains
     
        !> Write fields
        call runtime_rbc%sync()
-       call runtime_rbc%write_fields_and_stats(t)
+       call runtime_rbc%write_fields(t)
+       call runtime_rbc%write_stats(t)
        
        !> Register the execution of the controller
        call runtime_rbc%field_write_control%register_execution()

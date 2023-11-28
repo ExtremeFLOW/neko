@@ -7,7 +7,11 @@ module rbc
   private
 
   type, public :: rbc_t 
-    
+
+     !> Store the simulation time ste
+     integer :: tstep
+     type(coef_t), pointer :: coef => null()
+
      !> Timers
      real(kind=dp) :: start_time, end_time
      
@@ -90,6 +94,7 @@ module rbc
      type(field_list_t) :: dtdX_l
      type(field_list_t) :: eps_l
      type(field_list_t) :: mean_fields_l
+     logical :: data_in_stats = .false.
 
      !> Variables to write extra files
      character(len=NEKO_FNAME_LEN) :: fname
@@ -133,7 +138,9 @@ module rbc
      !> Sync the values in the cpu to those of GPU
      procedure, pass(this) :: sync => rbc_sync_fromGPU
      !> Sync the values in the cpu to those of GPU
-     procedure, pass(this) :: write_fields_and_stats => rbc_write_fields
+     procedure, pass(this) :: write_fields => rbc_write_fields
+     !> Sync the values in the cpu to those of GPU
+     procedure, pass(this) :: write_stats => rbc_write_stats
      !> Sync the values in the cpu to those of GPU
      procedure, pass(this) :: update_stats => rbc_update_stats
      !> Integrate relevant quantities
@@ -151,7 +158,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
     type(json_file), intent(inout) :: params
     
     ! Local variables 
@@ -177,6 +184,9 @@ contains
     real(kind=rp)     :: T_end
     integer :: how_many_samples
     logical :: found
+
+    !> Get te pointer to coef
+    this%coef => coef
 
     s => neko_field_registry%get_field('s')
     
@@ -293,15 +303,20 @@ contains
        if (pe_rank .eq. 0) then 
           write(*,*) 'restarting the value for last stat sample '
        end if
-       if (this%sample_control%nsteps .eq. 0) then 
-          !> find how many samples have been taken
-          how_many_samples = floor(t/this%sample_control%time_interval)
-          !> Update the time since the last sample based on the information
-          this%t_last_sample = how_many_samples * &
-                            this%sample_control%time_interval
-       else if (this%sample_control%nsteps .gt. 0) then
-          this%t_last_sample = t
+       !if (this%sample_control%nsteps .eq. 0) then 
+       !   !> find how many samples have been taken
+       !   how_many_samples = floor(t/this%sample_control%time_interval)
+       !   !> Update the time since the last sample based on the information
+       !   this%t_last_sample = how_many_samples * &
+       !                     this%sample_control%time_interval
+       !else if (this%sample_control%nsteps .gt. 0) then
+       !   this%t_last_sample = t
+       !end if
+       
+       if (pe_rank .eq. 0) then 
+          write(*,*) 'by construction last user stat sample was last time step of previous run'
        end if
+       this%t_last_sample = t
 
        if (pe_rank .eq. 0) then 
           write(*,*) 'last sample was at t= ', this%t_last_sample
@@ -568,6 +583,12 @@ contains
     call this%mf_dtdX%write(this%dtdX_l,t)
     call this%spectral_error_indicator%write_as_field(t)
 
+  end subroutine rbc_write_fields
+
+  subroutine rbc_write_stats(this, t)
+    class(rbc_t), intent(inout), target :: this
+    real(kind=rp) :: t
+    
     !> Write and reset mean fields
     call this%mf_mean_fields%write(this%mean_fields_l,t) 
     call this%mean_t%reset() 
@@ -583,9 +604,10 @@ contains
     call this%mean_eps_t%reset() 
     call this%mean_speri_u%reset() 
     call this%mean_speri_v%reset() 
-    call this%mean_speri_w%reset() 
+    call this%mean_speri_w%reset()
+    this%data_in_stats = .false. 
 
-  end subroutine rbc_write_fields
+  end subroutine rbc_write_stats
 
  
   subroutine rbc_calculate(this, t, tstep, coef, params, Ra, Pr, get_spec_err_ind)
@@ -724,6 +746,8 @@ contains
   subroutine rbc_update_stats(this, t)
     class(rbc_t), intent(inout), target :: this
     real(kind=rp), intent(in) :: t
+
+    this%data_in_stats = .true. !> Indicate that there is data in buffer
     call this%mean_t%update(t-this%t_last_sample)
     call this%mean_tt%update(t-this%t_last_sample)
     call this%mean_uxt%update(t-this%t_last_sample)
