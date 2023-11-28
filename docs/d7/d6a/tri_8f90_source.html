@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('d7/d6a/tri_8f90_source.html','../../')
 <div class="title">tri.f90</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d7/d6a/tri_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">! Copyright (c) 2021, The Neko Authors</span></div>
+<a href="../../d7/d6a/tri_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">! Copyright (c) 2021-2023, The Neko Authors</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">! All rights reserved.</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">!</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -233,43 +233,42 @@ $(document).ready(function(){initNavTree('d7/d6a/tri_8f90_source.html','../../')
 <div class="line"><a name="l00171"></a><span class="lineno"><a class="line" href="../../df/d69/namespacetri.html#a8f0ad861a08d2b0e45e9af6400847ebb">  171</a></span>&#160;  <span class="keyword">function </span><a class="code" href="../../df/d69/namespacetri.html#a8f0ad861a08d2b0e45e9af6400847ebb">tri_centroid</a>(this) <span class="keyword">result</span>(res)</div>
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d6/d51/structtri_1_1tri__t.html">tri_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
 <div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: res</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3</div>
 <div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160; </div>
 <div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    p1 =&gt; this%p(1)</div>
 <div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    p2 =&gt; this%p(2)</div>
 <div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    p3 =&gt; this%p(3)</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    p4 =&gt; this%p(4)</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    res%x = 0d0</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160; </div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="keywordflow">do</span> i = 1, this%gdim()</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;       res%x(i) = 1d0/3d0 * (p1%x(i) + p2%x(i) + p3%x(i))</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../df/d69/namespacetri.html#a8f0ad861a08d2b0e45e9af6400847ebb">tri_centroid</a></div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160; </div>
-<div class="line"><a name="l00190"></a><span class="lineno"><a class="line" href="../../df/d69/namespacetri.html#afe71f204696bc73c8fdf98cec1173e24">  190</a></span>&#160;  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code" href="../../df/d69/namespacetri.html#afe71f204696bc73c8fdf98cec1173e24">tri_equal</a>(this, other) <span class="keyword">result</span>(res)</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d6/d51/structtri_1_1tri__t.html">tri_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dd6/structelement_1_1element__t.html">element_t</a>), <span class="keywordtype">intent(in)</span> :: other</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <span class="keywordtype">integer</span> :: i    </div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="keywordtype">logical</span> :: res</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160; </div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    res = .false.</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keywordflow">select type</span>(other)</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="keywordflow">    class is</span> (<a class="code" href="../../d6/d51/structtri_1_1tri__t.html">tri_t</a>)</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;       <span class="keywordflow">if</span> ((this%gdim() .eq. other%gdim()) .and. &amp;</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;            (this%npts() .eq. other%npts())) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;          <span class="keywordflow">do</span> i = 1, this%npts()</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;             <span class="keywordflow">if</span> (this%pts(i)%p .ne. other%pts(i)%p) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;                <span class="keywordflow">return</span></div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="keywordflow">             end if</span></div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="keywordflow">          end do</span></div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;          res = .true.</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;<span class="keywordflow">    end select</span></div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    </div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../df/d69/namespacetri.html#afe71f204696bc73c8fdf98cec1173e24">tri_equal</a></div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;  </div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;<span class="keyword">end module </span><a class="code" href="../../df/d69/namespacetri.html">tri</a></div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    res%x = 0d0</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160; </div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="keywordflow">do</span> i = 1, this%gdim()</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;       res%x(i) = 1d0/3d0 * (p1%x(i) + p2%x(i) + p3%x(i))</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../df/d69/namespacetri.html#a8f0ad861a08d2b0e45e9af6400847ebb">tri_centroid</a></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160; </div>
+<div class="line"><a name="l00189"></a><span class="lineno"><a class="line" href="../../df/d69/namespacetri.html#afe71f204696bc73c8fdf98cec1173e24">  189</a></span>&#160;  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code" href="../../df/d69/namespacetri.html#afe71f204696bc73c8fdf98cec1173e24">tri_equal</a>(this, other) <span class="keyword">result</span>(res)</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d6/d51/structtri_1_1tri__t.html">tri_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dd6/structelement_1_1element__t.html">element_t</a>), <span class="keywordtype">intent(in)</span> :: other</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordtype">integer</span> :: i    </div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <span class="keywordtype">logical</span> :: res</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160; </div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    res = .false.</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keywordflow">select type</span>(other)</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="keywordflow">    class is</span> (<a class="code" href="../../d6/d51/structtri_1_1tri__t.html">tri_t</a>)</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;       <span class="keywordflow">if</span> ((this%gdim() .eq. other%gdim()) .and. &amp;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;            (this%npts() .eq. other%npts())) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;          <span class="keywordflow">do</span> i = 1, this%npts()</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;             <span class="keywordflow">if</span> (this%pts(i)%p .ne. other%pts(i)%p) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;                <span class="keywordflow">return</span></div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="keywordflow">             end if</span></div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="keywordflow">          end do</span></div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;          res = .true.</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="keywordflow">    end select</span></div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    </div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../df/d69/namespacetri.html#afe71f204696bc73c8fdf98cec1173e24">tri_equal</a></div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;  </div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;<span class="keyword">end module </span><a class="code" href="../../df/d69/namespacetri.html">tri</a></div>
 <div class="ttc" id="anamespaceelement_html"><div class="ttname"><a href="../../d6/d0d/namespaceelement.html">element</a></div><div class="ttdef"><b>Definition:</b> <a href="../../de/d31/element_8f90_source.html#l00033">element.f90:33</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_aab47a6c4827cb5c6bbd741a44c87e956"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">num_types::dp</a></div><div class="ttdeci">integer, parameter, public dp</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00009">num_types.f90:9</a></div></div>
@@ -284,7 +283,7 @@ $(document).ready(function(){initNavTree('d7/d6a/tri_8f90_source.html','../../')
 <div class="ttc" id="anamespacetri_html_a8f0ad861a08d2b0e45e9af6400847ebb"><div class="ttname"><a href="../../df/d69/namespacetri.html#a8f0ad861a08d2b0e45e9af6400847ebb">tri::tri_centroid</a></div><div class="ttdeci">type(point_t) function tri_centroid(this)</div><div class="ttdoc">Compute the centroid of a triangular element.</div><div class="ttdef"><b>Definition:</b> <a href="../../d7/d6a/tri_8f90_source.html#l00171">tri.f90:172</a></div></div>
 <div class="ttc" id="anamespacetri_html_acd76fecf6c8627edd0da071e83614e86"><div class="ttname"><a href="../../df/d69/namespacetri.html#acd76fecf6c8627edd0da071e83614e86">tri::tri_init</a></div><div class="ttdeci">subroutine tri_init(this, id, p1, p2, p3)</div><div class="ttdoc">Create a trinagular element based upon three points.</div><div class="ttdef"><b>Definition:</b> <a href="../../d7/d6a/tri_8f90_source.html#l00093">tri.f90:94</a></div></div>
 <div class="ttc" id="anamespacetri_html_ae5a2eca84151b7a0314098c53d6f336f"><div class="ttname"><a href="../../df/d69/namespacetri.html#ae5a2eca84151b7a0314098c53d6f336f">tri::edge_nodes</a></div><div class="ttdeci">integer, dimension(2, 3), parameter edge_nodes</div><div class="ttdoc">Edge node ids.</div><div class="ttdef"><b>Definition:</b> <a href="../../d7/d6a/tri_8f90_source.html#l00085">tri.f90:85</a></div></div>
-<div class="ttc" id="anamespacetri_html_afe71f204696bc73c8fdf98cec1173e24"><div class="ttname"><a href="../../df/d69/namespacetri.html#afe71f204696bc73c8fdf98cec1173e24">tri::tri_equal</a></div><div class="ttdeci">pure logical function tri_equal(this, other)</div><div class="ttdoc">Check if two triangle elements are equal.</div><div class="ttdef"><b>Definition:</b> <a href="../../d7/d6a/tri_8f90_source.html#l00190">tri.f90:191</a></div></div>
+<div class="ttc" id="anamespacetri_html_afe71f204696bc73c8fdf98cec1173e24"><div class="ttname"><a href="../../df/d69/namespacetri.html#afe71f204696bc73c8fdf98cec1173e24">tri::tri_equal</a></div><div class="ttdeci">pure logical function tri_equal(this, other)</div><div class="ttdoc">Check if two triangle elements are equal.</div><div class="ttdef"><b>Definition:</b> <a href="../../d7/d6a/tri_8f90_source.html#l00189">tri.f90:190</a></div></div>
 <div class="ttc" id="anamespacetuple_html"><div class="ttname"><a href="../../df/dec/namespacetuple.html">tuple</a></div><div class="ttdoc">Implements a n-tuple.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d54/tuple_8f90_source.html#l00034">tuple.f90:34</a></div></div>
 <div class="ttc" id="astructelement_1_1element__t_html"><div class="ttname"><a href="../../d7/dd6/structelement_1_1element__t.html">element::element_t</a></div><div class="ttdoc">Base type for an element.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d31/element_8f90_source.html#l00044">element.f90:44</a></div></div>
 <div class="ttc" id="astructpoint_1_1point__t_html"><div class="ttname"><a href="../../db/d6f/structpoint_1_1point__t.html">point::point_t</a></div><div class="ttdoc">A point in  with coordinates .</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/dc5/point_8f90_source.html#l00043">point.f90:43</a></div></div>
@@ -298,7 +297,7 @@ $(document).ready(function(){initNavTree('d7/d6a/tri_8f90_source.html','../../')
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../d7/d6a/tri_8f90.html">tri.f90</a></li>
-    <li class="footer">Generated on Mon Nov 27 2023 20:42:57 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 28 2023 21:18:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
