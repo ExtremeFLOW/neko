@@ -268,15 +268,15 @@ contains
     type(coef_t), intent(inout) :: coef
     real(kind=rp) :: w2(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: w1(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
-    real(kind=rp) :: vsort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: vsort(cpr%Xh%lx * cpr%Xh%lx * cpr%Xh%lx)
     real(kind=rp) :: vtrunc(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
-    real(kind=rp) :: vtemp(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: vtemp(cpr%Xh%lx * cpr%Xh%lx * cpr%Xh%lx)
     real(kind=rp) :: errvec(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx) 
     real(kind=rp) :: fx(cpr%Xh%lx, cpr%Xh%lx) 
     real(kind=rp) :: fy(cpr%Xh%lx, cpr%Xh%lx) 
     real(kind=rp) :: fz(cpr%Xh%lx, cpr%Xh%lx) 
     real(kind=rp) :: l2norm, oldl2norm, targeterr
-    integer :: isort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
+    integer :: isort(cpr%Xh%lx * cpr%Xh%lx * cpr%Xh%lx)
     integer :: i, j, k, e, nxyz, nelv
     integer :: kut, kutx, kuty, kutz, nx
     character(len=LOG_SIZE) :: log_buf 
@@ -365,7 +365,7 @@ contains
           call neko_log%message(log_buf)
           do i = 1, 10
              write(log_buf, '(A,E15.7,A,E15.7)') &
-                  'org coeff:', vsort(i,1,1), ' truncated coeff', &
+                  'org coeff:', vsort(i), ' truncated coeff', &
                   cpr%fldhat(i,1,1,e)
              call neko_log%message(log_buf)
           end do
@@ -403,63 +403,6 @@ contains
     call swap(vsort, isort, nxyz)
 
   end subroutine sortcoeff
-
-  !> Flip vector b and ind 
-  subroutine flipv(b, ind, n)
-    integer, intent(in) :: n      
-    real(kind=rp), intent(inout) :: b(n)
-    integer, intent(inout) :: ind(n)
-    real(kind=rp) :: temp(n)
-    integer :: tempind(n)
-    integer :: i, jj
-
-    do i = 1, n
-       jj = n+1-i
-       temp(jj) = b(i)
-       tempind(jj) = ind(i)
-    end do
-    do i = 1,n
-       b(i) = temp(i)
-       ind(i) = tempind(i)
-    end do
-
-  end subroutine flipv
-
-  !> sort the array acording to ind vector
-  subroutine swap(b, ind, n)
-    integer, intent(in) :: n      
-    real(kind=rp), intent(inout) :: b(n)
-    integer, intent(inout) :: ind(n)
-    real(kind=rp) :: temp(n)
-    integer :: i, jj
-
-    do i = 1, n
-       temp(i)=b(i)
-    end do
-    do i = 1, n
-       jj=ind(i)
-       b(i)=temp(jj)
-    end do
-
-  end subroutine swap
-
-  !> reorder the array - inverse of swap
-  subroutine reord(b, ind, n)
-    integer, intent(in) :: n      
-    real(kind=rp), intent(inout) :: b(n)
-    integer, intent(inout) :: ind(n)
-    real(kind=rp) :: temp(n)
-    integer :: i, jj
-
-    do i = 1, n
-       temp(i) = b(i)
-    end do
-    do i = 1, n
-       jj = ind(i)
-       b(jj) = temp(i)
-    end do
-
-  end subroutine reord
 
   !> create filter transfer function 
   subroutine build_filter_tf(fx, fy, fz, kut, lx) 
