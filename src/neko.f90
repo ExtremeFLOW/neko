@@ -52,7 +52,7 @@ module neko
   use global_interpolation
   use file
   use field, only : field_t
-  use mpi_types
+  use neko_mpi_types
   use gather_scatter
   use coefs
   use bc
@@ -114,7 +114,7 @@ contains
     call date_and_time(time=time, date=date)
 
     call comm_init
-    call mpi_types_init
+    call neko_mpi_types_init
     call jobctrl_init
     call device_init
 
@@ -273,7 +273,7 @@ contains
     call neko_field_registry%free()
     call neko_scratch_registry%free()
     call device_finalize
-    call mpi_types_free
+    call neko_mpi_types_free
     call comm_free
   end subroutine neko_finalize
 
