@@ -87,9 +87,9 @@ contains
     integer :: i,j,k,lx, ierr
 
     !> Read from case file
-    call json_get(params, 'case.field_reader.mesh_name', &
+    call json_get(params, 'mesh_name', &
          this%mesh_fname)
-    call json_get(params, 'case.field_reader.field_file_name', &
+    call json_get(params, 'field_file_name', &
          this%field_fname)
 
     !!> Define the file names. The counters are defined in the .nek5000 file 
@@ -136,16 +136,16 @@ contains
     integer :: i,j,k,lx, ierr
 
     !> See if some fields should be added to the registry
-    if (params%valid_path('case.field_reader.add_to_registry')) then
+    if (params%valid_path('add_to_registry')) then
        this%add_fields_to_registry = .true.
     
-       call params%info('case.field_reader.add_to_registry.field_position_in_file', &
+       call params%info('add_to_registry.field_position_in_file', &
              n_children=this%n_fields_in_registry)
        call json_get(params, &
-            'case.field_reader.add_to_registry.field_position_in_file', &
+            'add_to_registry.field_position_in_file', &
              this%field_in_registry_position_in_file)
        call json_get(params, &
-            'case.field_reader.add_to_registry.field_name_in_registry', &
+            'add_to_registry.field_name_in_registry', &
              this%field_in_registry_name)
 
        !> Add the fields to the registry
@@ -167,11 +167,11 @@ contains
     end if    
 
 
-    if (params%valid_path('case.field_reader.average_registry')) then
+    if (params%valid_path('average_registry')) then
        this%average_fields_in_registry = .true.
      
        call json_get(params, &
-            'case.field_reader.average_registry.start_time', &
+            'average_registry.start_time', &
              this%average_starting_t)
      
        this%average_last_t = this%average_starting_t

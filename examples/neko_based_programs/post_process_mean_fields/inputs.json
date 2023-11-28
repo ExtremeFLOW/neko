@@ -1,20 +1,23 @@
 {
 "version": 1.0,
 "case": {
-    	"field_reader": {
-        	"mesh_name" : "cylinder.nmsh",
-        	"field_file_name": "mean_fields_usr21.fld",
-		"add_to_registry": 
+    	"field_reader":
+        [
 		{
-			"field_position_in_file": [4,1,2,3,5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-			"field_name_in_registry": ["t", "tt", "uxt", "uyt", "uzt", "dtdx", "dtdy", "dtdz", "dtdn", "eps_t", "eps_k", "speri_u", "speri_v","speri_z"]
-		},
-		"average_registry": 
-		{
-			"start_time": 200
-		}
-     	},
-    	"simulation_components": 
+        		"mesh_name" : "cylinder.nmsh",
+        		"field_file_name": "mean_fields_usr21.fld",
+			"add_to_registry": 
+			{
+				"field_position_in_file": [4,1,2,3,5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+				"field_name_in_registry": ["t", "tt", "uxt", "uyt", "uzt", "dtdx", "dtdy", "dtdz", "dtdn", "eps_t", "eps_k", "speri_u", "speri_v","speri_z"]
+			},
+			"average_registry": 
+			{	
+				"start_time": 200
+			}
+     		}
+	],
+	"simulation_components": 
     	[
       		{
         		"type": "probes",

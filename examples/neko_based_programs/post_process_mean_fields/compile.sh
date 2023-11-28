@@ -1,1 +1,1 @@
-../../../bin/makescript average_in_time_and_interpolate.f90 fld_io_controller.f90 
+../../../bin/makescript post_process_mean_fields.f90 fld_io_controller.f90 
