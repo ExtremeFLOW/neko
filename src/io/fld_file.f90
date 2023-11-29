@@ -49,7 +49,7 @@ module fld_file
   use utils
   use comm
   use datadist
-  use mpi_types
+  use neko_mpi_types
   implicit none
   private
   

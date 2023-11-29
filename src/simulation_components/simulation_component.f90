@@ -57,6 +57,9 @@ module simulation_component
      procedure, pass(this) :: init_base => simulation_component_init_base
      !> Destructor for the simulation_component_t (base) class.
      procedure, pass(this) :: free_base => simulation_component_free_base
+     !> Wrapper for calling `set_counter` for the time based controllers.
+     !! Serves as the public interface.
+     procedure, pass(this) :: restart => simulation_component_restart_wrapper
      !> Wrapper for calling `compute_` based on the `compute_controller`.
      !! Serves as the public interface.
      procedure, pass(this) :: compute => simulation_component_compute_wrapper
@@ -155,5 +158,16 @@ contains
     end if
   end subroutine simulation_component_compute_wrapper
 
+  !> Wrapper for calling `set_counter_` based for the controllers.
+  !! Serves as the public interface.
+  !! @param t The time value.
+  subroutine simulation_component_restart_wrapper(this, t)  
+    class(simulation_component_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+
+    call this%compute_controller%set_counter(t)
+    call this%output_controller%set_counter(t)
+
+  end subroutine simulation_component_restart_wrapper
   
 end module simulation_component
