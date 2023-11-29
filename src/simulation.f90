@@ -112,7 +112,6 @@ contains
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%dt
        call neko_log%message(log_buf)
 
-       print*, C%ext_bdf%ndiff, C%ext_bdf%advection_coeffs
        ! Fluid step 
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 
