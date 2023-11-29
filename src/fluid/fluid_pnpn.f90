@@ -359,57 +359,8 @@ contains
     call this%gs_Xh%op(this%aby2,GS_OP_ADD)
     call this%gs_Xh%op(this%abz1,GS_OP_ADD)
     call this%gs_Xh%op(this%abz2,GS_OP_ADD)
-
-    !! If we would decide to only restart from lagged fields instead of asving abx1, aby1 etc.
-    !! Observe that one also needs to recompute the focing at the old time steps
-    !u_temp = this%ulag%lf(2)
-    !v_temp = this%vlag%lf(2)
-    !w_temp = this%wlag%lf(2)
-    !! Compute the source terms
-    !call this%source_term%compute(tlag(2), -1)
-    !  
-    !! Pre-multiply the source terms with the mass matrix.
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
-    !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
-    !end if
-
-    !! Add the advection operators to the right-hand-side.
-    !call this%adv%compute(u_temp, v_temp, w_temp, &
-    !                      this%f_x%x, this%f_y%x, this%f_z%x, &
-    !                      this%Xh, this%c_Xh, this%dm_Xh%size())
-    !this%abx2 = this%f_x
-    !this%aby2 = this%f_y
-    !this%abz2 = this%f_z
-    !
-    !u_temp = this%ulag%lf(1)
-    !v_temp = this%vlag%lf(1)
-    !w_temp = this%wlag%lf(1)
-    !call this%source_term%compute(tlag(1), 0)
-  
-    !! Pre-multiply the source terms with the mass matrix.
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
-    !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
-    !end if
-
-    !! Pre-multiply the source terms with the mass matrix.
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
-    !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
-    !end if
-
-    !call this%adv%compute(u_temp, v_temp, w_temp, &
-    !                      this%f_x%x, this%f_y%x, this%f_z%x, &
-    !                      this%Xh, this%c_Xh, this%dm_Xh%size())
-    !this%abx1 = this%f_x
-    !this%aby1 = this%f_y
-    !this%abz1 = this%f_z
-
   end subroutine fluid_pnpn_restart
+  
   subroutine fluid_pnpn_free(this)
     class(fluid_pnpn_t), intent(inout) :: this
 
@@ -669,6 +620,5 @@ contains
     end associate
     call profiler_end_region
   end subroutine fluid_pnpn_step
-
   
 end module fluid_pnpn

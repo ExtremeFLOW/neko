@@ -208,13 +208,12 @@ contains
     call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
 
   end subroutine scalar_pnpn_init
-  !> I envision the arguments to this func might need to be expanded
-  subroutine scalar_pnpn_restart(this,dtlag, tlag)
+
+  !> Restart method
+  subroutine scalar_pnpn_restart(this, dtlag, tlag)
     class(scalar_pnpn_t), target, intent(inout) :: this
     real(kind=rp) :: dtlag(10), tlag(10)
     integer :: n
-
-
     n = this%s%dof%size()
 
     call col2(this%s%x,this%c_Xh%mult, n) 
@@ -240,9 +239,6 @@ contains
     call this%gs_Xh%op(this%slag%lf(2),GS_OP_ADD)
     call this%gs_Xh%op(this%abx1,GS_OP_ADD)
     call this%gs_Xh%op(this%abx2,GS_OP_ADD)
-
-
-
   end subroutine scalar_pnpn_restart
 
   subroutine scalar_pnpn_free(this)
@@ -335,9 +331,9 @@ contains
            rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
-      !> We assume that no change of boundary conditions 
-      !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
-      !> Apply dirichlet
+      ! We assume that no change of boundary conditions 
+      ! occurs between elements. I.e. we do not apply gsop here like in Nek5000
+      ! Apply dirichlet
       call this%bc_apply()
 
       ! Compute scalar residual.
@@ -378,6 +374,5 @@ contains
     end associate
     call profiler_end_region
   end subroutine scalar_pnpn_step
-
 
 end module scalar_pnpn

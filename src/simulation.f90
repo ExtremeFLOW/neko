@@ -41,7 +41,7 @@ module simulation
   use device
   use device_math
   use jobctrl
-  use field, only: field_t
+  use field, only : field_t
   use profiler
   use math, only : col2
   use simulation_component_global, only : neko_simcomps
