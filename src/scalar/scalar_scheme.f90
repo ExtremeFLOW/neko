@@ -133,6 +133,7 @@ module scalar_scheme
        real(kind=rp) :: dtlag(10), tlag(10)
      end subroutine scalar_scheme_restart_intrf
   end interface
+  
   !> Abstract interface to dealocate a scalar formulation
   abstract interface
      subroutine scalar_scheme_free_intrf(this)

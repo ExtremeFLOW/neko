@@ -208,6 +208,7 @@ contains
     call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
 
   end subroutine scalar_pnpn_init
+
   !> I envision the arguments to this func might need to be expanded
   subroutine scalar_pnpn_restart(this,dtlag, tlag)
     class(scalar_pnpn_t), target, intent(inout) :: this
@@ -326,6 +327,7 @@ contains
               ' abx2', glsc2(this%abx2%x,this%abx2%x,n)
          call neko_log%message(log_buf)
       end if
+      
       ! Evaluate the source term and scale with the mass matrix.
       call f_Xh%eval(t)
 

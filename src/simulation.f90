@@ -41,7 +41,7 @@ module simulation
   use device
   use device_math
   use jobctrl
-  use field, only: field_t
+  use field, only : field_t
   use profiler
   use math, only : col2
   use simulation_component_global, only : neko_simcomps
@@ -258,7 +258,6 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    
     call C%s%set_counter(t)
   end subroutine simulation_restart
 
