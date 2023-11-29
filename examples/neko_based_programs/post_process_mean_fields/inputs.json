@@ -1,6 +1,11 @@
 {
 "version": 1.0,
 "case": {
+	"non_dimensional_quantities": 
+	{
+		"Ra" : 1e8,
+		"Pr" : 1
+	},
     	"field_reader":
         [
 		{

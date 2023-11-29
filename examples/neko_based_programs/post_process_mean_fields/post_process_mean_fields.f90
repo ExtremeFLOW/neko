@@ -134,13 +134,17 @@ contains
      type(field_t), intent(inout) :: work_field
      type(field_t), intent(inout) :: work_field2
      type(field_t), pointer :: s, ss, s_rms, eps_t, eps_k
-     real(kind=rp) :: ra=1e8_rp
-     real(kind=rp) :: pr=1_rp
+     real(kind=rp) :: ra
+     real(kind=rp) :: pr
      real(kind=rp) :: lambda
      real(kind=rp) :: mu, bar_eps_t, bar_eps_k, nu_eps_t, nu_eps_k
      !> declare variables
      integer :: i,j,k,n
 
+     !> Read from case file
+     call json_get(params, 'case.non_dimensional_quantities.Ra', ra)
+     call json_get(params, 'case.non_dimensional_quantities.Pr', pr)
+     
      !> Get all pointers you need from the registry to make it easier
      s => neko_field_registry%get_field("t")
      ss => neko_field_registry%get_field("tt")
@@ -149,15 +153,18 @@ contains
      eps_k => neko_field_registry%get_field("eps_k")
 
      !> Compute t_rms
-     !  First get mean(t)^2
-     call col3(work_field%x, s%x,  s%x, s%dof%size())
-     ! then substract mean(tt) - mean(t)^2
-     call sub3(s_rms%x, ss%x,  work_field%x, s%dof%size())
      !Do it also in the gpu to verufy that all is good
-     !  First get mean(t)^2
-     call device_col3(work_field%x_d, s%x_d,  s%x_d, s%dof%size())
-     ! then substract mean(tt) - mean(t)^2
-     call device_sub3(s_rms%x_d, ss%x_d,  work_field%x_d, s%dof%size())
+     if (NEKO_BCKND_DEVICE .eq. 1) then 
+        !  First get mean(t)^2
+        call device_col3(work_field%x_d, s%x_d,  s%x_d, s%dof%size())
+        ! then substract mean(tt) - mean(t)^2
+        call device_sub3(s_rms%x_d, ss%x_d,  work_field%x_d, s%dof%size())
+     else
+        !  First get mean(t)^2
+        call col3(work_field%x, s%x,  s%x, s%dof%size())
+        ! then substract mean(tt) - mean(t)^2
+        call sub3(s_rms%x, ss%x,  work_field%x, s%dof%size())
+     end if
 
      ! Run the field diagnostic to see what is happening
      call report_status_of_field(s_rms, work_field)
@@ -321,9 +328,117 @@ contains
 
   end subroutine report_status_of_field
 
+  subroutine sync_field(field)
+    type(field_t), intent(inout) :: field
+    integer :: n
+
+    n = field%dof%size()
+    
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       call device_memcpy(field%x, &
+                          field%x_d, &
+                          n,DEVICE_TO_HOST,sync=.true.)
+    end if
+
+  end subroutine sync_field
+
+
+  subroutine compare_mesh_kolmogorov(params, fld_ioc, work_field, work_field2) 
+     type(json_file), intent(inout) :: params
+     type(fld_io_controller_t), intent(inout) :: fld_ioc
+     type(field_t), intent(inout) :: work_field
+     type(field_t), intent(inout) :: work_field2
+     type(field_t), pointer :: eps_t, eps_k, dx, dy, dz
+     type(file_t) :: file_obj
+     type(field_list_t) :: field_list
+     !
+     real(kind=rp) :: ra
+     real(kind=rp) :: pr
+     real(kind=rp) :: lambda
+     real(kind=rp) :: mu, bar_eps_t, bar_eps_k, eta_t, eta_k
+     integer :: i,j,k,n
+     
+     !> Read from case file
+     call json_get(params, 'case.non_dimensional_quantities.Ra', ra)
+     call json_get(params, 'case.non_dimensional_quantities.Pr', pr)
+     
+     !> Get all pointers you need from the registry to make it easier
+     eps_t => neko_field_registry%get_field("eps_t")
+     eps_k => neko_field_registry%get_field("eps_k")
+
+     !> Get more non dimensional parameters
+     mu = sqrt(pr/ra)
+     lambda = 1_rp/sqrt(ra*pr)
+     
+     !> ----------------------------------------------------------------
+     !> get kolmogorov scale
+     
+     !> Integrate thermal dissipation
+     bar_eps_t = 0_rp
+     call average_from_weights(bar_eps_t, eps_t, &
+                     work_field, fld_ioc%coef%B, fld_ioc%coef%volume)
+  
+     !> Integrate kinetic dissipation
+     bar_eps_k = 0_rp
+     call average_from_weights(bar_eps_k, eps_k, &
+                     work_field, fld_ioc%coef%B, fld_ioc%coef%volume)
+   
+     !> Calculate global kolmogorov scale
+     eta_k = 0_rp
+     eta_k = ((mu**3_rp)/(bar_eps_k))**(0.25_rp)
+    
+     !> Calculate global batchelor scale
+     eta_t = 0_rp
+     eta_t = ((lambda**3_rp)/(bar_eps_k))**(0.25_rp)
+
+     !> ----------------------------------------------------------------
+     !> Calculate the derivatives of the mesh
+
+     call neko_field_registry%add_field(fld_ioc%dof, "dx")
+     call neko_field_registry%add_field(fld_ioc%dof, "dy")
+     call neko_field_registry%add_field(fld_ioc%dof, "dz")
+     dx => neko_field_registry%get_field("dx")
+     dy => neko_field_registry%get_field("dy")
+     dz => neko_field_registry%get_field("dz")
+     
+     !> Get the derivatives
+     call dudxyz(dx%x, fld_ioc%dof%x, fld_ioc%coef%drdx, fld_ioc%coef%dsdx, &
+                       fld_ioc%coef%dtdx, fld_ioc%coef)
+     call dudxyz(dy%x, fld_ioc%dof%y, fld_ioc%coef%drdy, fld_ioc%coef%dsdy, &
+                       fld_ioc%coef%dtdy, fld_ioc%coef)
+     call dudxyz(dz%x, fld_ioc%dof%z, fld_ioc%coef%drdz, fld_ioc%coef%dsdz, &
+                       fld_ioc%coef%dtdz, fld_ioc%coef)
+
+    
+     !> ----------------------------------------------------------------
+     !> scale it with eta
+     if (NEKO_BCKND_DEVICE .eq. 1) then 
+        call device_cmult(dx%x_d, 1/eta_k, dx%dof%size())               
+        call device_cmult(dy%x_d, 1/eta_k, dy%dof%size())               
+        call device_cmult(dz%x_d, 1/eta_k, dz%dof%size())               
+     else
+        call cmult(dx%x, 1/eta_k, dx%dof%size())               
+        call cmult(dy%x, 1/eta_k, dy%dof%size())               
+        call cmult(dz%x, 1/eta_k, dz%dof%size())               
+     end if
+
+     !> Syncrhonize the fields with the cpu
+     call sync_field(dx)
+     call sync_field(dy)
+     call sync_field(dz)
+
+     !> ----------------------------------------------------------------
+     !> Write the fields
+     file_obj = file_t("mesh_eta.fld")
+     allocate(field_list%fields(3))
+     field_list%fields(1)%f => dx
+     field_list%fields(2)%f => dy
+     field_list%fields(3)%f => dz 
+     call file_obj%write(field_list,fld_ioc%t)
+
+  end subroutine compare_mesh_kolmogorov
 
 end module data_processor
-
 
 program post_process
   use neko
@@ -373,6 +488,7 @@ program post_process
   
   !!> --------------------
   !!> Average the quantities of all files in all readers
+  !!> --------------------
   do reader = 1, size(pd%fld_ioc)
      !> Average the fields in the registry for the first data set
      call pd%fld_ioc(reader)%average_registry(pd%fld_ioc(reader)%t, sync=.true.)
@@ -403,6 +519,13 @@ program post_process
      ! here assume one time for all the probes interpolated
      call pd%pb(probe)%compute_(pd%fld_ioc(1)%t, pd%fld_ioc(1)%file_counter)
   end do
+  
+  !!> --------------------
+  !!> Find the ratio between the mesh spacing and kolmogorov scale
+  !!> --------------------
+
+  !> get quantities from the global averages that have been put into the registry
+  call compare_mesh_kolmogorov(pd%params, pd%fld_ioc(1), work_field, work_field2) 
 
   !> --------------------
   !> Finalization phase

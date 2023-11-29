@@ -52,6 +52,7 @@ module fld_io_controller
      real(kind=rp) :: average_last_t
      type(mean_field_t), allocatable :: mean_fields(:)
 
+
    contains
      
      !> Initialize object.
