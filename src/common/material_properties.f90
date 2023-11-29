@@ -33,8 +33,8 @@
 !> Implements material_properties_t type.
 module material_properties
   use num_types, only: rp
-  use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file, json_core, json_value
+  use json_utils, only : json_get
+  use json_module, only : json_file
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use user_intf, only : user_t, dummy_user_material_properties, &
                         user_material_properties

@@ -198,7 +198,6 @@ contains
     real(kind=rp), allocatable :: real_vec(:)
     real(kind=rp) :: real_val
     logical :: logical_val
-    integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
     ! A local pointer that is needed to make Intel happy
 
@@ -462,7 +461,6 @@ contains
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
     ! Variables for extracting json
-    logical :: found, logical_val
     real(kind=rp) :: abs_tol
     character(len=:), allocatable :: solver_type, precon_type
 
@@ -507,9 +505,7 @@ contains
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: real_val, dong_delta, dong_uchar
-    real(kind=rp), allocatable :: real_vec(:)
-    integer :: integer_val
-    character(len=:), allocatable :: string_val1, string_val2
+      character(len=:), allocatable :: string_val1, string_val2
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
                                   material_properties)
@@ -595,8 +591,7 @@ contains
   !> Deallocate a fluid formulation
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
-    integer :: i
-
+  
     call this%bdry%free()
 
     if (allocated(this%bc_inflow)) then
@@ -673,7 +668,7 @@ contains
   subroutine fluid_scheme_validate(this)
     class(fluid_scheme_t), target, intent(inout) :: this
     ! Variables for retrieving json parameters
-    logical :: found, logical_val
+    logical :: logical_val
 
     if ( (.not. associated(this%u)) .or. &
          (.not. associated(this%v)) .or. &

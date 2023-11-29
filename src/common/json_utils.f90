@@ -184,7 +184,7 @@ contains
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     character(len=*), allocatable, intent(out) :: value(:)
-    logical :: found, logical_val
+    logical :: found
     type(json_value), pointer :: json_val, val_ptr
     type(json_core) :: core
     character(len=:), allocatable :: string_value        

@@ -40,7 +40,7 @@ module cg_sx
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, rzero, copy, add2s1
+  use math, only : glsc3, add2s1
   implicit none
   private
 

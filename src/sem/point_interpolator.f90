@@ -33,15 +33,13 @@
 !> Routines to interpolate fields on a given element 
 !! on a point in that element with given r,s,t coordinates
 module point_interpolator
-  use tensor, only: triple_tensor_product, tnsr3d_el_list
+  use tensor, only: triple_tensor_product
   use space, only: space_t, GL, GLL
   use num_types, only: rp
   use point, only: point_t
   use math, only: abscmp
-  use fast3d, only: fd_weights_full, setup_intp
+  use fast3d, only: fd_weights_full
   use utils, only: neko_error
-  use field, only: field_t
-  use field_list, only: field_list_t
   use device
   use device_math, only: device_rzero
   use neko_config, only: NEKO_BCKND_DEVICE
