@@ -249,10 +249,8 @@ contains
     end do
     
     call C%fluid%restart(C%dtlag, C%tlag)
-    if (allocated(C%scalar)) call C%scalar%restart(C%fluid%chkp, C%dtlag, C%tlag)
+    if (allocated(C%scalar)) call C%scalar%restart( C%dtlag, C%tlag)
 
-    print*, 'rstr p1',device_glsc2(C%fluid%p%x_d,C%fluid%p%x_d,size(C%fluid%u%x))
- 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
     write(log_buf,'(A,A)') 'File :   ', &
