@@ -39,7 +39,6 @@ module case
   use mean_sqr_flow_output
   use mean_flow_output
   use fluid_stats_output
-  use mpi_types
   use mpi_f08
   use mesh_field
   use parmetis
@@ -101,7 +100,8 @@ contains
     character(len=:), allocatable :: json_buffer
 
     call neko_log%section('Case')
-    call neko_log%message('Reading case file ' // trim(case_file))
+    call neko_log%message('Reading case file ' // trim(case_file), &
+                          NEKO_LOG_QUIET)
 
     if (pe_rank .eq. 0) then
       call C%params%load_file(filename=trim(case_file))
@@ -126,7 +126,7 @@ contains
     type(json_file), intent(in) :: case_json
 
     call neko_log%section('Case')
-    call neko_log%message('Creating case from JSON object')
+    call neko_log%message('Creating case from JSON object', NEKO_LOG_QUIET)
 
     C%params = case_json
 

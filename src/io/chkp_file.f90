@@ -45,7 +45,7 @@ module chkp_file
   use mesh
   use math
   use interpolation
-  use mpi_types
+  use neko_mpi_types
   use comm
   use global_interpolation
   implicit none
@@ -639,8 +639,9 @@ contains
     print*, 'chkp w',glsc2(w%x,w%x,u%dof%size())
     print*, 'chkp p',glsc2(p%x,p%x,u%dof%size())
     call MPI_File_close(fh, ierr)      
-
-    call this%global_interp%free()
+    if (this%mesh2mesh) then
+       call this%global_interp%free()
+    end if
     call this%space_interp%free()
 
   end subroutine chkp_file_read
