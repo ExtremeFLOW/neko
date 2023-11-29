@@ -60,13 +60,13 @@ module logger
   !> Global log stream
   type(log_t), public :: neko_log
   !> Always logged
-  integer, public :: neko_log_quiet = 0
+  integer, public, parameter :: NEKO_LOG_QUIET = 0
   !> Default log level
-  integer, public :: neko_log_info = 1
+  integer, public, parameter :: NEKO_LOG_INFO = 1
   !> Verbose log level
-  integer, public :: neko_log_verbose = 2
+  integer, public, parameter :: NEKO_LOG_VERBOSE = 2
   !> Debug log level
-  integer, public :: neko_log_debug = 10
+  integer, public, parameter :: NEKO_LOG_DEBUG = 10
 
 contains
 
@@ -210,7 +210,7 @@ contains
     character(len=*), intent(in), optional :: msg
 
     if (present(msg)) then
-       call this%message(msg, neko_log_quiet)
+       call this%message(msg, NEKO_LOG_QUIET)
     end if
 
     if (pe_rank .eq. 0) then
@@ -232,13 +232,13 @@ contains
      t_prog = 100d0 * t / T_end
 
     call this%message('----------------------------------------------------------------', &
-                      neko_log_quiet)
+                      NEKO_LOG_QUIET)
     write(log_buf, '(A,E15.7,A,F6.2,A)') &
     't = ', t, '                                  [ ',t_prog,'% ]'
 
-    call this%message(log_buf, neko_log_quiet)
+    call this%message(log_buf, NEKO_LOG_QUIET)
     call this%message('----------------------------------------------------------------', &
-                      neko_log_quiet)
+                      NEKO_LOG_QUIET)
   end subroutine log_status
 
   !

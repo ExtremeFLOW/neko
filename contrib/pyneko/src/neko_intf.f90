@@ -51,7 +51,7 @@ contains
     call neko_log%section("Session Information")
     write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
          time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
-    call neko_log%message(log_buf, neko_log_quiet)
+    call neko_log%message(log_buf, NEKO_LOG_QUIET)
     write(log_buf, '(a)') 'Running on: '
     if (pe_size .lt. 1e1)  then
        write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
@@ -71,7 +71,7 @@ contains
     else
        write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
     end if
-    call neko_log%message(log_buf, neko_log_quiet)
+    call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
     write(log_buf, '(a)') 'Bcknd type: '
     if (NEKO_BCKND_SX .eq. 1) then
@@ -87,13 +87,13 @@ contains
     else
        write(log_buf(13:), '(a)') 'CPU'
     end if
-    call neko_log%message(log_buf, neko_log_quiet)
+    call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
     if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
          NEKO_BCKND_OPENCL .eq. 1) then
        write(log_buf, '(a)') 'Dev. name : '
        call device_name(log_buf(13:))
-       call neko_log%message(log_buf, neko_log_quiet)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
     end if
 
     write(log_buf, '(a)') 'Real type : '
@@ -105,7 +105,7 @@ contains
     case (real128)
        write(log_buf(13:), '(a)') 'quad precision'
     end select
-    call neko_log%message(log_buf, neko_log_quiet)
+    call neko_log%message(log_buf, NEKO_LOG_QUIET)
     call neko_log%end()
     call neko_log%newline
 

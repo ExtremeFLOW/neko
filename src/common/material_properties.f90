@@ -35,7 +35,7 @@ module material_properties
   use num_types, only: rp
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_core, json_value
-  use logger, only : neko_log, LOG_SIZE, neko_log_verbose
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use user_intf, only : user_t, dummy_user_material_properties, &
                         user_material_properties
   use utils, only : neko_warning, neko_error
@@ -103,10 +103,10 @@ contains
 
           write(log_buf, '(A)') 'Non-dimensional fluid material properties &
                               & input.'
-          call neko_log%message(log_buf, lvl=neko_log_verbose)
+          call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Density will be set to 1, dynamic viscosity to&
                               & 1/Re.'
-          call neko_log%message(log_buf, lvl=neko_log_verbose)
+          call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
 
           ! Read Re into mu for further manipulation.
           call json_get(params, 'case.fluid.Re', this%mu)
@@ -152,10 +152,10 @@ contains
        else if (nondimensional) then
           write(log_buf, '(A)') 'Non-dimensional scalar material properties &
                               & input.'
-          call neko_log%message(log_buf, lvl=neko_log_verbose)
+          call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1, &
                               & conductivity to 1/Pe.'
-          call neko_log%message(log_buf, lvl=neko_log_verbose)
+          call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
           call json_get(params, 'case.scalar.Pe', this%lambda)

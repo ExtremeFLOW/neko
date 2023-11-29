@@ -101,7 +101,7 @@ contains
 
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file), &
-                          neko_log_quiet)
+                          NEKO_LOG_QUIET)
 
     if (pe_rank .eq. 0) then
       call C%params%load_file(filename=trim(case_file))
@@ -126,7 +126,7 @@ contains
     type(json_file), intent(in) :: case_json
 
     call neko_log%section('Case')
-    call neko_log%message('Creating case from JSON object', neko_log_quiet)
+    call neko_log%message('Creating case from JSON object', NEKO_LOG_QUIET)
 
     C%params = case_json
 
