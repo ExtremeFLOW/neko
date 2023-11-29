@@ -183,12 +183,6 @@ contains
     call MPI_File_write_all(fh, optional_fields, 1, MPI_INTEGER, status, ierr)
     call MPI_File_write_all(fh, time, 1, MPI_DOUBLE_PRECISION, status, ierr)
     
-    print*,'chkp ulag1', glsc2(ulag%lf(1)%x,ulag%lf(1)%x,size(ulag%lf(1)%x))
-    print*,'chkp ulag2', glsc2(ulag%lf(2)%x,ulag%lf(2)%x,size(ulag%lf(1)%x))
-    print*, 'chkp u',glsc2(u%x,u%x,u%dof%size())
-    print*, 'chkp v',glsc2(v%x,v%x,u%dof%size())
-    print*, 'chkp w',glsc2(w%x,w%x,u%dof%size())
-    print*, 'chkp p',glsc2(p%x,p%x,u%dof%size())
     
     !
     ! Dump mandatory checkpoint data
@@ -631,17 +625,9 @@ contains
        mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
     end if
 
-    print*,'chkp ulag1', glsc2(ulag%lf(1)%x,ulag%lf(1)%x,size(ulag%lf(1)%x))
-    print*,'chkp ulag2', glsc2(ulag%lf(2)%x,ulag%lf(2)%x,size(ulag%lf(1)%x))
-    print*, 'chkp u',glsc2(u%x,u%x,u%dof%size())
-    
-    print*, 'chkp v',glsc2(v%x,v%x,u%dof%size())
-    print*, 'chkp w',glsc2(w%x,w%x,u%dof%size())
-    print*, 'chkp p',glsc2(p%x,p%x,u%dof%size())
     call MPI_File_close(fh, ierr)      
-    if (this%mesh2mesh) then
-       call this%global_interp%free()
-    end if
+
+    call this%global_interp%free()
     call this%space_interp%free()
 
   end subroutine chkp_file_read
@@ -662,7 +648,6 @@ contains
     call rzero(read_array,this%chkp_xh%lxyz*nel)
     call MPI_File_read_at_all(fh, byte_offset, read_array, &
                nel*this%chkp_Xh%lxyz, MPI_REAL_PRECISION, status, ierr)
-    print *, 'yoyo', nel*this%chkp_Xh%lxyz,glsc2(read_array,read_array,nel*this%chkp_xh%lxyz)
     if (this%mesh2mesh) then
        x = 0.0_rp
        call this%global_interp%evaluate(x,read_array)
