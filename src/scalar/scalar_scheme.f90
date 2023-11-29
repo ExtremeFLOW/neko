@@ -99,6 +99,7 @@ module scalar_scheme
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      procedure(scalar_scheme_free_intrf), pass(this), deferred :: free
      procedure(scalar_scheme_step_intrf), pass(this), deferred :: step
+     procedure(scalar_scheme_restart_intrf), pass(this), deferred :: restart
   end type scalar_scheme_t
 
   !> Abstract interface to initialize a scalar formulation
@@ -122,6 +123,16 @@ module scalar_scheme
      end subroutine scalar_scheme_init_intrf
   end interface
 
+  !> Abstract interface to restart a scalar formulation
+  abstract interface
+     subroutine scalar_scheme_restart_intrf(this,dtlag, tlag)
+       import scalar_scheme_t
+       import chkp_t
+       import rp
+       class(scalar_scheme_t), target, intent(inout) :: this
+       real(kind=rp) :: dtlag(10), tlag(10)
+     end subroutine scalar_scheme_restart_intrf
+  end interface
   !> Abstract interface to dealocate a scalar formulation
   abstract interface
      subroutine scalar_scheme_free_intrf(this)
