@@ -206,6 +206,17 @@ contains
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get poly order
     call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
+    C%fluid%chkp%tlag => C%tlag
+    C%fluid%chkp%dtlag => C%dtlag
+    select type(f => C%fluid)
+    type is(fluid_pnpn_t)
+      f%chkp%abx1 => f%abx1
+      f%chkp%abx2 => f%abx2
+      f%chkp%aby1 => f%aby1
+      f%chkp%aby2 => f%aby2
+      f%chkp%abz1 => f%abz1
+      f%chkp%abz2 => f%abz2
+    end select
 
 
     !
@@ -232,6 +243,9 @@ contains
        call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
                           C%material_properties)
        call C%fluid%chkp%add_scalar(C%scalar%s)
+       C%fluid%chkp%abs1 => C%scalar%abx1
+       C%fluid%chkp%abs2 => C%scalar%abx2
+       C%fluid%chkp%slag => C%scalar%slag
     end if
 
     !
@@ -381,11 +395,11 @@ contains
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
     call json_get_or_default(C%params, 'case.output_checkpoints',&
-                             logical_val, .false.)
+                             logical_val, .true.)
     if (logical_val) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory)
-       call json_get(C%params, 'case.checkpoint_control', string_val)
-       call json_get(C%params, 'case.checkpoint_value', real_val)
+       call json_get_or_default(C%params, 'case.checkpoint_control', string_val,"simulationtime")
+       call json_get_or_default(C%params, 'case.checkpoint_value', real_val,1e10_rp)
        call C%s%add(C%f_chkp, real_val, string_val)
     end if
 
