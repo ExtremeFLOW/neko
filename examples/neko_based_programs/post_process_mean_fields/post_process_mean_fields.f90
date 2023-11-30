@@ -1,632 +1,3 @@
-module data_processor
-  use neko
-  use json_utils
-  use fld_io_controller, only : fld_io_controller_t
-
-  implicit none
-
-  !> Declare type
-  type, public :: data_processor_t     
-     !> Types
-     type(json_file) :: params
-     type(fld_io_controller_t), allocatable :: fld_ioc(:)
-     type(probes_t), allocatable :: pb(:)
-  end type data_processor_t
-    
-contains
-  
-  !> Initialize reading the case object
-  subroutine init_params(params)
-     type(json_file), intent(inout) :: params
-     character(20) :: case_file = "inputs.json"
-     integer :: ierr, integer_val
-     character(len=:), allocatable :: json_buffer
-  
-     !> Read input file
-     if (pe_rank .eq. 0) then
-        write(*,*)  trim(case_file)
-        call params%load_file(filename=trim(case_file))
-        call params%print_to_string(json_buffer)
-        integer_val = len(json_buffer)
-     end if
-
-     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-     if (pe_rank .ne. 0) allocate(character(len=integer_val)::json_buffer)
-     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
-     call params%load_from_string(json_buffer)
-     
-     if (pe_rank.eq.0) then
-        write(*,*) "contents of json file"     
-        write(*,*) json_buffer
-     end if
-
-     deallocate(json_buffer)
-
-  end subroutine init_params
-
-  !> Initialize the reader arrays
-  subroutine init_readers(this)
-     class(data_processor_t), intent(inout) :: this
-     !> Internal variables
-     integer :: n_readers, i
-     type(json_core) :: core
-     type(json_value), pointer :: reader_object, reader_pointer 
-     type(json_file) :: reader_subdict
-     character(len=:), allocatable :: buffer
-     logical :: found
-
-     if (this%params%valid_path('case.field_reader')) then
-    
-        if (pe_rank .eq. 0) then
-           write(*,*)  "Initializing data readers"
-        end if
-
-        call this%params%info('case.field_reader', n_children=n_readers)
-
-        call this%params%get_core(core)
-        call this%params%get('case.field_reader', reader_object, found)
-
-        !> Allocating reader object array
-        allocate(this%fld_ioc(n_readers))
-
-        !> Initialize all the reader objects
-        do i=1, n_readers
-
-           ! Create a new json containing just the subdict for this simcomp
-           call core%get_child(reader_object, i, reader_pointer, found)
-           call core%print_to_string(reader_pointer, buffer)
-           call reader_subdict%load_from_string(buffer)
-           
-           !> Initialize the object
-           call this%fld_ioc(i)%init(reader_subdict)
-           !> Initialize the data processors not related to reading io
-           call this%fld_ioc(i)%init_data_processors(reader_subdict)
-
-        end do
-     end if
-     
-  end subroutine init_readers
-
-  !> Initialize probes_standalone
-  subroutine init_probes(this)
-     class(data_processor_t), intent(inout) :: this
-     !> Internal variables
-     integer :: n_simcomps, i
-     type(json_core) :: core
-     type(json_value), pointer :: simcomp_object, comp_pointer 
-     type(json_file) :: comp_subdict
-     character(len=:), allocatable :: buffer
-     logical :: found
-
-     if (this%params%valid_path('case.simulation_components')) then
-    
-        if (pe_rank .eq. 0) then
-           write(*,*)  "Initializing simulation components"
-        end if
-
-        call this%params%info('case.simulation_components', n_children=n_simcomps)
-
-        call this%params%get_core(core)
-        call this%params%get('case.simulation_components', simcomp_object, found)
-     
-        !> Allocating reader object array
-        allocate(this%pb(n_simcomps))
-        
-        do i=1, n_simcomps
-
-           ! Create a new json containing just the subdict for this simcomp
-           call core%get_child(simcomp_object, i, comp_pointer, found)
-           call core%print_to_string(comp_pointer, buffer)
-           call comp_subdict%load_from_string(buffer)
-           
-           !> Initialize the object
-           call this%pb(i)%init_standalone(comp_subdict, this%fld_ioc(1)%dof)
-
-        end do
-     end if
-
-  end subroutine init_probes
-
-  subroutine get_supporting_quantities(params, fld_ioc, work_field, work_field2) 
-
-     type(json_file), intent(inout) :: params
-     type(fld_io_controller_t), intent(inout) :: fld_ioc
-     type(field_t), intent(inout) :: work_field
-     type(field_t), intent(inout) :: work_field2
-     type(field_t), pointer :: s, ss, s_rms, eps_t, eps_k
-     real(kind=rp) :: ra
-     real(kind=rp) :: pr
-     real(kind=rp) :: lambda
-     real(kind=rp) :: mu, bar_eps_t, bar_eps_k, nu_eps_t, nu_eps_k
-     !> declare variables
-     integer :: i,j,k,n
-
-     !> Read from case file
-     call json_get(params, 'case.non_dimensional_quantities.Ra', ra)
-     call json_get(params, 'case.non_dimensional_quantities.Pr', pr)
-     
-     !> Get all pointers you need from the registry to make it easier
-     s => neko_field_registry%get_field("t")
-     ss => neko_field_registry%get_field("tt")
-     s_rms => neko_field_registry%get_field("t_rms")
-     eps_t => neko_field_registry%get_field("eps_t")
-     eps_k => neko_field_registry%get_field("eps_k")
-
-     !> Compute t_rms
-     !Do it also in the gpu to verufy that all is good
-     if (NEKO_BCKND_DEVICE .eq. 1) then 
-        !  First get mean(t)^2
-        call device_col3(work_field%x_d, s%x_d,  s%x_d, s%dof%size())
-        ! then substract mean(tt) - mean(t)^2
-        call device_sub3(s_rms%x_d, ss%x_d,  work_field%x_d, s%dof%size())
-     else
-        !  First get mean(t)^2
-        call col3(work_field%x, s%x,  s%x, s%dof%size())
-        ! then substract mean(tt) - mean(t)^2
-        call sub3(s_rms%x, ss%x,  work_field%x, s%dof%size())
-     end if
-
-     ! Run the field diagnostic to see what is happening
-     call report_status_of_field(s_rms, work_field)
-  
-     !> Integrate thermal dissipation
-     mu = sqrt(pr/ra)
-     lambda = 1_rp/sqrt(ra*pr)
-  
-     bar_eps_t = 0_rp
-     call average_from_weights(bar_eps_t, eps_t, &
-                     work_field, fld_ioc%coef%B, fld_ioc%coef%volume)
-     !! Calculate nusselt from thermal dissipaton
-     nu_eps_t = 1_rp/lambda*bar_eps_t
-  
-     !> Integrate kinetic
-     bar_eps_k = 0_rp
-     call average_from_weights(bar_eps_k, eps_k, &
-                     work_field, fld_ioc%coef%B, fld_ioc%coef%volume)
-  
-     !! Calculate nusselt from kinetic dissipaton
-     nu_eps_k = 1_rp + bar_eps_k/((mu**3_rp)*ra/(pr**2_rp))
-
-     write(*,*) " field in registry nu_eps_t and nu_eps_k are:", nu_eps_t, nu_eps_k
-
-  end subroutine get_supporting_quantities
-
-  subroutine average_from_weights(avrg, field, work_field, weights, sum_weights)
-     real(kind=rp), intent(inout) :: avrg
-     type(field_t), intent(inout) :: field
-     type(field_t), intent(inout) :: work_field
-     real(kind=rp), dimension(field%Xh%lxyz,field%msh%nelv), intent(inout) :: weights
-     real(kind=rp), intent(inout) :: sum_weights
-     integer :: n
-     type(c_ptr) :: weights_d
-    
-     n = field%dof%size()
-
-     if (NEKO_BCKND_DEVICE .eq. 1) then 
-        weights_d = device_get_ptr(weights)
-        call device_col3(work_field%x_d,field%x_d,weights_d,n)      
-        avrg = device_glsum(work_field%x_d,n)                  
-        avrg = avrg / abs(sum_weights)            
-     else
-        call col3(work_field%x,field%x,weights,n)      
-        avrg = glsum(work_field%x,n)                  
-        avrg = avrg / abs(sum_weights)            
-     end if
-
-  end subroutine average_from_weights
-
-  function assert_gpu_cpu_synch(field, work_field, tol) result(report)
-     type(field_t), intent(inout) :: field
-     type(field_t), intent(inout) :: work_field
-     real(kind=rp), intent(inout) :: tol
-     logical :: report
-     integer :: i, n
-
-     n = field%dof%size()
-
-     !> Make sure the work_fields are zeroed
-     call rzero(work_field%x,n)
-     call device_rzero(work_field%x_d,n)
-
-     !> Copy the contents of the gpu to the work field
-     call device_copy(work_field%x_d , field%x_d, n)
-
-     !> Copy the information from the gpu to the cpu
-     call device_memcpy(work_field%x, work_field%x_d, field%dof%size(), DEVICE_TO_HOST)
-
-     !> Now assert
-     report = .true.
-     do i=1, n
-        if (abs(field%x(i,1,1,1)-work_field%x(i,1,1,1)) .gt. tol ) then
-           report = .false.
-        end if
-     end do
-  end function assert_gpu_cpu_synch
-
-  function assert_cpu_count_entries_less_than_tol(field, work_field, tol) result(report)
-     type(field_t), intent(inout) :: field
-     type(field_t), intent(inout) :: work_field
-     real(kind=rp), intent(inout) :: tol
-     integer :: report
-     integer :: i, n
-
-     n = field%dof%size()
-    
-     !> Make sure the work_fields are zeroed
-     call rzero(work_field%x,n)
-     call device_rzero(work_field%x_d,n)
-
-     !> Copy the contents of the cpu to the work field
-     call copy(work_field%x , field%x, n)
-
-     !> Now assert
-     report = 0
-     do i=1, n
-        if ( work_field%x(i,1,1,1) .lt. tol ) then
-           report = report + 1
-        end if
-     end do
-
-  end function assert_cpu_count_entries_less_than_tol
-
-  function assert_gpu_count_entries_less_than_tol(field, work_field, tol) result(report)
-     type(field_t), intent(inout) :: field
-     type(field_t), intent(inout) :: work_field
-     real(kind=rp), intent(inout) :: tol
-     integer :: report
-     integer :: i, n
-
-     n = field%dof%size()
-    
-     !> Make sure the work_fields are zeroed
-     call rzero(work_field%x,n)
-     call device_rzero(work_field%x_d,n)
-
-     !> Copy the contents of the gpu to the work field
-     call device_copy(work_field%x_d , field%x_d, n)
-    
-     !> Copy the information from the gpu to the cpu
-     call device_memcpy(work_field%x, work_field%x_d, n, DEVICE_TO_HOST)
-
-     !> Now assert
-     report = 0
-     do i=1, n
-        if ( work_field%x(i,1,1,1) .lt. tol ) then
-           report = report + 1
-        end if
-     end do
-  end function assert_gpu_count_entries_less_than_tol
-
-  subroutine report_status_of_field(field, work_field)
-     type(field_t), intent(inout) :: field
-     type(field_t), intent(inout) :: work_field
-     logical :: sync
-     integer :: count_cpu, count_gpu
-     real(kind=rp) tol
-
-     !logical :: assert_gpu_cpu_synch
-     !integer :: assert_cpu_count_entries_less_than_tol
-     !integer :: assert_gpu_count_entries_less_than_tol
-
-     tol = 1e-8
-     sync = assert_gpu_cpu_synch(field, work_field, tol)
-     tol = -1e-7
-     count_cpu = assert_cpu_count_entries_less_than_tol(field, work_field, tol)
-     count_gpu = assert_cpu_count_entries_less_than_tol(field, work_field, tol)
-
-     if (sync) then
-        write(*,*) "The field is syncrhonized in cpu/gpu"
-     else
-        write(*,*) "The field is NOT syncrhonized in cpu/gpu"
-     end if
-       
-     write(*,*) "The number of entries with tolerance less than ", tol, "is:"
-     write(*,*) "cpu: ", count_cpu
-     write(*,*) "gpu: ", count_gpu
-     write(*,*) "The number of entries in the field is ", field%dof%size()
-     !write(*,*) "---------------------------------------------------------------"
-
-  end subroutine report_status_of_field
-
-  subroutine sync_field(field)
-    type(field_t), intent(inout) :: field
-    integer :: n
-
-    n = field%dof%size()
-    
-    if (NEKO_BCKND_DEVICE .eq. 1) then 
-       call device_memcpy(field%x, &
-                          field%x_d, &
-                          n,DEVICE_TO_HOST,sync=.true.)
-    end if
-
-  end subroutine sync_field
-  
-  subroutine sync_field_cpu_to_gpu(field)
-    type(field_t), intent(inout) :: field
-    integer :: n
-
-    n = field%dof%size()
-    
-    if (NEKO_BCKND_DEVICE .eq. 1) then 
-       call device_memcpy(field%x, &
-                          field%x_d, &
-                          n,HOST_TO_DEVICE,sync=.true.)
-    end if
-
-  end subroutine sync_field_cpu_to_gpu
-  
-
-  subroutine lcsum(a, b, lx, nelv)
-     integer, intent(in) :: lx
-     integer, intent(in) :: nelv
-     real(kind=rp), intent(inout) :: a(nelv)
-     real(kind=rp), intent(inout) :: b(lx,lx,lx,nelv)
-     real(kind=rp) :: suma
-     integer :: i, e
-        
-     !> Get local volumes
-     do e = 1, nelv
-        suma = 0_rp
-        do i = 1, lx**3
-           suma = suma + b(i,1,1,e) 
-        end do
-        a(e) = suma
-     end do
-  end subroutine lcsum
-
-
-  subroutine compare_mesh_kolmogorov(params, fld_ioc, work_field, work_field2) 
-     type(json_file), intent(inout) :: params
-     type(fld_io_controller_t), intent(inout) :: fld_ioc
-     type(field_t), intent(inout) :: work_field
-     type(field_t), intent(inout) :: work_field2
-     type(field_t), pointer :: eps_t, eps_k, dx, dy, dz, dr, ds, dt
-     type(field_t), pointer :: dx_e, dy_e, dz_e
-     type(file_t) :: file_obj
-     type(field_list_t) :: field_list
-     !
-     real(kind=rp) :: ra, suma
-     real(kind=rp) :: pr
-     real(kind=rp) :: lambda
-     real(kind=rp) :: mu, bar_eps_t, bar_eps_k, eta_t, eta_k
-     integer :: i,j,k,n,e
-
-     ! local averages
-     real(kind=rp) :: dx_e_nelv(fld_ioc%msh%nelv) 
-     real(kind=rp) :: dy_e_nelv(fld_ioc%msh%nelv) 
-     real(kind=rp) :: dz_e_nelv(fld_ioc%msh%nelv) 
-     real(kind=rp) :: vol_e(fld_ioc%msh%nelv) 
-     type(c_ptr) :: dx_e_nelv_d = C_NULL_PTR
-     type(c_ptr) :: dy_e_nelv_d = C_NULL_PTR
-     type(c_ptr) :: dz_e_nelv_d = C_NULL_PTR
-     type(c_ptr) :: vol_e_d = C_NULL_PTR
-
-     !> Read from case file
-     call json_get(params, 'case.non_dimensional_quantities.Ra', ra)
-     call json_get(params, 'case.non_dimensional_quantities.Pr', pr)
-     
-     !> Get all pointers you need from the registry to make it easier
-     eps_t => neko_field_registry%get_field("eps_t")
-     eps_k => neko_field_registry%get_field("eps_k")
-
-     !> Get more non dimensional parameters
-     mu = sqrt(pr/ra)
-     lambda = 1_rp/sqrt(ra*pr)
-     
-     !> ----------------------------------------------------------------
-     !> get kolmogorov scale
-     
-     !> Integrate thermal dissipation
-     bar_eps_t = 0_rp
-     call average_from_weights(bar_eps_t, eps_t, &
-                     work_field, fld_ioc%coef%B, fld_ioc%coef%volume)
-  
-     !> Integrate kinetic dissipation
-     bar_eps_k = 0_rp
-     call average_from_weights(bar_eps_k, eps_k, &
-                     work_field, fld_ioc%coef%B, fld_ioc%coef%volume)
-   
-     !> Calculate global kolmogorov scale
-     eta_k = 0_rp
-     eta_k = ((mu**3_rp)/(bar_eps_k))**(0.25_rp)
-    
-     !> Calculate global batchelor scale
-     eta_t = 0_rp
-     eta_t = ((lambda**3_rp)/(bar_eps_k))**(0.25_rp)
-
-     !> ----------------------------------------------------------------
-     !> Calculate the grid spacing in the xyz
-
-     call neko_field_registry%add_field(fld_ioc%dof, "dx")
-     call neko_field_registry%add_field(fld_ioc%dof, "dy")
-     call neko_field_registry%add_field(fld_ioc%dof, "dz")
-     call neko_field_registry%add_field(fld_ioc%dof, "dx_e")
-     call neko_field_registry%add_field(fld_ioc%dof, "dy_e")
-     call neko_field_registry%add_field(fld_ioc%dof, "dz_e")
-     call neko_field_registry%add_field(fld_ioc%dof, "dr")
-     call neko_field_registry%add_field(fld_ioc%dof, "ds")
-     call neko_field_registry%add_field(fld_ioc%dof, "dt")
-     dx => neko_field_registry%get_field("dx")
-     dy => neko_field_registry%get_field("dy")
-     dz => neko_field_registry%get_field("dz") 
-     dx_e => neko_field_registry%get_field("dx_e")
-     dy_e => neko_field_registry%get_field("dy_e")
-     dz_e => neko_field_registry%get_field("dz_e") 
-     dr => neko_field_registry%get_field("dr")
-     ds => neko_field_registry%get_field("ds")
-     dt => neko_field_registry%get_field("dt")
-
-     ! get drst
-     do e = 1, fld_ioc%msh%nelv
-        do i=1, fld_ioc%Xh%lx
-           do j=1, fld_ioc%Xh%ly
-              do k=1, fld_ioc%Xh%lz
-                 dr%x(i,j,k,e) = 1/fld_ioc%Xh%dr_inv(i)
-                 ds%x(i,j,k,e) = 1/fld_ioc%Xh%ds_inv(j)
-                 dt%x(i,j,k,e) = 1/fld_ioc%Xh%dt_inv(k)
-              end do
-           end do
-        end do
-     end do
-     
-     call sync_field_cpu_to_gpu(dr)
-     call sync_field_cpu_to_gpu(ds)
-     call sync_field_cpu_to_gpu(dt)
-     
-     !!> get dx**2 = (dx/dr * dr)**2 + (dx/ds * ds)**2
-     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call device_rzero(dx%x_d, dx%dof%size())
-        call device_col3(work_field%x_d, fld_ioc%coef%dxdr_d, dr%x_d, dx%dof%size())
-        call device_addcol3(dx%x_d, work_field%x_d, work_field%x_d, dx%dof%size())
-        call device_col3(work_field%x_d, fld_ioc%coef%dxds_d, ds%x_d, dx%dof%size())
-        call device_addcol3(dx%x_d, work_field%x_d, work_field%x_d, dx%dof%size())
-
-        call device_rzero(dy%x_d, dx%dof%size())
-        call device_col3(work_field%x_d, fld_ioc%coef%dydr_d, dr%x_d, dx%dof%size())
-        call device_addcol3(dy%x_d, work_field%x_d, work_field%x_d, dx%dof%size())
-        call device_col3(work_field%x_d, fld_ioc%coef%dyds_d, ds%x_d, dx%dof%size())
-        call device_addcol3(dy%x_d, work_field%x_d, work_field%x_d, dx%dof%size())
-        
-        call device_rzero(dz%x_d, dx%dof%size())
-        call device_col3(work_field%x_d, fld_ioc%coef%dzdt_d, dt%x_d, dx%dof%size())
-        call device_addcol3(dz%x_d, work_field%x_d, work_field%x_d, dx%dof%size())
-     else
-        call rzero(dx%x, dx%dof%size())
-        call col3(work_field%x, fld_ioc%coef%dxdr, dr%x, dx%dof%size())
-        call addcol3(dx%x, work_field%x, work_field%x, dx%dof%size())
-        call col3(work_field%x, fld_ioc%coef%dxds, ds%x, dx%dof%size())
-        call addcol3(dx%x, work_field%x, work_field%x, dx%dof%size())
-
-        call rzero(dy%x, dx%dof%size())
-        call col3(work_field%x, fld_ioc%coef%dydr, dr%x, dx%dof%size())
-        call addcol3(dy%x, work_field%x, work_field%x, dx%dof%size())
-        call col3(work_field%x, fld_ioc%coef%dyds, ds%x, dx%dof%size())
-        call addcol3(dy%x, work_field%x, work_field%x, dx%dof%size())
-        
-        call rzero(dz%x, dx%dof%size())
-        call col3(work_field%x, fld_ioc%coef%dzdt, dt%x, dx%dof%size())
-        call addcol3(dz%x, work_field%x, work_field%x, dx%dof%size())
-     end if
-    
-   
-     !> Syncrhonize the fields with the cpu
-     call sync_field(dx)
-     call sync_field(dy)
-     call sync_field(dz)
-
-     !> Take the square root and scale in the cpu
-     do i = 1, dx%dof%size()
-        dx%x(i,1,1,1) = sqrt(dx%x(i,1,1,1))/eta_k
-        dy%x(i,1,1,1) = sqrt(dy%x(i,1,1,1))/eta_k
-        dz%x(i,1,1,1) = sqrt(dz%x(i,1,1,1))/eta_k
-     end do
-
-     !> ----------------------------------------------------------------
-     !> Write the fields
-     file_obj = file_t("mesh_eta.fld")
-     allocate(field_list%fields(3))
-     field_list%fields(1)%f => dx
-     field_list%fields(2)%f => dy
-     field_list%fields(3)%f => dz 
-     call file_obj%write(field_list,fld_ioc%t)
-     deallocate(field_list%fields)
-     call file_free(file_obj)
-
-
-     !> ----------------------------------------------------------------
-     !> Get the averages per element to compare to spectral error indicator
-     
-     !> Syncrhonize the fields with the cpu
-     call sync_field_cpu_to_gpu(dx)
-     call sync_field_cpu_to_gpu(dy)
-     call sync_field_cpu_to_gpu(dz)
-
-     if (NEKO_BCKND_DEVICE .eq. 1) then
-        ! Map the pointers
-        call device_map(dx_e_nelv,  dx_e_nelv_d,  fld_ioc%msh%nelv)
-        call device_map(dy_e_nelv,  dy_e_nelv_d,  fld_ioc%msh%nelv)
-        call device_map(dz_e_nelv,  dz_e_nelv_d,  fld_ioc%msh%nelv)
-        call device_map(vol_e,  vol_e_d,  fld_ioc%msh%nelv)
-
-
-        !> Get local volumes
-        call device_lcsum(vol_e_d,fld_ioc%coef%B_d, &
-                            fld_ioc%Xh%lx,fld_ioc%msh%nelv)
-        !! put it in the cpu
-        call device_memcpy(vol_e, vol_e_d, fld_ioc%msh%nelv, &
-                           DEVICE_TO_HOST)
-
-        !> Get the weighted spacings
-        call device_col3(dx_e%x_d, dx%x_d, fld_ioc%coef%B_d, dx%dof%size())
-        call device_col3(dy_e%x_d, dy%x_d, fld_ioc%coef%B_d, dx%dof%size())
-        call device_col3(dz_e%x_d, dz%x_d, fld_ioc%coef%B_d, dx%dof%size())
-
-        !> Now get the local integrals
-        call device_lcsum(dx_e_nelv_d, dx_e%x_d, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
-        call device_lcsum(dy_e_nelv_d, dy_e%x_d, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
-        call device_lcsum(dz_e_nelv_d, dz_e%x_d, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
-        !! put it in the cpu
-        call device_memcpy(dx_e_nelv, dx_e_nelv_d, fld_ioc%msh%nelv, &
-                           DEVICE_TO_HOST)
-        call device_memcpy(dy_e_nelv, dy_e_nelv_d, fld_ioc%msh%nelv, &
-                           DEVICE_TO_HOST)
-        call device_memcpy(dz_e_nelv, dz_e_nelv_d, fld_ioc%msh%nelv, &
-                           DEVICE_TO_HOST)                   
-
-     else
-        
-        !> Get local volumes
-        call lcsum(vol_e,fld_ioc%coef%B, &
-                            fld_ioc%Xh%lx,fld_ioc%msh%nelv)
-        
-        !> Get the weighted spacings
-        call col3(dx_e%x, dx%x, fld_ioc%coef%B, dx%dof%size())
-        call col3(dy_e%x, dy%x, fld_ioc%coef%B, dx%dof%size())
-        call col3(dz_e%x, dz%x, fld_ioc%coef%B, dx%dof%size())
-        
-        !> Get the local integrals
-        call lcsum(dx_e_nelv, dx_e%x, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
-        call lcsum(dy_e_nelv, dy_e%x, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
-        call lcsum(dz_e_nelv, dz_e%x, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
-
-     end if
-
-     !> Being on the cpu, perform the local average operations
-     do e = 1, fld_ioc%msh%nelv
-        dx_e_nelv(e) = dx_e_nelv(e)/vol_e(e)
-        dy_e_nelv(e) = dy_e_nelv(e)/vol_e(e)
-        dz_e_nelv(e) = dz_e_nelv(e)/vol_e(e)
-     end do
-
-     !> Put the averages in the field format to write it
-     do e = 1, fld_ioc%msh%nelv
-        do i=1, fld_ioc%Xh%lx
-           do j=1, fld_ioc%Xh%ly
-              do k=1, fld_ioc%Xh%lz
-                 dx_e%x(i,j,k,e) = dx_e_nelv(e)
-                 dy_e%x(i,j,k,e) = dy_e_nelv(e)
-                 dz_e%x(i,j,k,e) = dz_e_nelv(e)
-              end do
-           end do
-        end do
-     end do
-
-     !> Write the averages
-     file_obj = file_t("mesh_eta_avrg.fld")
-     allocate(field_list%fields(3))
-     field_list%fields(1)%f => dx_e
-     field_list%fields(2)%f => dy_e
-     field_list%fields(3)%f => dz_e
-     call file_obj%write(field_list,fld_ioc%t)
-     deallocate(field_list%fields)
-     call file_free(file_obj)
-
-
-  end subroutine compare_mesh_kolmogorov
-
-end module data_processor
-
 program post_process
   use neko
   use data_processor
@@ -643,9 +14,13 @@ program post_process
   !> Declare fields
   type(field_t) :: work_field
   type(field_t) :: work_field2
+  type(field_t), pointer :: uzt, eps_t, eps_k
+  type(field_t), pointer :: s, ss, s_rms
   
   !> declare variables
   integer :: i,j,k,n, reader, probe
+  real(kind=rp) :: Ra
+  real(kind=rp) :: Pr
 
   !> --------------------
   !> Initialization phase 
@@ -656,7 +31,11 @@ program post_process
 
   !> Initialize the parameters
   call init_params(pd%params)
-  
+ 
+  !> Read from case file
+  call json_get(pd%params, 'case.non_dimensional_quantities.Ra', Ra)
+  call json_get(pd%params, 'case.non_dimensional_quantities.Pr', Pr)
+
   !> Initialize the file interpolator object and read first file
   call init_readers(pd)
   
@@ -691,6 +70,9 @@ program post_process
      end do
   end do
 
+  !!> --------------------
+  !!> Put all averages in the registry for ease of computing
+  !!> --------------------
   !> For all the readers, mode the data from the averaging object to their corresponding
   !! fields in the registry
   do reader = 1, size(pd%fld_ioc)
@@ -698,21 +80,37 @@ program post_process
      call pd%fld_ioc(reader)%put_averages_in_registry()
   end do
 
-  !> get quantities from the global averages that have been put into the registry
-  call get_supporting_quantities(pd%params, pd%fld_ioc(1), work_field, work_field2) 
-  
-  !> Interpolate
+  !!> --------------------
+  !!> Calculate anything you want to interpolate from the averages
+  !!> --------------------
+  s   => neko_field_registry%get_field("t")
+  ss => neko_field_registry%get_field("tt")
+  s_rms => neko_field_registry%get_field("t_rms")
+  call calculate_rms(s_rms, s, ss, work_field) 
+
+  !!> --------------------
+  !!> Interpolate the averaged quantities
+  !!> --------------------
   do probe = 1, size(pd%pb)
      ! here assume one time for all the probes interpolated
      call pd%pb(probe)%compute_(pd%fld_ioc(1)%t, pd%fld_ioc(1)%file_counter)
   end do
   
   !!> --------------------
+  !!> Calculate nusselt
+  !!> --------------------
+  uzt   => neko_field_registry%get_field("uzt")
+  eps_t => neko_field_registry%get_field("eps_t")
+  eps_k => neko_field_registry%get_field("eps_k")
+  call calculate_nusselt_from_fields(uzt, eps_t, eps_k, work_field, work_field2, &
+                                     pd%fld_ioc(1)%coef, Ra, Pr) 
+
+  !!> --------------------
   !!> Find the ratio between the mesh spacing and kolmogorov scale
   !!> --------------------
-
-  !> get quantities from the global averages that have been put into the registry
-  call compare_mesh_kolmogorov(pd%params, pd%fld_ioc(1), work_field, work_field2) 
+  call compare_mesh_kolmogorov(eps_t, eps_k, work_field, work_field2, &
+                               pd%fld_ioc(1)%coef, pd%fld_ioc(1)%dof, &
+                               pd%fld_ioc(1)%msh, pd%fld_ioc(1)%Xh, Ra, Pr)
 
   !> --------------------
   !> Finalization phase
