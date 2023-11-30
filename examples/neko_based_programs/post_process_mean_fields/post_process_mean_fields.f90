@@ -341,6 +341,20 @@ contains
     end if
 
   end subroutine sync_field
+  
+  subroutine sync_field_cpu_to_gpu(field)
+    type(field_t), intent(inout) :: field
+    integer :: n
+
+    n = field%dof%size()
+    
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       call device_memcpy(field%x, &
+                          field%x_d, &
+                          n,HOST_TO_DEVICE,sync=.true.)
+    end if
+
+  end subroutine sync_field_cpu_to_gpu
 
 
   subroutine compare_mesh_kolmogorov(params, fld_ioc, work_field, work_field2) 
@@ -348,15 +362,15 @@ contains
      type(fld_io_controller_t), intent(inout) :: fld_ioc
      type(field_t), intent(inout) :: work_field
      type(field_t), intent(inout) :: work_field2
-     type(field_t), pointer :: eps_t, eps_k, dx, dy, dz
+     type(field_t), pointer :: eps_t, eps_k, dx, dy, dz, dr, ds, dt
      type(file_t) :: file_obj
      type(field_list_t) :: field_list
      !
-     real(kind=rp) :: ra
+     real(kind=rp) :: ra, suma
      real(kind=rp) :: pr
      real(kind=rp) :: lambda
      real(kind=rp) :: mu, bar_eps_t, bar_eps_k, eta_t, eta_k
-     integer :: i,j,k,n
+     integer :: i,j,k,n,e
      
      !> Read from case file
      call json_get(params, 'case.non_dimensional_quantities.Ra', ra)
@@ -392,40 +406,84 @@ contains
      eta_t = ((lambda**3_rp)/(bar_eps_k))**(0.25_rp)
 
      !> ----------------------------------------------------------------
-     !> Calculate the derivatives of the mesh
+     !> Calculate the grid spacing in the xyz
 
      call neko_field_registry%add_field(fld_ioc%dof, "dx")
      call neko_field_registry%add_field(fld_ioc%dof, "dy")
      call neko_field_registry%add_field(fld_ioc%dof, "dz")
+     call neko_field_registry%add_field(fld_ioc%dof, "dr")
+     call neko_field_registry%add_field(fld_ioc%dof, "ds")
+     call neko_field_registry%add_field(fld_ioc%dof, "dt")
      dx => neko_field_registry%get_field("dx")
      dy => neko_field_registry%get_field("dy")
-     dz => neko_field_registry%get_field("dz")
+     dz => neko_field_registry%get_field("dz") 
+     dr => neko_field_registry%get_field("dr")
+     ds => neko_field_registry%get_field("ds")
+     dt => neko_field_registry%get_field("dt")
+
+     ! get drst
+     do e = 1, fld_ioc%msh%nelv
+        do i=1, fld_ioc%Xh%lx
+           do j=1, fld_ioc%Xh%ly
+              do k=1, fld_ioc%Xh%lz
+                 dr%x(i,j,k,e) = 1/fld_ioc%Xh%dr_inv(i)
+                 ds%x(i,j,k,e) = 1/fld_ioc%Xh%ds_inv(j)
+                 dt%x(i,j,k,e) = 1/fld_ioc%Xh%dt_inv(k)
+              end do
+           end do
+        end do
+     end do
      
-     !> Get the derivatives
-     call dudxyz(dx%x, fld_ioc%dof%x, fld_ioc%coef%drdx, fld_ioc%coef%dsdx, &
-                       fld_ioc%coef%dtdx, fld_ioc%coef)
-     call dudxyz(dy%x, fld_ioc%dof%y, fld_ioc%coef%drdy, fld_ioc%coef%dsdy, &
-                       fld_ioc%coef%dtdy, fld_ioc%coef)
-     call dudxyz(dz%x, fld_ioc%dof%z, fld_ioc%coef%drdz, fld_ioc%coef%dsdz, &
-                       fld_ioc%coef%dtdz, fld_ioc%coef)
+     call sync_field_cpu_to_gpu(dr)
+     call sync_field_cpu_to_gpu(ds)
+     call sync_field_cpu_to_gpu(dt)
+     
+     !!> get dx**2 = (dx/dr * dr)**2 + (dx/ds * ds)**2
+     if (NEKO_BCKND_DEVICE .eq. 1) then
+        call device_rzero(dx%x_d, dx%dof%size())
+        call device_col3(work_field%x_d, fld_ioc%coef%dxdr_d, dr%x_d, dx%dof%size())
+        call device_addcol3(dx%x_d, work_field%x_d, work_field%x_d, dx%dof%size())
+        call device_col3(work_field%x_d, fld_ioc%coef%dxds_d, ds%x_d, dx%dof%size())
+        call device_addcol3(dx%x_d, work_field%x_d, work_field%x_d, dx%dof%size())
 
-    
-     !> ----------------------------------------------------------------
-     !> scale it with eta
-     if (NEKO_BCKND_DEVICE .eq. 1) then 
-        call device_cmult(dx%x_d, 1/eta_k, dx%dof%size())               
-        call device_cmult(dy%x_d, 1/eta_k, dy%dof%size())               
-        call device_cmult(dz%x_d, 1/eta_k, dz%dof%size())               
+        call device_rzero(dy%x_d, dx%dof%size())
+        call device_col3(work_field%x_d, fld_ioc%coef%dydr_d, dr%x_d, dx%dof%size())
+        call device_addcol3(dy%x_d, work_field%x_d, work_field%x_d, dx%dof%size())
+        call device_col3(work_field%x_d, fld_ioc%coef%dyds_d, ds%x_d, dx%dof%size())
+        call device_addcol3(dy%x_d, work_field%x_d, work_field%x_d, dx%dof%size())
+        
+        call device_rzero(dz%x_d, dx%dof%size())
+        call device_col3(work_field%x_d, fld_ioc%coef%dzdt_d, dt%x_d, dx%dof%size())
+        call device_addcol3(dz%x_d, work_field%x_d, work_field%x_d, dx%dof%size())
      else
-        call cmult(dx%x, 1/eta_k, dx%dof%size())               
-        call cmult(dy%x, 1/eta_k, dy%dof%size())               
-        call cmult(dz%x, 1/eta_k, dz%dof%size())               
-     end if
+        call rzero(dx%x, dx%dof%size())
+        call col3(work_field%x, fld_ioc%coef%dxdr, dr%x, dx%dof%size())
+        call addcol3(dx%x, work_field%x, work_field%x, dx%dof%size())
+        call col3(work_field%x, fld_ioc%coef%dxds, ds%x, dx%dof%size())
+        call addcol3(dx%x, work_field%x, work_field%x, dx%dof%size())
 
+        call rzero(dy%x, dx%dof%size())
+        call col3(work_field%x, fld_ioc%coef%dydr, dr%x, dx%dof%size())
+        call addcol3(dy%x, work_field%x, work_field%x, dx%dof%size())
+        call col3(work_field%x, fld_ioc%coef%dyds, ds%x, dx%dof%size())
+        call addcol3(dy%x, work_field%x, work_field%x, dx%dof%size())
+        
+        call rzero(dz%x, dx%dof%size())
+        call col3(work_field%x, fld_ioc%coef%dzdt, dt%x, dx%dof%size())
+        call addcol3(dz%x, work_field%x, work_field%x, dx%dof%size())
+     end if
+    
      !> Syncrhonize the fields with the cpu
      call sync_field(dx)
      call sync_field(dy)
      call sync_field(dz)
+
+     !> Take the square root and scale in the cpu
+     do i = 1, dx%dof%size()
+        dx%x(i,1,1,1) = sqrt(dx%x(i,1,1,1))/eta_k
+        dy%x(i,1,1,1) = sqrt(dy%x(i,1,1,1))/eta_k
+        dz%x(i,1,1,1) = sqrt(dz%x(i,1,1,1))/eta_k
+     end do
 
      !> ----------------------------------------------------------------
      !> Write the fields
