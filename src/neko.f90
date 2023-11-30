@@ -76,6 +76,7 @@ module neko
   use jobctrl
   use device
   use device_math
+  use device_element_math
   use cpr
   use fluid_stats
   use field_list, only : field_list_t

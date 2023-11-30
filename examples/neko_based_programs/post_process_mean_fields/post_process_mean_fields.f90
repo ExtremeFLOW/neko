@@ -355,6 +355,25 @@ contains
     end if
 
   end subroutine sync_field_cpu_to_gpu
+  
+
+  subroutine lcsum(a, b, lx, nelv)
+     integer, intent(in) :: lx
+     integer, intent(in) :: nelv
+     real(kind=rp), intent(inout) :: a(nelv)
+     real(kind=rp), intent(inout) :: b(lx,lx,lx,nelv)
+     real(kind=rp) :: suma
+     integer :: i, e
+        
+     !> Get local volumes
+     do e = 1, nelv
+        suma = 0_rp
+        do i = 1, lx**3
+           suma = suma + b(i,1,1,e) 
+        end do
+        a(e) = suma
+     end do
+  end subroutine lcsum
 
 
   subroutine compare_mesh_kolmogorov(params, fld_ioc, work_field, work_field2) 
@@ -363,6 +382,7 @@ contains
      type(field_t), intent(inout) :: work_field
      type(field_t), intent(inout) :: work_field2
      type(field_t), pointer :: eps_t, eps_k, dx, dy, dz, dr, ds, dt
+     type(field_t), pointer :: dx_e, dy_e, dz_e
      type(file_t) :: file_obj
      type(field_list_t) :: field_list
      !
@@ -371,7 +391,17 @@ contains
      real(kind=rp) :: lambda
      real(kind=rp) :: mu, bar_eps_t, bar_eps_k, eta_t, eta_k
      integer :: i,j,k,n,e
-     
+
+     ! local averages
+     real(kind=rp) :: dx_e_nelv(fld_ioc%msh%nelv) 
+     real(kind=rp) :: dy_e_nelv(fld_ioc%msh%nelv) 
+     real(kind=rp) :: dz_e_nelv(fld_ioc%msh%nelv) 
+     real(kind=rp) :: vol_e(fld_ioc%msh%nelv) 
+     type(c_ptr) :: dx_e_nelv_d = C_NULL_PTR
+     type(c_ptr) :: dy_e_nelv_d = C_NULL_PTR
+     type(c_ptr) :: dz_e_nelv_d = C_NULL_PTR
+     type(c_ptr) :: vol_e_d = C_NULL_PTR
+
      !> Read from case file
      call json_get(params, 'case.non_dimensional_quantities.Ra', ra)
      call json_get(params, 'case.non_dimensional_quantities.Pr', pr)
@@ -411,12 +441,18 @@ contains
      call neko_field_registry%add_field(fld_ioc%dof, "dx")
      call neko_field_registry%add_field(fld_ioc%dof, "dy")
      call neko_field_registry%add_field(fld_ioc%dof, "dz")
+     call neko_field_registry%add_field(fld_ioc%dof, "dx_e")
+     call neko_field_registry%add_field(fld_ioc%dof, "dy_e")
+     call neko_field_registry%add_field(fld_ioc%dof, "dz_e")
      call neko_field_registry%add_field(fld_ioc%dof, "dr")
      call neko_field_registry%add_field(fld_ioc%dof, "ds")
      call neko_field_registry%add_field(fld_ioc%dof, "dt")
      dx => neko_field_registry%get_field("dx")
      dy => neko_field_registry%get_field("dy")
      dz => neko_field_registry%get_field("dz") 
+     dx_e => neko_field_registry%get_field("dx_e")
+     dy_e => neko_field_registry%get_field("dy_e")
+     dz_e => neko_field_registry%get_field("dz_e") 
      dr => neko_field_registry%get_field("dr")
      ds => neko_field_registry%get_field("ds")
      dt => neko_field_registry%get_field("dt")
@@ -473,6 +509,7 @@ contains
         call addcol3(dz%x, work_field%x, work_field%x, dx%dof%size())
      end if
     
+   
      !> Syncrhonize the fields with the cpu
      call sync_field(dx)
      call sync_field(dy)
@@ -493,6 +530,98 @@ contains
      field_list%fields(2)%f => dy
      field_list%fields(3)%f => dz 
      call file_obj%write(field_list,fld_ioc%t)
+     deallocate(field_list%fields)
+     call file_free(file_obj)
+
+
+     !> ----------------------------------------------------------------
+     !> Get the averages per element to compare to spectral error indicator
+     
+     !> Syncrhonize the fields with the cpu
+     call sync_field_cpu_to_gpu(dx)
+     call sync_field_cpu_to_gpu(dy)
+     call sync_field_cpu_to_gpu(dz)
+
+     if (NEKO_BCKND_DEVICE .eq. 1) then
+        ! Map the pointers
+        call device_map(dx_e_nelv,  dx_e_nelv_d,  fld_ioc%msh%nelv)
+        call device_map(dy_e_nelv,  dy_e_nelv_d,  fld_ioc%msh%nelv)
+        call device_map(dz_e_nelv,  dz_e_nelv_d,  fld_ioc%msh%nelv)
+        call device_map(vol_e,  vol_e_d,  fld_ioc%msh%nelv)
+
+
+        !> Get local volumes
+        call device_lcsum(vol_e_d,fld_ioc%coef%B_d, &
+                            fld_ioc%Xh%lx,fld_ioc%msh%nelv)
+        !! put it in the cpu
+        call device_memcpy(vol_e, vol_e_d, fld_ioc%msh%nelv, &
+                           DEVICE_TO_HOST)
+
+        !> Get the weighted spacings
+        call device_col3(dx_e%x_d, dx%x_d, fld_ioc%coef%B_d, dx%dof%size())
+        call device_col3(dy_e%x_d, dy%x_d, fld_ioc%coef%B_d, dx%dof%size())
+        call device_col3(dz_e%x_d, dz%x_d, fld_ioc%coef%B_d, dx%dof%size())
+
+        !> Now get the local integrals
+        call device_lcsum(dx_e_nelv_d, dx_e%x_d, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
+        call device_lcsum(dy_e_nelv_d, dy_e%x_d, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
+        call device_lcsum(dz_e_nelv_d, dz_e%x_d, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
+        !! put it in the cpu
+        call device_memcpy(dx_e_nelv, dx_e_nelv_d, fld_ioc%msh%nelv, &
+                           DEVICE_TO_HOST)
+        call device_memcpy(dy_e_nelv, dy_e_nelv_d, fld_ioc%msh%nelv, &
+                           DEVICE_TO_HOST)
+        call device_memcpy(dz_e_nelv, dz_e_nelv_d, fld_ioc%msh%nelv, &
+                           DEVICE_TO_HOST)                   
+
+     else
+        
+        !> Get local volumes
+        call lcsum(vol_e,fld_ioc%coef%B, &
+                            fld_ioc%Xh%lx,fld_ioc%msh%nelv)
+        
+        !> Get the weighted spacings
+        call col3(dx_e%x, dx%x, fld_ioc%coef%B, dx%dof%size())
+        call col3(dy_e%x, dy%x, fld_ioc%coef%B, dx%dof%size())
+        call col3(dz_e%x, dz%x, fld_ioc%coef%B, dx%dof%size())
+        
+        !> Get the local integrals
+        call lcsum(dx_e_nelv, dx_e%x, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
+        call lcsum(dy_e_nelv, dy_e%x, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
+        call lcsum(dz_e_nelv, dz_e%x, fld_ioc%Xh%lx, fld_ioc%msh%nelv)
+
+     end if
+
+     !> Being on the cpu, perform the local average operations
+     do e = 1, fld_ioc%msh%nelv
+        dx_e_nelv(e) = dx_e_nelv(e)/vol_e(e)
+        dy_e_nelv(e) = dy_e_nelv(e)/vol_e(e)
+        dz_e_nelv(e) = dz_e_nelv(e)/vol_e(e)
+     end do
+
+     !> Put the averages in the field format to write it
+     do e = 1, fld_ioc%msh%nelv
+        do i=1, fld_ioc%Xh%lx
+           do j=1, fld_ioc%Xh%ly
+              do k=1, fld_ioc%Xh%lz
+                 dx_e%x(i,j,k,e) = dx_e_nelv(e)
+                 dy_e%x(i,j,k,e) = dy_e_nelv(e)
+                 dz_e%x(i,j,k,e) = dz_e_nelv(e)
+              end do
+           end do
+        end do
+     end do
+
+     !> Write the averages
+     file_obj = file_t("mesh_eta_avrg.fld")
+     allocate(field_list%fields(3))
+     field_list%fields(1)%f => dx_e
+     field_list%fields(2)%f => dy_e
+     field_list%fields(3)%f => dz_e
+     call file_obj%write(field_list,fld_ioc%t)
+     deallocate(field_list%fields)
+     call file_free(file_obj)
+
 
   end subroutine compare_mesh_kolmogorov
 

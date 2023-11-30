@@ -209,6 +209,7 @@ neko_fortran_SOURCES = \
 	device/dummy_device.F90\
 	device/device.F90\
 	math/bcknd/device/device_math.F90\
+	math/bcknd/device/device_element_math.F90\
 	math/bcknd/device/device_schwarz.F90\
 	math/bcknd/device/tensor_device.F90\
 	math/bcknd/device/fdm_device.F90\
@@ -258,6 +259,7 @@ if ENABLE_HIP
 libneko_a_SOURCES += \
 	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
+	math/bcknd/device/hip/element_math.hip\
 	math/bcknd/device/hip/schwarz.hip\
 	math/bcknd/device/hip/tensor.hip\
 	math/bcknd/device/hip/fdm.hip\
@@ -291,6 +293,7 @@ if ENABLE_CUDA
 libneko_a_SOURCES += \
 	device/cuda/check.cu\
 	math/bcknd/device/cuda/math.cu\
+	math/bcknd/device/cuda/element_math.cu\
 	math/bcknd/device/cuda/schwarz.cu\
 	math/bcknd/device/cuda/tensor.cu\
 	math/bcknd/device/cuda/fdm.cu\
@@ -433,6 +436,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/dong_outflow_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
+	math/bcknd/device/cuda/element_math_kernel.h\
 	math/bcknd/device/cuda/tensor_kernel.h\
 	math/bcknd/device/cuda/fdm_kernel.h\
 	math/bcknd/device/cuda/mathops_kernel.h\
@@ -460,7 +464,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/hip/dong_outflow_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
-	math/bcknd/device/hip/math_kernel.h\
+	math/bcknd/device/hip/element_math_kernel.h\
 	math/bcknd/device/hip/tensor_kernel.h\
 	math/bcknd/device/hip/schwarz_kernel.h\
 	math/bcknd/device/hip/fdm_kernel.h\

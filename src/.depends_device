@@ -1,5 +1,6 @@
 device/hip/check.o : device/hip/check.hip device/hip/check.h
 math/bcknd/device/hip/math.o : math/bcknd/device/hip/math.hip math/bcknd/device/hip/math_kernel.h
+math/bcknd/device/hip/element_math.o : math/bcknd/device/hip/element_math.hip math/bcknd/device/hip/element_math_kernel.h
 math/bcknd/device/hip/mathops.o : math/bcknd/device/hip/mathops.hip math/bcknd/device/hip/mathops_kernel.h
 math/bcknd/device/hip/opr_dudxyz.o : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h
 math/bcknd/device/hip/opr_cdtp.o : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h
@@ -29,6 +30,7 @@ scalar/bcknd/device/hip/scalar_residual.o : scalar/bcknd/device/hip/scalar_resid
 sem/bcknd/device/hip/coef.o : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
 device/cuda/check.o : device/cuda/check.cu device/cuda/check.h
 math/bcknd/device/cuda/math.o : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
+math/bcknd/device/cuda/element_math.o : math/bcknd/device/cuda/element_math.cu math/bcknd/device/cuda/element_math_kernel.h
 math/bcknd/device/cuda/mathops.o : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
 math/bcknd/device/cuda/opr_dudxyz.o : math/bcknd/device/cuda/opr_dudxyz.cu math/bcknd/device/cuda/dudxyz_kernel.h
 math/bcknd/device/cuda/opr_cdtp.o : math/bcknd/device/cuda/opr_cdtp.cu math/bcknd/device/cuda/cdtp_kernel.h
