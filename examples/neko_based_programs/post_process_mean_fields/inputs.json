@@ -3,7 +3,7 @@
 "case": {
 	"non_dimensional_quantities": 
 	{
-		"Ra" : 1e8,
+		"Ra" : 1e11,
 		"Pr" : 1
 	},
     	"field_reader":
@@ -15,6 +15,32 @@
 			{
 				"field_position_in_file": [4,1,2,3,5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
 				"field_name_in_registry": ["t", "tt", "uxt", "uyt", "uzt", "dtdx", "dtdy", "dtdz", "dtdn", "eps_t", "eps_k", "speri_u", "speri_v","speri_z"]
+			},
+			"average_registry": 
+			{	
+				"start_time": 200
+			}
+     		},
+		{
+        		"mesh_name" : "cylinder.nmsh",
+        		"field_file_name": "mean_field21.fld",
+			"add_to_registry": 
+			{
+				"field_position_in_file": [4,1,2,3],
+				"field_name_in_registry": ["u", "v", "w", "p"]
+			},
+			"average_registry": 
+			{	
+				"start_time": 200
+			}
+     		},
+		{
+        		"mesh_name" : "cylinder.nmsh",
+        		"field_file_name": "stats21.fld",
+			"add_to_registry": 
+			{
+				"field_position_in_file": [4,1,2,3],
+				"field_name_in_registry": ["pp", "uu", "vv", "ww"]
 			},
 			"average_registry": 
 			{	

@@ -12,6 +12,7 @@ module fld_io_controller
   type, public :: fld_io_controller_t
      !> mesh file name and name with the .nek5000 field counter
      character(len=:), allocatable  :: mesh_fname, field_fname
+     integer :: field_first_index
      !> type to load the actual files
      type(file_t) :: field_file, mesh_file
      
@@ -86,6 +87,11 @@ contains
     class(fld_io_controller_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
     integer :: i,j,k,lx, ierr
+    character(len=80)  :: string, string2, string3
+    
+    if (pe_rank .eq. 0) write(*,*) '-------------------------------------------'
+    if (pe_rank .eq. 0) write(*,*) '-------  io_controller object -------------'
+    if (pe_rank .eq. 0) write(*,*) '-------------------------------------------'
 
     !> Read from case file
     call json_get(params, 'mesh_name', &
@@ -103,11 +109,21 @@ contains
 
     !> syncrhonize 
     !call MPI_Barrier(NEKO_COMM, ierr)
+    
+    !> Read which are the indices of the files
+    string = this%field_fname(1 : len(this%field_fname)-3) //  "nek5000"
+    open (1, file = trim(string), status = 'old')
+       read(1,*) !read the first line without storing anything
+       ! Now read the second line   
+       !read(1,*) string2, this%field_first_index
+       read(1,*) string2, this%file_counter
+    close(1)
 
     !> Read the first field in sequence
-    this%file_counter = 1
+    !this%file_counter = 1 ! this commented since I get the index from the file
+    string2 = this%field_fname(1 : len(this%field_fname)-3) //  "f"
     if (pe_rank .eq. 0) write(*,*) '-------------------------------------------'
-    if (pe_rank .eq. 0) write(*,*) 'Reading file: ', this%file_counter
+    if (pe_rank .eq. 0) write(*,'(A, A, I0.5)') 'Reading file: ', trim(string2), this%file_counter
     call this%field_file%read(this%field_file_data)
     if (pe_rank .eq. 0) write(*,*) 'time_in_file= ', this%field_file_data%time 
     this%t = this%field_file_data%time
@@ -233,11 +249,13 @@ contains
   subroutine step(this)
     class(fld_io_controller_t), intent(inout) :: this
     integer :: i,j,k,e,lx 
+    character(len=80)  :: string, string2, string3
 
     this%file_counter = this%file_counter + 1
 
+    string2 = this%field_fname(1 : len(this%field_fname)-3) //  "f"
     if (pe_rank .eq. 0) write(*,*) '-------------------------------------------'
-    if (pe_rank .eq. 0) write(*,*) 'Reading file: ', this%file_counter
+    if (pe_rank .eq. 0) write(*,'(A, A, I0.5)') 'Reading file: ', trim(string2), this%file_counter
     call this%field_file%read(this%field_file_data)
     if (pe_rank .eq. 0) write(*,*) 'time_in_file= ', this%field_file_data%time 
     this%t = this%field_file_data%time
