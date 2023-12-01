@@ -1249,7 +1249,7 @@ contains
        call neko_error('Error recording an event')
     end if
 #elif HAVE_OPENCL
-    if (clEnqueueMarker(stream, event) .ne. CL_SUCCESS) then
+    if (clEnqueueMarkerWithWaitList(stream, 0, C_NULL_PTR, event) .ne. CL_SUCCESS) then
        call neko_error('Error recording an event')
     end if
 #endif
