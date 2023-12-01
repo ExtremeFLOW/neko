@@ -51,5 +51,5 @@ module stats_quant
        real(kind=rp), intent(in) :: k
      end subroutine stats_quant_update
   end interface
-
+  
 end module stats_quant
