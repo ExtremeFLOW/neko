@@ -42,7 +42,6 @@ module simulation
   use profiler
   use math, only : col2
   use simulation_component_global, only : neko_simcomps
-  use json_module, only : json_file_t => json_file
   use json_utils, only : json_get_or_default
   implicit none
   private

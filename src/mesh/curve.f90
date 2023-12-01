@@ -57,7 +57,6 @@ contains
   !! @details Create a static list of (facet,el) tuples
   subroutine curve_element_finalize(z)
     class(curve_t), target, intent(inout) :: z
-    class(struct_curve_t), pointer :: tp(:)
     integer :: i
     
     if (.not. z%finalized) then
@@ -65,9 +64,9 @@ contains
        allocate(z%curve_el(z%scratch%size()))
        select type (tp=>z%scratch%data)
        type is (struct_curve_t)           
-       do i = 1, z%scratch%size()
-          z%curve_el(i) = tp(i)
-       end do
+          do i = 1, z%scratch%size()
+             z%curve_el(i) = tp(i)
+          end do
        end select
 
        z%size = z%scratch%size()

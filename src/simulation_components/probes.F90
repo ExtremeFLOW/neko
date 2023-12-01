@@ -38,8 +38,7 @@ module probes
   use num_types, only: rp
   use matrix, only: matrix_t
   use logger, only: neko_log, LOG_SIZE
-  use utils, only: neko_error, neko_warning
-  use field, only: field_t
+  use utils, only: neko_error
   use field_list, only: field_list_t
   use simulation_component
   use field_registry, only : neko_field_registry
@@ -47,7 +46,6 @@ module probes
   use json_module, only : json_file
   use json_utils, only : json_get
   use global_interpolation, only: global_interpolation_t
-  use math, only: rzero, copy
   use tensor, only: trsp
   use comm
   use device

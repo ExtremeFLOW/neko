@@ -149,10 +149,7 @@ contains
     real(kind=rp) :: stats_start_time, stats_output_val
     integer ::  stats_sampling_interval
     integer :: output_dir_len
-    integer :: n_simcomps, i
-    type(json_core) :: core
-    type(json_value), pointer :: json_val1, json_val2
-    type(json_file) :: json_subdict
+    integer :: n_simcomps
 
     !
     ! Load mesh

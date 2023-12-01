@@ -62,7 +62,6 @@ module ax_helm_xsmm
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
-  use field, only : field_t
   use mesh, only : mesh_t
   use mxm_wrapper
   use num_types
