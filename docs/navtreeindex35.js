@@ -143,8 +143,10 @@ var NAVTREEINDEX35 =
 "df/db5/namespaceopr__sx.html#ac006a5aef9f52758ab076ed545f2b838":[3,0,146,0],
 "df/db6/interfacedevice__math_1_1hip__addcol4.html":[4,0,38,20],
 "df/db6/interfacedevice__math_1_1hip__addcol4.html#a67005db27c182a6097b32d75f511581b":[4,0,38,20,0],
-"df/db9/interfaceopencl__intf_1_1clWaitForEvents.html":[4,0,118,11],
-"df/db9/interfaceopencl__intf_1_1clWaitForEvents.html#acb5d361ddb6b629d6869666602c1f8c6":[4,0,118,11,0],
+"df/db6/interfaceopencl__intf_1_1clEnqueueMarkerWithWaitList.html":[4,0,118,9],
+"df/db6/interfaceopencl__intf_1_1clEnqueueMarkerWithWaitList.html#a115ffa1cfa88f4635a4f0d3fbcb8e184":[4,0,118,9,0],
+"df/db9/interfaceopencl__intf_1_1clWaitForEvents.html":[4,0,118,12],
+"df/db9/interfaceopencl__intf_1_1clWaitForEvents.html#acb5d361ddb6b629d6869666602c1f8c6":[4,0,118,12,0],
 "df/db9/structgmres_1_1gmres__t.html":[4,0,76,0],
 "df/db9/structgmres_1_1gmres__t.html#a000f30c0d26bb2be85f59e613d33c94d":[4,0,76,0,1],
 "df/db9/structgmres_1_1gmres__t.html#a03a6a0ddb0498811de4843c4e3077942":[4,0,76,0,18],
@@ -247,7 +249,5 @@ var NAVTREEINDEX35 =
 "df/dec/namespacetuple.html#a99e25051bf65920f6081468a855afee7":[3,0,230,22],
 "df/dec/namespacetuple.html#aa39695b0ad1b70618478c0a20557bb56":[3,0,230,14],
 "df/dec/namespacetuple.html#ab123f582cfb7df91298d65a197a70288":[3,0,230,21],
-"df/dec/namespacetuple.html#acda28852fd50fc1126b2f21218ba6178":[3,0,230,18],
-"df/dec/namespacetuple.html#ad15ace35b88a4c6217ae8549bd923a72":[3,0,230,12],
-"df/dec/namespacetuple.html#ad2d1b5a0a3c21ad3c59e7eb6d792615b":[3,0,230,17]
+"df/dec/namespacetuple.html#acda28852fd50fc1126b2f21218ba6178":[3,0,230,18]
 };

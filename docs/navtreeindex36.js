@@ -1,5 +1,7 @@
 var NAVTREEINDEX36 =
 {
+"df/dec/namespacetuple.html#ad15ace35b88a4c6217ae8549bd923a72":[3,0,230,12],
+"df/dec/namespacetuple.html#ad2d1b5a0a3c21ad3c59e7eb6d792615b":[3,0,230,17],
 "df/dec/namespacetuple.html#ae35fe89bb5c59ad751ffc141e132531b":[3,0,230,11],
 "df/dec/namespacetuple.html#aefdf3623e60c6b7952ffac6ccdd0bbac":[3,0,230,16],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html":[4,0,143,3],
@@ -200,8 +202,8 @@ var NAVTREEINDEX36 =
 "globals_defs.html":[5,1,4],
 "globals_e.html":[5,1,0,5],
 "globals_f.html":[5,1,0,6],
-"globals_func.html":[5,1,1],
 "globals_func.html":[5,1,1,0],
+"globals_func.html":[5,1,1],
 "globals_func_a.html":[5,1,1,1],
 "globals_func_c.html":[5,1,1,2],
 "globals_func_d.html":[5,1,1,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX36 =
 "globals_vars_i.html":[5,1,2,8],
 "globals_vars_j.html":[5,1,2,9],
 "globals_vars_l.html":[5,1,2,10],
-"globals_vars_m.html":[5,1,2,11],
-"globals_vars_n.html":[5,1,2,12],
-"globals_vars_o.html":[5,1,2,13]
+"globals_vars_m.html":[5,1,2,11]
 };

@@ -46,6 +46,7 @@ var hierarchy =
     [ "opencl_intf::clCreateUserEvent", "dc/d37/interfaceopencl__intf_1_1clCreateUserEvent.html", null ],
     [ "opencl_intf::clEnqueueCopyBuffer", "d1/d89/interfaceopencl__intf_1_1clEnqueueCopyBuffer.html", null ],
     [ "opencl_intf::clEnqueueMarker", "da/d87/interfaceopencl__intf_1_1clEnqueueMarker.html", null ],
+    [ "opencl_intf::clEnqueueMarkerWithWaitList", "df/db6/interfaceopencl__intf_1_1clEnqueueMarkerWithWaitList.html", null ],
     [ "opencl_intf::clEnqueueReadBuffer", "da/df4/interfaceopencl__intf_1_1clEnqueueReadBuffer.html", null ],
     [ "opencl_intf::clEnqueueWaitForEvents", "d0/dbd/interfaceopencl__intf_1_1clEnqueueWaitForEvents.html", null ],
     [ "opencl_intf::clEnqueueWriteBuffer", "d0/d10/interfaceopencl__intf_1_1clEnqueueWriteBuffer.html", null ],

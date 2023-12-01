@@ -98,8 +98,8 @@ var NAVTREEINDEX =
 "de/d34/namespacecpu__dudxyz.html#af79a31d4a11b6601e61b175dafdb4b0b",
 "de/da4/namespaceblasius.html#af16e811cdc9992b27a2450e3f259136f",
 "df/d69/source__term_8f90.html#a6abcf2eceb04d055bc817b44c0cc42bc",
-"df/dec/namespacetuple.html#ae35fe89bb5c59ad751ffc141e132531b",
-"globals_vars_p.html"
+"df/dec/namespacetuple.html#ad15ace35b88a4c6217ae8549bd923a72",
+"globals_vars_n.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
