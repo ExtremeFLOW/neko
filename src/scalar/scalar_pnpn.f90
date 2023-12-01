@@ -41,7 +41,9 @@ module scalar_pnpn
   use bc, only : bc_list_t, bc_list_init, bc_list_free, bc_list_apply_scalar, &
                  bc_list_add
   use mesh, only : mesh_t
+  use checkpoint, only : chkp_t
   use coefs, only : coef_t
+  use device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_residual, only :scalar_residual_t
   use ax_product, only : ax_t
@@ -101,6 +103,8 @@ module scalar_pnpn
    contains
      !> Constructor.
      procedure, pass(this) :: init => scalar_pnpn_init
+     !> To restart
+     procedure, pass(this) :: restart=> scalar_pnpn_restart
      !> Destructor.
      procedure, pass(this) :: free => scalar_pnpn_free
      procedure, pass(this) :: step => scalar_pnpn_step
@@ -205,6 +209,38 @@ contains
 
   end subroutine scalar_pnpn_init
 
+  !> Restart method
+  subroutine scalar_pnpn_restart(this, dtlag, tlag)
+    class(scalar_pnpn_t), target, intent(inout) :: this
+    real(kind=rp) :: dtlag(10), tlag(10)
+    integer :: n
+    n = this%s%dof%size()
+
+    call col2(this%s%x,this%c_Xh%mult, n) 
+    call col2(this%abx1%x,this%c_Xh%mult, n) 
+    call col2(this%abx2%x,this%c_Xh%mult, n) 
+    call col2(this%slag%lf(1)%x,this%c_Xh%mult, n) 
+    call col2(this%slag%lf(2)%x,this%c_Xh%mult, n) 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%s%x, this%s%x_d, &
+                          n, HOST_TO_DEVICE)
+       call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
+                          n, HOST_TO_DEVICE)
+       call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
+                          n, HOST_TO_DEVICE)
+       call device_memcpy(this%abx1%x, this%abx1%x_d, &
+                          n, HOST_TO_DEVICE)
+       call device_memcpy(this%abx2%x, this%abx2%x_d, &
+                          n, HOST_TO_DEVICE)
+    end if
+
+    call this%gs_Xh%op(this%s,GS_OP_ADD)
+    call this%gs_Xh%op(this%slag%lf(1),GS_OP_ADD)
+    call this%gs_Xh%op(this%slag%lf(2),GS_OP_ADD)
+    call this%gs_Xh%op(this%abx1,GS_OP_ADD)
+    call this%gs_Xh%op(this%abx2,GS_OP_ADD)
+  end subroutine scalar_pnpn_restart
+
   subroutine scalar_pnpn_free(this)
     class(scalar_pnpn_t), intent(inout) :: this
 
@@ -256,6 +292,7 @@ contains
     integer :: n
     ! Linear solver results monitor
     type(ksp_monitor_t) :: ksp_results(1)
+    character(len=LOG_SIZE) :: log_buf
 
     n = this%dm_Xh%size()
     
@@ -294,9 +331,9 @@ contains
            rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
-      !> We assume that no change of boundary conditions 
-      !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
-      !> Apply dirichlet
+      ! We assume that no change of boundary conditions 
+      ! occurs between elements. I.e. we do not apply gsop here like in Nek5000
+      ! Apply dirichlet
       call this%bc_apply()
 
       ! Compute scalar residual.
@@ -337,6 +374,5 @@ contains
     end associate
     call profiler_end_region
   end subroutine scalar_pnpn_step
-
 
 end module scalar_pnpn
