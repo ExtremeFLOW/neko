@@ -111,6 +111,8 @@ Data Types</h2></td></tr>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a24a6187aed087af84495969693831775"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a24a6187aed087af84495969693831775">fluid_pnpn_init</a> (this, msh, lx, params, user, material_properties)</td></tr>
 <tr class="separator:a24a6187aed087af84495969693831775"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acad1528c84f362a5636f9c3afbdd732f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#acad1528c84f362a5636f9c3afbdd732f">fluid_pnpn_restart</a> (this, dtlag, tlag)</td></tr>
+<tr class="separator:acad1528c84f362a5636f9c3afbdd732f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2582bae4203cde06a4a72c54aebd215"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#aa2582bae4203cde06a4a72c54aebd215">fluid_pnpn_free</a> (this)</td></tr>
 <tr class="separator:aa2582bae4203cde06a4a72c54aebd215"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1f64dff0cbe099b5f4d17299d02c8622"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a1f64dff0cbe099b5f4d17299d02c8622">fluid_pnpn_step</a> (this, t, tstep, dt, ext_bdf)</td></tr>
@@ -144,7 +146,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00274">274</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00364">364</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -198,7 +200,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00116">116</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -217,6 +219,50 @@ Here is the call graph for this function:</div>
 <area shape="rect" href="../../d3/d69/namespaceadvection.html#a646ee7d2b5eaded46dd282b6c5899d44" title="Constructor." alt="" coords="487,107,626,149"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="acad1528c84f362a5636f9c3afbdd732f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acad1528c84f362a5636f9c3afbdd732f">&#9670;&nbsp;</a></span>fluid_pnpn_restart()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine fluid_pnpn::fluid_pnpn_restart </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>), intent(inout), target&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(10)&#160;</td>
+          <td class="paramname"><em>dtlag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(10)&#160;</td>
+          <td class="paramname"><em>tlag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00281">281</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -284,7 +330,7 @@ Here is the call graph for this function:</div>
 </dl>
 <p>We assume that no change of boundary conditions occurs between elements. I.e. we do not apply gsop here like in Nek5000 Apply dirichlet</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00344">344</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00434">434</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -294,7 +340,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html">fluid_pnpn</a></li>
-    <li class="footer">Generated on Wed Nov 29 2023 10:39:55 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Dec 1 2023 12:13:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -2,6 +2,7 @@ var scalar__scheme_8f90 =
 [
     [ "scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", "dd/ded/structscalar__scheme_1_1scalar__scheme__t" ],
     [ "scalar_scheme_init_intrf", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf.html", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf" ],
+    [ "scalar_scheme_restart_intrf", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf.html", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf" ],
     [ "scalar_scheme_free_intrf", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf.html", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf" ],
     [ "scalar_scheme_step_intrf", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf" ],
     [ "scalar_scheme_add_bcs", "da/dc7/scalar__scheme_8f90.html#a52d0bdcd6d81c223bb1e543b0d504bfc", null ],

@@ -7,6 +7,7 @@ var structfluid__pnpn_1_1fluid__pnpn__t =
     [ "fluid_scheme_init_uvw", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a16b83f5340bfc5481287eef20daa9b35", null ],
     [ "free", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#ab6bb116abb818068290964cecd34b33f", null ],
     [ "init", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#acc915879949fe59351e65e45b822254e", null ],
+    [ "restart", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a008433e4ba2478bc2affe4e926e6274c", null ],
     [ "scheme_free", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a44b799c70e10a1c21c5a49df4ebea9f3", null ],
     [ "scheme_init", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a68771dde3cb366be76253bdfeeff0437", null ],
     [ "set_usr_inflow", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a883a779fbafd5516c08f5fdaee916235", null ],

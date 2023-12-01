@@ -3,6 +3,7 @@ var structscalar__scheme_1_1scalar__scheme__t =
     [ "bc_apply", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#adbf533a50359741c62701a6d454eaacb", null ],
     [ "free", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a618ee5d680b5990a077c12e796f6d6f6", null ],
     [ "init", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#ab5dca8aeedca255a2d97e25bd76a1e0b", null ],
+    [ "restart", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#aea16961b4d820e1c4ffd90adbfea54c0", null ],
     [ "scheme_free", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a18549134bbe8b1d7da48250bde84aeec", null ],
     [ "scheme_init", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a5f85493ffdd691563a69f8c20ee9760f", null ],
     [ "set_source", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#aa09f675b0c4db85135a1c5215268252c", null ],

@@ -7,6 +7,7 @@ var structfluid__plan1_1_1fluid__plan1__t =
     [ "fluid_scheme_init_uvw", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a16b83f5340bfc5481287eef20daa9b35", null ],
     [ "free", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a0dd7f5de84c98c7a5587a21cf7511008", null ],
     [ "init", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a19bd0cd3aea5cbbd3a1cffaeed8c85bb", null ],
+    [ "restart", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a4e8f89126b1b34d3f82618a3699a29ad", null ],
     [ "scheme_free", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a44b799c70e10a1c21c5a49df4ebea9f3", null ],
     [ "scheme_init", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a68771dde3cb366be76253bdfeeff0437", null ],
     [ "set_usr_inflow", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a883a779fbafd5516c08f5fdaee916235", null ],

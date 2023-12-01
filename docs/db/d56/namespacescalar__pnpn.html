@@ -112,6 +112,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:af70b26869059aa4be9721e2b29202e27"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#af70b26869059aa4be9721e2b29202e27">scalar_pnpn_init</a> (this, msh, coef, gs, params, user, material_properties)</td></tr>
 <tr class="memdesc:af70b26869059aa4be9721e2b29202e27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../db/d56/namespacescalar__pnpn.html#af70b26869059aa4be9721e2b29202e27">More...</a><br /></td></tr>
 <tr class="separator:af70b26869059aa4be9721e2b29202e27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acbd003dc39aa26721ccb63f6d5fed292"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#acbd003dc39aa26721ccb63f6d5fed292">scalar_pnpn_restart</a> (this, dtlag, tlag)</td></tr>
+<tr class="memdesc:acbd003dc39aa26721ccb63f6d5fed292"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart method.  <a href="../../db/d56/namespacescalar__pnpn.html#acbd003dc39aa26721ccb63f6d5fed292">More...</a><br /></td></tr>
+<tr class="separator:acbd003dc39aa26721ccb63f6d5fed292"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9cb374a82558fd2a9518313a098672b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#ae9cb374a82558fd2a9518313a098672b">scalar_pnpn_free</a> (this)</td></tr>
 <tr class="separator:ae9cb374a82558fd2a9518313a098672b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a46d007d95d86c36b8cdc002e735a1125"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#a46d007d95d86c36b8cdc002e735a1125">scalar_pnpn_step</a> (this, t, tstep, dt, ext_bdf)</td></tr>
@@ -144,7 +147,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00208">208</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00244">244</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -216,7 +219,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00121">121</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -236,6 +239,52 @@ Here is the call graph for this function:</div>
 <area shape="rect" href="../../d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="454,231,574,257"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="acbd003dc39aa26721ccb63f6d5fed292"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acbd003dc39aa26721ccb63f6d5fed292">&#9670;&nbsp;</a></span>scalar_pnpn_restart()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine scalar_pnpn::scalar_pnpn_restart </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html">scalar_pnpn_t</a>), intent(inout), target&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(10)&#160;</td>
+          <td class="paramname"><em>dtlag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(10)&#160;</td>
+          <td class="paramname"><em>tlag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Restart method. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00213">213</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -290,9 +339,8 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>We assume that no change of boundary conditions occurs between elements. I.e. we do not apply gsop here like in Nek5000 Apply dirichlet</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00249">249</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00285">285</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -302,7 +350,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d56/namespacescalar__pnpn.html">scalar_pnpn</a></li>
-    <li class="footer">Generated on Wed Nov 29 2023 10:39:55 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Dec 1 2023 12:13:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -295,7 +295,8 @@ var annotated_dup =
       [ "fluid_scheme_t", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html", "da/dd4/structfluid__scheme_1_1fluid__scheme__t" ],
       [ "fluid_scheme_init_intrf", "d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf.html", "d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf" ],
       [ "fluid_scheme_free_intrf", "d7/dc7/interfacefluid__scheme_1_1fluid__scheme__free__intrf.html", "d7/dc7/interfacefluid__scheme_1_1fluid__scheme__free__intrf" ],
-      [ "fluid_scheme_step_intrf", "d5/d83/interfacefluid__scheme_1_1fluid__scheme__step__intrf.html", "d5/d83/interfacefluid__scheme_1_1fluid__scheme__step__intrf" ]
+      [ "fluid_scheme_step_intrf", "d5/d83/interfacefluid__scheme_1_1fluid__scheme__step__intrf.html", "d5/d83/interfacefluid__scheme_1_1fluid__scheme__step__intrf" ],
+      [ "fluid_scheme_restart_intrf", "de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf.html", "de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf" ]
     ] ],
     [ "fluid_source_term", "df/d09/namespacefluid__source__term.html", [
       [ "fluid_source_term_t", "d1/da8/structfluid__source__term_1_1fluid__source__term__t.html", "d1/da8/structfluid__source__term_1_1fluid__source__term__t" ]
@@ -704,6 +705,7 @@ var annotated_dup =
     [ "scalar_scheme", "da/de3/namespacescalar__scheme.html", [
       [ "scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", "dd/ded/structscalar__scheme_1_1scalar__scheme__t" ],
       [ "scalar_scheme_init_intrf", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf.html", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf" ],
+      [ "scalar_scheme_restart_intrf", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf.html", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf" ],
       [ "scalar_scheme_free_intrf", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf.html", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf" ],
       [ "scalar_scheme_step_intrf", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf" ]
     ] ],
