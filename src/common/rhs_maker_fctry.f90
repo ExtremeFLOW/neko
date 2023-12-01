@@ -86,7 +86,7 @@ contains
        allocate(rhs_maker_bdf_sx_t::makebdf)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        allocate(rhs_maker_bdf_device_t::makebdf)
-    else
+    else       
        allocate(rhs_maker_bdf_cpu_t::makebdf)
     end if
 

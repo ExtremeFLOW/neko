@@ -39,10 +39,10 @@ module json_utils
   private
 
   public :: json_get, json_get_or_default
-
+  
   !> Retrieves a parameter by name or throws an error
   interface json_get
-     module procedure json_get_real, json_get_integer, json_get_logical, &
+    module procedure json_get_real, json_get_integer, json_get_logical, &
                      json_get_string, json_get_real_array, &
                      json_get_integer_array, json_get_logical_array, &
                      json_get_string_array
@@ -51,12 +51,12 @@ module json_utils
   !> Retrieves a parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json
   interface json_get_or_default
-     module procedure json_get_or_default_real, json_get_or_default_integer,&
+    module procedure json_get_or_default_real, json_get_or_default_integer,&
                      json_get_or_default_string, json_get_or_default_logical
   end interface json_get_or_default
-
+  
 contains
-
+  
   !> Retrieves a real parameter by name or throws an error
   !! @param json The json to retrieve the parameter from.
   !! @param name The full path to the parameter.
@@ -66,9 +66,9 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp), intent(out) :: value
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        call neko_error("Parameter "//name//" missing from the case file")
     end if
@@ -83,9 +83,9 @@ contains
     character(len=*), intent(in) :: name
     integer, intent(out) :: value
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        call neko_error("Parameter "//name//" missing from the case file")
     end if
@@ -100,9 +100,9 @@ contains
     character(len=*), intent(in) :: name
     logical, intent(out) :: value
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        call neko_error("Parameter "//name//" missing from the case file")
     end if
@@ -117,9 +117,9 @@ contains
     character(len=*), intent(in) :: name
     character(len=:), allocatable, intent(out) :: value
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        call neko_error("Parameter "//name//" missing from the case file")
     end if
@@ -134,9 +134,9 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp), allocatable, intent(out) :: value(:)
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        call neko_error("Parameter "//name//" missing from the case file")
     end if
@@ -151,9 +151,9 @@ contains
     character(len=*), intent(in) :: name
     integer, allocatable, intent(out) :: value(:)
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        call neko_error("Parameter "//name//" missing from the case file")
     end if
@@ -168,9 +168,9 @@ contains
     character(len=*), intent(in) :: name
     logical, allocatable, intent(out) :: value(:)
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        call neko_error("Parameter "//name//" missing from the case file")
     end if
@@ -187,7 +187,7 @@ contains
     logical :: found
     type(json_value), pointer :: json_val, val_ptr
     type(json_core) :: core
-    character(len=:), allocatable :: string_value
+    character(len=:), allocatable :: string_value        
     integer :: i, n_children
 
     if (.not. json%valid_path(name)) then
@@ -201,19 +201,19 @@ contains
        deallocate(value)
        allocate(value(n_children))
     end if
-
+    
     call json%get(name, json_val, found)
     call json%get_core(core)
 
     do i = 1, n_children
        call core%get_child(json_val, i, val_ptr, found)
        call core%get(val_ptr, string_value)
-
+          
        if (len(string_value) .gt. 0) then
           value(i) = string_value
        end if
     end do
-
+    
   end subroutine json_get_string_array
 
   !> Retrieves a real parameter by name or assigns a provided default value.
@@ -227,9 +227,9 @@ contains
     real(kind=rp), intent(out) :: value
     real(kind=rp), intent(in) :: default
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        value = default
        call json%add(name, value)
@@ -247,9 +247,9 @@ contains
     integer, intent(out) :: value
     integer, intent(in) :: default
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        value = default
        call json%add(name, value)
@@ -267,9 +267,9 @@ contains
     logical, intent(out) :: value
     logical, intent(in) :: default
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        value = default
        call json%add(name, value)
@@ -287,9 +287,9 @@ contains
     character(len=:), allocatable, intent(out) :: value
     character(len=*), intent(in) :: default
     logical :: found
-
+    
     call json%get(name, value, found)
-
+    
     if (.not. found) then
        value = default
        call json%add(name, value)
