@@ -52,19 +52,20 @@ program post_process
   !> Compute phase
   !> --------------------
   
-  !!> --------------------
-  !!> Average the quantities of all files in all readers
-  !!> --------------------
+
   do reader = 1, size(pd%fld_ioc)
-     !> Average the fields in the registry for the first data set
-     call pd%fld_ioc(reader)%average_registry(pd%fld_ioc(reader)%t, sync=.true.)
 
-     do i=1, pd%fld_ioc(reader)%number_of_files -1
+     do i=0, pd%fld_ioc(reader)%number_of_files -1
 
-        !> Read the data in the next file
-        call pd%fld_ioc(reader)%step()
+        !!> --------------------
+        !!> Read data
+        !!> --------------------
+        !!  Read the data in the next file but do not do it for i=0 since the file data is already in memory from init 
+        if (i.ne.0) call pd%fld_ioc(reader)%step()
   
-        !> Average the fields in the registry for the first data set
+        !!> --------------------
+        !!> Average the quantities of all files in all readers
+        !!> --------------------
         call pd%fld_ioc(reader)%average_registry(pd%fld_ioc(reader)%t, sync=.true.)
         
      end do

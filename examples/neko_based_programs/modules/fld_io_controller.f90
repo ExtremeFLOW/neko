@@ -118,6 +118,7 @@ contains
        !read(1,*) string2, this%field_first_index
        read(1,*) string2, this%file_counter
     close(1)
+    this%field_first_index = this%file_counter
 
     !> Read the first field in sequence
     !this%file_counter = 1 ! this commented since I get the index from the file
@@ -277,19 +278,21 @@ contains
     logical, intent(in) :: sync
     integer :: i,j,k,e,lx,n
 
-    n =  this%dof%size()   
+    if (this%average_fields_in_registry) then
+
+       n =  this%dof%size()   
  
-    !> Update the running average of the fields
-    do i = 1, this%n_fields_in_registry
-        call this%mean_fields(i)%update(t-this%average_last_t) 
-        if (sync .eqv. .true. .and. NEKO_BCKND_DEVICE .eq. 1) then 
-            call device_memcpy(this%mean_fields(i)%mf%x, &
+       !> Update the running average of the fields
+       do i = 1, this%n_fields_in_registry
+          call this%mean_fields(i)%update(t-this%average_last_t) 
+             if (sync .eqv. .true. .and. NEKO_BCKND_DEVICE .eq. 1) then 
+                call device_memcpy(this%mean_fields(i)%mf%x, &
                                this%mean_fields(i)%mf%x_d, &
                                n,DEVICE_TO_HOST)
-        end if
-
-    end do
-    this%average_last_t = t
+             end if
+       end do
+       this%average_last_t = t
+    end if
 
   end subroutine average_registry
   
@@ -298,20 +301,23 @@ contains
     class(fld_io_controller_t), intent(inout) :: this
     integer :: i,j,k,n
 
-    n =  this%dof%size()   
+    if (this%average_fields_in_registry) then
     
-    !> Copy the data from field_file_data object to the field object
-    do i = 1, this%n_fields_in_registry
-       ! Copy the data from the file to our pointer
-       call copy(this%field_in_registry_pointer%fields(i)%f%x, &
+       n =  this%dof%size()   
+    
+       !> Copy the data from field_file_data object to the field object
+       do i = 1, this%n_fields_in_registry
+          ! Copy the data from the file to our pointer
+          call copy(this%field_in_registry_pointer%fields(i)%f%x, &
                  this%mean_fields(i)%mf%x,n)
-       ! Put it also on device
-       if (NEKO_BCKND_DEVICE .eq. 1) then 
-         call device_copy(this%field_in_registry_pointer%fields(i)%f%x_d, &
+          ! Put it also on device
+          if (NEKO_BCKND_DEVICE .eq. 1) then 
+             call device_copy(this%field_in_registry_pointer%fields(i)%f%x_d, &
                             this%mean_fields(i)%mf%x_d, &
                             n)
-       end if
-    end do
+          end if
+       end do
+    end if
      
 
   end subroutine put_averages_in_registry

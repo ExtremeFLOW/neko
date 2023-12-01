@@ -1,0 +1,33 @@
+{
+"version": 1.0,
+"case": {
+	"non_dimensional_quantities": 
+	{
+		"Ra" : 1e11,
+		"Pr" : 1
+	},
+    	"field_reader":
+        [
+		{
+        		"mesh_name" : "cylinder.nmsh",
+        		"field_file_name": "field801.fld",
+			"add_to_registry": 
+			{
+				"field_position_in_file": [4,1,2,3],
+				"field_name_in_registry": ["u", "v", "w", "p"]
+			}
+     		}
+	],
+	"simulation_components": 
+    	[
+      		{
+        		"type": "probes",
+        		"compute_control": "tsteps",
+        		"compute_value"    : 1,
+        		"points_file":  "coordinates.csv",
+        		"output_file":  "interpolated_fields.csv",
+			"fields": ["tau_x", "tau_y"]
+       		}
+     ]
+}
+}

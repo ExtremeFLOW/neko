@@ -502,5 +502,38 @@ contains
      call file_free(file_obj)
 
   end subroutine compare_mesh_kolmogorov
+ 
+ !> @params
+ !! dir is the wall normal direction 
+  subroutine calculate_shear_stress(tau, u, coef, dir, mu)
+    type(field_t), intent(inout) :: tau
+    type(field_t), intent(inout) :: u
+    type(coef_t), intent(inout) :: coef
+    character(len=1), intent(in)  :: dir
+    real(kind=rp), intent(inout)  :: mu
+    integer :: n
+    
+    n = u%dof%size()
+   
+    !> Get the derivative in the relevant direction 
+    !> dudxyz detects if there is a GPU pointer
+    if (trim(dir) .eq. "x") then
+       call dudxyz (tau%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    else if (trim(dir) .eq. "y") then
+       call dudxyz (tau%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    else if (trim(dir) .eq. "z") then
+       call dudxyz (tau%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    else
+       write(*,*) "Direction not currently supported"
+    end if
+   
+    !> Multiply by mu 
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       call device_cmult(tau%x_d, mu, n)
+    else
+       call cmult(tau%x, mu, n)
+    end if
+     
+  end subroutine calculate_shear_stress
 
 end module post_processing_library
