@@ -53,6 +53,14 @@ module fld_io_controller
      real(kind=rp) :: average_last_t
      type(mean_field_t), allocatable :: mean_fields(:)
 
+     !> variables needed to write
+     logical :: write_fields_in_registry = .false.
+     type(file_t) :: write_field_file_object
+     character(len=:), allocatable  :: write_field_file_fname
+     character(len=20), allocatable  :: write_field_in_registry_name(:)
+     type(field_list_t) :: write_field_list
+     integer :: write_field_n_fields
+     
 
    contains
      
@@ -68,6 +76,9 @@ module fld_io_controller
      !> Syncronize the data read from a file into a field int he registry 
      procedure, pass(this) :: synchronize_registry => synchronize_registry
      
+     !> Writer
+     procedure, pass(this) :: write =>  write_files
+
      !> Destructor
      procedure, pass(this) :: free => finalize
 
@@ -202,7 +213,27 @@ contains
        end do
 
     end if    
+    
+    if (params%valid_path('write_registry')) then
+       this%write_fields_in_registry = .true.
+       
+       call json_get(params, &
+            'write_registry.file_name', &
+             this%write_field_file_fname)
+       call params%info('write_registry.field_name_in_registry', &
+             n_children=this%write_field_n_fields)
+       call json_get(params, 'write_registry.field_name_in_registry', &
+             this%write_field_in_registry_name)
 
+       !> Write the fields
+       this%write_field_file_object = file_t(this%write_field_file_fname)
+       allocate(this%write_field_list%fields(this%write_field_n_fields))
+       do i = 1, this%write_field_n_fields
+          this%write_field_list%fields(i)%f => neko_field_registry%get_field(&
+                                          trim(this%write_field_in_registry_name(i)))
+       end do
+
+     end if
 
   end subroutine initialize_data_processors
 
@@ -270,6 +301,29 @@ contains
     end if
 
   end subroutine step
+  
+  subroutine write_files(this)
+    class(fld_io_controller_t), intent(inout) :: this
+    integer :: i,j,k,e,lx 
+    
+    if (this%write_fields_in_registry) then
+
+       !syncrhonize first if needed 
+       if (NEKO_BCKND_DEVICE .eq. 1) then 
+          do i = 1, this%write_field_n_fields     
+             call device_memcpy(this%write_field_list%fields(i)%f%x, &
+                            this%write_field_list%fields(i)%f%x_d, &
+                            this%write_field_list%fields(i)%f%dof%size(), &
+                            DEVICE_TO_HOST)
+          end do
+       end if
+
+       ! write
+       call this%write_field_file_object%write(this%write_field_list, &
+                                               this%t)
+    end if       
+
+  end subroutine write_files
 
 
   subroutine average_registry(this, t, sync)

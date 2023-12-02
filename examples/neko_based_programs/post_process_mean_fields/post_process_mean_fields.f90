@@ -113,6 +113,15 @@ program post_process
                                pd%fld_ioc(1)%coef, pd%fld_ioc(1)%dof, &
                                pd%fld_ioc(1)%msh, pd%fld_ioc(1)%Xh, Ra, Pr)
 
+
+  !!> --------------------
+  !!> Write any needed file
+  !!> --------------------
+  do reader = 1, size(pd%fld_ioc)
+     call pd%fld_ioc(reader)%write() 
+  end do
+
+
   !> --------------------
   !> Finalization phase
   !> --------------------
