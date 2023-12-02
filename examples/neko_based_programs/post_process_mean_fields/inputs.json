@@ -3,14 +3,14 @@
 "case": {
 	"non_dimensional_quantities": 
 	{
-		"Ra" : 1e11,
+		"Ra" : 1e8,
 		"Pr" : 1
 	},
     	"field_reader":
         [
 		{
         		"mesh_name" : "cylinder.nmsh",
-        		"field_file_name": "mean_fields_usr21.fld",
+        		"field_file_name": "mean_fields_usr11.fld",
 			"add_to_registry": 
 			{
 				"field_position_in_file": [4,1,2,3,5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
@@ -23,10 +23,10 @@
      		},
 		{
         		"mesh_name" : "cylinder.nmsh",
-        		"field_file_name": "mean_field21.fld",
+        		"field_file_name": "mean_field11.fld",
 			"add_to_registry": 
 			{
-				"field_position_in_file": [4,1,2,3],
+				"field_position_in_file": [1,2,3,4],
 				"field_name_in_registry": ["u", "v", "w", "p"]
 			},
 			"average_registry": 
@@ -36,7 +36,7 @@
      		},
 		{
         		"mesh_name" : "cylinder.nmsh",
-        		"field_file_name": "stats21.fld",
+        		"field_file_name": "stats11.fld",
 			"add_to_registry": 
 			{
 				"field_position_in_file": [4,1,2,3],
@@ -56,7 +56,7 @@
         		"compute_value"    : 1,
         		"points_file":  "coordinates.csv",
         		"output_file":  "interpolated_fields.csv",
-			"fields": ["t", "tt", "t_rms" ,"uxt", "uyt", "uzt", "dtdx", "dtdy", "dtdz", "dtdn", "eps_t", "eps_k", "speri_u", "speri_v","speri_z"]
+			"fields": ["t", "tt", "uzt", "eps_t", "eps_k", "u", "v", "w","p", "uu", "vv", "ww", "pp"]
        		}
      ]
 }
