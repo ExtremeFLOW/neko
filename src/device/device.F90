@@ -1211,10 +1211,7 @@ contains
        end if
     end if
 #elif HAVE_OPENCL
-    event = clCreateUserEvent(glb_ctx, ierr)
-    if (ierr .ne. CL_SUCCESS) then
-       call neko_error('Error during event create')
-    end if
+    event = C_NULL_PTR
 #endif
   end subroutine device_event_create
 
