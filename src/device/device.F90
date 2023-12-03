@@ -1161,9 +1161,9 @@ contains
        call neko_error('Error during stream sync')
     end if
 #elif HAVE_OPENCL
-    if (clEnqueueWaitForEvents(stream, 1, event) .ne. CL_SUCCESS) then
-       call neko_error('Error during stream sync')
-    end if
+!    if (clEnqueueWaitForEvents(stream, 1, event) .ne. CL_SUCCESS) then
+!       call neko_error('Error during stream sync')
+!    end if
 #endif
   end subroutine device_stream_wait_event
   
