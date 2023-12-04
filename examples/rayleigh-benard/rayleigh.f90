@@ -83,9 +83,10 @@ contains
        end do
     end do
 
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+    if ((NEKO_BCKND_DEVICE .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
        .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(s%x,s%x_d,s%dof%size(),HOST_TO_DEVICE)
+       call device_memcpy(s%x, s%x_d, s%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
 

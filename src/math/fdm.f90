@@ -149,11 +149,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s, this%s_d, &
-            nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
+            nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%d, this%d_d, &
-            nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
+            nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%swplen, this%swplen_d, &
-            Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE) 
+            Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
     end if
   end subroutine fdm_init
 
@@ -193,9 +193,11 @@ contains
             end do
          end do
          if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_memcpy(l, this%swplen_d, this%dof%size(), HOST_TO_DEVICE)
+            call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                               HOST_TO_DEVICE, sync=.false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                               DEVICE_TO_HOST, sync=.false.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
@@ -219,9 +221,11 @@ contains
          end do
 
          if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_memcpy(l, this%swplen_d, this%dof%size(),HOST_TO_DEVICE)
+            call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                               HOST_TO_DEVICE, sync=.false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%size(),DEVICE_TO_HOST)
+            call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                               DEVICE_TO_HOST, sync=.true.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if

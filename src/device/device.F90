@@ -192,21 +192,10 @@ contains
     class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s
-    logical :: sync_device
-
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
 
     if (present(strm)) then
        copy_stream = strm
@@ -231,7 +220,7 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
     
   end subroutine device_memcpy_r1
 
@@ -241,22 +230,11 @@ contains
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s
-    logical :: sync_device
     
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
-
     if (present(strm)) then
        copy_stream = strm
     else
@@ -280,7 +258,7 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
     
   end subroutine device_memcpy_r2
 
@@ -290,21 +268,10 @@ contains
     class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s
-    logical :: sync_device
-
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
 
     if (present(strm)) then
        copy_stream = strm
@@ -329,7 +296,7 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
     
   end subroutine device_memcpy_r3
 
@@ -339,21 +306,10 @@ contains
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s    
-    logical :: sync_device
-
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
 
     if (present(strm)) then
        copy_stream = strm
@@ -378,7 +334,7 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
     
   end subroutine device_memcpy_r4
 
