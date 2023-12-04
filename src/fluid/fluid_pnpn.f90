@@ -44,6 +44,7 @@ module fluid_pnpn
   use fluid_aux
   use time_scheme_controller
   use projection
+  use device
   use logger
   use advection
   use profiler
@@ -107,6 +108,7 @@ module fluid_pnpn
      procedure, pass(this) :: init => fluid_pnpn_init
      procedure, pass(this) :: free => fluid_pnpn_free
      procedure, pass(this) :: step => fluid_pnpn_step
+     procedure, pass(this) :: restart => fluid_pnpn_restart
   end type fluid_pnpn_t
 
 contains
@@ -158,10 +160,15 @@ contains
       call this%abx1%init(dm_Xh, "abx1")
       call this%aby1%init(dm_Xh, "aby1")
       call this%abz1%init(dm_Xh, "abz1")
-
       call this%abx2%init(dm_Xh, "abx2")
       call this%aby2%init(dm_Xh, "aby2")
       call this%abz2%init(dm_Xh, "abz2")
+      this%abx1 = 0.0_rp
+      this%aby1 = 0.0_rp
+      this%abz1 = 0.0_rp
+      this%abx2 = 0.0_rp
+      this%aby2 = 0.0_rp
+      this%abz2 = 0.0_rp
 
       call this%du%init(dm_Xh, 'du')
       call this%dv%init(dm_Xh, 'dv')
@@ -270,6 +277,139 @@ contains
     end if
 
   end subroutine fluid_pnpn_init
+
+  subroutine fluid_pnpn_restart(this,dtlag, tlag)
+    class(fluid_pnpn_t), target, intent(inout) :: this
+    real(kind=rp) :: dtlag(10), tlag(10)
+    type(field_t) :: u_temp, v_temp, w_temp
+    integer :: i, n
+
+    n = this%u%dof%size()
+    ! Make sure that continuity is maintained (important for interpolation)
+    call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
+    call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
+    call col2(this%w%x,this%c_Xh%mult,this%u%dof%size())
+    call col2(this%p%x,this%c_Xh%mult,this%u%dof%size())
+    do i = 1, this%ulag%size()
+       call col2(this%ulag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
+       call col2(this%vlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
+       call col2(this%wlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
+    end do
+
+    call col2(this%abx1%x,this%c_Xh%mult,this%abx1%dof%size())
+    call col2(this%abx2%x,this%c_Xh%mult,this%abx2%dof%size())
+    call col2(this%aby1%x,this%c_Xh%mult,this%aby1%dof%size())
+    call col2(this%aby2%x,this%c_Xh%mult,this%aby2%dof%size())
+    call col2(this%abz1%x,this%c_Xh%mult,this%abz1%dof%size())
+    call col2(this%abz2%x,this%c_Xh%mult,this%abz2%dof%size())
+
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       associate(u=>this%u, v=>this%v, w=>this%w, &
+            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag,&
+            p=>this%p)
+       call device_memcpy(u%x, u%x_d, u%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(v%x, v%x_d, v%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(w%x, w%x_d, w%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(p%x, p%x_d, p%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
+                          u%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
+                          u%dof%size(), HOST_TO_DEVICE)
+
+       call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
+                          v%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
+                          v%dof%size(), HOST_TO_DEVICE)
+
+       call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
+                          w%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
+                          w%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(this%abx1%x, this%abx1%x_d, &
+                          w%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(this%abx2%x, this%abx2%x_d, &
+                          w%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(this%aby1%x, this%aby1%x_d, &
+                          w%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(this%aby2%x, this%aby2%x_d, &
+                          w%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(this%abz1%x, this%abz1%x_d, &
+                          w%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(this%abz2%x, this%abz2%x_d, &
+                          w%dof%size(), HOST_TO_DEVICE)
+       end associate
+   end if
+
+
+
+    call this%gs_Xh%op(this%u,GS_OP_ADD)
+    call this%gs_Xh%op(this%v,GS_OP_ADD)
+    call this%gs_Xh%op(this%w,GS_OP_ADD)
+    call this%gs_Xh%op(this%p,GS_OP_ADD)
+
+    do i = 1, this%ulag%size()
+       call this%gs_Xh%op(this%ulag%lf(i),GS_OP_ADD)
+       call this%gs_Xh%op(this%vlag%lf(i),GS_OP_ADD)
+       call this%gs_Xh%op(this%wlag%lf(i),GS_OP_ADD)
+    end do
+    call this%gs_Xh%op(this%abx1,GS_OP_ADD)
+    call this%gs_Xh%op(this%abx2,GS_OP_ADD)
+    call this%gs_Xh%op(this%aby1,GS_OP_ADD)
+    call this%gs_Xh%op(this%aby2,GS_OP_ADD)
+    call this%gs_Xh%op(this%abz1,GS_OP_ADD)
+    call this%gs_Xh%op(this%abz2,GS_OP_ADD)
+
+    !! If we would decide to only restart from lagged fields instead of asving abx1, aby1 etc.
+    !! Observe that one also needs to recompute the focing at the old time steps
+    !u_temp = this%ulag%lf(2)
+    !v_temp = this%vlag%lf(2)
+    !w_temp = this%wlag%lf(2)
+    !! Compute the source terms
+    !call this%source_term%compute(tlag(2), -1)
+    !
+    !! Pre-multiply the source terms with the mass matrix.
+    !if (NEKO_BCKND_DEVICE .eq. 1) then
+    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !else
+    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !end if
+
+    !! Add the advection operators to the right-hand-side.
+    !call this%adv%compute(u_temp, v_temp, w_temp, &
+    !                      this%f_x%x, this%f_y%x, this%f_z%x, &
+    !                      this%Xh, this%c_Xh, this%dm_Xh%size())
+    !this%abx2 = this%f_x
+    !this%aby2 = this%f_y
+    !this%abz2 = this%f_z
+    !
+    !u_temp = this%ulag%lf(1)
+    !v_temp = this%vlag%lf(1)
+    !w_temp = this%wlag%lf(1)
+    !call this%source_term%compute(tlag(1), 0)
+
+    !! Pre-multiply the source terms with the mass matrix.
+    !if (NEKO_BCKND_DEVICE .eq. 1) then
+    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !else
+    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !end if
+
+    !! Pre-multiply the source terms with the mass matrix.
+    !if (NEKO_BCKND_DEVICE .eq. 1) then
+    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !else
+    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !end if
+
+    !call this%adv%compute(u_temp, v_temp, w_temp, &
+    !                      this%f_x%x, this%f_y%x, this%f_z%x, &
+    !                      this%Xh, this%c_Xh, this%dm_Xh%size())
+    !this%abx1 = this%f_x
+    !this%aby1 = this%f_y
+    !this%abz1 = this%f_z
+
+  end subroutine fluid_pnpn_restart
 
   subroutine fluid_pnpn_free(this)
     class(fluid_pnpn_t), intent(inout) :: this
@@ -384,7 +524,6 @@ contains
       call this%scratch%request_field(u_e, temp_indices(1))
       call this%scratch%request_field(v_e, temp_indices(2))
       call this%scratch%request_field(w_e, temp_indices(3))
-
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 

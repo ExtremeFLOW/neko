@@ -137,6 +137,7 @@ module fluid_scheme
      procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
      procedure(fluid_scheme_free_intrf), pass(this), deferred :: free
      procedure(fluid_scheme_step_intrf), pass(this), deferred :: step
+     procedure(fluid_scheme_restart_intrf), pass(this), deferred :: restart
      generic :: scheme_init => fluid_scheme_init_all, fluid_scheme_init_uvw
   end type fluid_scheme_t
 
@@ -179,6 +180,18 @@ module fluid_scheme
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
      end subroutine fluid_scheme_step_intrf
   end interface
+
+  !> Abstract interface to restart a fluid scheme
+  abstract interface
+     subroutine fluid_scheme_restart_intrf(this, dtlag, tlag)
+       import fluid_scheme_t
+       import rp
+       class(fluid_scheme_t), target, intent(inout) :: this
+       real(kind=rp) :: dtlag(10), tlag(10)
+
+     end subroutine fluid_scheme_restart_intrf
+  end interface
+
 
 contains
 
