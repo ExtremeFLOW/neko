@@ -74,7 +74,7 @@ module signal
   end interface
 
 contains
-
+  
   !> Check if any timeout has occurred (either SIGXCPU or SIGALRM)
   function signal_timeout() result(timeout)
     logical :: timeout
@@ -106,7 +106,7 @@ contains
     end if
     
   end function signal_usr
-
+  
   !> Set a timeout after @a seconds
   subroutine signal_set_timeout(sec)
     integer(kind=c_int) :: sec
@@ -116,7 +116,7 @@ contains
     end if
     
   end subroutine signal_set_timeout
-
+  
   !> Initialize signal handler to trap SIGXCPU
   subroutine signal_trap_cpulimit()
     logical, save :: initialized = .false.
@@ -142,5 +142,5 @@ contains
     end if
     
   end subroutine signal_trap_usr
-
+  
 end module signal
