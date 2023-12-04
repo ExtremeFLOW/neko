@@ -98,15 +98,15 @@ contains
     end if
 
     usr12 = sighdl_usr()
-    
+
     if (bge(usr12, usr)) then
        raised = .true.
     else
        raised = .false.
     end if
-    
+
   end function signal_usr
-  
+
   !> Set a timeout after @a seconds
   subroutine signal_set_timeout(sec)
     integer(kind=c_int) :: sec
@@ -114,9 +114,9 @@ contains
     if (sighdl_set_timeout(sec) .lt. 0) then
        call neko_error('sighdl failed to set SIGALRM')
     end if
-    
+
   end subroutine signal_set_timeout
-  
+
   !> Initialize signal handler to trap SIGXCPU
   subroutine signal_trap_cpulimit()
     logical, save :: initialized = .false.
@@ -127,7 +127,7 @@ contains
        end if
        initialized = .true.
     end if
-    
+
   end subroutine signal_trap_cpulimit
 
   !> Initialize signal handler to trap SIGUSR1 and SIGUSR2
@@ -140,7 +140,7 @@ contains
        end if
        initialized = .true.
     end if
-    
+
   end subroutine signal_trap_usr
-  
+
 end module signal
