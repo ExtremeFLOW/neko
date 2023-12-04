@@ -255,6 +255,7 @@ contains
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
+
 #ifdef HAVE_HIP
     call pnpn_prs_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
@@ -270,6 +271,7 @@ contains
          c_Xh%B_d, c_Xh%h1_d, mu, rho, n) 
 #endif
      c_Xh%ifh2 = .false.
+    call device_cfill(c_Xh%h1_d,1.0_rp / rho,n)
          
     call gs_Xh%op(ta1, GS_OP_ADD) 
     call gs_Xh%op(ta2, GS_OP_ADD) 
