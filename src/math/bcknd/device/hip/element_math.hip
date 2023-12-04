@@ -45,8 +45,8 @@ extern "C" {
    * Reduction buffer
    */
   int red_a = 0;
-  real * buf = NULL;
-  real * buf_d = NULL;
+  real * buffer = NULL;
+  real * buffer_d = NULL;
    
   /**
    * Fortran wrapper lcsc3
@@ -59,21 +59,21 @@ extern "C" {
     const int nb = (*nelv);
          
     if ( nb > red_a){
-      if (buf != NULL) {
-        HIP_CHECK(hipHostFree(buf));
-        HIP_CHECK(hipFree(buf_d));        
+      if (buffer != NULL) {
+        HIP_CHECK(hipHostFree(buffer));
+        HIP_CHECK(hipFree(buffer_d));        
       }
-      HIP_CHECK(hipHostMalloc(&buf,nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&buf_d, nb*sizeof(real)));
+      HIP_CHECK(hipHostMalloc(&buffer,nb*sizeof(real),hipHostMallocDefault));
+      HIP_CHECK(hipMalloc(&buffer_d, nb*sizeof(real)));
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(lcsc3_kernel<real,1024>),
                        nblcks, nthrds, 0, 0,
-                       buf_d, (real *) a, (real *) b,
+                       buffer_d, (real *) a, (real *) b,
                        (real *) c);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(res, buf_d, nb * sizeof(real),
+    HIP_CHECK(hipMemcpy(res, buffer_d, nb * sizeof(real),
                         hipMemcpyDeviceToDevice));
   }
 
@@ -89,20 +89,20 @@ extern "C" {
     const int nb = (*nelv);
          
     if ( nb > red_a){
-      if (buf != NULL) {
-        HIP_CHECK(hipHostFree(buf));
-        HIP_CHECK(hipFree(buf_d));        
+      if (buffer != NULL) {
+        HIP_CHECK(hipHostFree(buffer));
+        HIP_CHECK(hipFree(buffer_d));        
       }
-      HIP_CHECK(hipHostMalloc(&buf,nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&buf_d, nb*sizeof(real)));
+      HIP_CHECK(hipHostMalloc(&buffer,nb*sizeof(real),hipHostMallocDefault));
+      HIP_CHECK(hipMalloc(&buffer_d, nb*sizeof(real)));
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(lcsum_kernel<real,1024>),
                        nblcks, nthrds, 0, 0,
-                       buf_d, (real *) a);
+                       buffer_d, (real *) a);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(res, buf_d, nb * sizeof(real),
+    HIP_CHECK(hipMemcpy(res, buffer_d, nb * sizeof(real),
                         hipMemcpyDeviceToDevice));
   }
 
@@ -118,20 +118,20 @@ extern "C" {
     const int nb = (*nelv);
          
     if ( nb > red_a){
-      if (buf != NULL) {
-        HIP_CHECK(hipHostFree(buf));
-        HIP_CHECK(hipFree(buf_d));        
+      if (buffer != NULL) {
+        HIP_CHECK(hipHostFree(buffer));
+        HIP_CHECK(hipFree(buffer_d));        
       }
-      HIP_CHECK(hipHostMalloc(&buf,nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&buf_d, nb*sizeof(real)));
+      HIP_CHECK(hipHostMalloc(&buffer,nb*sizeof(real),hipHostMallocDefault));
+      HIP_CHECK(hipMalloc(&buffer_d, nb*sizeof(real)));
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(lcmin_kernel<real,1024>),
                        nblcks, nthrds, 0, 0,
-                       buf_d, (real *) a);
+                       buffer_d, (real *) a);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(res, buf_d, nb * sizeof(real),
+    HIP_CHECK(hipMemcpy(res, buffer_d, nb * sizeof(real),
                         hipMemcpyDeviceToDevice));
   }
 
@@ -147,20 +147,20 @@ extern "C" {
     const int nb = (*nelv);
          
     if ( nb > red_a){
-      if (buf != NULL) {
-        HIP_CHECK(hipHostFree(buf));
-        HIP_CHECK(hipFree(buf_d));        
+      if (buffer != NULL) {
+        HIP_CHECK(hipHostFree(buffer));
+        HIP_CHECK(hipFree(buffer_d));        
       }
-      HIP_CHECK(hipHostMalloc(&buf,nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&buf_d, nb*sizeof(real)));
+      HIP_CHECK(hipHostMalloc(&buffer,nb*sizeof(real),hipHostMallocDefault));
+      HIP_CHECK(hipMalloc(&buffer_d, nb*sizeof(real)));
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(lcmax_kernel<real,1024>),
                        nblcks, nthrds, 0, 0,
-                       buf_d, (real *) a);
+                       buffer_d, (real *) a);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(res, buf_d, nb * sizeof(real),
+    HIP_CHECK(hipMemcpy(res, buffer_d, nb * sizeof(real),
                         hipMemcpyDeviceToDevice));
   }
   
@@ -187,7 +187,7 @@ extern "C" {
     //const int nb = (*nelv);
     //const int nxyz = (*lx)*(*lx)*(*lx);
      
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(lcsort_abs_kernel<real,1024>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(lcsort_abs_kernel<real>),
                        nblcks, nthrds, d*(sizeof(real)+sizeof(int)), 0,
                        (real *) asort, (int *) keysort,
                        (real *) a, (int *) key, n, d);
