@@ -51,21 +51,21 @@ module system
 
   public :: system_cpuid, system_cpu_name
 
- contains
+contains
 
-   !> Retrieve the system's CPU name (type)
-   !! @param name Stores the retrieved name.
-   subroutine system_cpu_name(name)
-     character(len=*), intent(inout) :: name
-     character(kind=c_char, len=80), target :: c_name
-     integer :: end_pos
+  !> Retrieve the system's CPU name (type)
+  !! @param name Stores the retrieved name.
+  subroutine system_cpu_name(name)
+    character(len=*), intent(inout) :: name
+    character(kind=c_char, len=80), target :: c_name
+    integer :: end_pos
 
-     call system_cpuid(c_loc(c_name), 80)
+    call system_cpuid(c_loc(c_name), 80)
 
-     end_pos = scan(c_name, C_NULL_CHAR)
-     if(end_pos .ge. 2) then
-        name(1:end_pos-1) = c_name(1:end_pos-1)
-     end if
-   end subroutine system_cpu_name
-  
+    end_pos = scan(c_name, C_NULL_CHAR)
+    if(end_pos .ge. 2) then
+       name(1:end_pos-1) = c_name(1:end_pos-1)
+    end if
+  end subroutine system_cpu_name
+
 end module system
