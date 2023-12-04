@@ -218,11 +218,11 @@ contains
 
     n = this%s%dof%size()
 
-    call col2(this%s%x, this%c_Xh%mult, n) 
-    call col2(this%abx1%x, this%c_Xh%mult, n) 
-    call col2(this%abx2%x, this%c_Xh%mult, n) 
-    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n) 
-    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n) 
+    call col2(this%s%x, this%c_Xh%mult, n)
+    call col2(this%abx1%x, this%c_Xh%mult, n)
+    call col2(this%abx2%x, this%c_Xh%mult, n)
+    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
+    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
                           n, HOST_TO_DEVICE)
@@ -327,7 +327,7 @@ contains
               ' abx2', glsc2(this%abx2%x,this%abx2%x,n)
          call neko_log%message(log_buf)
       end if
-      
+
       ! Evaluate the source term and scale with the mass matrix.
       call f_Xh%eval(t)
 

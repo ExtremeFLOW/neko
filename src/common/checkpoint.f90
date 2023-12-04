@@ -57,10 +57,10 @@ module checkpoint
      type(field_series_t), pointer :: ulag => null()
      type(field_series_t), pointer :: vlag => null()
      type(field_series_t), pointer :: wlag => null()
-     
+
      real(kind=rp), pointer :: tlag(:) => null()
      real(kind=rp), pointer :: dtlag(:) => null()
-     
+
      !> for pnpn
      type(field_t), pointer :: abx1 => null()
      type(field_t), pointer :: abx2 => null()
@@ -194,7 +194,7 @@ contains
                                w%dof%size(), DEVICE_TO_HOST)
          end if
        end associate
-    call device_sync()
+       call device_sync()
     end if
 
   end subroutine chkp_sync_host
