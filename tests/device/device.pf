@@ -187,7 +187,7 @@ subroutine test_device_memcpy
         x(i) = i
      end do
 
-     call device_memcpy(x, x_d, size(X), HOST_TO_DEVICE. sync=.false.)
+     call device_memcpy(x, x_d, size(X), HOST_TO_DEVICE, sync=.false.)
 
      x = 0
 
