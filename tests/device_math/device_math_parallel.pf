@@ -135,7 +135,7 @@ contains
        
        call device_copy(b_d, a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.false.)
        call device_memcpy(b, b_d, size(a), DEVICE_TO_HOST, sync=.true.)
     
        do i = 1, n
