@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,21 @@
 !
 module ax_helm_fctry
   use neko_config
-  use ax_product
-  use ax_helm_device
-  use ax_helm_xsmm
-  use ax_helm_sx
-  use ax_helm
+  use ax_product, only : ax_t
+  use ax_helm_device, only : ax_helm_device_t
+  use ax_helm_xsmm, only : ax_helm_xsmm_t
+  use ax_helm_sx, only : ax_helm_sx_t
+  use ax_helm, only : ax_helm_t
   implicit none
+  private
+
+  public :: ax_helm_factory, ax_t
 
 contains
 
+  !> Factory routine for the a Helmholtz problem matrix-vector product.
+  !! The selection is based on the compute backend.
+  !! @param Ax The matrix-vector product type to be allocated.
   subroutine ax_helm_factory(Ax)
     class(ax_t), allocatable, intent(inout) :: Ax
     

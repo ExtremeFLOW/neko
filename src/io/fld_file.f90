@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,17 +37,19 @@ module fld_file
   use field
   use field_list
   use dofmap
+  use space
+  use structs, only: array_ptr_t
   use vector
-  use fluid_scheme
-  use scalar_scheme
   use fld_file_data
   use mean_flow
   use mean_sqr_flow
-  use mesh
+  use vector, only : vector_t
+  use space, only : space_t
+  use mesh, only : mesh_t
   use utils
   use comm
-  use mpi_types
-  use mpi_f08    
+  use datadist
+  use neko_mpi_types
   implicit none
   private
   
@@ -63,9 +65,6 @@ module fld_file
      procedure :: set_precision => fld_file_set_precision
   end type fld_file_t
 
-  type, private :: array_ptr_t
-     real(kind=rp), pointer :: x(:)
-  end type array_ptr_t
 
 contains
 
@@ -193,14 +192,6 @@ contains
        end select
        dof => data%fields(1)%f%dof 
 
-    class is (fluid_scheme_t)
-       u%x => data%u%x(:,1,1,1)
-       v%x => data%v%x(:,1,1,1)
-       w%x => data%w%x(:,1,1,1)
-       p%x => data%p%x(:,1,1,1)
-       dof => data%u%dof
-       write_pressure = .true.
-       write_velocity = .true.
     type is (mean_flow_t)
        u%x => data%u%mf%x(:,1,1,1)
        v%x => data%v%mf%x(:,1,1,1)
@@ -217,13 +208,6 @@ contains
        dof => data%pp%mf%dof              
        write_pressure = .true.
        write_velocity = .true.
-    class is (scalar_scheme_t)
-       u%x => data%u%x(:,1,1,1)
-       v%x => data%v%x(:,1,1,1)
-       w%x => data%w%x(:,1,1,1)
-       tem%x => data%s%x(:,1,1,1)
-       dof => data%s%dof
-       write_temperature = .true.
     class default
        call neko_error('Invalid data')
     end select

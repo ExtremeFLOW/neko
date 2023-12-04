@@ -33,13 +33,15 @@
 !> Defines a mean square field
 !
 module mean_sqr_field
-  use mean_field
-  use num_types
-  use field
-  use math
+  use num_types, only : rp
+  use neko_config
+  use mean_field, only : mean_field_t
+  use device_math, only : device_cmult, device_addsqr2s2
+  use math, only : addsqr2s2
   implicit none
+  private
 
-  type, extends(mean_field_t) :: mean_sqr_field_t
+  type, public, extends(mean_field_t) :: mean_sqr_field_t
    contains
      procedure, pass(this) :: update => mean_sqr_field_update
   end type mean_sqr_field_t

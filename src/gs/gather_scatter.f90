@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,26 +34,28 @@
 module gather_scatter
   use neko_config
   use gs_bcknd
-  use gs_device
-  use gs_sx
-  use gs_cpu
+  use gs_device, only : gs_device_t
+  use gs_sx, only : gs_sx_t
+  use gs_cpu, only : gs_cpu_t
   use gs_ops
-  use gs_comm
-  use gs_mpi
-  use gs_device_mpi
-  use mesh
-  use dofmap
-  use field
+  use gs_comm, only : gs_comm_t
+  use gs_mpi, only : gs_mpi_t
+  use gs_device_mpi, only : gs_device_mpi_t
+  use mesh, only : mesh_t
+  use comm
+  use dofmap, only : dofmap_t
+  use field, only : field_t
   use num_types
-  use mpi_f08
-  use htable
-  use stack
+  use htable, only : htable_i8_t, htable_iter_i8_t
+  use stack, only : stack_i4_t
   use utils
   use logger
   use profiler
+  use device
   implicit none
+  private
 
-  type gs_t
+  type, public ::  gs_t
      real(kind=rp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:)          !< Local dof to gs mapping
      integer, allocatable :: local_gs_dof(:)          !< Local gs to dof mapping
@@ -72,19 +74,22 @@ module gather_scatter
      integer :: shared_facet_offset                   !< offset for shr. facets
      class(gs_bcknd_t), allocatable :: bcknd          !< Gather-scatter backend
      class(gs_comm_t), allocatable :: comm            !< Comm. method
+   contains
+     procedure, private, pass(gs) :: gs_op_fld
+     procedure, private, pass(gs) :: gs_op_r4
+     procedure, pass(gs) :: gs_op_vector
+     procedure, pass(gs) :: init => gs_init
+     procedure, pass(gs) :: free => gs_free
+     generic :: op => gs_op_fld, gs_op_r4, gs_op_vector
   end type gs_t
 
-  private :: gs_init_mapping, gs_schedule
+  public :: GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
   
-  interface gs_op
-     module procedure gs_op_fld, gs_op_r4, gs_op_vector
-  end interface gs_op
-
 contains
 
   !> Initialize a gather-scatter kernel
   subroutine gs_init(gs, dofmap, bcknd)
-    type(gs_t), intent(inout) :: gs
+    class(gs_t), intent(inout) :: gs
     type(dofmap_t), target, intent(inout) :: dofmap
     character(len=LOG_SIZE) :: log_buf
     character(len=20) :: bcknd_str
@@ -99,7 +104,7 @@ contains
     character(len=255) :: env_strtgy
     real(kind=dp) :: strtgy_time(4)
 
-    call gs_free(gs)
+    call gs%free()
 
     call neko_log%section('Gather-Scatter')
     
@@ -254,7 +259,7 @@ contains
 
   !> Deallocate a gather-scatter kernel
   subroutine gs_free(gs)
-    type(gs_t), intent(inout) :: gs
+    class(gs_t), intent(inout) :: gs
 
     nullify(gs%dofmap)
 
@@ -1234,32 +1239,43 @@ contains
   end subroutine gs_schedule
 
   !> Gather-scatter operation on a field @a u with op @a op
-  subroutine gs_op_fld(gs, u, op)
-    type(gs_t), intent(inout) :: gs
+  subroutine gs_op_fld(gs, u, op, event)
+    class(gs_t), intent(inout) :: gs
     type(field_t), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
     integer :: n, op
     
     n = u%msh%nelv * u%Xh%lx * u%Xh%ly * u%Xh%lz
-    call gs_op_vector(gs, u%x, n, op)
+    if (present(event)) then
+       call gs_op_vector(gs, u%x, n, op, event)
+    else
+       call gs_op_vector(gs, u%x, n, op)
+    end if
     
   end subroutine gs_op_fld
   
   !> Gather-scatter operation on a rank 4 array
-  subroutine gs_op_r4(gs, u, n, op)
-    type(gs_t), intent(inout) :: gs
+  subroutine gs_op_r4(gs, u, n, op, event)
+    class(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
     integer :: op
 
-    call gs_op_vector(gs, u, n, op)
+    if (present(event)) then
+       call gs_op_vector(gs, u, n, op, event)
+    else
+       call gs_op_vector(gs, u, n, op)
+    end if
     
   end subroutine gs_op_r4
   
   !> Gather-scatter operation on a vector @a u with op @a op
-  subroutine gs_op_vector(gs, u, n, op)
-    type(gs_t), intent(inout) :: gs
+  subroutine gs_op_vector(gs, u, n, op, event)
+    class(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
     integer :: m, l, op, lo, so
     
     lo = gs%local_facet_offset
@@ -1278,7 +1294,8 @@ contains
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
        call profiler_end_region
        call profiler_start_region("gs_nbsend")
-       call gs%comm%nbsend(gs%shared_gs, l, gs%bcknd%gather_event)
+       call gs%comm%nbsend(gs%shared_gs, l, &
+            gs%bcknd%gather_event, gs%bcknd%gs_stream)
        call profiler_end_region
        
     end if
@@ -1288,16 +1305,25 @@ contains
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false.)
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false., C_NULL_PTR)
     call profiler_end_region
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbwait")
-       call gs%comm%nbwait(gs%shared_gs, l, op)
+       call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
        call profiler_end_region
        call profiler_start_region("gs_scatter_shared")
-       call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
-            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, .true.)
+       if (present(event)) then
+          call gs%bcknd%scatter(gs%shared_gs, l,&
+                                gs%shared_dof_gs, u, n, &
+                                gs%shared_gs_dof, gs%nshared_blks, &
+                                gs%shared_blk_len, .true., event)
+       else
+          call gs%bcknd%scatter(gs%shared_gs, l,&
+                                gs%shared_dof_gs, u, n, &
+                                gs%shared_gs_dof, gs%nshared_blks, &
+                                gs%shared_blk_len, .true., C_NULL_PTR)
+       end if
        call profiler_end_region
     end if
 

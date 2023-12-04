@@ -32,13 +32,23 @@
 !
 !> Defines various GMRES methods
 module gmres_device
-  use krylov
-  use comm
-  use math
-  use num_types
+  use krylov, only : ksp_t, ksp_monitor_t
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp, c_rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use device_identity, only : device_ident_t
+  use math, only : rone, rzero
+  use device_math, only : device_rzero, device_copy, device_glsc3, &
+                          device_add2s2, device_add2s1, device_rone, &
+                          device_cmult2, device_add2s2_many, device_glsc3_many,&
+                          device_sub2
   use device
-  use device_identity
-  use device_math
+  use comm
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -62,6 +72,7 @@ module gmres_device
      type(c_ptr) :: z_d_d = C_NULL_PTR
      type(c_ptr) :: h_d_d = C_NULL_PTR
      type(c_ptr) :: v_d_d = C_NULL_PTR
+     type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => gmres_device_init
      procedure, pass(this) :: free => gmres_device_free
@@ -195,6 +206,8 @@ contains
     else
        call this%ksp_init(abs_tol)
     end if
+
+    call device_event_create(this%gs_event, 2)
           
   end subroutine gmres_device_init
 
@@ -278,6 +291,10 @@ contains
     end if
 
     nullify(this%M)
+
+    if (c_associated(this%gs_event)) then
+       call device_event_destroy(this%gs_event)
+    end if
     
   end subroutine gmres_device_free
  
@@ -320,9 +337,9 @@ contains
        call device_rone(this%c_d, this%m_restart)
 
        call rzero(this%h, this%m_restart**2)
-       do j = 1, this%m_restart
-          call device_rzero(h_d(j), this%m_restart)
-       end do
+!       do j = 1, this%m_restart
+!          call device_rzero(h_d(j), this%m_restart)
+!       end do
        do while (.not. conv .and. iter .lt. niter)
 
           if(iter.eq.0) then               
@@ -330,7 +347,8 @@ contains
           else
              call device_copy(r_d, f_d, n)      
              call Ax%compute(w, x%x, coef, x%msh, x%Xh)
-             call gs_op(gs_h, w, n, GS_OP_ADD)
+             call gs_h%op(w, n, GS_OP_ADD)
+             call device_event_sync(this%gs_event)
              call bc_list_apply(blst, w, n)
              call device_sub2(r_d, w_d, n) 
           end if
@@ -351,7 +369,8 @@ contains
              call this%M%solve(z(1,j), v(1,j), n)
 
              call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
-             call gs_op(gs_h, w, n, GS_OP_ADD)
+             call gs_h%op(w, n, GS_OP_ADD)
+             call device_event_sync(this%gs_event)
              call bc_list_apply(blst, w, n)
 
              if (NEKO_BCKND_OPENCL .eq. 1) then

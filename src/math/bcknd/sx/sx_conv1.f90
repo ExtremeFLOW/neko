@@ -32,8 +32,14 @@
 !
 !> conv1 SX-Aurora kernels
 module sx_conv1
-  use num_types
+  use num_types, only : rp
   implicit none
+  private
+
+  public :: sx_conv1_lx, sx_conv1_lx14, sx_conv1_lx13, sx_conv1_lx12, &
+       sx_conv1_lx11, sx_conv1_lx10, sx_conv1_lx9, sx_conv1_lx8, &
+       sx_conv1_lx7, sx_conv1_lx6, sx_conv1_lx5, sx_conv1_lx4, &
+       sx_conv1_lx3, sx_conv1_lx2
 
 contains
 

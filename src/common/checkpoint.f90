@@ -35,9 +35,12 @@ module checkpoint
   use neko_config
   use num_types
   use field_series
+  use space
   use device
   use field
+  use space
   use utils
+  use mesh, only: mesh_t
   implicit none
   private
 
@@ -47,16 +50,35 @@ module checkpoint
      type(field_t), pointer :: w => null()
      type(field_t), pointer :: p => null()
 
+
      !
      ! Optional payload
      !
      type(field_series_t), pointer :: ulag => null()
      type(field_series_t), pointer :: vlag => null()
      type(field_series_t), pointer :: wlag => null()
+     
+     real(kind=rp), pointer :: tlag(:) => null()
+     real(kind=rp), pointer :: dtlag(:) => null()
+     
+     !> for pnpn
+     type(field_t), pointer :: abx1 => null()
+     type(field_t), pointer :: abx2 => null()
+     type(field_t), pointer :: aby1 => null()
+     type(field_t), pointer :: aby2 => null()
+     type(field_t), pointer :: abz1 => null()
+     type(field_t), pointer :: abz2 => null()
 
      type(field_t), pointer :: s => null()
+     type(field_series_t), pointer :: slag => null()
+
+     type(field_t), pointer :: abs1 => null()
+     type(field_t), pointer :: abs2 => null()
 
      real(kind=dp) :: t         !< Restart time (valid after load)
+     type(mesh_t) :: previous_mesh
+     real(kind=rp) :: mesh2mesh_tol = 1d-6
+
    contains
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: sync_host => chkp_sync_host
@@ -119,13 +141,15 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
-            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag)
+            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag, &
+            p=>this%p)
 
          if (associated(this%u) .and. associated(this%v) .and. &
-              associated(this%w)) then
+              associated(this%w) .and. associated(this%p)) then
             call device_memcpy(u%x, u%x_d, u%dof%size(), DEVICE_TO_HOST)
             call device_memcpy(v%x, v%x_d, v%dof%size(), DEVICE_TO_HOST)
             call device_memcpy(w%x, w%x_d, w%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(p%x, p%x_d, p%dof%size(), DEVICE_TO_HOST)
          end if
          
          if (associated(this%ulag) .and. associated(this%vlag) .and. &
@@ -144,12 +168,33 @@ contains
                                w%dof%size(), DEVICE_TO_HOST)
             call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
                                w%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(this%abx1%x, this%abx1%x_d, &
+                               w%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(this%abx2%x, this%abx2%x_d, &
+                               w%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(this%aby1%x, this%aby1%x_d, &
+                               w%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(this%aby2%x, this%aby2%x_d, &
+                               w%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(this%abz1%x, this%abz1%x_d, &
+                               w%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(this%abz2%x, this%abz2%x_d, &
+                               w%dof%size(), DEVICE_TO_HOST)
          end if
          if (associated(this%s)) then
             call device_memcpy(this%s%x, this%s%x_d, &
                                this%s%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
+                               this%s%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
+                               this%s%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(this%abs1%x, this%abs1%x_d, &
+                               w%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(this%abs2%x, this%abs2%x_d, &
+                               w%dof%size(), DEVICE_TO_HOST)
          end if
        end associate
+    call device_sync()
     end if
          
   end subroutine chkp_sync_host
@@ -160,13 +205,15 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
-            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag)
+            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag,&
+            p=>this%p)
 
          if (associated(this%u) .and. associated(this%v) .and. &
               associated(this%w)) then
             call device_memcpy(u%x, u%x_d, u%dof%size(), HOST_TO_DEVICE)
             call device_memcpy(v%x, v%x_d, v%dof%size(), HOST_TO_DEVICE)
             call device_memcpy(w%x, w%x_d, w%dof%size(), HOST_TO_DEVICE)
+            call device_memcpy(p%x, p%x_d, p%dof%size(), HOST_TO_DEVICE)
          end if
          
          if (associated(this%ulag) .and. associated(this%vlag) .and. &

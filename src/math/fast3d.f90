@@ -59,9 +59,9 @@
 !
 !> Fast diagonalization methods from NEKTON
 module fast3d
-  use num_types
+  use num_types, only : rp
   use speclib
-  use math
+  use math, only : rzero
   implicit none
   private
 
@@ -233,8 +233,8 @@ contains
   !!
   !! @param jh Matrix of the interpolation weights.
   !! @param jht Same as `jh` but transposed.
-  !! @param z_to Target points for interpolation
-  !! @param z_from Quadrature points
+  !! @param z_to Target points for interpolation.
+  !! @param z_from Quadrature points.
   !! @param n_to Number of points in `z_to`.
   !! @param n_from Number of points in `z_from`.
   !! @param derivative Specifies if we want the derivative interpolation instead, e.g.

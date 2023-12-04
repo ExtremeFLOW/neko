@@ -1,9 +1,18 @@
-module field_parallel
+ module field_parallel
   use mpi
   use pfunit
   use field
+  use mesh
+  use point
+  use space
+  use dofmap
   use num_types
   use device
+  use space
+  use mesh
+  use dofmap
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use neko_config
   implicit none
 
   @TestCase
@@ -58,11 +67,11 @@ contains
     p(12) = point_t(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
   
-    call mesh_init(msh, 3, 2)
-    call mesh_add_element(msh, 1, p(1), p(2), p(4), p(3), &
+    call msh%init(3, 2)
+    call msh%add_element(1, p(1), p(2), p(4), p(3), &
          p(7), p(8), p(9), p(10))
     
-    call mesh_add_element(msh, 2, p(2), p(5), p(6), p(4), &
+    call msh%add_element(2, p(2), p(5), p(6), p(4), &
          p(8), p(11), p(12), p(9))
     
   end subroutine test_field_gen_msh
@@ -80,9 +89,9 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
-    call field_init(f_msh_Xh, msh, Xh, 'test')
+    call f_msh_Xh%init(msh, Xh, 'test')
     @assertTrue(allocated(f_msh_Xh%x))
     @assertTrue(associated(f_msh_Xh%Xh))
     @assertTrue(associated(f_msh_Xh%msh))
@@ -91,7 +100,7 @@ contains
     @assertEqual(maxval(f_msh_Xh%x), 0d0)
 
     dm = dofmap_t(msh, Xh)
-    call field_init(f_dm, msh, Xh, 'test')
+    call f_dm%init(msh, Xh, 'test')
     @assertTrue(allocated(f_dm%x))
     @assertTrue(associated(f_dm%Xh))
     @assertTrue(associated(f_dm%msh))
@@ -113,10 +122,10 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
-    call field_init(f, msh, Xh, 'test')
-    call field_free(f)
+    call f%init(msh, Xh, 'test')
+    call f%free()
     @assertFalse(allocated(f%x))
         
   end subroutine test_field_free
@@ -134,9 +143,9 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
-    call field_init(f, msh, Xh, 'test')
+    call f%init(msh, Xh, 'test')
     @assertEqual(maxval(f%x), 0d0)
 
     f = 42.0_rp
@@ -160,10 +169,10 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
-    call field_init(f, msh, Xh, 'test')
-    call field_init(g, msh, Xh, 'test')
+    call f%init(msh, Xh, 'test')
+    call g%init(msh, Xh, 'test')
 
     f = 42.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -191,13 +200,13 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
-    call field_init(f, msh, Xh, 'test')
+    call f%init(msh, Xh, 'test')
 
     f = 42.0_rp
     a = 17.0_rp
-    call field_add(f, a)
+    call f%add(a)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
     end if
@@ -218,14 +227,14 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
-    call field_init(f, msh, Xh, 'test')
-    call field_init(g, msh, Xh, 'test')
+    call f%init(msh, Xh, 'test')
+    call g%init(msh, Xh, 'test')
 
     f = 42.0_rp
     g = 17.0_rp
-    call field_add(f, g)
+    call f%add(g)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
     end if

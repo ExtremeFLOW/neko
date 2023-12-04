@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,18 @@
 !
 !> Fortran OpenCL interface
 module opencl_intf
-  use num_types
-  use utils
+  use num_types, only : i8
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
-
+  
 #ifdef HAVE_OPENCL
 
   !> Global OpenCL command queue
   type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
+
+  !> Aux OpenCL command queue
+  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
 
   !> Global OpenCL context
   type(c_ptr), bind(c) :: glb_ctx = C_NULL_PTR
@@ -75,6 +78,14 @@ module opencl_intf
      enumerator :: CL_MEM_HOST_WRITE_ONLY = 128
      enumerator :: CL_MEM_HOST_READ_ONLY = 256
      enumerator :: CL_MEM_HOST_NO_ACCESS = 512
+  end enum
+
+  !> Enum event flags
+  enum, bind(c)
+     enumerator :: CL_COMPLETE = 0
+     enumerator :: CL_RUNNING = 1
+     enumerator :: CL_SUBMITTED = 2
+     enumerator :: CL_QUEUED = 3
   end enum
 
   !> Enum boolean
@@ -164,6 +175,16 @@ module opencl_intf
   end interface
 
   interface
+     type(c_ptr) function clCreateUserEvent(context, ierr) &
+          bind(c, name='clCreateUserEvent')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: context
+       integer(c_int) :: ierr
+     end function clCreateUserEvent
+  end interface
+
+  interface
      integer (c_int) function clEnqueueReadBuffer(queue, buffer, &
           blocking_read, offset, size, ptr, num_events_in_wait_list, &
           event_wait_list, event) bind(c, name='clEnqueueReadBuffer')
@@ -217,6 +238,60 @@ module opencl_intf
      end function clEnqueueCopyBuffer
   end interface
 
+  interface
+     integer (c_int) function clEnqueueMarkerWithWaitList(queue,&
+          num_events_in_wait_list, event_wait_list, event) &
+          bind(c, name='clEnqueueMarkerWithWaitList')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: queue
+       integer(c_int), value :: num_events_in_wait_list
+       type(c_ptr), value :: event_wait_list
+       type(c_ptr), value :: event
+     end function clEnqueueMarkerWithWaitList
+  end interface
+
+  interface
+     integer (c_int) function clEnqueueMarker(cmd_queue, event) &
+          bind(c, name='clEnqueueMarker') 
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: cmd_queue
+       type(c_ptr), value :: event
+     end function clEnqueueMarker
+  end interface
+
+  interface
+     integer (c_int) function clEnqueueWaitForEvents(queue, &
+          num_events, event_list) bind(c, name='clEnqueueWaitForEvents')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: queue
+       integer(c_int), value :: num_events
+       type(c_ptr), value :: event_list
+     end function clEnqueueWaitForEvents
+  end interface
+
+  interface
+     integer (c_int) function clWaitForEvents(num_events, event_list) &
+          bind(c, name='clWaitForEvents')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: num_events
+       type(c_ptr), value :: event_list
+     end function clWaitForEvents
+  end interface
+
+  interface
+     integer (c_int) function clSetUserEventStatus(event, status) &
+          bind(c, name='clSetUserEventStatus')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event
+       integer(c_int), value :: status
+     end function clSetUserEventStatus
+  end interface
+       
   interface
      integer (c_int) function clGetDeviceInfo(device, param_name, &
           param_value_size, param_value, param_value_size_ret) &
@@ -277,6 +352,15 @@ module opencl_intf
   end interface
 
   interface
+     integer (c_int) function clReleaseEvent(event) &
+          bind(c, name='clReleaseEvent')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event
+     end function clReleaseEvent
+  end interface
+
+  interface
      integer (c_int) function clFlush(cmd_queue) &
           bind(c, name='clFlush')
        use, intrinsic :: iso_c_binding
@@ -293,7 +377,7 @@ module opencl_intf
        type(c_ptr), value :: cmd_queue
      end function clFinish
   end interface
-
+  
 contains
 
   subroutine opencl_init
@@ -337,6 +421,9 @@ contains
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Failed to create a command queue')
     end if
+
+    ! Currently we only have one "queue" for the OpenCL backend
+    aux_cmd_queue = glb_cmd_queue
 
   end subroutine opencl_init
 

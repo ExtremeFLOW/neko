@@ -73,6 +73,8 @@ To copy data between host and device (and device to use) use the routine device:
   call device_memcpy(x, x_d, n, DEVICE_TO_HOST)
 ~~~~~~~~~~~~~~~
 
+@attention device::device_memcpy defaults to asynchronous data transfer. The optional boolean argument `sync` must be true if synchronous transfers are needed.
+
 @note that there's a special device::device_memcpy_cptr routine which only works with pointers, either on the host or the device, and the size needs to be given in bytes. This routine can be used to copy data between two arrays on a device with the direction `DEVICE_TO_DEVICE`.
 ~~~~~~~~~~~~~~~{.f90}
   type(c_ptr) :: x_d, y_d

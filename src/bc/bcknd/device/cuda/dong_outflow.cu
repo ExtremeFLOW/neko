@@ -50,10 +50,17 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     dong_outflow_apply_scalar_kernel<real>
-      <<<nblcks, nthrds>>>((int *) msk,
-                           (real *) x, (real *) normal_x, (real *) normal_y,
-                           (real *) normal_z, (real *) u, (real *) v,
-			   (real *) w, *uinf, *delta, *m);
+      <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
+                                                            (real *) x,
+                                                            (real *) normal_x,
+                                                            (real *) normal_y,
+                                                            (real *) normal_z,
+                                                            (real *) u,
+                                                            (real *) v,
+                                                            (real *) w,
+                                                            *uinf,
+                                                            *delta,
+                                                            *m);
     CUDA_CHECK(cudaGetLastError());
   }
  

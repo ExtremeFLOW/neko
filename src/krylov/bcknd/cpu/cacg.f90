@@ -32,10 +32,18 @@
 !
 !> Defines a communication avoiding Conjugate Gradient method
 module cacg
-  use krylov
-  use math
+  use num_types, only: rp
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply, bc_list_apply_scalar
+  use math, only : glsc3, rzero, copy, x_update
+  use utils, only : neko_warning
+  use comm
   use mxm_wrapper
-  use num_types
   implicit none
   private
   
@@ -165,7 +173,7 @@ contains
          do i = 2, 2*s + 1
             if (mod(i,2) .eq. 0) then
                call Ax%compute(PR(1,i), PR(1,i-1), coef, x%msh, x%Xh)
-               call gs_op_vector(gs_h, PR(1,i), n, GS_OP_ADD)
+               call gs_h%gs_op_vector(PR(1,i), n, GS_OP_ADD)
                call bc_list_apply_scalar(blst, PR(1,i), n)
             else
                call this%M%solve(PR(1,i), PR(1,i-1), n)
@@ -177,7 +185,7 @@ contains
                call this%M%solve(PR(1,i+1), PR(1,i), n)
             else
                call Ax%compute(PR(1,i+1), PR(1,i), coef, x%msh, x%Xh)
-               call gs_op_vector(gs_h, PR(1,i+1), n, GS_OP_ADD)
+               call gs_h%gs_op_vector(PR(1,i+1), n, GS_OP_ADD)
                call bc_list_apply_scalar(blst, PR(1,1+i), n)
             end if
          end do

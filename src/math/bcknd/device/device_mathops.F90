@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_mathops
-  use num_types
-  use utils
-  use, intrinsic :: iso_c_binding
+  use num_types, only : rp, c_rp
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_int, c_ptr
   implicit none
+  private
   
 #ifdef HAVE_HIP
   interface
@@ -185,6 +186,9 @@ module device_mathops
   end interface
 #endif
 
+  public :: device_opchsign, device_opcolv, device_opcolv3c, &
+       device_opadd2cm, device_opadd2col
+  
 contains
 
   !> \f$ a = -a \f$

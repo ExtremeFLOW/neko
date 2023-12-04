@@ -32,7 +32,7 @@
 !
 !> Gradient kernels for SX-Aurora
 module sx_opgrad
-  use num_types
+  use num_types, only : rp
   implicit none
 
 contains

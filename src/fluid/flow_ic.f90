@@ -36,12 +36,14 @@ module flow_ic
   use neko_config
   use flow_profile
   use device_math
-  use parameters
+  use device
   use field
   use utils
   use coefs
   use math
   use user_intf, only : useric
+  use json_module, only : json_file
+  use json_utils, only: json_get, json_get_or_default
   implicit none
   private
 
@@ -62,13 +64,22 @@ contains
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
-    type(param_t), intent(in) :: params
+    type(json_file), intent(inout) :: params
+    ! Variables for retrieving json parameters
+    logical :: found
+    real(kind=rp) :: delta
+    real(kind=rp), allocatable :: uinf(:)
+    character(len=:), allocatable :: blasius_approximation
 
     if (trim(type) .eq. 'uniform') then       
-       call set_flow_ic_uniform(u, v, w, params%uinf)
+       call json_get(params, 'case.fluid.initial_condition.value', uinf)
+       call set_flow_ic_uniform(u, v, w, uinf)
     else if (trim(type) .eq. 'blasius') then
-       call set_flow_ic_blasius(u, v, w, &
-            params%delta, params%uinf, params%blasius_approx)
+       call json_get(params, 'case.fluid.blasius.delta', delta)
+       call json_get(params, 'case.fluid.blasius.approximation',&
+                     blasius_approximation)
+       call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
+       call set_flow_ic_blasius(u, v, w, delta, uinf, blasius_approximation)
     else
        call neko_error('Invalid initial condition')
     end if
@@ -86,7 +97,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     procedure(useric) :: usr_ic
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
 
     call usr_ic(u, v, w, p, params)
     
@@ -109,9 +120,9 @@ contains
     end if
     
     ! Ensure continuity across elements for initial conditions
-    call gs_op(gs, u%x, u%dof%size(), GS_OP_ADD) 
-    call gs_op(gs, v%x, v%dof%size(), GS_OP_ADD) 
-    call gs_op(gs, w%x, w%dof%size(), GS_OP_ADD) 
+    call gs%op(u%x, u%dof%size(), GS_OP_ADD) 
+    call gs%op(v%x, v%dof%size(), GS_OP_ADD) 
+    call gs%op(w%x, w%dof%size(), GS_OP_ADD) 
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(u%x_d, coef%mult_d, u%dof%size())

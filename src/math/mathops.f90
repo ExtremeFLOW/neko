@@ -63,7 +63,7 @@
   !! \f$gdim\f$ is assumed to be either 2 or 3 only.
 
 module mathops
-  use num_types
+  use num_types, only : rp
   implicit none
 
 contains

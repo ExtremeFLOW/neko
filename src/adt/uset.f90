@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,11 @@
 !> Implements an unordered set ADT
 !! @details A unordered set storing a fixed data-type @a data 
 module uset
-  use num_types
-  use htable
-  use utils
+  use utils, only : neko_error
+  use num_types, only : i8, dp
+  use htable, only : htable_i4_t, htable_iter_i4_t, &
+                     htable_i8_t, htable_iter_i8_t, &
+                     htable_r8_t, htable_iter_r8_t
   implicit none
   private
 
@@ -182,6 +184,7 @@ contains
   subroutine uset_i4_free(this)
     class(uset_i4_t), intent(inout) :: this
 
+    nullify(this%it%t)
     call this%t%free()
     
   end subroutine uset_i4_free
@@ -281,6 +284,7 @@ contains
   subroutine uset_i8_free(this)
     class(uset_i8_t), intent(inout) :: this
 
+    nullify(this%it%t)
     call this%t%free()
     
   end subroutine uset_i8_free

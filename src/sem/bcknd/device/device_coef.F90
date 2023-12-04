@@ -33,9 +33,12 @@
 module device_coef
   use num_types
   use utils
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
+  private
 
+  public :: device_coef_generate_geo, device_coef_generate_dxydrst
+  
 #ifdef HAVE_HIP
     interface
      subroutine hip_coef_generate_geo(G11, G12, G13, G22, G23, G33, &

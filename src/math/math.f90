@@ -58,22 +58,29 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module math
-  use num_types
+  use num_types, only : rp, dp, sp, qp
   use comm
   implicit none
+  private
 
   !> Machine epsilon \f$ \epsilon \f$
-  real(kind=rp), parameter :: NEKO_EPS = epsilon(1.0_rp)
+  real(kind=rp), public, parameter :: NEKO_EPS = epsilon(1.0_rp)
 
   !> \f$ ln(2) \f$
-  real(kind=rp), parameter :: NEKO_M_LN2 = log(2.0_rp)
+  real(kind=rp), public, parameter :: NEKO_M_LN2 = log(2.0_rp)
 
   !> \f$ \pi \f$
-  real(kind=rp), parameter :: pi = 4._rp*atan(1._rp)
+  real(kind=rp), public, parameter :: pi = 4._rp*atan(1._rp)
 
   interface abscmp
      module procedure sabscmp, dabscmp, qabscmp
   end interface abscmp
+
+  public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
+       glsum, glmax, glmin, chsign, vlmax, invcol1, invcol3, invers2, vcross, &
+       vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, add2s1, add2s2, &
+       addsqr2s2, cmult2, invcol2, col2, col3, subcol3, add3s2, subcol4, addcol3,&
+       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort
 
 contains
 

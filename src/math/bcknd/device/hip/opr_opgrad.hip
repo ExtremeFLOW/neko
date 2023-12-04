@@ -72,7 +72,7 @@ extern "C" {
 
 #define CASE_1D(LX)                                                             \
     hipLaunchKernelGGL( HIP_KERNEL_NAME(opgrad_kernel_1d<real, LX, 1024> ),     \
-                        nblcks, nthrds_1d, 0, 0,                                \
+                        nblcks, nthrds_1d, 0, (hipStream_t) glb_cmd_queue,      \
                         (real *) ux, (real *) uy, (real *) uz, (real *) u,      \
                         (real *) dx, (real *) dy, (real *) dz,                  \
                         (real *) drdx, (real *) dsdx, (real *) dtdx,            \
@@ -84,7 +84,7 @@ extern "C" {
 
 #define CASE_KSTEP(LX)                                                          \
     hipLaunchKernelGGL( HIP_KERNEL_NAME(opgrad_kernel_kstep<real, LX> ),        \
-                        nblcks, nthrds_kstep, 0, 0,                             \
+                        nblcks, nthrds_kstep, 0, (hipStream_t) glb_cmd_queue,   \
                         (real *) ux, (real *) uy, (real *) uz, (real *) u,      \
                         (real *) dx, (real *) dy, (real *) dz,                  \
                         (real *) drdx, (real *) dsdx, (real *) dtdx,            \

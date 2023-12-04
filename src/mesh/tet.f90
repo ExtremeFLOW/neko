@@ -32,10 +32,10 @@
 !
 !> Defines a tetrahedral element
 module tet
-  use num_types
-  use element
+  use num_types, only : dp
+  use element, only : element_t
   use tuple
-  use point
+  use point, only : point_t
   implicit none
   private
 

@@ -35,6 +35,7 @@ module gs_sx
   use num_types
   use gs_bcknd
   use gs_ops
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -283,7 +284,7 @@ contains
   end subroutine gs_gather_kernel_max
 
   !> Scatter kernel  @todo Make the kernel abstract
-  subroutine gs_scatter_sx(this, v, m, dg, u, n, gd, nb, b, shrd)
+  subroutine gs_scatter_sx(this, v, m, dg, u, n, gd, nb, b, shrd, event)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -294,6 +295,7 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     logical, intent(in) :: shrd
+    type(c_ptr) :: event
         
     if (.not. shrd) then
        call gs_scatter_kernel(v, m, dg, u, n, gd, nb, b, this%local_wrk)

@@ -31,20 +31,25 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module krylov_fctry
-  use cg
-  use cg_sx
-  use cg_device
-  use cacg
-  use pipecg
-  use pipecg_sx
-  use pipecg_device
-  use bicgstab
-  use gmres
-  use gmres_sx
-  use gmres_device
-  use krylov
+  use cg, only : cg_t
+  use cg_sx, only : sx_cg_t
+  use cg_device, only : cg_device_t
+  use cacg, only : cacg_t
+  use pipecg, only : pipecg_t
+  use pipecg_sx, only : sx_pipecg_t
+  use pipecg_device, only : pipecg_device_t
+  use bicgstab, only : bicgstab_t
+  use gmres, only : gmres_t
+  use gmres_sx, only : sx_gmres_t
+  use gmres_device, only : gmres_device_t
+  use num_Types, only : rp
+  use krylov, only : ksp_t, ksp_monitor_t
+  use precon, only : pc_t
+  use utils, only : neko_error
   use neko_config
   implicit none
+
+  public :: krylov_solver_factory, krylov_solver_destroy
 
 contains
 
@@ -52,7 +57,7 @@ contains
   subroutine krylov_solver_factory(ksp, n, solver, abstol, M)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
-    character(len=*) :: solver
+    character(len=*), intent(in) :: solver
     real(kind=rp), optional :: abstol
     class(pc_t), optional, intent(inout), target :: M
  
@@ -60,7 +65,6 @@ contains
        call krylov_solver_destroy(ksp)
        deallocate(ksp)
     end if
-
     if (trim(solver) .eq. 'cg') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_cg_t::ksp)
@@ -93,7 +97,7 @@ contains
     else if (trim(solver) .eq. 'bicgstab') then
        allocate(bicgstab_t::ksp)
     else
-       call neko_error('Unknown Krylov solver')
+       call neko_error('Unknown Krylov solver '//trim(solver))
     end if
 
     if (present(abstol) .and. present(M)) then
@@ -229,9 +233,6 @@ contains
        type is(bicgstab_t)
           call kp%free()
        end select
-
-       call ksp%free()
-
     end if
  
   end subroutine krylov_solver_destroy

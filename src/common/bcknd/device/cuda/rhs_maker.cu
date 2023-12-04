@@ -48,9 +48,10 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     sumab_kernel<real>
-      <<<nblcks, nthrds>>>((real *) u, (real *) v, (real *) w,
+      <<<nblcks, nthrds, 0, stream>>>((real *) u, (real *) v, (real *) w,
                            (real *) uu, (real *) vv, (real *) ww,
                            (real *) ulag1, (real *) ulag2, (real *) vlag1,
                            (real *) vlag2, (real *) wlag1, (real *) wlag2,
@@ -65,12 +66,15 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
     
     makeext_kernel<real>
-      <<<nblcks, nthrds>>>((real *) abx1, (real *) aby1, (real *) abz1, 
-                           (real *) abx2, (real *) aby2, (real *) abz2,
-                           (real *) bfx, (real *) bfy, (real *) bfz,
-                           *rho, *ab1, *ab2, *ab3, *n);      
+      <<<nblcks, nthrds, 0, stream>>>((real *) abx1, (real *) aby1,
+                                      (real *) abz1, (real *) abx2,
+                                      (real *) aby2, (real *) abz2,
+                                      (real *) bfx, (real *) bfy,
+                                      (real *) bfz, *rho, *ab1,
+                                      *ab2, *ab3, *n);
       CUDA_CHECK(cudaGetLastError());
   }
 
@@ -80,12 +84,13 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-    
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+        
     scalar_makeext_kernel<real>
-      <<<nblcks, nthrds>>>((real *) fs_lag,
-                           (real *) fs_laglag,
-                           (real *) fs,
-                           *rho, *ext1, *ext2, *ext3, *n);      
+      <<<nblcks, nthrds, 0, stream>>>((real *) fs_lag,
+                                      (real *) fs_laglag,
+                                      (real *) fs,
+                                      *rho, *ext1, *ext2, *ext3, *n);      
       CUDA_CHECK(cudaGetLastError());
   }
   
@@ -98,13 +103,16 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     makebdf_kernel<real>
-      <<<nblcks, nthrds>>>((real *) ulag1, (real *) ulag2, (real *) vlag1,
-                           (real *) vlag2, (real *) wlag1, (real *) wlag2, 
-                           (real *) bfx, (real *) bfy, (real *) bfz,
-                           (real *) u, (real *) v, (real *) w, (real *) B, 
-                           *rho, *dt, *bd2, *bd3, *bd4, *nbd,  *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) ulag1, (real *) ulag2,
+                                      (real *) vlag1, (real *) vlag2,
+                                      (real *) wlag1, (real *) wlag2, 
+                                      (real *) bfx, (real *) bfy, (real *) bfz,
+                                      (real *) u, (real *) v, (real *) w,
+                                      (real *) B, *rho, *dt,
+                                      *bd2, *bd3, *bd4, *nbd,  *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
@@ -116,14 +124,15 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     scalar_makebdf_kernel<real>
-      <<<nblcks, nthrds>>>((real *) s_lag, 
-                           (real *) s_laglag,
-                           (real *) fs,
-                           (real *) s,
-                           (real *) B, 
-                           *rho, *dt, *bd2, *bd3, *bd4, *nbd,  *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) s_lag, 
+                                      (real *) s_laglag,
+                                      (real *) fs,
+                                      (real *) s,
+                                      (real *) B, 
+                                      *rho, *dt, *bd2, *bd3, *bd4, *nbd,  *n);
     CUDA_CHECK(cudaGetLastError());
   }
 }

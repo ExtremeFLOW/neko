@@ -2,22 +2,43 @@ module user
   use neko
   implicit none
 
+  !> Variables to store the Rayleigh and Prandlt numbers
   real(kind=rp) :: Ra = 0
+  real(kind=rp) :: Re = 0
   real(kind=rp) :: Pr = 0
-  real(kind=rp) :: ta2 = 0
-  type(coef_t), pointer :: c_Xh
+
+  !> =============================================
 
 contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%user_init_modules => set_Pr
-    u%fluid_user_ic => set_ic
-    u%scalar_user_bc => scalar_bc
-    u%fluid_user_f_vector => forcing
+    u%fluid_user_ic => set_initial_conditions_for_u_and_s
+    u%scalar_user_bc => set_scalar_boundary_conditions
+    u%fluid_user_f_vector => set_bousinesq_forcing_term
+    u%material_properties => set_material_properties
   end subroutine user_setup
+
+  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+    type(json_file), intent(inout) :: params
+    real(kind=rp) :: Re
+
+    call json_get(params, "case.fluid.Ra", Ra)
+    call json_get(params, "case.scalar.Pr", Pr)
+
+
+    Re = sqrt(Ra / Pr)
+    mu = 1.0_rp / Re
+    lambda = mu / Pr
+    rho = 1.0_rp
+    cp = 1.0_rp
+  end subroutine set_material_properties
    
-  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+ 
+  subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -29,26 +50,35 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    !> Variables for bias
+    real(kind=rp) :: arg, bias
+    
     ! This will be used on all zones without labels
     ! e.g. the ones hardcoded to 'v', 'w', etcetc
-    s = 1.0_rp-z
-  end subroutine scalar_bc
+    s = 1.0_rp - z
 
-  !> Dummy user initial condition
-  subroutine set_ic(u, v, w, p, params)
+  end subroutine set_scalar_boundary_conditions
+
+  subroutine set_initial_conditions_for_u_and_s(u, v, w, p, params)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     type(field_t), pointer :: s
     integer :: i, j, k, e
     real(kind=rp) :: rand, r,z
     s => neko_field_registry%get_field('s')
 
+    !> Initialize with zero velocity
     call rzero(u%x,u%dof%size())
     call rzero(v%x,v%dof%size())
     call rzero(w%x,w%dof%size())
+
+    !> Initialize with rand perturbations on temperature
     call rzero(s%x,w%dof%size())
     do i = 1, s%dof%size()
        s%x(i,1,1,1) = 1-s%dof%z(i,1,1,1) 
@@ -71,37 +101,14 @@ contains
           end do
        end do
     end do
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x,s%x_d,s%dof%size(),HOST_TO_DEVICE)
     end if
 
-  end subroutine set_ic
+  end subroutine set_initial_conditions_for_u_and_s
 
-  subroutine set_Pr(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
-    type(param_t), intent(inout) :: params
-    ! Reset the relevant nondimensional parameters
-    Pr = params%Pr
-    Ra = params%Re
-    params%Re = sqrt(Ra / Pr)
-    call save_coef(coef)
-  end subroutine set_Pr
-
-
-  subroutine save_coef(coef)
-    type(coef_t), target :: coef
-    c_Xh => coef
-  end subroutine save_coef
-
-  !> Forcing
-  subroutine forcing(f, t)
-    class(source_t), intent(inout) :: f
+  subroutine set_bousinesq_forcing_term(f, t)
+    class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     integer :: i
     type(field_t), pointer :: u, v, w, s
@@ -111,8 +118,7 @@ contains
     w => neko_field_registry%get_field('w')
     s => neko_field_registry%get_field('s')
 
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(f%u_d,f%dm%size())
        call device_rzero(f%v_d,f%dm%size())
        call device_copy(f%w_d,s%x_d,f%dm%size())
@@ -121,5 +127,5 @@ contains
        call rzero(f%v,f%dm%size())
        call copy(f%w,s%x,f%dm%size())
     end if
-  end subroutine forcing
+  end subroutine set_bousinesq_forcing_term
 end module user

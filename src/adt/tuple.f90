@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 !
 !> Implements a n-tuple
 module tuple
-  use math  
-  use num_types
+  use math, only : abscmp 
+  use num_types, only : dp
   implicit none
   private
 

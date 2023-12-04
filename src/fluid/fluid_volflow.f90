@@ -58,20 +58,27 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module fluid_volflow
-  use parameters
   use operators
   use num_types
   use mathops    
-  use krylov
+  use krylov, only : ksp_t, ksp_monitor_t
   use precon
   use dofmap
   use field
   use coefs
   use time_scheme_controller
-  use math    
+  use math
+  use comm
   use neko_config
   use device_math
   use device_mathops
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use json_module, only : json_file
+  use json_utils, only: json_get
+  use scratch_registry, only : scratch_registry_t
+  use bc, only : bc_list_t, bc_list_apply, bc_list_apply_vector, &
+                 bc_list_apply_scalar
+  use ax_product, only : ax_t
   implicit none
   private
   
@@ -84,6 +91,8 @@ module fluid_volflow
      real(kind=rp) :: bdlag = 0d0 !< Really quite pointless since we do not vary the timestep
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
      real(kind=rp) :: domain_length, base_flow
+     !> Manager for temporary fields
+     type(scratch_registry_t) :: scratch
    contains
      procedure, pass(this) :: init => fluid_vol_flow_init
      procedure, pass(this) :: free => fluid_vol_flow_free
@@ -93,34 +102,46 @@ module fluid_volflow
 
 contains
 
-  subroutine fluid_vol_flow_init(this, dm_Xh, param)
+  subroutine fluid_vol_flow_init(this, dm_Xh, params)
     class(fluid_volflow_t), intent(inout) :: this
     type(dofmap_t), intent(inout) :: dm_Xh
-    type(param_t), intent(inout) :: param
+    type(json_file), intent(inout) :: params
+    logical average, found
+    integer :: direction
+    real(kind=rp) :: rate
 
     call this%free()
 
     !Initialize vol_flow (if there is a forced volume flow)
-    this%flow_dir = param%vol_flow_dir
-    this%avflow = param%avflow
-    this%flow_rate = param%flow_rate
+    call json_get(params, 'case.fluid.flow_rate_force.direction', direction)
+    call json_get(params, 'case.fluid.flow_rate_force.value', rate)
+    call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
+                  average)
+
+    this%flow_dir = direction
+    this%avflow = average
+    this%flow_rate = rate
 
     if (this%flow_dir .ne. 0) then
-       call field_init(this%u_vol, dm_Xh, 'u_vol')
-       call field_init(this%v_vol, dm_Xh, 'v_vol')
-       call field_init(this%w_vol, dm_Xh, 'w_vol')
-       call field_init(this%p_vol, dm_Xh, 'p_vol')
+       call this%u_vol%init(dm_Xh, 'u_vol')
+       call this%v_vol%init(dm_Xh, 'v_vol')
+       call this%w_vol%init(dm_Xh, 'w_vol')
+       call this%p_vol%init(dm_Xh, 'p_vol')
     end if
+
+    this%scratch = scratch_registry_t(dm_Xh, 3, 1)
     
   end subroutine fluid_vol_flow_init
 
   subroutine fluid_vol_flow_free(this)
     class(fluid_volflow_t), intent(inout) :: this
 
-    call field_free(this%u_vol)
-    call field_free(this%v_vol)
-    call field_free(this%w_vol)
-    call field_free(this%p_vol)
+    call this%u_vol%free()
+    call this%v_vol%free()
+    call this%w_vol%free()
+    call this%p_vol%free()
+
+    call this%scratch%free()
         
   end subroutine fluid_vol_flow_free
 
@@ -128,12 +149,11 @@ contains
   !! @brief Compute pressure and velocity using fractional step method.
   !! (Tombo splitting scheme).
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
-       ta1, ta2, ta3, ext_bdf, gs_Xh, c_Xh, rho, Re, bd, dt, &
+       ext_bdf, gs_Xh, c_Xh, rho, mu, bd, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
        Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
-    type(field_t), intent(inout) :: ta1, ta2, ta3
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
@@ -142,13 +162,20 @@ contains
     class(ax_t), intent(inout) :: Ax
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
-    real(kind=rp), intent(inout) :: rho, Re, bd, dt
+    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(in) :: rho, mu, dt
     integer, intent(in) :: vel_max_iter, prs_max_iter
     integer :: n, i
     real(kind=rp) :: xlmin, xlmax
     real(kind=rp) :: ylmin, ylmax
     real(kind=rp) :: zlmin, zlmax
     type(ksp_monitor_t) :: ksp_result
+    type(field_t), pointer :: ta1, ta2, ta3
+    integer :: temp_indices(3)
+    
+    call this%scratch%request_field(ta1, temp_indices(1))
+    call this%scratch%request_field(ta2, temp_indices(2))
+    call this%scratch%request_field(ta3, temp_indices(3))
     
 
     associate(msh => c_Xh%msh, p_vol => this%p_vol, &
@@ -190,7 +217,7 @@ contains
          call cdtp(p_res%x, c_Xh%h1, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
       end if
 
-      call gs_op(gs_Xh, p_res, GS_OP_ADD) 
+      call gs_Xh%op(p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(bclst_dp, p_res%x, n)
       call pc_prs%update()
       ksp_result = ksp_prs%solve(Ax, p_vol, p_res%x, n, &
@@ -236,19 +263,19 @@ contains
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_cfill(c_Xh%h1_d, (1.0_rp / Re), n)
+         call device_cfill(c_Xh%h1_d, mu, n)
          call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
       else
          do i = 1, n
-            c_Xh%h1(i,1,1,1) = (1.0_rp / Re)
+            c_Xh%h1(i,1,1,1) = mu
             c_Xh%h2(i,1,1,1) = rho * (bd / dt)
          end do
       end if
       c_Xh%ifh2 = .true.
 
-       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
-       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
-       call gs_op(gs_Xh, w_res, GS_OP_ADD) 
+       call gs_Xh%op(u_res, GS_OP_ADD) 
+       call gs_Xh%op(v_res, GS_OP_ADD) 
+       call gs_Xh%op(w_res, GS_OP_ADD) 
 
        call bc_list_apply_vector(bclst_vel_res,&
             u_res%x, v_res%x, w_res%x, n)
@@ -291,6 +318,7 @@ contains
       end if
      end associate
 
+    call this%scratch%relinquish_field(temp_indices)
   end subroutine fluid_vol_flow_compute
 
   !> Adjust flow volume
@@ -303,18 +331,17 @@ contains
   !!
   !! pff 6/28/98
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
-       ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, rho, Re, dt, &
+       c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
        Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
 
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u, v, w, p
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
-    type(field_t), intent(inout) :: ta1, ta2, ta3
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
-    real(kind=rp), intent(inout) :: rho, Re, dt
+    real(kind=rp), intent(in) :: rho, mu, dt
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(inout) :: Ax
@@ -324,7 +351,9 @@ contains
     real(kind=rp) :: ifcomp, flow_rate, xsec
     real(kind=rp) :: current_flow, delta_flow, base_flow, scale
     integer :: n, ierr
-
+    type(field_t), pointer :: ta1, ta2, ta3
+    integer :: temp_indices(3)
+    
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)
       
@@ -347,7 +376,7 @@ contains
     
       if (ifcomp .gt. 0d0) then
          call this%compute(u_res, v_res, w_res, p_res, &
-              ta1, ta2, ta3, ext_bdf, gs_Xh, c_Xh, rho, Re, ext_bdf%diffusion_coeffs(1), dt, &
+              ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
               Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
       end if

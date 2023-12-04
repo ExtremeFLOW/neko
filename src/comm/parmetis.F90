@@ -37,7 +37,7 @@ module parmetis
   use utils
   use num_types
   use mesh_field 
-  use mesh, only : mesh_t
+  use mesh
   use, intrinsic :: iso_c_binding
   implicit none
   private

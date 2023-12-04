@@ -41,6 +41,8 @@ examples/*/*0.f0*
 contrib/average_field_in_space
 contrib/average_fields_in_time
 contrib/postprocess_fluid_stats
+*.chkp
+*.lst
 
 
 

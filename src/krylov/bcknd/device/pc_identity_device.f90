@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,13 @@
 !
 !> Identity Krylov preconditioner for accelerators
 module device_identity
-  use utils
-  use precon
   use device
   use device_math
-  use num_types
+  use precon, only : pc_t
+  use num_types, only : rp    
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
+  private
   
   !> Defines a canonical Krylov preconditioner for accelerators
   type, public, extends(pc_t) :: device_ident_t

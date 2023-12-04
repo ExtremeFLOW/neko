@@ -47,7 +47,7 @@ contains
   !> Create a preconditioner
   subroutine precon_factory(pc, pctype)
     class(pc_t), target, allocatable, intent(inout) :: pc
-    character(len=*) :: pctype
+    character(len=*), intent(in) :: pctype
 
     if (allocated(pc)) then
        call precon_destroy(pc)
@@ -71,7 +71,7 @@ contains
           allocate(ident_t::pc)
        end if
     else
-       call neko_error('Unknown preconditioner')
+       call neko_error('Unknown preconditioner '//trim(pctype))
     end if
     
   end subroutine precon_factory

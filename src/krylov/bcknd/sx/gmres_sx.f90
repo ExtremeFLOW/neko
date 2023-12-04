@@ -32,11 +32,16 @@
 !
 !> Defines various GMRES methods
 module gmres_sx
-  use krylov
+  use krylov, only : ksp_t, ksp_monitor_t
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, rzero, rone, copy, cmult2, col2, col3, add2s2
   use comm
-  use math
-  use operators
-  use num_types
   implicit none
   private
 
@@ -210,7 +215,7 @@ contains
           !update residual
           call copy  (this%r,f,n)      
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
-          call gs_op(gs_h, this%w, n, GS_OP_ADD)
+          call gs_h%op(this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
           call add2s2(this%r,this%w,-one,n) 
           call col2(this%r,this%ml,n)       
@@ -234,7 +239,7 @@ contains
           call this%M%solve(this%z(1,j), this%w, n)
 
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
-          call gs_op(gs_h, this%w, n, GS_OP_ADD)
+          call gs_h%op(this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
           call col2(this%w, this%ml, n)       
 

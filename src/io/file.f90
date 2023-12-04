@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> Module for file I/O operations.
 module file
   use utils
   use generic_file
@@ -42,15 +43,23 @@ module file
   use fld_file_data
   use vtk_file
   use stl_file
+  use csv_file
   implicit none
   
   type file_t
      class(generic_file_t), allocatable :: file_type
    contains
+     !> Writes data to a file.
      procedure :: write => file_write
+     !> Read @a data from a file.
      procedure :: read => file_read
+     !> Set a file's counter.
      procedure :: set_counter => file_set_counter
+     !> Set a file's start counter.
      procedure :: set_start_counter => file_set_start_counter
+     !> Set a file's header
+     procedure :: set_header => file_set_header
+     !> File operation destructor.
      final :: file_free
   end type file_t
 
@@ -60,8 +69,8 @@ module file
 
 contains
 
-  !> File reader/writer constructor
-  !! @param fname Filename
+  !> File reader/writer constructor.
+  !! @param fname Filename.
   function file_init(fname) result(this)
     character(len=*) :: fname
     type(file_t), target :: this
@@ -90,6 +99,8 @@ contains
        allocate(chkp_file_t::this%file_type)
     else if (suffix .eq. "stl") then
        allocate(stl_file_t::this%file_type)
+    else if (suffix .eq. "csv") then
+      allocate(csv_file_t::this%file_type)
     else
        call neko_error('Unknown file format')
     end if
@@ -98,7 +109,7 @@ contains
 
   end function file_init
 
-  !> File operation destructor
+  !> File operation destructor.
   subroutine file_free(this)
     type(file_t), intent(inout) :: this
 
@@ -108,8 +119,8 @@ contains
 
   end subroutine file_free
 
-  !> Write @a data to a file
-  !! @param data Data to be written
+  !> Writes data to a file.
+  !! @param data Data to be written.
   subroutine file_write(this, data, t)
     class(file_t), intent(inout) :: this
     class(*), intent(inout) :: data
@@ -123,8 +134,8 @@ contains
     
   end subroutine file_write
    
-  !> Read @a data from a file
-  !! @param data Read data
+  !> Read @a data from a file.
+  !! @param data Read data.
   subroutine file_read(this, data)
     class(file_t), intent(in) :: this
     class(*), intent(inout) :: data
@@ -133,7 +144,7 @@ contains
     
   end subroutine file_read
 
-  !> Set a file's counter
+  !> Set a file's counter.
   subroutine file_set_counter(this, n)
     class(file_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -145,7 +156,7 @@ contains
     
   end subroutine file_set_counter
 
-  !> Set a file's start counter
+  !> Set a file's start counter.
   subroutine file_set_start_counter(this, n)
     class(file_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -156,6 +167,23 @@ contains
     end select
     
   end subroutine file_set_start_counter
+
+  !> Set a file's header, mainly for csv_file for now.
+  subroutine file_set_header(this, hd)
+    class(file_t), intent(inout) :: this
+    character(len=*), intent(in) :: hd
+
+    character(len=80) :: suffix
+
+    select type(ft => this%file_type)
+    class is (csv_file_t)
+       call ft%set_header(hd)
+    class default
+       call filename_suffix(this%file_type%fname, suffix)
+       call neko_warning("No set_header defined for " // trim(suffix) // " yet!")
+    end select
+
+  end subroutine file_set_header
 
 
 end module file

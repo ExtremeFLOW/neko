@@ -39,14 +39,15 @@
 extern "C" {
 
   /** Fortran wrapper for tnsr3d **/
-  void cuda_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel) {
+  void cuda_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel, cudaStream_t stream) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(*nel, 1, 1);
 
 #define CASE(NL)                                                                 \
     case NL:                                                                     \
     fdm_do_fast_kernel<real,NL>                                                  \
-      <<<nblcks, nthrds>>>((real *) e, (real *) r, (real *) s,(real *) d);       \
+      <<<nblcks, nthrds, 0, stream>>>((real *) e, (real *) r,                    \
+                                      (real *) s,(real *) d);                    \
     CUDA_CHECK(cudaGetLastError());                                              \
     break;
 

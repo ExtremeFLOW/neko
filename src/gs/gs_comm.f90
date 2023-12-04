@@ -32,11 +32,12 @@
 !
 !> Defines a gather-scatter communication method
 module gs_comm
-  use num_types
-  use comm
-  use stack
-  use, intrinsic :: iso_c_binding, only : c_ptr
-  implicit none  
+  use num_types, only : rp
+  use comm, only : pe_size
+  use stack, only : stack_i4_t
+  use, intrinsic :: iso_c_binding 
+  implicit none
+  private
 
   integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2
 
@@ -79,7 +80,7 @@ module gs_comm
 
   !> Abstract interface for initiating non-blocking send operations
   abstract interface
-     subroutine gs_nbsend(this, u, n, deps)
+     subroutine gs_nbsend(this, u, n, deps, strm)
        import gs_comm_t
        import stack_i4_t
        import c_ptr
@@ -88,6 +89,7 @@ module gs_comm
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(inout) :: u
        type(c_ptr), intent(inout) :: deps
+       type(c_ptr), intent(inout) :: strm
      end subroutine gs_nbsend
   end interface
 
@@ -101,7 +103,7 @@ module gs_comm
 
   !> Abstract interface for watining on non-blocking operations
   abstract interface
-     subroutine gs_nbwait(this, u, n, op)
+     subroutine gs_nbwait(this, u, n, op, strm)
        import gs_comm_t
        import stack_i4_t
        import c_ptr
@@ -110,9 +112,11 @@ module gs_comm
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(inout) :: u
        integer :: op
+       type(c_ptr), intent(inout) :: strm
      end subroutine gs_nbwait
   end interface
 
+  public :: gs_comm_init, gs_comm_free, gs_nbsend, gs_nbrecv, gs_nbwait
 contains
 
   subroutine init_dofs(this)

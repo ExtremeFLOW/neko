@@ -31,21 +31,24 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Operators accelerator backends
-module opr_device
-  use gather_scatter  
-  use num_types
+module opr_device  
+  use gather_scatter
+  use num_types, only : rp, c_rp
   use device_math
   use device_mathops
-  use device    
-  use space
-  use coefs
-  use math
-  use mesh
-  use field
-  use mathops
-  use utils
+  use device, only : device_get_ptr 
+  use space, only : space_t
+  use coefs, only : coef_t
+  use mesh, only : mesh_t
+  use field, only : field_t
+  use utils, only : neko_error
+  use comm
   use, intrinsic :: iso_c_binding
   implicit none
+  private
+  
+  public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
+       opr_device_conv1, opr_device_curl, opr_device_cfl, opr_device_lambda2
 
 #ifdef HAVE_HIP
   interface
@@ -101,6 +104,24 @@ module opr_device
        type(c_ptr), value :: w3_d
        integer(c_int) :: nel, lx
      end subroutine hip_opgrad
+  end interface
+ 
+  interface
+     subroutine hip_lambda2(lambda2_d, u_d, v_d, w_d, &
+          dx_d, dy_d, dz_d, &
+          drdx_d, dsdx_d, dtdx_d, &
+          drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, jacinv_d, nel, lx) &
+          bind(c, name='hip_lambda2')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: lambda2_d, u_d, v_d, w_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: jacinv_d
+       integer(c_int) :: nel, lx
+     end subroutine hip_lambda2
   end interface
 
   interface
@@ -173,6 +194,25 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine cuda_opgrad
   end interface
+ 
+  interface
+     subroutine cuda_lambda2(lambda2_d, u_d, v_d, w_d, &
+          dx_d, dy_d, dz_d, &
+          drdx_d, dsdx_d, dtdx_d, &
+          drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, jacinv_d, nel, lx) &
+          bind(c, name='cuda_lambda2')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: lambda2_d, u_d, v_d, w_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: jacinv_d
+       integer(c_int) :: nel, lx
+     end subroutine cuda_lambda2
+  end interface
+
 
   interface
      real(c_rp) function cuda_cfl(dt, u_d, v_d, w_d, &
@@ -260,6 +300,24 @@ module opr_device
        integer(c_int) :: nel, lx
      end function opencl_cfl
   end interface
+
+    interface
+     subroutine opencl_lambda2(lambda2_d, u_d, v_d, w_d, &
+          dx_d, dy_d, dz_d, &
+          drdx_d, dsdx_d, dtdx_d, &
+          drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, jacinv_d, nel, lx) &
+          bind(c, name='opencl_lambda2')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: lambda2_d, u_d, v_d, w_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: jacinv_d
+       integer(c_int) :: nel, lx
+     end subroutine opencl_lambda2
+  end interface
 #endif  
   
 contains
@@ -341,6 +399,35 @@ contains
     end associate
     
   end subroutine opr_device_opgrad
+  subroutine opr_device_lambda2(lambda2, u, v, w, coef)
+    type(coef_t), intent(in) :: coef  
+    type(field_t), intent(inout) :: lambda2 
+    type(field_t), intent(in) :: u, v, w
+#ifdef HAVE_HIP
+      call hip_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+           coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
+#elif HAVE_CUDA
+      call cuda_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+           coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
+#elif HAVE_OPENCL
+      call opencl_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+           coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
+#else
+      call neko_error('No device backend configured')
+#endif
+  end subroutine opr_device_lambda2
 
   subroutine opr_device_cdtp(dtx, x, dr,ds, dt, coef)
     type(coef_t), intent(in) :: coef
@@ -564,9 +651,9 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)    
-    call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD)
+    call c_Xh%gs_h%op(w1, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w2, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w3, GS_OP_ADD)
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)    
 
 #else

@@ -32,9 +32,17 @@
 !
 !> Defines various Bi-Conjugate Gradient Stabilized methods
 module bicgstab
-  use krylov
-  use math
-  use num_types
+  use num_types, only: rp
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, rzero, copy, NEKO_EPS, add2s2, x_update, &
+                   p_update
+  use utils, only : neko_error
   implicit none
   private
 
@@ -181,7 +189,7 @@ contains
        
          call this%M%solve(p_hat, p, n)
          call Ax%compute(v, p_hat, coef, x%msh, x%Xh)
-         call gs_op(gs_h, v, n, GS_OP_ADD)
+         call gs_h%op(v, n, GS_OP_ADD)
          call bc_list_apply(blst, v, n)
          alpha = rho_1 / glsc3(f, coef%mult, v, n)
          call copy(s, r, n)
@@ -195,7 +203,7 @@ contains
        
          call this%M%solve(s_hat, s, n)
          call Ax%compute(t, s_hat, coef, x%msh, x%Xh)
-         call gs_op(gs_h, t, n, GS_OP_ADD)
+         call gs_h%op(t, n, GS_OP_ADD)
          call bc_list_apply(blst, t, n)
          omega = glsc3(t, coef%mult, s, n) &
               / glsc3(t, coef%mult, t, n)

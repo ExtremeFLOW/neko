@@ -32,7 +32,7 @@
 !
 !> conv1 kernels
 module cpu_conv1
-  use num_types
+  use num_types, only : rp
   implicit none
 
 contains

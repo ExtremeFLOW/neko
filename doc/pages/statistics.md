@@ -5,7 +5,7 @@ Under development, updated incrementally
 ## Notes on the statistics calculation in Neko
 ***Daniele Massaro, Martin Karp (KTH)***
 
-1) Run your simulations and collect mean_field* and stats* files by having fluid_stats = .true. and specifying the write interval to something suitable.
+1) Run your simulations and collect mean_field* and stats* files by having the statistics object added to the case file,  and specifying the write interval to something suitable.
 
 2) For each RUN_i, you get a set of mean_field* and stats* files. You can average them for each single RUN_i, or average all of them only once (after re-ordering them properly). If you follow the second approach, go to step 4. 
 Here, for each RUN_i, we compute the averaged means with "average_fields_in_time":

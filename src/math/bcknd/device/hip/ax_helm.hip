@@ -75,7 +75,8 @@ extern "C" {
 
 #define CASE_1D(LX)                                                             \
     hipLaunchKernelGGL(HIP_KERNEL_NAME( ax_helm_kernel_1d<real, LX, 1024> ),    \
-                       nblcks_1d, nthrds_1d, 0, 0,                              \
+                       nblcks_1d, nthrds_1d, 0,                                 \
+                       (hipStream_t) glb_cmd_queue,                             \
                        (real *) w, (real *) u,                                  \
                        (real *) dx, (real *) dy, (real *) dz,                   \
                        (real *) dxt, (real *) dyt, (real *) dzt, (real *) h1,   \
@@ -85,7 +86,8 @@ extern "C" {
 
 #define CASE_KSTEP(LX)                                                          \
     hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_kernel_kstep<real, LX> ),      \
-                        nblcks_kstep, nthrds_kstep, 0, 0,                       \
+                        nblcks_kstep, nthrds_kstep, 0,                          \
+                        (hipStream_t) glb_cmd_queue,                            \
                         (real *) w, (real *) u,                                 \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
                         (real *) g11, (real *) g22, (real *) g33,               \
@@ -96,7 +98,8 @@ extern "C" {
  
 #define CASE_KSTEP_PADDED(LX)                                                   \
     hipLaunchKernelGGL( HIP_KERNEL_NAME(ax_helm_kernel_kstep_padded<real, LX> ),\
-                        nblcks_kstep, nthrds_kstep, 0, 0,                       \
+                        nblcks_kstep, nthrds_kstep, 0,                          \
+                        (hipStream_t) glb_cmd_queue,                            \
                         (real *) w, (real *) u,                                 \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
                         (real *) g11, (real *) g22, (real *) g33,               \

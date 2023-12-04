@@ -33,8 +33,9 @@
 !> Defines a gather-scatter backend
 module gs_bcknd
   use num_types
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use, intrinsic :: iso_c_binding
   implicit none
+  private
 
   integer, public, parameter :: GS_BCKND_CPU = 1, GS_BCKND_SX = 2, &
        GS_BCKND_DEV = 3
@@ -42,6 +43,8 @@ module gs_bcknd
   !> Gather-scatter backend
   type, public, abstract :: gs_bcknd_t
      type(c_ptr) :: gather_event = C_NULL_PTR
+     type(c_ptr) :: scatter_event = C_NULL_PTR
+     type(c_ptr) :: gs_stream = C_NULL_PTR
    contains
      procedure(gs_backend_init), pass(this), deferred :: init
      procedure(gs_backend_free), pass(this), deferred :: free
@@ -93,8 +96,9 @@ module gs_bcknd
   !> Abstract interface for the Scatter kernel
   !! \f$ u(gd(i) = v(dg(i)) \f$
   abstract interface
-     subroutine gs_scatter(this, v, m, dg, u, n, gd, nb, b, shrd)
-       import gs_bcknd_t       
+     subroutine gs_scatter(this, v, m, dg, u, n, gd, nb, b, shrd, event)
+       import gs_bcknd_t
+       import c_ptr
        import rp
        integer, intent(in) :: m
        integer, intent(in) :: n
@@ -106,6 +110,7 @@ module gs_bcknd
        integer, dimension(m), intent(inout) :: gd
        integer, dimension(nb), intent(inout) :: b
        logical, intent(in) :: shrd
+       type(c_ptr) :: event
      end subroutine gs_scatter
   end interface
 

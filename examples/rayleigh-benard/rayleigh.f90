@@ -2,21 +2,39 @@ module user
   use neko
   implicit none
 
-  real(kind=rp) :: Ra = 0
-  real(kind=rp) :: Pr = 0
+  real(kind=rp) :: Ra
+  real(kind=rp) :: Pr
   real(kind=rp) :: ta2 = 0
 
 contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%user_init_modules => set_Pr
     u%fluid_user_ic => set_ic
     u%fluid_user_f_vector => forcing
     u%scalar_user_bc => scalar_bc
+    u%material_properties => set_material_properties
   end subroutine user_setup
 
-  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+    type(json_file), intent(inout) :: params
+    real(kind=rp) :: Re
+
+    call json_get(params, "case.fluid.Ra", Ra)
+    call json_get(params, "case.scalar.Pr", Pr)
+
+    Re = 1.0_rp / Pr
+    
+    mu = 1.0_rp / Re
+    lambda = mu / Pr
+    rho = 1.0_rp
+    cp = 1.0_rp
+  end subroutine set_material_properties
+
+  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -28,18 +46,20 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     ! If we set scalar_bcs(*) = 'user' instead 
     ! this will be used instead on that zone
     s = 1.0_rp-z
   end subroutine scalar_bc
  
-  !> Dummy user initial condition
+  !> User initial condition
   subroutine set_ic(u, v, w, p, params)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     type(field_t), pointer :: s
     integer :: i, e, k, j
     real(kind=rp) :: rand, z
@@ -80,28 +100,9 @@ contains
 
   end subroutine set_ic
 
-  subroutine set_Pr(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
-    type(param_t), intent(inout) :: params
-    ! Reset the relevant nondimensional parameters
-    ! Pr = input Pr
-    ! Ra = input Re
-    ! Re = 1/Pr
-    Pr = params%Pr
-    Ra = params%Re
-    params%Re = 1._rp / Pr
-  end subroutine set_Pr
-
-
-
   !> Forcing
   subroutine forcing(f, t)
-    class(source_t), intent(inout) :: f
+    class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     integer :: i
     type(field_t), pointer :: u, v, w, s

@@ -37,7 +37,7 @@ module stl_file
   use tri_mesh  
   use logger
   use point
-  use mpi_types
+  use neko_mpi_types
   use mpi_f08
   use comm
   use stl    

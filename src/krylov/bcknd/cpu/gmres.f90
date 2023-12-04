@@ -32,11 +32,16 @@
 !
 !> Defines various GMRES methods
 module gmres
-  use krylov
+  use krylov, only : ksp_t, ksp_monitor_t
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, rzero, rone, copy, sub2, cmult2
   use comm
-  use math
-  use operators
-  use num_types
   implicit none
   private
 
@@ -192,7 +197,7 @@ contains
           else
              call copy(r, f, n)      
              call Ax%compute(w, x%x, coef, x%msh, x%Xh)
-             call gs_op(gs_h, w, n, GS_OP_ADD)
+             call gs_h%op(w, n, GS_OP_ADD)
              call bc_list_apply(blst, w, n)
              call sub2(r, w, n) 
           end if
@@ -213,7 +218,7 @@ contains
              call this%M%solve(z(1,j), v(1,j), n)
 
              call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
-             call gs_op(gs_h, w, n, GS_OP_ADD)
+             call gs_h%op(w, n, GS_OP_ADD)
              call bc_list_apply(blst, w, n)
              
              do l = 1, j

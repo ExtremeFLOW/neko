@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,11 +34,11 @@
 module facet_normal
   use device_facet_normal
   use num_types
-  use dirichlet
-  use coefs
   use math
+  use coefs, only : coef_t    
+  use dirichlet, only : dirichlet_t    
   use utils
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -56,23 +56,27 @@ module facet_normal
 contains
 
   !> No-op scalar apply
-  subroutine facet_normal_apply_scalar(this, x, n)
+  subroutine facet_normal_apply_scalar(this, x, n, t, tstep)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
   end subroutine facet_normal_apply_scalar
 
   !> No-op vector apply
-  subroutine facet_normal_apply_vector(this, x, y, z, n)
+  subroutine facet_normal_apply_vector(this, x, y, z, n, t, tstep)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
   end subroutine facet_normal_apply_vector
 
   !> Apply in facet normal direction (vector valued)
-  subroutine facet_normal_apply_surfvec(this, x, y, z, u, v, w, n)
+  subroutine facet_normal_apply_surfvec(this, x, y, z, u, v, w, n, t, tstep)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -81,6 +85,8 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: u
     real(kind=rp), intent(inout), dimension(n) :: v
     real(kind=rp), intent(inout), dimension(n) :: w
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     integer :: i, m, k, idx(4), facet
     
     if (.not. associated(this%c)) then
@@ -128,15 +134,18 @@ contains
   end subroutine facet_normal_set_coef
 
   !> Apply in facet normal direction (vector valued, device version)
-  subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, u_d, v_d, w_d)
+  subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
+                                            u_d, v_d, w_d, t, tstep)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr) :: x_d, y_d, z_d, u_d, v_d, w_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
 
     if (.not. associated(this%c)) then
        call neko_error('No coefficients assigned')
     end if
     associate(c => this%c)
-      call device_Facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
+      call device_facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
                                              x_d, y_d, z_d, u_d, v_d, w_d, &
                                              c%nx_d, c%ny_d, c%nz_d, c%area_d, &
                                              c%Xh%lx, size(this%msk))

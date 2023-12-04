@@ -32,9 +32,16 @@
 !
 !> Defines a pipelined Conjugate Gradient methods SX-Aurora backend
 module pipecg_sx
-  use krylov
-  use math
-  use num_types
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, rzero, copy
+  use comm
   implicit none
   private
   
@@ -168,7 +175,7 @@ contains
 
     call this%M%solve(this%u, this%r, n)
     call Ax%compute(this%w, this%u, coef, x%msh, x%Xh)
-    call gs_op(gs_h, this%w, n, GS_OP_ADD)
+    call gs_h%op(this%w, n, GS_OP_ADD)
     call bc_list_apply(blst, this%w, n)
     
     rtr = glsc3(this%r, coef%mult, this%r, n)
@@ -199,7 +206,7 @@ contains
        
        call this%M%solve(this%mi, this%w, n)
        call Ax%compute(this%ni, this%mi, coef, x%msh, x%Xh)
-       call gs_op(gs_h, this%ni, n, GS_OP_ADD)
+       call gs_h%op(this%ni, n, GS_OP_ADD)
        call bc_list_apply(blst, this%ni, n)
 
        call MPI_Wait(request, status, ierr)

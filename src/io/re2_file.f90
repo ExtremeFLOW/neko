@@ -40,7 +40,7 @@ module re2_file
   use point
   use comm
   use mpi_f08
-  use mpi_types
+  use neko_mpi_types
   use datadist
   use re2
   use map
@@ -67,7 +67,8 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
-    integer :: nel, ndim, nelv, ierr
+    character(len=80) :: hdr_full
+    integer :: nel, ndim, nelv, ierr, nBCre2
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
@@ -96,9 +97,21 @@ contains
     v2_format = .false.
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     call neko_log%message('Reading binary NEKTON file ' // this%fname)
-    read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-    if (hdr_ver .eq. '#v002' .or. hdr_ver .eq. '#v003') then
+
+    read(9,'(a80)') hdr_full
+    read(hdr_full, '(a5)') hdr_ver
+
+    if (hdr_ver .eq. '#v004') then
+       read(hdr_full, '(a5,i16,i3,i16,i4,a36)') hdr_ver, nel, ndim, nelv, nBCre2, hdr_str
        v2_format = .true.
+    else if (hdr_ver .eq. '#v002' .or. hdr_ver .eq. '#v003') then
+       read(hdr_full, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
+       v2_format = .true.
+    else if (hdr_ver .eq. '#v001') then
+       read(hdr_full, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
+    end if
+
+    if (v2_format) then
        call MPI_Type_size(MPI_RE2V2_DATA_XY, re2_data_xy_size, ierr)
        call MPI_Type_size(MPI_RE2V2_DATA_XYZ, re2_data_xyz_size, ierr)
        call MPI_Type_size(MPI_RE2V2_DATA_CV, re2_data_cv_size, ierr)
@@ -135,7 +148,7 @@ contains
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
 
 
-    call mesh_init(msh, ndim, dist)
+    call msh%init(ndim, dist)
 
     ! Set offset (header)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
@@ -185,7 +198,7 @@ contains
     end if
 
     call MPI_FILE_close(fh, ierr)
-    call mesh_finalize(msh)
+    call msh%finalize()
 
 
     call neko_log%message('Done')
@@ -329,7 +342,7 @@ contains
                 if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
+             call msh%add_element(i, p(1), p(2), p(4), p(3))
           end do
           deallocate(re2v1_data_xy)
        else
@@ -346,7 +359,7 @@ contains
                 if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
+             call msh%add_element(i, p(1), p(2), p(4), p(3))
           end do
           deallocate(re2v2_data_xy)
        end if
@@ -367,7 +380,7 @@ contains
                 if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call mesh_add_element(msh, i, &
+             call msh%add_element(i, &
                   p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))          
           end do
           deallocate(re2v1_data_xyz)
@@ -386,7 +399,7 @@ contains
                 if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call mesh_add_element(msh, i, &
+             call msh%add_element(i, &
                   p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))          
           end do
           deallocate(re2v2_data_xyz)
@@ -485,7 +498,8 @@ contains
     if (.not. curve_skip) then
        do el_idx = 1, msh%nelv
           if (curve_element(el_idx)) then
-             call mesh_mark_curve_element(msh, el_idx, curve_data(1,1,el_idx), curve_type(1,el_idx))
+             call msh%mark_curve_element(el_idx, &
+                  curve_data(1,1,el_idx), curve_type(1,el_idx))
           end if
        end do 
      end if
@@ -533,25 +547,28 @@ contains
 
           select case(trim(re2v2_data_bc(i)%type))
           case ('W')
-             call mesh_mark_wall_facet(msh, sym_facet, el_idx)
+             call msh%mark_wall_facet(sym_facet, el_idx)
           case ('v', 'V')
-             call mesh_mark_inlet_facet(msh, sym_facet, el_idx)
+             call msh%mark_inlet_facet(sym_facet, el_idx)
           case ('O', 'o')
-             call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
+             call msh%mark_outlet_facet(sym_facet, el_idx)
           case ('ON', 'on')
-             call mesh_mark_outlet_normal_facet(msh, sym_facet, el_idx)
+             call msh%mark_outlet_normal_facet(sym_facet, el_idx)
           case ('SYM')
-             call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
+             call msh%mark_sympln_facet(sym_facet, el_idx)
           case ('P')
              periodic = .true.
              p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
              p_facet = facet_map(int(re2v2_data_bc(i)%bc_data(2)))
-             call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
-             call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
+             call msh%get_facet_ids(sym_facet, el_idx, pids)
+             call msh%mark_periodic_facet(sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
-          case ('MSH', 'msh')
+          case ('MSH', 'msh', 'EXO', 'exo')
              label = int(re2v2_data_bc(i)%bc_data(5))
-             call mesh_mark_labeled_facet(msh, sym_facet, el_idx, label)
+             if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
+                call neko_error('Invalid label id (valid range [1,...,20])')
+             end if
+             call msh%mark_labeled_facet(sym_facet, el_idx, label)
           case default
               write (*,*) re2v2_data_bc(i)%type, 'bc type not supported yet'
              write (*,*) re2v2_data_bc(i)%bc_data
@@ -570,7 +587,7 @@ contains
                 case ('P')
                    p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
                    p_facet = facet_map(int(re2v2_data_bc(i)%bc_data(2)))
-                   call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
+                   call msh%create_periodic_ids(sym_facet, el_idx, &
                         p_facet, p_el_idx) 
                 end select
              end do
@@ -584,23 +601,23 @@ contains
           sym_facet = facet_map(re2v1_data_bc(i)%face)
           select case(trim(re2v1_data_bc(i)%type))
           case ('W')
-             call mesh_mark_wall_facet(msh, sym_facet, el_idx)
+             call msh%mark_wall_facet(sym_facet, el_idx)
           case ('v', 'V')
-             call mesh_mark_inlet_facet(msh, sym_facet, el_idx)
+             call msh%mark_inlet_facet(sym_facet, el_idx)
           case ('O', 'o')
-             call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
+             call msh%mark_outlet_facet(sym_facet, el_idx)
           case ('SYM')
-             call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
+             call msh%mark_sympln_facet(sym_facet, el_idx)
           case ('P')
              periodic = .true.
              p_el_idx = int(re2v1_data_bc(i)%bc_data(1))
              p_facet = facet_map(int(re2v1_data_bc(i)%bc_data(2)))
-             call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
-             call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
+             call msh%get_facet_ids(sym_facet, el_idx, pids)
+             call msh%mark_periodic_facet(sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
           case ('MSH', 'msh')
              label = int(re2v1_data_bc(i)%bc_data(5))
-             call mesh_mark_labeled_facet(msh, sym_facet, el_idx, label)
+             call msh%mark_labeled_facet(sym_facet, el_idx, label)
           case default
               write (*,*) re2v1_data_bc(i)%type, 'bc type not supported yet'
              write (*,*) re2v1_data_bc(i)%bc_data
@@ -620,7 +637,7 @@ contains
                 case ('P')
                    p_el_idx = int(re2v1_data_bc(i)%bc_data(1))
                    p_facet = facet_map(int(re2v1_data_bc(i)%bc_data(2)))
-                   call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
+                   call msh%create_periodic_ids(sym_facet, el_idx, &
                         p_facet, p_el_idx) 
                 end select
              end do
