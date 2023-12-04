@@ -44,7 +44,7 @@ contains
        a = 1.0_rp
        
        call device_map(a, a_d, size(a))
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_rzero(a_d, n)
        
@@ -58,7 +58,7 @@ contains
           a(i) = real(i, rp)
        end do
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_rzero(a_d, n)
        
@@ -83,7 +83,7 @@ contains
        a = 0.0_rp
        
        call device_map(a, a_d, size(a))
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_rone(a_d, n)
        
@@ -97,7 +97,7 @@ contains
           a(i) = real(i, rp)
        end do
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_rone(a_d, n)
        
@@ -128,10 +128,10 @@ contains
        end do
 
        call device_map(a, a_d, size(a))
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
     
        call device_map(b, b_d, size(b))
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_copy(b_d, a_d, n)
        
@@ -158,7 +158,7 @@ contains
        a = 1.0_rp
        
        call device_map(a, a_d, size(a))
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_cfill(a_d, c, n)
        
@@ -185,7 +185,7 @@ contains
        a = 40.0_rp
        
        call device_map(a, a_d, size(a))
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_cadd(a_d, c, n)
        
@@ -217,8 +217,8 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_add2(a_d, b_d, n)
        
@@ -250,8 +250,8 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_add2s1(a_d, b_d, c1, n)
        
@@ -283,8 +283,8 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_add2s2(a_d, b_d, c1, n)
        
@@ -320,9 +320,9 @@ contains
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
        
        call device_add3s2(a_d, b_d, c_d, c1, c2, n)
        
@@ -350,7 +350,7 @@ contains
        
        call device_map(a, a_d, size(a))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_invcol1(a_d, n)
        
@@ -381,8 +381,8 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_invcol2(a_d, b_d, n)
        
@@ -413,8 +413,8 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_col2(a_d, b_d, n)
        
@@ -448,9 +448,9 @@ contains
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
        
        call device_col3(a_d, b_d, c_d, n)
        
@@ -481,8 +481,8 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_sub2(a_d, b_d, n)
        
@@ -516,9 +516,9 @@ contains
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
        
        call device_sub3(a_d, b_d, c_d, n)
        
@@ -552,9 +552,9 @@ contains
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
        
        call device_addcol3(a_d, b_d, c_d, n)
        
@@ -591,10 +591,10 @@ contains
        call device_map(c, c_d, size(c))
        call device_map(d, d_d, size(d))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
-       call device_memcpy(d, d_d, size(d), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(d, d_d, size(d), HOST_TO_DEVICE, sync=.false.)
        
        call device_addcol4(a_d, b_d, c_d, d_d, n)
        
@@ -632,9 +632,9 @@ contains
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
        
        expected = real(this%getNumProcesses(), rp)  * real(n, rp)
        res = device_glsc3(a_d, b_d, c_d, n)
@@ -666,8 +666,8 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        expected = real(this%getNumProcesses(), rp)  * real(n, rp)
        res = device_glsc2(a_d, b_d, n)
@@ -696,7 +696,7 @@ contains
        
        call device_map(a, a_d, size(a))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        expected = real(this%getNumProcesses(), rp)  * real(n, rp)
        res = device_glsum(a_d, n)
