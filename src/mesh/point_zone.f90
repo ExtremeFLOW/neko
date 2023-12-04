@@ -45,7 +45,7 @@ module point_zone
 
   !> Base abstract type for point zones.
   type, public, abstract :: point_zone_t
-     !> List of linear indices of the GLL points in the zone. 
+     !> List of linear indices of the GLL points in the zone.
      integer, allocatable :: mask(:)
      !> List of linear indices of the GLL points in the zone on the device.
      type(c_ptr) :: mask_d = c_null_ptr
@@ -166,7 +166,7 @@ contains
     if (c_associated(this%mask_d)) then
        call device_free(this%mask_d)
     end if
-    
+
   end subroutine point_zone_free_base
 
   !> Builds the mask from the scratch stack.
@@ -174,18 +174,18 @@ contains
     class(point_zone_t), intent(inout) :: this
     integer, pointer :: tp(:)
     integer :: i
-    
+
     if (.not. this%finalized) then
 
        allocate(this%mask(this%scratch%size()))
-       
+
        tp => this%scratch%array()
        do i = 1, this%scratch%size()
           this%mask(i) = tp(i)
        end do
 
        this%size = this%scratch%size()
-       
+
        call this%scratch%clear()
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -194,25 +194,25 @@ contains
        end if
 
        this%finalized = .true.
-       
+
     end if
-    
+
   end subroutine point_zone_finalize
 
   !> Adds a point's linear index to the scratch stack.
   !! @param idx Linear index of the point to add.
-  !! @note The linear index of a point `(j,k,l,e)` can be retrieved using the 
+  !! @note The linear index of a point `(j,k,l,e)` can be retrieved using the
   !! subroutine `linear_index(j,k,l,e,lx)` in the `utils` module.
   subroutine point_zone_add(this, idx)
     class(point_zone_t), intent(inout) :: this
     integer, intent(inout) :: idx
-    
+
     if (this%finalized) then
        call neko_error('Point zone already finalized')
     end if
-    
+
     call this%scratch%push(idx)
-    
+
   end subroutine point_zone_add
 
   !> Maps the GLL points that verify a point_zone's `criterion` by adding

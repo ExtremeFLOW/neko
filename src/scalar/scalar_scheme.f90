@@ -78,7 +78,7 @@ module scalar_scheme
      type(usr_scalar_t) :: user_bc     !< Dirichlet conditions
      integer :: n_dir_bcs = 0
      type(bc_list_t) :: bclst                  !< List of boundary conditions
-     type(json_file), pointer :: params          !< Parameters          
+     type(json_file), pointer :: params          !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
      !> Thermal diffusivity.
@@ -113,7 +113,7 @@ module scalar_scheme
        import user_t
        import material_properties_t
        class(scalar_scheme_t), target, intent(inout) :: this
-       type(mesh_t), target, intent(inout) :: msh       
+       type(mesh_t), target, intent(inout) :: msh
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
@@ -129,7 +129,7 @@ module scalar_scheme
        class(scalar_scheme_t), intent(inout) :: this
      end subroutine scalar_scheme_free_intrf
   end interface
-  
+
   !> Abstract interface to compute a time-step
   abstract interface
      subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf)
@@ -150,8 +150,8 @@ contains
   !! @param zones List of zones
   !! @param bc_labels List of user specified bcs from the parameter file
   !! currently dirichlet 'd=X' and 'user' supported
-  subroutine scalar_scheme_add_bcs(this, zones, bc_labels) 
-    class(scalar_scheme_t), intent(inout) :: this 
+  subroutine scalar_scheme_add_bcs(this, zones, bc_labels)
+    class(scalar_scheme_t), intent(inout) :: this
     type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
     character(len=20), intent(in) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     character(len=20) :: bc_label
@@ -166,20 +166,20 @@ contains
           bc_idx = 0
           do j = 1, i-1
              if (bc_label .eq. bc_labels(j)) then
-                bc_exists = .true. 
+                bc_exists = .true.
                 bc_idx = j
              end if
-         end do
-         
-         if (bc_exists) then
-            call this%dir_bcs(j)%mark_zone(zones(i))
-         else
-            this%n_dir_bcs = this%n_dir_bcs + 1
-            call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
-            call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
-            read(bc_label(3:), *) dir_value
-            call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
-         end if
+          end do
+
+          if (bc_exists) then
+             call this%dir_bcs(j)%mark_zone(zones(i))
+          else
+             this%n_dir_bcs = this%n_dir_bcs + 1
+             call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
+             call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
+             read(bc_label(3:), *) dir_value
+             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
+          end if
        end if
 
        !> Check if user bc on this zone
@@ -286,10 +286,10 @@ contains
     if (params%valid_path('case.scalar.boundary_types')) then
        call json_get(params, &
                      'case.scalar.boundary_types', &
-                     this%bc_labels)       
+                     this%bc_labels)
     end if
-    
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels) 
+
+    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
 
 
     call this%user_bc%mark_zone(msh%wall)
@@ -300,13 +300,13 @@ contains
     call this%user_bc%finalize()
     call this%user_bc%set_coef(this%c_Xh)
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
-  
+
     ! todo parameter file ksp tol should be added
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, solver_precon)
-  
+
     call neko_log%end_section()
   end subroutine scalar_scheme_init
 
@@ -368,7 +368,7 @@ contains
     if (.not. associated(this%c_Xh)) then
        call neko_error('No coefficients defined')
     end if
-    
+
     if (.not. associated(this%f_Xh%eval)) then
        call neko_error('No source term defined')
     end if
@@ -391,7 +391,7 @@ contains
     class(scalar_scheme_t), intent(inout) :: this
     call bc_list_apply_scalar(this%bclst, this%s%x, this%dm_Xh%size())
   end subroutine scalar_scheme_bc_apply
-  
+
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine scalar_scheme_solver_factory(ksp, n, solver, abstol)
@@ -401,7 +401,7 @@ contains
     real(kind=rp) :: abstol
 
     call krylov_solver_factory(ksp, n, solver, abstol)
-    
+
   end subroutine scalar_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
@@ -413,9 +413,9 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
-    
+
     call precon_factory(pc, pctype)
-    
+
     select type(pcp => pc)
     type is(jacobi_t)
        call pcp%init(coef, dof, gs)
@@ -437,7 +437,7 @@ contains
     end select
 
     call ksp%set_pc(pc)
-    
+
   end subroutine scalar_scheme_precon_factory
 
   !> Initialize source term
@@ -458,7 +458,7 @@ contains
     end if
 
   end subroutine scalar_scheme_set_source
- 
+
   !> Initialize a user defined scalar bc
   !! @param usr_eval User specified boundary condition for scalar field
   subroutine scalar_scheme_set_user_bc(this, usr_eval)
@@ -466,8 +466,8 @@ contains
     procedure(usr_scalar_bc_eval) :: usr_eval
 
     call this%user_bc%set_eval(usr_eval)
-    
+
   end subroutine scalar_scheme_set_user_bc
 
-    
+
 end module scalar_scheme

@@ -13,7 +13,7 @@ module pnpn_res_cpu
   use space, only : space_t
   implicit none
   private
-  
+
   type, public, extends(pnpn_prs_res_t) :: pnpn_prs_res_cpu_t
    contains
      procedure, nopass :: compute => pnpn_prs_res_cpu_compute
@@ -63,7 +63,7 @@ contains
        c_Xh%h2(i,1,1,1) = 0.0_rp
     end do
     c_Xh%ifh2 = .false.
-    
+
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
@@ -75,10 +75,10 @@ contains
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho &
             - ((wa3%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1))
     end do
-     
-    call gs_Xh%op(ta1, GS_OP_ADD) 
-    call gs_Xh%op(ta2, GS_OP_ADD) 
-    call gs_Xh%op(ta3, GS_OP_ADD) 
+
+    call gs_Xh%op(ta1, GS_OP_ADD)
+    call gs_Xh%op(ta2, GS_OP_ADD)
+    call gs_Xh%op(ta3, GS_OP_ADD)
 
     do i = 1, n
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
@@ -105,7 +105,7 @@ contains
        wa2%x(i,1,1,1) = 0.0_rp
        wa3%x(i,1,1,1) = 0.0_rp
     end do
-    
+
     call bc_sym_surface%apply_surfvec(wa1%x,wa2%x,wa3%x,ta1%x, ta2%x, ta3%x, n)
 
     dtbd = bd / dt
@@ -114,7 +114,7 @@ contains
        ta2%x(i,1,1,1) = 0.0_rp
        ta3%x(i,1,1,1) = 0.0_rp
     end do
-    
+
     call bc_prs_surface%apply_surfvec(ta1%x, ta2%x, ta3%x, u%x, v%x, w%x, n)
 
     do i = 1, n
@@ -122,7 +122,7 @@ contains
             - (dtbd * (ta1%x(i,1,1,1) + ta2%x(i,1,1,1) + ta3%x(i,1,1,1)))&
             - (wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1))
     end do
-    
+
     call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine pnpn_prs_res_cpu_compute
@@ -131,7 +131,7 @@ contains
        p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh    
+    type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
     type(field_t), intent(inout) :: f_x, f_y, f_z
@@ -166,9 +166,9 @@ contains
        v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
        w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1)
     end do
-    
+
     call neko_scratch_registry%relinquish_field(temp_indices)
-  
-   end subroutine pnpn_vel_res_cpu_compute  
+
+  end subroutine pnpn_vel_res_cpu_compute
 
 end module pnpn_res_cpu

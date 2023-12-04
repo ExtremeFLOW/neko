@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Compound scheme for the advection and diffusion operators in a transport
-!! equation. 
+!! equation.
 module time_scheme_controller
   use neko_config
   use num_types, only : rp
@@ -45,7 +45,7 @@ module time_scheme_controller
   !> Implements the logic to compute the time coefficients for the advection and
   !! diffusion operators in a transport equation.
   !! @details
-  !! Uses the BDF scheme for the diffusion, where as the term for advection 
+  !! Uses the BDF scheme for the diffusion, where as the term for advection
   !! the scheme depends on the orders of the BDF and advection schemes.
   !! - Order 1 advection
   !!   - BDF1 for diffusion -> Adam-Bashforth scheme.
@@ -57,22 +57,22 @@ module time_scheme_controller
   !!   - BDF2 for diffusion -> Modified explcit extrapolation scheme.
   !!   - BDF3 for diffusion -> Explciit extrapolation scheme.
   !! The order of the BDF scheme in the above logic is set by the user, whereas
-  !! the advection scheme is set to forward Euler when BDF is order 1, 
+  !! the advection scheme is set to forward Euler when BDF is order 1,
   !! and otherwise to a 3rd order scheme (excluding the first 2 timesteps).
   !! This means that some of the options in the above list never get realized,
   !! particularly order 2 and 3 advection for 1st order BDF. They remain in the
   !! code so as to have the orinigal Nek5000 logic in place for possible
   !! adoption in the future.
-  !! An important detail here is the handling of the first timesteps where a 
+  !! An important detail here is the handling of the first timesteps where a
   !! high-order scheme cannot be constructed. The parameters `nadv` and `ndiff`,
   !! which are initialized to 0, hold the current order of the respective
   !! scheme.
-  !! @note the advection scheme also applies to source terms. 
+  !! @note the advection scheme also applies to source terms.
   type, public :: time_scheme_controller_t
      type(ext_time_scheme_t) :: ext
      type(ab_time_scheme_t) :: ab
      type(bdf_time_scheme_t) :: bdf
-  
+
      !> Time coefficients for the advection operator
      real(kind=rp) :: advection_coeffs(4) = 0
      !> Time coefficients for the diffusion operator
@@ -88,10 +88,10 @@ module time_scheme_controller
      !> Order of the diffusion scheme
      integer :: diffusion_time_order
      !> Device pointer for `advection_coeffs`
-     type(c_ptr) :: advection_coeffs_d = C_NULL_PTR 
+     type(c_ptr) :: advection_coeffs_d = C_NULL_PTR
      !> Device pointer for `diffusion_coeffs`
-     type(c_ptr) :: diffusion_coeffs_d = C_NULL_PTR 
-     
+     type(c_ptr) :: diffusion_coeffs_d = C_NULL_PTR
+
    contains
      !> Constructor
      procedure, pass(this) :: init => time_scheme_controller_init
@@ -102,7 +102,7 @@ module time_scheme_controller
        time_scheme_controller_set_coeffs
   end type time_scheme_controller_t
 
-  contains
+contains
 
   !> Contructor
   !! @param torder Desired order of the scheme: 1, 2, 3.
@@ -110,10 +110,10 @@ module time_scheme_controller
   subroutine time_scheme_controller_init(this, torder)
     implicit none
     class(time_scheme_controller_t) :: this
-    integer :: torder 
-  
+    integer :: torder
+
     this%diffusion_time_order = torder
-    
+
     ! Force 1st order advection when diffusion is 1st order
     if (torder .eq. 1) then
        this%advection_time_order = 1
@@ -139,7 +139,7 @@ module time_scheme_controller
   end subroutine time_scheme_controller_free
 
   !> Set the time coefficients
-  !! @details Implements all necessary logic to handle  
+  !! @details Implements all necessary logic to handle
   !! @param t Timestep values, first element is the current timestep.
   subroutine time_scheme_controller_set_coeffs(this, dt)
     implicit none
@@ -155,18 +155,18 @@ module time_scheme_controller
       adv_coeffs_d  => this%advection_coeffs_d, &
       diff_coeffs   => this%diffusion_coeffs, &
       diff_coeffs_d => this%diffusion_coeffs_d)
-   
+
       adv_coeffs_old = adv_coeffs
       diff_coeffs_old = diff_coeffs
-    
+
       ! Increment the order of the scheme if below time_order
       ndiff = ndiff + 1
       ndiff = min(ndiff, this%diffusion_time_order)
       nadv = nadv + 1
       nadv = min(nadv, this%advection_time_order)
-      
+
       call this%bdf%compute_coeffs(diff_coeffs, dt, ndiff)
-      
+
       if (nadv .eq. 1) then
          ! Forward euler
          call this%ext%compute_coeffs(adv_coeffs, dt, nadv)
@@ -190,7 +190,7 @@ module time_scheme_controller
             call this%ext%compute_coeffs(adv_coeffs, dt, nadv)
          end if
       end if
-      
+
 
       if (c_associated(adv_coeffs_d)) then
          if (maxval(abs(adv_coeffs - adv_coeffs_old)) .gt. 1e-10_rp) then

@@ -104,9 +104,9 @@ contains
                           NEKO_LOG_QUIET)
 
     if (pe_rank .eq. 0) then
-      call C%params%load_file(filename=trim(case_file))
-      call C%params%print_to_string(json_buffer)
-      integer_val = len(json_buffer)
+       call C%params%load_file(filename=trim(case_file))
+       call C%params%print_to_string(json_buffer)
+       integer_val = len(json_buffer)
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
@@ -282,7 +282,7 @@ contains
        else
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
-      end if
+       end if
     end if
 
     ! Add initial conditions to BDF scheme (if present)

@@ -76,9 +76,9 @@ contains
 
        ! Restart the simulation components
        if (allocated(neko_simcomps)) then
-         do i=1, size(neko_simcomps)
-            call neko_simcomps(i)%simcomp%restart(t)
-         end do
+          do i=1, size(neko_simcomps)
+             call neko_simcomps(i)%simcomp%restart(t)
+          end do
        end if
     end if
 
@@ -134,9 +134,9 @@ contains
        call neko_log%section('Postprocessing')
        ! Execute all simulation components
        if (allocated(neko_simcomps)) then
-         do i=1, size(neko_simcomps)
-            call neko_simcomps(i)%simcomp%compute(t, tstep)
-         end do
+          do i=1, size(neko_simcomps)
+             call neko_simcomps(i)%simcomp%compute(t, tstep)
+          end do
        end if
 
        call C%q%eval(t, C%dt, tstep)
@@ -242,14 +242,14 @@ contains
     call col2(C%fluid%p%x,C%fluid%c_Xh%mult,C%fluid%u%dof%size())
     select type (fld => C%fluid)
     type is(fluid_pnpn_t)
-    do i = 1, fld%ulag%size()
-       call col2(fld%ulag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
-       call col2(fld%vlag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
-       call col2(fld%wlag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
-    end do
+       do i = 1, fld%ulag%size()
+          call col2(fld%ulag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
+          call col2(fld%vlag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
+          call col2(fld%wlag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
+       end do
     end select
     if (allocated(C%scalar)) then
-        call col2(C%scalar%s%x,C%scalar%c_Xh%mult, C%scalar%s%dof%size())
+       call col2(C%scalar%s%x,C%scalar%c_Xh%mult, C%scalar%s%dof%size())
     end if
 
     call C%fluid%chkp%sync_device()
@@ -259,11 +259,11 @@ contains
     call C%fluid%gs_Xh%op(C%fluid%p,GS_OP_ADD)
     select type (fld => C%fluid)
     type is(fluid_pnpn_t)
-    do i = 1, fld%ulag%size()
-       call fld%gs_Xh%op(fld%ulag%lf(i),GS_OP_ADD)
-       call fld%gs_Xh%op(fld%vlag%lf(i),GS_OP_ADD)
-       call fld%gs_Xh%op(fld%wlag%lf(i),GS_OP_ADD)
-    end do
+       do i = 1, fld%ulag%size()
+          call fld%gs_Xh%op(fld%ulag%lf(i),GS_OP_ADD)
+          call fld%gs_Xh%op(fld%vlag%lf(i),GS_OP_ADD)
+          call fld%gs_Xh%op(fld%wlag%lf(i),GS_OP_ADD)
+       end do
     end select
 
     if (allocated(C%scalar)) then

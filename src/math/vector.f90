@@ -40,7 +40,7 @@ module vector
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+
   type, public ::  vector_t
      real(kind=rp), allocatable :: x(:) !< Vector entries.
      type(c_ptr) :: x_d = C_NULL_PTR    !< Device pointer.
@@ -57,7 +57,7 @@ module vector
 
   type, public :: vector_ptr_t
      type(vector_t), pointer :: v
-  end type
+  end type vector_ptr_t
 
 contains
 
@@ -70,14 +70,14 @@ contains
 
     allocate(v%x(n))
     v%x = 0.0_rp
-   
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(v%x, v%x_d, n)
        call device_cfill(v%x_d, 0.0_rp, n)
     end if
 
     v%n = n
-    
+
   end subroutine vector_init
 
   !> Deallocate a vector.
@@ -93,14 +93,14 @@ contains
     end if
 
     v%n = 0
-        
+
   end subroutine vector_free
 
   !> Return the number of entries in the vector.
   function vector_size(v) result(s)
     class(vector_t), intent(inout) :: v
     integer :: s
-    s = v%n    
+    s = v%n
   end function vector_size
 
   !> Assignment \f$ v = w \f$.
@@ -116,11 +116,11 @@ contains
 
        v%n = w%n
        allocate(v%x(v%n))
-       
+
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-       
+
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -148,5 +148,5 @@ contains
 
   end subroutine vector_assign_scalar
 
-  
+
 end module vector

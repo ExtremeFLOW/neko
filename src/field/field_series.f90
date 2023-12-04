@@ -36,10 +36,10 @@ module field_series
   use field
   implicit none
   private
-  
+
   type, public :: field_series_t
      type(field_t), pointer :: f => null()
-     type(field_t), allocatable :: lf(:) 
+     type(field_t), allocatable :: lf(:)
      integer, private :: len = 0
    contains
      procedure, pass(this) :: init => field_series_init
@@ -85,7 +85,7 @@ contains
     do i = 1, this%len
        call this%lf(i)%free()
     end do
-    
+
   end subroutine field_series_free
 
   !> Return the size of the field series
@@ -105,7 +105,7 @@ contains
     end do
 
     this%lf(1) = this%f
-    
+
   end subroutine field_series_update
 
   !> Set all fields in a series to @a g
@@ -117,7 +117,7 @@ contains
     do i = 1, this%len
        this%lf(i) = g
     end do
-    
+
   end subroutine field_series_set
-  
+
 end module field_series

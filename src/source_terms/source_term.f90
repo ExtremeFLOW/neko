@@ -39,7 +39,7 @@ module source_term
   use json_module, only : json_file
   implicit none
   private
-  
+
   !> Base abstract type for source terms.
   type, abstract, public:: source_term_t
      !> The fields to be updated with the source term values
@@ -66,50 +66,50 @@ module source_term
      class(source_term_t), allocatable :: source_term
    contains
      !> Destructor.
-     procedure, pass(this) :: free => source_term_wrapper_free 
+     procedure, pass(this) :: free => source_term_wrapper_free
   end type source_term_wrapper_t
 
   abstract interface
-    !> The common constructor using a JSON object.
-    !! @param json The JSON object for the source.
-    !! @param fields A list of fields for adding the source values.
-    !! @param coef The SEM coeffs.
-     subroutine source_term_init(this, json, fields, coef)  
+     !> The common constructor using a JSON object.
+     !! @param json The JSON object for the source.
+     !! @param fields A list of fields for adding the source values.
+     !! @param coef The SEM coeffs.
+     subroutine source_term_init(this, json, fields, coef)
        import source_term_t, json_file, field_list_t, coef_t
        class(source_term_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
        type(field_list_t), intent(inout), target :: fields
        type(coef_t), intent(inout) :: coef
-     end subroutine
+     end subroutine source_term_init
   end interface
 
   abstract interface
      !> Destructor.
-     subroutine source_term_free(this)  
+     subroutine source_term_free(this)
        import source_term_t
        class(source_term_t), intent(inout) :: this
-     end subroutine
+     end subroutine source_term_free
   end interface
 
   abstract interface
      !> Computes the source term and adds the result to `fields`.
      !! @param t The time value.
      !! @param tstep The current time-step.
-     subroutine source_term_compute(this, t, tstep)  
+     subroutine source_term_compute(this, t, tstep)
        import source_term_t, rp
        class(source_term_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
-     end subroutine
+     end subroutine source_term_compute
   end interface
 
 contains
 
   !> Constructor for the `source_term_t` (base) type.
-  !> @param fields A list of pointers to fields to be updated by the source 
+  !> @param fields A list of pointers to fields to be updated by the source
   !! term.
   !> @param coef SEM coefs.
-  subroutine source_term_init_base(this, fields, coef) 
+  subroutine source_term_init_base(this, fields, coef)
     class(source_term_t), intent(inout) :: this
     type(field_list_t) :: fields
     type(coef_t), intent(inout), target :: coef
@@ -127,7 +127,7 @@ contains
   end subroutine source_term_init_base
 
   !> Destructor for the `source_term_t` (base) type.
-  subroutine source_term_free_base(this) 
+  subroutine source_term_free_base(this)
     class(source_term_t), intent(inout) :: this
 
     call this%fields%free()
@@ -135,7 +135,7 @@ contains
   end subroutine source_term_free_base
 
   !> Destructor for the `source_term_wrapper_t` type.
-  subroutine source_term_wrapper_free(this) 
+  subroutine source_term_wrapper_free(this)
     class(source_term_wrapper_t), intent(inout) :: this
     integer :: n_fields, i
 
@@ -144,5 +144,5 @@ contains
        deallocate(this%source_term)
     end if
   end subroutine source_term_wrapper_free
-  
+
 end module source_term
