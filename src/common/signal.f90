@@ -49,7 +49,7 @@ module signal
        use, intrinsic :: iso_c_binding
      end function sighdl_usr
   end interface
-  
+
   interface
      integer (c_int) function sighdl_set_timeout(sec) &
           bind(c, name='sighdl_set_timeout')
@@ -58,7 +58,7 @@ module signal
        integer(c_int) :: sec
      end function sighdl_set_timeout
   end interface
-  
+
   interface
      integer (c_int) function sighdl_trap_cpulimit() &
           bind(c, name='sighdl_trap_cpulimit')
