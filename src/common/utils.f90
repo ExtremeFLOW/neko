@@ -150,5 +150,5 @@ contains
     character(len=*) :: warning_msg
     write(*,*) '*** WARNING: ', warning_msg,' ***'
   end subroutine neko_warning
-    
+
 end module utils

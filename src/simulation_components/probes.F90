@@ -59,7 +59,7 @@ module probes
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+
   type, public, extends(simulation_component_t) :: probes_t
      !> Number of output fields
      integer :: n_fields = 0
@@ -100,7 +100,6 @@ module probes
      procedure, pass(this) :: setup_offset => probes_setup_offset
      !> Interpolate each probe from its `r,s,t` coordinates.
      procedure, pass(this) :: compute_ => probes_evaluate_and_write
-     
   end type probes_t
   
 contains
@@ -111,31 +110,76 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case 
     real(kind=rp), allocatable :: xyz(:,:)
+    character(len=:), allocatable  :: input_type
     character(len=:), allocatable  :: output_file
     character(len=:), allocatable  :: points_file
     integer :: i, n_local_probes, n_global_probes
+
+    !> Parameters for line probing
+    integer :: n_points_on_line
+    real(kind=rp) :: x0(3), x1(3)
+    real(kind=rp), allocatable :: read_val(:)
+
     call this%free()
 
     call this%init_base(json, case)
 
-    !> Read from case file
+    !
+    ! Read sampled fields from case file
+    !
     call json%info('fields', n_children=this%n_fields)
-    call json_get(json, 'fields', this%which_fields) 
-    !> Should be extended to not only csv
-    !! but also be possible to define in userfile for example
-    call json_get(json, 'points_file', points_file)
-    call json_get(json, 'output_file', output_file) 
+    call json_get(json, 'fields', this%which_fields)
 
     allocate(this%sampled_fields%fields(this%n_fields))
     do i = 1, this%n_fields
        this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
-                                          trim(this%which_fields(i)))
+            trim(this%which_fields(i)))
     end do
-    !> This is distributed as to make it similar to parallel file 
-    !! formats latera
-    !! Reads all into rank 0
-    call read_probe_locations(this, this%xyz, this%n_local_probes, &
-         this%n_global_probes, points_file)
+
+    !
+    ! Generate xyz coordinates depending on the input type
+    !
+    call json_get(json, 'input_type', input_type)
+
+    if (trim(input_type) .eq. 'file') then
+
+       !> Should be extended to not only csv
+       !! but also be possible to define in userfile for example
+       call json_get(json, 'points_file', points_file)
+       call json_get(json, 'output_file', output_file)
+
+       !> This is distributed as to make it similar to parallel file
+       !! formats latera
+       !! Reads all into rank 0
+       call read_probe_locations(this, this%xyz, this%n_local_probes, &
+            this%n_global_probes, points_file)
+
+    else if (trim(input_type) .eq. 'line') then
+
+       ! Read starting point on the line
+       call json_get(json, 'start', read_val)
+       if (size(read_val) .ne. 3) call neko_error("Please provide 3 coordinates&
+            &for point 1.")
+       x0(1) = read_val(1)
+       x0(2) = read_val(2)
+       x0(3) = read_val(3)
+
+       ! Read ending point on the line
+       call json_get(json, 'end', read_val)
+       if (size(read_val) .ne. 3) call neko_error("Please provide 3 coordinates&
+            &for point 2.")
+       x1(1) = read_val(1)
+       x1(2) = read_val(2)
+       x1(3) = read_val(3)
+
+       ! Read number of points
+       call json_get(json, 'N_samples', n_points_on_line)
+
+       ! Generate physical coordinates and initialize local/global sizes
+       call generate_xyz(this, x0, x1, n_points_on_line, this%xyz)
+
+    end if
+
     call probes_show(this)
     call this%init_from_attributes(case%fluid%dm_Xh, output_file)
     if(allocated(xyz)) deallocate(xyz)
@@ -182,7 +226,7 @@ contains
 
     select type(ft => this%fout%file_type)
       type is (csv_file_t)
-          !> Necessary for not-parallel csv format...
+          !> Necessary for not-parallel csv format
           !! offsets and n points per pe
           !! Needed at root for sequential csv i/o
           allocate(this%n_local_probes_tot(pe_size))
@@ -367,6 +411,9 @@ contains
   end subroutine probes_evaluate_and_write
 
   !> Initialize the physical coordinates from a `csv` input file
+  !! @param xyz Physical coordinates.
+  !! @param n_local_probes Number of local (rank) probes
+  !! @param n_global_probes Total number of probes
   !! @param points_file A csv file containing probes.
   subroutine read_probe_locations(this, xyz, n_local_probes, n_global_probes, points_file)
     class(probes_t), intent(inout) :: this
@@ -393,11 +440,11 @@ contains
 
   end subroutine read_probe_locations 
 
-  !> Read and initialize the number of probes from a `csv` input file
-  !! @param xyz xyz coordinates of the probes
-  !! @param n_local_probes The number of probes local to this process
-  !! @param n_global_probes The number of total probes on all processes
-  !! @param f The csv file we read from
+  !> Read and initialize the number of probes from a `csv` input file.
+  !! @param xyz xyz coordinates of the probes.
+  !! @param n_local_probes The number of probes local to this process.
+  !! @param n_global_probes The number of total probes on all processes.
+  !! @param f The csv file we read from.
   subroutine read_xyz_from_csv(this, xyz, n_local_probes, n_global_probes, f)
     class(probes_t), intent(inout) :: this
     type(csv_file_t), intent(inout) :: f
@@ -429,4 +476,54 @@ contains
     end if
 
   end subroutine read_xyz_from_csv
+
+  !> Generate a set of `N` points whose `(x,y,z)` coordinates are uniformly
+  !! distributed along a line, spanning from point `x0` to point `x1`.
+  !! The points \f$ \vec{x_i}, i\in[0,N-1] \f$ are generated using the following equations:
+  !!  \f{eqnarray*}{
+  !!    \vec{x_n} = \vec{x_0} + (\vec{x_1} - \vec{x_0})*\frac{i}{N-1}
+  !! \f}
+  !! @param x0 Starting point of the line.
+  !! @param x1 Ending point of the line.
+  !! @param N Number of points to sample on the line.
+  !! @param xyz Output coordinates.
+  subroutine generate_xyz_on_line(this, x0, x1, N, xyz)
+    class(probes_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: x0
+    real(kind=rp), intent(inout) :: x1
+    integer, intent(in) :: N
+    real(kind=rp), intent(inout), allocatable :: xyz(:,:)
+
+    integer :: n_global_probes, n_local_probes
+    real(kind=rp) :: temp
+    integer :: i
+
+    n_global_probes = N
+    this%n_global_probes = N
+
+    !
+    ! Initialize the coordinates and allocate xyz array
+    !
+    if (pe_rank .eq. 0) then
+
+       this%n_local_probes = this%n_global_probes
+       n_local_probes = n_global_probes
+       allocate(xyz(3, this%n_local_probes))
+
+       do i = 0, N-1
+          xyz(1,i+1) = x0(1) + (x1(1) - x0(1)) * real(i/(N-1), kind=rp)
+          xyz(2,i+1) = x0(2) + (x1(2) - x0(2)) * real(i/(N-1), kind=rp)
+          xyz(3,i+1) = x0(3) + (x1(3) - x0(3)) * real(i/(N-1), kind=rp)
+       end do
+
+    else
+
+       n_local_probes = 0
+       this%n_local_probes = 0
+       allocate(xyz(3, this%n_local_probes))
+
+    end if
+
+  end subroutine generate_xyz_on_line
+
 end module probes
