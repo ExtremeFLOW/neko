@@ -67,7 +67,7 @@ contains
     integer, intent(in) :: samp_interval
     integer, intent(inout), optional ::size
     integer :: n, i
-
+    
     call this%free()
 
     if (present(size)) then
@@ -87,7 +87,7 @@ contains
     this%T_begin = T_begin
     this%samp_interval = samp_interval
     this%t_diff = 0.0
-
+    
   end subroutine stats_init
 
   !> Deallocate
@@ -99,7 +99,7 @@ contains
     end if
 
     this%n = 0
-    this%size = 0
+    this%size = 0    
   end subroutine stats_free
 
   !> Add a statistic quantitiy @a quant to the backend
@@ -126,7 +126,7 @@ contains
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: tstep
     integer :: i, ierr
-    character(len=LOG_SIZE) :: log_buf
+    character(len=LOG_SIZE) :: log_buf    
     real(kind=rp) :: sample_start_time, sample_end_time
     real(kind=dp) :: sample_time
 

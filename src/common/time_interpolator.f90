@@ -76,7 +76,7 @@ contains
   !> Destructor
   subroutine time_interpolator_free(this)
     class(time_interpolator_t), intent(inout) :: this
-
+ 
   end subroutine time_interpolator_free
 
   !> Interpolate a field at time t from fields at time t-dt and t+dt
@@ -88,26 +88,26 @@ contains
   !! @param f_future time in future for interpolation
   subroutine time_interpolator_interpolate(this, t, f, t_past, f_past, t_future, f_future)
     class(time_interpolator_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: t, t_past, t_future
+    real(kind=rp), intent(inout) :: t, t_past, t_future 
     type(field_t), intent(inout) :: f, f_past, f_future
     real(kind=rp) :: w_past, w_future !Weights for the interpolation
     integer :: n
 
     if (this%order .eq. 2) then
 
-       n = f%dof%size()
-       w_past   = ( t_future - t ) / ( t_future - t_past )
-       w_future = ( t - t_past ) / ( t_future - t_past )
+      n = f%dof%size()
+      w_past   = ( t_future - t ) / ( t_future - t_past )
+      w_future = ( t - t_past ) / ( t_future - t_past )
 
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_add3s2(f%x_d, f_past%x_d, f_future%x_d, &
-        w_past, w_future, n)
-       else
-          call add3s2(f%x, f_past%x, f_future%x, w_past, w_future, n)
-       end if
-
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+        call device_add3s2(f%x_d, f_past%x_d, f_future%x_d, &
+        w_past, w_future, n) 
+      else
+        call add3s2(f%x, f_past%x, f_future%x, w_past, w_future, n)
+      end if
+    
     else
-       call neko_error("Time interpolation of required order is not implemented")
+      call neko_error("Time interpolation of required order is not implemented")
     end if
 
   end subroutine time_interpolator_interpolate
