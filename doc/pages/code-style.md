@@ -37,7 +37,10 @@ end module example
 Please note that the maximum line length in Neko should not exceed 80 columns.
 
 Additionally the [findent](https://github.com/wvermin/findent) tool can be used
-to enforce these rules by assigning the following options.
+to enforce these rules by assigning the following options. The documentation of
+`findent` provide details for emacs, vim and gedit. For VSCode, the
+[Modern Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran)
+extension provide an integration.
 
 ```sh
 findent -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- -Rr -c3 < input.f90 > formatted.f90
