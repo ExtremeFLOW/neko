@@ -74,7 +74,7 @@ module signal
   end interface
 
 contains
-  
+
   !> Check if any timeout has occurred (either SIGXCPU or SIGALRM)
   function signal_timeout() result(timeout)
     logical :: timeout
