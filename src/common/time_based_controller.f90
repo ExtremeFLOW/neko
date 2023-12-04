@@ -66,6 +66,9 @@ module time_based_controller
     !> Increment `nexectutions`.
      procedure, pass(this) :: register_execution => &
        time_based_controller_register_execution
+    !> Set the counter based on a time (for restarts)
+     procedure, pass(this) :: set_counter => &
+       time_based_controller_set_counter
 
   end type time_based_controller_t
 
@@ -172,6 +175,17 @@ contains
 
   end subroutine time_based_controller_register_execution
 
+  !> Set the counter based on a time (for restarts)
+  !! @param t simulation time.
+  subroutine time_based_controller_set_counter(this,t)
+    class(time_based_controller_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+
+    if (this%nsteps .eq. 0) then
+       this%nexecutions = int(t / this%time_interval) + 1
+    end if
+
+  end subroutine time_based_controller_set_counter
 
 
 end module time_based_controller

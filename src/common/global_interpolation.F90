@@ -45,7 +45,7 @@ module global_interpolation
   use local_interpolation
   use comm
   use math, only: copy
-  use mpi_types
+  use neko_mpi_types
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -163,8 +163,6 @@ contains
       call fgslib_findpts_free(this%gs_handle)
       this%gs_init = .false.
    end if
-#else
-    call neko_error('Neko needs to be built with GSLIB support')
 #endif
 
   end subroutine global_interpolation_free

@@ -43,7 +43,7 @@ module flow_ic
   use math
   use user_intf, only : useric
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get
   implicit none
   private
 

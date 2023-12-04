@@ -33,8 +33,7 @@
 !> Implements type spectral_error_indicator_t.
 module spectral_error_indicator
   use num_types, only: rp
-  use logger, only: neko_log, LOG_SIZE
-  use field, only: field_t
+   use field, only: field_t
   use coefs, only: coef_t
   use field_list, only: field_list_t
   use math, only: rzero, copy
@@ -225,7 +224,6 @@ contains
     type(coef_t), intent(inout) :: coef
     character(len=4), intent(in) :: space             
     integer :: i, j, k, e, nxyz, nelv, n
-    character(len=LOG_SIZE) :: log_buf 
 
     !> Define some constants
     nxyz = coef%Xh%lx*coef%Xh%lx*coef%Xh%lx

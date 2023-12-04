@@ -47,7 +47,7 @@ module fluid_pnpn
   use logger
   use advection
   use profiler
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get
   use json_module, only : json_file
   use material_properties, only : material_properties_t
   implicit none

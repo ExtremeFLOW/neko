@@ -498,7 +498,6 @@ contains
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
     ! Variables for extracting json
-    logical :: found, logical_val
     real(kind=rp) :: abs_tol
     character(len=:), allocatable :: solver_type, precon_type
 
@@ -640,8 +639,7 @@ contains
   !> Deallocate a fluid formulation
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
-    integer :: i
-
+  
     call this%bdry%free()
 
     if (allocated(this%bc_inflow)) then
@@ -718,7 +716,7 @@ contains
   subroutine fluid_scheme_validate(this)
     class(fluid_scheme_t), target, intent(inout) :: this
     ! Variables for retrieving json parameters
-    logical :: found, logical_val
+    logical :: logical_val
 
     if ( (.not. associated(this%u)) .or. &
          (.not. associated(this%v)) .or. &

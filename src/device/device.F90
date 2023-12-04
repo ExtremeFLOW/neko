@@ -1211,10 +1211,7 @@ contains
        end if
     end if
 #elif HAVE_OPENCL
-    event = clCreateUserEvent(glb_ctx, ierr)
-    if (ierr .ne. CL_SUCCESS) then
-       call neko_error('Error during event create')
-    end if
+    event = C_NULL_PTR
 #endif
   end subroutine device_event_create
 
@@ -1249,7 +1246,7 @@ contains
        call neko_error('Error recording an event')
     end if
 #elif HAVE_OPENCL
-    if (clEnqueueMarker(stream, event) .ne. CL_SUCCESS) then
+    if (clEnqueueMarkerWithWaitList(stream, 0, C_NULL_PTR, event) .ne. CL_SUCCESS) then
        call neko_error('Error recording an event')
     end if
 #endif

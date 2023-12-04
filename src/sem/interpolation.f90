@@ -36,13 +36,9 @@ module interpolation
   use num_types, only : rp
   use device
   use fast3d
-  use field, only : field_t
   use tensor, only : tnsr3d
   use tensor_cpu, only : tnsr3d_cpu
   use space, only : space_t, operator(.eq.), GL, GLL
-  use mxm_wrapper, only : mxm
-  use coefs, only : coef_t
-  use point, only : point_t
   implicit none
   private
 

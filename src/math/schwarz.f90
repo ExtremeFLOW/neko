@@ -65,7 +65,6 @@ module schwarz
   use space
   use dofmap, only : dofmap_t
   use bc
-  use dirichlet, only : dirichlet_t
   use gather_scatter
   use device_schwarz
   use device_math

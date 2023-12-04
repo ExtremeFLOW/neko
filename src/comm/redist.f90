@@ -33,7 +33,7 @@
 !> Redistribution routines
 module redist
   use mesh_field
-  use mpi_types
+  use neko_mpi_types
   use mpi_f08    
   use htable
   use point
