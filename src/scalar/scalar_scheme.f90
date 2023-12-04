@@ -125,7 +125,7 @@ module scalar_scheme
 
   !> Abstract interface to restart a scalar formulation
   abstract interface
-     subroutine scalar_scheme_restart_intrf(this,dtlag, tlag)
+     subroutine scalar_scheme_restart_intrf(this, dtlag, tlag)
        import scalar_scheme_t
        import chkp_t
        import rp

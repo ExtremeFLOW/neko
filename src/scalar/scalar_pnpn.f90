@@ -104,7 +104,7 @@ module scalar_pnpn
      !> Constructor.
      procedure, pass(this) :: init => scalar_pnpn_init
      !> To restart
-     procedure, pass(this) :: restart=> scalar_pnpn_restart
+     procedure, pass(this) :: restart => scalar_pnpn_restart
      !> Destructor.
      procedure, pass(this) :: free => scalar_pnpn_free
      procedure, pass(this) :: step => scalar_pnpn_step
@@ -210,7 +210,7 @@ contains
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
-  subroutine scalar_pnpn_restart(this,dtlag, tlag)
+  subroutine scalar_pnpn_restart(this, dtlag, tlag)
     class(scalar_pnpn_t), target, intent(inout) :: this
     real(kind=rp) :: dtlag(10), tlag(10)
     integer :: n
@@ -218,11 +218,11 @@ contains
 
     n = this%s%dof%size()
 
-    call col2(this%s%x,this%c_Xh%mult, n) 
-    call col2(this%abx1%x,this%c_Xh%mult, n) 
-    call col2(this%abx2%x,this%c_Xh%mult, n) 
-    call col2(this%slag%lf(1)%x,this%c_Xh%mult, n) 
-    call col2(this%slag%lf(2)%x,this%c_Xh%mult, n) 
+    call col2(this%s%x, this%c_Xh%mult, n) 
+    call col2(this%abx1%x, this%c_Xh%mult, n) 
+    call col2(this%abx2%x, this%c_Xh%mult, n) 
+    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n) 
+    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n) 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
                           n, HOST_TO_DEVICE)
