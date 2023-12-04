@@ -84,7 +84,7 @@ contains
     else
        timeout = .false.
     end if
-    
+
   end function signal_timeout
 
   !> Check if a user signal has been raised
