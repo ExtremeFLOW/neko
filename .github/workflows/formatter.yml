@@ -5,7 +5,7 @@ on:
   pull_request:
      branches: [develop,release/*,master]
   workflow_dispatch:
-  
+
 jobs:
   formatting:
       name: "Formatter (findent)"
