@@ -208,7 +208,7 @@ contains
                             HOST_TO_DEVICE, sync=.false.)
          call this%gs_h%op(work1, n, GS_OP_ADD) 
          call device_memcpy(work1, this%work1_d, n, &
-                            DEVICE_TO_HOST, sync=.false.)
+                            DEVICE_TO_HOST, sync=.true.)
       else
           call this%gs_h%op(work1, n, GS_OP_ADD) 
       end if
