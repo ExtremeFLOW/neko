@@ -137,7 +137,8 @@ contains
        call device_alloc(this%wt_d,int(this%dm%size()*rp, i8)) 
        call rone(this%work1, this%dm%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
-       call device_memcpy(this%work1, this%wt_d, this%dm%size(), HOST_TO_DEVICE)
+       call device_memcpy(this%work1, this%wt_d, this%dm%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
        call device_event_create(this%event, 2)
     end if
   end subroutine schwarz_init
@@ -185,9 +186,11 @@ contains
       !   Cred to PFF for this, very clever
       call schwarz_extrude(work1, 0, zero, work2, 0, one , enx, eny, enz, msh%nelv)
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_memcpy(work2, this%work2_d, ns, HOST_TO_DEVICE)
+         call device_memcpy(work2, this%work2_d, ns, &
+                            HOST_TO_DEVICE, sync=.false.)
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD) 
-         call device_memcpy(work2, this%work2_d, ns, DEVICE_TO_HOST)
+         call device_memcpy(work2, this%work2_d, ns, &
+                            DEVICE_TO_HOST, sync=.false.)
       else
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD) 
       end if
@@ -201,9 +204,11 @@ contains
       ! endif
       
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_memcpy(work1, this%work1_d, n, HOST_TO_DEVICE)
+         call device_memcpy(work1, this%work1_d, n, &
+                            HOST_TO_DEVICE, sync=.false.)
          call this%gs_h%op(work1, n, GS_OP_ADD) 
-         call device_memcpy(work1, this%work1_d, n, DEVICE_TO_HOST)
+         call device_memcpy(work1, this%work1_d, n, &
+                            DEVICE_TO_HOST, sync=.true.)
       else
           call this%gs_h%op(work1, n, GS_OP_ADD) 
       end if

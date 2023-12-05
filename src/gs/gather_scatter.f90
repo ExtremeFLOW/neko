@@ -205,7 +205,8 @@ contains
                 allocate(tmp(dofmap%size()))
                 call device_map(tmp, tmp_d, dofmap%size())
                 tmp = 1.0_rp
-                call device_memcpy(tmp, tmp_d, dofmap%size(), HOST_TO_DEVICE)
+                call device_memcpy(tmp, tmp_d, dofmap%size(), &
+                                   HOST_TO_DEVICE, sync=.false.)
                 call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
                    
                 do i = 1, size(strtgy)          

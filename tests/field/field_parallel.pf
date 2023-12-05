@@ -150,7 +150,7 @@ contains
 
     f = 42.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
+       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if          
     @assertEqual(maxval(f%x), 42.0_rp)
     
@@ -176,11 +176,11 @@ contains
 
     f = 42.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
+       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if          
     g = f
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(g%x, g%x_d, size(f%x), DEVICE_TO_HOST)
+       call device_memcpy(g%x, g%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if          
     @assertEqual(maxval(g%x), maxval(f%x))
     
@@ -208,7 +208,7 @@ contains
     a = 17.0_rp
     call f%add(a)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
+       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if
     @assertEqual(maxval(f%x), 42.0_rp + a)
     
@@ -236,7 +236,7 @@ contains
     g = 17.0_rp
     call f%add(g)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
+       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if
     @assertEqual(maxval(f%x), 42.0_rp + 17.0_rp)
     

@@ -149,10 +149,10 @@ contains
     
     if (NEKO_BCKND_DEVICE .eq. 1) then 
       ! Move the data to the CPU to be able to write it
-      call device_memcpy(u%x, u%x_d, nelv*npts, DEVICE_TO_HOST)
-      call device_memcpy(v%x, v%x_d, nelv*npts, DEVICE_TO_HOST)
-      call device_memcpy(w%x, w%x_d, nelv*npts, DEVICE_TO_HOST)
-      call device_memcpy(p%x, p%x_d, nelv*npts, DEVICE_TO_HOST)
+      call device_memcpy(u%x, u%x_d, nelv*npts, DEVICE_TO_HOST, sync=.false.)
+      call device_memcpy(v%x, v%x_d, nelv*npts, DEVICE_TO_HOST, sync=.false.)
+      call device_memcpy(w%x, w%x_d, nelv*npts, DEVICE_TO_HOST, sync=.false.)
+      call device_memcpy(p%x, p%x_d, nelv*npts, DEVICE_TO_HOST, sync=.true.)
     end if
 
 #ifdef HAVE_ADIOS2
