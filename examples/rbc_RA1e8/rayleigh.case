@@ -28,7 +28,12 @@
             }
         ],
         "initial_condition": {
-            "type": "user"
+                "type": "uniform",
+                "value": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
         },
         "velocity_solver": {
             "type": "cg",
@@ -52,7 +57,10 @@
     },
     "scalar": {
         "enabled": true,
-        "Pr": 1.0
+        "Pr": 1.0,
+        "initial_condition": {
+                "type": "user"
+        }
     },
     "statistics": {
         "enabled": true,
