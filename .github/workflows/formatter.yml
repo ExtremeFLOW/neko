@@ -3,17 +3,18 @@ name: Formatting
 # Controls when the action will run.
 on:
   pull_request:
-#     branches: [develop,release/*,master]
-
+     branches: [develop,release/*,master]
+  workflow_dispatch:
+  
 jobs:
-  linting:
+  formatting:
       name: "Formatter (findent)"
-        runs-on: ubuntu-20.04
+      runs-on: ubuntu-20.04
       steps:
         - name: Setup env.
           run: |
             sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
-          pip install findent
+            pip install findent
         - name: Checkout
           uses: actions/checkout@v3
           with:
