@@ -36,7 +36,6 @@ module fluid_user_source_term
   use num_types, only : rp
   use utils, only : neko_error
   use source_term, only : source_term_t
-  use field, only : field_t
   use json_module, only : json_file
   use field_list, only : field_list_t
   use coefs, only : coef_t

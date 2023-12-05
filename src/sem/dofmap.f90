@@ -1056,7 +1056,7 @@ contains
     real(kind=rp), dimension(5), intent(in) :: curve_data
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz), intent(inout) :: x, y, z 
     real(kind=rp) :: pt1x, pt1y, pt2x, pt2y, pt12x, pt12y
-    real(kind=rp) :: radius, gap, dtheta, r, xys 
+    real(kind=rp) :: radius, dtheta, r, xys 
     real(kind=rp) :: theta0, xcenn, ycenn, h(Xh%lx, 3, 2)
     real(kind=rp) :: xcrved(Xh%lx), ycrved(Xh%lx), xs, ys
     integer :: isid1, ixt, iyt, izt, ix, itmp

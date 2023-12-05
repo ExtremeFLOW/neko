@@ -38,7 +38,7 @@ module data_streamer
   use utils, only: neko_warning
   use device 
   use comm
-  use mpi_types
+  use neko_mpi_types
   use neko_config
   use, intrinsic :: iso_c_binding
   implicit none

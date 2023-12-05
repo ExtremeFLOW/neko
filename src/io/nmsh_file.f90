@@ -41,7 +41,7 @@ module nmsh_file
   use nmsh
   use element
   use datadist
-  use mpi_types
+  use neko_mpi_types
   use mpi_f08
   use logger
   implicit none

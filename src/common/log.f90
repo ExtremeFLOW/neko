@@ -38,7 +38,7 @@ module logger
   private
 
   integer, public, parameter :: LOG_SIZE = 80
-  
+
   type, public :: log_t
      integer :: indent_
      integer :: section_id_
@@ -48,7 +48,7 @@ module logger
      procedure, pass(this) :: begin => log_begin
      procedure, pass(this) :: end => log_end
      procedure, pass(this) :: indent => log_indent
-     procedure, nopass :: newline => log_newline          
+     procedure, nopass :: newline => log_newline
      procedure, pass(this) :: message => log_message
      procedure, pass(this) :: section => log_section
      procedure, pass(this) :: status => log_status
@@ -56,10 +56,18 @@ module logger
      procedure, pass(this) :: warning => log_warning
      procedure, pass(this) :: end_section => log_end_section
   end type log_t
-  
+
   !> Global log stream
   type(log_t), public :: neko_log
-  
+  !> Always logged
+  integer, public, parameter :: NEKO_LOG_QUIET = 0
+  !> Default log level
+  integer, public, parameter :: NEKO_LOG_INFO = 1
+  !> Verbose log level
+  integer, public, parameter :: NEKO_LOG_VERBOSE = 2
+  !> Debug log level
+  integer, public, parameter :: NEKO_LOG_DEBUG = 10
+
 contains
 
   !> Initialize a log
@@ -75,9 +83,9 @@ contains
     if (envvar_len .gt. 0) then
        read(log_level(1:envvar_len), *) this%level_
     else
-       this%level_ = 1
+       this%level_ = NEKO_LOG_INFO
     end if
-    
+
   end subroutine log_init
 
   !> Increase indention level
@@ -87,7 +95,7 @@ contains
     if (pe_rank .eq. 0) then
        this%indent_ = this%indent_ + 1
     end if
-    
+
   end subroutine log_begin
 
   !> Decrease indention level
@@ -97,20 +105,20 @@ contains
     if (pe_rank .eq. 0) then
        this%indent_ = this%indent_ - 1
     end if
-    
+
   end subroutine log_end
-    
-  !> Indent a log 
+
+  !> Indent a log
   subroutine log_indent(this)
     class(log_t), intent(in) :: this
     integer :: i
 
     if (pe_rank .eq. 0) then
        do i = 1, this%indent_
-          write(*,'(A)', advance='no') ' '        
+          write(*,'(A)', advance='no') ' '
        end do
     end if
-    
+
   end subroutine log_indent
 
   !> Write a new line to a log
@@ -119,26 +127,31 @@ contains
     if (pe_rank .eq. 0) then
        write(*,*) ' '
     end if
-    
+
   end subroutine log_newline
 
   !> Write a message to a log
   subroutine log_message(this, msg, lvl)
     class(log_t), intent(in) :: this
     character(len=*), intent(in) :: msg
-    integer, optional, intent(in) :: lvl
+    integer, optional :: lvl
+    integer :: lvl_
 
     if (present(lvl)) then
-       if (lvl .gt. this%level_) then
-          return
-       end if
+       lvl_ = lvl
+    else
+       lvl_ = NEKO_LOG_INFO
+    end if
+
+    if (lvl_ .gt. this%level_) then
+       return
     end if
 
     if (pe_rank .eq. 0) then
        call this%indent()
        write(*, '(A)') trim(msg)
     end if
-    
+
   end subroutine log_message
 
   !> Write an error message to a log
@@ -148,7 +161,7 @@ contains
 
     if (pe_rank .eq. 0) then
        call this%indent()
-       write(*, '(A,A,A)') '*** ERROR: ', trim(msg),'  ***'       
+       write(*, '(A,A,A)') '*** ERROR: ', trim(msg),'  ***'
     end if
 
   end subroutine log_error
@@ -160,7 +173,7 @@ contains
 
     if (pe_rank .eq. 0) then
        call this%indent()
-       write(*, '(A,A,A)') '*** WARNING: ', trim(msg),'  ***'       
+       write(*, '(A,A,A)') '*** WARNING: ', trim(msg),'  ***'
     end if
 
   end subroutine log_warning
@@ -177,20 +190,20 @@ contains
        this%section_id_ = this%section_id_ + 1
 
        pre = (30 - len_trim(msg)) / 2
-       
+
        write(*,*) ' '
        call this%indent()
        do i = 1, pre
           write(*,'(A)', advance='no') '-'
        end do
-       
+
        write(*,'(A)', advance='no') trim(msg)
        do i = 1, 30 - (len_trim(msg) + pre)
           write(*,'(A)', advance='no') '-'
        end do
        write(*,*) ' '
     end if
-    
+
   end subroutine log_section
 
   !> End a log section
@@ -199,16 +212,16 @@ contains
     character(len=*), intent(in), optional :: msg
 
     if (present(msg)) then
-       call this%message(msg)
+       call this%message(msg, NEKO_LOG_QUIET)
     end if
-    
+
     if (pe_rank .eq. 0) then
        this%section_id_ = this%section_id_ - 1
        this%indent_ = this%indent_ - this%section_id_
     end if
-    
+
   end subroutine log_end_Section
-  
+
   !> Write status banner
   !! @todo move to a future Time module
   subroutine log_status(this, t, T_end)
@@ -220,26 +233,28 @@ contains
 
      t_prog = 100d0 * t / T_end
 
-    call this%message('----------------------------------------------------------------')
-    write(log_buf, '(A,E15.7,A,F6.2,A)') 't = ', t,&
-         '                                  [ ',t_prog,'% ]'
+    call this%message('----------------------------------------------------------------', &
+                      NEKO_LOG_QUIET)
+    write(log_buf, '(A,E15.7,A,F6.2,A)') &
+    't = ', t, '                                  [ ',t_prog,'% ]'
 
-    call this%message(log_buf)
-    call this%message('----------------------------------------------------------------')
+    call this%message(log_buf, NEKO_LOG_QUIET)
+    call this%message('----------------------------------------------------------------', &
+                      NEKO_LOG_QUIET)
   end subroutine log_status
-  
+
   !
   ! Rudimentary C interface
   !
 
   !> Write a message to a log (from C)
-  !! @note This assumes the global log stream @a neko_log  
-  subroutine log_message_c(c_msg) bind(c, name='log_message') 
+  !! @note This assumes the global log stream @a neko_log
+  subroutine log_message_c(c_msg) bind(c, name='log_message')
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
     integer :: len, i
-  
+
     if (pe_rank .eq. 0) then
        len = 0
        do
@@ -247,21 +262,21 @@ contains
           len = len + 1
           msg(len:len) = c_msg(len)
        end do
-       
+
        call neko_log%indent()
        write(*, '(A)') trim(msg(1:len))
     end if
-    
+
   end subroutine log_message_c
 
   !> Write an error message to a log (from C)
-  !! @note This assumes the global log stream @a neko_log  
+  !! @note This assumes the global log stream @a neko_log
   subroutine log_error_c(c_msg) bind(c, name="log_error")
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
     integer :: len, i
-    
+
     if (pe_rank .eq. 0) then
        len = 0
        do
@@ -269,21 +284,21 @@ contains
           len = len + 1
           msg(len:len) = c_msg(len)
        end do
-       
+
        call neko_log%indent()
-       write(*, '(A,A,A)') '*** ERROR: ',trim(msg(1:len)),'  ***'       
+       write(*, '(A,A,A)') '*** ERROR: ',trim(msg(1:len)),'  ***'
     end if
-    
+
   end subroutine log_error_c
 
   !> Write a warning message to a log (from C)
-  !! @note This assumes the global log stream @a neko_log  
+  !! @note This assumes the global log stream @a neko_log
   subroutine log_warning_c(c_msg) bind(c, name="log_warning")
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
     integer :: len, i
-    
+
     if (pe_rank .eq. 0) then
        len = 0
        do
@@ -291,21 +306,21 @@ contains
           len = len + 1
           msg(len:len) = c_msg(len)
        end do
-       
+
        call neko_log%indent()
-       write(*, '(A,A,A)') '*** WARNING: ',trim(msg(1:len)),'  ***'       
+       write(*, '(A,A,A)') '*** WARNING: ',trim(msg(1:len)),'  ***'
     end if
-    
+
   end subroutine log_warning_c
 
   !> Begin a new log section (from C)
-  !! @note This assumes the global log stream @a neko_log  
+  !! @note This assumes the global log stream @a neko_log
   subroutine log_section_c(c_msg) bind(c, name="log_section")
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
     integer :: len, i
-    
+
     if (pe_rank .eq. 0) then
        len = 0
        do
@@ -316,15 +331,15 @@ contains
 
        call neko_log%section(trim(msg(1:len)))
     end if
-    
+
   end subroutine log_section_c
 
   !> End a log section (from C)
   !! @note This assumes the global log stream @a neko_log
   subroutine log_end_section_c() bind(c, name="log_end_section")
-  
+
     call neko_log%end_section()
-    
+
   end subroutine log_end_section_c
-  
+
 end module logger
