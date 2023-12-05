@@ -7,27 +7,21 @@ on:
 
 
 jobs:
-  linting:
+  formatter:
     name: "Formatter (findent)"
-    runs-on: ubuntu-latest
+      runs-on: ubuntu-20.04
     steps:
       - name: Setup env.
         run: |
-          sudo apt-get update && sudo apt-get install python-dev python3-tk
-          pip install findent
+          sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
+        pip install findent
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: findent
+      - name: Format
         run: |
           export FINDENT_FLAGS="-i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- -Rr -c3"
           find src/ -name "*.f90" -exec bash -c 'findent < {} > {}.tmp; mv -f {}.tmp {}' \;
           git commit -a -m "findent formatting" || true
           git push
-      - name: Archive linter report
-        uses: actions/upload-artifact@v2
-        with:
-          name: findent-report
-          path: findent.txt
-          retention-days: 5
