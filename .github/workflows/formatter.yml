@@ -5,9 +5,8 @@ on:
   pull_request:
 #     branches: [develop,release/*,master]
 
-
 jobs:
-  formatter:
+  linter:
     name: "Formatter (findent)"
       runs-on: ubuntu-20.04
     steps:
