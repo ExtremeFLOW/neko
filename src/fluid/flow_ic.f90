@@ -114,9 +114,12 @@ contains
     type(gs_t), intent(inout) :: gs
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(u%x, u%x_d, u%dof%size(), HOST_TO_DEVICE)
-       call device_memcpy(v%x, v%x_d, v%dof%size(), HOST_TO_DEVICE)
-       call device_memcpy(w%x, w%x_d, w%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(u%x, u%x_d, u%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(v%x, v%x_d, v%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(w%x, w%x_d, w%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
     ! Ensure continuity across elements for initial conditions

@@ -225,15 +225,15 @@ contains
     call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
-                          n, HOST_TO_DEVICE)
+                          n, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                          n, HOST_TO_DEVICE)
+                          n, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                          n, HOST_TO_DEVICE)
+                          n, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                          n, HOST_TO_DEVICE)
+                          n, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                          n, HOST_TO_DEVICE)
+                          n, HOST_TO_DEVICE, sync=.false.)
     end if
 
     call this%gs_Xh%op(this%s,GS_OP_ADD)

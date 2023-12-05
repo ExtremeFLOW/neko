@@ -308,36 +308,40 @@ contains
        associate(u=>this%u, v=>this%v, w=>this%w, &
             ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag,&
             p=>this%p)
-         call device_memcpy(u%x, u%x_d, u%dof%size(), HOST_TO_DEVICE)
-         call device_memcpy(v%x, v%x_d, v%dof%size(), HOST_TO_DEVICE)
-         call device_memcpy(w%x, w%x_d, w%dof%size(), HOST_TO_DEVICE)
-         call device_memcpy(p%x, p%x_d, p%dof%size(), HOST_TO_DEVICE)
+         call device_memcpy(u%x, u%x_d, u%dof%size(), &
+                            HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(v%x, v%x_d, v%dof%size(), &
+                            HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(w%x, w%x_d, w%dof%size(), &
+                            HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(p%x, p%x_d, p%dof%size(), &
+                            HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
-                          u%dof%size(), HOST_TO_DEVICE)
+                            u%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
-                          u%dof%size(), HOST_TO_DEVICE)
+                            u%dof%size(), HOST_TO_DEVICE, sync=.false.)
 
          call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
-                          v%dof%size(), HOST_TO_DEVICE)
+                            v%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
-                          v%dof%size(), HOST_TO_DEVICE)
+                            v%dof%size(), HOST_TO_DEVICE, sync=.false.)
 
          call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
-                          w%dof%size(), HOST_TO_DEVICE)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
-                          w%dof%size(), HOST_TO_DEVICE)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                          w%dof%size(), HOST_TO_DEVICE)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                          w%dof%size(), HOST_TO_DEVICE)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%aby1%x, this%aby1%x_d, &
-                          w%dof%size(), HOST_TO_DEVICE)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%aby2%x, this%aby2%x_d, &
-                          w%dof%size(), HOST_TO_DEVICE)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abz1%x, this%abz1%x_d, &
-                          w%dof%size(), HOST_TO_DEVICE)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abz2%x, this%abz2%x_d, &
-                          w%dof%size(), HOST_TO_DEVICE)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
        end associate
     end if
 

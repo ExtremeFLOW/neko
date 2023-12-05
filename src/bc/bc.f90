@@ -401,8 +401,10 @@ contains
        call device_map(this%msk, this%msk_d, n)
        call device_map(this%facet, this%facet_d, n)
 
-       call device_memcpy(this%msk, this%msk_d, n, HOST_TO_DEVICE)
-       call device_memcpy(this%facet, this%facet_d, n, HOST_TO_DEVICE)
+       call device_memcpy(this%msk, this%msk_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%facet, this%facet_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine bc_finalize

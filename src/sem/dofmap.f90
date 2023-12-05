@@ -137,9 +137,12 @@ contains
        call device_map(this%y, this%y_d, this%ntot)
        call device_map(this%z, this%z_d, this%ntot)
 
-       call device_memcpy(this%x, this%x_d, this%ntot, HOST_TO_DEVICE)
-       call device_memcpy(this%y, this%y_d, this%ntot, HOST_TO_DEVICE)
-       call device_memcpy(this%z, this%z_d, this%ntot, HOST_TO_DEVICE)
+       call device_memcpy(this%x, this%x_d, this%ntot, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%y, this%y_d, this%ntot, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%z, this%z_d, this%ntot, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
   end function dofmap_init
