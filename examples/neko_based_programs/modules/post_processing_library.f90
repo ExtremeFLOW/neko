@@ -112,7 +112,8 @@ contains
      call device_copy(work_field%x_d , field%x_d, n)
 
      !> Copy the information from the gpu to the cpu
-     call device_memcpy(work_field%x, work_field%x_d, field%dof%size(), DEVICE_TO_HOST)
+     call device_memcpy(work_field%x, work_field%x_d, field%dof%size(), &
+                        DEVICE_TO_HOST, sync=.true.)
 
      !> Now assert
      report = .true.
@@ -166,7 +167,8 @@ contains
      call device_copy(work_field%x_d , field%x_d, n)
     
      !> Copy the information from the gpu to the cpu
-     call device_memcpy(work_field%x, work_field%x_d, n, DEVICE_TO_HOST)
+     call device_memcpy(work_field%x, work_field%x_d, n, &
+                        DEVICE_TO_HOST, sync=.true.)
 
      !> Now assert
      report = 0
@@ -433,7 +435,7 @@ contains
                             Xh%lx,msh%nelv)
         !! put it in the cpu
         call device_memcpy(vol_e, vol_e_d, msh%nelv, &
-                           DEVICE_TO_HOST)
+                           DEVICE_TO_HOST, sync=.true.)
 
         !> Get the weighted spacings
         call device_col3(dx_e%x_d, dx%x_d, coef%B_d, dx%dof%size())
@@ -446,11 +448,11 @@ contains
         call device_lcsum(dz_e_nelv_d, dz_e%x_d, Xh%lx, msh%nelv)
         !! put it in the cpu
         call device_memcpy(dx_e_nelv, dx_e_nelv_d, msh%nelv, &
-                           DEVICE_TO_HOST)
+                           DEVICE_TO_HOST, sync=.true.)
         call device_memcpy(dy_e_nelv, dy_e_nelv_d, msh%nelv, &
-                           DEVICE_TO_HOST)
+                           DEVICE_TO_HOST, sync=.true.)
         call device_memcpy(dz_e_nelv, dz_e_nelv_d, msh%nelv, &
-                           DEVICE_TO_HOST)                   
+                           DEVICE_TO_HOST, sync=.true.)                   
 
      else
         

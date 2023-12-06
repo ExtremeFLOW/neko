@@ -305,11 +305,11 @@ contains
        (NEKO_BCKND_OPENCL .eq. 1)) then 
        !> Syncrhonize with GPU for statistics  
        call device_memcpy(this%u_hat%x,this%u_hat%x_d, n, &
-                         HOST_TO_DEVICE)
+                         HOST_TO_DEVICE, sync=.true.)
        call device_memcpy(this%v_hat%x,this%v_hat%x_d, n, &
-                         HOST_TO_DEVICE)
+                         HOST_TO_DEVICE, sync=.true.)
        call device_memcpy(this%w_hat%x,this%w_hat%x_d, n, &
-                         HOST_TO_DEVICE)
+                         HOST_TO_DEVICE, sync=.true.)
     end if
 
   end subroutine spec_err_ind_get

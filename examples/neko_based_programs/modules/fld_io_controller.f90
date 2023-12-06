@@ -257,7 +257,7 @@ contains
           if (NEKO_BCKND_DEVICE .eq. 1) then 
             call device_memcpy(this%field_in_registry_pointer%fields(i)%f%x, &
                             this%field_in_registry_pointer%fields(i)%f%x_d, &
-                            n,HOST_TO_DEVICE)
+                            n,HOST_TO_DEVICE, sync=.true.)
           end if
 
        end if
@@ -314,7 +314,7 @@ contains
              call device_memcpy(this%write_field_list%fields(i)%f%x, &
                             this%write_field_list%fields(i)%f%x_d, &
                             this%write_field_list%fields(i)%f%dof%size(), &
-                            DEVICE_TO_HOST)
+                            DEVICE_TO_HOST, sync=.true.)
           end do
        end if
 
@@ -342,7 +342,7 @@ contains
              if (sync .eqv. .true. .and. NEKO_BCKND_DEVICE .eq. 1) then 
                 call device_memcpy(this%mean_fields(i)%mf%x, &
                                this%mean_fields(i)%mf%x_d, &
-                               n,DEVICE_TO_HOST)
+                               n,DEVICE_TO_HOST, sync=.true.)
              end if
        end do
        this%average_last_t = t
@@ -433,9 +433,9 @@ contains
     end do
     
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%dof%x, this%dof%x_d, this%dof%size(), HOST_TO_DEVICE)
-       call device_memcpy(this%dof%y, this%dof%y_d, this%dof%size(), HOST_TO_DEVICE)
-       call device_memcpy(this%dof%z, this%dof%z_d, this%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(this%dof%x, this%dof%x_d, this%dof%size(), HOST_TO_DEVICE, sync=.true.)
+       call device_memcpy(this%dof%y, this%dof%y_d, this%dof%size(), HOST_TO_DEVICE, sync=.true.)
+       call device_memcpy(this%dof%z, this%dof%z_d, this%dof%size(), HOST_TO_DEVICE, sync=.true.)
     end if
 
     write(*,*) "dof size is= ", this%dof%size()

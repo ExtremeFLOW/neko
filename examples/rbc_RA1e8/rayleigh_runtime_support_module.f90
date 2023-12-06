@@ -1129,7 +1129,8 @@ contains
     ! Put it also on device
     if (NEKO_BCKND_DEVICE .eq. 1) then 
        call device_memcpy(u%x,u%x_d, &
-                          u%dof%size(),HOST_TO_DEVICE)
+                          u%dof%size(),HOST_TO_DEVICE, & 
+                          sync=.true.)
     end if
 
   end subroutine map_from_facets_to_field
