@@ -19,16 +19,12 @@ jobs:
           uses: actions/checkout@v3
           with:
             fetch-depth: 1
-        - name: Format
+        - name: Check Format
           run: |
             export FINDENT_FLAGS="-i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- -Rr -c3"
             find src/ -name "*.f90" -exec bash -c 'findent < {} > {}.tmp; mv -f {}.tmp {}' \;
-        - name: Check format
-          run: |
-            if [ git diff --exit-code == 0 ]; then
-              echo "No formatting changes detected"
-              exit 0
-            else
-              echo "Formatting changes detected"
+            if [ git diff --exit-code > 0 ]; then
+              >&2 echo "Formatting rules violated"
+              git diff --exit-code
               exit 1
             fi
