@@ -282,23 +282,23 @@ contains
        call device_map(s%vinvt, s%vinvt_d, s%lxy)
        call device_map(s%w,     s%w_d,     s%lxy)
 
-       call device_memcpy(s%dr_inv, s%dr_inv_d, s%lx, HOST_TO_DEVICE)
-       call device_memcpy(s%ds_inv, s%ds_inv_d, s%lx, HOST_TO_DEVICE)
-       call device_memcpy(s%dt_inv, s%dt_inv_d, s%lx, HOST_TO_DEVICE)
-       call device_memcpy(s%wx, s%wx_d, s%lx, HOST_TO_DEVICE)
-       call device_memcpy(s%wy, s%wy_d, s%lx, HOST_TO_DEVICE)
-       call device_memcpy(s%wz, s%wz_d, s%lx, HOST_TO_DEVICE)
-       call device_memcpy(s%dx, s%dx_d, s%lxy, HOST_TO_DEVICE)
-       call device_memcpy(s%dy, s%dy_d, s%lxy, HOST_TO_DEVICE)
-       call device_memcpy(s%dz, s%dz_d, s%lxy, HOST_TO_DEVICE)
-       call device_memcpy(s%dxt, s%dxt_d, s%lxy, HOST_TO_DEVICE)
-       call device_memcpy(s%dyt, s%dyt_d, s%lxy, HOST_TO_DEVICE)
-       call device_memcpy(s%dzt, s%dzt_d, s%lxy, HOST_TO_DEVICE)
-       call device_memcpy(s%w3, s%w3_d, s%lxyz, HOST_TO_DEVICE)
+       call device_memcpy(s%dr_inv, s%dr_inv_d, s%lx, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%ds_inv, s%ds_inv_d, s%lx, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%dt_inv, s%dt_inv_d, s%lx, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%wx, s%wx_d, s%lx, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%wy, s%wy_d, s%lx, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%wz, s%wz_d, s%lx, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%dx, s%dx_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%dy, s%dy_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%dz, s%dz_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%dxt, s%dxt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%dyt, s%dyt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%dzt, s%dzt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%w3, s%w3_d, s%lxyz, HOST_TO_DEVICE, sync=.false.)
 
        ix = s%lx * 3
        call device_map(s%zg, s%zg_d, ix)
-       call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE)
+       call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE, sync=.false.)
     end if
     
     call space_generate_transformation_matrices(s)
@@ -595,15 +595,15 @@ contains
     (NEKO_BCKND_OPENCL .eq. 1)) then 
 
        call device_memcpy(Xh%v,     Xh%v_d,     Xh%lxy, &
-                          HOST_TO_DEVICE)
+                          HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(Xh%vt,    Xh%vt_d,    Xh%lxy, &
-                          HOST_TO_DEVICE)
+                          HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(Xh%vinv,  Xh%vinv_d,  Xh%lxy, &
-                          HOST_TO_DEVICE)
+                          HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(Xh%vinvt, Xh%vinvt_d, Xh%lxy, &
-                          HOST_TO_DEVICE)
+                          HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(Xh%w,     Xh%w_d,     Xh%lxy, &
-                          HOST_TO_DEVICE)
+                          HOST_TO_DEVICE, sync=.false.)
 
     end if
 

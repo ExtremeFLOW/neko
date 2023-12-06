@@ -192,21 +192,10 @@ contains
     class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s
-    logical :: sync_device
-
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
 
     if (present(strm)) then
        copy_stream = strm
@@ -231,7 +220,7 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
     
   end subroutine device_memcpy_r1
 
@@ -241,22 +230,11 @@ contains
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s
-    logical :: sync_device
     
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
-
     if (present(strm)) then
        copy_stream = strm
     else
@@ -280,7 +258,7 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
     
   end subroutine device_memcpy_r2
 
@@ -290,21 +268,10 @@ contains
     class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s
-    logical :: sync_device
-
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
 
     if (present(strm)) then
        copy_stream = strm
@@ -329,7 +296,7 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
     
   end subroutine device_memcpy_r3
 
@@ -339,21 +306,10 @@ contains
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s    
-    logical :: sync_device
-
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
 
     if (present(strm)) then
        copy_stream = strm
@@ -378,7 +334,7 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
     
   end subroutine device_memcpy_r4
 
@@ -398,11 +354,7 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
        sync_device = .false.
-#else
-       sync_device = .true.
-#endif
     end if
 
     if (present(strm)) then
@@ -479,7 +431,7 @@ contains
        else if (dir .eq. DEVICE_TO_HOST) then
           if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
-             call neko_error('Device memcpy (host-to-device) failed')
+             call neko_error('Device memcpy (device-to-host) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
           if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_i8, 0_i8, s, &
@@ -498,7 +450,7 @@ contains
        else if (dir .eq. DEVICE_TO_HOST) then
           if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
-             call neko_error('Device memcpy (host-to-device) failed')
+             call neko_error('Device memcpy (device-to-host) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
           if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_i8, 0_i8, s, &
@@ -1141,7 +1093,7 @@ contains
        call neko_error('Error during stream destroy')
     end if
 #elif HAVE_OPENCL
-    if (clReleaseCommandQueue(stream) .eq. CL_SUCCESS) then
+    if (clReleaseCommandQueue(stream) .ne. CL_SUCCESS) then
        call neko_error('Error during stream destroy')
     end if
 #endif
@@ -1264,7 +1216,7 @@ contains
        call neko_error('Error during event sync')
     end if
 #elif HAVE_OPENCL
-    if (clWaitForEvents(1, event) .eq. CL_SUCCESS) then
+    if (clWaitForEvents(1, event) .ne. CL_SUCCESS) then
        call neko_error('Error during event sync')
     end if
 #endif

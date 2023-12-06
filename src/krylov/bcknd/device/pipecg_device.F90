@@ -213,7 +213,8 @@ contains
     u_size = 8*(DEVICE_PIPECG_P_SPACE+1)
     call device_alloc(this%u_d_d, u_size)
     ptr = c_loc(this%u_d)
-    call device_memcpy(ptr,this%u_d_d, u_size, HOST_TO_DEVICE)
+    call device_memcpy(ptr,this%u_d_d, u_size, &
+                       HOST_TO_DEVICE, sync=.false.)
 
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)
@@ -425,8 +426,10 @@ contains
                                  mi_d, alpha(p_cur), beta(p_cur),&
                                  coef%mult_d, reduction,n) 
          if (p_cur .eq. DEVICE_PIPECG_P_SPACE) then
-            call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE)
-            call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE)
+            call device_memcpy(alpha, alpha_d, p_cur, &
+                               HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(beta, beta_d, p_cur, &
+                               HOST_TO_DEVICE, sync=.false.)
             call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
                                      DEVICE_PIPECG_P_SPACE, n)
             p_prev = p_cur
@@ -442,8 +445,8 @@ contains
       end do
       
       if ( p_cur .ne. 1) then
-         call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE)
-         call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE)
+         call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE, sync=.false.)
          call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
                                   DEVICE_PIPECG_P_SPACE, n)
       end if

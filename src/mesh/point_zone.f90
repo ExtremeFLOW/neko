@@ -190,7 +190,8 @@ contains
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(this%mask, this%mask_d, this%size)
-          call device_memcpy(this%mask, this%mask_d, this%size, HOST_TO_DEVICE)
+          call device_memcpy(this%mask, this%mask_d, this%size, &
+                             HOST_TO_DEVICE, sync=.false.)
        end if
 
        this%finalized = .true.
