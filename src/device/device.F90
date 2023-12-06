@@ -1093,7 +1093,7 @@ contains
        call neko_error('Error during stream destroy')
     end if
 #elif HAVE_OPENCL
-    if (clReleaseCommandQueue(stream) .eq. CL_SUCCESS) then
+    if (clReleaseCommandQueue(stream) .ne. CL_SUCCESS) then
        call neko_error('Error during stream destroy')
     end if
 #endif
@@ -1216,7 +1216,7 @@ contains
        call neko_error('Error during event sync')
     end if
 #elif HAVE_OPENCL
-    if (clWaitForEvents(1, event) .eq. CL_SUCCESS) then
+    if (clWaitForEvents(1, event) .ne. CL_SUCCESS) then
        call neko_error('Error during event sync')
     end if
 #endif
