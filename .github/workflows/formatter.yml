@@ -25,4 +25,10 @@ jobs:
             find src/ -name "*.f90" -exec bash -c 'findent < {} > {}.tmp; mv -f {}.tmp {}' \;
         - name: Check format
           run: |
-            git diff --exit-code
+            if [ git diff --exit-code == 0 ]; then
+              echo "No formatting changes detected"
+              exit 0
+            else
+              echo "Formatting changes detected"
+              exit 1
+            fi
