@@ -155,6 +155,9 @@ contains
     real(kind=rp) :: compute_value, output_value, end_time
     call this%free()
 
+
+    if (pe_rank.eq.0) write(*,*) "Reading json in probe standalone"
+
     !> this%init_base(json, case) 
     call json_get_or_default(json, "compute_control", compute_control, &
                              "tsteps")
@@ -175,6 +178,7 @@ contains
     call this%output_controller%init(end_time, output_control, &
                                      output_value)
 
+    if (pe_rank.eq.0) write(*,*) "Initialize counters"
     !> Read from case file
     call json%info('fields', n_children=this%n_fields)
     call json_get(json, 'fields', this%which_fields) 
@@ -183,6 +187,7 @@ contains
     call json_get(json, 'points_file', points_file)
     call json_get(json, 'output_file', output_file) 
 
+    if (pe_rank.eq.0) write(*,*) "Taking sampled fields from registry"
     allocate(this%sampled_fields%fields(this%n_fields))
     do i = 1, this%n_fields
        this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
@@ -194,6 +199,7 @@ contains
     call read_probe_locations(this, this%xyz, this%n_local_probes, &
          this%n_global_probes, points_file)
     call probes_show(this)
+    if (pe_rank.eq.0) write(*,*) "Calling init from attrinutes"
     call this%init_from_attributes(dm_Xh, output_file)
     if(allocated(xyz)) deallocate(xyz)
 
@@ -212,13 +218,18 @@ contains
     type(matrix_t) :: mat_coords
 
 
+    if (pe_rank.eq.0) write(*,*) "Calling global interp init, gslib_setup"
 
     !> Init interpolator
     call this%global_interp%init(dof)
+    
+    
+    if (pe_rank.eq.0) write(*,*) "Calling find points and redistributing them"
 
     !> find probes and redistribute them
     call this%global_interp%find_points_and_redist(this%xyz, this%n_local_probes)
 
+    if (pe_rank.eq.0) write(*,*) "Allocating output array"
     !> Allocate output array
     allocate(this%out_values(this%n_local_probes,this%n_fields))
     allocate(this%out_values_d(this%n_fields))
@@ -233,6 +244,7 @@ contains
     end if
 
 
+    if (pe_rank.eq.0) write(*,*) "Set up output file"
 
     !> Initialize the output file
     this%fout = file_t(trim(output_file))
@@ -385,18 +397,28 @@ contains
     !> Check controller to determine if we must write
 
        
+    if (pe_rank.eq.0) write(*,*) "probes: call evaluate from global interp"
     do i = 1,this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
                                         this%sampled_fields%fields(i)%f%x)
     end do
 
+    if (pe_rank.eq.0) write(*,*) "probes: put the data on host"
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       write(*,*) "Rank: ", pe_rank, "outvalues:", size(this%out_values)
+       write(*,*) "Rank: ", pe_rank, "local n_probes:", this%n_local_probes
+       write(*,*) "Rank: ", pe_rank, "n_fields:", this%n_fields
        do i = 1, this%n_fields
-          call device_memcpy(this%out_values(:,i),this%out_values_d(i),&
-               this%n_local_probes, DEVICE_TO_HOST, sync=.true.)
+          if (this%n_local_probes .ne. 0) then
+             write(*,*) "Rank: ", pe_rank, "Field: ", i
+             call device_memcpy(this%out_values(:,i),this%out_values_d(i),&
+                  this%n_local_probes, DEVICE_TO_HOST, sync=.true.)
+             write(*,*) "Rank: ", pe_rank, "Field: ", i , "copy done"
+          end if
        end do
     end if
 
+    if (pe_rank.eq.0) write(*,*) "probes: gather values and write out"
     if (this%output_controller%check(t, tstep)) then
        ! Gather all values to rank 0
        ! If io is only done at root

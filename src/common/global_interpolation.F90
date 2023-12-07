@@ -131,6 +131,7 @@ contains
     !Number of points to iterate on simultaneosuly
     max_pts_per_iter = 128
     
+    if (pe_rank.eq.0) write(*,*) "global int: find_pts_setup"
     call fgslib_findpts_setup(this%gs_handle, &
          NEKO_COMM, pe_size, &
          this%mesh%gdim, &
@@ -144,6 +145,7 @@ contains
 #else
     call neko_error('Neko needs to be built with GSLIB support')
 #endif
+    if (pe_rank.eq.0) write(*,*) "global int: find_pts_setup finalized"
 
   end subroutine global_interpolation_init
 
@@ -202,6 +204,7 @@ contains
 
 #ifdef HAVE_GSLIB
 
+    if (pe_rank.eq.0) write(*,*) "global int: calling findpts"
     ! gslib find points, which element they belong, to process etc.
     call fgslib_findpts(this%gs_handle, &
          this%error_code, 1, &
@@ -212,6 +215,7 @@ contains
          this%xyz(1,1), this%mesh%gdim, &
          this%xyz(2,1), this%mesh%gdim, &
          this%xyz(3,1), this%mesh%gdim, this%n_points)
+    if (pe_rank.eq.0) write(*,*) "global int: find_pts called"
 
     do i=1,this%n_points
 
@@ -404,15 +408,19 @@ contains
 
     call this%free_points()
 
+    if (pe_rank.eq.0) write(*,*) "global int: init point arrays"
     this%n_points = n_points
     call global_interpolation_init_point_arrays(this)
     
     !> make deep copy incase xyz goes out of scope or deallocated
     call copy(this%xyz,xyz,3*n_points)
 
+    if (pe_rank.eq.0) write(*,*) "global int: find points"
     call global_interpolation_find_common(this)
     !> Sets new points and redistributes them
+    if (pe_rank.eq.0) write(*,*) "global int: redistribute points"
     call global_interpolation_redist(this)
+    if (pe_rank.eq.0) write(*,*) "global int: find points again"
     call global_interpolation_find_common(this)
   
     do i = 1, this%n_points
@@ -424,6 +432,7 @@ contains
        end if          
     end do
 
+    if (pe_rank.eq.0) write(*,*) "global int: Set up local interpolator"
     n_points = this%n_points
     deallocate(xyz)
     allocate(xyz(3,n_points))
@@ -520,12 +529,14 @@ contains
 
 #ifdef HAVE_GSLIB
     if (.not. this%all_points_local) then
+       if (pe_rank.eq.0) write(*,*) "global interp: all points are not local, calling find_pts_eval"
        call fgslib_findpts_eval(this%gs_handle, interp_values, &
                                 1, this%error_code, 1, &
                                 this%proc_owner, 1, this%el_owner, 1, &  
                                 this%rst, this%mesh%gdim, &
                                 this%n_points, field)
     else
+       if (pe_rank.eq.0) write(*,*) "global interp: all points are local, calling the GPU  implementation - local interp"
        if (this%n_points .gt. 0) &
           call this%local_interp%evaluate(interp_values, this%el_owner,&
                                           field, this%mesh%nelv)
