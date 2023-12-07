@@ -43,7 +43,7 @@ module pnpn_res_fctry
 
   public :: pnpn_prs_res_t, pnpn_vel_res_t, &
        pnpn_prs_res_factory, pnpn_vel_res_factory
-  
+
 contains
 
   subroutine pnpn_prs_res_factory(prs_res)
@@ -53,7 +53,7 @@ contains
        deallocate(prs_res)
     end if
 
-    
+
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(pnpn_prs_res_sx_t::prs_res)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -61,9 +61,9 @@ contains
     else
        allocate(pnpn_prs_res_cpu_t::prs_res)
     end if
-    
+
   end subroutine pnpn_prs_res_factory
-  
+
   subroutine pnpn_vel_res_factory(vel_res)
     class(pnpn_vel_res_t), allocatable, intent(inout) :: vel_res
 
@@ -78,8 +78,8 @@ contains
     else
        allocate(pnpn_vel_res_cpu_t::vel_res)
     end if
-       
-    
+
+
   end subroutine pnpn_vel_res_factory
-  
+
 end module pnpn_res_fctry

@@ -52,7 +52,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -70,7 +70,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -102,7 +102,7 @@ contains
     call addcol3(du, drst, dt, nd)
     call col2 (du, jacinv, nd)
   end subroutine sx_dudxyz_lx
-  
+
   subroutine sx_dudxyz_lx14(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 14
     integer, intent(in) :: nel, nd
@@ -112,7 +112,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -130,7 +130,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -162,7 +162,7 @@ contains
     call addcol3(du, drst, dt, nd)
     call col2 (du, jacinv, nd)
   end subroutine sx_dudxyz_lx14
-  
+
   subroutine sx_dudxyz_lx13(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 13
     integer, intent(in) :: nel, nd
@@ -172,7 +172,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -190,7 +190,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -232,7 +232,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -250,7 +250,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -292,7 +292,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -310,7 +310,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -352,7 +352,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -370,7 +370,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -412,7 +412,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -430,7 +430,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -472,7 +472,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -490,7 +490,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -532,7 +532,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -550,7 +550,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -592,7 +592,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -610,7 +610,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -652,7 +652,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -670,7 +670,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -712,7 +712,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -730,7 +730,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -772,7 +772,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -790,7 +790,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -832,7 +832,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
@@ -850,7 +850,7 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx

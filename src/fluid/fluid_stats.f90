@@ -156,7 +156,7 @@ contains
     type(coef_t), target, optional :: coef
     type(mean_field_t), target, intent(inout) :: u_mf, v_mf, w_mf, p_mf
     this%coef => coef
-  
+
     this%u_mean => u_mf%mf
     this%v_mean => v_mf%mf
     this%w_mean => w_mf%mf
@@ -171,7 +171,7 @@ contains
     call this%stats_v%init(this%u%dof, 'v temp')
     call this%stats_w%init(this%u%dof, 'w temp')
     call this%stats_p%init(this%u%dof, 'p temp')
- 
+
     call this%dudx%init(this%u%dof, 'dudx')
     call this%dudy%init(this%u%dof, 'dudy')
     call this%dudz%init(this%u%dof, 'dudz')
@@ -181,7 +181,7 @@ contains
     call this%dwdx%init(this%u%dof, 'dwdx')
     call this%dwdy%init(this%u%dof, 'dwdy')
     call this%dwdz%init(this%u%dof, 'dwdz')
-    
+
     call this%uu%init(this%stats_u, 'uu')
     call this%vv%init(this%stats_v, 'vv')
     call this%ww%init(this%stats_w, 'ww')
@@ -205,11 +205,11 @@ contains
     call this%pp%init(this%stats_p, 'pp')
     call this%ppp%init(this%stats_work, 'ppp')
     call this%pppp%init(this%stats_work, 'pppp')
-     !> Pressure * velocity
+    !> Pressure * velocity
     call this%pu%init(this%stats_work, 'pu')
     call this%pv%init(this%stats_work, 'pv')
     call this%pw%init(this%stats_work, 'pw')
- 
+
     call this%pdudx%init(this%stats_work, 'pdudx')
     call this%pdudy%init(this%stats_work, 'pdudy')
     call this%pdudz%init(this%stats_work, 'pdudz')
@@ -284,223 +284,223 @@ contains
 
     associate(stats_work => this%stats_work, stats_u => this%stats_u,&
               stats_v => this%stats_v, stats_w => this%stats_w, stats_p => this%stats_p)
-    n = stats_work%dof%size()
+      n = stats_work%dof%size()
 
-    !> U%f is u and U%mf is <u>
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+      !> U%f is u and U%mf is <u>
+      if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       call device_col3(stats_u%x_d,this%u%x_d, this%u%x_d,n)
-       call device_col3(stats_v%x_d,this%v%x_d, this%v%x_d,n)
-       call device_col3(stats_w%x_d,this%w%x_d, this%w%x_d,n)
-       call device_col3(stats_p%x_d,this%p%x_d, this%p%x_d,n)
+         call device_col3(stats_u%x_d,this%u%x_d, this%u%x_d,n)
+         call device_col3(stats_v%x_d,this%v%x_d, this%v%x_d,n)
+         call device_col3(stats_w%x_d,this%w%x_d, this%w%x_d,n)
+         call device_col3(stats_p%x_d,this%p%x_d, this%p%x_d,n)
 
-       call this%uu%update(k)
-       call this%vv%update(k)
-       call this%ww%update(k)
-       call this%pp%update(k)
+         call this%uu%update(k)
+         call this%vv%update(k)
+         call this%ww%update(k)
+         call this%pp%update(k)
 
-       call device_col3(stats_work%x_d,this%u%x_d, this%v%x_d,n)
-       call this%uv%update(k)
-       call device_col3(stats_work%x_d,this%u%x_d, this%w%x_d,n)
-       call this%uw%update(k)
-       call device_col3(stats_work%x_d,this%v%x_d, this%w%x_d,n)
-       call this%vw%update(k)
+         call device_col3(stats_work%x_d,this%u%x_d, this%v%x_d,n)
+         call this%uv%update(k)
+         call device_col3(stats_work%x_d,this%u%x_d, this%w%x_d,n)
+         call this%uw%update(k)
+         call device_col3(stats_work%x_d,this%v%x_d, this%w%x_d,n)
+         call this%vw%update(k)
 
-       call device_col2(stats_work%x_d, this%u%x_d,n)
-       call this%uvw%update(k)
-       call device_col3(stats_work%x_d,this%stats_u%x_d, this%u%x_d,n)
-       call this%uuu%update(k)
-       call device_col3(stats_work%x_d,this%stats_v%x_d, this%v%x_d,n)
-       call this%vvv%update(k)
-       call device_col3(stats_work%x_d,this%stats_w%x_d, this%w%x_d,n)
-       call this%www%update(k)
-       call device_col3(stats_work%x_d,this%stats_u%x_d, this%v%x_d,n)
-       call this%uuv%update(k)
-       call device_col3(stats_work%x_d,this%stats_u%x_d, this%w%x_d,n)
-       call this%uuw%update(k)
-       call device_col3(stats_work%x_d,this%stats_v%x_d, this%u%x_d,n)
-       call this%uvv%update(k)
-       call device_col3(stats_work%x_d,this%stats_v%x_d, this%w%x_d,n)
-       call this%vvw%update(k)
-       call device_col3(stats_work%x_d,this%stats_w%x_d, this%u%x_d,n)
-       call this%uww%update(k)
-       call device_col3(stats_work%x_d,this%stats_w%x_d, this%v%x_d,n)
-       call this%vww%update(k)
+         call device_col2(stats_work%x_d, this%u%x_d,n)
+         call this%uvw%update(k)
+         call device_col3(stats_work%x_d,this%stats_u%x_d, this%u%x_d,n)
+         call this%uuu%update(k)
+         call device_col3(stats_work%x_d,this%stats_v%x_d, this%v%x_d,n)
+         call this%vvv%update(k)
+         call device_col3(stats_work%x_d,this%stats_w%x_d, this%w%x_d,n)
+         call this%www%update(k)
+         call device_col3(stats_work%x_d,this%stats_u%x_d, this%v%x_d,n)
+         call this%uuv%update(k)
+         call device_col3(stats_work%x_d,this%stats_u%x_d, this%w%x_d,n)
+         call this%uuw%update(k)
+         call device_col3(stats_work%x_d,this%stats_v%x_d, this%u%x_d,n)
+         call this%uvv%update(k)
+         call device_col3(stats_work%x_d,this%stats_v%x_d, this%w%x_d,n)
+         call this%vvw%update(k)
+         call device_col3(stats_work%x_d,this%stats_w%x_d, this%u%x_d,n)
+         call this%uww%update(k)
+         call device_col3(stats_work%x_d,this%stats_w%x_d, this%v%x_d,n)
+         call this%vww%update(k)
 
-       call device_col3(stats_work%x_d,this%stats_u%x_d, this%stats_u%x_d,n)
-       call this%uuuu%update(k)
-       call device_col3(stats_work%x_d,this%stats_v%x_d, this%stats_v%x_d,n)
-       call this%vvvv%update(k)
-       call device_col3(stats_work%x_d,this%stats_w%x_d, this%stats_w%x_d,n)
-       call this%wwww%update(k)
+         call device_col3(stats_work%x_d,this%stats_u%x_d, this%stats_u%x_d,n)
+         call this%uuuu%update(k)
+         call device_col3(stats_work%x_d,this%stats_v%x_d, this%stats_v%x_d,n)
+         call this%vvvv%update(k)
+         call device_col3(stats_work%x_d,this%stats_w%x_d, this%stats_w%x_d,n)
+         call this%wwww%update(k)
 
-       call device_col3(stats_work%x_d,this%stats_p%x_d, this%p%x_d,n)
-       call this%ppp%update(k)
-       call device_col3(stats_work%x_d,this%stats_p%x_d, this%stats_p%x_d,n)
-       call this%pppp%update(k)
+         call device_col3(stats_work%x_d,this%stats_p%x_d, this%p%x_d,n)
+         call this%ppp%update(k)
+         call device_col3(stats_work%x_d,this%stats_p%x_d, this%stats_p%x_d,n)
+         call this%pppp%update(k)
 
-       call device_col3(stats_work%x_d,this%p%x_d, this%u%x_d,n)
-       call this%pu%update(k)
-       call device_col3(stats_work%x_d,this%p%x_d, this%v%x_d,n)
-       call this%pv%update(k)
-       call device_col3(stats_work%x_d,this%p%x_d, this%w%x_d,n)
-       call this%pw%update(k)
+         call device_col3(stats_work%x_d,this%p%x_d, this%u%x_d,n)
+         call this%pu%update(k)
+         call device_col3(stats_work%x_d,this%p%x_d, this%v%x_d,n)
+         call this%pv%update(k)
+         call device_col3(stats_work%x_d,this%p%x_d, this%w%x_d,n)
+         call this%pw%update(k)
 
-    else
+      else
 
-       call col3(stats_u%x,this%u%x, this%u%x,n)
-       call col3(stats_v%x,this%v%x, this%v%x,n)
-       call col3(stats_w%x,this%w%x, this%w%x,n)
-       call col3(stats_p%x,this%p%x, this%p%x,n)
+         call col3(stats_u%x,this%u%x, this%u%x,n)
+         call col3(stats_v%x,this%v%x, this%v%x,n)
+         call col3(stats_w%x,this%w%x, this%w%x,n)
+         call col3(stats_p%x,this%p%x, this%p%x,n)
 
-       call this%uu%update(k)
-       call this%vv%update(k)
-       call this%ww%update(k)
-       call this%pp%update(k)
+         call this%uu%update(k)
+         call this%vv%update(k)
+         call this%ww%update(k)
+         call this%pp%update(k)
 
-       call col3(stats_work%x,this%u%x, this%v%x,n)
-       call this%uv%update(k)
-       call col3(stats_work%x,this%u%x, this%w%x,n)
-       call this%uw%update(k)
-       call col3(stats_work%x,this%v%x, this%w%x,n)
-       call this%vw%update(k)
+         call col3(stats_work%x,this%u%x, this%v%x,n)
+         call this%uv%update(k)
+         call col3(stats_work%x,this%u%x, this%w%x,n)
+         call this%uw%update(k)
+         call col3(stats_work%x,this%v%x, this%w%x,n)
+         call this%vw%update(k)
 
-       call col2(stats_work%x, this%u%x,n)
-       call this%uvw%update(k)
-       call col3(stats_work%x,this%stats_u%x, this%u%x,n)
-       call this%uuu%update(k)
-       call col3(stats_work%x,this%stats_v%x, this%v%x,n)
-       call this%vvv%update(k)
-       call col3(stats_work%x,this%stats_w%x, this%w%x,n)
-       call this%www%update(k)
-       call col3(stats_work%x,this%stats_u%x, this%v%x,n)
-       call this%uuv%update(k)
-       call col3(stats_work%x,this%stats_u%x, this%w%x,n)
-       call this%uuw%update(k)
-       call col3(stats_work%x,this%stats_v%x, this%u%x,n)
-       call this%uvv%update(k)
-       call col3(stats_work%x,this%stats_v%x, this%w%x,n)
-       call this%vvw%update(k)
-       call col3(stats_work%x,this%stats_w%x, this%u%x,n)
-       call this%uww%update(k)
-       call col3(stats_work%x,this%stats_w%x, this%v%x,n)
-       call this%vww%update(k)
+         call col2(stats_work%x, this%u%x,n)
+         call this%uvw%update(k)
+         call col3(stats_work%x,this%stats_u%x, this%u%x,n)
+         call this%uuu%update(k)
+         call col3(stats_work%x,this%stats_v%x, this%v%x,n)
+         call this%vvv%update(k)
+         call col3(stats_work%x,this%stats_w%x, this%w%x,n)
+         call this%www%update(k)
+         call col3(stats_work%x,this%stats_u%x, this%v%x,n)
+         call this%uuv%update(k)
+         call col3(stats_work%x,this%stats_u%x, this%w%x,n)
+         call this%uuw%update(k)
+         call col3(stats_work%x,this%stats_v%x, this%u%x,n)
+         call this%uvv%update(k)
+         call col3(stats_work%x,this%stats_v%x, this%w%x,n)
+         call this%vvw%update(k)
+         call col3(stats_work%x,this%stats_w%x, this%u%x,n)
+         call this%uww%update(k)
+         call col3(stats_work%x,this%stats_w%x, this%v%x,n)
+         call this%vww%update(k)
 
-       call col3(stats_work%x,this%stats_u%x, this%stats_u%x,n)
-       call this%uuuu%update(k)
-       call col3(stats_work%x,this%stats_v%x, this%stats_v%x,n)
-       call this%vvvv%update(k)
-       call col3(stats_work%x,this%stats_w%x, this%stats_w%x,n)
-       call this%wwww%update(k)
+         call col3(stats_work%x,this%stats_u%x, this%stats_u%x,n)
+         call this%uuuu%update(k)
+         call col3(stats_work%x,this%stats_v%x, this%stats_v%x,n)
+         call this%vvvv%update(k)
+         call col3(stats_work%x,this%stats_w%x, this%stats_w%x,n)
+         call this%wwww%update(k)
 
-       call col3(stats_work%x,this%stats_p%x, this%p%x,n)
-       call this%ppp%update(k)
-       call col3(stats_work%x,this%stats_p%x, this%stats_p%x,n)
-       call this%pppp%update(k)
+         call col3(stats_work%x,this%stats_p%x, this%p%x,n)
+         call this%ppp%update(k)
+         call col3(stats_work%x,this%stats_p%x, this%stats_p%x,n)
+         call this%pppp%update(k)
 
-       call col3(stats_work%x,this%p%x, this%u%x,n)
-       call this%pu%update(k)
-       call col3(stats_work%x,this%p%x, this%v%x,n)
-       call this%pv%update(k)
-       call col3(stats_work%x,this%p%x, this%w%x,n)
-       call this%pw%update(k)
-
-
-    end if
-    call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u%x,this%coef)
-    call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v%x,this%coef)
-    call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x,this%w%x,this%coef)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col3(stats_work%x_d,this%dudx%x_d, this%p%x_d,n)
-       call this%pdudx%update(k)
-       call device_col3(stats_work%x_d,this%dudy%x_d, this%p%x_d,n)
-       call this%pdudy%update(k)
-       call device_col3(stats_work%x_d,this%dudz%x_d, this%p%x_d,n)
-       call this%pdudz%update(k)
-
-       call device_col3(stats_work%x_d,this%dvdx%x_d, this%p%x_d,n)
-       call this%pdvdx%update(k)
-       call device_col3(stats_work%x_d,this%dvdy%x_d, this%p%x_d,n)
-       call this%pdvdy%update(k)
-       call device_col3(stats_work%x_d,this%dvdz%x_d, this%p%x_d,n)
-       call this%pdvdz%update(k)
-
-       call device_col3(stats_work%x_d,this%dwdx%x_d, this%p%x_d,n)
-       call this%pdwdx%update(k)
-       call device_col3(stats_work%x_d,this%dwdy%x_d, this%p%x_d,n)
-       call this%pdwdy%update(k)
-       call device_col3(stats_work%x_d,this%dwdz%x_d, this%p%x_d,n)
-       call this%pdwdz%update(k)
-
-       call device_col3(this%stats_work%x_d,this%dudx%x_d, this%dudx%x_d,n)
-       call device_addcol3(this%stats_work%x_d,this%dudy%x_d, this%dudy%x_d,n)
-       call device_addcol3(this%stats_work%x_d,this%dudz%x_d, this%dudz%x_d,n)
-       call this%e11%update(k)
-       call device_col3(this%stats_work%x_d,this%dvdx%x_d, this%dvdx%x_d,n)
-       call device_addcol3(this%stats_work%x_d,this%dvdy%x_d, this%dvdy%x_d,n)
-       call device_addcol3(this%stats_work%x_d,this%dvdz%x_d, this%dvdz%x_d,n)
-       call this%e22%update(k)
-       call device_col3(this%stats_work%x_d,this%dwdx%x_d, this%dwdx%x_d,n)
-       call device_addcol3(this%stats_work%x_d,this%dwdy%x_d, this%dwdy%x_d,n)
-       call device_addcol3(this%stats_work%x_d,this%dwdz%x_d, this%dwdz%x_d,n)
-       call this%e33%update(k)
-       call device_col3(this%stats_work%x_d,this%dudx%x_d, this%dvdx%x_d,n)
-       call device_addcol3(this%stats_work%x_d,this%dudy%x_d, this%dvdy%x_d,n)
-       call device_addcol3(this%stats_work%x_d,this%dudz%x_d, this%dvdz%x_d,n)
-       call this%e12%update(k)
-       call device_col3(this%stats_work%x_d,this%dvdx%x_d, this%dwdx%x_d,n)
-       call device_addcol3(this%stats_work%x_d,this%dvdy%x_d, this%dwdy%x_d,n)
-       call device_addcol3(this%stats_work%x_d,this%dvdz%x_d, this%dwdz%x_d,n)
-       call this%e23%update(k)
+         call col3(stats_work%x,this%p%x, this%u%x,n)
+         call this%pu%update(k)
+         call col3(stats_work%x,this%p%x, this%v%x,n)
+         call this%pv%update(k)
+         call col3(stats_work%x,this%p%x, this%w%x,n)
+         call this%pw%update(k)
 
 
-    else
-       call col3(stats_work%x,this%dudx%x, this%p%x,n)
-       call this%pdudx%update(k)
-       call col3(stats_work%x,this%dudy%x, this%p%x,n)
-       call this%pdudy%update(k)
-       call col3(stats_work%x,this%dudz%x, this%p%x,n)
-       call this%pdudz%update(k)
+      end if
+      call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u%x,this%coef)
+      call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v%x,this%coef)
+      call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x,this%w%x,this%coef)
 
-       call col3(stats_work%x,this%dvdx%x, this%p%x,n)
-       call this%pdvdx%update(k)
-       call col3(stats_work%x,this%dvdy%x, this%p%x,n)
-       call this%pdvdy%update(k)
-       call col3(stats_work%x,this%dvdz%x, this%p%x,n)
-       call this%pdvdz%update(k)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_col3(stats_work%x_d,this%dudx%x_d, this%p%x_d,n)
+         call this%pdudx%update(k)
+         call device_col3(stats_work%x_d,this%dudy%x_d, this%p%x_d,n)
+         call this%pdudy%update(k)
+         call device_col3(stats_work%x_d,this%dudz%x_d, this%p%x_d,n)
+         call this%pdudz%update(k)
 
-       call col3(stats_work%x,this%dwdx%x, this%p%x,n)
-       call this%pdwdx%update(k)
-       call col3(stats_work%x,this%dwdy%x, this%p%x,n)
-       call this%pdwdy%update(k)
-       call col3(stats_work%x,this%dwdz%x, this%p%x,n)
-       call this%pdwdz%update(k)
+         call device_col3(stats_work%x_d,this%dvdx%x_d, this%p%x_d,n)
+         call this%pdvdx%update(k)
+         call device_col3(stats_work%x_d,this%dvdy%x_d, this%p%x_d,n)
+         call this%pdvdy%update(k)
+         call device_col3(stats_work%x_d,this%dvdz%x_d, this%p%x_d,n)
+         call this%pdvdz%update(k)
 
-       call col3(this%stats_work%x,this%dudx%x, this%dudx%x,n)
-       call addcol3(this%stats_work%x,this%dudy%x, this%dudy%x,n)
-       call addcol3(this%stats_work%x,this%dudz%x, this%dudz%x,n)
-       call this%e11%update(k)
-       call col3(this%stats_work%x,this%dvdx%x, this%dvdx%x,n)
-       call addcol3(this%stats_work%x,this%dvdy%x, this%dvdy%x,n)
-       call addcol3(this%stats_work%x,this%dvdz%x, this%dvdz%x,n)
-       call this%e22%update(k)
-       call col3(this%stats_work%x,this%dwdx%x, this%dwdx%x,n)
-       call addcol3(this%stats_work%x,this%dwdy%x, this%dwdy%x,n)
-       call addcol3(this%stats_work%x,this%dwdz%x, this%dwdz%x,n)
-       call this%e33%update(k)
-       call col3(this%stats_work%x,this%dudx%x, this%dvdx%x,n)
-       call addcol3(this%stats_work%x,this%dudy%x, this%dvdy%x,n)
-       call addcol3(this%stats_work%x,this%dudz%x, this%dvdz%x,n)
-       call this%e12%update(k)
-       call col3(this%stats_work%x,this%dvdx%x, this%dwdx%x,n)
-       call addcol3(this%stats_work%x,this%dvdy%x, this%dwdy%x,n)
-       call addcol3(this%stats_work%x,this%dvdz%x, this%dwdz%x,n)
-       call this%e23%update(k)
+         call device_col3(stats_work%x_d,this%dwdx%x_d, this%p%x_d,n)
+         call this%pdwdx%update(k)
+         call device_col3(stats_work%x_d,this%dwdy%x_d, this%p%x_d,n)
+         call this%pdwdy%update(k)
+         call device_col3(stats_work%x_d,this%dwdz%x_d, this%p%x_d,n)
+         call this%pdwdz%update(k)
 
-    end if
+         call device_col3(this%stats_work%x_d,this%dudx%x_d, this%dudx%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dudy%x_d, this%dudy%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dudz%x_d, this%dudz%x_d,n)
+         call this%e11%update(k)
+         call device_col3(this%stats_work%x_d,this%dvdx%x_d, this%dvdx%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dvdy%x_d, this%dvdy%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dvdz%x_d, this%dvdz%x_d,n)
+         call this%e22%update(k)
+         call device_col3(this%stats_work%x_d,this%dwdx%x_d, this%dwdx%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dwdy%x_d, this%dwdy%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dwdz%x_d, this%dwdz%x_d,n)
+         call this%e33%update(k)
+         call device_col3(this%stats_work%x_d,this%dudx%x_d, this%dvdx%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dudy%x_d, this%dvdy%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dudz%x_d, this%dvdz%x_d,n)
+         call this%e12%update(k)
+         call device_col3(this%stats_work%x_d,this%dvdx%x_d, this%dwdx%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dvdy%x_d, this%dwdy%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dvdz%x_d, this%dwdz%x_d,n)
+         call this%e23%update(k)
 
-  end associate
+
+      else
+         call col3(stats_work%x,this%dudx%x, this%p%x,n)
+         call this%pdudx%update(k)
+         call col3(stats_work%x,this%dudy%x, this%p%x,n)
+         call this%pdudy%update(k)
+         call col3(stats_work%x,this%dudz%x, this%p%x,n)
+         call this%pdudz%update(k)
+
+         call col3(stats_work%x,this%dvdx%x, this%p%x,n)
+         call this%pdvdx%update(k)
+         call col3(stats_work%x,this%dvdy%x, this%p%x,n)
+         call this%pdvdy%update(k)
+         call col3(stats_work%x,this%dvdz%x, this%p%x,n)
+         call this%pdvdz%update(k)
+
+         call col3(stats_work%x,this%dwdx%x, this%p%x,n)
+         call this%pdwdx%update(k)
+         call col3(stats_work%x,this%dwdy%x, this%p%x,n)
+         call this%pdwdy%update(k)
+         call col3(stats_work%x,this%dwdz%x, this%p%x,n)
+         call this%pdwdz%update(k)
+
+         call col3(this%stats_work%x,this%dudx%x, this%dudx%x,n)
+         call addcol3(this%stats_work%x,this%dudy%x, this%dudy%x,n)
+         call addcol3(this%stats_work%x,this%dudz%x, this%dudz%x,n)
+         call this%e11%update(k)
+         call col3(this%stats_work%x,this%dvdx%x, this%dvdx%x,n)
+         call addcol3(this%stats_work%x,this%dvdy%x, this%dvdy%x,n)
+         call addcol3(this%stats_work%x,this%dvdz%x, this%dvdz%x,n)
+         call this%e22%update(k)
+         call col3(this%stats_work%x,this%dwdx%x, this%dwdx%x,n)
+         call addcol3(this%stats_work%x,this%dwdy%x, this%dwdy%x,n)
+         call addcol3(this%stats_work%x,this%dwdz%x, this%dwdz%x,n)
+         call this%e33%update(k)
+         call col3(this%stats_work%x,this%dudx%x, this%dvdx%x,n)
+         call addcol3(this%stats_work%x,this%dudy%x, this%dvdy%x,n)
+         call addcol3(this%stats_work%x,this%dudz%x, this%dvdz%x,n)
+         call this%e12%update(k)
+         call col3(this%stats_work%x,this%dvdx%x, this%dwdx%x,n)
+         call addcol3(this%stats_work%x,this%dvdy%x, this%dwdy%x,n)
+         call addcol3(this%stats_work%x,this%dvdz%x, this%dwdz%x,n)
+         call this%e23%update(k)
+
+      end if
+
+    end associate
 
   end subroutine fluid_stats_update
 
@@ -513,7 +513,7 @@ contains
     call this%stats_u%free()
     call this%stats_v%free()
     call this%stats_w%free()
-    
+
     call this%uu%free()
     call this%vv%free()
     call this%ww%free()
@@ -531,13 +531,13 @@ contains
     call this%dWdx%free()
     call this%dWdy%free()
     call this%dWdz%free()
- 
+
   end subroutine fluid_stats_free
- 
+
   !> Initialize a mean flow field
   subroutine fluid_stats_reset(this)
     class(fluid_stats_t), intent(inout), target:: this
-    
+
     call this%uu%reset()
     call this%vv%reset()
     call this%ww%reset()
@@ -561,11 +561,11 @@ contains
     call this%pp%reset()
     call this%ppp%reset()
     call this%pppp%reset()
-     !> Pressure * velocity
+    !> Pressure * velocity
     call this%pu%reset()
     call this%pv%reset()
     call this%pw%reset()
- 
+
     call this%pdudx%reset()
     call this%pdudy%reset()
     call this%pdudz%reset()
@@ -611,7 +611,7 @@ contains
        call device_col2(this%e23%mf%x_d,this%stats_work%x_d, n)
 
 
-    else 
+    else
        call invers2(this%stats_work%x, this%coef%B,n)
        call col2(this%pdudx%mf%x, this%stats_work%x, n)
        call col2(this%pdudy%mf%x, this%stats_work%x, n)
@@ -648,35 +648,35 @@ contains
     integer :: n
 
     if (present(mean)) then
-        n = mean%fields(1)%f%dof%size()
-        call copy(mean%fields(1)%f%x,this%u_mean%x,n)
-        call copy(mean%fields(2)%f%x,this%v_mean%x,n)
-        call copy(mean%fields(3)%f%x,this%w_mean%x,n)
-        call copy(mean%fields(4)%f%x,this%p_mean%x,n)
+       n = mean%fields(1)%f%dof%size()
+       call copy(mean%fields(1)%f%x,this%u_mean%x,n)
+       call copy(mean%fields(2)%f%x,this%v_mean%x,n)
+       call copy(mean%fields(3)%f%x,this%w_mean%x,n)
+       call copy(mean%fields(4)%f%x,this%p_mean%x,n)
     end if
 
     if (present(reynolds)) then
-        n = reynolds%fields(1)%f%dof%size()
-        call copy(reynolds%fields(1)%f%x,this%pp%mf%x,n)
-        call subcol3(reynolds%fields(1)%f%x,this%p_mean%x,this%p_mean%x,n)
+       n = reynolds%fields(1)%f%dof%size()
+       call copy(reynolds%fields(1)%f%x,this%pp%mf%x,n)
+       call subcol3(reynolds%fields(1)%f%x,this%p_mean%x,this%p_mean%x,n)
 
-        call copy(reynolds%fields(2)%f%x,this%uu%mf%x,n)
-        call subcol3(reynolds%fields(2)%f%x,this%u_mean%x,this%u_mean%x,n)
-        
-        call copy(reynolds%fields(3)%f%x,this%vv%mf%x,n)
-        call subcol3(reynolds%fields(3)%f%x,this%v_mean%x,this%v_mean%x,n)
-        
-        call copy(reynolds%fields(4)%f%x,this%ww%mf%x,n)
-        call subcol3(reynolds%fields(4)%f%x,this%w_mean%x,this%w_mean%x,n)
-        
-        call copy(reynolds%fields(5)%f%x,this%uv%mf%x,n)
-        call subcol3(reynolds%fields(5)%f%x,this%u_mean%x,this%v_mean%x,n)
-        
-        call copy(reynolds%fields(6)%f%x,this%uw%mf%x,n)
-        call subcol3(reynolds%fields(6)%f%x,this%u_mean%x,this%w_mean%x,n)
-        
-        call copy(reynolds%fields(7)%f%x,this%vw%mf%x,n)
-        call subcol3(reynolds%fields(7)%f%x,this%v_mean%x,this%w_mean%x,n)
+       call copy(reynolds%fields(2)%f%x,this%uu%mf%x,n)
+       call subcol3(reynolds%fields(2)%f%x,this%u_mean%x,this%u_mean%x,n)
+
+       call copy(reynolds%fields(3)%f%x,this%vv%mf%x,n)
+       call subcol3(reynolds%fields(3)%f%x,this%v_mean%x,this%v_mean%x,n)
+
+       call copy(reynolds%fields(4)%f%x,this%ww%mf%x,n)
+       call subcol3(reynolds%fields(4)%f%x,this%w_mean%x,this%w_mean%x,n)
+
+       call copy(reynolds%fields(5)%f%x,this%uv%mf%x,n)
+       call subcol3(reynolds%fields(5)%f%x,this%u_mean%x,this%v_mean%x,n)
+
+       call copy(reynolds%fields(6)%f%x,this%uw%mf%x,n)
+       call subcol3(reynolds%fields(6)%f%x,this%u_mean%x,this%w_mean%x,n)
+
+       call copy(reynolds%fields(7)%f%x,this%vw%mf%x,n)
+       call subcol3(reynolds%fields(7)%f%x,this%v_mean%x,this%w_mean%x,n)
     end if
     if (present(pressure_skewness)) then
 
@@ -727,7 +727,7 @@ contains
                              DEVICE_TO_HOST, sync=.false.)
           call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &
                              DEVICE_TO_HOST, sync=.true.)
-       else 
+       else
           call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u_mean%x,this%coef)
           call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v_mean%x,this%coef)
           call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x,this%w_mean%x,this%coef)
@@ -750,5 +750,5 @@ contains
     end if
 
   end subroutine fluid_stats_post_process
- 
+
 end module fluid_stats

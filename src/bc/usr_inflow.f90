@@ -40,7 +40,7 @@ module usr_inflow
   use utils
   implicit none
   private
-  
+
   !> User defined dirichlet condition for inlet (vector valued)
   type, public, extends(inflow_t) :: usr_inflow_t
      type(coef_t), pointer :: c => null()
@@ -59,7 +59,7 @@ module usr_inflow
   end type usr_inflow_t
 
   abstract interface
-   
+
      !> Abstract interface defining a user defined inflow condition (pointwise)
      !! @param u The x componenet of the velocity in this point
      !! @param v The y componenet of the velocity in this point
@@ -100,14 +100,14 @@ module usr_inflow
   public :: usr_inflow_eval
 
 contains
-     
+
   subroutine usr_inflow_free(this)
     type(usr_inflow_t), intent(inout) :: this
 
     if (c_associated(this%usr_x_d)) then
        call device_free(this%usr_x_d)
     end if
-    
+
     if (c_associated(this%usr_y_d)) then
        call device_free(this%usr_y_d)
     end if
@@ -115,10 +115,10 @@ contains
     if (c_associated(this%usr_z_d)) then
        call device_free(this%usr_z_d)
     end if
-    
+
   end subroutine usr_inflow_free
-  
-  !> No-op scalar apply 
+
+  !> No-op scalar apply
   subroutine usr_inflow_apply_scalar(this, x, n, t, tstep)
     class(usr_inflow_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -126,7 +126,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
   end subroutine usr_inflow_apply_scalar
-  
+
   !> No-op scalar apply (device version)
   subroutine usr_inflow_apply_scalar_dev(this, x_d, t, tstep)
     class(usr_inflow_t), intent(inout), target :: this
@@ -168,7 +168,7 @@ contains
          facet = this%facet(i)
          idx = nonlinear_index(k, lx, lx, lx)
          select case(facet)
-         case(1,2)          
+         case(1,2)
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -182,7 +182,7 @@ contains
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &       
+                 zc(idx(1), idx(2), idx(3), idx(4)), &
                  nx(idx(1), idx(3), facet, idx(4)), &
                  ny(idx(1), idx(3), facet, idx(4)), &
                  nz(idx(1), idx(3), facet, idx(4)), &
@@ -192,7 +192,7 @@ contains
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &                     
+                 zc(idx(1), idx(2), idx(3), idx(4)), &
                  nx(idx(1), idx(2), facet, idx(4)), &
                  ny(idx(1), idx(2), facet, idx(4)), &
                  nz(idx(1), idx(2), facet, idx(4)), &
@@ -201,7 +201,7 @@ contains
          end select
       end do
     end associate
-    
+
   end subroutine usr_inflow_apply_vector
 
   subroutine usr_inflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
@@ -241,7 +241,7 @@ contains
       ! Pretabulate values during first call to apply
       if (.not. c_associated(usr_x_d)) then
          allocate(x(m), y(m), z(m)) ! Temp arrays
-         
+
          s = m*rp
 
          call device_alloc(usr_x_d, s)
@@ -256,7 +256,7 @@ contains
               facet = this%facet(i)
               idx = nonlinear_index(k, lx, lx, lx)
               select case(facet)
-              case(1,2)          
+              case(1,2)
                  call this%eval(x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -270,7 +270,7 @@ contains
                  call this%eval(x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
-                      zc(idx(1), idx(2), idx(3), idx(4)), &       
+                      zc(idx(1), idx(2), idx(3), idx(4)), &
                       nx(idx(1), idx(3), facet, idx(4)), &
                       ny(idx(1), idx(3), facet, idx(4)), &
                       nz(idx(1), idx(3), facet, idx(4)), &
@@ -280,7 +280,7 @@ contains
                  call this%eval(x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
-                      zc(idx(1), idx(2), idx(3), idx(4)), &                     
+                      zc(idx(1), idx(2), idx(3), idx(4)), &
                       nx(idx(1), idx(2), facet, idx(4)), &
                       ny(idx(1), idx(2), facet, idx(4)), &
                       nz(idx(1), idx(2), facet, idx(4)), &
@@ -289,8 +289,8 @@ contains
               end select
            end do
          end associate
- 
-        
+
+
          call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE, sync=.false.)
@@ -300,11 +300,11 @@ contains
 
       call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
            usr_x_d, usr_y_d, usr_z_d, m)
-      
+
     end associate
 
   end subroutine usr_inflow_apply_vector_dev
-  
+
   !> Assign coefficients (facet normals etc)
   subroutine usr_inflow_set_coef(this, c)
     class(usr_inflow_t), intent(inout) :: this
@@ -325,10 +325,10 @@ contains
     class(usr_inflow_t), intent(inout) :: this
     logical :: valid
 
-    valid = .true. ! Assert it's going to be ok...    
+    valid = .true. ! Assert it's going to be ok...
     if (.not. associated(this%c)) then
        call neko_warning('Missing coefficients')
-       valid = .false.       
+       valid = .false.
     end if
 
     if (.not. associated(this%eval)) then
@@ -339,7 +339,7 @@ contains
     if (.not. valid) then
        call neko_error('Invalid user defined inflow condition')
     end if
-    
+
   end subroutine usr_inflow_validate
-  
+
 end module usr_inflow

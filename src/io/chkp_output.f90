@@ -34,7 +34,7 @@
 module chkp_output
   use checkpoint, only : chkp_t
   use output
-  use num_types, only : rp    
+  use num_types, only : rp
   implicit none
 
   type, public, extends(output_t) :: chkp_output_t
@@ -46,7 +46,7 @@ module chkp_output
   interface chkp_output_t
      module procedure chkp_output_init
   end interface chkp_output_t
-  
+
 contains
 
   function chkp_output_init(chkp, name, path) result(this)
@@ -79,5 +79,5 @@ contains
     call this%file_%write(this%chkp, t)
 
   end subroutine chkp_output_sample
-  
+
 end module chkp_output

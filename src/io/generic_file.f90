@@ -33,7 +33,7 @@
 module generic_file
   use num_types
   implicit none
-  
+
   !> A generic file handler.
   type, abstract :: generic_file_t
      character(len=1024) :: fname
@@ -43,9 +43,9 @@ module generic_file
      !> Generic file constructor.
      procedure :: init => generic_file_init
      !< Write method.
-     procedure(generic_file_write), deferred :: write 
+     procedure(generic_file_write), deferred :: write
      !< Read method.
-     procedure(generic_file_read), deferred :: read   
+     procedure(generic_file_read), deferred :: read
      !> Set the file counter to @a n.
      procedure :: set_counter => generic_file_set_counter
      !> Set the file start counter to @a n.
@@ -61,7 +61,7 @@ module generic_file
        real(kind=rp), intent(in), optional :: t
      end subroutine generic_file_write
   end interface
-  
+
   abstract interface
      subroutine generic_file_read(this, data)
        import :: generic_file_t
@@ -71,30 +71,30 @@ module generic_file
   end interface
 
 contains
-  
+
   !> Generic file constructor.
   !! @param fname Filename.
   subroutine generic_file_init(this, fname)
     class(generic_file_t) :: this
     character(len=*) :: fname
-    
+
     this%fname = fname
     this%counter = 0
-    
+
   end subroutine generic_file_init
 
   !> Set the file counter to @a n.
   subroutine generic_file_set_counter(this, n)
     class(generic_file_t), intent(inout) :: this
     integer, intent(in) :: n
-    this%counter = n    
+    this%counter = n
   end subroutine generic_file_set_counter
 
   !> Set the file start counter to @a n.
   subroutine generic_file_set_start_counter(this, n)
     class(generic_file_t), intent(inout) :: this
     integer, intent(in) :: n
-    this%start_counter = n    
+    this%start_counter = n
   end subroutine generic_file_set_start_counter
 
 

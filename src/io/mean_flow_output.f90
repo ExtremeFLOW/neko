@@ -34,7 +34,7 @@
 module mean_flow_output
   use mean_flow, only : mean_flow_t
   use num_types
-  use device  
+  use device
   use output
   implicit none
   private
@@ -51,7 +51,7 @@ module mean_flow_output
   end interface mean_flow_output_t
 
 contains
-  
+
   function mean_flow_output_init(mf, T_begin, name, path) result(this)
     type(mean_flow_t), intent(in), target ::mf
     real(kind=rp), intent(in) :: T_begin
@@ -94,7 +94,7 @@ contains
     end if
 
   end subroutine mean_flow_output_sample
-  
+
 end module mean_flow_output
 
 

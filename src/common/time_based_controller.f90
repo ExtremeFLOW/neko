@@ -59,14 +59,14 @@ module time_based_controller
      logical :: never = .false.
 
    contains
-    !> Constructor.
+     !> Constructor.
      procedure, pass(this) :: init => time_based_controller_init
-    !> Check if the execution should be performed.
+     !> Check if the execution should be performed.
      procedure, pass(this) :: check => time_based_controller_check
-    !> Increment `nexectutions`.
+     !> Increment `nexectutions`.
      procedure, pass(this) :: register_execution => &
        time_based_controller_register_execution
-    !> Set the counter based on a time (for restarts)
+     !> Set the counter based on a time (for restarts)
      procedure, pass(this) :: set_counter => &
        time_based_controller_set_counter
 
@@ -77,7 +77,7 @@ module time_based_controller
   end interface assignment(=)
 
 contains
-  
+
   !> Constructor.
   !! @param end_time The final simulation time.
   !! @param control_mode The way to interpret the `control_value` parameter.
@@ -92,27 +92,27 @@ contains
     this%end_time = end_time
 
     if (trim(control_mode) .eq. 'simulationtime') then
-        this%time_interval = control_value
-        this%frequency = 1/this%time_interval
-        this%nsteps = 0 
+       this%time_interval = control_value
+       this%frequency = 1/this%time_interval
+       this%nsteps = 0
     else if (trim(control_mode) .eq. 'nsamples') then
-        if (control_value .le. 0) then
-           call neko_error("nsamples must be positive")
-        end if
+       if (control_value .le. 0) then
+          call neko_error("nsamples must be positive")
+       end if
 
-        this%frequency = control_value / end_time
-        this%time_interval = 1.0_rp / this%frequency
-        this%nsteps = 0
-    else if (trim(control_mode) .eq. 'tsteps') then 
-        this%nsteps = control_value
-        ! if the timestep will be variable, we cannot compute these.
-        this%frequency = 0
-        this%time_interval = 0
-    else if (trim(control_mode) .eq. 'never') then 
-        this%never = .true.
+       this%frequency = control_value / end_time
+       this%time_interval = 1.0_rp / this%frequency
+       this%nsteps = 0
+    else if (trim(control_mode) .eq. 'tsteps') then
+       this%nsteps = control_value
+       ! if the timestep will be variable, we cannot compute these.
+       this%frequency = 0
+       this%time_interval = 0
+    else if (trim(control_mode) .eq. 'never') then
+       this%never = .true.
     else
-        call neko_error("The control parameter must be simulationtime, nsamples&
-          & tsteps, or never, but received "//trim(control_mode))
+       call neko_error("The control parameter must be simulationtime, nsamples&
+       & tsteps, or never, but received "//trim(control_mode))
     end if
   end subroutine time_based_controller_init
 
@@ -139,18 +139,18 @@ contains
 
     check = .false.
     if (ifforce) then
-        check = .true.
+       check = .true.
     else if (this%never) then
-        check = .false.
+       check = .false.
     else if ( (this%nsteps .eq. 0) .and. &
               (t .ge. this%nexecutions * this%time_interval) ) then
-        check = .true.
+       check = .true.
     else if (this%nsteps .gt. 0) then
        if (mod(tstep, this%nsteps) .eq. 0) then
-        check = .true.
+          check = .true.
        end if
     end if
-  end function
+  end function time_based_controller_check
 
   !> Assignment operator. Simply copies attribute values.
   !! @param ctrl1 Left-hand side.
