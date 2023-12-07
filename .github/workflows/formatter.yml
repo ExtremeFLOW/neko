@@ -9,7 +9,7 @@ on:
 jobs:
   formatting:
       name: "Formatter (findent)"
-      description: "Check if the code is formatted according to the rules"
+ #     description: "Check if the code is formatted according to the rules"
       runs-on: ubuntu-20.04
       steps:
         - name: Setup env.
