@@ -34,7 +34,7 @@
 module cuda_intf
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
-!$ use omp_lib
+  !$ use omp_lib
   implicit none
 
 #ifdef HAVE_CUDA
@@ -281,7 +281,7 @@ contains
 
     !$omp parallel
     !$omp master
-!$  nthrds = omp_get_num_threads()
+    !$  nthrds = omp_get_num_threads()
     !$omp end master
     !$omp end parallel
 
