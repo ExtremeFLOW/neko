@@ -506,7 +506,7 @@ contains
 
     n = this%dm_Xh%size()
 
-    call profiler_start_region('Fluid')
+    call profiler_start_region('Fluid', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
@@ -571,7 +571,7 @@ contains
       call this%bc_apply_prs(t, tstep)
 
       ! Compute pressure.
-      call profiler_start_region('Pressure residual')
+      call profiler_start_region('Pressure residual', 18)
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
                            f_x, f_y, f_z, c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
@@ -587,7 +587,7 @@ contains
       end if
 
       call this%pc_prs%update()
-      call profiler_start_region('Pressure solve')
+      call profiler_start_region('Pressure solve', 3)
       ksp_results(1) = &
          this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh, &
                             ksp_pr_maxiter)
@@ -606,7 +606,7 @@ contains
 
 
       ! Compute velocity.
-      call profiler_start_region('Velocity residual')
+      call profiler_start_region('Velocity residual', 19)
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
                            p, &
@@ -633,7 +633,7 @@ contains
 
       call this%pc_vel%update()
 
-      call profiler_start_region("Velocity solve")
+      call profiler_start_region("Velocity solve", 4)
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
            c_Xh, this%bclst_du, gs_Xh, ksp_vel_maxiter)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &

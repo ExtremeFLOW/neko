@@ -300,8 +300,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     n = this%dm_Xh%size()
-
-    call profiler_start_region('Scalar')
+    
+    call profiler_start_region('Scalar', 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, lambda => this%lambda, rho => this%rho, &
          ds => this%ds, &
@@ -354,7 +354,7 @@ contains
       call this%bc_apply()
 
       ! Compute scalar residual.
-      call profiler_start_region('Scalar residual')
+      call profiler_start_region('Scalar residual', 20)
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda, rho * cp, &
           ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
@@ -370,7 +370,7 @@ contains
       end if
 
       call this%pc%update()
-      call profiler_start_region('Scalar solve')
+      call profiler_start_region('Scalar solve', 21)
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bclst_ds, gs_Xh, ksp_maxiter)
       call profiler_end_region
