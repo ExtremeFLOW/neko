@@ -300,7 +300,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     n = this%dm_Xh%size()
-    
+
     call profiler_start_region('Scalar', 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, lambda => this%lambda, rho => this%rho, &

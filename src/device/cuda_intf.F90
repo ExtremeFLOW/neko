@@ -50,22 +50,22 @@ module cuda_intf
 
   !> Low priority stream setting
   integer :: STRM_LOW_PRIO
-  
+
   !> Enum @a cudaError
   enum, bind(c)
-     enumerator :: cudaSuccess = 0
-     enumerator :: cudaErrorInvalidValue = 1
-     enumerator :: cudaErrorMemoryAllocation = 2
-     enumerator :: cudaErrorInitializationError = 3
+    enumerator :: cudaSuccess = 0
+    enumerator :: cudaErrorInvalidValue = 1
+    enumerator :: cudaErrorMemoryAllocation = 2
+    enumerator :: cudaErrorInitializationError = 3
   end enum
 
   !> Enum @a cudaMemcpyKind
   enum, bind(c)
-     enumerator :: cudaMemcpyHostToHost = 0
-     enumerator :: cudaMemcpyHostToDevice = 1
-     enumerator :: cudaMemcpyDeviceToHost = 2
-     enumerator :: cudaMemcpyDevicetoDevice = 3
-     enumerator :: cudaMemcpyDefault = 4
+    enumerator :: cudaMemcpyHostToHost = 0
+    enumerator :: cudaMemcpyHostToDevice = 1
+    enumerator :: cudaMemcpyDeviceToHost = 2
+    enumerator :: cudaMemcpyDevicetoDevice = 3
+    enumerator :: cudaMemcpyDefault = 4
   end enum
 
   interface
@@ -86,7 +86,7 @@ module cuda_intf
        type(c_ptr), value :: ptr_d
      end function cudaFree
   end interface
-  
+
   interface
      integer (c_int) function cudaMemcpy(ptr_dst, ptr_src, s, dir) &
           bind(c, name='cudaMemcpy')
@@ -108,7 +108,7 @@ module cuda_intf
        integer(c_int), value :: dir
      end function cudaMemcpyAsync
   end interface
-  
+
   interface
      integer (c_int) function cudaDeviceSynchronize() &
           bind(c, name='cudaDeviceSynchronize')
@@ -155,7 +155,7 @@ module cuda_intf
        integer(c_int), value :: flags, prio
      end function cudaStreamCreateWithPriority
   end interface
-  
+
   interface
      integer (c_int) function cudaStreamDestroy(steam) &
           bind(c, name='cudaStreamDestroy')
@@ -165,7 +165,7 @@ module cuda_intf
      end function cudaStreamDestroy
   end interface
 
-  interface 
+  interface
      integer (c_int) function cudaStreamSynchronize(stream) &
           bind(c, name='cudaStreamSynchronize')
        use, intrinsic :: iso_c_binding
@@ -174,7 +174,7 @@ module cuda_intf
      end function cudaStreamSynchronize
   end interface
 
-  interface 
+  interface
      integer (c_int) function cudaStreamWaitEvent(stream, event, flags) &
           bind(c, name='cudaStreamWaitEvent')
        use, intrinsic :: iso_c_binding
@@ -192,7 +192,7 @@ module cuda_intf
        integer(c_int) :: low_prio, high_prio
      end function cudaDeviceGetStreamPriorityRange
   end interface
-  
+
   interface
      integer (c_int) function cudaProfilerStart() &
           bind(c, name='cudaProfilerStart')
@@ -226,7 +226,7 @@ module cuda_intf
        type(c_ptr), value :: event
      end function cudaEventDestroy
   end interface
-  
+
   interface
      integer (c_int) function cudaEventCreateWithFlags(event, flags) &
           bind(c, name='cudaEventCreateWithFlags')
@@ -246,7 +246,7 @@ module cuda_intf
      end function cudaEventRecord
   end interface
 
-  interface 
+  interface
      integer (c_int) function cudaEventSynchronize(event) &
           bind(c, name='cudaEventSynchronize')
        use, intrinsic :: iso_c_binding
@@ -272,7 +272,7 @@ module cuda_intf
        integer(c_int), value :: device
      end function cudaSetDevice
   end interface
-  
+
 contains
 
   subroutine cuda_init
@@ -281,7 +281,7 @@ contains
 
     !$omp parallel
     !$omp master
-    !$ nthrds = omp_get_num_threads()
+    !$  nthrds = omp_get_num_threads()
     !$omp end master
     !$omp end parallel
 
@@ -297,10 +297,10 @@ contains
        end if
        !$omp end parallel
     end if
-    
+
     if (cudaDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
          .ne. cudaSuccess) then
-       call neko_error('Error retrieving stream priority range')       
+       call neko_error('Error retrieving stream priority range')
     end if
 
     if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO)  &
@@ -323,7 +323,7 @@ contains
        call neko_error('Error destroying aux stream')
     end if
   end subroutine cuda_finalize
-  
+
   subroutine cuda_device_name(name)
     character(len=*), intent(inout) :: name
     character(kind=c_char, len=8192), target :: prop
@@ -337,17 +337,17 @@ contains
     !
     ! This will of course break if sizeof(cudaDeviceProp) > 8192
     !
-    
+
     if (cudaGetDeviceProperties(c_loc(prop), 0) .ne. cudaSuccess) then
        call neko_error('Failed to query device')
     end if
-    
+
     end_pos = scan(prop(1:256), C_NULL_CHAR)
     if(end_pos .ge. 2) then
        name(1:end_pos-1) = prop(1:end_pos-1)
     endif
   end subroutine cuda_device_name
-  
+
 #endif
- 
+
 end module cuda_intf

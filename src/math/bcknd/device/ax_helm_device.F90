@@ -42,14 +42,14 @@ module ax_helm_device
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
-  
+
   type, public, extends(ax_t) :: ax_helm_device_t
    contains
      procedure, nopass :: compute => ax_helm_device_compute
   end type ax_helm_device_t
 
 #ifdef HAVE_HIP
-    interface
+  interface
      subroutine hip_ax_helm(w_d, u_d, &
           dx_d, dy_d, dz_d, dxt_d, dyt_d, dzt_d, &
           h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d, nelv, lx) &
@@ -63,7 +63,7 @@ module ax_helm_device
      end subroutine hip_ax_helm
   end interface
 #elif HAVE_CUDA
-    interface
+  interface
      subroutine cuda_ax_helm(w_d, u_d, &
           dx_d, dy_d, dz_d, dxt_d, dyt_d, dzt_d,&
           h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d, nelv, lx) &
@@ -128,9 +128,9 @@ contains
     if (coef%ifh2) then
        call device_addcol4(w_d ,coef%h2_d, coef%B_d, u_d, coef%dof%size())
     end if
-    
+
   end subroutine ax_helm_device_compute
-  
+
 end module ax_helm_device
 
 

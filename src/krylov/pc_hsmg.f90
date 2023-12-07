@@ -405,7 +405,7 @@ contains
 
        if (thrdid .eq. 0) then
           call profiler_start_region('HSMG schwarz', 9)
-          call this%grids(3)%schwarz%compute(z, this%r)      
+          call this%grids(3)%schwarz%compute(z, this%r)
           call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
           call profiler_end_region
        end if
@@ -424,7 +424,7 @@ contains
                                        this%grids(1)%gs_h, this%niter)
           call profiler_end_region
           call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
-                                    this%grids(1)%dof%size()) 
+                                    this%grids(1)%dof%size())
           call profiler_end_region
        end if
        !$omp end parallel
