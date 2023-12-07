@@ -1,5 +1,5 @@
 !> Interface to NVTX
-!! Based on https://github.com/maxcuda/NVTX_example 
+!! Based on https://github.com/maxcuda/NVTX_example
 module nvtx
   use, intrinsic :: iso_c_binding
   implicit none
@@ -33,7 +33,7 @@ module nvtx
      integer(c_int) :: messagetype = 1
      type(c_ptr) :: message
   end type nvtxEventAttributes
-       
+
   interface nvtxRangePushA
      subroutine nvtxRangePushA(name) bind(C, name='nvtxRangePushA')
        use iso_c_binding
@@ -43,34 +43,34 @@ module nvtx
 
   interface nvtxRangePushEx
      subroutine nvtxRangePushEx(event) bind(C, name='nvtxRangePushEx')
-       use iso_c_binding       
+       use iso_c_binding
        import :: nvtxEventAttributes
        type(nvtxEventAttributes) :: event
      end subroutine nvtxRangePushEx
   end interface nvtxRangePushEx
-  
+
   interface nvtxRangePop
      subroutine nvtxRangePop() bind(C, name='nvtxRangePop')
      end subroutine nvtxRangePop
   end interface nvtxRangePop
 
   public :: nvtxStartRange, nvtxRangePushA, nvtxRangePop
-  
+
 contains
-  
+
   subroutine nvtxStartRange(name, region_id)
     character(kind=c_char,len=*) :: name
     integer, optional :: region_id
     type(nvtxEventAttributes) :: event
     character, target :: c_name(NVTX_MAX_LEN)
     integer :: i, str_len
-    
-    str_len = len(trim(name))    
+
+    str_len = len(trim(name))
     do i = 1, len(trim(name))
        c_name(i) = name(i:i)
     end do
     c_name(str_len+1) = C_NULL_CHAR
-    
+
     if (present(region_id)) then
        event%color = color(mod(region_id, 24) + 1)
        event%message = c_loc(c_name)
@@ -80,6 +80,6 @@ contains
     end if
 
   end subroutine nvtxStartRange
-  
+
 #endif
 end module nvtx

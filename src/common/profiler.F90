@@ -44,7 +44,7 @@ contains
   !> Start profiling
   subroutine profiler_start
     if ((NEKO_BCKND_CUDA .eq. 1)) then
-#if defined(HAVE_NVTX) 
+#if defined(HAVE_NVTX)
        call device_profiler_start
 #endif
     else
@@ -66,7 +66,7 @@ contains
 #endif
     end if
   end subroutine profiler_stop
-  
+
   !> Started a named (@a name) profiler region
   subroutine profiler_start_region(name, region_id)
     character(kind=c_char,len=*) :: name
@@ -81,9 +81,9 @@ contains
 #elif HAVE_ROCTX
     call roctxStartRange(name)
 #elif CRAYPAT
- !   call craypat_region_begin(name)
+    !   call craypat_region_begin(name)
 #endif
-    
+
   end subroutine profiler_start_region
 
   !> End the most recently started profiler region
@@ -94,9 +94,9 @@ contains
 #elif HAVE_ROCTX
     call roctxRangePop
 #elif CRAYPAT
- !   call craypat_region_end
+    !   call craypat_region_end
 #endif
-    
+
   end subroutine profiler_end_region
-  
+
 end module profiler
