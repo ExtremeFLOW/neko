@@ -46,7 +46,7 @@ module mean_sqr_field
      procedure, pass(this) :: update => mean_sqr_field_update
   end type mean_sqr_field_t
 
-contains    
+contains
 
   !> Update a mean sqr field
   subroutine mean_sqr_field_update(this, k)

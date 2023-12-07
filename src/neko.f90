@@ -97,7 +97,7 @@ module neko
   use sphere_point_zone, only: sphere_point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
   use, intrinsic :: iso_fortran_env
-  !$ use omp_lib
+!$ use omp_lib
   implicit none
 
 contains
@@ -188,7 +188,7 @@ contains
        nthrds = 1
        !$omp parallel
        !$omp master
-       !$ nthrds = omp_get_num_threads()
+!$     nthrds = omp_get_num_threads()
        !$omp end master
        !$omp end parallel
 

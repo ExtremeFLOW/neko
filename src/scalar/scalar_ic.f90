@@ -49,7 +49,7 @@ module scalar_ic
 
   interface set_scalar_ic
      module procedure set_scalar_ic_int, set_scalar_ic_usr
-  end interface
+  end interface set_scalar_ic
 
   public :: set_scalar_ic
 

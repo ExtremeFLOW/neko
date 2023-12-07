@@ -72,7 +72,7 @@ module source_scalar
        real(kind=rp), intent(in) :: t
      end subroutine source_scalar_term_pw
   end interface
-  
+
 contains
 
   !> Initialize a source_scalar term @a f
@@ -91,7 +91,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(f%s, f%s_d, dm%size())
     end if
-    
+
   end subroutine source_scalar_init
 
   !> Deallocate a source_scalar term @a f
@@ -107,7 +107,7 @@ contains
     if (c_associated(f%s_d)) then
        call device_free(f%s_d)
     end if
-    
+
   end subroutine source_scalar_free
 
   !> Set the eval method for the source_scalar term @a f
@@ -160,7 +160,7 @@ contains
           end do
        end do
     end do
-    
+
   end subroutine source_scalar_eval_pw
-  
+
 end module source_scalar

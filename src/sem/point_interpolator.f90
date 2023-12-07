@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Routines to interpolate fields on a given element 
+!> Routines to interpolate fields on a given element
 !! on a point in that element with given r,s,t coordinates
 module point_interpolator
   use tensor, only: triple_tensor_product
@@ -45,7 +45,7 @@ module point_interpolator
   use neko_config, only: NEKO_BCKND_DEVICE
   implicit none
   private
-  
+
   !> Field interpolator to arbitrary points within an element.
   !! Tailored for experimentation, and convenience, not performance
   !! Does all interpolation on the CPU.

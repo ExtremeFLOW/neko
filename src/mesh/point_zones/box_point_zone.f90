@@ -42,7 +42,7 @@ module box_point_zone
 
   !> A box-shaped point zone.
   !! @details As defined here, a box is described by its `x,y,z` bounds,
-  !! specified in the json file as e.g. `"x_bounds": [<xmin>, <xmax>]"`, 
+  !! specified in the json file as e.g. `"x_bounds": [<xmin>, <xmax>]"`,
   !! etc for `y` and `z` coordinates.
   type, public, extends(point_zone_t) :: box_point_zone_t
      real(kind=rp) :: xmin
@@ -138,7 +138,7 @@ contains
   end subroutine box_point_zone_free
 
   !> Defines the criterion of selection of a GLL point in the box point zone.
-  !! In the case of a box point zone, an `x,y,z` GLL point is considered as 
+  !! In the case of a box point zone, an `x,y,z` GLL point is considered as
   !! being inside the zone if:
   !! \f{eqnarray*}{
   !!    x_{min} \le x \le x_{max} \\

@@ -10,7 +10,7 @@ module fld_file_data
   use vector, only : vector_t, vector_ptr_t
   implicit none
   private
-  
+
   type, public :: fld_file_data_t
      type(vector_t) :: x !< x-coords
      type(vector_t) :: y !< y-coords
@@ -46,7 +46,7 @@ module fld_file_data
   end type fld_file_data_t
 
 contains
-  
+
   !> Initialise a fld_file_data object with nelv elements with a offset_nel
   subroutine fld_file_data_init(this, nelv, offset_el)
     class(fld_file_data_t), intent(inout) :: this
@@ -54,24 +54,24 @@ contains
     call this%free()
     if (present(nelv)) this%nelv = nelv
     if (present(offset_el)) this%offset_el = offset_el
-    
+
   end subroutine fld_file_data_init
   !> Get number of fields in this fld file
   function fld_file_data_size(this) result(i)
     class(fld_file_data_t) :: this
     integer :: i
     i = 0
-    if(this%u%n .gt. 0) i = i + 1 
-    if(this%v%n .gt. 0) i = i + 1 
-    if(this%w%n .gt. 0) i = i + 1 
-    if(this%p%n .gt. 0) i = i + 1 
-    if(this%t%n .gt. 0) i = i + 1 
+    if(this%u%n .gt. 0) i = i + 1
+    if(this%v%n .gt. 0) i = i + 1
+    if(this%w%n .gt. 0) i = i + 1
+    if(this%p%n .gt. 0) i = i + 1
+    if(this%t%n .gt. 0) i = i + 1
     i = i + this%n_scalars
 
   end function fld_file_data_size
 
   !> Get a list with pointers to the fields in the fld file
-  subroutine fld_file_get_list(this, ptr_list, n) 
+  subroutine fld_file_get_list(this, ptr_list, n)
     class(fld_file_data_t), target, intent(in) :: this
     integer, intent(in) :: n
     integer :: i, j
@@ -80,23 +80,23 @@ contains
     if(this%u%n .gt. 0) then
        ptr_list(i)%v => this%u
        i = i + 1
-    end if     
+    end if
     if(this%v%n .gt. 0) then
        ptr_list(i)%v => this%v
        i = i + 1
-    end if     
+    end if
     if(this%w%n .gt. 0) then
        ptr_list(i)%v => this%w
        i = i + 1
-    end if     
+    end if
     if(this%p%n .gt. 0) then
        ptr_list(i)%v => this%p
        i = i + 1
-    end if     
+    end if
     if(this%t%n .gt. 0) then
        ptr_list(i)%v => this%t
        i = i + 1
-    end if     
+    end if
     do j = 1, this%n_scalars
        ptr_list(i)%v => this%s(j)
        i = i +1
@@ -154,14 +154,14 @@ contains
     call this%p%free()
     call this%t%free()
     if (allocated(this%s)) then
-        do i = 1, this%n_scalars
-           call this%s(i)%free()
-        end do
+       do i = 1, this%n_scalars
+          call this%s(i)%free()
+       end do
     end if
     this%n_scalars = 0
     this%time = 0.0
-    this%glb_nelv = 0 
-    this%nelv = 0 
+    this%glb_nelv = 0
+    this%nelv = 0
     this%offset_el = 0
     this%lx = 0
     this%ly = 0
