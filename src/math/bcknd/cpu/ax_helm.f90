@@ -35,7 +35,6 @@ module ax_helm
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
-  use field, only : field_t
   use mesh, only : mesh_t
   use math, only : addcol4
   implicit none

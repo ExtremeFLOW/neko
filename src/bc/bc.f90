@@ -41,7 +41,7 @@ module bc
   use facet_zone, only : facet_zone_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
-  use utils, only : neko_error, linear_index
+  use utils, only : linear_index
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
@@ -401,8 +401,10 @@ contains
        call device_map(this%msk, this%msk_d, n)
        call device_map(this%facet, this%facet_d, n)
 
-       call device_memcpy(this%msk, this%msk_d, n, HOST_TO_DEVICE)
-       call device_memcpy(this%facet, this%facet_d, n, HOST_TO_DEVICE)
+       call device_memcpy(this%msk, this%msk_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%facet, this%facet_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine bc_finalize

@@ -83,7 +83,7 @@ contains
     if (envvar_len .gt. 0) then
        read(log_level(1:envvar_len), *) this%level_
     else
-       this%level_ = 1
+       this%level_ = NEKO_LOG_INFO
     end if
 
   end subroutine log_init
@@ -135,10 +135,12 @@ contains
     class(log_t), intent(in) :: this
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
-    integer :: lvl_ = 1 ! internal
+    integer :: lvl_
 
     if (present(lvl)) then
-      lvl_ = lvl
+       lvl_ = lvl
+    else
+       lvl_ = NEKO_LOG_INFO
     end if
 
     if (lvl_ .gt. this%level_) then

@@ -76,8 +76,7 @@ module fluid_volflow
   use json_module, only : json_file
   use json_utils, only: json_get
   use scratch_registry, only : scratch_registry_t
-  use bc, only : bc_list_t, bc_list_apply, bc_list_apply_vector, &
-                 bc_list_apply_scalar
+  use bc, only : bc_list_t, bc_list_apply_vector, bc_list_apply_scalar
   use ax_product, only : ax_t
   implicit none
   private

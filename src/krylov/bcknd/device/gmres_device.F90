@@ -190,11 +190,14 @@ contains
     call device_alloc(this%v_d_d, z_size)
     call device_alloc(this%h_d_d, z_size)
     ptr = c_loc(this%z_d)
-    call device_memcpy(ptr,this%z_d_d, z_size, HOST_TO_DEVICE)
+    call device_memcpy(ptr,this%z_d_d, z_size, &
+                       HOST_TO_DEVICE, sync=.false.)
     ptr = c_loc(this%v_d)
-    call device_memcpy(ptr,this%v_d_d, z_size, HOST_TO_DEVICE)
+    call device_memcpy(ptr,this%v_d_d, z_size, &
+                       HOST_TO_DEVICE, sync=.false.)
     ptr = c_loc(this%h_d)
-    call device_memcpy(ptr,this%h_d_d, z_size, HOST_TO_DEVICE)
+    call device_memcpy(ptr,this%h_d_d, z_size, &
+                       HOST_TO_DEVICE, sync=.false.)
     
        
     if (present(rel_tol) .and. present(abs_tol)) then
@@ -384,7 +387,8 @@ contains
              else
                 call device_glsc3_many(h(1,j), w_d, v_d_d, coef%mult_d, j, n)
             
-                call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
+                call device_memcpy(h(:,j), h_d(j), j, &
+                                   HOST_TO_DEVICE, sync=.false.)
 
                 alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), coef%mult_d, j, n)
                 
@@ -408,7 +412,8 @@ contains
              c(j) = h(j,j) * temp
              s(j) = alpha  * temp
              h(j,j) = lr
-             call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
+             call device_memcpy(h(:,j), h_d(j), j, &
+                                HOST_TO_DEVICE, sync=.false.)
              gam(j+1) = -s(j) * gam(j)
              gam(j)   =  c(j) * gam(j)
              
@@ -441,7 +446,7 @@ contains
                 call device_add2s2(x_d, this%z_d(i), c(i), n)
              end do
           else
-             call device_memcpy(c, c_d, j, HOST_TO_DEVICE)
+             call device_memcpy(c, c_d, j, HOST_TO_DEVICE, sync=.false.)
              call device_add2s2_many(x_d, z_d_d, c_d, j, n)
           end if
        end do

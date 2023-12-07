@@ -137,6 +137,7 @@ module fluid_scheme
      procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
      procedure(fluid_scheme_free_intrf), pass(this), deferred :: free
      procedure(fluid_scheme_step_intrf), pass(this), deferred :: step
+     procedure(fluid_scheme_restart_intrf), pass(this), deferred :: restart
      generic :: scheme_init => fluid_scheme_init_all, fluid_scheme_init_uvw
   end type fluid_scheme_t
 
@@ -180,6 +181,18 @@ module fluid_scheme
      end subroutine fluid_scheme_step_intrf
   end interface
 
+  !> Abstract interface to restart a fluid scheme
+  abstract interface
+     subroutine fluid_scheme_restart_intrf(this, dtlag, tlag)
+       import fluid_scheme_t
+       import rp
+       class(fluid_scheme_t), target, intent(inout) :: this
+       real(kind=rp) :: dtlag(10), tlag(10)
+
+     end subroutine fluid_scheme_restart_intrf
+  end interface
+
+
 contains
 
   !> Initialize common data for the current scheme
@@ -198,7 +211,6 @@ contains
     real(kind=rp), allocatable :: real_vec(:)
     real(kind=rp) :: real_val
     logical :: logical_val
-    integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
     ! A local pointer that is needed to make Intel happy
 
@@ -462,7 +474,6 @@ contains
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
     ! Variables for extracting json
-    logical :: found, logical_val
     real(kind=rp) :: abs_tol
     character(len=:), allocatable :: solver_type, precon_type
 
@@ -507,9 +518,7 @@ contains
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: real_val, dong_delta, dong_uchar
-    real(kind=rp), allocatable :: real_vec(:)
-    integer :: integer_val
-    character(len=:), allocatable :: string_val1, string_val2
+      character(len=:), allocatable :: string_val1, string_val2
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
                                   material_properties)
@@ -595,8 +604,7 @@ contains
   !> Deallocate a fluid formulation
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
-    integer :: i
-
+  
     call this%bdry%free()
 
     if (allocated(this%bc_inflow)) then
@@ -673,7 +681,7 @@ contains
   subroutine fluid_scheme_validate(this)
     class(fluid_scheme_t), target, intent(inout) :: this
     ! Variables for retrieving json parameters
-    logical :: found, logical_val
+    logical :: logical_val
 
     if ( (.not. associated(this%u)) .or. &
          (.not. associated(this%v)) .or. &

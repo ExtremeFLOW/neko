@@ -41,7 +41,9 @@ module scalar_pnpn
   use bc, only : bc_list_t, bc_list_init, bc_list_free, bc_list_apply_scalar, &
                  bc_list_add
   use mesh, only : mesh_t
+  use checkpoint, only : chkp_t
   use coefs, only : coef_t
+  use device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_residual, only :scalar_residual_t
   use ax_product, only : ax_t
@@ -56,7 +58,7 @@ module scalar_pnpn
   use logger
   use advection
   use profiler
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get
   use json_module, only : json_file
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
@@ -101,6 +103,8 @@ module scalar_pnpn
    contains
      !> Constructor.
      procedure, pass(this) :: init => scalar_pnpn_init
+     !> To restart
+     procedure, pass(this) :: restart => scalar_pnpn_restart
      !> Destructor.
      procedure, pass(this) :: free => scalar_pnpn_free
      procedure, pass(this) :: step => scalar_pnpn_step
@@ -205,6 +209,43 @@ contains
 
   end subroutine scalar_pnpn_init
 
+  !> I envision the arguments to this func might need to be expanded
+  subroutine scalar_pnpn_restart(this, dtlag, tlag)
+    class(scalar_pnpn_t), target, intent(inout) :: this
+    real(kind=rp) :: dtlag(10), tlag(10)
+    integer :: n
+
+
+    n = this%s%dof%size()
+
+    call col2(this%s%x, this%c_Xh%mult, n) 
+    call col2(this%abx1%x, this%c_Xh%mult, n) 
+    call col2(this%abx2%x, this%c_Xh%mult, n) 
+    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n) 
+    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n) 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%s%x, this%s%x_d, &
+                          n, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
+                          n, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
+                          n, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%abx1%x, this%abx1%x_d, &
+                          n, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%abx2%x, this%abx2%x_d, &
+                          n, HOST_TO_DEVICE, sync=.false.)
+    end if
+
+    call this%gs_Xh%op(this%s,GS_OP_ADD)
+    call this%gs_Xh%op(this%slag%lf(1),GS_OP_ADD)
+    call this%gs_Xh%op(this%slag%lf(2),GS_OP_ADD)
+    call this%gs_Xh%op(this%abx1,GS_OP_ADD)
+    call this%gs_Xh%op(this%abx2,GS_OP_ADD)
+
+
+
+  end subroutine scalar_pnpn_restart
+
   subroutine scalar_pnpn_free(this)
     class(scalar_pnpn_t), intent(inout) :: this
 
@@ -256,6 +297,7 @@ contains
     integer :: n
     ! Linear solver results monitor
     type(ksp_monitor_t) :: ksp_results(1)
+    character(len=LOG_SIZE) :: log_buf
 
     n = this%dm_Xh%size()
     
@@ -274,6 +316,18 @@ contains
          msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
 
+      if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
+         write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
+              ' l2norm s', glsc2(this%s%x,this%s%x,n),&
+              ' slag1', glsc2(this%slag%lf(1)%x,this%slag%lf(1)%x,n),&
+              ' slag2', glsc2(this%slag%lf(2)%x,this%slag%lf(2)%x,n)
+         call neko_log%message(log_buf)
+         write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2',&
+              ' l2norm abx1', glsc2(this%abx1%x,this%abx1%x,n),&
+              ' abx2', glsc2(this%abx2%x,this%abx2%x,n)
+         call neko_log%message(log_buf)
+      end if
+      
       ! Evaluate the source term and scale with the mass matrix.
       call f_Xh%eval(t)
 

@@ -40,7 +40,6 @@ module pnpn_residual
   use space, only : space_t
   use mesh, only : mesh_t
   use num_types, only : rp
-  use scratch_registry, only : scratch_registry_t
   implicit none
   private
   

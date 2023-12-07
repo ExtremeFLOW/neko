@@ -697,21 +697,36 @@ contains
        !Compute gradient of mean flow
        n = mean_vel_grad%fields(1)%f%dof%size()
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(this%u_mean%x, this%u_mean%x_d, n, HOST_TO_DEVICE)
-          call device_memcpy(this%v_mean%x, this%v_mean%x_d, n, HOST_TO_DEVICE)
-          call device_memcpy(this%w_mean%x, this%w_mean%x_d, n, HOST_TO_DEVICE)
-          call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u_mean%x,this%coef)
-          call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v_mean%x,this%coef)
-          call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x,this%w_mean%x,this%coef)
-          call device_memcpy(this%dudx%x, this%dudx%x_d, n, DEVICE_TO_HOST)
-          call device_memcpy(this%dvdx%x, this%dvdx%x_d, n, DEVICE_TO_HOST)
-          call device_memcpy(this%dwdx%x, this%dwdx%x_d, n, DEVICE_TO_HOST)
-          call device_memcpy(this%dudy%x, this%dudy%x_d, n, DEVICE_TO_HOST)
-          call device_memcpy(this%dvdy%x, this%dvdy%x_d, n, DEVICE_TO_HOST)
-          call device_memcpy(this%dwdy%x, this%dwdy%x_d, n, DEVICE_TO_HOST)
-          call device_memcpy(this%dudz%x, this%dudz%x_d, n, DEVICE_TO_HOST)
-          call device_memcpy(this%dvdz%x, this%dvdz%x_d, n, DEVICE_TO_HOST)
-          call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, DEVICE_TO_HOST)
+          call device_memcpy(this%u_mean%x, this%u_mean%x_d, n, &
+                             HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(this%v_mean%x, this%v_mean%x_d, n, &
+                             HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(this%w_mean%x, this%w_mean%x_d, n, &
+                             HOST_TO_DEVICE, sync=.false.)
+          call opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &
+                      this%u_mean%x, this%coef)
+          call opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &
+                      this%v_mean%x, this%coef)
+          call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &
+                      this%w_mean%x, this%coef)
+          call device_memcpy(this%dudx%x, this%dudx%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%dvdx%x, this%dvdx%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%dwdx%x, this%dwdx%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%dudy%x, this%dudy%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%dvdy%x, this%dvdy%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%dwdy%x, this%dwdy%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%dudz%x, this%dudz%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%dvdz%x, this%dvdz%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &
+                             DEVICE_TO_HOST, sync=.true.)
        else 
           call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u_mean%x,this%coef)
           call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v_mean%x,this%coef)

@@ -239,6 +239,19 @@ module opencl_intf
   end interface
 
   interface
+     integer (c_int) function clEnqueueMarkerWithWaitList(queue,&
+          num_events_in_wait_list, event_wait_list, event) &
+          bind(c, name='clEnqueueMarkerWithWaitList')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: queue
+       integer(c_int), value :: num_events_in_wait_list
+       type(c_ptr), value :: event_wait_list
+       type(c_ptr), value :: event
+     end function clEnqueueMarkerWithWaitList
+  end interface
+
+  interface
      integer (c_int) function clEnqueueMarker(cmd_queue, event) &
           bind(c, name='clEnqueueMarker') 
        use, intrinsic :: iso_c_binding
