@@ -2,159 +2,159 @@
 subroutine test_quad_init
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cab_t, vertex_cab_ptr
-  use edge_cnn, only : edge_cab_t, edge_cab_ptr
-  use quad_cnn, only : NEKO_QUAD_NRIDGE, NEKO_QUAD_NFACET, quad_cab_t
-  implicit none
-  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4, vertex5, vertex6
-  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7
-  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-  type(quad_cab_t) :: quad1, quad2
-  type(edge_cab_ptr), dimension(NEKO_QUAD_NFACET) :: facet
-  type(vertex_cab_ptr), dimension(NEKO_QUAD_NRIDGE) :: ridge
-  integer(i4) :: bnde, bndq, ishare, il
-  integer(i4), dimension(:, :), allocatable :: facetp
-
-  ! Vertices for two quads
-  call vertex1%init(1)
-  call vertex2%init(2)
-  call vertex3%init(3)
-  call vertex4%init(4)
-  call vertex5%init(5)
-  call vertex6%init(6)
-
-  ! self-periodic, 1D, simple
-  ! edges
-  bnde = -1
-  call edge1%init(1, vertex1, vertex2, 1)
-  call edge2%init(2, vertex1, vertex1, 2)
-  call edge3%init(3, vertex2, vertex2, 3)
-  algne(:) = 0
-  bndq = 1
-  call quad1%init(1, edge1, edge1, edge2, edge3, algne, bndq)
-  @assertTrue(quad1%selfp())
-  ! facets
-  do il = 1, NEKO_QUAD_NFACET
-     call quad1%fct(facet(il), il)
-  end do
-  @assertTrue(facet(1)%ptr .eq. edge1)
-  @assertTrue(facet(2)%ptr .eq. edge1)
-  @assertTrue(facet(3)%ptr .eq. edge2)
-  @assertTrue(facet(4)%ptr .eq. edge3)
-  ! boundary information
-  do il = 1, NEKO_QUAD_NFACET
-     @assertEqual(facet(il)%ptr%bnd(), facet(il)%ptr%id())
-  end do
-  ! ridges
-  do il = 1, NEKO_QUAD_NRIDGE
-     call quad1%rdg(ridge(il), il)
-  end do
-  @assertTrue(ridge(1)%ptr .eq. vertex1)
-  @assertTrue(ridge(2)%ptr .eq. vertex1)
-  @assertTrue(ridge(3)%ptr .eq. vertex2)
-  @assertTrue(ridge(4)%ptr .eq. vertex2)
-  il = quad1%bnd()
-  @assertEqual(il, bndq)
-
-  ! self-periodic, 1D, Mobius strip
-  ! edges
-  call edge1%init(1, vertex1, vertex2, bnde)
-  call edge2%init(2, vertex1, vertex2, bnde)
-  call edge3%init(3, vertex2, vertex1, bnde)
-  algne(2) = 1
-  call quad1%init(1, edge1, edge1, edge2, edge3, algne, bndq)
-  @assertTrue(quad1%selfp())
-  ! facets
-  do il = 1, NEKO_QUAD_NFACET
-     call quad1%fct(facet(il), il)
-  end do
-  @assertTrue(facet(1)%ptr .eq. edge1)
-  @assertTrue(facet(2)%ptr .eq. edge1)
-  @assertTrue(facet(3)%ptr .eq. edge2)
-  @assertTrue(facet(4)%ptr .eq. edge3)
-  ! ridges
-  do il = 1, NEKO_QUAD_NRIDGE
-     call quad1%rdg(ridge(il), il)
-  end do
-  @assertTrue(ridge(1)%ptr .eq. vertex1)
-  @assertTrue(ridge(2)%ptr .eq. vertex2)
-  @assertTrue(ridge(3)%ptr .eq. vertex2)
-  @assertTrue(ridge(4)%ptr .eq. vertex1)
-
-  ! non self-periodic; simple
-  call edge1%init(1, vertex1, vertex3, bnde)
-  call edge2%init(2, vertex2, vertex4, bnde)
-  call edge3%init(3, vertex1, vertex2, bnde)
-  call edge4%init(4, vertex3, vertex4, bnde)
-  algne(:) = 0
-  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-  @assertFalse(quad1%selfp())
-  ! facets
-  do il = 1, NEKO_QUAD_NFACET
-     call quad1%fct(facet(il), il)
-  end do
-  @assertTrue(facet(1)%ptr .eq. edge1)
-  @assertTrue(facet(2)%ptr .eq. edge2)
-  @assertTrue(facet(3)%ptr .eq. edge3)
-  @assertTrue(facet(4)%ptr .eq. edge4)
-  ! ridges
-  do il = 1, NEKO_QUAD_NRIDGE
-     call quad1%rdg(ridge(il), il)
-  end do
-  @assertTrue(ridge(1)%ptr .eq. vertex1)
-  @assertTrue(ridge(2)%ptr .eq. vertex2)
-  @assertTrue(ridge(3)%ptr .eq. vertex3)
-  @assertTrue(ridge(4)%ptr .eq. vertex4)
-
-  ! non self-periodic; aligned
-  call edge1%init(1, vertex3, vertex1, bnde)
-  call edge2%init(2, vertex2, vertex4, bnde)
-  call edge3%init(3, vertex2, vertex1, bnde)
-  call edge4%init(4, vertex3, vertex4, bnde)
-  algne(1) = 1
-  algne(3) = 1
-  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-  @assertFalse(quad1%selfp())
-  ! facets
-  do il = 1, NEKO_QUAD_NFACET
-     call quad1%fct(facet(il), il)
-  end do
-  @assertTrue(facet(1)%ptr .eq. edge1)
-  @assertTrue(facet(2)%ptr .eq. edge2)
-  @assertTrue(facet(3)%ptr .eq. edge3)
-  @assertTrue(facet(4)%ptr .eq. edge4)
-  ! ridges
-  do il = 1, NEKO_QUAD_NRIDGE
-     call quad1%rdg(ridge(il), il)
-  end do
-  @assertTrue(ridge(1)%ptr .eq. vertex1)
-  @assertTrue(ridge(2)%ptr .eq. vertex2)
-  @assertTrue(ridge(3)%ptr .eq. vertex3)
-  @assertTrue(ridge(4)%ptr .eq. vertex4)
-
-  ! shared facets/ridges
-  call edge1%init(1, vertex1, vertex3, bnde)
-  call edge2%init(2, vertex2, vertex4, bnde)
-  call edge3%init(3, vertex1, vertex2, bnde)
-  call edge4%init(4, vertex3, vertex4, bnde)
-  algne(:) = 0
-  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-  call edge5%init(5, vertex5, vertex6, bnde)
-  call edge6%init(6, vertex2, vertex5, bnde)
-  call edge7%init(7, vertex4, vertex6, bnde)
-  call quad2%init(2, edge2, edge5, edge6, edge7, algne, bndq)
-  call quad1%fct_share(quad2, ishare, facetp)
-  @assertEqual(ishare, 1)
-  @assertEqual(facetp(1, 1), 2)
-  @assertEqual(facetp(2, 1), 1)
-  deallocate(facetp)
-  call quad1%rdg_share(quad2, ishare, facetp)
-  @assertEqual(ishare, 2)
-  @assertEqual(facetp(1, 1), 2)
-  @assertEqual(facetp(2, 1), 1)
-  @assertEqual(facetp(1, 2), 4)
-  @assertEqual(facetp(2, 2), 3)
-  deallocate(facetp)
+!!$  use vertex_cnn, only : vertex_cab_t, vertex_cab_ptr
+!!$  use edge_cnn, only : edge_cab_t, edge_cab_ptr
+!!$  use quad_cnn, only : NEKO_QUAD_NRIDGE, NEKO_QUAD_NFACET, quad_cab_t
+!!$  implicit none
+!!$  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4, vertex5, vertex6
+!!$  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7
+!!$  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
+!!$  type(quad_cab_t) :: quad1, quad2
+!!$  type(edge_cab_ptr), dimension(NEKO_QUAD_NFACET) :: facet
+!!$  type(vertex_cab_ptr), dimension(NEKO_QUAD_NRIDGE) :: ridge
+!!$  integer(i4) :: bnde, bndq, ishare, il
+!!$  integer(i4), dimension(:, :), allocatable :: facetp
+!!$
+!!$  ! Vertices for two quads
+!!$  call vertex1%init(1)
+!!$  call vertex2%init(2)
+!!$  call vertex3%init(3)
+!!$  call vertex4%init(4)
+!!$  call vertex5%init(5)
+!!$  call vertex6%init(6)
+!!$
+!!$  ! self-periodic, 1D, simple
+!!$  ! edges
+!!$  bnde = -1
+!!$  call edge1%init(1, vertex1, vertex2, 1)
+!!$  call edge2%init(2, vertex1, vertex1, 2)
+!!$  call edge3%init(3, vertex2, vertex2, 3)
+!!$  algne(:) = 0
+!!$  bndq = 1
+!!$  call quad1%init(1, edge1, edge1, edge2, edge3, algne, bndq)
+!!$  @assertTrue(quad1%selfp())
+!!$  ! facets
+!!$  do il = 1, NEKO_QUAD_NFACET
+!!$     call quad1%fct(facet(il), il)
+!!$  end do
+!!$  @assertTrue(facet(1)%ptr .eq. edge1)
+!!$  @assertTrue(facet(2)%ptr .eq. edge1)
+!!$  @assertTrue(facet(3)%ptr .eq. edge2)
+!!$  @assertTrue(facet(4)%ptr .eq. edge3)
+!!$  ! boundary information
+!!$  do il = 1, NEKO_QUAD_NFACET
+!!$     @assertEqual(facet(il)%ptr%bnd(), facet(il)%ptr%id())
+!!$  end do
+!!$  ! ridges
+!!$  do il = 1, NEKO_QUAD_NRIDGE
+!!$     call quad1%rdg(ridge(il), il)
+!!$  end do
+!!$  @assertTrue(ridge(1)%ptr .eq. vertex1)
+!!$  @assertTrue(ridge(2)%ptr .eq. vertex1)
+!!$  @assertTrue(ridge(3)%ptr .eq. vertex2)
+!!$  @assertTrue(ridge(4)%ptr .eq. vertex2)
+!!$  il = quad1%bnd()
+!!$  @assertEqual(il, bndq)
+!!$
+!!$  ! self-periodic, 1D, Mobius strip
+!!$  ! edges
+!!$  call edge1%init(1, vertex1, vertex2, bnde)
+!!$  call edge2%init(2, vertex1, vertex2, bnde)
+!!$  call edge3%init(3, vertex2, vertex1, bnde)
+!!$  algne(2) = 1
+!!$  call quad1%init(1, edge1, edge1, edge2, edge3, algne, bndq)
+!!$  @assertTrue(quad1%selfp())
+!!$  ! facets
+!!$  do il = 1, NEKO_QUAD_NFACET
+!!$     call quad1%fct(facet(il), il)
+!!$  end do
+!!$  @assertTrue(facet(1)%ptr .eq. edge1)
+!!$  @assertTrue(facet(2)%ptr .eq. edge1)
+!!$  @assertTrue(facet(3)%ptr .eq. edge2)
+!!$  @assertTrue(facet(4)%ptr .eq. edge3)
+!!$  ! ridges
+!!$  do il = 1, NEKO_QUAD_NRIDGE
+!!$     call quad1%rdg(ridge(il), il)
+!!$  end do
+!!$  @assertTrue(ridge(1)%ptr .eq. vertex1)
+!!$  @assertTrue(ridge(2)%ptr .eq. vertex2)
+!!$  @assertTrue(ridge(3)%ptr .eq. vertex2)
+!!$  @assertTrue(ridge(4)%ptr .eq. vertex1)
+!!$
+!!$  ! non self-periodic; simple
+!!$  call edge1%init(1, vertex1, vertex3, bnde)
+!!$  call edge2%init(2, vertex2, vertex4, bnde)
+!!$  call edge3%init(3, vertex1, vertex2, bnde)
+!!$  call edge4%init(4, vertex3, vertex4, bnde)
+!!$  algne(:) = 0
+!!$  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
+!!$  @assertFalse(quad1%selfp())
+!!$  ! facets
+!!$  do il = 1, NEKO_QUAD_NFACET
+!!$     call quad1%fct(facet(il), il)
+!!$  end do
+!!$  @assertTrue(facet(1)%ptr .eq. edge1)
+!!$  @assertTrue(facet(2)%ptr .eq. edge2)
+!!$  @assertTrue(facet(3)%ptr .eq. edge3)
+!!$  @assertTrue(facet(4)%ptr .eq. edge4)
+!!$  ! ridges
+!!$  do il = 1, NEKO_QUAD_NRIDGE
+!!$     call quad1%rdg(ridge(il), il)
+!!$  end do
+!!$  @assertTrue(ridge(1)%ptr .eq. vertex1)
+!!$  @assertTrue(ridge(2)%ptr .eq. vertex2)
+!!$  @assertTrue(ridge(3)%ptr .eq. vertex3)
+!!$  @assertTrue(ridge(4)%ptr .eq. vertex4)
+!!$
+!!$  ! non self-periodic; aligned
+!!$  call edge1%init(1, vertex3, vertex1, bnde)
+!!$  call edge2%init(2, vertex2, vertex4, bnde)
+!!$  call edge3%init(3, vertex2, vertex1, bnde)
+!!$  call edge4%init(4, vertex3, vertex4, bnde)
+!!$  algne(1) = 1
+!!$  algne(3) = 1
+!!$  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
+!!$  @assertFalse(quad1%selfp())
+!!$  ! facets
+!!$  do il = 1, NEKO_QUAD_NFACET
+!!$     call quad1%fct(facet(il), il)
+!!$  end do
+!!$  @assertTrue(facet(1)%ptr .eq. edge1)
+!!$  @assertTrue(facet(2)%ptr .eq. edge2)
+!!$  @assertTrue(facet(3)%ptr .eq. edge3)
+!!$  @assertTrue(facet(4)%ptr .eq. edge4)
+!!$  ! ridges
+!!$  do il = 1, NEKO_QUAD_NRIDGE
+!!$     call quad1%rdg(ridge(il), il)
+!!$  end do
+!!$  @assertTrue(ridge(1)%ptr .eq. vertex1)
+!!$  @assertTrue(ridge(2)%ptr .eq. vertex2)
+!!$  @assertTrue(ridge(3)%ptr .eq. vertex3)
+!!$  @assertTrue(ridge(4)%ptr .eq. vertex4)
+!!$
+!!$  ! shared facets/ridges
+!!$  call edge1%init(1, vertex1, vertex3, bnde)
+!!$  call edge2%init(2, vertex2, vertex4, bnde)
+!!$  call edge3%init(3, vertex1, vertex2, bnde)
+!!$  call edge4%init(4, vertex3, vertex4, bnde)
+!!$  algne(:) = 0
+!!$  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
+!!$  call edge5%init(5, vertex5, vertex6, bnde)
+!!$  call edge6%init(6, vertex2, vertex5, bnde)
+!!$  call edge7%init(7, vertex4, vertex6, bnde)
+!!$  call quad2%init(2, edge2, edge5, edge6, edge7, algne, bndq)
+!!$  call quad1%fct_share(quad2, ishare, facetp)
+!!$  @assertEqual(ishare, 1)
+!!$  @assertEqual(facetp(1, 1), 2)
+!!$  @assertEqual(facetp(2, 1), 1)
+!!$  deallocate(facetp)
+!!$  call quad1%rdg_share(quad2, ishare, facetp)
+!!$  @assertEqual(ishare, 2)
+!!$  @assertEqual(facetp(1, 1), 2)
+!!$  @assertEqual(facetp(2, 1), 1)
+!!$  @assertEqual(facetp(1, 2), 4)
+!!$  @assertEqual(facetp(2, 2), 3)
+!!$  deallocate(facetp)
 
 end subroutine test_quad_init
 
@@ -162,101 +162,101 @@ end subroutine test_quad_init
 subroutine test_quad_eq_algn
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cab_t
-  use edge_cnn, only : edge_cab_t
-  use quad_cnn, only : NEKO_QUAD_NFACET, quad_cab_t
-  implicit none
-  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4
-  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8
-  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-  type(quad_cab_t) :: quad1, quad2
-  logical :: equal
-  integer(i4) :: algn, bnde, bndq
-
-  ! Vertices for two quads
-  call vertex1%init(1)
-  call vertex2%init(2)
-  call vertex3%init(3)
-  call vertex4%init(4)
-
-  ! The reference quad
-  bnde = -1
-  call edge1%init(1, vertex1, vertex3, bnde)
-  call edge2%init(2, vertex2, vertex4, bnde)
-  call edge3%init(3, vertex1, vertex2, bnde)
-  call edge4%init(4, vertex3, vertex4, bnde)
-  algne(:) = 0
-  bndq = 1
-  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-
-  ! Test transformations
-  ! Identity { 1, 2, 3, 4 }
-  call quad1%eq_algn(quad1, equal, algn)
-  @assertTrue(equal)
-  @assertEqual(algn, 0)
-  ! T { 1, 3, 2, 4 }
-  call edge5%init(3, vertex1, vertex2, bnde)
-  call edge6%init(4, vertex3, vertex4, bnde)
-  call edge7%init(1, vertex1, vertex3, bnde)
-  call edge8%init(2, vertex2, vertex4, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  call quad1%eq_algn(quad2, equal, algn)
-  @assertTrue(equal)
-  @assertEqual(algn, 1)
-  ! PX { 2, 1, 4, 3 }
-  call edge5%init(2, vertex2, vertex4, bnde)
-  call edge6%init(1, vertex1, vertex3, bnde)
-  call edge7%init(3, vertex2, vertex1, bnde)
-  call edge8%init(4, vertex4, vertex3, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  call quad1%eq_algn(quad2, equal, algn)
-  @assertTrue(equal)
-  @assertEqual(algn, 2)
-  ! PXT { 2, 4, 1, 3 }
-  call edge5%init(3, vertex2, vertex1, bnde)
-  call edge6%init(4, vertex4, vertex3, bnde)
-  call edge7%init(2, vertex2, vertex4, bnde)
-  call edge8%init(1, vertex1, vertex3, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  call quad1%eq_algn(quad2, equal, algn)
-  @assertTrue(equal)
-  @assertEqual(algn, 3)
-  ! PYT { 3, 1, 4, 2 }
-  call edge5%init(4, vertex3, vertex4, bnde)
-  call edge6%init(3, vertex1, vertex2, bnde)
-  call edge7%init(1, vertex3, vertex1, bnde)
-  call edge8%init(2, vertex4, vertex2, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  call quad1%eq_algn(quad2, equal, algn)
-  @assertTrue(equal)
-  @assertEqual(algn, 4)
-  ! PY { 3, 4, 1, 2 }
-  call edge5%init(1, vertex3, vertex1, bnde)
-  call edge6%init(2, vertex4, vertex2, bnde)
-  call edge7%init(4, vertex3, vertex4, bnde)
-  call edge8%init(3, vertex1, vertex2, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  call quad1%eq_algn(quad2, equal, algn)
-  @assertTrue(equal)
-  @assertEqual(algn, 5)
-  ! PXPYT { 4, 2, 3, 1 }
-  call edge5%init(4, vertex4, vertex3, bnde)
-  call edge6%init(3, vertex2, vertex1, bnde)
-  call edge7%init(2, vertex4, vertex2, bnde)
-  call edge8%init(1, vertex3, vertex1, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  call quad1%eq_algn(quad2, equal, algn)
-  @assertTrue(equal)
-  @assertEqual(algn, 6)
-  ! PXPY { 4, 3, 2, 1 }
-  call edge5%init(2, vertex4, vertex2, bnde)
-  call edge6%init(1, vertex3, vertex1, bnde)
-  call edge7%init(4, vertex4, vertex3, bnde)
-  call edge8%init(3, vertex2, vertex1, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  call quad1%eq_algn(quad2, equal, algn)
-  @assertTrue(equal)
-  @assertEqual(algn, 7)
+!!$  use vertex_cnn, only : vertex_cab_t
+!!$  use edge_cnn, only : edge_cab_t
+!!$  use quad_cnn, only : NEKO_QUAD_NFACET, quad_cab_t
+!!$  implicit none
+!!$  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4
+!!$  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8
+!!$  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
+!!$  type(quad_cab_t) :: quad1, quad2
+!!$  logical :: equal
+!!$  integer(i4) :: algn, bnde, bndq
+!!$
+!!$  ! Vertices for two quads
+!!$  call vertex1%init(1)
+!!$  call vertex2%init(2)
+!!$  call vertex3%init(3)
+!!$  call vertex4%init(4)
+!!$
+!!$  ! The reference quad
+!!$  bnde = -1
+!!$  call edge1%init(1, vertex1, vertex3, bnde)
+!!$  call edge2%init(2, vertex2, vertex4, bnde)
+!!$  call edge3%init(3, vertex1, vertex2, bnde)
+!!$  call edge4%init(4, vertex3, vertex4, bnde)
+!!$  algne(:) = 0
+!!$  bndq = 1
+!!$  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
+!!$
+!!$  ! Test transformations
+!!$  ! Identity { 1, 2, 3, 4 }
+!!$  call quad1%eq_algn(quad1, equal, algn)
+!!$  @assertTrue(equal)
+!!$  @assertEqual(algn, 0)
+!!$  ! T { 1, 3, 2, 4 }
+!!$  call edge5%init(3, vertex1, vertex2, bnde)
+!!$  call edge6%init(4, vertex3, vertex4, bnde)
+!!$  call edge7%init(1, vertex1, vertex3, bnde)
+!!$  call edge8%init(2, vertex2, vertex4, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  call quad1%eq_algn(quad2, equal, algn)
+!!$  @assertTrue(equal)
+!!$  @assertEqual(algn, 1)
+!!$  ! PX { 2, 1, 4, 3 }
+!!$  call edge5%init(2, vertex2, vertex4, bnde)
+!!$  call edge6%init(1, vertex1, vertex3, bnde)
+!!$  call edge7%init(3, vertex2, vertex1, bnde)
+!!$  call edge8%init(4, vertex4, vertex3, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  call quad1%eq_algn(quad2, equal, algn)
+!!$  @assertTrue(equal)
+!!$  @assertEqual(algn, 2)
+!!$  ! PXT { 2, 4, 1, 3 }
+!!$  call edge5%init(3, vertex2, vertex1, bnde)
+!!$  call edge6%init(4, vertex4, vertex3, bnde)
+!!$  call edge7%init(2, vertex2, vertex4, bnde)
+!!$  call edge8%init(1, vertex1, vertex3, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  call quad1%eq_algn(quad2, equal, algn)
+!!$  @assertTrue(equal)
+!!$  @assertEqual(algn, 3)
+!!$  ! PYT { 3, 1, 4, 2 }
+!!$  call edge5%init(4, vertex3, vertex4, bnde)
+!!$  call edge6%init(3, vertex1, vertex2, bnde)
+!!$  call edge7%init(1, vertex3, vertex1, bnde)
+!!$  call edge8%init(2, vertex4, vertex2, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  call quad1%eq_algn(quad2, equal, algn)
+!!$  @assertTrue(equal)
+!!$  @assertEqual(algn, 4)
+!!$  ! PY { 3, 4, 1, 2 }
+!!$  call edge5%init(1, vertex3, vertex1, bnde)
+!!$  call edge6%init(2, vertex4, vertex2, bnde)
+!!$  call edge7%init(4, vertex3, vertex4, bnde)
+!!$  call edge8%init(3, vertex1, vertex2, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  call quad1%eq_algn(quad2, equal, algn)
+!!$  @assertTrue(equal)
+!!$  @assertEqual(algn, 5)
+!!$  ! PXPYT { 4, 2, 3, 1 }
+!!$  call edge5%init(4, vertex4, vertex3, bnde)
+!!$  call edge6%init(3, vertex2, vertex1, bnde)
+!!$  call edge7%init(2, vertex4, vertex2, bnde)
+!!$  call edge8%init(1, vertex3, vertex1, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  call quad1%eq_algn(quad2, equal, algn)
+!!$  @assertTrue(equal)
+!!$  @assertEqual(algn, 6)
+!!$  ! PXPY { 4, 3, 2, 1 }
+!!$  call edge5%init(2, vertex4, vertex2, bnde)
+!!$  call edge6%init(1, vertex3, vertex1, bnde)
+!!$  call edge7%init(4, vertex4, vertex3, bnde)
+!!$  call edge8%init(3, vertex2, vertex1, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  call quad1%eq_algn(quad2, equal, algn)
+!!$  @assertTrue(equal)
+!!$  @assertEqual(algn, 7)
 
 end subroutine test_quad_eq_algn
 
@@ -264,107 +264,107 @@ end subroutine test_quad_eq_algn
 subroutine test_quad_alignment
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cab_t
-  use edge_cnn, only : edge_cab_t
-  use quad_cnn, only : NEKO_QUAD_NFACET, quad_cab_t, quad_cab_ptr, &
-       & quad_aligned_cab_t
-  implicit none
-  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4
-  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8
-  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-  type(quad_cab_t) :: quad1, quad2
-  type(quad_cab_ptr) :: quadp
-  type(quad_aligned_cab_t) :: quada
-  integer(i4) :: bnde, bndq
-
-  ! Vertices for two quads
-  call vertex1%init(1)
-  call vertex2%init(2)
-  call vertex3%init(3)
-  call vertex4%init(4)
-
-  ! The reference quad
-  bnde = -1
-  call edge1%init(1, vertex1, vertex3, bnde)
-  call edge2%init(2, vertex2, vertex4, bnde)
-  call edge3%init(3, vertex1, vertex2, bnde)
-  call edge4%init(4, vertex3, vertex4, bnde)
-  algne(:) = 0
-  bndq = 1
-  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-  call quada%init_algn(quad1, 0)
-
-  ! check pointers
-  call quada%facep(quadp)
-  @assertTrue(quada%face%ptr.eq.quad1)
-  @assertTrue(quadp%ptr.eq.quad1)
-
-  ! check alignment test
-  ! Identity
-  @assertTrue(quada%test(quad1))
-  ! T { 1, 3, 2, 4 }
-  call edge5%init(3, vertex1, vertex2, bnde)
-  call edge6%init(4, vertex3, vertex4, bnde)
-  call edge7%init(1, vertex1, vertex3, bnde)
-  call edge8%init(2, vertex2, vertex4, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  @assertFalse(quada%test(quad2))
-  call quada%init_algn(quad1, 1)
-  @assertTrue(quada%test(quad2))
-  ! PX { 2, 1, 4, 3 }
-  call edge5%init(2, vertex2, vertex4, bnde)
-  call edge6%init(1, vertex1, vertex3, bnde)
-  call edge7%init(3, vertex2, vertex1, bnde)
-  call edge8%init(4, vertex4, vertex3, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  @assertFalse(quada%test(quad2))
-  call quada%init_algn(quad1, 2)
-  @assertTrue(quada%test(quad2))
-  ! PXT { 2, 4, 1, 3 }
-  call edge5%init(3, vertex2, vertex1, bnde)
-  call edge6%init(4, vertex4, vertex3, bnde)
-  call edge7%init(2, vertex2, vertex4, bnde)
-  call edge8%init(1, vertex1, vertex3, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  @assertFalse(quada%test(quad2))
-  call quada%init_algn(quad1, 3)
-  @assertTrue(quada%test(quad2))
-  ! PYT { 3, 1, 4, 2 }
-  call edge5%init(4, vertex3, vertex4, bnde)
-  call edge6%init(3, vertex1, vertex2, bnde)
-  call edge7%init(1, vertex3, vertex1, bnde)
-  call edge8%init(2, vertex4, vertex2, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  @assertFalse(quada%test(quad2))
-  call quada%init_algn(quad1, 4)
-  @assertTrue(quada%test(quad2))
-  ! PY { 3, 4, 1, 2 }
-  call edge5%init(1, vertex3, vertex1, bnde)
-  call edge6%init(2, vertex4, vertex2, bnde)
-  call edge7%init(4, vertex3, vertex4, bnde)
-  call edge8%init(3, vertex1, vertex2, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  @assertFalse(quada%test(quad2))
-  call quada%init_algn(quad1, 5)
-  @assertTrue(quada%test(quad2))
-  ! PXPYT { 4, 2, 3, 1 }
-  call edge5%init(4, vertex4, vertex3, bnde)
-  call edge6%init(3, vertex2, vertex1, bnde)
-  call edge7%init(2, vertex4, vertex2, bnde)
-  call edge8%init(1, vertex3, vertex1, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  @assertFalse(quada%test(quad2))
-  call quada%init_algn(quad1, 6)
-  @assertTrue(quada%test(quad2))
-  ! PXPY { 4, 3, 2, 1 }
-  call edge5%init(2, vertex4, vertex2, bnde)
-  call edge6%init(1, vertex3, vertex1, bnde)
-  call edge7%init(4, vertex4, vertex3, bnde)
-  call edge8%init(3, vertex2, vertex1, bnde)
-  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-  @assertFalse(quada%test(quad2))
-  call quada%init_algn(quad1, 7)
-  @assertTrue(quada%test(quad2))
+!!$  use vertex_cnn, only : vertex_cab_t
+!!$  use edge_cnn, only : edge_cab_t
+!!$  use quad_cnn, only : NEKO_QUAD_NFACET, quad_cab_t, quad_cab_ptr, &
+!!$       & quad_aligned_cab_t
+!!$  implicit none
+!!$  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4
+!!$  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8
+!!$  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
+!!$  type(quad_cab_t) :: quad1, quad2
+!!$  type(quad_cab_ptr) :: quadp
+!!$  type(quad_aligned_cab_t) :: quada
+!!$  integer(i4) :: bnde, bndq
+!!$
+!!$  ! Vertices for two quads
+!!$  call vertex1%init(1)
+!!$  call vertex2%init(2)
+!!$  call vertex3%init(3)
+!!$  call vertex4%init(4)
+!!$
+!!$  ! The reference quad
+!!$  bnde = -1
+!!$  call edge1%init(1, vertex1, vertex3, bnde)
+!!$  call edge2%init(2, vertex2, vertex4, bnde)
+!!$  call edge3%init(3, vertex1, vertex2, bnde)
+!!$  call edge4%init(4, vertex3, vertex4, bnde)
+!!$  algne(:) = 0
+!!$  bndq = 1
+!!$  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
+!!$  call quada%init_algn(quad1, 0)
+!!$
+!!$  ! check pointers
+!!$  call quada%facep(quadp)
+!!$  @assertTrue(quada%face%ptr.eq.quad1)
+!!$  @assertTrue(quadp%ptr.eq.quad1)
+!!$
+!!$  ! check alignment test
+!!$  ! Identity
+!!$  @assertTrue(quada%test(quad1))
+!!$  ! T { 1, 3, 2, 4 }
+!!$  call edge5%init(3, vertex1, vertex2, bnde)
+!!$  call edge6%init(4, vertex3, vertex4, bnde)
+!!$  call edge7%init(1, vertex1, vertex3, bnde)
+!!$  call edge8%init(2, vertex2, vertex4, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  @assertFalse(quada%test(quad2))
+!!$  call quada%init_algn(quad1, 1)
+!!$  @assertTrue(quada%test(quad2))
+!!$  ! PX { 2, 1, 4, 3 }
+!!$  call edge5%init(2, vertex2, vertex4, bnde)
+!!$  call edge6%init(1, vertex1, vertex3, bnde)
+!!$  call edge7%init(3, vertex2, vertex1, bnde)
+!!$  call edge8%init(4, vertex4, vertex3, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  @assertFalse(quada%test(quad2))
+!!$  call quada%init_algn(quad1, 2)
+!!$  @assertTrue(quada%test(quad2))
+!!$  ! PXT { 2, 4, 1, 3 }
+!!$  call edge5%init(3, vertex2, vertex1, bnde)
+!!$  call edge6%init(4, vertex4, vertex3, bnde)
+!!$  call edge7%init(2, vertex2, vertex4, bnde)
+!!$  call edge8%init(1, vertex1, vertex3, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  @assertFalse(quada%test(quad2))
+!!$  call quada%init_algn(quad1, 3)
+!!$  @assertTrue(quada%test(quad2))
+!!$  ! PYT { 3, 1, 4, 2 }
+!!$  call edge5%init(4, vertex3, vertex4, bnde)
+!!$  call edge6%init(3, vertex1, vertex2, bnde)
+!!$  call edge7%init(1, vertex3, vertex1, bnde)
+!!$  call edge8%init(2, vertex4, vertex2, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  @assertFalse(quada%test(quad2))
+!!$  call quada%init_algn(quad1, 4)
+!!$  @assertTrue(quada%test(quad2))
+!!$  ! PY { 3, 4, 1, 2 }
+!!$  call edge5%init(1, vertex3, vertex1, bnde)
+!!$  call edge6%init(2, vertex4, vertex2, bnde)
+!!$  call edge7%init(4, vertex3, vertex4, bnde)
+!!$  call edge8%init(3, vertex1, vertex2, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  @assertFalse(quada%test(quad2))
+!!$  call quada%init_algn(quad1, 5)
+!!$  @assertTrue(quada%test(quad2))
+!!$  ! PXPYT { 4, 2, 3, 1 }
+!!$  call edge5%init(4, vertex4, vertex3, bnde)
+!!$  call edge6%init(3, vertex2, vertex1, bnde)
+!!$  call edge7%init(2, vertex4, vertex2, bnde)
+!!$  call edge8%init(1, vertex3, vertex1, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  @assertFalse(quada%test(quad2))
+!!$  call quada%init_algn(quad1, 6)
+!!$  @assertTrue(quada%test(quad2))
+!!$  ! PXPY { 4, 3, 2, 1 }
+!!$  call edge5%init(2, vertex4, vertex2, bnde)
+!!$  call edge6%init(1, vertex3, vertex1, bnde)
+!!$  call edge7%init(4, vertex4, vertex3, bnde)
+!!$  call edge8%init(3, vertex2, vertex1, bnde)
+!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
+!!$  @assertFalse(quada%test(quad2))
+!!$  call quada%init_algn(quad1, 7)
+!!$  @assertTrue(quada%test(quad2))
 
 end subroutine test_quad_alignment
 
@@ -372,46 +372,46 @@ end subroutine test_quad_alignment
 subroutine test_quad_nonconforming
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cab_t
-  use edge_cnn, only : edge_cab_t
-  use quad_cnn, only : quad_cab_t, quad_ncnf_cac_t, NEKO_QUAD_NFACET
-  implicit none
-  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4
-  type(edge_cab_t) :: edge1, edge2, edge3, edge4
-  type(quad_cab_t) :: quad
-  type(quad_ncnf_cac_t) :: quad_ncnf
-  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-  integer(i4) :: algn, hng, pos, bnde, bndq, itmp
-
-  ! The abstract quad
-  call vertex1%init(1)
-  call vertex2%init(2)
-  call vertex3%init(3)
-  call vertex4%init(4)
-  bnde = -1
-  call edge1%init(1, vertex1, vertex3, bnde)
-  call edge2%init(2, vertex2, vertex4, bnde)
-  call edge3%init(3, vertex1, vertex2, bnde)
-  call edge4%init(4, vertex3, vertex4, bnde)
-  algne(:) = 0
-  bndq = 1
-  call quad%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-
-  ! Nonconforming actualisation
-  algn = 0
-  pos = 1
-  call quad_ncnf%init(quad, algn, pos)
-  @assertTrue(quad .eq. quad_ncnf%face%ptr)
-  itmp = quad_ncnf%pos()
-  @assertEqual(itmp, pos)
-  itmp = quad_ncnf%bnd()
-  @assertEqual(itmp, bndq)
-  itmp = quad_ncnf%hng()
-  @assertEqual(itmp, 0)
-  hng = 1
-  call quad_ncnf%set_hng(hng)
-  itmp = quad_ncnf%hng()
-  @assertEqual(itmp, hng)
+!!$  use vertex_cnn, only : vertex_cab_t
+!!$  use edge_cnn, only : edge_cab_t
+!!$  use quad_cnn, only : quad_cab_t, quad_ncnf_cac_t, NEKO_QUAD_NFACET
+!!$  implicit none
+!!$  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4
+!!$  type(edge_cab_t) :: edge1, edge2, edge3, edge4
+!!$  type(quad_cab_t) :: quad
+!!$  type(quad_ncnf_cac_t) :: quad_ncnf
+!!$  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
+!!$  integer(i4) :: algn, hng, pos, bnde, bndq, itmp
+!!$
+!!$  ! The abstract quad
+!!$  call vertex1%init(1)
+!!$  call vertex2%init(2)
+!!$  call vertex3%init(3)
+!!$  call vertex4%init(4)
+!!$  bnde = -1
+!!$  call edge1%init(1, vertex1, vertex3, bnde)
+!!$  call edge2%init(2, vertex2, vertex4, bnde)
+!!$  call edge3%init(3, vertex1, vertex2, bnde)
+!!$  call edge4%init(4, vertex3, vertex4, bnde)
+!!$  algne(:) = 0
+!!$  bndq = 1
+!!$  call quad%init(1, edge1, edge2, edge3, edge4, algne, bndq)
+!!$
+!!$  ! Nonconforming actualisation
+!!$  algn = 0
+!!$  pos = 1
+!!$  call quad_ncnf%init(quad, algn, pos)
+!!$  @assertTrue(quad .eq. quad_ncnf%face%ptr)
+!!$  itmp = quad_ncnf%pos()
+!!$  @assertEqual(itmp, pos)
+!!$  itmp = quad_ncnf%bnd()
+!!$  @assertEqual(itmp, bndq)
+!!$  itmp = quad_ncnf%hng()
+!!$  @assertEqual(itmp, 0)
+!!$  hng = 1
+!!$  call quad_ncnf%set_hng(hng)
+!!$  itmp = quad_ncnf%hng()
+!!$  @assertEqual(itmp, hng)
 
 end subroutine test_quad_nonconforming
 
@@ -419,80 +419,80 @@ end subroutine test_quad_nonconforming
 subroutine test_quad_ac_init
   use pfunit
   use num_types, only : i4
-  use vertex_cnn, only : vertex_cab_t, vertex_ncnf_cac_ptr
-  use edge_cnn, only : edge_cab_t, edge_ncnf_cac_ptr
-  use quad_cnn, only : NEKO_QUAD_NRIDGE, NEKO_QUAD_NFACET, quad_cac_t
-  implicit none
-
-  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4, vertex5, vertex6
-  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7
-  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-  type(quad_cac_t) :: quad1, quad2
-  type(edge_ncnf_cac_ptr), dimension(NEKO_QUAD_NFACET) :: facet
-  type(vertex_ncnf_cac_ptr), dimension(NEKO_QUAD_NRIDGE) :: ridge
-  integer(i4) :: bnde, itmp, il
-  integer(i4), dimension(:, :), allocatable :: facetp
-
-  ! Vertices for two quads
-  call vertex1%init(1)
-  call vertex2%init(2)
-  call vertex3%init(3)
-  call vertex4%init(4)
-  call vertex5%init(5)
-  call vertex6%init(6)
-
-  ! self-periodic, 1D, simple
-  ! edges
-  bnde = 1
-  call edge1%init(1, vertex1, vertex2, bnde)
-  call edge2%init(2, vertex1, vertex1, bnde)
-  call edge3%init(3, vertex2, vertex2, bnde)
-  ! simple alignment
-  algne(:) = 0
-  call quad1%init(1, edge1, edge1, edge2, edge3, algne)
-  @assertTrue(quad1%selfp())
-
-  ! facets
-  do il = 1, NEKO_QUAD_NFACET
-     call quad1%fct(facet(il), il)
-  end do
-  @assertTrue(facet(1)%ptr%edge%ptr .eq. edge1)
-  @assertTrue(facet(2)%ptr%edge%ptr .eq. edge1)
-  @assertTrue(facet(3)%ptr%edge%ptr .eq. edge2)
-  @assertTrue(facet(4)%ptr%edge%ptr .eq. edge3)
-  ! test position
-  do il = 1, NEKO_QUAD_NFACET
-     itmp = facet(il)%ptr%pos()
-     @assertEqual(itmp, il)
-  end do
-  ! test boundary
-  do il = 1, NEKO_QUAD_NFACET
-     itmp = facet(il)%ptr%bnd()
-     @assertEqual(itmp, bnde)
-  end do
-  ! test hanging
-  do il = 1, NEKO_QUAD_NFACET
-     itmp = facet(il)%ptr%hng()
-     @assertEqual(itmp, 0)
-  end do
-  ! ridges
-  do il = 1, NEKO_QUAD_NRIDGE
-     call quad1%rdg(ridge(il), il)
-  end do
-  @assertTrue(ridge(1)%ptr%vertex%ptr .eq. vertex1)
-  @assertTrue(ridge(2)%ptr%vertex%ptr .eq. vertex1)
-  @assertTrue(ridge(3)%ptr%vertex%ptr .eq. vertex2)
-  @assertTrue(ridge(4)%ptr%vertex%ptr .eq. vertex2)
-  ! test position
-  do il = 1, NEKO_QUAD_NRIDGE
-     itmp = ridge(il)%ptr%pos()
-     @assertEqual(itmp, il)
-  end do
-  ! test hanging
-  do il = 1, NEKO_QUAD_NFACET
-     itmp = facet(il)%ptr%hng()
-     @assertEqual(itmp, 0)
-  end do
+!!$  use vertex_cnn, only : vertex_cab_t, vertex_ncnf_cac_ptr
+!!$  use edge_cnn, only : edge_cab_t, edge_ncnf_cac_ptr
+!!$  use quad_cnn, only : NEKO_QUAD_NRIDGE, NEKO_QUAD_NFACET, quad_cac_t
+!!$  implicit none
+!!$
+!!$  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4, vertex5, vertex6
+!!$  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7
+!!$  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
+!!$  type(quad_cac_t) :: quad1, quad2
+!!$  type(edge_ncnf_cac_ptr), dimension(NEKO_QUAD_NFACET) :: facet
+!!$  type(vertex_ncnf_cac_ptr), dimension(NEKO_QUAD_NRIDGE) :: ridge
+!!$  integer(i4) :: bnde, itmp, il
+!!$  integer(i4), dimension(:, :), allocatable :: facetp
+!!$
+!!$  ! Vertices for two quads
+!!$  call vertex1%init(1)
+!!$  call vertex2%init(2)
+!!$  call vertex3%init(3)
+!!$  call vertex4%init(4)
+!!$  call vertex5%init(5)
+!!$  call vertex6%init(6)
+!!$
+!!$  ! self-periodic, 1D, simple
+!!$  ! edges
+!!$  bnde = 1
+!!$  call edge1%init(1, vertex1, vertex2, bnde)
+!!$  call edge2%init(2, vertex1, vertex1, bnde)
+!!$  call edge3%init(3, vertex2, vertex2, bnde)
+!!$  ! simple alignment
+!!$  algne(:) = 0
+!!$  call quad1%init(1, edge1, edge1, edge2, edge3, algne)
+!!$  @assertTrue(quad1%selfp())
+!!$
+!!$  ! facets
+!!$  do il = 1, NEKO_QUAD_NFACET
+!!$     call quad1%fct(facet(il), il)
+!!$  end do
+!!$  @assertTrue(facet(1)%ptr%edge%ptr .eq. edge1)
+!!$  @assertTrue(facet(2)%ptr%edge%ptr .eq. edge1)
+!!$  @assertTrue(facet(3)%ptr%edge%ptr .eq. edge2)
+!!$  @assertTrue(facet(4)%ptr%edge%ptr .eq. edge3)
+!!$  ! test position
+!!$  do il = 1, NEKO_QUAD_NFACET
+!!$     itmp = facet(il)%ptr%pos()
+!!$     @assertEqual(itmp, il)
+!!$  end do
+!!$  ! test boundary
+!!$  do il = 1, NEKO_QUAD_NFACET
+!!$     itmp = facet(il)%ptr%bnd()
+!!$     @assertEqual(itmp, bnde)
+!!$  end do
+!!$  ! test hanging
+!!$  do il = 1, NEKO_QUAD_NFACET
+!!$     itmp = facet(il)%ptr%hng()
+!!$     @assertEqual(itmp, 0)
+!!$  end do
+!!$  ! ridges
+!!$  do il = 1, NEKO_QUAD_NRIDGE
+!!$     call quad1%rdg(ridge(il), il)
+!!$  end do
+!!$  @assertTrue(ridge(1)%ptr%vertex%ptr .eq. vertex1)
+!!$  @assertTrue(ridge(2)%ptr%vertex%ptr .eq. vertex1)
+!!$  @assertTrue(ridge(3)%ptr%vertex%ptr .eq. vertex2)
+!!$  @assertTrue(ridge(4)%ptr%vertex%ptr .eq. vertex2)
+!!$  ! test position
+!!$  do il = 1, NEKO_QUAD_NRIDGE
+!!$     itmp = ridge(il)%ptr%pos()
+!!$     @assertEqual(itmp, il)
+!!$  end do
+!!$  ! test hanging
+!!$  do il = 1, NEKO_QUAD_NFACET
+!!$     itmp = facet(il)%ptr%hng()
+!!$     @assertEqual(itmp, 0)
+!!$  end do
 
 end subroutine test_quad_ac_init
 

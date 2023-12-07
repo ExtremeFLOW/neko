@@ -34,26 +34,121 @@
 module alignment_quad
   use num_types, only : i4, i8, dp
   use utils, only : neko_error
+  use alignment, only : alignment_t, alignment_set_t
   implicit none
   private
 
-  public :: alignment_quad_t, alignment_quad_op_set_t
+  public :: alignment_quad_init, alignment_quad_I_t, alignment_quad_T_t, &
+       & alignment_quad_PX_t, alignment_quad_PXT_t, alignment_quad_PYT_t, &
+       & alignment_quad_PY_t, alignment_quad_PXPYT_t, alignment_quad_PXPY_t, &
+       & alignment_quad_set_t
 
   !> number of operations different from identity
   integer(i4), public, parameter :: NEKO_QUAD_NOPERATION = 7
 
-  !> procedure pointer type; i4
-  type :: algn_quad_proc_i4_ptr
-     procedure(transform_i4), pointer, nopass :: ptr
-  end type algn_quad_proc_i4_ptr
-  !> procedure pointer type; i8
-  type :: algn_quad_proc_i8_ptr
-     procedure(transform_i8), pointer, nopass :: ptr
-  end type algn_quad_proc_i8_ptr
-  !> procedure pointer type; dp
-  type :: algn_quad_proc_dp_ptr
-     procedure(transform_dp), pointer, nopass :: ptr
-  end type algn_quad_proc_dp_ptr
+  !> Quad identity (I) transformation type
+  type, extends(alignment_t) :: alignment_quad_I_t
+   contains
+     ! Direct transformation of full array, different types
+     procedure, nopass :: trns_i4 => transform_quad_I_i4
+     procedure, nopass :: trns_i8 => transform_quad_I_i8
+     procedure, nopass :: trns_dp => transform_quad_I_dp
+     ! Inverse transformation of full array, different types
+     procedure, nopass :: trns_inv_i4 => transform_quad_I_i4
+     procedure, nopass :: trns_inv_i8 => transform_quad_I_i8
+     procedure, nopass :: trns_inv_dp => transform_quad_I_dp
+  end type alignment_quad_I_t
+
+  !> Quad transposition (T) transformation type
+  type, extends(alignment_t) :: alignment_quad_T_t
+   contains
+     ! Direct transformation of full array, different types
+     procedure, nopass :: trns_i4 => transform_quad_T_i4
+     procedure, nopass :: trns_i8 => transform_quad_T_i8
+     procedure, nopass :: trns_dp => transform_quad_T_dp
+     ! Inverse transformation of full array, different types
+     procedure, nopass :: trns_inv_i4 => transform_quad_T_i4
+     procedure, nopass :: trns_inv_i8 => transform_quad_T_i8
+     procedure, nopass :: trns_inv_dp => transform_quad_T_dp
+  end type alignment_quad_T_t
+
+  !> Quad row permutation (PX) transformation type
+  type, extends(alignment_t) :: alignment_quad_PX_t
+   contains
+     ! Direct transformation of full array, different types
+     procedure, nopass :: trns_i4 => transform_quad_PX_i4
+     procedure, nopass :: trns_i8 => transform_quad_PX_i8
+     procedure, nopass :: trns_dp => transform_quad_PX_dp
+     ! Inverse transformation of full array, different types
+     procedure, nopass :: trns_inv_i4 => transform_quad_PX_i4
+     procedure, nopass :: trns_inv_i8 => transform_quad_PX_i8
+     procedure, nopass :: trns_inv_dp => transform_quad_PX_dp
+  end type alignment_quad_PX_t
+
+  !> Quad row permutation and transposition (PXT) transformation type
+  type, extends(alignment_t) :: alignment_quad_PXT_t
+   contains
+     ! Direct transformation of full array, different types
+     procedure, nopass :: trns_i4 => transform_quad_PXT_i4
+     procedure, nopass :: trns_i8 => transform_quad_PXT_i8
+     procedure, nopass :: trns_dp => transform_quad_PXT_dp
+     ! Inverse transformation of full array, different types
+     procedure, nopass :: trns_inv_i4 => transform_quad_PYT_i4
+     procedure, nopass :: trns_inv_i8 => transform_quad_PYT_i8
+     procedure, nopass :: trns_inv_dp => transform_quad_PYT_dp
+  end type alignment_quad_PXT_t
+
+  !> Quad column permutation and transposition (PYT) transformation type
+  type, extends(alignment_t) :: alignment_quad_PYT_t
+   contains
+     ! Direct transformation of full array, different types
+     procedure, nopass :: trns_i4 => transform_quad_PYT_i4
+     procedure, nopass :: trns_i8 => transform_quad_PYT_i8
+     procedure, nopass :: trns_dp => transform_quad_PYT_dp
+     ! Inverse transformation of full array, different types
+     procedure, nopass :: trns_inv_i4 => transform_quad_PXT_i4
+     procedure, nopass :: trns_inv_i8 => transform_quad_PXT_i8
+     procedure, nopass :: trns_inv_dp => transform_quad_PXT_dp
+  end type alignment_quad_PYT_t
+
+  !> Quad column permutation (PY) transformation type
+  type, extends(alignment_t) :: alignment_quad_PY_t
+   contains
+     ! Direct transformation of full array, different types
+     procedure, nopass :: trns_i4 => transform_quad_PY_i4
+     procedure, nopass :: trns_i8 => transform_quad_PY_i8
+     procedure, nopass :: trns_dp => transform_quad_PY_dp
+     ! Inverse transformation of full array, different types
+     procedure, nopass :: trns_inv_i4 => transform_quad_PY_i4
+     procedure, nopass :: trns_inv_i8 => transform_quad_PY_i8
+     procedure, nopass :: trns_inv_dp => transform_quad_PY_dp
+  end type alignment_quad_PY_t
+
+  !> Quad row, column permutation and transposition (PXPYT) transformation type
+  type, extends(alignment_t) :: alignment_quad_PXPYT_t
+   contains
+     ! Direct transformation of full array, different types
+     procedure, nopass :: trns_i4 => transform_quad_PXPYT_i4
+     procedure, nopass :: trns_i8 => transform_quad_PXPYT_i8
+     procedure, nopass :: trns_dp => transform_quad_PXPYT_dp
+     ! Inverse transformation of full array, different types
+     procedure, nopass :: trns_inv_i4 => transform_quad_PXPYT_i4
+     procedure, nopass :: trns_inv_i8 => transform_quad_PXPYT_i8
+     procedure, nopass :: trns_inv_dp => transform_quad_PXPYT_dp
+  end type alignment_quad_PXPYT_t
+
+  !> Quad row, column permutation (PXPY) transformation type
+  type, extends(alignment_t) :: alignment_quad_PXPY_t
+   contains
+     ! Direct transformation of full array, different types
+     procedure, nopass :: trns_i4 => transform_quad_PXPY_i4
+     procedure, nopass :: trns_i8 => transform_quad_PXPY_i8
+     procedure, nopass :: trns_dp => transform_quad_PXPY_dp
+     ! Inverse transformation of full array, different types
+     procedure, nopass :: trns_inv_i4 => transform_quad_PXPY_i4
+     procedure, nopass :: trns_inv_i8 => transform_quad_PXPY_i8
+     procedure, nopass :: trns_inv_dp => transform_quad_PXPY_dp
+  end type alignment_quad_PXPY_t
 
   !> Type containing set of quad alignment operators
   !! @details There are four main operations : identity (I), column
@@ -62,1173 +157,425 @@ module alignment_quad
   !! PYT, PY, PXPYT, PXPY
   !! @note The identity operator is not really needed, but i keep it for
   !! completeness.
-  type :: alignment_quad_t
-     !> number of different operations excluding identity
-     integer(i4), private :: noperation_ = NEKO_QUAD_NOPERATION
-     !> Direct array transformations for whole array
-     type(algn_quad_proc_i4_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_f_i4
-     type(algn_quad_proc_i8_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_f_i8
-     type(algn_quad_proc_dp_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_f_dp
-     !> Direct array transformations for array interior
-     type(algn_quad_proc_i4_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_i_i4
-     type(algn_quad_proc_i8_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_i_i8
-     type(algn_quad_proc_dp_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_i_dp
-     !> Inverse array transformations for whole array
-     type(algn_quad_proc_i4_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_inv_f_i4
-     type(algn_quad_proc_i8_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_inv_f_i8
-     type(algn_quad_proc_dp_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_inv_f_dp
-     !> Inverse array transformations for array interior
-     type(algn_quad_proc_i4_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_inv_i_i4
-     type(algn_quad_proc_i8_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_inv_i_i8
-     type(algn_quad_proc_dp_ptr),&
-          & dimension(0 : NEKO_QUAD_NOPERATION) :: trns_inv_i_dp
+  type, extends(alignment_set_t) :: alignment_quad_set_t
    contains
-     !> Initialise procedure pointers
-     procedure, pass(this) :: init => quad_init
-     !> Free procedure pointers
-     procedure, pass(this) :: free => quad_free
-     !> Return number of operations
-     procedure, pass(this) :: nop => quad_noperation_get
-  end type alignment_quad_t
-
-  !> Type combining a single set of alignment operators
-  type :: alignment_quad_op_set_t
-     !> Relative quad alignment
-     integer(i4) :: alignment = -1
-     !> Direct array transformations for whole array
-     type(algn_quad_proc_i4_ptr) :: trns_f_i4
-     type(algn_quad_proc_i8_ptr) :: trns_f_i8
-     type(algn_quad_proc_dp_ptr) :: trns_f_dp
-     !> Direct array transformations for array interior
-     type(algn_quad_proc_i4_ptr) :: trns_i_i4
-     type(algn_quad_proc_i8_ptr) :: trns_i_i8
-     type(algn_quad_proc_dp_ptr) :: trns_i_dp
-     !> Inverse array transformations for whole array
-     type(algn_quad_proc_i4_ptr) :: trns_inv_f_i4
-     type(algn_quad_proc_i8_ptr) :: trns_inv_f_i8
-     type(algn_quad_proc_dp_ptr) :: trns_inv_f_dp
-     !> Inverse array transformations for array interior
-     type(algn_quad_proc_i4_ptr) :: trns_inv_i_i4
-     type(algn_quad_proc_i8_ptr) :: trns_inv_i_i8
-     type(algn_quad_proc_dp_ptr) :: trns_inv_i_dp
-   contains
-      !> Initialise alignment and procedure pointers
-     procedure, pass(this) :: init => quad_op_set_init
-     !> Free alignment and pointers
-     procedure, pass(this) :: free => quad_op_set_free
-  end type alignment_quad_op_set_t
-
-  ! Abstract types for different transformations; various types
-  abstract interface
-     pure subroutine transform_i4(sz, fcs, work)
-       import i4
-       integer(i4), intent(in) :: sz
-       integer(i4), dimension(sz, sz), intent(inout) :: fcs
-       integer(i4), dimension(sz), intent(inout) :: work
-     end subroutine transform_i4
-
-     pure subroutine transform_i8(sz, fcs, work)
-       import i4
-       import i8
-       integer(i4), intent(in) :: sz
-       integer(i8), dimension(sz, sz), intent(inout) :: fcs
-       integer(i8), dimension(sz), intent(inout) :: work
-     end subroutine transform_i8
-
-     pure subroutine transform_dp(sz, fcs, work)
-       import i4
-       import dp
-       integer(i4), intent(in) :: sz
-       real(dp), dimension(sz, sz), intent(inout) :: fcs
-       real(dp), dimension(sz), intent(inout) :: work
-     end subroutine transform_dp
-  end interface
+     !> Initialise type
+     procedure, pass(this) :: init => quad_set_init
+  end type alignment_quad_set_t
 
 contains
-  !> @brief Initialise procedure pointers
-  subroutine quad_init(this)
-    class(alignment_quad_t), intent(inout) :: this
 
-    call this%free()
+  !> @brief Allocate a single alignment operator
+  !! @parameter[in]      algn  relative edge alignment
+  !! @parameter[inout]   trns  alignment operator
+  subroutine alignment_quad_init(algn, trns)
+    integer(i4), intent(in) :: algn
+    class(alignment_t), allocatable, intent(inout) :: trns
 
-    ! Identity transformation is added for completeness; in general not needed
-    ! Direct transformation of full array, different types
-    this%trns_f_i4(0)%ptr => transform_quad_I_i4
-    this%trns_f_i4(1)%ptr => transform_quad_T_full_i4
-    this%trns_f_i4(2)%ptr => transform_quad_PX_full_i4
-    this%trns_f_i4(3)%ptr => transform_quad_PXT_full_i4
-    this%trns_f_i4(4)%ptr => transform_quad_PYT_full_i4
-    this%trns_f_i4(5)%ptr => transform_quad_PY_full_i4
-    this%trns_f_i4(6)%ptr => transform_quad_PXPYT_full_i4
-    this%trns_f_i4(7)%ptr => transform_quad_PXPY_full_i4
-    this%trns_f_i8(0)%ptr => transform_quad_I_i8
-    this%trns_f_i8(1)%ptr => transform_quad_T_full_i8
-    this%trns_f_i8(2)%ptr => transform_quad_PX_full_i8
-    this%trns_f_i8(3)%ptr => transform_quad_PXT_full_i8
-    this%trns_f_i8(4)%ptr => transform_quad_PYT_full_i8
-    this%trns_f_i8(5)%ptr => transform_quad_PY_full_i8
-    this%trns_f_i8(6)%ptr => transform_quad_PXPYT_full_i8
-    this%trns_f_i8(7)%ptr => transform_quad_PXPY_full_i8
-    this%trns_f_dp(0)%ptr => transform_quad_I_dp
-    this%trns_f_dp(1)%ptr => transform_quad_T_full_dp
-    this%trns_f_dp(2)%ptr => transform_quad_PX_full_dp
-    this%trns_f_dp(3)%ptr => transform_quad_PXT_full_dp
-    this%trns_f_dp(4)%ptr => transform_quad_PYT_full_dp
-    this%trns_f_dp(5)%ptr => transform_quad_PY_full_dp
-    this%trns_f_dp(6)%ptr => transform_quad_PXPYT_full_dp
-    this%trns_f_dp(7)%ptr => transform_quad_PXPY_full_dp
-    ! Direct transformation of array interior, different types
-    this%trns_i_i4(0)%ptr => transform_quad_I_i4
-    this%trns_i_i4(1)%ptr => transform_quad_T_int_i4
-    this%trns_i_i4(2)%ptr => transform_quad_PX_int_i4
-    this%trns_i_i4(3)%ptr => transform_quad_PXT_int_i4
-    this%trns_i_i4(4)%ptr => transform_quad_PYT_int_i4
-    this%trns_i_i4(5)%ptr => transform_quad_PY_int_i4
-    this%trns_i_i4(6)%ptr => transform_quad_PXPYT_int_i4
-    this%trns_i_i4(7)%ptr => transform_quad_PXPY_int_i4
-    this%trns_i_i8(0)%ptr => transform_quad_I_i8
-    this%trns_i_i8(1)%ptr => transform_quad_T_int_i8
-    this%trns_i_i8(2)%ptr => transform_quad_PX_int_i8
-    this%trns_i_i8(3)%ptr => transform_quad_PXT_int_i8
-    this%trns_i_i8(4)%ptr => transform_quad_PYT_int_i8
-    this%trns_i_i8(5)%ptr => transform_quad_PY_int_i8
-    this%trns_i_i8(6)%ptr => transform_quad_PXPYT_int_i8
-    this%trns_i_i8(7)%ptr => transform_quad_PXPY_int_i8
-    this%trns_i_dp(0)%ptr => transform_quad_I_dp
-    this%trns_i_dp(1)%ptr => transform_quad_T_int_dp
-    this%trns_i_dp(2)%ptr => transform_quad_PX_int_dp
-    this%trns_i_dp(3)%ptr => transform_quad_PXT_int_dp
-    this%trns_i_dp(4)%ptr => transform_quad_PYT_int_dp
-    this%trns_i_dp(5)%ptr => transform_quad_PY_int_dp
-    this%trns_i_dp(6)%ptr => transform_quad_PXPYT_int_dp
-    this%trns_i_dp(7)%ptr => transform_quad_PXPY_int_dp
-    ! Inverse transformation of full array, different types
-    this%trns_inv_f_i4(0)%ptr => transform_quad_I_i4
-    this%trns_inv_f_i4(1)%ptr => transform_quad_T_full_i4
-    this%trns_inv_f_i4(2)%ptr => transform_quad_PX_full_i4
-    this%trns_inv_f_i4(3)%ptr => transform_quad_PYT_full_i4
-    this%trns_inv_f_i4(4)%ptr => transform_quad_PXT_full_i4
-    this%trns_inv_f_i4(5)%ptr => transform_quad_PY_full_i4
-    this%trns_inv_f_i4(6)%ptr => transform_quad_PXPYT_full_i4
-    this%trns_inv_f_i4(7)%ptr => transform_quad_PXPY_full_i4
-    this%trns_inv_f_i8(0)%ptr => transform_quad_I_i8
-    this%trns_inv_f_i8(1)%ptr => transform_quad_T_full_i8
-    this%trns_inv_f_i8(2)%ptr => transform_quad_PX_full_i8
-    this%trns_inv_f_i8(3)%ptr => transform_quad_PYT_full_i8
-    this%trns_inv_f_i8(4)%ptr => transform_quad_PXT_full_i8
-    this%trns_inv_f_i8(5)%ptr => transform_quad_PY_full_i8
-    this%trns_inv_f_i8(6)%ptr => transform_quad_PXPYT_full_i8
-    this%trns_inv_f_i8(7)%ptr => transform_quad_PXPY_full_i8
-    this%trns_inv_f_dp(0)%ptr => transform_quad_I_dp
-    this%trns_inv_f_dp(1)%ptr => transform_quad_T_full_dp
-    this%trns_inv_f_dp(2)%ptr => transform_quad_PX_full_dp
-    this%trns_inv_f_dp(3)%ptr => transform_quad_PYT_full_dp
-    this%trns_inv_f_dp(4)%ptr => transform_quad_PXT_full_dp
-    this%trns_inv_f_dp(5)%ptr => transform_quad_PY_full_dp
-    this%trns_inv_f_dp(6)%ptr => transform_quad_PXPYT_full_dp
-    this%trns_inv_f_dp(7)%ptr => transform_quad_PXPY_full_dp
-    ! Inverse transformation of array interior, different types
-    this%trns_inv_i_i4(0)%ptr => transform_quad_I_i4
-    this%trns_inv_i_i4(1)%ptr => transform_quad_T_int_i4
-    this%trns_inv_i_i4(2)%ptr => transform_quad_PX_int_i4
-    this%trns_inv_i_i4(3)%ptr => transform_quad_PYT_int_i4
-    this%trns_inv_i_i4(4)%ptr => transform_quad_PXT_int_i4
-    this%trns_inv_i_i4(5)%ptr => transform_quad_PY_int_i4
-    this%trns_inv_i_i4(6)%ptr => transform_quad_PXPYT_int_i4
-    this%trns_inv_i_i4(7)%ptr => transform_quad_PXPY_int_i4
-    this%trns_inv_i_i8(0)%ptr => transform_quad_I_i8
-    this%trns_inv_i_i8(1)%ptr => transform_quad_T_int_i8
-    this%trns_inv_i_i8(2)%ptr => transform_quad_PX_int_i8
-    this%trns_inv_i_i8(3)%ptr => transform_quad_PYT_int_i8
-    this%trns_inv_i_i8(4)%ptr => transform_quad_PXT_int_i8
-    this%trns_inv_i_i8(5)%ptr => transform_quad_PY_int_i8
-    this%trns_inv_i_i8(6)%ptr => transform_quad_PXPYT_int_i8
-    this%trns_inv_i_i8(7)%ptr => transform_quad_PXPY_int_i8
-    this%trns_inv_i_dp(0)%ptr => transform_quad_I_dp
-    this%trns_inv_i_dp(1)%ptr => transform_quad_T_int_dp
-    this%trns_inv_i_dp(2)%ptr => transform_quad_PX_int_dp
-    this%trns_inv_i_dp(3)%ptr => transform_quad_PYT_int_dp
-    this%trns_inv_i_dp(4)%ptr => transform_quad_PXT_int_dp
-    this%trns_inv_i_dp(5)%ptr => transform_quad_PY_int_dp
-    this%trns_inv_i_dp(6)%ptr => transform_quad_PXPYT_int_dp
-    this%trns_inv_i_dp(7)%ptr => transform_quad_PXPY_int_dp
-  end subroutine quad_init
+    if (allocated(trns)) then
+       deallocate(trns)
+    end if
 
-  !> @brief Free procedure pointers
-  subroutine quad_free(this)
-    class(alignment_quad_t), intent(inout) :: this
+    select case(algn)
+    case(0) ! identity
+       allocate(alignment_quad_I_t :: trns)
+       call trns%set_algn(algn)
+    case(1) ! transposition
+       allocate(alignment_quad_T_t :: trns)
+       call trns%set_algn(algn)
+    case(2) ! row permutation
+       allocate(alignment_quad_PX_t :: trns)
+       call trns%set_algn(algn)
+    case(3) ! row permutation and transposition
+       allocate(alignment_quad_PXT_t :: trns)
+       call trns%set_algn(algn)
+    case(4) ! column permutation and transposition
+       allocate(alignment_quad_PYT_t :: trns)
+       call trns%set_algn(algn)
+    case(5) ! column permutation
+       allocate(alignment_quad_PY_t :: trns)
+       call trns%set_algn(algn)
+    case(6) ! row, column permutation and transposition
+       allocate(alignment_quad_PXPYT_t :: trns)
+       call trns%set_algn(algn)
+    case(7) ! row, column permutation
+       allocate(alignment_quad_PXPY_t :: trns)
+       call trns%set_algn(algn)
+    case default
+       call neko_error('Wrong quad alignment')
+    end select
+
+  end subroutine alignment_quad_init
+
+  !> @brief Initialise alignment operator set
+  subroutine quad_set_init(this)
+    class(alignment_quad_set_t), intent(inout) :: this
     integer(i4) :: il
 
-    ! free pointers
-    do il = 0, NEKO_QUAD_NOPERATION
-       this%trns_f_i4(il)%ptr => null()
-       this%trns_f_i8(il)%ptr => null()
-       this%trns_f_dp(il)%ptr => null()
-       this%trns_i_i4(il)%ptr => null()
-       this%trns_i_i8(il)%ptr => null()
-       this%trns_i_dp(il)%ptr => null()
-       this%trns_inv_f_i4(il)%ptr => null()
-       this%trns_inv_f_i8(il)%ptr => null()
-       this%trns_inv_f_dp(il)%ptr => null()
-       this%trns_inv_i_i4(il)%ptr => null()
-       this%trns_inv_i_i8(il)%ptr => null()
-       this%trns_inv_i_dp(il)%ptr => null()
-    end do
-  end subroutine quad_free
-
-  !> @brief Get number of operations
-  !! @return   noperation
-  pure function quad_noperation_get(this) result(noperation)
-    class(alignment_quad_t), intent(in) :: this
-    integer(i4) :: noperation
-    noperation = this%noperation_
-  end function quad_noperation_get
-
-  !> @brief Initialise alignment and procedure pointers
-  !! @parameter[in]   algn   alignment
-  subroutine quad_op_set_init(this, algn)
-    class(alignment_quad_op_set_t), intent(inout) :: this
-    integer(i4), intent(in) :: algn
-
     call this%free()
 
-    ! set relative alignment transformation
-    if ((algn >= 0) .and. (algn <= NEKO_QUAD_NOPERATION)) then
-       this%alignment = algn
-    else
-       call neko_error('Not proper alignment.')
-    end if
-    select case(algn)
-    case(0)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%ptr => transform_quad_I_i4
-       this%trns_f_i8%ptr => transform_quad_I_i8
-       this%trns_f_dp%ptr => transform_quad_I_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%ptr => transform_quad_I_i4
-       this%trns_i_i8%ptr => transform_quad_I_i8
-       this%trns_i_dp%ptr => transform_quad_I_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%ptr => transform_quad_I_i4
-       this%trns_inv_f_i8%ptr => transform_quad_I_i8
-       this%trns_inv_f_dp%ptr => transform_quad_I_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%ptr => transform_quad_I_i4
-       this%trns_inv_i_i8%ptr => transform_quad_I_i8
-       this%trns_inv_i_dp%ptr => transform_quad_I_dp
-    case(1)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%ptr => transform_quad_T_full_i4
-       this%trns_f_i8%ptr => transform_quad_T_full_i8
-       this%trns_f_dp%ptr => transform_quad_T_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%ptr => transform_quad_T_int_i4
-       this%trns_i_i8%ptr => transform_quad_T_int_i8
-       this%trns_i_dp%ptr => transform_quad_T_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%ptr => transform_quad_T_full_i4
-       this%trns_inv_f_i8%ptr => transform_quad_T_full_i8
-       this%trns_inv_f_dp%ptr => transform_quad_T_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%ptr => transform_quad_T_int_i4
-       this%trns_inv_i_i8%ptr => transform_quad_T_int_i8
-       this%trns_inv_i_dp%ptr => transform_quad_T_int_dp
-    case(2)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%ptr => transform_quad_PX_full_i4
-       this%trns_f_i8%ptr => transform_quad_PX_full_i8
-       this%trns_f_dp%ptr => transform_quad_PX_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%ptr => transform_quad_PX_int_i4
-       this%trns_i_i8%ptr => transform_quad_PX_int_i8
-       this%trns_i_dp%ptr => transform_quad_PX_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%ptr => transform_quad_PX_full_i4
-       this%trns_inv_f_i8%ptr => transform_quad_PX_full_i8
-       this%trns_inv_f_dp%ptr => transform_quad_PX_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%ptr => transform_quad_PX_int_i4
-       this%trns_inv_i_i8%ptr => transform_quad_PX_int_i8
-       this%trns_inv_i_dp%ptr => transform_quad_PX_int_dp
-    case(3)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%ptr => transform_quad_PXT_full_i4
-       this%trns_f_i8%ptr => transform_quad_PXT_full_i8
-       this%trns_f_dp%ptr => transform_quad_PXT_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%ptr => transform_quad_PXT_int_i4
-       this%trns_i_i8%ptr => transform_quad_PXT_int_i8
-       this%trns_i_dp%ptr => transform_quad_PXT_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%ptr => transform_quad_PYT_full_i4
-       this%trns_inv_f_i8%ptr => transform_quad_PYT_full_i8
-       this%trns_inv_f_dp%ptr => transform_quad_PYT_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%ptr => transform_quad_PYT_int_i4
-       this%trns_inv_i_i8%ptr => transform_quad_PYT_int_i8
-       this%trns_inv_i_dp%ptr => transform_quad_PYT_int_dp
-    case(4)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%ptr => transform_quad_PYT_full_i4
-       this%trns_f_i8%ptr => transform_quad_PYT_full_i8
-       this%trns_f_dp%ptr => transform_quad_PYT_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%ptr => transform_quad_PYT_int_i4
-       this%trns_i_i8%ptr => transform_quad_PYT_int_i8
-       this%trns_i_dp%ptr => transform_quad_PYT_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%ptr => transform_quad_PXT_full_i4
-       this%trns_inv_f_i8%ptr => transform_quad_PXT_full_i8
-       this%trns_inv_f_dp%ptr => transform_quad_PXT_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%ptr => transform_quad_PXT_int_i4
-       this%trns_inv_i_i8%ptr => transform_quad_PXT_int_i8
-       this%trns_inv_i_dp%ptr => transform_quad_PXT_int_dp
-    case(5)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%ptr => transform_quad_PY_full_i4
-       this%trns_f_i8%ptr => transform_quad_PY_full_i8
-       this%trns_f_dp%ptr => transform_quad_PY_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%ptr => transform_quad_PY_int_i4
-       this%trns_i_i8%ptr => transform_quad_PY_int_i8
-       this%trns_i_dp%ptr => transform_quad_PY_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%ptr => transform_quad_PY_full_i4
-       this%trns_inv_f_i8%ptr => transform_quad_PY_full_i8
-       this%trns_inv_f_dp%ptr => transform_quad_PY_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%ptr => transform_quad_PY_int_i4
-       this%trns_inv_i_i8%ptr => transform_quad_PY_int_i8
-       this%trns_inv_i_dp%ptr => transform_quad_PY_int_dp
-    case(6)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%ptr => transform_quad_PXPYT_full_i4
-       this%trns_f_i8%ptr => transform_quad_PXPYT_full_i8
-       this%trns_f_dp%ptr => transform_quad_PXPYT_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%ptr => transform_quad_PXPYT_int_i4
-       this%trns_i_i8%ptr => transform_quad_PXPYT_int_i8
-       this%trns_i_dp%ptr => transform_quad_PXPYT_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%ptr => transform_quad_PXPYT_full_i4
-       this%trns_inv_f_i8%ptr => transform_quad_PXPYT_full_i8
-       this%trns_inv_f_dp%ptr => transform_quad_PXPYT_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%ptr => transform_quad_PXPYT_int_i4
-       this%trns_inv_i_i8%ptr => transform_quad_PXPYT_int_i8
-       this%trns_inv_i_dp%ptr => transform_quad_PXPYT_int_dp
-    case(7)
-       ! Direct transformation of full array, different types
-       this%trns_f_i4%ptr => transform_quad_PXPY_full_i4
-       this%trns_f_i8%ptr => transform_quad_PXPY_full_i8
-       this%trns_f_dp%ptr => transform_quad_PXPY_full_dp
-       ! Direct transformation of array interior, different types
-       this%trns_i_i4%ptr => transform_quad_PXPY_int_i4
-       this%trns_i_i8%ptr => transform_quad_PXPY_int_i8
-       this%trns_i_dp%ptr => transform_quad_PXPY_int_dp
-       ! Inverse transformation of full array, different types
-       this%trns_inv_f_i4%ptr => transform_quad_PXPY_full_i4
-       this%trns_inv_f_i8%ptr => transform_quad_PXPY_full_i8
-       this%trns_inv_f_dp%ptr => transform_quad_PXPY_full_dp
-       ! Inverse transformation of array interior, different types
-       this%trns_inv_i_i4%ptr => transform_quad_PXPY_int_i4
-       this%trns_inv_i_i8%ptr => transform_quad_PXPY_int_i8
-       this%trns_inv_i_dp%ptr => transform_quad_PXPY_int_dp
-    end select
-  end subroutine quad_op_set_init
+    call this%set_nop(NEKO_QUAD_NOPERATION)
 
-  !> @brief Free alignment and procedure pointers
-  subroutine quad_op_set_free(this)
-    class(alignment_quad_op_set_t), intent(inout) :: this
+    allocate(this%trns(0 : NEKO_QUAD_NOPERATION))
 
-    this%alignment = -1
-    ! free pointers
-    this%trns_f_i4%ptr => null()
-    this%trns_f_i8%ptr => null()
-    this%trns_f_dp%ptr => null()
-    this%trns_i_i4%ptr => null()
-    this%trns_i_i8%ptr => null()
-    this%trns_i_dp%ptr => null()
-    this%trns_inv_f_i4%ptr => null()
-    this%trns_inv_f_i8%ptr => null()
-    this%trns_inv_f_dp%ptr => null()
-    this%trns_inv_i_i4%ptr => null()
-    this%trns_inv_i_i8%ptr => null()
-    this%trns_inv_i_dp%ptr => null()
-  end subroutine quad_op_set_free
+    do il = 0, NEKO_QUAD_NOPERATION
+       call alignment_quad_init(il, this%trns(il)%op)
+    end do
+
+  end subroutine quad_set_init
 
   !> @brief Identity transformation, single integer array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_I_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_I_i4(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i4), dimension(n1, n2), intent(inout) :: vec
   end subroutine transform_quad_I_i4
 
-  !> @brief Transpose transformation, single integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_T_full_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
+  !> @brief Transpose transformation, single integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_T_i4(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i4), dimension(n1, n2), intent(inout) :: vec
     ! local variables
     integer(i4) :: il, jl
     integer(i4) :: iface
 
-    do jl = 1, sz
-       do il = 1, jl -1
-          iface = fcs(il, jl)
-          fcs(il, jl) = fcs(jl, il)
-          fcs(jl, il) = iface
+    do jl = ist, n2 - (ist - 1)
+       do il = ist, jl -1
+          iface = vec(il, jl)
+          vec(il, jl) = vec(jl, il)
+          vec(jl, il) = iface
        end do
     end do
-  end subroutine transform_quad_T_full_i4
+  end subroutine transform_quad_T_i4
 
-  !> @brief Transpose transformation, single integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_T_int_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
+  !> @brief Column permutation transformation, single integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PX_i4(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i4), dimension(n1, n2), intent(inout) :: vec
     ! local variables
     integer(i4) :: il, jl
     integer(i4) :: iface
 
-    do jl = 2, sz - 1
-       do il = 2, jl -1
-          iface = fcs(il, jl)
-          fcs(il, jl) = fcs(jl, il)
-          fcs(jl, il) = iface
+    do jl = ist, n2 - (ist - 1)
+       do il = ist, n1 / 2
+          iface = vec(il, jl)
+          vec(il, jl) = vec(n1 + 1 - il, jl)
+          vec(n1 + 1 - il, jl) = iface
        end do
     end do
-  end subroutine transform_quad_T_int_i4
+  end subroutine transform_quad_PX_i4
 
-  !> @brief Column permutation transformation, single integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PX_full_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
+  !> @brief Row permutation transformation, single integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PY_i4(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i4), dimension(n1, n2), intent(inout) :: vec
     ! local variables
     integer(i4) :: il, jl
     integer(i4) :: iface
 
-    do jl = 1, sz
-       do il = 1, sz/2
-          iface = fcs(il, jl)
-          fcs(il, jl) = fcs(sz + 1 - il, jl)
-          fcs(sz + 1 - il, jl) = iface
+    do jl = ist, n2 / 2
+       do il = ist, n1 - (ist - 1)
+          iface = vec(il, jl)
+          vec(il, jl) = vec(il, n2 + 1 - jl)
+          vec(il, n2 + 1 - jl) = iface
        end do
     end do
-  end subroutine transform_quad_PX_full_i4
+  end subroutine transform_quad_PY_i4
 
-  !> @brief Column permutation transformation, single integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PX_int_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
-    ! local variables
-    integer(i4) :: il, jl
-    integer(i4) :: iface
+  !> @brief PXT = TPY transformation, single integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PXT_i4(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i4), dimension(n1, n2), intent(inout) :: vec
 
-    do jl = 2, sz - 1
-       do il = 2, sz/2
-          iface = fcs(il, jl)
-          fcs(il, jl) = fcs(sz + 1 - il, jl)
-          fcs(sz + 1 - il, jl) = iface
-       end do
-    end do
-  end subroutine transform_quad_PX_int_i4
+    call transform_quad_PX_i4(vec, n1, n2, ist)
+    call transform_quad_T_i4(vec, n1, n2, ist)
+  end subroutine transform_quad_PXT_i4
 
-  !> @brief Row permutation transformation, single integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PY_full_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
-    ! local variables
-    integer(i4) :: il, jl
-    integer(i4) :: iface
+  !> @brief PYT = TPX transformation, single integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PYT_i4(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i4), dimension(n1, n2), intent(inout) :: vec
 
-    do jl = 1, sz/2
-       work(1: sz) = fcs(1: sz, jl)
-       fcs(1: sz, jl) = fcs(1: sz, sz + 1 - jl)
-       fcs(1: sz, sz + 1 - jl) = work(1: sz)
-    end do
-    ! or
-    !do jl = 1, sz/2
-    !   do il = 1, sz
-    !      iface = fcs(il, jl)
-    !      fcs(il, jl) = fcs(il, sz + 1 - jl)
-    !      fcs(il, sz + 1 - jl) = iface
-    !   end do
-    !end do
-  end subroutine transform_quad_PY_full_i4
+    call transform_quad_PY_i4(vec, n1, n2, ist)
+    call transform_quad_T_i4(vec, n1, n2, ist)
+  end subroutine transform_quad_PYT_i4
 
-  !> @brief Row permutation transformation, single integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PY_int_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
-    ! local variables
-    integer(i4) :: il, jl
-    integer(i4) :: iface
+  !> @brief PXPYT=PYPXT=TPYPX=TPXPY, single integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PXPYT_i4(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i4), dimension(n1, n2), intent(inout) :: vec
 
-    do jl = 2, sz/2
-       work(2: sz - 1) = fcs(2: sz - 1, jl)
-       fcs(2: sz - 1, jl) = fcs(2: sz - 1, sz + 1 - jl)
-       fcs(2: sz - 1, sz + 1 - jl) = work(2: sz - 1)
-    end do
-    ! or
-    !do jl = 2, sz/2
-    !   do il = 2, sz - 1
-    !      iface = fcs(il, jl)
-    !      fcs(il, jl) = fcs(il, sz + 1 - jl)
-    !      fcs(il, sz + 1 - jl) = iface
-    !   end do
-    !end do
-  end subroutine transform_quad_PY_int_i4
+    call transform_quad_PX_i4(vec, n1, n2, ist)
+    call transform_quad_PY_i4(vec, n1, n2, ist)
+    call transform_quad_T_i4(vec, n1, n2, ist)
+  end subroutine transform_quad_PXPYT_i4
 
-  !> @brief PXT = TPY transformation, single integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXT_full_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
+  !> @brief PXPY = PYPX transformation, single integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PXPY_i4(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i4), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_full_i4(sz, fcs, work)
-    call transform_quad_T_full_i4(sz, fcs, work)
-  end subroutine transform_quad_PXT_full_i4
-
-  !> @brief PXT = TPY transformation, single integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXT_int_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_int_i4(sz, fcs, work)
-    call transform_quad_T_int_i4(sz, fcs, work)
-  end subroutine transform_quad_PXT_int_i4
-
-  !> @brief PYT = TPX transformation, single integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PYT_full_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PY_full_i4(sz, fcs, work)
-    call transform_quad_T_full_i4(sz, fcs, work)
-  end subroutine transform_quad_PYT_full_i4
-
-  !> @brief PYT = TPX transformation, single integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PYT_int_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PY_int_i4(sz, fcs, work)
-    call transform_quad_T_int_i4(sz, fcs, work)
-  end subroutine transform_quad_PYT_int_i4
-
-  !> @brief PXPYT=PYPXT=TPYPX=TPXPY, single integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPYT_full_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_full_i4(sz, fcs, work)
-    call transform_quad_PY_full_i4(sz, fcs, work)
-    call transform_quad_T_full_i4(sz, fcs, work)
-  end subroutine transform_quad_PXPYT_full_i4
-
-  !> @brief  PXPYT=PYPXT=TPYPX=TPXPY, single integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPYT_int_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_int_i4(sz, fcs, work)
-    call transform_quad_PY_int_i4(sz, fcs, work)
-    call transform_quad_T_int_i4(sz, fcs, work)
-  end subroutine transform_quad_PXPYT_int_i4
-
-  !> @brief PXPY = PYPX transformation, single integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPY_full_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_full_i4(sz, fcs, work)
-    call transform_quad_PY_full_i4(sz, fcs, work)
-  end subroutine transform_quad_PXPY_full_i4
-
-  !> @brief  PXPY = PYPX transformation, single integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPY_int_i4(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i4), dimension(sz, sz), intent(inout) :: fcs
-    integer(i4), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_int_i4(sz, fcs, work)
-    call transform_quad_PY_int_i4(sz, fcs, work)
-  end subroutine transform_quad_PXPY_int_i4
+    call transform_quad_PX_i4(vec, n1, n2, ist)
+    call transform_quad_PY_i4(vec, n1, n2, ist)
+  end subroutine transform_quad_PXPY_i4
 
   !> @brief Identity transformation, double integer array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_I_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_I_i8(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i8), dimension(n1, n2), intent(inout) :: vec
   end subroutine transform_quad_I_i8
 
-  !> @brief Transpose transformation, double integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_T_full_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
+  !> @brief Transpose transformation, double integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_T_i8(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i8), dimension(n1, n2), intent(inout) :: vec
     ! local variables
     integer(i4) :: il, jl
     integer(i8) :: iface
 
-    do jl = 1, sz
-       do il = 1, jl -1
-          iface = fcs(il, jl)
-          fcs(il, jl) = fcs(jl, il)
-          fcs(jl, il) = iface
+    do jl = ist, n2 - (ist - 1)
+       do il = ist, jl -1
+          iface = vec(il, jl)
+          vec(il, jl) = vec(jl, il)
+          vec(jl, il) = iface
        end do
     end do
-  end subroutine transform_quad_T_full_i8
+  end subroutine transform_quad_T_i8
 
-  !> @brief Transpose transformation, double integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_T_int_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
+  !> @brief Column permutation transformation, double integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PX_i8(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i8), dimension(n1, n2), intent(inout) :: vec
     ! local variables
     integer(i4) :: il, jl
     integer(i8) :: iface
 
-    do jl = 2, sz - 1
-       do il = 2, jl -1
-          iface = fcs(il, jl)
-          fcs(il, jl) = fcs(jl, il)
-          fcs(jl, il) = iface
+    do jl = ist, n2 - (ist - 1)
+       do il = ist, n1 / 2
+          iface = vec(il, jl)
+          vec(il, jl) = vec(n1 + 1 - il, jl)
+          vec(n1 + 1 - il, jl) = iface
        end do
     end do
-  end subroutine transform_quad_T_int_i8
+  end subroutine transform_quad_PX_i8
 
-  !> @brief Column permutation transformation, double integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PX_full_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
+  !> @brief Row permutation transformation, double integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PY_i8(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i8), dimension(n1, n2), intent(inout) :: vec
     ! local variables
     integer(i4) :: il, jl
     integer(i8) :: iface
 
-    do jl = 1, sz
-       do il = 1, sz/2
-          iface = fcs(il, jl)
-          fcs(il, jl) = fcs(sz + 1 - il, jl)
-          fcs(sz + 1 - il, jl) = iface
+    do jl = ist, n2 / 2
+       do il = ist, n1 - (ist - 1)
+          iface = vec(il, jl)
+          vec(il, jl) = vec(il, n2 + 1 - jl)
+          vec(il, n2 + 1 - jl) = iface
        end do
     end do
-  end subroutine transform_quad_PX_full_i8
+  end subroutine transform_quad_PY_i8
 
-  !> @brief Column permutation transformation, double integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PX_int_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
-    ! local variables
-    integer(i4) :: il, jl
-    integer(i8) :: iface
+  !> @brief PXT = TPY transformation, double integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PXT_i8(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i8), dimension(n1, n2), intent(inout) :: vec
 
-    do jl = 2, sz - 1
-       do il = 2, sz/2
-          iface = fcs(il, jl)
-          fcs(il, jl) = fcs(sz + 1 - il, jl)
-          fcs(sz + 1 - il, jl) = iface
-       end do
-    end do
-  end subroutine transform_quad_PX_int_i8
+    call transform_quad_PX_i8(vec, n1, n2, ist)
+    call transform_quad_T_i8(vec, n1, n2, ist)
+  end subroutine transform_quad_PXT_i8
 
-  !> @brief Row permutation transformation, double integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PY_full_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
-    ! local variables
-    integer(i4) :: il, jl
-    integer(i8) :: iface
+  !> @brief PYT = TPX transformation, double integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PYT_i8(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i8), dimension(n1, n2), intent(inout) :: vec
 
-    do jl = 1, sz/2
-       work(1: sz) = fcs(1: sz, jl)
-       fcs(1: sz, jl) = fcs(1: sz, sz + 1 - jl)
-       fcs(1: sz, sz + 1 - jl) = work(1: sz)
-    end do
-    ! or
-    !do jl = 1, sz/2
-    !   do il = 1, sz
-    !      iface = fcs(il, jl)
-    !      fcs(il, jl) = fcs(il, sz + 1 - jl)
-    !      fcs(il, sz + 1 - jl) = iface
-    !   end do
-    !end do
-  end subroutine transform_quad_PY_full_i8
+    call transform_quad_PY_i8(vec, n1, n2, ist)
+    call transform_quad_T_i8(vec, n1, n2, ist)
+  end subroutine transform_quad_PYT_i8
 
-  !> @brief Row permutation transformation, double integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PY_int_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
-    ! local variables
-    integer(i4) :: il, jl
-    integer(i8) :: iface
+  !> @brief PXPYT=PYPXT=TPYPX=TPXPY, double integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PXPYT_i8(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i8), dimension(n1, n2), intent(inout) :: vec
 
-    do jl = 2, sz/2
-       work(2: sz - 1) = fcs(2: sz - 1, jl)
-       fcs(2: sz - 1, jl) = fcs(2: sz - 1, sz + 1 - jl)
-       fcs(2: sz - 1, sz + 1 - jl) = work(2: sz - 1)
-    end do
-    ! or
-    !do jl = 2, sz/2
-    !   do il = 2, sz - 1
-    !      iface = fcs(il, jl)
-    !      fcs(il, jl) = fcs(il, sz + 1 - jl)
-    !      fcs(il, sz + 1 - jl) = iface
-    !   end do
-    !end do
-  end subroutine transform_quad_PY_int_i8
+    call transform_quad_PX_i8(vec, n1, n2, ist)
+    call transform_quad_PY_i8(vec, n1, n2, ist)
+    call transform_quad_T_i8(vec, n1, n2, ist)
+  end subroutine transform_quad_PXPYT_i8
 
-  !> @brief PXT = TPY transformation, double integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXT_full_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
+  !> @brief PXPY = PYPX transformation, double integer
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PXPY_i8(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    integer(i8), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_full_i8(sz, fcs, work)
-    call transform_quad_T_full_i8(sz, fcs, work)
-  end subroutine transform_quad_PXT_full_i8
-
-  !> @brief PXT = TPY transformation, double integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXT_int_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_int_i8(sz, fcs, work)
-    call transform_quad_T_int_i8(sz, fcs, work)
-  end subroutine transform_quad_PXT_int_i8
-
-  !> @brief PYT = TPX transformation, double integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PYT_full_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PY_full_i8(sz, fcs, work)
-    call transform_quad_T_full_i8(sz, fcs, work)
-  end subroutine transform_quad_PYT_full_i8
-
-  !> @brief PYT = TPX transformation, double integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PYT_int_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PY_int_i8(sz, fcs, work)
-    call transform_quad_T_int_i8(sz, fcs, work)
-  end subroutine transform_quad_PYT_int_i8
-
-  !> @brief PXPYT=PYPXT=TPYPX=TPXPY, double integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPYT_full_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_full_i8(sz, fcs, work)
-    call transform_quad_PY_full_i8(sz, fcs, work)
-    call transform_quad_T_full_i8(sz, fcs, work)
-  end subroutine transform_quad_PXPYT_full_i8
-
-  !> @brief  PXPYT=PYPXT=TPYPX=TPXPY, double integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPYT_int_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_int_i8(sz, fcs, work)
-    call transform_quad_PY_int_i8(sz, fcs, work)
-    call transform_quad_T_int_i8(sz, fcs, work)
-  end subroutine transform_quad_PXPYT_int_i8
-
-  !> @brief PXPY = PYPX transformation, double integer, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPY_full_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_full_i8(sz, fcs, work)
-    call transform_quad_PY_full_i8(sz, fcs, work)
-  end subroutine transform_quad_PXPY_full_i8
-
-  !> @brief  PXPY = PYPX transformation, double integer, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPY_int_i8(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    integer(i8), dimension(sz, sz), intent(inout) :: fcs
-    integer(i8), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_int_i8(sz, fcs, work)
-    call transform_quad_PY_int_i8(sz, fcs, work)
-  end subroutine transform_quad_PXPY_int_i8
+    call transform_quad_PX_i8(vec, n1, n2, ist)
+    call transform_quad_PY_i8(vec, n1, n2, ist)
+  end subroutine transform_quad_PXPY_i8
 
   !> @brief Identity transformation, double precision array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_I_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_I_dp(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    real(dp), dimension(n1, n2), intent(inout) :: vec
   end subroutine transform_quad_I_dp
 
-  !> @brief Transpose transformation, double precision, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_T_full_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
+  !> @brief Transpose transformation, double precision
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_T_dp(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    real(dp), dimension(n1, n2), intent(inout) :: vec
     ! local variables
     integer(i4) :: il, jl
     real(dp) :: rface
 
-    do jl = 1, sz
-       do il = 1, jl -1
-          rface = fcs(il, jl)
-          fcs(il, jl) = fcs(jl, il)
-          fcs(jl, il) = rface
+    do jl = ist, n2 - (ist - 1)
+       do il = ist, jl -1
+          rface = vec(il, jl)
+          vec(il, jl) = vec(jl, il)
+          vec(jl, il) = rface
        end do
     end do
-  end subroutine transform_quad_T_full_dp
+  end subroutine transform_quad_T_dp
 
-  !> @brief Transpose transformation, double precision, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_T_int_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
+  !> @brief Column permutation transformation, double precision
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PX_dp(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    real(dp), dimension(n1, n2), intent(inout) :: vec
     ! local variables
     integer(i4) :: il, jl
     real(dp) :: rface
 
-    do jl = 2, sz - 1
-       do il = 2, jl -1
-          rface = fcs(il, jl)
-          fcs(il, jl) = fcs(jl, il)
-          fcs(jl, il) = rface
+    do jl = ist, n2 - (ist - 1)
+       do il = ist, n1 / 2
+          rface = vec(il, jl)
+          vec(il, jl) = vec(n1 + 1 - il, jl)
+          vec(n1 + 1 - il, jl) = rface
        end do
     end do
-  end subroutine transform_quad_T_int_dp
+  end subroutine transform_quad_PX_dp
 
-  !> @brief Column permutation transformation, double precision, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PX_full_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
+  !> @brief Row permutation transformation, double precision
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PY_dp(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    real(dp), dimension(n1, n2), intent(inout) :: vec
     ! local variables
     integer(i4) :: il, jl
     real(dp) :: rface
 
-    do jl = 1, sz
-       do il = 1, sz/2
-          rface = fcs(il, jl)
-          fcs(il, jl) = fcs(sz + 1 - il, jl)
-          fcs(sz + 1 - il, jl) = rface
+    do jl = ist, n2 / 2
+       do il = ist, n1 - (ist - 1)
+          rface = vec(il, jl)
+          vec(il, jl) = vec(il, n2 + 1 - jl)
+          vec(il, n2 + 1 - jl) = rface
        end do
     end do
-  end subroutine transform_quad_PX_full_dp
+  end subroutine transform_quad_PY_dp
 
-  !> @brief Column permutation transformation, double precision, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PX_int_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
-    ! local variables
-    integer(i4) :: il, jl
-    real(dp) :: rface
+  !> @brief PXT = TPY transformation, double precision
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PXT_dp(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    real(dp), dimension(n1, n2), intent(inout) :: vec
 
-    do jl = 2, sz - 1
-       do il = 2, sz/2
-          rface = fcs(il, jl)
-          fcs(il, jl) = fcs(sz + 1 - il, jl)
-          fcs(sz + 1 - il, jl) = rface
-       end do
-    end do
-  end subroutine transform_quad_PX_int_dp
+    call transform_quad_PX_dp(vec, n1, n2, ist)
+    call transform_quad_T_dp(vec, n1, n2, ist)
+  end subroutine transform_quad_PXT_dp
 
-  !> @brief Row permutation transformation, double precision, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PY_full_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
-    ! local variables
-    integer(i4) :: il, jl
-    real(dp) :: rface
+  !> @brief PYT = TPX transformation, double precision
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PYT_dp(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    real(dp), dimension(n1, n2), intent(inout) :: vec
 
-    do jl = 1, sz/2
-       work(1: sz) = fcs(1: sz, jl)
-       fcs(1: sz, jl) = fcs(1: sz, sz + 1 - jl)
-       fcs(1: sz, sz + 1 - jl) = work(1: sz)
-    end do
-    ! or
-    !do jl = 1, sz/2
-    !   do il = 1, sz
-    !      rface = fcs(il, jl)
-    !      fcs(il, jl) = fcs(il, sz + 1 - jl)
-    !      fcs(il, sz + 1 - jl) = rface
-    !   end do
-    !end do
-  end subroutine transform_quad_PY_full_dp
+    call transform_quad_PY_dp(vec, n1, n2, ist)
+    call transform_quad_T_dp(vec, n1, n2, ist)
+  end subroutine transform_quad_PYT_dp
 
-  !> @brief Row permutation transformation, double precision, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PY_int_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
-    ! local variables
-    integer(i4) :: il, jl
-    real(dp) :: rface
+  !> @brief PXPYT=PYPXT=TPYPX=TPXPY, double precision
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PXPYT_dp(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    real(dp), dimension(n1, n2), intent(inout) :: vec
 
-    do jl = 2, sz/2
-       work(2: sz - 1) = fcs(2: sz - 1, jl)
-       fcs(2: sz - 1, jl) = fcs(2: sz - 1, sz + 1 - jl)
-       fcs(2: sz - 1, sz + 1 - jl) = work(2: sz - 1)
-    end do
-    ! or
-    !do jl = 2, sz/2
-    !   do il = 2, sz - 1
-    !      rface = fcs(il, jl)
-    !      fcs(il, jl) = fcs(il, sz + 1 - jl)
-    !      fcs(il, sz + 1 - jl) = rface
-    !   end do
-    !end do
-  end subroutine transform_quad_PY_int_dp
+    call transform_quad_PX_dp(vec, n1, n2, ist)
+    call transform_quad_PY_dp(vec, n1, n2, ist)
+    call transform_quad_T_dp(vec, n1, n2, ist)
+  end subroutine transform_quad_PXPYT_dp
 
-  !> @brief PXT = TPY transformation, double precision, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXT_full_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
+  !> @brief PXPY = PYPX transformation, double precision
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  !! @parameter[in]      ist      starting position
+  pure subroutine transform_quad_PXPY_dp(vec, n1, n2, ist)
+    integer(i4), intent(in) :: n1, n2, ist
+    real(dp), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_full_dp(sz, fcs, work)
-    call transform_quad_T_full_dp(sz, fcs, work)
-  end subroutine transform_quad_PXT_full_dp
-
-  !> @brief PXT = TPY transformation, double precision, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXT_int_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_int_dp(sz, fcs, work)
-    call transform_quad_T_int_dp(sz, fcs, work)
-  end subroutine transform_quad_PXT_int_dp
-
-  !> @brief PYT = TPX transformation, double precision, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PYT_full_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PY_full_dp(sz, fcs, work)
-    call transform_quad_T_full_dp(sz, fcs, work)
-  end subroutine transform_quad_PYT_full_dp
-
-  !> @brief PYT = TPX transformation, double precision, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PYT_int_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PY_int_dp(sz, fcs, work)
-    call transform_quad_T_int_dp(sz, fcs, work)
-  end subroutine transform_quad_PYT_int_dp
-
-  !> @brief PXPYT=PYPXT=TPYPX=TPXPY, double precision, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPYT_full_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_full_dp(sz, fcs, work)
-    call transform_quad_PY_full_dp(sz, fcs, work)
-    call transform_quad_T_full_dp(sz, fcs, work)
-  end subroutine transform_quad_PXPYT_full_dp
-
-  !> @brief  PXPYT=PYPXT=TPYPX=TPXPY, double precision, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPYT_int_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_int_dp(sz, fcs, work)
-    call transform_quad_PY_int_dp(sz, fcs, work)
-    call transform_quad_T_int_dp(sz, fcs, work)
-  end subroutine transform_quad_PXPYT_int_dp
-
-  !> @brief PXPY = PYPX transformation, double precision, full array
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPY_full_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_full_dp(sz, fcs, work)
-    call transform_quad_PY_full_dp(sz, fcs, work)
-  end subroutine transform_quad_PXPY_full_dp
-
-  !> @brief  PXPY = PYPX transformation, double precision, array interior
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  !! @parameter[inout]  work     work space
-  pure subroutine transform_quad_PXPY_int_dp(sz, fcs, work)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
-    real(dp), dimension(sz), intent(inout) :: work
-
-    call transform_quad_PX_int_dp(sz, fcs, work)
-    call transform_quad_PY_int_dp(sz, fcs, work)
-  end subroutine transform_quad_PXPY_int_dp
+    call transform_quad_PX_dp(vec, n1, n2, ist)
+    call transform_quad_PY_dp(vec, n1, n2, ist)
+  end subroutine transform_quad_PXPY_dp
 
 end module alignment_quad
