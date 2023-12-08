@@ -39,14 +39,17 @@ module runtime_stats
   implicit none
   private
 
-  integer, public, parameter :: RT_STATS_FLUID=1, RT_STATS_SCALAR=2
-
+  integer, public, parameter :: RT_STATS_FLUID=1, RT_STATS_SCALAR=2, &
+                                RT_STATS_POST=3, RT_STATS_TOTAL=4
+  
+  character(len=13) :: RT_STATS_ID(4) = ['Fluid        ', &
+                                         'Scalar       ', &
+                                         'Post         ', &
+                                         'Total        ']
   type, public :: runtime_stats_t
      logical, private :: enabled_
-     real(kind=dp), private :: elapsed_time_fluid_
-     real(kind=dp), private :: elapsed_time_scalar_
-     integer, private :: nsamples_fluid_
-     integer, private :: nsamples_scalar_
+     real(kind=dp), private, allocatable :: elapsed_time_(:)
+     integer, private, allocatable :: nsamples_(:)
      integer, private :: start_step_
      integer, private :: total_steps_
      real(kind=dp), allocatable :: data(:,:)
@@ -76,18 +79,13 @@ contains
 
        this%total_steps_ =  ceiling(end_time / dt)
 
-       this%elapsed_time_fluid_ = 0.0
-       this%elapsed_time_scalar_ = 0.0
+       allocate(this%data(this%total_steps_, size(RT_STATS_ID)))
+       allocate(this%elapsed_time_(size(RT_STATS_ID)))
+       allocate(this%nsamples_(size(RT_STATS_ID)))
 
-       this%nsamples_fluid_ = 0
-       this%nsamples_scalar_ = 0
-
-       if (params%valid_path('case.scalar')) then
-          allocate(this%data(this%total_steps_, 2))
-       else
-          allocate(this%data(this%total_steps_, 1))
-       end if
        this%data = 0d0
+       this%elapsed_time_ = 0.0
+       this%nsamples_ = 0
        
        
     end if
@@ -103,17 +101,10 @@ contains
 
     if (this%enabled_ .and. tstep .ge. this%start_step_) then
 
-       if (region_id .eq. RT_STATS_FLUID) then
-          this%elapsed_time_fluid_ = this%elapsed_time_fluid_ + elapsed_time
-          this%nsamples_fluid_ = this%nsamples_fluid_ + 1
-          this%data(tstep, RT_STATS_FLUID) = elapsed_time                    
-       end if
-
-       if (region_id .eq. RT_STATS_SCALAR) then
-          this%elapsed_time_scalar_ = this%elapsed_time_scalar_ + elapsed_time
-          this%nsamples_scalar_ = this%nsamples_scalar_ + 1
-          this%data(tstep, RT_STATS_SCALAR) = elapsed_time                    
-       end if
+       this%elapsed_time_(region_id) = &
+            this%elapsed_time_(region_id) + elapsed_time
+       this%nsamples_(region_id) = this%nsamples_(region_id) + 1
+       this%data(tstep, region_id) = elapsed_time
        
     end if
 
@@ -123,36 +114,29 @@ contains
     class(runtime_stats_t), intent(inout) :: this
     character(len=LOG_SIZE) :: log_buf
     real(kind=dp) :: avg, std, sem
+    integer :: i
 
     if (this%enabled_) then
        call neko_log%section('Runtime statistics')
-       write(log_buf, '(A,A,x,A,A)') '               ','   Total time  ',&
+       call neko_log%newline()
+       write(log_buf, '(A,A,1x,A,A)') '               ','   Total time  ',&
                                      '     Avg. time ','    Range  +/-'
        call neko_log%message(log_buf)
        write(log_buf, '(A)') &
             '------------------------------------------------------------'
        call neko_log%message(log_buf)
-
-       avg = this%elapsed_time_fluid_ / this%nsamples_fluid_
-       std = sum((this%data(this%start_step_: &
-                            this%start_step_ + (this%nsamples_fluid_ - 1), & 
-                            RT_STATS_FLUID) - avg)**2) / this%nsamples_fluid_
-       sem = std / sqrt(real(this%nsamples_fluid_, dp))
-       write(log_buf, '(A,E15.7,x,x,E15.7, E15.7)')  'Fluid        ', &
-            this%elapsed_time_fluid_, avg, 2.5758_rp * sem
-       call neko_log%message(log_buf)
-
-       if (this%nsamples_scalar_ .gt. 0) then
-          avg = this%elapsed_time_scalar_ / this%nsamples_scalar_
-          std = sum((this%data(this%start_step_: &
-                     this%start_step_ + (this%nsamples_scalar_ - 1), & 
-                     RT_STATS_SCALAR) - avg)**2) / this%nsamples_scalar_
-          sem = std / sqrt(real(this%nsamples_scalar_, dp))
-          write(log_buf, '(A,E15.7,x,x,E15.7)')  'Scalar       ', &
-            this%elapsed_time_scalar_, avg, 2.5758_rp * sem
-          call neko_log%message(log_buf)
-
-       end if
+       
+       do i = 1, size(RT_STATS_ID)
+          if (this%nsamples_(i) .gt. 0) then
+             avg = this%elapsed_time_(i) / this%nsamples_(i)
+             std = sum((this%data(this%start_step_: this%start_step_ &
+                  + (this%nsamples_(i) - 1), i) - avg)**2) / this%nsamples_(i)
+             sem = std / sqrt(real(this%nsamples_(i), dp))
+             write(log_buf, '(A,E15.7,1x,1x,E15.7, E15.7)')  RT_STATS_ID(i), &
+                  this%elapsed_time_(i), avg, 2.5758_rp * sem
+             call neko_log%message(log_buf)
+          end if
+       end do
 
        call neko_log%newline()
        call neko_log%end_section()

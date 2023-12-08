@@ -59,7 +59,7 @@ contains
     implicit none
     type(case_t), intent(inout) :: C
     real(kind=rp) :: t, cfl
-    real(kind=dp) :: start_time_org, start_time, end_time
+    real(kind=dp) :: start_time_org, start_time_step, start_time, end_time
     character(len=LOG_SIZE) :: log_buf
     integer :: tstep, i
     character(len=:), allocatable :: restart_file
@@ -106,7 +106,8 @@ contains
     do while (t .lt. C%end_time .and. (.not. jobctrl_time_limit()))
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
-       start_time = MPI_WTIME()
+       start_time_step = MPI_WTIME()
+       start_time = start_time_step
        cfl = C%fluid%compute_cfl(C%dt)
        call neko_log%status(t, C%end_time)
        write(log_buf, '(A,I6)') 'Time-step: ', tstep
@@ -137,9 +138,11 @@ contains
                'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
                end_time-start_time
           call neko_log%end_section(log_buf)
+          call rt_stats%record(RT_STATS_SCALAR, end_time-start_time, t, tstep)
        end if
 
        call neko_log%section('Postprocessing')
+       start_time = MPI_WTIME()
        ! Execute all simulation components
        if (allocated(neko_simcomps)) then
           do i=1, size(neko_simcomps)
@@ -159,7 +162,9 @@ contains
 
        call C%usr%user_check(t, tstep,&
             C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
-
+       end_time = MPI_WTIME()
+       call rt_stats%record(RT_STATS_POST, end_time-start_time, t, tstep)
+       call rt_stats%record(RT_STATS_TOTAL, end_time-start_time_step, t, tstep)
        call neko_log%end_section()
 
        call neko_log%end()
