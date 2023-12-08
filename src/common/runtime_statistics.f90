@@ -46,6 +46,7 @@ module runtime_stats
                                          'Scalar       ', &
                                          'Post         ', &
                                          'Total        ']
+  !> Runtime statistics backend
   type, public :: runtime_stats_t
      logical, private :: enabled_
      real(kind=dp), private, allocatable :: elapsed_time_(:)
@@ -61,6 +62,7 @@ module runtime_stats
 
 contains
 
+  !> Initialize runtime statistics
   subroutine runtime_stats_init(this, params)
     class(runtime_stats_t), intent(inout) :: this
     type(json_file), target, intent(inout) :: params
@@ -92,6 +94,7 @@ contains
 
   end subroutine runtime_stats_init
 
+  !> Record the elapsed time for a specific region at a given time-step
   subroutine runtime_stats_record(this, region_id, elapsed_time, time, tstep)
     class(runtime_stats_t), intent(inout) :: this
     integer, intent(in) :: region_id
@@ -110,6 +113,7 @@ contains
 
   end subroutine runtime_stats_record
 
+  !> Report collected runtime statistics
   subroutine runtime_stats_report(this)
     class(runtime_stats_t), intent(inout) :: this
     character(len=LOG_SIZE) :: log_buf
