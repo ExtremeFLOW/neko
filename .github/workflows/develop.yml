@@ -5,7 +5,7 @@ on:
   pull_request:
      branches: [develop,release/*]
   workflow_dispatch:
-  
+
 jobs:
   linting:
       name: "Flint"
@@ -32,8 +32,11 @@ jobs:
             name: flint-report
             path: flint.txt
             retention-days: 5
+  formatting:
+    name: "Formatting"
+    uses: ./.github/workflows/formatting.yml
   GNU:
-    needs: linting
+    needs: [linting, formatting]
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: true
@@ -203,7 +206,7 @@ jobs:
           make -j $(nproc)
     
   Intel:
-    needs: linting
+    needs: [linting, formatting]
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
@@ -258,7 +261,7 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
   NVIDIA:
-    needs: linting
+    needs: [linting, formatting]
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: true
