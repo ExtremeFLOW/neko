@@ -39,7 +39,7 @@ module gs_mpi
   use stack, only : stack_i4_t
   use comm
   use, intrinsic :: iso_c_binding
-!$ use omp_lib
+  !$ use omp_lib
   implicit none
   private
 
@@ -156,7 +156,7 @@ contains
     integer :: i, ierr, thrdid
 
     thrdid = 0
-!$  thrdid = omp_get_thread_num()
+    !$ thrdid = omp_get_thread_num()
 
     do i = 1, size(this%recv_pe)
        ! We should not need this extra associate block, ant it works
