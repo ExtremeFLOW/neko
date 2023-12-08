@@ -1,10 +1,10 @@
 name: Formatting
 
 # Controls when the action will run.
-#on:
+on:
 #  pull_request:
 #     branches: [develop,release/*,master]
-#  workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   formatting:
