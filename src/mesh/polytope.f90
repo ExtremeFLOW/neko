@@ -30,49 +30,49 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Abstract type for abstract polytope class for mesh connectivity
-module polytope_cnn
-  use num_types, only : i2, i4
+!> Abstract type for abstract polytope class for mesh structure
+module polytope
+  use num_types, only : i4
   use utils, only : neko_error
   use entity, only : entity_t
   implicit none
   private
 
-  public :: polytope_cnn_t
+  public :: polytope_t
 
   !> Base type for an abstract polytope
   !! @details An abstract polytope of dimension @a dim_ is a partially ordered
   !! set of its lower dimension components: facets (dim -1), ridges (dim -2),
   !! peaks (dim -3)... I do not consider polytopes with dim > 3, so numbers of
-  !! facets(@a nfacet) ridges(@a nridge) and peaks (@a npeak) are taken into
+  !! facets (@a nfacet) ridges (@a nridge) and peaks (@a npeak) are taken into
   !! account only.
-  type, extends(entity_t), abstract :: polytope_cnn_t
+  type, extends(entity_t), abstract :: polytope_t
      !> Polytope dimension
-     integer(i2), private :: dim_ = -1
+     integer(i4), private :: dim_ = -1
      !> Facet number
-     integer(i2) :: nfacet = -1
+     integer(i4) :: nfacet = -1
      !> Ridge number
-     integer(i2) :: nridge = -1
+     integer(i4) :: nridge = -1
      !> Peak number
-     integer(i2) :: npeak = -1
+     integer(i4) :: npeak = -1
    contains
-     !> getter for polytope dimension
+     !> Return polytope dimension
      procedure, pass(this) :: dim => polytope_dim_get
-     !> setter for polytope dimension
+     !> Set polytope dimension
      procedure, pass(this) :: set_dim => polytope_dim_set
-     !> getter for polytope element number
+     !> Return polytope element number
      procedure, pass(this) :: nelem => polytope_element_number_get
-     !> setter for polytope element number
+     !> Set polytope element number
      procedure, pass(this) :: set_nelem => polytope_element_number_set
-     !> polytope equality on the level of dimension and element number
+     !> Polytope equality on the level of dimension and element number
      procedure, pass(this) :: equal_poly => polytope_equal
-  end type polytope_cnn_t
+  end type polytope_t
 
 contains
   !> @brief Get polytope dimension
   !! @return   dim
   pure function polytope_dim_get(this) result(dim)
-    class(polytope_cnn_t), intent(in) :: this
+    class(polytope_t), intent(in) :: this
     integer(i4) :: dim
     dim = this%dim_
   end function polytope_dim_get
@@ -80,7 +80,7 @@ contains
   !> @brief Set polytope dimension
   !! @parameter[in]   dim     polytope dimension
   subroutine polytope_dim_set(this, dim)
-    class(polytope_cnn_t), intent(inout) :: this
+    class(polytope_t), intent(inout) :: this
     integer(i4), intent(in) :: dim
     this%dim_ = dim
   end subroutine polytope_dim_set
@@ -90,7 +90,7 @@ contains
   !! @parameter[out]  nridge  number of rdiges
   !! @parameter[out]  npeak   number of peaks
   pure subroutine polytope_element_number_get(this, nfacet, nridge, npeak)
-    class(polytope_cnn_t), intent(in) :: this
+    class(polytope_t), intent(in) :: this
     integer(i4), intent(out) :: nfacet, nridge, npeak
     nfacet = this%nfacet
     nridge = this%nridge
@@ -103,7 +103,7 @@ contains
   !! @parameter[in]   nridge  number of rdiges
   !! @parameter[in]   npeak   number of peaks
   subroutine polytope_element_number_set(this, nfacet, nridge, npeak)
-    class(polytope_cnn_t), intent(inout) :: this
+    class(polytope_t), intent(inout) :: this
     integer(i4), intent(in) :: nfacet, nridge, npeak
     ! sanity check
     if (this%dim_ == -1) call neko_error('Polytope dimension not initialised')
@@ -148,7 +148,7 @@ contains
   !> @brief Check if two polytopes have the same dimension and element numbers
   !! @return   equal
   pure function polytope_equal(this, other) result(equal)
-    class(polytope_cnn_t), intent(in) :: this, other
+    class(polytope_t), intent(in) :: this, other
     logical :: equal
     integer(i4) :: nfacet, nridge, npeak, nfaceto, nridgeo, npeako
     equal = (this%dim() == other%dim())
@@ -160,4 +160,4 @@ contains
     end if
   end function polytope_equal
 
-end module polytope_cnn
+end module polytope
