@@ -84,7 +84,7 @@ module hsmg
   use mesh, only : mesh_t
   use krylov, only : ksp_t, ksp_monitor_t
   use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
-!$ use omp_lib
+  !$ use omp_lib
   implicit none
   private
 
@@ -400,8 +400,8 @@ contains
 
        thrdid = 0
        nthrds = 1
-!$     thrdid = omp_get_thread_num()
-!$     nthrds = omp_get_num_threads()
+       !$ thrdid = omp_get_thread_num()
+       !$ nthrds = omp_get_num_threads()
 
        if (thrdid .eq. 0) then
           call profiler_start_region('HSMG schwarz', 9)
