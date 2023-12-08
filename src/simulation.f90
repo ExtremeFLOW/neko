@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ module simulation
   use math, only : col2
   use simulation_component_global, only : neko_simcomps
   use json_utils, only : json_get_or_default
+  use runtime_stats
   implicit none
   private
 
@@ -63,6 +64,7 @@ contains
     integer :: tstep, i
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
+    type(runtime_stats_t) :: rt_stats
 
     t = 0d0
     tstep = 0
@@ -71,6 +73,9 @@ contains
     call neko_log%message(log_buf)
     write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
     call neko_log%message(log_buf)
+
+    ! Setup runtime statistics
+    call rt_stats%init(C%params)
 
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
@@ -120,6 +125,7 @@ contains
             'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
             end_time-start_time
        call neko_log%end_section(log_buf)
+       call rt_stats%record(RT_STATS_FLUID, end_time-start_time, t, tstep)
 
        ! Scalar step
        if (allocated(C%scalar)) then
@@ -172,8 +178,10 @@ contains
 
     call C%usr%user_finalize_modules(t, C%params)
 
+    call rt_stats%report()
+    
     call neko_log%end_section('Normal end.')
-
+    
   end subroutine neko_solve
 
   subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)
