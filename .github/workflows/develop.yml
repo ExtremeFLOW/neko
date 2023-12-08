@@ -33,7 +33,6 @@ jobs:
             path: flint.txt
             retention-days: 5
   formatting:
-    name: "Formatting"
     uses: ./.github/workflows/formatter.yml
   GNU:
     needs: [linting, formatting]
