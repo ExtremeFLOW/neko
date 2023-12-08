@@ -32,7 +32,7 @@
 !
 !> Abstract type for nonconforming interpolation operators
 module ncnf_interpolation
-use num_types, only : i4, dp
+use num_types, only : i4, rp
   implicit none
   private
 
@@ -49,27 +49,27 @@ use num_types, only : i4, dp
      !> Set relative polytope alignment
      procedure, pass(this) :: set_hng => interpolation_hng_set
      !> Patent-child interpolation
-     procedure(transform_dp), nopass, deferred :: intp
+     procedure(transform_rp), nopass, deferred :: intp
      !> Transposed interpolation
-     procedure(transform_dp), nopass, deferred :: intpT
+     procedure(transform_rp), nopass, deferred :: intpT
      !> Initialise interpolation data
      procedure(operator_init), pass(this), deferred :: set_jmat
      !> Free interpolation data
      procedure(operator_free), pass(this), deferred :: free_jmat
   end type ncnf_interpolation_t
 
-  !> Abstract interface for various transformations; double precision type
+  !> Abstract interface for various transformations; real type
   !! @notice It is a common interface for 1D and 2D operations, so the data
   !! array @a vec is rank 2 even for 1D operations.
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   abstract interface
-     pure subroutine transform_dp(vec, n1, n2)
+     pure subroutine transform_rp(vec, n1, n2)
        import i4
-       import dp
+       import rp
        integer(i4), intent(in) :: n1, n2
-       real(dp), dimension(n1, n2), intent(inout) :: vec
-     end subroutine transform_dp
+       real(rp), dimension(n1, n2), intent(inout) :: vec
+     end subroutine transform_rp
   end interface
 
   !> Abstract interface to initialisation the interpolation data
@@ -80,7 +80,7 @@ use num_types, only : i4, dp
   abstract interface
      subroutine operator_init(this, lr, ls)
        import i4
-       import dp
+       import rp
        import :: ncnf_interpolation_t
        class(ncnf_interpolation_t), intent(inout) :: this
        integer(i4), intent(in) :: lr, ls

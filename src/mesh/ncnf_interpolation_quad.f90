@@ -32,7 +32,7 @@
 !
 !> Interpolation operators for nonconforming quads
 module ncnf_interpolation_quad
-  use num_types, only : i4, dp
+  use num_types, only : i4, rp
   use ncnf_interpolation, only : ncnf_interpolation_t
   implicit none
   private
@@ -67,9 +67,9 @@ module ncnf_interpolation_quad
      !> Array size in local "s" direction
      integer(i4), private :: ls_ = -1
      !> Interpolation data "r"
-     real(dp), private, dimension(:, :), allocatable :: jmatr_
+     real(rp), private, dimension(:, :), allocatable :: jmatr_
      !> Interpolation data "s"
-     real(dp), private, dimension(:, :), allocatable :: jmats_
+     real(rp), private, dimension(:, :), allocatable :: jmats_
    contains
      !> Patent-child interpolation
      procedure, nopass :: intp  => transform_quad_hng
@@ -111,7 +111,7 @@ contains
   !! @parameter[in]      n1, n2   dimensions
   pure subroutine transform_quad_dmy(vec, n1, n2)
     integer(i4), intent(in) :: n1, n2
-    real(dp), dimension(n1, n2), intent(inout) :: vec
+    real(rp), dimension(n1, n2), intent(inout) :: vec
   end subroutine transform_quad_dmy
 
   !> Dummy initialisation of the interpolation data
@@ -139,7 +139,7 @@ contains
   !! @parameter[in]      n1, n2   dimensions
   pure subroutine transform_quad_hng(vec, n1, n2)
     integer(i4), intent(in) :: n1, n2
-    real(dp), dimension(n1, n2), intent(inout) :: vec
+    real(rp), dimension(n1, n2), intent(inout) :: vec
     ! will be added later
   end subroutine transform_quad_hng
 
@@ -148,7 +148,7 @@ contains
   !! @parameter[in]      n1, n2   dimensions
   pure subroutine transform_trn_quad_hng(vec, n1, n2)
     integer(i4), intent(in) :: n1, n2
-    real(dp), dimension(n1, n2), intent(inout) :: vec
+    real(rp), dimension(n1, n2), intent(inout) :: vec
     ! will be added later
   end subroutine transform_trn_quad_hng
 

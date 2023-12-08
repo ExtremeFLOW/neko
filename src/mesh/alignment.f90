@@ -32,7 +32,7 @@
 !
 !> Abstract type for alignment operators
 module alignment
-  use num_types, only : i4, i8, dp
+  use num_types, only : i4, i8, rp
   implicit none
   private
 
@@ -50,11 +50,11 @@ module alignment
      ! Direct transformation; different types
      procedure(transform_i4), nopass, deferred :: trns_i4
      procedure(transform_i8), nopass, deferred :: trns_i8
-     procedure(transform_dp), nopass, deferred :: trns_dp
+     procedure(transform_rp), nopass, deferred :: trns_rp
      ! Inverse transformation; different types
      procedure(transform_i4), nopass, deferred :: trns_inv_i4
      procedure(transform_i8), nopass, deferred :: trns_inv_i8
-     procedure(transform_dp), nopass, deferred :: trns_inv_dp
+     procedure(transform_rp), nopass, deferred :: trns_inv_rp
   end type alignment_t
 
   !> Single operator allocatable space
@@ -110,7 +110,7 @@ module alignment
      end subroutine transform_i8
   end interface
 
-  !> Abstract interface for various transformations; double precision type
+  !> Abstract interface for various transformations; real type
   !! @notice It is a common interface for 1D and 2D operations, so the data
   !! array @a vec is rank 2 even for 1D operations. There is as well a starting
   !! position for operations @a ist to be able to avoid vertices.
@@ -118,12 +118,12 @@ module alignment
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
   abstract interface
-     pure subroutine transform_dp(vec, n1, n2, ist)
+     pure subroutine transform_rp(vec, n1, n2, ist)
        import i4
-       import dp
+       import rp
        integer(i4), intent(in) :: n1, n2, ist
-       real(dp), dimension(n1, n2), intent(inout) :: vec
-     end subroutine transform_dp
+       real(rp), dimension(n1, n2), intent(inout) :: vec
+     end subroutine transform_rp
   end interface
 
   !> Abstract interface for initialisation of transformation set

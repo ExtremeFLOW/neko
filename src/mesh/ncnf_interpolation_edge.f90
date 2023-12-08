@@ -32,7 +32,7 @@
 !
 !> Interpolation operators for nonconforming edges
 module ncnf_interpolation_edge
-  use num_types, only : i4, dp
+  use num_types, only : i4, rp
   use ncnf_interpolation, only : ncnf_interpolation_t
   implicit none
   private
@@ -63,7 +63,7 @@ module ncnf_interpolation_edge
      !> Array size
      integer(i4), private :: lr_ = -1
      !> Interpolation data
-     real(dp), private, dimension(:, :), allocatable :: jmatr_
+     real(rp), private, dimension(:, :), allocatable :: jmatr_
    contains
      !> Patent-child interpolation
      procedure, nopass :: intp  => transform_edge_hng
@@ -107,7 +107,7 @@ contains
   !! @parameter[in]      n1, n2   dimensions
   pure subroutine transform_edge_dmy(vec, n1, n2)
     integer(i4), intent(in) :: n1, n2
-    real(dp), dimension(n1, n2), intent(inout) :: vec
+    real(rp), dimension(n1, n2), intent(inout) :: vec
   end subroutine transform_edge_dmy
 
   !> Dummy initialisation of the interpolation data
@@ -137,7 +137,7 @@ contains
   !! @parameter[in]      n1, n2   dimensions
   pure subroutine transform_edge_hng(vec, n1, n2)
     integer(i4), intent(in) :: n1, n2
-    real(dp), dimension(n1, n2), intent(inout) :: vec
+    real(rp), dimension(n1, n2), intent(inout) :: vec
     ! will be added later
   end subroutine transform_edge_hng
 
@@ -148,7 +148,7 @@ contains
   !! @parameter[in]      n1, n2   dimensions
   pure subroutine transform_trn_edge_hng(vec, n1, n2)
     integer(i4), intent(in) :: n1, n2
-    real(dp), dimension(n1, n2), intent(inout) :: vec
+    real(rp), dimension(n1, n2), intent(inout) :: vec
     ! will be added later
   end subroutine transform_trn_edge_hng
 

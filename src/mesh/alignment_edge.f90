@@ -32,7 +32,7 @@
 !
 !> Edge alignment operators
 module alignment_edge
-  use num_types, only : i4, i8, dp
+  use num_types, only : i4, i8, rp
   use utils, only : neko_error
   use alignment, only : alignment_t, alignment_set_t
   implicit none
@@ -50,11 +50,11 @@ module alignment_edge
      ! Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_edge_I_i4
      procedure, nopass :: trns_i8 => transform_edge_I_i8
-     procedure, nopass :: trns_dp => transform_edge_I_dp
+     procedure, nopass :: trns_rp => transform_edge_I_rp
      ! Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_edge_I_i4
      procedure, nopass :: trns_inv_i8 => transform_edge_I_i8
-     procedure, nopass :: trns_inv_dp => transform_edge_I_dp
+     procedure, nopass :: trns_inv_rp => transform_edge_I_rp
   end type alignment_edge_I_t
 
   !> Edge row permutation (P) transformation type
@@ -63,11 +63,11 @@ module alignment_edge
      ! Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_edge_P_i4
      procedure, nopass :: trns_i8 => transform_edge_P_i8
-     procedure, nopass :: trns_dp => transform_edge_P_dp
+     procedure, nopass :: trns_rp => transform_edge_P_rp
      ! Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_edge_P_i4
      procedure, nopass :: trns_inv_i8 => transform_edge_P_i8
-     procedure, nopass :: trns_inv_dp => transform_edge_P_dp
+     procedure, nopass :: trns_inv_rp => transform_edge_P_rp
   end type alignment_edge_P_t
 
   !> Type containing set of edge alignment operators
@@ -197,10 +197,10 @@ contains
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_edge_I_dp(vec, n1, n2, ist)
+  pure subroutine transform_edge_I_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
-    real(dp), dimension(n1, n2), intent(inout) :: vec
-  end subroutine transform_edge_I_dp
+    real(rp), dimension(n1, n2), intent(inout) :: vec
+  end subroutine transform_edge_I_rp
 
   !> @brief Permutation transformation, double precision, full array
   !! @notice It is a common interface for 1D and 2D operations, so the data
@@ -208,12 +208,12 @@ contains
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_edge_P_dp(vec, n1, n2, ist)
+  pure subroutine transform_edge_P_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
-    real(dp), dimension(n1, n2), intent(inout) :: vec
+    real(rp), dimension(n1, n2), intent(inout) :: vec
     ! local variables
     integer(i4) :: il, itmp1, itmp2
-    real(dp) :: redg
+    real(rp) :: redg
 
     itmp1 = n1 + 1
     do il = ist, n1 / 2
@@ -222,6 +222,6 @@ contains
        vec(il, n2) = vec(itmp2, n2)
        vec(itmp2, n2) = redg
     end do
-  end subroutine transform_edge_P_dp
+  end subroutine transform_edge_P_rp
 
 end module alignment_edge

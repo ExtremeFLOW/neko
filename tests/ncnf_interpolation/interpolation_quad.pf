@@ -1,7 +1,7 @@
 @test
 subroutine test_interpolation_quad
   use pfunit
-  use num_types, only : i4, dp
+  use num_types, only : i4, rp
   use ncnf_interpolation, only : ncnf_interpolation_t
   use ncnf_interpolation_quad, only : ncnf_intp_quad_init
   implicit none
