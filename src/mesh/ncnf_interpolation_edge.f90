@@ -33,85 +33,153 @@
 !> Interpolation operators for nonconforming edges
 module ncnf_interpolation_edge
   use num_types, only : i4, dp
+  use ncnf_interpolation, only : ncnf_interpolation_t
   implicit none
   private
 
-  public :: ncnf_intp_edge_op_set_t
+  public :: ncnf_intp_edge_init, ncnf_interpolation_edge_dmy_t, &
+       & ncnf_interpolation_edge_hng_t
 
   !> number of various interpolation operators
   integer(i4), public, parameter :: NEKO_INTP_EDGE_NOPERATION = 2
 
-  !> procedure pointer type; dp
-  type :: intp_edge_proc_dp_ptr
-     procedure(transform_dp), pointer, nopass :: ptr
-  end type intp_edge_proc_dp_ptr
-
-  !> Type combining a single set of interpolation operators
-  type :: ncnf_intp_edge_op_set_t
-     !> Hanging information
-     integer(i4) :: hanging = -1
-     !> Direct interpolation
-     type(intp_edge_proc_dp_ptr) :: intp
-     !> Transposed interpolation
-     type(intp_edge_proc_dp_ptr) :: intpT
+  !> Dummy interpolation operators
+  type, extends(ncnf_interpolation_t) :: ncnf_interpolation_edge_dmy_t
+     !> Array size
+     integer(i4), private :: lr_ = -1
    contains
-     !> Initialise hanging info and procedure pointers
-     procedure, pass(this) :: init => edge_op_set_init
-     !> Free hanging info and pointers
-     procedure, pass(this) :: free => edge_op_set_free
-  end type ncnf_intp_edge_op_set_t
+     !> Patent-child interpolation
+     procedure, nopass :: intp  => transform_edge_dmy
+     !> Transposed interpolation
+     procedure, nopass :: intpT => transform_edge_dmy
+     !> Initialise interpolation data
+     procedure, pass(this) :: set_jmat  => edge_set_jmat_dmy
+     !> Free interpolation data
+     procedure, pass(this) :: free_jmat => edge_free_jmat_dmy
+  end type ncnf_interpolation_edge_dmy_t
 
-  ! Abstract types for various transformations
-  abstract interface
-     pure subroutine transform_dp(sz, edg)
-       import i4
-       import dp
-       integer(i4), intent(in) :: sz
-       real(dp), dimension(sz), intent(inout) :: edg
-     end subroutine transform_dp
-  end interface
+  !> Edge interpolation operators for hanging values 1 and 2
+  type, extends(ncnf_interpolation_t) :: ncnf_interpolation_edge_hng_t
+     !> Array size
+     integer(i4), private :: lr_ = -1
+     !> Interpolation data
+     real(dp), private, dimension(:, :), allocatable :: jmatr_
+   contains
+     !> Patent-child interpolation
+     procedure, nopass :: intp  => transform_edge_hng
+     !> Transposed interpolation
+     procedure, nopass :: intpT => transform_trn_edge_hng
+     !> Initialise interpolation data
+     procedure, pass(this) :: set_jmat  => edge_set_jmat_hng
+     !> Free interpolation data
+     procedure, pass(this) :: free_jmat => edge_free_jmat_hng
+  end type ncnf_interpolation_edge_hng_t
 
 contains
 
-  !> @brief Initialise hanging info and procedure pointers
-  !! @parameter[in]   hng   hanging information
-  subroutine edge_op_set_init(this, hng)
-    class(ncnf_intp_edge_op_set_t), intent(inout) :: this
+  !> @brief Allocate a single interpolation operator
+  !! @parameter[in]      hng   hanging information
+  !! @parameter[inout]   trns  interpolation operator
+  subroutine ncnf_intp_edge_init(hng, trns)
     integer(i4), intent(in) :: hng
+    class(ncnf_interpolation_t), allocatable, intent(inout) :: trns
 
-    call this%free()
-    this%hanging = hng
+    if (allocated(trns)) then
+       call trns%free_jmat()
+       deallocate(trns)
+    end if
+
     select case(hng)
-    case(1) ! first half of the full edge
-       ! for now just identity
-       this%intp%ptr => transform_edge_I
-       this%intpT%ptr => transform_edge_I
-    case(2) ! second half of the full edge
-       ! for now just identity
-       this%intp%ptr => transform_edge_I
-       this%intpT%ptr => transform_edge_I
-    case default ! any other option is just identity operation
-       this%intp%ptr => transform_edge_I
-       this%intpT%ptr => transform_edge_I
+    case(1:2) ! the first and the second half of the full edge
+       allocate(ncnf_interpolation_edge_hng_t :: trns)
+       call trns%set_hng(hng)
+    case default ! any other option is just a dummy operation
+       allocate(ncnf_interpolation_edge_dmy_t :: trns)
+       call trns%set_hng(hng)
     end select
-  end subroutine edge_op_set_init
 
-  !> @brief Free hanging info and procedure pointers
-  subroutine edge_op_set_free(this)
-    class(ncnf_intp_edge_op_set_t), intent(inout) :: this
+  end subroutine ncnf_intp_edge_init
 
-    this%hanging = -1
-    ! free pointers
-    this%intp%ptr => null()
-    this%intpT%ptr => null()
-  end subroutine edge_op_set_free
+  !> Dummy interpolation operator, do nothing
+  !! @notice It is a common interface for 1D and 2D operations, so the data
+  !! array @a vec is rank 2 even for 1D operations.
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  pure subroutine transform_edge_dmy(vec, n1, n2)
+    integer(i4), intent(in) :: n1, n2
+    real(dp), dimension(n1, n2), intent(inout) :: vec
+  end subroutine transform_edge_dmy
 
-  !> @brief Identity transformation
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  edg      edge data
-  pure subroutine transform_edge_I(sz, edg)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz), intent(inout) :: edg
-  end subroutine transform_edge_I
+  !> Dummy initialisation of the interpolation data
+  !! @notice It is a common interface for 1D and 2D operations, so there
+  !! are two dimensions @a lr and @a ls. This routine can be called
+  !! after space_t gets initialised.
+  !! @parameter[in]      lr, ls   array sizes for r and s dimensions
+  subroutine edge_set_jmat_dmy(this, lr, ls)
+    class(ncnf_interpolation_edge_dmy_t), intent(inout) :: this
+    integer(i4), intent(in) :: lr, ls
+
+    call this%free_jmat()
+
+    this%lr_ = lr
+  end subroutine edge_set_jmat_dmy
+
+  !> Free the dummy interpolation data
+  subroutine edge_free_jmat_dmy(this)
+    class(ncnf_interpolation_edge_dmy_t), intent(inout) :: this
+    this%lr_ = -1
+  end subroutine edge_free_jmat_dmy
+
+  !> Parent-child interpolation
+  !! @notice It is a common interface for 1D and 2D operations, so the data
+  !! array @a vec is rank 2 even for 1D operations.
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  pure subroutine transform_edge_hng(vec, n1, n2)
+    integer(i4), intent(in) :: n1, n2
+    real(dp), dimension(n1, n2), intent(inout) :: vec
+    ! will be added later
+  end subroutine transform_edge_hng
+
+  !> Transposed interpolation
+  !! @notice It is a common interface for 1D and 2D operations, so the data
+  !! array @a vec is rank 2 even for 1D operations.
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  pure subroutine transform_trn_edge_hng(vec, n1, n2)
+    integer(i4), intent(in) :: n1, n2
+    real(dp), dimension(n1, n2), intent(inout) :: vec
+    ! will be added later
+  end subroutine transform_trn_edge_hng
+
+  !> Dummy initialisation of the interpolation data
+  !! @notice It is a common interface for 1D and 2D operations, so there
+  !! are two dimensions @a lr and @a ls. This routine can be called
+  !! after space_t gets initialised.
+  !! @parameter[in]      lr, ls   array sizes for r and s dimensions
+  subroutine edge_set_jmat_hng(this, lr, ls)
+    class(ncnf_interpolation_edge_hng_t), intent(inout) :: this
+    integer(i4), intent(in) :: lr, ls
+    integer(i4) :: hng
+
+    call this%free_jmat()
+
+    this%lr_ = lr
+    allocate(this%jmatr_(lr, lr))
+    hng = this%hng()
+    select case(hng)
+    case(1) ! the first half of the full edge
+       ! will be added later
+    case(2) ! the second half of the full edge
+       ! will be added later
+    end select
+  end subroutine edge_set_jmat_hng
+
+  !> Free the interpolation data
+  subroutine edge_free_jmat_hng(this)
+    class(ncnf_interpolation_edge_hng_t), intent(inout) :: this
+    if (allocated(this%jmatr_)) deallocate(this%jmatr_)
+    this%lr_ = -1
+  end subroutine edge_free_jmat_hng
 
 end module ncnf_interpolation_edge

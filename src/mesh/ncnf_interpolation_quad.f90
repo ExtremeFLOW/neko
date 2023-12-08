@@ -33,95 +33,158 @@
 !> Interpolation operators for nonconforming quads
 module ncnf_interpolation_quad
   use num_types, only : i4, dp
+  use ncnf_interpolation, only : ncnf_interpolation_t
   implicit none
   private
 
-  public :: ncnf_intp_quad_op_set_t
+  public :: ncnf_intp_quad_init, ncnf_interpolation_quad_dmy_t, &
+       & ncnf_interpolation_quad_hng_t
 
   !> number of various interpolation operators
   integer(i4), public, parameter :: NEKO_INTP_QUAD_NOPERATION = 4
 
-  !> procedure pointer type; dp
-  type :: intp_quad_proc_dp_ptr
-     procedure(transform_dp), pointer, nopass :: ptr
-  end type intp_quad_proc_dp_ptr
-
-  !> Type combining a single set of interpolation operators
-  type :: ncnf_intp_quad_op_set_t
-     !> Hanging information
-     integer(i4) :: hanging = -1
-     !> Direct interpolation
-     type(intp_quad_proc_dp_ptr) :: intp
-     !> Transposed interpolation
-     type(intp_quad_proc_dp_ptr) :: intpT
+  !> Dummy interpolation operators
+  type, extends(ncnf_interpolation_t) :: ncnf_interpolation_quad_dmy_t
+     !> Array size in local "r" direction
+     integer(i4), private :: lr_ = -1
+     !> Array size in local "s" direction
+     integer(i4), private :: ls_ = -1
    contains
-     !> Initialise hanging info and procedure pointers
-     procedure, pass(this) :: init => quad_op_set_init
-     !> Free hanging info and pointers
-     procedure, pass(this) :: free => quad_op_set_free
-  end type ncnf_intp_quad_op_set_t
+     !> Patent-child interpolation
+     procedure, nopass :: intp  => transform_quad_dmy
+     !> Transposed interpolation
+     procedure, nopass :: intpT => transform_quad_dmy
+     !> Initialise interpolation data
+     procedure, pass(this) :: set_jmat  => quad_set_jmat_dmy
+     !> Free interpolation data
+     procedure, pass(this) :: free_jmat => quad_free_jmat_dmy
+  end type ncnf_interpolation_quad_dmy_t
 
-  ! Abstract types for various transformations
-  abstract interface
-     pure subroutine transform_dp(sz, fcs)
-       import i4
-       import dp
-       integer(i4), intent(in) :: sz
-       real(dp), dimension(sz, sz), intent(inout) :: fcs
-     end subroutine transform_dp
-  end interface
+  !> Quad interpolation operators for hanging values 1 to 4
+  type, extends(ncnf_interpolation_t) :: ncnf_interpolation_quad_hng_t
+     !> Array size in local "r" direction
+     integer(i4), private :: lr_ = -1
+     !> Array size in local "s" direction
+     integer(i4), private :: ls_ = -1
+     !> Interpolation data "r"
+     real(dp), private, dimension(:, :), allocatable :: jmatr_
+     !> Interpolation data "s"
+     real(dp), private, dimension(:, :), allocatable :: jmats_
+   contains
+     !> Patent-child interpolation
+     procedure, nopass :: intp  => transform_quad_hng
+     !> Transposed interpolation
+     procedure, nopass :: intpT => transform_trn_quad_hng
+     !> Initialise interpolation data
+     procedure, pass(this) :: set_jmat  => quad_set_jmat_hng
+     !> Free interpolation data
+     procedure, pass(this) :: free_jmat => quad_free_jmat_hng
+  end type ncnf_interpolation_quad_hng_t
 
 contains
 
-  !> @brief Initialise hanging info and procedure pointers
-  !! @parameter[in]   hng   hanging information
-  subroutine quad_op_set_init(this, hng)
-    class(ncnf_intp_quad_op_set_t), intent(inout) :: this
+  !> @brief Allocate a single interpolation operator
+  !! @parameter[in]      hng   hanging information
+  !! @parameter[inout]   trns  interpolation operator
+  subroutine ncnf_intp_quad_init(hng, trns)
     integer(i4), intent(in) :: hng
+    class(ncnf_interpolation_t), allocatable, intent(inout) :: trns
 
-    call this%free()
-    this%hanging = hng
+    if (allocated(trns)) then
+       call trns%free_jmat()
+       deallocate(trns)
+    end if
+
     select case(hng)
-    case(1) ! first parent face corner
-       ! for now just identity
-       this%intp%ptr => transform_quad_I
-       this%intpT%ptr => transform_quad_I
-    case(2) ! second parent face corner
-       ! for now just identity
-       this%intp%ptr => transform_quad_I
-       this%intpT%ptr => transform_quad_I
-    case(3) ! third parent face corner
-       ! for now just identity
-       this%intp%ptr => transform_quad_I
-       this%intpT%ptr => transform_quad_I
-    case(4) ! fourth parent face corner
-       ! for now just identity
-       this%intp%ptr => transform_quad_I
-       this%intpT%ptr => transform_quad_I
-    case default ! any other option is just identity operation
-       this%intp%ptr => transform_quad_I
-       this%intpT%ptr => transform_quad_I
+    case(1:4) ! the quarter corresponding to the parent vertex
+       allocate(ncnf_interpolation_quad_hng_t :: trns)
+       call trns%set_hng(hng)
+    case default ! any other option is just a dummy operation
+       allocate(ncnf_interpolation_quad_dmy_t :: trns)
+       call trns%set_hng(hng)
     end select
-  end subroutine quad_op_set_init
 
-  !> @brief Free hanging info and procedure pointers
-  subroutine quad_op_set_free(this)
-    class(ncnf_intp_quad_op_set_t), intent(inout) :: this
+  end subroutine ncnf_intp_quad_init
 
-    this%hanging = -1
-    ! free pointers
-    this%intp%ptr => null()
-    this%intpT%ptr => null()
+  !> Dummy interpolation operator, do nothing
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  pure subroutine transform_quad_dmy(vec, n1, n2)
+    integer(i4), intent(in) :: n1, n2
+    real(dp), dimension(n1, n2), intent(inout) :: vec
+  end subroutine transform_quad_dmy
 
-  end subroutine quad_op_set_free
+  !> Dummy initialisation of the interpolation data
+  !! @notice  This routine can be called after space_t gets initialised.
+  !! @parameter[in]      lr, ls   array sizes for r and s dimensions
+  subroutine quad_set_jmat_dmy(this, lr, ls)
+    class(ncnf_interpolation_quad_dmy_t), intent(inout) :: this
+    integer(i4), intent(in) :: lr, ls
 
-  !> @brief Identity transformation
-  !! @parameter[in]     sz       array size
-  !! @parameter[inout]  fcs      face data
-  pure subroutine transform_quad_I(sz, fcs)
-    integer(i4), intent(in) :: sz
-    real(dp), dimension(sz, sz), intent(inout) :: fcs
+    call this%free_jmat()
 
-  end subroutine transform_quad_I
+    this%lr_ = lr
+    this%ls_ = ls
+  end subroutine quad_set_jmat_dmy
+
+  !> Free the dummy interpolation data
+  subroutine quad_free_jmat_dmy(this)
+    class(ncnf_interpolation_quad_dmy_t), intent(inout) :: this
+    this%lr_ = -1
+    this%ls_ = -1
+  end subroutine quad_free_jmat_dmy
+
+  !> Parent-child interpolation
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  pure subroutine transform_quad_hng(vec, n1, n2)
+    integer(i4), intent(in) :: n1, n2
+    real(dp), dimension(n1, n2), intent(inout) :: vec
+    ! will be added later
+  end subroutine transform_quad_hng
+
+  !> Transposed interpolation
+  !! @parameter[inout]   vec      data vector
+  !! @parameter[in]      n1, n2   dimensions
+  pure subroutine transform_trn_quad_hng(vec, n1, n2)
+    integer(i4), intent(in) :: n1, n2
+    real(dp), dimension(n1, n2), intent(inout) :: vec
+    ! will be added later
+  end subroutine transform_trn_quad_hng
+
+  !> Dummy initialisation of the interpolation data
+  !! @notice This routine can be called after space_t gets initialised.
+  !! @parameter[in]      lr, ls   array sizes for r and s dimensions
+  subroutine quad_set_jmat_hng(this, lr, ls)
+    class(ncnf_interpolation_quad_hng_t), intent(inout) :: this
+    integer(i4), intent(in) :: lr, ls
+    integer(i4) :: hng
+
+    call this%free_jmat()
+
+    this%lr_ = lr
+    this%ls_ = ls
+    allocate(this%jmatr_(lr, lr), this%jmats_(ls, ls))
+    hng = this%hng()
+    select case(hng)
+    case(1) ! the first parent face corner
+       ! will be added later
+    case(2) ! the second parent face corner
+       ! will be added later
+    case(3) ! the third parent face corner
+       ! will be added later
+    case(4) ! the fourth parent face corner
+       ! will be added later
+    end select
+  end subroutine quad_set_jmat_hng
+
+  !> Free the interpolation data
+  subroutine quad_free_jmat_hng(this)
+    class(ncnf_interpolation_quad_hng_t), intent(inout) :: this
+    if (allocated(this%jmatr_)) deallocate(this%jmatr_)
+    if (allocated(this%jmats_)) deallocate(this%jmats_)
+    this%lr_ = -1
+    this%ls_ = -1
+  end subroutine quad_free_jmat_hng
 
 end module ncnf_interpolation_quad

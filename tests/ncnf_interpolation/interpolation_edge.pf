@@ -1,0 +1,22 @@
+@test
+subroutine test_interpolation_edge
+  use pfunit
+  use num_types, only : i4, dp
+  use ncnf_interpolation, only : ncnf_interpolation_t
+  use ncnf_interpolation_edge, only : ncnf_intp_edge_init
+  implicit none
+  class(ncnf_interpolation_t), allocatable :: edge
+  integer(i4) :: hng
+
+  hng = 1
+  call ncnf_intp_edge_init(hng, edge)
+
+  ! check hanging info
+  @assertEqual(edge%hng(), hng)
+
+  ! missing tests for jmat initialisation and interpolation
+
+  call edge%free_jmat()
+  deallocate(edge)
+
+end subroutine test_interpolation_edge

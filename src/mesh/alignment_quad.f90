@@ -234,6 +234,7 @@ contains
   end subroutine transform_quad_I_i4
 
   !> @brief Transpose transformation, single integer
+  !! @note This routine works for lx=ly(=lz) only.
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
@@ -352,6 +353,7 @@ contains
   end subroutine transform_quad_I_i8
 
   !> @brief Transpose transformation, double integer
+  !! @note This routine works for lx=ly(=lz) only.
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
@@ -470,6 +472,7 @@ contains
   end subroutine transform_quad_I_dp
 
   !> @brief Transpose transformation, double precision
+  !! @note This routine works for lx=ly(=lz) only.
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position

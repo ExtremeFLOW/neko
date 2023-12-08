@@ -1,5 +1,6 @@
 test-suite.log
 alignment/alignment_test
+ncnf_interpolation/interpolation_test
 polytope/polytope_test
 bc/bc_test
 device/device_test
