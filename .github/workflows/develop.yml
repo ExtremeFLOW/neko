@@ -34,7 +34,7 @@ jobs:
             retention-days: 5
   formatting:
     name: "Formatting"
-    uses: ./.github/workflows/formatting.yml
+    uses: ./.github/workflows/formatter.yml
   GNU:
     needs: [linting, formatting]
     runs-on: ${{matrix.os}}
