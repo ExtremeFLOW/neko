@@ -40,14 +40,14 @@ module field_registry
   use utils, only: neko_error
   implicit none
   private
-  
+
   type :: field_registry_t
      !> list of fields stored
-     type(field_t), private, allocatable :: fields(:) 
+     type(field_t), private, allocatable :: fields(:)
      !> number of registered fields
-     integer, private :: n                            
+     integer, private :: n
      !> the size the fields array is increased by upon reallocation
-     integer, private :: expansion_size               
+     integer, private :: expansion_size
    contains
      procedure, private, pass(this) :: expand
      procedure, pass(this) :: init => field_registry_init
@@ -107,7 +107,7 @@ contains
   !> expand the fields array so as to accomodate more fields
   subroutine expand(this)
     class(field_registry_t), intent(inout) :: this
-    type(field_t), allocatable :: temp(:)  
+    type(field_t), allocatable :: temp(:)
     integer :: i
 
     allocate(temp(this%n + this%expansion_size))
@@ -120,7 +120,7 @@ contains
   subroutine add_field(this, dof, fld_name)
     class(field_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
-    character(len=*), target, intent(in) :: fld_name 
+    character(len=*), target, intent(in) :: fld_name
 !    type(h_cptr_t) :: key
     integer :: i
 
@@ -150,7 +150,7 @@ contains
     class(field_registry_t), intent(in) :: this
     integer :: n
 
-    n = this%n  
+    n = this%n
   end function n_fields
 
   !> Get the size of the fields array
@@ -187,7 +187,7 @@ contains
   !> Get pointer to a stored field by field name
   function get_field_by_name(this, name) result(f)
     class(field_registry_t), target, intent(in) :: this
-    character(len=*), intent(in) ::name 
+    character(len=*), intent(in) ::name
     type(field_t), pointer :: f
     logical :: found
     integer :: i
@@ -211,7 +211,7 @@ contains
   !> Check if a field with a given name is already in the registry
   function field_exists(this, name) result(found)
     class(field_registry_t), target, intent(in) :: this
-    character(len=*), intent(in) ::name 
+    character(len=*), intent(in) ::name
     logical :: found
     integer :: i
 

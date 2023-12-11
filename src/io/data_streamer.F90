@@ -36,24 +36,24 @@ module data_streamer
   use field, only: field_t
   use coefs, only: coef_t
   use utils, only: neko_warning
-  use device 
+  use device
   use comm
   use neko_mpi_types
   use neko_config
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+
   !> Provides access to data streaming by interfacing with c++
   !! ADIOS2 subroutines.
   !! @details
-  !! Adios2 is an API that allows for easy coupling of codes 
+  !! Adios2 is an API that allows for easy coupling of codes
   !! through data streaming and gives the posibility to perform
   !! other IO operations such as data compression, etc.
-  !! This type wraps and interfaces the needed calls to allow 
+  !! This type wraps and interfaces the needed calls to allow
   !! the use of the c++ routines that ultimately expose the data
   !! from neko to any executable that counts with a proper reader.
-  type, public :: data_streamer_t 
+  type, public :: data_streamer_t
      !> Define if the execution is asyncrhonous
      integer :: if_asynch
      !> global element numbers
@@ -85,7 +85,7 @@ contains
     !Allocate and initialize the global element number
     allocate(this%lglel(coef%msh%nelv))
     do e = 1, coef%msh%nelv
-      this%lglel(e) = e + coef%msh%offset_el
+       this%lglel(e) = e + coef%msh%offset_el
     end do
 
     !Assign if the streaming is asynchronous
@@ -125,9 +125,9 @@ contains
     call neko_warning('Is not being built with ADIOS2 support.')
     call neko_warning('Not able to use stream/compression functionality')
 #endif
-    
+
   end subroutine data_streamer_free
-  
+
   !> streamer
   !! wraps the adios2 stream function.
   !! @param u velocity in x
@@ -143,16 +143,16 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     integer :: nelv, npts
-    
+
     nelv  = coef%msh%nelv
     npts  = coef%Xh%lx*coef%Xh%ly*coef%Xh%lz
-    
-    if (NEKO_BCKND_DEVICE .eq. 1) then 
-      ! Move the data to the CPU to be able to write it
-      call device_memcpy(u%x, u%x_d, nelv*npts, DEVICE_TO_HOST)
-      call device_memcpy(v%x, v%x_d, nelv*npts, DEVICE_TO_HOST)
-      call device_memcpy(w%x, w%x_d, nelv*npts, DEVICE_TO_HOST)
-      call device_memcpy(p%x, p%x_d, nelv*npts, DEVICE_TO_HOST)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       ! Move the data to the CPU to be able to write it
+       call device_memcpy(u%x, u%x_d, nelv*npts, DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(v%x, v%x_d, nelv*npts, DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(w%x, w%x_d, nelv*npts, DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(p%x, p%x_d, nelv*npts, DEVICE_TO_HOST, sync=.true.)
     end if
 
 #ifdef HAVE_ADIOS2
@@ -163,11 +163,11 @@ contains
 #endif
 
   end subroutine data_streamer_stream
-  
+
   !> Supporting function to calculate the element number offset.
-  !! returns the number of elements that the ranks previous to the 
+  !! returns the number of elements that the ranks previous to the
   !! present one have.
-  !! @param nelv number of elements in current rank.  
+  !! @param nelv number of elements in current rank.
   function elem_running_sum(nelv) result(rbuff)
     integer, intent(in) :: nelv
     integer ::  ierr, xbuff, wbuff, rbuff
@@ -175,12 +175,12 @@ contains
     xbuff = nelv  ! running sum
     wbuff = nelv  ! working buff
     rbuff = 0   ! recv buff
-     
+
     call mpi_scan(xbuff, rbuff, 1, mpi_integer, mpi_sum, NEKO_COMM, ierr)
   end function elem_running_sum
 
 #ifdef HAVE_ADIOS2
-  
+
   !> Interface to adios2_setup in c++.
   !! @details This routine interfaces with c++ routine that set up adios2
   !! if streaming, the global array to pair writer and reader is opened.
@@ -195,7 +195,7 @@ contains
   !! @param asynch integer that indicates asynchronous execution
   !! @param comm simulation communicator
   subroutine fortran_adios2_setup(npts, nelv, nelb, nelgv, nelgt, x, y, &
-                                  z, asynch, comm)  
+                                  z, asynch, comm)
     use, intrinsic :: ISO_C_BINDING
     implicit none
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: x
@@ -203,7 +203,7 @@ contains
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: z
     integer, intent(in) :: npts, nelv, nelb,nelgv, nelgt, asynch
     type(MPI_COMM) :: comm
-    
+
     interface
        !> C-definition is: void adios2_setup_(const int *nval,
        !! const int *nelvin,const int *nelb, const int *nelgv,
@@ -227,17 +227,17 @@ contains
          type(*) :: comm
        end subroutine c_adios2_setup
     end interface
-    
+
     call c_adios2_setup(npts, nelv, nelb, nelgv, nelgt, x, y, z, &
                         asynch, comm)
   end subroutine fortran_adios2_setup
 
   !> Interface to adios2_finalize in c++.
   !! closes any writer openned at initialization time
-  subroutine fortran_adios2_finalize()  
+  subroutine fortran_adios2_finalize()
     use, intrinsic :: ISO_C_BINDING
     implicit none
-    
+
     interface
        !> C-definition is: void adios2_finalize_()
        subroutine c_adios2_finalize() bind(C,name="adios2_finalize_")
@@ -245,10 +245,10 @@ contains
          implicit none
        end subroutine c_adios2_finalize
     end interface
-    
-    call c_adios2_finalize()  
+
+    call c_adios2_finalize()
   end subroutine fortran_adios2_finalize
-  
+
   !> Interface to adios2_stream in c++.
   !! @details This routine communicates the data to a global array that
   !! is accessed by a data processor. The operations do not write to disk.
@@ -260,7 +260,7 @@ contains
   !! @param w velocity in z
   !! @param bm1 mass matrix
   !! @param t temperature / (Not really used in adios2 routine)
-  subroutine fortran_adios2_stream(lglel, p, u, v, w, bm1, t)  
+  subroutine fortran_adios2_stream(lglel, p, u, v, w, bm1, t)
     use, intrinsic :: ISO_C_BINDING
     implicit none
     integer, dimension(:), intent(inout) :: lglel
@@ -290,8 +290,8 @@ contains
          real(kind=c_rp), intent(INOUT)  :: t(*)
        end subroutine c_adios2_stream
     end interface
-    
-    call c_adios2_stream(lglel, p, u, v, w, bm1, t)  
+
+    call c_adios2_stream(lglel, p, u, v, w, bm1, t)
   end subroutine fortran_adios2_stream
 #endif
 

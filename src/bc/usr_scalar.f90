@@ -40,7 +40,7 @@ module usr_scalar
   use utils
   implicit none
   private
-  
+
   !> User defined dirichlet condition for scalars
   type, public, extends(dirichlet_t) :: usr_scalar_t
      type(coef_t), pointer :: c => null()
@@ -97,16 +97,16 @@ module usr_scalar
   public :: usr_scalar_bc_eval
 
 contains
-     
+
   subroutine usr_inflow_free(this)
     type(usr_scalar_t), intent(inout) :: this
 
     if (c_associated(this%usr_x_d)) then
        call device_free(this%usr_x_d)
     end if
-        
+
   end subroutine usr_inflow_free
-  
+
   !> Scalar apply
   !! Just imitating inflow for now, but we should look this over
   !! Applies boundary conditions in eval on x
@@ -142,7 +142,7 @@ contains
          facet = this%facet(i)
          idx = nonlinear_index(k, lx, lx, lx)
          select case(facet)
-         case(1,2)          
+         case(1,2)
             call this%eval(x(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -156,7 +156,7 @@ contains
             call this%eval(x(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &       
+                 zc(idx(1), idx(2), idx(3), idx(4)), &
                  nx(idx(1), idx(3), facet, idx(4)), &
                  ny(idx(1), idx(3), facet, idx(4)), &
                  nz(idx(1), idx(3), facet, idx(4)), &
@@ -166,7 +166,7 @@ contains
             call this%eval(x(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &                     
+                 zc(idx(1), idx(2), idx(3), idx(4)), &
                  nx(idx(1), idx(2), facet, idx(4)), &
                  ny(idx(1), idx(2), facet, idx(4)), &
                  nz(idx(1), idx(2), facet, idx(4)), &
@@ -222,7 +222,7 @@ contains
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
             select case(facet)
-            case(1,2)          
+            case(1,2)
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -236,7 +236,7 @@ contains
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
-                    zc(idx(1), idx(2), idx(3), idx(4)), &       
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
                     nx(idx(1), idx(3), facet, idx(4)), &
                     ny(idx(1), idx(3), facet, idx(4)), &
                     nz(idx(1), idx(3), facet, idx(4)), &
@@ -246,7 +246,7 @@ contains
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
-                    zc(idx(1), idx(2), idx(3), idx(4)), &                     
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
                     nx(idx(1), idx(2), facet, idx(4)), &
                     ny(idx(1), idx(2), facet, idx(4)), &
                     nz(idx(1), idx(2), facet, idx(4)), &
@@ -254,9 +254,9 @@ contains
                     t_, tstep_)
             end select
          end do
- 
-        
-         call device_memcpy(x, this%usr_x_d, m, HOST_TO_DEVICE)
+
+
+         call device_memcpy(x, this%usr_x_d, m, HOST_TO_DEVICE, sync=.false.)
 
          deallocate(x)
       end if
@@ -267,7 +267,7 @@ contains
 
 
   end subroutine usr_scalar_apply_scalar_dev
-  
+
   !> No-op vector apply
   subroutine usr_scalar_apply_vector(this, x, y, z, n, t, tstep)
     class(usr_scalar_t), intent(inout) :: this
@@ -277,7 +277,7 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k, idx(4), facet    
+    integer :: i, m, k, idx(4), facet
   end subroutine usr_scalar_apply_vector
 
   !> No-op vector apply (device version)
@@ -315,10 +315,10 @@ contains
     class(usr_scalar_t), intent(inout) :: this
     logical :: valid
 
-    valid = .true. ! Assert it's going to be ok...    
+    valid = .true. ! Assert it's going to be ok...
     if (.not. associated(this%c)) then
        call neko_warning('Missing coefficients')
-       valid = .false.       
+       valid = .false.
     end if
 
     if (.not. associated(this%eval)) then
@@ -329,7 +329,7 @@ contains
     if (.not. valid) then
        call neko_error('Invalid user defined scalar condition')
     end if
-    
+
   end subroutine usr_scalar_validate
-  
+
 end module usr_scalar

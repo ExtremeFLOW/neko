@@ -60,7 +60,7 @@ module point_zone_registry
      procedure, pass(this) :: add_point_zone_from_json
      !> Returns the number of point zones in the registry.
      procedure, pass(this) :: n_point_zones
-     !> Retrieves a point zone in the registry by its index in the 
+     !> Retrieves a point zone in the registry by its index in the
      !! `point_zones` array.
      procedure, pass(this) :: get_point_zone_by_index
      !> Retrieves a point zone in the registry by its name.
@@ -68,7 +68,7 @@ module point_zone_registry
      !> Returns the expansion size with which the `point_zone_registry_t`
      !! was initialized.
      procedure, pass(this) :: get_expansion_size
-     !> Returns the total size of the `point_zones` array (not the number of 
+     !> Returns the total size of the `point_zones` array (not the number of
      !! point zones in the registry!).
      procedure, pass(this) :: get_size
      !> Checks if a point zone exists in the registry.
@@ -110,7 +110,7 @@ contains
 
     call this%free()
 
-     if (present(expansion_size)) then
+    if (present(expansion_size)) then
        this%expansion_size = expansion_size
     else
        this%expansion_size = 10
@@ -207,7 +207,7 @@ contains
     ! init.
     !
     if (this%n_point_zones() .eq. this%get_size()) then
-      call this%expand()
+       call this%expand()
     end if
 
     this%n = this%n + 1
@@ -230,7 +230,7 @@ contains
     n = this%n
   end function n_point_zones
 
-  !> Returns the total size of the `point_zones` array (not the number of 
+  !> Returns the total size of the `point_zones` array (not the number of
   !! point zones in the registry!).
   !! @note Use `n_point_zones()` to retrieve the actual number of point
   !! zones in the registry.
@@ -250,7 +250,7 @@ contains
     n = this%expansion_size
   end function get_expansion_size
 
-  !> Retrieves a point zone in the registry by its index in the 
+  !> Retrieves a point zone in the registry by its index in the
   !! `point_zones` array.
   !! @param i Index in the `point_zones` array.
   function get_point_zone_by_index(this, i) result(pz)

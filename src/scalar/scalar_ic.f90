@@ -49,7 +49,7 @@ module scalar_ic
 
   interface set_scalar_ic
      module procedure set_scalar_ic_int, set_scalar_ic_usr
-  end interface
+  end interface set_scalar_ic
 
   public :: set_scalar_ic
 
@@ -117,7 +117,8 @@ contains
     type(gs_t), intent(inout) :: gs
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, s%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(s%x, s%x_d, s%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
     ! Ensure continuity across elements for initial conditions

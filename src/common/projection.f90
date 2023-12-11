@@ -152,10 +152,12 @@ contains
        ptr_size = c_sizeof(C_NULL_PTR) * this%L
        call device_alloc(this%xx_d_d, ptr_size)
        ptr = c_loc(this%xx_d)
-       call device_memcpy(ptr,this%xx_d_d, ptr_size, HOST_TO_DEVICE)
+       call device_memcpy(ptr,this%xx_d_d, ptr_size, &
+                          HOST_TO_DEVICE, sync=.false.)
        call device_alloc(this%bb_d_d, ptr_size)
        ptr = c_loc(this%bb_d)
-       call device_memcpy(ptr,this%bb_d_d, ptr_size, HOST_TO_DEVICE)
+       call device_memcpy(ptr,this%bb_d_d, ptr_size, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
 
@@ -207,7 +209,7 @@ contains
     integer, intent(inout) :: n
     class(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout), dimension(n) :: b
-    call profiler_start_region('Project on')
+    call profiler_start_region('Project on', 16)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_project_on(this, b, coef, n)
     else
@@ -226,7 +228,7 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: x
     type(c_ptr) :: x_d
 
-    call profiler_start_region('Project back')
+    call profiler_start_region('Project back', 17)
     this%m = min(this%m+1,this%L)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -346,7 +348,8 @@ contains
             end do
          else
             call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
-            call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE)
+            call device_memcpy(alpha, alpha_d, this%m, &
+                               HOST_TO_DEVICE, sync=.false.)
          end if
          call device_rzero(xbar_d, n)
          if (NEKO_BCKND_OPENCL .eq. 1) then
@@ -367,7 +370,8 @@ contains
          else
             call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
             call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
-            call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE)
+            call device_memcpy(alpha, alpha_d, this%m, &
+                               HOST_TO_DEVICE, sync=.false.)
          end if
 
          if (NEKO_BCKND_OPENCL .eq. 1) then
@@ -422,7 +426,8 @@ contains
                alpha(i) = device_glsc3(bb_d(m),xx_d(i),w_d,n)
             end do
          else
-            call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE)
+            call device_memcpy(alpha, alpha_d, this%m, &
+                               HOST_TO_DEVICE, sync=.false.)
             call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
             call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
 
@@ -436,7 +441,8 @@ contains
                alpha(i) =  device_glsc3(bb_d(m),xx_d(i),w_d,n)
             end do
          else
-            call device_memcpy(alpha, alpha_d, m, HOST_TO_DEVICE)
+            call device_memcpy(alpha, alpha_d, m, &
+                               HOST_TO_DEVICE, sync=.false.)
             call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
             call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
             call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)

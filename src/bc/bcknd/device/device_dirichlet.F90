@@ -49,7 +49,7 @@ module device_dirichlet
        type(c_ptr), value :: msk, x
      end subroutine hip_dirichlet_apply_scalar
   end interface
-  
+
   interface
      subroutine hip_dirichlet_apply_vector(msk, x, y, z, g, m) &
           bind(c, name='hip_dirichlet_apply_vector')
@@ -73,7 +73,7 @@ module device_dirichlet
        type(c_ptr), value :: msk, x
      end subroutine cuda_dirichlet_apply_scalar
   end interface
-  
+
   interface
      subroutine cuda_dirichlet_apply_vector(msk, x, y, z, g, m) &
           bind(c, name='cuda_dirichlet_apply_vector')
@@ -97,7 +97,7 @@ module device_dirichlet
        type(c_ptr), value :: msk, x
      end subroutine opencl_dirichlet_apply_scalar
   end interface
-  
+
   interface
      subroutine opencl_dirichlet_apply_vector(msk, x, y, z, g, m) &
           bind(c, name='opencl_dirichlet_apply_vector')
@@ -112,7 +112,7 @@ module device_dirichlet
 #endif
 
   public :: device_dirichlet_apply_scalar, device_dirichlet_apply_vector
-  
+
 contains
 
   subroutine device_dirichlet_apply_scalar(msk, x, g, m)
@@ -129,7 +129,7 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
+
   end subroutine device_dirichlet_apply_scalar
 
   subroutine device_dirichlet_apply_vector(msk, x, y, z, g, m)
@@ -146,7 +146,7 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
+
   end subroutine device_dirichlet_apply_vector
-  
+
 end module device_dirichlet
