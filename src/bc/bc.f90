@@ -279,7 +279,7 @@ contains
     character(len=*) :: bc_key
     character(len=100), allocatable :: split_key(:)
     character(len=20) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
-    integer :: i, j, k, msh_bc_type
+    integer :: i, j, k, l, msh_bc_type
 
     msh_bc_type = 0
     if(trim(bc_key) .eq. 'o' .or. trim(bc_key) .eq. 'on' &

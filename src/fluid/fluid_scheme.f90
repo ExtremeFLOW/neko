@@ -555,6 +555,8 @@ contains
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: real_val, dong_delta, dong_uchar
+    real(kind=rp), allocatable :: real_vec(:)
+    integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
