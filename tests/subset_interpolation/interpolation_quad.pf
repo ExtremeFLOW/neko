@@ -2,17 +2,19 @@
 subroutine test_interpolation_quad
   use pfunit
   use num_types, only : i4, rp
-  use ncnf_interpolation, only : ncnf_interpolation_t
-  use ncnf_interpolation_quad, only : ncnf_intp_quad_init
+  use subset_interpolation, only : subset_interpolation_t
+  use subset_interpolation_quad, only : subset_intp_quad_init
   implicit none
-  class(ncnf_interpolation_t), allocatable :: quad
+  class(subset_interpolation_t), allocatable :: quad
   integer(i4) :: hng
 
-  hng = 1
-  call ncnf_intp_quad_init(hng, quad)
+  hng = 1 ! other values should be tasted as well
+  call subset_intp_quad_init(hng, quad)
 
   ! check hanging info
   @assertEqual(quad%hng(), hng)
+  ! check dummy operation flag
+  @assertFalse(quad%ifdmy())
 
   ! missing tests for jmat initialisation and interpolation
 

@@ -83,6 +83,12 @@ subroutine test_alignment_quad_i4
 
      ! check alignment
      @assertEqual(quad%algn(), il)
+     ! check identity flag
+     if (il == 0) then
+        @assertTrue(quad%ifid())
+     else
+        @assertFalse(quad%ifid())
+     end if
 
      ! full face test
      ! direct

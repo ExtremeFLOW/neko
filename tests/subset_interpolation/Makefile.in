@@ -11,7 +11,8 @@ FC = @FC@
 check: interpolation_test
 
 
-interpolation_test_TESTS := interpolation_edge.pf\
+interpolation_test_TESTS := interpolation_vertex.pf\
+			interpolation_edge.pf\
 			interpolation_quad.pf
 interpolation_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
 $(eval $(call make_pfunit_test,interpolation_test))

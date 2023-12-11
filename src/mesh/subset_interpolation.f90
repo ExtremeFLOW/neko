@@ -31,19 +31,26 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Abstract type for nonconforming interpolation operators
-module ncnf_interpolation
+module subset_interpolation
 use num_types, only : i4, rp
   implicit none
   private
 
-  public :: ncnf_interpolation_t
+  public :: subset_interpolation_t
 
   !> Base type for an nonconforming interpolation operator for a given abstract
   !! polytope
-  type, abstract :: ncnf_interpolation_t
+  !! @note This class for now works with the square arrays only assuming
+  !! @a lx = @a ly = @a lz. However, this can be easily updated to the general
+  !! case. Moreover, for now it supports h-type, simple quad refinement with
+  !! hanging nodes, but it can be generalised to p-refinement as well as
+  !! @a lx /= @a ly /= @a lz.
+  type, abstract :: subset_interpolation_t
      !> Hanging node information
      integer(i4), private :: hanging_ = -1
    contains
+     !> Is transformation a dummy one
+     procedure(interpolation_ifdummy), pass(this), deferred :: ifdmy
      !> Return hanging node information
      procedure, pass(this) :: hng => interpolation_hng_get
      !> Set relative polytope alignment
@@ -56,7 +63,17 @@ use num_types, only : i4, rp
      procedure(operator_init), pass(this), deferred :: set_jmat
      !> Free interpolation data
      procedure(operator_free), pass(this), deferred :: free_jmat
-  end type ncnf_interpolation_t
+  end type subset_interpolation_t
+
+  !> Abstract interface for function returning dummy operation flag
+  !! @return   ifdmy
+  abstract interface
+     pure function interpolation_ifdummy(this) result(ifdmy)
+       import :: subset_interpolation_t
+       class(subset_interpolation_t), intent(in) :: this
+       logical :: ifdmy
+     end function interpolation_ifdummy
+  end interface
 
   !> Abstract interface for various transformations; real type
   !! @notice It is a common interface for 1D and 2D operations, so the data
@@ -81,8 +98,8 @@ use num_types, only : i4, rp
      subroutine operator_init(this, lr, ls)
        import i4
        import rp
-       import :: ncnf_interpolation_t
-       class(ncnf_interpolation_t), intent(inout) :: this
+       import :: subset_interpolation_t
+       class(subset_interpolation_t), intent(inout) :: this
        integer(i4), intent(in) :: lr, ls
      end subroutine operator_init
   end interface
@@ -90,8 +107,8 @@ use num_types, only : i4, rp
   !> Abstract interface to free the interpolation data
   abstract interface
      subroutine operator_free(this)
-       import :: ncnf_interpolation_t
-       class(ncnf_interpolation_t), intent(inout) :: this
+       import :: subset_interpolation_t
+       class(subset_interpolation_t), intent(inout) :: this
      end subroutine operator_free
   end interface
 
@@ -100,7 +117,7 @@ contains
   !> @brief Get hanging information
   !! @return   hng
   pure function interpolation_hng_get(this) result(hng)
-    class(ncnf_interpolation_t), intent(in) :: this
+    class(subset_interpolation_t), intent(in) :: this
     integer(i4) :: hng
     hng = this%hanging_
   end function interpolation_hng_get
@@ -108,9 +125,9 @@ contains
   !> @brief Set hanging information
   !! @parameter[in]   hng     hanging information
   pure subroutine interpolation_hng_set(this, hng)
-    class(ncnf_interpolation_t), intent(inout) :: this
+    class(subset_interpolation_t), intent(inout) :: this
     integer(i4), intent(in) :: hng
     this%hanging_ = hng
   end subroutine interpolation_hng_set
 
-end module ncnf_interpolation
+end module subset_interpolation

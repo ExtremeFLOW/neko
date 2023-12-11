@@ -34,7 +34,7 @@ module polytope_actualisation
   use num_types, only : i4
   use utils, only : neko_error
   use polytope_aligned, only : polytope_aligned_t
-  use ncnf_interpolation, only : ncnf_interpolation_t
+  use subset_interpolation, only : subset_interpolation_t
   implicit none
   private
 
@@ -50,7 +50,7 @@ module polytope_actualisation
      !> Is the object hanging
      logical :: ifhanging = .false.
      !> Alignment operator
-     class(ncnf_interpolation_t), allocatable :: intp_op
+     class(subset_interpolation_t), allocatable :: intp_op
    contains
   end type polytope_actualisation_t
 

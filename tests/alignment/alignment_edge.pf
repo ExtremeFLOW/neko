@@ -35,6 +35,12 @@ subroutine test_alignment_edge_i4
 
      ! check alignment
      @assertEqual(edge%algn(), il)
+     ! check identity flag
+     if (il == 0) then
+        @assertTrue(edge%ifid())
+     else
+        @assertFalse(edge%ifid())
+     end if
 
      ! full edge test
      ! direct

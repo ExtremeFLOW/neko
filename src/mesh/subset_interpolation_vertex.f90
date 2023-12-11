@@ -30,21 +30,23 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Interpolation operators for nonconforming quads
-module ncnf_interpolation_vertex
+!> Dummy interpolation operators for nonconforming vertices
+module subset_interpolation_vertex
   use num_types, only : i4, rp
-  use ncnf_interpolation, only : ncnf_interpolation_t
+  use subset_interpolation, only : subset_interpolation_t
   implicit none
   private
 
-  public :: ncnf_intp_vertex_init, ncnf_interpolation_vertex_dmy_t
+  public :: subset_intp_vertex_init, subset_interpolation_vertex_dmy_t
 
   !> number of various interpolation operators
   integer(i4), public, parameter :: NEKO_INTP_VERTEX_NOPERATION = 0
 
   !> Dummy interpolation operators
-  type, extends(ncnf_interpolation_t) :: ncnf_interpolation_vertex_dmy_t
+  type, extends(subset_interpolation_t) :: subset_interpolation_vertex_dmy_t
    contains
+     !> Is transformation a dummy one
+     procedure, pass(this) :: ifdmy => ifdummy_vertex_dmy
      !> Patent-child interpolation
      procedure, nopass :: intp  => transform_vertex_dmy
      !> Transposed interpolation
@@ -53,16 +55,16 @@ module ncnf_interpolation_vertex
      procedure, pass(this) :: set_jmat  => vertex_set_jmat_dmy
      !> Free interpolation data
      procedure, pass(this) :: free_jmat => vertex_free_jmat_dmy
-  end type ncnf_interpolation_vertex_dmy_t
+  end type subset_interpolation_vertex_dmy_t
 
 contains
 
   !> @brief Allocate a single interpolation operator
   !! @parameter[in]      hng   hanging information
   !! @parameter[inout]   trns  interpolation operator
-  subroutine ncnf_intp_vertex_init(hng, trns)
+  subroutine subset_intp_vertex_init(hng, trns)
     integer(i4), intent(in) :: hng
-    class(ncnf_interpolation_t), allocatable, intent(inout) :: trns
+    class(subset_interpolation_t), allocatable, intent(inout) :: trns
 
     if (allocated(trns)) then
        call trns%free_jmat()
@@ -70,10 +72,18 @@ contains
     end if
 
     ! there is only a dummy operation for vertex
-    allocate(ncnf_interpolation_vertex_dmy_t :: trns)
+    allocate(subset_interpolation_vertex_dmy_t :: trns)
     call trns%set_hng(hng)
 
-  end subroutine ncnf_intp_vertex_init
+  end subroutine subset_intp_vertex_init
+
+  !> Function returning dummy operation flag
+  !! @return   ifdmy
+  pure function ifdummy_vertex_dmy(this) result(ifdmy)
+    class(subset_interpolation_vertex_dmy_t), intent(in) :: this
+    logical :: ifdmy
+    ifdmy = .true.
+  end function ifdummy_vertex_dmy
 
   !> Dummy interpolation operator, do nothing
   !! @parameter[inout]   vec      data vector
@@ -87,13 +97,13 @@ contains
   !! @notice  This routine can be called after space_t gets initialised.
   !! @parameter[in]      lr, ls   array sizes for r and s dimensions
   subroutine vertex_set_jmat_dmy(this, lr, ls)
-    class(ncnf_interpolation_vertex_dmy_t), intent(inout) :: this
+    class(subset_interpolation_vertex_dmy_t), intent(inout) :: this
     integer(i4), intent(in) :: lr, ls
   end subroutine vertex_set_jmat_dmy
 
   !> Free the dummy interpolation data
   subroutine vertex_free_jmat_dmy(this)
-    class(ncnf_interpolation_vertex_dmy_t), intent(inout) :: this
+    class(subset_interpolation_vertex_dmy_t), intent(inout) :: this
   end subroutine vertex_free_jmat_dmy
 
-end module ncnf_interpolation_vertex
+end module subset_interpolation_vertex

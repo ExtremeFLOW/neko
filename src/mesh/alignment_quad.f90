@@ -49,11 +49,13 @@ module alignment_quad
   !> Quad identity (I) transformation type
   type, extends(alignment_t) :: alignment_quad_I_t
    contains
-     ! Direct transformation of full array, different types
+     !> Is transformation identity
+     procedure, pass(this) :: ifid => ifidentity_quad_I
+     !> Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_quad_I_i4
      procedure, nopass :: trns_i8 => transform_quad_I_i8
      procedure, nopass :: trns_rp => transform_quad_I_rp
-     ! Inverse transformation of full array, different types
+     !> Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_quad_I_i4
      procedure, nopass :: trns_inv_i8 => transform_quad_I_i8
      procedure, nopass :: trns_inv_rp => transform_quad_I_rp
@@ -62,11 +64,13 @@ module alignment_quad
   !> Quad transposition (T) transformation type
   type, extends(alignment_t) :: alignment_quad_T_t
    contains
-     ! Direct transformation of full array, different types
+     !> Is transformation identity
+     procedure, pass(this) :: ifid => ifidentity_quad_T
+     !> Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_quad_T_i4
      procedure, nopass :: trns_i8 => transform_quad_T_i8
      procedure, nopass :: trns_rp => transform_quad_T_rp
-     ! Inverse transformation of full array, different types
+     !> Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_quad_T_i4
      procedure, nopass :: trns_inv_i8 => transform_quad_T_i8
      procedure, nopass :: trns_inv_rp => transform_quad_T_rp
@@ -75,11 +79,13 @@ module alignment_quad
   !> Quad row permutation (PX) transformation type
   type, extends(alignment_t) :: alignment_quad_PX_t
    contains
-     ! Direct transformation of full array, different types
+     !> Is transformation identity
+     procedure, pass(this) :: ifid => ifidentity_quad_PX
+     !> Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_quad_PX_i4
      procedure, nopass :: trns_i8 => transform_quad_PX_i8
      procedure, nopass :: trns_rp => transform_quad_PX_rp
-     ! Inverse transformation of full array, different types
+     !> Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_quad_PX_i4
      procedure, nopass :: trns_inv_i8 => transform_quad_PX_i8
      procedure, nopass :: trns_inv_rp => transform_quad_PX_rp
@@ -88,11 +94,13 @@ module alignment_quad
   !> Quad row permutation and transposition (PXT) transformation type
   type, extends(alignment_t) :: alignment_quad_PXT_t
    contains
-     ! Direct transformation of full array, different types
+     !> Is transformation identity
+     procedure, pass(this) :: ifid => ifidentity_quad_PXT
+     !> Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_quad_PXT_i4
      procedure, nopass :: trns_i8 => transform_quad_PXT_i8
      procedure, nopass :: trns_rp => transform_quad_PXT_rp
-     ! Inverse transformation of full array, different types
+     !> Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_quad_PYT_i4
      procedure, nopass :: trns_inv_i8 => transform_quad_PYT_i8
      procedure, nopass :: trns_inv_rp => transform_quad_PYT_rp
@@ -101,11 +109,13 @@ module alignment_quad
   !> Quad column permutation and transposition (PYT) transformation type
   type, extends(alignment_t) :: alignment_quad_PYT_t
    contains
-     ! Direct transformation of full array, different types
+     !> Is transformation identity
+     procedure, pass(this) :: ifid => ifidentity_quad_PYT
+     !> Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_quad_PYT_i4
      procedure, nopass :: trns_i8 => transform_quad_PYT_i8
      procedure, nopass :: trns_rp => transform_quad_PYT_rp
-     ! Inverse transformation of full array, different types
+     !> Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_quad_PXT_i4
      procedure, nopass :: trns_inv_i8 => transform_quad_PXT_i8
      procedure, nopass :: trns_inv_rp => transform_quad_PXT_rp
@@ -114,11 +124,13 @@ module alignment_quad
   !> Quad column permutation (PY) transformation type
   type, extends(alignment_t) :: alignment_quad_PY_t
    contains
-     ! Direct transformation of full array, different types
+     !> Is transformation identity
+     procedure, pass(this) :: ifid => ifidentity_quad_PY
+     !> Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_quad_PY_i4
      procedure, nopass :: trns_i8 => transform_quad_PY_i8
      procedure, nopass :: trns_rp => transform_quad_PY_rp
-     ! Inverse transformation of full array, different types
+     !> Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_quad_PY_i4
      procedure, nopass :: trns_inv_i8 => transform_quad_PY_i8
      procedure, nopass :: trns_inv_rp => transform_quad_PY_rp
@@ -127,11 +139,13 @@ module alignment_quad
   !> Quad row, column permutation and transposition (PXPYT) transformation type
   type, extends(alignment_t) :: alignment_quad_PXPYT_t
    contains
-     ! Direct transformation of full array, different types
+     !> Is transformation identity
+     procedure, pass(this) :: ifid => ifidentity_quad_PXPYT
+     !> Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_quad_PXPYT_i4
      procedure, nopass :: trns_i8 => transform_quad_PXPYT_i8
      procedure, nopass :: trns_rp => transform_quad_PXPYT_rp
-     ! Inverse transformation of full array, different types
+     !> Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_quad_PXPYT_i4
      procedure, nopass :: trns_inv_i8 => transform_quad_PXPYT_i8
      procedure, nopass :: trns_inv_rp => transform_quad_PXPYT_rp
@@ -140,11 +154,13 @@ module alignment_quad
   !> Quad row, column permutation (PXPY) transformation type
   type, extends(alignment_t) :: alignment_quad_PXPY_t
    contains
-     ! Direct transformation of full array, different types
+     !> Is transformation identity
+     procedure, pass(this) :: ifid => ifidentity_quad_PXPY
+     !> Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_quad_PXPY_i4
      procedure, nopass :: trns_i8 => transform_quad_PXPY_i8
      procedure, nopass :: trns_rp => transform_quad_PXPY_rp
-     ! Inverse transformation of full array, different types
+     !> Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_quad_PXPY_i4
      procedure, nopass :: trns_inv_i8 => transform_quad_PXPY_i8
      procedure, nopass :: trns_inv_rp => transform_quad_PXPY_rp
@@ -223,6 +239,70 @@ contains
     end do
 
   end subroutine quad_set_init
+
+  !> Function returning identity flag
+  !! @return   ifid
+  pure function ifidentity_quad_I(this) result(ifid)
+    class(alignment_quad_I_t), intent(in) :: this
+    logical :: ifid
+    ifid = .true.
+  end function ifidentity_quad_I
+
+  !> Function returning identity flag
+  !! @return   ifid
+  pure function ifidentity_quad_T(this) result(ifid)
+    class(alignment_quad_T_t), intent(in) :: this
+    logical :: ifid
+    ifid = .false.
+  end function ifidentity_quad_T
+
+  !> Function returning identity flag
+  !! @return   ifid
+  pure function ifidentity_quad_PX(this) result(ifid)
+    class(alignment_quad_PX_t), intent(in) :: this
+    logical :: ifid
+    ifid = .false.
+  end function ifidentity_quad_PX
+
+  !> Function returning identity flag
+  !! @return   ifid
+  pure function ifidentity_quad_PXT(this) result(ifid)
+    class(alignment_quad_PXT_t), intent(in) :: this
+    logical :: ifid
+    ifid = .false.
+  end function ifidentity_quad_PXT
+
+  !> Function returning identity flag
+  !! @return   ifid
+  pure function ifidentity_quad_PYT(this) result(ifid)
+    class(alignment_quad_PYT_t), intent(in) :: this
+    logical :: ifid
+    ifid = .false.
+  end function ifidentity_quad_PYT
+
+  !> Function returning identity flag
+  !! @return   ifid
+  pure function ifidentity_quad_PY(this) result(ifid)
+    class(alignment_quad_PY_t), intent(in) :: this
+    logical :: ifid
+    ifid = .false.
+  end function ifidentity_quad_PY
+
+  !> Function returning identity flag
+  !! @return   ifid
+  pure function ifidentity_quad_PXPYT(this) result(ifid)
+    class(alignment_quad_PXPYT_t), intent(in) :: this
+    logical :: ifid
+    ifid = .false.
+  end function ifidentity_quad_PXPYT
+
+  !> Function returning identity flag
+  !! @return   ifid
+  pure function ifidentity_quad_PXPY(this) result(ifid)
+    class(alignment_quad_PXPY_t), intent(in) :: this
+    logical :: ifid
+    ifid = .false.
+  end function ifidentity_quad_PXPY
 
   !> @brief Identity transformation, single integer array
   !! @parameter[inout]   vec      data vector

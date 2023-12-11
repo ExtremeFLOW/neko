@@ -62,13 +62,13 @@ mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o
 mesh/alignment.o : mesh/alignment.f90 config/num_types.o 
 mesh/alignment_edge.o : mesh/alignment_edge.f90 config/num_types.o common/utils.o mesh/alignment.o 
 mesh/alignment_quad.o : mesh/alignment_quad.f90 config/num_types.o common/utils.o mesh/alignment.o 
-mesh/ncnf_interpolation.o : mesh/ncnf_interpolation.f90 config/num_types.o
-mesh/ncnf_interpolation_vertex.o : mesh/ncnf_interpolation_vertex.f90 config/num_types.o mesh/ncnf_interpolation.o 
-mesh/ncnf_interpolation_edge.o : mesh/ncnf_interpolation_edge.f90 config/num_types.o mesh/ncnf_interpolation.o 
-mesh/ncnf_interpolation_quad.o : mesh/ncnf_interpolation_quad.f90 config/num_types.o mesh/ncnf_interpolation.o 
+mesh/subset_interpolation.o : mesh/subset_interpolation.f90 config/num_types.o
+mesh/subset_interpolation_vertex.o : mesh/subset_interpolation_vertex.f90 config/num_types.o mesh/subset_interpolation.o 
+mesh/subset_interpolation_edge.o : mesh/subset_interpolation_edge.f90 config/num_types.o mesh/subset_interpolation.o 
+mesh/subset_interpolation_quad.o : mesh/subset_interpolation_quad.f90 config/num_types.o mesh/subset_interpolation.o 
 mesh/polytope.o : mesh/polytope.f90 config/num_types.o common/utils.o mesh/entity.o 
 mesh/polytope_aligned.o : mesh/polytope_aligned.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/alignment.o 
-mesh/polytope_aligned.o : mesh/polytope_aligned.f90 config/num_types.o mesh/polytope_aligned.o mesh/ncnf_interpolation.o 
+mesh/polytope_aligned.o : mesh/polytope_aligned.f90 config/num_types.o mesh/polytope_aligned.o mesh/subset_interpolation.o 
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 
 field/scratch_registry.o : field/scratch_registry.f90 sem/dofmap.o field/field.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 

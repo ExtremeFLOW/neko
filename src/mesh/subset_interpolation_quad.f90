@@ -31,25 +31,27 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Interpolation operators for nonconforming quads
-module ncnf_interpolation_quad
+module subset_interpolation_quad
   use num_types, only : i4, rp
-  use ncnf_interpolation, only : ncnf_interpolation_t
+  use subset_interpolation, only : subset_interpolation_t
   implicit none
   private
 
-  public :: ncnf_intp_quad_init, ncnf_interpolation_quad_dmy_t, &
-       & ncnf_interpolation_quad_hng_t
+  public :: subset_intp_quad_init, subset_interpolation_quad_dmy_t, &
+       & subset_interpolation_quad_hng_t
 
   !> number of various interpolation operators
   integer(i4), public, parameter :: NEKO_INTP_QUAD_NOPERATION = 4
 
   !> Dummy interpolation operators
-  type, extends(ncnf_interpolation_t) :: ncnf_interpolation_quad_dmy_t
+  type, extends(subset_interpolation_t) :: subset_interpolation_quad_dmy_t
      !> Array size in local "r" direction
      integer(i4), private :: lr_ = -1
      !> Array size in local "s" direction
      integer(i4), private :: ls_ = -1
    contains
+     !> Is transformation a dummy one
+     procedure, pass(this) :: ifdmy => ifdummy_quad_dmy
      !> Patent-child interpolation
      procedure, nopass :: intp  => transform_quad_dmy
      !> Transposed interpolation
@@ -58,10 +60,10 @@ module ncnf_interpolation_quad
      procedure, pass(this) :: set_jmat  => quad_set_jmat_dmy
      !> Free interpolation data
      procedure, pass(this) :: free_jmat => quad_free_jmat_dmy
-  end type ncnf_interpolation_quad_dmy_t
+  end type subset_interpolation_quad_dmy_t
 
   !> Quad interpolation operators for hanging values 1 to 4
-  type, extends(ncnf_interpolation_t) :: ncnf_interpolation_quad_hng_t
+  type, extends(subset_interpolation_t) :: subset_interpolation_quad_hng_t
      !> Array size in local "r" direction
      integer(i4), private :: lr_ = -1
      !> Array size in local "s" direction
@@ -71,6 +73,8 @@ module ncnf_interpolation_quad
      !> Interpolation data "s"
      real(rp), private, dimension(:, :), allocatable :: jmats_
    contains
+     !> Is transformation a dummy one
+     procedure, pass(this) :: ifdmy => ifdummy_quad_hng
      !> Patent-child interpolation
      procedure, nopass :: intp  => transform_quad_hng
      !> Transposed interpolation
@@ -79,16 +83,16 @@ module ncnf_interpolation_quad
      procedure, pass(this) :: set_jmat  => quad_set_jmat_hng
      !> Free interpolation data
      procedure, pass(this) :: free_jmat => quad_free_jmat_hng
-  end type ncnf_interpolation_quad_hng_t
+  end type subset_interpolation_quad_hng_t
 
 contains
 
   !> @brief Allocate a single interpolation operator
   !! @parameter[in]      hng   hanging information
   !! @parameter[inout]   trns  interpolation operator
-  subroutine ncnf_intp_quad_init(hng, trns)
+  subroutine subset_intp_quad_init(hng, trns)
     integer(i4), intent(in) :: hng
-    class(ncnf_interpolation_t), allocatable, intent(inout) :: trns
+    class(subset_interpolation_t), allocatable, intent(inout) :: trns
 
     if (allocated(trns)) then
        call trns%free_jmat()
@@ -97,14 +101,30 @@ contains
 
     select case(hng)
     case(1:4) ! the quarter corresponding to the parent vertex
-       allocate(ncnf_interpolation_quad_hng_t :: trns)
+       allocate(subset_interpolation_quad_hng_t :: trns)
        call trns%set_hng(hng)
     case default ! any other option is just a dummy operation
-       allocate(ncnf_interpolation_quad_dmy_t :: trns)
+       allocate(subset_interpolation_quad_dmy_t :: trns)
        call trns%set_hng(hng)
     end select
 
-  end subroutine ncnf_intp_quad_init
+  end subroutine subset_intp_quad_init
+
+  !> Function returning dummy operation flag
+  !! @return   ifdmy
+  pure function ifdummy_quad_dmy(this) result(ifdmy)
+    class(subset_interpolation_quad_dmy_t), intent(in) :: this
+    logical :: ifdmy
+    ifdmy = .true.
+  end function ifdummy_quad_dmy
+
+  !> Function returning dummy operation flag
+  !! @return   ifdmy
+  pure function ifdummy_quad_hng(this) result(ifdmy)
+    class(subset_interpolation_quad_hng_t), intent(in) :: this
+    logical :: ifdmy
+    ifdmy = .false.
+  end function ifdummy_quad_hng
 
   !> Dummy interpolation operator, do nothing
   !! @parameter[inout]   vec      data vector
@@ -118,7 +138,7 @@ contains
   !! @notice  This routine can be called after space_t gets initialised.
   !! @parameter[in]      lr, ls   array sizes for r and s dimensions
   subroutine quad_set_jmat_dmy(this, lr, ls)
-    class(ncnf_interpolation_quad_dmy_t), intent(inout) :: this
+    class(subset_interpolation_quad_dmy_t), intent(inout) :: this
     integer(i4), intent(in) :: lr, ls
 
     call this%free_jmat()
@@ -129,7 +149,7 @@ contains
 
   !> Free the dummy interpolation data
   subroutine quad_free_jmat_dmy(this)
-    class(ncnf_interpolation_quad_dmy_t), intent(inout) :: this
+    class(subset_interpolation_quad_dmy_t), intent(inout) :: this
     this%lr_ = -1
     this%ls_ = -1
   end subroutine quad_free_jmat_dmy
@@ -156,7 +176,7 @@ contains
   !! @notice This routine can be called after space_t gets initialised.
   !! @parameter[in]      lr, ls   array sizes for r and s dimensions
   subroutine quad_set_jmat_hng(this, lr, ls)
-    class(ncnf_interpolation_quad_hng_t), intent(inout) :: this
+    class(subset_interpolation_quad_hng_t), intent(inout) :: this
     integer(i4), intent(in) :: lr, ls
     integer(i4) :: hng
 
@@ -180,11 +200,11 @@ contains
 
   !> Free the interpolation data
   subroutine quad_free_jmat_hng(this)
-    class(ncnf_interpolation_quad_hng_t), intent(inout) :: this
+    class(subset_interpolation_quad_hng_t), intent(inout) :: this
     if (allocated(this%jmatr_)) deallocate(this%jmatr_)
     if (allocated(this%jmats_)) deallocate(this%jmats_)
     this%lr_ = -1
     this%ls_ = -1
   end subroutine quad_free_jmat_hng
 
-end module ncnf_interpolation_quad
+end module subset_interpolation_quad

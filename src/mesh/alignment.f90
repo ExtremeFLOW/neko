@@ -39,6 +39,9 @@ module alignment
   public :: alignment_t, alignment_single_t, alignment_set_t
 
   !> Base type for an alignment operator for a given abstract polytope
+  !! @note This class for now works with the square arrays only assuming
+  !! @a lx = @a ly = @a lz. However, this can be easily updated to the general
+  !! case.
   type, abstract :: alignment_t
      !> Relative polytope alignment
      integer(i4), private :: alignment_ = -1
@@ -47,11 +50,13 @@ module alignment
      procedure, pass(this) :: algn => alignment_algn_get
      !> Set relative polytope alignment
      procedure, pass(this) :: set_algn => alignment_algn_set
-     ! Direct transformation; different types
+     !> Is transformation identity
+     procedure(alignment_ifidentity), pass(this), deferred :: ifid
+     !> Direct transformation; different types
      procedure(transform_i4), nopass, deferred :: trns_i4
      procedure(transform_i8), nopass, deferred :: trns_i8
      procedure(transform_rp), nopass, deferred :: trns_rp
-     ! Inverse transformation; different types
+     !> Inverse transformation; different types
      procedure(transform_i4), nopass, deferred :: trns_inv_i4
      procedure(transform_i8), nopass, deferred :: trns_inv_i8
      procedure(transform_rp), nopass, deferred :: trns_inv_rp
@@ -78,6 +83,16 @@ module alignment
      !> Set number of operations
      procedure, pass(this) :: set_nop => alignment_nop_set
   end type alignment_set_t
+
+  !> Abstract interface for function returning identity flag
+  !! @return   ifid
+  abstract interface
+     pure function alignment_ifidentity(this) result(ifid)
+       import :: alignment_t
+       class(alignment_t), intent(in) :: this
+       logical :: ifid
+     end function alignment_ifidentity
+  end interface
 
   !> Abstract interface for various transformations; single integer type
   !! @notice It is a common interface for 1D and 2D operations, so the data

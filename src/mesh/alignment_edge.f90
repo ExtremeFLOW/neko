@@ -47,11 +47,13 @@ module alignment_edge
   !> Edge identity (I) transformation type
   type, extends(alignment_t) :: alignment_edge_I_t
    contains
-     ! Direct transformation of full array, different types
+     !> Is transformation identity
+     procedure, pass(this) :: ifid => ifidentity_edge_I
+     !> Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_edge_I_i4
      procedure, nopass :: trns_i8 => transform_edge_I_i8
      procedure, nopass :: trns_rp => transform_edge_I_rp
-     ! Inverse transformation of full array, different types
+     !> Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_edge_I_i4
      procedure, nopass :: trns_inv_i8 => transform_edge_I_i8
      procedure, nopass :: trns_inv_rp => transform_edge_I_rp
@@ -60,11 +62,13 @@ module alignment_edge
   !> Edge row permutation (P) transformation type
   type, extends(alignment_t) :: alignment_edge_P_t
    contains
-     ! Direct transformation of full array, different types
+     !> Is transformation identity
+     procedure, pass(this) :: ifid => ifidentity_edge_P
+     !> Direct transformation of full array, different types
      procedure, nopass :: trns_i4 => transform_edge_P_i4
      procedure, nopass :: trns_i8 => transform_edge_P_i8
      procedure, nopass :: trns_rp => transform_edge_P_rp
-     ! Inverse transformation of full array, different types
+     !> Inverse transformation of full array, different types
      procedure, nopass :: trns_inv_i4 => transform_edge_P_i4
      procedure, nopass :: trns_inv_i8 => transform_edge_P_i8
      procedure, nopass :: trns_inv_rp => transform_edge_P_rp
@@ -124,6 +128,22 @@ contains
     end do
 
   end subroutine edge_set_init
+
+  !> Function returning identity flag
+  !! @return   ifid
+  pure function ifidentity_edge_I(this) result(ifid)
+    class(alignment_edge_I_t), intent(in) :: this
+    logical :: ifid
+    ifid = .true.
+  end function ifidentity_edge_I
+
+  !> Function returning identity flag
+  !! @return   ifid
+  pure function ifidentity_edge_P(this) result(ifid)
+    class(alignment_edge_P_t), intent(in) :: this
+    logical :: ifid
+    ifid = .false.
+  end function ifidentity_edge_P
 
   !> @brief Identity transformation, single integer array
   !! @notice It is a common interface for 1D and 2D operations, so the data

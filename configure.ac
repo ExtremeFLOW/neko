@@ -299,7 +299,7 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/tri/Makefile\
 		 tests/math/Makefile\
 		 tests/alignment/Makefile\
-		 tests/ncnf_interpolation/Makefile
+		 tests/subset_interpolation/Makefile
 		 tests/polytope/Makefile\
 		 tests/mesh/Makefile\
 		 tests/space/Makefile\
