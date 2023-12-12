@@ -219,8 +219,6 @@ contains
     n = this%s%dof%size()
 
     call col2(this%s%x, this%c_Xh%mult, n) 
-    call col2(this%abx1%x, this%c_Xh%mult, n) 
-    call col2(this%abx2%x, this%c_Xh%mult, n) 
     call col2(this%slag%lf(1)%x, this%c_Xh%mult, n) 
     call col2(this%slag%lf(2)%x, this%c_Xh%mult, n) 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -239,10 +237,6 @@ contains
     call this%gs_Xh%op(this%s,GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(1),GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(2),GS_OP_ADD)
-    call this%gs_Xh%op(this%abx1,GS_OP_ADD)
-    call this%gs_Xh%op(this%abx2,GS_OP_ADD)
-
-
 
   end subroutine scalar_pnpn_restart
 
@@ -315,18 +309,6 @@ contains
          ksp_maxiter => this%ksp_maxiter, &
          msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
-
-      if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
-         write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
-              ' l2norm s', glsc2(this%s%x,this%s%x,n),&
-              ' slag1', glsc2(this%slag%lf(1)%x,this%slag%lf(1)%x,n),&
-              ' slag2', glsc2(this%slag%lf(2)%x,this%slag%lf(2)%x,n)
-         call neko_log%message(log_buf)
-         write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2',&
-              ' l2norm abx1', glsc2(this%abx1%x,this%abx1%x,n),&
-              ' abx2', glsc2(this%abx2%x,this%abx2%x,n)
-         call neko_log%message(log_buf)
-      end if
       
       ! Evaluate the source term and scale with the mass matrix.
       call f_Xh%eval(t)
