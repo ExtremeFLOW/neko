@@ -240,6 +240,15 @@ contains
          if (associated(this%s)) then
             call device_memcpy(this%s%x, this%s%x_d, this%s%dof%size(), &
                                HOST_TO_DEVICE, sync=.false.)
+
+            call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
+                               this%s%dof%size(), HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
+                               this%s%dof%size(), HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(this%abs1%x, this%abs1%x_d, &
+                               w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(this%abs2%x, this%abs2%x_d, &
+                               w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          end if
        end associate
     end if
