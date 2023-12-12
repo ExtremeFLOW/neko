@@ -32,11 +32,11 @@
 !
 !> Defines a mesh field
 !! @details A mesh field is a scalar integer cell based field (\f$ dQ_0 \f$)
-module mesh_field  
+module mesh_field
   use mesh, only : mesh_t
   implicit none
   private
-  
+
   !> @todo Add support for different data types
   type, public ::  mesh_fld_t
      integer, allocatable :: data(:) !< Data
@@ -47,11 +47,11 @@ module mesh_field
   public :: mesh_field_init, mesh_field_free
 
 contains
-  
+
   subroutine mesh_field_init(fld, msh, fld_name)
     type(mesh_fld_t), intent(inout) :: fld
     type(mesh_t), target, intent(in) :: msh
-    character(len=*), optional :: fld_name 
+    character(len=*), optional :: fld_name
 
     call mesh_field_free(fld)
 

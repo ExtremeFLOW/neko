@@ -64,7 +64,7 @@ contains
     character(len=*), intent(inout) :: fname
 
     this%file_ = file_t(fname)
-    
+
   end subroutine output_init
 
   !> Update the output's file counter
@@ -73,13 +73,13 @@ contains
     integer, intent(in) :: n
     call this%file_%set_counter(n)
   end subroutine output_set_counter
- 
+
   !> Update the start of output's file counter
   subroutine output_set_start_counter(this, n)
     class(output_t), intent(inout) :: this
     integer, intent(in) :: n
     call this%file_%set_start_counter(n)
   end subroutine output_set_start_counter
-  
- 
+
+
 end module output

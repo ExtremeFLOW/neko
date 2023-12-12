@@ -227,6 +227,7 @@ neko_fortran_SOURCES = \
 	scalar/scalar_aux.f90\
 	scalar/scalar_residual.f90\
 	scalar/scalar_residual_fctry.f90\
+	scalar/scalar_ic.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\

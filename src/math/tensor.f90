@@ -1,4 +1,4 @@
-! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC. 
+! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -21,40 +21,40 @@
 ! may be used to endorse or promote products derived from this software
 ! without specific prior written permission.
 !
-! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF 
-! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF
+! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 ! Additional BSD Notice
 ! ---------------------
 ! 1. This notice is required to be provided under our contract with
 ! the U.S. Department of Energy (DOE). This work was produced at
-! Argonne National Laboratory under Contract 
+! Argonne National Laboratory under Contract
 ! No. DE-AC02-06CH11357 with the DOE.
 !
-! 2. Neither the United States Government nor UCHICAGO ARGONNE, 
-! LLC nor any of their employees, makes any warranty, 
+! 2. Neither the United States Government nor UCHICAGO ARGONNE,
+! LLC nor any of their employees, makes any warranty,
 ! express or implied, or assumes any liability or responsibility for the
 ! accuracy, completeness, or usefulness of any information, apparatus,
 ! product, or process disclosed, or represents that its use would not
 ! infringe privately-owned rights.
 !
-! 3. Also, reference herein to any specific commercial products, process, 
-! or services by trade name, trademark, manufacturer or otherwise does 
-! not necessarily constitute or imply its endorsement, recommendation, 
-! or favoring by the United States Government or UCHICAGO ARGONNE LLC. 
-! The views and opinions of authors expressed 
-! herein do not necessarily state or reflect those of the United States 
-! Government or UCHICAGO ARGONNE, LLC, and shall 
+! 3. Also, reference herein to any specific commercial products, process,
+! or services by trade name, trademark, manufacturer or otherwise does
+! not necessarily constitute or imply its endorsement, recommendation,
+! or favoring by the United States Government or UCHICAGO ARGONNE LLC.
+! The views and opinions of authors expressed
+! herein do not necessarily state or reflect those of the United States
+! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
 !> Tensor operations.
@@ -79,7 +79,7 @@ module tensor
      module procedure triple_tensor_product_scalar, triple_tensor_product_vector
   end interface triple_tensor_product
 
-public :: tensr3, transpose, trsp, trsp1, &
+  public :: tensr3, transpose, trsp, trsp1, &
      tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, &
      triple_tensor_product, tnsr3d_el_list
 
@@ -97,7 +97,7 @@ contains
     real(kind=rp), intent(inout) :: Bt(nu, nv)
     real(kind=rp), intent(inout) :: Ct(nu, nv)
     integer :: j, k, l, nunu, nvnv, nunv
-    
+
     nunu = nu**2
     nvnv = nv**2
     nunv = nu*nv
@@ -113,7 +113,7 @@ contains
        l = l + nvnv
     end do
     call mxm(w, nvnv, Ct, nu, v, nv)
-    
+
   end subroutine tensr3
 
   !> Transpose of a rectangular tensor \f$ A = B^T \f$.
@@ -129,7 +129,7 @@ contains
           a(i, j) = b(j, i)
        end do
     end do
-    
+
   end subroutine trsp
 
   !> In-place transpose of a square tensor.
@@ -146,7 +146,7 @@ contains
           a(j, i) = tmp
        end do
     end do
-    
+
   end subroutine trsp1
 
   !> Computes \f$ v = A u B^T \f$.
@@ -162,7 +162,7 @@ contains
     else
        call tnsr2d_el_cpu(v, nv, u, nu, A, Bt)
     end if
-    
+
   end subroutine tnsr2d_el
 
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
@@ -179,7 +179,7 @@ contains
     else
        call tnsr3d_el_cpu(v, nv, u, nu, A, Bt, Ct)
     end if
-    
+
   end subroutine tnsr3d_el
 
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
@@ -213,7 +213,7 @@ contains
           call tnsr3d_el_cpu(v(1,i), nv, u(1,el_list(i)+1), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
        end do
     end if
-    
+
   end subroutine tnsr3d_el_list
 
 
@@ -224,7 +224,7 @@ contains
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d
-   
+
 
     if (NEKO_BCKND_SX .eq. 1) then
        call tnsr3d_sx(v, nv, u, nu, A, Bt, Ct, nelv)
@@ -240,7 +240,7 @@ contains
     else
        call tnsr3d_cpu(v, nv, u, nu, A, Bt, Ct, nelv)
     end if
-    
+
   end subroutine tnsr3d
 
   !> In place tensor product \f$ v =(C \otimes B \otimes A) v \f$.
@@ -264,11 +264,11 @@ contains
   subroutine addtnsr(s, h1, h2, h3, nx, ny, nz)
 
     integer, intent(in) :: nx, ny, nz
-    real(kind=rp), intent(in) :: h1(nx), h2(ny), h3(nz) 
+    real(kind=rp), intent(in) :: h1(nx), h2(ny), h3(nz)
     real(kind=rp), intent(inout) ::  s(nx, ny, nz)
     real(kind=rp) :: hh
     integer :: ix, iy, iz
-  
+
     do iz = 1,nz
        do iy = 1,ny
           hh = h2(iy)*h3(iz)
@@ -277,7 +277,7 @@ contains
           end do
        end do
     end do
-    
+
   end subroutine addtnsr
 
   !> Computes the tensor product \f$ v =(H_t \otimes H_s \otimes H_r) u \f$.

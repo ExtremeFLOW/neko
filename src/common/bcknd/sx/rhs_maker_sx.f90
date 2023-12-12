@@ -6,7 +6,7 @@ module rhs_maker_sx
   use scratch_registry, only : neko_scratch_registry
   implicit none
   private
-  
+
   type, public, extends(rhs_maker_sumab_t) :: rhs_maker_sumab_sx_t
    contains
      procedure, nopass :: compute_fluid => rhs_maker_sumab_sx
@@ -23,7 +23,7 @@ module rhs_maker_sx
      procedure, nopass :: compute_fluid => rhs_maker_bdf_sx
      procedure, nopass :: compute_scalar => scalar_rhs_maker_bdf_sx
   end type rhs_maker_bdf_sx_t
-  
+
 contains
 
   subroutine rhs_maker_sumab_sx(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
@@ -49,7 +49,7 @@ contains
           w%x(i,1,1,1) = w%x(i,1,1,1) + ab(3) * wwlag%lf(2)%x(i,1,1,1)
        end do
     end if
-    
+
   end subroutine rhs_maker_sumab_sx
 
   subroutine rhs_maker_ext_sx(fx_lag, fy_lag, fz_lag, &
@@ -63,7 +63,7 @@ contains
     integer :: i
     type(field_t), pointer :: temp1, temp2, temp3
     integer :: temp_indices(3)
-    
+
     call neko_scratch_registry%request_field(temp1, temp_indices(1))
     call neko_scratch_registry%request_field(temp2, temp_indices(2))
     call neko_scratch_registry%request_field(temp3, temp_indices(3))
@@ -93,7 +93,7 @@ contains
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
-    
+
   end subroutine rhs_maker_ext_sx
 
   subroutine scalar_rhs_maker_ext_sx(temp1, fs_lag, fs_laglag, fs, rho, &
@@ -119,14 +119,14 @@ contains
     do i = 1, n
        fs(i) = (ext_coeffs(1) * fs(i) + temp1%x(i,1,1,1)) * rho
     end do
-    
+
   end subroutine scalar_rhs_maker_ext_sx
 
   subroutine rhs_maker_bdf_sx(ulag, vlag, wlag, bfx, bfy, bfz, &
-                              u, v, w, B, rho, dt, bd, nbd, n)    
+                              u, v, w, B, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(in) :: u, v, w
-    type(field_series_t), intent(in) :: ulag, vlag, wlag        
+    type(field_series_t), intent(in) :: ulag, vlag, wlag
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)

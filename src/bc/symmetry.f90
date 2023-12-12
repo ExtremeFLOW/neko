@@ -71,13 +71,13 @@ contains
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
-    
+
     call symmetry_free(this)
 
     call this%bc_x%init(c%dof)
     call this%bc_y%init(c%dof)
     call this%bc_z%init(c%dof)
-    
+
     associate(nx => c%nx, ny => c%ny, nz => c%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
@@ -87,7 +87,7 @@ contains
          sx = 0d0
          sy = 0d0
          sz = 0d0
-         select case (facet)               
+         select case (facet)
          case(1,2)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx -1
@@ -111,7 +111,7 @@ contains
                   sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
                   sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
                end do
-            end do               
+            end do
          end select
          sx = sx / (c%Xh%lx - 2)**2
          sy = sy / (c%Xh%lx - 2)**2
@@ -138,16 +138,16 @@ contains
     call this%bc_z%set_g(0.0_rp)
 
   end subroutine symmetry_init_msk
-  
+
   subroutine symmetry_free(this)
     type(symmetry_t), intent(inout) :: this
-    
+
     call this%bc_x%free()
     call this%bc_y%free()
     call this%bc_z%free()
 
   end subroutine symmetry_free
-  
+
   !> No-op scalar apply
   subroutine symmetry_apply_scalar(this, x, n, t, tstep)
     class(symmetry_t), intent(inout) :: this
@@ -171,7 +171,7 @@ contains
     call this%bc_x%apply_scalar(x,n)
     call this%bc_y%apply_scalar(y,n)
     call this%bc_z%apply_scalar(z,n)
-    
+
   end subroutine symmetry_apply_vector
 
   !> No-op scalar apply (device version)
@@ -198,5 +198,5 @@ contains
                                       this%bc_z%msk(0))
 
   end subroutine symmetry_apply_vector_dev
-      
+
 end module symmetry

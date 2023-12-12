@@ -46,7 +46,7 @@ program gsbench
   allocate(u(n))
   call rzero(u, n)
   call device_map(u, u_d, n)
-  call device_memcpy(u, u_d, n, HOST_TO_DEVICE)
+  call device_memcpy(u, u_d, n, HOST_TO_DEVICE, sync=.false.)
 
   ! warmup
   do i = 1, niter

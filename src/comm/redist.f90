@@ -33,8 +33,8 @@
 !> Redistribution routines
 module redist
   use mesh_field
-  use mpi_types
-  use mpi_f08    
+  use neko_mpi_types
+  use mpi_f08
   use htable
   use point
   use stack
@@ -48,7 +48,7 @@ module redist
   private
 
   public :: redist_mesh
-  
+
 contains
 
   !> Redistribute a mesh @a msh according to new partitions
@@ -80,10 +80,10 @@ contains
     ! Reset possible periodic ids
     !
     call msh%reset_periodic_ids()
-    
+
     !
     ! Extract new zone distributions
-    !     
+    !
 
     allocate(new_zone_dist(0:pe_size - 1))
     do i = 0, pe_size - 1
@@ -111,11 +111,11 @@ contains
     end do
 
     call redist_curve(msh, msh%curve, parts, new_curve_dist)
-    
+
     !
     ! Extract new mesh distribution
     !
-    
+
     allocate(new_mesh_dist(0:(pe_size - 1)))
     do i = 0, pe_size - 1
        call new_mesh_dist(i)%init()
@@ -127,12 +127,12 @@ contains
        do j = 1, 8
           el%v(j)%v_idx = ep%pts(j)%p%id()
           el%v(j)%v_xyz = ep%pts(j)%p%x
-       end do       
+       end do
        call new_mesh_dist(parts%data(i))%push(el)
     end do
 
-    
-    gdim = msh%gdim    
+
+    gdim = msh%gdim
     call msh%free()
 
     max_recv = 0
@@ -141,13 +141,13 @@ contains
        max_recv(2) = max(max_recv(2), new_zone_dist(i)%size())
        max_recv(3) = max(max_recv(3), new_curve_dist(i)%size())
     end do
-    
+
     call MPI_Allreduce(MPI_IN_PLACE, max_recv, 3, MPI_INTEGER, &
          MPI_MAX, NEKO_COMM, ierr)
     allocate(recv_buf_msh(max_recv(1)))
     allocate(recv_buf_zone(max_recv(2)))
     allocate(recv_buf_curve(max_recv(3)))
-    
+
     do i = 1, pe_size - 1
        src = modulo(pe_rank - i + pe_size, pe_size)
        dst = modulo(pe_rank + i, pe_size)
@@ -189,9 +189,9 @@ contains
 
        do j = 1, recv_size
           call new_curve_dist(pe_rank)%push(recv_buf_curve(j))
-      end do              
+       end do
     end do
-    
+
     deallocate(recv_buf_msh)
     deallocate(recv_buf_zone)
     deallocate(recv_buf_curve)
@@ -223,12 +223,12 @@ contains
           end do
           call msh%add_element(i, &
                p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
-          
+
           if (el_map%get(np(i)%el_idx, tmp) .gt. 0) then
              ! Old glb to new local
              tmp = i
              call el_map%set(np(i)%el_idx, tmp)
-             
+
              ! Old glb to new glb
              tmp = msh%elements(i)%e%id()
              call glb_map%set(np(i)%el_idx,  tmp)
@@ -244,7 +244,7 @@ contains
     ! Figure out new mesh distribution (necessary for periodic zones)
     !
     call pe_lst%init()
-    
+
     ! We should use the %array() procedure, which works great for
     ! GNU, Intel and NEC, but it breaks horribly on Cray when using
     ! certain data types
@@ -256,13 +256,13 @@ contains
           end if
        end do
     end select
-    
+
     max_recv_idx = 2 * pe_lst%size()
     call MPI_Allreduce(MPI_IN_PLACE, max_recv_idx, 1, MPI_INTEGER, &
          MPI_MAX, NEKO_COMM, ierr)
     allocate(recv_buf_idx(max_recv_idx))
     allocate(send_buf_idx(max_recv_idx))
-    
+
     do i = 1, pe_size - 1
        src = modulo(pe_rank - i + pe_size, pe_size)
        dst = modulo(pe_rank + i, pe_size)
@@ -295,15 +295,15 @@ contains
 
        do j = 1, recv_size, 2
           call glb_map%set(recv_buf_idx(j),  recv_buf_idx(j+1))
-       end do              
+       end do
     end do
     deallocate(recv_buf_idx)
     deallocate(send_buf_idx)
     call pe_lst%free()
-    
+
     !
     ! Add zone data for new mesh distribution
-    !     
+    !
     zp => new_zone_dist(pe_rank)%array()
     do i = 1, new_zone_dist(pe_rank)%size()
        if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
@@ -322,7 +322,7 @@ contains
           if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
              call neko_error('Missing periodic element after redistribution')
           end if
-          
+
           call msh%mark_periodic_facet(zp(i)%f, new_el_idx, &
                zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
        case(7)
@@ -338,12 +338,12 @@ contains
           if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
              call neko_error('Missing periodic element after redistribution')
           end if
-          
+
           call msh%apply_periodic_facet(zp(i)%f, new_el_idx, &
                zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
        end select
     end do
- 
+
     call new_zone_dist(pe_rank)%free()
 
     !
@@ -359,7 +359,7 @@ contains
     call new_curve_dist(pe_rank)%free()
 
     call msh%finalize()
-    
+
   end subroutine redist_mesh
 
   !> Fill redistribution list for zone data
@@ -378,7 +378,7 @@ contains
     else
        lbl = 0
     end if
-    
+
     select type(zp => z)
     type is (facet_zone_periodic_t)
        do i = 1, zp%size
@@ -387,8 +387,8 @@ contains
           nmsh_zone%f = zp%facet_el(i)%x(1)
           nmsh_zone%p_e = zp%p_facet_el(i)%x(2)
           nmsh_zone%p_f = zp%p_facet_el(i)%x(1)
-          nmsh_zone%glb_pt_ids = zp%p_ids(i)%x          
-          nmsh_zone%type = type          
+          nmsh_zone%glb_pt_ids = zp%p_ids(i)%x
+          nmsh_zone%type = type
           call new_dist(parts%data(zone_el))%push(nmsh_zone)
        end do
     type is (facet_zone_t)
@@ -419,7 +419,7 @@ contains
        nmsh_curve%type = c%curve_el(i)%curve_type
        call new_dist(parts%data(curve_el))%push(nmsh_curve)
     end do
-    
+
   end subroutine redist_curve
 
 end module redist

@@ -170,10 +170,11 @@ subroutine perform_global_summation(u, avg_u, old_u, n_levels, hom_dir_el, gs_h,
   do i = 1, n_levels-1
      !compute average 
      if (NEKO_BCKND_DEVICE .eq. 1) &
-        call device_memcpy(u%x, u%x_d, n, HOST_TO_DEVICE)
+          call device_memcpy(u%x, u%x_d, n, &
+                             HOST_TO_DEVICE, sync=.false.)
      call gs_h%op(u,GS_OP_ADD)
      if (NEKO_BCKND_DEVICE .eq. 1) &
-        call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST)
+          call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST, sync=.true.)
      call col2(u%x,mult,n)
      do e = 1, nelv
         temp_el = 2.0*u%x(:,:,:,e)-old_u%x(:,:,:,e)

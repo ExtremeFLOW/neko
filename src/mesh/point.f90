@@ -208,7 +208,7 @@ contains
     res%x(2) = p1%x(2) - p2%x(2)
     res%x(3) = p1%x(3) - p2%x(3)
 
- end function point_subtract
+  end function point_subtract
 
   !> Returns the multiplication of a point by a scalar \f$ a*p_{1} \f$.
   function point_scalar_mult(p, a) result(res)
@@ -229,10 +229,10 @@ contains
     real(kind=rp) :: res
 
     res = sqrt(  (p1%x(1) - p2%x(1))**2 &
-               + (p1%x(2) - p2%x(2))**2 &         
+               + (p1%x(2) - p2%x(2))**2 &
                + (p1%x(3) - p2%x(3))**2 )
   end function point_euclid_dist
-    
+
   !> Computes matrix-vector product in \f$ \mathbb{R}^3 \f$: \f$ b = Ax \f$.
   function point_mat_mult(A,x) result(b)
     class(point_t), intent(in) :: x

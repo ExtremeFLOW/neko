@@ -34,7 +34,7 @@
 !! @note This modules uses functions from `gslib`, namely `findpts_setup`,
 !! `findpts`, and `findpts_eval`. A full description of these subroutines can
 !! be found at https://github.com/Nek5000/gslib/blob/master/src/findpts.c
-!! 
+!!
 module global_interpolation
   use num_types, only: rp
   use space, only: space_t
@@ -45,17 +45,17 @@ module global_interpolation
   use local_interpolation
   use comm
   use math, only: copy
-  use mpi_types
+  use neko_mpi_types
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  !> Implements global interpolation for arbitrary points in the domain. 
+  !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
      !> Dofmap from which we interpolate the points
      type(dofmap_t), pointer :: dof
      !> Mesh on which we interpolate
      type(mesh_t), pointer :: mesh
-     !> Space 
+     !> Space
      type(space_t), pointer :: Xh
      !> Interpolator for local points
      type(local_interpolator_t) :: local_interp
@@ -123,14 +123,14 @@ contains
     if(present(tol)) this%tol = tol
 
 #ifdef HAVE_GSLIB
-    
+
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
     nelv = this%mesh%nelv
     !Number of points to iterate on simultaneosuly
     max_pts_per_iter = 128
-    
+
     call fgslib_findpts_setup(this%gs_handle, &
          NEKO_COMM, pe_size, &
          this%mesh%gdim, &
@@ -159,12 +159,10 @@ contains
     call this%free_points()
 
 #ifdef HAVE_GSLIB
-   if (this%gs_init) then
-      call fgslib_findpts_free(this%gs_handle)
-      this%gs_init = .false.
-   end if
-#else
-    call neko_error('Neko needs to be built with GSLIB support')
+    if (this%gs_init) then
+       call fgslib_findpts_free(this%gs_handle)
+       this%gs_init = .false.
+    end if
 #endif
 
   end subroutine global_interpolation_free
@@ -188,8 +186,8 @@ contains
     end if
 
   end subroutine global_interpolation_free_points
-  
-  !> Common routine for finding the points. 
+
+  !> Common routine for finding the points.
   subroutine global_interpolation_find_common(this)
     class(global_interpolation_t), intent(inout) :: this
     !!Perhaps this should be kind dp
@@ -245,22 +243,22 @@ contains
     allocate(x_check(this%n_points))
     allocate(y_check(this%n_points))
     allocate(z_check(this%n_points))
-    
+
     call fgslib_findpts_eval(this%gs_handle, x_check, &
                              1, this%error_code, 1, &
-                             this%proc_owner, 1, this%el_owner, 1, &  
+                             this%proc_owner, 1, this%el_owner, 1, &
                              this%rst, this%mesh%gdim, &
                              this%n_points, this%dof%x)
- 
+
     call fgslib_findpts_eval(this%gs_handle, y_check, &
                              1, this%error_code, 1, &
-                             this%proc_owner, 1, this%el_owner, 1, &  
+                             this%proc_owner, 1, this%el_owner, 1, &
                              this%rst, this%mesh%gdim, &
                              this%n_points, this%dof%y)
- 
+
     call fgslib_findpts_eval(this%gs_handle, z_check, &
                              1, this%error_code, 1, &
-                             this%proc_owner, 1, this%el_owner, 1, &  
+                             this%proc_owner, 1, this%el_owner, 1, &
                              this%rst, this%mesh%gdim, &
                              this%n_points, this%dof%z)
 
@@ -288,7 +286,7 @@ contains
        end if
 
     end do
-    
+
     deallocate(x_check)
     deallocate(y_check)
     deallocate(z_check)
@@ -301,8 +299,8 @@ contains
     call neko_error('Neko needs to be built with GSLIB support')
 #endif
   end subroutine global_interpolation_find_common
-  
-  !> Finds the corresponding r,s,t coordinates 
+
+  !> Finds the corresponding r,s,t coordinates
   !! in the correct global element as well as which process that owns the point.
   !! After this the values at these points can be evaluated.
   !! If the locations of the points change this must be called again.
@@ -330,7 +328,7 @@ contains
     this%n_points = n_points
 
     call global_interpolation_init_point_arrays(this)
-    
+
     do i = 1, n_points
        this%xyz(1,i) = x(i,1,1,1)
        this%xyz(2,i) = y(i,1,1,1)
@@ -356,7 +354,7 @@ contains
 
   end subroutine global_interpolation_init_point_arrays
 
-  !> Finds the corresponding r,s,t coordinates 
+  !> Finds the corresponding r,s,t coordinates
   !! in the correct global element as well as which process that owns the point.
   !! After this the values at these points can be evaluated.
   !! If the locations of the points change this must be called again.
@@ -378,7 +376,7 @@ contains
     this%n_points = n_points
 
     call global_interpolation_init_point_arrays(this)
-    
+
     !> make deep copy incase xyz goes out of scope or deallocated
     call copy(this%xyz,xyz,3*n_points)
 
@@ -408,7 +406,7 @@ contains
 
     this%n_points = n_points
     call global_interpolation_init_point_arrays(this)
-    
+
     !> make deep copy incase xyz goes out of scope or deallocated
     call copy(this%xyz,xyz,3*n_points)
 
@@ -416,14 +414,14 @@ contains
     !> Sets new points and redistributes them
     call global_interpolation_redist(this)
     call global_interpolation_find_common(this)
-  
+
     do i = 1, this%n_points
        if (this%proc_owner(i) .ne. pe_rank) then
           write(*,*) 'Redistribution failed on rank: ', pe_rank,&
                      'for point with coord: ', &
                      this%xyz(1,i),this%xyz(2,i),this%xyz(3,i)
           exit
-       end if          
+       end if
     end do
 
     n_points = this%n_points
@@ -464,7 +462,7 @@ contains
        call MPI_Gather(n_points_per_pe(i), 1, MPI_INTEGER,&
                       n_points_from_pe, 1, MPI_INTEGER, i, NEKO_COMM, ierr)
     end do
-    
+
     allocate(n_point_offset_from_pe(0:(pe_size-1)))
     n_point_offset_from_pe(0) = 0
     do i = 1,(pe_size-1)
@@ -524,7 +522,7 @@ contains
     if (.not. this%all_points_local) then
        call fgslib_findpts_eval(this%gs_handle, interp_values, &
                                 1, this%error_code, 1, &
-                                this%proc_owner, 1, this%el_owner, 1, &  
+                                this%proc_owner, 1, this%el_owner, 1, &
                                 this%rst, this%mesh%gdim, &
                                 this%n_points, field)
     else

@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Contains the global simulation component array and its init for the given 
+!> Contains the global simulation component array and its init for the given
 !! case.
 module simulation_component_global
   use simulation_component, only : simulation_component_wrapper_t
@@ -40,7 +40,7 @@ module simulation_component_global
   use case, only : case_t
   implicit none
   private
-  
+
   class(simulation_component_wrapper_t), public, allocatable :: neko_simcomps(:)
   public :: simcomps_global_init
 
@@ -53,27 +53,27 @@ contains
     type(case_t), intent(inout) :: case
     integer :: n_simcomps, i
     type(json_core) :: core
-    type(json_value), pointer :: simcomp_object, comp_pointer 
+    type(json_value), pointer :: simcomp_object, comp_pointer
     type(json_file) :: comp_subdict
     character(len=:), allocatable :: buffer
     logical :: found
 
     if (case%params%valid_path('case.simulation_components')) then
 
-      call case%params%info('case.simulation_components', n_children=n_simcomps)
-      allocate(neko_simcomps(n_simcomps))
+       call case%params%info('case.simulation_components', n_children=n_simcomps)
+       allocate(neko_simcomps(n_simcomps))
 
-      call case%params%get_core(core)
-      call case%params%get('case.simulation_components', simcomp_object, found)
-      do i=1, n_simcomps
-         ! Create a new json containing just the subdict for this simcomp
-         call core%get_child(simcomp_object, i, comp_pointer, found)
-         call core%print_to_string(comp_pointer, buffer)
-         call comp_subdict%load_from_string(buffer)
-         call simulation_component_factory(neko_simcomps(i)%simcomp, &
-                                           comp_subdict, case) 
-      end do
+       call case%params%get_core(core)
+       call case%params%get('case.simulation_components', simcomp_object, found)
+       do i=1, n_simcomps
+          ! Create a new json containing just the subdict for this simcomp
+          call core%get_child(simcomp_object, i, comp_pointer, found)
+          call core%print_to_string(comp_pointer, buffer)
+          call comp_subdict%load_from_string(buffer)
+          call simulation_component_factory(neko_simcomps(i)%simcomp, &
+                                           comp_subdict, case)
+       end do
     end if
-  end subroutine
+  end subroutine simcomps_global_init
 
 end module simulation_component_global

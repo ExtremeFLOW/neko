@@ -40,11 +40,11 @@ module pipecg_sx
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, rzero, copy
+  use math, only : glsc3
   use comm
   implicit none
   private
-  
+
   !> Pipelined preconditioned conjugate gradient method for SX-Aurora
   type, public, extends(ksp_t) :: sx_pipecg_t
      real(kind=rp), allocatable :: p(:)
@@ -71,9 +71,9 @@ contains
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-        
+
     call this%free()
-    
+
     allocate(this%p(n))
     allocate(this%q(n))
     allocate(this%r(n))
@@ -83,7 +83,7 @@ contains
     allocate(this%z(n))
     allocate(this%mi(n))
     allocate(this%ni(n))
-    if (present(M)) then 
+    if (present(M)) then
        this%M => M
     end if
 
@@ -96,7 +96,7 @@ contains
     else
        call this%ksp_init()
     end if
-          
+
   end subroutine sx_pipecg_init
 
   !> Deallocate a pipelined PCG solver
@@ -137,7 +137,7 @@ contains
 
 
   end subroutine sx_pipecg_free
-  
+
   !> Pipelined PCG solve
   function sx_pipecg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(sx_pipecg_t), intent(inout) :: this
@@ -151,12 +151,12 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, i, ierr
-    real(kind=rp) :: rnorm, rtr, reduction(3), norm_fac 
+    real(kind=rp) :: rnorm, rtr, reduction(3), norm_fac
     real(kind=rp) :: alpha, beta, gamma1, gamma2, delta
     real(kind=rp) :: tmp1, tmp2, tmp3
     type(MPI_Request) :: request
     type(MPI_Status) :: status
-    
+
     if (present(niter)) then
        max_iter = niter
     else
@@ -177,7 +177,7 @@ contains
     call Ax%compute(this%w, this%u, coef, x%msh, x%Xh)
     call gs_h%op(this%w, n, GS_OP_ADD)
     call bc_list_apply(blst, this%w, n)
-    
+
     rtr = glsc3(this%r, coef%mult, this%r, n)
     rnorm = sqrt(rtr)*norm_fac
     ksp_results%res_start = rnorm
@@ -186,7 +186,7 @@ contains
     if(rnorm .eq. 0.0_rp) return
 
     gamma1 = 0.0_rp
-      
+
     do iter = 1, max_iter
 
        tmp1 = 0.0_rp
@@ -200,34 +200,34 @@ contains
        reduction(1) = tmp1
        reduction(2) = tmp2
        reduction(3) = tmp3
-       
+
        call MPI_Iallreduce(MPI_IN_PLACE, reduction, 3, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, request, ierr)
-       
+
        call this%M%solve(this%mi, this%w, n)
        call Ax%compute(this%ni, this%mi, coef, x%msh, x%Xh)
        call gs_h%op(this%ni, n, GS_OP_ADD)
        call bc_list_apply(blst, this%ni, n)
 
        call MPI_Wait(request, status, ierr)
-       gamma2 = gamma1       
+       gamma2 = gamma1
        gamma1 = reduction(1)
        delta = reduction(2)
        rtr = reduction(3)
-       
+
        rnorm = sqrt(rtr)*norm_fac
        if (rnorm .lt. this%abs_tol) then
           exit
        end if
-       
+
        if (iter .gt. 1) then
           beta = gamma1 / gamma2
           alpha = gamma1 / (delta - (beta * gamma1/alpha))
-       else 
+       else
           beta = 0.0_rp
           alpha = gamma1/delta
        end if
-       
+
        do i = 1, n
           this%z(i) = beta * this%z(i) + this%ni(i)
           this%q(i) = beta * this%q(i) + this%mi(i)
@@ -241,14 +241,14 @@ contains
           this%u(i) = this%u(i) - alpha * this%q(i)
           this%w(i) = this%w(i) - alpha * this%z(i)
        end do
-       
+
     end do
-    
+
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
-    
+
   end function sx_pipecg_solve
-   
+
 end module pipecg_sx
-  
+
 
