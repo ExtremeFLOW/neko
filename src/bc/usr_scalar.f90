@@ -256,7 +256,7 @@ contains
          end do
  
         
-         call device_memcpy(x, this%usr_x_d, m, HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(x, this%usr_x_d, m, HOST_TO_DEVICE, sync=.true.)
 
          deallocate(x)
       end if

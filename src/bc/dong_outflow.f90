@@ -113,11 +113,11 @@ contains
             temp_z(i) = normal_xyz(3)
          end do
          call device_memcpy(temp_x, this%normal_x_d, m, &
-                            HOST_TO_DEVICE, sync=.false.)
+                            HOST_TO_DEVICE, sync=.true.)
          call device_memcpy(temp_y, this%normal_y_d, m, &
-                            HOST_TO_DEVICE, sync=.false.)
+                            HOST_TO_DEVICE, sync=.true.)
          call device_memcpy(temp_z, this%normal_z_d, m, &
-                            HOST_TO_DEVICE, sync=.false.)
+                            HOST_TO_DEVICE, sync=.true.)
          deallocate( temp_x, temp_y, temp_z)
       end if
 
