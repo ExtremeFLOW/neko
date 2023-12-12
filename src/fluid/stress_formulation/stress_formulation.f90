@@ -36,8 +36,11 @@ module stress_formulation
   use mxm_wrapper, only : mxm
   use space, only : space_t
   use mesh, only : mesh_t
+  use math, only : addcol4, add2
   implicit none
   private
+
+  public :: ax_helm_stress_compute
 
 contains
 
@@ -56,7 +59,7 @@ contains
       Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, coef%G33,&
       coef%G12, coef%G13, coef%G23, coef%jacinv, Xh%w3, msh%nelv, Xh%lx)
 
-    if (coef%ifh2) then 
+    if (coef%ifh2) then
        call addcol4 (au, coef%h2, coef%B, u, coef%dof%size())
        call addcol4 (av, coef%h2, coef%B, v, coef%dof%size())
        call addcol4 (aw, coef%h2, coef%B, w, coef%dof%size())
@@ -106,30 +109,30 @@ contains
        call local_grad(ur(1,1,1), ur(1,2,1), ur(1,3,1), u(:,:,:,e), p, 1, Dx, Dxt)
        call local_grad(ur(1,1,2), ur(1,2,2), ur(1,3,2), v(:,:,:,e), p, 1, Dx, Dxt)
        call local_grad(ur(1,1,3), ur(1,2,3), ur(1,3,3), w(:,:,:,e), p, 1, Dx, Dxt)
-    
+
        do i=1, ngll
-    
+
           u1 = ur(i,1,1)*G11(i,1,1,e) + ur(i,2,1)*G12(i,1,1,e) &
                                       + ur(i,3,1)*G13(i,1,1,e)
           u2 = ur(i,1,1)*G12(i,1,1,e) + ur(i,2,1)*G22(i,1,1,e) &
                                       + ur(i,3,1)*G23(i,1,1,e)
           u3 = ur(i,1,1)*G13(i,1,1,e) + ur(i,2,1)*G23(i,1,1,e) &
                                       + ur(i,3,1)*G33(i,1,1,e)
-    
+
           v1 = ur(i,1,2)*G11(i,1,1,e) + ur(i,2,2)*G12(i,1,1,e) &
                                       + ur(i,3,2)*G13(i,1,1,e)
           v2 = ur(i,1,2)*G12(i,1,1,e) + ur(i,2,2)*G22(i,1,1,e) &
                                       + ur(i,3,2)*G23(i,1,1,e)
           v3 = ur(i,1,2)*G13(i,1,1,e) + ur(i,2,2)*G23(i,1,1,e) &
                                       + ur(i,3,2)*G33(i,1,1,e)
-    
+
           w1 = ur(i,1,3)*G11(i,1,1,e) + ur(i,2,3)*G12(i,1,1,e) &
                                       + ur(i,3,3)*G13(i,1,1,e)
           w2 = ur(i,1,3)*G12(i,1,1,e) + ur(i,2,3)*G22(i,1,1,e) &
                                       + ur(i,3,3)*G23(i,1,1,e)
           w3 = ur(i,1,3)*G13(i,1,1,e) + ur(i,2,3)*G23(i,1,1,e) &
                                       + ur(i,3,3)*G33(i,1,1,e)
-    
+
           dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
@@ -157,7 +160,7 @@ contains
        call local_grad3_t(au(:,:,:,e), ur(1,1,1), ur(1,2,1), ur(1,3,1), p, 1, Dx, Dxt, av(:,:,:,e))
        call local_grad3_t(av(:,:,:,e), ur(1,1,2), ur(1,2,2), ur(1,3,2), p, 1, Dx, Dxt, ur)
        call local_grad3_t(aw(:,:,:,e), ur(1,1,3), ur(1,2,3), ur(1,3,3), p, 1, Dx, Dxt, ur)
-    end do 
+    end do
 
   end subroutine ax_helm_stress_lx
 

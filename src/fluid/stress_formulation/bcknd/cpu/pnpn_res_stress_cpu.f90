@@ -11,6 +11,7 @@ module pnpn_res_stress_cpu
   use mesh, only : mesh_t
   use num_types, only : rp
   use space, only : space_t
+  use stress_formulation, only : ax_helm_stress_compute
   implicit none
   private
 
@@ -151,16 +152,20 @@ contains
     end do
     c_Xh%ifh2 = .true.
 
-    call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
-    call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
-    call Ax%compute(w_res%x, w%x, c_Xh, msh, Xh)
+    ! Viscous stresses
+    call ax_helm_stress_compute(u_res%x, v_res%x, w_res%x, u%x, v%x, w%x, c_Xh,&
+                                msh, Xh)
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
     call neko_scratch_registry%request_field(ta2, temp_indices(2))
     call neko_scratch_registry%request_field(ta3, temp_indices(3))
 
-    call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
+    ! Pressure gradient
+    call cdtp(ta1%x, p%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+    call cdtp(ta2%x, p%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+    call cdtp(ta3%x, p%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
 
+    ! Sum all the terms
     do i = 1, n
        u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1)
        v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
