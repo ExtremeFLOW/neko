@@ -57,10 +57,10 @@ module checkpoint
      type(field_series_t), pointer :: ulag => null()
      type(field_series_t), pointer :: vlag => null()
      type(field_series_t), pointer :: wlag => null()
-     
+
      real(kind=rp), pointer :: tlag(:) => null()
      real(kind=rp), pointer :: dtlag(:) => null()
-     
+
      !> for pnpn
      type(field_t), pointer :: abx1 => null()
      type(field_t), pointer :: abx2 => null()
@@ -110,14 +110,14 @@ contains
     if ( u%msh%nelv .ne. p%msh%nelv ) then
        call neko_error('Velocity and pressure defined on different meshes')
     end if
-    
+
     this%u => u
     this%v => v
     this%w => w
     this%p => p
 
     this%t = 0d0
-    
+
   end subroutine chkp_init
 
   !> Reset checkpoint
@@ -132,7 +132,7 @@ contains
     nullify(this%ulag)
     nullify(this%vlag)
     nullify(this%wlag)
-    
+
   end subroutine chkp_free
 
   !> Synchronize checkpoint with device
@@ -151,19 +151,19 @@ contains
             call device_memcpy(w%x, w%x_d, w%dof%size(), DEVICE_TO_HOST, sync=.false.)
             call device_memcpy(p%x, p%x_d, p%dof%size(), DEVICE_TO_HOST, sync=.false.)
          end if
-         
+
          if (associated(this%ulag) .and. associated(this%vlag) .and. &
               associated(this%wlag)) then
             call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
                                u%dof%size(), DEVICE_TO_HOST, sync=.false.)
             call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
                                u%dof%size(), DEVICE_TO_HOST, sync=.false.)
-  
+
             call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
                                v%dof%size(), DEVICE_TO_HOST, sync=.false.)
             call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
                                v%dof%size(), DEVICE_TO_HOST, sync=.false.)
-    
+
             call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
                                w%dof%size(), DEVICE_TO_HOST, sync=.false.)
             call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
@@ -194,9 +194,9 @@ contains
                                w%dof%size(), DEVICE_TO_HOST, sync=.false.)
          end if
        end associate
-    call device_sync(glb_cmd_queue)
+       call device_sync(glb_cmd_queue)
     end if
-         
+
   end subroutine chkp_sync_host
 
   !> Synchronize device with checkpoint
@@ -219,19 +219,19 @@ contains
             call device_memcpy(p%x, p%x_d, p%dof%size(), &
                                HOST_TO_DEVICE, sync=.false.)
          end if
-         
+
          if (associated(this%ulag) .and. associated(this%vlag) .and. &
               associated(this%wlag)) then
             call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, u%dof%size(), &
                                HOST_TO_DEVICE, sync=.false.)
             call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, u%dof%size(), &
                                HOST_TO_DEVICE, sync=.false.)
-  
+
             call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, v%dof%size(), &
                                HOST_TO_DEVICE, sync=.false.)
             call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, v%dof%size(), &
                                HOST_TO_DEVICE, sync=.false.)
-    
+
             call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, w%dof%size(), &
                                HOST_TO_DEVICE, sync=.false.)
             call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, w%dof%size(), &
@@ -252,12 +252,12 @@ contains
          end if
        end associate
     end if
-         
+
   end subroutine chkp_sync_device
 
   !> Add lagged velocity terms
   subroutine chkp_add_lag(this, ulag, vlag, wlag)
-    class(chkp_t), intent(inout) :: this    
+    class(chkp_t), intent(inout) :: this
     type(field_series_t), target :: ulag
     type(field_series_t), target :: vlag
     type(field_series_t), target :: wlag
@@ -265,16 +265,16 @@ contains
     this%ulag => ulag
     this%vlag => vlag
     this%wlag => wlag
-    
+
   end subroutine chkp_add_lag
 
   !> Add scalars
   subroutine chkp_add_scalar(this, s)
-    class(chkp_t), intent(inout) :: this    
+    class(chkp_t), intent(inout) :: this
     type(field_t), target :: s
 
     this%s => s
-    
+
   end subroutine chkp_add_scalar
 
 
@@ -285,5 +285,5 @@ contains
 
     rtime = this%t
   end function chkp_restart_time
-  
+
 end module checkpoint

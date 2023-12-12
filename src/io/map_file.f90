@@ -55,7 +55,7 @@ contains
     class(*), target, intent(inout) :: data
     type(map_t), pointer :: nm
     integer :: j, k, neli, nnzi, ierr
-    
+
     select type(data)
     type is (map_t)
        nm => data
@@ -71,13 +71,13 @@ contains
     read(10, *) neli, nnzi
 
     !> @todo Check if neli matches map%nel
-    
+
     do j = 1, nm%nel
        read(10, *) nm%imap(j),(nm%vertex(k, j), k=1,nm%nlv)
     end do
-    
+
     close(unit=10)
-    
+
   end subroutine map_file_read
 
   subroutine map_file_write(this, data, t)
@@ -86,5 +86,5 @@ contains
     real(kind=rp), intent(in), optional :: t
     call neko_error("Not implemented yet!")
   end subroutine map_file_write
-  
+
 end module map_file

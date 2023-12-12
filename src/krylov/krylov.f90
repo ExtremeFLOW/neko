@@ -53,12 +53,12 @@ module krylov
 
   !> Type for storing initial and final residuals in a Krylov solver.
   type, public :: ksp_monitor_t
-    !> Iteration number.
-    integer :: iter
-    !> Initial residual.
-    real(kind=rp) :: res_start
-    !> FInal residual
-    real(kind=rp) :: res_final
+     !> Iteration number.
+     integer :: iter
+     !> Initial residual.
+     real(kind=rp) :: res_start
+     !> FInal residual
+     real(kind=rp) :: res_final
   end type ksp_monitor_t
 
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
@@ -75,11 +75,11 @@ module krylov
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
 
-  
+
   !> Abstract interface for a Krylov method's solve routine
   !!
   !! @param x field to solve for
-  !! @param f right hand side 
+  !! @param f right hand side
   !! @param n integer, size of vectors
   !! @param coef Coefficients
   !! @param blst list of  boundary conditions
@@ -87,7 +87,7 @@ module krylov
   !! @param niter iteration trip count
   abstract interface
      function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
-       import :: bc_list_t       
+       import :: bc_list_t
        import :: field_t
        import :: ksp_t
        import :: coef_t
@@ -103,8 +103,8 @@ module krylov
        real(kind=rp), dimension(n), intent(inout) :: f
        type(coef_t), intent(inout) :: coef
        type(bc_list_t), intent(inout) :: blst
-       type(gs_t), intent(inout) :: gs_h              
-       integer, optional, intent(in) :: niter       
+       type(gs_t), intent(inout) :: gs_h
+       integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results
      end function ksp_method
   end interface
@@ -116,19 +116,19 @@ module krylov
        class(ksp_t), intent(inout) :: this
      end subroutine ksp_t_free
   end interface
-  
+
 contains
 
   !> Create a krylov solver
   !! @param rel_tol Relative tolarance for converence.
   !! @param rel_tol Absolute tolarance for converence.
   !! @param M The preconditioner.
-  subroutine krylov_init(this, rel_tol, abs_tol, M)    
+  subroutine krylov_init(this, rel_tol, abs_tol, M)
     class(ksp_t), target, intent(inout) :: this
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     class(pc_t), optional, target, intent(in) :: M
-    
+
     call krylov_free(this)
 
     if (present(rel_tol)) then
@@ -157,7 +157,7 @@ contains
     end if
 
   end subroutine krylov_init
-  
+
   !> Deallocate a Krylov solver
   subroutine krylov_free(this)
     class(ksp_t), intent(inout) :: this
@@ -180,9 +180,9 @@ contains
           call neko_error('Preconditioner already defined')
        end select
     end if
-    
+
     this%M => M
-    
+
   end subroutine krylov_set_pc
-  
+
 end module krylov

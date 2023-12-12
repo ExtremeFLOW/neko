@@ -35,7 +35,7 @@ module gs_comm
   use num_types, only : rp
   use comm, only : pe_size
   use stack, only : stack_i4_t
-  use, intrinsic :: iso_c_binding 
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -63,10 +63,10 @@ module gs_comm
   abstract interface
      subroutine gs_comm_init(this, send_pe, recv_pe)
        import gs_comm_t
-       import stack_i4_t       
+       import stack_i4_t
        class(gs_comm_t), intent(inout) :: this
        type(stack_i4_t), intent(inout) :: send_pe
-       type(stack_i4_t), intent(inout) :: recv_pe       
+       type(stack_i4_t), intent(inout) :: recv_pe
      end subroutine gs_comm_init
   end interface
 
@@ -132,7 +132,7 @@ contains
        call this%send_dof(i)%init()
        call this%recv_dof(i)%init()
     end do
-    
+
   end subroutine init_dofs
 
   subroutine free_dofs(this)
@@ -152,7 +152,7 @@ contains
        end do
        deallocate(this%recv_dof)
     end if
-    
+
   end subroutine free_dofs
 
   subroutine init_order(this, send_pe, recv_pe)
@@ -161,7 +161,7 @@ contains
     type(stack_i4_t), intent(inout) :: recv_pe
     integer, pointer :: sp(:)
     integer :: i
-    
+
     allocate(this%send_pe(send_pe%size()))
 
     sp => send_pe%array()
@@ -175,7 +175,7 @@ contains
     do i = 1, recv_pe%size()
        this%recv_pe(i) = sp(i)
     end do
-    
+
   end subroutine init_order
 
   subroutine free_order(this)
@@ -188,7 +188,7 @@ contains
     if (allocated(this%recv_pe)) then
        deallocate(this%recv_pe)
     end if
-    
+
   end subroutine free_order
-     
+
 end module gs_comm

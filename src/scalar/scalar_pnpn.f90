@@ -47,11 +47,11 @@ module scalar_pnpn
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_residual, only :scalar_residual_t
   use ax_product, only : ax_t
-  use field_series  
+  use field_series
   use facet_normal
   use device_math
   use device_mathops
-  use scalar_aux    
+  use scalar_aux
   use time_scheme_controller
   use projection
   use math
@@ -67,7 +67,7 @@ module scalar_pnpn
 
 
   type, public, extends(scalar_scheme_t) :: scalar_pnpn_t
-     
+
      type(field_t) :: s_res
 
      type(field_series_t) :: slag
@@ -77,15 +77,15 @@ module scalar_pnpn
      type(field_t) :: wa1
      type(field_t) :: ta1
 
-     
+
      class(ax_t), allocatable :: Ax
 
      type(projection_t) :: proj_s
 
-     type(dirichlet_t) :: bc_res   !< Dirichlet condition for scala 
+     type(dirichlet_t) :: bc_res   !< Dirichlet condition for scala
      type(bc_list_t) :: bclst_ds
 
-     class(advection_t), allocatable :: adv 
+     class(advection_t), allocatable :: adv
 
      ! Time variables
      type(field_t) :: abx1
@@ -195,8 +195,8 @@ contains
 
     ! Add lagged term to checkpoint
     ! @todo Init chkp object, note, adding 3 slags
-    ! call this%chkp%add_lag(this%slag, this%slag, this%slag)    
-    
+    ! call this%chkp%add_lag(this%slag, this%slag, this%slag)
+
     ! Uses sthe same parameter as the fluid to set dealiasing
     call json_get(params, 'case.numerics.dealias', logical_val)
     call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
@@ -294,8 +294,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     n = this%dm_Xh%size()
-    
-    call profiler_start_region('Scalar')
+
+    call profiler_start_region('Scalar', 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, lambda => this%lambda, rho => this%rho, &
          ds => this%ds, &
@@ -309,7 +309,19 @@ contains
          ksp_maxiter => this%ksp_maxiter, &
          msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
-      
+
+      if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
+         write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
+              ' l2norm s', glsc2(this%s%x,this%s%x,n),&
+              ' slag1', glsc2(this%slag%lf(1)%x,this%slag%lf(1)%x,n),&
+              ' slag2', glsc2(this%slag%lf(2)%x,this%slag%lf(2)%x,n)
+         call neko_log%message(log_buf)
+         write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2',&
+              ' l2norm abx1', glsc2(this%abx1%x,this%abx1%x,n),&
+              ' abx2', glsc2(this%abx2%x,this%abx2%x,n)
+         call neko_log%message(log_buf)
+      end if
+
       ! Evaluate the source term and scale with the mass matrix.
       call f_Xh%eval(t)
 
@@ -330,34 +342,34 @@ contains
            rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
-      !> We assume that no change of boundary conditions 
+      !> We assume that no change of boundary conditions
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply dirichlet
       call this%bc_apply()
 
       ! Compute scalar residual.
-      call profiler_start_region('Scalar residual')
+      call profiler_start_region('Scalar residual', 20)
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda, rho * cp, &
           ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
 
-      call gs_Xh%op(s_res, GS_OP_ADD) 
+      call gs_Xh%op(s_res, GS_OP_ADD)
 
       call bc_list_apply_scalar(this%bclst_ds,&
            s_res%x, dm_Xh%size())
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
          call this%proj_s%project_on(s_res%x, c_Xh, n)
       end if
 
       call this%pc%update()
-      call profiler_start_region('Scalar solve')
+      call profiler_start_region('Scalar solve', 21)
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bclst_ds, gs_Xh, ksp_maxiter)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
          call this%proj_s%project_back(ds%x, Ax, c_Xh, &
               this%bclst_ds, gs_Xh, n)
       end if

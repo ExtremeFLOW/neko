@@ -89,7 +89,7 @@ contains
        y(k) = this%g
        z(k) = this%g
     end do
-    
+
   end subroutine dirichlet_apply_vector
 
   !> Boundary condition apply for a generic Dirichlet condition
@@ -102,10 +102,10 @@ contains
 
     call device_dirichlet_apply_scalar(this%msk_d, x_d, &
                                        this%g, size(this%msk))
-    
+
   end subroutine dirichlet_apply_scalar_dev
-  
-  !> Boundary condition apply for a generic Dirichlet condition 
+
+  !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(dirichlet_t), intent(inout), target :: this
@@ -117,7 +117,7 @@ contains
 
     call device_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
                                        this%g, size(this%msk))
-    
+
   end subroutine dirichlet_apply_vector_dev
 
   !> Set value of \f$ g \f$
@@ -126,7 +126,7 @@ contains
     real(kind=rp), intent(in) :: g
 
     this%g = g
-    
+
   end subroutine dirichlet_set_g
-  
+
 end module dirichlet

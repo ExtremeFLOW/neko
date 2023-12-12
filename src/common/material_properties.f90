@@ -58,7 +58,7 @@ module material_properties
      procedure, pass(this) :: init => material_properties_init
      !> Write final dimensional values to the log.
      procedure, private, pass(this) :: write_to_log
-   end type material_properties_t
+  end type material_properties_t
 
 contains
 
@@ -79,10 +79,10 @@ contains
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
-          write(log_buf, '(A)') "Material properties must be set in the user&
-                              & file!"
-          call neko_log%message(log_buf)
-          call user%material_properties(0.0_rp, 0, this%rho, this%mu, &
+       write(log_buf, '(A)') "Material properties must be set in the user&
+       & file!"
+       call neko_log%message(log_buf)
+       call user%material_properties(0.0_rp, 0, this%rho, this%mu, &
                                         this%cp, this%lambda, params)
     else
 
@@ -94,18 +94,18 @@ contains
        if (params%valid_path('case.fluid.Re') .and. &
            (params%valid_path('case.fluid.mu') .or. &
             params%valid_path('case.fluid.rho'))) then
-           call neko_error("To set the material properties for the fluid,&
-              & either provide Re OR mu and rho in the case file.")
+          call neko_error("To set the material properties for the fluid,&
+          & either provide Re OR mu and rho in the case file.")
 
-       ! Non-dimensional case
+          ! Non-dimensional case
        else if (params%valid_path('case.fluid.Re')) then
           nondimensional = .true.
 
           write(log_buf, '(A)') 'Non-dimensional fluid material properties &
-                              & input.'
+          & input.'
           call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Density will be set to 1, dynamic viscosity to&
-                              & 1/Re.'
+          & 1/Re.'
           call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
 
           ! Read Re into mu for further manipulation.
@@ -119,7 +119,7 @@ contains
           this%rho = 1.0_rp
           ! Invert the Re to get viscosity.
           this%mu = 1.0_rp/this%mu
-       ! Dimensional case
+          ! Dimensional case
        else
           call json_get(params, 'case.fluid.mu', this%mu)
           call json_get(params, 'case.fluid.rho', this%rho)
@@ -129,32 +129,32 @@ contains
        ! Scalar
        !
        if (.not. params%valid_path('case.scalar')) then
-         ! Set dummy values
-         this%cp = 1.0_rp
-         this%lambda = 1.0_rp
-         call this%write_to_log(.false.)
-         return
+          ! Set dummy values
+          this%cp = 1.0_rp
+          this%lambda = 1.0_rp
+          call this%write_to_log(.false.)
+          return
        end if
 
        ! Incorrect user input
        if (nondimensional .and. &
            (params%valid_path('case.scalar.lambda') .or. &
             params%valid_path('case.scalar.cp'))) then
-           call neko_error("For non-dimensional setup set the Pe number for&
-                         & the scalar")
+          call neko_error("For non-dimensional setup set the Pe number for&
+          & the scalar")
        else if (.not. nondimensional .and. &
                 params%valid_path('case.scalar.Pe')) then
-           call neko_error("Dimensional material properties input detected,&
-                         & because you set rho and mu for the fluid. &
-                         & Please set cp and lambda for the scalar.")
+          call neko_error("Dimensional material properties input detected,&
+          & because you set rho and mu for the fluid. &
+          & Please set cp and lambda for the scalar.")
 
-       ! Non-dimensional case
+          ! Non-dimensional case
        else if (nondimensional) then
           write(log_buf, '(A)') 'Non-dimensional scalar material properties &
-                              & input.'
+          & input.'
           call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1, &
-                              & conductivity to 1/Pe.'
+          & conductivity to 1/Pe.'
           call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
@@ -167,7 +167,7 @@ contains
           this%rho = 1.0_rp
           ! Invert the Pe to get conductivity
           this%lambda = 1.0_rp/this%lambda
-       ! Dimensional case
+          ! Dimensional case
        else
           call json_get(params, 'case.scalar.lambda', this%lambda)
           call json_get(params, 'case.scalar.cp', this%cp)

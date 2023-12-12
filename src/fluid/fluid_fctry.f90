@@ -34,7 +34,7 @@
 module fluid_fctry
   use fluid_scheme, only : fluid_scheme_t
 !  use fluid_plan1, only : fluid_plan1_t
-  use fluid_pnpn, only : fluid_pnpn_t    
+  use fluid_pnpn, only : fluid_pnpn_t
   use utils, only : neko_error
   use neko_config
   implicit none
@@ -53,7 +53,7 @@ contains
     else
        call neko_error('Invalid fluid scheme')
     end if
-    
+
   end subroutine fluid_scheme_factory
 
 end module fluid_fctry

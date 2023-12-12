@@ -79,9 +79,9 @@ contains
 
        ! Restart the simulation components
        if (allocated(neko_simcomps)) then
-         do i=1, size(neko_simcomps)
-            call neko_simcomps(i)%simcomp%restart(t)
-         end do
+          do i=1, size(neko_simcomps)
+             call neko_simcomps(i)%simcomp%restart(t)
+          end do
        end if
     end if
 
@@ -136,9 +136,9 @@ contains
        call neko_log%section('Postprocessing')
        ! Execute all simulation components
        if (allocated(neko_simcomps)) then
-         do i=1, size(neko_simcomps)
-            call neko_simcomps(i)%simcomp%compute(t, tstep)
-         end do
+          do i=1, size(neko_simcomps)
+             call neko_simcomps(i)%simcomp%compute(t, tstep)
+          end do
        end if
 
        call C%q%eval(t, C%dt, tstep)
@@ -230,8 +230,8 @@ contains
                       found)
 
     if (found) C%fluid%chkp%mesh2mesh_tol = tol
-    
-    C%dtlag(:) = C%dt 
+
+    C%dtlag(:) = C%dt
     C%tlag(:) = t
     do i = 1, size(C%tlag)
        C%tlag(i) = t - i*C%dtlag(i)
@@ -244,7 +244,7 @@ contains
     do i = 1, size(C%dtlag)
        call C%ext_bdf%set_coeffs(C%dtlag)
     end do
-    
+
     call C%fluid%restart(C%dtlag, C%tlag)
     if (allocated(C%scalar)) call C%scalar%restart( C%dtlag, C%tlag)
 

@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a triangular surface mesh
-!! @details Mesh derived from a surface geometry 
+!! @details Mesh derived from a surface geometry
 module tri_mesh
   use tri
   use point, only : point_t
@@ -65,7 +65,7 @@ contains
 
     this%mpts = 0
     this%melv = 0
-    
+
   end subroutine tri_mesh_init
 
   !> Deallocate a triangular surface mesh
@@ -79,7 +79,7 @@ contains
     if (allocated(this%points)) then
        deallocate(this%points)
     end if
-    
+
   end subroutine tri_mesh_free
 
   !> Add an element to a mesh
@@ -99,5 +99,5 @@ contains
     this%mpts = this%mpts + 3
 
   end subroutine tri_mesh_add_element
-  
+
 end module tri_mesh
