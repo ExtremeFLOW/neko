@@ -48,7 +48,7 @@ module polytope_aligned
      !> Polytope pointer
      class(polytope_t), pointer :: polytope => null()
      !> Is the object aligned
-     logical :: ifaligned = .false.
+     logical, private :: ifaligned_ = .false.
      !> Alignment operator
      class(alignment_t), allocatable :: algn_op
    contains
@@ -56,12 +56,16 @@ module polytope_aligned
      procedure, pass(this) :: free => polytope_free
      !> Return a pointer to the polytope
      procedure, pass(this) :: polyp => polytope_ptr
+     !> Return alignment flag
+     procedure, pass(this) :: ifalgn => polytope_ifalgn_get
      !> Return alignment value
      procedure, pass(this) :: algn => polytope_algn_get
      !> Initialise an aligned polytope
      procedure(polytope_aligned_init), pass(this), deferred :: init
      !> Test equality and find alignment
      procedure(polytope_aligned_equal_algn), pass(this), deferred :: equal_algn
+     !> Test equality
+     procedure, pass(this) :: equal => polytope_equal
      !> Test alignment
      procedure(polytope_aligned_test), pass(this), deferred :: test
   end type polytope_aligned_t
@@ -87,18 +91,15 @@ module polytope_aligned
 
   !> Abstract interface to check polytope equality and return alignment
   !! @parameter[in]    pltp   polytope
-  !! @parameter[in]    opset  alignment operator set
   !! @parameter[out]   equal  polytope equality
   !! @parameter[out]   algn   alignment information
   abstract interface
-     subroutine polytope_aligned_equal_algn(this, pltp, opset, equal, algn)
+     subroutine polytope_aligned_equal_algn(this, pltp, equal, algn)
        import i4
        import polytope_t
        import polytope_aligned_t
-       import alignment_set_t
-       class(polytope_aligned_t), intent(inout) :: this
+       class(polytope_aligned_t), intent(in) :: this
        class(polytope_t), intent(in) :: pltp
-       class(alignment_set_t), intent(in) :: opset
        logical, intent(out) :: equal
        integer(i4), intent(out) :: algn
      end subroutine polytope_aligned_equal_algn
@@ -111,7 +112,7 @@ module polytope_aligned
      function polytope_aligned_test(this, pltp) result(ifalgn)
        import polytope_t
        import polytope_aligned_t
-       class(polytope_aligned_t), intent(inout) :: this
+       class(polytope_aligned_t), intent(in) :: this
        class(polytope_t), intent(in) :: pltp
        logical :: ifalgn
      end function polytope_aligned_test
@@ -123,7 +124,7 @@ contains
   subroutine polytope_free(this)
     class(polytope_aligned_t), intent(inout) :: this
     this%polytope => null()
-    this%ifaligned = .false.
+    this%ifaligned_ = .false.
     if (allocated(this%algn_op)) deallocate(this%algn_op)
   end subroutine polytope_free
 
@@ -135,16 +136,36 @@ contains
     poly => this%polytope
   end subroutine polytope_ptr
 
+  !> @brief Get polytope alignment flag
+  !! @return   ifalgn
+  pure function polytope_ifalgn_get(this) result(ifalgn)
+    class(polytope_aligned_t), intent(in) :: this
+    logical :: ifalgn
+    ifalgn = this%ifaligned_
+  end function polytope_ifalgn_get
+
   !> @brief Get polytope alignment
   !! @return   algn
   pure function polytope_algn_get(this) result(algn)
     class(polytope_aligned_t), intent(in) :: this
     integer(i4) :: algn
-    if (this%ifaligned) then
+    if (this%ifaligned_) then
        algn = this%algn_op%algn()
     else
        algn = -1
     end if
   end function polytope_algn_get
+
+  !> Test equality
+  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   opset  alignment operator set
+  !! @return equal
+  function polytope_equal(this, pltp) result(equal)
+    class(polytope_aligned_t), intent(in) :: this
+    class(polytope_t), intent(in) :: pltp
+    logical :: equal
+    integer(i4) :: itmp
+    call this%equal_algn(pltp, equal, itmp)
+  end function polytope_equal
 
 end module polytope_aligned

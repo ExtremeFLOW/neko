@@ -41,14 +41,14 @@ module polytope
   public :: polytope_t
 
   !> Base type for an abstract polytope
-  !! @details An abstract polytope of dimension @a dim_ is a partially ordered
+  !! @details An abstract polytope of dimension @a tdim_ is a partially ordered
   !! set of its lower dimension components: facets (dim -1), ridges (dim -2),
   !! peaks (dim -3)... I do not consider polytopes with dim > 3, so numbers of
   !! facets (@a nfacet) ridges (@a nridge) and peaks (@a npeak) are taken into
   !! account only.
   type, extends(entity_t), abstract :: polytope_t
      !> Polytope dimension
-     integer(i4), private :: dim_ = -1
+     integer(i4), private :: tdim_ = -1
      !> Facet number
      integer(i4) :: nfacet = -1
      !> Ridge number
@@ -57,9 +57,9 @@ module polytope
      integer(i4) :: npeak = -1
    contains
      !> Return polytope dimension
-     procedure, pass(this) :: dim => polytope_dim_get
+     procedure, pass(this) :: tdim => polytope_tdim_get
      !> Set polytope dimension
-     procedure, pass(this) :: set_dim => polytope_dim_set
+     procedure, pass(this) :: set_tdim => polytope_tdim_set
      !> Return polytope element number
      procedure, pass(this) :: nelem => polytope_element_number_get
      !> Set polytope element number
@@ -90,19 +90,19 @@ module polytope
 contains
   !> @brief Get polytope dimension
   !! @return   dim
-  pure function polytope_dim_get(this) result(dim)
+  pure function polytope_tdim_get(this) result(dim)
     class(polytope_t), intent(in) :: this
     integer(i4) :: dim
-    dim = this%dim_
-  end function polytope_dim_get
+    dim = this%tdim_
+  end function polytope_tdim_get
 
   !> @brief Set polytope dimension
   !! @parameter[in]   dim     polytope dimension
-  subroutine polytope_dim_set(this, dim)
+  subroutine polytope_tdim_set(this, dim)
     class(polytope_t), intent(inout) :: this
     integer(i4), intent(in) :: dim
-    this%dim_ = dim
-  end subroutine polytope_dim_set
+    this%tdim_ = dim
+  end subroutine polytope_tdim_set
 
   !> @brief Get polytope elements numbers
   !! @parameter[out]  nfacet   number of facets
@@ -125,8 +125,8 @@ contains
     class(polytope_t), intent(inout) :: this
     integer(i4), intent(in) :: nfacet, nridge, npeak
     ! sanity check
-    if (this%dim_ == -1) call neko_error('Polytope dimension not initialised')
-    select case(this%dim_)
+    if (this%tdim_ == -1) call neko_error('Polytope dimension not initialised')
+    select case(this%tdim_)
     case(0)
        if ((nfacet /= 0) .or. (nridge /= 0) .or. (npeak /= 0)) then
           call neko_error('Vertex has no elements.')
@@ -170,7 +170,7 @@ contains
     class(polytope_t), intent(in) :: this, other
     logical :: equal
     integer(i4) :: nfacet, nridge, npeak, nfaceto, nridgeo, npeako
-    equal = (this%dim() == other%dim())
+    equal = (this%tdim() == other%tdim())
     if (equal) then
        call this%nelem(nfacet, nridge, npeak)
        call other%nelem(nfaceto, nridgeo, npeako)

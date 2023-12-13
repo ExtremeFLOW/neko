@@ -61,8 +61,16 @@ module polytope_topology
      procedure, pass(this) :: pek => polytope_pek_ptr
      !> Return boundary value
      procedure, pass(this) :: bnd => polytope_bnd_get
+     !> Is polytope self-periodic?
+     procedure, pass(this) :: selfp => polytope_self_periodic
+     !> Return facets shared by polytopes
+     procedure, pass(this) :: fct_share => polytope_facet_share
+     !> Return ridges shared by polytopes
+     procedure, pass(this) :: rdg_share => polytope_ridge_share
      !> Initialise an aligned polytope
      procedure(polytope_topology_init), pass(this), deferred :: init
+     !> Test equality
+     procedure(polytope_equal), pass(this), deferred :: equal
   end type polytope_topology_t
 
   !> Abstract interface to initialise a polytope with alignment information
@@ -78,6 +86,19 @@ module polytope_topology
        class(polytope_t), target, intent(in) :: pltp
        integer(i4), intent(in) :: algn, bnd
      end subroutine polytope_topology_init
+  end interface
+
+  !> Test equality
+  !! @parameter[in]   pltp   polytope
+  !! @return equal
+  abstract interface
+     function polytope_equal(this, pltp) result(equal)
+       import polytope_t
+       import polytope_topology_t
+       class(polytope_topology_t), intent(in) :: this
+       class(polytope_t), intent(in) :: pltp
+       logical :: equal
+     end function polytope_equal
   end interface
 
 contains
@@ -149,5 +170,86 @@ contains
     integer(i4) :: bnd
     bnd = this%boundary_
   end function polytope_bnd_get
+
+  !> @brief Check if polytope is self-periodic
+  !! @return   selfp
+  function polytope_self_periodic(this) result(selfp)
+    class(polytope_topology_t), intent(in) :: this
+    logical :: selfp
+    integer(i4) :: il, jl, itmp, algn
+
+    ! count self periodic facets (edges or vertices)
+    itmp = 0
+    do il = 1, this%nfacet - 1
+       do jl = il + 1, this%nfacet
+          selfp = this%facet(il)%obj%equal(this%facet(jl)%obj%polytope)
+          if (selfp) itmp = itmp + 1
+       end do
+    end do
+    ! count self periodic ridges (vertices)
+    do il = 1, this%nridge - 1
+       do jl = il + 1, this%nridge
+          selfp = (this%ridge(il)%obj%polytope%id() == &
+               & this%ridge(jl)%obj%polytope%id())
+          if (selfp) itmp = itmp + 1
+       end do
+    end do
+    if (itmp == 0) then
+       selfp = .false.
+    else
+       selfp = .true.
+    end if
+  end function polytope_self_periodic
+
+  !> @brief Return positions of facets shared by polytopes
+  !! @note Polytopes can be self-periodic
+  !! @parameter[in]   other   second polytope
+  !! @parameter[out]  ishare  number of shared facets
+  !! @parameter[out]  facetp  integer position of shared facets
+  subroutine polytope_facet_share(this, other, ishare, facetp)
+    class(polytope_topology_t), intent(in) :: this, other
+    integer(i4), intent(out) :: ishare
+    integer(i4), dimension(:, :), allocatable, intent(out) :: facetp
+    integer(i4) :: il, jl
+
+    allocate(facetp(2, this%nfacet * other%nfacet))
+    ishare = 0
+    facetp(:, :) = 0
+    do il = 1, this%nfacet
+       do jl = 1, other%nfacet
+          if (this%facet(il)%obj%equal(other%facet(jl)%obj%polytope)) then
+             ishare = ishare + 1
+             facetp(1, ishare) = il
+             facetp(2, ishare) = jl
+          end if
+       end do
+    end do
+  end subroutine polytope_facet_share
+
+  !> @brief Return positions of ridges (vertices) shared by polytopes
+  !! @note Plytopes can be self-periodic
+  !! @parameter[in]   other   second polytope
+  !! @parameter[out]  ishare  number of shared vertices
+  !! @parameter[out]  ridgep  integer position of shared vertices
+  pure subroutine polytope_ridge_share(this, other, ishare, ridgep)
+    class(polytope_topology_t), intent(in) :: this, other
+    integer(i4), intent(out) :: ishare
+    integer(i4), dimension(:, :), allocatable, intent(out) :: ridgep
+    integer(i4) :: il, jl
+
+    allocate(ridgep(2, this%nridge * other%nridge))
+    ishare = 0
+    ridgep(:, :) = 0
+    do il = 1, this%nridge
+       do jl = 1, other%nridge
+          if (this%ridge(il)%obj%polytope%id() == &
+               & other%ridge(jl)%obj%polytope%id()) then
+             ishare = ishare + 1
+             ridgep(1, ishare) = il
+             ridgep(2, ishare) = jl
+          end if
+       end do
+    end do
+  end subroutine polytope_ridge_share
 
 end module polytope_topology
