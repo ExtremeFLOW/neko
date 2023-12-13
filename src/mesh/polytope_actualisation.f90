@@ -35,7 +35,6 @@ module polytope_actualisation
   use polytope, only : polytope_t
   use polytope_topology, only : polytope_topology_t
   use alignment, only : alignment_t
-  use subset_interpolation, only : subset_interpolation_t
   implicit none
   private
 
@@ -56,8 +55,6 @@ module polytope_actualisation
      logical :: ifhanging = .false.
      !> Alignment operator
      class(alignment_t), allocatable :: algn_op
-     !> Interpolation operator
-     class(subset_interpolation_t), allocatable :: intp_op
    contains
      !> Free aligned polytope and interpolation data
      procedure, pass(this) :: free => polytope_free
@@ -96,10 +93,6 @@ contains
     this%ifaligned = .false.
     if (allocated(this%algn_op)) deallocate(this%polytope)
     this%ifhanging = .false.
-    if (allocated(this%intp_op)) then
-       call this%intp_op%free_jmat()
-       deallocate(this%intp_op)
-    end if
   end subroutine polytope_free
 
   !> @brief Get hanging flag
@@ -116,7 +109,7 @@ contains
     class(polytope_actualisation_t), intent(in) :: this
     integer(i4) :: hng
     if (this%ifhanging) then
-       hng = this%intp_op%hng()
+       hng = -1
     else
        hng = -1
     end if

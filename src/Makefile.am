@@ -51,10 +51,6 @@ neko_fortran_SOURCES = \
 	mesh/alignment.f90\
 	mesh/alignment_edge.f90\
 	mesh/alignment_quad.f90\
-	mesh/subset_interpolation.f90\
-	mesh/subset_interpolation_vertex.f90\
-	mesh/subset_interpolation_edge.f90\
-	mesh/subset_interpolation_quad.f90\
 	mesh/polytope.f90\
 	mesh/polytope_aligned.f90\
 	mesh/polytope_topology.f90\

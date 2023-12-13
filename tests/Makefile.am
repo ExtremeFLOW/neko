@@ -9,7 +9,6 @@ SUBDIRS = tuple\
 	  tri\
 	  math\
 	  alignment\
-	  subset_interpolation\
 	  polytope\
 	  mesh\
 	  space\
@@ -47,7 +46,6 @@ TESTS = device/device_test\
 	tri/tri_test\
 	math/math_test\
 	alignment/alignment_test\
-	subset_interpolation/interpolation_test\
 	polytope/polytope_test\
 	mesh/mesh_test\
 	space/space_test\
@@ -76,9 +74,6 @@ TESTS = device/device_test\
 EXTRA_DIST = \
 	alignment/alignment_edge.pf\
 	alignment/alignment_quad.pf\
-	subset_interpolation/interpolation_vertex.pf\
-	subset_interpolation/interpolation_edge.pf\
-	subset_interpolation/interpolation_quad.pf\
 	polytope/polytope_vertex.pf\
 	polytope/polytope_edge.pf\
 	polytope/polytope_quad.pf\
