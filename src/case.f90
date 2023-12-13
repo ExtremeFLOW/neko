@@ -213,6 +213,13 @@ contains
        f%chkp%aby2 => f%aby2
        f%chkp%abz1 => f%abz1
        f%chkp%abz2 => f%abz2
+    type is(fluid_pnpn_stress_t)
+       f%chkp%abx1 => f%abx1
+       f%chkp%abx2 => f%abx2
+       f%chkp%aby1 => f%aby1
+       f%chkp%aby2 => f%aby2
+       f%chkp%abz1 => f%abz1
+       f%chkp%abz2 => f%abz2
     end select
 
 

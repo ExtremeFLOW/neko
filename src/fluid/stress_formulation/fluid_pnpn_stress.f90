@@ -32,6 +32,7 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn_stress
+  use pnpn_res_stress_fctry
   use pnpn_res_fctry
   use ax_helm_fctry
   use rhs_maker_fctry
@@ -62,6 +63,9 @@ module fluid_pnpn_stress
 
      type(field_t) :: dp, du, dv, dw
 
+     ! Variable material properties
+     type(field_t) :: mu_field, rho_field
+
      class(ax_t), allocatable :: Ax
 
      type(projection_t) :: proj_prs
@@ -87,9 +91,11 @@ module fluid_pnpn_stress
      type(field_t) :: abx2, aby2, abz2
 
      !> Pressure residual
-     class(pnpn_prs_res_t), allocatable :: prs_res
+     class(pnpn_prs_res_stress_t), allocatable :: prs_res
+     !class(pnpn_prs_res_t), allocatable :: prs_res
 
      !> Velocity residual
+     !class(pnpn_vel_res_stress_t), allocatable :: vel_res
      class(pnpn_vel_res_t), allocatable :: vel_res
 
      !> Summation of AB/BDF contributions
@@ -135,9 +141,11 @@ contains
     call ax_helm_factory(this%ax)
 
     ! Setup backend dependent prs residual routines
-    call pnpn_prs_res_factory(this%prs_res)
+    call pnpn_prs_res_stress_factory(this%prs_res)
+    !call pnpn_prs_res_factory(this%prs_res)
 
     ! Setup backend dependent vel residual routines
+    !call pnpn_vel_res_stress_factory(this%vel_res)
     call pnpn_vel_res_factory(this%vel_res)
 
     ! Setup backend dependent summation of AB/BDF
@@ -178,6 +186,12 @@ contains
       call this%ulag%init(this%u, 2)
       call this%vlag%init(this%v, 2)
       call this%wlag%init(this%w, 2)
+
+      call this%mu_field%init(dm_Xh, "mu")
+      call this%rho_field%init(dm_Xh, "rho")
+      this%mu_field = this%mu
+      this%rho_field = this%rho
+
 
     end associate
 
@@ -421,6 +435,8 @@ contains
     !Deallocate velocity and pressure fields
     call this%scheme_free()
 
+    write(*,*) "Running free"
+
     call this%bc_prs_surface%free()
     call this%bc_sym_surface%free()
     call bc_list_free(this%bclst_vel_res)
@@ -447,6 +463,9 @@ contains
     call this%abx2%free()
     call this%aby2%free()
     call this%abz2%free()
+
+    call this%mu_field%free()
+    call this%rho_field%free()
 
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
@@ -575,7 +594,8 @@ contains
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
                            f_x, f_y, f_z, c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
-                           dt, mu, rho)
+                           dt, this%mu_field, this%rho_field)
+                           !dt, mu, rho)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
@@ -612,7 +632,9 @@ contains
                            p, &
                            f_x, f_y, f_z, &
                            c_Xh, msh, Xh, &
-                           mu, rho, ext_bdf%diffusion_coeffs(1), &
+                           !this%mu_field, this%rho_field, &
+                           mu, rho,&
+                           ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD)

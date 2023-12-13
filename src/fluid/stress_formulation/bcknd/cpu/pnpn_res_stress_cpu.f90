@@ -12,7 +12,7 @@ module pnpn_res_stress_cpu
   use num_types, only : rp
   use space, only : space_t
   use stress_formulation, only : ax_helm_stress_compute
-  use math, only : rzero, vdot3, cmult, sub2
+  use math, only : rzero, vdot3, cmult, sub2, col2
   implicit none
   private
 
@@ -41,8 +41,8 @@ contains
     class(Ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), intent(in) :: mu
-    real(kind=rp), intent(in) :: rho
+    type(field_t), intent(in) :: mu
+    type(field_t), intent(in) :: rho
     real(kind=rp) :: dtbd
     integer :: n, nelv, lxyz
     integer :: i, e
@@ -75,19 +75,18 @@ contains
     nelv = c_Xh%msh%nelv
 
     do i = 1, n
-       c_Xh%h1(i,1,1,1) = 1.0_rp / rho
+       c_Xh%h1(i,1,1,1) = 1.0_rp / rho%x(i,1,1,1)
        c_Xh%h2(i,1,1,1) = 0.0_rp
     end do
     c_Xh%ifh2 = .false.
 
-    ! nu times the double curl of the velocity
+    ! mu times the double curl of the velocity
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
-    ! mu should be an array later!!!
-    call cmult(wa1%x, mu, n)
-    call cmult(wa2%x, mu, n)
-    call cmult(wa3%x, mu, n)
+    call col2(wa1%x, mu%x, n)
+    call col2(wa2%x, mu%x, n)
+    call col2(wa3%x, mu%x, n)
 
 
     ! Double the strain rate tensor
@@ -96,14 +95,9 @@ contains
 
 
     ! Gradient of viscosity
-!    call opgrad(ta1%x, ta2%x, ta3%x, vdiff%x, c_Xh)
-    ! we don't have a viscosity array, so just setting to 0 for now
-    ! as a stub.
-    call rzero(ta1%x, n)
-    call rzero(ta2%x, n)
-    call rzero(ta3%x, n)
+    call opgrad(ta1%x, ta2%x, ta3%x, mu%x, c_Xh)
 
-    ! S^T grad \nu
+    ! S^T grad \mu
     do e=1, nelv
        call vdot3 (work1%x(:, :, :, e), &
                    ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :,  e), &
@@ -119,7 +113,7 @@ contains
     end do
 
     ! Subtract the two terms of the viscous stress to get
-    ! \nabla x \nabla u - S^T \nable \nu
+    ! \nabla x \nabla u - S^T \nable \mu
     ! The sign is consitent with the fact that we subtract the term
     ! below.
     call sub2(wa1%x, work1%x, n)
@@ -127,12 +121,12 @@ contains
     call sub2(wa3%x, work3%x, n)
 
     do i = 1, n
-        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho &
-             - ((wa1%x(i,1,1,1) / rho) * c_Xh%B(i,1,1,1))
-        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho &
-             - ((wa2%x(i,1,1,1) / rho) * c_Xh%B(i,1,1,1))
-        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho &
-             - ((wa3%x(i,1,1,1) / rho) * c_Xh%B(i,1,1,1))
+        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho%x(i,1,1,1) &
+             - ((wa1%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
+        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho%x(i,1,1,1) &
+             - ((wa2%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
+        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho%x(i,1,1,1) &
+             - ((wa3%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
     end do
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -197,8 +191,8 @@ contains
     type(field_t), intent(inout) :: u_res, v_res, w_res
     type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: mu
-    real(kind=rp), intent(in) :: rho
+    type(field_t), intent(in) :: mu
+    type(field_t), intent(in) :: rho
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer :: temp_indices(3)
@@ -207,8 +201,8 @@ contains
     integer :: i
 
     do i = 1, n
-       c_Xh%h1(i,1,1,1) = mu
-       c_Xh%h2(i,1,1,1) = rho * (bd / dt)
+       c_Xh%h1(i,1,1,1) = mu%x(i,1,1,1)
+       c_Xh%h2(i,1,1,1) = rho%x(i,1,1,1) * (bd / dt)
     end do
     c_Xh%ifh2 = .true.
 
