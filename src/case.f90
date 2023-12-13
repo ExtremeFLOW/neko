@@ -104,9 +104,9 @@ contains
                           NEKO_LOG_QUIET)
 
     if (pe_rank .eq. 0) then
-      call C%params%load_file(filename=trim(case_file))
-      call C%params%print_to_string(json_buffer)
-      integer_val = len(json_buffer)
+       call C%params%load_file(filename=trim(case_file))
+       call C%params%print_to_string(json_buffer)
+       integer_val = len(json_buffer)
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
@@ -207,12 +207,12 @@ contains
     C%fluid%chkp%dtlag => C%dtlag
     select type(f => C%fluid)
     type is(fluid_pnpn_t)
-      f%chkp%abx1 => f%abx1
-      f%chkp%abx2 => f%abx2
-      f%chkp%aby1 => f%aby1
-      f%chkp%aby2 => f%aby2
-      f%chkp%abz1 => f%abz1
-      f%chkp%abz2 => f%abz2
+       f%chkp%abx1 => f%abx1
+       f%chkp%abx2 => f%abx2
+       f%chkp%aby1 => f%aby1
+       f%chkp%aby2 => f%aby2
+       f%chkp%abz1 => f%abz1
+       f%chkp%abz2 => f%abz2
     end select
 
 
@@ -296,7 +296,7 @@ contains
        else
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
-      end if
+       end if
     end if
 
     ! Add initial conditions to BDF scheme (if present)

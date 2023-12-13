@@ -209,7 +209,7 @@ contains
     integer, intent(inout) :: n
     class(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout), dimension(n) :: b
-    call profiler_start_region('Project on')
+    call profiler_start_region('Project on', 16)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_project_on(this, b, coef, n)
     else
@@ -228,7 +228,7 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: x
     type(c_ptr) :: x_d
 
-    call profiler_start_region('Project back')
+    call profiler_start_region('Project back', 17)
     this%m = min(this%m+1,this%L)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

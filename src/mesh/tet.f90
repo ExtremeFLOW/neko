@@ -49,14 +49,14 @@ module tet
   !! @details
   !! 3D element composed of 4 points
   !! @verbatim
-  !! Node numbering 
+  !! Node numbering
   !!
-  !!        3 +           ^ s                 
-  !!         /|\          |                   
-  !!        / | \         |                   
-  !!     1 +..|..+ 2      +----> r            
-  !!        \ | /        /                    
-  !!         \|/        /                     
+  !!        3 +           ^ s
+  !!         /|\          |
+  !!        / | \         |
+  !!     1 +..|..+ 2      +----> r
+  !!        \ | /        /
+  !!         \|/        /
   !!        4 +        t
   !!
   !! @endverbatim
@@ -67,7 +67,7 @@ module tet
      procedure, pass(this) :: facet_order => tet_facet_order
      procedure, pass(this) :: diameter => tet_diameter
      procedure, pass(this) :: centroid => tet_centroid
-     procedure, pass(this) :: edge_id => tet_edge_id          
+     procedure, pass(this) :: edge_id => tet_edge_id
      procedure, pass(this) :: equal => tet_equal
      generic :: operator(.eq.) => equal
   end type tet_t
@@ -75,16 +75,16 @@ module tet
   !> Face node ids
   !! @details
   !! @verbatim
-  !! Face numbering 
+  !! Face numbering
   !!
-  !!          +   4       ^ s                 
+  !!          +   4       ^ s
   !!         /|\ /        |
   !!        / | \         |
-  !!       / 1|2 \        |                   
-  !!      +...|...+       +----> r            
+  !!       / 1|2 \        |
+  !!      +...|...+       +----> r
   !!       \  |3 /       /
   !!        \ | /       /
-  !!         \|/       /                     
+  !!         \|/       /
   !!          +       t
   !!
   !! @endverbatim
@@ -94,20 +94,20 @@ module tet
                                                                 1,2,4,&
                                                                 1,2,3/),&
                                                                 (/3,4/))
-  
+
   !> Edge node ids
   !! @details
   !! @verbatim
-  !! Edge numbering 
+  !! Edge numbering
   !!
-  !!      2   +   3       ^ s                 
+  !!      2   +   3       ^ s
   !!       \ /|\ /        |
   !!        / | \         |
-  !!       /  |  \        |                   
-  !!      +.1.|...+       +----> r            
+  !!       /  |  \        |
+  !!      +.1.|...+       +----> r
   !!       \  4  /       /
   !!   5--> \ | / <--6  /
-  !!         \|/       /                     
+  !!         \|/       /
   !!          +       t
   !!
   !! @endverbatim
@@ -118,9 +118,9 @@ module tet
                                                                 1,4,&
                                                                 2,4/),&
                                                                 (/2,6/))
-  
+
 contains
-  
+
   !> Create a tetrahedral element based upon four points
   subroutine tet_init(this, id, p1, p2, p3, p4)
     class(tet_t), intent(inout) :: this
@@ -128,7 +128,7 @@ contains
     type(point_t), target, intent(in) :: p1, p2, p3, p4
 
     call this%element(id, NEKO_TET_GDIM, NEKO_TET_NPTS)
-    
+
     this%pts(1)%p => p1
     this%pts(2)%p => p2
     this%pts(3)%p => p3
@@ -137,7 +137,7 @@ contains
   end subroutine tet_init
 
   !> Return the facet id for face @a i as a 3-tuple @a t
-  subroutine tet_facet_id(this, t, side) 
+  subroutine tet_facet_id(this, t, side)
     class(tet_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
@@ -165,7 +165,7 @@ contains
   end subroutine tet_facet_id
 
   !> Return the ordered points for face @a i as a 3-tuple @a t
-  subroutine tet_facet_order(this, t, side) 
+  subroutine tet_facet_order(this, t, side)
     class(tet_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
@@ -179,12 +179,12 @@ contains
     type is(tuple3_i4_t)
        t%x = (/ p1%id(), p2%id(), p3%id() /)
     end select
-    
+
   end subroutine tet_facet_order
 
 
   !> Return the edge id for an edge @a i as a 2-tuple @a t
-  subroutine tet_edge_id(this, t, side) 
+  subroutine tet_edge_id(this, t, side)
     class(tet_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
@@ -197,14 +197,14 @@ contains
     type is(tuple_i4_t)
        if (p1%id() .lt. p2%id()) then
           t%x = (/ p1%id(), p2%id() /)
-      else
+       else
           t%x = (/ p2%id(), p1%id() /)
-      endif
+       endif
 
     end select
 
   end subroutine tet_edge_id
-  
+
   !> Compute the diameter of a tetrahedral element
   function tet_diameter(this) result(res)
     class(tet_t), intent(in) :: this
@@ -260,7 +260,7 @@ contains
     do i = 1, this%gdim()
        res%x(i) = 0.25 * (p1%x(i) + p2%x(i) + p3%x(i) + p4%x(i))
     end do
-    
+
   end function tet_centroid
 
   !> Check if two tet elements are equal
@@ -286,5 +286,5 @@ contains
     end select
 
   end function tet_equal
-  
+
 end module tet

@@ -45,34 +45,34 @@ module point_zone_fctry
 
   public :: point_zone_factory
 
-  contains
-    
-    !> Point zone factory. Constructs, initializes, and maps the
-    !! point zone object.
-    !! @param json JSON object initializing the point zone.
-    !! @param dof Dofmap from which to map the point zone.
-    subroutine point_zone_factory(point_zone, json, dof)
-      class(point_zone_t), allocatable, intent(inout) :: point_zone
-      type(json_file), intent(inout) :: json
-      type(dofmap_t), intent(inout) :: dof
-      character(len=:), allocatable :: zone_type
+contains
 
-      call json_get(json, "geometry", zone_type)
+  !> Point zone factory. Constructs, initializes, and maps the
+  !! point zone object.
+  !! @param json JSON object initializing the point zone.
+  !! @param dof Dofmap from which to map the point zone.
+  subroutine point_zone_factory(point_zone, json, dof)
+    class(point_zone_t), allocatable, intent(inout) :: point_zone
+    type(json_file), intent(inout) :: json
+    type(dofmap_t), intent(inout) :: dof
+    character(len=:), allocatable :: zone_type
 
-      if (trim(zone_type) .eq. "box") then
-         allocate(box_point_zone_t::point_zone)
-      else if (trim(zone_type) .eq. "sphere") then
-         allocate(sphere_point_zone_t::point_zone)
-      else
-         call neko_error("Unknown source term "//trim(zone_type)//"! Valid &
-              &source terms are 'box', 'sphere'.")
-      end if
+    call json_get(json, "geometry", zone_type)
 
-      call point_zone%init(json, dof%size())
+    if (trim(zone_type) .eq. "box") then
+       allocate(box_point_zone_t::point_zone)
+    else if (trim(zone_type) .eq. "sphere") then
+       allocate(sphere_point_zone_t::point_zone)
+    else
+       call neko_error("Unknown source term "//trim(zone_type)//"! Valid &
+       &source terms are 'box', 'sphere'.")
+    end if
 
-      call point_zone%map(dof)
-      call point_zone%finalize()
+    call point_zone%init(json, dof%size())
 
-    end subroutine point_zone_factory
+    call point_zone%map(dof)
+    call point_zone%finalize()
+
+  end subroutine point_zone_factory
 
 end module point_zone_fctry

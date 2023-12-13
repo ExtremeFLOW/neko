@@ -72,7 +72,7 @@ module device_facet_normal
 #endif
 
   public :: device_facet_normal_apply_surfvec
-  
+
 contains
 
   subroutine device_facet_normal_apply_surfvec(msk, facet, x, y, z, u, v, w, &
@@ -92,7 +92,7 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
+
   end subroutine device_facet_normal_apply_surfvec
-  
+
 end module device_facet_normal

@@ -21,7 +21,7 @@ module curve
      procedure, pass(z) :: add_element => curve_element_add
 !     procedure, pass(z) :: apply_xyz => curve_apply_xyz
   end type curve_t
-  
+
 contains
 
   !> Initialize a curved domain
@@ -36,7 +36,7 @@ contains
     else
        call z%scratch%init()
     end if
-    
+
   end subroutine curve_element_init
 
   !> Deallocate a domain
@@ -50,7 +50,7 @@ contains
     z%size = 0
 
     call z%scratch%free()
-    
+
   end subroutine curve_element_free
 
   !> Finalize a domain list
@@ -58,12 +58,12 @@ contains
   subroutine curve_element_finalize(z)
     class(curve_t), target, intent(inout) :: z
     integer :: i
-    
+
     if (.not. z%finalized) then
 
        allocate(z%curve_el(z%scratch%size()))
        select type (tp=>z%scratch%data)
-       type is (struct_curve_t)           
+       type is (struct_curve_t)
           do i = 1, z%scratch%size()
              z%curve_el(i) = tp(i)
           end do
@@ -74,9 +74,9 @@ contains
        call z%scratch%clear()
 
        z%finalized = .true.
-       
+
     end if
-    
+
   end subroutine curve_element_finalize
 
   !> Add a (facet, el) tuple to an unfinalized domain
@@ -107,14 +107,14 @@ contains
 !       el_idx = this%curve_el(i)%el_idx
 !       do j = 1, 12
 !          if (this%curve_el(i)%curve_type(j) .eq. 1) then
-!             !call sphere_surface(j, this%curve_el(i)%curve_data(:,j),x(1,el_idx), y(1,el_idx), z(1, el_idx)) 
+!             !call sphere_surface(j, this%curve_el(i)%curve_data(:,j),x(1,el_idx), y(1,el_idx), z(1, el_idx))
 !          else if (this%curve_el(i)%curve_type(j) .eq. 2) then
-!             !call generate_surface(j, this%curve_el(i)%curve_data(:,j), x(1,1,1,el_idx), y(1,1,1,el_idx), z(1,1,1, el_idx)) 
+!             !call generate_surface(j, this%curve_el(i)%curve_data(:,j), x(1,1,1,el_idx), y(1,1,1,el_idx), z(1,1,1, el_idx))
 !          end if
 !       end do
 !       do j = 1, 12
 !          if (this%curve_el(i)%curve_type(j) .eq. 3) then
-!             call arc_surface(j, this%curve_el(i)%curve_data(:,j),x(1,1,1,el_idx), y(1,1,1,el_idx), z(1,1,1, el_idx)) 
+!             call arc_surface(j, this%curve_el(i)%curve_data(:,j),x(1,1,1,el_idx), y(1,1,1,el_idx), z(1,1,1, el_idx))
 !          end if
 !       end do
 !
@@ -122,15 +122,15 @@ contains
 !  end subroutine curve_apply_xyz
 
 
-!  subroutine sphere_surface(face, curve_data, x, y, z, Xh) 
+!  subroutine sphere_surface(face, curve_data, x, y, z, Xh)
 !!  Major overhaul.
 !!  Martin Karp 1 March 2021 15:30:15
 !!
-!!  5 Aug 1988 19:29:52 
+!!  5 Aug 1988 19:29:52
 !!
 !!  Program to generate spherical shell elements for NEKTON
 !!  input.  Paul F. Fischer
-!  
+!
 !    NXM1 = NX-1
 !    NYM1 = NY-1
 !    NXY  = NX*NZ
@@ -145,8 +145,8 @@ contains
 !
 !    CALL CRN3D(XCV,XC(1,IE),YC(1,IE),ZC(1,IE),CURVE(1,IFCE,IE),IFACE)
 !
-!    Generate edge vectors on the sphere RR=1.0, 
-!    for (r,s) = (-1,*),(1,*),(*,-1),(*,1)      
+!    Generate edge vectors on the sphere RR=1.0,
+!    for (r,s) = (-1,*),(1,*),(*,-1),(*,1)
 !
 !    CALL EDG3D(XYSRF,XCV(1,1,1),XCV(1,1,2), 1, 1, 1,NY,NX,NY)
 !    CALL EDG3D(XYSRF,XCV(1,2,1),XCV(1,2,2),NX,NX, 1,NY,NX,NY)
