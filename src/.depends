@@ -67,8 +67,10 @@ mesh/subset_interpolation_vertex.o : mesh/subset_interpolation_vertex.f90 config
 mesh/subset_interpolation_edge.o : mesh/subset_interpolation_edge.f90 config/num_types.o mesh/subset_interpolation.o 
 mesh/subset_interpolation_quad.o : mesh/subset_interpolation_quad.f90 config/num_types.o mesh/subset_interpolation.o 
 mesh/polytope.o : mesh/polytope.f90 config/num_types.o common/utils.o mesh/entity.o 
-mesh/polytope_aligned.o : mesh/polytope_aligned.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/alignment.o 
-mesh/polytope_aligned.o : mesh/polytope_aligned.f90 config/num_types.o mesh/polytope_aligned.o mesh/subset_interpolation.o 
+mesh/polytope_aligned.o : mesh/polytope_aligned.f90 config/num_types.o mesh/polytope.o mesh/alignment.o 
+
+mesh/polytope_topology.o : mesh/polytope_topology.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_aligned.o
+mesh/polytope_actualisation.o : mesh/polytope_actualisation.f90 config/num_types.o mesh/polytope_topolgy.o mesh/alignment.o mesh/subset_interpolation.o 
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 
 field/scratch_registry.o : field/scratch_registry.f90 sem/dofmap.o field/field.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 

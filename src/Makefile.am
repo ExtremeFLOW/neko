@@ -57,6 +57,7 @@ neko_fortran_SOURCES = \
 	mesh/subset_interpolation_quad.f90\
 	mesh/polytope.f90\
 	mesh/polytope_aligned.f90\
+	mesh/polytope_topology.f90\
 	mesh/polytope_actualisation.f90\
 	adt/htable.f90\
 	adt/uset.f90\

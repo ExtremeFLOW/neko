@@ -29,12 +29,11 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
- !> Abstract type for abstract aligned polytope class for mesh topology
+ !> Abstract type for abstract aligned polytope class
 module polytope_aligned
   use num_types, only : i4
-  use utils, only : neko_error
   use polytope, only : polytope_t
-  use alignment, only : alignment_t
+  use alignment, only : alignment_t, alignment_set_t
   implicit none
   private
 
@@ -43,8 +42,8 @@ module polytope_aligned
   !> Base type for an abstract aligned polytope
   !! @details This is an abstract type combining polytope class and alignment
   !! operator. Note that vertices have no alignment. This type corresponds to
-  !! building blocs of the higher dimension abstract objects that build mesh
-  !! topology.
+  !! building blocs of the higher dimension abstract objects the mesh topology
+  !! consists of.
   type, abstract :: polytope_aligned_t
      !> Polytope pointer
      class(polytope_t), pointer :: polytope => null()
@@ -54,11 +53,17 @@ module polytope_aligned
      class(alignment_t), allocatable :: algn_op
    contains
      !> Free polytope and aligned data
-     procedure, pass(this) :: free_algn => polytope_free_algn
+     procedure, pass(this) :: free => polytope_free
      !> Return a pointer to the polytope
      procedure, pass(this) :: polyp => polytope_ptr
      !> Return alignment value
      procedure, pass(this) :: algn => polytope_algn_get
+     !> Initialise an aligned polytope
+     procedure(polytope_aligned_init), pass(this), deferred :: init
+     !> Test equality and find alignment
+     procedure(polytope_aligned_equal_algn), pass(this), deferred :: equal_algn
+     !> Test alignment
+     procedure(polytope_aligned_test), pass(this), deferred :: test
   end type polytope_aligned_t
 
   !> Single topology object allocatable space
@@ -66,17 +71,63 @@ module polytope_aligned
      class(polytope_aligned_t), allocatable :: obj
   end type topology_object_t
 
+  !> Abstract interface to initialise a polytope with alignment information
+  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   algn   alignment information
+  abstract interface
+     subroutine polytope_aligned_init(this, pltp, algn)
+       import i4
+       import polytope_t
+       import polytope_aligned_t
+       class(polytope_aligned_t), intent(inout) :: this
+       class(polytope_t), target, intent(in) :: pltp
+       integer(i4), intent(in) :: algn
+     end subroutine polytope_aligned_init
+  end interface
+
+  !> Abstract interface to check polytope equality and return alignment
+  !! @parameter[in]    pltp   polytope
+  !! @parameter[in]    opset  alignment operator set
+  !! @parameter[out]   equal  polytope equality
+  !! @parameter[out]   algn   alignment information
+  abstract interface
+     subroutine polytope_aligned_equal_algn(this, pltp, opset, equal, algn)
+       import i4
+       import polytope_t
+       import polytope_aligned_t
+       import alignment_set_t
+       class(polytope_aligned_t), intent(inout) :: this
+       class(polytope_t), intent(in) :: pltp
+       class(alignment_set_t), intent(in) :: opset
+       logical, intent(out) :: equal
+       integer(i4), intent(out) :: algn
+     end subroutine polytope_aligned_equal_algn
+  end interface
+
+  !> Test alignment
+  !! @parameter[in]   pltp   polytope
+  !! @return ifalgn
+  abstract interface
+     function polytope_aligned_test(this, pltp) result(ifalgn)
+       import polytope_t
+       import polytope_aligned_t
+       class(polytope_aligned_t), intent(inout) :: this
+       class(polytope_t), intent(in) :: pltp
+       logical :: ifalgn
+     end function polytope_aligned_test
+  end interface
+
 contains
 
   !> Free polytope and aligned data
-  subroutine polytope_free_algn(this)
+  subroutine polytope_free(this)
     class(polytope_aligned_t), intent(inout) :: this
     this%polytope => null()
     this%ifaligned = .false.
     if (allocated(this%algn_op)) deallocate(this%algn_op)
-  end subroutine polytope_free_algn
+  end subroutine polytope_free
 
-  !> @brief Return pointer to the polytoppe
+  !> @brief Return pointer to the polytope
   !! @parameter[out]  poly   polytope pointer
   subroutine polytope_ptr(this, poly)
     class(polytope_aligned_t), intent(in) :: this

@@ -66,7 +66,26 @@ module polytope
      procedure, pass(this) :: set_nelem => polytope_element_number_set
      !> Polytope equality on the level of dimension and element number
      procedure, pass(this) :: equal_poly => polytope_equal
+     !> Pointer to the polytope facet
+     procedure(polytope_ptr), pass(this), deferred :: fct
+     !> Pointer to the polytope ridge
+     procedure(polytope_ptr), pass(this), deferred :: rdg
+     !> Pointer to the polytope peak
+     procedure(polytope_ptr), pass(this), deferred :: pek
   end type polytope_t
+
+  !> Returns polytope element pointer
+  !! @parameter[in]   pos   polytope element position
+  !! @return ptr
+  abstract interface
+     function polytope_ptr(this, pos) result(ptr)
+       import i4
+       import polytope_t
+       class(polytope_t), intent(in) :: this
+       integer(i4), intent(in) :: pos
+       class(polytope_t), pointer :: ptr
+     end function polytope_ptr
+  end interface
 
 contains
   !> @brief Get polytope dimension
