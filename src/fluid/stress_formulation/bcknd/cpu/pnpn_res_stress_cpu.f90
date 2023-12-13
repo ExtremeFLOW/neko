@@ -12,6 +12,7 @@ module pnpn_res_stress_cpu
   use num_types, only : rp
   use space, only : space_t
   use stress_formulation, only : ax_helm_stress_compute
+  use math, only : rzero, vdot3, cmult, sub2
   implicit none
   private
 
@@ -43,11 +44,14 @@ contains
     real(kind=rp), intent(in) :: mu
     real(kind=rp), intent(in) :: rho
     real(kind=rp) :: dtbd
-    integer :: n
-    integer :: i
-    type(field_t), pointer :: ta1, ta2, ta3, wa1, wa2, wa3, work1, work2
-    integer :: temp_indices(8)
+    integer :: n, nelv, lxyz
+    integer :: i, e
+    ! Work arrays
+    type(field_t), pointer :: ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, work3
+    type(field_t), pointer :: s11, s22, s33, s12, s13, s23
+    integer :: temp_indices(15)
 
+    ! Work arrays
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
     call neko_scratch_registry%request_field(ta2, temp_indices(2))
     call neko_scratch_registry%request_field(ta3, temp_indices(3))
@@ -56,8 +60,19 @@ contains
     call neko_scratch_registry%request_field(wa3, temp_indices(6))
     call neko_scratch_registry%request_field(work1, temp_indices(7))
     call neko_scratch_registry%request_field(work2, temp_indices(8))
+    call neko_scratch_registry%request_field(work3, temp_indices(9))
+
+   ! Stress tensor
+    call neko_scratch_registry%request_field(s11, temp_indices(10))
+    call neko_scratch_registry%request_field(s22, temp_indices(11))
+    call neko_scratch_registry%request_field(s33, temp_indices(12))
+    call neko_scratch_registry%request_field(s12, temp_indices(13))
+    call neko_scratch_registry%request_field(s13, temp_indices(14))
+    call neko_scratch_registry%request_field(s23, temp_indices(15))
 
     n = c_Xh%dof%size()
+    lxyz = c_Xh%Xh%lxyz
+    nelv = c_Xh%msh%nelv
 
     do i = 1, n
        c_Xh%h1(i,1,1,1) = 1.0_rp / rho
@@ -65,16 +80,59 @@ contains
     end do
     c_Xh%ifh2 = .false.
 
+    ! nu times the double curl of the velocity
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
+    ! mu should be an array later!!!
+    call cmult(wa1%x, mu, n)
+    call cmult(wa2%x, mu, n)
+    call cmult(wa3%x, mu, n)
+
+
+    ! Double the strain rate tensor
+    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
+                     u_e, v_e, w_e, c_Xh)
+
+
+    ! Gradient of viscosity
+!    call opgrad(ta1%x, ta2%x, ta3%x, vdiff%x, c_Xh)
+    ! we don't have a viscosity array, so just setting to 0 for now
+    ! as a stub.
+    call rzero(ta1%x, n)
+    call rzero(ta2%x, n)
+    call rzero(ta3%x, n)
+
+    ! S^T grad \nu
+    do e=1, nelv
+       call vdot3 (work1%x(:, :, :, e), &
+                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :,  e), &
+                   s11%x(:, :, :, e), s12%x(:, :, :, e), s13%x(:, :, :, e), lxyz)
+
+       call vdot3 (work2%x(:, :, :, e), &
+                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :,  e), &
+                   s12%x(:, :, :, e), s22%x(:, :, :, e), s23%x(:, :, :, e), lxyz)
+
+       call vdot3 (work3%x(:, :, :, e), &
+                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :,  e), &
+                   s13%x(:, :, :, e), s23%x(:, :, :, e), s33%x(:, :, :, e), lxyz)
+    end do
+
+    ! Subtract the two terms of the viscous stress to get
+    ! \nabla x \nabla u - S^T \nable \nu
+    ! The sign is consitent with the fact that we subtract the term
+    ! below.
+    call sub2(wa1%x, work1%x, n)
+    call sub2(wa2%x, work2%x, n)
+    call sub2(wa3%x, work3%x, n)
+
     do i = 1, n
-       ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho &
-            - ((wa1%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1))
-       ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho &
-            - ((wa2%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1))
-       ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho &
-            - ((wa3%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1))
+        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho &
+             - ((wa1%x(i,1,1,1) / rho) * c_Xh%B(i,1,1,1))
+        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho &
+             - ((wa2%x(i,1,1,1) / rho) * c_Xh%B(i,1,1,1))
+        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho &
+             - ((wa3%x(i,1,1,1) / rho) * c_Xh%B(i,1,1,1))
     end do
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -87,11 +145,13 @@ contains
        ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
     end do
 
+    ! Compute the components of the divergence of the rhs
     call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     call cdtp(wa3%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
 
-    call Ax%compute(p_res%x,p%x,c_Xh,p%msh,p%Xh)
+    ! The laplacian of the pressure
+    call Ax%compute(p_res%x, p%x, c_Xh, p%msh, p%Xh)
 
     do i = 1, n
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
