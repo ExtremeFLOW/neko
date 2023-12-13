@@ -115,7 +115,18 @@ contains
 
   end subroutine ax_helm_compute
 
-  !> Generic CPU kernel for the Helmholtz matrix-vector product.
+  !> Generic CPU kernel for the Helmholz matrix-vector product.
+  !! @param w Result.
+  !! @param u Velocity field.
+  !! @param Dx Derivative operator in first dimension.
+  !! @param Dy Derivative operator in second dimension.
+  !! @param Dz Derivative operator in third dimension.
+  !! @param Dxt Derivative operator transpose in first dimension.
+  !! @param Dyt Derivative operator transpose in second dimension.
+  !! @param Dzt Derivative operator transpose in third dimension.
+  !! @param G11 Geometric factor.
+  !! @param n Number of elements.
+  !! @param lx Polynomial order.
   subroutine ax_helm_lx(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G11, G22, G33, G12, G13, G23, n, lx)
     integer, intent(in) :: n, lx
