@@ -338,3 +338,13 @@ A point zone object defined in the case file can be retrieved from the point zon
 
 A more detailed description as well as a  full list of available components and
  their setup is provided in a [separate page of the manual](point-zones.md).
+
+## Runtime statistics
+
+This object adds the collection of (lightweight) runtime statistics for the simulation. 
+
+Name                | Description                                                          | Admissable values | Default value
+--------------------|----------------------------------------------------------------------|-------------------|--------------
+`enabled`           | Whether to enable the runtime statistics.                            | `true` or `false` | `false`
+`start_step`        | Time-step at which to start gathering statistics.                    | Positive integer  | 1
+
