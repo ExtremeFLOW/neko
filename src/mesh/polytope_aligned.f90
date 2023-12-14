@@ -37,7 +37,7 @@ module polytope_aligned
   implicit none
   private
 
-  public :: polytope_aligned_t, topology_object_t
+  public :: polytope_aligned_t
 
   !> Base type for an abstract aligned polytope
   !! @details This is an abstract type combining polytope class and alignment
@@ -69,11 +69,6 @@ module polytope_aligned
      !> Test alignment
      procedure(polytope_aligned_test), pass(this), deferred :: test
   end type polytope_aligned_t
-
-  !> Single topology object allocatable space
-  type :: topology_object_t
-     class(polytope_aligned_t), allocatable :: obj
-  end type topology_object_t
 
   !> Abstract interface to initialise a polytope with alignment information
   !! @parameter[in]   pltp   polytope
@@ -158,7 +153,6 @@ contains
 
   !> Test equality
   !! @parameter[in]   pltp   polytope
-  !! @parameter[in]   opset  alignment operator set
   !! @return equal
   function polytope_equal(this, pltp) result(equal)
     class(polytope_aligned_t), intent(in) :: this

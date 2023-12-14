@@ -34,11 +34,16 @@ module polytope_topology
   use num_types, only : i4
   use utils, only : neko_error
   use polytope, only : polytope_t
-  use polytope_aligned, only : topology_object_t
+  use polytope_aligned, only : polytope_aligned_t
   implicit none
   private
 
-  public :: polytope_topology_t
+  public :: polytope_topology_t, topology_element_t
+
+  !> Single topology object allocatable space
+  type :: topology_object_t
+     class(polytope_aligned_t), allocatable :: obj
+  end type topology_object_t
 
   !> Base type for an abstract topology polytope
   !! @details This is an abstract type combining a set of lower dimension
@@ -67,24 +72,29 @@ module polytope_topology
      procedure, pass(this) :: fct_share => polytope_facet_share
      !> Return ridges shared by polytopes
      procedure, pass(this) :: rdg_share => polytope_ridge_share
-     !> Initialise an aligned polytope
+     !> Initialise a topology polytope
      procedure(polytope_topology_init), pass(this), deferred :: init
      !> Test equality
-     procedure(polytope_equal), pass(this), deferred :: equal
+     procedure(polytope_topology_equal), pass(this), deferred :: equal
   end type polytope_topology_t
 
-  !> Abstract interface to initialise a polytope with alignment information
-  !! @parameter[in]   pltp   polytope
-  !! @parameter[in]   algn   alignment information
+  !> Single topology element allocatable space
+  type :: topology_element_t
+     class(polytope_topology_t), allocatable :: el
+  end type topology_element_t
+
+  !> Abstract interface to initialise a polytope with boundary information
+  !! @parameter[in]   nfct   number of facets
+  !! @parameter[in]   fct    polytope facets
   !! @parameter[in]   bnd    external boundary information
   abstract interface
-     subroutine polytope_topology_init(this, pltp, algn, bnd)
+     subroutine polytope_topology_init(this, nfct, fct, bnd)
        import i4
-       import polytope_t
        import polytope_topology_t
+       import topology_object_t
        class(polytope_topology_t), intent(inout) :: this
-       class(polytope_t), target, intent(in) :: pltp
-       integer(i4), intent(in) :: algn, bnd
+       integer(i4), intent(in) :: nfct, bnd
+       type(topology_object_t), dimension(nfct), intent(in) :: fct
      end subroutine polytope_topology_init
   end interface
 
@@ -92,13 +102,13 @@ module polytope_topology
   !! @parameter[in]   pltp   polytope
   !! @return equal
   abstract interface
-     function polytope_equal(this, pltp) result(equal)
+     function polytope_topology_equal(this, pltp) result(equal)
        import polytope_t
        import polytope_topology_t
        class(polytope_topology_t), intent(in) :: this
        class(polytope_t), intent(in) :: pltp
        logical :: equal
-     end function polytope_equal
+     end function polytope_topology_equal
   end interface
 
 contains
@@ -115,13 +125,15 @@ contains
        end do
        deallocate(this%facet)
     end if
-    if (allocated(this%facet)) then
-       do il = 1, this%nfacet
+    if (allocated(this%ridge)) then
+       do il = 1, this%nridge
           call this%ridge(il)%obj%free()
           deallocate(this%ridge(il)%obj)
        end do
        deallocate(this%ridge)
     end if
+    call this%set_nelem(-1, -1, -1)
+    call this%set_tdim(-1)
   end subroutine polytope_free
 
   !> @brief Return pointer to the polytope facet

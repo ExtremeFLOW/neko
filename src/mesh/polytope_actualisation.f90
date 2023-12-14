@@ -38,7 +38,7 @@ module polytope_actualisation
   implicit none
   private
 
-  public :: polytope_actualisation_t, element_object_t
+  public :: polytope_actualisation_t
 
   !> Base type for a polytope actualisation.
   !! @details This is an abstract type building on topology and alignment data
@@ -70,7 +70,7 @@ module polytope_actualisation
      procedure, pass(this) :: hng => polytope_hng_get
      !> Return position in the higher dimension object
      procedure, pass(this) :: pos => polytope_pos_get
-     !> Initialise an polytope actualisation
+     !> Initialise a polytope actualisation
      procedure(polytope_actualisation_init), pass(this), deferred :: init
      !> Return higher dimension object direction for local direction @a r
      procedure(polytope_dir), pass(this), deferred :: dirr
@@ -78,14 +78,11 @@ module polytope_actualisation
      procedure(polytope_dir), pass(this), deferred :: dirs
      !> Test equality and find alignment
      procedure(polytope_equal_algn), pass(this), deferred :: equal_algn
+     !> Test equality
+     procedure, pass(this) :: equal => polytope_equal
      !> Test alignment
      procedure(polytope_alignment_test), pass(this), deferred :: test
   end type polytope_actualisation_t
-
-  !> Single element object allocatable space
-  type :: element_object_t
-     class(polytope_actualisation_t), allocatable :: obj
-  end type element_object_t
 
   !> Abstract interface to initialise a polytope with alignment information
   !! @parameter[in]   pltp   polytope
@@ -193,5 +190,16 @@ contains
     integer(i4) :: pos
     pos = this%position_
   end function polytope_pos_get
+
+  !> Test equality
+  !! @parameter[in]   pltp   polytope
+  !! @return equal
+  function polytope_equal(this, pltp) result(equal)
+    class(polytope_actualisation_t), intent(in) :: this
+    class(polytope_t), intent(in) :: pltp
+    logical :: equal
+    integer(i4) :: itmp
+    call this%equal_algn(pltp, equal, itmp)
+  end function polytope_equal
 
 end module polytope_actualisation
