@@ -56,6 +56,10 @@ neko_fortran_SOURCES = \
 	mesh/polytope_topology.f90\
 	mesh/polytope_actualisation.f90\
 	mesh/polytope_mesh.f90\
+	mesh/vertex.f90\
+	mesh/edge.f90\
+	mesh/quad_new.f90\
+	mesh/hex_new.f90\
 	adt/htable.f90\
 	adt/uset.f90\
 	adt/stack.f90\

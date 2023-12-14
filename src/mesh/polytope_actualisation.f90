@@ -84,7 +84,7 @@ module polytope_actualisation
      procedure(polytope_alignment_test), pass(this), deferred :: test
   end type polytope_actualisation_t
 
-  !> Abstract interface to initialise a polytope with alignment information
+  !> Abstract interface to initialise a polytope with hanging information
   !! @parameter[in]   pltp   polytope
   !! @parameter[in]   algn   alignment information
   !! @parameter[in]   ifint  interpolation flag
@@ -102,7 +102,7 @@ module polytope_actualisation
      end subroutine polytope_actualisation_init
   end interface
 
-  !> Return higher dimension object direction
+  !> Abstract interface to get higher dimension object direction
   !! @return dir
   abstract interface
      function polytope_dir(this) result(dir)
@@ -129,7 +129,7 @@ module polytope_actualisation
      end subroutine polytope_equal_algn
   end interface
 
-  !> Test alignment
+  !> Abstract interface to test alignment
   !! @parameter[in]   pltp   polytope
   !! @return ifalgn
   abstract interface

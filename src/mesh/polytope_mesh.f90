@@ -39,7 +39,7 @@ module polytope_mesh
   implicit none
   private
 
-  public :: polytope_mesh_t, mesh_element_t
+  public :: mesh_object_t, polytope_mesh_t, mesh_element_t
 
   !> Single element object allocatable space
   type :: mesh_object_t
@@ -121,7 +121,7 @@ module polytope_mesh
      end subroutine polytope_mesh_init
   end interface
 
-  !> Test equality
+  !> Abstract interface to test equality
   !! @parameter[in]   pltp   polytope
   !! @return equal
   abstract interface
@@ -134,7 +134,7 @@ module polytope_mesh
      end function polytope_mesh_equal
   end interface
 
-  !> Return element diameter
+  !> Abstract interface to get element diameter
   !! @return res
   abstract interface
      function polytope_mesh_diameter(this) result(res)
@@ -145,7 +145,7 @@ module polytope_mesh
      end function polytope_mesh_diameter
   end interface
 
-  !> Return element centroid
+  !> Abstract interface to get element centroid
   !! @return res
   abstract interface
      function polytope_mesh_centroid(this) result(res)

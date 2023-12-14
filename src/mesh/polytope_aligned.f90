@@ -100,7 +100,7 @@ module polytope_aligned
      end subroutine polytope_aligned_equal_algn
   end interface
 
-  !> Test alignment
+  !> Abstract interface to test alignment
   !! @parameter[in]   pltp   polytope
   !! @return ifalgn
   abstract interface

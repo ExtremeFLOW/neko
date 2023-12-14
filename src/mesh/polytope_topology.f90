@@ -38,7 +38,7 @@ module polytope_topology
   implicit none
   private
 
-  public :: polytope_topology_t, topology_element_t
+  public :: topology_object_t, polytope_topology_t, topology_element_t
 
   !> Single topology object allocatable space
   type :: topology_object_t
@@ -98,7 +98,7 @@ module polytope_topology
      end subroutine polytope_topology_init
   end interface
 
-  !> Test equality
+  !> Abstract interface to test equality
   !! @parameter[in]   pltp   polytope
   !! @return equal
   abstract interface
