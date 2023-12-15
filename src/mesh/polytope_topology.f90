@@ -29,7 +29,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
- !> Abstract type for abstract polytope class for mesh topology
+!> Abstract type for abstract polytope class for mesh topology
 module polytope_topology
   use num_types, only : i4
   use utils, only : neko_error
@@ -55,6 +55,8 @@ module polytope_topology
      type(topology_object_t), dimension(:), allocatable :: ridge
      !> Internal/external boundary condition flag
      integer(i4), private :: boundary_ = -1
+     !> Polytope global id used for numbering of dof for gather-scatter
+     integer(i4), private :: gsid_ = -1
    contains
      !> Free polytope data
      procedure, pass(this) :: free => polytope_free
@@ -66,6 +68,12 @@ module polytope_topology
      procedure, pass(this) :: pek => polytope_pek_ptr
      !> Return boundary value
      procedure, pass(this) :: bnd => polytope_bnd_get
+     !> Set boundary value
+     procedure, pass(this) :: set_bnd => polytope_bnd_set
+     !> Return communication global id
+     procedure, pass(this) :: gsid => polytope_gsid_get
+     !> Set communication global id
+     procedure, pass(this) :: set_gsid => polytope_gsid_set
      !> Is polytope self-periodic?
      procedure, pass(this) :: selfp => polytope_self_periodic
      !> Return facets shared by polytopes
@@ -84,29 +92,30 @@ module polytope_topology
   end type topology_element_t
 
   !> Abstract interface to initialise a polytope with boundary information
-  !! @parameter[in]   nfct   number of facets
-  !! @parameter[in]   fct    polytope facets
-  !! @parameter[in]   bnd    external boundary information
+  !! @parameter[in]      id     polytope id
+  !! @parameter[in]      nfct   number of facets
+  !! @parameter[inout]   fct    polytope facets
+  !! @parameter[in]      bnd    external boundary information
   abstract interface
-     subroutine polytope_topology_init(this, nfct, fct, bnd)
+     subroutine polytope_topology_init(this, id, nfct, fct, bnd)
        import i4
        import polytope_topology_t
        import topology_object_t
        class(polytope_topology_t), intent(inout) :: this
-       integer(i4), intent(in) :: nfct, bnd
-       type(topology_object_t), dimension(nfct), intent(in) :: fct
+       integer(i4), intent(in) :: id, nfct, bnd
+       type(topology_object_t), dimension(nfct), intent(inout) :: fct
      end subroutine polytope_topology_init
   end interface
 
   !> Abstract interface to test equality
-  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   other   polytope
   !! @return equal
   abstract interface
-     function polytope_topology_equal(this, pltp) result(equal)
+     function polytope_topology_equal(this, other) result(equal)
        import polytope_t
        import polytope_topology_t
        class(polytope_topology_t), intent(in) :: this
-       class(polytope_t), intent(in) :: pltp
+       class(polytope_t), intent(in) :: other
        logical :: equal
      end function polytope_topology_equal
   end interface
@@ -182,6 +191,30 @@ contains
     integer(i4) :: bnd
     bnd = this%boundary_
   end function polytope_bnd_get
+
+  !> @brief Set boundary value
+  !! @parameter[in]   bnd     boundary information
+  subroutine polytope_bnd_set(this, bnd)
+    class(polytope_topology_t), intent(inout) :: this
+    integer(i4), intent(in) :: bnd
+    this%boundary_ = bnd
+  end subroutine polytope_bnd_set
+
+  !> @brief Get communication global id
+  !! @return   gsid
+  pure function polytope_gsid_get(this) result(gsid)
+    class(polytope_topology_t), intent(in) :: this
+    integer(i4) :: gsid
+    gsid = this%gsid_
+  end function polytope_gsid_get
+
+  !> @brief Set communication global id
+  !! @parameter[in]   gsid     polytope communication global id
+  subroutine polytope_gsid_set(this, gsid)
+    class(polytope_topology_t), intent(inout) :: this
+    integer(i4), intent(in) :: gsid
+    this%gsid_ = gsid
+  end subroutine polytope_gsid_set
 
   !> @brief Check if polytope is self-periodic
   !! @return   selfp

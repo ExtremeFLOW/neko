@@ -63,10 +63,6 @@ module quad_new
    contains
      !> Initialise a polytope actualisation
      procedure, pass(this) :: init => quad_act_init
-     !> Return higher dimension object direction for local direction @a r
-     procedure, pass(this) :: dirr => quad_act_dirr
-     !> Return higher dimension object direction for local direction @a s
-     procedure, pass(this) :: dirs => quad_act_dirs
      !> Test equality and find alignment
      procedure, pass(this) :: equal_algn => quad_act_equal
      !> Test alignment
@@ -83,26 +79,31 @@ module quad_new
      procedure, pass(this) :: diameter => quad_msh_diameter
      !> Return element centroid
      procedure, pass(this) :: centroid => quad_msh_centroid
+     !> Return facet @a r and @s local directions with respect to the element
+     procedure, pass(this) :: fct_dir => quad_fct_dir
+     !> Return ridge @a r local direction with respect to the element
+     procedure, pass(this) :: rdg_dir => quad_rdg_dir
   end type quad_msh_t
 
 contains
 
   !> Initialise a polytope with boundary information
-  !! @parameter[in]   nfct   number of facets
-  !! @parameter[in]   fct    polytope facets
-  !! @parameter[in]   bnd    external boundary information
-  subroutine quad_tpl_init(this, nfct, fct, bnd)
+  !! @parameter[in]      id     polytope id
+  !! @parameter[in]      nfct   number of facets
+  !! @parameter[inout]   fct    polytope facets
+  !! @parameter[in]      bnd    external boundary information
+  subroutine quad_tpl_init(this, id, nfct, fct, bnd)
     class(quad_tpl_t), intent(inout) :: this
-    integer(i4), intent(in) :: nfct, bnd
-    type(topology_object_t), dimension(nfct), intent(in) :: fct
+    integer(i4), intent(in) :: id, nfct, bnd
+    type(topology_object_t), dimension(nfct), intent(inout) :: fct
   end subroutine quad_tpl_init
 
   !> Test equality
-  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   other   polytope
   !! @return equal
-  function quad_tpl_equal(this, pltp) result(equal)
+  function quad_tpl_equal(this, other) result(equal)
     class(quad_tpl_t), intent(in) :: this
-    class(polytope_t), intent(in) :: pltp
+    class(polytope_t), intent(in) :: other
     logical :: equal
   end function quad_tpl_equal
 
@@ -116,7 +117,7 @@ contains
     class(quad_act_t), intent(inout) :: this
     class(polytope_topology_t), target, intent(in) :: pltp
     integer(i4), intent(in) :: algn, hng, pos
-    logical :: ifint
+    logical, intent(in) :: ifint
   end subroutine quad_act_init
 
   !> Get higher dimension object direction along local @a r
@@ -134,43 +135,44 @@ contains
   end function quad_act_dirs
 
   !> Check polytope equality and return alignment
-  !! @parameter[in]    pltp   polytope
+  !! @parameter[in]    other  polytope
   !! @parameter[out]   equal  polytope equality
   !! @parameter[out]   algn   alignment information
-  subroutine quad_act_equal(this, pltp, equal, algn)
+  subroutine quad_act_equal(this, other, equal, algn)
     class(quad_act_t), intent(in) :: this
-    class(polytope_t), intent(in) :: pltp
+    class(polytope_t), intent(in) :: other
     logical, intent(out) :: equal
     integer(i4), intent(out) :: algn
   end subroutine quad_act_equal
 
   !> Test alignment
-  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   other   polytope
   !! @return ifalgn
-  function quad_act_test(this, pltp) result(ifalgn)
+  function quad_act_test(this, other) result(ifalgn)
     class(quad_act_t), intent(in) :: this
-    class(polytope_t), intent(in) :: pltp
+    class(polytope_t), intent(in) :: other
     logical :: ifalgn
   end function quad_act_test
 
   !> Initialise a polytope with geometry information
+  !! @parameter[in]   id     polytope id
   !! @parameter[in]   nfct   number of facets
   !! @parameter[in]   fct    polytope facets
   !! @parameter[in]   npts   number of points
   !! @parameter[in]   pts    points
-  subroutine quad_msh_init(this, nfct, fct, npts, pts)
+  subroutine quad_msh_init(this, id, nfct, fct, npts, pts)
     class(quad_msh_t), intent(inout) :: this
-    integer(i4), intent(in) :: nfct, npts
+    integer(i4), intent(in) :: id, nfct, npts
     type(mesh_object_t), dimension(nfct), intent(in) :: fct
-    type(mesh_object_t), dimension(npts) :: pts
+    type(mesh_object_t), dimension(npts), intent(in) :: pts
   end subroutine quad_msh_init
 
   !> Test equality
-  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   other   polytope
   !! @return equal
-  function quad_msh_equal(this, pltp) result(equal)
+  function quad_msh_equal(this, other) result(equal)
     class(quad_msh_t), intent(in) :: this
-    class(polytope_t), intent(in) :: pltp
+    class(polytope_t), intent(in) :: other
     logical :: equal
   end function quad_msh_equal
 
@@ -187,5 +189,25 @@ contains
     class(quad_msh_t), intent(in) :: this
     type(point_t) :: res
   end function quad_msh_centroid
+
+  !> Get @a r and @a s facet local directions
+  !! @parameter[in]   pos          facet position
+  !! @parameter[out]  dirr, dirs   local directions
+  subroutine quad_fct_dir(this, pos, dirr, dirs)
+    class(quad_msh_t), intent(in) :: this
+    integer(i4), intent(in) :: pos
+    integer(i4), intent(out) :: dirr, dirs
+    dirs = -1
+  end subroutine quad_fct_dir
+
+  !> Get @a r ridge local direction
+  !! @parameter[in]   pos          ridge position
+  !! @parameter[out]  dirr         local direction
+  subroutine quad_rdg_dir(this, pos, dirr)
+    class(quad_msh_t), intent(in) :: this
+    integer(i4), intent(in) :: pos
+    integer(i4), intent(out) :: dirr
+    dirr = -1
+  end subroutine quad_rdg_dir
 
 end module quad_new

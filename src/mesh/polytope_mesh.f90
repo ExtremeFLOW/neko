@@ -96,6 +96,10 @@ module polytope_mesh
      procedure(polytope_mesh_diameter), pass(this), deferred :: diameter
      !> Return element centroid
      procedure(polytope_mesh_centroid), pass(this), deferred :: centroid
+     !> Return facet @a r and @s local directions with respect to the element
+     procedure(polytope_fct_dir), pass(this), deferred :: fct_dir
+     !> Return ridge @a r local direction with respect to the element
+     procedure(polytope_rdg_dir), pass(this), deferred :: rdg_dir
   end type polytope_mesh_t
 
   !> Single mesh element allocatable space
@@ -104,32 +108,33 @@ module polytope_mesh
   end type mesh_element_t
 
   !> Abstract interface to initialise a polytope with geometry information
+  !! @parameter[in]   id     polytope id
   !! @parameter[in]   nfct   number of facets
   !! @parameter[in]   fct    polytope facets
   !! @parameter[in]   npts   number of points
   !! @parameter[in]   pts    points
   abstract interface
-     subroutine polytope_mesh_init(this, nfct, fct, npts, pts)
+     subroutine polytope_mesh_init(this, id, nfct, fct, npts, pts)
        import i4
        import polytope_mesh_t
        import mesh_object_t
        import point_ptr
        class(polytope_mesh_t), intent(inout) :: this
-       integer(i4), intent(in) :: nfct, npts
+       integer(i4), intent(in) :: id, nfct, npts
        type(mesh_object_t), dimension(nfct), intent(in) :: fct
-       type(mesh_object_t), dimension(npts) :: pts
+       type(mesh_object_t), dimension(npts), intent(in) :: pts
      end subroutine polytope_mesh_init
   end interface
 
   !> Abstract interface to test equality
-  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   other   polytope
   !! @return equal
   abstract interface
-     function polytope_mesh_equal(this, pltp) result(equal)
+     function polytope_mesh_equal(this, other) result(equal)
        import polytope_t
        import polytope_mesh_t
        class(polytope_mesh_t), intent(in) :: this
-       class(polytope_t), intent(in) :: pltp
+       class(polytope_t), intent(in) :: other
        logical :: equal
      end function polytope_mesh_equal
   end interface
@@ -154,6 +159,32 @@ module polytope_mesh
        class(polytope_mesh_t), intent(in) :: this
        type(point_t) :: res
      end function polytope_mesh_centroid
+  end interface
+
+  !> Abstract interface to get @a r and @a s facet local directions
+  !! @parameter[in]   pos          facet position
+  !! @parameter[out]  dirr, dirs   local directions
+  abstract interface
+     subroutine polytope_fct_dir(this, pos, dirr, dirs)
+       import i4
+       import polytope_mesh_t
+       class(polytope_mesh_t), intent(in) :: this
+       integer(i4), intent(in) :: pos
+       integer(i4), intent(out) :: dirr, dirs
+     end subroutine polytope_fct_dir
+  end interface
+
+  !> Abstract interface to get @a r ridge local direction
+  !! @parameter[in]   pos          ridge position
+  !! @parameter[out]  dirr         local direction
+  abstract interface
+     subroutine polytope_rdg_dir(this, pos, dirr)
+       import i4
+       import polytope_mesh_t
+       class(polytope_mesh_t), intent(in) :: this
+       integer(i4), intent(in) :: pos
+       integer(i4), intent(out) :: dirr
+     end subroutine polytope_rdg_dir
   end interface
 
 contains

@@ -68,7 +68,7 @@ mesh/polytope_topology.o : mesh/polytope_topology.f90 config/num_types.o common/
 mesh/polytope_actualisation.o : mesh/polytope_actualisation.f90 config/num_types.o mesh/polytope_topology.o mesh/alignment.o 
 mesh/polytope_mesh.o : mesh/polytope_mesh.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_actualisation.o mesh/point.o 
 mesh/vertex.o : mesh/vertex.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_aligned.o mesh/polytope_topology.o mesh/polytope_actualisation.o 
-mesh/edge.o : mesh/edge.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_aligned.o mesh/polytope_topology.o mesh/polytope_actualisation.o mesh/alignment_edge.o 
+mesh/edge.o : mesh/edge.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_aligned.o mesh/polytope_topology.o mesh/polytope_actualisation.o mesh/alignment_edge.o mesh/vertex.o 
 mesh/quad_new.o : mesh/quad_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_topology.o mesh/polytope_actualisation.o mesh/polytope_mesh.o mesh/alignment_quad.o mesh/point.o 
 mesh/hex_new.o : mesh/hex_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_mesh.o mesh/point.o 
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 

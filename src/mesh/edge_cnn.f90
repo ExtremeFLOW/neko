@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Connectivity edge types
+!> Various edge types
 module edge_cnn
   use num_types, only : i4
   use utils, only : neko_error

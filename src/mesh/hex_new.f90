@@ -58,28 +58,33 @@ module hex_new
      procedure, pass(this) :: diameter => hex_msh_diameter
      !> Return element centroid
      procedure, pass(this) :: centroid => hex_msh_centroid
+     !> Return facet @a r and @s local directions with respect to the element
+     procedure, pass(this) :: fct_dir => hex_fct_dir
+     !> Return ridge @a r local direction with respect to the element
+     procedure, pass(this) :: rdg_dir => hex_rdg_dir
   end type hex_msh_t
 
 contains
 
   !> Initialise a polytope with geometry information
+  !! @parameter[in]   id     polytope id
   !! @parameter[in]   nfct   number of facets
   !! @parameter[in]   fct    polytope facets
   !! @parameter[in]   npts   number of points
   !! @parameter[in]   pts    points
-  subroutine hex_msh_init(this, nfct, fct, npts, pts)
+  subroutine hex_msh_init(this, id, nfct, fct, npts, pts)
     class(hex_msh_t), intent(inout) :: this
-    integer(i4), intent(in) :: nfct, npts
+    integer(i4), intent(in) :: id, nfct, npts
     type(mesh_object_t), dimension(nfct), intent(in) :: fct
-    type(mesh_object_t), dimension(npts) :: pts
+    type(mesh_object_t), dimension(npts), intent(in) :: pts
   end subroutine hex_msh_init
 
   !> Test equality
-  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   other   polytope
   !! @return equal
-  function hex_msh_equal(this, pltp) result(equal)
+  function hex_msh_equal(this, other) result(equal)
     class(hex_msh_t), intent(in) :: this
-    class(polytope_t), intent(in) :: pltp
+    class(polytope_t), intent(in) :: other
     logical :: equal
   end function hex_msh_equal
 
@@ -96,5 +101,23 @@ contains
     class(hex_msh_t), intent(in) :: this
     type(point_t) :: res
   end function hex_msh_centroid
+
+  !> Get @a r and @a s facet local directions
+  !! @parameter[in]   pos          facet position
+  !! @parameter[out]  dirr, dirs   local directions
+  subroutine hex_fct_dir(this, pos, dirr, dirs)
+    class(hex_msh_t), intent(in) :: this
+    integer(i4), intent(in) :: pos
+    integer(i4), intent(out) :: dirr, dirs
+  end subroutine hex_fct_dir
+
+  !> Get @a r ridge local direction
+  !! @parameter[in]   pos          ridge position
+  !! @parameter[out]  dirr         local direction
+  subroutine hex_rdg_dir(this, pos, dirr)
+    class(hex_msh_t), intent(in) :: this
+    integer(i4), intent(in) :: pos
+    integer(i4), intent(out) :: dirr
+  end subroutine hex_rdg_dir
 
 end module hex_new
