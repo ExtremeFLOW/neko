@@ -221,7 +221,7 @@ contains
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(),HOST_TO_DEVICE)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%size(),DEVICE_TO_HOST)
+            call device_memcpy(l, this%swplen_d, this%dof%size(),DEVICE_TO_HOST, sync=.true.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if

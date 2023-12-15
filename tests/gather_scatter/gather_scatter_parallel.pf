@@ -93,7 +93,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
             
     do i = 1,lx
@@ -182,7 +182,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
     
     do i = 1,lx
@@ -270,7 +270,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
     
     do i = 1,lx
@@ -358,7 +358,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
     
     do i = 1,lx
@@ -446,7 +446,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
     
     do i = 1,lx
@@ -534,7 +534,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
     
     do i = 1,lx
@@ -622,7 +622,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
     
     do i = 1,lx

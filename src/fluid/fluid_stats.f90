@@ -711,7 +711,7 @@ contains
           call device_memcpy(this%dwdy%x, this%dwdy%x_d, n, DEVICE_TO_HOST)
           call device_memcpy(this%dudz%x, this%dudz%x_d, n, DEVICE_TO_HOST)
           call device_memcpy(this%dvdz%x, this%dvdz%x_d, n, DEVICE_TO_HOST)
-          call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, DEVICE_TO_HOST)
+          call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, DEVICE_TO_HOST, sync=.true.)
        else 
           call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u_mean%x,this%coef)
           call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v_mean%x,this%coef)

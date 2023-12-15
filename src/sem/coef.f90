@@ -355,7 +355,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(this%mult_d, n)
-       call device_memcpy(this%mult, this%mult_d, n, DEVICE_TO_HOST)
+       call device_memcpy(this%mult, this%mult_d, n, DEVICE_TO_HOST, sync=.true.)
     else    
        call invcol1(this%mult, n)
     end if
@@ -706,7 +706,7 @@ contains
          call device_memcpy(dtdy, c%dtdy_d, ntot, DEVICE_TO_HOST)
          call device_memcpy(dtdz, c%dtdz_d, ntot, DEVICE_TO_HOST)
          call device_memcpy(jac, c%jac_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(jacinv, c%jacinv_d, ntot, DEVICE_TO_HOST)
+         call device_memcpy(jacinv, c%jacinv_d, ntot, DEVICE_TO_HOST, sync=.true.)
 
       else
          do e = 1, c%msh%nelv
@@ -837,7 +837,7 @@ contains
        call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST)
        call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST)
        call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST)
-       call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, sync=.true.)
        
     else
        if(c%msh%gdim .eq. 2) then

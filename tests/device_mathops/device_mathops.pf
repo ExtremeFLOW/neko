@@ -36,7 +36,7 @@ subroutine test_mathops_opchsign
 
         call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
         call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST, sync=.true.)
         
         do i = 1, n
            @assertEqual(a1(i), -1.0_rp)
@@ -93,7 +93,7 @@ subroutine test_mathops_opcolv
 
         call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
         call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST, sync=.true.)
         
         do i = 1, n
            @assertEqual(a1(i), 42.0_rp)
@@ -164,7 +164,7 @@ subroutine test_mathops_opcolv3c
 
         call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
         call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST, sync=.true.)
 
         do i = 1, n
            @assertEqual(a1(i), 1.0_rp)
@@ -229,7 +229,7 @@ subroutine test_mathops_opadd2cm
 
         call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
         call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST, sync.true.)
                 
         do i = 1, n
            @assertEqual(a1(i), 4753.0_rp)
@@ -298,7 +298,7 @@ subroutine test_mathops_opadd2col
 
         call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
         call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)        
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST, sync=.true.)        
         
         do i = 1, n
            @assertEqual(a1(i), 4753.0_rp)

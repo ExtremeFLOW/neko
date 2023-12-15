@@ -126,7 +126,7 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), DEVICE_TO_HOST)
+       call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
     @assertEqual(maxval(mf%mf%x), 1764.0_rp)
@@ -140,7 +140,7 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(mf2%mf%x, mf2%mf%x_d, size(mf2%mf%x), DEVICE_TO_HOST)
+       call device_memcpy(mf2%mf%x, mf2%mf%x_d, size(mf2%mf%x), DEVICE_TO_HOST, sync=.true.)
     end if
 
     @assertEqual(maxval(mf2%mf%x), 38.5_rp)
