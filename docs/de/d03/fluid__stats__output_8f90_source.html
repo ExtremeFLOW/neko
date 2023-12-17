@@ -182,18 +182,19 @@ $(document).ready(function(){initNavTree('de/d03/fluid__stats__output_8f90_sourc
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;       <span class="keywordflow">if</span> ( <a class="code" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;          <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(out_fields)</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;             <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(out_fields(i)%f%x, out_fields(i)%f%x_d,&amp;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                  out_fields(i)%f%dof%size(), <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>)</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="keywordflow">          end do</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;       <span class="keyword">call </span>this%file_%write(this%stats%stat_fields, t)</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;       <span class="keyword">call </span>this%stats%reset()</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keyword">end </span>associate</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d8/d92/namespacefluid__stats__output.html#ac046dcbeec2351f5a75b01d316364cc6">fluid_stats_output_sample</a></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  </div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d8/d92/namespacefluid__stats__output.html">fluid_stats_output</a></div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160; </div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                  out_fields(i)%f%dof%size(), <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, &amp;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                  sync=(i .eq. <span class="keyword">size</span>(out_fields)))</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="keywordflow">          end do</span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;       <span class="keyword">call </span>this%file_%write(this%stats%stat_fields, t)</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;       <span class="keyword">call </span>this%stats%reset()</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keyword">end </span>associate</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d8/d92/namespacefluid__stats__output.html#ac046dcbeec2351f5a75b01d316364cc6">fluid_stats_output_sample</a></div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  </div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d8/d92/namespacefluid__stats__output.html">fluid_stats_output</a></div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160; </div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160; </div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00051">device.F90:51</a></div></div>
 <div class="ttc" id="anamespacedevice_html"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html">device</a></div><div class="ttdoc">Device abstraction, common interface for various accelerators.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00034">device.F90:34</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a7c3556984ffad14469de7accab5bc84b"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device::device_to_host</a></div><div class="ttdeci">integer, parameter, public device_to_host</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00047">device.F90:47</a></div></div>
@@ -217,7 +218,7 @@ $(document).ready(function(){initNavTree('de/d03/fluid__stats__output_8f90_sourc
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../de/d03/fluid__stats__output_8f90.html">fluid_stats_output.f90</a></li>
-    <li class="footer">Generated on Mon Dec 4 2023 08:36:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Dec 17 2023 20:05:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

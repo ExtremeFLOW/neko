@@ -289,7 +289,7 @@ $(document).ready(function(){initNavTree('db/d18/blasius_8f90_source.html','../.
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160; </div>
 <div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;         <span class="keyword">call </span>device_memcpy(bla_x, blax_d, m, host_to_device)</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;         <span class="keyword">call </span>device_memcpy(bla_y, blay_d, m, host_to_device)</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;         <span class="keyword">call </span>device_memcpy(bla_z, blaz_d, m, host_to_device)</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;         <span class="keyword">call </span>device_memcpy(bla_z, blaz_d, m, host_to_device, sync=.true.)</div>
 <div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160; </div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;         <span class="keyword">deallocate</span>(bla_x, bla_y, bla_z)</div>
 <div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="keywordflow">      end if</span></div>
@@ -358,7 +358,7 @@ $(document).ready(function(){initNavTree('db/d18/blasius_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../db/d18/blasius_8f90.html">blasius.f90</a></li>
-    <li class="footer">Generated on Mon Dec 4 2023 08:36:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Dec 17 2023 20:05:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

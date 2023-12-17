@@ -308,7 +308,7 @@ $(document).ready(function(){initNavTree('d1/d4e/spectral__error__indicator_8f90
 <div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;       (neko_bcknd_opencl .eq. 1)) <span class="keywordflow">then</span> </div>
 <div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160; </div>
 <div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;      <span class="keyword">call </span>device_memcpy(u_hat%x,u_hat%x_d, n, &amp;</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;                         device_to_host)</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;                         device_to_host, sync=.true.)</div>
 <div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;<span class="keywordflow">    end if</span></div>
 <div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160; </div>
 <div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d9/de6/namespacespectral__error__indicator.html#a7d83ba68a78dc3f1b7f81b545b34d0ec">transform_to_spec_or_phys</a></div>
@@ -723,7 +723,7 @@ $(document).ready(function(){initNavTree('d1/d4e/spectral__error__indicator_8f90
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_03fb5b14824697692326bbb959ec235e.html">sem</a></li><li class="navelem"><a class="el" href="../../d1/d4e/spectral__error__indicator_8f90.html">spectral_error_indicator.f90</a></li>
-    <li class="footer">Generated on Mon Dec 4 2023 08:36:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Dec 17 2023 20:05:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

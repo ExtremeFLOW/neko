@@ -432,7 +432,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160; </div>
 <div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
 <div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d2/d73/namespacedevice__math.html#a46a957f0ada862da2400fb93b64b4cd9">device_invcol1</a>(this%mult_d, n)</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mult, this%mult_d, n, <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>)</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mult, this%mult_d, n, <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, sync=.true.)</div>
 <div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;    <span class="keywordflow">else</span>    </div>
 <div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;       <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a9f8d1d3598c97b83bfc4fa14bed440e6">invcol1</a>(this%mult, n)</div>
 <div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;<span class="keywordflow">    end if</span></div>
@@ -782,7 +782,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(dtdy, c%dtdy_d, ntot, <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>)</div>
 <div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(dtdz, c%dtdz_d, ntot, <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>)</div>
 <div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(jac, c%jac_d, ntot, <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>)</div>
-<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(jacinv, c%jacinv_d, ntot, <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>)</div>
+<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(jacinv, c%jacinv_d, ntot, <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, sync=.true.)</div>
 <div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160; </div>
 <div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160;      <span class="keywordflow">else</span></div>
 <div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;         <span class="keywordflow">do</span> e = 1, c%msh%nelv</div>
@@ -911,7 +911,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div class="line"><a name="l00837"></a><span class="lineno">  837</span>&#160;       <span class="keyword">call </span>device_memcpy(c%G33, c%G33_d, ntot, device_to_host)</div>
 <div class="line"><a name="l00838"></a><span class="lineno">  838</span>&#160;       <span class="keyword">call </span>device_memcpy(c%G12, c%G12_d, ntot, device_to_host)</div>
 <div class="line"><a name="l00839"></a><span class="lineno">  839</span>&#160;       <span class="keyword">call </span>device_memcpy(c%G13, c%G13_d, ntot, device_to_host)</div>
-<div class="line"><a name="l00840"></a><span class="lineno">  840</span>&#160;       <span class="keyword">call </span>device_memcpy(c%G23, c%G23_d, ntot, device_to_host)</div>
+<div class="line"><a name="l00840"></a><span class="lineno">  840</span>&#160;       <span class="keyword">call </span>device_memcpy(c%G23, c%G23_d, ntot, device_to_host, sync=.true.)</div>
 <div class="line"><a name="l00841"></a><span class="lineno">  841</span>&#160;       </div>
 <div class="line"><a name="l00842"></a><span class="lineno">  842</span>&#160;    <span class="keywordflow">else</span></div>
 <div class="line"><a name="l00843"></a><span class="lineno">  843</span>&#160;       <span class="keywordflow">if</span>(c%msh%gdim .eq. 2) <span class="keywordflow">then</span></div>
@@ -1260,7 +1260,7 @@ $(document).ready(function(){initNavTree('db/d85/coef_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_03fb5b14824697692326bbb959ec235e.html">sem</a></li><li class="navelem"><a class="el" href="../../db/d85/coef_8f90.html">coef.f90</a></li>
-    <li class="footer">Generated on Mon Dec 4 2023 08:36:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Dec 17 2023 20:05:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -317,7 +317,7 @@ $(document).ready(function(){initNavTree('d0/da2/fdm_8f90_source.html','../../')
 <div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;         <span class="keywordflow">if</span> (<a class="code" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
 <div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;            <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(l, this%swplen_d, this%dof%size(),<a class="code" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>)</div>
 <div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;            <span class="keyword">call </span>this%gs_h%op(l, this%dof%size(), gs_op_add)</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;            <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(l, this%swplen_d, this%dof%size(),<a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>)</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;            <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(l, this%swplen_d, this%dof%size(),<a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, sync=.true.)</div>
 <div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;         <span class="keywordflow">else</span></div>
 <div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;            <span class="keyword">call </span>this%gs_h%op(l, this%dof%size(), gs_op_add)</div>
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;<span class="keywordflow">         end if</span></div>
@@ -789,7 +789,7 @@ $(document).ready(function(){initNavTree('d0/da2/fdm_8f90_source.html','../../')
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../d0/da2/fdm_8f90.html">fdm.f90</a></li>
-    <li class="footer">Generated on Mon Dec 4 2023 08:36:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Dec 17 2023 20:05:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

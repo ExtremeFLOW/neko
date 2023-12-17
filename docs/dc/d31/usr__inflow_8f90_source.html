@@ -369,7 +369,7 @@ $(document).ready(function(){initNavTree('dc/d31/usr__inflow_8f90_source.html','
 <div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;        </div>
 <div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;         <span class="keyword">call </span>device_memcpy(x, usr_x_d, m, host_to_device)</div>
 <div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;         <span class="keyword">call </span>device_memcpy(y, usr_y_d, m, host_to_device)</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;         <span class="keyword">call </span>device_memcpy(z, usr_z_d, m, host_to_device)</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;         <span class="keyword">call </span>device_memcpy(z, usr_z_d, m, host_to_device, sync=.true.)</div>
 <div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160; </div>
 <div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;         <span class="keyword">deallocate</span>(x, y, z)</div>
 <div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;<span class="keywordflow">      end if</span></div>
@@ -443,7 +443,7 @@ $(document).ready(function(){initNavTree('dc/d31/usr__inflow_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../dc/d31/usr__inflow_8f90.html">usr_inflow.f90</a></li>
-    <li class="footer">Generated on Mon Dec 4 2023 08:36:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Dec 17 2023 20:05:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -779,7 +779,7 @@ $(document).ready(function(){initNavTree('d6/d05/fluid__stats_8f90_source.html',
 <div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160;          <span class="keyword">call </span>device_memcpy(this%dwdy%x, this%dwdy%x_d, n, device_to_host)</div>
 <div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;          <span class="keyword">call </span>device_memcpy(this%dudz%x, this%dudz%x_d, n, device_to_host)</div>
 <div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160;          <span class="keyword">call </span>device_memcpy(this%dvdz%x, this%dvdz%x_d, n, device_to_host)</div>
-<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;          <span class="keyword">call </span>device_memcpy(this%dwdz%x, this%dwdz%x_d, n, device_to_host)</div>
+<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;          <span class="keyword">call </span>device_memcpy(this%dwdz%x, this%dwdz%x_d, n, device_to_host, sync=.true.)</div>
 <div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;       <span class="keywordflow">else</span> </div>
 <div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;          <span class="keyword">call </span>opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u_mean%x,this%coef)</div>
 <div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;          <span class="keyword">call </span>opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v_mean%x,this%coef)</div>
@@ -847,7 +847,7 @@ $(document).ready(function(){initNavTree('d6/d05/fluid__stats_8f90_source.html',
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d6/d05/fluid__stats_8f90.html">fluid_stats.f90</a></li>
-    <li class="footer">Generated on Mon Dec 4 2023 08:36:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Dec 17 2023 20:05:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

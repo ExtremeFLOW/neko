@@ -199,17 +199,18 @@ $(document).ready(function(){initNavTree('d8/d26/fluid__output_8f90_source.html'
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;       associate(fields =&gt; this%fluid%fields)</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;         <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(fields)</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;            <span class="keyword">call </span><a class="code" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(fields(i)%f%x, fields(i)%f%x_d, &amp;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;                 fields(i)%f%dof%size(), <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>)</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="keywordflow">         end do</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;       <span class="keyword">end </span>associate</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160; </div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;       </div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keyword">call </span>this%file_%write(this%fluid, t)</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160; </div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d6/d60/namespacefluid__output.html#a10137ddfba1f49ba0128e15845220ea1">fluid_output_sample</a></div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  </div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d6/d60/namespacefluid__output.html">fluid_output</a></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;                 fields(i)%f%dof%size(), <a class="code" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, &amp;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;                 sync=(i .eq. <span class="keyword">size</span>(fields)))</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="keywordflow">         end do</span></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;       <span class="keyword">end </span>associate</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;       </div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keyword">call </span>this%file_%write(this%fluid, t)</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d6/d60/namespacefluid__output.html#a10137ddfba1f49ba0128e15845220ea1">fluid_output_sample</a></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  </div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d6/d60/namespacefluid__output.html">fluid_output</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00051">device.F90:51</a></div></div>
 <div class="ttc" id="anamespacedevice_html"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html">device</a></div><div class="ttdoc">Device abstraction, common interface for various accelerators.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00034">device.F90:34</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a7c3556984ffad14469de7accab5bc84b"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device::device_to_host</a></div><div class="ttdeci">integer, parameter, public device_to_host</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00047">device.F90:47</a></div></div>
@@ -234,7 +235,7 @@ $(document).ready(function(){initNavTree('d8/d26/fluid__output_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../d8/d26/fluid__output_8f90.html">fluid_output.f90</a></li>
-    <li class="footer">Generated on Mon Dec 4 2023 08:36:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Dec 17 2023 20:05:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
