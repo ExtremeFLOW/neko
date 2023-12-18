@@ -488,28 +488,30 @@ $(document).ready(function(){initNavTree('dd/d8d/fluid__volflow_8f90_source.html
 <div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;      <span class="keywordflow">if</span> (this%avflow) <span class="keywordflow">then</span></div>
 <div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;         xsec = c_xh%volume / this%domain_length</div>
 <div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;         flow_rate = this%flow_rate*xsec</div>
-<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;<span class="keywordflow">      endif</span></div>
-<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;      </div>
-<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;      delta_flow = flow_rate - current_flow            </div>
-<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;      scale = delta_flow / this%base_flow</div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;      </div>
-<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;         <span class="keyword">call </span>device_add2s2(u%x_d, u_vol%x_d, scale, n)</div>
-<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;         <span class="keyword">call </span>device_add2s2(v%x_d, v_vol%x_d, scale, n)</div>
-<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;         <span class="keyword">call </span>device_add2s2(w%x_d, w_vol%x_d, scale, n)</div>
-<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;         <span class="keyword">call </span>device_add2s2(p%x_d, p_vol%x_d, scale, n)</div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;      <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;         <span class="keyword">call </span>add2s2(u%x, u_vol%x, scale, n)</div>
-<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;         <span class="keyword">call </span>add2s2(v%x, v_vol%x, scale, n)</div>
-<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;         <span class="keyword">call </span>add2s2(w%x, w_vol%x, scale, n)</div>
-<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;         <span class="keyword">call </span>add2s2(p%x, p_vol%x, scale, n)</div>
-<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;<span class="keywordflow">      end if</span></div>
-<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;    <span class="keyword">end </span>associate</div>
-<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;    </div>
-<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d6/d21/namespacefluid__volflow.html#aa3b3c445f2ac0efd56195ea442a755a1">fluid_vol_flow</a></div>
-<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160; </div>
-<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160; </div>
-<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d6/d21/namespacefluid__volflow.html">fluid_volflow</a></div>
+<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;      <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;         flow_rate = this%flow_rate</div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;<span class="keywordflow">      endif</span></div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;      </div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;      delta_flow = flow_rate - current_flow            </div>
+<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;      scale = delta_flow / this%base_flow</div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;      </div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;         <span class="keyword">call </span>device_add2s2(u%x_d, u_vol%x_d, scale, n)</div>
+<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;         <span class="keyword">call </span>device_add2s2(v%x_d, v_vol%x_d, scale, n)</div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;         <span class="keyword">call </span>device_add2s2(w%x_d, w_vol%x_d, scale, n)</div>
+<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;         <span class="keyword">call </span>device_add2s2(p%x_d, p_vol%x_d, scale, n)</div>
+<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;      <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;         <span class="keyword">call </span>add2s2(u%x, u_vol%x, scale, n)</div>
+<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;         <span class="keyword">call </span>add2s2(v%x, v_vol%x, scale, n)</div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;         <span class="keyword">call </span>add2s2(w%x, w_vol%x, scale, n)</div>
+<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;         <span class="keyword">call </span>add2s2(p%x, p_vol%x, scale, n)</div>
+<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;<span class="keywordflow">      end if</span></div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;    <span class="keyword">end </span>associate</div>
+<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;    </div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d6/d21/namespacefluid__volflow.html#aa3b3c445f2ac0efd56195ea442a755a1">fluid_vol_flow</a></div>
+<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160; </div>
+<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160; </div>
+<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d6/d21/namespacefluid__volflow.html">fluid_volflow</a></div>
 <div class="ttc" id="ainterfacebc_1_1bc__list__apply_html"><div class="ttname"><a href="../../df/d54/interfacebc_1_1bc__list__apply.html">bc::bc_list_apply</a></div><div class="ttdef"><b>Definition:</b> <a href="../../df/df6/bc_8f90_source.html#l00175">bc.f90:175</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00044">json_utils.f90:44</a></div></div>
 <div class="ttc" id="anamespaceax__product_html"><div class="ttname"><a href="../../d2/dd1/namespaceax__product.html">ax_product</a></div><div class="ttdoc">Defines a Matrix-vector product.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dd6/ax_8f90_source.html#l00034">ax.f90:34</a></div></div>
@@ -575,7 +577,7 @@ $(document).ready(function(){initNavTree('dd/d8d/fluid__volflow_8f90_source.html
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../dd/d8d/fluid__volflow_8f90.html">fluid_volflow.f90</a></li>
-    <li class="footer">Generated on Mon Dec 18 2023 07:34:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Mon Dec 18 2023 12:15:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
