@@ -105,7 +105,7 @@ module device_inhom_dirichlet
        type(c_ptr), value :: msk, x, bla_x
      end subroutine opencl_inhom_dirichlet_apply_scalar
   end interface
-#endif 
+#endif
 
 contains
 
@@ -122,9 +122,9 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
+
   end subroutine device_inhom_dirichlet_apply_vector
- 
+
   subroutine device_inhom_dirichlet_apply_scalar(msk, x, bla_x, m)
     integer, intent(in) :: m
     type(c_ptr) :: msk, x, bla_x
@@ -138,7 +138,7 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
+
   end subroutine device_inhom_dirichlet_apply_scalar
-  
+
 end module device_inhom_dirichlet

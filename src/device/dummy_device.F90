@@ -45,5 +45,5 @@ module dummy_device
   type(c_ptr), public, bind(c) :: aux_cmd_queue = C_NULL_PTR
 
 #endif
-  
+
 end module dummy_device

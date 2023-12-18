@@ -38,9 +38,9 @@ module device_coef
   private
 
   public :: device_coef_generate_geo, device_coef_generate_dxydrst
-  
+
 #ifdef HAVE_HIP
-    interface
+  interface
      subroutine hip_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
           drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
           jacinv, w3, nel, lx, gdim) &
@@ -49,7 +49,7 @@ module device_coef
        implicit none
        type(c_ptr), value :: G11, G12, G13, G22, G23, G33
        type(c_ptr), value :: drdx, drdy, drdz
-       type(c_ptr), value :: dsdx, dsdy, dsdz 
+       type(c_ptr), value :: dsdx, dsdy, dsdz
        type(c_ptr), value :: dtdx, dtdy, dtdz
        type(c_ptr), value :: jacinv, w3
        integer(c_int) :: nel, gdim, lx
@@ -84,7 +84,7 @@ module device_coef
        implicit none
        type(c_ptr), value :: G11, G12, G13, G22, G23, G33
        type(c_ptr), value :: drdx, drdy, drdz
-       type(c_ptr), value :: dsdx, dsdy, dsdz 
+       type(c_ptr), value :: dsdx, dsdy, dsdz
        type(c_ptr), value :: dtdx, dtdy, dtdz
        type(c_ptr), value :: jacinv, w3
        integer(c_int) :: nel, gdim, lx
@@ -119,7 +119,7 @@ module device_coef
        implicit none
        type(c_ptr), value :: G11, G12, G13, G22, G23, G33
        type(c_ptr), value :: drdx, drdy, drdz
-       type(c_ptr), value :: dsdx, dsdy, dsdz 
+       type(c_ptr), value :: dsdx, dsdy, dsdz
        type(c_ptr), value :: dtdx, dtdy, dtdz
        type(c_ptr), value :: jacinv, w3
        integer(c_int) :: nel, gdim, lx

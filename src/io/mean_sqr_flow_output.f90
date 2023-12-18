@@ -50,7 +50,7 @@ module mean_sqr_flow_output
   end interface mean_sqr_flow_output_t
 
 contains
-  
+
   function mean_sqr_flow_output_init(msqrf, T_begin, name, path) result(this)
     type(mean_sqr_flow_t), intent(in), target ::msqrf
     real(kind=rp), intent(in) :: T_begin
@@ -58,7 +58,7 @@ contains
     character(len=*), intent(in), optional :: path
     type(mean_sqr_flow_output_t) :: this
     character(len=1024) :: fname
-    
+
     if (present(name) .and. present(path)) then
        fname = trim(path) // trim(name) // '.fld'
     else if (present(name)) then
@@ -84,7 +84,7 @@ contains
     end if
 
   end subroutine mean_sqr_flow_output_sample
-  
+
 end module mean_sqr_flow_output
 
 

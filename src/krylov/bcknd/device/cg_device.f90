@@ -40,7 +40,7 @@ module cg_device
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use device  
+  use device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
                           device_add2s2, device_add2s1
   implicit none
@@ -71,9 +71,9 @@ contains
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-    
+
     call this%free()
-    
+
     allocate(this%w(n))
     allocate(this%r(n))
     allocate(this%p(n))
@@ -83,8 +83,8 @@ contains
     call device_map(this%p, this%p_d, n)
     call device_map(this%r, this%r_d, n)
     call device_map(this%w, this%w_d, n)
-    
-    if (present(M)) then 
+
+    if (present(M)) then
        this%M => M
     end if
 
@@ -119,7 +119,7 @@ contains
     if (allocated(this%p)) then
        deallocate(this%p)
     end if
-    
+
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
@@ -145,9 +145,9 @@ contains
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
     end if
-    
+
   end subroutine cg_device_free
-  
+
   !> Standard PCG solve
   function cg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(cg_device_t), intent(inout) :: this
@@ -166,7 +166,7 @@ contains
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, alphm, norm_fac
     type(c_ptr) :: f_d
-    
+
     f_d = device_get_ptr(f)
 
     if (present(niter)) then
@@ -195,10 +195,10 @@ contains
        if (iter .eq. 1) beta = zero
        call device_add2s1(this%p_d, this%z_d, beta, n)
 
-       call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)       
+       call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_h%op(this%w, n, GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
-       call bc_list_apply(blst, this%w, n)       
+       call bc_list_apply(blst, this%w, n)
 
        pap = device_glsc3(this%w_d, coef%mult_d, this%p_d, n)
 
@@ -220,5 +220,5 @@ contains
   end function cg_device_solve
 
 end module cg_device
-  
+
 

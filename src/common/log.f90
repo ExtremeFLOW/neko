@@ -220,7 +220,7 @@ contains
        this%indent_ = this%indent_ - this%section_id_
     end if
 
-  end subroutine log_end_Section
+  end subroutine log_end_section
 
   !> Write status banner
   !! @todo move to a future Time module
@@ -231,7 +231,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp) :: t_prog
 
-     t_prog = 100d0 * t / T_end
+    t_prog = 100d0 * t / T_end
 
     call this%message('----------------------------------------------------------------', &
                       NEKO_LOG_QUIET)
