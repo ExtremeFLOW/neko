@@ -32,9 +32,11 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for scalars
 module scalar_pnpn
+  use num_types, only: rp
   use scalar_residual_fctry, only : scalar_residual_factory
   use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry
+  use rhs_maker_fctry, only : rhs_maker_bdf_t, rhs_maker_ext_t, &
+                              rhs_maker_ext_fctry, rhs_maker_bdf_fctry
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
   use field, only : field_t
@@ -43,25 +45,26 @@ module scalar_pnpn
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
   use coefs, only : coef_t
-  use device
+  use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_residual, only :scalar_residual_t
   use ax_product, only : ax_t
-  use field_series
-  use facet_normal
-  use device_math
-  use device_mathops
-  use scalar_aux
-  use time_scheme_controller
-  use projection
-  use math
-  use logger
-  use advection
-  use profiler
+  use field_series, only: field_series_t
+  use facet_normal, only : facet_normal_t
+  use krylov, only : ksp_monitor_t
+  use device_math, only : device_add2s2, device_col2
+  use scalar_aux, only : scalar_step_info
+  use time_scheme_controller, only : time_scheme_controller_t
+  use projection, only : projection_t
+  use math, only : glsc2, col2, add2s2 
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use advection, only : advection_t, advection_factory
+  use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only: json_get
   use json_module, only : json_file
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
   private
 
