@@ -50,6 +50,19 @@ module scalar_residual
   end type scalar_residual_t
 
   abstract interface
+     !> Interface for computing the residual of a scalar transport equation.
+     !! @param Ax The Helmholz operator.
+     !! @param s The values of the scalar.
+     !! @param s_res The values of the scalar residual.
+     !! @param f_xH The right hand side.
+     !! @param c_xH The SEM coefficients.
+     !! @param msh The mesh.
+     !! @param Xh The SEM function space.
+     !! @param lambda The thermal conductivity.
+     !! @param rhocp The density multiplied by the specific heat capacity.
+     !! @param bd The coefficeints from the BDF differencing scheme.
+     !! @param dt The timestep.
+     !! @param n The total number of degrees of freedom.
      subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
                                           lambda, rhocp, bd, dt, n)
        import field_t
