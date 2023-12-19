@@ -131,7 +131,7 @@ module scalar_scheme
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      !> Destructor.
      procedure(scalar_scheme_free_intrf), pass(this), deferred :: free
-     !> Solver for current timestep.
+     !> Solve for the current timestep.
      procedure(scalar_scheme_step_intrf), pass(this), deferred :: step
      !> Restart from a checkpoint.
      procedure(scalar_scheme_restart_intrf), pass(this), deferred :: restart

@@ -30,7 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Modular version of the Classic Nek5000 Pn/Pn formulation for scalars
+!> Containts the scalar_pnpn_t type.
+
 module scalar_pnpn
   use num_types, only: rp
   use scalar_residual_fctry, only : scalar_residual_factory
@@ -71,36 +72,37 @@ module scalar_pnpn
 
   type, public, extends(scalar_scheme_t) :: scalar_pnpn_t
 
+     !> The residual of the transport equation.
      type(field_t) :: s_res
 
+     !> Lag arrays, i.e. solutions at previous timesteps.
      type(field_series_t) :: slag
 
+     !> Solution increment.
      type(field_t) :: ds
 
-     type(field_t) :: wa1
-     type(field_t) :: ta1
-
-
+     !> Helmholz operator.
      class(ax_t), allocatable :: Ax
 
+     !> Solution projection.
      type(projection_t) :: proj_s
-
-     type(dirichlet_t) :: bc_res   !< Dirichlet condition for scala
+     !> Dirichlet condition for scala
+     type(dirichlet_t) :: bc_res
      type(bc_list_t) :: bclst_ds
 
+     !> Advection operator.
      class(advection_t), allocatable :: adv
 
-     ! Time variables
-     type(field_t) :: abx1
-     type(field_t) :: abx2
+     ! Lag arrays for the RHS.
+     type(field_t) :: abx1, abx2
 
-     !> Residual
+     !> Computes the residual.
      class(scalar_residual_t), allocatable :: res
 
-     !> Contributions to kth order extrapolation scheme
+     !> Contributions to kth order extrapolation scheme.
      class(rhs_maker_ext_t), allocatable :: makeext
 
-     !> Contributions to F from lagged BD terms
+     !> Contributions to the RHS from lagged BDF terms.
      class(rhs_maker_bdf_t), allocatable :: makebdf
 
    contains
@@ -110,6 +112,7 @@ module scalar_pnpn
      procedure, pass(this) :: restart => scalar_pnpn_restart
      !> Destructor.
      procedure, pass(this) :: free => scalar_pnpn_free
+     !> Solve for the current timestep.
      procedure, pass(this) :: step => scalar_pnpn_step
   end type scalar_pnpn_t
 
@@ -163,10 +166,6 @@ contains
       call this%abx1%init(dm_Xh, "abx1")
 
       call this%abx2%init(dm_Xh, "abx2")
-
-      call this%wa1%init(dm_Xh, 'wa1')
-
-      call this%ta1%init(dm_Xh, 'ta1')
 
       call this%ds%init(dm_Xh, 'ds')
 
@@ -254,10 +253,6 @@ contains
 
     call this%s_res%free()
 
-    call this%wa1%free()
-
-    call this%ta1%free()
-
     call this%ds%free()
 
     call this%abx1%free()
@@ -302,8 +297,6 @@ contains
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, lambda => this%lambda, rho => this%rho, &
          ds => this%ds, &
-         ta1 => this%ta1, &
-         wa1 => this%wa1, &
          s_res =>this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
@@ -338,11 +331,11 @@ contains
       call this%adv%compute_scalar(u, v, w, s, f_Xh%s, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
-      call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
-           rho, ext_bdf%advection_coeffs, n)
+      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%s, rho, &
+           ext_bdf%advection_coeffs, n)
 
-      call makebdf%compute_scalar(ta1, wa1, slag, f_Xh%s, s, c_Xh%B, &
-           rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+      call makebdf%compute_scalar(slag, f_Xh%s, s, c_Xh%B, rho, dt, &
+           ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
       !> We assume that no change of boundary conditions
