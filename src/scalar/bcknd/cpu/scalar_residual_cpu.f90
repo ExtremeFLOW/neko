@@ -16,7 +16,7 @@ module scalar_residual_cpu
 contains
 
   !> Compute the residual.
-  !! @param Ax The Helmholz operator.
+  !! @param Ax The Helmholtz operator.
   !! @param s The values of the scalar.
   !! @param s_res The values of the scalar residual.
   !! @param f_xH The right hand side.
