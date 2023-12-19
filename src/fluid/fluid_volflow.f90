@@ -404,6 +404,8 @@ contains
       if (this%avflow) then
          xsec = c_Xh%volume / this%domain_length
          flow_rate = this%flow_rate*xsec
+      else
+         flow_rate = this%flow_rate
       endif
 
       delta_flow = flow_rate - current_flow
