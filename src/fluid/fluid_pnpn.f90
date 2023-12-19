@@ -285,7 +285,8 @@ contains
     integer :: i, n
 
     n = this%u%dof%size()
-    ! Make sure that continuity is maintained (important for interpolation)
+    ! Make sure that continuity is maintained (important for interpolation) 
+    ! Do not do this for lagged rhs (derivatives are not necessairly coninous across elements)
     call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%w%x,this%c_Xh%mult,this%u%dof%size())
@@ -295,14 +296,6 @@ contains
        call col2(this%vlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
        call col2(this%wlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
     end do
-
-    call col2(this%abx1%x,this%c_Xh%mult,this%abx1%dof%size())
-    call col2(this%abx2%x,this%c_Xh%mult,this%abx2%dof%size())
-    call col2(this%aby1%x,this%c_Xh%mult,this%aby1%dof%size())
-    call col2(this%aby2%x,this%c_Xh%mult,this%aby2%dof%size())
-    call col2(this%abz1%x,this%c_Xh%mult,this%abz1%dof%size())
-    call col2(this%abz2%x,this%c_Xh%mult,this%abz2%dof%size())
-
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
@@ -346,7 +339,6 @@ contains
     end if
 
 
-
     call this%gs_Xh%op(this%u,GS_OP_ADD)
     call this%gs_Xh%op(this%v,GS_OP_ADD)
     call this%gs_Xh%op(this%w,GS_OP_ADD)
@@ -357,12 +349,6 @@ contains
        call this%gs_Xh%op(this%vlag%lf(i),GS_OP_ADD)
        call this%gs_Xh%op(this%wlag%lf(i),GS_OP_ADD)
     end do
-    call this%gs_Xh%op(this%abx1,GS_OP_ADD)
-    call this%gs_Xh%op(this%abx2,GS_OP_ADD)
-    call this%gs_Xh%op(this%aby1,GS_OP_ADD)
-    call this%gs_Xh%op(this%aby2,GS_OP_ADD)
-    call this%gs_Xh%op(this%abz1,GS_OP_ADD)
-    call this%gs_Xh%op(this%abz2,GS_OP_ADD)
 
     !! If we would decide to only restart from lagged fields instead of asving abx1, aby1 etc.
     !! Observe that one also needs to recompute the focing at the old time steps
