@@ -34,30 +34,39 @@
 
 ! todo: module name
 module scalar_scheme
-  use gather_scatter
-  use neko_config
-  use checkpoint
-  use num_types
-  use source_scalar
-  use field
-  use space
-  use dofmap
-  use krylov
-  use coefs
-  use dirichlet
-  use krylov_fctry
-  use precon_fctry
-  use bc
-  use mesh
-  use facet_zone
-  use time_scheme_controller
-  use logger
-  use field_registry
-  use usr_scalar
+  use gather_scatter, only : gs_t
+!  use neko_config
+  use checkpoint, only : chkp_t
+  use num_types, only: rp
+  use source_scalar, only : source_scalar_t, source_scalar_term_pw, &
+                            source_scalar_term, source_scalar_eval_noforce, &
+                            source_scalar_init, source_scalar_set_type, &
+                            source_scalar_set_pw_type, source_scalar_free
+  use field, only : field_t
+  use space, only : space_t
+  use dofmap, only :  dofmap_t
+  use krylov, only : ksp_t
+  use coefs, only : coef_t
+  use dirichlet, only : dirichlet_t
+  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
+  use jacobi, only : jacobi_t
+  use device_jacobi, only : device_jacobi_t
+  use sx_jacobi, only : sx_jacobi_t
+  use hsmg, only : hsmg_t
+  use precon_fctry, only : precon_factory, pc_t, precon_destroy
+  use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
+                 bc_list_apply_scalar, bc_list_add
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use facet_zone, only : facet_zone_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use logger, only : neko_log, LOG_SIZE
+  use field_registry, only : neko_field_registry
+  use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
+  use utils, only : neko_error
   implicit none
 
   type, abstract :: scalar_scheme_t
