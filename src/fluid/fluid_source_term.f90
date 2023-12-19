@@ -65,7 +65,7 @@ module fluid_source_term
      procedure, pass(this) :: init => fluid_source_term_init
      !> Destructor.
      procedure, pass(this) :: free => fluid_source_term_free
-     !> Add all the source term to the passed right-hand side fields.
+     !> Add all the source terms to the passed right-hand side fields.
      procedure, pass(this) :: compute => fluid_source_term_compute
      !> Initialize the user source term.
      procedure, nopass, private :: init_user_source
