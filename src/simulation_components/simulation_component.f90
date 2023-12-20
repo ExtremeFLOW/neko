@@ -118,6 +118,7 @@ contains
     character(len=:), allocatable :: compute_control, output_control
     real(kind=rp) :: compute_value, output_value
 
+    call this%free_base()
     this%case => case
     call json_get_or_default(json, "compute_control", compute_control, &
                              "tsteps")

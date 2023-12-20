@@ -281,8 +281,8 @@ contains
 
   subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf)
     class(scalar_pnpn_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: t
-    integer, intent(inout) :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
     ! Number of degrees of freedom

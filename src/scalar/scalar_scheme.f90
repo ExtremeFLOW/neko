@@ -182,8 +182,8 @@ module scalar_scheme
        import time_scheme_controller_t
        import rp
        class(scalar_scheme_t), intent(inout) :: this
-       real(kind=rp), intent(inout) :: t
-       integer, intent(inout) :: tstep
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
        real(kind=rp), intent(in) :: dt
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
      end subroutine scalar_scheme_step_intrf

@@ -36,6 +36,7 @@ module simulation_component_fctry
   use simulation_component, only : simulation_component_t
   use vorticity, only : vorticity_t
   use lambda2, only : lambda2_t
+  use scalar, only : scalar_t
   use probes, only : probes_t
   use json_module, only : json_file
   use case, only : case_t
@@ -65,6 +66,9 @@ contains
     end if
     if (trim(simcomp_type) .eq. "probes") then
        allocate(probes_t::simcomp)
+    end if
+    if (trim(simcomp_type) .eq. "scalar") then
+       allocate(scalar_t::simcomp)
     end if
 
     ! Initialize

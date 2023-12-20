@@ -236,6 +236,7 @@ neko_fortran_SOURCES = \
 	simulation_components/simulation_component_global.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
+	simulation_components/scalar.f90\
 	simulation_components/simulation_component_factory.f90\
 	source_terms/source_term.f90\
 	source_terms/const_source_term.f90\
