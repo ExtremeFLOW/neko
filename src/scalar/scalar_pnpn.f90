@@ -306,7 +306,6 @@ contains
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
          projection_dim => this%projection_dim, &
-         ksp_maxiter => this%ksp_maxiter, &
          msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
 
@@ -366,7 +365,7 @@ contains
       call this%pc%update()
       call profiler_start_region('Scalar solve', 21)
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
-           c_Xh, this%bclst_ds, gs_Xh, ksp_maxiter)
+           c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
       if (tstep .gt. 5 .and. projection_dim .gt. 0) then

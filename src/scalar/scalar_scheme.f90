@@ -71,7 +71,6 @@ module scalar_scheme
      type(coef_t), pointer  :: c_Xh    !< Coefficients associated with \f$ X_h \f$
      type(source_scalar_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
      class(ksp_t), allocatable  :: ksp         !< Krylov solver
-     integer :: ksp_maxiter            !< Max iteration number in ksp.
      integer :: projection_dim     !< Projection space size in ksp.
      class(pc_t), allocatable :: pc            !< Preconditioner
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
@@ -257,8 +256,6 @@ contains
     write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
     call neko_log%message(log_buf)
 
-    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
-                             this%ksp_maxiter, 800)
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
                             this%projection_dim, 20)
@@ -314,8 +311,10 @@ contains
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
 
     ! todo parameter file ksp tol should be added
+    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
+                             integer_val, 800)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         solver_type, solver_abstol)
+         solver_type, integer_val, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, solver_precon)
 
@@ -406,13 +405,14 @@ contains
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine scalar_scheme_solver_factory(ksp, n, solver, abstol)
+  subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, abstol)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
+    integer, intent(in) :: max_iter
     character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
 
-    call krylov_solver_factory(ksp, n, solver, abstol)
+    call krylov_solver_factory(ksp, n, solver, max_iter, abstol)
 
   end subroutine scalar_scheme_solver_factory
 
