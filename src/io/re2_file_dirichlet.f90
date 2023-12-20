@@ -40,7 +40,7 @@ module re2_file_dirichlet
   use point
   use comm
   use mpi_f08
-  use mpi_types
+  use neko_mpi_types
   use datadist
   use re2
   use map
