@@ -32,12 +32,12 @@
 !
 !> Implements a n-tuple
 module tuple
-  use math, only : abscmp 
+  use math, only : abscmp
   use num_types, only : dp
   implicit none
   private
 
-  !> Base type for an n-tuple 
+  !> Base type for an n-tuple
   type, public, abstract :: tuple_t
    contains
      procedure(tuple_assign_tuple), pass(this), deferred :: assign_tuple
@@ -47,7 +47,7 @@ module tuple
      generic :: assignment(=) => assign_tuple, assign_vector
   end type tuple_t
 
-  !> Integer based 2-tuple 
+  !> Integer based 2-tuple
   type, extends(tuple_t), public :: tuple_i4_t
      integer :: x(2) = (/0, 0/)
    contains
@@ -56,7 +56,7 @@ module tuple
      procedure, pass(this) :: equal => tuple_i4_equal
   end type tuple_i4_t
 
-  !> Integer based 3-tuple 
+  !> Integer based 3-tuple
   type, extends(tuple_t), public :: tuple3_i4_t
      integer :: x(3) = (/0, 0, 0/)
    contains
@@ -65,7 +65,7 @@ module tuple
      procedure, pass(this) :: equal => tuple3_i4_equal
   end type tuple3_i4_t
 
-  !> Integer based 4-tuple 
+  !> Integer based 4-tuple
   type, extends(tuple_t), public :: tuple4_i4_t
      integer :: x(4) = (/0, 0, 0, 0/)
    contains
@@ -74,7 +74,7 @@ module tuple
      procedure, pass(this) :: equal => tuple4_i4_equal
   end type tuple4_i4_t
 
-  !> Double precision based 2-tuple 
+  !> Double precision based 2-tuple
   type, extends(tuple_t), public :: tuple_r8_t
      real(kind=dp) :: x(2) = (/0d0, 0d0/)
    contains
@@ -93,9 +93,9 @@ module tuple
      procedure, pass(this) :: equal => tuple_i4r8_equal
   end type tuple_i4r8_t
 
-  !> Mixed integer (\f$ x, y \f$) double precision (\f$ z \f$) 3-tuple 
+  !> Mixed integer (\f$ x, y \f$) double precision (\f$ z \f$) 3-tuple
   type, extends(tuple_t), public :: tuple_2i4r8_t
-     integer :: x, y     
+     integer :: x, y
      real(kind=dp) :: z
    contains
      procedure, pass(this) :: assign_tuple => tuple_2i4r8_assign_tuple
@@ -120,7 +120,7 @@ module tuple
        class(*), dimension(:), intent(in) :: x
      end subroutine tuple_assign_vector
   end interface
-  
+
   !> Abstract intf. for tuple comparison
   abstract interface
      pure function tuple_equal(this, other) result(res)
@@ -132,7 +132,7 @@ module tuple
   end interface
 
 contains
-  
+
   !> Assign an integer 2-tuple to a tuple
   subroutine tuple_i4_assign_tuple(this, other)
     class(tuple_i4_t), intent(inout) :: this
@@ -152,7 +152,7 @@ contains
     select type(x)
     type is (integer)
        this%x = x
-    end select    
+    end select
   end subroutine tuple_i4_assign_vector
 
   !> Check if two integer based tuples are equal
@@ -187,14 +187,14 @@ contains
     select type(x)
     type is (integer)
        this%x = x
-    end select    
+    end select
   end subroutine tuple3_i4_assign_vector
 
   !> Check if two integer based tuples are equal
   pure function tuple3_i4_equal(this, other) result(res)
     class(tuple3_i4_t), intent(in) :: this
     class(tuple_t), intent(in) :: other
-    logical :: res    
+    logical :: res
 
     res = .false.
     select type(other)
@@ -202,7 +202,7 @@ contains
        res = all(this%x .eq. other%x)
     end select
   end function tuple3_i4_equal
-  
+
   !> Assign an integer 4-tuple to a tuple
   subroutine tuple4_i4_assign_tuple(this, other)
     class(tuple4_i4_t), intent(inout) :: this
@@ -222,14 +222,14 @@ contains
     select type(x)
     type is (integer)
        this%x = x
-    end select    
+    end select
   end subroutine tuple4_i4_assign_vector
 
   !> Check if two integer based tuples are equal
   pure function tuple4_i4_equal(this, other) result(res)
     class(tuple4_i4_t), intent(in) :: this
     class(tuple_t), intent(in) :: other
-    logical :: res    
+    logical :: res
 
     res = .false.
     select type(other)
@@ -244,7 +244,7 @@ contains
     class(tuple_t), intent(in) :: other
 
     select type(other)
-    type is(tuple_r8_t)       
+    type is(tuple_r8_t)
        this%x = other%x
     end select
   end subroutine tuple_r8_assign_tuple
@@ -257,7 +257,7 @@ contains
     select type(x)
     type is (double precision)
        this%x = x
-    end select    
+    end select
   end subroutine tuple_r8_assign_vector
 
   !> Check if two double precision tuples are equal
@@ -271,7 +271,7 @@ contains
     type is(tuple_r8_t)
        if (abscmp(this%x(1), other%x(1)) .and. &
             abscmp(this%x(2), other%x(2))) then
-          res = .true.          
+          res = .true.
        end if
     end select
   end function tuple_r8_equal
@@ -282,7 +282,7 @@ contains
     class(tuple_t), intent(in) :: other
 
     select type(other)
-    type is(tuple_i4r8_t)       
+    type is(tuple_i4r8_t)
        this%x = other%x
        this%y = other%y
     end select
@@ -315,7 +315,7 @@ contains
     type is(tuple_i4r8_t)
        if ((this%x .eq. other%x) .and. &
             abscmp(this%y, other%y)) then
-          res = .true.          
+          res = .true.
        end if
     end select
   end function tuple_i4r8_equal
@@ -326,7 +326,7 @@ contains
     class(tuple_t), intent(in) :: other
 
     select type(other)
-    type is(tuple_2i4r8_t)       
+    type is(tuple_2i4r8_t)
        this%x = other%x
        this%y = other%y
        this%z = other%z
@@ -363,9 +363,9 @@ contains
        if ((this%x .eq. other%x) .and. &
             (this%y .eq. other%y) .and. &
             abscmp(this%z, other%z)) then
-          res = .true.          
+          res = .true.
        end if
     end select
   end function tuple_2i4r8_equal
-   
+
 end module tuple

@@ -38,8 +38,7 @@ module probes
   use num_types, only: rp
   use matrix, only: matrix_t
   use logger, only: neko_log, LOG_SIZE
-  use utils, only: neko_error, neko_warning
-  use field, only: field_t
+  use utils, only: neko_error
   use field_list, only: field_list_t
   use simulation_component
   use field_registry, only : neko_field_registry
@@ -47,10 +46,8 @@ module probes
   use json_module, only : json_file
   use json_utils, only : json_get
   use global_interpolation, only: global_interpolation_t
-  use math, only: rzero, copy
   use tensor, only: trsp
   use comm
-  use mpi_types
   use device
   use file
   use csv_file
@@ -87,7 +84,7 @@ module probes
      real(kind=rp), allocatable :: global_output_values(:,:)
      !> Output variables
      type(file_t) :: fout
-     type(matrix_t) :: mat_out     
+     type(matrix_t) :: mat_out
    contains
      !> Initialize from json
      procedure, pass(this) :: init => probes_init_from_json
@@ -100,15 +97,16 @@ module probes
      procedure, pass(this) :: setup_offset => probes_setup_offset
      !> Interpolate each probe from its `r,s,t` coordinates.
      procedure, pass(this) :: compute_ => probes_evaluate_and_write
+
   end type probes_t
-  
+
 contains
-  
+
   !> Constructor from json.
   subroutine probes_init_from_json(this, json, case)
     class(probes_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    class(case_t), intent(inout), target :: case 
+    class(case_t), intent(inout), target :: case
     real(kind=rp), allocatable :: xyz(:,:)
     character(len=:), allocatable  :: input_type
     character(len=:), allocatable  :: output_file
@@ -129,12 +127,20 @@ contains
     !
     call json%info('fields', n_children=this%n_fields)
     call json_get(json, 'fields', this%which_fields)
+<<<<<<< HEAD
+=======
+    !> Should be extended to not only csv
+    !! but also be possible to define in userfile for example
+    call json_get(json, 'points_file', points_file)
+    call json_get(json, 'output_file', output_file)
+>>>>>>> 557708062b27602b900523aa3abd0db3492e6baf
 
     allocate(this%sampled_fields%fields(this%n_fields))
     do i = 1, this%n_fields
        this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
             trim(this%which_fields(i)))
     end do
+<<<<<<< HEAD
 
     !
     ! Generate xyz coordinates depending on the input type
@@ -180,6 +186,13 @@ contains
 
     end if
 
+=======
+    !> This is distributed as to make it similar to parallel file
+    !! formats latera
+    !! Reads all into rank 0
+    call read_probe_locations(this, this%xyz, this%n_local_probes, &
+         this%n_global_probes, points_file)
+>>>>>>> 557708062b27602b900523aa3abd0db3492e6baf
     call probes_show(this)
     call this%init_from_attributes(case%fluid%dm_Xh, output_file)
     if(allocated(xyz)) deallocate(xyz)
@@ -210,7 +223,7 @@ contains
     allocate(this%out_values(this%n_local_probes,this%n_fields))
     allocate(this%out_values_d(this%n_fields))
     allocate(this%out_vals_trsp(this%n_fields,this%n_local_probes))
-    
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, this%n_fields
           this%out_values_d(i) = c_null_ptr
@@ -225,6 +238,7 @@ contains
     this%fout = file_t(trim(output_file))
 
     select type(ft => this%fout%file_type)
+<<<<<<< HEAD
       type is (csv_file_t)
           !> Necessary for not-parallel csv format
           !! offsets and n points per pe
@@ -234,25 +248,36 @@ contains
           call this%setup_offset()
           if (pe_rank .eq. 0) then
              allocate(global_output_coords(3,&
+=======
+    type is (csv_file_t)
+       !> Necessary for not-parallel csv format...
+       !! offsets and n points per pe
+       !! Needed at root for sequential csv i/o
+       allocate(this%n_local_probes_tot(pe_size))
+       allocate(this%n_local_probes_tot_offset(pe_size))
+       call this%setup_offset()
+       if (pe_rank .eq. 0) then
+          allocate(global_output_coords(3,&
+>>>>>>> 557708062b27602b900523aa3abd0db3492e6baf
                       this%n_global_probes))
-             call this%mat_out%init(this%n_global_probes, this%n_fields)
-             allocate(this%global_output_values(this%n_fields,&
+          call this%mat_out%init(this%n_global_probes, this%n_fields)
+          allocate(this%global_output_values(this%n_fields,&
                       this%n_global_probes))
-             call mat_coords%init(this%n_global_probes,3)
-          end if
-          call MPI_Gatherv(this%xyz, 3*this%n_local_probes,&
+          call mat_coords%init(this%n_global_probes,3)
+       end if
+       call MPI_Gatherv(this%xyz, 3*this%n_local_probes,&
                            MPI_DOUBLE_PRECISION, global_output_coords,&
                            3*this%n_local_probes_tot,&
                            3*this%n_local_probes_tot_offset,&
-                           MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr) 
-          if (pe_rank .eq. 0) then
-             call trsp(mat_coords%x, this%n_global_probes,&
+                           MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
+       if (pe_rank .eq. 0) then
+          call trsp(mat_coords%x, this%n_global_probes,&
                        global_output_coords, 3)
-             !! Write the data to the file
-             call this%fout%write(mat_coords)
-          end if
+          !! Write the data to the file
+          call this%fout%write(mat_coords)
+       end if
     class default
-        call neko_error("Invalid data. Expected csv_file_t.")
+       call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
   end subroutine probes_init_from_attributes
@@ -268,15 +293,15 @@ contains
     if (allocated(this%out_values)) then
        deallocate(this%out_values)
     end if
-    
+
     if (allocated(this%out_vals_trsp)) then
        deallocate(this%out_vals_trsp)
     end if
-    
+
     if (allocated(this%sampled_fields%fields)) then
        deallocate(this%sampled_fields%fields)
     end if
-    
+
     if (allocated(this%n_local_probes_tot)) then
        deallocate(this%n_local_probes_tot)
     end if
@@ -284,7 +309,7 @@ contains
     if (allocated(this%n_local_probes_tot_offset)) then
        deallocate(this%n_local_probes_tot_offset)
     end if
-    
+
     if (allocated(this%global_output_values)) then
        deallocate(this%global_output_values)
     end if
@@ -317,7 +342,7 @@ contains
     end do
     call neko_log%end_section()
     call neko_log%newline()
-    
+
   end subroutine probes_show
 
   !> Show the status of processor/element owner and error code for each point
@@ -371,7 +396,7 @@ contains
 
     !> Check controller to determine if we must write
 
-       
+
     do i = 1,this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
                                         this%sampled_fields%fields(i)%f%x)
@@ -394,13 +419,13 @@ contains
                            MPI_DOUBLE_PRECISION, this%global_output_values,&
                            this%n_fields*this%n_local_probes_tot,&
                            this%n_fields*this%n_local_probes_tot_offset,&
-                           MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr) 
+                           MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
           if (pe_rank .eq. 0) then
              call trsp(this%mat_out%x, this%n_global_probes, &
                        this%global_output_values, this%n_fields)
              call this%fout%write(this%mat_out, t)
           end if
-       else 
+       else
           call neko_error('probes sim comp, parallel io need implementation')
        end if
 
@@ -428,17 +453,17 @@ contains
     file_in = file_t(trim(points_file))
     !> Reads on rank 0 and distributes the probes across the different ranks
     select type(ft => file_in%file_type)
-      type is (csv_file_t)
-          call read_xyz_from_csv(this, xyz, n_local_probes, n_global_probes, ft)
-          this%seq_io = .true.
-      class default
-          call neko_error("Invalid data. Expected csv_file_t.")
+    type is (csv_file_t)
+       call read_xyz_from_csv(this, xyz, n_local_probes, n_global_probes, ft)
+       this%seq_io = .true.
+    class default
+       call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
     !> Close the file
     call file_free(file_in)
 
-  end subroutine read_probe_locations 
+  end subroutine read_probe_locations
 
   !> Read and initialize the number of probes from a `csv` input file.
   !! @param xyz xyz coordinates of the probes.
@@ -469,7 +494,7 @@ contains
        call mat_in2%init(3,this%n_global_probes)
        call f%read(mat_in)
        call trsp(xyz, 3, mat_in%x, this%n_global_probes)
-    else 
+    else
        n_local_probes = 0
        this%n_local_probes = 0
        allocate(xyz(3,this%n_local_probes))

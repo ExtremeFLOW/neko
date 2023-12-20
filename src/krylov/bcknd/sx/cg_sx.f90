@@ -40,7 +40,7 @@ module cg_sx
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, rzero, copy, add2s1
+  use math, only : glsc3, add2s1
   implicit none
   private
 
@@ -65,15 +65,15 @@ contains
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-        
+
     call this%free()
-    
+
     allocate(this%w(n))
     allocate(this%r(n))
     allocate(this%p(n))
     allocate(this%z(n))
-    
-    if (present(M)) then 
+
+    if (present(M)) then
        this%M => M
     end if
 
@@ -86,7 +86,7 @@ contains
     else
        call this%ksp_init()
     end if
-          
+
   end subroutine sx_cg_init
 
   !> Deallocate a standard PCG solver
@@ -106,7 +106,7 @@ contains
     if (allocated(this%p)) then
        deallocate(this%p)
     end if
-    
+
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
@@ -114,7 +114,7 @@ contains
     nullify(this%M)
 
   end subroutine sx_cg_free
-  
+
   !> Standard PCG solve
   function sx_cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(sx_cg_t), intent(inout) :: this
@@ -132,7 +132,7 @@ contains
     integer :: i, iter, max_iter
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, alphm, norm_fac
-    
+
     if (present(niter)) then
        max_iter = niter
     else
@@ -162,7 +162,7 @@ contains
        beta = rtz1 / rtz2
        if (iter .eq. 1) beta = zero
        call add2s1(this%p, this%z, beta, n)
-       
+
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_h%op(this%w, n, GS_OP_ADD)
        call bc_list_apply(blst, this%w, n)
@@ -188,5 +188,5 @@ contains
   end function sx_cg_solve
 
 end module cg_sx
-  
+
 

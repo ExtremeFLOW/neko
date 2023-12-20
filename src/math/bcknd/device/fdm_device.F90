@@ -37,7 +37,7 @@ module fdm_device
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
-  
+
 #ifdef HAVE_HIP
   interface
      subroutine hip_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream) &
@@ -68,7 +68,7 @@ module fdm_device
 #endif
 
   public :: fdm_do_fast_device
-  
+
 contains
 
   subroutine fdm_do_fast_device(e, r, s, d, nl, ldim, nelv, stream)
@@ -76,7 +76,7 @@ contains
     real(kind=rp), intent(inout) :: e(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: r(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: s(nl*nl,2,ldim, nelv)
-    real(kind=rp), intent(inout) :: d(nl**ldim, nelv)    
+    real(kind=rp), intent(inout) :: d(nl**ldim, nelv)
     type(c_ptr) :: e_d, r_d, s_d, d_d
     type(c_ptr), optional :: stream
 

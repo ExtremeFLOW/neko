@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements an unordered set ADT
-!! @details A unordered set storing a fixed data-type @a data 
+!! @details A unordered set storing a fixed data-type @a data
 module uset
   use utils, only : neko_error
   use num_types, only : i8, dp
@@ -65,7 +65,7 @@ module uset
      procedure, pass(this) :: element => uset_i4_element
      procedure, pass(this) :: add => uset_i4_add
      procedure, pass(this) :: remove => uset_i4_remove
-     procedure, pass(this) :: iter_init => uset_i4_iter_init     
+     procedure, pass(this) :: iter_init => uset_i4_iter_init
      procedure, pass(this) :: iter_next => uset_i4_iter_next
      procedure, pass(this) :: iter_value => uset_i4_iter_value
   end type uset_i4_t
@@ -82,7 +82,7 @@ module uset
      procedure, pass(this) :: element => uset_i8_element
      procedure, pass(this) :: add => uset_i8_add
      procedure, pass(this) :: remove => uset_i8_remove
-     procedure, pass(this) :: iter_init => uset_i8_iter_init     
+     procedure, pass(this) :: iter_init => uset_i8_iter_init
      procedure, pass(this) :: iter_next => uset_i8_iter_next
      procedure, pass(this) :: iter_value => uset_i8_iter_value
   end type uset_i8_t
@@ -99,14 +99,14 @@ module uset
      procedure, pass(this) :: element => uset_r8_element
      procedure, pass(this) :: add => uset_r8_add
      procedure, pass(this) :: remove => uset_r8_remove
-     procedure, pass(this) :: iter_init => uset_r8_iter_init     
+     procedure, pass(this) :: iter_init => uset_r8_iter_init
      procedure, pass(this) :: iter_next => uset_r8_iter_next
      procedure, pass(this) :: iter_value => uset_r8_iter_value
   end type uset_r8_t
 
   !> Interface for initializing an unordered set
   abstract interface
-     subroutine uset_init(this, n) 
+     subroutine uset_init(this, n)
        import uset_t
        class(uset_t), intent(inout) :: this
        integer, optional :: n
@@ -115,7 +115,7 @@ module uset
 
   !> Interface for destroying an unordered set
   abstract interface
-     subroutine uset_free(this) 
+     subroutine uset_free(this)
        import uset_t
        class(uset_t), intent(inout) :: this
      end subroutine uset_free
@@ -132,7 +132,7 @@ module uset
 
   !> Interface for clearing an unordered set
   abstract interface
-     subroutine uset_clear(this) 
+     subroutine uset_clear(this)
        import uset_t
        class(uset_t), intent(inout) :: this
      end subroutine uset_clear
@@ -149,7 +149,7 @@ module uset
   end interface
 
   !> Inteface for adding @a key to an unorderd set
-  abstract interface     
+  abstract interface
      subroutine uset_add(this, key)
        import uset_t
        class(uset_t), intent(inout) :: this
@@ -158,7 +158,7 @@ module uset
   end interface
 
   !> Inteface for removing @a key in an unorderd set
-  abstract interface     
+  abstract interface
      subroutine uset_remove(this, key)
        import uset_t
        class(uset_t), intent(inout) :: this
@@ -177,16 +177,16 @@ contains
        call this%t%init(n)
     else
        call this%t%init(64)
-    end if    
+    end if
   end subroutine uset_i4_init
-  
+
   !> Destroy an integer based unordered set
   subroutine uset_i4_free(this)
     class(uset_i4_t), intent(inout) :: this
 
     nullify(this%it%t)
     call this%t%free()
-    
+
   end subroutine uset_i4_free
 
   !> Return the cardinality of an integer based unordered set
@@ -195,7 +195,7 @@ contains
     integer :: entries
 
     entries = this%t%num_entries()
-    
+
   end function uset_i4_size
 
   !> Clear an integer based unordered set
@@ -217,9 +217,9 @@ contains
        res = (this%t%get(key, data) .eq. 0)
     class default
        res = .false.
-    end select    
+    end select
   end function uset_i4_element
-  
+
   !> Add an integer @a key to the set
   subroutine uset_i4_add(this, key)
     class(uset_i4_t), intent(inout) :: this
@@ -228,7 +228,7 @@ contains
 
     select type(key)
     type is (integer)
-       data = key           
+       data = key
        call this%t%set(key, data)
     class default
        call neko_error("Invalid key")
@@ -251,7 +251,7 @@ contains
   !> Initialise an integer based set iterator
   subroutine uset_i4_iter_init(this)
     class(uset_i4_t), target, intent(inout) :: this
-    call this%it%init(this%t)    
+    call this%it%init(this%t)
   end subroutine uset_i4_iter_init
 
   !> Advance an integer based set iterator
@@ -265,7 +265,7 @@ contains
   function uset_i4_iter_value(this) result(value)
     class(uset_i4_t), target, intent(inout) :: this
     integer, pointer :: value
-    value => this%it%value()    
+    value => this%it%value()
   end function uset_i4_iter_value
 
   !> Initialize an empty integer*8 based unordered set
@@ -277,16 +277,16 @@ contains
        call this%t%init(n)
     else
        call this%t%init(64)
-    end if    
+    end if
   end subroutine uset_i8_init
-  
+
   !> Destroy an integer*8 based unordered set
   subroutine uset_i8_free(this)
     class(uset_i8_t), intent(inout) :: this
 
     nullify(this%it%t)
     call this%t%free()
-    
+
   end subroutine uset_i8_free
 
   !> Return the cardinality of an integer*8 based unordered set
@@ -295,7 +295,7 @@ contains
     integer :: entries
 
     entries = this%t%num_entries()
-    
+
   end function uset_i8_size
 
   !> Clear an integer*8 based unordered set
@@ -317,9 +317,9 @@ contains
        res = (this%t%get(key, data) .eq. 0)
     class default
        res = .false.
-    end select    
+    end select
   end function uset_i8_element
-  
+
   !> Add an integer*8 @a key to the set
   subroutine uset_i8_add(this, key)
     class(uset_i8_t), intent(inout) :: this
@@ -328,7 +328,7 @@ contains
 
     select type(key)
     type is (integer(i8))
-       data = key 
+       data = key
        call this%t%set(key, data)
     class default
        call neko_error("Invalid key")
@@ -351,7 +351,7 @@ contains
   !> Initialise an integer based set iterator*8
   subroutine uset_i8_iter_init(this)
     class(uset_i8_t), target, intent(inout) :: this
-    call this%it%init(this%t)    
+    call this%it%init(this%t)
   end subroutine uset_i8_iter_init
 
   !> Advance an integer*8 based set iterator
@@ -373,10 +373,10 @@ contains
     type is (uset_i8_t)
        value => hp%it%value()
     class default
-        call neko_error('Invalid uset htable iter (i8)')
+       call neko_error('Invalid uset htable iter (i8)')
     end select
   end function uset_i8_iter_value
-  
+
   !> Initialize an empty double precision based unordered set
   subroutine uset_r8_init(this, n)
     class(uset_r8_t), intent(inout) :: this
@@ -388,13 +388,13 @@ contains
        call this%t%init(64)
     end if
   end subroutine uset_r8_init
-  
+
   !> Destroy a double precision based unordered set
   subroutine uset_r8_free(this)
     class(uset_r8_t), intent(inout) :: this
-    
+
     call this%t%free()
-    
+
   end subroutine uset_r8_free
 
   !> Return the cardinality of a double precision based unordered set
@@ -412,7 +412,7 @@ contains
 
     call this%t%clear()
   end subroutine uset_r8_clear
-  
+
   !> Check if a double precision @a key is an element of the set
   function uset_r8_element(this, key) result(res)
     class(uset_r8_t), intent(inout) :: this
@@ -426,7 +426,7 @@ contains
     class default
        res = .false.
     end select
-    
+
   end function uset_r8_element
 
   !> Add a double precision @a key to the set
@@ -460,7 +460,7 @@ contains
   !> Initialise a double precision based set iterator
   subroutine uset_r8_iter_init(this)
     class(uset_r8_t), target, intent(inout) :: this
-    call this%it%init(this%t)    
+    call this%it%init(this%t)
   end subroutine uset_r8_iter_init
 
   !> Advance a double precision based set iterator
@@ -474,7 +474,7 @@ contains
   function uset_r8_iter_value(this) result(value)
     class(uset_r8_t), target, intent(inout) :: this
     real(kind=dp), pointer :: value
-    value => this%it%value()    
+    value => this%it%value()
   end function uset_r8_iter_value
 
 

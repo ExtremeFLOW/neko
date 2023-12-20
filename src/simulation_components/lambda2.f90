@@ -39,8 +39,7 @@ module lambda2
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
-  use field, only : field_t, field_ptr_t
-  use field_list, only : field_list_t
+  use field, only : field_t
   use operators, only : lambda2op
   use case, only : case_t
   use device
@@ -80,7 +79,7 @@ contains
   subroutine lambda2_init_from_json(this, json, case)
     class(lambda2_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    class(case_t), intent(inout), target ::case 
+    class(case_t), intent(inout), target ::case
 
     call this%init_base(json, case)
 

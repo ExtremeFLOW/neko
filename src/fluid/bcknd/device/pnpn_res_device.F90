@@ -47,7 +47,7 @@ module pnpn_res_device
   use scratch_registry, only : neko_scratch_registry
   implicit none
   private
- 
+
   type, public, extends(pnpn_prs_res_t) :: pnpn_prs_res_device_t
    contains
      procedure, nopass :: compute => pnpn_prs_res_device_compute
@@ -59,7 +59,7 @@ module pnpn_res_device
   end type pnpn_vel_res_device_t
 
 #ifdef HAVE_HIP
-    interface
+  interface
      subroutine pnpn_prs_res_part1_hip(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, mu, rho, n) &
@@ -97,7 +97,7 @@ module pnpn_res_device
        integer(c_int) :: n
      end subroutine pnpn_prs_res_part3_hip
   end interface
-  
+
   interface
      subroutine pnpn_vel_res_update_hip(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
@@ -149,7 +149,7 @@ module pnpn_res_device
        integer(c_int) :: n
      end subroutine pnpn_prs_res_part3_cuda
   end interface
-  
+
   interface
      subroutine pnpn_vel_res_update_cuda(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
@@ -201,7 +201,7 @@ module pnpn_res_device
        integer(c_int) :: n
      end subroutine pnpn_prs_res_part3_opencl
   end interface
-  
+
   interface
      subroutine pnpn_vel_res_update_opencl(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
@@ -216,7 +216,7 @@ module pnpn_res_device
   end interface
 #endif
 
-  
+
 contains
 
   subroutine pnpn_prs_res_device_compute(p, p_res, u, v, w, u_e, v_e, w_e, &
@@ -251,29 +251,31 @@ contains
 
     n = u%dof%size()
     gdim = c_Xh%msh%gdim
-    
+
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+
 
 #ifdef HAVE_HIP
     call pnpn_prs_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, mu, rho, n) 
+         c_Xh%B_d, c_Xh%h1_d, mu, rho, n)
 
 #elif HAVE_CUDA
     call pnpn_prs_res_part1_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, mu, rho, n) 
+         c_Xh%B_d, c_Xh%h1_d, mu, rho, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_z%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, mu, rho, n) 
+         c_Xh%B_d, c_Xh%h1_d, mu, rho, n)
 #endif
-     c_Xh%ifh2 = .false.
-         
-    call gs_Xh%op(ta1, GS_OP_ADD) 
-    call gs_Xh%op(ta2, GS_OP_ADD) 
-    call gs_Xh%op(ta3, GS_OP_ADD) 
+    c_Xh%ifh2 = .false.
+    call device_cfill(c_Xh%h1_d,1.0_rp / rho,n)
+
+    call gs_Xh%op(ta1, GS_OP_ADD)
+    call gs_Xh%op(ta2, GS_OP_ADD)
+    call gs_Xh%op(ta3, GS_OP_ADD)
 
     call device_opcolv(ta1%x_d, ta2%x_d, ta3%x_d, c_Xh%Binv_d, gdim, n)
 
@@ -307,7 +309,7 @@ contains
 #elif HAVE_OPENCL
     call pnpn_prs_res_part3_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n);
 #endif
-   !
+    !
     dtbd = bd / dt
 
     call device_rzero(ta1%x_d, n)
@@ -324,8 +326,8 @@ contains
 #elif HAVE_OPENCL
     call pnpn_prs_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n);
 #endif
-        
-  call neko_scratch_registry%relinquish_field(temp_indices)
+
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine pnpn_prs_res_device_compute
 
@@ -333,12 +335,12 @@ contains
        p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh    
+    type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
     type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: mu 
+    real(kind=rp), intent(in) :: mu
     real(kind=rp), intent(in) :: rho
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
@@ -349,7 +351,7 @@ contains
     call device_cfill(c_Xh%h1_d, mu, n)
     call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
     c_Xh%ifh2 = .true.
-    
+
     call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
     call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
     call Ax%compute(w_res%x, w%x, c_Xh, msh, Xh)
@@ -370,7 +372,7 @@ contains
     call pnpn_vel_res_update_opencl(u_res%x_d, v_res%x_d, w_res%x_d, &
          ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #endif
-    
+
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine pnpn_vel_res_device_compute
 

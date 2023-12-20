@@ -75,22 +75,22 @@ contains
     type is (vector_t)
        if (.not. allocated(data%x)) then
           call neko_error("Vector is not allocated! Use &
-               &vector%init() to associate your array &
-               &with a vector_t object")
+          &vector%init() to associate your array &
+          &with a vector_t object")
        end if
        vec => data
 
     type is (matrix_t)
        if (.not. allocated(data%x)) then
           call neko_error("Matrix is not allocated! Use &
-               &matrix%init() to associate your array &
-               &with a matrix_t object")
+          &matrix%init() to associate your array &
+          &with a matrix_t object")
        end if
        mat => data
 
     class default
        call neko_error("Invalid data. Expected vector_t or &
-            &matrix_t")
+       &matrix_t")
     end select
 
     ! Write is performed on rank 0
@@ -185,22 +185,22 @@ contains
        vec => data
        if (.not. allocated(data%x)) then
           call neko_error("Vector is not allocated! Use &
-               &vector%init() to associate your array &
-               &with a vector_t object")
+          &vector%init() to associate your array &
+          &with a vector_t object")
        end if
 
     type is (matrix_t)
        mat => data
        if (.not. allocated(data%x)) then
           call neko_error("Matrix is not allocated! Use &
-               &matrix%init() to associate your array &
-               &with a matrix_t object")
+          &matrix%init() to associate your array &
+          &with a matrix_t object")
        end if
 
 
     class default
        call neko_error("Invalid data type for csv_file (expected: vector_t, &
-            &matrix_t)")
+       &matrix_t)")
     end select
 
     if (pe_rank .eq. 0) then
@@ -301,7 +301,7 @@ contains
     rewind(file_unit)
 
     n = 0
-    
+
     ! Keep reading (ierr = 0) until we reach the end (ierr != 0)
     do
        read (file_unit,*,iostat=ierr)

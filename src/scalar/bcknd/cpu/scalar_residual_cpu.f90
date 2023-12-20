@@ -5,7 +5,7 @@ module scalar_residual_cpu
   use operators
   implicit none
   private
-  
+
   type, public, extends(scalar_residual_t) :: scalar_residual_cpu_t
    contains
      procedure, nopass :: compute => scalar_residual_cpu_compute
@@ -17,7 +17,7 @@ contains
       lambda, rhocp, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh    
+    type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: s
     type(field_t), intent(inout) :: s_res
     type(source_scalar_t), intent(inout) :: f_Xh
@@ -41,7 +41,7 @@ contains
     do i = 1, n
        s_res%x(i,1,1,1) = (-s_res%x(i,1,1,1)) + f_Xh%s(i,1,1,1)
     end do
-    
-  end subroutine scalar_residual_cpu_compute  
-     
+
+  end subroutine scalar_residual_cpu_compute
+
 end module scalar_residual_cpu

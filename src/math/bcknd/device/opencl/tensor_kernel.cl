@@ -105,7 +105,7 @@ __kernel void tnsr3d_el_kernel(__global real  * __restrict__  v,
   const int e = elements[pt];
 
   for (int ii = idx; ii< nu*nu*nv; ii += str) {
-    T tmp = 0.0;
+    real tmp = 0.0;
     int j = ii/nv;
     int i = ii - j*nv;
     for( int l = 0; l < nu; l++){
@@ -121,7 +121,7 @@ __kernel void tnsr3d_el_kernel(__global real  * __restrict__  v,
     const int i = ijk - jk * nv;
     const int k = jk / nv;
     const int j = jk - k * nv;
-    T tmp = 0.0;
+    real tmp = 0.0;
     const int ik2 = i + k*nv*nu; 
     for( int l = 0; l < nu; l++){
       tmp += Bt[l+j*nu+pt*nv*nu]*shwork[l*nv+ik2];
@@ -136,7 +136,7 @@ __kernel void tnsr3d_el_kernel(__global real  * __restrict__  v,
     const int i = ijk - jk * nv;
     const int k = jk / nv;
     const int j = jk - k * nv;
-    T tmp = 0.0;
+    real tmp = 0.0;
     const int ij2 = i + j*nv; 
     for( int l = 0; l < nu; l++){
       tmp += Ct[l+k*nu+pt*nv*nu]*shwork2[ij2 + l*nv*nv];

@@ -9,14 +9,14 @@ module stl
      character(len=80) :: hdr
      integer :: ntri
   end type stl_hdr_t
-  
+
   !> Defines a STL triangle
   type, public :: stl_triangle_t
      real(kind=sp) :: n(3)
      real(kind=sp) :: v1(3)
      real(kind=sp) :: v2(3)
      real(kind=sp) :: v3(3)
-     integer(kind=i2) :: attrib     
+     integer(kind=i2) :: attrib
   end type stl_triangle_t
-  
+
 end module stl

@@ -37,7 +37,7 @@ module facet_zone
   use utils, only : neko_error
   implicit none
   private
-  
+
   type, public :: facet_zone_t
      type(tuple_i4_t), allocatable :: facet_el(:)
      integer :: size
@@ -63,7 +63,7 @@ module facet_zone
      procedure, pass(z) :: finalize => facet_zone_periodic_finalize
      procedure, pass(z) :: add_periodic_facet => facet_zone_periodic_add_facet
   end type facet_zone_periodic_t
- 
+
 contains
 
   !> Initialize a facet zone
@@ -78,7 +78,7 @@ contains
     else
        call z%scratch%init()
     end if
-    
+
   end subroutine facet_zone_init
 
   !> Deallocate a facet zone
@@ -92,7 +92,7 @@ contains
     z%size = 0
 
     call z%scratch%free()
-    
+
   end subroutine facet_zone_free
 
   !> Finalize a zone list
@@ -101,11 +101,11 @@ contains
     class(facet_zone_t), intent(inout) :: z
     type(tuple_i4_t), pointer :: tp(:)
     integer :: i
-    
+
     if (.not. z%finalized) then
 
        allocate(z%facet_el(z%scratch%size()))
-       
+
        tp => z%scratch%array()
        do i = 1, z%scratch%size()
           z%facet_el(i) = tp(i)
@@ -116,9 +116,9 @@ contains
        call z%scratch%clear()
 
        z%finalized = .true.
-       
+
     end if
-    
+
   end subroutine facet_zone_finalize
 
   !> Add a (facet, el) tuple to an unfinalized zone
@@ -134,10 +134,10 @@ contains
 
     t%x = (/ facet, el /)
     call z%scratch%push(t)
-    
+
   end subroutine facet_zone_add_facet
 
-    !> Initialize a periodic zone
+  !> Initialize a periodic zone
   subroutine facet_zone_periodic_init(z, size)
     class(facet_zone_periodic_t), intent(inout) :: z
     integer, optional :: size
@@ -155,7 +155,7 @@ contains
        call z%p_id_scratch%init()
        call z%org_id_scratch%init()
     end if
-    
+
   end subroutine facet_zone_periodic_init
 
   !> Deallocate a zone
@@ -178,7 +178,7 @@ contains
     call z%p_scratch%free()
     call z%p_id_scratch%free()
     call z%org_id_scratch%free()
-    
+
   end subroutine facet_zone_periodic_free
 
   !> Finalize a periodic zone list
@@ -189,7 +189,7 @@ contains
     type(tuple4_i4_t), pointer :: tp2(:)
     type(tuple4_i4_t), pointer :: tp3(:)
     integer :: i
-    
+
     if (.not. z%finalized) then
 
        call facet_zone_finalize(z)
@@ -201,7 +201,7 @@ contains
        allocate(z%p_facet_el(z%size))
        allocate(z%p_ids(z%size))
        allocate(z%org_ids(z%size))
-       
+
        tp => z%p_scratch%array()
        do i = 1, z%size
           z%p_facet_el(i) = tp(i)
@@ -220,7 +220,7 @@ contains
        call z%org_id_scratch%clear()
 
     end if
-    
+
   end subroutine facet_zone_periodic_finalize
 
   !> Add a (facet, el) tuple to an unfinalized zone
@@ -248,7 +248,7 @@ contains
     call z%p_id_scratch%push(t2)
     t3%x = org_ids
     call z%org_id_scratch%push(t3)
-    
+
   end subroutine facet_zone_periodic_add_facet
 
 end module facet_zone
