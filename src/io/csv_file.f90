@@ -71,6 +71,9 @@ contains
     type(vector_t), pointer :: vec => null()
     type(matrix_t), pointer :: mat => null()
 
+    if (associated(vec)) vec => null()
+    if (associated(mat)) mat => null()
+
     select type(data)
     type is (vector_t)
        if (.not. allocated(data%x)) then
