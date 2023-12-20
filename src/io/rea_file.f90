@@ -244,6 +244,8 @@ contains
              curve_skip = .true.
           case ('C')
              curve_type(edge,el_idx) = 3
+          case ('m')
+             curve_type(edge,el_idx) = 4
           end select
        end do
        if (curve_skip) then
