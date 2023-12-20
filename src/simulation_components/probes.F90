@@ -127,20 +127,17 @@ contains
     !
     call json%info('fields', n_children=this%n_fields)
     call json_get(json, 'fields', this%which_fields)
-<<<<<<< HEAD
-=======
+
     !> Should be extended to not only csv
     !! but also be possible to define in userfile for example
     call json_get(json, 'points_file', points_file)
     call json_get(json, 'output_file', output_file)
->>>>>>> 557708062b27602b900523aa3abd0db3492e6baf
 
     allocate(this%sampled_fields%fields(this%n_fields))
     do i = 1, this%n_fields
        this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
             trim(this%which_fields(i)))
     end do
-<<<<<<< HEAD
 
     !
     ! Generate xyz coordinates depending on the input type
@@ -186,13 +183,6 @@ contains
 
     end if
 
-=======
-    !> This is distributed as to make it similar to parallel file
-    !! formats latera
-    !! Reads all into rank 0
-    call read_probe_locations(this, this%xyz, this%n_local_probes, &
-         this%n_global_probes, points_file)
->>>>>>> 557708062b27602b900523aa3abd0db3492e6baf
     call probes_show(this)
     call this%init_from_attributes(case%fluid%dm_Xh, output_file)
     if(allocated(xyz)) deallocate(xyz)
