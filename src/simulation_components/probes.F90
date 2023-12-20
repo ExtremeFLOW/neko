@@ -128,11 +128,6 @@ contains
     call json%info('fields', n_children=this%n_fields)
     call json_get(json, 'fields', this%which_fields)
 
-    !> Should be extended to not only csv
-    !! but also be possible to define in userfile for example
-    call json_get(json, 'points_file', points_file)
-    call json_get(json, 'output_file', output_file)
-
     allocate(this%sampled_fields%fields(this%n_fields))
     do i = 1, this%n_fields
        this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
@@ -140,16 +135,19 @@ contains
     end do
 
     !
+    ! Check if the input type has been specified and default to file type
+    !
+    call json_get_or_default(json, 'input_type', input_type, 'file')
+    call json_get(json, 'output_file', output_file)
+
+    !
     ! Generate xyz coordinates depending on the input type
     !
-    call json_get(json, 'input_type', input_type)
-
     if (trim(input_type) .eq. 'file') then
 
        !> Should be extended to not only csv
        !! but also be possible to define in userfile for example
        call json_get(json, 'points_file', points_file)
-       call json_get(json, 'output_file', output_file)
 
        !> This is distributed as to make it similar to parallel file
        !! formats latera
@@ -159,8 +157,9 @@ contains
 
     else if (trim(input_type) .eq. 'line') then
 
+       write (*,*) "!!!!!", this%n_fields, this%which_fields
        ! Read starting point on the line
-       call json_get(json, 'start', read_val)
+       call json_get(json, 'start_point', read_val)
        if (size(read_val) .ne. 3) call neko_error("Please provide 3 coordinates&
             &for point 1.")
        x0(1) = read_val(1)
@@ -168,7 +167,7 @@ contains
        x0(3) = read_val(3)
 
        ! Read ending point on the line
-       call json_get(json, 'end', read_val)
+       call json_get(json, 'end_point', read_val)
        if (size(read_val) .ne. 3) call neko_error("Please provide 3 coordinates&
             &for point 2.")
        x1(1) = read_val(1)
@@ -176,13 +175,19 @@ contains
        x1(3) = read_val(3)
 
        ! Read number of points
-       call json_get(json, 'N_samples', n_points_on_line)
+       call json_get(json, 'n_samples', n_points_on_line)
 
        ! Generate physical coordinates and initialize local/global sizes
-       call generate_xyz(this, x0, x1, n_points_on_line, this%xyz)
+       call generate_xyz_on_line(this, x0, x1, n_points_on_line, this%xyz)
+
+       ! Set seq io to true to match with what is in this%evaluate_and_write
+       this%seq_io = .true.
 
     end if
 
+
+
+    write (*,*)
     call probes_show(this)
     call this%init_from_attributes(case%fluid%dm_Xh, output_file)
     if(allocated(xyz)) deallocate(xyz)
@@ -224,21 +229,11 @@ contains
 
 
 
+    write (*,*) "(PROBES) Initializing fout"
     !> Initialize the output file
     this%fout = file_t(trim(output_file))
 
     select type(ft => this%fout%file_type)
-<<<<<<< HEAD
-      type is (csv_file_t)
-          !> Necessary for not-parallel csv format
-          !! offsets and n points per pe
-          !! Needed at root for sequential csv i/o
-          allocate(this%n_local_probes_tot(pe_size))
-          allocate(this%n_local_probes_tot_offset(pe_size))
-          call this%setup_offset()
-          if (pe_rank .eq. 0) then
-             allocate(global_output_coords(3,&
-=======
     type is (csv_file_t)
        !> Necessary for not-parallel csv format...
        !! offsets and n points per pe
@@ -248,7 +243,6 @@ contains
        call this%setup_offset()
        if (pe_rank .eq. 0) then
           allocate(global_output_coords(3,&
->>>>>>> 557708062b27602b900523aa3abd0db3492e6baf
                       this%n_global_probes))
           call this%mat_out%init(this%n_global_probes, this%n_fields)
           allocate(this%global_output_values(this%n_fields,&
@@ -413,6 +407,7 @@ contains
           if (pe_rank .eq. 0) then
              call trsp(this%mat_out%x, this%n_global_probes, &
                        this%global_output_values, this%n_fields)
+             write (*,*) "!!!!!", this%mat_out%x
              call this%fout%write(this%mat_out, t)
           end if
        else
@@ -504,8 +499,8 @@ contains
   !! @param xyz Output coordinates.
   subroutine generate_xyz_on_line(this, x0, x1, N, xyz)
     class(probes_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: x0
-    real(kind=rp), intent(inout) :: x1
+    real(kind=rp), intent(inout) :: x0(3)
+    real(kind=rp), intent(inout) :: x1(3)
     integer, intent(in) :: N
     real(kind=rp), intent(inout), allocatable :: xyz(:,:)
 
@@ -526,9 +521,9 @@ contains
        allocate(xyz(3, this%n_local_probes))
 
        do i = 0, N-1
-          xyz(1,i+1) = x0(1) + (x1(1) - x0(1)) * real(i/(N-1), kind=rp)
-          xyz(2,i+1) = x0(2) + (x1(2) - x0(2)) * real(i/(N-1), kind=rp)
-          xyz(3,i+1) = x0(3) + (x1(3) - x0(3)) * real(i/(N-1), kind=rp)
+          xyz(1,i+1) = x0(1) + (x1(1) - x0(1)) * real(i, kind=rp)/real(N-1, kind=rp)
+          xyz(2,i+1) = x0(2) + (x1(2) - x0(2)) * real(i, kind=rp)/real(N-1, kind=rp)
+          xyz(3,i+1) = x0(3) + (x1(3) - x0(3)) * real(i, kind=rp)/real(N-1, kind=rp)
        end do
 
     else
