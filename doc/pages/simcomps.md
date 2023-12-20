@@ -39,10 +39,30 @@ If no parameters for the `output_` parametersare provided, they areset to be the
 
  ## List of simulation components
 
- ## Vorticity
+ ### vorticity
  Computes the vorticity field an stores in the field registry as `omega_x`,
  `omega_y` and `omega_z`.
  Currently produces no output.
+
+ ### lambda2
+ Computes \f$ \lambda_2 \f$ for the velocity field and stores it in the normal output files as the first unused field.
+ This means that \f$ \lambda_2 \f$ can be found in the temeprature field in then fld files if running without a scalar
+ and s1 if neko is run with one scalar.
+ 
+ ### probes
+ Probes selected solution fields at the points given inside an input file. Example usage:
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "probes",
+   "compute_control": "simulationtime",
+   "compute_value"    : 1,
+   "points_file":  "probes.csv",
+   "output_file":  "output.csv",
+   "fields": ["w","s"]
+ }
+ ~~~~~~~~~~~~~~~
+This probes the fields 'w', and 's' in the points described by points.csv and outputs into output.csv every 1 time units.
+
 
 
 

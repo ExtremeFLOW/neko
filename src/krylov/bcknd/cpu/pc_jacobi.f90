@@ -55,7 +55,7 @@ module jacobi
   end type jacobi_t
 
 contains
-  
+
   subroutine jacobi_init(this, coef, dof, gs_h)
     class(jacobi_t), intent(inout) :: this
     type(coef_t), intent(inout), target :: coef

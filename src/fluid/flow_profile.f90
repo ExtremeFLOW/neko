@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a flow profile 
+!> Defines a flow profile
 module flow_profile
   use num_types
   implicit none
@@ -59,7 +59,7 @@ contains
     else
        blasius_linear = u * (y / delta)
     end if
-    
+
   end function blasius_linear
 
   !> Quadratic approximate Blasius Profile
@@ -76,7 +76,7 @@ contains
     else
        blasius_quadratic = u * arg
     end if
-    
+
   end function blasius_quadratic
 
   !> Cubic approximate Blasius Profile
@@ -93,7 +93,7 @@ contains
     else
        blasius_cubic = u * arg
     end if
-    
+
   end function blasius_cubic
 
   !> Quartic approximate Blasius Profile
@@ -111,7 +111,7 @@ contains
     else
        blasius_quartic = u * arg
     end if
-    
+
   end function blasius_quartic
 
   !> Sinusoidal approximate Blasius Profile
@@ -129,7 +129,7 @@ contains
     else
        blasius_sin = u * sin(arg)
     end if
-    
+
   end function blasius_sin
-    
+
 end module flow_profile

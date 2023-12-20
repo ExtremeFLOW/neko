@@ -30,24 +30,29 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Routines to interpolate scalar/vector fields
+!> Routines to interpolate fields on a given element
+!! on a point in that element with given r,s,t coordinates
 module point_interpolator
-  use tensor, only: triple_tensor_product, tnsr3d_el_list
+  use tensor, only: triple_tensor_product
   use space, only: space_t, GL, GLL
   use num_types, only: rp
   use point, only: point_t
   use math, only: abscmp
-  use fast3d, only: fd_weights_full, setup_intp
+  use fast3d, only: fd_weights_full
   use utils, only: neko_error
-  use field, only: field_t
-  use field_list, only: field_list_t
   use device
   use device_math, only: device_rzero
   use neko_config, only: NEKO_BCKND_DEVICE
   implicit none
+  private
 
-  !> Field interpolator to artbitrary points within an element.
-  type :: point_interpolator_t
+  !> Field interpolator to arbitrary points within an element.
+  !! Tailored for experimentation, and convenience, not performance
+  !! Does all interpolation on the CPU.
+  !! Only considers one element
+  !! If performant interpolation on many elements is required
+  !! Look at local_interpolator_t, similar but with less functionality
+  type, public :: point_interpolator_t
      !> First space.
      type(space_t), pointer :: Xh => null()
    contains
@@ -65,12 +70,9 @@ module point_interpolator
      procedure, pass(this) :: point_interpolator_interpolate_jacobian
      !> Interpolates a vector field and builds the Jacobian at a single point.
      procedure, pass(this) :: point_interpolator_interpolate_vector_jacobian
-     !> Interpolates a list of fields on a list of points for several elements
-     procedure, pass(this) :: point_interpolator_interpolate_fields
      !> Interpolates a scalar or vector field on a set of points.
      generic :: interpolate => point_interpolator_interpolate_scalar, &
-          point_interpolator_interpolate_vector, &
-          point_interpolator_interpolate_fields
+          point_interpolator_interpolate_vector
      !> Constructs the Jacobian for a point \f$ (r,s,t) \f$.
      generic :: jacobian => point_interpolator_interpolate_jacobian, &
           point_interpolator_interpolate_vector_jacobian
@@ -133,7 +135,7 @@ contains
   !! \f$ \mathbf{r}_i , i\in[1,N]\f$. Returns a vector of N coordinates
   !! \f$ [x_i(\mathbf{r}_i)], i\in[1,N]\f$.
   !! @param rst r,s,t coordinates.
-  !! @param X Values of the field \f$ X \f$ at GLL points.
+  !! @param X Values of the field \f$ X \f$ at GLL points in one element.
   function point_interpolator_interpolate_scalar(this, rst, X) result(res)
     class(point_interpolator_t), intent(in) :: this
     type(point_t), intent(in) :: rst(:)
@@ -192,9 +194,9 @@ contains
   !! \f$ \mathbf{r}_i \f$. Returns an array of N points
   !! \f$ [x(\mathbf{r}_i), y(\mathbf{r}_i), z(\mathbf{r}_i)], i\in[1,N]\f$.
   !! @param N number of points (use `1` to interpolate a scalar).
-  !! @param X Values of the field \f$ X \f$ at GLL points.
-  !! @param Y Values of the field \f$ Y \f$ at GLL points.
-  !! @param Z Values of the field \f$ Z \f$ at GLL points.
+  !! @param X Values of the field \f$ X \f$ at GLL points in one element.
+  !! @param Y Values of the field \f$ Y \f$ at GLL points in one element.
+  !! @param Z Values of the field \f$ Z \f$ at GLL points in one element.
   function point_interpolator_interpolate_vector(this, rst, X, Y, Z) result(res)
     class(point_interpolator_t), intent(in) :: this
     type(point_t), intent(in) :: rst(:)
@@ -266,9 +268,9 @@ contains
   !! \f$ [x(\mathbf{r}_i), y(\mathbf{r}_i), z(\mathbf{r}_i)], i\in[1,N]\f$.
   !! @param jac Jacobian.
   !! @param rst r,s,t coordinates;
-  !! @param X Values of the field \f$ X \f$ at GLL points.
-  !! @param Y Values of the field \f$ Y \f$ at GLL points.
-  !! @param Z Values of the field \f$ Z \f$ at GLL points.
+  !! @param X Values of the field \f$ X \f$ at GLL points in one element.
+  !! @param Y Values of the field \f$ Y \f$ at GLL points in one element.
+  !! @param Z Values of the field \f$ Z \f$ at GLL points in one element.
   function point_interpolator_interpolate_vector_jacobian(this, jac, rst, X, Y, Z) result(res)
     class(point_interpolator_t), intent(in) :: this
     real(kind=rp), intent(inout) :: jac(3,3)
@@ -357,64 +359,5 @@ contains
     jac(3,:) = tmp
 
   end function point_interpolator_interpolate_jacobian
-
-  !> Interpolates a list of fields based on a set of element ids.
-  !! @param rst r,s,t coordinates.
-  !! @param el_owners Array of element ids that "own" a given point `i`.
-  !! @param sampled_fields_list A list of fields to interpolate.
-  !! @param wr Weights in the r-direction of shape `(lx, N)` where `N` is the
-  !! number of points to interpolate.
-  !! @param ws Weights in the s-direction of shape `(lx, N)` where `N` is the
-  !! number of points to interpolate.
-  !! @param wt Weights in the t-direction of shape `(lx, N)` where `N` is the
-  !! number of points to interpolate.
-  !! @note The weights can be generated with the subroutine `compute_weights`.
-  function point_interpolator_interpolate_fields(this, rst, el_owners, sampled_fields_list, wr, ws, wt) result(res)
-    class(point_interpolator_t), intent(inout) :: this
-    type(point_t), intent(inout), allocatable :: rst(:)
-    integer, intent(in), allocatable :: el_owners(:)
-    type(field_list_t), intent(inout) :: sampled_fields_list
-    real(kind=rp), intent(inout) :: wr(:,:)
-    real(kind=rp), intent(inout) :: ws(:,:)
-    real(kind=rp), intent(inout) :: wt(:,:)
-    real(kind=rp), allocatable :: res(:,:)
-
-    integer :: n_points, n_fields, lx, i
-    type(c_ptr) :: tmp_d = C_NULL_PTR
-    real(kind=rp), allocatable :: tmp(:)
-
-    lx = this%Xh%lx
-    n_points = size(rst)
-    n_fields = size(sampled_fields_list%fields)
-
-    allocate(res(n_points, n_fields))
-    allocate(tmp(n_points))
-
-    tmp = 0.0_rp
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(tmp, tmp_d, n_points)
-       call device_memcpy(tmp, tmp_d, n_points, HOST_TO_DEVICE, sync = .true.)
-    end if
-
-    ! Interpolate each field at a time
-    do i = 1, n_fields
-
-       call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
-            wr, ws, wt, el_owners, n_points)
-
-       ! Bring back tmp_d from the device for the output
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(tmp, tmp_d, n_points, DEVICE_TO_HOST, sync = .true.)
-       end if
-       
-       res(:,i) = tmp
-    end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1) call device_free(tmp_d)
-    deallocate(tmp)
-
-  end function point_interpolator_interpolate_fields
-
 
 end module point_interpolator

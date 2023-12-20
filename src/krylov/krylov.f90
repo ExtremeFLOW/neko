@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,33 +30,38 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Krylov solver
+!> Implements the base abstract type for Krylov solvers plus helper types.
 module krylov
-  use gather_scatter
-  use ax_product
-  use num_types
-  use precon
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use ax_product, only : ax_t
+  use num_types, only: rp, c_rp
+  use precon,  only : pc_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
-  use field, only :field_t
-  use utils
-  use bc
-  use identity
-  use device_identity
+  use field, only : field_t
+  use utils, only : neko_error, neko_warning
+  use bc, only : bc_list_t
+  use identity, only : ident_t
+  use device_identity, only : device_ident_t
   use neko_config
   implicit none
+  private
 
   integer, public, parameter :: KSP_MAX_ITER = 1e4 !< Maximum number of iters.
   real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
+  !> Type for storing initial and final residuals in a Krylov solver.
   type, public :: ksp_monitor_t
-    integer :: iter
-    real(kind=rp) :: res_start
-    real(kind=rp) :: res_final
+     !> Iteration number.
+     integer :: iter
+     !> Initial residual.
+     real(kind=rp) :: res_start
+     !> FInal residual
+     real(kind=rp) :: res_final
   end type ksp_monitor_t
 
-  !> Base type for a canonical Krylov method, solving \f$ Ax = f \f$
+  !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
   type, public, abstract :: ksp_t
      class(pc_t), pointer :: M => null() !< Preconditioner
      real(kind=rp) :: rel_tol            !< Relative tolerance
@@ -70,11 +75,11 @@ module krylov
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
 
-  
+
   !> Abstract interface for a Krylov method's solve routine
   !!
   !! @param x field to solve for
-  !! @param f right hand side 
+  !! @param f right hand side
   !! @param n integer, size of vectors
   !! @param coef Coefficients
   !! @param blst list of  boundary conditions
@@ -82,7 +87,7 @@ module krylov
   !! @param niter iteration trip count
   abstract interface
      function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
-       import :: bc_list_t       
+       import :: bc_list_t
        import :: field_t
        import :: ksp_t
        import :: coef_t
@@ -98,8 +103,8 @@ module krylov
        real(kind=rp), dimension(n), intent(inout) :: f
        type(coef_t), intent(inout) :: coef
        type(bc_list_t), intent(inout) :: blst
-       type(gs_t), intent(inout) :: gs_h              
-       integer, optional, intent(in) :: niter       
+       type(gs_t), intent(inout) :: gs_h
+       integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results
      end function ksp_method
   end interface
@@ -111,16 +116,19 @@ module krylov
        class(ksp_t), intent(inout) :: this
      end subroutine ksp_t_free
   end interface
-  
+
 contains
 
   !> Create a krylov solver
-  subroutine krylov_init(this, rel_tol, abs_tol, M)    
+  !! @param rel_tol Relative tolarance for converence.
+  !! @param rel_tol Absolute tolarance for converence.
+  !! @param M The preconditioner.
+  subroutine krylov_init(this, rel_tol, abs_tol, M)
     class(ksp_t), target, intent(inout) :: this
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     class(pc_t), optional, target, intent(in) :: M
-    
+
     call krylov_free(this)
 
     if (present(rel_tol)) then
@@ -149,7 +157,7 @@ contains
     end if
 
   end subroutine krylov_init
-  
+
   !> Deallocate a Krylov solver
   subroutine krylov_free(this)
     class(ksp_t), intent(inout) :: this
@@ -158,7 +166,8 @@ contains
 
   end subroutine krylov_free
 
-  !> Setup a Krylov solvers preconditioners
+  !> Setup a Krylov solver's preconditioner.
+  !! @param M The preconditioner.
   subroutine krylov_set_pc(this, M)
     class(ksp_t), intent(inout) :: this
     class(pc_t), target, intent(in) :: M
@@ -171,9 +180,9 @@ contains
           call neko_error('Preconditioner already defined')
        end select
     end if
-    
+
     this%M => M
-    
+
   end subroutine krylov_set_pc
-  
+
 end module krylov

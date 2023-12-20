@@ -44,15 +44,16 @@ module operators
   use math
   use comm
   use device
-  use device_math    
+  use device_math
   implicit none
   private
 
-  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, lambda2op
-  
+  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, lambda2op,&
+            strain_rate
+
 contains
-  
-  !> Compute dU/dx or dU/dy or dU/dz 
+
+  !> Compute dU/dx or dU/dy or dU/dz
   subroutine dudxyz (du,u,dr,ds,dt,coef)
     type(coef_t), intent(in), target :: coef
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
@@ -60,7 +61,7 @@ contains
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
          intent(in) ::  u, dr, ds, dt
 
-    if (NEKO_BCKND_SX .eq. 1) then 
+    if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
@@ -69,17 +70,17 @@ contains
     else
        call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
     end if
-    
+
   end subroutine dudxyz
 
   !> Equals wgradm1 in nek5000. Gradient of velocity vectors.
-  subroutine opgrad(ux,uy,uz,u,coef, es, ee) ! weak form of grad     
-    type(coef_t), intent(in) :: coef  
+  subroutine opgrad(ux,uy,uz,u,coef, es, ee) ! weak form of grad
+    type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
-    integer, optional :: es, ee        
+    integer, optional :: es, ee
     integer :: eblk_start, eblk_end
 
     if (present(es)) then
@@ -94,7 +95,7 @@ contains
        eblk_end = coef%msh%nelv
     end if
 
-    if (NEKO_BCKND_SX .eq. 1) then 
+    if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_opgrad(ux, uy, uz, u, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_opgrad(ux, uy, uz, u, coef)
@@ -103,9 +104,9 @@ contains
     else
        call opr_cpu_opgrad(ux, uy, uz, u, coef, eblk_start, eblk_end)
     end if
-    
+
   end subroutine opgrad
-  
+
   !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
   subroutine ortho(x,n ,glb_n)
     integer, intent(in) :: n
@@ -117,7 +118,7 @@ contains
     call cadd(x,-rlam,n)
 
   end subroutine ortho
-  
+
   !> Compute DT*X (entire field)
   !> This needs to be revised... the loop over n1,n2 is probably unesccssary
   subroutine cdtp (dtx,x,dr,ds,dt, coef)
@@ -128,7 +129,7 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
 
-    if (NEKO_BCKND_SX .eq. 1) then 
+    if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_cdtp(dtx, x, dr, ds, dt, coef)
@@ -137,9 +138,9 @@ contains
     else
        call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
     end if
-    
+
   end subroutine cdtp
-  
+
   !> Compute the advection term.
   !! @param du Holds the result.
   !! @param u The advected field.
@@ -167,14 +168,14 @@ contains
       else
          eblk_start = 1
       end if
-      
+
       if (present(ee)) then
          eblk_end = ee
       else
          eblk_end = coef%msh%nelv
       end if
-      
-      if (NEKO_BCKND_SX .eq. 1) then 
+
+      if (NEKO_BCKND_SX .eq. 1) then
          call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
       else if (NEKO_BCKND_XSMM .eq. 1) then
          call opr_xsmm_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
@@ -231,9 +232,9 @@ contains
        call MPI_Allreduce(MPI_IN_PLACE, cfl, 1, &
             MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     end if
-    
+
   end function cfl
-  
+
   !> Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i
   !! Similar to comp_sij in Nek5000.
   subroutine strain_rate(s11, s22, s33, s12, s13, s23, &
@@ -246,9 +247,9 @@ contains
     real(kind=rp), intent(inout) :: s12(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s23(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s13(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
-    
+
     type(c_ptr) :: s11_d, s22_d, s33_d, s12_d, s23_d, s13_d
-    
+
     integer :: nelv, lxyz
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -259,10 +260,10 @@ contains
        s23_d = device_get_ptr(s23)
        s13_d = device_get_ptr(s13)
     endif
-    
+
     nelv = u%msh%nelv
     lxyz = u%Xh%lxyz
-    
+
     ! we use s11 as a work array here
     call dudxyz (s12, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (s11, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
@@ -301,18 +302,18 @@ contains
        call cmult(s22, 2.0_rp, nelv*lxyz)
        call cmult(s33, 2.0_rp, nelv*lxyz)
     endif
-  
+
   end subroutine strain_rate
 
-  !> Lambda2 calcuation. 
+  !> Lambda2 calcuation.
   !! @param lambda2 holds the second eigen values.
   !! @param u, the x-velocity
   !! @param v, the y-velocity
   !! @param w, the z-velocity
   !! @param coef, the field coefficients
-  subroutine lambda2op(lambda2, u, v, w,coef)      
-    type(coef_t), intent(in) :: coef  
-    type(field_t), intent(inout) :: lambda2 
+  subroutine lambda2op(lambda2, u, v, w,coef)
+    type(coef_t), intent(in) :: coef
+    type(field_t), intent(inout) :: lambda2
     type(field_t), intent(in) :: u, v, w
     real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
     integer :: temp_indices(9), e, i, ind_sort(3)
@@ -336,7 +337,7 @@ contains
              s22 = grad(i,2,2)
              s33 = grad(i,3,3)
 
-             
+
              s12 = 0.5*(grad(i,1,2) + grad(i,2,1))
              s13 = 0.5*(grad(i,1,3) + grad(i,3,1))
              s23 = 0.5*(grad(i,2,3) + grad(i,3,2))
@@ -376,7 +377,7 @@ contains
              else if (eigen(1) .le. eigen(3) .and. eigen(3) .le. eigen(2)) then
                 l2 = eigen(3)
              else if (eigen(2) .le. eigen(3) .and. eigen(3) .le. eigen(1)) then
-                l2 = eigen(3)                
+                l2 = eigen(3)
              else if (eigen(2) .le. eigen(1) .and. eigen(1) .le. eigen(3)) then
                 l2 = eigen(1)
              else if (eigen(3) .le. eigen(1) .and. eigen(1) .le. eigen(2)) then
@@ -388,7 +389,7 @@ contains
           end do
        end do
     end if
-    
+
   end subroutine lambda2op
-  
+
 end module operators

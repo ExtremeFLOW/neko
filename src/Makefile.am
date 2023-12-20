@@ -7,7 +7,7 @@ neko_fortran_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
-        common/log.f90\
+	common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
@@ -18,6 +18,7 @@ neko_fortran_SOURCES = \
 	common/system.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
+	sem/local_interpolation.f90 \
 	math/math.f90\
 	math/mathops.f90\
 	math/fast3d.f90\
@@ -51,7 +52,12 @@ neko_fortran_SOURCES = \
 	adt/uset.f90\
 	adt/stack.f90\
 	adt/tuple.f90\
-	mesh/zone.f90\
+	mesh/facet_zone.f90\
+	mesh/point_zone.f90\
+	mesh/point_zones/sphere_point_zone.f90\
+	mesh/point_zones/box_point_zone.f90\
+	mesh/point_zone_factory.f90\
+	mesh/point_zone_registry.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
 	mesh/tet_mesh.f90\
@@ -157,7 +163,7 @@ neko_fortran_SOURCES = \
 	common/statistics.f90\
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
-	common/probes.F90\
+	simulation_components/probes.F90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
@@ -222,6 +228,7 @@ neko_fortran_SOURCES = \
 	scalar/scalar_aux.f90\
 	scalar/scalar_residual.f90\
 	scalar/scalar_residual_fctry.f90\
+	scalar/scalar_ic.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\

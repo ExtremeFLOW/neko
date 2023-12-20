@@ -1,4 +1,3 @@
-
 ! Copyright (c) 2023, The Neko Authors
 ! All rights reserved.
 !
@@ -56,7 +55,7 @@ module const_source_term
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => const_source_term_init_from_json
      !> The constructor from type components.
-     procedure, pass(this) :: init_from_compenents => & 
+     procedure, pass(this) :: init_from_compenents => &
        const_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => const_source_term_free
@@ -69,7 +68,7 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine const_source_term_init_from_json(this, json, fields, coef) 
+  subroutine const_source_term_init_from_json(this, json, fields, coef)
     class(const_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
@@ -86,7 +85,7 @@ contains
   !! @param values The array of values, one for each field.
   !! @param coef The SEM coeffs.
   subroutine const_source_term_init_from_components(this, fields, values, &
-                                                    coef) 
+                                                    coef)
     class(const_source_term_t), intent(inout) :: this
     class(field_list_t), intent(inout), target :: fields
     real(kind=rp), intent(in) :: values(:)
@@ -103,7 +102,7 @@ contains
   end subroutine const_source_term_init_from_components
 
   !> Destructor.
-  subroutine const_source_term_free(this) 
+  subroutine const_source_term_free(this)
     class(const_source_term_t), intent(inout) :: this
 
     call this%free_base()
@@ -112,7 +111,7 @@ contains
   !> Computes the source term and adds the result to `fields`.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine const_source_term_compute(this, t, tstep) 
+  subroutine const_source_term_compute(this, t, tstep)
     class(const_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -127,5 +126,5 @@ contains
        call const_source_term_compute_cpu(this%fields, this%values)
     end if
   end subroutine const_source_term_compute
-  
+
 end module const_source_term

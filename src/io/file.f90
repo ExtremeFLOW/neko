@@ -35,7 +35,7 @@ module file
   use utils
   use generic_file
   use nmsh_file
-  use chkp_file        
+  use chkp_file
   use map_file
   use rea_file
   use rea_file_dirichlet
@@ -47,7 +47,7 @@ module file
   use stl_file
   use csv_file
   implicit none
-  
+
   type file_t
      class(generic_file_t), allocatable :: file_type
    contains
@@ -78,13 +78,13 @@ contains
     type(file_t), target :: this
     character(len=80) :: suffix
     class(generic_file_t), pointer :: q
-    
+
     call filename_suffix(fname, suffix)
-    
+
     if (allocated(this%file_type)) then
        deallocate(this%file_type)
     end if
-    
+
     if (suffix .eq. "rea") then
        allocate(rea_file_t::this%file_type)
     else if (suffix .eq. "re2") then
@@ -137,9 +137,9 @@ contains
     else
        call this%file_type%write(data)
     end if
-    
+
   end subroutine file_write
-   
+
   !> Read @a data from a file.
   !! @param data Read data.
   subroutine file_read(this, data)
@@ -147,7 +147,7 @@ contains
     class(*), intent(inout) :: data
 
     call this%file_type%read(data)
-    
+
   end subroutine file_read
 
   !> Set a file's counter.
@@ -159,7 +159,7 @@ contains
     class is (generic_file_t)
        call ft%set_counter(n)
     end select
-    
+
   end subroutine file_set_counter
 
   !> Set a file's start counter.
@@ -171,7 +171,7 @@ contains
     class is (generic_file_t)
        call ft%set_start_counter(n)
     end select
-    
+
   end subroutine file_set_start_counter
 
   !> Set a file's header, mainly for csv_file for now.

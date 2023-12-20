@@ -61,7 +61,7 @@ module matrix
      generic :: assignment(=) => matrix_assign_matrix, &
           matrix_assign_scalar
   end type matrix_t
-  
+
 contains
 
   !> Initialise a matrix of size `nrows*ncols`.
