@@ -157,7 +157,6 @@ contains
 
     else if (trim(input_type) .eq. 'line') then
 
-       write (*,*) "!!!!!", this%n_fields, this%which_fields
        ! Read starting point on the line
        call json_get(json, 'start_point', read_val)
        if (size(read_val) .ne. 3) call neko_error("Please provide 3 coordinates&
@@ -185,9 +184,6 @@ contains
 
     end if
 
-
-
-    write (*,*)
     call probes_show(this)
     call this%init_from_attributes(case%fluid%dm_Xh, output_file)
     if(allocated(xyz)) deallocate(xyz)
@@ -205,8 +201,6 @@ contains
     real(kind=rp), allocatable :: global_output_coords(:,:)
     integer :: i, ierr
     type(matrix_t) :: mat_coords
-
-
 
     !> Init interpolator
     call this%global_interp%init(dof)
@@ -227,9 +221,6 @@ contains
        end do
     end if
 
-
-
-    write (*,*) "(PROBES) Initializing fout"
     !> Initialize the output file
     this%fout = file_t(trim(output_file))
 
@@ -362,8 +353,6 @@ contains
                     this%n_local_probes_tot_offset, 1, MPI_INTEGER,&
                     0, NEKO_COMM, ierr)
 
-
-
   end subroutine probes_setup_offset
 
   !> Interpolate each probe from its `r,s,t` coordinates.
@@ -379,7 +368,6 @@ contains
     integer :: size_outfields
 
     !> Check controller to determine if we must write
-
 
     do i = 1,this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
@@ -407,7 +395,6 @@ contains
           if (pe_rank .eq. 0) then
              call trsp(this%mat_out%x, this%n_global_probes, &
                        this%global_output_values, this%n_fields)
-             write (*,*) "!!!!!", this%mat_out%x
              call this%fout%write(this%mat_out, t)
           end if
        else
