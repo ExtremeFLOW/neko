@@ -58,42 +58,48 @@ module probes
   private
 
   type, public, extends(simulation_component_t) :: probes_t
-     !> Number of output fields
+     !> Number of output fields.
      integer :: n_fields = 0
+     !> Interpolation object for point mapping and evaluation.
      type(global_interpolation_t) :: global_interp
-     !> Global number of probes (needed for i/o)
+     !> Global number of probes (needed for i/o).
      integer :: n_global_probes
-     !> global offset for writing
+     !> Global offset for writing.
      integer :: n_probes_offset
-     !> x,y,z coordinates
+     !> Input x,y,z coordinates of the probes.
      real(kind=rp), allocatable :: xyz(:,:)
-     !> Interpolated values
+     !> Interpolated values (local to each rank).
      real(kind=rp), allocatable :: out_values(:,:)
+     !> Interpolated values on the device.
      type(c_ptr), allocatable :: out_values_d(:)
+     !> Transpose of the interpolated values.
      real(kind=rp), allocatable :: out_vals_trsp(:,:)
-     !> Number of local elements per rank
+     !> Number of local elements per rank.
      integer :: n_local_probes
-     !> Fields to be probed
+     !> Fields to be probed.
      type(field_list_t) :: sampled_fields
+     !> Labels of the fields to be probed.
      character(len=20), allocatable  :: which_fields(:)
-     !> Allocated on rank 0
+     !> Allocated on rank 0.
      integer, allocatable :: n_local_probes_tot_offset(:)
      integer, allocatable :: n_local_probes_tot(:)
-     !>  For output on rank 0
+     !>  Indicates whether I/O operations are performed sequentially or not.
      logical :: seq_io
+     !> Global array of interpolated values (only on rank 0).
      real(kind=rp), allocatable :: global_output_values(:,:)
-     !> Output variables
+     !> Output file.
      type(file_t) :: fout
+     !> Matrix containing values to be dumped in the output file.
      type(matrix_t) :: mat_out
    contains
-     !> Initialize from json
+     !> Constructor from json.
      procedure, pass(this) :: init => probes_init_from_json
-     ! Actual constructor
+     !> Common constructor without json.
      procedure, pass(this) :: init_from_attributes => &
           probes_init_from_attributes
-     !> Destructor
+     !> Destructor.
      procedure, pass(this) :: free => probes_free
-     !> Setup offset for I/O when using sequential write/read from rank 0
+     !> Setup offset for I/O when using sequential write/read from rank 0.
      procedure, pass(this) :: setup_offset => probes_setup_offset
      !> Interpolate each probe from its `r,s,t` coordinates.
      procedure, pass(this) :: compute_ => probes_evaluate_and_write
@@ -103,10 +109,13 @@ module probes
 contains
 
   !> Constructor from json.
+  !! @param json Json file object.
+  !! @param case Case object.
   subroutine probes_init_from_json(this, json, case)
     class(probes_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
+
     real(kind=rp), allocatable :: xyz(:,:)
     character(len=:), allocatable  :: input_type
     character(len=:), allocatable  :: output_file
@@ -191,9 +200,9 @@ contains
   end subroutine probes_init_from_json
 
 
-  !> Initialize without json things
+  !> Common constructor without json.
   !! @param dof Dofmap to probe
-  !! @output_file Name of output file, current must be CSV
+  !! @output_file Name of output file, current must be CSV.
   subroutine probes_init_from_attributes(this, dof, output_file)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
@@ -257,7 +266,7 @@ contains
 
   end subroutine probes_init_from_attributes
 
-  !> Destructor
+  !> Destructor.
   subroutine probes_free(this)
     class(probes_t), intent(inout) :: this
 
@@ -293,7 +302,7 @@ contains
 
   end subroutine probes_free
 
-  !> Print current probe status, with number of probes and coordinates
+  !> Print current probe status, with number of probes and coordinates.
   subroutine probes_show(this)
     class(probes_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf ! For logging status
@@ -320,7 +329,7 @@ contains
 
   end subroutine probes_show
 
-  !> Show the status of processor/element owner and error code for each point
+  !> Show the status of processor/element owner and error code for each point.
   subroutine probes_debug(this)
     class(probes_t) :: this
 
@@ -336,7 +345,7 @@ contains
     end do
   end subroutine probes_debug
 
-  !> Setup offset for rank 0
+  !> Setup offset for I/O when using sequential write/read from rank 0.
   subroutine probes_setup_offset(this)
     class(probes_t) :: this
     integer :: ierr
