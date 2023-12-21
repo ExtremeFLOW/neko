@@ -137,7 +137,6 @@ contains
     ! Add time at the beginning if specified
     if (present(t)) write (file_unit, '(g0,",")', advance="no") t
 
-    write (*,*) "VECTOR", data%x(:)
     write (file_unit, '(*(g0,","))', advance="no") data%x(1:data%n-1)
     write(file_unit,'(g0)') data%x(data%n)
 
@@ -164,8 +163,6 @@ contains
        write (file_unit, '(A)') trim(f%header)
        f%header_is_written = .true.
     end if
-
-    write (*,*) "MATRIX", data%x
 
     do i = 1, data%nrows
        if (present(t)) write (file_unit, '(g0,",")', advance="no") t
