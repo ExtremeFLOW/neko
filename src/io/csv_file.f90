@@ -68,11 +68,11 @@ contains
     real(kind=rp), intent(in), optional :: t
 
     real(kind=rp) :: time
-    type(vector_t), pointer :: vec => null()
-    type(matrix_t), pointer :: mat => null()
+    type(vector_t), pointer :: vec
+    type(matrix_t), pointer :: mat
 
-    if (associated(vec)) vec => null()
-    if (associated(mat)) mat => null()
+    nullify(vec)
+    nullify(mat)
 
     select type(data)
     type is (vector_t)
@@ -180,8 +180,11 @@ contains
   subroutine csv_file_read(this, data)
     class(csv_file_t) :: this
     class(*), target, intent(inout) :: data
-    type(vector_t), pointer :: vec => null()
-    type(matrix_t), pointer :: mat => null()
+    type(vector_t), pointer :: vec
+    type(matrix_t), pointer :: mat
+
+    nullify(vec)
+    nullify(mat)
 
     select type(data)
     type is (vector_t)
