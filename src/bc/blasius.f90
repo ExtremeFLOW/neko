@@ -198,7 +198,7 @@ contains
 
          call device_memcpy(bla_x, blax_d, m, HOST_TO_DEVICE)
          call device_memcpy(bla_y, blay_d, m, HOST_TO_DEVICE)
-         call device_memcpy(bla_z, blaz_d, m, HOST_TO_DEVICE)
+         call device_memcpy(bla_z, blaz_d, m, HOST_TO_DEVICE, sync=.true.)
 
          deallocate(bla_x, bla_y, bla_z)
       end if

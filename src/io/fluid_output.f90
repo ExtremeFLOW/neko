@@ -105,7 +105,8 @@ contains
        associate(fields => this%fluid%fields)
          do i = 1, size(fields)
             call device_memcpy(fields(i)%f%x, fields(i)%f%x_d, &
-                 fields(i)%f%dof%size(), DEVICE_TO_HOST)
+                 fields(i)%f%dof%size(), DEVICE_TO_HOST, &
+                 sync=(i .eq. size(fields)))
          end do
        end associate
 

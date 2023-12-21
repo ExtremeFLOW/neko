@@ -216,11 +216,10 @@ contains
     integer :: n
     n = this%s%dof%size()
 
-    call col2(this%s%x,this%c_Xh%mult, n) 
-    call col2(this%abx1%x,this%c_Xh%mult, n) 
-    call col2(this%abx2%x,this%c_Xh%mult, n) 
-    call col2(this%slag%lf(1)%x,this%c_Xh%mult, n) 
-    call col2(this%slag%lf(2)%x,this%c_Xh%mult, n) 
+    call col2(this%s%x, this%c_Xh%mult, n) 
+    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n) 
+    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
+    
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
                           n, HOST_TO_DEVICE)
@@ -237,8 +236,6 @@ contains
     call this%gs_Xh%op(this%s,GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(1),GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(2),GS_OP_ADD)
-    call this%gs_Xh%op(this%abx1,GS_OP_ADD)
-    call this%gs_Xh%op(this%abx2,GS_OP_ADD)
   end subroutine scalar_pnpn_restart
 
   subroutine scalar_pnpn_free(this)
