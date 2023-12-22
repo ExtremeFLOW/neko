@@ -50,6 +50,7 @@ module fld_file
   use comm
   use datadist
   use neko_mpi_types
+  use logger, only: neko_log
   implicit none
   private
 
@@ -108,6 +109,9 @@ contains
     if (output_length .eq. 0 .or. output_length .gt. 1) then
        this%dp_precision = .false.
     else if (trim(output_dp) .eq. "1") then
+       call neko_log%message("+++++++++")
+       call neko_log%message("++ YES ++")
+       call neko_log%message("+++++++++")
        this%dp_precision = .true.
     end if
 
