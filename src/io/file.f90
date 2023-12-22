@@ -198,7 +198,7 @@ contains
   end subroutine file_set_header
 
   !> Set a file's output precision.
-  !! @param precision `sp` or `dp`.
+  !! @param precision Precision as defined in `num_types`.
   subroutine file_set_precision(this, precision)
     class(file_t), intent(inout) :: this
     integer, intent(inout) :: precision
