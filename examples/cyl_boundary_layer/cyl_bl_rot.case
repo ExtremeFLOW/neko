@@ -2,6 +2,8 @@
 "version": 1.0,
 "case": {
     "mesh_file": "cyl.nmsh",
+    "output_control": "nsamples",
+    "output_value": 400,
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": false,
@@ -17,10 +19,10 @@
         "scheme": "pnpn",
         "Re": 500,
         "initial_condition": {
-            "type": "user",
+            "type": "user"
         },
         "inflow_condition": {
-            "type": "user",
+            "type": "user"
         },
         "outflow_condition": {
             "delta": 0.01,
@@ -40,9 +42,7 @@
             "absolute_tolerance": 1e-5,
             "max_iterations": 800
         },
-        "boundary_types": ["v", "o+dong", "sym", "w", "on", "on+dong", "v"],
-        "output_control": "nsamples",
-        "output_value": 400
+        "boundary_types": ["v", "o+dong", "sym", "w", "on", "on+dong", "v"]
     }
 }
 }
