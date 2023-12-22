@@ -104,7 +104,7 @@ Example usage:
  ~~~~~~~~~~~~~~~{.json}
  {
    "type"            : "probes",
-   "input_type"      : "line"
+   "input_type"      : "line",
    "start_point"     : [0.0, 0.0, 0.0],
    "end_point"       : [1.0, 0.0, 0.0],
    "n_samples"       : 100,

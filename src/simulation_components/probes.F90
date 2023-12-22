@@ -484,19 +484,19 @@ contains
   end subroutine read_xyz_from_csv
 
   !> Generate a set of `N` points whose `(x,y,z)` coordinates are uniformly
-  !! distributed along a line, spanning from point `x0` to point `x1`.
+  !! distributed along a line, spanning from point `xs` to point `xe`.
   !! The points \f$ \vec{x_i}, i\in[0,N-1] \f$ are generated using the following equations:
   !!  \f{eqnarray*}{
-  !!    \vec{x_n} = \vec{x_0} + (\vec{x_1} - \vec{x_0})*\frac{i}{N-1}
+  !!    \vec{x_i} = \vec{x_s} + \frac{i}{N-1}(\vec{x_e} - \vec{x_s})
   !! \f}
-  !! @param x0 Starting point of the line.
-  !! @param x1 Ending point of the line.
+  !! @param xs Starting point of the line.
+  !! @param xe Ending point of the line.
   !! @param N Number of points to sample on the line.
   !! @param xyz Output coordinates.
-  subroutine generate_xyz_on_line(this, x0, x1, N, xyz)
+  subroutine generate_xyz_on_line(this, xs, xe, N, xyz)
     class(probes_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: x0(3)
-    real(kind=rp), intent(inout) :: x1(3)
+    real(kind=rp), intent(inout) :: xs(3)
+    real(kind=rp), intent(inout) :: xe(3)
     integer, intent(in) :: N
     real(kind=rp), intent(inout), allocatable :: xyz(:,:)
 
@@ -517,9 +517,9 @@ contains
        allocate(xyz(3, this%n_local_probes))
 
        do i = 0, N-1
-          xyz(1,i+1) = x0(1) + (x1(1) - x0(1)) * real(i, kind=rp)/real(N-1, kind=rp)
-          xyz(2,i+1) = x0(2) + (x1(2) - x0(2)) * real(i, kind=rp)/real(N-1, kind=rp)
-          xyz(3,i+1) = x0(3) + (x1(3) - x0(3)) * real(i, kind=rp)/real(N-1, kind=rp)
+          xyz(1,i+1) = xs(1) + (xe(1) - xs(1)) * real(i, kind=rp)/real(N-1, kind=rp)
+          xyz(2,i+1) = xs(2) + (xe(2) - xs(2)) * real(i, kind=rp)/real(N-1, kind=rp)
+          xyz(3,i+1) = xs(3) + (xe(3) - xs(3)) * real(i, kind=rp)/real(N-1, kind=rp)
        end do
 
     else
