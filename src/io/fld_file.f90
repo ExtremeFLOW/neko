@@ -95,6 +95,22 @@ contains
     logical :: write_mesh, write_velocity, write_pressure, write_temperature
     integer :: FLD_DATA_SIZE, n_scalar_fields
 
+    ! For reading environment variable below
+    character(len=255) :: output_dp
+    integer :: output_length
+
+    !
+    ! Determine if we should output the field files in double precision.
+    ! This is done by setting the environment variable `NEKO_OUTPUT_DP=1`
+    !
+    call get_environment_variable("NEKO_OUTPUT_DP", output_dp, output_length)
+
+    if (output_length .eq. 0 .or. output_length .gt. 1) then
+       this%dp_precision = .false.
+    else if (trim(output_dp) .eq. "1") then
+       this%dp_precision = .true.
+    end if
+
     if (present(t)) then
        time = real(t,dp)
     else
