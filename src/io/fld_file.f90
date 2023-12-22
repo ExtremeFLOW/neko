@@ -50,7 +50,6 @@ module fld_file
   use comm
   use datadist
   use neko_mpi_types
-  use logger, only: neko_log
   implicit none
   private
 
