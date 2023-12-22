@@ -96,10 +96,6 @@ contains
     logical :: write_mesh, write_velocity, write_pressure, write_temperature
     integer :: FLD_DATA_SIZE, n_scalar_fields
 
-    ! For reading environment variable below
-    character(len=255) :: output_dp
-    integer :: output_length
-
     if (present(t)) then
        time = real(t,dp)
     else
