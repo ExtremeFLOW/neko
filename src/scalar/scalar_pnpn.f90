@@ -30,11 +30,14 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Modular version of the Classic Nek5000 Pn/Pn formulation for scalars
+!> Containts the scalar_pnpn_t type.
+
 module scalar_pnpn
+  use num_types, only: rp
   use scalar_residual_fctry, only : scalar_residual_factory
   use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry
+  use rhs_maker_fctry, only : rhs_maker_bdf_t, rhs_maker_ext_t, &
+                              rhs_maker_ext_fctry, rhs_maker_bdf_fctry
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
   use field, only : field_t
@@ -43,61 +46,63 @@ module scalar_pnpn
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
   use coefs, only : coef_t
-  use device
+  use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_residual, only :scalar_residual_t
   use ax_product, only : ax_t
-  use field_series
-  use facet_normal
-  use device_math
-  use device_mathops
-  use scalar_aux
-  use time_scheme_controller
-  use projection
-  use math
-  use logger
-  use advection
-  use profiler
+  use field_series, only: field_series_t
+  use facet_normal, only : facet_normal_t
+  use krylov, only : ksp_monitor_t
+  use device_math, only : device_add2s2, device_col2
+  use scalar_aux, only : scalar_step_info
+  use time_scheme_controller, only : time_scheme_controller_t
+  use projection, only : projection_t
+  use math, only : glsc2, col2, add2s2 
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use advection, only : advection_t, advection_factory
+  use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only: json_get
   use json_module, only : json_file
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
   private
 
 
   type, public, extends(scalar_scheme_t) :: scalar_pnpn_t
 
+     !> The residual of the transport equation.
      type(field_t) :: s_res
 
+     !> Lag arrays, i.e. solutions at previous timesteps.
      type(field_series_t) :: slag
 
+     !> Solution increment.
      type(field_t) :: ds
 
-     type(field_t) :: wa1
-     type(field_t) :: ta1
-
-
+     !> Helmholz operator.
      class(ax_t), allocatable :: Ax
 
+     !> Solution projection.
      type(projection_t) :: proj_s
-
-     type(dirichlet_t) :: bc_res   !< Dirichlet condition for scala
+     !> Dirichlet condition for scala
+     type(dirichlet_t) :: bc_res
      type(bc_list_t) :: bclst_ds
 
+     !> Advection operator.
      class(advection_t), allocatable :: adv
 
-     ! Time variables
-     type(field_t) :: abx1
-     type(field_t) :: abx2
+     ! Lag arrays for the RHS.
+     type(field_t) :: abx1, abx2
 
-     !> Residual
+     !> Computes the residual.
      class(scalar_residual_t), allocatable :: res
 
-     !> Contributions to kth order extrapolation scheme
+     !> Contributions to kth order extrapolation scheme.
      class(rhs_maker_ext_t), allocatable :: makeext
 
-     !> Contributions to F from lagged BD terms
+     !> Contributions to the RHS from lagged BDF terms.
      class(rhs_maker_bdf_t), allocatable :: makebdf
 
    contains
@@ -107,6 +112,7 @@ module scalar_pnpn
      procedure, pass(this) :: restart => scalar_pnpn_restart
      !> Destructor.
      procedure, pass(this) :: free => scalar_pnpn_free
+     !> Solve for the current timestep.
      procedure, pass(this) :: step => scalar_pnpn_step
   end type scalar_pnpn_t
 
@@ -160,10 +166,6 @@ contains
       call this%abx1%init(dm_Xh, "abx1")
 
       call this%abx2%init(dm_Xh, "abx2")
-
-      call this%wa1%init(dm_Xh, 'wa1')
-
-      call this%ta1%init(dm_Xh, 'ta1')
 
       call this%ds%init(dm_Xh, 'ds')
 
@@ -251,10 +253,6 @@ contains
 
     call this%s_res%free()
 
-    call this%wa1%free()
-
-    call this%ta1%free()
-
     call this%ds%free()
 
     call this%abx1%free()
@@ -299,8 +297,6 @@ contains
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, lambda => this%lambda, rho => this%rho, &
          ds => this%ds, &
-         ta1 => this%ta1, &
-         wa1 => this%wa1, &
          s_res =>this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
@@ -335,11 +331,11 @@ contains
       call this%adv%compute_scalar(u, v, w, s, f_Xh%s, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
-      call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
-           rho, ext_bdf%advection_coeffs, n)
+      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%s, rho, &
+           ext_bdf%advection_coeffs, n)
 
-      call makebdf%compute_scalar(ta1, wa1, slag, f_Xh%s, s, c_Xh%B, &
-           rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+      call makebdf%compute_scalar(slag, f_Xh%s, s, c_Xh%B, rho, dt, &
+           ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
       !> We assume that no change of boundary conditions

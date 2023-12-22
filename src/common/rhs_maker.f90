@@ -90,11 +90,10 @@ module rhs_maker
   end interface
 
   abstract interface
-     subroutine scalar_rhs_maker_ext(temp1, fs_lag, fs_laglag, fs, rho, &
+     subroutine scalar_rhs_maker_ext(fs_lag, fs_laglag, fs, rho, &
           ext_coeffs, n)
        import field_t
        import rp
-       type(field_t), intent(inout) :: temp1
        type(field_t), intent(inout) :: fs_lag
        type(field_t), intent(inout) :: fs_laglag
        real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
@@ -119,13 +118,12 @@ module rhs_maker
   end interface
 
   abstract interface
-     subroutine scalar_rhs_maker_bdf(temp1, temp2, s_lag, fs, s, B, rho, dt,&
+     subroutine scalar_rhs_maker_bdf(s_lag, fs, s, B, rho, dt,&
           bd, nbd, n)
        import field_series_t
        import field_t
        import rp
        integer, intent(in) :: n, nbd
-       type(field_t), intent(inout) :: temp1, temp2
        type(field_t), intent(in) :: s
        type(field_series_t), intent(in) :: s_lag
        real(kind=rp), intent(inout) :: fs(n)

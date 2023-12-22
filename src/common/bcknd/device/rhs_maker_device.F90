@@ -325,9 +325,8 @@ contains
 
   end subroutine rhs_maker_ext_device
 
-  subroutine scalar_rhs_maker_ext_device(temp1, fs_lag, fs_laglag, fs, &
+  subroutine scalar_rhs_maker_ext_device(fs_lag, fs_laglag, fs, &
                            rho, ext_coeffs, n)
-    type(field_t), intent(inout) :: temp1
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
     real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
@@ -387,12 +386,10 @@ contains
 
   end subroutine rhs_maker_bdf_device
 
-  subroutine scalar_rhs_maker_bdf_device(temp1, temp2, s_lag, fs, s, B, rho, dt, &
+  subroutine scalar_rhs_maker_bdf_device(s_lag, fs, s, B, rho, dt, &
                                          bd, nbd, n)
     integer, intent(in) :: n, nbd
-    type(field_t), intent(inout) :: temp1
     type(field_t), intent(in) :: s
-    type(field_t), intent(inout) :: temp2
     type(field_series_t), intent(in) :: s_lag
     real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
