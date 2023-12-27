@@ -435,8 +435,6 @@ contains
     !Deallocate velocity and pressure fields
     call this%scheme_free()
 
-    write(*,*) "Running free"
-
     call this%bc_prs_surface%free()
     call this%bc_sym_surface%free()
     call bc_list_free(this%bclst_vel_res)
