@@ -126,7 +126,7 @@ contains
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
     type(material_properties_t), intent(inout) :: material_properties
-    character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
+    character(len=15), parameter :: scheme = 'Stress (Pn/Pn)'
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
