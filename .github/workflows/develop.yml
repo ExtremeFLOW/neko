@@ -323,6 +323,7 @@ jobs:
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
+          git stash
           make dist
           mkdir releng
           tar xf neko-*.tar.gz -C releng
@@ -333,6 +334,7 @@ jobs:
       - name: Dist (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
+          git stash
           make dist
           mkdir releng
           tar xf neko-*.tar.gz -C releng
