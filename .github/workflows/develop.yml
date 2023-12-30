@@ -328,7 +328,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          git apply patches/nvhpc_bge.patch
+          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
           make -j $(nproc)
       - name: Dist (CUDA backend)
@@ -339,7 +339,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          git apply patches/nvhpc_bge.patch
+          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/cuda/
           make -j $(nproc)
   ReFrame:
