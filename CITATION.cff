@@ -3,8 +3,12 @@ authors:
     given-names: Niclas
   - family-names: Karp
     given-names: Martin
-  - family-names: Markidis
-    given-names: Stefano
+  - family-names: Mukha
+    given-names: Timofey
+  - family-names: Perez
+    given-names: Adalberto
+  - family-names: Baconnet
+    given-names: Victor
   - family-names: Schlatter
     given-names: Philipp
 cff-version: 1.2.0
