@@ -60,7 +60,8 @@ EXTRA_DIST = \
 	reframe/src/tgv.f90\
 	examples/rayleigh-benard/rayleigh.case\
 	examples/rayleigh-benard/rayleigh.f90\
-	examples/rayleigh-benard/box.nmsh
+	examples/rayleigh-benard/box.nmsh\
+	patches/nvhpc_bge.patch
 
 if ENABLE_FLINT
 lint:
