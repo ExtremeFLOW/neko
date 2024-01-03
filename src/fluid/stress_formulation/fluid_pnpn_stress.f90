@@ -49,6 +49,7 @@ module fluid_pnpn_stress
   use logger
   use advection
   use profiler
+  use cg_stress
   use json_utils, only : json_get
   use json_module, only : json_file
   use material_properties, only : material_properties_t
@@ -95,8 +96,8 @@ module fluid_pnpn_stress
      !class(pnpn_prs_res_t), allocatable :: prs_res
 
      !> Velocity residual
-     !class(pnpn_vel_res_stress_t), allocatable :: vel_res
-     class(pnpn_vel_res_t), allocatable :: vel_res
+     class(pnpn_vel_res_stress_t), allocatable :: vel_res
+!     class(pnpn_vel_res_t), allocatable :: vel_res
 
      !> Summation of AB/BDF contributions
      class(rhs_maker_sumab_t), allocatable :: sumab
@@ -109,6 +110,8 @@ module fluid_pnpn_stress
 
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
+
+     type(cg_stress_t) :: ksp_stress
 
    contains
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -145,8 +148,8 @@ contains
     !call pnpn_prs_res_factory(this%prs_res)
 
     ! Setup backend dependent vel residual routines
-    !call pnpn_vel_res_stress_factory(this%vel_res)
-    call pnpn_vel_res_factory(this%vel_res)
+    call pnpn_vel_res_stress_factory(this%vel_res)
+    !call pnpn_vel_res_factory(this%vel_res)
 
     ! Setup backend dependent summation of AB/BDF
     call rhs_maker_sumab_fctry(this%sumab)
@@ -289,6 +292,8 @@ contains
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
     end if
+    real_val = 1e-8_rp
+    call this%ksp_stress%init(this%dm_Xh%size(), M = this%pc_vel, abs_tol=real_val)
 
   end subroutine fluid_pnpn_init
 
@@ -510,8 +515,8 @@ contains
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
     ! number of degrees of freedom
     integer :: n
-    ! Solver results monitors (pressure + 3 velocity)
-    type(ksp_monitor_t) :: ksp_results(4)
+    ! Solver results monitors (pressure + velocity)
+    type(ksp_monitor_t) :: ksp_results(2)
     ! Extrapolated velocity for the pressure residual
     type(field_t), pointer :: u_e, v_e, w_e
     ! Indices for tracking temporary fields
@@ -630,8 +635,8 @@ contains
                            p, &
                            f_x, f_y, f_z, &
                            c_Xh, msh, Xh, &
-                           !this%mu_field, this%rho_field, &
-                           mu, rho,&
+                           this%mu_field, this%rho_field, &
+!                           mu, rho,&
                            ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
 
@@ -654,12 +659,18 @@ contains
       call this%pc_vel%update()
 
       call profiler_start_region("Velocity solve", 4)
-      ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
-           c_Xh, this%bclst_du, gs_Xh, ksp_vel_maxiter)
-      ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
-           c_Xh, this%bclst_dv, gs_Xh, ksp_vel_maxiter)
-      ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
-           c_Xh, this%bclst_dw, gs_Xh, ksp_vel_maxiter)
+!      ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
+!           c_Xh, this%bclst_du, gs_Xh, ksp_vel_maxiter)
+!      ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
+!           c_Xh, this%bclst_dv, gs_Xh, ksp_vel_maxiter)
+!      ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
+!           c_Xh, this%bclst_dw, gs_Xh, ksp_vel_maxiter)
+
+      ksp_results(2) = this%ksp_stress%solve_stress(du, dv, dw, &
+           u_res%x, v_res%x, w_res%x, &
+           n, c_Xh, this%bclst_du, gs_Xh, &
+           ksp_vel_maxiter)
+      
       call profiler_end_region
 
       if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
@@ -687,7 +698,7 @@ contains
               ksp_vel_maxiter)
       end if
 
-      call fluid_step_info(tstep, t, dt, ksp_results)
+      call fluid_step_info_stress(tstep, t, dt, ksp_results)
 
       call this%scratch%relinquish_field(temp_indices)
 
