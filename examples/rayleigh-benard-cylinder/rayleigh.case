@@ -2,8 +2,6 @@
     "version": 1.0,
     "case": {
         "mesh_file": "cylinder.nmsh",
-        "output_control": "simulationtime",
-        "output_value": 1,
         "output_at_end": true,
         "output_boundary": true,
         "end_time": 250,
@@ -47,6 +45,8 @@
                 "absolute_tolerance": 1e-4,
                 "max_iterations": 800
             },
+            "output_control": "simulationtime",
+            "output_value": 1,
             "boundary_types": [
                 "w"
             ]
