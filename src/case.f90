@@ -388,7 +388,7 @@ contains
             path=trim(output_directory))
     end if
 
-    call json_get_or_default(C%params, 'case.output_control',&
+    call json_get_or_default(C%params, 'case.fluid.output_control',&
                              string_val, 'org')
 
     if (trim(string_val) .eq. 'org') then
@@ -399,7 +399,7 @@ contains
        ! Fix a dummy 0.0 output_value
        call C%s%add(C%f_out, 0.0_rp, string_val)
     else
-       call json_get(C%params, 'case.output_value', real_val)
+       call json_get(C%params, 'case.fluid.output_value', real_val)
        call C%s%add(C%f_out, real_val, string_val)
     end if
 
