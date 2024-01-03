@@ -185,13 +185,13 @@ contains
   end function cg_stress_nop
   
 
-  function cg_stress_solve(this, x, y, z, fx, fy, fz, n, coef, blst, gs_h, niter) result(ksp_results)
+  function cg_stress_solve(this, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(cg_stress_t), intent(inout) :: this
     type(field_t), intent(inout) :: x, y, z
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: fx, fy, fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(bc_list_t), intent(inout) :: blstx, blsty, blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -257,9 +257,9 @@ contains
        call gs_h%op(this%w1, n, GS_OP_ADD)
        call gs_h%op(this%w2, n, GS_OP_ADD)
        call gs_h%op(this%w3, n, GS_OP_ADD)
-       call bc_list_apply(blst, this%w1, n)
-       call bc_list_apply(blst, this%w2, n)
-       call bc_list_apply(blst, this%w3, n)
+       call bc_list_apply(blstx, this%w1, n)
+       call bc_list_apply(blsty, this%w2, n)
+       call bc_list_apply(blstz, this%w3, n)
 
        do i = 1, n
           this%tmp(i) = this%w1(i) * this%p1(i) &
