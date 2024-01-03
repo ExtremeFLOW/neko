@@ -549,7 +549,6 @@ contains
          tmin = min(tmin,vec(i))
     end do
     vecmin = tmin
-    write(*,*) "min = ", vecmin
   end function vlmin
   
   function vlmax(vec,n) result(vecmax)
@@ -564,7 +563,6 @@ contains
          tmax = max(tmax,vec(i))
     end do
     vecmax = tmax
-    write(*,*) "max = ", vecmax
   end function vlmax
 
   subroutine fld_file_write_field(this, fh, byte_offset, p, n)
