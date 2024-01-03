@@ -2,8 +2,6 @@
 "version": 1.0,
 "case": {
     "mesh_file": "box.nmsh",
-    "output_control": "simulationtime",
-    "output_value": 20,
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": true,
@@ -41,7 +39,9 @@
             "value": 1.0,
             "use_averaged_flow": true
         },
-        "boundary_types": ["", "", "w", "w"]
+        "boundary_types": ["", "", "w", "w"],
+        "output_control": "simulationtime",
+        "output_value": 20
     },
     "statistics": {
         "enabled": true,
