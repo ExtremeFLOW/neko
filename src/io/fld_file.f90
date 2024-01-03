@@ -541,26 +541,30 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(in) ::  vec(n)
     real(kind=rp) :: vecmin
-    real(kind=rp) :: tmin = 99.0E20
+    real(kind=rp) :: tmin
     integer :: i
 
+    tmin = 99.0e20_rp
     do i=1,n
          tmin = min(tmin,vec(i))
     end do
     vecmin = tmin
+    write(*,*) "min = ", vecmin
   end function vlmin
   
   function vlmax(vec,n) result(vecmax)
     integer, intent(in) :: n
     real(kind=rp), intent(in) ::  vec(n)
     real(kind=rp) :: vecmax
-    real(kind=rp) :: tmax = -99.0E20
+    real(kind=rp) :: tmax
     integer :: i
 
+    tmax = -99.0e20_rp
     do i=1,n
          tmax = max(tmax,vec(i))
     end do
     vecmax = tmax
+    write(*,*) "max = ", vecmax
   end function vlmax
 
   subroutine fld_file_write_field(this, fh, byte_offset, p, n)
