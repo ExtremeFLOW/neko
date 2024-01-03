@@ -61,20 +61,18 @@ but also defines several parameters that pertain to the simulation as a whole.
 
 Name                 | Description                                                    | Admissable values                         | Default value 
 -----                | -----------                                                    | -----------------                         | -------------
-`mesh_file`          | The name of the mesh file.                                                                            | Strings ending with `.nmsh`               | -
-`output_boundary`    | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                         | `false` 
-`output_control`     | Defines the interpretation of `output_value` to define the frequency of writing snapshot files.       | `nsamples`, `simulationtime`, `tsteps`, `never` | -
-`output_value`       | The frequency of sampling in terms of `output_control`.                                               | Positive real or integer                  | -
-`output_precision`   | Whether to output snapshots in single or double precision                                             | `single` or `double`                      | `single`
+`mesh_file`          | The name of the mesh file.                                                                            | Strings ending with `.nmsh`               | -  
+`output_boundary`    | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                         | `false`       
 `output_directory`   | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory             | `.` 
+`output_precision` | Whether to output snapshots in single or double precision | `single` or `double` | `single`
 `load_balancing`     | Whether to apply load balancing.                                                                      | `true` or `false`                         | `false` 
-`output_partitions`  | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                         | `false`
-`output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `false`
-`checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -
-`checkpoint_value`   | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                  | -
-`restart_file`       | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`               | -
-`time_step`          | Time-step size.                                                                                       | Positive reals                            | -
-`end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                            | -
+`output_partitions`  | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                         | `false` 
+`output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `false` 
+`checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -  
+`checkpoint_value` | The frequency of sampling in terms of `checkpoint_control`. | Positive real or integer | -  
+`restart_file` | checkpoint to use for a restart from previous data | Strings ending with `.chkp` | -  
+`time_step`          | Time-step size.                                                                                       | Positive reals                            | -  
+`end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                            | -   
 `job_timelimit`      | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS              | No limit 
 
 ## Numerics
@@ -252,6 +250,8 @@ Name                                    | Description                           
 `Re`                                    | The Reynolds number.                                                             | Positive real                                    | -
 `rho`                                   | The density of the fluid.                                                        | Positive real                                    | -
 `mu`                                    | The dynamic viscosity of the fluid.                                              | Positive real                                    | -
+`output_control` | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -  
+`output_value` | The frequency of sampling in terms of `output_control`. | Positive real or integer | -  
 `inflow_condition.type`                 | Velocity inflow condition type.                                                  | `user`, `uniform`, `blasius`                     | -
 `inflow_condition.value`                | Value of the inflow velocity.                                                    | Vector of 3 reals                                | -
 `initial_condition.type`                | Initial condition type.                                                          | `user`, `uniform`, `blasius`                     | -
