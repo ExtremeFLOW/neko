@@ -57,8 +57,10 @@ module file
      procedure :: set_counter => file_set_counter
      !> Set a file's start counter.
      procedure :: set_start_counter => file_set_start_counter
-     !> Set a file's header
+     !> Set a file's header.
      procedure :: set_header => file_set_header
+     !> Set a file's output precision.
+     procedure :: set_precision => file_set_precision
      !> File operation destructor.
      final :: file_free
   end type file_t
@@ -71,8 +73,10 @@ contains
 
   !> File reader/writer constructor.
   !! @param fname Filename.
-  function file_init(fname) result(this)
+  function file_init(fname, header, precision) result(this)
     character(len=*) :: fname
+    character(len=*), optional :: header
+    integer, optional :: precision
     type(file_t), target :: this
     character(len=80) :: suffix
     class(generic_file_t), pointer :: q
@@ -106,6 +110,14 @@ contains
     end if
 
     call this%file_type%init(fname)
+
+    if (present(header)) then
+       call this%set_header(header)
+    end if
+
+    if (present(precision)) then
+       call this%set_precision(precision)
+    end if
 
   end function file_init
 
@@ -168,7 +180,7 @@ contains
 
   end subroutine file_set_start_counter
 
-  !> Set a file's header, mainly for csv_file for now.
+  !> Set a file's header.
   subroutine file_set_header(this, hd)
     class(file_t), intent(inout) :: this
     character(len=*), intent(in) :: hd
@@ -185,5 +197,23 @@ contains
 
   end subroutine file_set_header
 
+  !> Set a file's output precision.
+  !! @param precision Precision as defined in `num_types`.
+  subroutine file_set_precision(this, precision)
+    class(file_t), intent(inout) :: this
+    integer, intent(inout) :: precision
+
+    character(len=80) :: suffix
+
+    select type(ft => this%file_type)
+    type is (fld_file_t)
+       call ft%set_precision(precision)
+    class default
+       call filename_suffix(this%file_type%fname, suffix)
+       call neko_warning("No precision strategy defined for " // trim(suffix) //&
+            " files!")
+    end select
+
+  end subroutine file_set_precision
 
 end module file
