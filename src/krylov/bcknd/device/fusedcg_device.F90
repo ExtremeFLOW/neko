@@ -43,6 +43,7 @@ module fusedcg_device
   use math, only : glsc3, rzero, copy
   use device_math, only : device_rzero, device_copy, device_glsc3
   use device
+  use comm
   implicit none
   private
 
@@ -170,7 +171,8 @@ contains
     type(c_ptr), value :: a_d, b_d, c_d, alpha_d
     real(c_rp) :: alpha
     integer :: n, p_cur
-    real(kind=rp) ::res
+    real(kind=rp) :: res
+    integer :: ierr
 #ifdef HAVE_HIP
     res = hip_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, p_cur, n)
 #elif HAVE_CUDA
