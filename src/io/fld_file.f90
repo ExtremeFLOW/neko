@@ -49,6 +49,7 @@ module fld_file
   use utils
   use comm
   use datadist
+  use math, only : vlmin, vlmax
   use neko_mpi_types
   implicit none
   private
@@ -438,10 +439,13 @@ contains
     end if
 
 
+
+    temp_offset = mpi_offset
+
     do i = 1, n_scalar_fields
        !Without this redundant if statement, Cray optimizes this loop to Oblivion
        if (i .eq. 2) then
-          mpi_offset = int(mpi_offset,i8) + &
+          mpi_offset = int(temp_offset,i8) + &
                        int(1_i8*glb_nelv, i8) * &
                        int(2, i8) * &
                        int(MPI_REAL_SIZE, i8)
@@ -536,34 +540,6 @@ contains
             MPI_REAL, status, ierr)
 
   end subroutine fld_file_write_metadata_scalar
-
-  function vlmin(vec,n) result(vecmin)
-    integer, intent(in) :: n
-    real(kind=rp), intent(in) ::  vec(n)
-    real(kind=rp) :: vecmin
-    real(kind=rp) :: tmin
-    integer :: i
-
-    tmin = 99.0e20_rp
-    do i=1,n
-         tmin = min(tmin,vec(i))
-    end do
-    vecmin = tmin
-  end function vlmin
-  
-  function vlmax(vec,n) result(vecmax)
-    integer, intent(in) :: n
-    real(kind=rp), intent(in) ::  vec(n)
-    real(kind=rp) :: vecmax
-    real(kind=rp) :: tmax
-    integer :: i
-
-    tmax = -99.0e20_rp
-    do i=1,n
-         tmax = max(tmax,vec(i))
-    end do
-    vecmax = tmax
-  end function vlmax
 
   subroutine fld_file_write_field(this, fh, byte_offset, p, n)
     class(fld_file_t), intent(inout) :: this
