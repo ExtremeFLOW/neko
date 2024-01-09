@@ -195,6 +195,12 @@ AC_DEFUN([AX_CRAY_ROCM],[
 	    hip_bcknd="1"
 	  else
 	    AC_MSG_RESULT([no])
+            if test "${ROCM_PATH}"; then
+              AX_HIP
+            else
+              AC_MSG_ERROR([Cray ROCm Toolkit not found])
+              have_hip="no"
+            fi
             AC_MSG_ERROR([Cray ROCm Toolkit not found])
 	    have_hip="no"
 	  fi
