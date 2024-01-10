@@ -201,8 +201,6 @@ AC_DEFUN([AX_CRAY_ROCM],[
               AC_MSG_ERROR([Cray ROCm Toolkit not found])
               have_hip="no"
             fi
-            AC_MSG_ERROR([Cray ROCm Toolkit not found])
-	    have_hip="no"
 	  fi
 	fi
 	AC_SUBST(hip_bcknd)
