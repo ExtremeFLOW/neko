@@ -205,7 +205,7 @@ device/opencl_intf.o : device/opencl_intf.F90 common/utils.o config/num_types.o
 device/opencl/prgm_lib.o : device/opencl/prgm_lib.F90 common/utils.o device/opencl_intf.o 
 device/dummy_device.o : device/dummy_device.F90 
 device/device.o : device/device.F90 device/opencl/prgm_lib.o device/dummy_device.o common/utils.o adt/htable.o device/hip_intf.o device/cuda_intf.o device/opencl_intf.o config/num_types.o 
-math/bcknd/device/device_math.o : math/bcknd/device/device_math.F90 config/num_types.o common/utils.o comm/comm.o 
+math/bcknd/device/device_math.o : math/bcknd/device/device_math.F90 config/num_types.o common/utils.o device/device.o comm/comm.o 
 math/bcknd/device/device_schwarz.o : math/bcknd/device/device_schwarz.F90 device/device.o common/utils.o config/num_types.o 
 math/bcknd/device/tensor_device.o : math/bcknd/device/tensor_device.F90 common/utils.o 
 math/bcknd/device/fdm_device.o : math/bcknd/device/fdm_device.F90 device/device.o common/utils.o config/num_types.o 
@@ -231,7 +231,7 @@ simulation_components/simulation_component.o : simulation_components/simulation_
 simulation_components/simcomp_executor.o : simulation_components/simcomp_executor.f90 case.o common/json_utils.o simulation_components/simulation_component_factory.o simulation_components/simulation_component.o config/num_types.o 
 simulation_components/vorticity.o : simulation_components/vorticity.f90 case.o math/operators.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
 simulation_components/lambda2.o : simulation_components/lambda2.f90 device/device.o case.o math/operators.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
-simulation_components/simulation_component_factory.o : simulation_components/simulation_component_factory.f90 common/json_utils.o case.o simulation_components/probes.o simulation_components/lambda2.o simulation_components/vorticity.o simulation_components/simulation_component.o 
+simulation_components/simulation_component_factory.o : simulation_components/simulation_component_factory.f90 common/log.o common/json_utils.o case.o simulation_components/probes.o simulation_components/lambda2.o simulation_components/vorticity.o simulation_components/simulation_component.o 
 source_terms/source_term.o : source_terms/source_term.f90 field/field_list.o sem/coef.o config/num_types.o config/neko_config.o 
 source_terms/const_source_term.o : source_terms/const_source_term.f90 source_terms/bcknd/device/const_source_term_device.o source_terms/bcknd/cpu/const_source_term_cpu.o common/utils.o config/neko_config.o sem/coef.o source_terms/source_term.o common/json_utils.o field/field_list.o config/num_types.o 
 source_terms/bcknd/cpu/const_source_term_cpu.o : source_terms/bcknd/cpu/const_source_term_cpu.f90 math/math.o field/field_list.o config/num_types.o 
