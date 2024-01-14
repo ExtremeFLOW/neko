@@ -1229,7 +1229,7 @@ contains
     type(c_ptr) :: u_d, v_d, w_d
     integer :: n
     real(kind=rp) :: res
-
+    res = 0.0_rp
 #ifdef HAVE_HIP
     res = hip_vlsc3(u_d, v_d, w_d, n)
 #elif HAVE_CUDA
@@ -1240,7 +1240,6 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
   end function device_vlsc3
 
   function device_glsc3(a_d, b_d, c_d, n) result(res)
