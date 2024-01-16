@@ -256,6 +256,119 @@ contains
      end do
   end subroutine lcsum
 
+
+  subroutine check_mesh_holes(coef, dof, msh, Xh, gs) 
+     type(coef_t), intent(inout) :: coef
+     type(dofmap_t), intent(inout) :: dof
+     type(mesh_t), intent(inout) :: msh
+     type(space_t), intent(inout) :: Xh
+     type(gs_t), intent(inout) :: gs
+
+     type(field_t), target :: x, y, z
+     type(field_t), target :: x_cpy, y_cpy, z_cpy
+     type(file_t) :: file_obj
+     type(field_list_t) :: field_list
+     real(kind=rp) :: time, avrg_x, avrg_y, avrg_z
+     
+     integer :: i,j,k,n,e
+     
+     !> Initialize fields that will hold the data 
+
+     call x%init(dof, "x")
+     call y%init(dof, "y")
+     call z%init(dof, "z")
+     call x_cpy%init(dof, "x_cpy")
+     call y_cpy%init(dof, "y_cpy")
+     call z_cpy%init(dof, "z_cpy")
+
+     ! Copy the data to the fields
+     do e = 1, msh%nelv
+        do i=1, Xh%lx
+           do j=1, Xh%ly
+              do k=1, Xh%lz
+                 x%x(i,j,k,e) = dof%x(i,j,k,e)
+                 y%x(i,j,k,e) = dof%y(i,j,k,e)
+                 z%x(i,j,k,e) = dof%z(i,j,k,e)
+                 x_cpy%x(i,j,k,e) = dof%x(i,j,k,e)
+                 y_cpy%x(i,j,k,e) = dof%y(i,j,k,e)
+                 z_cpy%x(i,j,k,e) = dof%z(i,j,k,e)
+              end do
+           end do
+        end do
+     end do
+     
+     call sync_field_cpu_to_gpu(x)
+     call sync_field_cpu_to_gpu(y)
+     call sync_field_cpu_to_gpu(z)
+     call sync_field_cpu_to_gpu(x_cpy)
+     call sync_field_cpu_to_gpu(y_cpy)
+     call sync_field_cpu_to_gpu(z_cpy)
+    
+     !> Perform dssum
+     call gs%op(x%x, x%dof%size(), GS_OP_ADD)
+     call gs%op(y%x, y%dof%size(), GS_OP_ADD)
+     call gs%op(z%x, z%dof%size(), GS_OP_ADD)
+     if (NEKO_BCKND_DEVICE .eq. 1) then
+        call device_col2(x%x_d, coef%mult_d, x%dof%size())
+        call device_col2(y%x_d, coef%mult_d, y%dof%size())
+        call device_col2(z%x_d, coef%mult_d, z%dof%size())
+     else
+        call col2(x%x, coef%mult, x%dof%size())
+        call col2(y%x, coef%mult, y%dof%size())
+        call col2(z%x, coef%mult, z%dof%size())
+     end if 
+    
+     !> Substract arrays to see if they are the same
+     if (NEKO_BCKND_DEVICE .eq. 1) then 
+        call device_sub2(x%x_d, x_cpy%x_d, x%dof%size())
+        call device_sub2(y%x_d, y_cpy%x_d, y%dof%size())
+        call device_sub2(z%x_d, z_cpy%x_d, z%dof%size())
+     else
+        call sub2(x%x, x_cpy%x, x%dof%size())
+        call sub2(y%x, y_cpy%x, y%dof%size())
+        call sub2(z%x, z_cpy%x, z%dof%size())
+     end if
+
+     !> Syncrhonize the fields with the cpu
+     call sync_field(x)
+     call sync_field(y)
+     call sync_field(z)
+
+     !> Get the sums. These are not averages
+     avrg_x = 0_rp
+     avrg_y = 0_rp
+     avrg_z = 0_rp
+     if (NEKO_BCKND_DEVICE .eq. 1) then 
+        avrg_x = device_glsum(x%x_d,x%dof%size())                  
+        avrg_y = device_glsum(y%x_d,y%dof%size())               
+        avrg_z = device_glsum(z%x_d,z%dof%size())                 
+     else
+        avrg_x = glsum(x%x,x%dof%size())                  
+        avrg_y = glsum(y%x,y%dof%size())               
+        avrg_z = glsum(z%x,z%dof%size())                 
+     end if
+     
+     if (pe_rank.eq.0) then
+             write(*,*) "The averages are: ", avrg_x, avrg_y, avrg_z
+     end if
+
+     !> ----------------------------------------------------------------
+     !> Write the fields
+     file_obj = file_t("mesh_holes_file.fld")
+     allocate(field_list%fields(3))
+     field_list%fields(1)%f => x
+     field_list%fields(2)%f => y
+     field_list%fields(3)%f => z 
+     time = 0_rp
+     call file_obj%write(field_list,time)
+     deallocate(field_list%fields)
+     call file_free(file_obj)
+
+  end subroutine check_mesh_holes
+
+
+
+
   subroutine compare_mesh_kolmogorov(eps_t, eps_k, work_field, work_field2, coef, dof, msh, Xh, ra, pr) 
      type(coef_t), intent(inout) :: coef
      type(dofmap_t), intent(inout) :: dof

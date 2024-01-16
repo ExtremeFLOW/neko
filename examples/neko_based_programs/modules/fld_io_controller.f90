@@ -381,62 +381,62 @@ contains
     class(fld_io_controller_t), intent(inout) :: this
     integer :: i,j,k,e,lx 
 
-    !> Copy the mesh from the read field to ensure mesh deformation
-    lx = this%field_file_data%lx
-    !To make sure any deformation made in the user file is passed onto here as well
-    do i = 1,this%msh%nelv
-       this%msh%elements(i)%e%pts(1)%p%x(1) = this%field_file_data%x%x(linear_index(1,1,1,i,lx,lx,lx))  
-       this%msh%elements(i)%e%pts(2)%p%x(1) = this%field_file_data%x%x(linear_index(lx,1,1,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(3)%p%x(1) = this%field_file_data%x%x(linear_index(1,lx,1,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(4)%p%x(1) = this%field_file_data%x%x(linear_index(lx,lx,1,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(5)%p%x(1) = this%field_file_data%x%x(linear_index(1,1,lx,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(6)%p%x(1) = this%field_file_data%x%x(linear_index(lx,1,lx,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(7)%p%x(1) = this%field_file_data%x%x(linear_index(1,lx,lx,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(8)%p%x(1) = this%field_file_data%x%x(linear_index(lx,lx,lx,i,lx,lx,lx))
-
-       this%msh%elements(i)%e%pts(1)%p%x(2) = this%field_file_data%y%x(linear_index(1,1,1,i,lx,lx,lx))  
-       this%msh%elements(i)%e%pts(2)%p%x(2) = this%field_file_data%y%x(linear_index(lx,1,1,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(3)%p%x(2) = this%field_file_data%y%x(linear_index(1,lx,1,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(4)%p%x(2) = this%field_file_data%y%x(linear_index(lx,lx,1,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(5)%p%x(2) = this%field_file_data%y%x(linear_index(1,1,lx,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(6)%p%x(2) = this%field_file_data%y%x(linear_index(lx,1,lx,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(7)%p%x(2) = this%field_file_data%y%x(linear_index(1,lx,lx,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(8)%p%x(2) = this%field_file_data%y%x(linear_index(lx,lx,lx,i,lx,lx,lx))
-
-       this%msh%elements(i)%e%pts(1)%p%x(3) = this%field_file_data%z%x(linear_index(1,1,1,i,lx,lx,lx))  
-       this%msh%elements(i)%e%pts(2)%p%x(3) = this%field_file_data%z%x(linear_index(lx,1,1,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(3)%p%x(3) = this%field_file_data%z%x(linear_index(1,lx,1,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(4)%p%x(3) = this%field_file_data%z%x(linear_index(lx,lx,1,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(5)%p%x(3) = this%field_file_data%z%x(linear_index(1,1,lx,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(6)%p%x(3) = this%field_file_data%z%x(linear_index(lx,1,lx,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(7)%p%x(3) = this%field_file_data%z%x(linear_index(1,lx,lx,i,lx,lx,lx))
-       this%msh%elements(i)%e%pts(8)%p%x(3) = this%field_file_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
-    end do
+    !!> Copy the mesh from the read field to ensure mesh deformation
+    !lx = this%field_file_data%lx
+    !!To make sure any deformation made in the user file is passed onto here as well
+    !do i = 1,this%msh%nelv
+    !   this%msh%elements(i)%e%pts(1)%p%x(1) = this%field_file_data%x%x(linear_index(1,1,1,i,lx,lx,lx))  
+    !   this%msh%elements(i)%e%pts(2)%p%x(1) = this%field_file_data%x%x(linear_index(lx,1,1,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(3)%p%x(1) = this%field_file_data%x%x(linear_index(1,lx,1,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(4)%p%x(1) = this%field_file_data%x%x(linear_index(lx,lx,1,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(5)%p%x(1) = this%field_file_data%x%x(linear_index(1,1,lx,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(6)%p%x(1) = this%field_file_data%x%x(linear_index(lx,1,lx,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(7)%p%x(1) = this%field_file_data%x%x(linear_index(1,lx,lx,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(8)%p%x(1) = this%field_file_data%x%x(linear_index(lx,lx,lx,i,lx,lx,lx))
+    !
+    !   this%msh%elements(i)%e%pts(1)%p%x(2) = this%field_file_data%y%x(linear_index(1,1,1,i,lx,lx,lx))  
+    !   this%msh%elements(i)%e%pts(2)%p%x(2) = this%field_file_data%y%x(linear_index(lx,1,1,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(3)%p%x(2) = this%field_file_data%y%x(linear_index(1,lx,1,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(4)%p%x(2) = this%field_file_data%y%x(linear_index(lx,lx,1,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(5)%p%x(2) = this%field_file_data%y%x(linear_index(1,1,lx,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(6)%p%x(2) = this%field_file_data%y%x(linear_index(lx,1,lx,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(7)%p%x(2) = this%field_file_data%y%x(linear_index(1,lx,lx,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(8)%p%x(2) = this%field_file_data%y%x(linear_index(lx,lx,lx,i,lx,lx,lx))
+    !
+    !   this%msh%elements(i)%e%pts(1)%p%x(3) = this%field_file_data%z%x(linear_index(1,1,1,i,lx,lx,lx))  
+    !   this%msh%elements(i)%e%pts(2)%p%x(3) = this%field_file_data%z%x(linear_index(lx,1,1,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(3)%p%x(3) = this%field_file_data%z%x(linear_index(1,lx,1,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(4)%p%x(3) = this%field_file_data%z%x(linear_index(lx,lx,1,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(5)%p%x(3) = this%field_file_data%z%x(linear_index(1,1,lx,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(6)%p%x(3) = this%field_file_data%z%x(linear_index(lx,1,lx,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(7)%p%x(3) = this%field_file_data%z%x(linear_index(1,lx,lx,i,lx,lx,lx))
+    !   this%msh%elements(i)%e%pts(8)%p%x(3) = this%field_file_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
+    !end do
    
     !> Based on data read, initialize dofmap, gs, coef
     call this%Xh%init(GLL, this%field_file_data%lx, this%field_file_data%ly, this%field_file_data%lz)
     this%dof = dofmap_t(this%msh, this%Xh)
 
-    !> Update dof map to account for non linear defformations of the elements
+    !!> Update dof map to account for non linear defformations of the elements
     !! %apply_deform is the last thing done in dofmat_init before copying to the gpu
     !! so now we will just override that with direct copy from the file
-    do e = 1,this%msh%nelv
-       do k = 1,lx
-          do j = 1,lx
-             do i = 1,lx
-                this%dof%x(i,j,k,e) = this%field_file_data%x%x(linear_index(i,j,k,e,lx,lx,lx))  
-                this%dof%y(i,j,k,e) = this%field_file_data%y%x(linear_index(i,j,k,e,lx,lx,lx))  
-                this%dof%z(i,j,k,e) = this%field_file_data%z%x(linear_index(i,j,k,e,lx,lx,lx))   
-             end do 
-          end do
-       end do
-    end do
+    !do e = 1,this%msh%nelv
+    !   do k = 1,lx
+    !      do j = 1,lx
+    !         do i = 1,lx
+    !            this%dof%x(i,j,k,e) = this%field_file_data%x%x(linear_index(i,j,k,e,lx,lx,lx))  
+    !            this%dof%y(i,j,k,e) = this%field_file_data%y%x(linear_index(i,j,k,e,lx,lx,lx))  
+    !            this%dof%z(i,j,k,e) = this%field_file_data%z%x(linear_index(i,j,k,e,lx,lx,lx))   
+    !         end do 
+    !      end do
+    !   end do
+    !end do
     
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%dof%x, this%dof%x_d, this%dof%size(), HOST_TO_DEVICE, sync=.true.)
-       call device_memcpy(this%dof%y, this%dof%y_d, this%dof%size(), HOST_TO_DEVICE, sync=.true.)
-       call device_memcpy(this%dof%z, this%dof%z_d, this%dof%size(), HOST_TO_DEVICE, sync=.true.)
-    end if
+    !if (NEKO_BCKND_DEVICE .eq. 1) then
+    !   call device_memcpy(this%dof%x, this%dof%x_d, this%dof%size(), HOST_TO_DEVICE, sync=.true.)
+    !   call device_memcpy(this%dof%y, this%dof%y_d, this%dof%size(), HOST_TO_DEVICE, sync=.true.)
+    !   call device_memcpy(this%dof%z, this%dof%z_d, this%dof%size(), HOST_TO_DEVICE, sync=.true.)
+    !end if
 
     write(*,*) "dof size is= ", this%dof%size()
 

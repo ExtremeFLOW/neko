@@ -1,0 +1,12 @@
+{
+"version": 1.0,
+"case": {
+    	"field_reader":
+        [
+		{
+        		"mesh_name" : "cylinder.nmsh",
+        		"field_file_name": "mean_field21.fld"
+     		}
+	]
+}
+}
