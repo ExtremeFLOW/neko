@@ -38,7 +38,7 @@ module inflow
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
   implicit none
   private
-  
+
   !> Dirichlet condition for inlet (vector valued)
   type, public, extends(dirichlet_t) :: inflow_t
      real(kind=rp), dimension(3) :: x = (/0d0, 0d0, 0d0 /)
@@ -49,7 +49,7 @@ module inflow
      procedure, pass(this) :: apply_vector_dev => inflow_apply_vector_dev
      procedure, pass(this) :: set_inflow => inflow_set_vector
   end type inflow_t
-  
+
 contains
 
   !> No-op scalar apply
@@ -68,7 +68,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
   end subroutine inflow_apply_scalar_dev
-  
+
   !> Apply inflow conditions (vector valued)
   subroutine inflow_apply_vector(this, x, y, z, n, t, tstep)
     class(inflow_t), intent(inout) :: this
@@ -97,10 +97,10 @@ contains
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    
+
     call device_inflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
                                     c_loc(this%x), this%msk(0))
-    
+
   end subroutine inflow_apply_vector_dev
 
   !> Set inflow vector
@@ -109,6 +109,6 @@ contains
     real(kind=rp), dimension(3), intent(inout) :: x
     this%x = x
   end subroutine inflow_set_vector
-    
-  
+
+
 end module inflow

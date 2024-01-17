@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Routines to obtain interpolated values on a set of points with known 
+!> Routines to obtain interpolated values on a set of points with known
 !! rst coordinates in elements local to this process.
 module local_interpolation
   use tensor, only: triple_tensor_product, tnsr3d_el_list
@@ -84,7 +84,7 @@ contains
     class(local_interpolator_t), intent(inout), target :: this
     type(space_t), intent(in), target :: Xh
     integer, intent(in) :: n_points
-    real(kind=rp) :: r(n_points), s(n_points), t(n_points) 
+    real(kind=rp) :: r(n_points), s(n_points), t(n_points)
     integer :: size_weights
     call this%free()
     if ((Xh%t .eq. GL) .or. (Xh%t .eq. GLL)) then

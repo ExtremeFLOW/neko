@@ -16,9 +16,13 @@ Technology.
 
 \subpage installation
 
+\subpage governing-equations
+
 \subpage case-file
 
 \subpage simcomps
+
+\subpage point-zones
 
 \subpage accelerators
 

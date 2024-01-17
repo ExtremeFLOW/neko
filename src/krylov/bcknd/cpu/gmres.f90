@@ -32,13 +32,20 @@
 !
 !> Defines various GMRES methods
 module gmres
-  use krylov
-  use math
+  use krylov, only : ksp_t, ksp_monitor_t
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, rzero, rone, copy, sub2, cmult2
   use comm
   implicit none
   private
 
-  !> Standard preconditioned generalized minimal residual method 
+  !> Standard preconditioned generalized minimal residual method
   type, public, extends(ksp_t) :: gmres_t
      integer :: lgmres
      real(kind=rp), allocatable :: w(:)
@@ -72,28 +79,28 @@ contains
     else
        this%lgmres = 30
     end if
-    
+
 
     call this%free()
-    
-    if (present(M)) then 
+
+    if (present(M)) then
        this%M => M
     end if
 
     allocate(this%w(n))
     allocate(this%r(n))
     allocate(this%wk1(n))
-    
+
     allocate(this%c(this%lgmres))
     allocate(this%s(this%lgmres))
     allocate(this%gam(this%lgmres + 1))
-    
+
     allocate(this%z(n,this%lgmres))
     allocate(this%v(n,this%lgmres))
-    
+
     allocate(this%h(this%lgmres,this%lgmres))
-    
-       
+
+
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)
     else if (present(rel_tol)) then
@@ -103,7 +110,7 @@ contains
     else
        call this%ksp_init(abs_tol)
     end if
-          
+
   end subroutine gmres_init
 
   !> Deallocate a standard GMRES solver
@@ -123,7 +130,7 @@ contains
     if (allocated(this%r)) then
        deallocate(this%r)
     end if
- 
+
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
@@ -131,28 +138,28 @@ contains
     if (allocated(this%h)) then
        deallocate(this%h)
     end if
-    
+
     if (allocated(this%v)) then
        deallocate(this%v)
     end if
-    
+
     if (allocated(this%s)) then
        deallocate(this%s)
     end if
-    
-    
+
+
     if (allocated(this%gam)) then
        deallocate(this%gam)
     end if
-    
+
     if (allocated(this%wk1)) then
        deallocate(this%wk1)
     end if
-    
+
     nullify(this%M)
-    
+
   end subroutine gmres_free
- 
+
   !> Standard GMRES solve
   function gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(gmres_t), intent(inout) :: this
@@ -165,8 +172,8 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter 
-    integer :: i, j, k, l, ierr 
+    integer :: iter
+    integer :: i, j, k, l, ierr
     real(kind=rp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
     logical :: conv
@@ -174,179 +181,179 @@ contains
     conv = .false.
     iter = 0
 
-     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
+    associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
           v => this%v, s => this%s, gam => this%gam, wk1 =>this%wk1)
 
-       norm_fac = 1.0_rp / sqrt(coef%volume)
-       call rzero(x%x, n)
-       call rzero(gam, this%lgmres + 1)
-       call rone(s, this%lgmres)
-       call rone(c, this%lgmres)
-       call rzero(h, this%lgmres * this%lgmres)
-       do while (.not. conv .and. iter .lt. niter)
+      norm_fac = 1.0_rp / sqrt(coef%volume)
+      call rzero(x%x, n)
+      call rzero(gam, this%lgmres + 1)
+      call rone(s, this%lgmres)
+      call rone(c, this%lgmres)
+      call rzero(h, this%lgmres * this%lgmres)
+      do while (.not. conv .and. iter .lt. niter)
 
-          if(iter.eq.0) then               
-             call copy(r, f, n) 
-          else
-             call copy(r, f, n)      
-             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
-             call gs_h%op(w, n, GS_OP_ADD)
-             call bc_list_apply(blst, w, n)
-             call sub2(r, w, n) 
-          end if
-          
-          gam(1) = sqrt(glsc3(r, r, coef%mult, n))
-          if(iter.eq.0) then
-             ksp_results%res_start = gam(1) * norm_fac
-          end if
+         if(iter.eq.0) then
+            call copy(r, f, n)
+         else
+            call copy(r, f, n)
+            call Ax%compute(w, x%x, coef, x%msh, x%Xh)
+            call gs_h%op(w, n, GS_OP_ADD)
+            call bc_list_apply(blst, w, n)
+            call sub2(r, w, n)
+         end if
 
-          if (gam(1) .eq. 0) return
+         gam(1) = sqrt(glsc3(r, r, coef%mult, n))
+         if(iter.eq.0) then
+            ksp_results%res_start = gam(1) * norm_fac
+         end if
 
-          rnorm = 0.0_rp
-          temp = 1.0_rp / gam(1)
-          call cmult2(v(1,1), r, temp, n) 
-          do j = 1, this%lgmres
-             iter = iter+1
-          
-             call this%M%solve(z(1,j), v(1,j), n)
+         if (gam(1) .eq. 0) return
 
-             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
-             call gs_h%op(w, n, GS_OP_ADD)
-             call bc_list_apply(blst, w, n)
-             
-             do l = 1, j
-                h(l,j) = 0.0_rp
-             enddo
+         rnorm = 0.0_rp
+         temp = 1.0_rp / gam(1)
+         call cmult2(v(1,1), r, temp, n)
+         do j = 1, this%lgmres
+            iter = iter+1
 
-             do i = 0, n, NEKO_BLK_SIZE
-                if (i + NEKO_BLK_SIZE .le. n) then
-                   do l = 1, j
-                      do k = 1, NEKO_BLK_SIZE
-                         h(l,j) = h(l,j) + &
+            call this%M%solve(z(1,j), v(1,j), n)
+
+            call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
+            call gs_h%op(w, n, GS_OP_ADD)
+            call bc_list_apply(blst, w, n)
+
+            do l = 1, j
+               h(l,j) = 0.0_rp
+            enddo
+
+            do i = 0, n, NEKO_BLK_SIZE
+               if (i + NEKO_BLK_SIZE .le. n) then
+                  do l = 1, j
+                     do k = 1, NEKO_BLK_SIZE
+                        h(l,j) = h(l,j) + &
                               w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
-                      end do
-                   end do
-                else 
-                   do k = 1, n-i
-                      do l = 1, j
-                         h(l,j) = h(l,j) + &
+                     end do
+                  end do
+               else
+                  do k = 1, n-i
+                     do l = 1, j
+                        h(l,j) = h(l,j) + &
                               w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
-                      end do
-                   end do
-                end if
-             end do
-             
-             call MPI_Allreduce(h(1,j), wk1, j, &
+                     end do
+                  end do
+               end if
+            end do
+
+            call MPI_Allreduce(h(1,j), wk1, j, &
                   MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-             call copy(h(1,j), wk1, j) 
+            call copy(h(1,j), wk1, j)
 
-             alpha2 = 0.0_rp
-             do i = 0,n,NEKO_BLK_SIZE
-                if (i + NEKO_BLK_SIZE .le. n) then
-                   do k = 1, NEKO_BLK_SIZE
-                      w_plus(k) = 0.0_rp
-                   end do
-                   do l = 1,j
-                      do k = 1, NEKO_BLK_SIZE
-                         w_plus(k) = w_plus(k) - h(l,j) * v(i+k,l)
-                      end do
-                   end do
-                   do k = 1, NEKO_BLK_SIZE
-                      w(i+k) = w(i+k) + w_plus(k)
-                      alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
-                   end do
-                else 
-                   do k = 1, n-i
-                      w_plus(1) = 0.0_rp
-                      do l = 1, j
-                         w_plus(1) = w_plus(1) - h(l,j) * v(i+k,l)
-                      end do
-                      w(i+k) = w(i+k) + w_plus(1)
-                      alpha2 = alpha2 + (w(i+k)**2) * coef%mult(i+k,1,1,1)
-                   end do
-                end if
-             end do
-             
-             call MPI_Allreduce(alpha2, temp, 1, &
+            alpha2 = 0.0_rp
+            do i = 0,n,NEKO_BLK_SIZE
+               if (i + NEKO_BLK_SIZE .le. n) then
+                  do k = 1, NEKO_BLK_SIZE
+                     w_plus(k) = 0.0_rp
+                  end do
+                  do l = 1,j
+                     do k = 1, NEKO_BLK_SIZE
+                        w_plus(k) = w_plus(k) - h(l,j) * v(i+k,l)
+                     end do
+                  end do
+                  do k = 1, NEKO_BLK_SIZE
+                     w(i+k) = w(i+k) + w_plus(k)
+                     alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
+                  end do
+               else
+                  do k = 1, n-i
+                     w_plus(1) = 0.0_rp
+                     do l = 1, j
+                        w_plus(1) = w_plus(1) - h(l,j) * v(i+k,l)
+                     end do
+                     w(i+k) = w(i+k) + w_plus(1)
+                     alpha2 = alpha2 + (w(i+k)**2) * coef%mult(i+k,1,1,1)
+                  end do
+               end if
+            end do
+
+            call MPI_Allreduce(alpha2, temp, 1, &
                   MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-             alpha2 = temp
-             alpha = sqrt(alpha2)
-             do i=1,j-1
-                temp = h(i,j)                   
-                h(i  ,j) =  c(i)*temp + s(i) * h(i+1,j)  
-                h(i+1,j) = -s(i)*temp + c(i) * h(i+1,j)
-             end do
-             
-             rnorm = 0.0_rp
-             if(alpha .eq. 0.0_rp) then 
-                conv = .true.
-                exit
-             end if
-             
-             lr = sqrt(h(j,j) * h(j,j) + alpha**2)
-             temp = 1.0_rp / lr
-             c(j) = h(j,j) * temp
-             s(j) = alpha  * temp
-             h(j,j) = lr
-             gam(j+1) = -s(j) * gam(j)
-             gam(j)   =  c(j) * gam(j)
-             
-             rnorm = abs(gam(j+1)) * norm_fac
-             if (rnorm .lt. this%abs_tol) then 
-                conv = .true.
-                exit
-             end if
-             
-             if (iter + 1 .gt. niter) exit
-             
-             if( j .lt. this%lgmres) then
-                temp = 1.0_rp / alpha
-                call cmult2(v(1,j+1), w, temp, n)
-             end if
-             
-          end do
+            alpha2 = temp
+            alpha = sqrt(alpha2)
+            do i=1,j-1
+               temp = h(i,j)
+               h(i  ,j) =  c(i)*temp + s(i) * h(i+1,j)
+               h(i+1,j) = -s(i)*temp + c(i) * h(i+1,j)
+            end do
 
-          j = min(j, this%lgmres)
-          do k = j, 1, -1
-             temp = gam(k)
-             do i = j, k+1, -1
-                temp = temp - h(k,i) * c(i)
-             end do
-             c(k) = temp / h(k,k)
-          end do
+            rnorm = 0.0_rp
+            if(alpha .eq. 0.0_rp) then
+               conv = .true.
+               exit
+            end if
 
-          do i = 0, n, NEKO_BLK_SIZE
-             if (i + NEKO_BLK_SIZE .le. n) then
-                do k = 1, NEKO_BLK_SIZE
-                   x_plus(k) = 0.0_rp
-                end do
-                do l = 1,j
-                   do k = 1, NEKO_BLK_SIZE
-                      x_plus(k) = x_plus(k) + c(l) * z(i+k,l)
-                   end do
-                end do
-                do k = 1, NEKO_BLK_SIZE
-                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-                end do
-             else 
-                do k = 1, n-i
-                   x_plus(1) = 0.0_rp
-                   do l = 1, j
-                      x_plus(1) = x_plus(1) + c(l) * z(i+k,l)
-                   end do
-                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
-                end do
-             end if
-          end do
-       end do
+            lr = sqrt(h(j,j) * h(j,j) + alpha**2)
+            temp = 1.0_rp / lr
+            c(j) = h(j,j) * temp
+            s(j) = alpha  * temp
+            h(j,j) = lr
+            gam(j+1) = -s(j) * gam(j)
+            gam(j)   =  c(j) * gam(j)
 
-     end associate
+            rnorm = abs(gam(j+1)) * norm_fac
+            if (rnorm .lt. this%abs_tol) then
+               conv = .true.
+               exit
+            end if
 
-       ksp_results%res_final = rnorm
-       ksp_results%iter = iter
+            if (iter + 1 .gt. niter) exit
+
+            if( j .lt. this%lgmres) then
+               temp = 1.0_rp / alpha
+               call cmult2(v(1,j+1), w, temp, n)
+            end if
+
+         end do
+
+         j = min(j, this%lgmres)
+         do k = j, 1, -1
+            temp = gam(k)
+            do i = j, k+1, -1
+               temp = temp - h(k,i) * c(i)
+            end do
+            c(k) = temp / h(k,k)
+         end do
+
+         do i = 0, n, NEKO_BLK_SIZE
+            if (i + NEKO_BLK_SIZE .le. n) then
+               do k = 1, NEKO_BLK_SIZE
+                  x_plus(k) = 0.0_rp
+               end do
+               do l = 1,j
+                  do k = 1, NEKO_BLK_SIZE
+                     x_plus(k) = x_plus(k) + c(l) * z(i+k,l)
+                  end do
+               end do
+               do k = 1, NEKO_BLK_SIZE
+                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
+               end do
+            else
+               do k = 1, n-i
+                  x_plus(1) = 0.0_rp
+                  do l = 1, j
+                     x_plus(1) = x_plus(1) + c(l) * z(i+k,l)
+                  end do
+                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
+               end do
+            end if
+         end do
+      end do
+
+    end associate
+
+    ksp_results%res_final = rnorm
+    ksp_results%iter = iter
 
   end function gmres_solve
 
 end module gmres
-  
+
 

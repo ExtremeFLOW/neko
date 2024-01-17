@@ -120,5 +120,5 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_project_ortho
-  
+
 end module device_projection

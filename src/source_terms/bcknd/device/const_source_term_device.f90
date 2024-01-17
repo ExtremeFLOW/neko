@@ -45,7 +45,7 @@ contains
   !> Computs the constant source term on the device.
   !! @param fields The right-hand side.
   !! @param values The values of the source components.
-  subroutine const_source_term_compute_device(fields, values) 
+  subroutine const_source_term_compute_device(fields, values)
     type(field_list_t), intent(inout) :: fields
     real(kind=rp), intent(in) :: values(:)
     integer :: n_fields, i, n
@@ -57,5 +57,5 @@ contains
        call device_cadd(fields%fields(i)%f%x_d, values(i), n)
     end do
   end subroutine const_source_term_compute_device
-  
+
 end module const_source_term_device

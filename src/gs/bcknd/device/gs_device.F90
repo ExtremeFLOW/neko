@@ -35,14 +35,14 @@ module gs_device
   use neko_config
   use num_types
   use gs_bcknd
-  use device    
+  use device
   use gs_ops
   use utils
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR, &
                                           c_associated
   implicit none
   private
-  
+
   !> Gather-scatter backend for offloading devices
   type, public, extends(gs_bcknd_t) :: gs_device_t
      integer, allocatable :: local_blk_off(:)    !< Local block offset
@@ -57,7 +57,7 @@ module gs_device
      type(c_ptr) :: shared_blk_len_d = C_NULL_PTR!< Dev. ptr shared n-f blocks
      type(c_ptr) :: local_blk_off_d = C_NULL_PTR !< Dev. ptr local blk offset
      type(c_ptr) :: shared_blk_off_d = C_NULL_PTR!< Dev. ptr shared blk offset
-     integer :: nlocal              
+     integer :: nlocal
      integer :: nshared
      logical :: shared_on_host !< Shared points are handled on host
    contains
@@ -131,7 +131,7 @@ module gs_device
 #endif
 
 contains
-  
+
   !> Accelerator backend initialisation
   subroutine gs_device_init(this, nlocal, nshared, nlcl_blks, nshrd_blks)
     class(gs_device_t), intent(inout) :: this
@@ -167,7 +167,7 @@ contains
 #endif
 
     this%gs_stream = glb_cmd_queue
-    
+
   end subroutine gs_device_init
 
   !> Dummy backend deallocation
@@ -217,7 +217,7 @@ contains
     if (c_associated(this%gather_event)) then
        call device_event_destroy(this%gather_event)
     end if
-    
+
     if (c_associated(this%scatter_event)) then
        call device_event_destroy(this%scatter_event)
     end if
@@ -226,7 +226,7 @@ contains
     if (c_associated(this%gs_stream)) then
        this%gs_stream = C_NULL_PTR
     end if
-    
+
   end subroutine gs_device_free
 
   !> Gather kernel
@@ -247,7 +247,7 @@ contains
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
-        
+
     if (.not. shrd) then
        associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &
             gd_d=>this%local_gs_dof_d, b_d=>this%local_blk_len_d, &
@@ -260,17 +260,20 @@ contains
 
          if (.not. c_associated(dg_d)) then
             call device_map(dg, dg_d, m)
-            call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(gd_d)) then
             call device_map(gd, gd_d, m)
-            call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(b_d)) then
             call device_map(b, b_d, nb)
-            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(bo_d)) then
@@ -279,9 +282,10 @@ contains
             do  i = 2, nb
                bo(i) = bo(i - 1) + b(i - 1)
             end do
-            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
-         
+
 #ifdef HAVE_HIP
          call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
                                 nb, b_d, bo_d, op, strm)
@@ -294,7 +298,7 @@ contains
 #else
          call neko_error('No device backend configured')
 #endif
-         
+
        end associate
     else if (shrd) then
        associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
@@ -308,17 +312,20 @@ contains
 
          if (.not. c_associated(dg_d)) then
             call device_map(dg, dg_d, m)
-            call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(gd_d)) then
             call device_map(gd, gd_d, m)
-            call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(b_d)) then
             call device_map(b, b_d, nb)
-            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(bo_d)) then
@@ -327,11 +334,12 @@ contains
             do  i = 2, nb
                bo(i) = bo(i - 1) + b(i - 1)
             end do
-            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
-         
-#ifdef HAVE_HIP   
+
+#ifdef HAVE_HIP
          call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
                                 nb, b_d, bo_d, op, strm)
 #elif HAVE_CUDA
@@ -345,12 +353,13 @@ contains
 #endif
 
 #if defined(HAVE_HIP) || defined(HAVE_CUDA)
-         call device_event_record(this%gather_event, strm)         
+         call device_event_record(this%gather_event, strm)
 #endif
-         
+
          if (this%shared_on_host) then
             if (this%nshared .eq. m) then
-               call device_memcpy(v, v_d, m, DEVICE_TO_HOST,strm=strm)
+               call device_memcpy(v, v_d, m, DEVICE_TO_HOST, &
+                                  sync=.true., strm=strm)
             end if
          end if
 
@@ -358,7 +367,7 @@ contains
     end if
 
   end subroutine gs_gather_device
- 
+
   !> Scatter kernel
   subroutine gs_scatter_device(this, v, m, dg, u, n, gd, nb, b, shrd, event)
     integer, intent(in) :: m
@@ -396,9 +405,10 @@ contains
             bo_d=>this%shared_blk_off_d, strm=>this%gs_stream)
 
          if (this%shared_on_host) then
-            call device_memcpy(v, v_d, m, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(v, v_d, m, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
-         
+
 #ifdef HAVE_HIP
          call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
 #elif HAVE_CUDA
@@ -414,9 +424,9 @@ contains
             call device_event_record(event, strm)
          else
             call device_sync(strm)
-         end if         
+         end if
 #endif
-         
+
        end associate
     end if
 

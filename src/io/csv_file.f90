@@ -68,29 +68,32 @@ contains
     real(kind=rp), intent(in), optional :: t
 
     real(kind=rp) :: time
-    type(vector_t), pointer :: vec => null()
-    type(matrix_t), pointer :: mat => null()
+    type(vector_t), pointer :: vec
+    type(matrix_t), pointer :: mat
+
+    nullify(vec)
+    nullify(mat)
 
     select type(data)
     type is (vector_t)
        if (.not. allocated(data%x)) then
           call neko_error("Vector is not allocated! Use &
-               &vector%init() to associate your array &
-               &with a vector_t object")
+          &vector%init() to associate your array &
+          &with a vector_t object")
        end if
        vec => data
 
     type is (matrix_t)
        if (.not. allocated(data%x)) then
           call neko_error("Matrix is not allocated! Use &
-               &matrix%init() to associate your array &
-               &with a matrix_t object")
+          &matrix%init() to associate your array &
+          &with a matrix_t object")
        end if
        mat => data
 
     class default
        call neko_error("Invalid data. Expected vector_t or &
-            &matrix_t")
+       &matrix_t")
     end select
 
     ! Write is performed on rank 0
@@ -177,30 +180,33 @@ contains
   subroutine csv_file_read(this, data)
     class(csv_file_t) :: this
     class(*), target, intent(inout) :: data
-    type(vector_t), pointer :: vec => null()
-    type(matrix_t), pointer :: mat => null()
+    type(vector_t), pointer :: vec
+    type(matrix_t), pointer :: mat
+
+    nullify(vec)
+    nullify(mat)
 
     select type(data)
     type is (vector_t)
        vec => data
        if (.not. allocated(data%x)) then
           call neko_error("Vector is not allocated! Use &
-               &vector%init() to associate your array &
-               &with a vector_t object")
+          &vector%init() to associate your array &
+          &with a vector_t object")
        end if
 
     type is (matrix_t)
        mat => data
        if (.not. allocated(data%x)) then
           call neko_error("Matrix is not allocated! Use &
-               &matrix%init() to associate your array &
-               &with a matrix_t object")
+          &matrix%init() to associate your array &
+          &with a matrix_t object")
        end if
 
 
     class default
        call neko_error("Invalid data type for csv_file (expected: vector_t, &
-            &matrix_t)")
+       &matrix_t)")
     end select
 
     if (pe_rank .eq. 0) then
@@ -301,7 +307,7 @@ contains
     rewind(file_unit)
 
     n = 0
-    
+
     ! Keep reading (ierr = 0) until we reach the end (ierr != 0)
     do
        read (file_unit,*,iostat=ierr)

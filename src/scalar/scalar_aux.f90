@@ -9,7 +9,7 @@ module scalar_aux
 contains
 
   !> Prints for prs, velx, vely, velz the following:
-  !! Number of iterations, start residual, end residual 
+  !! Number of iterations, start residual, end residual
   subroutine scalar_step_info(step, t, dt, ksp_results)
     type(ksp_monitor_t), intent(in) :: ksp_results(1)
     integer, intent(in) :: step

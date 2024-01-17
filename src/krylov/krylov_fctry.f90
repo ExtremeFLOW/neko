@@ -43,7 +43,8 @@ module krylov_fctry
   use gmres_sx, only : sx_gmres_t
   use gmres_device, only : gmres_device_t
   use num_Types, only : rp
-  use krylov, only : ksp_t, ksp_monitor_t, pc_t
+  use krylov, only : ksp_t, ksp_monitor_t
+  use precon, only : pc_t
   use utils, only : neko_error
   use neko_config
   implicit none
@@ -59,7 +60,7 @@ contains
     character(len=*), intent(in) :: solver
     real(kind=rp), optional :: abstol
     class(pc_t), optional, intent(inout), target :: M
- 
+
     if (allocated(ksp)) then
        call krylov_solver_destroy(ksp)
        deallocate(ksp)
@@ -129,9 +130,9 @@ contains
        type is(cg_t)
           call kp%init(n, abs_tol = abstol)
        type is(sx_cg_t)
-          call kp%init(n, abs_tol = abstol)       
+          call kp%init(n, abs_tol = abstol)
        type is(cg_device_t)
-          call kp%init(n, abs_tol = abstol)       
+          call kp%init(n, abs_tol = abstol)
        type is(pipecg_t)
           call kp%init(n, abs_tol = abstol)
        type is(sx_pipecg_t)
@@ -154,7 +155,7 @@ contains
        type is(cg_t)
           call kp%init(n, M = M)
        type is(sx_cg_t)
-          call kp%init(n, M = M)       
+          call kp%init(n, M = M)
        type is(cg_device_t)
           call kp%init(n, M = M)
        type is(pipecg_t)
@@ -179,9 +180,9 @@ contains
        type is(cg_t)
           call kp%init(n)
        type is(sx_cg_t)
-          call kp%init(n)       
+          call kp%init(n)
        type is(cg_device_t)
-          call kp%init(n)       
+          call kp%init(n)
        type is(pipecg_t)
           call kp%init(n)
        type is(sx_pipecg_t)
@@ -214,7 +215,7 @@ contains
        type is(sx_cg_t)
           call kp%free()
        type is(cg_device_t)
-          call kp%free()       
+          call kp%free()
        type is(pipecg_t)
           call kp%free()
        type is(sx_pipecg_t)
@@ -233,8 +234,8 @@ contains
           call kp%free()
        end select
     end if
- 
+
   end subroutine krylov_solver_destroy
-    
+
 end module krylov_fctry
-  
+

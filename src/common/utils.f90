@@ -40,23 +40,23 @@ module utils
   interface neko_error
      module procedure neko_error_plain, neko_error_msg
   end interface neko_error
-  
+
 contains
-  
+
   !> Find position (in the string) of a filename's suffix
   pure function filename_suffix_pos(fname) result(suffix_pos)
     character(len=*), intent(in) :: fname
     integer :: suffix_pos
-    suffix_pos = scan(trim(fname), '.', back=.true.)    
+    suffix_pos = scan(trim(fname), '.', back=.true.)
   end function filename_suffix_pos
 
   !> Find position (in the string) of a filename's trailing slash
   pure function filename_tslash_pos(fname) result(tslash_pos)
     character(len=*), intent(in) :: fname
     integer :: tslash_pos
-    tslash_pos = scan(trim(fname), '/', back=.true.)    
+    tslash_pos = scan(trim(fname), '/', back=.true.)
   end function filename_tslash_pos
-  
+
   !> Extract a filename's suffix
   subroutine filename_suffix(fname, suffix)
     character(len=*) :: fname
@@ -81,7 +81,7 @@ contains
   pure function linear_index(i,j,k,l,lx,ly,lz) result(index)
     integer, intent(in) :: i, j, k, l, lx, ly, lz
     integer :: index
-    
+
     index = (i + lx * ((j - 1) + ly * ((k - 1) + lz * ((l - 1)))))
   end function linear_index
 
@@ -104,11 +104,11 @@ contains
     case(6)
        if (k .eq. lz) is_on = .true.
     end select
-  
+
 
   end function index_is_on_facet
-  
- 
+
+
   !> Compute (i,j,k,l) array given linear index
   !! with sizes (1:lx, 1:ly, 1:lz, :)
   pure function nonlinear_index(linear_index,lx,ly,lz) result(index)
@@ -116,7 +116,7 @@ contains
     integer :: index(4)
     integer :: lin_idx
     lin_idx = linear_index -1
-    index(4) = lin_idx/(lx*ly*lz) 
+    index(4) = lin_idx/(lx*ly*lz)
     index(3) = (lin_idx-(lx*ly*lz)*index(4))/(lx*ly)
     index(2) = (lin_idx-(lx*ly*lz)*index(4)-(lx*ly)*index(3))/lx
     index(1) = (lin_idx-(lx*ly*lz)*index(4)-(lx*ly)*index(3)-lx*index(2))
@@ -150,5 +150,5 @@ contains
     character(len=*) :: warning_msg
     write(*,*) '*** WARNING: ', warning_msg,' ***'
   end subroutine neko_warning
-    
+
 end module utils

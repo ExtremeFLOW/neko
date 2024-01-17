@@ -12,8 +12,8 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_user_ic => set_ic
     u%fluid_user_f_vector => forcing
+    u%scalar_user_ic => set_ic
     u%scalar_user_bc => scalar_bc
     u%material_properties => set_material_properties
   end subroutine user_setup
@@ -29,7 +29,7 @@ contains
     call json_get(params, "case.scalar.Pr", Pr)
 
     Re = 1.0_rp / Pr
-    
+
     mu = 1.0_rp / Re
     lambda = mu / Pr
     rho = 1.0_rp
@@ -50,27 +50,18 @@ contains
     integer, intent(in) :: ie
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    ! If we set scalar_bcs(*) = 'user' instead 
+    ! If we set scalar_bcs(*) = 'user' instead
     ! this will be used instead on that zone
     s = 1.0_rp-z
   end subroutine scalar_bc
- 
-  !> User initial condition
-  subroutine set_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+
+  !> User initial condition for the scalar field
+  subroutine set_ic(s, params)
+    type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
-    type(field_t), pointer :: s
     integer :: i, e, k, j
     real(kind=rp) :: rand, z
-    s => neko_field_registry%get_field('s')
 
-    call rzero(u%x,u%dof%size())
-    call rzero(v%x,v%dof%size())
-    call rzero(w%x,w%dof%size())
-    
     do i = 1, s%dof%size()
        s%x(i,1,1,1) = 1-s%dof%z(i,1,1,1)
     end do
@@ -96,12 +87,11 @@ contains
 
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
        .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(s%x,s%x_d,s%dof%size(),HOST_TO_DEVICE)
+       call device_memcpy(s%x, s%x_d, s%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
-
   end subroutine set_ic
-
 
 
 

@@ -40,35 +40,38 @@ module simulation_component_fctry
   use json_module, only : json_file
   use case, only : case_t
   use json_utils, only : json_get
+  use logger, only : neko_log
   implicit none
   private
-  
+
   public :: simulation_component_factory
-  
-  contains
+
+contains
 
   !> Simulation component factory. Both constructs and initializes the object.
   !! @param json JSON object initializing the simulation component.
   subroutine simulation_component_factory(simcomp, json, case)
-       class(simulation_component_t), allocatable, intent(inout) :: simcomp
-       type(json_file), intent(inout) :: json
-       class(case_t), intent(inout), target :: case
-       character(len=:), allocatable :: simcomp_type
-              
-       call json_get(json, "type", simcomp_type)
+    class(simulation_component_t), allocatable, intent(inout) :: simcomp
+    type(json_file), intent(inout) :: json
+    class(case_t), intent(inout), target :: case
+    character(len=:), allocatable :: simcomp_type
 
-       if (trim(simcomp_type) .eq. "vorticity") then 
-          allocate(vorticity_t::simcomp)
-       end if
-       if (trim(simcomp_type) .eq. "lambda2") then 
-          allocate(lambda2_t::simcomp)
-       end if
-       if (trim(simcomp_type) .eq. "probes") then 
-          allocate(probes_t::simcomp)
-       end if
-       
-       ! Initialize
-       call simcomp%init(json, case)
+    call json_get(json, "type", simcomp_type)
+
+    if (trim(simcomp_type) .eq. "vorticity") then
+       allocate(vorticity_t::simcomp)
+    else if (trim(simcomp_type) .eq. "lambda2") then
+       allocate(lambda2_t::simcomp)
+    else if (trim(simcomp_type) .eq. "probes") then
+       allocate(probes_t::simcomp)
+    else
+       call neko_log%error("Unknown simulation component type: " &
+                           // trim(simcomp_type))
+       stop
+    end if
+
+    ! Initialize
+    call simcomp%init(json, case)
 
   end subroutine simulation_component_factory
 

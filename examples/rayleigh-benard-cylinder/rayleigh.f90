@@ -13,7 +13,7 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_user_ic => set_initial_conditions_for_u_and_s
+    u%fluid_user_ic => set_initial_conditions_for_s
     u%scalar_user_bc => set_scalar_boundary_conditions
     u%fluid_user_f_vector => set_bousinesq_forcing_term
     u%material_properties => set_material_properties
@@ -36,8 +36,8 @@ contains
     rho = 1.0_rp
     cp = 1.0_rp
   end subroutine set_material_properties
-   
- 
+
+
   subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
@@ -55,33 +55,23 @@ contains
 
     !> Variables for bias
     real(kind=rp) :: arg, bias
-    
+
     ! This will be used on all zones without labels
     ! e.g. the ones hardcoded to 'v', 'w', etcetc
     s = 1.0_rp - z
 
   end subroutine set_scalar_boundary_conditions
 
-  subroutine set_initial_conditions_for_u_and_s(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+  subroutine set_initial_conditions_for_u_and_s(s, params)
+    type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
-    type(field_t), pointer :: s
     integer :: i, j, k, e
     real(kind=rp) :: rand, r,z
-    s => neko_field_registry%get_field('s')
-
-    !> Initialize with zero velocity
-    call rzero(u%x,u%dof%size())
-    call rzero(v%x,v%dof%size())
-    call rzero(w%x,w%dof%size())
 
     !> Initialize with rand perturbations on temperature
-    call rzero(s%x,w%dof%size())
+    call rzero(s%x,s%dof%size())
     do i = 1, s%dof%size()
-       s%x(i,1,1,1) = 1-s%dof%z(i,1,1,1) 
+       s%x(i,1,1,1) = 1-s%dof%z(i,1,1,1)
     end do
     ! perturb not on element boundaries
     ! Maybe not necessary, but lets be safe
@@ -102,7 +92,8 @@ contains
        end do
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x,s%x_d,s%dof%size(),HOST_TO_DEVICE)
+       call device_memcpy(s%x, s%x_d, s%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine set_initial_conditions_for_u_and_s

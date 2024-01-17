@@ -7,7 +7,7 @@ neko_fortran_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
-        common/log.f90\
+	common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
@@ -54,7 +54,12 @@ neko_fortran_SOURCES = \
 	adt/uset.f90\
 	adt/stack.f90\
 	adt/tuple.f90\
-	mesh/zone.f90\
+	mesh/facet_zone.f90\
+	mesh/point_zone.f90\
+	mesh/point_zones/sphere_point_zone.f90\
+	mesh/point_zones/box_point_zone.f90\
+	mesh/point_zone_factory.f90\
+	mesh/point_zone_registry.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
 	mesh/tet_mesh.f90\
@@ -223,11 +228,12 @@ neko_fortran_SOURCES = \
 	scalar/scalar_aux.f90\
 	scalar/scalar_residual.f90\
 	scalar/scalar_residual_fctry.f90\
+	scalar/scalar_ic.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\
 	simulation_components/simulation_component.f90\
-	simulation_components/simulation_component_global.f90\
+	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
 	simulation_components/simulation_component_factory.f90\
