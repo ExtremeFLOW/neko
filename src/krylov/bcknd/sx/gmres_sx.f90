@@ -69,9 +69,10 @@ module gmres_sx
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine sx_gmres_init(this, n, M, lgmres, rel_tol, abs_tol)
+  subroutine sx_gmres_init(this, n, max_iter, M, lgmres, rel_tol, abs_tol)
     class(sx_gmres_t), intent(inout) :: this
     integer, intent(in) :: n
+    integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, optional, intent(inout) :: lgmres
     real(kind=rp), optional, intent(inout) :: rel_tol
@@ -107,13 +108,13 @@ contains
 
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init(abs_tol)
+       call this%ksp_init(max_iter)
     end if
 
   end subroutine sx_gmres_init
