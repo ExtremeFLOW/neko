@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __BC_INFLOW_DIRICHLET_KERNEL__
+#define __BC_INFLOW_DIRICHLET_KERNEL__
+
 /**
  * Device kernel for vector apply for a inhomogeneous Dirichlet condition
  */
@@ -71,3 +74,5 @@ __kernel void inhom_dirichlet_apply_scalar_kernel(__global const int *msk,
     x[k] = bla_x[i];
   }
 }
+
+#endif // __BC_INFLOW_DIRICHLET_KERNEL__
