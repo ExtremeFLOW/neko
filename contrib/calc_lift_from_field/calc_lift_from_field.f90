@@ -1,5 +1,7 @@
-!> Program to sum up a field in space in a homogenous direction
-!! Martin Karp 17/02-23
+!> Program to calculate the lift generated along one zone.
+!! Can also calculate the torque around a point if one changes the value center (defaults to 0,0,0)
+!! Computes both the toal drag/lift and outputs in stdout as well as the drag lift along a specified direction (x,y,z)
+!! Martin Karp 17/01-24
 program calc_lift_from_field
   use neko
   use mean_flow
@@ -17,7 +19,7 @@ program calc_lift_from_field
   type(map_1d_t) :: map_1d
   type(field_t) :: u, v, w, p
   type(field_t) :: s11, s22, s33, s12, s13, s23
-  real(kind=rp) :: s11_, s22_, s33_, s12_, s13_, s23_
+  real(kind=rp) :: s11_, s22_, s33_, s12_, s13_, s23_, center(3)
   type(matrix_t) :: drag_torq
   real(kind=rp), allocatable :: lvl_coords(:)
   real(kind=rp), pointer :: line(:,:,:,:)
@@ -94,6 +96,8 @@ program calc_lift_from_field
   dof = dofmap_t(msh, Xh)
   call gs_h%init(dof)
   call coef%init(gs_h)
+  ! Center around which we calculate the torque
+  center = 0.0_rp
 
   ! 1 corresponds to r, 2 to s, 3 to t
   if (trim(hom_dir) .eq. 'x') then
@@ -143,7 +147,16 @@ program calc_lift_from_field
      if(pe_rank .eq. 0) write(*,*) 'Total drag'
    
      call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef) 
-     call drag_torque_zone(field_data%t_counter, msh%labeled_zones(zone_id),s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, p, coef, visc)
+     call drag_torque_zone(dgtq,field_data%t_counter, msh%labeled_zones(zone_id), center,&
+                           s11%x, s22%x, s33%x, s12%x, s13%x, s23%x,&
+                           p, coef, visc)
+     if (pe_rank .eq. 0) then
+         write(*,*) field_data%t_counter,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),'dragx'
+         write(*,*) field_data%t_counter,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),'dragy'
+         write(*,*) field_data%t_counter,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),'dragz'
+      end if
+
+
      do mem  = 1,msh%labeled_zones(zone_id)%size
         e = msh%labeled_zones(zone_id)%facet_el(mem)%x(2)
         f = msh%labeled_zones(zone_id)%facet_el(mem)%x(1)
@@ -159,6 +172,7 @@ program calc_lift_from_field
                     s23_ = s23%x(i,j,k,e)
                     s33_ = s33%x(i,j,k,e)
                     call drag_torque_pt(dgtq,dof%x(i,j,k,e), dof%y(i,j,k,e),dof%z(i,j,k,e),&
+                                        center, &
                                         s11_, s22_, s33_, s12_, s13_, s23_,&
                                         p%x(i,j,k,e), nv(1), nv(2), nv(3), visc)
                     drag_torq%x(map_1d%pt_lvl(i,j,k,e),3:14) = &
