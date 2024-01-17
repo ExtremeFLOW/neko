@@ -2,7 +2,7 @@ module drag_torque
   use field, only: field_t
   use coefs, only: coef_t
   use mesh
-  use zone
+  use facet_zone
   use comm
   use math
   use space, only: space_t
@@ -10,14 +10,24 @@ module drag_torque
   use operators
   implicit none
   private
-
+  !> Some functions to calculatye the lift/drag and torque
+  !! Calculation can be done on a zone, a facet, or a point
   public :: drag_torque_zone, drag_torque_facet, drag_torque_pt
 
 contains
-  subroutine drag_torque_zone(tstep, zone, s11, s22, s33, s12, s13, s23,&
+  !> Calculate drag and torque over a zone.
+  !! @param dgtq, the computed drag and torque
+  !! @param tstep, the time step
+  !! @param zone, the zone which we compute the drag and toqure over
+  !! @param center, the point around which we calculate the torque
+  !! @param s11-s23, the strain rate tensor
+  !! @param p, the pressure
+  !! @param coef, coefficents
+  !! @param visc, the viscosity
+  subroutine drag_torque_zone(dgtq, tstep, zone, center, s11, s22, s33, s12, s13, s23,&
                               p, coef, visc)
     integer, intent(in) :: tstep
-    type(zone_t) :: zone
+    type(facet_zone_t) :: zone
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout) :: s11(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
     real(kind=rp), intent(inout) :: s22(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
@@ -26,7 +36,7 @@ contains
     real(kind=rp), intent(inout) :: s13(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
     real(kind=rp), intent(inout) :: s23(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
     type(field_t), intent(inout) :: p
-    real(kind=rp), intent(in) :: visc
+    real(kind=rp), intent(in) :: visc, center(3)
     real(kind=rp) :: dgtq(3,4)
     real(kind=rp) :: dragpx = 0.0_rp ! pressure 
     real(kind=rp) :: dragpy = 0.0_rp
@@ -60,6 +70,7 @@ contains
          ie   = zone%facet_el(mem)%x(2)
          ifc   = zone%facet_el(mem)%x(1)
          call drag_torque_facet(dgtq,coef%dof%x,coef%dof%y,coef%dof%z,&
+                                center,&
                                 s11, s22, s33, s12, s13, s23,&
                                 p%x,visc,ifc,ie, coef, coef%Xh)
 
@@ -107,52 +118,55 @@ contains
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
       call MPI_Allreduce(MPI_IN_PLACE,dragvz, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+      !Torque
+      call MPI_Allreduce(MPI_IN_PLACE,torqpx, 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+      call MPI_Allreduce(MPI_IN_PLACE,torqpy, 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+      call MPI_Allreduce(MPI_IN_PLACE,torqpz, 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+      call MPI_Allreduce(MPI_IN_PLACE,torqvx, 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+      call MPI_Allreduce(MPI_IN_PLACE,torqvy, 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+      call MPI_Allreduce(MPI_IN_PLACE,torqvz, 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
-      dragx = dragpx + dragvx
-      dragy = dragpy + dragvy
-      dragz = dragpz + dragvz
-
-      torqx = torqpx + torqvx
-      torqy = torqpy + torqvy
-      torqz = torqpz + torqvz
-
-      !dragpx(0) = dragpx (0) + dragpx (i)
-      !dragvx(0) = dragvx (0) + dragvx (i)
-      !dragx (0) = dragx  (0) + dragx  (i)
-
-      !dragpy(0) = dragpy (0) + dragpy (i)
-      !dragvy(0) = dragvy (0) + dragvy (i)
-      !dragy (0) = dragy  (0) + dragy  (i)
-
-      !dragpz(0) = dragpz (0) + dragpz (i)
-      !dragvz(0) = dragvz (0) + dragvz (i)
-      !dragz (0) = dragz  (0) + dragz  (i)
-
-      !torqpx(0) = torqpx (0) + torqpx (i)
-      !torqvx(0) = torqvx (0) + torqvx (i)
-      !torqx (0) = torqx  (0) + torqx  (i)
-
-      !torqpy(0) = torqpy (0) + torqpy (i)
-      !torqvy(0) = torqvy (0) + torqvy (i)
-      !torqy (0) = torqy  (0) + torqy  (i)
-
-      !torqpz(0) = torqpz (0) + torqpz (i)
-      !torqvz(0) = torqvz (0) + torqvz (i)
-      !torqz (0) = torqz  (0) + torqz  (i)
-      if (pe_rank .eq. 0) then
-         write(*,*) tstep,dragx,dragpx,dragvx,'dragx'
-         write(*,*) tstep,dragy,dragpy,dragvy,'dragy'
-         write(*,*) tstep,dragz,dragpz,dragvz,'dragz'
-      end if
+      dgtq(1,1) = dragpx  ! pressure 
+      dgtq(2,1) = dragpy
+      dgtq(3,1) = dragpz
+               
+      dgtq(1,2) = dragvx  ! viscous
+      dgtq(2,2) = dragvy
+      dgtq(3,2) = dragvz
+               
+      dgtq(1,3) = torqpx  ! pressure 
+      dgtq(2,3) = torqpy
+      dgtq(3,3) = torqpz
+               
+      dgtq(1,4) = torqvx  ! viscous
+      dgtq(2,4) = torqvy
+      dgtq(3,4) = torqvz
 
   end subroutine drag_torque_zone
 
-  subroutine drag_torque_facet(dgtq,xm0,ym0,zm0,&
+  !> Calculate drag and torque over a facet.
+  !! @param dgtq, the computed drag and torque
+  !! @param tstep, the time step
+  !! @param xm0, the x coords
+  !! @param ym0, the y coords
+  !! @param zm0, the z coords
+  !! @param center, the point around which we calculate the torque
+  !! @param s11-s23, the strain rate tensor
+  !! @param p, the pressure
+  !! @param coef, coefficents
+  !! @param visc, the viscosity
+  subroutine drag_torque_facet(dgtq,xm0,ym0,zm0, center,&
                                s11, s22, s33, s12, s13, s23,&
                                pm1,visc,f,e, coef, Xh)
     type(coef_t) :: coef 
     type(space_t) :: Xh
-    real(kind=rp) :: dgtq(3,4), dgtq_i(3,4)
+    real(kind=rp) :: dgtq(3,4), dgtq_i(3,4), center(3)
     real(kind=rp) :: xm0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
     real(kind=rp) :: ym0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
     real(kind=rp) :: zm0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
@@ -244,7 +258,7 @@ contains
          s13_ = s13(j1,j2,1,e)
          s23_ = s23(j1,j2,1,e)
          s33_ = s33(j1,j2,1,e)
-         call drag_torque_pt(dgtq_i,xm0(j1,j2,1,e), ym0(j1,j2,1,e),zm0(j1,j2,1,e),&
+         call drag_torque_pt(dgtq_i,xm0(j1,j2,1,e), ym0(j1,j2,1,e),zm0(j1,j2,1,e), center,&
                              s11_, s22_, s33_, s12_, s13_, s23_,&
                              pm1(j1,j2,1,e), n1, n2, n3, v)
          dgtq = dgtq + dgtq_i
@@ -252,7 +266,19 @@ contains
     end do
   end subroutine drag_torque_facet
 
-  subroutine drag_torque_pt(dgtq,x,y,z,s11, s22, s33, s12, s13, s23,&
+  !> Calculate drag and torque from one point
+  !! @param dgtq, the computed drag and torque
+  !! @param xm0, the x coord
+  !! @param ym0, the y coord
+  !! @param zm0, the z coord
+  !! @param center, the point around which we calculate the torque
+  !! @param s11-s23, the strain rate tensor
+  !! @param p, the pressure
+  !! @param n1, normal vector x
+  !! @param n2, normal vector y
+  !! @param n3, normal vector z
+  !! @param v, the viscosity
+  subroutine drag_torque_pt(dgtq,x,y,z, center, s11, s22, s33, s12, s13, s23,&
                             p,n1, n2, n3,v)
     real(kind=rp), intent(inout) :: dgtq(3,4)
     real(kind=rp), intent(in) :: x 
@@ -260,7 +286,7 @@ contains
     real(kind=rp), intent(in) :: z
     real(kind=rp), intent(in) :: p
     real(kind=rp), intent(in) :: v
-    real(kind=rp), intent(in) :: n1, n2, n3
+    real(kind=rp), intent(in) :: n1, n2, n3, center(3)
     real(kind=rp), intent(in) :: s11, s12, s22, s13, s23, s33
     real(kind=rp) ::  s21, s31, s32, r1, r2, r3 
     call rzero(dgtq,12)
@@ -275,9 +301,9 @@ contains
     dgtq(1,2) = -v*(s11*n1 + s12*n2 + s13*n3)
     dgtq(2,2) = -v*(s21*n1 + s22*n2 + s23*n3)
     dgtq(3,2) = -v*(s31*n1 + s32*n2 + s33*n3)
-    r1 = x
-    r2 = y
-    r3 = z
+    r1 = x-center(1)
+    r2 = y-center(2)
+    r3 = z-center(3)
     !pressure torque
     dgtq(1,3) = (r2*dgtq(3,1)-r3*dgtq(2,1)) 
     dgtq(2,3) = (r3*dgtq(1,1)-r1*dgtq(3,1))
