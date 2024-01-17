@@ -1,3 +1,5 @@
+
+!> Creates a 1d GLL point map along aspecified direction based on the connectivity in the mesh.
 module map_1d
   use num_types, only: rp
   use space, only: space_t
@@ -8,19 +10,29 @@ module map_1d
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error
   use math, only: glmax, glmin, glimax, glimin, relcmp
-  use mpi_types
+  use neko_mpi_types
   use, intrinsic :: iso_c_binding
   implicit none
   private
-
+  !> Type that encapsulates a mapping from each gll point in the mesh 
+  !! to its corresponding (global) GLL point index in one direction.
+  !! I envision this could also be rather easily extended to say polar coordinates as well.
   type, public :: map_1d_t
-     integer, allocatable :: hom_dir_el(:)
+     !> Checks whether the specified direction is in the r,s, or t direction for each element.
+     integer, allocatable :: dir_el(:)
+     !> Checks which level an element belongs to.
      integer, allocatable :: el_lvl(:)
+     !> Checks which level or id in the 1D GLL mapping each point in the dofmap is.
      integer, allocatable :: pt_lvl(:,:,:,:) 
+     !> Number of elements stacked on top of eachother in the specified direction
      integer :: n_el_lvls
+     !> Dofmap
      type(dofmap_t), pointer :: dof => null()
+     !> Mesh
      type(mesh_t), pointer :: msh => null()
+     !> The specified direction in which we create the 1D mapping
      integer :: dir
+     !> Tolerance for the mesh
      real(kind=rp) :: tol = 1e-7
    contains
      procedure, pass(this) :: init => map_1d_init
@@ -59,15 +71,16 @@ contains
         call neko_error('Invalid dir for geopmetric comm')
     end if
     
-    allocate(this%hom_dir_el(nelv))
+    allocate(this%dir_el(nelv))
     allocate(this%el_lvl(nelv))
     allocate(min_vals(lx, lx, lx, nelv))
     allocate(this%pt_lvl(lx, lx, lx, nelv))
 
     do i = 1, nelv
-       !store direction which is hom
+       !store which direction r,s,t corresponds to speciifed direction, x,y,z
        !we assume elements are stacked on eachother...
        ! Check which one of the normalized vectors are closest to dir
+       ! If we want to incorporate other directions, we should look here
        el_dim(1,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(2)%p%x)
        el_dim(1,:) = el_dim(1,:)/norm2(el_dim(1,:))
        el_dim(2,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(3)%p%x)
@@ -75,8 +88,8 @@ contains
        el_dim(3,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(5)%p%x)
        el_dim(3,:) = el_dim(3,:)/norm2(el_dim(3,:))
        ! Checks which directions in rst the xyz corresponds to
-       ! 1 corresponds to r, 2 to s, 3 to t and are stored in hom_dir_el
-       this%hom_dir_el(i) = maxloc(el_dim(:,this%dir),dim=1)
+       ! 1 corresponds to r, 2 to s, 3 to t and are stored in dir_el
+       this%dir_el(i) = maxloc(el_dim(:,this%dir),dim=1)
     end do
     glb_min =  glmin(line,n)
     glb_max =  glmax(line,n)
@@ -93,21 +106,21 @@ contains
     do while (.not. relcmp(glmax(min_vals,n), glb_min, this%tol))
       i = i + 1
       do e = 1, nelv
-         if (this%hom_dir_el(e) .eq. 1) then
+         if (this%dir_el(e) .eq. 1) then
             if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
                min_vals(lx,:,:,e) = glb_max
             else
                min_vals(1,:,:,e) = glb_max
             end if
          end if
-         if (this%hom_dir_el(e) .eq. 2) then
+         if (this%dir_el(e) .eq. 2) then
             if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
                min_vals(:,lx,:,e) = glb_max
             else
                min_vals(:,1,:,e) = glb_max
             end if
          end if
-         if (this%hom_dir_el(e) .eq. 3) then
+         if (this%dir_el(e) .eq. 3) then
             if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
                min_vals(:,:,lx,e) = glb_max
             else
@@ -129,21 +142,21 @@ contains
     do e = 1, nelv
        do i = 1, lx
          lvl = lx * (this%el_lvl(e) - 1) + i
-         if (this%hom_dir_el(e) .eq. 1) then
+         if (this%dir_el(e) .eq. 1) then
             if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
                this%pt_lvl(lx-i+1,:,:,e) = lvl
             else
                this%pt_lvl(i,:,:,e) = lvl
             end if
          end if
-         if (this%hom_dir_el(e) .eq. 2) then
+         if (this%dir_el(e) .eq. 2) then
             if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
                this%pt_lvl(:,lx-i+1,:,e) = lvl
             else
                this%pt_lvl(:,i,:,e) = lvl
             end if
          end if
-         if (this%hom_dir_el(e) .eq. 3) then
+         if (this%dir_el(e) .eq. 3) then
             if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
                this%pt_lvl(:,:,lx-i+1,e) = lvl
             else
@@ -158,7 +171,7 @@ contains
   subroutine map_1d_free(this)
     class(map_1d_t) :: this
 
-    if(allocated(this%hom_dir_el)) deallocate(this%hom_dir_el)
+    if(allocated(this%dir_el)) deallocate(this%dir_el)
     if(allocated(this%el_lvl)) deallocate(this%el_lvl)
     if(allocated(this%pt_lvl)) deallocate(this%pt_lvl)
     if(associated(this%dof)) nullify(this%dof)
