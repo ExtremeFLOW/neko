@@ -13,7 +13,7 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_user_ic => set_initial_conditions_for_s
+    u%scalar_user_ic => set_initial_conditions_for_s
     u%scalar_user_bc => set_scalar_boundary_conditions
     u%fluid_user_f_vector => set_bousinesq_forcing_term
     u%material_properties => set_material_properties
@@ -62,7 +62,7 @@ contains
 
   end subroutine set_scalar_boundary_conditions
 
-  subroutine set_initial_conditions_for_u_and_s(s, params)
+  subroutine set_initial_conditions_for_s(s, params)
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
     integer :: i, j, k, e
@@ -96,7 +96,7 @@ contains
                           HOST_TO_DEVICE, sync=.false.)
     end if
 
-  end subroutine set_initial_conditions_for_u_and_s
+  end subroutine set_initial_conditions_for_s
 
   subroutine set_bousinesq_forcing_term(f, t)
     class(fluid_user_source_term_t), intent(inout) :: f
