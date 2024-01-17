@@ -32,8 +32,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_CUDA_SYMMETRY_KERNEL__
-#define __BC_CUDA_SYMMETRY_KERNEL__
+#ifndef __BC_SYMMETRY_KERNEL__
+#define __BC_SYMMETRY_KERNEL__
 
 /**
  * Device kernel for vector apply for a symmetry condition
@@ -69,4 +69,4 @@ __global__ void symmetry_apply_vector_kernel(const int * __restrict__ xmsk,
   
 }
 
-#endif // __BC_CUDA_SYMMETRY_KERNEL__
+#endif // __BC_SYMMETRY_KERNEL__

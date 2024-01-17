@@ -32,8 +32,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_CUDA_DIRICHLET_KERNEL__
-#define __BC_CUDA_DIRICHLET_KERNEL__
+#ifndef __BC_DIRICHLET_KERNEL__
+#define __BC_DIRICHLET_KERNEL__
 
 /**
  * Device kernel for scalar apply for a Dirichlet condition
@@ -75,4 +75,4 @@ __global__ void dirichlet_apply_vector_kernel(const int * __restrict__ msk,
   }
 }
 
-#endif // __BC_CUDA_DIRICHLET_KERNEL__
+#endif // __BC_DIRICHLET_KERNEL__

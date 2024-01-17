@@ -32,8 +32,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_CUDA_INFLOW_KERNEL__
-#define __BC_CUDA_INFLOW_KERNEL__
+#ifndef __BC_INFLOW_KERNEL__
+#define __BC_INFLOW_KERNEL__
 
 /**
  * Device kernel for vector apply for a Dirichlet condition
@@ -59,4 +59,4 @@ __global__ void inflow_apply_vector_kernel(const int * __restrict__ msk,
   }
 }
 
-#endif // __BC_CUDA_INFLOW_KERNEL__
+#endif // __BC_INFLOW_KERNEL__
