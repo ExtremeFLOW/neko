@@ -51,7 +51,7 @@ module scalar_residual
 
   abstract interface
      !> Interface for computing the residual of a scalar transport equation.
-     !! @param Ax The Helmholz operator.
+     !! @param Ax The Helmholtz operator.
      !! @param s The values of the scalar.
      !! @param s_res The values of the scalar residual.
      !! @param f_xH The right hand side.

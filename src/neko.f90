@@ -88,7 +88,7 @@ module neko
   use system
   use field_registry, only : neko_field_registry
   use scratch_registry, only : neko_scratch_registry
-  use simulation_component_global, only : simcomps_global_init
+  use simcomp_executor, only : neko_simcomps
   use data_streamer
   use time_interpolator
   use point_interpolator, only : point_interpolator_t
@@ -257,7 +257,7 @@ contains
        !
        ! Create simulation components
        !
-       call simcomps_global_init(C)
+       call neko_simcomps%init(C)
 
     end if
 

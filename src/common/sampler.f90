@@ -32,7 +32,8 @@
 !
 !> Defines a sampler
 module sampler
-  use output
+  use output, only: output_t
+  use fld_file, only: fld_file_t
   use comm
   use logger
   use utils, only : neko_error
@@ -130,6 +131,7 @@ contains
     type(time_based_controller_t), allocatable :: tmp_ctrl(:)
     character(len=LOG_SIZE) :: log_buf
     integer :: n
+    class(*), pointer :: ft
 
     if (this%n .ge. this%size) then
        allocate(tmp(this%size * 2))
@@ -155,10 +157,21 @@ contains
 
     ! The code below only prints to console
     call neko_log%section('Adding write output')
-    call neko_log%message('File name: '// &
+    call neko_log%message('File name        : '// &
           trim(this%output_list(this%n)%outp%file_%file_type%fname))
-    call neko_log%message( 'Write control: '//trim(write_control))
-    if (trim(write_control) .eq. 'simulationtime') then
+    call neko_log%message('Write control    : '//trim(write_control))
+
+    ! Show the output precision if we are outputting an fld file
+    select type(ft => out%file_%file_type)
+    type is (fld_file_t)
+       if (ft%dp_precision) then
+          call neko_log%message('Output precision : double')
+       else
+          call neko_log%message('Output precision : single')
+       end if
+    end select
+
+   if (trim(write_control) .eq. 'simulationtime') then
        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ', &
              this%controllers(n)%frequency
        call neko_log%message(log_buf)
@@ -236,10 +249,10 @@ contains
     type is (sampler_t)
        do i = 1, this%n
           if (this%controllers(i)%check(t, tstep, force)) then
-             call neko_log%message('File name: '// &
+             call neko_log%message('File name     : '// &
                   trim(samp%output_list(i)%outp%file_%file_type%fname))
 
-             write(log_buf, '(A,I6)') 'Output number:', &
+             write(log_buf, '(A,I6)') 'Output number :', &
                   int(this%controllers(i)%nexecutions)
              call neko_log%message(log_buf)
 
