@@ -113,7 +113,7 @@ contains
     end do
 
     ! Subtract the two terms of the viscous stress to get
-    ! \nabla x \nabla u - S^T \nable \mu
+    ! \nabla x \nabla u - S^T \nabla \mu
     ! The sign is consitent with the fact that we subtract the term
     ! below.
     call sub2(wa1%x, work1%x, n)

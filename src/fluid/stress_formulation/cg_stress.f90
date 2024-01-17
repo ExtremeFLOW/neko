@@ -138,7 +138,7 @@ contains
     if (allocated(this%r3)) then
        deallocate(this%r3)
     end if
-    
+
     if (allocated(this%p1)) then
        deallocate(this%p1)
     end if
@@ -170,7 +170,7 @@ contains
     nullify(this%M)
 
   end subroutine cg_stress_free
-  
+
   function cg_stress_nop(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(cg_stress_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
@@ -183,7 +183,7 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
   end function cg_stress_nop
-  
+
 
   function cg_stress_solve(this, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(cg_stress_t), intent(inout) :: this
@@ -243,7 +243,7 @@ contains
                       + this%z2(i) * this%r2(i) &
                       + this%z3(i) * this%r3(i)
        end do
-       
+
        rtz1 = glsc2(this%tmp, coef%mult, n)
 
        beta = rtz1 / rtz2

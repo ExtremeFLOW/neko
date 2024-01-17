@@ -111,6 +111,7 @@ module fluid_pnpn_stress
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
 
+     !> The coupled CG solver for the velocity.
      type(cg_stress_t) :: ksp_stress
 
    contains
@@ -598,7 +599,6 @@ contains
                            f_x, f_y, f_z, c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
                            dt, this%mu_field, this%rho_field)
-                           !dt, mu, rho)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
@@ -636,7 +636,6 @@ contains
                            f_x, f_y, f_z, &
                            c_Xh, msh, Xh, &
                            this%mu_field, this%rho_field, &
-!                           mu, rho,&
                            ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
 
@@ -664,7 +663,7 @@ contains
            u_res%x, v_res%x, w_res%x, &
            n, c_Xh, this%bclst_du, this%bclst_dv, this%bclst_dw, &
            gs_Xh, ksp_vel_maxiter)
-      
+
       call profiler_end_region
 
       if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
