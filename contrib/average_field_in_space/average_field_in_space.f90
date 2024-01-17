@@ -117,7 +117,7 @@ program average_field_in_space
      el_dim(2,:) = abs(msh%elements(i)%e%pts(1)%p%x-msh%elements(i)%e%pts(3)%p%x)
      el_dim(3,:) = abs(msh%elements(i)%e%pts(1)%p%x-msh%elements(i)%e%pts(5)%p%x)
      ! 1 corresponds to r, 2 to s, 3 to t
-     el_h = el_dim(map_1d%hom_dir_el(i),dir)
+     el_h = el_dim(map_1d%dir_el(i),dir)
      el_heights%x(:,:,:,i) = el_h
   end do
   n = u%dof%size()
@@ -126,7 +126,7 @@ program average_field_in_space
   call copy(old_u%x,el_heights%x,n)
   call copy(avg_u%x,el_heights%x,n)
   call perform_global_summation(u, avg_u, old_u, n_levels, &
-       map_1d%hom_dir_el,gs_h, coef%mult, msh%nelv, lx)
+       map_1d%dir_el,gs_h, coef%mult, msh%nelv, lx)
   domain_height = u%x(1,1,1,1)
 
   allocate(fields(field_data%size()))
@@ -136,11 +136,11 @@ program average_field_in_space
   do i = 1, field_data%size()
      call copy(old_u%x,fields(i)%v%x,n)
      call perform_local_summation(u,old_u, el_heights, domain_height, &
-          map_1d%hom_dir_el, coef, msh%nelv, lx)
+          map_1d%dir_el, coef, msh%nelv, lx)
      call copy(old_u%x,u%x,n)
      call copy(avg_u%x,u%x,n)
      call perform_global_summation(u, avg_u, old_u, n_levels, &
-          map_1d%hom_dir_el,gs_h, coef%mult, msh%nelv, lx)
+          map_1d%dir_el,gs_h, coef%mult, msh%nelv, lx)
      call copy(fields(i)%v%x,u%x,n)
   end do 
   output_file = file_t(trim(output_fname))
