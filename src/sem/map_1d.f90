@@ -53,6 +53,10 @@ contains
     real(kind=rp), allocatable :: min_vals(:,:,:,:)
     real(kind=rp) :: el_dim(3,3), glb_min, glb_max, el_min
     call this%free()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('map_1d not yet supported on device')
+    end if
     
     this%dir = dir
     this%dof => dof
