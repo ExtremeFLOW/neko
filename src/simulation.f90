@@ -44,7 +44,7 @@ module simulation
   use field, only : field_t
   use profiler
   use math, only : col2
-  use simulation_component_global, only : neko_simcomps
+  use simcomp_executor, only : neko_simcomps
   use json_utils, only : json_get_or_default
   implicit none
   private
@@ -78,11 +78,7 @@ contains
        call simulation_restart(C, t)
 
        ! Restart the simulation components
-       if (allocated(neko_simcomps)) then
-          do i=1, size(neko_simcomps)
-             call neko_simcomps(i)%simcomp%restart(t)
-          end do
-       end if
+       call neko_simcomps%restart(t)
     end if
 
     !> Call stats, samplers and user-init before time loop
@@ -135,11 +131,7 @@ contains
 
        call neko_log%section('Postprocessing')
        ! Execute all simulation components
-       if (allocated(neko_simcomps)) then
-          do i=1, size(neko_simcomps)
-             call neko_simcomps(i)%simcomp%compute(t, tstep)
-          end do
-       end if
+       call neko_simcomps%compute(t, tstep)
 
        call C%q%eval(t, C%dt, tstep)
        call C%s%sample(t, tstep)

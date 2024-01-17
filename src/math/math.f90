@@ -77,7 +77,7 @@ module math
   end interface abscmp
 
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
-       glsum, glmax, glmin, chsign, vlmax, invcol1, invcol3, invers2, vcross, &
+       glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, vcross, &
        vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, add2s1, add2s2, &
        addsqr2s2, cmult2, invcol2, col2, col3, subcol3, add3s2, subcol4, addcol3,&
        addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort
@@ -264,7 +264,7 @@ contains
 
   end subroutine chsign
 
-  !> Maximum value of a vector of length @a n
+  !> maximum value of a vector of length @a n
   function vlmax(vec,n) result(tmax)
     integer :: n, i
     real(kind=rp), intent(in) :: vec(n)
@@ -274,6 +274,18 @@ contains
        tmax = max(tmax,vec(i))
     end do
   end function vlmax
+  
+  !> minimun value of a vector of length @a n
+  function vlmin(vec,n) result(tmin)
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) ::  vec(n)
+    real(kind=rp) :: tmin
+    integer :: i
+    tmin = real(99.0e20, rp)
+    do i=1,n
+         tmin = min(tmin,vec(i))
+    end do
+  end function vlmin
 
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine invcol1(a, n)
@@ -781,5 +793,5 @@ contains
        ind(i) = ii
     end do
   end subroutine sort
-
+  
 end module math
