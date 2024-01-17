@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __BC_CUDA_DONG_OUTFLOW_KERNEL__
+#define __BC_CUDA_DONG_OUTFLOW_KERNEL__
+
 /**
  * Device kernel for vector apply for a dong outflow
  */
@@ -62,3 +65,5 @@ void dong_outflow_apply_scalar_kernel(const int * __restrict__ msk,
     x[k] = -0.5*(uk*uk+vk*vk+wk*wk)*S0;
   }
 }
+
+#endif // __BC_CUDA_DONG_OUTFLOW_KERNEL__
