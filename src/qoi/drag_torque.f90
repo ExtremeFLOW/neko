@@ -94,19 +94,6 @@ contains
 !
 !     Sum contributions from all processors
 !
-      !call gop(dragpx,w1,'+  ',2)
-      !call gop(dragpy,w1,'+  ',2)
-      !call gop(dragpz,w1,'+  ',2)
-      !call gop(dragvx,w1,'+  ',2)
-      !call gop(dragvy,w1,'+  ',2)
-      !call gop(dragvz,w1,'+  ',2)
-!
-      !call gop(torqpx,w1,'+  ',2)
-      !call gop(torqpy,w1,'+  ',2)
-      !call gop(torqpz,w1,'+  ',2)
-      !call gop(torqvx,w1,'+  ',2)
-      !call gop(torqvy,w1,'+  ',2)
-      !call gop(torqvz,w1,'+  ',2)
       call MPI_Allreduce(MPI_IN_PLACE,dragpx, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
       call MPI_Allreduce(MPI_IN_PLACE,dragpy, 1, &
