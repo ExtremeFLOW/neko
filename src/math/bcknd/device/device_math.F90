@@ -281,6 +281,17 @@ module device_math
   end interface
 
   interface
+     real(c_rp) function hip_vlsc3(u_d, v_d, w_d, n) &
+          bind(c, name='hip_vlsc3')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: u_d, v_d, w_d
+       integer(c_int) :: n
+     end function hip_vlsc3
+  end interface
+
+  interface
      real(c_rp) function hip_glsc3(a_d, b_d, c_d, n) &
           bind(c, name='hip_glsc3')
        use, intrinsic :: iso_c_binding
@@ -552,6 +563,17 @@ module device_math
        type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
        integer(c_int) :: n
      end subroutine cuda_vdot3
+  end interface
+
+  interface
+     real(c_rp) function cuda_vlsc3(u_d, v_d, w_d, n) &
+          bind(c, name='cuda_vlsc3')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: u_d, v_d, w_d
+       integer(c_int) :: n
+     end function cuda_vlsc3
   end interface
 
   interface
@@ -898,7 +920,7 @@ module device_math
        device_cadd, device_cfill, device_add2, device_add2s1, device_add2s2, &
        device_addsqr2s2, device_add3s2, device_invcol1, device_invcol2, &
        device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
-       device_addcol3, device_addcol4, device_vdot3, device_glsc3, &
+       device_addcol3, device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
        device_masked_copy
   
@@ -1234,6 +1256,23 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_vdot3
+
+  function device_vlsc3(u_d, v_d, w_d, n) result(res)
+    type(c_ptr) :: u_d, v_d, w_d
+    integer :: n
+    real(kind=rp) :: res
+    res = 0.0_rp
+#ifdef HAVE_HIP
+    res = hip_vlsc3(u_d, v_d, w_d, n)
+#elif HAVE_CUDA
+    res = cuda_vlsc3(u_d, v_d, w_d, n)
+#elif HAVE_OPENCL
+    ! Same kernel as glsc3 (currently no device MPI for OpenCL)
+    res = opencl_glsc3(u_d, v_d, w_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end function device_vlsc3
 
   function device_glsc3(a_d, b_d, c_d, n) result(res)
     type(c_ptr) :: a_d, b_d, c_d

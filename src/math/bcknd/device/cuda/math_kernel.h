@@ -443,7 +443,6 @@ __global__ void reduce_kernel(T * bufred, const int n) {
     bufred[blockIdx.x] = sum;
 }
 
-
 /**
  * Reduction kernel for glsc3
  */

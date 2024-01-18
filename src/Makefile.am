@@ -149,6 +149,7 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	krylov/bcknd/device/cg_device.f90\
 	krylov/bcknd/device/pipecg_device.F90\
+	krylov/bcknd/device/fusedcg_device.F90\
 	krylov/bcknd/device/gmres_device.F90\
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
@@ -273,6 +274,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/ax_helm.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	krylov/bcknd/device/hip/pipecg_aux.hip\
+	krylov/bcknd/device/hip/fusedcg_aux.hip\
 	krylov/bcknd/device/hip/gmres_aux.hip\
 	gs/bcknd/device/hip/gs.hip\
 	bc/bcknd/device/hip/dirichlet.hip\
@@ -306,6 +308,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/ax_helm.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
+	krylov/bcknd/device/cuda/fusedcg_aux.cu\
 	krylov/bcknd/device/cuda/gmres_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
@@ -483,6 +486,8 @@ EXTRA_DIST = \
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
+	krylov/bcknd/device/cuda/fusedcg_kernel.h\
+	krylov/bcknd/device/hip/fusedcg_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\

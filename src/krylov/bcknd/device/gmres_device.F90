@@ -129,9 +129,10 @@ contains
   end function device_gmres_part2
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_device_init(this, n, M, m_restart, rel_tol, abs_tol)
+  subroutine gmres_device_init(this, n, max_iter, M, m_restart, rel_tol, abs_tol)
     class(gmres_device_t), target,  intent(inout) :: this
     integer, intent(in) :: n
+    integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, optional, intent(inout) :: m_restart
     real(kind=rp), optional, intent(inout) :: rel_tol
@@ -201,13 +202,13 @@ contains
 
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init(abs_tol)
+       call this%ksp_init(max_iter)
     end if
 
     call device_event_create(this%gs_event, 2)

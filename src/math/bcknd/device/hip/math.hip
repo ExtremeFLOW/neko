@@ -374,6 +374,44 @@ extern "C" {
   real * bufred_d = NULL;
   
   /**
+   * Fortran wrapper vlsc3
+   * Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
+   */
+  real hip_vlsc3(void *u, void *v, void *w, int *n) {
+        
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+    
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        HIP_CHECK(hipHostFree(bufred));
+        HIP_CHECK(hipFree(bufred_d));        
+      }
+      HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
+      HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
+    }
+     
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
+                       nblcks, nthrds, 0, stream,
+                       (real *) u, (real *) v,
+                       (real *) w, bufred_d, *n);
+    HIP_CHECK(hipGetLastError());
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+                       1, 1024, 0, stream, bufred_d, nb);
+    HIP_CHECK(hipGetLastError());
+
+    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
+                             hipMemcpyDeviceToHost, stream));
+    hipStreamSynchronize(stream);
+
+    return bufred[0];
+  }
+  
+
+  /**
    * Fortran wrapper glsc3
    * Weighted inner product \f$ a^T b c \f$
    */
