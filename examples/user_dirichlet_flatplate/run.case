@@ -1,0 +1,61 @@
+{
+"version": 1.0,
+"case": {
+    "mesh_file": "dirichlet.nmsh",
+    "output_at_end": false,
+    "output_boundary": true,
+    "output_precision": "double",
+    "end_time": 2e-6,
+    "timestep": 2e-7,
+    "output_checkpoints": false,
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 0.05,
+    "job_timelimit": "24:00:00",
+    "numerics": {
+        "time_order": 3,
+        "polynomial_order": 7,
+        "dealias": true
+    },
+    "simulation_components":
+    [
+	{
+	    "type": "probes",
+	    "compute_control": "tsteps",
+	    "compute_value": 50,
+	    "points_file": "probes.csv",
+	    "output_file": "output.csv",
+	    "fields": ["u","v","w","p"]
+	}
+    ],
+    "fluid": {
+        "scheme": "pnpn",
+        "rho": 1.2047,
+        "mu": 1.5111e-5,
+        "initial_condition": {
+            "type": "uniform",
+            "value": [6.0, 0.0, 0.0] 
+        },
+        "inflow_condition": {
+            "type": "uniform",
+            "value": [6.0, 0.0, 0.0] 
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "projection_space_size": 0,
+            "absolute_tolerance": 1e-8,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "projection_space_size": 0,
+            "absolute_tolerance": 1e-9,
+            "max_iterations": 300
+        },
+        "output_control": "nsamples",
+        "output_value": 5,
+	"boundary_types": ["du/dv/dw", "dp"],
+    },
+}
+}
