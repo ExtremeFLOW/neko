@@ -3,4 +3,5 @@ SUBDIRS = rea2nbin\
 	  genmeshbox\
 	  average_fields_in_time\
 	  average_field_in_space\
-	  postprocess_fluid_stats
+	  postprocess_fluid_stats\
+	  oneD_equidistant_field
