@@ -1,7 +1,8 @@
 !> Program to interpolate the field from GLL points onto equidistant points in elements in a homogenous direction
 !> The number of points inside an element of the input and output field file is supposed to be the same
-!> Shiyu Du 16/01-24 note: the program is designed for Cartesian Box meshes with equidistant elements on the hom-dir 
-!                          the version for rotational coordinates is not yet been thought about
+!> Shiyu Du 16/01-24 note: the program is designed for Cartesian Box meshes with equidistant elements on the hom-dir,
+!                          the version for rotational coordinates is not yet been thought about.
+!> Shiyu Du 16/01-24 note: the program is currently tested on 1 core and MPI, GPU is not tested yet.
 !! Shiyu Du 16/01-24
 program oneD_equidistant_field
   use neko
