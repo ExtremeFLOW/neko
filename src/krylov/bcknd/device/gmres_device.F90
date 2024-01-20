@@ -314,7 +314,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter
+    integer :: iter, max_iter
     integer :: i, j, k
     real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
     logical :: conv
@@ -324,6 +324,12 @@ contains
 
     conv = .false.
     iter = 0
+
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = this%max_iter
+    end if
 
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
           v => this%v, s => this%s, gam => this%gam, v_d => this%v_d, &
@@ -344,7 +350,7 @@ contains
 !       do j = 1, this%m_restart
 !          call device_rzero(h_d(j), this%m_restart)
 !       end do
-      do while (.not. conv .and. iter .lt. niter)
+      do while (.not. conv .and. iter .lt. max_iter)
 
          if(iter.eq.0) then
             call device_copy(r_d, f_d, n)
@@ -424,7 +430,7 @@ contains
                exit
             end if
 
-            if (iter + 1 .gt. niter) exit
+            if (iter + 1 .gt. max_iter) exit
 
             if( j .lt. this%m_restart) then
                temp = 1.0_rp / alpha
