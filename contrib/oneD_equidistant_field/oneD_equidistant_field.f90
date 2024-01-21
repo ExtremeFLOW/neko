@@ -3,8 +3,7 @@
 !> Shiyu Du 16/01-24 note: the program is designed for Cartesian Box meshes with equidistant elements on the hom-dir,
 !                          the version for rotational coordinates is not yet been thought about.
 !> Shiyu Du 16/01-24 note: the program is currently tested on CPUs, GPU is not tested yet.
-!! Shiyu Du 16/01-24
-program oneD_equidistant_field
+program map_to_equidistant_1d
   use neko
   use fast3d
   use tensor
@@ -24,8 +23,8 @@ program oneD_equidistant_field
 
   if ((argc .lt. 4) .or. (argc .gt. 4)) then
      if (pe_rank .eq. 0) then
-        write(*,*) 'Usage: ./oneD_equidistant_field mesh.nmsh field.fld dir(x, y, z) outfield.fld' 
-        write(*,*) 'Example command: ./oneD_equidistant_field mesh.nmsh fieldblabla.fld x outfield.fld'
+        write(*,*) 'Usage: ./map_to_equidistant_1d mesh.nmsh field.fld dir(x, y, z) outfield.fld' 
+        write(*,*) 'Example command: ./map_to_equidistant_1d mesh.nmsh fieldblabla.fld x outfield.fld'
         write(*,*) 'Redistribute the points to be equidistant in elements '
         write(*,*) 'in x of the field fieldblabla.nek5000 and stores in outfield.fld'
      end if
@@ -119,4 +118,4 @@ program oneD_equidistant_field
   
   call neko_finalize
 
-end program oneD_equidistant_field
+end program map_to_equidistant_1d
