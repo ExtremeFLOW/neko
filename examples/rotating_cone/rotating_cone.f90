@@ -65,8 +65,7 @@ contains
        w%x(i,1,1,1) = 0
     end do
 
-    if ((NEKO_BCKND_DEVICE .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, u%dof%size(), &
                           HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(v%x, v%x_d, v%dof%size(), &
