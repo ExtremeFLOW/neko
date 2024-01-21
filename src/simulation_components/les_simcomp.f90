@@ -55,9 +55,6 @@ module les_simcomp
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => les_simcomp_init_from_json
-     !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-        les_simcomp_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => les_simcomp_free
      !> Compute the les_simcomp field.
@@ -80,14 +77,7 @@ contains
     call les_model_factory(this%les_model, name, case%fluid%dm_Xh,&
                            case%fluid%c_Xh, json)
 
-    call les_simcomp_init_from_attributes(this)
   end subroutine les_simcomp_init_from_json
-
-  !> Actual constructor.
-  subroutine les_simcomp_init_from_attributes(this)
-    class(les_simcomp_t), intent(inout) :: this
-
-  end subroutine les_simcomp_init_from_attributes
 
   !> Destructor.
   subroutine les_simcomp_free(this)
