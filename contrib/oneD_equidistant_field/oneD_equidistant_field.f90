@@ -61,15 +61,15 @@ program oneD_equidistant_field
   call Xh%init(GLL, field_data%lx, field_data%ly, field_data%lz)
 
   ! construct the weight matrix
+  allocate(wt(lx,lx))
   allocate(wtt(lx,lx))
   allocate(ident(lx,lx))
   do i = 1, lx
     x_equid = -1.0_rp + (i-1) * 2.0_rp/(lx-1)
     call fd_weights_full(x_equid, Xh%zg(:,1), lx-1, 0, wtt(:,i))
+    wt(i,:) = wtt(:,i)
     ident(i,i) = 1.0_rp
   end do
-  allocate(wt(lx,lx))
-  wt = TRANSPOSE(wtt)
 
   ! redistribute the coordinates to be equidistant within elements
   if (trim(hom_dir) .eq. 'x') then
