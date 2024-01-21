@@ -75,7 +75,7 @@ program oneD_equidistant_field
   else if (trim(hom_dir) .eq. 'z') then
     call tnsr1_3d(field_data%z%x, lx, lx, ident, ident, wtt, msh%nelv)
   else 
-    call neko_error('homogenous direction not supported')
+    call neko_error('The homogenous direction should be "x", "y" or "z"')
   end if
 
   ! interpolate the field at t=0
