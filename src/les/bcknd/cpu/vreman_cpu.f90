@@ -50,11 +50,12 @@ contains
   !> Compute eddy viscosity on the CPU.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine vreman_compute_cpu(t, tstep, coef, nut)
+  subroutine vreman_compute_cpu(t, tstep, coef, nut, delta)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: nut
+    type(field_t), intent(inout) :: delta
     ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
@@ -120,16 +121,12 @@ contains
           ! alpha_ij alpha_ij
           aijaij = beta11 + beta22 + beta33
           if (aijaij > 0) then
-             nut%x(i,:,:,e) = sqrt(b_beta / aijaij)
+             nut%x(i,:,:,e) = delta%x(i,1,1,1) * sqrt(b_beta / aijaij)
           else
              nut%x(i,:,:,e) = 0.0_rp
           end if
        end do
     end do
-
-
-
-
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine vreman_compute_cpu

@@ -39,6 +39,9 @@ module les_model
   use field_registry, only : neko_field_registry
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
+  use gs_ops, only : GS_OP_ADD
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE
   implicit none
   private
 
@@ -46,7 +49,8 @@ module les_model
   type, abstract, public :: les_model_t
      !> Subgrid kinematic viscosity.
      type(field_t), pointer :: nut => null()
-
+     !> LES lengthscale.
+     type(field_t), pointer :: delta => null()
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
    contains
@@ -54,6 +58,8 @@ module les_model
      procedure, pass(this) :: init_base => les_model_init_base
      !> Destructor for the les_model_t (base) class.
      procedure, pass(this) :: free_base => les_model_free_base
+     !> Compute the LES length-scale
+     procedure, pass(this) :: compute_delta => les_model_compute_delta
      !> The common constructor.
      procedure(les_model_init), pass(this), deferred :: init
      !> Destructor.
@@ -110,8 +116,14 @@ contains
     if (.not. neko_field_registry%field_exists(trim(nut_name))) then
        call neko_field_registry%add_field(dofmap, trim(nut_name))
     end if
+    if (.not. neko_field_registry%field_exists("les_delta")) then
+       call neko_field_registry%add_field(dofmap, "les_delta")
+    end if
     this%nut => neko_field_registry%get_field(trim(nut_name))
+    this%delta => neko_field_registry%get_field("les_delta")
     this%coef => coef
+
+    call this%compute_delta()
   end subroutine les_model_init_base
 
   !> Destructor for the les_model_t (base) class.
@@ -121,5 +133,62 @@ contains
     nullify(this%nut)
     nullify(this%coef)
   end subroutine les_model_free_base
+
+  !> Compute the LES lengthscale.
+  !! For each GLL point, we take the distance between its neighbours in all 3
+  !! directions divided by 2 with the exception of face nodes, where only one
+  !! neighbour exists. To form the lengthscale the distances along 3 directions
+  !! are multiplied, and a cubic root is extracted from the result. This
+  !! roughly corresponds to a cubic root of the cell volume in FVM computations.
+  subroutine les_model_compute_delta(this)
+    class(les_model_t), intent(inout) :: this
+    integer :: e, i, j, k
+    integer ::  im, ip, jm, jp, km, kp
+    real(kind=rp) :: di, dj, dk, ndim_inv
+
+
+    do e=1, this%coef%msh%nelv
+       do k=1, this%coef%Xh%lz
+         km = max(1, k-1)
+         kp = min(this%coef%Xh%lz, k+1)
+
+         do j=1, this%coef%Xh%ly
+           jm = max(1, j-1)
+           jp = min(this%coef%Xh%ly, j+1)
+
+           do i=1, this%coef%Xh%lx
+             im = max(1, i-1)
+             ip = min(this%coef%Xh%lx, i+1)
+
+             di = (this%coef%dof%x(ip,j,k,e) - this%coef%dof%x(im,j,k,e))**2 &
+                + (this%coef%dof%y(ip,j,k,e) - this%coef%dof%y(im,j,k,e))**2 &
+                + (this%coef%dof%z(ip,j,k,e) - this%coef%dof%z(im,j,k,e))**2
+
+             dj = (this%coef%dof%x(i,jp,k,e) - this%coef%dof%x(i,jm,k,e))**2 &
+                + (this%coef%dof%y(i,jp,k,e) - this%coef%dof%y(i,jm,k,e))**2 &
+                + (this%coef%dof%z(i,jp,k,e) - this%coef%dof%z(i,jm,k,e))**2
+
+             dk = (this%coef%dof%x(i,j,kp,e) - this%coef%dof%x(i,j,km,e))**2 &
+                + (this%coef%dof%y(i,j,kp,e) - this%coef%dof%y(i,j,km,e))**2 &
+                + (this%coef%dof%z(i,j,kp,e) - this%coef%dof%z(i,j,km,e))**2
+
+             di = sqrt(di) / (ip - im)
+             dj = sqrt(dj) / (jp - jm)
+             dk = sqrt(dk) / (kp - km)
+             this%delta%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
+
+           enddo
+         enddo
+       enddo
+    enddo
+
+    call this%coef%gs_h%op(this%delta, GS_OP_ADD)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
+                          HOST_TO_DEVICE, sync=.false.)
+    end if
+
+  end subroutine les_model_compute_delta
 
 end module les_model

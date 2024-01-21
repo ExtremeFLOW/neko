@@ -77,9 +77,8 @@ contains
 
     call this%init_base(json, case)
 
-    call les_model_factory(this%les_model, name)
-
-
+    call les_model_factory(this%les_model, name, case%fluid%dm_Xh,&
+                           case%fluid%c_Xh, json)
 
     call les_simcomp_init_from_attributes(this)
   end subroutine les_simcomp_init_from_json
@@ -103,6 +102,8 @@ contains
     class(les_simcomp_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+
+    call this%les_model%compute(t, tstep)
 
   end subroutine les_simcomp_compute
 
