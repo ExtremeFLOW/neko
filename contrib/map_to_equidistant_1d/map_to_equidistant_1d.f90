@@ -67,7 +67,13 @@ program map_to_equidistant_1d
     x_equid = -1.0_rp + (i-1) * 2.0_rp/(lx-1)
     call fd_weights_full(x_equid, Xh%zg(:,1), lx-1, 0, wtt(:,i))
     wt(i,:) = wtt(:,i)
-    ident(i,i) = 1.0_rp
+    do j = 1, lx
+      if (i .eq. j) then
+        ident(i,j) = 1.0_rp
+      else
+        ident(i,j) = 0.0_rp
+      end if
+    end do
   end do
 
   ! redistribute the coordinates to be equidistant within elements
