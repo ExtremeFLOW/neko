@@ -235,12 +235,17 @@ neko_fortran_SOURCES = \
 	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
+	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_factory.f90\
 	source_terms/source_term.f90\
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
 	source_terms/bcknd/device/const_source_term_device.f90\
 	source_terms/source_term_factory.f90\
+	les/les_model.f90\
+	les/les_model_fctry.f90\
+	les/vreman.f90\
+	les/bcknd/cpu/vreman_cpu.f90\
 	neko.f90
 
 neko_c_SOURCES = comm/comm_wrapper.c\
