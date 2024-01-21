@@ -151,9 +151,9 @@ contains
     call cuda_fusedcg_update_p(p_d, z_d, po_d, beta, n)
 #else
     call neko_error('No device backend configured')
-#endif        
+#endif
   end subroutine device_fusedcg_update_p
-  
+
   subroutine device_fusedcg_update_x(x_d, p_d, alpha, p_cur, n)
     type(c_ptr), value :: x_d, p_d, alpha
     integer(c_int) :: p_cur, n
@@ -163,7 +163,7 @@ contains
     call cuda_fusedcg_update_x(x_d, p_d, alpha, p_cur, n)
 #else
     call neko_error('No device backend configured')
-#endif        
+#endif
   end subroutine device_fusedcg_update_x
 
   function device_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, &
@@ -187,14 +187,15 @@ contains
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 #endif
-    
+
   end function device_fusedcg_part2
-  
+
   !> Initialise a fused PCG solver
-  subroutine fusedcg_device_init(this, n, M, rel_tol, abs_tol)
+  subroutine fusedcg_device_init(this, n, max_iter, M, rel_tol, abs_tol)
     class(fusedcg_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
+    integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
     type(c_ptr) :: ptr
@@ -229,13 +230,13 @@ contains
     call device_memcpy(ptr, this%p_d_d, p_size, &
                        HOST_TO_DEVICE, sync=.false.)
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(max_iter)
     end if
 
     call device_event_create(this%gs_event, 2)
@@ -252,17 +253,17 @@ contains
     if (allocated(this%w)) then
        deallocate(this%w)
     end if
-    
+
     if (allocated(this%r)) then
        deallocate(this%r)
     end if
 
-    
+
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
 
-    
+
     if (allocated(this%alpha)) then
        deallocate(this%alpha)
     end if
@@ -274,7 +275,7 @@ contains
     if (c_associated(this%w_d)) then
        call device_free(this%w_d)
     end if
-    
+
     if (c_associated(this%r_d)) then
        call device_free(this%r_d)
     end if
@@ -366,7 +367,7 @@ contains
          rtr = device_fusedcg_part2(r_d, coef%mult_d, w_d, &
                                     alpha_d, alpha(p_cur), p_cur, n)
          rnorm = sqrt(rtr)*norm_fac
-        
+
          if ((p_cur .eq. DEVICE_FUSEDCG_P_SPACE) .or. &
               (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
             call device_fusedcg_update_x(x%x_d, p_d_d, alpha_d, p_cur, n)

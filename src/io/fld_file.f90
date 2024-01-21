@@ -711,10 +711,10 @@ contains
        end if
 
 
-       if (this%dp_precision) then
-          FLD_DATA_SIZE = MPI_DOUBLE_PRECISION_SIZE
+       if (FLD_DATA_SIZE .eq. MPI_DOUBLE_PRECISION_SIZE) then
+          this%dp_precision = .true.
        else
-          FLD_DATA_SIZE = MPI_REAL_SIZE
+          this%dp_precision = .false.
        end if
        if (this%dp_precision) then
           allocate(tmp_dp(data%gdim*n))
