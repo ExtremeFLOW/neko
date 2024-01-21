@@ -44,6 +44,10 @@ program oneD_equidistant_field
   read(inputchar, *) hom_dir
   call get_command_argument(4, inputchar) 
   read(inputchar, *) output_fname
+
+  if (trim(hom_dir) .ne. 'x' .and. trim(hom_dir) .ne. 'y' .and. trim(hom_dir) .ne. 'z') then
+     call neko_error('The homogenous direction should be "x", "y" or "z"')
+  end if
   
   call mesh_file%read(msh)
 
@@ -74,8 +78,6 @@ program oneD_equidistant_field
     call tnsr1_3d(field_data%y%x, lx, lx, ident, wtt, ident, msh%nelv)
   else if (trim(hom_dir) .eq. 'z') then
     call tnsr1_3d(field_data%z%x, lx, lx, ident, ident, wtt, msh%nelv)
-  else 
-    call neko_error('The homogenous direction should be "x", "y" or "z"')
   end if
 
   ! interpolate the field at t=0
@@ -88,8 +90,6 @@ program oneD_equidistant_field
         call tnsr1_3d(fields(i)%v%x, lx, lx, ident, wtt, ident, msh%nelv)
      else if (trim(hom_dir) .eq. 'z') then
         call tnsr1_3d(fields(i)%v%x, lx, lx, ident, ident, wtt, msh%nelv)
-     else
-        call neko_error('homogenous direction not supported')
      end if
   end do 
 
@@ -109,8 +109,6 @@ program oneD_equidistant_field
            call tnsr1_3d(fields(j)%v%x, lx, lx, ident, wtt, ident, msh%nelv)
         else if (trim(hom_dir) .eq. 'z') then
            call tnsr1_3d(fields(j)%v%x, lx, lx, ident, ident, wtt, msh%nelv)
-        else
-           call neko_error('homogenous direction not supported')
         end if
      end do 
   end do
