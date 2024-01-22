@@ -10,7 +10,7 @@ module drag_torque
   use operators
   implicit none
   private
-  !> Some functions to calculatye the lift/drag and torque
+  !> Some functions to calculate the lift/drag and torque
   !! Calculation can be done on a zone, a facet, or a point
   !! Currently everything is CPU only
   public :: drag_torque_zone, drag_torque_facet, drag_torque_pt
