@@ -6,6 +6,7 @@ module map_1d
   use dofmap, only: dofmap_t
   use gather_scatter
   use mesh, only: mesh_t
+  use device
   use comm
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error
@@ -51,6 +52,7 @@ contains
     integer :: nelv, lx, n, i, e, lvl
     real(kind=rp), pointer :: line(:,:,:,:)
     real(kind=rp), allocatable :: min_vals(:,:,:,:)
+    type(c_ptr) :: min_vals_d = c_null_ptr
     real(kind=rp) :: el_dim(3,3), glb_min, glb_max, el_min
     call this%free()
 
@@ -79,6 +81,9 @@ contains
     allocate(this%el_lvl(nelv))
     allocate(min_vals(lx, lx, lx, nelv))
     allocate(this%pt_lvl(lx, lx, lx, nelv))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(min_vals,min_vals_d,n)
+    end if
 
     do i = 1, nelv
        !store which direction r,s,t corresponds to speciifed direction, x,y,z
@@ -100,16 +105,22 @@ contains
 
     i = 1
     this%el_lvl = -1
+    ! Check what the mimum value in each element and put in min_vals
     do e = 1, nelv
        el_min = minval(line(:,:,:,e))
        min_vals(:,:,:,e) = el_min
+       ! Check if this element is on the bottom, in this case assign el_lvl = i = 1 
        if (relcmp(el_min,glb_min,this%tol)) then
           if(this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
        end if
     end do
+    ! While loop where at each iteation the global maximum value propagates down one level.
+    ! When the minumum value has propagated to the highest level this stops.
+    ! Only works when the bottom plate of the domain is flat.
     do while (.not. relcmp(glmax(min_vals,n), glb_min, this%tol))
       i = i + 1
       do e = 1, nelv
+         !Sets the value at the bottom of each element to glb_max
          if (this%dir_el(e) .eq. 1) then
             if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
                min_vals(lx,:,:,e) = glb_max
@@ -132,7 +143,18 @@ contains
             end if
          end if
       end do
+      if (NEKO_BCKND_DEVICE .eq. 1) &
+         call device_memcpy(min_vals, min_vals_d, n,&
+                            HOST_TO_DEVICE, sync=.false.)
+      !Propagates the minumum value along the element boundary.
       call gs%op(min_vals,n,GS_OP_MIN)
+      if (NEKO_BCKND_DEVICE .eq. 1) &
+          call device_memcpy(min_vals, min_vals_d, n,&
+                             DEVICE_TO_HOST, sync=.true.)
+      !Checks the new minimum value on each element
+      !Assign this value to all points in this element in min_val
+      !If the element has not already been assinged a level, 
+      !and it has obtained the minval, set el_lvl = i
       do e = 1, nelv
          el_min = minval(min_vals(:,:,:,e))
          min_vals(:,:,:,e) = el_min
@@ -143,6 +165,8 @@ contains
     end do
     this%n_el_lvls = glimax(this%el_lvl,nelv)
     write(*,*) 'number of element levels', this%n_el_lvls
+    !Numbers the points in each element based on the element level
+    !and its orientation
     do e = 1, nelv
        do i = 1, lx
          lvl = lx * (this%el_lvl(e) - 1) + i
@@ -169,7 +193,9 @@ contains
          end if
        end do
     end do
-
+    call device_deassociate(min_vals)
+    call device_free(min_vals_d)
+    deallocate(min_vals)
   end subroutine map_1d_init
 
   subroutine map_1d_free(this)
