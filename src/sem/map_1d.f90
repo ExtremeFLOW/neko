@@ -1,5 +1,5 @@
 
-!> Creates a 1d GLL point map along aspecified direction based on the connectivity in the mesh.
+!> Creates a 1d GLL point map along a specified direction based on the connectivity in the mesh.
 module map_1d
   use num_types, only: rp
   use space, only: space_t
@@ -17,7 +17,7 @@ module map_1d
   private
   !> Type that encapsulates a mapping from each gll point in the mesh 
   !! to its corresponding (global) GLL point index in one direction.
-  !! I envision this could also be rather easily extended to say polar coordinates as well.
+  !! @remark Could also be rather easily extended to say polar coordinates as well.
   type, public :: map_1d_t
      !> Checks whether the specified direction is in the r,s, or t direction for each element.
      integer, allocatable :: dir_el(:)
@@ -36,7 +36,9 @@ module map_1d
      !> Tolerance for the mesh
      real(kind=rp) :: tol = 1e-7
    contains
+     !> Constructor
      procedure, pass(this) :: init => map_1d_init
+     !> Destructor
      procedure, pass(this) :: free => map_1d_free
   end type map_1d_t
 
@@ -87,14 +89,14 @@ contains
 
     do i = 1, nelv
        !store which direction r,s,t corresponds to speciifed direction, x,y,z
-       !we assume elements are stacked on eachother...
+       !we assume elements are stacked on each other...
        ! Check which one of the normalized vectors are closest to dir
        ! If we want to incorporate other directions, we should look here
-       el_dim(1,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(2)%p%x)
+       el_dim(1,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - this%msh%elements(i)%e%pts(2)%p%x)
        el_dim(1,:) = el_dim(1,:)/norm2(el_dim(1,:))
-       el_dim(2,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(3)%p%x)
+       el_dim(2,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - this%msh%elements(i)%e%pts(3)%p%x)
        el_dim(2,:) = el_dim(2,:)/norm2(el_dim(2,:))
-       el_dim(3,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(5)%p%x)
+       el_dim(3,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - this%msh%elements(i)%e%pts(5)%p%x)
        el_dim(3,:) = el_dim(3,:)/norm2(el_dim(3,:))
        ! Checks which directions in rst the xyz corresponds to
        ! 1 corresponds to r, 2 to s, 3 to t and are stored in dir_el
@@ -110,7 +112,7 @@ contains
        el_min = minval(line(:,:,:,e))
        min_vals(:,:,:,e) = el_min
        ! Check if this element is on the bottom, in this case assign el_lvl = i = 1 
-       if (relcmp(el_min,glb_min,this%tol)) then
+       if (relcmp(el_min, glb_min, this%tol)) then
           if(this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
        end if
     end do

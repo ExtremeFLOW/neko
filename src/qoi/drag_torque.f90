@@ -10,7 +10,7 @@ module drag_torque
   use operators
   implicit none
   private
-  !> Some functions to calculatye the lift/drag and torque
+  !> Some functions to calculate the lift/drag and torque
   !! Calculation can be done on a zone, a facet, or a point
   !! Currently everything is CPU only
   public :: drag_torque_zone, drag_torque_facet, drag_torque_pt
@@ -94,19 +94,6 @@ contains
 !
 !     Sum contributions from all processors
 !
-      !call gop(dragpx,w1,'+  ',2)
-      !call gop(dragpy,w1,'+  ',2)
-      !call gop(dragpz,w1,'+  ',2)
-      !call gop(dragvx,w1,'+  ',2)
-      !call gop(dragvy,w1,'+  ',2)
-      !call gop(dragvz,w1,'+  ',2)
-!
-      !call gop(torqpx,w1,'+  ',2)
-      !call gop(torqpy,w1,'+  ',2)
-      !call gop(torqpz,w1,'+  ',2)
-      !call gop(torqvx,w1,'+  ',2)
-      !call gop(torqvy,w1,'+  ',2)
-      !call gop(torqvz,w1,'+  ',2)
       call MPI_Allreduce(MPI_IN_PLACE,dragpx, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
       call MPI_Allreduce(MPI_IN_PLACE,dragpy, 1, &
