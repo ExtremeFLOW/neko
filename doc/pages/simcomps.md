@@ -1,4 +1,3 @@
-
 # Simulation components {#simcomps}
 ## What are simulation components?
 Simulation components, or simcomps fo short,  incapsulate additional
@@ -22,7 +21,7 @@ perform associated computations and output.
 However, this can be modified by using the `compute_control` and `compute_value`
 parameters for the computation and the `output_control and` and 
 `output_value` for the output to disk.
-The paramters for the `_control` values are the same as for the fluid and 
+The parameters for the `_control` values are the same as for the fluid and 
 checkpointing.
 
 For example, in the `tgv` example case the `vorticity` component is executed 
@@ -34,7 +33,7 @@ once per 50 time steps.
     "compute_value": 50
 }
 ~~~~~~~~~~~~~~~
-If no parameters for the `output_` parametersare provided, they areset to be the
+If no parameters for the `output_` parameters are provided, they are set to be the
  same as for `compute_`.
 
  ## List of simulation components
@@ -62,9 +61,3 @@ If no parameters for the `output_` parametersare provided, they areset to be the
  }
  ~~~~~~~~~~~~~~~
 This probes the fields 'w', and 's' in the points described by points.csv and outputs into output.csv every 1 time units.
-
-
-
-
-
-
