@@ -45,7 +45,6 @@ module case
   use redist
   use sampler
   use flow_ic
-  use scalar_ic, only : set_scalar_ic
   use stats
   use file
   use utils
@@ -55,7 +54,6 @@ module case
   use logger
   use jobctrl
   use user_intf
-  use scalar_pnpn ! todo directly load the pnpn? can we have other
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
@@ -80,7 +78,6 @@ module case
      type(stats_t) :: q
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
-     type(scalar_pnpn_t), allocatable :: scalar
      type(material_properties_t):: material_properties
   end type case_t
 
@@ -139,7 +136,6 @@ contains
     type(case_t), target, intent(inout) :: C
     character(len=:), allocatable :: output_directory
     integer :: lx = 0
-    logical :: scalar = .false.
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part, parts
     logical :: found, logical_val
@@ -228,25 +224,6 @@ contains
     call neko_point_zone_registry%init(C%params, C%fluid%u%dof)
 
     !
-    ! Setup scalar scheme
-    !
-    ! @todo no scalar factory for now, probably not needed
-    if (C%params%valid_path('case.scalar')) then
-       call json_get_or_default(C%params, 'case.scalar.enabled', scalar,&
-                                .true.)
-    end if
-
-    if (scalar) then
-       allocate(C%scalar)
-       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
-                          C%material_properties)
-       call C%fluid%chkp%add_scalar(C%scalar%s)
-       C%fluid%chkp%abs1 => C%scalar%abx1
-       C%fluid%chkp%abs2 => C%scalar%abx2
-       C%fluid%chkp%slag => C%scalar%slag
-    end if
-
-    !
     ! Setup user defined conditions
     !
     if (C%params%valid_path('case.fluid.inflow_condition')) then
@@ -255,11 +232,6 @@ contains
        if (trim(string_val) .eq. 'user') then
           call C%fluid%set_usr_inflow(C%usr%fluid_user_if)
        end if
-    end if
-
-    ! Setup user boundary conditions for the scalar.
-    if (scalar) then
-       call C%scalar%set_user_bc(C%usr%scalar_user_bc)
     end if
 
     !
@@ -275,17 +247,6 @@ contains
             C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
     end if
 
-    if (scalar) then
-       call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
-       if (trim(string_val) .ne. 'user') then
-          call set_scalar_ic(C%scalar%s, &
-            C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
-       else
-          call set_scalar_ic(C%scalar%s, &
-            C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
-       end if
-    end if
-
     ! Add initial conditions to BDF scheme (if present)
     select type(f => C%fluid)
     type is(fluid_pnpn_t)
@@ -299,11 +260,6 @@ contains
     ! Validate that the case is properly setup for time-stepping
     !
     call C%fluid%validate
-
-    if (scalar) then
-       call C%scalar%slag%set(C%scalar%s)
-       call C%scalar%validate
-    end if
 
     !
     ! Set order of timestepper
@@ -366,13 +322,13 @@ contains
     ! Setup sampler
     !
     call C%s%init(C%end_time)
-    if (scalar) then
-       C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
-            path=trim(output_directory))
-    else
+!    if (scalar) then
+!       C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
+!            path=trim(output_directory))
+!    else
        C%f_out = fluid_output_t(precision, C%fluid, &
             path=trim(output_directory))
-    end if
+!    end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
                              string_val, 'org')
@@ -481,11 +437,6 @@ contains
     if (allocated(C%fluid)) then
        call C%fluid%free()
        deallocate(C%fluid)
-    end if
-
-    if (allocated(C%scalar)) then
-       call C%scalar%free()
-       deallocate(C%scalar)
     end if
 
     call C%msh%free()

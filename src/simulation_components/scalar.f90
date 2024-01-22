@@ -43,6 +43,8 @@ module scalar
   use case, only : case_t
   use scalar_pnpn, only : scalar_pnpn_t
   use logger, only : neko_log, LOG_SIZE
+  use scalar_ic, only : set_scalar_ic
+  use json_utils, only : json_get
   implicit none
   private
 
@@ -85,24 +87,37 @@ contains
 
   !> Actual constructor.
   subroutine scalar_init_from_attributes(this)
-    class(scalar_t), intent(inout) :: this
+    class(scalar_t), target, intent(inout) :: this
+    character(len=:), allocatable :: ic_type
 
-       allocate(this%scheme)
+    allocate(this%scheme)
 
-       call this%case%scalar%init(this%case%msh, this%case%fluid%c_Xh, &
-          this%case%fluid%gs_Xh, this%case%params, this%case%usr, &
-          this%case%material_properties)
+    call this%scheme%init(this%case%msh, this%case%fluid%c_Xh, &
+       this%case%fluid%gs_Xh, this%case%params, this%case%usr, &
+       this%case%material_properties)
 
-       call this%scheme%set_user_bc(this%case%usr%scalar_user_bc)
+    call this%scheme%set_user_bc(this%case%usr%scalar_user_bc)
 
-       call this%scheme%slag%set(this%scheme%s)
-       call this%scheme%validate()
+    call this%scheme%slag%set(this%scheme%s)
+    call this%scheme%validate()
 
-       !call this%case%fluid%chkp%add_scalar(this%scheme%s)
-       !this%case%fluid%chkp%abs1 => this%scheme%abx1
-       !this%case%fluid%chkp%abs2 => this%scheme%abx2
-       !this%case%fluid%chkp%slag => this%scheme%slag
+    call this%case%fluid%chkp%add_scalar(this%scheme%s)
+    this%case%fluid%chkp%abs1 => this%scheme%abx1
+    this%case%fluid%chkp%abs2 => this%scheme%abx2
+    this%case%fluid%chkp%slag => this%scheme%slag
 
+    ! User boundary condition
+    call this%scheme%set_user_bc(this%case%usr%scalar_user_bc)
+
+    ! Initial condition
+    call json_get(this%case%params, 'case.scalar.initial_condition.type', ic_type)
+    if (trim(ic_type) .ne. 'user') then
+       call set_scalar_ic(this%scheme%s, &
+         this%scheme%c_Xh, this%scheme%gs_Xh, ic_type, this%case%params)
+    else
+       call set_scalar_ic(this%scheme%s, &
+         this%scheme%c_Xh, this%scheme%gs_Xh, this%case%usr%scalar_user_ic, this%case%params)
+    end if
   end subroutine scalar_init_from_attributes
 
   !> Destructor.
@@ -124,7 +139,7 @@ contains
     real(kind=dp) :: start_time, end_time
     character(len=LOG_SIZE) :: log_buf
 
-    
+
    ! start_time = MPI_WTIME()
     call neko_log%section('Scalar simcomp')
     call this%scheme%step(t, tstep, this%case%dt, this%case%ext_bdf)

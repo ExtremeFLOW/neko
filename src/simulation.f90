@@ -118,16 +118,16 @@ contains
        call neko_log%end_section(log_buf)
 
        ! Scalar step
-       if (allocated(C%scalar)) then
-          start_time = MPI_WTIME()
-          call neko_log%section('Scalar')
-          call C%scalar%step(t, tstep, C%dt, C%ext_bdf)
-          end_time = MPI_WTIME()
-          write(log_buf, '(A,E15.7,A,E15.7)') &
-               'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
-               end_time-start_time
-          call neko_log%end_section(log_buf)
-       end if
+!       if (allocated(C%scalar)) then
+!          start_time = MPI_WTIME()
+!          call neko_log%section('Scalar')
+!          call C%scalar%step(t, tstep, C%dt, C%ext_bdf)
+!          end_time = MPI_WTIME()
+!          write(log_buf, '(A,E15.7,A,E15.7)') &
+!               'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
+!               end_time-start_time
+!          call neko_log%end_section(log_buf)
+!       end if
 
        call neko_log%section('Postprocessing')
        ! Execute all simulation components
@@ -238,7 +238,7 @@ contains
     end do
 
     call C%fluid%restart(C%dtlag, C%tlag)
-    if (allocated(C%scalar)) call C%scalar%restart( C%dtlag, C%tlag)
+!    if (allocated(C%scalar)) call C%scalar%restart( C%dtlag, C%tlag)
 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')

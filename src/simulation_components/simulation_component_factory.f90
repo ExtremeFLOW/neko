@@ -65,13 +65,12 @@ contains
        allocate(lambda2_t::simcomp)
     else if (trim(simcomp_type) .eq. "probes") then
        allocate(probes_t::simcomp)
+    else if (trim(simcomp_type) .eq. "scalar") then
+       allocate(scalar_t::simcomp)
     else
        call neko_log%error("Unknown simulation component type: " &
                            // trim(simcomp_type))
        stop
-    end if
-    if (trim(simcomp_type) .eq. "scalar") then
-       allocate(scalar_t::simcomp)
     end if
 
     ! Initialize
