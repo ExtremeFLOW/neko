@@ -111,9 +111,10 @@ program map_to_equidistant_1d
            call tnsr1_3d(fields(j)%v%x, lx, lx, ident, ident, wtt, msh%nelv)
         end if
      end do 
+     ! output for t>0
+     call output_file%write(field_data, field_data%time)
   end do
-  ! output for t>0
-  call output_file%write(field_data, field_data%time)
+  
   
   if (pe_rank .eq. 0) write(*,*) 'Done'
   
