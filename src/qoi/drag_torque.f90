@@ -152,22 +152,24 @@ contains
   subroutine drag_torque_facet(dgtq,xm0,ym0,zm0, center,&
                                s11, s22, s33, s12, s13, s23,&
                                pm1,visc,f,e, coef, Xh)
-    type(coef_t) :: coef 
-    type(space_t) :: Xh
-    real(kind=rp) :: dgtq(3,4), dgtq_i(3,4), center(3)
-    real(kind=rp) :: xm0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp) :: ym0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp) :: zm0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp) :: s11 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp) :: s22 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp) :: s33 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp) :: s12 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp) :: s13 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp) :: s23 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp) :: pm1 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp) :: visc
-    integer :: f,e,pf,l, k, i, j1, j2
-    real(kind=rp) ::    n1,n2,n3, j, a, r1, r2, r3, v
+    type(coef_t), intent(in) :: coef 
+    type(space_t), intent(in) :: Xh
+    real(kind=rp), intent(out) :: dgtq(3,4)
+    real(kind=rp), intent(in) :: center(3)
+    real(kind=rp), intent(in) :: xm0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: ym0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: zm0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: s11 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: s22 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: s33 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: s12 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: s13 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: s23 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: pm1 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: visc
+    integer, intent(in) :: f,e
+    integer :: pf,l, k, i, j1, j2
+    real(kind=rp) ::    n1,n2,n3, j, a, r1, r2, r3, v, dgtq_i(3,4)
     integer :: skpdat(6,6), NX, NY, NZ
     integer :: js1   
     integer :: jf1   
