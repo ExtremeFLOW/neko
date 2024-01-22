@@ -37,12 +37,12 @@ program map_to_equidistant_1d
   read(inputchar, *) mesh_fname
   mesh_file = file_t(trim(mesh_fname))
   call get_command_argument(2, inputchar) 
-  read(inputchar, *) field_fname
+  read(inputchar, fmt='(A)') field_fname
   field_file = file_t(trim(field_fname))
   call get_command_argument(3, inputchar) 
   read(inputchar, *) hom_dir
   call get_command_argument(4, inputchar) 
-  read(inputchar, *) output_fname
+  read(inputchar, fmt='(A)') output_fname
 
   if (trim(hom_dir) .ne. 'x' .and. trim(hom_dir) .ne. 'y' .and. trim(hom_dir) .ne. 'z') then
      call neko_error('The homogenous direction should be "x", "y" or "z"')
