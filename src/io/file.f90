@@ -32,20 +32,26 @@
 !
 !> Module for file I/O operations.
 module file
-  use utils
-  use generic_file
-  use nmsh_file
-  use chkp_file
-  use map_file
-  use rea_file
-  use re2_file
-  use fld_file
-  use fld_file_data
-  use vtk_file
-  use stl_file
-  use csv_file
+  use utils, only : neko_error, neko_warning, filename_suffix
+  use num_types, only : rp
+  use generic_file, only : generic_file_t
+  use nmsh_file, only : nmsh_file_t
+  use chkp_file, only : chkp_file_t
+  use map_file, only : map_file_t
+  use rea_file, only : rea_file_t
+  use re2_file, only : re2_file_t
+  use fld_file, only : fld_file_t
+  use fld_file_data, only : fld_file_data_t
+  use vtk_file, only : vtk_file_t
+  use stl_file, only : stl_file_t
+  use csv_file, only : csv_file_t
   implicit none
 
+  !> A wrapper around a polymorphic `generic_file_t` that handles its init.
+  !! This is essentially a factory for `generic_file_t` descendants additionally
+  !! handling special CSV file parameters (header and precision).
+  !! @remark We could perhaps make a more typical design, with just a factory
+  !! subroutine, like for most other polymorphic types.
   type file_t
      class(generic_file_t), allocatable :: file_type
    contains
