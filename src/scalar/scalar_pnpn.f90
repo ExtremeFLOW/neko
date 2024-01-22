@@ -281,8 +281,8 @@ contains
 
   subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf)
     class(scalar_pnpn_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: t
-    integer, intent(inout) :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
     ! Number of degrees of freedom
@@ -317,23 +317,24 @@ contains
          call neko_log%message(log_buf)
       end if
 
-      ! Evaluate the source term and scale with the mass matrix.
-      call f_Xh%eval(t)
+      ! Compute the source terms
+      call this%source_term%compute(t, tstep)
 
+      ! Pre-multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_col2(f_Xh%s_d, c_Xh%B_d, n)
+         call device_col2(f_Xh%x_d, c_Xh%B_d, n)
       else
-         call col2(f_Xh%s, c_Xh%B, n)
+         call col2(f_Xh%x, c_Xh%B, n)
       end if
 
       ! Add the advection operators to the right-hans-side.
-      call this%adv%compute_scalar(u, v, w, s, f_Xh%s, &
+      call this%adv%compute_scalar(u, v, w, s, f_Xh%x, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
-      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%s, rho, &
+      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
            ext_bdf%advection_coeffs, n)
 
-      call makebdf%compute_scalar(slag, f_Xh%s, s, c_Xh%B, rho, dt, &
+      call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
            ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()

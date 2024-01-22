@@ -34,13 +34,14 @@
 module user_intf
   use field
   use fluid_user_source_term
-  use source_scalar
+  use scalar_user_source_term
   use coefs
   use mesh
   use usr_inflow
   use usr_scalar
   use num_types
   use json_module, only : json_file
+  use utils, only : neko_error,  neko_warning
   implicit none
   private
 
@@ -148,8 +149,8 @@ module user_intf
      procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
      procedure(fluid_source_compute_pointwise), nopass, pointer :: fluid_user_f => null()
      procedure(fluid_source_compute_vector), nopass, pointer :: fluid_user_f_vector => null()
-     procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
-     procedure(source_scalar_term), nopass, pointer :: scalar_user_f_vector => null()
+     procedure(scalar_source_compute_pointwise), nopass, pointer :: scalar_user_f => null()
+     procedure(scalar_source_compute_vector), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
      procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
      !> Routine to set material properties
@@ -262,7 +263,7 @@ contains
 
   !> Dummy user (scalar) forcing
   subroutine dummy_user_scalar_f_vector(f, t)
-    class(source_scalar_t), intent(inout) :: f
+    class(scalar_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_scalar_f_vector

@@ -36,6 +36,7 @@ module simulation_component_fctry
   use simulation_component, only : simulation_component_t
   use vorticity, only : vorticity_t
   use lambda2, only : lambda2_t
+  use scalar, only : scalar_t
   use probes, only : probes_t
   use json_module, only : json_file
   use case, only : case_t
@@ -68,6 +69,9 @@ contains
        call neko_log%error("Unknown simulation component type: " &
                            // trim(simcomp_type))
        stop
+    end if
+    if (trim(simcomp_type) .eq. "scalar") then
+       allocate(scalar_t::simcomp)
     end if
 
     ! Initialize

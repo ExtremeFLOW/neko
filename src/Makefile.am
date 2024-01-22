@@ -228,6 +228,8 @@ neko_fortran_SOURCES = \
 	scalar/scalar_residual.f90\
 	scalar/scalar_residual_fctry.f90\
 	scalar/scalar_ic.f90\
+	scalar/scalar_source_term.f90\
+	scalar/scalar_user_source_term.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\
@@ -235,6 +237,7 @@ neko_fortran_SOURCES = \
 	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
+	simulation_components/scalar.f90\
 	simulation_components/simulation_component_factory.f90\
 	source_terms/source_term.f90\
 	source_terms/const_source_term.f90\

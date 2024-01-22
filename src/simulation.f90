@@ -32,12 +32,12 @@
 !
 !> Simulation driver
 module simulation
-  use case
+  use case, only : case_t
   use gather_scatter
-  use time_scheme_controller
+  use time_scheme_controller, only : time_scheme_controller_t
   use file
   use math
-  use logger
+  use logger, only : neko_log, LOG_SIZE
   use device
   use device_math
   use jobctrl

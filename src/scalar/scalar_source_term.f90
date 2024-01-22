@@ -31,11 +31,11 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the `fluid_source_term_t` type.
-module fluid_source_term
+!> Implements the `scalar_source_term_t` type.
+module scalar_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use fluid_user_source_term, only: fluid_user_source_term_t
+  use scalar_user_source_term, only: scalar_user_source_term_t
   use source_term, only : source_term_wrapper_t, source_term_t
   use source_term_fctry, only : source_term_factory
   use field, only : field_t
@@ -47,38 +47,34 @@ module fluid_source_term
   implicit none
   private
 
-  !> Wrapper contaning and executing the fluid source terms.
+  !> Wrapper contaning and executing the scalar source terms.
   !! @details
-  !! Exists mainly to keep the `fluid_scheme_t` type smaller and also as
+  !! Exists mainly to keep the `scalar_scheme_t` type smaller and also as
   !! placeholder for future optimizations.
-  type, public :: fluid_source_term_t
+  type, public :: scalar_source_term_t
      !> Array of ordinary source terms.
      class(source_term_wrapper_t), allocatable :: source_terms(:)
-     !> X-component of the right-hand side.
-     type(field_t), pointer :: f_x => null()
-     !> Y-component of the right-hand side.
-     type(field_t), pointer :: f_y => null()
-     !> Z-component of the right-hand side.
-     type(field_t), pointer :: f_z => null()
+     !> The right-hand side.
+     type(field_t), pointer :: f => null()
    contains
      !> Constructor.
-     procedure, pass(this) :: init => fluid_source_term_init
+     procedure, pass(this) :: init => scalar_source_term_init
      !> Destructor.
-     procedure, pass(this) :: free => fluid_source_term_free
+     procedure, pass(this) :: free => scalar_source_term_free
      !> Add all the source terms to the passed right-hand side fields.
-     procedure, pass(this) :: compute => fluid_source_term_compute
+     procedure, pass(this) :: compute => scalar_source_term_compute
      !> Initialize the user source term.
      procedure, nopass, private :: init_user_source
 
-  end type fluid_source_term_t
+  end type scalar_source_term_t
 
 contains
 
   !> Costructor.
-  subroutine fluid_source_term_init(this, json, f_x, f_y, f_z, coef, user)
-    class(fluid_source_term_t), intent(inout) :: this
+  subroutine scalar_source_term_init(this, json, f, coef, user)
+    class(scalar_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(field_t), pointer, intent(in) :: f_x, f_y, f_z
+    type(field_t), pointer, intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(user_t), intent(in) :: user
 
@@ -100,20 +96,16 @@ contains
 
     call this%free()
 
-    this%f_x => f_x
-    this%f_y => f_y
-    this%f_z => f_z
+    this%f => f
 
 
-    if (json%valid_path('case.fluid.source_terms')) then
+    if (json%valid_path('case.scalar.source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
        allocate(rhs_fields%fields(3))
-       rhs_fields%fields(1)%f => f_x
-       rhs_fields%fields(2)%f => f_y
-       rhs_fields%fields(3)%f => f_z
+       rhs_fields%fields(1)%f => f
 
        call json%get_core(core)
-       call json%get('case.fluid.source_terms', source_object, found)
+       call json%get('case.scalar.source_terms', source_object, found)
 
        n_sources = core%count(source_object)
        allocate(this%source_terms(n_sources))
@@ -140,7 +132,7 @@ contains
        end do
     end if
 
-  end subroutine fluid_source_term_init
+  end subroutine scalar_source_term_init
 
   !> Initialize the user source term.
   !! @param source_term The allocatable source term to be initialized to a user.
@@ -156,24 +148,22 @@ contains
     character(len=*) :: type
     type(user_t), intent(in) :: user
 
-    allocate(fluid_user_source_term_t::source_term)
+    allocate(scalar_user_source_term_t::source_term)
 
     select type (source_term)
-    type is (fluid_user_source_term_t)
+    type is (scalar_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
-                                            user%fluid_user_f_vector, &
-                                            user%fluid_user_f)
+                                            user%scalar_user_f_vector, &
+                                            user%scalar_user_f)
     end select
   end subroutine init_user_source
 
   !> Destructor.
-  subroutine fluid_source_term_free(this)
-    class(fluid_source_term_t), intent(inout) :: this
+  subroutine scalar_source_term_free(this)
+    class(scalar_source_term_t), intent(inout) :: this
     integer :: i
 
-    nullify(this%f_x)
-    nullify(this%f_y)
-    nullify(this%f_z)
+    nullify(this%f)
 
     if (allocated(this%source_terms)) then
        do i=1, size(this%source_terms)
@@ -182,20 +172,18 @@ contains
        deallocate(this%source_terms)
     end if
 
-  end subroutine fluid_source_term_free
+  end subroutine scalar_source_term_free
 
   !> Add all the source term to the passed right-hand side fields.
   !! @param t The time value.
   !! @param tstep The current time step.
-  subroutine fluid_source_term_compute(this, t, tstep)
-    class(fluid_source_term_t), intent(inout) :: this
+  subroutine scalar_source_term_compute(this, t, tstep)
+    class(scalar_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i, n
 
-    this%f_x = 0.0_rp
-    this%f_y = 0.0_rp
-    this%f_z = 0.0_rp
+    this%f = 0.0_rp
 
     ! Add contribution from all source terms.
     if (allocated(this%source_terms)) then
@@ -204,5 +192,5 @@ contains
        end do
     end if
 
-  end subroutine fluid_source_term_compute
-end module fluid_source_term
+  end subroutine scalar_source_term_compute
+end module scalar_source_term
