@@ -89,7 +89,7 @@ contains
        el_dim(1,:) = el_dim(1,:)/norm2(el_dim(1,:))
        el_dim(2,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - this%msh%elements(i)%e%pts(3)%p%x)
        el_dim(2,:) = el_dim(2,:)/norm2(el_dim(2,:))
-       el_dim(3,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(5)%p%x)
+       el_dim(3,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - this%msh%elements(i)%e%pts(5)%p%x)
        el_dim(3,:) = el_dim(3,:)/norm2(el_dim(3,:))
        ! Checks which directions in rst the xyz corresponds to
        ! 1 corresponds to r, 2 to s, 3 to t and are stored in dir_el
