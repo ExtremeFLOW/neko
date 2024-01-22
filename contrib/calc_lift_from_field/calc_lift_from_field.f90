@@ -112,7 +112,7 @@ program calc_lift_from_field
   else 
      call neko_error('homogenous direction not supported')
   end if
-  call map_1d%init(dof, gs_h,  dir, 1e-7_rp)
+  call map_1d%init(dof, gs_h, dir, 1e-7_rp)
 
 
   call u%init(dof)
