@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Contains the scalar_scheme_t type. 
+!> Contains the scalar_scheme_t type.
 
 ! todo: module name
 module scalar_scheme
@@ -292,8 +292,6 @@ contains
     write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
     call neko_log%message(log_buf)
 
-    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
-                             this%ksp_maxiter, 800)
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
                             this%projection_dim, 20)
@@ -349,8 +347,10 @@ contains
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
 
     ! todo parameter file ksp tol should be added
+    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
+                             integer_val, 800)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         solver_type, solver_abstol)
+         solver_type, integer_val, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, solver_precon)
 
@@ -441,13 +441,14 @@ contains
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine scalar_scheme_solver_factory(ksp, n, solver, abstol)
+  subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, abstol)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
+    integer, intent(in) :: max_iter
     character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
 
-    call krylov_solver_factory(ksp, n, solver, abstol)
+    call krylov_solver_factory(ksp, n, solver, max_iter, abstol)
 
   end subroutine scalar_scheme_solver_factory
 

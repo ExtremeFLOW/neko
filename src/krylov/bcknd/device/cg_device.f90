@@ -65,10 +65,11 @@ module cg_device
 contains
 
   !> Initialise a device based PCG solver
-  subroutine cg_device_init(this, n, M, rel_tol, abs_tol)
+  subroutine cg_device_init(this, n, max_iter, M, rel_tol, abs_tol)
     class(cg_device_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
+    integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
 
@@ -90,13 +91,13 @@ contains
 
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(max_iter)
     end if
 
     call device_event_create(this%gs_event, 2)
@@ -172,7 +173,7 @@ contains
     if (present(niter)) then
        max_iter = niter
     else
-       max_iter = KSP_MAX_ITER
+       max_iter = this%max_iter
     end if
     norm_fac = one/sqrt(coef%volume)
 

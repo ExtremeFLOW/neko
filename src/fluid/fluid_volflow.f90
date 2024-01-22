@@ -377,7 +377,7 @@ contains
          call this%compute(u_res, v_res, w_res, p_res, &
               ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-              Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+              Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then

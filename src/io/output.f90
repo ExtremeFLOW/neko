@@ -58,12 +58,19 @@ module output
 
 contains
 
-  !> Output constructor
-  subroutine output_init(this, fname)
+  !> Output constructor.
+  !! @param fname Name of the output file.
+  !! @param precision Output precision (sp or dp).
+  subroutine output_init(this, fname, precision)
     class(output_t), intent(inout) :: this
     character(len=*), intent(inout) :: fname
+    integer, intent(inout), optional :: precision
 
-    this%file_ = file_t(fname)
+    if (present(precision)) then
+       this%file_ = file_t(fname, precision=precision)
+    else
+       this%file_ = file_t(fname)
+    end if
 
   end subroutine output_init
 

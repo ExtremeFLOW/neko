@@ -41,7 +41,8 @@ module pipecg_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
   use math, only : glsc3, rzero, copy
-  use device_math, only : device_rzero, device_copy, device_glsc3
+  use device_math, only : device_rzero, device_copy, &
+       device_glsc3, device_vlsc3
   use device
   use comm
   implicit none
@@ -166,10 +167,11 @@ contains
   end subroutine device_cg_update_xp
 
   !> Initialise a pipelined PCG solver
-  subroutine pipecg_device_init(this, n, M, rel_tol, abs_tol)
+  subroutine pipecg_device_init(this, n, max_iter, M, rel_tol, abs_tol)
     class(pipecg_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
+    integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
     type(c_ptr) :: ptr
@@ -217,13 +219,13 @@ contains
                        HOST_TO_DEVICE, sync=.false.)
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(max_iter)
     end if
 
     call device_event_create(this%gs_event, 2)
@@ -345,7 +347,7 @@ contains
     if (present(niter)) then
        max_iter = niter
     else
-       max_iter = KSP_MAX_ITER
+       max_iter = this%max_iter
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
@@ -385,9 +387,9 @@ contains
       tmp1 = 0.0_rp
       tmp2 = 0.0_rp
       tmp3 = 0.0_rp
-      tmp1 = device_glsc3(r_d,coef%mult_d,u_d(u_prev),n)
-      tmp2 = device_glsc3(w_d,coef%mult_d,u_d(u_prev),n)
-      tmp3 = device_glsc3(r_d,coef%mult_d,r_d,n)
+      tmp1 = device_vlsc3(r_d, coef%mult_d, u_d(u_prev), n)
+      tmp2 = device_vlsc3(w_d, coef%mult_d, u_d(u_prev), n)
+      tmp3 = device_vlsc3(r_d, coef%mult_d, r_d, n)
       reduction(1) = tmp1
       reduction(2) = tmp2
       reduction(3) = tmp3
@@ -424,7 +426,7 @@ contains
                                  s_d, u_d(u_prev), u_d(p_cur),&
                                  w_d, z_d, ni_d,&
                                  mi_d, alpha(p_cur), beta(p_cur),&
-                                 coef%mult_d, reduction,n)
+                                 coef%mult_d, reduction, n)
          if (p_cur .eq. DEVICE_PIPECG_P_SPACE) then
             call device_memcpy(alpha, alpha_d, p_cur, &
                                HOST_TO_DEVICE, sync=.false.)

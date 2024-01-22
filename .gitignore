@@ -12,21 +12,17 @@ config.sub
 depcomp
 Makefile.in
 !tests/*/*Makefile.in
-genmeshbox
-prepart
-rea2nbin
 libneko.a
 .vscode
-neko
 neko.pc
 install-sh
 configure
+configure~
 cltostring.sh
 device_config.h
 neko_config.f90
 num_types.f90
 comm.F90
-makeneko
 missing
 test-driver
 tests/*/*.log
@@ -38,11 +34,15 @@ doxygen.stamp
 doc/html
 examples/*/*.nek5000
 examples/*/*0.f0*
-contrib/average_field_in_space
-contrib/average_fields_in_time
-contrib/postprocess_fluid_stats
 *.chkp
 *.lst
 
-
-
+# Binaries
+neko
+makeneko
+rea2nbin
+genmeshbox
+prepart
+average_field_in_space
+average_fields_in_time
+postprocess_fluid_stats

@@ -47,7 +47,7 @@ module krylov
   implicit none
   private
 
-  integer, public, parameter :: KSP_MAX_ITER = 1e4 !< Maximum number of iters.
+  integer, public, parameter :: KSP_MAX_ITER = 1e4       !< Maximum number of iters.
   real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
@@ -66,12 +66,18 @@ module krylov
      class(pc_t), pointer :: M => null() !< Preconditioner
      real(kind=rp) :: rel_tol            !< Relative tolerance
      real(kind=rp) :: abs_tol            !< Absolute tolerance
+     integer :: max_iter                 !< Maximum number of iterations
      class(pc_t), allocatable :: M_ident !< Internal preconditioner (Identity)
    contains
+     !> Base type constructor.
      procedure, pass(this) :: ksp_init => krylov_init
+     !> Base type destructor.
      procedure, pass(this) :: ksp_free => krylov_free
+     !> Set preconditioner.
      procedure, pass(this) :: set_pc => krylov_set_pc
+     !> Solve the system.
      procedure(ksp_method), pass(this), deferred :: solve
+     !> Destructor.
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
 
@@ -119,12 +125,14 @@ module krylov
 
 contains
 
-  !> Create a krylov solver
+  !> Constructor for the base type.
+  !! @param max_iter Maximum number of iterations.
   !! @param rel_tol Relative tolarance for converence.
   !! @param rel_tol Absolute tolarance for converence.
   !! @param M The preconditioner.
-  subroutine krylov_init(this, rel_tol, abs_tol, M)
+  subroutine krylov_init(this, max_iter, rel_tol, abs_tol, M)
     class(ksp_t), target, intent(inout) :: this
+    integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     class(pc_t), optional, target, intent(in) :: M
@@ -142,6 +150,8 @@ contains
     else
        this%abs_tol = KSP_ABS_TOL
     end if
+
+    this%max_iter = max_iter
 
     if (present(M)) then
        this%M => M

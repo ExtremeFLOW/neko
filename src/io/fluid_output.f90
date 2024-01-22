@@ -53,7 +53,8 @@ module fluid_output
 
 contains
 
-  function fluid_output_init(fluid, scalar, name, path) result(this)
+  function fluid_output_init(precision, fluid, scalar, name, path) result(this)
+    integer, intent(inout) :: precision
     class(fluid_scheme_t), intent(in), target :: fluid
     class(scalar_scheme_t), intent(in), optional, target :: scalar
     character(len=*), intent(in), optional :: name
@@ -71,7 +72,7 @@ contains
        fname = 'field.fld'
     end if
 
-    call output_init(this, fname)
+    call output_init(this, fname, precision)
 
     if (allocated(this%fluid%fields)) then
        deallocate(this%fluid%fields)

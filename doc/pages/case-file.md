@@ -64,6 +64,7 @@ Name                 | Description                                              
 `mesh_file`          | The name of the mesh file.                                                                            | Strings ending with `.nmsh`               | -  
 `output_boundary`    | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                         | `false`       
 `output_directory`   | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory             | `.` 
+`output_precision` | Whether to output snapshots in single or double precision | `single` or `double` | `single`
 `load_balancing`     | Whether to apply load balancing.                                                                      | `true` or `false`                         | `false` 
 `output_partitions`  | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                         | `false` 
 `output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `false` 
@@ -215,6 +216,7 @@ The following keywords are used, with the corresponding options.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
   - `cacg`, a communication-avoiding conjugate gradient solver.
   - `gmres`, a GMRES solver. Typically used for pressure.
+  - `fusedcg`, a conjugate gradient solver optimised for accelerators using kernel fusion.
 * `preconditioner`, preconditioner type.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
   - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for pressure.

@@ -66,9 +66,10 @@ module gmres
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_init(this, n, M, lgmres, rel_tol, abs_tol)
+  subroutine gmres_init(this, n, max_iter, M, lgmres, rel_tol, abs_tol)
     class(gmres_t), intent(inout) :: this
     integer, intent(in) :: n
+    integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, optional, intent(inout) :: lgmres
     real(kind=rp), optional, intent(inout) :: rel_tol
@@ -102,13 +103,13 @@ contains
 
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init(abs_tol)
+       call this%ksp_init(max_iter)
     end if
 
   end subroutine gmres_init
@@ -172,7 +173,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter
+    integer :: iter, max_iter
     integer :: i, j, k, l, ierr
     real(kind=rp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
@@ -180,6 +181,12 @@ contains
 
     conv = .false.
     iter = 0
+
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = this%max_iter
+    end if
 
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
           v => this%v, s => this%s, gam => this%gam, wk1 =>this%wk1)
@@ -190,7 +197,7 @@ contains
       call rone(s, this%lgmres)
       call rone(c, this%lgmres)
       call rzero(h, this%lgmres * this%lgmres)
-      do while (.not. conv .and. iter .lt. niter)
+      do while (.not. conv .and. iter .lt. max_iter)
 
          if(iter.eq.0) then
             call copy(r, f, n)
@@ -304,7 +311,7 @@ contains
                exit
             end if
 
-            if (iter + 1 .gt. niter) exit
+            if (iter + 1 .gt. max_iter) exit
 
             if( j .lt. this%lgmres) then
                temp = 1.0_rp / alpha
