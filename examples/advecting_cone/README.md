@@ -1,4 +1,4 @@
-# Rotating cone
+# Advecting cone
 
 This is a classical test case for demonstrating the benefit of a high order
 discretization. It can be found in this classical reference

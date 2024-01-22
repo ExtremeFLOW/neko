@@ -25,4 +25,4 @@ if __name__ == "__main__":
 
     new_polynomial_order = args.new_polynomial_order
 
-    modify_polynomial_order("rotating_pulse.case", new_polynomial_order)
+    modify_polynomial_order("advecting_cone.case", new_polynomial_order)
