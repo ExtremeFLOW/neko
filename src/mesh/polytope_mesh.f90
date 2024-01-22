@@ -66,6 +66,8 @@ module polytope_mesh
    contains
      !> Free aligned polytope and interpolation data
      procedure, pass(this) :: free => polytope_free
+     !> Initialise general data
+     procedure, pass(this) :: init_dat => polytope_init_data
      !> Return geometrical dimension
      procedure, pass(this) :: gdim => polytope_gdim_get
      !> Return number of points
@@ -88,10 +90,20 @@ module polytope_mesh
      procedure, pass(this) :: pek_share => polytope_peak_share
      !> Return boundary flag for a given facet
      procedure, pass(this) :: fct_bnd => polytope_fct_bnd
+     !> Return communication id for a given facet
+     procedure, pass(this) :: fct_gsid => polytope_fct_gsid
+     !> Return communication id for a given ridge
+     procedure, pass(this) :: rdg_gsid => polytope_rdg_gsid
+     !> Return communication id for a given peak
+     procedure, pass(this) :: pek_gsid => polytope_pek_gsid
+     !> Return facet alignment
+     procedure, pass(this) :: falgn => polytope_fct_algn
+     !> Just required
+     procedure, pass(this) :: bnd => polytope_int_dummy
+     !> Just required
+     procedure, pass(this) :: gsid => polytope_int_dummy
      !> Initialise a topology polytope
      procedure(polytope_mesh_init), pass(this), deferred :: init
-     !> Test equality
-     procedure(polytope_mesh_equal), pass(this), deferred :: equal
      !> Return element diameter
      procedure(polytope_mesh_diameter), pass(this), deferred :: diameter
      !> Return element centroid
@@ -108,35 +120,27 @@ module polytope_mesh
   end type mesh_element_t
 
   !> Abstract interface to initialise a polytope with geometry information
-  !! @parameter[in]   id     polytope id
-  !! @parameter[in]   nfct   number of facets
-  !! @parameter[in]   fct    polytope facets
-  !! @parameter[in]   npts   number of points
-  !! @parameter[in]   pts    points
+  !! @parameter[in]   id       polytope id
+  !! @parameter[in]   nfct     number of facets
+  !! @parameter[in]   fct      polytope facets
+  !! @parameter[in]   npts     number of points
+  !! @parameter[in]   pts      points
+  !! @parameter[in]   gdim     geometrical dimension
+  !! @parameter[in]   nrdg     number of hanging ridges
+  !! @parameter[in]   rdg_hng  ridge hanging flag
   abstract interface
-     subroutine polytope_mesh_init(this, id, nfct, fct, npts, pts)
+     subroutine polytope_mesh_init(this, id, nfct, fct, npts, pts, gdim, nrdg, &
+          & rdg_hng)
        import i4
        import polytope_mesh_t
        import mesh_object_t
        import point_ptr
        class(polytope_mesh_t), intent(inout) :: this
-       integer(i4), intent(in) :: id, nfct, npts
-       type(mesh_object_t), dimension(nfct), intent(in) :: fct
-       type(mesh_object_t), dimension(npts), intent(in) :: pts
+       integer(i4), intent(in) :: id, nfct, npts, gdim, nrdg
+       type(mesh_object_t), dimension(nfct), intent(inout) :: fct
+       type(point_ptr), dimension(npts), intent(in) :: pts
+       integer(i4), dimension(2, 3), intent(in) :: rdg_hng
      end subroutine polytope_mesh_init
-  end interface
-
-  !> Abstract interface to test equality
-  !! @parameter[in]   other   polytope
-  !! @return equal
-  abstract interface
-     function polytope_mesh_equal(this, other) result(equal)
-       import polytope_t
-       import polytope_mesh_t
-       class(polytope_mesh_t), intent(in) :: this
-       class(polytope_t), intent(in) :: other
-       logical :: equal
-     end function polytope_mesh_equal
   end interface
 
   !> Abstract interface to get element diameter
@@ -215,8 +219,7 @@ contains
        end do
        deallocate(this%peak)
     end if
-    call this%set_nelem(-1, -1, -1)
-    call this%set_tdim(-1)
+    call this%freep()
     if (allocated(this%pts)) then
        do il = 1, this%npts_
           this%pts(il)%p => null()
@@ -225,6 +228,21 @@ contains
     end if
     this%npts_ = -1
   end subroutine polytope_free
+
+  !> Initialise general data
+  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   ifalgn if non identity alignment
+  !! @parameter[in]   ifint  interpolation flag
+  !! @parameter[in]   hng    hanging information
+  !! @parameter[in]   pos    position in the higher order element
+  subroutine polytope_init_data(this, gdim, npts)
+    class(polytope_mesh_t), intent(inout) :: this
+    integer(i4), intent(in) :: gdim, npts
+
+    this%gdim_ = gdim
+    this%npts_ = npts
+
+  end subroutine polytope_init_data
 
   !> @brief Get geometrical dimension
   !! @return   gdim
@@ -425,5 +443,65 @@ contains
        call neko_error('Wrong facet number for mesh objects boundary.')
     end if
   end function polytope_fct_bnd
+
+  !> @brief Return communication id of the polytope facet
+  !! @parameter[in]   pos   polytope facet position
+  !! @return gsid
+  function polytope_fct_gsid(this, pos) result(gsid)
+    class(polytope_mesh_t), intent(in) :: this
+    integer(i4), intent(in) :: pos
+    integer(i4) :: gsid
+    if ((pos > 0) .and. (pos <= this%nfacet)) then
+       gsid = this%facet(pos)%obj%polytope%gsid()
+    else
+       call neko_error('Wrong facet number for mesh objects gsid.')
+    end if
+  end function polytope_fct_gsid
+
+  !> @brief Return communication id of the polytope ridge
+  !! @parameter[in]   pos   polytope ridge position
+  !! @return gsid
+  function polytope_rdg_gsid(this, pos) result(gsid)
+    class(polytope_mesh_t), intent(in) :: this
+    integer(i4), intent(in) :: pos
+    integer(i4) :: gsid
+    if ((pos > 0) .and. (pos <= this%nridge)) then
+       gsid = this%ridge(pos)%obj%polytope%gsid()
+    else
+       call neko_error('Wrong ridge number for mesh objects gsid.')
+    end if
+  end function polytope_rdg_gsid
+
+  !> @brief Return communication id of the polytope peak
+  !! @parameter[in]   pos   polytope peak position
+  !! @return gsid
+  function polytope_pek_gsid(this, pos) result(gsid)
+    class(polytope_mesh_t), intent(in) :: this
+    integer(i4), intent(in) :: pos
+    integer(i4) :: gsid
+    if ((pos > 0) .and. (pos <= this%npeak)) then
+       gsid = this%peak(pos)%obj%polytope%gsid()
+    else
+       call neko_error('Wrong peak number for mesh objects gsid.')
+    end if
+  end function polytope_pek_gsid
+
+  !> Return facet alignment
+  !! @return algn
+  function polytope_fct_algn(this, pos) result(algn)
+    class(polytope_mesh_t), intent(in) :: this
+    integer(i4), intent(in) :: pos
+    integer(i4) :: algn
+    algn = this%facet(pos)%obj%algn_op%algn()
+  end function polytope_fct_algn
+
+  !> Dummy routine pretending to extract integer property
+  !! @return intp
+  function polytope_int_dummy(this) result(intp)
+    class(polytope_mesh_t), intent(in) :: this
+    integer(i4) :: intp
+    intp = - 1
+    call neko_error('This property should not be used for mesh objects.')
+  end function polytope_int_dummy
 
 end module polytope_mesh

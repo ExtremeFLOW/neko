@@ -1,500 +1,1042 @@
 @test
-subroutine test_quad_init
+subroutine test_quad_topology
   use pfunit
   use num_types, only : i4
-!!$  use vertex_cnn, only : vertex_cab_t, vertex_cab_ptr
-!!$  use edge_cnn, only : edge_cab_t, edge_cab_ptr
-!!$  use quad_cnn, only : NEKO_QUAD_NRIDGE, NEKO_QUAD_NFACET, quad_cab_t
-!!$  implicit none
-!!$  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4, vertex5, vertex6
-!!$  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7
-!!$  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-!!$  type(quad_cab_t) :: quad1, quad2
-!!$  type(edge_cab_ptr), dimension(NEKO_QUAD_NFACET) :: facet
-!!$  type(vertex_cab_ptr), dimension(NEKO_QUAD_NRIDGE) :: ridge
-!!$  integer(i4) :: bnde, bndq, ishare, il
-!!$  integer(i4), dimension(:, :), allocatable :: facetp
-!!$
-!!$  ! Vertices for two quads
-!!$  call vertex1%init(1)
-!!$  call vertex2%init(2)
-!!$  call vertex3%init(3)
-!!$  call vertex4%init(4)
-!!$  call vertex5%init(5)
-!!$  call vertex6%init(6)
-!!$
-!!$  ! self-periodic, 1D, simple
-!!$  ! edges
-!!$  bnde = -1
-!!$  call edge1%init(1, vertex1, vertex2, 1)
-!!$  call edge2%init(2, vertex1, vertex1, 2)
-!!$  call edge3%init(3, vertex2, vertex2, 3)
-!!$  algne(:) = 0
-!!$  bndq = 1
-!!$  call quad1%init(1, edge1, edge1, edge2, edge3, algne, bndq)
-!!$  @assertTrue(quad1%selfp())
-!!$  ! facets
-!!$  do il = 1, NEKO_QUAD_NFACET
-!!$     call quad1%fct(facet(il), il)
-!!$  end do
-!!$  @assertTrue(facet(1)%ptr .eq. edge1)
-!!$  @assertTrue(facet(2)%ptr .eq. edge1)
-!!$  @assertTrue(facet(3)%ptr .eq. edge2)
-!!$  @assertTrue(facet(4)%ptr .eq. edge3)
-!!$  ! boundary information
-!!$  do il = 1, NEKO_QUAD_NFACET
-!!$     @assertEqual(facet(il)%ptr%bnd(), facet(il)%ptr%id())
-!!$  end do
-!!$  ! ridges
-!!$  do il = 1, NEKO_QUAD_NRIDGE
-!!$     call quad1%rdg(ridge(il), il)
-!!$  end do
-!!$  @assertTrue(ridge(1)%ptr .eq. vertex1)
-!!$  @assertTrue(ridge(2)%ptr .eq. vertex1)
-!!$  @assertTrue(ridge(3)%ptr .eq. vertex2)
-!!$  @assertTrue(ridge(4)%ptr .eq. vertex2)
-!!$  il = quad1%bnd()
-!!$  @assertEqual(il, bndq)
-!!$
-!!$  ! self-periodic, 1D, Mobius strip
-!!$  ! edges
-!!$  call edge1%init(1, vertex1, vertex2, bnde)
-!!$  call edge2%init(2, vertex1, vertex2, bnde)
-!!$  call edge3%init(3, vertex2, vertex1, bnde)
-!!$  algne(2) = 1
-!!$  call quad1%init(1, edge1, edge1, edge2, edge3, algne, bndq)
-!!$  @assertTrue(quad1%selfp())
-!!$  ! facets
-!!$  do il = 1, NEKO_QUAD_NFACET
-!!$     call quad1%fct(facet(il), il)
-!!$  end do
-!!$  @assertTrue(facet(1)%ptr .eq. edge1)
-!!$  @assertTrue(facet(2)%ptr .eq. edge1)
-!!$  @assertTrue(facet(3)%ptr .eq. edge2)
-!!$  @assertTrue(facet(4)%ptr .eq. edge3)
-!!$  ! ridges
-!!$  do il = 1, NEKO_QUAD_NRIDGE
-!!$     call quad1%rdg(ridge(il), il)
-!!$  end do
-!!$  @assertTrue(ridge(1)%ptr .eq. vertex1)
-!!$  @assertTrue(ridge(2)%ptr .eq. vertex2)
-!!$  @assertTrue(ridge(3)%ptr .eq. vertex2)
-!!$  @assertTrue(ridge(4)%ptr .eq. vertex1)
-!!$
-!!$  ! non self-periodic; simple
-!!$  call edge1%init(1, vertex1, vertex3, bnde)
-!!$  call edge2%init(2, vertex2, vertex4, bnde)
-!!$  call edge3%init(3, vertex1, vertex2, bnde)
-!!$  call edge4%init(4, vertex3, vertex4, bnde)
-!!$  algne(:) = 0
-!!$  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-!!$  @assertFalse(quad1%selfp())
-!!$  ! facets
-!!$  do il = 1, NEKO_QUAD_NFACET
-!!$     call quad1%fct(facet(il), il)
-!!$  end do
-!!$  @assertTrue(facet(1)%ptr .eq. edge1)
-!!$  @assertTrue(facet(2)%ptr .eq. edge2)
-!!$  @assertTrue(facet(3)%ptr .eq. edge3)
-!!$  @assertTrue(facet(4)%ptr .eq. edge4)
-!!$  ! ridges
-!!$  do il = 1, NEKO_QUAD_NRIDGE
-!!$     call quad1%rdg(ridge(il), il)
-!!$  end do
-!!$  @assertTrue(ridge(1)%ptr .eq. vertex1)
-!!$  @assertTrue(ridge(2)%ptr .eq. vertex2)
-!!$  @assertTrue(ridge(3)%ptr .eq. vertex3)
-!!$  @assertTrue(ridge(4)%ptr .eq. vertex4)
-!!$
-!!$  ! non self-periodic; aligned
-!!$  call edge1%init(1, vertex3, vertex1, bnde)
-!!$  call edge2%init(2, vertex2, vertex4, bnde)
-!!$  call edge3%init(3, vertex2, vertex1, bnde)
-!!$  call edge4%init(4, vertex3, vertex4, bnde)
-!!$  algne(1) = 1
-!!$  algne(3) = 1
-!!$  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-!!$  @assertFalse(quad1%selfp())
-!!$  ! facets
-!!$  do il = 1, NEKO_QUAD_NFACET
-!!$     call quad1%fct(facet(il), il)
-!!$  end do
-!!$  @assertTrue(facet(1)%ptr .eq. edge1)
-!!$  @assertTrue(facet(2)%ptr .eq. edge2)
-!!$  @assertTrue(facet(3)%ptr .eq. edge3)
-!!$  @assertTrue(facet(4)%ptr .eq. edge4)
-!!$  ! ridges
-!!$  do il = 1, NEKO_QUAD_NRIDGE
-!!$     call quad1%rdg(ridge(il), il)
-!!$  end do
-!!$  @assertTrue(ridge(1)%ptr .eq. vertex1)
-!!$  @assertTrue(ridge(2)%ptr .eq. vertex2)
-!!$  @assertTrue(ridge(3)%ptr .eq. vertex3)
-!!$  @assertTrue(ridge(4)%ptr .eq. vertex4)
-!!$
-!!$  ! shared facets/ridges
-!!$  call edge1%init(1, vertex1, vertex3, bnde)
-!!$  call edge2%init(2, vertex2, vertex4, bnde)
-!!$  call edge3%init(3, vertex1, vertex2, bnde)
-!!$  call edge4%init(4, vertex3, vertex4, bnde)
-!!$  algne(:) = 0
-!!$  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-!!$  call edge5%init(5, vertex5, vertex6, bnde)
-!!$  call edge6%init(6, vertex2, vertex5, bnde)
-!!$  call edge7%init(7, vertex4, vertex6, bnde)
-!!$  call quad2%init(2, edge2, edge5, edge6, edge7, algne, bndq)
-!!$  call quad1%fct_share(quad2, ishare, facetp)
-!!$  @assertEqual(ishare, 1)
-!!$  @assertEqual(facetp(1, 1), 2)
-!!$  @assertEqual(facetp(2, 1), 1)
-!!$  deallocate(facetp)
-!!$  call quad1%rdg_share(quad2, ishare, facetp)
-!!$  @assertEqual(ishare, 2)
-!!$  @assertEqual(facetp(1, 1), 2)
-!!$  @assertEqual(facetp(2, 1), 1)
-!!$  @assertEqual(facetp(1, 2), 4)
-!!$  @assertEqual(facetp(2, 2), 3)
-!!$  deallocate(facetp)
+  use polytope, only : polytope_t
+  use polytope_topology, only : topology_object_t
+  use vertex, only : vertex_tpl_t, vertex_ornt_t
+  use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
+  use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET, rdg_to_fct
+  implicit none
+  class(polytope_t), pointer :: poly
+  type(vertex_tpl_t), dimension(8) :: vrt
+  type(edge_tpl_t), dimension(8) :: edt
+  type(edge_tpl_t), dimension(4) :: edtP
+  type(quad_tpl_t) :: qut1, qut1P, qut2
+  type(topology_object_t), dimension(0) :: fctv
+  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  integer(i4), dimension(8) :: idv, gsv
+  integer(i4), dimension(8) :: ide, gse, bne
+  integer(i4) :: il, jl, itmp, algn, idq1, idq2, bnq1, bnq2, gsq1, gsq2
+  integer(i4), dimension(:, :), allocatable :: facetp
+  integer(i4), dimension(4) :: ideP, gseP
+  integer(i4), dimension(4) :: permv, perme
 
-end subroutine test_quad_init
+  do il = 1, 8
+     idv(il) = il
+     gsv(il) = il + 8
+     call vrt(il)%init(idv(il), 0, fctv, -1)
+     call vrt(il)%set_gsid(gsv(il))
+  end do
+
+  ! Two non self-periodic separate quads
+  ! horizontal edges
+  do il = 1, 7, 2
+     ! conversion to symmetric numbering
+     itmp = mod(il, 4)
+     jl = rdg_to_fct(2, itmp) + 4*(il/4)
+     ide(jl) = jl
+     gse(jl) = jl + 8
+     bne(jl) = 1
+     allocate(vertex_ornt_t :: fcte(1)%obj)
+     call fcte(1)%obj%init(vrt(il), -1)
+     allocate(vertex_ornt_t :: fcte(2)%obj)
+     call fcte(2)%obj%init(vrt(il + 1), -1)
+     call edt(jl)%init(ide(jl), 2, fcte, bne(jl))
+     call edt(jl)%set_gsid(gse(jl))
+  end do
+  ! vertical edges
+  do il = 1, 2
+     ide(il) = il
+     gse(il) = il + 8
+     bne(il) = 2
+     allocate(vertex_ornt_t :: fcte(1)%obj)
+     call fcte(1)%obj%init(vrt(il), -1)
+     allocate(vertex_ornt_t :: fcte(2)%obj)
+     call fcte(2)%obj%init(vrt(il + 2), -1)
+     call edt(il)%init(ide(il), 2, fcte, bne(il))
+     call edt(il)%set_gsid(gse(il))
+  end do
+  do il = 5, 6
+     ide(il) = il
+     gse(il) = il + 8
+     bne(il) = 2
+     allocate(vertex_ornt_t :: fcte(1)%obj)
+     call fcte(1)%obj%init(vrt(il), -1)
+     allocate(vertex_ornt_t :: fcte(2)%obj)
+     call fcte(2)%obj%init(vrt(il + 2), -1)
+     call edt(il)%init(ide(il), 2, fcte, bne(il))
+     call edt(il)%set_gsid(gse(il))
+  end do
+
+  ! first non self-periodic quad
+  ! simple edge alignment
+  algn = 0
+  do il = 1, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il), algn)
+  end do
+  idq1 = 1
+  bnq1 = 2
+  gsq1 = 3
+  call qut1%init(idq1, 4, fctq, bnq1)
+  call qut1%set_gsid(gsq1)
+
+  ! quad dimensions
+  @assertEqual(qut1%id(), idq1)
+  @assertEqual(qut1%tdim(), 2)
+  @assertTrue(qut1%equal_elem(4, 4, 0))
+
+  ! pointers
+  ! facets
+  do il = 1, 4
+     poly => qut1%fct(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), ide(il))
+     @assertEqual(poly%tdim(), 1)
+     @assertTrue(poly%equal_elem(2, 0, 0))
+     @assertEqual(poly%bnd(), bne(il))
+     @assertEqual(poly%gsid(), gse(il))
+     @assertTrue(poly%equal(edt(il)))
+  end do
+  ! ridges
+  do il = 1, 4
+     poly => qut1%rdg(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), idv(il))
+     @assertEqual(poly%tdim(), 0)
+     @assertTrue(poly%equal_elem(0, 0, 0))
+     @assertEqual(poly%bnd(), -1)
+     @assertEqual(poly%gsid(), gsv(il))
+     @assertTrue(poly%equal(vrt(il)))
+  end do
+
+  ! boundary
+  @assertEqual(qut1%bnd(), bnq1)
+
+  ! gather-scatter id
+  @assertEqual(qut1%gsid(), gsq1)
+
+  ! self-periodic flag
+  @assertFalse(qut1%selfp())
+
+  ! facet alignment tests
+  do il = 1, 4
+     @assertEqual(qut1%falgn(il), algn)
+  end do
+
+  ! equality with respect to various alignment
+  do il = 0, 7
+     call quad_permutations(il, permv, perme)
+     call quad_algn_tpl_get(permv, perme, vrt(1: 4), 0, idq1, gsq1, bnq1, &
+          & edtP, ideP, gseP, qut1P)
+     @assertTrue(qut1%equal(qut1P))
+  end do
+
+
+  ! second non self-periodic quad; the same quad
+  ! simple edge alignment
+  algn = 0
+  do il = 1, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il), algn)
+  end do
+  call qut2%init(idq1, 4, fctq, bnq1)
+  call qut2%set_gsid(gsq1)
+
+  ! shared facets
+  call qut1%fct_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 4)
+  do il = 1, 4
+     @assertEqual(facetp(1, il), il)
+     @assertEqual(facetp(2, il), il)
+  end do
+  deallocate(facetp)
+
+  ! shared ridges
+  call qut1%rdg_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 4)
+  do il = 1, 4
+     @assertEqual(facetp(1, il), il)
+     @assertEqual(facetp(2, il), il)
+  end do
+  deallocate(facetp)
+
+  ! quad equality
+  @assertTrue(qut1%equal(qut2))
+
+  ! second non self-periodic quad; disconnected quad
+  ! simple edge alignment
+  algn = 0
+  do il = 1, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il + 4), algn)
+  end do
+  idq2 = 4
+  bnq2 = 5
+  gsq2 = 6
+  call qut2%init(idq2, 4, fctq, bnq2)
+  call qut2%set_gsid(gsq2)
+
+  ! pointers
+  ! facets
+  do il = 1, 4
+     poly => qut2%fct(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), ide(il + 4))
+     @assertEqual(poly%tdim(), 1)
+     @assertTrue(poly%equal_elem(2, 0, 0))
+     @assertEqual(poly%bnd(), bne(il + 4))
+     @assertEqual(poly%gsid(), gse(il + 4))
+     @assertTrue(poly%equal(edt(il + 4)))
+  end do
+  ! ridges
+  do il = 1, 4
+     poly => qut2%rdg(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), idv(il + 4))
+     @assertEqual(poly%tdim(), 0)
+     @assertTrue(poly%equal_elem(0, 0, 0))
+     @assertEqual(poly%bnd(), -1)
+     @assertEqual(poly%gsid(), gsv(il + 4))
+     @assertTrue(poly%equal(vrt(il + 4)))
+  end do
+
+  ! shared facets
+  call qut1%fct_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 0)
+  deallocate(facetp)
+
+  ! shared ridges
+  call qut1%rdg_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 0)
+  deallocate(facetp)
+
+  ! quad equality
+  @assertFalse(qut1%equal(qut2))
+
+
+  ! second non self-periodic quad; single vertex shared
+  ! modify edges 5 and 7
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(4), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(7), -1)
+  call edt(5)%init(ide(5), 2, fcte, bne(5))
+  call edt(5)%set_gsid(gse(5))
+
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(4), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(6), -1)
+  call edt(7)%init(ide(7), 2, fcte, bne(7))
+  call edt(7)%set_gsid(gse(7))
+
+  ! simple edge alignment
+  algn = 0
+  do il = 1, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il + 4), algn)
+  end do
+  call qut2%init(idq2, 4, fctq, bnq2)
+  call qut2%set_gsid(gsq2)
+
+  ! shared facets
+  call qut1%fct_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 0)
+  deallocate(facetp)
+
+  ! shared ridges
+  call qut1%rdg_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 1)
+  @assertEqual(facetp(1, 1), 4)
+  @assertEqual(facetp(2, 1), 1)
+  deallocate(facetp)
+
+  ! quad equality
+  @assertFalse(qut1%equal(qut2))
+
+
+  ! second non self-periodic quad; single edge shared
+  ! modify edges 7 and 8
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(2), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(6), -1)
+  call edt(7)%init(ide(7), 2, fcte, bne(7))
+  call edt(7)%set_gsid(gse(7))
+
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(4), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(8), -1)
+  call edt(8)%init(ide(8), 2, fcte, bne(8))
+  call edt(8)%set_gsid(gse(8))
+
+  ! simple edge alignment
+  algn = 0
+  allocate(edge_ornt_t :: fctq(1)%obj)
+  call fctq(1)%obj%init(edt(2), algn)
+  do il = 2, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il + 4), algn)
+  end do
+  call qut2%init(idq2, 4, fctq, bnq2)
+  call qut2%set_gsid(gsq2)
+
+  ! shared facets
+  call qut1%fct_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 1)
+  @assertEqual(facetp(1, 1), 2)
+  @assertEqual(facetp(2, 1), 1)
+  deallocate(facetp)
+
+  ! shared ridges
+  call qut1%rdg_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 2)
+  @assertEqual(facetp(1, 1), 2)
+  @assertEqual(facetp(2, 1), 1)
+  @assertEqual(facetp(1, 2), 4)
+  @assertEqual(facetp(2, 2), 3)
+  deallocate(facetp)
+
+  ! quad equality
+  @assertFalse(qut1%equal(qut2))
+
+
+  ! second non self-periodic quad; periodic stripe; two edges shared
+  ! modify edges 7 and 8
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(2), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(1), -1)
+  call edt(7)%init(ide(7), 2, fcte, bne(7))
+  call edt(7)%set_gsid(gse(7))
+
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(4), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(3), -1)
+  call edt(8)%init(ide(8), 2, fcte, bne(8))
+  call edt(8)%set_gsid(gse(8))
+
+  ! simple edge alignment
+  algn = 0
+  allocate(edge_ornt_t :: fctq(1)%obj)
+  call fctq(1)%obj%init(edt(2), algn)
+  allocate(edge_ornt_t :: fctq(2)%obj)
+  call fctq(2)%obj%init(edt(1), algn)
+  do il = 3, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il + 4), algn)
+  end do
+  call qut2%init(idq2, 4, fctq, bnq2)
+  call qut2%set_gsid(gsq2)
+
+  ! shared facets
+  call qut1%fct_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 2)
+  @assertEqual(facetp(1, 1), 1)
+  @assertEqual(facetp(2, 1), 2)
+  @assertEqual(facetp(1, 2), 2)
+  @assertEqual(facetp(2, 2), 1)
+  deallocate(facetp)
+
+  ! shared ridges
+  call qut1%rdg_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 4)
+  @assertEqual(facetp(1, 1), 1)
+  @assertEqual(facetp(2, 1), 2)
+  @assertEqual(facetp(1, 2), 2)
+  @assertEqual(facetp(2, 2), 1)
+  @assertEqual(facetp(1, 3), 3)
+  @assertEqual(facetp(2, 3), 4)
+  @assertEqual(facetp(1, 4), 4)
+  @assertEqual(facetp(2, 4), 3)
+  deallocate(facetp)
+
+  ! quad equality
+  @assertFalse(qut1%equal(qut2))
+
+
+  ! second non self-periodic quad; Mobius stripe; two edges shared
+  ! modify edges 7 and 8
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(2), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(3), -1)
+  call edt(7)%init(ide(7), 2, fcte, bne(7))
+  call edt(7)%set_gsid(gse(7))
+
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(4), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(1), -1)
+  call edt(8)%init(ide(8), 2, fcte, bne(8))
+  call edt(8)%set_gsid(gse(8))
+
+  ! simple edge alignment
+  algn = 0
+  allocate(edge_ornt_t :: fctq(1)%obj)
+  call fctq(1)%obj%init(edt(2), algn)
+  ! permutation
+  algn = 1
+  allocate(edge_ornt_t :: fctq(2)%obj)
+  call fctq(2)%obj%init(edt(1), algn)
+  ! simple edge alignment
+  algn = 0
+  do il = 3, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il + 4), algn)
+  end do
+  call qut2%init(idq2, 4, fctq, bnq2)
+  call qut2%set_gsid(gsq2)
+
+  ! facet alignment tests
+  @assertEqual(qut2%falgn(1), 0)
+  @assertEqual(qut2%falgn(2), 1)
+  do il = 3, 4
+     @assertEqual(qut2%falgn(il), 0)
+  end do
+
+  ! shared facets
+  call qut1%fct_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 2)
+  @assertEqual(facetp(1, 1), 1)
+  @assertEqual(facetp(2, 1), 2)
+  @assertEqual(facetp(1, 2), 2)
+  @assertEqual(facetp(2, 2), 1)
+  deallocate(facetp)
+
+  ! shared ridges
+  call qut1%rdg_share(qut2, itmp, facetp)
+  @assertEqual(itmp, 4)
+  @assertEqual(facetp(1, 1), 1)
+  @assertEqual(facetp(2, 1), 4)
+  @assertEqual(facetp(1, 2), 2)
+  @assertEqual(facetp(2, 2), 1)
+  @assertEqual(facetp(1, 3), 3)
+  @assertEqual(facetp(2, 3), 2)
+  @assertEqual(facetp(1, 4), 4)
+  @assertEqual(facetp(2, 4), 3)
+  deallocate(facetp)
+
+  ! quad equality
+  @assertFalse(qut1%equal(qut2))
+
+
+  ! first self-periodic quad; single periodic direction
+  ! modify edges 1, 3, 4
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(1), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(2), -1)
+  call edt(1)%init(ide(1), 2, fcte, bne(1))
+  call edt(1)%set_gsid(gse(1))
+
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(1), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(1), -1)
+  call edt(3)%init(ide(3), 2, fcte, bne(3))
+  call edt(3)%set_gsid(gse(3))
+
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(2), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(2), -1)
+  call edt(4)%init(ide(4), 2, fcte, bne(4))
+  call edt(4)%set_gsid(gse(4))
+
+  ! simple edge alignment
+  algn = 0
+  allocate(edge_ornt_t :: fctq(1)%obj)
+  call fctq(1)%obj%init(edt(1), algn)
+  allocate(edge_ornt_t :: fctq(2)%obj)
+  call fctq(2)%obj%init(edt(1), algn)
+  do il = 3, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il), algn)
+  end do
+  call qut1%init(idq1, 4, fctq, bnq1)
+  call qut1%set_gsid(gsq1)
+
+  ! self-periodic flag; vertex has no elements
+  @assertTrue(qut1%selfp())
+
+
+  ! first self-periodic quad; single periodic direction, Mobius stripe
+  ! modify edges 3, 4
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(1), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(2), -1)
+  call edt(3)%init(ide(3), 2, fcte, bne(3))
+  call edt(3)%set_gsid(gse(3))
+
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(2), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(1), -1)
+  call edt(4)%init(ide(4), 2, fcte, bne(4))
+  call edt(4)%set_gsid(gse(4))
+
+  ! simple edge alignment
+  algn = 0
+  allocate(edge_ornt_t :: fctq(1)%obj)
+  call fctq(1)%obj%init(edt(1), algn)
+  ! permutation
+  algn = 1
+  allocate(edge_ornt_t :: fctq(2)%obj)
+  call fctq(2)%obj%init(edt(1), algn)
+  ! simple edge alignment
+  algn = 0
+  do il = 3, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il), algn)
+  end do
+  call qut1%init(idq1, 4, fctq, bnq1)
+  call qut1%set_gsid(gsq1)
+
+  ! self-periodic flag; vertex has no elements
+  @assertTrue(qut1%selfp())
+
+
+  ! first self-periodic quad; two periodic directions; torus
+  ! modify edges 1, 3
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(1), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(1), -1)
+  call edt(1)%init(ide(1), 2, fcte, bne(1))
+  call edt(1)%set_gsid(gse(1))
+
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(1), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(1), -1)
+  call edt(3)%init(ide(3), 2, fcte, bne(3))
+  call edt(3)%set_gsid(gse(3))
+
+  ! simple edge alignment
+  algn = 0
+  do il = 1, 2
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(1), algn)
+  end do
+  do il = 3, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(3), algn)
+  end do
+  call qut1%init(idq1, 4, fctq, bnq1)
+  call qut1%set_gsid(gsq1)
+
+  ! self-periodic flag; vertex has no elements
+  @assertTrue(qut1%selfp())
+
+  do il =1, 8
+     call vrt(il)%free()
+     call edt(il)%free()
+  end do
+  do il =1, 4
+     call edtP(il)%free()
+  end do
+  call qut1%free()
+  call qut1P%free()
+  call qut2%free()
+
+end subroutine test_quad_topology
 
 @test
-subroutine test_quad_eq_algn
+subroutine test_quad_actualisation
   use pfunit
   use num_types, only : i4
-!!$  use vertex_cnn, only : vertex_cab_t
-!!$  use edge_cnn, only : edge_cab_t
-!!$  use quad_cnn, only : NEKO_QUAD_NFACET, quad_cab_t
-!!$  implicit none
-!!$  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4
-!!$  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8
-!!$  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-!!$  type(quad_cab_t) :: quad1, quad2
-!!$  logical :: equal
-!!$  integer(i4) :: algn, bnde, bndq
-!!$
-!!$  ! Vertices for two quads
-!!$  call vertex1%init(1)
-!!$  call vertex2%init(2)
-!!$  call vertex3%init(3)
-!!$  call vertex4%init(4)
-!!$
-!!$  ! The reference quad
-!!$  bnde = -1
-!!$  call edge1%init(1, vertex1, vertex3, bnde)
-!!$  call edge2%init(2, vertex2, vertex4, bnde)
-!!$  call edge3%init(3, vertex1, vertex2, bnde)
-!!$  call edge4%init(4, vertex3, vertex4, bnde)
-!!$  algne(:) = 0
-!!$  bndq = 1
-!!$  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-!!$
-!!$  ! Test transformations
-!!$  ! Identity { 1, 2, 3, 4 }
-!!$  call quad1%eq_algn(quad1, equal, algn)
-!!$  @assertTrue(equal)
-!!$  @assertEqual(algn, 0)
-!!$  ! T { 1, 3, 2, 4 }
-!!$  call edge5%init(3, vertex1, vertex2, bnde)
-!!$  call edge6%init(4, vertex3, vertex4, bnde)
-!!$  call edge7%init(1, vertex1, vertex3, bnde)
-!!$  call edge8%init(2, vertex2, vertex4, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  call quad1%eq_algn(quad2, equal, algn)
-!!$  @assertTrue(equal)
-!!$  @assertEqual(algn, 1)
-!!$  ! PX { 2, 1, 4, 3 }
-!!$  call edge5%init(2, vertex2, vertex4, bnde)
-!!$  call edge6%init(1, vertex1, vertex3, bnde)
-!!$  call edge7%init(3, vertex2, vertex1, bnde)
-!!$  call edge8%init(4, vertex4, vertex3, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  call quad1%eq_algn(quad2, equal, algn)
-!!$  @assertTrue(equal)
-!!$  @assertEqual(algn, 2)
-!!$  ! PXT { 2, 4, 1, 3 }
-!!$  call edge5%init(3, vertex2, vertex1, bnde)
-!!$  call edge6%init(4, vertex4, vertex3, bnde)
-!!$  call edge7%init(2, vertex2, vertex4, bnde)
-!!$  call edge8%init(1, vertex1, vertex3, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  call quad1%eq_algn(quad2, equal, algn)
-!!$  @assertTrue(equal)
-!!$  @assertEqual(algn, 3)
-!!$  ! PYT { 3, 1, 4, 2 }
-!!$  call edge5%init(4, vertex3, vertex4, bnde)
-!!$  call edge6%init(3, vertex1, vertex2, bnde)
-!!$  call edge7%init(1, vertex3, vertex1, bnde)
-!!$  call edge8%init(2, vertex4, vertex2, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  call quad1%eq_algn(quad2, equal, algn)
-!!$  @assertTrue(equal)
-!!$  @assertEqual(algn, 4)
-!!$  ! PY { 3, 4, 1, 2 }
-!!$  call edge5%init(1, vertex3, vertex1, bnde)
-!!$  call edge6%init(2, vertex4, vertex2, bnde)
-!!$  call edge7%init(4, vertex3, vertex4, bnde)
-!!$  call edge8%init(3, vertex1, vertex2, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  call quad1%eq_algn(quad2, equal, algn)
-!!$  @assertTrue(equal)
-!!$  @assertEqual(algn, 5)
-!!$  ! PXPYT { 4, 2, 3, 1 }
-!!$  call edge5%init(4, vertex4, vertex3, bnde)
-!!$  call edge6%init(3, vertex2, vertex1, bnde)
-!!$  call edge7%init(2, vertex4, vertex2, bnde)
-!!$  call edge8%init(1, vertex3, vertex1, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  call quad1%eq_algn(quad2, equal, algn)
-!!$  @assertTrue(equal)
-!!$  @assertEqual(algn, 6)
-!!$  ! PXPY { 4, 3, 2, 1 }
-!!$  call edge5%init(2, vertex4, vertex2, bnde)
-!!$  call edge6%init(1, vertex3, vertex1, bnde)
-!!$  call edge7%init(4, vertex4, vertex3, bnde)
-!!$  call edge8%init(3, vertex2, vertex1, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  call quad1%eq_algn(quad2, equal, algn)
-!!$  @assertTrue(equal)
-!!$  @assertEqual(algn, 7)
+  use polytope, only : polytope_t
+  use polytope_topology, only : topology_object_t
+  use vertex, only : vertex_tpl_t, vertex_ornt_t
+  use edge, only : edge_tpl_t
+  use quad_new, only : quad_tpl_t, quad_act_t, NEKO_QUAD_NFACET
+  implicit none
+  class(polytope_t), pointer :: poly, polye
+  type(vertex_tpl_t), dimension(8) :: vrt
+  type(edge_tpl_t), dimension(8) :: edt
+  type(edge_tpl_t), dimension(4) :: edtP
+  type(quad_tpl_t) :: qut1, qut1P, qut2
+  type(quad_act_t) :: qua1
+  type(topology_object_t), dimension(0) :: fctv
+  integer(i4), dimension(8) :: idv, gsv, ide, gse
+  integer(i4), dimension(4) :: ideP, gseP
+  integer(i4) :: il, itmp, algn, hng, pos, idq1, idq2, bnq1, bnq2, gsq1, gsq2
+  integer(i4), dimension(:, :), allocatable :: facetp
+  integer(i4), dimension(4) :: permv, perme
+  logical :: equal, ifintp
 
-end subroutine test_quad_eq_algn
+  do il = 1, 8
+     idv(il) = il
+     gsv(il) = il + 8
+     call vrt(il)%init(idv(il), 0, fctv, -1)
+     call vrt(il)%set_gsid(gsv(il))
+  end do
+
+  ! Two non self-periodic separate quads
+  algn = 0 ! Identity
+  call quad_permutations(algn, permv, perme)
+  idq1 = 1
+  bnq1 = 2
+  gsq1 = 3
+  call quad_algn_tpl_get(permv, perme, vrt(1: 4), 0, idq1, gsq1, bnq1, &
+       & edt(1: 4), ide(1: 4), gse(1: 4), qut1)
+  idq2 = 4
+  bnq2 = 5
+  gsq2 = 6
+  call quad_algn_tpl_get(permv, perme, vrt(5: 8), 4, idq2, gsq2, bnq2, &
+       & edt(5: 8), ide(5: 8), gse(5: 8), qut2)
+
+  ! get quad actualisation
+  algn = 1 ! Transpose
+  ifintp = .true.
+  hng = 2
+  pos = 6
+  call qua1%init(qut1, algn, ifintp, hng, pos)
+
+  ! pointer
+  call qua1%polyp(poly)
+  @assertTrue(associated(poly))
+  @assertEqual(poly%id(), idq1)
+  @assertEqual(poly%tdim(), 2)
+  @assertTrue(poly%equal_elem(4, 4, 0))
+  @assertEqual(poly%bnd(), bnq1)
+  @assertEqual(poly%gsid(), gsq1)
+  @assertTrue(poly%equal(qut1))
+
+  ! element pointers
+  ! facets
+  do il = 1, 4
+     polye => poly%fct(il)
+     @assertTrue(associated(polye))
+     @assertEqual(polye%id(), ide(il))
+     @assertEqual(polye%tdim(), 1)
+     @assertTrue(polye%equal_elem(2, 0, 0))
+     @assertEqual(polye%bnd(), -1)
+     @assertEqual(polye%gsid(), gse(il))
+     @assertTrue(polye%equal(edt(il)))
+  end do
+  ! ridges
+  do il = 1, 4
+     polye => poly%rdg(il)
+     @assertTrue(associated(polye))
+     @assertEqual(polye%id(), idv(il))
+     @assertEqual(polye%tdim(), 0)
+     @assertTrue(polye%equal_elem(0, 0, 0))
+     @assertEqual(polye%bnd(), -1)
+     @assertEqual(polye%gsid(), gsv(il))
+     @assertTrue(polye%equal(vrt(il)))
+  end do
+
+  ! alignment
+  @assertTrue(qua1%ifalgn())
+  @assertEqual(qua1%algn(), algn)
+
+  ! interpolation and hanging information
+  @assertTrue(qua1%ifintp())
+  @assertEqual(qua1%hng(), hng)
+
+  ! position
+  @assertEqual(qua1%pos(), pos)
+
+  ! equality and alignment tests
+  @assertTrue(qua1%equal(qut1))
+  call qua1%equal_algn(qut1, equal, algn)
+  @assertTrue(equal)
+  @assertEqual(algn, 0)
+  @assertFalse(qua1%test(qut1))
+  do il = 0, 7
+     call quad_permutations(il, permv, perme)
+     call quad_algn_tpl_get(permv, perme, vrt(1: 4), 0, idq1, gsq1, bnq1, &
+          & edtP, ideP, gseP, qut1P)
+     call qua1%equal_algn(qut1P, equal, algn)
+     @assertTrue(equal)
+     @assertEqual(algn, il)
+     if (il == 1) then
+        @assertTrue(qua1%test(qut1P))
+     else
+        @assertFalse(qua1%test(qut1P))
+     end if
+  end do
+  @assertFalse(qua1%equal(qut2))
+  call qua1%equal_algn(qut2, equal, algn)
+  @assertFalse(equal)
+  @assertEqual(algn, -1)
+  @assertFalse(qua1%test(qut2))
+
+  do il =1, 8
+     call vrt(il)%free()
+     call edt(il)%free()
+  end do
+  do il =1, 4
+     call edtP(il)%free()
+  end do
+  call qut1%free()
+  call qut1P%free()
+  call qut2%free()
+  call qua1%free()
+
+end subroutine test_quad_actualisation
 
 @test
-subroutine test_quad_alignment
+subroutine test_quad_mesh
   use pfunit
+  use num_types, only : i4, dp
+  use polytope, only : polytope_t
+  use polytope_topology, only : topology_object_t
+  use polytope_mesh, only : mesh_object_t
+  use vertex, only : vertex_tpl_t, vertex_ornt_t
+  use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
+  use quad_new, only : quad_msh_t, NEKO_QUAD_NFACET
+  use point, only : point_ptr, point_t
+  implicit none
+  class(polytope_t), pointer :: poly
+  type(vertex_tpl_t), dimension(8) :: vrt
+  type(edge_tpl_t), dimension(8) :: edt
+  type(quad_msh_t) :: qum1, qum2
+  type(topology_object_t), dimension(0) :: fctv
+  integer(i4), dimension(8) :: idv, gsv, idp
+  integer(i4), dimension(8) :: ide, gse, bne
+  integer(i4) :: il, jl, itmp, idq1, idq2
+  integer(i4), dimension(:, :), allocatable :: facetp
+  integer(i4), dimension(4) :: permv, perme
+  type(point_t), dimension(8), target :: pts
+  type(point_t), pointer :: point
+  type(point_ptr), dimension(4) :: ptsp
+  type(point_t) :: centroid
+  integer(i4), parameter :: gdim = 3
+  ! point coordinates
+  real(dp), dimension(gdim, 8) :: crd = reshape((/ 0.0d0, 0.0d0, 0.0d0, &
+       &  1.0d0, 0.0d0, 0.0d0,  0.0d0, 1.0d0, 0.0d0,  1.0d0, 1.0d0, 0.0d0, &
+       &  2.0d0, 0.0d0, 0.0d0,  3.0d0, 0.0d0, 0.0d0,  2.0d0, 1.0d0, 0.0d0, &
+       &  3.0d0, 1.0d0, 0.0d0 /), shape(crd))
+  real(kind=dp), parameter :: diameter = 1.414213562373095d0, tol = 1d-14
+  real(kind=dp), dimension(3), parameter :: center = (/0.5d0, 0.5d0, 0.0d0/)
+
+  do il = 1, 8
+     idv(il) = il
+     gsv(il) = il + 8
+     call vrt(il)%init(idv(il), 0, fctv, -1)
+     call vrt(il)%set_gsid(gsv(il))
+  end do
+
+  do il = 1, 8
+     idp(il) = il + 20
+     pts(il) = point_t(crd(1: 3, il), idp(il))
+  end do
+
+  ! Two non self-periodic, not hanging, separate quads
+  ! first quad
+  call quad_permutations(0, permv, perme)
+  do il = 1, 4
+     ptsp(il)%p => pts(il)
+  end do
+  bne(1) = 1
+  bne(2) = 1
+  bne(3) = 2
+  bne(4) = 2
+  idq1 = 1
+  call quad_algn_msh_get(permv, perme, vrt(1: 4), ptsp, 0, bne(1: 4), idq1, &
+       & gdim, edt(1: 4), ide(1: 4), gse(1: 4), qum1)
+
+  ! quad dimensions
+  @assertEqual(qum1%id(), idq1)
+  @assertEqual(qum1%tdim(), 2)
+  @assertTrue(qum1%equal_elem(4, 4, 0))
+
+  ! pointers
+  ! facets
+  do il = 1, 4
+     poly => qum1%fct(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), ide(il))
+     @assertEqual(poly%tdim(), 1)
+     @assertTrue(poly%equal_elem(2, 0, 0))
+     @assertEqual(poly%bnd(), bne(il))
+     @assertEqual(poly%gsid(), gse(il))
+     @assertTrue(poly%equal(edt(il)))
+  end do
+  ! ridges
+  do il = 1, 4
+     poly => qum1%rdg(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), idv(il))
+     @assertEqual(poly%tdim(), 0)
+     @assertTrue(poly%equal_elem(0, 0, 0))
+     @assertEqual(poly%bnd(), -1)
+     @assertEqual(poly%gsid(), gsv(il))
+     @assertTrue(poly%equal(vrt(il)))
+  end do
+  ! points
+  @assertEqual(qum1%gdim(), gdim)
+  @assertEqual(qum1%npts(), 4)
+  do il = 1, 4
+     point => qum1%pnt(il)
+     @assertTrue(point .eq. pts(il))
+  end do
+
+  ! self-periodic flag
+  @assertFalse(qum1%selfp())
+
+  ! facet boundary flag
+  do il = 1, 4
+     @assertEqual(qum1%fct_bnd(il), bne(il))
+  end do
+
+  ! facet gather-scatter id
+  do il = 1, 4
+     @assertEqual(qum1%fct_gsid(il), gse(il))
+  end do
+
+  ! ridge gather-scatter id
+  do il = 1, 4
+     @assertEqual(qum1%rdg_gsid(il), gsv(il))
+  end do
+
+  ! facet alignment
+  do il = 1, 4
+     @assertEqual(qum1%falgn(il), 0)
+  end do
+
+  ! quad diameter
+  @assertEqual(qum1%diameter(), diameter, tolerance=tol)
+
+  ! quad centre
+  centroid = qum1%centroid()
+  do il = 1, gdim
+     @assertEqual(centroid%x(il), center(il), tolerance=tol)
+  end do
+
+  ! get facet local direction
+  call qum1%fct_dir(1, il, jl)
+  @assertEqual(il, 2)
+  @assertEqual(jl, -1)
+  call qum1%fct_dir(2, il, jl)
+  @assertEqual(il, 2)
+  call qum1%fct_dir(3, il, jl)
+  @assertEqual(il, 1)
+  call qum1%fct_dir(4, il, jl)
+  @assertEqual(il, 1)
+
+  ! equality with respect to various alignment; NOT FINISHED; MISSING SORTING
+  do il = 0, 7
+     call quad_permutations(il, permv, perme)
+     call quad_algn_msh_get(permv, perme, vrt(1: 4), ptsp, 0, bne(1: 4), idq1, &
+       & gdim, edt(5: 8), ide(5: 8), gse(5: 8), qum2)
+!     @assertTrue(qum1%equal(qum2))
+  end do
+
+  ! second quad; the same quad
+  call quad_permutations(0, permv, perme)
+  do il = 1, 4
+     ptsp(il)%p => pts(il)
+  end do
+  bne(1) = 1
+  bne(2) = 1
+  bne(3) = 2
+  bne(4) = 2
+  idq1 = 1
+  call quad_algn_msh_get(permv, perme, vrt(1: 4), ptsp, 0, bne(1: 4), idq1, &
+       & gdim, edt(5: 8), ide(5: 8), gse(5: 8), qum2)
+
+  ! shared facets
+  call qum1%fct_share(qum2, itmp, facetp)
+  @assertEqual(itmp, 4)
+  do il = 1, 4
+     @assertEqual(facetp(1, il), il)
+     @assertEqual(facetp(2, il), il)
+  end do
+  deallocate(facetp)
+
+  ! shared ridges
+  call qum1%rdg_share(qum2, itmp, facetp)
+  @assertEqual(itmp, 4)
+  do il = 1, 4
+     @assertEqual(facetp(1, il), il)
+     @assertEqual(facetp(2, il), il)
+  end do
+  deallocate(facetp)
+
+  ! quad equality; NOT FINISHED; MISSING SORTING
+!  @assertTrue(qum1%equal(qum2))
+
+  ! second quad; disconnected quad
+  do il = 1, 4
+     ptsp(il)%p => pts(il + 4)
+  end do
+  bne(5) = 1
+  bne(6) = 1
+  bne(7) = 2
+  bne(8) = 2
+  idq2 = 2
+  call quad_algn_msh_get(permv, perme, vrt(5: 8), ptsp, 4, bne(5: 8), idq2, &
+       & gdim, edt(5: 8), ide(5: 8), gse(5: 8), qum2)
+
+  ! shared facets
+  call qum1%fct_share(qum2, itmp, facetp)
+  @assertEqual(itmp, 0)
+  deallocate(facetp)
+
+  ! shared ridges
+  call qum1%rdg_share(qum2, itmp, facetp)
+  @assertEqual(itmp, 0)
+  deallocate(facetp)
+
+  ! quad equality; NOT FINISHED; MISSING SORTING
+!  @assertFalse(qum1%equal(qum2))
+
+
+! MISSING MESH TESTS FOR EQUAL (EQUAL NOT FINALISED YET)
+! MISSING MESH TESTS FOR ALIGNED FACES
+! MISSING TESTS FOR NONCONFORMING VERSION
+
+
+  do il =1, 8
+     call vrt(il)%free()
+     call edt(il)%free()
+  end do
+  call qum1%free()
+  call qum2%free()
+
+end subroutine test_quad_mesh
+
+subroutine quad_permutations(algn, permv, perme)
   use num_types, only : i4
-!!$  use vertex_cnn, only : vertex_cab_t
-!!$  use edge_cnn, only : edge_cab_t
-!!$  use quad_cnn, only : NEKO_QUAD_NFACET, quad_cab_t, quad_cab_ptr, &
-!!$       & quad_aligned_cab_t
-!!$  implicit none
-!!$  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4
-!!$  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8
-!!$  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-!!$  type(quad_cab_t) :: quad1, quad2
-!!$  type(quad_cab_ptr) :: quadp
-!!$  type(quad_aligned_cab_t) :: quada
-!!$  integer(i4) :: bnde, bndq
-!!$
-!!$  ! Vertices for two quads
-!!$  call vertex1%init(1)
-!!$  call vertex2%init(2)
-!!$  call vertex3%init(3)
-!!$  call vertex4%init(4)
-!!$
-!!$  ! The reference quad
-!!$  bnde = -1
-!!$  call edge1%init(1, vertex1, vertex3, bnde)
-!!$  call edge2%init(2, vertex2, vertex4, bnde)
-!!$  call edge3%init(3, vertex1, vertex2, bnde)
-!!$  call edge4%init(4, vertex3, vertex4, bnde)
-!!$  algne(:) = 0
-!!$  bndq = 1
-!!$  call quad1%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-!!$  call quada%init_algn(quad1, 0)
-!!$
-!!$  ! check pointers
-!!$  call quada%facep(quadp)
-!!$  @assertTrue(quada%face%ptr.eq.quad1)
-!!$  @assertTrue(quadp%ptr.eq.quad1)
-!!$
-!!$  ! check alignment test
-!!$  ! Identity
-!!$  @assertTrue(quada%test(quad1))
-!!$  ! T { 1, 3, 2, 4 }
-!!$  call edge5%init(3, vertex1, vertex2, bnde)
-!!$  call edge6%init(4, vertex3, vertex4, bnde)
-!!$  call edge7%init(1, vertex1, vertex3, bnde)
-!!$  call edge8%init(2, vertex2, vertex4, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  @assertFalse(quada%test(quad2))
-!!$  call quada%init_algn(quad1, 1)
-!!$  @assertTrue(quada%test(quad2))
-!!$  ! PX { 2, 1, 4, 3 }
-!!$  call edge5%init(2, vertex2, vertex4, bnde)
-!!$  call edge6%init(1, vertex1, vertex3, bnde)
-!!$  call edge7%init(3, vertex2, vertex1, bnde)
-!!$  call edge8%init(4, vertex4, vertex3, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  @assertFalse(quada%test(quad2))
-!!$  call quada%init_algn(quad1, 2)
-!!$  @assertTrue(quada%test(quad2))
-!!$  ! PXT { 2, 4, 1, 3 }
-!!$  call edge5%init(3, vertex2, vertex1, bnde)
-!!$  call edge6%init(4, vertex4, vertex3, bnde)
-!!$  call edge7%init(2, vertex2, vertex4, bnde)
-!!$  call edge8%init(1, vertex1, vertex3, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  @assertFalse(quada%test(quad2))
-!!$  call quada%init_algn(quad1, 3)
-!!$  @assertTrue(quada%test(quad2))
-!!$  ! PYT { 3, 1, 4, 2 }
-!!$  call edge5%init(4, vertex3, vertex4, bnde)
-!!$  call edge6%init(3, vertex1, vertex2, bnde)
-!!$  call edge7%init(1, vertex3, vertex1, bnde)
-!!$  call edge8%init(2, vertex4, vertex2, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  @assertFalse(quada%test(quad2))
-!!$  call quada%init_algn(quad1, 4)
-!!$  @assertTrue(quada%test(quad2))
-!!$  ! PY { 3, 4, 1, 2 }
-!!$  call edge5%init(1, vertex3, vertex1, bnde)
-!!$  call edge6%init(2, vertex4, vertex2, bnde)
-!!$  call edge7%init(4, vertex3, vertex4, bnde)
-!!$  call edge8%init(3, vertex1, vertex2, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  @assertFalse(quada%test(quad2))
-!!$  call quada%init_algn(quad1, 5)
-!!$  @assertTrue(quada%test(quad2))
-!!$  ! PXPYT { 4, 2, 3, 1 }
-!!$  call edge5%init(4, vertex4, vertex3, bnde)
-!!$  call edge6%init(3, vertex2, vertex1, bnde)
-!!$  call edge7%init(2, vertex4, vertex2, bnde)
-!!$  call edge8%init(1, vertex3, vertex1, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  @assertFalse(quada%test(quad2))
-!!$  call quada%init_algn(quad1, 6)
-!!$  @assertTrue(quada%test(quad2))
-!!$  ! PXPY { 4, 3, 2, 1 }
-!!$  call edge5%init(2, vertex4, vertex2, bnde)
-!!$  call edge6%init(1, vertex3, vertex1, bnde)
-!!$  call edge7%init(4, vertex4, vertex3, bnde)
-!!$  call edge8%init(3, vertex2, vertex1, bnde)
-!!$  call quad2%init(1, edge5, edge6, edge7, edge8, algne, bndq)
-!!$  @assertFalse(quada%test(quad2))
-!!$  call quada%init_algn(quad1, 7)
-!!$  @assertTrue(quada%test(quad2))
+  implicit none
+  integer(i4), intent(in) :: algn
+  integer(i4), dimension(4), intent(out) :: permv, perme
 
-end subroutine test_quad_alignment
+  select case(algn)
+  case(0) ! I
+     permv = (/ 1, 2, 3, 4 /)
+     perme = (/ 1, 2, 3, 4 /)
+  case(1) ! T
+     permv = (/ 1, 3, 2, 4 /)
+     perme = (/ 3, 4, 1, 2 /)
+  case(2) ! PX
+     permv = (/ 2, 1, 4, 3 /)
+     perme = (/ 2, 1, 3, 4 /)
+  case(3) ! PXT
+     permv = (/ 2, 4, 1, 3 /)
+     perme = (/ 3, 4, 2, 1 /)
+  case(4) ! PYT
+     permv = (/ 3, 1, 4, 2 /)
+     perme = (/ 4, 3, 1, 2 /)
+  case(5) ! PY
+     permv = (/ 3, 4, 1, 2 /)
+     perme = (/ 1, 2, 4, 3 /)
+  case(6) ! PXPYT
+     permv = (/ 4, 2, 3, 1 /)
+     perme = (/ 4, 3, 2, 1 /)
+  case(7) ! PXPY
+     permv = (/ 4, 3, 2, 1 /)
+     perme = (/ 2, 1, 4, 3 /)
+  end select
 
-@test
-subroutine test_quad_nonconforming
-  use pfunit
+end subroutine quad_permutations
+
+subroutine quad_algn_tpl_get(permv, perme, vrt, istr, idq, gsq, bnq, edt, ide, &
+     & gse, qut)
   use num_types, only : i4
-!!$  use vertex_cnn, only : vertex_cab_t
-!!$  use edge_cnn, only : edge_cab_t
-!!$  use quad_cnn, only : quad_cab_t, quad_ncnf_cac_t, NEKO_QUAD_NFACET
-!!$  implicit none
-!!$  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4
-!!$  type(edge_cab_t) :: edge1, edge2, edge3, edge4
-!!$  type(quad_cab_t) :: quad
-!!$  type(quad_ncnf_cac_t) :: quad_ncnf
-!!$  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-!!$  integer(i4) :: algn, hng, pos, bnde, bndq, itmp
-!!$
-!!$  ! The abstract quad
-!!$  call vertex1%init(1)
-!!$  call vertex2%init(2)
-!!$  call vertex3%init(3)
-!!$  call vertex4%init(4)
-!!$  bnde = -1
-!!$  call edge1%init(1, vertex1, vertex3, bnde)
-!!$  call edge2%init(2, vertex2, vertex4, bnde)
-!!$  call edge3%init(3, vertex1, vertex2, bnde)
-!!$  call edge4%init(4, vertex3, vertex4, bnde)
-!!$  algne(:) = 0
-!!$  bndq = 1
-!!$  call quad%init(1, edge1, edge2, edge3, edge4, algne, bndq)
-!!$
-!!$  ! Nonconforming actualisation
-!!$  algn = 0
-!!$  pos = 1
-!!$  call quad_ncnf%init(quad, algn, pos)
-!!$  @assertTrue(quad .eq. quad_ncnf%face%ptr)
-!!$  itmp = quad_ncnf%pos()
-!!$  @assertEqual(itmp, pos)
-!!$  itmp = quad_ncnf%bnd()
-!!$  @assertEqual(itmp, bndq)
-!!$  itmp = quad_ncnf%hng()
-!!$  @assertEqual(itmp, 0)
-!!$  hng = 1
-!!$  call quad_ncnf%set_hng(hng)
-!!$  itmp = quad_ncnf%hng()
-!!$  @assertEqual(itmp, hng)
+  use polytope_topology, only : topology_object_t
+  use vertex, only : vertex_tpl_t, vertex_ornt_t
+  use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
+  use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET, fct_to_rdg
+  implicit none
+  integer(i4), dimension(4), intent(in) :: permv, perme
+  type(vertex_tpl_t), dimension(4), intent(in) :: vrt
+  integer(i4), intent(in) :: istr, idq, gsq, bnq
+  type(edge_tpl_t), dimension(4), intent(out) :: edt
+  integer(i4), dimension(4), intent(out) :: ide, gse
+  type(quad_tpl_t), intent(out) :: qut
+  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  integer(i4) :: il, bne, algn
 
-end subroutine test_quad_nonconforming
+  do il = 1, NEKO_QUAD_NFACET
+     ide(il) = istr + il
+     gse(il) = istr + il + 8
+  end do
+  bne = -1
+  do il = 1, NEKO_QUAD_NFACET
+     allocate(vertex_ornt_t :: fcte(1)%obj)
+     call fcte(1)%obj%init(vrt(permv(fct_to_rdg(1, il))), -1)
+     allocate(vertex_ornt_t :: fcte(2)%obj)
+     call fcte(2)%obj%init(vrt(permv(fct_to_rdg(2, il))), -1)
+     call edt(il)%init(ide(perme(il)), 2, fcte, bne)
+     call edt(il)%set_gsid(gse(perme(il)))
+  end do
 
-@test
-subroutine test_quad_ac_init
-  use pfunit
+  ! non self-periodic quad
+  ! simple edge alignment
+  algn = 0
+  do il = 1, 4
+     allocate(edge_ornt_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il), algn)
+  end do
+  call qut%init(idq, 4, fctq, bnq)
+  call qut%set_gsid(gsq)
+
+end subroutine quad_algn_tpl_get
+
+subroutine quad_algn_msh_get(permv, perme, vrt, pts, istr, bne, idq, gdim, &
+     & edt, ide, gse, qum)
   use num_types, only : i4
-!!$  use vertex_cnn, only : vertex_cab_t, vertex_ncnf_cac_ptr
-!!$  use edge_cnn, only : edge_cab_t, edge_ncnf_cac_ptr
-!!$  use quad_cnn, only : NEKO_QUAD_NRIDGE, NEKO_QUAD_NFACET, quad_cac_t
-!!$  implicit none
-!!$
-!!$  type(vertex_cab_t) :: vertex1, vertex2, vertex3, vertex4, vertex5, vertex6
-!!$  type(edge_cab_t) :: edge1, edge2, edge3, edge4, edge5, edge6, edge7
-!!$  integer(i4), dimension(NEKO_QUAD_NFACET) :: algne
-!!$  type(quad_cac_t) :: quad1, quad2
-!!$  type(edge_ncnf_cac_ptr), dimension(NEKO_QUAD_NFACET) :: facet
-!!$  type(vertex_ncnf_cac_ptr), dimension(NEKO_QUAD_NRIDGE) :: ridge
-!!$  integer(i4) :: bnde, itmp, il
-!!$  integer(i4), dimension(:, :), allocatable :: facetp
-!!$
-!!$  ! Vertices for two quads
-!!$  call vertex1%init(1)
-!!$  call vertex2%init(2)
-!!$  call vertex3%init(3)
-!!$  call vertex4%init(4)
-!!$  call vertex5%init(5)
-!!$  call vertex6%init(6)
-!!$
-!!$  ! self-periodic, 1D, simple
-!!$  ! edges
-!!$  bnde = 1
-!!$  call edge1%init(1, vertex1, vertex2, bnde)
-!!$  call edge2%init(2, vertex1, vertex1, bnde)
-!!$  call edge3%init(3, vertex2, vertex2, bnde)
-!!$  ! simple alignment
-!!$  algne(:) = 0
-!!$  call quad1%init(1, edge1, edge1, edge2, edge3, algne)
-!!$  @assertTrue(quad1%selfp())
-!!$
-!!$  ! facets
-!!$  do il = 1, NEKO_QUAD_NFACET
-!!$     call quad1%fct(facet(il), il)
-!!$  end do
-!!$  @assertTrue(facet(1)%ptr%edge%ptr .eq. edge1)
-!!$  @assertTrue(facet(2)%ptr%edge%ptr .eq. edge1)
-!!$  @assertTrue(facet(3)%ptr%edge%ptr .eq. edge2)
-!!$  @assertTrue(facet(4)%ptr%edge%ptr .eq. edge3)
-!!$  ! test position
-!!$  do il = 1, NEKO_QUAD_NFACET
-!!$     itmp = facet(il)%ptr%pos()
-!!$     @assertEqual(itmp, il)
-!!$  end do
-!!$  ! test boundary
-!!$  do il = 1, NEKO_QUAD_NFACET
-!!$     itmp = facet(il)%ptr%bnd()
-!!$     @assertEqual(itmp, bnde)
-!!$  end do
-!!$  ! test hanging
-!!$  do il = 1, NEKO_QUAD_NFACET
-!!$     itmp = facet(il)%ptr%hng()
-!!$     @assertEqual(itmp, 0)
-!!$  end do
-!!$  ! ridges
-!!$  do il = 1, NEKO_QUAD_NRIDGE
-!!$     call quad1%rdg(ridge(il), il)
-!!$  end do
-!!$  @assertTrue(ridge(1)%ptr%vertex%ptr .eq. vertex1)
-!!$  @assertTrue(ridge(2)%ptr%vertex%ptr .eq. vertex1)
-!!$  @assertTrue(ridge(3)%ptr%vertex%ptr .eq. vertex2)
-!!$  @assertTrue(ridge(4)%ptr%vertex%ptr .eq. vertex2)
-!!$  ! test position
-!!$  do il = 1, NEKO_QUAD_NRIDGE
-!!$     itmp = ridge(il)%ptr%pos()
-!!$     @assertEqual(itmp, il)
-!!$  end do
-!!$  ! test hanging
-!!$  do il = 1, NEKO_QUAD_NFACET
-!!$     itmp = facet(il)%ptr%hng()
-!!$     @assertEqual(itmp, 0)
-!!$  end do
+  use polytope_topology, only : topology_object_t
+  use polytope_mesh, only : mesh_object_t
+  use vertex, only : vertex_tpl_t, vertex_ornt_t
+  use edge, only : edge_tpl_t, edge_act_t, NEKO_EDGE_NFACET
+  use quad_new, only : quad_msh_t, NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
+       & fct_to_rdg
+  use point, only : point_ptr
+  implicit none
+  integer(i4), dimension(4), intent(in) :: permv, perme
+  type(vertex_tpl_t), dimension(4), intent(in) :: vrt
+  type(point_ptr), dimension(4), intent(in) :: pts
+  integer(i4), intent(in) :: istr, idq, gdim
+  integer(i4), dimension(4), intent(in) :: bne
+  type(edge_tpl_t), dimension(4), intent(out) :: edt
+  integer(i4), dimension(4), intent(out) :: ide, gse
+  type(quad_msh_t), intent(out) :: qum
+  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(mesh_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  type(point_ptr), dimension(NEKO_QUAD_NRIDGE) :: ptsl
+  integer(i4) :: il, algn, hng
+  logical :: ifintp
+  integer(i4), dimension(2, 3) :: rdg_hng
 
-end subroutine test_quad_ac_init
+  do il = 1, NEKO_QUAD_NFACET
+     ide(il) = istr + il
+     gse(il) = istr + il + 8
+  end do
+  do il = 1, NEKO_QUAD_NFACET
+     allocate(vertex_ornt_t :: fcte(1)%obj)
+     call fcte(1)%obj%init(vrt(permv(fct_to_rdg(1, il))), -1)
+     allocate(vertex_ornt_t :: fcte(2)%obj)
+     call fcte(2)%obj%init(vrt(permv(fct_to_rdg(2, il))), -1)
+     call edt(il)%init(ide(perme(il)), 2, fcte, bne(perme(il)))
+     call edt(il)%set_gsid(gse(perme(il)))
+  end do
 
-! MISSING TESTS FOR SHARE AND EQUAL (EQUAL NOT FINALISED YET)
-! MISSING TESTS FOR NONCONFORMING VERSION (NOT FINALISED YET)
+  do il = 1, NEKO_QUAD_NRIDGE
+     ptsl(il)%p => pts(permv(il))%p
+  end do
+
+  ! non self-periodic quad
+  ! simple edge alignment
+  algn = 0
+  ifintp = .false.
+  hng = 0
+  do il = 1, NEKO_QUAD_NFACET
+     allocate(edge_act_t :: fctq(il)%obj)
+     call fctq(il)%obj%init(edt(il), algn, ifintp, hng, il)
+  end do
+  call qum%init(idq, 4, fctq, 4, ptsl, gdim, 0, rdg_hng)
+
+end subroutine quad_algn_msh_get

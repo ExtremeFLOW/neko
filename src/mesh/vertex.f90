@@ -35,16 +35,16 @@ module vertex
   use num_types, only : i4
   use utils, only : neko_error, neko_warning
   use polytope, only : polytope_t
-  use polytope_aligned, only : polytope_aligned_t
+  use polytope_oriented, only : polytope_oriented_t
   use polytope_topology, only : polytope_topology_t, topology_object_t
   use polytope_actualisation, only : polytope_actualisation_t
   implicit none
   private
 
-  public :: vertex_tpl_t, vertex_algn_t, vertex_act_t
+  public :: vertex_tpl_t, vertex_ornt_t, vertex_act_t
 
   ! object information
-  integer(i4), public, parameter :: NEKO_VERTEX_DIM = 0
+  integer(i4), public, parameter :: NEKO_VERTEX_TDIM = 0
   integer(i4), public, parameter :: NEKO_VERTEX_NFACET = 0
   integer(i4), public, parameter :: NEKO_VERTEX_NRIDGE = 0
   integer(i4), public, parameter :: NEKO_VERTEX_NPEAK = 0
@@ -64,15 +64,15 @@ module vertex
   !> Type for vertex as aligned object
   !! @details Vertex hes no alignment, but the type is required for
   !! completeness.
-  type, extends(polytope_aligned_t) :: vertex_algn_t
+  type, extends(polytope_oriented_t) :: vertex_ornt_t
    contains
      !> Initialise an aligned polytope
-     procedure, pass(this) :: init => vertex_algn_init
+     procedure, pass(this) :: init => vertex_ornt_init
      !> Test equality and find alignment
-     procedure, pass(this) :: equal_algn => vertex_algn_equal
+     procedure, pass(this) :: equal_algn => vertex_ornt_equal
      !> Test alignment
-     procedure, pass(this) :: test  => vertex_algn_test
-  end type vertex_algn_t
+     procedure, pass(this) :: test  => vertex_ornt_test
+  end type vertex_ornt_t
 
   !> Actualisation of the topology vertex for nonconforming meshes
   !! @details Vertex actualisation can be either independent (located at edge,
@@ -131,11 +131,11 @@ contains
 
     call this%free()
 
-    call this%set_tdim(NEKO_VERTEX_DIM)
+    call this%set_tdim(NEKO_VERTEX_TDIM)
     call this%set_nelem(NEKO_VERTEX_NFACET, NEKO_VERTEX_NRIDGE,&
          & NEKO_VERTEX_NPEAK)
     call this%set_id(id)
-    call this%set_bnd(bnd)
+    ! vertex has no boundary information
     ! no facets or ridges, so nothing to do
     if (nfct /= NEKO_VERTEX_NFACET) call neko_warning('Vertex has no facets.')
   end subroutine vertex_tpl_init
@@ -151,7 +151,7 @@ contains
     ! check polygon information
     equal = this%equal_poly(other)
     if (equal) then
-       ! check global id
+       ! check global id, no alignment transformation for vertices
        equal = (this%id() == other%id())
     end if
   end function vertex_tpl_equal
@@ -159,29 +159,32 @@ contains
   !> Initialise a polytope with alignment information
   !! @parameter[in]   pltp   polytope
   !! @parameter[in]   algn   alignment information
-  subroutine vertex_algn_init(this, pltp, algn)
-    class(vertex_algn_t), intent(inout) :: this
+  subroutine vertex_ornt_init(this, pltp, algn)
+    class(vertex_ornt_t), intent(inout) :: this
     class(polytope_t), target, intent(in) :: pltp
     integer(i4), intent(in) :: algn
 
     call this%free()
 
     ! There is just a single realisation of monon, so just check dimension
-    if (pltp%tdim() == NEKO_VERTEX_DIM) then
+    if (pltp%tdim() == NEKO_VERTEX_TDIM) then
        ! vertex has no alignment
-       call this%init_dat(pltp, .false.)
-       ! nothing more to do here
+       call this%init_data(pltp, .false.)
     else
        call neko_error('Vertex aligned; wrong pointer dimension.')
     end if
-  end subroutine vertex_algn_init
+  end subroutine vertex_ornt_init
 
   !> Check polytope equality and return alignment
+  !! @note This subroutine does not take into account the alignment defined in
+  !! @ref polytope_aligned_t, but refers directly to the topology object. This
+  !! means the result is not the relative orientation between @a this and
+  !! @a other, but the absolute on between @a this%polytope and @a other.
   !! @parameter[in]    other  polytope
   !! @parameter[out]   equal  polytope equality
   !! @parameter[out]   algn   alignment information
-  subroutine vertex_algn_equal(this, other, equal, algn)
-    class(vertex_algn_t), intent(in) :: this
+  subroutine vertex_ornt_equal(this, other, equal, algn)
+    class(vertex_ornt_t), intent(in) :: this
     class(polytope_t), intent(in) :: other
     logical, intent(out) :: equal
     integer(i4), intent(out) :: algn
@@ -189,27 +192,24 @@ contains
     ! check polytope information
     equal = this%polytope%equal_poly(other)
     if (equal) then
-       ! check global id
+       ! check global id, no alignment transformation for vertices
        equal = (this%polytope%id() == other%id())
     end if
     ! there is no alignment
     algn = -1
-  end subroutine vertex_algn_equal
+  end subroutine vertex_ornt_equal
 
   !> Test alignment
   !! @parameter[in]   other   polytope
   !! @return ifalgn
-  function vertex_algn_test(this, other) result(ifalgn)
-    class(vertex_algn_t), intent(in) :: this
+  function vertex_ornt_test(this, other) result(ifalgn)
+    class(vertex_ornt_t), intent(in) :: this
     class(polytope_t), intent(in) :: other
     logical :: ifalgn
-    ! there is no alignment
-    if (this%equal(other)) then
-       ifalgn = .true.
-    else
-       call neko_error('Alignment test: vertices not equal')
-    end if
-  end function vertex_algn_test
+    ! there is no alignment and there is just one realisation
+    ifalgn = (this%polytope%tdim() == other%tdim()) .and. &
+         & (this%polytope%id() == other%id())
+  end function vertex_ornt_test
 
   !> Initialise a polytope with hanging information
   !! @parameter[in]   pltp   polytope
@@ -219,14 +219,14 @@ contains
   !! @parameter[in]   pos    position in the higher order element
   subroutine vertex_act_init(this, pltp, algn, ifint, hng, pos)
     class(vertex_act_t), intent(inout) :: this
-    class(polytope_topology_t), target, intent(in) :: pltp
+    class(polytope_t), target, intent(in) :: pltp
     integer(i4), intent(in) :: algn, hng, pos
     logical, intent(in) :: ifint
 
     call this%free()
 
     ! There is just a single realisation of monon, so just check dimension
-    if (pltp%tdim() == NEKO_VERTEX_DIM) then
+    if (pltp%tdim() == NEKO_VERTEX_TDIM) then
        if (hng >= 0 .and. hng <= 2) then
           ! vertex has no alignment and cannot be interpolated
           call this%init_dat(pltp, .false., .false., hng, pos)
@@ -240,6 +240,10 @@ contains
   end subroutine vertex_act_init
 
   !> Check polytope equality and return alignment
+  !! @note This subroutine does not take into account the alignment defined in
+  !! @ref polytope_aligned_t, but refers directly to the topology object. This
+  !! means the result is not the relative orientation between @a this and
+  !! @a other, but the absolute on between @a this%polytope and @a other.
   !! @parameter[in]    other  polytope
   !! @parameter[out]   equal  polytope equality
   !! @parameter[out]   algn   alignment information
@@ -266,12 +270,9 @@ contains
     class(vertex_act_t), intent(in) :: this
     class(polytope_t), intent(in) :: other
     logical :: ifalgn
-    ! there is no alignment
-    if (this%equal(other)) then
-       ifalgn = .true.
-    else
-       call neko_error('Alignmentx test: vertices not equal')
-    end if
+    ! there is no alignment and there is just one realisation
+    ifalgn = (this%polytope%tdim() == other%tdim()) .and. &
+         & (this%polytope%id() == other%id())
   end function vertex_act_test
 
 end module vertex

@@ -2,15 +2,16 @@
 subroutine test_alignment_quad_i4
   use pfunit
   use num_types, only : i4
-  use alignment, only : alignment_t, alignment_set_t
-  use alignment_quad, only : alignment_quad_init, alignment_quad_set_t
+  use alignment, only : alignment_t
+  use alignment_quad, only : alignment_quad_init, alignment_quad_find, &
+       & NEKO_QUAD_NOPERATION
   implicit none
   class(alignment_t), allocatable :: quad
-  class(alignment_set_t), allocatable :: quad_set
   integer(i4), parameter :: sz = 5
   integer(i4), dimension(sz, sz) :: fcs
   integer(i4), dimension(sz, sz, 8) :: fcs_bnd, fcs_int
   integer(i4) :: il, jl, kl
+  logical :: equal
 
   ! initialise various operations
   ! I - identity
@@ -78,7 +79,7 @@ subroutine test_alignment_quad_i4
   end do
 
   ! single operator
-  do il = 0, 7
+  do il = 0, NEKO_QUAD_NOPERATION
      call alignment_quad_init(il, quad)
 
      ! check alignment
@@ -127,52 +128,13 @@ subroutine test_alignment_quad_i4
      deallocate(quad)
   end do
 
-  ! operator set
-  allocate(alignment_quad_set_t :: quad_set)
-  call quad_set%init()
-
-  ! check number of operations
-  @assertEqual(quad_set%nop(), 7_i4)
-
-  ! full face test
-  do il = 0, quad_set%nop()
-     ! direct
-     fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad_set%trns(il)%op%trns_i4(fcs, sz, sz, 1)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1))
-        end do
-     end do
-     ! inverse
-     call quad_set%trns(il)%op%trns_inv_i4(fcs, sz, sz, 1)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
-        end do
-     end do
+  ! test alignment identification
+  do il = 0, NEKO_QUAD_NOPERATION
+     fcs(:, :) = fcs_bnd(:, :, il + 1)
+     call alignment_quad_find(equal, jl, fcs, fcs_bnd(:, :, 1), sz, sz)
+     @assertEqual(il, jl)
+     @assertTrue(equal)
   end do
-
-  ! interior face test
-  do il = 0, quad_set%nop()
-     ! direct
-     fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad_set%trns(il)%op%trns_i4(fcs, sz, sz, 2)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1))
-        end do
-     end do
-     ! inverse
-     call quad_set%trns(il)%op%trns_inv_i4(fcs, sz, sz, 2)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
-        end do
-     end do
-  end do
-
-  deallocate(quad_set)
 
 end subroutine test_alignment_quad_i4
 
@@ -180,11 +142,10 @@ end subroutine test_alignment_quad_i4
 subroutine test_alignment_quad_i8
   use pfunit
   use num_types, only : i4, i8
-  use alignment, only : alignment_t, alignment_set_t
-  use alignment_quad, only : alignment_quad_init, alignment_quad_set_t
+  use alignment, only : alignment_t
+  use alignment_quad, only : alignment_quad_init
   implicit none
   class(alignment_t), allocatable :: quad
-  class(alignment_set_t), allocatable :: quad_set
   integer(i4), parameter :: sz = 5
   integer(i8), dimension(sz, sz) :: fcs
   integer(i8), dimension(sz, sz, 8) :: fcs_bnd, fcs_int
@@ -299,64 +260,16 @@ subroutine test_alignment_quad_i8
      deallocate(quad)
   end do
 
-  ! operator set
-  allocate(alignment_quad_set_t :: quad_set)
-  call quad_set%init()
-
-  ! check number of operations
-  @assertEqual(quad_set%nop(), 7_i4)
-
-  ! full face test
-  do il = 0, quad_set%nop()
-     ! direct
-     fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad_set%trns(il)%op%trns_i8(fcs, sz, sz, 1)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1))
-        end do
-     end do
-     ! inverse
-     call quad_set%trns(il)%op%trns_inv_i8(fcs, sz, sz, 1)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
-        end do
-     end do
-  end do
-
-  ! interior face test
-  do il = 0, quad_set%nop()
-     ! direct
-     fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad_set%trns(il)%op%trns_i8(fcs, sz, sz, 2)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1))
-        end do
-     end do
-     ! inverse
-     call quad_set%trns(il)%op%trns_inv_i8(fcs, sz, sz, 2)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
-        end do
-     end do
-  end do
-
-  deallocate(quad_set)
-
 end subroutine test_alignment_quad_i8
 
 @test
 subroutine test_alignment_quad_rp
   use pfunit
   use num_types, only : i4, rp
-  use alignment, only : alignment_t, alignment_set_t
-  use alignment_quad, only : alignment_quad_init, alignment_quad_set_t
+  use alignment, only : alignment_t
+  use alignment_quad, only : alignment_quad_init
   implicit none
   class(alignment_t), allocatable :: quad
-  class(alignment_set_t), allocatable :: quad_set
   integer(i4), parameter :: sz = 4
   real(rp), dimension(sz, sz) :: fcs
   real(rp), dimension(sz, sz, 8) :: fcs_bnd, fcs_int
@@ -470,52 +383,5 @@ subroutine test_alignment_quad_rp
 
      deallocate(quad)
   end do
-
-  ! operator set
-  allocate(alignment_quad_set_t :: quad_set)
-  call quad_set%init()
-
-  ! check number of operations
-  @assertEqual(quad_set%nop(), 7_i4)
-
-  ! full face test
-  do il = 0, quad_set%nop()
-     ! direct
-     fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad_set%trns(il)%op%trns_rp(fcs, sz, sz, 1)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1), tolerance=1d-14)
-        end do
-     end do
-     ! inverse
-     call quad_set%trns(il)%op%trns_inv_rp(fcs, sz, sz, 1)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance=1d-14)
-        end do
-     end do
-  end do
-
-  ! interior face test
-  do il = 0, quad_set%nop()
-     ! direct
-     fcs(:, :) = fcs_bnd(:, :, 1)
-     call quad_set%trns(il)%op%trns_rp(fcs, sz, sz, 2)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1), tolerance=1d-14)
-        end do
-     end do
-     ! inverse
-     call quad_set%trns(il)%op%trns_inv_rp(fcs, sz, sz, 2)
-     do jl = 1, sz
-        do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance=1d-14)
-        end do
-     end do
-  end do
-
-  deallocate(quad_set)
 
 end subroutine test_alignment_quad_rp

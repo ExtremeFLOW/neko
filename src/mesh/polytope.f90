@@ -38,7 +38,7 @@ module polytope
   implicit none
   private
 
-  public :: polytope_t
+  public :: polytope_t, polytope_ptr
 
   !> Base type for an abstract polytope
   !! @details An abstract polytope of dimension @a tdim_ is a partially ordered
@@ -56,6 +56,8 @@ module polytope
      !> Peak number
      integer(i4) :: npeak = -1
    contains
+     !> Free polytope data
+     procedure, pass(this) :: freep => polytope_freep
      !> Return polytope dimension
      procedure, pass(this) :: tdim => polytope_tdim_get
      !> Set polytope dimension
@@ -65,29 +67,111 @@ module polytope
      !> Set polytope element number
      procedure, pass(this) :: set_nelem => polytope_element_number_set
      !> Polytope equality on the level of dimension and element number
-     procedure, pass(this) :: equal_poly => polytope_equal
+     procedure, pass(this) :: equal_poly => polytope_equal_poly
+     !> Compare polytope element numbers
+     procedure, pass(this) :: equal_elem => polytope_equal_element
+     !> Free type
+     procedure(polytope_free), pass(this), deferred :: free
      !> Pointer to the polytope facet
-     procedure(polytope_ptr), pass(this), deferred :: fct
+     procedure(polytope_pointer), pass(this), deferred :: fct
      !> Pointer to the polytope ridge
-     procedure(polytope_ptr), pass(this), deferred :: rdg
+     procedure(polytope_pointer), pass(this), deferred :: rdg
      !> Pointer to the polytope peak
-     procedure(polytope_ptr), pass(this), deferred :: pek
+     procedure(polytope_pointer), pass(this), deferred :: pek
+     !> Test equality
+     procedure(polytope_equal), pass(this), deferred :: equal
+     !> Test self-periodicity
+     procedure(polytope_self_periodic), pass(this), deferred :: selfp
+     !> Return facet alignment
+     procedure(polytope_algn), pass(this), deferred :: falgn
+     !> Return boundary information (topology object only)
+     procedure(polytope_int), pass(this), deferred :: bnd
+     !> Return communication id (topology object only)
+     procedure(polytope_int), pass(this), deferred :: gsid
   end type polytope_t
+
+  !> The general pointer type to the polytope class
+  type :: polytope_ptr
+     class(polytope_t), pointer :: ptr
+  end type polytope_ptr
+
+  !> Free type template
+  abstract interface
+     subroutine polytope_free(this)
+       import polytope_t
+       class(polytope_t), intent(inout) :: this
+     end subroutine polytope_free
+  end interface
 
   !> Returns polytope element pointer
   !! @parameter[in]   pos   polytope element position
   !! @return ptr
   abstract interface
-     function polytope_ptr(this, pos) result(ptr)
+     function polytope_pointer(this, pos) result(ptr)
        import i4
        import polytope_t
        class(polytope_t), intent(in) :: this
        integer(i4), intent(in) :: pos
        class(polytope_t), pointer :: ptr
-     end function polytope_ptr
+     end function polytope_pointer
+  end interface
+
+  !> Test equality
+  !! @parameter[in]   other   polytope
+  !! @return equal
+  abstract interface
+     function polytope_equal(this, other) result(equal)
+       import polytope_t
+       class(polytope_t), intent(in) :: this, other
+       logical :: equal
+     end function polytope_equal
+  end interface
+
+  !> Test self-periodicity
+  !! @parameter[in]   other   polytope
+  !! @return equal
+  abstract interface
+     function polytope_self_periodic(this) result(selfp)
+       import polytope_t
+       class(polytope_t), intent(in) :: this
+       logical :: selfp
+     end function polytope_self_periodic
+  end interface
+
+  !> Return alignment
+  !! @parameter[in]   pos   polytope element position
+  !! @return algn
+  abstract interface
+     function polytope_algn(this, pos) result(algn)
+       import i4
+       import polytope_t
+       class(polytope_t), intent(in) :: this
+       integer(i4), intent(in) :: pos
+       integer(i4) :: algn
+     end function polytope_algn
+  end interface
+
+  !> Extract integer property
+  !! @return intp
+  abstract interface
+     function polytope_int(this) result(intp)
+       import i4
+       import polytope_t
+       class(polytope_t), intent(in) :: this
+       integer(i4) :: intp
+     end function polytope_int
   end interface
 
 contains
+  !> Free polytope data
+  subroutine polytope_freep(this)
+    class(polytope_t), intent(inout) :: this
+    this%tdim_ = -1
+    this%nfacet = -1
+    this%nridge = -1
+    this%npeak = -1
+  end subroutine polytope_freep
+
   !> @brief Get polytope dimension
   !! @return   dim
   pure function polytope_tdim_get(this) result(dim)
@@ -165,8 +249,9 @@ contains
   end subroutine polytope_element_number_set
 
   !> @brief Check if two polytopes have the same dimension and element numbers
+  !! @parameter[in]    other  polytope
   !! @return   equal
-  pure function polytope_equal(this, other) result(equal)
+  pure function polytope_equal_poly(this, other) result(equal)
     class(polytope_t), intent(in) :: this, other
     logical :: equal
     integer(i4) :: nfacet, nridge, npeak, nfaceto, nridgeo, npeako
@@ -177,6 +262,20 @@ contains
        equal = (nfacet == nfaceto) .and. (nridge == nridgeo) .and. &
             & (npeak == npeako)
     end if
-  end function polytope_equal
+  end function polytope_equal_poly
+
+  !> @brief Check if two polytopes have the same dimension and element numbers
+  !! @parameter[in]   nfacet  number of facets
+  !! @parameter[in]   nridge  number of rdiges
+  !! @parameter[in]   npeak   number of peaks
+  !! @return   equal
+  pure function polytope_equal_element(this, nfacet, nridge, npeak) &
+       & result(equal)
+    class(polytope_t), intent(in) :: this
+    integer(i4), intent(in) :: nfacet, nridge, npeak
+    logical :: equal
+    equal = (nfacet == this%nfacet) .and. (nridge == this%nridge) .and. &
+         & (npeak == this%npeak)
+  end function polytope_equal_element
 
 end module polytope

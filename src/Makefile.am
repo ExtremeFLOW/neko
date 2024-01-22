@@ -53,6 +53,7 @@ neko_fortran_SOURCES = \
 	mesh/alignment_quad.f90\
 	mesh/polytope.f90\
 	mesh/polytope_aligned.f90\
+	mesh/polytope_oriented.f90\
 	mesh/polytope_topology.f90\
 	mesh/polytope_actualisation.f90\
 	mesh/polytope_mesh.f90\

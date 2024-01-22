@@ -60,17 +60,18 @@ mesh/octree.o : mesh/octree.f90 common/utils.o mesh/point.o config/num_types.o
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o 
 mesh/alignment.o : mesh/alignment.f90 config/num_types.o 
-mesh/alignment_edge.o : mesh/alignment_edge.f90 config/num_types.o common/utils.o mesh/alignment.o 
-mesh/alignment_quad.o : mesh/alignment_quad.f90 config/num_types.o common/utils.o mesh/alignment.o 
+mesh/alignment_edge.o : mesh/alignment_edge.f90 config/num_types.o common/utils.o math/math.o mesh/alignment.o 
+mesh/alignment_quad.o : mesh/alignment_quad.f90 config/num_types.o common/utils.o math/math.o mesh/alignment.o 
 mesh/polytope.o : mesh/polytope.f90 config/num_types.o common/utils.o mesh/entity.o 
 mesh/polytope_aligned.o : mesh/polytope_aligned.f90 config/num_types.o mesh/polytope.o mesh/alignment.o 
-mesh/polytope_topology.o : mesh/polytope_topology.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_aligned.o 
-mesh/polytope_actualisation.o : mesh/polytope_actualisation.f90 config/num_types.o mesh/polytope_topology.o mesh/alignment.o 
+mesh/polytope_oriented.o : mesh/polytope_oriented.f90 config/num_types.o mesh/polytope.o mesh/polytope_aligned.o 
+mesh/polytope_topology.o : mesh/polytope_topology.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_oriented.o 
+mesh/polytope_actualisation.o : mesh/polytope_actualisation.f90 config/num_types.o mesh/polytope.o mesh/polytope_aligned.o 
 mesh/polytope_mesh.o : mesh/polytope_mesh.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_actualisation.o mesh/point.o 
-mesh/vertex.o : mesh/vertex.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_aligned.o mesh/polytope_topology.o mesh/polytope_actualisation.o 
-mesh/edge.o : mesh/edge.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_aligned.o mesh/polytope_topology.o mesh/polytope_actualisation.o mesh/alignment_edge.o mesh/vertex.o 
-mesh/quad_new.o : mesh/quad_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_topology.o mesh/polytope_actualisation.o mesh/polytope_mesh.o mesh/alignment_quad.o mesh/point.o 
-mesh/hex_new.o : mesh/hex_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_mesh.o mesh/point.o 
+mesh/vertex.o : mesh/vertex.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_oriented.o mesh/polytope_topology.o mesh/polytope_actualisation.o 
+mesh/edge.o : mesh/edge.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_oriented.o mesh/polytope_topology.o mesh/polytope_actualisation.o mesh/alignment_edge.o mesh/vertex.o 
+mesh/quad_new.o : mesh/quad_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_topology.o mesh/polytope_actualisation.o mesh/polytope_mesh.o mesh/alignment_quad.o mesh/vertex.o mesh/edge.o mesh/point.o 
+mesh/hex_new.o : mesh/hex_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_topology.o mesh/polytope_mesh.o mesh/vertex.o mesh/edge.o mesh/quad_new.o mesh/point.o 
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 
 field/scratch_registry.o : field/scratch_registry.f90 sem/dofmap.o field/field.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 

@@ -33,8 +33,7 @@
 module polytope_actualisation
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : polytope_topology_t
-  use alignment, only : alignment_t
+  use polytope_aligned, only : polytope_aligned_t
   implicit none
   private
 
@@ -46,13 +45,7 @@ module polytope_actualisation
   !! hanging but have no interpolation operation. This type corresponds to
   !! the realisation of an abstract objects as parts of an existing higher
   !! dimension elements.
-  type, abstract :: polytope_actualisation_t
-     !> Topology polytope
-     class(polytope_topology_t), pointer :: polytope
-     !> Is the object aligned
-     logical, private :: ifaligned_ = .false.
-     !> Alignment operator
-     class(alignment_t), allocatable :: algn_op
+  type, extends(polytope_aligned_t), abstract :: polytope_actualisation_t
      !> Is there any interpolation operator active (excluding identity)
      logical, private :: ifinterpolation_ = .false.
      !> Hanging information
@@ -64,8 +57,6 @@ module polytope_actualisation
      procedure, pass(this) :: free => polytope_free
      !> Initialise general data
      procedure, pass(this) :: init_dat => polytope_init_data
-     !> Return alignment flag
-     procedure, pass(this) :: ifalgn => polytope_ifalgn_get
      !> Return interpolation flag
      procedure, pass(this) :: ifintp => polytope_ifintp_get
      !> Return hanging node information
@@ -74,15 +65,9 @@ module polytope_actualisation
      procedure, pass(this) :: pos => polytope_pos_get
      !> Initialise a polytope actualisation
      procedure(polytope_actualisation_init), pass(this), deferred :: init
-     !> Test equality and find alignment
-     procedure(polytope_equal_algn), pass(this), deferred :: equal_algn
-     !> Test equality
-     procedure, pass(this) :: equal => polytope_equal
-     !> Test alignment
-     procedure(polytope_alignment_test), pass(this), deferred :: test
   end type polytope_actualisation_t
 
-  !> Abstract interface to initialise a polytope with hanging information
+  !> Initialise a polytope with hanging information
   !! @parameter[in]   pltp   polytope
   !! @parameter[in]   algn   alignment information
   !! @parameter[in]   ifint  interpolation flag
@@ -91,42 +76,13 @@ module polytope_actualisation
   abstract interface
      subroutine polytope_actualisation_init(this, pltp, algn, ifint, hng, pos)
        import i4
-       import polytope_topology_t
+       import polytope_t
        import polytope_actualisation_t
        class(polytope_actualisation_t), intent(inout) :: this
-       class(polytope_topology_t), target, intent(in) :: pltp
+       class(polytope_t), target, intent(in) :: pltp
        integer(i4), intent(in) :: algn, hng, pos
        logical, intent(in) :: ifint
      end subroutine polytope_actualisation_init
-  end interface
-
-  !> Abstract interface to check polytope equality and return alignment
-  !! @parameter[in]    other  polytope
-  !! @parameter[out]   equal  polytope equality
-  !! @parameter[out]   algn   alignment information
-  abstract interface
-     subroutine polytope_equal_algn(this, other, equal, algn)
-       import i4
-       import polytope_t
-       import polytope_actualisation_t
-       class(polytope_actualisation_t), intent(in) :: this
-       class(polytope_t), intent(in) :: other
-       logical, intent(out) :: equal
-       integer(i4), intent(out) :: algn
-     end subroutine polytope_equal_algn
-  end interface
-
-  !> Abstract interface to test alignment
-  !! @parameter[in]   other   polytope
-  !! @return ifalgn
-  abstract interface
-     function polytope_alignment_test(this, other) result(ifalgn)
-       import polytope_t
-       import polytope_actualisation_t
-       class(polytope_actualisation_t), intent(in) :: this
-       class(polytope_t), intent(in) :: other
-       logical :: ifalgn
-     end function polytope_alignment_test
   end interface
 
 contains
@@ -134,9 +90,9 @@ contains
   !> Free aligned polytope and interpolation data
   subroutine polytope_free(this)
     class(polytope_actualisation_t), intent(inout) :: this
-    this%polytope => null()
-    this%ifaligned_ = .false.
-    if (allocated(this%algn_op)) deallocate(this%polytope)
+
+    call this%freea()
+
     this%ifinterpolation_ = .false.
     this%hanging_ = 0
     this%position_ = -1
@@ -150,26 +106,17 @@ contains
   !! @parameter[in]   pos    position in the higher order element
   subroutine polytope_init_data(this, pltp, ifalgn, ifint, hng, pos)
     class(polytope_actualisation_t), intent(inout) :: this
-    class(polytope_topology_t), target, intent(in) :: pltp
+    class(polytope_t), target, intent(in) :: pltp
     logical, intent(in)  :: ifalgn, ifint
     integer(i4), intent(in) :: hng, pos
 
-    this%polytope => pltp
-    this%ifaligned_ = ifalgn
+    call this%init_data(pltp, ifalgn)
     this%ifinterpolation_ = ifint
     this%hanging_ = hng
     this%position_ = pos
   end subroutine polytope_init_data
 
-  !> @brief Get alignment flag
-  !! @return   ifalgn
-  pure function polytope_ifalgn_get(this) result(ifalgn)
-    class(polytope_actualisation_t), intent(in) :: this
-    logical :: ifalgn
-    ifalgn = this%ifaligned_
-  end function polytope_ifalgn_get
-
-     !> @brief Get interpolation flag
+  !> @brief Get interpolation flag
   !! @return   ifintp
   pure function polytope_ifintp_get(this) result(ifintp)
     class(polytope_actualisation_t), intent(in) :: this
@@ -182,11 +129,7 @@ contains
   pure function polytope_hng_get(this) result(hng)
     class(polytope_actualisation_t), intent(in) :: this
     integer(i4) :: hng
-    if (this%ifinterpolation_) then
-       hng = this%hanging_
-    else
-       hng = -1
-    end if
+    hng = this%hanging_
   end function polytope_hng_get
 
   !> @brief Get position information
@@ -196,16 +139,5 @@ contains
     integer(i4) :: pos
     pos = this%position_
   end function polytope_pos_get
-
-  !> Test equality
-  !! @parameter[in]   other   polytope
-  !! @return equal
-  function polytope_equal(this, other) result(equal)
-    class(polytope_actualisation_t), intent(in) :: this
-    class(polytope_t), intent(in) :: other
-    logical :: equal
-    integer(i4) :: itmp
-    call this%equal_algn(other, equal, itmp)
-  end function polytope_equal
 
 end module polytope_actualisation

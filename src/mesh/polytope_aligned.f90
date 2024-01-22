@@ -33,7 +33,7 @@
 module polytope_aligned
   use num_types, only : i4
   use polytope, only : polytope_t
-  use alignment, only : alignment_t, alignment_set_t
+  use alignment, only : alignment_t
   implicit none
   private
 
@@ -42,8 +42,8 @@ module polytope_aligned
   !> Base type for an abstract aligned polytope
   !! @details This is an abstract type combining polytope class and alignment
   !! operator. Note that vertices have no alignment. This type corresponds to
-  !! building blocs of the higher dimension abstract objects the mesh topology
-  !! consists of.
+  !! building blocs of the higher dimension abstract objects the topology or
+  !! mesh consists of.
   type, abstract :: polytope_aligned_t
      !> Polytope pointer
      class(polytope_t), pointer :: polytope => null()
@@ -53,40 +53,24 @@ module polytope_aligned
      class(alignment_t), allocatable :: algn_op
    contains
      !> Free polytope and aligned data
-     procedure, pass(this) :: free => polytope_free
-     !> Initialise general data
-     procedure, pass(this) :: init_dat => polytope_init_data
+     procedure, pass(this) :: freea => polytope_free
+     !> Initialise alignment data
+     procedure, pass(this) :: init_data => polytope_init_data
      !> Return a pointer to the polytope
      procedure, pass(this) :: polyp => polytope_ptr
      !> Return alignment flag
      procedure, pass(this) :: ifalgn => polytope_ifalgn_get
      !> Return alignment value
      procedure, pass(this) :: algn => polytope_algn_get
-     !> Initialise an aligned polytope
-     procedure(polytope_aligned_init), pass(this), deferred :: init
-     !> Test equality and find alignment
-     procedure(polytope_aligned_equal_algn), pass(this), deferred :: equal_algn
      !> Test equality
      procedure, pass(this) :: equal => polytope_equal
+     !> Test equality and find alignment
+     procedure(polytope_aligned_equal_algn), pass(this), deferred :: equal_algn
      !> Test alignment
      procedure(polytope_aligned_test), pass(this), deferred :: test
   end type polytope_aligned_t
 
-  !> Abstract interface to initialise a polytope with alignment information
-  !! @parameter[in]   pltp   polytope
-  !! @parameter[in]   algn   alignment information
-  abstract interface
-     subroutine polytope_aligned_init(this, pltp, algn)
-       import i4
-       import polytope_t
-       import polytope_aligned_t
-       class(polytope_aligned_t), intent(inout) :: this
-       class(polytope_t), target, intent(in) :: pltp
-       integer(i4), intent(in) :: algn
-     end subroutine polytope_aligned_init
-  end interface
-
-  !> Abstract interface to check polytope equality and return alignment
+  !> Check polytope equality and return alignment
   !! @parameter[in]    other  polytope
   !! @parameter[out]   equal  polytope equality
   !! @parameter[out]   algn   alignment information
@@ -102,7 +86,7 @@ module polytope_aligned
      end subroutine polytope_aligned_equal_algn
   end interface
 
-  !> Abstract interface to test alignment
+  !> Test alignment
   !! @parameter[in]   other   polytope
   !! @return ifalgn
   abstract interface
@@ -158,7 +142,7 @@ contains
   pure function polytope_algn_get(this) result(algn)
     class(polytope_aligned_t), intent(in) :: this
     integer(i4) :: algn
-    if (this%ifaligned_) then
+    if (allocated(this%algn_op)) then
        algn = this%algn_op%algn()
     else
        algn = -1

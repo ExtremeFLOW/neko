@@ -34,14 +34,15 @@
 module alignment_quad
   use num_types, only : i4, i8, rp
   use utils, only : neko_error
-  use alignment, only : alignment_t, alignment_set_t
+  use math, only : arreq
+  use alignment, only : alignment_t
   implicit none
   private
 
-  public :: alignment_quad_init, alignment_quad_I_t, alignment_quad_T_t, &
-       & alignment_quad_PX_t, alignment_quad_PXT_t, alignment_quad_PYT_t, &
-       & alignment_quad_PY_t, alignment_quad_PXPYT_t, alignment_quad_PXPY_t, &
-       & alignment_quad_set_t
+  public :: alignment_quad_init, alignment_quad_find, alignment_quad_I_t, &
+       & alignment_quad_T_t, alignment_quad_PX_t, alignment_quad_PXT_t, &
+       & alignment_quad_PYT_t, alignment_quad_PY_t, alignment_quad_PXPYT_t, &
+       & alignment_quad_PXPY_t
 
   !> number of operations different from identity
   integer(i4), public, parameter :: NEKO_QUAD_NOPERATION = 7
@@ -166,19 +167,6 @@ module alignment_quad
      procedure, nopass :: trns_inv_rp => transform_quad_PXPY_rp
   end type alignment_quad_PXPY_t
 
-  !> Type containing set of quad alignment operators
-  !! @details There are four main operations : identity (I), column
-  !! permutation (PX), row permutation (PY) and transposition (T).
-  !! They are combined into 8 allowed quad transformations: I, T, PX, PXT,
-  !! PYT, PY, PXPYT, PXPY
-  !! @note The identity operator is not really needed, but i keep it for
-  !! completeness.
-  type, extends(alignment_set_t) :: alignment_quad_set_t
-   contains
-     !> Initialise type
-     procedure, pass(this) :: init => quad_set_init
-  end type alignment_quad_set_t
-
 contains
 
   !> @brief Allocate a single alignment operator
@@ -223,22 +211,87 @@ contains
 
   end subroutine alignment_quad_init
 
-  !> @brief Initialise alignment operator set
-  subroutine quad_set_init(this)
-    class(alignment_quad_set_t), intent(inout) :: this
-    integer(i4) :: il
+  !> @brief Find relative alignment for quads
+  !! @parameter[out]     equal       array equality flag
+  !! @parameter[out]     algn        relative quad alignment
+  !! @parameter[inout]   qad1, qad2  quads
+  !! @parameter[in]      n1, n2      dimensions
+  subroutine alignment_quad_find(equal, algn, qad1, qad2, n1, n2)
+    logical, intent(out) :: equal
+    integer(i4), intent(out) :: algn
+    integer(i4), intent(in) :: n1, n2
+    integer(i4), dimension(n1, n2), intent(inout) :: qad1, qad2
+    type(alignment_quad_T_t) :: op_T
+    type(alignment_quad_PX_t) :: op_PX
+    type(alignment_quad_PXT_t) :: op_PXT
+    type(alignment_quad_PYT_t) :: op_PYT
+    type(alignment_quad_PY_t) :: op_PY
+    type(alignment_quad_PXPYT_t) :: op_PXPYT
+    type(alignment_quad_PXPY_t) :: op_PXPY
 
-    call this%free()
+    algn = -1
+    equal = arreq(qad1, qad2, n1, n2)
+    if (equal) then
+       algn = 0
+       return
+    end if
 
-    call this%set_nop(NEKO_QUAD_NOPERATION)
+    call op_T%trns_inv_i4(qad1, n1, n2, 1)
+    equal = arreq(qad1, qad2, n1, n2)
+    if (equal) then
+       algn = 1
+       return
+    end if
+    call op_T%trns_i4(qad1, n1, n2, 1)
 
-    allocate(this%trns(0 : NEKO_QUAD_NOPERATION))
+    call op_PX%trns_inv_i4(qad1, n1, n2, 1)
+    equal = arreq(qad1, qad2, n1, n2)
+    if (equal) then
+       algn = 2
+       return
+    end if
+    call op_PX%trns_i4(qad1, n1, n2, 1)
 
-    do il = 0, NEKO_QUAD_NOPERATION
-       call alignment_quad_init(il, this%trns(il)%op)
-    end do
+    call op_PXT%trns_inv_i4(qad1, n1, n2, 1)
+    equal = arreq(qad1, qad2, n1, n2)
+    if (equal) then
+       algn = 3
+       return
+    end if
+    call op_PXT%trns_i4(qad1, n1, n2, 1)
 
-  end subroutine quad_set_init
+    call op_PYT%trns_inv_i4(qad1, n1, n2, 1)
+    equal = arreq(qad1, qad2, n1, n2)
+    if (equal) then
+       algn = 4
+       return
+    end if
+    call op_PYT%trns_i4(qad1, n1, n2, 1)
+
+    call op_PY%trns_inv_i4(qad1, n1, n2, 1)
+    equal = arreq(qad1, qad2, n1, n2)
+    if (equal) then
+       algn = 5
+       return
+    end if
+    call op_PY%trns_i4(qad1, n1, n2, 1)
+
+    call op_PXPYT%trns_inv_i4(qad1, n1, n2, 1)
+    equal = arreq(qad1, qad2, n1, n2)
+    if (equal) then
+       algn = 6
+       return
+    end if
+    call op_PXPYT%trns_i4(qad1, n1, n2, 1)
+
+    call op_PXPY%trns_inv_i4(qad1, n1, n2, 1)
+    equal = arreq(qad1, qad2, n1, n2)
+    if (equal) then
+       algn = 7
+       return
+    end if
+
+  end subroutine alignment_quad_find
 
   !> Function returning identity flag
   !! @return   ifid

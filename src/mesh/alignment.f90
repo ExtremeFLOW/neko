@@ -36,7 +36,7 @@ module alignment
   implicit none
   private
 
-  public :: alignment_t, alignment_single_t, alignment_set_t
+  public :: alignment_t
 
   !> Base type for an alignment operator for a given abstract polytope
   !! @note This class for now works with the square arrays only assuming
@@ -61,28 +61,6 @@ module alignment
      procedure(transform_i8), nopass, deferred :: trns_inv_i8
      procedure(transform_rp), nopass, deferred :: trns_inv_rp
   end type alignment_t
-
-  !> Single operator allocatable space
-  type :: alignment_single_t
-     class(alignment_t), allocatable :: op
-  end type alignment_single_t
-
-  !> An abstract type for a whole set of operators for a given polytope
-  type, abstract :: alignment_set_t
-     !> Number of different operations excluding identity
-     integer(i4), private :: noperation_ = -1
-     !> Set of various transformations
-     type(alignment_single_t), dimension(:), allocatable :: trns
-   contains
-     !> Initialise procedure pointers
-     procedure(alignment_init), pass(this), deferred :: init
-     !> Free procedure pointers
-     procedure, pass(this) :: free => alignment_free
-     !> Return number of operations
-     procedure, pass(this) :: nop => alignment_nop_get
-     !> Set number of operations
-     procedure, pass(this) :: set_nop => alignment_nop_set
-  end type alignment_set_t
 
   !> Abstract interface for function returning identity flag
   !! @return   ifid
@@ -141,15 +119,6 @@ module alignment
      end subroutine transform_rp
   end interface
 
-  !> Abstract interface for initialisation of transformation set
-  abstract interface
-     subroutine alignment_init(this)
-       import :: alignment_set_t
-       class(alignment_set_t), intent(inout) :: this
-     end subroutine alignment_init
-  end interface
-
-
 contains
 
   !> @brief Get polytope alignment
@@ -167,36 +136,5 @@ contains
     integer(i4), intent(in) :: algn
     this%alignment_ = algn
   end subroutine alignment_algn_set
-
-  !> @brief Free set op operators
-  pure subroutine alignment_free(this)
-    class(alignment_set_t), intent(inout) :: this
-    integer(i4) :: il
-    if (allocated(this%trns)) then
-       do il = 0, this%noperation_
-          if (allocated(this%trns(il)%op)) then
-             deallocate(this%trns(il)%op)
-          end if
-       end do
-       deallocate(this%trns)
-    end if
-    this%noperation_ = -1
-  end subroutine alignment_free
-
-  !> @brief Get number of various operations (excluding identity)
-  !! @return   nop
-  pure function alignment_nop_get(this) result(nop)
-    class(alignment_set_t), intent(in) :: this
-    integer(i4) :: nop
-    nop = this%noperation_
-  end function alignment_nop_get
-
-  !> @brief Set number of various operations (excluding identity)
-  !! @parameter[in]   nop     number of operations
-  pure subroutine alignment_nop_set(this, nop)
-    class(alignment_set_t), intent(inout) :: this
-    integer(i4), intent(in) :: nop
-    this%noperation_ = nop
-  end subroutine alignment_nop_set
 
 end module alignment

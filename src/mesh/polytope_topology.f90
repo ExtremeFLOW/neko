@@ -34,7 +34,7 @@ module polytope_topology
   use num_types, only : i4
   use utils, only : neko_error
   use polytope, only : polytope_t
-  use polytope_aligned, only : polytope_aligned_t
+  use polytope_oriented, only : polytope_oriented_t
   implicit none
   private
 
@@ -42,7 +42,7 @@ module polytope_topology
 
   !> Single topology object allocatable space
   type :: topology_object_t
-     class(polytope_aligned_t), allocatable :: obj
+     class(polytope_oriented_t), allocatable :: obj
   end type topology_object_t
 
   !> Base type for an abstract topology polytope
@@ -80,10 +80,10 @@ module polytope_topology
      procedure, pass(this) :: fct_share => polytope_facet_share
      !> Return ridges shared by polytopes
      procedure, pass(this) :: rdg_share => polytope_ridge_share
+     !> Return facet alignment
+     procedure, pass(this) :: falgn => polytope_fct_algn
      !> Initialise a topology polytope
      procedure(polytope_topology_init), pass(this), deferred :: init
-     !> Test equality
-     procedure(polytope_topology_equal), pass(this), deferred :: equal
   end type polytope_topology_t
 
   !> Single topology element allocatable space
@@ -107,19 +107,6 @@ module polytope_topology
      end subroutine polytope_topology_init
   end interface
 
-  !> Abstract interface to test equality
-  !! @parameter[in]   other   polytope
-  !! @return equal
-  abstract interface
-     function polytope_topology_equal(this, other) result(equal)
-       import polytope_t
-       import polytope_topology_t
-       class(polytope_topology_t), intent(in) :: this
-       class(polytope_t), intent(in) :: other
-       logical :: equal
-     end function polytope_topology_equal
-  end interface
-
 contains
 
   !> Free polytope data
@@ -127,6 +114,7 @@ contains
     class(polytope_topology_t), intent(inout) :: this
     integer(i4) :: il
     this%boundary_ = -1
+    this%gsid_ = -1
     if (allocated(this%facet)) then
        do il = 1, this%nfacet
           call this%facet(il)%obj%free()
@@ -141,8 +129,7 @@ contains
        end do
        deallocate(this%ridge)
     end if
-    call this%set_nelem(-1, -1, -1)
-    call this%set_tdim(-1)
+    call this%freep()
   end subroutine polytope_free
 
   !> @brief Return pointer to the polytope facet
@@ -185,11 +172,11 @@ contains
   end function polytope_pek_ptr
 
   !> @brief Get polytope boundary information
-  !! @return   bnd
-  pure function polytope_bnd_get(this) result(bnd)
+  !! @return   intp
+  pure function polytope_bnd_get(this) result(intp)
     class(polytope_topology_t), intent(in) :: this
-    integer(i4) :: bnd
-    bnd = this%boundary_
+    integer(i4) :: intp
+    intp = this%boundary_
   end function polytope_bnd_get
 
   !> @brief Set boundary value
@@ -201,11 +188,11 @@ contains
   end subroutine polytope_bnd_set
 
   !> @brief Get communication global id
-  !! @return   gsid
-  pure function polytope_gsid_get(this) result(gsid)
+  !! @return   intp
+  pure function polytope_gsid_get(this) result(intp)
     class(polytope_topology_t), intent(in) :: this
-    integer(i4) :: gsid
-    gsid = this%gsid_
+    integer(i4) :: intp
+    intp = this%gsid_
   end function polytope_gsid_get
 
   !> @brief Set communication global id
@@ -296,5 +283,18 @@ contains
        end do
     end do
   end subroutine polytope_ridge_share
+
+  !> Return facet alignment
+  !! @return algn
+  function polytope_fct_algn(this, pos) result(algn)
+    class(polytope_topology_t), intent(in) :: this
+    integer(i4), intent(in) :: pos
+    integer(i4) :: algn
+    if ((pos > 0) .and. (pos <= this%nfacet)) then
+       algn = this%facet(pos)%obj%algn()
+    else
+       call neko_error('Wrong facet number for topology objects.')
+    end if
+  end function polytope_fct_algn
 
 end module polytope_topology

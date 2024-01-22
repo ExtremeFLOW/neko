@@ -34,12 +34,13 @@
 module alignment_edge
   use num_types, only : i4, i8, rp
   use utils, only : neko_error
-  use alignment, only : alignment_t, alignment_set_t
+  use math, only : arreq
+  use alignment, only : alignment_t
   implicit none
   private
 
-  public :: alignment_edge_init, alignment_edge_I_t, alignment_edge_P_t, &
-       & alignment_edge_set_t
+  public :: alignment_edge_init, alignment_edge_find, alignment_edge_I_t, &
+       & alignment_edge_P_t
 
   !> number of operations different from identity
   integer(i4), public, parameter :: NEKO_EDGE_NOPERATION = 1
@@ -74,18 +75,6 @@ module alignment_edge
      procedure, nopass :: trns_inv_rp => transform_edge_P_rp
   end type alignment_edge_P_t
 
-  !> Type containing set of edge alignment operators
-  !! @details There are two main operations : identity (I) and row
-  !! permutation (P).
-  !! @note In this case inverse operators are not necessary, but I keep
-  !! code consistent with quad structure. The same about identity operation.
-  !! It is not really needed, but I keep it just to have it complete.
-  type, extends(alignment_set_t) :: alignment_edge_set_t
-   contains
-     !> Initialise type
-     procedure, pass(this) :: init => edge_set_init
-  end type alignment_edge_set_t
-
 contains
 
   !> @brief Allocate a single alignment operator
@@ -112,22 +101,33 @@ contains
 
   end subroutine alignment_edge_init
 
-  !> @brief Initialise alignment operator set
-  subroutine edge_set_init(this)
-    class(alignment_edge_set_t), intent(inout) :: this
-    integer(i4) :: il
+  !> @brief Find relative alignment for edges
+  !! @parameter[out]     equal       array equality flag
+  !! @parameter[out]     algn        relative edge alignment
+  !! @parameter[inout]   edg1, edg2  edges
+  !! @parameter[in]      n1, n2      dimensions
+  subroutine alignment_edge_find(equal, algn, edg1, edg2, n1, n2)
+    logical, intent(out) :: equal
+    integer(i4), intent(out) :: algn
+    integer(i4), intent(in) :: n1, n2
+    integer(i4), dimension(n1, n2), intent(inout) :: edg1, edg2
+    type(alignment_edge_P_t) :: op_P
 
-    call this%free()
+    algn = -1
+    equal = arreq(edg1, edg2, n1, n2)
+    if (equal) then
+       algn = 0
+       return
+    end if
 
-    call this%set_nop(NEKO_EDGE_NOPERATION)
+    call op_P%trns_inv_i4(edg1, n1, n2, 1)
+    equal = arreq(edg1, edg2, n1, n2)
+    if (equal) then
+       algn = 1
+       return
+    end if
 
-    allocate(this%trns(0 : NEKO_EDGE_NOPERATION))
-
-    do il = 0, NEKO_EDGE_NOPERATION
-       call alignment_edge_init(il, this%trns(il)%op)
-    end do
-
-  end subroutine edge_set_init
+  end subroutine alignment_edge_find
 
   !> Function returning identity flag
   !! @return   ifid

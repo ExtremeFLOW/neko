@@ -80,7 +80,7 @@ module math
        glsum, glmax, glmin, chsign, vlmax, invcol1, invcol3, invers2, vcross, &
        vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, add2s1, add2s2, &
        addsqr2s2, cmult2, invcol2, col2, col3, subcol3, add3s2, subcol4, addcol3,&
-       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort
+       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort, arreq
 
 contains
 
@@ -781,5 +781,20 @@ contains
        ind(i) = ii
     end do
   end subroutine sort
+
+  !> Equality of two arrays of sizes @a n1, @ n2
+  pure function arreq(arr1, arr2, n1, n2) result(equal)
+    integer, intent(in) :: n1, n2
+    integer, dimension(n1, n2), intent(in) :: arr1, arr2
+    logical :: equal
+    integer :: il, jl
+    equal = .true.
+    do jl=1, n2
+       do il = 1, n1
+          equal = arr1(il, jl) == arr2(il, jl)
+          if (.not.equal) return
+       end do
+    end do
+  end function arreq
 
 end module math
