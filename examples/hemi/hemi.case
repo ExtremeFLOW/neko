@@ -13,7 +13,7 @@
         "dealias": true
     },
     "fluid": {
-        "scheme": "pnpn_stress",
+        "scheme": "pnpn",
         "Re": 1400,
         "initial_condition": {
             "type": "blasius"
