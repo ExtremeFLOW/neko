@@ -85,7 +85,7 @@ contains
        !we assume elements are stacked on eachother...
        ! Check which one of the normalized vectors are closest to dir
        ! If we want to incorporate other directions, we should look here
-       el_dim(1,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(2)%p%x)
+       el_dim(1,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - this%msh%elements(i)%e%pts(2)%p%x)
        el_dim(1,:) = el_dim(1,:)/norm2(el_dim(1,:))
        el_dim(2,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(3)%p%x)
        el_dim(2,:) = el_dim(2,:)/norm2(el_dim(2,:))
