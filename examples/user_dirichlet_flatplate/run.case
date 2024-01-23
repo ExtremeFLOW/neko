@@ -51,7 +51,7 @@
             "preconditioner": "hsmg",
             "projection_space_size": 0,
             "absolute_tolerance": 1e-9,
-            "max_iterations": 10
+            "max_iterations": 200
         },
         "output_control": "nsamples",
         "output_value": 5,
