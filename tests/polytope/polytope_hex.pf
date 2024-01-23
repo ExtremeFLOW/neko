@@ -270,4 +270,4 @@ subroutine hex_algn_msh_get(permv, perme, permq, vrt, pts, istr, idh, gdim, &
 end subroutine hex_algn_msh_get
 
 ! MISSING TESTS FOR SHARE AND EQUAL (EQUAL NOT FINALISED YET)
-! MISSING TESTS FOR NONCONFORMING VERSION (NOT FINALISED YET)
+! MISSING TESTS FOR NONCONFORMING VERSION

@@ -176,11 +176,11 @@ contains
     integer(i4), intent(in) :: algn
     class(alignment_t), allocatable, intent(inout) :: trns
 
-    if (allocated(trns)) then
+    if (allocated(trns) ) then
        deallocate(trns)
     end if
 
-    select case(algn)
+    select case (algn)
     case(0) ! identity
        allocate(alignment_quad_I_t :: trns)
        call trns%set_algn(algn)

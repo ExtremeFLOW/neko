@@ -1,5 +1,5 @@
 @test
-subroutine test_edge_topology
+subroutine test_edge_topology_simple
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
@@ -8,15 +8,14 @@ subroutine test_edge_topology
   use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
   implicit none
   class(polytope_t), pointer :: poly
-  type(vertex_tpl_t), dimension(4) :: vrt
-  type(edge_tpl_t) :: edt1, edt2
+  type(vertex_tpl_t), dimension(2) :: vrt
+  type(edge_tpl_t) :: edt1
   type(topology_object_t), dimension(0) :: fctv
   type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  integer(i4), dimension(4) :: idv, gsv
-  integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, gse1, gse2
-  integer(i4), dimension(:, :), allocatable :: facetp
+  integer(i4), dimension(2) :: idv, gsv
+  integer(i4) :: il, itmp, ide1, bne1, gse1
 
-  do il = 1, 4
+  do il = 1, 2
      idv(il) = il
      gsv(il) = il + 4
      call vrt(il)%init(idv(il), 0, fctv, -1)
@@ -24,11 +23,8 @@ subroutine test_edge_topology
   end do
 
   ide1 = 3
-  ide2 = 7
   bne1 = 5
-  bne2 = 6
   gse1 = 11
-  gse2 = 12
 
   ! non self-periodic edge
   allocate(vertex_ornt_t :: fcte(1)%obj)
@@ -68,6 +64,53 @@ subroutine test_edge_topology
   ! facet alignment tests
   @assertEqual(edt1%falgn(1), -1)
   @assertEqual(edt1%falgn(2), -1)
+
+   do il =1, 2
+     call vrt(il)%free()
+  end do
+  call edt1%free()
+
+end subroutine test_edge_topology_simple
+
+@test
+subroutine test_edge_topology_permutation
+  use pfunit
+  use num_types, only : i4
+  use polytope, only : polytope_t
+  use polytope_topology, only : topology_object_t
+  use vertex, only : vertex_tpl_t, vertex_ornt_t
+  use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
+  implicit none
+  class(polytope_t), pointer :: poly
+  type(vertex_tpl_t), dimension(2) :: vrt
+  type(edge_tpl_t) :: edt1, edt2
+  type(topology_object_t), dimension(0) :: fctv
+  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  integer(i4), dimension(2) :: idv, gsv
+  integer(i4) :: il, itmp, ide1, bne1, gse1, ide2, bne2, gse2
+  integer(i4), dimension(:, :), allocatable :: facetp
+
+  do il = 1, 2
+     idv(il) = il
+     gsv(il) = il + 4
+     call vrt(il)%init(idv(il), 0, fctv, -1)
+     call vrt(il)%set_gsid(gsv(il))
+  end do
+
+  ide1 = 3
+  bne1 = 5
+  gse1 = 11
+  ide2 = 4
+  bne2 = 6
+  gse2 = 12
+
+  ! non self-periodic edge
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(1), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(2), -1)
+  call edt1%init(ide1, 2, fcte, bne1)
+  call edt1%set_gsid(gse1)
 
   ! second non self-periodic edge; the same edge
   allocate(vertex_ornt_t :: fcte(1)%obj)
@@ -113,6 +156,54 @@ subroutine test_edge_topology
 
   ! edge equality
   @assertTrue(edt1%equal(edt2))
+
+   do il =1, 2
+     call vrt(il)%free()
+  end do
+  call edt1%free()
+  call edt2%free()
+
+end subroutine test_edge_topology_permutation
+
+@test
+subroutine test_edge_topology_share
+  use pfunit
+  use num_types, only : i4
+  use polytope, only : polytope_t
+  use polytope_topology, only : topology_object_t
+  use vertex, only : vertex_tpl_t, vertex_ornt_t
+  use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
+  implicit none
+  class(polytope_t), pointer :: poly
+  type(vertex_tpl_t), dimension(4) :: vrt
+  type(edge_tpl_t) :: edt1, edt2
+  type(topology_object_t), dimension(0) :: fctv
+  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  integer(i4), dimension(4) :: idv, gsv
+  integer(i4) :: il, itmp, ide1, bne1, gse1, ide2, bne2, gse2
+  integer(i4), dimension(:, :), allocatable :: facetp
+
+  do il = 1, 4
+     idv(il) = il
+     gsv(il) = il + 4
+     call vrt(il)%init(idv(il), 0, fctv, -1)
+     call vrt(il)%set_gsid(gsv(il))
+  end do
+
+  ide1 = 3
+  bne1 = 5
+  gse1 = 11
+  ide2 = 4
+  bne2 = 6
+  gse2 = 12
+
+  ! non self-periodic edge
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(1), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(2), -1)
+  call edt1%init(ide1, 2, fcte, bne1)
+  call edt1%set_gsid(gse1)
 
   ! second non self-periodic edge; single vertex shared
   allocate(vertex_ornt_t :: fcte(1)%obj)
@@ -177,10 +268,101 @@ subroutine test_edge_topology
   call edt1%free()
   call edt2%free()
 
-end subroutine test_edge_topology
+end subroutine test_edge_topology_share
 
 @test
-subroutine test_edge_oriented
+subroutine test_edge_oriented_simple
+  use pfunit
+  use num_types, only : i4
+  use polytope, only : polytope_t
+  use polytope_topology, only : topology_object_t
+  use vertex, only : vertex_tpl_t, vertex_ornt_t
+  use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
+  implicit none
+  class(polytope_t), pointer :: poly
+  type(vertex_tpl_t), dimension(2) :: vrt
+  type(edge_tpl_t) :: edt1
+  type(edge_ornt_t) :: edo1
+  type(topology_object_t), dimension(0) :: fctv
+  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  integer(i4), dimension(2) :: idv, gsv
+  integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, gse1, gse2, algn
+  logical :: equal
+
+  do il = 1, 2
+     idv(il) = il
+     gsv(il) = il + 4
+     call vrt(il)%init(idv(il), 0, fctv, -1)
+     call vrt(il)%set_gsid(gsv(il))
+  end do
+
+  ide1 = 3
+  bne1 = 5
+  gse1 = 11
+
+  ! non self-periodic edge
+  allocate(vertex_ornt_t :: fcte(1)%obj)
+  call fcte(1)%obj%init(vrt(1), -1)
+  allocate(vertex_ornt_t :: fcte(2)%obj)
+  call fcte(2)%obj%init(vrt(2), -1)
+  call edt1%init(ide1, 2, fcte, bne1)
+  call edt1%set_gsid(gse1)
+
+  algn = 0
+  call edo1%init(edt1, algn)
+
+  ! pointer
+  call edo1%polyp(poly)
+  @assertTrue(associated(poly))
+  @assertEqual(poly%id(), ide1)
+  @assertEqual(poly%tdim(), 1)
+  @assertTrue(poly%equal_elem(2, 0, 0))
+  @assertEqual(poly%bnd(), bne1)
+  @assertEqual(poly%gsid(), gse1)
+  @assertTrue(poly%equal(edt1))
+
+  ! alignment
+  @assertFalse(edo1%ifalgn())
+  @assertEqual(edo1%algn(), algn)
+
+  ! alignment test
+  @assertTrue(edo1%test(edt1))
+
+  ! equality
+  @assertTrue(edo1%equal(edt1))
+
+  call edo1%equal_algn(edt1, equal, algn)
+  @assertTrue(equal)
+  @assertEqual(algn, 0)
+
+  ! aligned edge
+  algn = 1
+  call edo1%init(edt1, algn)
+
+  ! alignment
+  @assertTrue(edo1%ifalgn())
+  @assertEqual(edo1%algn(), 1)
+
+  ! alignment test
+  @assertFalse(edo1%test(edt1))
+
+  ! equality
+  @assertTrue(edo1%equal(edt1))
+
+  call edo1%equal_algn(edt1, equal, algn)
+  @assertTrue(equal)
+  @assertEqual(algn, 0)
+
+  do il =1, 2
+     call vrt(il)%free()
+  end do
+  call edt1%free()
+  call edo1%free()
+
+end subroutine test_edge_oriented_simple
+
+@test
+subroutine test_edge_oriented_permute
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
@@ -206,10 +388,10 @@ subroutine test_edge_oriented
   end do
 
   ide1 = 3
-  ide2 = 4
   bne1 = 5
-  bne2 = 6
   gse1 = 11
+  ide2 = 4
+  bne2 = 6
   gse2 = 12
 
   ! non self-periodic edge
@@ -239,24 +421,10 @@ subroutine test_edge_oriented
   algn = 0
   call edo1%init(edt1, algn)
 
-  ! pointer
-  call edo1%polyp(poly)
-  @assertTrue(associated(poly))
-  @assertEqual(poly%id(), ide1)
-  @assertEqual(poly%tdim(), 1)
-  @assertTrue(poly%equal_elem(2, 0, 0))
-  @assertEqual(poly%bnd(), bne1)
-  @assertEqual(poly%gsid(), gse1)
-  @assertTrue(poly%equal(edt1))
-
-  ! alignment
-  @assertFalse(edo1%ifalgn())
-  @assertEqual(edo1%algn(), algn)
-
   ! equality
-  @assertTrue(edo1%equal(edt1))
   @assertTrue(edo1%equal(edt1P))
   @assertFalse(edo1%equal(edt2))
+
   call edo1%equal_algn(edt1, equal, algn)
   @assertTrue(equal)
   @assertEqual(algn, 0)
@@ -268,62 +436,32 @@ subroutine test_edge_oriented
   @assertEqual(algn, -1)
 
   ! alignment test
-  @assertTrue(edo1%test(edt1))
   @assertFalse(edo1%test(edt1P))
   @assertFalse(edo1%test(edt2))
 
-  ! aligned edge
   algn = 1
   call edo1%init(edt1, algn)
 
-  ! alignment
-  @assertTrue(edo1%ifalgn())
-  @assertEqual(edo1%algn(), 1)
-
-  ! equality
-  @assertTrue(edo1%equal(edt1))
-  @assertTrue(edo1%equal(edt1P))
-  @assertFalse(edo1%equal(edt2))
   call edo1%equal_algn(edt1, equal, algn)
   @assertTrue(equal)
   @assertEqual(algn, 0)
   call edo1%equal_algn(edt1P, equal, algn)
   @assertTrue(equal)
   @assertEqual(algn, 1)
-   call edo1%equal_algn(edt2, equal, algn)
-  @assertFalse(equal)
-  @assertEqual(algn, -1)
-
-  ! alignment test
-  @assertFalse(edo1%test(edt1))
-  @assertTrue(edo1%test(edt1P))
-  @assertFalse(edo1%test(edt2))
 
   algn = 0
   call edo1%init(edt1P, algn)
 
-  ! alignment
-  @assertFalse(edo1%ifalgn())
-  @assertEqual(edo1%algn(), 0)
-
   ! equality
   @assertTrue(edo1%equal(edt1))
   @assertTrue(edo1%equal(edt1P))
-  @assertFalse(edo1%equal(edt2))
+
   call edo1%equal_algn(edt1, equal, algn)
   @assertTrue(equal)
   @assertEqual(algn, 1)
   call edo1%equal_algn(edt1P, equal, algn)
   @assertTrue(equal)
   @assertEqual(algn, 0)
-   call edo1%equal_algn(edt2, equal, algn)
-  @assertFalse(equal)
-  @assertEqual(algn, -1)
-
-  ! alignment test
-  @assertFalse(edo1%test(edt1))
-  @assertTrue(edo1%test(edt1P))
-  @assertFalse(edo1%test(edt2))
 
   do il =1, 4
      call vrt(il)%free()
@@ -333,7 +471,7 @@ subroutine test_edge_oriented
   call edt2%free()
   call edo1%free()
 
-end subroutine test_edge_oriented
+end subroutine test_edge_oriented_permute
 
 @test
 subroutine test_edge_actualisation

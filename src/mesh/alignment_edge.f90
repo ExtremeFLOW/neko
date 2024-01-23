@@ -88,7 +88,7 @@ contains
        deallocate(trns)
     end if
 
-    select case(algn)
+    select case (algn)
     case(0) ! identity
        allocate(alignment_edge_I_t :: trns)
        call trns%set_algn(algn)
