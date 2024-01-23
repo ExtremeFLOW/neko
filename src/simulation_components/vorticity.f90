@@ -34,13 +34,15 @@
 !> Implements the `vorticity_t` type.
 
 module vorticity
-  use num_types, only : rp
+  use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : curl
   use case, only : case_t
+  use fld_output, only : fld_output_t
+  use json_utils, only : json_get, json_get_or_default
   implicit none
   private
 
@@ -66,6 +68,9 @@ module vorticity
      !> Work array.
      type(field_t) :: temp2
 
+     !> Output writer.
+     type(fld_output_t), private :: output
+
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => vorticity_init_from_json
@@ -85,15 +90,23 @@ contains
     class(vorticity_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
+    character(len=:), allocatable :: filename
 
     call this%init_base(json, case)
 
-    call vorticity_init_from_attributes(this)
+    if (json%valid_path("output_filename")) then
+       call json_get(json, "output_filename", filename)
+       call vorticity_init_from_attributes(this, filename)
+    else
+       call vorticity_init_from_attributes(this)
+    end if
   end subroutine vorticity_init_from_json
 
   !> Actual constructor.
-  subroutine vorticity_init_from_attributes(this)
+  subroutine vorticity_init_from_attributes(this, filename)
     class(vorticity_t), intent(inout) :: this
+    character(len=*), intent(in), optional :: filename
+    type(fld_output_t) :: output
 
     this%u => neko_field_registry%get_field_by_name("u")
     this%v => neko_field_registry%get_field_by_name("v")
@@ -114,6 +127,21 @@ contains
 
     call this%temp1%init(this%u%dof)
     call this%temp2%init(this%u%dof)
+
+
+    if (present(filename)) then
+       call this%output%init(sp, filename, 3)
+       this%output%fields%fields(1)%f => this%omega_x
+       this%output%fields%fields(2)%f => this%omega_y
+       this%output%fields%fields(3)%f => this%omega_z
+       call this%case%s%add(this%output, this%output_controller%control_value, &
+                            this%output_controller%control_mode)
+    else
+       call this%case%f_out%fluid%append(this%omega_x)
+       call this%case%f_out%fluid%append(this%omega_y)
+       call this%case%f_out%fluid%append(this%omega_z)
+    end if
+
   end subroutine vorticity_init_from_attributes
 
   !> Destructor.
