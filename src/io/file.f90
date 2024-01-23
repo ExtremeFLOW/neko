@@ -207,7 +207,7 @@ contains
   !! @param precision Precision as defined in `num_types`.
   subroutine file_set_precision(this, precision)
     class(file_t), intent(inout) :: this
-    integer, intent(inout) :: precision
+    integer, intent(in) :: precision
 
     character(len=80) :: suffix
 
