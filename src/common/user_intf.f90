@@ -37,6 +37,7 @@ module user_intf
   use fluid_user_source_term
   use source_scalar
   use coefs
+  use bc, only: bc_list_t
   use mesh
   use usr_inflow
   use usr_scalar
@@ -335,8 +336,11 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
-  subroutine dirichlet_do_nothing(field_bc_list, t, tstep)
-    type(field_list_t), intent(inout) :: field_bc_list
+  subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc_list, &
+       coef, t, tstep)
+    type(field_list_t), intent(inout) :: dirichlet_field_list
+    type(bc_list_t), intent(inout) :: dirichlet_bc_list
+    type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
   end subroutine dirichlet_do_nothing

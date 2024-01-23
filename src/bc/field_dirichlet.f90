@@ -34,7 +34,8 @@
 module field_dirichlet
   use num_types
   use coefs
-  use dirichlet
+  use dirichlet, only: dirichlet_t
+  use bc, only: bc_list_t
   use device
   use utils
   use field, only : field_t
@@ -66,10 +67,14 @@ module field_dirichlet
      !! @param t Current time
      !! @param tstep Current time-step
      !! Should we pass down coef? and perhaps something more?
-     subroutine field_dirichlet_update(field_bc_list, t, tstep)
+     subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list, coef, t, tstep)
        import rp
        import field_list_t
-       type(field_list_t), intent(inout) :: field_bc_list
+       import bc_list_t
+       import coef_t
+       type(field_list_t), intent(inout) :: dirichlet_field_list
+       type(bc_list_t), intent(inout) :: dirichlet_bc_list
+       type(coef_t), intent(inout) :: coef
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
      end subroutine field_dirichlet_update

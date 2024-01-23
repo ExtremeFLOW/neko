@@ -99,7 +99,10 @@ contains
        tstep = tstep + 1
        start_time = MPI_WTIME()
        cfl = C%fluid%compute_cfl(C%dt)
-       call C%usr%user_dirichlet_update(C%bc_field_list,t,tstep)
+
+       call C%usr%user_dirichlet_update(C%dirichlet_bc_field_list, &
+            C%dirichlet_bc_bc_list, C%fluid%c_Xh, t, tstep)
+
        call neko_log%status(t, C%end_time)
        write(log_buf, '(A,I6)') 'Time-step: ', tstep
        call neko_log%message(log_buf)

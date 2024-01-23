@@ -35,6 +35,7 @@ module case
   use num_types
   use fluid_fctry
   use fluid_output
+  use bc, only: bc_list_t, bc_list_init, bc_list_add
   use chkp_output
   use mean_sqr_flow_output
   use mean_flow_output
@@ -81,7 +82,8 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar 
-     type(field_list_t) :: bc_field_list
+     type(field_list_t) :: dirichlet_bc_field_list
+     type(bc_list_t) :: dirichlet_bc_bc_list
      type(material_properties_t):: material_properties
   end type case_t
 
@@ -310,11 +312,23 @@ contains
     end select
 
 
-    allocate(C%bc_field_list%fields(4))
-    C%bc_field_list%fields(1)%f => C%fluid%bc_field_u%field_bc
-    C%bc_field_list%fields(2)%f => C%fluid%bc_field_v%field_bc
-    C%bc_field_list%fields(3)%f => C%fluid%bc_field_w%field_bc
-    C%bc_field_list%fields(4)%f => C%fluid%bc_field_prs%field_bc
+    !
+    ! Add dirichlet BCs to the case object
+    !
+    ! First add the list of fields
+    allocate(C%dirichlet_bc_field_list%fields(4))
+    C%dirichlet_bc_field_list%fields(1)%f => C%fluid%bc_field_u%field_bc
+    C%dirichlet_bc_field_list%fields(2)%f => C%fluid%bc_field_v%field_bc
+    C%dirichlet_bc_field_list%fields(3)%f => C%fluid%bc_field_w%field_bc
+    C%dirichlet_bc_field_list%fields(4)%f => C%fluid%bc_field_prs%field_bc
+
+    ! And then add the list of BCs (pass it down to the user so they can access
+    ! the bc mask)
+    call bc_list_init(C%dirichlet_bc_bc_list, size=4)
+    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_u)
+    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_v)
+    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_w)
+    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_prs)
 
     !
     ! Validate that the case is properly setup for time-stepping
