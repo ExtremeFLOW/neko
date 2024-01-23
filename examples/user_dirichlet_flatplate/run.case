@@ -5,7 +5,7 @@
     "output_at_end": false,
     "output_boundary": true,
     "output_precision": "double",
-    "end_time": 2e-6,
+    "end_time": 2e-7,
     "timestep": 2e-7,
     "output_checkpoints": false,
     "checkpoint_control": "simulationtime",
@@ -51,7 +51,7 @@
             "preconditioner": "hsmg",
             "projection_space_size": 0,
             "absolute_tolerance": 1e-9,
-            "max_iterations": 300
+            "max_iterations": 10
         },
         "output_control": "nsamples",
         "output_value": 5,

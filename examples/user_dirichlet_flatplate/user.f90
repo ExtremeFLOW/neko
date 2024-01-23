@@ -101,8 +101,10 @@ contains
   end subroutine initialize
 
   !> Set boundary conditions
-  subroutine user_bc(field_bc_list, t, tstep)
+  subroutine user_bc(field_bc_list, bc_list, coef, t, tstep)
     type(field_list_t), intent(inout) :: field_bc_list
+    type(bc_list_t), intent(inout) :: bc_list
+    type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
@@ -142,12 +144,14 @@ contains
     !
     ! Force copy the field_bcs to the device
     !
-    call neko_log%message("copying BC")
-    do i = 1, 4
-       call device_memcpy(field_bc_list%fields(i)%f%x, field_bc_list%fields(i)%f%x_D, &
-            field_bc_list%fields(i)%f%dof%size(), HOST_TO_DEVICE, sync = .true.)
-    end do
-    call neko_log%message("end copying BC")
+    if ( NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_log%message("copying BC")
+       do i = 1, 4
+          call device_memcpy(field_bc_list%fields(i)%f%x, field_bc_list%fields(i)%f%x_D, &
+               field_bc_list%fields(i)%f%dof%size(), HOST_TO_DEVICE, sync = .true.)
+       end do
+       call neko_log%message("end copying BC")
+    end if
   end subroutine user_bc
 
   ! usrcheck, this is called at the end of every time step
