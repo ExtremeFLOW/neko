@@ -16,16 +16,17 @@ program map_to_equidistant_1d
   type(fld_file_data_t) :: field_data
   type(space_t) :: Xh
   type(vector_ptr_t), allocatable :: fields(:)
-  integer :: argc, i, lx, j
+  integer :: argc, i, lx, j, file_precision
+  logical :: dp_precision
   
   argc = command_argument_count()
 
-  if ((argc .lt. 3) .or. (argc .gt. 3)) then
+  if ((argc .lt. 4) .or. (argc .gt. 4)) then
      if (pe_rank .eq. 0) then
-        write(*,*) 'Usage: ./map_to_equidistant_1d field.fld dir(x, y, z) outfield.fld' 
-        write(*,*) 'Example command: ./map_to_equidistant_1d fieldblabla.fld x outfield.fld'
+        write(*,*) 'Usage: ./map_to_equidistant_1d field.fld dir(x, y, z) outfield.fld precision' 
+        write(*,*) 'Example command: ./map_to_equidistant_1d fieldblabla.fld x outfield.fld .true.'
         write(*,*) 'Redistribute the points to be equidistant in elements '
-        write(*,*) 'in x of the field fieldblabla.nek5000 and stores in outfield.fld'
+        write(*,*) 'in x of the field fieldblabla.nek5000 and stores in outfield.fld, both are double precision'
      end if
      stop
   end if
@@ -34,11 +35,20 @@ program map_to_equidistant_1d
 
   call get_command_argument(1, inputchar) 
   read(inputchar, fmt='(A)') field_fname
-  field_file = file_t(trim(field_fname))
   call get_command_argument(2, inputchar) 
   read(inputchar, *) hom_dir
   call get_command_argument(3, inputchar) 
   read(inputchar, fmt='(A)') output_fname
+  call get_command_argument(4, inputchar) 
+  read(inputchar, *) dp_precision
+
+  if (dp_precision) then
+     file_precision = dp
+  else
+     file_precision = sp
+  end if
+
+  field_file = file_t(trim(field_fname),precision=file_precision)
 
   if (trim(hom_dir) .ne. 'x' .and. trim(hom_dir) .ne. 'y' .and. trim(hom_dir) .ne. 'z') then
      call neko_error('The homogenous direction should be "x", "y" or "z"')
@@ -87,7 +97,7 @@ program map_to_equidistant_1d
   end do 
 
   ! output at t=0  
-  output_file = file_t(trim(output_fname))
+  output_file = file_t(trim(output_fname),precision=file_precision)
   call output_file%write(field_data, field_data%time)
 
   ! interpolate field for t>0
