@@ -50,8 +50,6 @@ module file
   !> A wrapper around a polymorphic `generic_file_t` that handles its init.
   !! This is essentially a factory for `generic_file_t` descendants additionally
   !! handling special CSV file parameters (header and precision).
-  !! @remark We could perhaps make a more typical design, with just a factory
-  !! subroutine, like for most other polymorphic types.
   type file_t
      class(generic_file_t), allocatable :: file_type
    contains
