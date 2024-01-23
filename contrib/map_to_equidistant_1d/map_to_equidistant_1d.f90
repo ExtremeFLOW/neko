@@ -37,12 +37,12 @@ program map_to_equidistant_1d
   read(inputchar, *) mesh_fname
   mesh_file = file_t(trim(mesh_fname))
   call get_command_argument(2, inputchar) 
-  read(inputchar, *) field_fname
+  read(inputchar, fmt='(A)') field_fname
   field_file = file_t(trim(field_fname))
   call get_command_argument(3, inputchar) 
   read(inputchar, *) hom_dir
   call get_command_argument(4, inputchar) 
-  read(inputchar, *) output_fname
+  read(inputchar, fmt='(A)') output_fname
 
   if (trim(hom_dir) .ne. 'x' .and. trim(hom_dir) .ne. 'y' .and. trim(hom_dir) .ne. 'z') then
      call neko_error('The homogenous direction should be "x", "y" or "z"')
@@ -63,6 +63,7 @@ program map_to_equidistant_1d
   allocate(wt(lx,lx))
   allocate(wtt(lx,lx))
   allocate(ident(lx,lx))
+  ident = 0.0_rp
   do i = 1, lx
     x_equid = -1.0_rp + (i-1) * 2.0_rp/(lx-1)
     call fd_weights_full(x_equid, Xh%zg(:,1), lx-1, 0, wtt(:,i))
@@ -110,9 +111,10 @@ program map_to_equidistant_1d
            call tnsr1_3d(fields(j)%v%x, lx, lx, ident, ident, wtt, msh%nelv)
         end if
      end do 
+     ! output for t>0
+     call output_file%write(field_data, field_data%time)
   end do
-  ! output for t>0
-  call output_file%write(field_data, field_data%time)
+  
   
   if (pe_rank .eq. 0) write(*,*) 'Done'
   
