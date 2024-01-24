@@ -91,21 +91,32 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
+    character(len=:), allocatable :: precision
 
     call this%init_base(json, case)
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
-       call vorticity_init_from_attributes(this, filename)
+       if (json%valid_path("output_precision")) then
+           call json_get(json, "output_precision", precision)
+           if (precision == "double") then
+              call vorticity_init_from_attributes(this, filename, dp)
+           else
+              call vorticity_init_from_attributes(this, filename, sp)
+           end if
+       else
+           call vorticity_init_from_attributes(this, filename)
+       end if
     else
        call vorticity_init_from_attributes(this)
     end if
   end subroutine vorticity_init_from_json
 
   !> Actual constructor.
-  subroutine vorticity_init_from_attributes(this, filename)
+  subroutine vorticity_init_from_attributes(this, filename, precision)
     class(vorticity_t), intent(inout) :: this
     character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
     type(fld_output_t) :: output
 
     this%u => neko_field_registry%get_field_by_name("u")
@@ -130,7 +141,11 @@ contains
 
 
     if (present(filename)) then
-       call this%output%init(sp, filename, 3)
+       if (present(precision)) then
+          call this%output%init(precision, filename, 3)
+       else
+          call this%output%init(sp, filename, 3)
+       end if
        this%output%fields%fields(1)%f => this%omega_x
        this%output%fields%fields(2)%f => this%omega_y
        this%output%fields%fields(3)%f => this%omega_z
