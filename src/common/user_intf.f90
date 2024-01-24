@@ -57,6 +57,16 @@ module user_intf
      end subroutine useric
   end interface
 
+  !> Abstract interface for user defined scalar initial conditions
+  abstract interface
+     subroutine useric_scalar(s, params)
+       import field_t
+       import json_file
+       type(field_t), intent(inout) :: s
+       type(json_file), intent(inout) :: params
+     end subroutine useric_scalar
+  end interface
+
   !> Abstract interface for initilialization of modules
   abstract interface
      subroutine user_initialize_modules(t, u, v, w, p, coef, params)
@@ -131,6 +141,7 @@ module user_intf
 
   type, public :: user_t
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
+     procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
@@ -147,10 +158,10 @@ module user_intf
      procedure, pass(u) :: init => user_intf_init
   end type user_t
 
-  public :: useric, user_initialize_modules, usermsh, &
+  public :: useric, useric_scalar, user_initialize_modules, usermsh, &
             dummy_user_material_properties, user_material_properties
 contains
-  
+
   !> User interface initialization
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
@@ -159,10 +170,14 @@ contains
        u%fluid_user_ic => dummy_user_ic
     end if
 
+    if (.not. associated(u%scalar_user_ic)) then
+       u%scalar_user_ic => dummy_user_ic_scalar
+    end if
+
     if (.not. associated(u%fluid_user_f)) then
        u%fluid_user_f => dummy_user_f
     end if
-    
+
     if (.not. associated(u%fluid_user_f_vector)) then
        u%fluid_user_f_vector => dummy_user_f_vector
     end if
@@ -170,7 +185,7 @@ contains
     if (.not. associated(u%scalar_user_f)) then
        u%scalar_user_f => dummy_scalar_user_f
     end if
-    
+
     if (.not. associated(u%scalar_user_f_vector)) then
        u%scalar_user_f_vector => dummy_user_scalar_f_vector
     end if
@@ -178,7 +193,7 @@ contains
     if (.not. associated(u%scalar_user_bc)) then
        u%scalar_user_bc => dummy_scalar_user_bc
     end if
-    
+
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
     end if
@@ -200,7 +215,7 @@ contains
     end if
   end subroutine user_intf_init
 
-  
+
   !
   ! Below is the dummy user interface
   ! when running in pure turboNEKO mode
@@ -213,14 +228,23 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(json_file), intent(inout) :: params
-    call neko_error('Dummy user defined initial condition set')    
+    call neko_error('Dummy user defined initial condition set')
   end subroutine dummy_user_ic
+
+  !> Dummy user initial condition for scalar field
+  !! @param s Scalar field.
+  !! @param params JSON parameters.
+  subroutine dummy_user_ic_scalar(s, params)
+    type(field_t), intent(inout) :: s
+    type(json_file), intent(inout) :: params
+    call neko_error('Dummy user defined scalar initial condition set')
+  end subroutine dummy_user_ic_scalar
 
   !> Dummy user (fluid) forcing
   subroutine dummy_user_f_vector(f, t)
     class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined vector valued forcing set')    
+    call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_f_vector
 
   !> Dummy user (fluid) forcing
@@ -233,14 +257,14 @@ contains
     integer, intent(in) :: l
     integer, intent(in) :: e
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined forcing set')    
+    call neko_error('Dummy user defined forcing set')
   end subroutine dummy_user_f
 
   !> Dummy user (scalar) forcing
   subroutine dummy_user_scalar_f_vector(f, t)
     class(source_scalar_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined vector valued forcing set')    
+    call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_scalar_f_vector
 
   !> Dummy user (scalar) forcing
@@ -251,9 +275,9 @@ contains
     integer, intent(in) :: l
     integer, intent(in) :: e
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined forcing set')    
+    call neko_error('Dummy user defined forcing set')
   end subroutine dummy_scalar_user_f
- 
+
   !> Dummy user boundary condition for scalar
   subroutine dummy_scalar_user_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
@@ -269,17 +293,17 @@ contains
     integer, intent(in) :: ie
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    call neko_warning('Dummy scalar user bc set, applied on all non-labeled zones')    
+    call neko_warning('Dummy scalar user bc set, applied on all non-labeled zones')
   end subroutine dummy_scalar_user_bc
- 
+
   !> Dummy user mesh apply
   subroutine dummy_user_mesh_setup(msh)
     type(mesh_t), intent(inout) :: msh
   end subroutine dummy_user_mesh_setup
-  
+
   !> Dummy user check
   subroutine dummy_user_check(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t    
+    real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v

@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[0.6.99])
+AC_INIT([neko],[0.7.99])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -329,6 +329,7 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/average_fields_in_time/Makefile\
 		    contrib/postprocess_fluid_stats/Makefile\
 		    contrib/average_field_in_space/Makefile\
+		    contrib/map_to_equidistant_1d/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen

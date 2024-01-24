@@ -30,57 +30,85 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Modular version of the Classic Nek5000 Pn/Pn formulation for scalars
+!> Contains the scalar_scheme_t type.
 
 ! todo: module name
 module scalar_scheme
-  use gather_scatter
-  use neko_config
-  use checkpoint
-  use num_types
-  use source_scalar
-  use field
-  use space
-  use dofmap
-  use krylov
-  use coefs
-  use dirichlet
-  use krylov_fctry
-  use precon_fctry
-  use bc
-  use mesh
-  use zone
-  use time_scheme_controller
-  use logger
-  use field_registry
-  use usr_scalar
+  use gather_scatter, only : gs_t
+  use checkpoint, only : chkp_t
+  use num_types, only: rp
+  use source_scalar, only : source_scalar_t, source_scalar_term_pw, &
+                            source_scalar_term, source_scalar_eval_noforce, &
+                            source_scalar_init, source_scalar_set_type, &
+                            source_scalar_set_pw_type, source_scalar_free
+  use field, only : field_t
+  use space, only : space_t
+  use dofmap, only :  dofmap_t
+  use krylov, only : ksp_t
+  use coefs, only : coef_t
+  use dirichlet, only : dirichlet_t
+  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
+  use jacobi, only : jacobi_t
+  use device_jacobi, only : device_jacobi_t
+  use sx_jacobi, only : sx_jacobi_t
+  use hsmg, only : hsmg_t
+  use precon_fctry, only : precon_factory, pc_t, precon_destroy
+  use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
+                 bc_list_apply_scalar, bc_list_add
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use facet_zone, only : facet_zone_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use logger, only : neko_log, LOG_SIZE
+  use field_registry, only : neko_field_registry
+  use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
+  use utils, only : neko_error
   implicit none
 
+  !> Base type for a scalar advection-diffusion solver.
   type, abstract :: scalar_scheme_t
-     type(field_t), pointer :: u       !< x-component of Velocity
-     type(field_t), pointer :: v       !< y-component of Velocity
-     type(field_t), pointer :: w       !< z-component of Velocity
-     type(field_t), pointer :: s       !< the scalar
-     type(space_t), pointer :: Xh      !< Function space \f$ X_h \f$
-     type(dofmap_t), pointer :: dm_Xh  !< Dofmap associated with \f$ X_h \f$
-     type(gs_t), pointer :: gs_Xh      !< Gather-scatter associated with \f$ X_h \f$
-     type(coef_t), pointer  :: c_Xh    !< Coefficients associated with \f$ X_h \f$
-     type(source_scalar_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
-     class(ksp_t), allocatable  :: ksp         !< Krylov solver
-     integer :: ksp_maxiter            !< Max iteration number in ksp.
-     integer :: projection_dim     !< Projection space size in ksp.
-     class(pc_t), allocatable :: pc            !< Preconditioner
-     type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
-     type(usr_scalar_t) :: user_bc     !< Dirichlet conditions
+     !> x-component of Velocity
+     type(field_t), pointer :: u
+     !> y-component of Velocity
+     type(field_t), pointer :: v
+     !> z-component of Velocity
+     type(field_t), pointer :: w
+     !> The scalar.
+     type(field_t), pointer :: s
+     !> Function space \f$ X_h \f$.
+     type(space_t), pointer :: Xh
+     !> Dofmap associated with \f$ X_h \f$.
+     type(dofmap_t), pointer :: dm_Xh
+     !> Gather-scatter associated with \f$ X_h \f$.
+     type(gs_t), pointer :: gs_Xh
+     !> Coefficients associated with \f$ X_h \f$.
+     type(coef_t), pointer  :: c_Xh
+     !> Source term associated with \f$ X_h \f$
+     type(source_scalar_t) :: f_Xh
+     !> Krylov solver.
+     class(ksp_t), allocatable  :: ksp
+     !> Max iterations in the Krylov solver.
+     integer :: ksp_maxiter
+     !> Projection space size.
+     integer :: projection_dim
+     !> Preconditioner.
+     class(pc_t), allocatable :: pc
+     !> Dirichlet conditions.
+     type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)
+     !> User Dirichlet conditions.
+     type(usr_scalar_t) :: user_bc
      integer :: n_dir_bcs = 0
-     type(bc_list_t) :: bclst                  !< List of boundary conditions
-     type(json_file), pointer :: params          !< Parameters          
-     type(mesh_t), pointer :: msh => null()    !< Mesh
-     type(chkp_t) :: chkp                      !< Checkpoint
+     !> List of boundary conditions.
+     type(bc_list_t) :: bclst
+     !> Case paramters.
+     type(json_file), pointer :: params
+     !> Mesh.
+     type(mesh_t), pointer :: msh => null()
+     !> Checkpoint for restarts.
+     type(chkp_t) :: chkp
      !> Thermal diffusivity.
      real(kind=rp), pointer :: lambda
      !> Density.
@@ -90,15 +118,23 @@ module scalar_scheme
      !> Boundary condition labels (if any)
      character(len=20), allocatable :: bc_labels(:)
    contains
+     !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
+     !> Destructor for the base type.
      procedure, pass(this) :: scheme_free => scalar_scheme_free
+     !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
      procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
      procedure, pass(this) :: set_source => scalar_scheme_set_source
      procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
+     !> Constructor.
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
+     !> Destructor.
      procedure(scalar_scheme_free_intrf), pass(this), deferred :: free
+     !> Solve for the current timestep.
      procedure(scalar_scheme_step_intrf), pass(this), deferred :: step
+     !> Restart from a checkpoint.
+     procedure(scalar_scheme_restart_intrf), pass(this), deferred :: restart
   end type scalar_scheme_t
 
   !> Abstract interface to initialize a scalar formulation
@@ -113,13 +149,24 @@ module scalar_scheme
        import user_t
        import material_properties_t
        class(scalar_scheme_t), target, intent(inout) :: this
-       type(mesh_t), target, intent(inout) :: msh       
+       type(mesh_t), target, intent(inout) :: msh
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
        type(material_properties_t), intent(inout) :: material_properties
      end subroutine scalar_scheme_init_intrf
+  end interface
+
+  !> Abstract interface to restart a scalar formulation
+  abstract interface
+     subroutine scalar_scheme_restart_intrf(this, dtlag, tlag)
+       import scalar_scheme_t
+       import chkp_t
+       import rp
+       class(scalar_scheme_t), target, intent(inout) :: this
+       real(kind=rp) :: dtlag(10), tlag(10)
+     end subroutine scalar_scheme_restart_intrf
   end interface
 
   !> Abstract interface to dealocate a scalar formulation
@@ -129,7 +176,7 @@ module scalar_scheme
        class(scalar_scheme_t), intent(inout) :: this
      end subroutine scalar_scheme_free_intrf
   end interface
-  
+
   !> Abstract interface to compute a time-step
   abstract interface
      subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf)
@@ -150,9 +197,9 @@ contains
   !! @param zones List of zones
   !! @param bc_labels List of user specified bcs from the parameter file
   !! currently dirichlet 'd=X' and 'user' supported
-  subroutine scalar_scheme_add_bcs(this, zones, bc_labels) 
-    class(scalar_scheme_t), intent(inout) :: this 
-    type(zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
+  subroutine scalar_scheme_add_bcs(this, zones, bc_labels)
+    class(scalar_scheme_t), intent(inout) :: this
+    type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
     character(len=20), intent(in) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     character(len=20) :: bc_label
     integer :: i, j, bc_idx
@@ -166,20 +213,20 @@ contains
           bc_idx = 0
           do j = 1, i-1
              if (bc_label .eq. bc_labels(j)) then
-                bc_exists = .true. 
+                bc_exists = .true.
                 bc_idx = j
              end if
-         end do
-         
-         if (bc_exists) then
-            call this%dir_bcs(j)%mark_zone(zones(i))
-         else
-            this%n_dir_bcs = this%n_dir_bcs + 1
-            call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
-            call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
-            read(bc_label(3:), *) dir_value
-            call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
-         end if
+          end do
+
+          if (bc_exists) then
+             call this%dir_bcs(j)%mark_zone(zones(i))
+          else
+             this%n_dir_bcs = this%n_dir_bcs + 1
+             call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
+             call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
+             read(bc_label(3:), *) dir_value
+             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
+          end if
        end if
 
        !> Check if user bc on this zone
@@ -245,8 +292,6 @@ contains
     write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
     call neko_log%message(log_buf)
 
-    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
-                             this%ksp_maxiter, 800)
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
                             this%projection_dim, 20)
@@ -286,10 +331,10 @@ contains
     if (params%valid_path('case.scalar.boundary_types')) then
        call json_get(params, &
                      'case.scalar.boundary_types', &
-                     this%bc_labels)       
+                     this%bc_labels)
     end if
-    
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels) 
+
+    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
 
 
     call this%user_bc%mark_zone(msh%wall)
@@ -300,13 +345,15 @@ contains
     call this%user_bc%finalize()
     call this%user_bc%set_coef(this%c_Xh)
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
-  
+
     ! todo parameter file ksp tol should be added
+    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
+                             integer_val, 800)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         solver_type, solver_abstol)
+         solver_type, integer_val, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, solver_precon)
-  
+
     call neko_log%end_section()
   end subroutine scalar_scheme_init
 
@@ -368,7 +415,7 @@ contains
     if (.not. associated(this%c_Xh)) then
        call neko_error('No coefficients defined')
     end if
-    
+
     if (.not. associated(this%f_Xh%eval)) then
        call neko_error('No source term defined')
     end if
@@ -385,23 +432,24 @@ contains
 
   end subroutine scalar_scheme_validate
 
-  !> Apply all boundary conditions defined for velocity
+  !> Apply all boundary conditions defined for the scalar.
   !! @todo Why can't we call the interface here?
   subroutine scalar_scheme_bc_apply(this)
     class(scalar_scheme_t), intent(inout) :: this
     call bc_list_apply_scalar(this%bclst, this%s%x, this%dm_Xh%size())
   end subroutine scalar_scheme_bc_apply
-  
+
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine scalar_scheme_solver_factory(ksp, n, solver, abstol)
+  subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, abstol)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
+    integer, intent(in) :: max_iter
     character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
 
-    call krylov_solver_factory(ksp, n, solver, abstol)
-    
+    call krylov_solver_factory(ksp, n, solver, max_iter, abstol)
+
   end subroutine scalar_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
@@ -413,9 +461,9 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
-    
+
     call precon_factory(pc, pctype)
-    
+
     select type(pcp => pc)
     type is(jacobi_t)
        call pcp%init(coef, dof, gs)
@@ -437,7 +485,7 @@ contains
     end select
 
     call ksp%set_pc(pc)
-    
+
   end subroutine scalar_scheme_precon_factory
 
   !> Initialize source term
@@ -458,7 +506,7 @@ contains
     end if
 
   end subroutine scalar_scheme_set_source
- 
+
   !> Initialize a user defined scalar bc
   !! @param usr_eval User specified boundary condition for scalar field
   subroutine scalar_scheme_set_user_bc(this, usr_eval)
@@ -466,8 +514,8 @@ contains
     procedure(usr_scalar_bc_eval) :: usr_eval
 
     call this%user_bc%set_eval(usr_eval)
-    
+
   end subroutine scalar_scheme_set_user_bc
 
-    
+
 end module scalar_scheme

@@ -53,7 +53,8 @@ module fluid_output
 
 contains
 
-  function fluid_output_init(fluid, scalar, name, path) result(this)
+  function fluid_output_init(precision, fluid, scalar, name, path) result(this)
+    integer, intent(inout) :: precision
     class(fluid_scheme_t), intent(in), target :: fluid
     class(scalar_scheme_t), intent(in), optional, target :: scalar
     character(len=*), intent(in), optional :: name
@@ -67,11 +68,11 @@ contains
        fname = trim(name) // '.fld'
     else if (present(path)) then
        fname = trim(path) // 'field.fld'
-    else       
+    else
        fname = 'field.fld'
     end if
 
-    call output_init(this, fname)
+    call output_init(this, fname, precision)
 
     if (allocated(this%fluid%fields)) then
        deallocate(this%fluid%fields)
@@ -91,7 +92,7 @@ contains
     if (present(scalar)) then
        this%fluid%fields(5)%f => scalar%s
     end if
-    
+
   end function fluid_output_init
 
   !> Sample a fluid solution at time @a t
@@ -105,14 +106,15 @@ contains
        associate(fields => this%fluid%fields)
          do i = 1, size(fields)
             call device_memcpy(fields(i)%f%x, fields(i)%f%x_d, &
-                 fields(i)%f%dof%size(), DEVICE_TO_HOST)
+                 fields(i)%f%dof%size(), DEVICE_TO_HOST, &
+                 sync=(i .eq. size(fields))) ! Sync on the last field
          end do
        end associate
 
     end if
-       
+
     call this%file_%write(this%fluid, t)
 
   end subroutine fluid_output_sample
-  
+
 end module fluid_output

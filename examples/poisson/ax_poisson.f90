@@ -1,7 +1,11 @@
 module ax_poisson
   use ax_product  
   use mxm_wrapper
+  use mesh
+  use space
+  use coefs
   use math
+  use num_types
   implicit none
 
   type, public, extends(ax_t) :: ax_poisson_t

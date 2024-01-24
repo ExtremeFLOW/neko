@@ -9,7 +9,7 @@ module fluid_aux
 contains
 
   !> Prints for prs, velx, vely, velz the following:
-  !! Number of iterations, start residual, end residual 
+  !! Number of iterations, start residual, end residual
   subroutine fluid_step_info(step, t, dt, ksp_results)
     type(ksp_monitor_t), intent(in) :: ksp_results(4)
     integer, intent(in) :: step
@@ -58,7 +58,7 @@ contains
           stop
        end if
     end do
-    
+
   end subroutine fluid_step_info
 
 

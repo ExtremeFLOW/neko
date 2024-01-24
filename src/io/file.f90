@@ -35,7 +35,7 @@ module file
   use utils
   use generic_file
   use nmsh_file
-  use chkp_file        
+  use chkp_file
   use map_file
   use rea_file
   use re2_file
@@ -45,7 +45,7 @@ module file
   use stl_file
   use csv_file
   implicit none
-  
+
   type file_t
      class(generic_file_t), allocatable :: file_type
    contains
@@ -57,8 +57,10 @@ module file
      procedure :: set_counter => file_set_counter
      !> Set a file's start counter.
      procedure :: set_start_counter => file_set_start_counter
-     !> Set a file's header
+     !> Set a file's header.
      procedure :: set_header => file_set_header
+     !> Set a file's output precision.
+     procedure :: set_precision => file_set_precision
      !> File operation destructor.
      final :: file_free
   end type file_t
@@ -71,18 +73,20 @@ contains
 
   !> File reader/writer constructor.
   !! @param fname Filename.
-  function file_init(fname) result(this)
+  function file_init(fname, header, precision) result(this)
     character(len=*) :: fname
+    character(len=*), optional :: header
+    integer, optional :: precision
     type(file_t), target :: this
     character(len=80) :: suffix
     class(generic_file_t), pointer :: q
-    
+
     call filename_suffix(fname, suffix)
-    
+
     if (allocated(this%file_type)) then
        deallocate(this%file_type)
     end if
-    
+
     if (suffix .eq. "rea") then
        allocate(rea_file_t::this%file_type)
     else if (suffix .eq. "re2") then
@@ -100,12 +104,20 @@ contains
     else if (suffix .eq. "stl") then
        allocate(stl_file_t::this%file_type)
     else if (suffix .eq. "csv") then
-      allocate(csv_file_t::this%file_type)
+       allocate(csv_file_t::this%file_type)
     else
        call neko_error('Unknown file format')
     end if
 
     call this%file_type%init(fname)
+
+    if (present(header)) then
+       call this%set_header(header)
+    end if
+
+    if (present(precision)) then
+       call this%set_precision(precision)
+    end if
 
   end function file_init
 
@@ -131,9 +143,9 @@ contains
     else
        call this%file_type%write(data)
     end if
-    
+
   end subroutine file_write
-   
+
   !> Read @a data from a file.
   !! @param data Read data.
   subroutine file_read(this, data)
@@ -141,7 +153,7 @@ contains
     class(*), intent(inout) :: data
 
     call this%file_type%read(data)
-    
+
   end subroutine file_read
 
   !> Set a file's counter.
@@ -153,7 +165,7 @@ contains
     class is (generic_file_t)
        call ft%set_counter(n)
     end select
-    
+
   end subroutine file_set_counter
 
   !> Set a file's start counter.
@@ -165,10 +177,10 @@ contains
     class is (generic_file_t)
        call ft%set_start_counter(n)
     end select
-    
+
   end subroutine file_set_start_counter
 
-  !> Set a file's header, mainly for csv_file for now.
+  !> Set a file's header.
   subroutine file_set_header(this, hd)
     class(file_t), intent(inout) :: this
     character(len=*), intent(in) :: hd
@@ -185,5 +197,23 @@ contains
 
   end subroutine file_set_header
 
+  !> Set a file's output precision.
+  !! @param precision Precision as defined in `num_types`.
+  subroutine file_set_precision(this, precision)
+    class(file_t), intent(inout) :: this
+    integer, intent(inout) :: precision
+
+    character(len=80) :: suffix
+
+    select type(ft => this%file_type)
+    type is (fld_file_t)
+       call ft%set_precision(precision)
+    class default
+       call filename_suffix(this%file_type%fname, suffix)
+       call neko_warning("No precision strategy defined for " // trim(suffix) //&
+            " files!")
+    end select
+
+  end subroutine file_set_precision
 
 end module file

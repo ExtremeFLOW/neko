@@ -35,8 +35,8 @@ module facet_normal
   use device_facet_normal
   use num_types
   use math
-  use coefs, only : coef_t    
-  use dirichlet, only : dirichlet_t    
+  use coefs, only : coef_t
+  use dirichlet, only : dirichlet_t
   use utils
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
@@ -88,7 +88,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     integer :: i, m, k, idx(4), facet
-    
+
     if (.not. associated(this%c)) then
        call neko_error('No coefficients assigned')
     end if
@@ -99,7 +99,7 @@ contains
          facet = this%facet(i)
          idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
          select case(facet)
-         case(1,2)          
+         case(1,2)
             x(k) = u(k) * c%nx(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
             y(k) = v(k) * c%ny(idx(2), idx(3), facet, idx(4)) &
@@ -112,7 +112,7 @@ contains
             y(k) = v(k) * c%ny(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
             z(k) = w(k) * c%nz(idx(1), idx(3), facet, idx(4)) &
-                 * c%area(idx(1), idx(3), facet, idx(4))          
+                 * c%area(idx(1), idx(3), facet, idx(4))
          case(5,6)
             x(k) = u(k) * c%nx(idx(1), idx(2), facet, idx(4)) &
                  * c%area(idx(1), idx(2), facet, idx(4))
@@ -123,9 +123,9 @@ contains
          end select
       end do
     end associate
-    
+
   end subroutine facet_normal_apply_surfvec
-  
+
   !> Assign coefficients (facet normals etc)
   subroutine facet_normal_set_coef(this, c)
     class(facet_normal_t), intent(inout) :: this
@@ -150,7 +150,7 @@ contains
                                              c%nx_d, c%ny_d, c%nz_d, c%area_d, &
                                              c%Xh%lx, size(this%msk))
     end associate
-         
+
   end subroutine facet_normal_apply_surfvec_dev
-  
+
 end module facet_normal

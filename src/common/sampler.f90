@@ -30,9 +30,10 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a sampler 
+!> Defines a sampler
 module sampler
-  use output
+  use output, only: output_t
+  use fld_file, only: fld_file_t
   use comm
   use logger
   use utils, only : neko_error
@@ -56,7 +57,7 @@ module sampler
      !> Number of outputs.
      integer :: n
      !> Number of entries in the list.
-     integer :: size 
+     integer :: size
      !> Final time of the simulation.
      real(kind=rp) :: T_end
    contains
@@ -109,10 +110,10 @@ contains
     class(sampler_t), intent(inout) :: this
 
     if (allocated(this%output_list)) then
-       deallocate(this%output_list)       
+       deallocate(this%output_list)
     end if
     if (allocated(this%controllers)) then
-       deallocate(this%controllers)       
+       deallocate(this%controllers)
     end if
 
     this%n = 0
@@ -130,6 +131,7 @@ contains
     type(time_based_controller_t), allocatable :: tmp_ctrl(:)
     character(len=LOG_SIZE) :: log_buf
     integer :: n
+    class(*), pointer :: ft
 
     if (this%n .ge. this%size) then
        allocate(tmp(this%size * 2))
@@ -152,37 +154,48 @@ contains
     else
        call this%controllers(n)%init(this%T_end, write_control, write_par)
     end if
-    
+
     ! The code below only prints to console
     call neko_log%section('Adding write output')
-    call neko_log%message('File name: '// &
+    call neko_log%message('File name        : '// &
           trim(this%output_list(this%n)%outp%file_%file_type%fname))
-    call neko_log%message( 'Write control: '//trim(write_control))
-    if (trim(write_control) .eq. 'simulationtime') then
-        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ', &
+    call neko_log%message('Write control    : '//trim(write_control))
+
+    ! Show the output precision if we are outputting an fld file
+    select type(ft => out%file_%file_type)
+    type is (fld_file_t)
+       if (ft%dp_precision) then
+          call neko_log%message('Output precision : double')
+       else
+          call neko_log%message('Output precision : single')
+       end if
+    end select
+
+   if (trim(write_control) .eq. 'simulationtime') then
+       write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ', &
              this%controllers(n)%frequency
-        call neko_log%message(log_buf)
-        write(log_buf, '(A,ES13.6)') 'Time between writes: ', & 
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'Time between writes: ', &
           this%controllers(n)%time_interval
-        call neko_log%message(log_buf)
+       call neko_log%message(log_buf)
     else if (trim(write_control) .eq. 'nsamples') then
-        write(log_buf, '(A,I13)') 'Total samples: ',  int(write_par)
-        call neko_log%message(log_buf)
-        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ',  &
+       write(log_buf, '(A,I13)') 'Total samples: ',  int(write_par)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ',  &
              this%controllers(n)%frequency
-        call neko_log%message(log_buf)
-        write(log_buf, '(A,ES13.6)') 'Time between writes: ', & 
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'Time between writes: ', &
           this%controllers(n)%time_interval
-        call neko_log%message(log_buf)
-    else if (trim(write_control) .eq. 'tsteps') then 
-        write(log_buf, '(A,I13)') 'Time step interval: ',  int(write_par)
-        call neko_log%message(log_buf)
+       call neko_log%message(log_buf)
+    else if (trim(write_control) .eq. 'tsteps') then
+       write(log_buf, '(A,I13)') 'Time step interval: ',  int(write_par)
+       call neko_log%message(log_buf)
     else if (trim(write_control) .eq. 'org') then
-        write(log_buf, '(A)') &
+       write(log_buf, '(A)') &
              'Write control not set, defaulting to first output settings'
-        call neko_log%message(log_buf)
+       call neko_log%message(log_buf)
     end if
-    
+
     call neko_log%end_section()
   end subroutine sampler_add
 
@@ -212,13 +225,13 @@ contains
     write_output = .false.
     ! Determine if at least one output needs to be written
     ! We should not need this extra select block, and it works great
-    ! without it for GNU, Intel and NEC, but breaks horribly on Cray         
-    ! (>11.0.x) when using high opt. levels.  
+    ! without it for GNU, Intel and NEC, but breaks horribly on Cray
+    ! (>11.0.x) when using high opt. levels.
     select type (samp => this)
     type is (sampler_t)
        do i = 1, samp%n
           if (this%controllers(i)%check(t, tstep, force)) then
-             write_output = .true.            
+             write_output = .true.
              exit
           end if
        end do
@@ -230,16 +243,16 @@ contains
 
     ! Loop through the outputs and write if necessary.
     ! We should not need this extra select block, and it works great
-    ! without it for GNU, Intel and NEC, but breaks horribly on Cray         
-    ! (>11.0.x) when using high opt. levels.  
+    ! without it for GNU, Intel and NEC, but breaks horribly on Cray
+    ! (>11.0.x) when using high opt. levels.
     select type (samp => this)
     type is (sampler_t)
        do i = 1, this%n
           if (this%controllers(i)%check(t, tstep, force)) then
-             call neko_log%message('File name: '// &
+             call neko_log%message('File name     : '// &
                   trim(samp%output_list(i)%outp%file_%file_type%fname))
 
-             write(log_buf, '(A,I6)') 'Output number:', &
+             write(log_buf, '(A,I6)') 'Output number :', &
                   int(this%controllers(i)%nexecutions)
              call neko_log%message(log_buf)
 
@@ -251,7 +264,7 @@ contains
     class default
        call neko_error('Invalid sampler output list')
     end select
-    
+
     call MPI_Barrier(NEKO_COMM, ierr)
     sample_end_time = MPI_WTIME()
 
@@ -281,9 +294,9 @@ contains
           call this%output_list(i)%outp%set_start_counter(this%controllers(i)%nexecutions)
        end if
     end do
-    
+
   end subroutine sampler_set_counter
- 
+
   !> Set sampling counter (after restart) explicitly
   subroutine sampler_set_sample_count(this, sample_number)
     class(sampler_t), intent(inout) :: this
@@ -295,8 +308,8 @@ contains
        call this%output_list(i)%outp%set_counter(this%controllers(i)%nexecutions)
        call this%output_list(i)%outp%set_start_counter(this%controllers(i)%nexecutions)
     end do
-    
+
   end subroutine sampler_set_sample_count
-  
- 
+
+
 end module sampler

@@ -73,11 +73,11 @@ contains
              end do
           end do
        end do
-        
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do i = 1, lx*lx
              tmp = 0.0_rp
@@ -87,19 +87,19 @@ contains
              drst(i,1,k) = tmp
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
        end do
-        
+
     end do
-    
+
   end subroutine cpu_dudxyz_lx
-  
+
   subroutine cpu_dudxyz_lx14(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 14
     integer, intent(in) :: nel
@@ -126,7 +126,7 @@ contains
                          + dx(i,11) * u(11,j,1,e) &
                          + dx(i,12) * u(12,j,1,e) &
                          + dx(i,13) * u(13,j,1,e) &
-                         + dx(i,14) * u(14,j,1,e) 
+                         + dx(i,14) * u(14,j,1,e)
           end do
        end do
 
@@ -150,15 +150,15 @@ contains
                             + dy(j,11) * u(i,11,k,e) &
                             + dy(j,12) * u(i,12,k,e) &
                             + dy(j,13) * u(i,13,k,e) &
-                            + dy(j,14) * u(i,14,k,e) 
+                            + dy(j,14) * u(i,14,k,e)
              end do
           end do
        end do
-        
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do i = 1, lx*lx
              drst(i,1,k) = dz(k,1) * u(i,1,1,e) &
@@ -174,22 +174,22 @@ contains
                          + dz(k,11) * u(i,1,11,e) &
                          + dz(k,12) * u(i,1,12,e) &
                          + dz(k,13) * u(i,1,13,e) &
-                         + dz(k,14) * u(i,1,14,e) 
+                         + dz(k,14) * u(i,1,14,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
        end do
-        
+
     end do
-    
+
   end subroutine cpu_dudxyz_lx14
-  
+
   subroutine cpu_dudxyz_lx13(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 13
     integer, intent(in) :: nel
@@ -215,7 +215,7 @@ contains
                          + dx(i,10) * u(10,j,1,e) &
                          + dx(i,11) * u(11,j,1,e) &
                          + dx(i,12) * u(12,j,1,e) &
-                         + dx(i,13) * u(13,j,1,e) 
+                         + dx(i,13) * u(13,j,1,e)
           end do
        end do
 
@@ -238,15 +238,15 @@ contains
                             + dy(j,10) * u(i,10,k,e) &
                             + dy(j,11) * u(i,11,k,e) &
                             + dy(j,12) * u(i,12,k,e) &
-                            + dy(j,13) * u(i,13,k,e) 
+                            + dy(j,13) * u(i,13,k,e)
              end do
           end do
        end do
-        
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do i = 1, lx*lx
              drst(i,1,k) = dz(k,1) * u(i,1,1,e) &
@@ -261,22 +261,22 @@ contains
                          + dz(k,10) * u(i,1,10,e) &
                          + dz(k,11) * u(i,1,11,e) &
                          + dz(k,12) * u(i,1,12,e) &
-                         + dz(k,13) * u(i,1,13,e) 
+                         + dz(k,13) * u(i,1,13,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
        end do
-        
+
     end do
-    
+
   end subroutine cpu_dudxyz_lx13
-  
+
   subroutine cpu_dudxyz_lx12(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 12
     integer, intent(in) :: nel
@@ -301,7 +301,7 @@ contains
                          + dx(i,9) * u(9,j,1,e) &
                          + dx(i,10) * u(10,j,1,e) &
                          + dx(i,11) * u(11,j,1,e) &
-                         + dx(i,12) * u(12,j,1,e) 
+                         + dx(i,12) * u(12,j,1,e)
           end do
        end do
 
@@ -327,11 +327,11 @@ contains
              end do
           end do
        end do
-        
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do i = 1, lx*lx
              drst(i,1,k) = dz(k,1) * u(i,1,1,e) &
@@ -348,17 +348,17 @@ contains
                          + dz(k,12) * u(i,1,12,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
        end do
-        
+
     end do
-    
+
   end subroutine cpu_dudxyz_lx12
 
   subroutine cpu_dudxyz_lx11(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
@@ -384,14 +384,14 @@ contains
                          + dx(i,8) * u(8,j,1,e) &
                          + dx(i,9) * u(9,j,1,e) &
                          + dx(i,10) * u(10,j,1,e) &
-                         + dx(i,11) * u(11,j,1,e) 
+                         + dx(i,11) * u(11,j,1,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * dr(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
@@ -426,20 +426,20 @@ contains
                          + dz(k,8) * u(i,1,8,e) &
                          + dz(k,9) * u(i,1,9,e) &
                          + dz(k,10) * u(i,1,10,e) &
-                         + dz(k,11) * u(i,1,11,e) 
+                         + dz(k,11) * u(i,1,11,e)
           end do
        end do
 
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
        end do
-        
+
     end do
-    
+
   end subroutine cpu_dudxyz_lx11
 
   subroutine cpu_dudxyz_lx10(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
@@ -451,7 +451,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
-    
+
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -464,14 +464,14 @@ contains
                          + dx(i,7) * u(7,j,1,e) &
                          + dx(i,8) * u(8,j,1,e) &
                          + dx(i,9) * u(9,j,1,e) &
-                         + dx(i,10) * u(10,j,1,e) 
+                         + dx(i,10) * u(10,j,1,e)
           end do
        end do
-        
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * dr(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
@@ -484,15 +484,15 @@ contains
                             + dy(j,7) * u(i,7,k,e) &
                             + dy(j,8) * u(i,8,k,e) &
                             + dy(j,9) * u(i,9,k,e) &
-                            + dy(j,10) * u(i,10,k,e) 
+                            + dy(j,10) * u(i,10,k,e)
              end do
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do i = 1, lx*lx
              drst(i,1,k) = dz(k,1) * u(i,1,1,e) &
@@ -511,7 +511,7 @@ contains
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
        end do
@@ -541,7 +541,7 @@ contains
                          + dx(i,6) * u(6,j,1,e) &
                          + dx(i,7) * u(7,j,1,e) &
                          + dx(i,8) * u(8,j,1,e) &
-                         + dx(i,9) * u(9,j,1,e) 
+                         + dx(i,9) * u(9,j,1,e)
           end do
        end do
 
@@ -560,15 +560,15 @@ contains
                             + dy(j,6) * u(i,6,k,e) &
                             + dy(j,7) * u(i,7,k,e) &
                             + dy(j,8) * u(i,8,k,e) &
-                            + dy(j,9) * u(i,9,k,e) 
+                            + dy(j,9) * u(i,9,k,e)
              end do
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do i = 1, lx*lx
              drst(i,1,k) = dz(k,1) * u(i,1,1,e) &
@@ -579,10 +579,10 @@ contains
                          + dz(k,6) * u(i,1,6,e) &
                          + dz(k,7) * u(i,1,7,e) &
                          + dz(k,8) * u(i,1,8,e) &
-                         + dz(k,9) * u(i,1,9,e) 
+                         + dz(k,9) * u(i,1,9,e)
           end do
        end do
-        
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do
@@ -615,10 +615,10 @@ contains
                          + dx(i,5) * u(5,j,1,e) &
                          + dx(i,6) * u(6,j,1,e) &
                          + dx(i,7) * u(7,j,1,e) &
-                         + dx(i,8) * u(8,j,1,e) 
+                         + dx(i,8) * u(8,j,1,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * dr(i,1,1,e)
        end do
@@ -637,7 +637,7 @@ contains
              end do
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
@@ -651,7 +651,7 @@ contains
                          + dz(k,5) * u(i,1,5,e) &
                          + dz(k,6) * u(i,1,6,e) &
                          + dz(k,7) * u(i,1,7,e) &
-                         + dz(k,8) * u(i,1,8,e) 
+                         + dz(k,8) * u(i,1,8,e)
           end do
        end do
 
@@ -662,9 +662,9 @@ contains
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
        end do
-       
+
     end do
-     
+
   end subroutine cpu_dudxyz_lx8
 
   subroutine cpu_dudxyz_lx7(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
@@ -676,7 +676,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
-    
+
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -686,10 +686,10 @@ contains
                          + dx(i,4) * u(4,j,1,e) &
                          + dx(i,5) * u(5,j,1,e) &
                          + dx(i,6) * u(6,j,1,e) &
-                         + dx(i,7) * u(7,j,1,e) 
+                         + dx(i,7) * u(7,j,1,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * dr(i,1,1,e)
        end do
@@ -707,7 +707,7 @@ contains
              end do
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
@@ -731,7 +731,7 @@ contains
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
        end do
-       
+
     end do
 
   end subroutine cpu_dudxyz_lx7
@@ -745,7 +745,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
-    
+
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -757,7 +757,7 @@ contains
                          + dx(i,6) * u(6,j,1,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * dr(i,1,1,e)
        end do
@@ -774,7 +774,7 @@ contains
              end do
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
@@ -797,7 +797,7 @@ contains
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
        end do
-       
+
     end do
 
   end subroutine cpu_dudxyz_lx6
@@ -822,7 +822,7 @@ contains
                          + dx(i,5) * u(5,j,1,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * dr(i,1,1,e)
        end do
@@ -842,7 +842,7 @@ contains
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do i = 1, lx*lx
              drst(i,1,k) = dz(k,1) * u(i,1,1,e) &
@@ -852,7 +852,7 @@ contains
                          + dz(k,5) * u(i,1,5,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do
@@ -874,7 +874,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
-    
+
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -888,7 +888,7 @@ contains
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * dr(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
@@ -899,7 +899,7 @@ contains
              end do
           end do
        end do
-        
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
@@ -912,7 +912,7 @@ contains
                          + dz(k,4) * u(i,1,4,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do
@@ -934,7 +934,7 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
-    
+
     do e = 1, nel
        do j = 1, lx * lx
           do i = 1, lx
@@ -957,7 +957,7 @@ contains
              end do
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
@@ -969,17 +969,17 @@ contains
                          + dz(k,3) * u(i,1,3,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
        end do
 
     end do
-    
+
   end subroutine cpu_dudxyz_lx3
 
   subroutine cpu_dudxyz_lx2(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
@@ -996,14 +996,14 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              du(i,j,1,e) = dx(i,1) * u(1,j,1,e) &
-                         + dx(i,2) * u(2,j,1,e) 
+                         + dx(i,2) * u(2,j,1,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) * dr(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do j = 1, lx
              do i = 1, lx
@@ -1012,18 +1012,18 @@ contains
              end do
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
        end do
-       
+
        do k = 1, lx
           do i = 1, lx*lx
              drst(i,1,k) = dz(k,1) * u(i,1,1,e) &
-                         + dz(k,2) * u(i,1,2,e) 
+                         + dz(k,2) * u(i,1,2,e)
           end do
        end do
-       
+
        do i = 1, lx * lx * lx
           du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
        end do

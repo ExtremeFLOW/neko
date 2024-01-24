@@ -31,7 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module ax_helm_sx
-  use ax_product
+  use ax_product, only : ax_t
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
   use math, only : addcol4
   implicit none
   private
@@ -41,7 +45,7 @@ module ax_helm_sx
      procedure, nopass :: compute => ax_helm_sx_compute
   end type ax_helm_sx_t
 
-contains 
+contains
 
   subroutine ax_helm_sx_compute(w, u, coef, msh, Xh)
     type(mesh_t), intent(inout) :: msh
@@ -99,7 +103,7 @@ contains
     if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%size())
 
   end subroutine ax_helm_sx_compute
-  
+
   subroutine sx_ax_helm_lx(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G11, G22, G33, G12, G13, G23, n, lx)
     integer, intent(in) :: n, lx
@@ -218,7 +222,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -226,7 +230,7 @@ contains
 
 
   end subroutine sx_ax_helm_lx
-  
+
   subroutine sx_ax_helm_lx14(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 14
@@ -346,7 +350,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -474,7 +478,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -482,7 +486,7 @@ contains
 
 
   end subroutine sx_ax_helm_lx13
-  
+
   subroutine sx_ax_helm_lx12(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 12
@@ -602,7 +606,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -630,7 +634,7 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    integer :: e, i, j, k, jj, kk    
+    integer :: e, i, j, k, jj, kk
     real(kind=rp) :: ur(lx, lx, lx, n)
     real(kind=rp) :: us(lx, lx, lx, n)
     real(kind=rp) :: ut(lx, lx, lx, n)
@@ -650,9 +654,9 @@ contains
     end do
 
     do k = 1, lx
-       do i = 1, lx                
-          do j = 1, lx       
-             do e = 1, n                                   
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -730,7 +734,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -738,7 +742,7 @@ contains
 
 
   end subroutine sx_ax_helm_lx11
-  
+
   subroutine sx_ax_helm_lx10(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 10
@@ -758,7 +762,7 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    integer :: e, i, j, k, jj, kk    
+    integer :: e, i, j, k, jj, kk
     real(kind=rp) :: ur(lx, lx, lx, n)
     real(kind=rp) :: us(lx, lx, lx, n)
     real(kind=rp) :: ut(lx, lx, lx, n)
@@ -778,9 +782,9 @@ contains
     end do
 
     do k = 1, lx
-       do i = 1, lx                
-          do j = 1, lx       
-             do e = 1, n                                   
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -858,7 +862,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -886,7 +890,7 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    integer :: e, i, j, k, jj, kk    
+    integer :: e, i, j, k, jj, kk
     real(kind=rp) :: ur(lx, lx, lx, n)
     real(kind=rp) :: us(lx, lx, lx, n)
     real(kind=rp) :: ut(lx, lx, lx, n)
@@ -906,9 +910,9 @@ contains
     end do
 
     do k = 1, lx
-       do i = 1, lx                
-          do j = 1, lx       
-             do e = 1, n                                   
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -986,7 +990,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -994,7 +998,7 @@ contains
 
 
   end subroutine sx_ax_helm_lx9
-  
+
   subroutine sx_ax_helm_lx8(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 8
@@ -1014,7 +1018,7 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    integer :: e, i, j, k, jj, kk    
+    integer :: e, i, j, k, jj, kk
     real(kind=rp) :: ur(lx, lx, lx, n)
     real(kind=rp) :: us(lx, lx, lx, n)
     real(kind=rp) :: ut(lx, lx, lx, n)
@@ -1034,9 +1038,9 @@ contains
     end do
 
     do k = 1, lx
-       do i = 1, lx                
-          do j = 1, lx       
-             do e = 1, n                                   
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -1114,7 +1118,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -1142,7 +1146,7 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    integer :: e, i, j, k, jj, kk    
+    integer :: e, i, j, k, jj, kk
     real(kind=rp) :: ur(lx, lx, lx, n)
     real(kind=rp) :: us(lx, lx, lx, n)
     real(kind=rp) :: ut(lx, lx, lx, n)
@@ -1162,9 +1166,9 @@ contains
     end do
 
     do k = 1, lx
-       do i = 1, lx                
-          do j = 1, lx       
-             do e = 1, n                                   
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -1242,7 +1246,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -1270,7 +1274,7 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    integer :: e, i, j, k, jj, kk    
+    integer :: e, i, j, k, jj, kk
     real(kind=rp) :: ur(lx, lx, lx, n)
     real(kind=rp) :: us(lx, lx, lx, n)
     real(kind=rp) :: ut(lx, lx, lx, n)
@@ -1290,9 +1294,9 @@ contains
     end do
 
     do k = 1, lx
-       do i = 1, lx                
-          do j = 1, lx       
-             do e = 1, n                                   
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -1370,7 +1374,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -1398,7 +1402,7 @@ contains
     real(kind=rp), intent(in) :: Dxt(lx, lx)
     real(kind=rp), intent(in) :: Dyt(lx, lx)
     real(kind=rp), intent(in) :: Dzt(lx, lx)
-    integer :: e, i, j, k, jj, kk    
+    integer :: e, i, j, k, jj, kk
     real(kind=rp) :: ur(lx, lx, lx, n)
     real(kind=rp) :: us(lx, lx, lx, n)
     real(kind=rp) :: ut(lx, lx, lx, n)
@@ -1418,9 +1422,9 @@ contains
     end do
 
     do k = 1, lx
-       do i = 1, lx                
-          do j = 1, lx       
-             do e = 1, n                                   
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -1498,7 +1502,7 @@ contains
                 do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
-                w(i,j,k,e) = w(i,j,k,e) + wt 
+                w(i,j,k,e) = w(i,j,k,e) + wt
              end do
           end do
        end do
@@ -1539,7 +1543,7 @@ contains
           ur(i,jj,1,1) = Dx(i,1)*u(1,jj,1,1) &
                        + Dx(i,2)*u(2,jj,1,1) &
                        + Dx(i,3)*u(3,jj,1,1) &
-                       + Dx(i,4)*u(4,jj,1,1) 
+                       + Dx(i,4)*u(4,jj,1,1)
        end do
     end do
 
@@ -1551,7 +1555,7 @@ contains
                 us(i,j,k,e) = Dy(j,1) * u(i,1,k,e) &
                             + Dy(j,2) * u(i,2,k,e) &
                             + Dy(j,3) * u(i,3,k,e) &
-                            + Dy(j,4) * u(i,4,k,e) 
+                            + Dy(j,4) * u(i,4,k,e)
              end do
           end do
        end do
@@ -1566,7 +1570,7 @@ contains
                 ut(i,j,k,e) = Dz(k,1) * u(i,j,1,e) &
                             + Dz(k,2) * u(i,j,2,e) &
                             + Dz(k,3) * u(i,j,3,e) &
-                            + Dz(k,4) * u(i,j,4,e) 
+                            + Dz(k,4) * u(i,j,4,e)
              end do
           end do
        end do
@@ -1594,7 +1598,7 @@ contains
           w(i,jj,1,1) = Dxt(i,1) * uur(1,jj,1,1) &
                       + Dxt(i,2) * uur(2,jj,1,1) &
                       + Dxt(i,3) * uur(3,jj,1,1) &
-                      + Dxt(i,4) * uur(4,jj,1,1) 
+                      + Dxt(i,4) * uur(4,jj,1,1)
        end do
     end do
 
@@ -1605,7 +1609,7 @@ contains
                 w(i,j,k,e) = w(i,j,k,e) + Dyt(j,1) * uus(i,1,k,e) &
                                         + Dyt(j,2) * uus(i,2,k,e) &
                                         + Dyt(j,3) * uus(i,3,k,e) &
-                                        + Dyt(j,4) * uus(i,4,k,e) 
+                                        + Dyt(j,4) * uus(i,4,k,e)
              end do
           end do
        end do
@@ -1618,7 +1622,7 @@ contains
                 w(i,j,k,e) = w(i,j,k,e) + Dzt(k,1) * uut(i,j,1,e) &
                                         + Dzt(k,2) * uut(i,j,2,e) &
                                         + Dzt(k,3) * uut(i,j,3,e) &
-                                        + Dzt(k,4) * uut(i,j,4,e) 
+                                        + Dzt(k,4) * uut(i,j,4,e)
              end do
           end do
        end do
@@ -1657,7 +1661,7 @@ contains
        do jj = 1, lx * lx * n
           ur(i,jj,1,1) = Dx(i,1)*u(1,jj,1,1) &
                        + Dx(i,2)*u(2,jj,1,1) &
-                       + Dx(i,3)*u(3,jj,1,1) 
+                       + Dx(i,3)*u(3,jj,1,1)
        end do
     end do
 
@@ -1668,7 +1672,7 @@ contains
              do e = 1, n
                 us(i,j,k,e) = Dy(j,1) * u(i,1,k,e) &
                             + Dy(j,2) * u(i,2,k,e) &
-                            + Dy(j,3) * u(i,3,k,e) 
+                            + Dy(j,3) * u(i,3,k,e)
              end do
           end do
        end do
@@ -1682,7 +1686,7 @@ contains
              do e = 1, n
                 ut(i,j,k,e) = Dz(k,1) * u(i,j,1,e) &
                             + Dz(k,2) * u(i,j,2,e) &
-                            + Dz(k,3) * u(i,j,3,e) 
+                            + Dz(k,3) * u(i,j,3,e)
              end do
           end do
        end do
@@ -1709,7 +1713,7 @@ contains
        do jj = 1, lx * lx * n
           w(i,jj,1,1) = Dxt(i,1) * uur(1,jj,1,1) &
                       + Dxt(i,2) * uur(2,jj,1,1) &
-                      + Dxt(i,3) * uur(3,jj,1,1) 
+                      + Dxt(i,3) * uur(3,jj,1,1)
        end do
     end do
 
@@ -1719,7 +1723,7 @@ contains
              do e = 1, n
                 w(i,j,k,e) = w(i,j,k,e) + Dyt(j,1) * uus(i,1,k,e) &
                                         + Dyt(j,2) * uus(i,2,k,e) &
-                                        + Dyt(j,3) * uus(i,3,k,e) 
+                                        + Dyt(j,3) * uus(i,3,k,e)
              end do
           end do
        end do
@@ -1731,7 +1735,7 @@ contains
              do e = 1, n
                 w(i,j,k,e) = w(i,j,k,e) + Dzt(k,1) * uut(i,j,1,e) &
                                         + Dzt(k,2) * uut(i,j,2,e) &
-                                        + Dzt(k,3) * uut(i,j,3,e) 
+                                        + Dzt(k,3) * uut(i,j,3,e)
              end do
           end do
        end do
