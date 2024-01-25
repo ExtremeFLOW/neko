@@ -57,74 +57,88 @@ contains
     select case(Xh%lx)
     case(14)
        call ax_helm_stress_lx14(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(13)
        call ax_helm_stress_lx13(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(12)
        call ax_helm_stress_lx12(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(11)
        call ax_helm_stress_lx11(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(10)
        call ax_helm_stress_lx10(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(9)
        call ax_helm_stress_lx9(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)       
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(8)
        call ax_helm_stress_lx8(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(7)
        call ax_helm_stress_lx7(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(6)
        call ax_helm_stress_lx6(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(5)
        call ax_helm_stress_lx5(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(4)
        call ax_helm_stress_lx4(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(3)
        call ax_helm_stress_lx3(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case(2)
        call ax_helm_stress_lx2(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv)
     case default
        call ax_helm_stress_lx(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
-            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, coef%G11, coef%G22, &
-            coef%G33, coef%G12, coef%G13, coef%G23, coef%jacinv, &
-            Xh%w3, msh%nelv, Xh%lx)
+            Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
+            coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
+            coef%dtdx, coef%dtdy, coef%dtdz, &
+            coef%jacinv, Xh%w3, msh%nelv, Xh%lx)
     end select
 
     if (coef%ifh2) then
@@ -136,7 +150,8 @@ contains
   end subroutine ax_helm_stress_compute
 
   subroutine ax_helm_stress_lx(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-    h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n, lx)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n, lx)
 
     integer, intent(in) :: n, lx
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -147,13 +162,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -219,7 +237,7 @@ contains
              t2 = 0.0_rp
              t3 = 0.0_rp
              do l = 1, lx
-                t1 = t2 + Dz(k,l) * u(i,1,l,e)
+                t1 = t1 + Dz(k,l) * u(i,1,l,e)
                 t2 = t2 + Dz(k,l) * v(i,1,l,e)
                 t3 = t3 + Dz(k,l) * w(i,1,l,e)
              end do
@@ -231,28 +249,28 @@ contains
        
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -263,18 +281,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -330,7 +348,8 @@ contains
   end subroutine ax_helm_stress_lx
 
   subroutine ax_helm_stress_lx14(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 14
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -341,13 +360,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -522,31 +544,31 @@ contains
                         + Dz(k,14) * w(i,1,14,e) 
           end do
        end do
-       
+
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -557,19 +579,19 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
-
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
+       
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * wur(1,j,1) &
@@ -731,7 +753,8 @@ contains
   end subroutine ax_helm_stress_lx14
 
   subroutine ax_helm_stress_lx13(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 13
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -742,13 +765,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -917,28 +943,28 @@ contains
        
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -949,18 +975,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -1113,7 +1139,8 @@ contains
   end subroutine ax_helm_stress_lx13
 
   subroutine ax_helm_stress_lx12(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 12
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -1124,13 +1151,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -1290,28 +1320,28 @@ contains
        
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -1322,18 +1352,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -1477,7 +1507,8 @@ contains
   end subroutine ax_helm_stress_lx12
 
   subroutine ax_helm_stress_lx11(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 11
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -1488,13 +1519,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -1644,28 +1678,28 @@ contains
        
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -1676,18 +1710,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -1822,7 +1856,8 @@ contains
   end subroutine ax_helm_stress_lx11
 
   subroutine ax_helm_stress_lx10(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 10
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -1833,13 +1868,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -1980,28 +2018,28 @@ contains
        
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -2012,18 +2050,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -2149,7 +2187,8 @@ contains
   end subroutine ax_helm_stress_lx10
   
   subroutine ax_helm_stress_lx9(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 9
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -2160,13 +2199,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -2298,28 +2340,28 @@ contains
        
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -2330,18 +2372,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -2458,7 +2500,8 @@ contains
   end subroutine ax_helm_stress_lx9
 
   subroutine ax_helm_stress_lx8(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 8
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -2469,13 +2512,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -2598,28 +2644,28 @@ contains
        
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -2630,18 +2676,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -2750,7 +2796,8 @@ contains
   end subroutine ax_helm_stress_lx8
 
   subroutine ax_helm_stress_lx7(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 7
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -2761,13 +2808,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -2882,28 +2932,28 @@ contains
        
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -2914,18 +2964,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -3025,7 +3075,8 @@ contains
   end subroutine ax_helm_stress_lx7
 
   subroutine ax_helm_stress_lx6(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 6
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -3036,13 +3087,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -3144,31 +3198,31 @@ contains
                         + Dz(k,6) * w(i,1,6,e) 
           end do
        end do
-       
+
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -3179,18 +3233,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -3280,7 +3334,8 @@ contains
   end subroutine ax_helm_stress_lx6
   
   subroutine ax_helm_stress_lx5(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 5
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -3291,13 +3346,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -3393,28 +3451,28 @@ contains
        
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -3425,18 +3483,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -3518,7 +3576,8 @@ contains
   end subroutine ax_helm_stress_lx5
   
   subroutine ax_helm_stress_lx4(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 4
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -3529,13 +3588,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -3619,31 +3681,31 @@ contains
                         + Dz(k,4) * w(i,1,4,e) 
           end do
        end do
-       
+
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -3654,18 +3716,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -3737,7 +3799,8 @@ contains
   end subroutine ax_helm_stress_lx4
   
   subroutine ax_helm_stress_lx3(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 3
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -3748,13 +3811,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -3832,28 +3898,28 @@ contains
        
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -3864,18 +3930,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
@@ -3938,7 +4004,8 @@ contains
   end subroutine ax_helm_stress_lx3
   
   subroutine ax_helm_stress_lx2(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, G11, G22, G33, G12, G13, G23, jackinv, weights3, n)
+       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jacinv, weights3, n)
     integer, parameter :: lx = 2
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
@@ -3949,13 +4016,16 @@ contains
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jackinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: drdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dsdz(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
+    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -4021,31 +4091,31 @@ contains
                         + Dz(k,2) * w(i,1,2,e) 
           end do
        end do
-       
+
        do i = 1, lx*lx*lx
 
-          u1 = wur(i,1,1) * G11(i,1,1,e) + wus(i,1,1) * G12(i,1,1,e) &
-                                         + wut(i,1,1) * G13(i,1,1,e)
-          u2 = wur(i,1,1) * G12(i,1,1,e) + wus(i,1,1) * G22(i,1,1,e) &
-                                         + wut(i,1,1) * G23(i,1,1,e)
-          u3 = wur(i,1,1) * G13(i,1,1,e) + wus(i,1,1) * G23(i,1,1,e) &
-                                         + wut(i,1,1) * G33(i,1,1,e)
+          u1 = wur(i,1,1) * drdx(i,1,1,e) + wus(i,1,1) * dsdx(i,1,1,e) &
+                                          + wut(i,1,1) * dtdx(i,1,1,e)
+          u2 = wur(i,1,1) * drdy(i,1,1,e) + wus(i,1,1) * dsdy(i,1,1,e) &
+                                          + wut(i,1,1) * dtdy(i,1,1,e)
+          u3 = wur(i,1,1) * drdz(i,1,1,e) + wus(i,1,1) * dsdz(i,1,1,e) &
+                                          + wut(i,1,1) * dtdz(i,1,1,e)
 
-          v1 = wvr(i,1,1) * G11(i,1,1,e) + wvs(i,1,1) * G12(i,1,1,e) &
-                                         + wvt(i,1,1) * G13(i,1,1,e)
-          v2 = wvr(i,1,1) * G12(i,1,1,e) + wvs(i,1,1) * G22(i,1,1,e) &
-                                         + wvt(i,1,1) * G23(i,1,1,e)
-          v3 = wvr(i,1,1) * G13(i,1,1,e) + wvs(i,1,1) * G23(i,1,1,e) &
-                                         + wvt(i,3,2) * G33(i,1,1,e)
+          v1 = wvr(i,1,1) * drdx(i,1,1,e) + wvs(i,1,1) * dsdx(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdx(i,1,1,e)
+          v2 = wvr(i,1,1) * drdy(i,1,1,e) + wvs(i,1,1) * dsdy(i,1,1,e) &
+                                          + wvt(i,1,1) * dtdy(i,1,1,e)
+          v3 = wvr(i,1,1) * drdz(i,1,1,e) + wvs(i,1,1) * dsdz(i,1,1,e) &
+                                          + wvt(i,3,2) * dtdz(i,1,1,e)
 
-          w1 = wwr(i,1,1) * G11(i,1,1,e) + wws(i,1,1) * G12(i,1,1,e) &
-                                         + wwt(i,1,1) * G13(i,1,1,e)
-          w2 = wwr(i,1,1) * G12(i,1,1,e) + wws(i,1,1) * G22(i,1,1,e) &
-                                         + wwt(i,1,1) * G23(i,1,1,e)
-          w3 = wwr(i,1,1) * G13(i,1,1,e) + wws(i,1,1) * G23(i,1,1,e) &
-                                         + wwt(i,1,1) * G33(i,1,1,e)
+          w1 = wwr(i,1,1) * drdx(i,1,1,e) + wws(i,1,1) * dsdx(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdx(i,1,1,e)
+          w2 = wwr(i,1,1) * drdy(i,1,1,e) + wws(i,1,1) * dsdy(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdy(i,1,1,e)
+          w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
+                                          + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jackinv(i,1,1,e)
+          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -4056,18 +4126,18 @@ contains
           s32 = dj*(w2 + v3)
           s33 = dj*(w3 + w3)
 
-          wur(i,1,1) = G11(i,1,1,e)*s11 + G12(i,1,1,e)*s12 + G13(i,1,1,e)*s13
-          wus(i,1,1) = G12(i,1,1,e)*s11 + G22(i,1,1,e)*s12 + G23(i,1,1,e)*s13
-          wut(i,1,1) = G13(i,1,1,e)*s11 + G23(i,1,1,e)*s12 + G33(i,1,1,e)*s13
+          wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
+          wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
+          wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = G11(i,1,1,e)*s21 + G12(i,1,1,e)*s22 + G13(i,1,1,e)*s23
-          wvs(i,1,1) = G12(i,1,1,e)*s21 + G22(i,1,1,e)*s22 + G23(i,1,1,e)*s23
-          wvt(i,1,1) = G13(i,1,1,e)*s21 + G23(i,1,1,e)*s22 + G33(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = G11(i,1,1,e)*s31 + G12(i,1,1,e)*s32 + G13(i,1,1,e)*s33
-          wws(i,1,1) = G12(i,1,1,e)*s31 + G22(i,1,1,e)*s32 + G23(i,1,1,e)*s33
-          wwt(i,1,1) = G13(i,1,1,e)*s31 + G23(i,1,1,e)*s32 + G33(i,1,1,e)*s33
-       enddo
+          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+       end do
 
        do j = 1, lx*lx
           do i = 1, lx
