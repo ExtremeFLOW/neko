@@ -162,6 +162,7 @@ subroutine test_alignment_edge_rp
   real(rp), dimension(sz, 1) :: edg
   real(rp), dimension(sz, 2) :: edg_bnd, edg_int
   integer(i4) :: il, jl
+  real(rp), parameter :: tol = 1.0d-14
 
   ! initialise various operations
   ! I - identity
@@ -192,12 +193,12 @@ subroutine test_alignment_edge_rp
      edg(:, 1) = edg_bnd(:, 1)
      call edge%trns_rp(edg, sz, 1, 1)
      do jl = 1, sz
-        @assertEqual(edg(jl, 1), edg_bnd(jl, il + 1), tolerance=1d-14)
+        @assertEqual(edg(jl, 1), edg_bnd(jl, il + 1), tolerance = tol)
      end do
      ! inverse
      call edge%trns_inv_rp(edg, sz, 1, 1)
      do jl = 1, sz
-        @assertEqual(edg(jl, 1), edg_bnd(jl, 1), tolerance=1d-14)
+        @assertEqual(edg(jl, 1), edg_bnd(jl, 1), tolerance = tol)
      end do
 
      ! interior edge test
@@ -205,12 +206,12 @@ subroutine test_alignment_edge_rp
      edg(:, 1) = edg_bnd(:, 1)
      call edge%trns_rp(edg, sz, 1, 2)
      do jl = 1, sz
-        @assertEqual(edg(jl, 1), edg_int(jl, il + 1), tolerance=1d-14)
+        @assertEqual(edg(jl, 1), edg_int(jl, il + 1), tolerance = tol)
      end do
      ! inverse
      call edge%trns_inv_rp(edg, sz, 1, 2)
      do jl = 1, sz
-        @assertEqual(edg(jl, 1), edg_bnd(jl, 1), tolerance=1d-14)
+        @assertEqual(edg(jl, 1), edg_bnd(jl, 1), tolerance = tol)
      end do
 
      deallocate(edge)

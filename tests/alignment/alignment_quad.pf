@@ -274,6 +274,7 @@ subroutine test_alignment_quad_rp
   real(rp), dimension(sz, sz) :: fcs
   real(rp), dimension(sz, sz, 8) :: fcs_bnd, fcs_int
   integer(i4) :: il, jl, kl
+  real(rp), parameter :: tol = 1.0d-14
 
   ! initialise various operations
   ! I - identity
@@ -353,14 +354,14 @@ subroutine test_alignment_quad_rp
      call quad%trns_rp(fcs, sz, sz, 1)
      do jl = 1, sz
         do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1), tolerance=1d-14)
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1), tolerance = tol)
         end do
      end do
      ! inverse
      call quad%trns_inv_rp(fcs, sz, sz, 1)
      do jl = 1, sz
         do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance=1d-14)
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance = tol)
         end do
      end do
 
@@ -370,14 +371,14 @@ subroutine test_alignment_quad_rp
      call quad%trns_rp(fcs, sz, sz, 2)
      do jl = 1, sz
         do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1), tolerance=1d-14)
+           @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1), tolerance = tol)
         end do
      end do
      ! inverse
      call quad%trns_inv_rp(fcs, sz, sz, 2)
      do jl = 1, sz
         do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance=1d-14)
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance = tol)
         end do
      end do
 

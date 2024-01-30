@@ -34,7 +34,7 @@ subroutine test_hex_mesh_simple
        &  1.0d0, 0.0d0, 0.0d0,  0.0d0, 1.0d0, 0.0d0,  1.0d0, 1.0d0, 0.0d0, &
        &  0.0d0, 0.0d0, 1.0d0,  1.0d0, 0.0d0, 1.0d0,  0.0d0, 1.0d0, 1.0d0, &
        &  1.0d0, 1.0d0, 1.0d0 /), shape(crd))
-  real(kind=dp), parameter :: diameter = 1.7320508075688772d0, tol = 1d-14
+  real(kind=dp), parameter :: diameter = 1.7320508075688772d0, tol = 1.0d-14
   real(kind=dp), dimension(3), parameter :: center = (/0.5d0, 0.5d0, 0.5d0/)
 
   do il = 1, 8
@@ -134,12 +134,12 @@ subroutine test_hex_mesh_simple
   end do
 
   ! quad diameter
-  @assertEqual(hxm1%diameter(), diameter, tolerance=tol)
+  @assertEqual(hxm1%diameter(), diameter, tolerance = tol)
 
   ! quad centre
   centroid = hxm1%centroid()
   do il = 1, gdim
-     @assertEqual(centroid%x(il), center(il), tolerance=tol)
+     @assertEqual(centroid%x(il), center(il), tolerance = tol)
   end do
 
   ! get facet local direction
