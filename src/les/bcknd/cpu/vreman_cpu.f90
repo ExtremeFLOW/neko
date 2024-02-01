@@ -34,7 +34,7 @@
 module vreman_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd
+  use math, only : cadd, NEKO_EPS
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
@@ -50,12 +50,17 @@ contains
   !> Compute eddy viscosity on the CPU.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine vreman_compute_cpu(t, tstep, coef, nut, delta)
+  !! @param coef SEM coefficients.
+  !! @param nut The SGS viscosity array.
+  !! @param delta The LES lengthscale.
+  !! @param c The Vreman model constant
+  subroutine vreman_compute_cpu(t, tstep, coef, nut, delta, c)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: nut
-    type(field_t), intent(inout) :: delta
+    type(field_t), intent(in) :: delta
+    real(kind=rp), intent(in) :: c
     ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
@@ -118,13 +123,12 @@ contains
           b_beta = beta11*beta22 - beta12*beta12 + beta11*beta33 - beta13*beta13 &
                   + beta22*beta33 - beta23*beta23
 
+          b_beta = max(0.0_rp, b_beta)
+
           ! alpha_ij alpha_ij
           aijaij = beta11 + beta22 + beta33
-          if (aijaij > 0) then
-             nut%x(i,:,:,e) = delta%x(i,1,1,1) * sqrt(b_beta / aijaij)
-          else
-             nut%x(i,:,:,e) = 0.0_rp
-          end if
+
+          nut%x(i,:,:,e) = c*delta%x(i,1,1,1) * sqrt(b_beta/(aijaij + NEKO_EPS))
        end do
     end do
 
