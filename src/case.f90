@@ -150,6 +150,7 @@ contains
     integer ::  stats_sampling_interval
     integer :: output_dir_len
     integer :: n_simcomps
+    integer :: precision
 
     !
     ! Load mesh
@@ -371,13 +372,27 @@ contains
     end if
 
     !
+    ! Setup output precision of the field files
+    !
+    call json_get_or_default(C%params, 'case.output_precision', string_val,&
+         'single')
+
+    if (trim(string_val) .eq. 'double') then
+       precision = dp
+    else
+       precision = sp
+    end if
+
+    !
     ! Setup sampler
     !
     call C%s%init(C%end_time)
     if (scalar) then
-       C%f_out = fluid_output_t(C%fluid, C%scalar, path=trim(output_directory))
+       C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
+            path=trim(output_directory))
     else
-       C%f_out = fluid_output_t(C%fluid, path=trim(output_directory))
+       C%f_out = fluid_output_t(precision, C%fluid, &
+            path=trim(output_directory))
     end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
@@ -402,8 +417,10 @@ contains
                              logical_val, .true.)
     if (logical_val) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory)
-       call json_get_or_default(C%params, 'case.checkpoint_control', string_val,"simulationtime")
-       call json_get_or_default(C%params, 'case.checkpoint_value', real_val,1e10_rp)
+       call json_get_or_default(C%params, 'case.checkpoint_control', &
+            string_val, "simulationtime")
+       call json_get_or_default(C%params, 'case.checkpoint_value', real_val,&
+            1e10_rp)
        call C%s%add(C%f_chkp, real_val, string_val)
     end if
 

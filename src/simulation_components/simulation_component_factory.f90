@@ -37,9 +37,11 @@ module simulation_component_fctry
   use vorticity, only : vorticity_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
+  use les_simcomp, only : les_simcomp_t
   use json_module, only : json_file
   use case, only : case_t
   use json_utils, only : json_get
+  use logger, only : neko_log
   implicit none
   private
 
@@ -59,12 +61,16 @@ contains
 
     if (trim(simcomp_type) .eq. "vorticity") then
        allocate(vorticity_t::simcomp)
-    end if
-    if (trim(simcomp_type) .eq. "lambda2") then
+    else if (trim(simcomp_type) .eq. "lambda2") then
        allocate(lambda2_t::simcomp)
-    end if
-    if (trim(simcomp_type) .eq. "probes") then
+    else if (trim(simcomp_type) .eq. "probes") then
        allocate(probes_t::simcomp)
+    else if (trim(simcomp_type) .eq. "les_model") then
+       allocate(les_simcomp_t::simcomp)
+    else
+       call neko_log%error("Unknown simulation component type: " &
+                           // trim(simcomp_type))
+       stop
     end if
 
     ! Initialize

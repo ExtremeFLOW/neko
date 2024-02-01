@@ -1,11 +1,11 @@
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   pull_request:
      branches: [master]
   workflow_dispatch:
-  
+
 jobs:
   linting:
       name: "Flint"
@@ -58,9 +58,9 @@ jobs:
         include:
         - os: ubuntu-20.04
           setup-env: |
-            sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
+            sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui
         - os: macos-13
-          setup-env: brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
+          setup-env: export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 && brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
@@ -96,7 +96,7 @@ jobs:
           +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
            #endif
                  end if
-           
+
           _ACEOF
           git apply pfunit_error_stop.patch && mkdir b && cd b
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
@@ -128,29 +128,29 @@ jobs:
         if: matrix.backend == 'cpu'
         run: |
           echo $PKG_CONFIG_PATH
-          ./regen.sh 
+          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.4 --enable-real=${RP}
           make -j$(nproc)
-      - name: Build (CUDA backend)        
+      - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
           sudo apt-get install -y nvidia-cuda-toolkit
-          ./regen.sh 
+          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-cuda=/usr
           make -j$(nproc)
-      - name: Build (HIP backend)        
+      - name: Build (HIP backend)
         if: matrix.backend == 'HIP'
         run: |
           wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
           echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
           sudo apt-get update && sudo apt-get install -y rocm-dev
-          ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.0.0/hip
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.0.0/
           make -j$(nproc)
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
-          ./regen.sh 
+          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-opencl
           make -j$(nproc)
       - name: Check
@@ -190,7 +190,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=/opt/rocm/hip
+          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=/opt/rocm-6.0.0
           make -j $(nproc)
       - name: Dist (OpenCL backend)
         if: matrix.backend == 'opencl'
@@ -201,7 +201,7 @@ jobs:
           cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-opencl
           make -j $(nproc)
-    
+
   Intel:
     needs: linting
     runs-on: ${{matrix.os}}
@@ -212,15 +212,13 @@ jobs:
         compiler: [ifort, ifx]
         precision: [sp, dp]
         backend: [cpu]
-        exclude:
-        - os: ubuntu-20.04
-          compiler: ifx
         include:
         - os: ubuntu-20.04
           setup-env: |
             wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list && sudo apt-get update -y && sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
             source /opt/intel/oneapi/setvars.sh
             sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
+            export PATH=/opt/intel/oneapi/compiler/2024.0/bin:${PATH}
             printenv >> $GITHUB_ENV
     env:
       CC: icc
@@ -242,7 +240,7 @@ jobs:
           git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
           cd json-fortran
           mkdir build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
+          env FC=${FC} cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
           make -j$(nproc) && make install && cd ../../
           cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
       - name: Setup json-fortran
@@ -257,7 +255,7 @@ jobs:
         run: |
           echo $PKG_CONFIG_PATH
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
+          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP}
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
   NVIDIA:
     needs: linting
@@ -342,7 +340,7 @@ jobs:
       - name: Setup env.
         run: |
           sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
-          pip install reframe-hpc 
+          pip install reframe-hpc
       - name: Cache json-fortran
         id: cache-json-fortran
         uses: actions/cache@v3
@@ -397,7 +395,7 @@ jobs:
         ./regen.sh
         ./configure FC=${FC}
         make html
-    
+
     # Deploy the HTML documentation to GitHub Pages
     - name: GH Pages Deployment
       uses: peaceiris/actions-gh-pages@v3
