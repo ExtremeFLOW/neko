@@ -285,7 +285,7 @@ contains
     if(trim(bc_key) .eq. 'o' .or. trim(bc_key) .eq. 'on' &
        .or. trim(bc_key) .eq. 'o+dong' .or. trim(bc_key) .eq. 'on+dong') then
        msh_bc_type = 1
-    else if(trim(bc_key) .eq. 'dp') then
+    else if(trim(bc_key) .eq. 'd_pres') then
        msh_bc_type = 1
     else if(trim(bc_key) .eq. 'w') then
        msh_bc_type = 2
@@ -297,11 +297,11 @@ contains
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'dw') then
        msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_vel') then
+       msh_bc_type = 2
     else if(trim(bc_key) .eq. 'sym') then
        msh_bc_type = 2
     end if
-
-
 
     do i = 1, NEKO_MSH_MAX_ZLBLS
        !Check if several bcs are defined for this zone

@@ -107,8 +107,8 @@ module fluid_scheme
      type(field_dirichlet_t) :: bc_field_u   !< Dirichlet pressure condition
      type(field_dirichlet_t) :: bc_field_v   !< Dirichlet pressure condition
      type(field_dirichlet_t) :: bc_field_w   !< Dirichlet pressure condition
-     type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(field_dirichlet_t) :: bc_field_prs   !< Dirichlet pressure condition
+     type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
@@ -383,37 +383,39 @@ contains
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
 
-    call json_get_or_default(params, 'case.output_boundary', logical_val,&
-                             .false.)
-    !dirichlet for velocity
+    ! dirichlet for uvw-velocity
     call this%bc_field_u%init(this%dm_Xh)
     call this%bc_field_u%mark_zones_from_list(msh%labeled_zones,&
-                        'du', this%bc_labels)
+                        'd_vel', this%bc_labels)
     call this%bc_field_u%finalize()
-    !Perhaps this should be moved inside bc, but I dont want MPI comm in bc
-    !Allocates the bc_field if there is a field dirichlet on any rank
+
     call MPI_Allreduce(this%bc_field_u%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%bc_field_u%init_field('du')
+    if (integer_val .gt. 0)  call this%bc_field_u%init_field('d_u')
 
+    ! dirichlet for v-velocity
     call this%bc_field_v%init(this%dm_Xh)
     call this%bc_field_v%mark_zones_from_list(msh%labeled_zones,&
-                        'dv', this%bc_labels)
+                        'd_vel', this%bc_labels)
     call this%bc_field_v%finalize()
     call MPI_Allreduce(this%bc_field_v%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%bc_field_v%init_field('dv')
+    if (integer_val .gt. 0)  call this%bc_field_v%init_field('d_v')
 
+    ! dirichlet for w-velocity
     call this%bc_field_w%init(this%dm_Xh)
     call this%bc_field_w%mark_zones_from_list(msh%labeled_zones,&
-                        'dw', this%bc_labels)
+                        'd_vel', this%bc_labels)
     call this%bc_field_w%finalize()
-    call this%bc_field_w%init_field('dw')
-    call MPI_Allreduce( this%bc_field_w%msk(0), integer_val, 1, &
+    call MPI_Allreduce(this%bc_field_w%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%bc_field_w%init_field('dw')
+    if (integer_val .gt. 0)  call this%bc_field_w%init_field('d_w')
 
-
+    !
+    ! Check if we need to output boundaries
+    !
+    call json_get_or_default(params, 'case.output_boundary', logical_val,&
+                             .false.)
 
     if (logical_val) then
        call this%bdry%init(this%dm_Xh, 'bdry')
@@ -432,7 +434,8 @@ contains
        call bdry_mask%mark_zone(msh%inlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'v', this%bc_labels)
-
+       call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
+                      'd_vel', this%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(2.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -577,14 +580,16 @@ contains
                         'o', this%bc_labels)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
                         'on', this%bc_labels)
+
+    ! Field dirichlet pressure bc
     call this%bc_field_prs%init(this%dm_Xh)
-    !Field bc
     call this%bc_field_prs%mark_zones_from_list(msh%labeled_zones,&
-                        'dp', this%bc_labels)
+                        'd_pres', this%bc_labels)
     call this%bc_field_prs%finalize()
     call MPI_Allreduce(this%bc_field_prs%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%bc_field_prs%init_field('dp')
+
+    if (integer_val .gt. 0)  call this%bc_field_prs%init_field('d_pres')
     call bc_list_add(this%bclst_prs, this%bc_field_prs)
 
     if (msh%outlet%size .gt. 0) then

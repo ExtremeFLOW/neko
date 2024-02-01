@@ -191,11 +191,11 @@ contains
                                                  'v', this%bc_labels)
     !Thsi impacts the rhs of the pressure, need to check what is correct to add here
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'du', this%bc_labels)
+                                                 'd_vel', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'dv', this%bc_labels)
+                                                 'd_vel', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'dw', this%bc_labels)
+                                                 'd_vel', this%bc_labels)
     call this%bc_prs_surface%finalize()
     call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
@@ -222,7 +222,7 @@ contains
                                          this%bc_labels)
     call this%bc_dp%mark_zones_from_list(msh%labeled_zones, &
                                          'o+dong', this%bc_labels)
-    call this%bc_dp%mark_zones_from_list(msh%labeled_zones, 'dp', &
+    call this%bc_dp%mark_zones_from_list(msh%labeled_zones, 'd_pres', &
                                          this%bc_labels)
     call this%bc_dp%finalize()
     call this%bc_dp%set_g(0.0_rp)
@@ -232,18 +232,19 @@ contains
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
     call this%bc_du%init(this%dm_Xh)
-    call this%bc_du%mark_zones_from_list(msh%labeled_zones, 'du', &
+    call this%bc_du%mark_zones_from_list(msh%labeled_zones, 'd_vel', &
                                          this%bc_labels)
     call this%bc_du%finalize()
     call this%bc_du%set_g(0.0_rp)
 
     call this%bc_dv%init(this%dm_Xh)
-    call this%bc_dv%mark_zones_from_list(msh%labeled_zones, 'dv', &
+    call this%bc_dv%mark_zones_from_list(msh%labeled_zones, 'd_vel', &
                                          this%bc_labels)
     call this%bc_dv%finalize()
     call this%bc_dv%set_g(0.0_rp)
+
     call this%bc_dw%init(this%dm_Xh)
-    call this%bc_dw%mark_zones_from_list(msh%labeled_zones, 'dw', &
+    call this%bc_dw%mark_zones_from_list(msh%labeled_zones, 'd_vel', &
                                          this%bc_labels)
     call this%bc_dw%finalize()
     call this%bc_dw%set_g(0.0_rp)
@@ -639,6 +640,7 @@ contains
       call bc_list_apply_vector(this%bclst_vel_res,&
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
                                 t, tstep)
+
       !We should implement a bc that takes three field_bcs and implements vector_apply
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call this%bc_du%apply_scalar_dev(u_res%x_d, t, tstep)
