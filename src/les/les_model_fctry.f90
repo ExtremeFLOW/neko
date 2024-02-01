@@ -1,4 +1,5 @@
-! Copyright (c) 2023, The Neko Authors
+
+! Copyright (c) 2021-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,52 +31,41 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!
-!> Defines a factory subroutine for simulation components.
-module simulation_component_fctry
-  use simulation_component, only : simulation_component_t
-  use vorticity, only : vorticity_t
-  use lambda2, only : lambda2_t
-  use probes, only : probes_t
-  use les_simcomp, only : les_simcomp_t
+module les_model_fctry
+  use les_model, only : les_model_t
+  use vreman, only : vreman_t
+  use dofmap, only : dofmap_t
+  use coefs, only : coef_t
   use json_module, only : json_file
-  use case, only : case_t
-  use json_utils, only : json_get
-  use logger, only : neko_log
   implicit none
   private
 
-  public :: simulation_component_factory
+  public :: les_model_factory
 
 contains
-
-  !> Simulation component factory. Both constructs and initializes the object.
-  !! @param json JSON object initializing the simulation component.
-  subroutine simulation_component_factory(simcomp, json, case)
-    class(simulation_component_t), allocatable, intent(inout) :: simcomp
+  !> LES model factory. Both constructs and initializes the object.
+  !! @param les_model The object to be allocated.
+  !! @param name The name of the LES model.
+  !! @param dofmap SEM map of degrees of freedom.
+  !! @param coef SEM coefficients.
+  !! @param json A dictionary with parameters.
+  subroutine les_model_factory(les_model, name, dofmap, coef, json)
+    class(les_model_t), allocatable, target, intent(inout) :: les_model
+    character(len=*), intent(in) :: name
+    type(dofmap_t), intent(in) :: dofmap
+    type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
-    class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: simcomp_type
 
-    call json_get(json, "type", simcomp_type)
-
-    if (trim(simcomp_type) .eq. "vorticity") then
-       allocate(vorticity_t::simcomp)
-    else if (trim(simcomp_type) .eq. "lambda2") then
-       allocate(lambda2_t::simcomp)
-    else if (trim(simcomp_type) .eq. "probes") then
-       allocate(probes_t::simcomp)
-    else if (trim(simcomp_type) .eq. "les_model") then
-       allocate(les_simcomp_t::simcomp)
-    else
-       call neko_log%error("Unknown simulation component type: " &
-                           // trim(simcomp_type))
-       stop
+    if (allocated(les_model)) then
+       deallocate(les_model)
     end if
 
-    ! Initialize
-    call simcomp%init(json, case)
+    if (trim(name) .eq. 'vreman') then
+       allocate(vreman_t::les_model)
+    end if
 
-  end subroutine simulation_component_factory
+    call les_model%init(dofmap, coef, json)
 
-end module simulation_component_fctry
+  end subroutine les_model_factory
+
+end module les_model_fctry
