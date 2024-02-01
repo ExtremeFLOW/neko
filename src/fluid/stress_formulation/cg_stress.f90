@@ -70,8 +70,9 @@ module cg_stress
 contains
 
   !> Initialise a standard PCG solver
-  subroutine cg_stress_init(this, n, M, rel_tol, abs_tol)
+  subroutine cg_stress_init(this, n, max_iter, M, rel_tol, abs_tol)
     class(cg_stress_t), intent(inout) :: this
+    integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
@@ -98,13 +99,13 @@ contains
     end if
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(max_iter)
     end if
 
   end subroutine cg_stress_init

@@ -294,7 +294,7 @@ contains
        call this%vol_flow%init(this%dm_Xh, params)
     end if
     real_val = 1e-8_rp
-    call this%ksp_stress%init(this%dm_Xh%size(), M = this%pc_vel, abs_tol=real_val)
+    call this%ksp_stress%init(this%dm_Xh%size(), 800, M = this%pc_vel, abs_tol=real_val)
 
   end subroutine fluid_pnpn_init
 
@@ -542,8 +542,6 @@ contains
          makeabf => this%makeabf, makebdf => this%makebdf, &
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
-         ksp_vel_maxiter => this%ksp_vel_maxiter, &
-         ksp_pr_maxiter => this%ksp_pr_maxiter, &
          rho => this%rho, mu => this%mu, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z)
 
@@ -612,8 +610,7 @@ contains
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
       ksp_results(1) = &
-         this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh, &
-                            ksp_pr_maxiter)
+         this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh)
       call profiler_end_region
 
       if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
@@ -662,7 +659,7 @@ contains
       ksp_results(2) = this%ksp_stress%solve_stress(du, dv, dw, &
            u_res%x, v_res%x, w_res%x, &
            n, c_Xh, this%bclst_du, this%bclst_dv, this%bclst_dw, &
-           gs_Xh, ksp_vel_maxiter)
+           gs_Xh, this%ksp_vel%max_iter)
 
       call profiler_end_region
 
@@ -687,8 +684,8 @@ contains
               c_Xh, gs_Xh, ext_bdf, rho, mu,&
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
-              this%ksp_vel, this%pc_prs, this%pc_vel, ksp_pr_maxiter, &
-              ksp_vel_maxiter)
+              this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter,&
+              this%ksp_vel%max_iter)
       end if
 
       call fluid_step_info_stress(tstep, t, dt, ksp_results)
