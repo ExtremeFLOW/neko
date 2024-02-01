@@ -434,8 +434,6 @@ contains
        call bdry_mask%mark_zone(msh%inlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'v', this%bc_labels)
-       call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'd_vel', this%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(2.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
