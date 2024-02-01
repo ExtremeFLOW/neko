@@ -54,8 +54,8 @@
             "max_iterations": 200
         },
         "output_control": "nsamples",
-        "output_value": 5,
-	"boundary_types": ["du/dv/dw", "dp"],
+        "output_value": 1,
+	"boundary_types": ["d_vel", "d_pres"],
     },
 }
 }

@@ -66,7 +66,6 @@ module field_dirichlet
      !! @param field_bc_list list of fields that are used to extract values for field_dirichlet
      !! @param t Current time
      !! @param tstep Current time-step
-     !! Should we pass down coef? and perhaps something more?
      subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list, coef, t, tstep)
        import rp
        import field_list_t
