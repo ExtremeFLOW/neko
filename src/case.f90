@@ -85,7 +85,7 @@ module case
   end type case_t
 
   interface case_init
-     module procedure case_init_from_file
+     module procedure case_init_from_file, case_init_from_json
   end interface case_init
 
   private :: case_init_from_file, case_init_from_json, case_init_common
