@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 !
 module neko_intf
   use neko
-  use json_case
   use json_module
   use, intrinsic :: iso_c_binding
   implicit none
@@ -44,6 +43,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(10) :: time
     character(8) :: date
+    integer :: nthrds, rw, sw
 
     call neko_init()
 
@@ -53,24 +53,59 @@ contains
          time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
     call neko_log%message(log_buf, NEKO_LOG_QUIET)
     write(log_buf, '(a)') 'Running on: '
+    sw = 10
     if (pe_size .lt. 1e1)  then
        write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
        if (pe_size .eq. 1) then
           write(log_buf(19:), '(a)') 'rank'
+          sw = 9
        else
           write(log_buf(19:), '(a)') 'ranks'
        end if
+       rw = 1
     else if (pe_size .lt. 1e2) then
        write(log_buf(13:), '(i2,a)') pe_size, ' MPI ranks'
+       rw = 2
     else if (pe_size .lt. 1e3) then
        write(log_buf(13:), '(i3,a)') pe_size, ' MPI ranks'
+       rw = 3
     else if (pe_size .lt. 1e4) then
        write(log_buf(13:), '(i4,a)') pe_size, ' MPI ranks'
+       rw = 4
     else if (pe_size .lt. 1e5) then
        write(log_buf(13:), '(i5,a)') pe_size, ' MPI ranks'
+       rw = 5
     else
        write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
+       rw = 6
     end if
+
+    nthrds = 1
+    !$omp parallel
+    !$omp master
+    !$ nthrds = omp_get_num_threads()
+    !$omp end master
+    !$omp end parallel
+
+    if (nthrds .gt. 1) then
+       if (nthrds .lt. 1e1) then
+          write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
+               nthrds, ' thrds each'
+       else if (nthrds .lt. 1e2) then
+          write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
+               nthrds, ' thrds each'
+       else if (nthrds .lt. 1e3) then
+          write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
+               nthrds, ' thrds each'
+       else if (nthrds .lt. 1e4) then
+          write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
+               nthrds, ' thrds each'
+       end if
+    end if
+    call neko_log%message(log_buf, NEKO_LOG_QUIET)
+
+    write(log_buf, '(a)') 'CPU type  : '
+    call system_cpu_name(log_buf(13:))
     call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
     write(log_buf, '(a)') 'Bcknd type: '
@@ -106,9 +141,11 @@ contains
        write(log_buf(13:), '(a)') 'quad precision'
     end select
     call neko_log%message(log_buf, NEKO_LOG_QUIET)
-    call neko_log%end()
-    call neko_log%newline
 
+    call neko_log%end()
+
+    call neko_log%newline
+    
   end subroutine neko_intf_init
 
   subroutine neko_intf_finalize() bind(c, name="finalize")
@@ -120,7 +157,7 @@ contains
     integer(c_int), value :: ilen
     character(len=:), allocatable :: fpyneko_case
     type(json_file) :: json_case
-    type(case_t) :: neko_case
+    type(case_t), target :: neko_case
 
     if (c_associated(pyneko_case)) then
        block
@@ -133,12 +170,17 @@ contains
        end block
     end if
 
-    call json_case_create_neko_case(neko_case, json_case)
+    call case_init(neko_case, json_case)
     call json_case%destroy()
-
+    
     call neko_solve(neko_case)
 
     call case_free(neko_case)
+
+    !> @todo Add a clean method
+    call neko_field_registry%free()
+    call neko_field_registry%init()
+
 
   end subroutine neko_intf_solve
 
