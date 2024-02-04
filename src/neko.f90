@@ -80,6 +80,7 @@ module neko
   use fluid_stats
   use field_list, only : field_list_t
   use fluid_user_source_term
+  use scalar_user_source_term
   use vector
   use tensor
   use simulation_component
