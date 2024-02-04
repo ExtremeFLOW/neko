@@ -47,6 +47,7 @@ module scalar_scheme
   use krylov, only : ksp_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
+  use neumann, only : neumann_t
   use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
@@ -98,9 +99,14 @@ module scalar_scheme
      class(pc_t), allocatable :: pc
      !> Dirichlet conditions.
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)
+     !> Neumann conditions.
+     type(neumann_t) :: neumann_bcs(NEKO_MSH_MAX_ZLBLS)
      !> User Dirichlet conditions.
      type(usr_scalar_t) :: user_bc
+     !> Number of Dirichlet bcs.
      integer :: n_dir_bcs = 0
+     !> Number of Neumann bcs.
+     integer :: n_neumann_bcs = 0
      !> List of boundary conditions.
      type(bc_list_t) :: bclst
      !> Case paramters.
