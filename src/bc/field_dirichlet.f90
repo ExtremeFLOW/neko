@@ -32,40 +32,47 @@
 !
 !> Defines inflow dirichlet conditions
 module field_dirichlet
-  use num_types
-  use coefs
+  use num_types, only: rp
+  use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
   use bc, only: bc_list_t
   use device
-  use utils
+  use utils, only: split_string
   use field, only : field_t
   use field_list, only : field_list_t
-  use math
-  use device_math
+  use math, only: masked_copy
+  use device_math, only: device_masked_copy
   use dofmap, only : dofmap_t
   implicit none
   private
   
-  !> User defined dirichlet condition for inlet (vector valued)
+  !> User defined dirichlet condition,
   !! Would be neat to add another class that contains all three 
   !! dirichlet bcs for the velocity, this bc would then implement
   !! apply_vector.
   type, public, extends(dirichlet_t) :: field_dirichlet_t
      type(field_t) :: field_bc
    contains
+     !> Initializes this%field_bc.
      procedure, pass(this) :: init_field => field_dirichlet_init
+     !> Apply scalar by performing a masked copy.
      procedure, pass(this) :: apply_scalar => field_dirichlet_apply_scalar
+     !> (No-op) Apply vector.
      procedure, pass(this) :: apply_vector => field_dirichlet_apply_vector
+     !> (No-op) Apply vector (device).
      procedure, pass(this) :: apply_vector_dev => field_dirichlet_apply_vector_dev
+     !> Apply scalar (device)
      procedure, pass(this) :: apply_scalar_dev => field_dirichlet_apply_scalar_dev
   end type field_dirichlet_t
 
   abstract interface
    
-     !> Abstract interface defining a dirichlet condition on a list of fields
-     !! @param field_bc_list list of fields that are used to extract values for field_dirichlet
-     !! @param t Current time
-     !! @param tstep Current time-step
+     !> Abstract interface defining a dirichlet condition on a list of fields.
+     !! @param field_bc_list List of fields that are used to extract values for field_dirichlet.
+     !! @param dirichlet_bc_list List of BCs containing field_dirichlet_t BCs only.
+     !! @param coef Coef object.
+     !! @param t Current Time.
+     !! @param tstep Current Time step.
      subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list, coef, t, tstep)
        import rp
        import field_list_t
@@ -83,7 +90,7 @@ module field_dirichlet
 
 contains
      
-  !> Initialize symmetry mask for each axis
+  !> Initializes this%field_bc.
   subroutine field_dirichlet_init(this,bc_name)
     class(field_dirichlet_t), intent(inout) :: this
     character(len=*), intent(in) :: bc_name
@@ -97,7 +104,11 @@ contains
     
   end subroutine field_dirichlet_free
   
-  !> No-op scalar apply 
+  !> Apply scalar by performing a masked copy.
+  !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
+  !! @param n Size of the array `x`.
+  !! @param t Time.
+  !! @param tstep Time step.
   subroutine field_dirichlet_apply_scalar(this, x, n, t, tstep)
     class(field_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -109,7 +120,10 @@ contains
     end if
   end subroutine field_dirichlet_apply_scalar
   
-  !> No-op scalar apply (device version)
+  !> Apply scalar (device).
+  !! @param x_d Device pointer to the field onto which to copy the values.
+  !! @param t Time.
+  !! @param tstep Time step.
   subroutine field_dirichlet_apply_scalar_dev(this, x_d, t, tstep)
     class(field_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
@@ -117,13 +131,19 @@ contains
     integer, intent(in), optional :: tstep
 
     if (this%msk(0) .gt. 0) then
-       call device_masked_copy(x_d,this%field_bc%x_d,this%msk_d, &
+       call device_masked_copy(x_d, this%field_bc%x_d,this%msk_d, &
             this%field_bc%dof%size(), this%msk(0))
     end if
   
   end subroutine field_dirichlet_apply_scalar_dev
 
-  !> Apply field defined dirichlet conditions (vector valued)
+  !> (No-op) Apply vector.
+  !! @param x x-component of the field onto which to apply the values.
+  !! @param y y-component of the field onto which to apply the values.
+  !! @param z z-component of the field onto which to apply the values.
+  !! @param n Size of the `x`, `y` and `z` arrays.
+  !! @param t Time.
+  !! @param tstep Time step.
   subroutine field_dirichlet_apply_vector(this, x, y, z, n, t, tstep)
     class(field_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -137,6 +157,13 @@ contains
 
   end subroutine field_dirichlet_apply_vector
 
+  !> (No-op) Apply vector (device).
+  !! @param x x-component of the field onto which to apply the values.
+  !! @param y y-component of the field onto which to apply the values.
+  !! @param z z-component of the field onto which to apply the values.
+  !! @param n Size of the `x`, `y` and `z` arrays.
+  !! @param t Time.
+  !! @param tstep Time step.
   subroutine field_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(field_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
