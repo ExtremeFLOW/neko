@@ -88,6 +88,7 @@ module scalar_pnpn
      type(projection_t) :: proj_s
      !> Dirichlet condition for scala
      type(dirichlet_t) :: bc_res
+     type(dirichlet_t) :: bc_ds
      type(bc_list_t) :: bclst_ds
 
      !> Advection operator.
@@ -184,10 +185,20 @@ contains
     if (this%user_bc%msk(0) .gt. 0) then
        call this%bc_res%mark_facets(this%user_bc%marked_facet)
     end if
+
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
+
+    ! Check for field dirichlet bcs
+    call this%bc_ds%init(this%dm_Xh)
+    call this%bc_ds%mark_zones_from_list(msh%labeled_zones, 'd_s', &
+                                         this%bc_labels)
+    call this%bc_ds%finalize()
+    call this%bc_ds%set_g(0.0_rp)
+
     call bc_list_init(this%bclst_ds)
     call bc_list_add(this%bclst_ds, this%bc_res)
+    call bc_list_add(this%bclst_ds, this%bc_ds)
 
     ! @todo not param stuff again, using velocity stuff
     ! Intialize projection space thingy

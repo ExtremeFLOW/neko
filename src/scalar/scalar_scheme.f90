@@ -55,6 +55,7 @@ module scalar_scheme
   use precon_fctry, only : precon_factory, pc_t, precon_destroy
   use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
                  bc_list_apply_scalar, bc_list_add
+  use field_dirichlet, only: field_dirichlet_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
   use facet_zone, only : facet_zone_t
   use time_scheme_controller, only : time_scheme_controller_t
@@ -66,6 +67,7 @@ module scalar_scheme
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use utils, only : neko_error
+  use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -98,6 +100,8 @@ module scalar_scheme
      class(pc_t), allocatable :: pc
      !> Dirichlet conditions.
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)
+     !> Field Dirichlet conditions.
+     type(field_dirichlet_t) :: field_dir_bc
      !> User Dirichlet conditions.
      type(usr_scalar_t) :: user_bc
      integer :: n_dir_bcs = 0
@@ -208,7 +212,7 @@ contains
 
     do i = 1, NEKO_MSH_MAX_ZLBLS
        bc_label = trim(bc_labels(i))
-       if (bc_label(1:1) .eq. 'd') then
+       if (bc_label(1:2) .eq. 'd=') then
           bc_exists = .false.
           bc_idx = 0
           do j = 1, i-1
@@ -233,6 +237,7 @@ contains
        if (bc_label(1:4) .eq. 'user') then
           call this%user_bc%mark_zone(zones(i))
        end if
+
     end do
 
     do i = 1, this%n_dir_bcs
@@ -264,7 +269,7 @@ contains
     ! Variables for retrieving json parameters
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
-    integer :: integer_val
+    integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, solver_precon
 
     this%u => neko_field_registry%get_field('u')
@@ -336,7 +341,7 @@ contains
 
     call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
 
-
+    ! Mark BC zones
     call this%user_bc%mark_zone(msh%wall)
     call this%user_bc%mark_zone(msh%inlet)
     call this%user_bc%mark_zone(msh%outlet)
@@ -345,6 +350,18 @@ contains
     call this%user_bc%finalize()
     call this%user_bc%set_coef(this%c_Xh)
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
+
+    ! Add field dirichlet BCs
+    call this%field_dir_bc%init(this%dm_Xh)
+    call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
+         'd_s', this%bc_labels)
+    call this%field_dir_bc%finalize()
+    call MPI_Allreduce(this%field_dir_bc%msk(0), integer_val, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    if (integer_val .gt. 0) then
+       call this%field_dir_bc%init_field('d_s')
+       call bc_list_add(this%bclst, this%field_dir_bc)
+    end if
 
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
