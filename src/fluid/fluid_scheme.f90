@@ -793,6 +793,8 @@ contains
   end subroutine fluid_scheme_validate
 
   !> Apply all boundary conditions defined for velocity
+  !! Here we perform additional gs operations to take care of
+  !! shared points between elements that have different BCs, as done in Nek5000.
   !! @todo Why can't we call the interface here?
   subroutine fluid_scheme_bc_apply_vel(this, t, tstep)
     class(fluid_scheme_t), intent(inout) :: this
@@ -801,8 +803,7 @@ contains
 
     call bc_list_apply_vector(this%bclst_vel,&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
-    !Same as in fluid_pnpn, we should add another bc that implements apply_vector
-    !This is a bit hacky
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call this%bc_field_u%apply_scalar_dev(this%u%x_d, t, tstep)
        call this%bc_field_v%apply_scalar_dev(this%v%x_d, t, tstep)
@@ -813,27 +814,28 @@ contains
        call this%bc_field_w%apply_scalar(this%w%x, this%dm_Xh%size(), t, tstep)
     end if
 
-    !call this%gs_Xh%op(this%u, GS_OP_MAX)
-    !call this%gs_Xh%op(this%v, GS_OP_MAX)
-    !call this%gs_Xh%op(this%w, GS_OP_MAX)
+   !! TODO: Take care of this, gather-scatter for shared points between elements
+   !! that have different BCs.
+   ! call this%gs_Xh%op(this%u, GS_OP_MAX)
+   ! call this%gs_Xh%op(this%v, GS_OP_MAX)
+   ! call this%gs_Xh%op(this%w, GS_OP_MAX)
 
-    !call bc_list_apply_vector(this%bclst_vel,&
-    !     this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
-    !!Same as in fluid_pnpn, we should add another bc that implements apply_vector
-    !!This is a bit hacky
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call this%bc_field_u%apply_scalar_dev(this%u%x_d, t, tstep)
-    !   call this%bc_field_v%apply_scalar_dev(this%v%x_d, t, tstep)
-    !   call this%bc_field_w%apply_scalar_dev(this%w%x_d, t, tstep)
-    !else
-    !   call this%bc_field_u%apply_scalar(this%u%x, this%dm_Xh%size(), t, tstep)
-    !   call this%bc_field_v%apply_scalar(this%v%x, this%dm_Xh%size(), t, tstep)
-    !   call this%bc_field_w%apply_scalar(this%w%x, this%dm_Xh%size(), t, tstep)
-    !end if
+   ! call bc_list_apply_vector(this%bclst_vel,&
+   !      this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
 
-    !call this%gs_Xh%op(this%u, GS_OP_MIN)
-    !call this%gs_Xh%op(this%v, GS_OP_MIN)
-    !call this%gs_Xh%op(this%w, GS_OP_MIN)
+   ! if (NEKO_BCKND_DEVICE .eq. 1) then
+   !    call this%bc_field_u%apply_scalar_dev(this%u%x_d, t, tstep)
+   !    call this%bc_field_v%apply_scalar_dev(this%v%x_d, t, tstep)
+   !    call this%bc_field_w%apply_scalar_dev(this%w%x_d, t, tstep)
+   ! else
+   !    call this%bc_field_u%apply_scalar(this%u%x, this%dm_Xh%size(), t, tstep)
+   !    call this%bc_field_v%apply_scalar(this%v%x, this%dm_Xh%size(), t, tstep)
+   !    call this%bc_field_w%apply_scalar(this%w%x, this%dm_Xh%size(), t, tstep)
+   ! end if
+
+   ! call this%gs_Xh%op(this%u, GS_OP_MIN)
+   ! call this%gs_Xh%op(this%v, GS_OP_MIN)
+   ! call this%gs_Xh%op(this%w, GS_OP_MIN)
 
   end subroutine fluid_scheme_bc_apply_vel
 
@@ -847,11 +849,13 @@ contains
     call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
                               this%p%dof%size(), t, tstep)
 
+    !! TODO: Take care of this,gather-scatter for shared points between elements
+    !! that have different BCs.
     !call this%gs_Xh%op(this%p, GS_OP_MAX)
-    !
+
     !call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
     !                          this%p%dof%size(), t, tstep)
-    !
+
     !call this%gs_Xh%op(this%p, GS_OP_MIN)
 
   end subroutine fluid_scheme_bc_apply_prs
