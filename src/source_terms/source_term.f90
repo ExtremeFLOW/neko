@@ -46,17 +46,23 @@ module source_term
      type(field_list_t) :: fields
      !> Coefficients for the SEM.
      type(coef_t), pointer :: coef => null()
+     !> Start time for adding the source term.
+     real(kind=rp) :: start_time = 0.0_rp
+     !> End time for adding the source term.
+     real(kind=rp) :: end_time = huge(0.0_rp)
    contains
      !> Constructor for the source_term_t (base) type.
      procedure, pass(this) :: init_base => source_term_init_base
      !> Destructor for the source_term_t (base) type.
      procedure, pass(this) :: free_base => source_term_free_base
+     !> Executes `compute_` based on time conditions.
+     procedure, pass(this) :: compute => source_term_compute_wrapper
      !> The common constructor using a JSON object.
      procedure(source_term_init), pass(this), deferred :: init
      !> Destructor.
      procedure(source_term_free), pass(this), deferred :: free
      !> Computes the source term and adds the result to `fields`.
-     procedure(source_term_compute), pass(this), deferred :: compute
+     procedure(source_term_compute), pass(this), deferred :: compute_
   end type source_term_t
 
 
@@ -109,13 +115,19 @@ contains
   !> @param fields A list of pointers to fields to be updated by the source
   !! term.
   !> @param coef SEM coefs.
-  subroutine source_term_init_base(this, fields, coef)
+  !! @param start_time When to start adding the source term.
+  !! @param end_time When to stop adding the source term.
+  subroutine source_term_init_base(this, fields, coef, start_time, end_time)
     class(source_term_t), intent(inout) :: this
     type(field_list_t) :: fields
     type(coef_t), intent(inout), target :: coef
+    real(kind=rp), intent(in) :: start_time
+    real(kind=rp), intent(in) :: end_time
     integer :: n_fields, i
 
     this%coef => coef
+    this%start_time = start_time
+    this%end_time = end_time
     n_fields = size(fields%fields)
     allocate(this%fields%fields(n_fields))
 
@@ -145,4 +157,17 @@ contains
     end if
   end subroutine source_term_wrapper_free
 
+  !> Executes `compute_` based on time conditions.
+  !> @param t Time value.
+  !> @param tstep Current time step.
+  subroutine source_term_compute_wrapper(this, t, tstep)
+    class(source_term_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    if (t >= this%start_time .and. t<= this%end_time) then
+       call this%compute_(t, tstep)
+    end if
+
+  end subroutine source_term_compute_wrapper
 end module source_term

@@ -69,7 +69,7 @@ module scalar_user_source_term
      procedure(scalar_source_compute_pointwise), nopass, pointer :: compute_pw_ &
        => null()
      !> Compute the source term for the entire boundary
-     procedure(scalar_source_compute_vector), nopass, pointer :: compute_ &
+     procedure(scalar_source_compute_vector), nopass, pointer :: compute_vector_&
        => null()
    contains
      !> Constructor from JSON (will throw!).
@@ -80,7 +80,7 @@ module scalar_user_source_term
      !> Destructor.
      procedure, pass(this) :: free => scalar_user_source_term_free
      !> Computes the source term and adds the result to `fields`.
-     procedure, pass(this) :: compute => scalar_user_source_term_compute
+     procedure, pass(this) :: compute_ => scalar_user_source_term_compute
   end type scalar_user_source_term_t
 
   abstract interface
@@ -146,7 +146,7 @@ contains
     procedure(scalar_source_compute_pointwise), optional :: eval_pointwise
 
     call this%free()
-    call this%init_base(fields, coef)
+    call this%init_base(fields, coef, 0.0_rp, huge(0.0_rp))
 
     this%dm => fields%fields(1)%f%dof
 
@@ -165,11 +165,11 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_error('Pointwise source terms not supported on accelerators')
        end if
-       this%compute_ => pointwise_eval_driver
+       this%compute_vector_ => pointwise_eval_driver
        this%compute_pw_ => eval_pointwise
     else if (trim(source_term_type) .eq. 'user_vector' .and. &
              present(eval_vector)) then
-       this%compute_ => eval_vector
+       this%compute_vector_ => eval_vector
     else
        call neko_error('Invalid fluid source term '//source_term_type)
     end if
@@ -183,7 +183,7 @@ contains
 
     if (c_associated(this%s_d)) call device_free(this%s_d)
 
-    nullify(this%compute_)
+    nullify(this%compute_vector_)
     nullify(this%compute_pw_)
     nullify(this%dm)
 
@@ -199,7 +199,7 @@ contains
     integer, intent(in) :: tstep
     integer :: n
 
-    call this%compute_(this, t)
+    call this%compute_vector_(this, t)
     n = this%fields%fields(1)%f%dof%size()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
