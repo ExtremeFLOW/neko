@@ -63,6 +63,9 @@ contains
     integer :: tstep, i
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
+    ! for variable_time_steping
+    integer :: dt_last_change = 0
+    real(kind=rp) :: cfl_avrg = 0_rp
 
     t = 0d0
     tstep = 0
@@ -94,11 +97,13 @@ contains
     call profiler_start
 
     start_time_org = MPI_WTIME()
+
     do while (t .lt. C%end_time .and. (.not. jobctrl_time_limit()))
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()
        cfl = C%fluid%compute_cfl(C%dt)
+       if (dt_last_change .eq. 0) cfl_avrg = cfl
        call neko_log%status(t, C%end_time)
        write(log_buf, '(A,I6)') 'Time-step: ', tstep
        call neko_log%message(log_buf)
@@ -106,6 +111,8 @@ contains
 
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%dt
        call neko_log%message(log_buf)
+       
+       call simulation_setdt(C%dt, C%params, cfl, cfl_avrg, dt_last_change)
 
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 
@@ -134,6 +141,8 @@ contains
        call neko_simcomps%compute(t, tstep)
 
        call C%q%eval(t, C%dt, tstep)
+       !> Sample is called after fluid step. Therefore, C%ulag(1) has 
+       !! u for the last time step
        call C%s%sample(t, tstep)
 
        ! Update material properties
@@ -151,7 +160,6 @@ contains
        call neko_log%end()
        call profiler_end_region
     end do
-
     call profiler_stop
 
     call json_get_or_default(C%params, 'case.output_at_end',&
@@ -266,6 +274,69 @@ contains
     call neko_log%message(log_buf)
 
   end subroutine simulation_joblimit_chkp
+
+    !> Set new dt based on cfl if requested
+  !! @param dt current time step
+  !! @param params json case file
+  !! @param cfl courant number of current iteration
+  !! @param cfl_avrg average courant number
+  !! @param dt_last_change time step since last dt change
+  subroutine simulation_setdt(dt, params, cfl, cfl_avrg, dt_last_change)
+    implicit none
+    real(kind=rp), intent(inout) :: dt
+    type(json_file), intent(inout) :: params
+    real(kind=rp), intent(in) :: cfl
+    real(kind=rp), intent(inout) :: cfl_avrg
+    integer, intent(inout) :: dt_last_change
+    real(kind=rp) :: set_cfl, dt_old, scaling_factor, max_dt
+    integer :: min_update_frequency
+    character(len=LOG_SIZE) :: log_buf    
+    logical :: found
+    real(kind=rp) :: alpha = 0.5_rp !coefficient of running average
+
+    call params%get('case.timestep', max_dt, found)
+    call params%get('case.constant_cfl', set_cfl, found)
+
+    if (found .eqv. .true.) then
+
+       call json_get_or_default(params, 'case.cfl_min_update_frequency',&
+                                   min_update_frequency, 1)
+
+       ! Calculate the average of cfl over the desired interval
+       cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
+
+       if (abs(cfl_avrg - set_cfl) .ge. 0.2*set_cfl .and. &
+          dt_last_change .ge. min_update_frequency) then
+
+          if (set_cfl/cfl .ge. 1) then 
+             scaling_factor = min(1.2, set_cfl/cfl) 
+          else
+             scaling_factor = max(0.8, set_cfl/cfl) 
+          end if
+
+          dt_old = dt
+          dt = scaling_factor * dt_old
+          dt = min(dt, max_dt)
+
+          write(log_buf, '(A,E15.7,1x,A,E15.7)') 'Avrg CFL:', cfl_avrg, &
+                       'set_cfl:', set_cfl
+          call neko_log%message(log_buf)
+
+          write(log_buf, '(A,E15.7,1x,A,E15.7)') 'old dt:', dt_old, &
+                       'new dt:', dt
+          call neko_log%message(log_buf)
+
+          dt_last_change = 0
+
+       else
+          dt_last_change = dt_last_change + 1
+       end if
+
+    end if
+
+  end subroutine simulation_setdt
+
+
 
 end module simulation
 
