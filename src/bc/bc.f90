@@ -291,12 +291,6 @@ contains
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'v') then
        msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'du') then
-       msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'dv') then
-       msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'dw') then
-       msh_bc_type = 2
     else if(trim(bc_key) .eq. 'd_vel') then
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'sym') then
