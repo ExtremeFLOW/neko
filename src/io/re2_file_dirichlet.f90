@@ -425,7 +425,7 @@ contains
           end do
        end do
     end do
-    write(*,*) 'reading curved data' 
+    write(*,*) 'Reading curved data'
     if (.not. v2_format) then
        allocate(re2v1_data_curve(ncurve))
        call MPI_File_read_at_all(fh, mpi_offset, re2v1_data_curve, ncurve, &
@@ -512,8 +512,14 @@ contains
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
     logical :: periodic
     type(re2v1_bc_t), allocatable :: re2v1_data_bc(:)
-    type(re2v2_bc_t), allocatable :: re2v2_data_bc(:)    
+    type(re2v2_bc_t), allocatable :: re2v2_data_bc(:)
 
+    ! Offsets for labeled zones
+    integer :: labeled_zone_total_offset, labeled_zone_offsets(5)
+    labeled_zone_total_offset = 0
+    labeled_zone_offsets = 0
+
+    call neko_log("Reading boundary conditions")
     if (.not. v2_format) then
        allocate(re2v1_data_bc(nbcs))
        call MPI_File_read_at_all(fh, mpi_offset, re2v1_data_bc, nbcs, &
@@ -534,15 +540,25 @@ contains
 
           select case(trim(re2v2_data_bc(i)%type))
           case ('W')
-             call msh%mark_wall_facet(sym_facet, el_idx)
+             if (labeled_zone_offsets(1) .eq. 0) call neko_log%message("'W'     => labeled index 1")
+             labeled_zone_offsets(1) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 1)
           case ('v', 'V')
-             call msh%mark_labeled_facet(sym_facet, el_idx, 1)
-          case ('O', 'o')
+             if (labeled_zone_offsets(2) .eq. 0) call neko_log%message("'v'/'V' => labeled index 2")
+             labeled_zone_offsets(2) = 1
              call msh%mark_labeled_facet(sym_facet, el_idx, 2)
-          case ('ON', 'on')
-             call msh%mark_labeled_facet(sym_facet, el_idx, 1)
+          case ('O', 'o')
+             if (labeled_zone_offsets(3) .eq. 0) call neko_log%message("'o'/'O' => labeled index 3")
+             labeled_zone_offsets(3) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 3)
           case ('SYM')
-             call msh%mark_sympln_facet(sym_facet, el_idx)
+             if (labeled_zone_offsets(4) .eq. 0) call neko_log%message("'SYM'   => labeled index 4")
+             labeled_zone_offsets(4) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 4)
+          case ('ON', 'on')
+             if (labeled_zone_offsets(5) .eq. 0) call neko_log%message("'on'/'ON' => labeled index 5")
+             labeled_zone_offsets(5) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 5)
           case ('P')
              periodic = .true.
              p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
@@ -550,8 +566,15 @@ contains
              call msh%get_facet_ids(sym_facet, el_idx, pids)
              call msh%mark_periodic_facet(sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
+
           case ('MSH', 'msh')
+
+             labeled_zone_total_offset = sum(labeled_zone_offsets)
              label = int(re2v2_data_bc(i)%bc_data(5))
+
+             ! Add the offset if the
+             if (label .le. labeled_zone_total_offset) label = label + labeled_zone_total_offset
+
              if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
                 call neko_error('Invalid label id (valid range [1,...,20])')
              end if
