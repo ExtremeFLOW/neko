@@ -71,7 +71,7 @@ contains
        fname = 'stats.fld'
     end if
 
-    call output_init(this, fname)
+    call this%init_base(fname)
     this%stats => stats
     this%T_begin = T_begin
   end function fluid_stats_output_init
