@@ -316,21 +316,31 @@ contains
     ! Add dirichlet BCs to the case object
     !
     ! First add the list of fields
-    allocate(C%dirichlet_bc_field_list%fields(5))
+    if (scalar) then
+       allocate(C%dirichlet_bc_field_list%fields(5))
+    else
+       allocate(C%dirichlet_bc_field_list%fields(4))
+    end if
+
     C%dirichlet_bc_field_list%fields(1)%f => C%fluid%bc_field_u%field_bc
     C%dirichlet_bc_field_list%fields(2)%f => C%fluid%bc_field_v%field_bc
     C%dirichlet_bc_field_list%fields(3)%f => C%fluid%bc_field_w%field_bc
     C%dirichlet_bc_field_list%fields(4)%f => C%fluid%bc_field_prs%field_bc
-    C%dirichlet_bc_field_list%fields(5)%f => C%scalar%field_dir_bc%field_bc
+    if (scalar) C%dirichlet_bc_field_list%fields(5)%f => C%scalar%field_dir_bc%field_bc
 
     ! And then add the list of BCs (pass it down to the user so they can access
     ! the bc mask)
-    call bc_list_init(C%dirichlet_bc_bc_list, size=5)
+    if (scalar) then
+       call bc_list_init(C%dirichlet_bc_bc_list, size=5)
+    else
+       call bc_list_init(C%dirichlet_bc_bc_list, size=4)
+    end if
+
     call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_u)
     call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_v)
     call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_w)
     call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_prs)
-    call bc_list_add(C%dirichlet_bc_bc_list, C%scalar%field_dir_bc)
+    if (scalar) call bc_list_add(C%dirichlet_bc_bc_list, C%scalar%field_dir_bc)
 
     !
     ! Validate that the case is properly setup for time-stepping
