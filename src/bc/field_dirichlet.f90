@@ -46,7 +46,8 @@ module field_dirichlet
   implicit none
   private
   
-  !> User defined dirichlet condition,
+  !> User defined dirichlet condition, for which the user can work
+  !! with an entire field.
   !! Would be neat to add another class that contains all three 
   !! dirichlet bcs for the velocity, this bc would then implement
   !! apply_vector.
@@ -61,7 +62,7 @@ module field_dirichlet
      procedure, pass(this) :: apply_vector => field_dirichlet_apply_vector
      !> (No-op) Apply vector (device).
      procedure, pass(this) :: apply_vector_dev => field_dirichlet_apply_vector_dev
-     !> Apply scalar (device)
+     !> Apply scalar (device).
      procedure, pass(this) :: apply_scalar_dev => field_dirichlet_apply_scalar_dev
   end type field_dirichlet_t
 
