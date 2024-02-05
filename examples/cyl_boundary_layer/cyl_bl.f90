@@ -151,8 +151,10 @@ contains
   !TODO: should we pass down coef? 
   !Can it perhaps be made prettier, should one always check allocated?
   !RIght now they are only allocated if there is a user specified dirichlet bc for that field
-  subroutine dirichlet_update(field_bc_list, t, tstep)
+  subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep)
     type(field_list_t), intent(inout) :: field_bc_list
+    type(bc_list_t), intent(inout) :: bc_bc_list
+    type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -164,6 +166,8 @@ contains
        call device_cfill(field_bc_list%fields(3)%f%x_d,0d0,field_bc_list%fields(3)%f%dof%size())
        if (allocated(field_bc_list%fields(4)%f%x)) &
        call device_cfill(field_bc_list%fields(4)%f%x_d,2d0,field_bc_list%fields(4)%f%dof%size())
+       if (allocated(field_bc_list%fields(5)%f%x)) &
+       call device_cfill(field_bc_list%fields(5)%f%x_d,2d0,field_bc_list%fields(5)%f%dof%size())
     else
        if (allocated(field_bc_list%fields(1)%f%x)) &
        call cfill(field_bc_list%fields(1)%f%x,1d0,field_bc_list%fields(1)%f%dof%size())
@@ -173,6 +177,8 @@ contains
        call cfill(field_bc_list%fields(3)%f%x,0d0,field_bc_list%fields(3)%f%dof%size())
        if (allocated(field_bc_list%fields(4)%f%x)) &
        call cfill(field_bc_list%fields(4)%f%x,2d0,field_bc_list%fields(4)%f%dof%size())
+       if (allocated(field_bc_list%fields(5)%f%x)) &
+       call cfill(field_bc_list%fields(5)%f%x,2d0,field_bc_list%fields(5)%f%dof%size())
     end if
   end subroutine dirichlet_update
 

@@ -2,10 +2,10 @@
 "version": 1.0,
 "case": {
     "mesh_file": "cyl.nmsh",
-    "output_at_end": true,
+    "output_at_end": false,
     "output_boundary": true,
     "output_checkpoints": false,
-    "end_time": 100,
+    "end_time": 1.6e-3,
     "output_directory": "results_user_bc_test",
     "timestep": 8e-4,
     "numerics": {
@@ -15,8 +15,6 @@
     },
     "fluid": {
         "scheme": "pnpn",
-        "rho": 1,
-        "mu": 1,
         "Re": 500,
         "source_term": {
             "type": "noforce"
@@ -42,9 +40,25 @@
             "absolute_tolerance": 1e-5,
             "max_iterations": 800
         },
-        "boundary_types": ["du/dv/dw", "dp/du", "sym", "w", "on", "on", "w"],
+        "boundary_types": ["d_vel", "d_pres/d_vel", "sym", "w", "on", "on", "w"],
         "output_control": "tsteps",
         "output_value": 1
+    },
+    "scalar": {
+	    "enabled": true,
+            "Pe": 0.71,
+            "boundary_types": [
+                "d_s",
+                "d_s",
+                "",
+                "",
+                "",
+                ""
+            ],
+            "initial_condition": {
+                "type": "uniform",
+		"value": 0.0
+            }
     }
 }
 }
