@@ -177,7 +177,7 @@ The following types are currently implemented.
    reals corresponding to the 3 components of the forcing.
 2. `user_pointwise`, the values are set inside the compiled user file, using the
    pointwise user file subroutine. Only works on CPUs!
-2. `user_vector`, the values are set inside the compiled user file, using the
+3. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
 
 
