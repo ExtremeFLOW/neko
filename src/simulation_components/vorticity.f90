@@ -41,7 +41,7 @@ module vorticity
   use field, only : field_t
   use operators, only : curl
   use case, only : case_t
-  use fld_output, only : fld_output_t
+  use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
   implicit none
   private
@@ -69,7 +69,7 @@ module vorticity
      type(field_t) :: temp2
 
      !> Output writer.
-     type(fld_output_t), private :: output
+     type(fld_file_output_t), private :: output
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -117,7 +117,7 @@ contains
     class(vorticity_t), intent(inout) :: this
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
-    type(fld_output_t) :: output
+    type(fld_file_output_t) :: output
 
     this%u => neko_field_registry%get_field_by_name("u")
     this%v => neko_field_registry%get_field_by_name("v")

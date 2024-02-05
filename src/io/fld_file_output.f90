@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements `fld_output_t`.
-module fld_output
+!> Implements `fld_file_output_t`.
+module fld_file_output
   use num_types, only : rp
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -41,15 +41,15 @@ module fld_output
   private
 
   !> A simple output saving a list of fields to a .fld file.
-  type, public, extends(output_t) :: fld_output_t
+  type, public, extends(output_t) :: fld_file_output_t
      ! The list of fields to save.
      type(field_list_t) :: fields
    contains
      ! Constructor.
-     procedure, pass(this) :: init => fld_output_init
+     procedure, pass(this) :: init => fld_file_output_init
      ! Writes the data.
-     procedure, pass(this) :: sample => fld_output_sample
-  end type fld_output_t
+     procedure, pass(this) :: sample => fld_file_output_sample
+  end type fld_file_output_t
 
 contains
 
@@ -58,8 +58,8 @@ contains
   !! @param name The base name of the files.
   !! @param name The number of field pointers to preallocate in the field list.
   !! @param path Optional path to the write folder.
-  subroutine fld_output_init(this, precision, name, nfields, path)
-    class(fld_output_t), intent (inout) :: this
+  subroutine fld_file_output_init(this, precision, name, nfields, path)
+    class(fld_file_output_t), intent (inout) :: this
     integer, intent(in) :: precision
     character(len=*), intent(in) :: name
     character(len=*), intent(in), optional :: path
@@ -80,12 +80,12 @@ contains
 
     allocate(this%fields%fields(3))
 
-   end subroutine fld_output_init
+   end subroutine fld_file_output_init
 
   !> Writes the data.
   !! @param t The time value.
-  subroutine fld_output_sample(this, t)
-    class(fld_output_t), intent(inout) :: this
+  subroutine fld_file_output_sample(this, t)
+    class(fld_file_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
 
@@ -102,6 +102,6 @@ contains
 
     call this%file_%write(this%fields, t)
 
-  end subroutine fld_output_sample
+  end subroutine fld_file_output_sample
 
-end module fld_output
+end module fld_file_output
