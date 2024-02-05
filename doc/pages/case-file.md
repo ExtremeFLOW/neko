@@ -186,14 +186,16 @@ The value of the keyword is an array of strings, with the following possible
 values:
 * `w`, a no-slip wall.
 * `v`, a Dirichlet boundary.
+* `d_vel`, a Dirichlet boundary for more complex velocity profiles. This boundary condition uses a more advanced user interface. 
 * `sym`, a symmetry boundary.
 * `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
    the wall-normal. The wall-parallel velocity is defined by the initial
    condition. 
 * `o`, outlet boundary. 
+* `d_pres`, a boundary for specified non-uniform pressure profiles, similar in essence to `d_vel`. Can be combined with `d_vel` by specifying: `"d_vel/d_pres"`.
 * `o+dong`, outlet boundary using the Dong condition. 
 * `on+dong`, an `on` boundary using the Dong condition, ensuring that the
-   wall-normal velocity is directed outwards. 
+   wall-normal velocity is directed outwards.
 
 In some cases, only some boundary types have to be provided.
 For example, when one has periodic boundaries, like in the channel flow example. 
