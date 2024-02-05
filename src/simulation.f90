@@ -38,17 +38,19 @@ module simulation
   use file
   use math
   use logger
+  use device
+  use device_math
   use jobctrl
+  use field, only : field_t
   use profiler
   use math, only : col2
-  use simulation_component_global, only : neko_simcomps
-  use json_module, only : json_file_t => json_file
+  use simcomp_executor, only : neko_simcomps
   use json_utils, only : json_get_or_default
   implicit none
   private
 
   public :: neko_solve
-  
+
 contains
 
   !> Main driver to solve a case @a C
@@ -57,14 +59,13 @@ contains
     type(case_t), intent(inout) :: C
     real(kind=rp) :: t, cfl
     real(kind=dp) :: start_time_org, start_time, end_time
-    character(len=LOG_SIZE) :: log_buf    
+    character(len=LOG_SIZE) :: log_buf
     integer :: tstep, i
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
     ! for variable_time_steping
     integer :: dt_last_change = 0
     real(kind=rp) :: cfl_avrg = 0_rp
-    real(kind=rp) :: cfl_avrg_t = 0_rp 
 
     t = 0d0
     tstep = 0
@@ -73,14 +74,18 @@ contains
     call neko_log%message(log_buf)
     write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
     call neko_log%message(log_buf)
-    
+
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
+       ! Restart the case
        call simulation_restart(C, t)
+
+       ! Restart the simulation components
+       call neko_simcomps%restart(t)
     end if
 
     !> Call stats, samplers and user-init before time loop
-    call neko_log%section('Postprocessing')       
+    call neko_log%section('Postprocessing')
     call C%q%eval(t, C%dt, tstep)
     call C%s%sample(t, tstep)
 
@@ -92,11 +97,13 @@ contains
     call profiler_start
 
     start_time_org = MPI_WTIME()
+
     do while (t .lt. C%end_time .and. (.not. jobctrl_time_limit()))
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()
        cfl = C%fluid%compute_cfl(C%dt)
+       if (dt_last_change .eq. 0) cfl_avrg = cfl
        call neko_log%status(t, C%end_time)
        write(log_buf, '(A,I6)') 'Time-step: ', tstep
        call neko_log%message(log_buf)
@@ -104,13 +111,12 @@ contains
 
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%dt
        call neko_log%message(log_buf)
+       
+       call simulation_setdt(C%dt, C%params, cfl, cfl_avrg, dt_last_change)
 
-       ! Fluid step
-       call simulation_setdt(C%dt, C%params, cfl, &
-                             cfl_avrg_t, cfl_avrg, dt_last_change)
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 
-       call neko_log%section('Fluid')       
+       call neko_log%section('Fluid')
        call C%fluid%step(t, tstep, C%dt, C%ext_bdf)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7,A,E15.7)') &
@@ -121,30 +127,23 @@ contains
        ! Scalar step
        if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
-          call neko_log%section('Scalar')       
+          call neko_log%section('Scalar')
           call C%scalar%step(t, tstep, C%dt, C%ext_bdf)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7,A,E15.7)') &
                'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
                end_time-start_time
           call neko_log%end_section(log_buf)
-       end if                 
+       end if
 
-       call neko_log%section('Postprocessing')       
+       call neko_log%section('Postprocessing')
+       ! Execute all simulation components
+       call neko_simcomps%compute(t, tstep)
+
        call C%q%eval(t, C%dt, tstep)
        !> Sample is called after fluid step. Therefore, C%ulag(1) has 
        !! u for the last time step
        call C%s%sample(t, tstep)
-       
-       call C%usr%user_check(t, tstep,&
-            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
-         
-       ! Execute all simulation components
-       if (allocated(neko_simcomps)) then
-         do i=1, size(neko_simcomps)
-            call neko_simcomps(i)%simcomp%compute(t, tstep)
-         end do
-       end if
 
        ! Update material properties
        call C%usr%material_properties(t, tstep, C%material_properties%rho,&
@@ -152,18 +151,21 @@ contains
                                       C%material_properties%cp, &
                                       C%material_properties%lambda, &
                                       C%params)
+
+       call C%usr%user_check(t, tstep,&
+            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+
        call neko_log%end_section()
-       
+
        call neko_log%end()
        call profiler_end_region
     end do
-
     call profiler_stop
 
     call json_get_or_default(C%params, 'case.output_at_end',&
                              output_at_end, .true.)
     call C%s%sample(t, tstep, output_at_end)
-    
+
     if (.not. (output_at_end) .and. t .lt. C%end_time) then
        call simulation_joblimit_chkp(C, t)
     end if
@@ -171,7 +173,7 @@ contains
     call C%usr%user_finalize_modules(t, C%params)
 
     call neko_log%end_section('Normal end.')
-    
+
   end subroutine neko_solve
 
   subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)
@@ -182,7 +184,7 @@ contains
     real(kind=rp), dimension(10) :: dtlag
     integer, intent(in) :: step
     integer :: i
-    
+
 
     do i = 10, 2, -1
        tlag(i) = tlag(i-1)
@@ -190,7 +192,8 @@ contains
     end do
 
     dtlag(1) = dt
-    if (step .eq. 1) then
+    tlag(1) = t
+    if (ext_bdf%ndiff .eq. 0) then
        dtlag(2) = dt
        tlag(2) = t
     end if
@@ -198,7 +201,7 @@ contains
     t = t + dt
 
     call ext_bdf%set_coeffs(dtlag)
-    
+
   end subroutine simulation_settime
 
   !> Restart a case @a C from a given checkpoint
@@ -208,7 +211,7 @@ contains
     real(kind=rp), intent(inout) :: t
     integer :: i
     type(file_t) :: chkpf, previous_meshf
-    character(len=LOG_SIZE) :: log_buf   
+    character(len=LOG_SIZE) :: log_buf
     character(len=:), allocatable :: restart_file
     character(len=:), allocatable :: restart_mesh_file
     real(kind=rp) :: tol
@@ -228,47 +231,23 @@ contains
 
     if (found) C%fluid%chkp%mesh2mesh_tol = tol
 
-
+    C%dtlag(:) = C%dt
+    C%tlag(:) = t
+    do i = 1, size(C%tlag)
+       C%tlag(i) = t - i*C%dtlag(i)
+    end do
 
     chkpf = file_t(trim(restart_file))
     call chkpf%read(C%fluid%chkp)
     !Free the previous mesh, dont need it anymore
     call C%fluid%chkp%previous_mesh%free()
-    
-    ! Make sure that continuity is maintained (important for interpolation) 
-    call col2(C%fluid%u%x,C%fluid%c_Xh%mult,C%fluid%u%dof%size())
-    call col2(C%fluid%v%x,C%fluid%c_Xh%mult,C%fluid%u%dof%size())
-    call col2(C%fluid%w%x,C%fluid%c_Xh%mult,C%fluid%u%dof%size())
-    call col2(C%fluid%p%x,C%fluid%c_Xh%mult,C%fluid%u%dof%size())
-    select type (fld => C%fluid)
-    type is(fluid_pnpn_t)
-    do i = 1, fld%ulag%size()
-       call col2(fld%ulag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
-       call col2(fld%vlag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
-       call col2(fld%wlag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
+    do i = 1, size(C%dtlag)
+       call C%ext_bdf%set_coeffs(C%dtlag)
     end do
-    end select
-    if (allocated(C%scalar)) then
-        call col2(C%scalar%s%x,C%scalar%c_Xh%mult, C%scalar%s%dof%size()) 
-    end if
 
-    call C%fluid%chkp%sync_device()
-    call C%fluid%gs_Xh%op(C%fluid%u,GS_OP_ADD)
-    call C%fluid%gs_Xh%op(C%fluid%v,GS_OP_ADD)
-    call C%fluid%gs_Xh%op(C%fluid%w,GS_OP_ADD)
-    call C%fluid%gs_Xh%op(C%fluid%p,GS_OP_ADD)
-    select type (fld => C%fluid)
-    type is(fluid_pnpn_t)
-    do i = 1, fld%ulag%size()
-       call fld%gs_Xh%op(fld%ulag%lf(i),GS_OP_ADD)
-       call fld%gs_Xh%op(fld%vlag%lf(i),GS_OP_ADD)
-       call fld%gs_Xh%op(fld%wlag%lf(i),GS_OP_ADD)
-    end do
-    end select
- 
-    if (allocated(C%scalar)) then
-       call C%scalar%gs_Xh%op(C%scalar%s,GS_OP_ADD)
-    end if
+    call C%fluid%restart(C%dtlag, C%tlag)
+    if (allocated(C%scalar)) call C%scalar%restart( C%dtlag, C%tlag)
+
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
     write(log_buf,'(A,A)') 'File :   ', &
@@ -277,7 +256,6 @@ contains
     write(log_buf,'(A,E15.7)') 'Time : ', t
     call neko_log%message(log_buf)
     call neko_log%end_section()
-
 
     call C%s%set_counter(t)
   end subroutine simulation_restart
@@ -294,41 +272,38 @@ contains
     call chkpf%write(C%fluid%chkp, t)
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)
-    
+
   end subroutine simulation_joblimit_chkp
 
-  !> Set new dt based on cfl if requested
+    !> Set new dt based on cfl if requested
   !! @param dt current time step
   !! @param params json case file
   !! @param cfl courant number of current iteration
-  !! @param cfl_avrg_t averaging time for courant number
   !! @param cfl_avrg average courant number
   !! @param dt_last_change time step since last dt change
-  subroutine simulation_setdt(dt, params, cfl, cfl_avrg_t, cfl_avrg, dt_last_change)
+  subroutine simulation_setdt(dt, params, cfl, cfl_avrg, dt_last_change)
     implicit none
     real(kind=rp), intent(inout) :: dt
     type(json_file), intent(inout) :: params
     real(kind=rp), intent(in) :: cfl
-    real(kind=rp), intent(inout) :: cfl_avrg_t, cfl_avrg
+    real(kind=rp), intent(inout) :: cfl_avrg
     integer, intent(inout) :: dt_last_change
     real(kind=rp) :: set_cfl, dt_old, scaling_factor, max_dt
     integer :: min_update_frequency
     character(len=LOG_SIZE) :: log_buf    
     logical :: found
+    real(kind=rp) :: alpha = 0.5_rp !coefficient of running average
 
     call params%get('case.timestep', max_dt, found)
     call params%get('case.constant_cfl', set_cfl, found)
 
     if (found .eqv. .true.) then
-   
+
        call json_get_or_default(params, 'case.cfl_min_update_frequency',&
                                    min_update_frequency, 1)
- 
+
        ! Calculate the average of cfl over the desired interval
-       cfl_avrg = cfl_avrg * cfl_avrg_t 
-       cfl_avrg = cfl_avrg + cfl * dt
-       cfl_avrg_t = cfl_avrg_t + dt
-       cfl_avrg = cfl_avrg / cfl_avrg_t
+       cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
 
        if (abs(cfl_avrg - set_cfl) .ge. 0.2*set_cfl .and. &
           dt_last_change .ge. min_update_frequency) then
@@ -347,15 +322,12 @@ contains
                        'set_cfl:', set_cfl
           call neko_log%message(log_buf)
 
-       
           write(log_buf, '(A,E15.7,1x,A,E15.7)') 'old dt:', dt_old, &
                        'new dt:', dt
           call neko_log%message(log_buf)
 
-          cfl_avrg = 0
-          cfl_avrg_t = 0
           dt_last_change = 0
-       
+
        else
           dt_last_change = dt_last_change + 1
        end if
@@ -363,6 +335,8 @@ contains
     end if
 
   end subroutine simulation_setdt
+
+
 
 end module simulation
 
