@@ -53,7 +53,7 @@ module polytope_aligned
      class(alignment_t), allocatable :: algn_op
    contains
      !> Free polytope and aligned data
-     procedure, pass(this) :: freea => polytope_free
+     procedure, pass(this) :: free_base => polytope_free_base
      !> Initialise alignment data
      procedure, pass(this) :: init_data => polytope_init_data
      !> Return a pointer to the polytope
@@ -102,12 +102,12 @@ module polytope_aligned
 contains
 
   !> Free polytope and aligned data
-  subroutine polytope_free(this)
+  subroutine polytope_free_base(this)
     class(polytope_aligned_t), intent(inout) :: this
     this%polytope => null()
     this%ifaligned_ = .false.
     if (allocated(this%algn_op)) deallocate(this%algn_op)
-  end subroutine polytope_free
+  end subroutine polytope_free_base
 
   !> Initialise general data
   !! @parameter[in]   pltp   polytope

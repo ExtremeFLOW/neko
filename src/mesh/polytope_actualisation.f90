@@ -91,7 +91,7 @@ contains
   subroutine polytope_free(this)
     class(polytope_actualisation_t), intent(inout) :: this
 
-    call this%freea()
+    call this%free_base()
 
     this%ifinterpolation_ = .false.
     this%hanging_ = 0

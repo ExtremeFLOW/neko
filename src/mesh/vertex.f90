@@ -132,7 +132,7 @@ contains
     call this%free()
 
     call this%set_tdim(NEKO_VERTEX_TDIM)
-    call this%set_nelem(NEKO_VERTEX_NFACET, NEKO_VERTEX_NRIDGE,&
+    call this%set_ncomp(NEKO_VERTEX_NFACET, NEKO_VERTEX_NRIDGE,&
          & NEKO_VERTEX_NPEAK)
     call this%set_id(id)
     ! vertex has no boundary information

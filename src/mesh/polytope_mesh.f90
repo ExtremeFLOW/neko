@@ -41,7 +41,7 @@ module polytope_mesh
 
   public :: mesh_object_t, polytope_mesh_t, mesh_element_t
 
-  !> Single element object allocatable space
+  !> Single component object allocatable space
   type :: mesh_object_t
      class(polytope_actualisation_t), allocatable :: obj
   end type mesh_object_t
@@ -81,7 +81,7 @@ module polytope_mesh
      !> Return a pointer to the polytope vertex points
      procedure, pass(this) :: pnt => polytope_pnt_ptr
      !> Is polytope self-periodic?
-     procedure, pass(this) :: selfp => polytope_self_periodic
+     procedure, pass(this) :: self_periodic => polytope_self_periodic
      !> Return facets shared by polytopes
      procedure, pass(this) :: fct_share => polytope_facet_share
      !> Return ridges shared by polytopes
@@ -119,7 +119,7 @@ module polytope_mesh
      class(polytope_mesh_t), allocatable :: el
   end type mesh_element_t
 
-  !> Abstract interface to initialise a polytope with geometry information
+  !> Initialise a polytope with geometry information
   !! @parameter[in]   id       polytope id
   !! @parameter[in]   nfct     number of facets
   !! @parameter[in]   fct      polytope facets
@@ -143,7 +143,7 @@ module polytope_mesh
      end subroutine polytope_mesh_init
   end interface
 
-  !> Abstract interface to get element diameter
+  !> Get element diameter
   !! @return res
   abstract interface
      function polytope_mesh_diameter(this) result(res)
@@ -154,7 +154,7 @@ module polytope_mesh
      end function polytope_mesh_diameter
   end interface
 
-  !> Abstract interface to get element centroid
+  !> Get element centroid
   !! @return res
   abstract interface
      function polytope_mesh_centroid(this) result(res)
@@ -165,7 +165,7 @@ module polytope_mesh
      end function polytope_mesh_centroid
   end interface
 
-  !> Abstract interface to get @a r and @a s facet local directions
+  !> Get @a r and @a s facet local directions
   !! @parameter[in]   pos          facet position
   !! @parameter[out]  dirr, dirs   local directions
   abstract interface
@@ -178,7 +178,7 @@ module polytope_mesh
      end subroutine polytope_fct_dir
   end interface
 
-  !> Abstract interface to get @a r ridge local direction
+  !> Get @a r ridge local direction
   !! @parameter[in]   pos          ridge position
   !! @parameter[out]  dirr         local direction
   abstract interface
@@ -219,7 +219,7 @@ contains
        end do
        deallocate(this%peak)
     end if
-    call this%freep()
+    call this%free_base()
     if (allocated(this%pts)) then
        do il = 1, this%npts_
           this%pts(il)%p => null()
@@ -261,7 +261,7 @@ contains
   end function polytope_npts_get
 
   !> @brief Return pointer to the polytope facet
-  !! @parameter[in]   pos   polytope element position
+  !! @parameter[in]   pos   polytope component position
   !! @return ptr
   function polytope_fct_ptr(this, pos) result(ptr)
     class(polytope_mesh_t), intent(in) :: this
@@ -275,7 +275,7 @@ contains
   end function polytope_fct_ptr
 
   !> @brief Return pointer to the polytope ridge
-  !! @parameter[in]   pos   polytope element position
+  !! @parameter[in]   pos   polytope component position
   !! @return ptr
   function polytope_rdg_ptr(this, pos) result(ptr)
     class(polytope_mesh_t), intent(in) :: this
@@ -289,7 +289,7 @@ contains
   end function polytope_rdg_ptr
 
   !> @brief Return pointer to the polytope peak
-  !! @parameter[in]   pos   polytope element position
+  !! @parameter[in]   pos   polytope component position
   !! @return ptr
   function polytope_pek_ptr(this, pos) result(ptr)
     class(polytope_mesh_t), intent(in) :: this

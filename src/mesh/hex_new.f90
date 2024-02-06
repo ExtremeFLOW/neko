@@ -209,7 +209,7 @@ contains
     call this%free()
 
     call this%set_tdim(NEKO_HEX_TDIM)
-    call this%set_nelem(NEKO_HEX_NFACET, NEKO_HEX_NRIDGE,&
+    call this%set_ncomp(NEKO_HEX_NFACET, NEKO_HEX_NRIDGE,&
          & NEKO_HEX_NPEAK)
     call this%set_id(id)
     call this%init_dat(gdim, npts)
@@ -220,7 +220,7 @@ contains
           ! There are more than just a single realisation of cell, so check
           ! everything
           if (NEKO_QUAD_TDIM == fct(il)%obj%polytope%tdim() .and. &
-               & fct(il)%obj%polytope%equal_elem(NEKO_QUAD_NFACET, &
+               & fct(il)%obj%polytope%check_comp(NEKO_QUAD_NFACET, &
                & NEKO_QUAD_NRIDGE, NEKO_QUAD_NPEAK)) then
              ! facet position
              jl = fct(il)%obj%pos()
@@ -561,7 +561,7 @@ contains
           if (.not. equal) then
              ! Something wrong; edge with the same global id should have
              ! the same type and the same facets/ridges
-             call neko_error('Mismatch in class or elements global id')
+             call neko_error('Mismatch in class or element global id')
           end if
        end if
     end if

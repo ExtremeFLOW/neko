@@ -192,7 +192,7 @@ contains
     call this%free()
 
     call this%set_tdim(NEKO_QUAD_TDIM)
-    call this%set_nelem(NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE,&
+    call this%set_ncomp(NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE,&
          & NEKO_QUAD_NPEAK)
     call this%set_id(id)
     ! quad can have boundary information for 3D meshes
@@ -318,7 +318,7 @@ contains
     call this%free()
 
     ! There are multiple realisations of polygon, so check everything
-    if (pltp%tdim() == NEKO_QUAD_TDIM .and. pltp%equal_elem(NEKO_QUAD_NFACET, &
+    if (pltp%tdim() == NEKO_QUAD_TDIM .and. pltp%check_comp(NEKO_QUAD_NFACET, &
          & NEKO_QUAD_NRIDGE, NEKO_QUAD_NPEAK)) then
        ! set alignment operator
        call alignment_quad_init(algn, this%algn_op)
@@ -497,7 +497,7 @@ contains
     call this%free()
 
     call this%set_tdim(NEKO_QUAD_TDIM)
-    call this%set_nelem(NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
+    call this%set_ncomp(NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
          & NEKO_QUAD_NPEAK)
     call this%set_id(id)
     call this%init_dat(gdim, npts)
@@ -630,7 +630,7 @@ contains
           if (.not. equal) then
              ! Something wrong; edge with the same global id should have
              ! the same type and the same facets/ridges
-             call neko_error('Mismatch in class or elements global id')
+             call neko_error('Mismatch in class or element global id')
           end if
        end if
     end if

@@ -62,7 +62,7 @@ module edge
   !! Its only actualisation are components of higher-dimension objects.
   !! Depending on mesh dimension edges can contain internal/external boundary
   !! information (in case of 2D meshes they are face facets). To simplify type
-  !! structure I add this information here. This information is stored in
+  !! structure we add this information here. This information is stored in
   !! @a boundary field (0 -internal, 1 - periodic, ....). In case of 3D mesh
   !! its value should be set to -1 and not used.
   type, extends(polytope_topology_t) :: edge_tpl_t
@@ -168,7 +168,7 @@ contains
     call this%free()
 
     call this%set_tdim(NEKO_EDGE_TDIM)
-    call this%set_nelem(NEKO_EDGE_NFACET, NEKO_EDGE_NRIDGE,&
+    call this%set_ncomp(NEKO_EDGE_NFACET, NEKO_EDGE_NRIDGE,&
          & NEKO_EDGE_NPEAK)
     call this%set_id(id)
     ! edge can have boundary information for 2D meshes

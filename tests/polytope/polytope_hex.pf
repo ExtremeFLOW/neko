@@ -61,7 +61,7 @@ subroutine test_hex_mesh_simple
   ! hex dimensions
   @assertEqual(hxm1%id(), idh1)
   @assertEqual(hxm1%tdim(), 3)
-  @assertTrue(hxm1%equal_elem(6, 12, 8))
+  @assertTrue(hxm1%check_comp(6, 12, 8))
 
   ! pointers
   ! facets
@@ -70,7 +70,7 @@ subroutine test_hex_mesh_simple
      @assertTrue(associated(poly))
      @assertEqual(poly%id(), idq(il))
      @assertEqual(poly%tdim(), 2)
-     @assertTrue(poly%equal_elem(4, 4, 0))
+     @assertTrue(poly%check_comp(4, 4, 0))
      @assertEqual(poly%bnd(), bnq(il))
      @assertEqual(poly%gsid(), gsq(il))
      @assertTrue(poly%equal(qut(il)))
@@ -81,7 +81,7 @@ subroutine test_hex_mesh_simple
      @assertTrue(associated(poly))
      @assertEqual(poly%id(), ide(il))
      @assertEqual(poly%tdim(), 1)
-     @assertTrue(poly%equal_elem(2, 0, 0))
+     @assertTrue(poly%check_comp(2, 0, 0))
      @assertEqual(poly%bnd(), -1)
      @assertEqual(poly%gsid(), gse(il))
      @assertTrue(poly%equal(edt(il)))
@@ -92,7 +92,7 @@ subroutine test_hex_mesh_simple
      @assertTrue(associated(poly))
      @assertEqual(poly%id(), idv(il))
      @assertEqual(poly%tdim(), 0)
-     @assertTrue(poly%equal_elem(0, 0, 0))
+     @assertTrue(poly%check_comp(0, 0, 0))
      @assertEqual(poly%bnd(), -1)
      @assertEqual(poly%gsid(), gsv(il))
      @assertTrue(poly%equal(vrt(il)))
@@ -106,7 +106,7 @@ subroutine test_hex_mesh_simple
   end do
 
   ! self-periodic flag
-  @assertFalse(hxm1%selfp())
+  @assertFalse(hxm1%self_periodic())
 
   ! facet boundary flag
   do il = 1, 6

@@ -71,7 +71,7 @@ contains
   subroutine polytope_free(this)
     class(polytope_oriented_t), intent(inout) :: this
 
-    call this%freea()
+    call this%free_base()
   end subroutine polytope_free
 
 end module polytope_oriented

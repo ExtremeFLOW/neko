@@ -43,7 +43,7 @@ module polytope
   !> Base type for an abstract polytope
   !! @details An abstract polytope of dimension @a tdim_ is a partially ordered
   !! set of its lower dimension components: facets (dim -1), ridges (dim -2),
-  !! peaks (dim -3)... I do not consider polytopes with dim > 3, so numbers of
+  !! peaks (dim -3)... We do not consider polytopes with dim > 3, so numbers of
   !! facets (@a nfacet) ridges (@a nridge) and peaks (@a npeak) are taken into
   !! account only.
   type, extends(entity_t), abstract :: polytope_t
@@ -57,19 +57,19 @@ module polytope
      integer(i4) :: npeak = -1
    contains
      !> Free polytope data
-     procedure, pass(this) :: freep => polytope_freep
+     procedure, pass(this) :: free_base => polytope_free_base
      !> Return polytope dimension
      procedure, pass(this) :: tdim => polytope_tdim_get
      !> Set polytope dimension
      procedure, pass(this) :: set_tdim => polytope_tdim_set
-     !> Return polytope element number
-     procedure, pass(this) :: nelem => polytope_element_number_get
-     !> Set polytope element number
-     procedure, pass(this) :: set_nelem => polytope_element_number_set
-     !> Polytope equality on the level of dimension and element number
+     !> Return polytope component number
+     procedure, pass(this) :: ncomp => polytope_component_number_get
+     !> Set polytope component number
+     procedure, pass(this) :: set_ncomp => polytope_component_number_set
+     !> Polytope equality on the level of dimension and component number
      procedure, pass(this) :: equal_poly => polytope_equal_poly
-     !> Compare polytope element numbers
-     procedure, pass(this) :: equal_elem => polytope_equal_element
+     !> Compare polytope component numbers
+     procedure, pass(this) :: check_comp => polytope_check_component
      !> Free type
      procedure(polytope_free), pass(this), deferred :: free
      !> Pointer to the polytope facet
@@ -81,7 +81,7 @@ module polytope
      !> Test equality
      procedure(polytope_equal), pass(this), deferred :: equal
      !> Test self-periodicity
-     procedure(polytope_self_periodic), pass(this), deferred :: selfp
+     procedure(polytope_self_periodic), pass(this), deferred :: self_periodic
      !> Return facet alignment
      procedure(polytope_algn), pass(this), deferred :: falgn
      !> Return boundary information (topology object only)
@@ -103,8 +103,8 @@ module polytope
      end subroutine polytope_free
   end interface
 
-  !> Returns polytope element pointer
-  !! @parameter[in]   pos   polytope element position
+  !> Returns polytope component pointer
+  !! @parameter[in]   pos   polytope component position
   !! @return ptr
   abstract interface
      function polytope_pointer(this, pos) result(ptr)
@@ -139,7 +139,7 @@ module polytope
   end interface
 
   !> Return alignment
-  !! @parameter[in]   pos   polytope element position
+  !! @parameter[in]   pos   polytope component position
   !! @return algn
   abstract interface
      function polytope_algn(this, pos) result(algn)
@@ -164,13 +164,13 @@ module polytope
 
 contains
   !> Free polytope data
-  subroutine polytope_freep(this)
+  subroutine polytope_free_base(this)
     class(polytope_t), intent(inout) :: this
     this%tdim_ = -1
     this%nfacet = -1
     this%nridge = -1
     this%npeak = -1
-  end subroutine polytope_freep
+  end subroutine polytope_free_base
 
   !> @brief Get polytope dimension
   !! @return   dim
@@ -188,24 +188,24 @@ contains
     this%tdim_ = dim
   end subroutine polytope_tdim_set
 
-  !> @brief Get polytope elements numbers
+  !> @brief Get polytope components numbers
   !! @parameter[out]  nfacet   number of facets
   !! @parameter[out]  nridge  number of rdiges
   !! @parameter[out]  npeak   number of peaks
-  pure subroutine polytope_element_number_get(this, nfacet, nridge, npeak)
+  pure subroutine polytope_component_number_get(this, nfacet, nridge, npeak)
     class(polytope_t), intent(in) :: this
     integer(i4), intent(out) :: nfacet, nridge, npeak
     nfacet = this%nfacet
     nridge = this%nridge
     npeak = this%npeak
-  end subroutine polytope_element_number_get
+  end subroutine polytope_component_number_get
 
-  !> @brief Set polytope dimension
+  !> @brief Set polytope component numbers
   !! @note This subroutine assumes @ dim to be set before
   !! @parameter[in]   nfacet  number of facets
   !! @parameter[in]   nridge  number of rdiges
   !! @parameter[in]   npeak   number of peaks
-  subroutine polytope_element_number_set(this, nfacet, nridge, npeak)
+  subroutine polytope_component_number_set(this, nfacet, nridge, npeak)
     class(polytope_t), intent(inout) :: this
     integer(i4), intent(in) :: nfacet, nridge, npeak
     ! sanity check
@@ -213,42 +213,29 @@ contains
     select case(this%tdim_)
     case(0)
        if ((nfacet /= 0) .or. (nridge /= 0) .or. (npeak /= 0)) then
-          call neko_error('Vertex has no elements.')
-       else
-          this%nfacet = 0
-          this%nridge = 0
-          this%npeak = 0
+          call neko_error('Vertex has no components.')
        end if
     case(1)
-       if ((nfacet == 2) .and. (nridge == 0) .and. (npeak == 0)) then
-          this%nfacet = 2
-          this%nridge = 0
-          this%npeak = 0
-       else
+       if ((nfacet /= 2) .or. (nridge /= 0) .or. (npeak /= 0)) then
            call neko_error('Edge contains two facets only.')
        end if
     case(2)
-       if ((nfacet > 0) .and. (nridge > 0) .and. (npeak == 0)) then
-          this%nfacet = nfacet
-          this%nridge = nridge
-          this%npeak = 0
-       else
+       if ((nfacet <= 0) .or. (nridge <= 0) .or. (npeak /= 0)) then
            call neko_error('Face has no peaks.')
        end if
     case(3)
-       if ((nfacet > 0) .and. (nridge > 0) .and. (npeak > 0)) then
-          this%nfacet = nfacet
-          this%nridge = nridge
-          this%npeak = npeak
-       else
-           call neko_error('Cell has all type of elements.')
+       if ((nfacet <= 0) .or. (nridge <= 0) .or. (npeak <= 0)) then
+          call neko_error('Cell has all type of components.')
        end if
     case default
        call neko_error('Unsupported polytope dimension')
     end select
-  end subroutine polytope_element_number_set
+    this%nfacet = nfacet
+    this%nridge = nridge
+    this%npeak = npeak
+  end subroutine polytope_component_number_set
 
-  !> @brief Check if two polytopes have the same dimension and element numbers
+  !> @brief Check if two polytopes have the same dimension and component numbers
   !! @parameter[in]    other  polytope
   !! @return   equal
   pure function polytope_equal_poly(this, other) result(equal)
@@ -257,25 +244,25 @@ contains
     integer(i4) :: nfacet, nridge, npeak, nfaceto, nridgeo, npeako
     equal = (this%tdim() == other%tdim())
     if (equal) then
-       call this%nelem(nfacet, nridge, npeak)
-       call other%nelem(nfaceto, nridgeo, npeako)
+       call this%ncomp(nfacet, nridge, npeak)
+       call other%ncomp(nfaceto, nridgeo, npeako)
        equal = (nfacet == nfaceto) .and. (nridge == nridgeo) .and. &
             & (npeak == npeako)
     end if
   end function polytope_equal_poly
 
-  !> @brief Check if two polytopes have the same dimension and element numbers
+  !> @brief Check the polytope component numbers
   !! @parameter[in]   nfacet  number of facets
   !! @parameter[in]   nridge  number of rdiges
   !! @parameter[in]   npeak   number of peaks
   !! @return   equal
-  pure function polytope_equal_element(this, nfacet, nridge, npeak) &
+  pure function polytope_check_component(this, nfacet, nridge, npeak) &
        & result(equal)
     class(polytope_t), intent(in) :: this
     integer(i4), intent(in) :: nfacet, nridge, npeak
     logical :: equal
     equal = (nfacet == this%nfacet) .and. (nridge == this%nridge) .and. &
          & (npeak == this%npeak)
-  end function polytope_equal_element
+  end function polytope_check_component
 
 end module polytope

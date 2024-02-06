@@ -75,7 +75,7 @@ module polytope_topology
      !> Set communication global id
      procedure, pass(this) :: set_gsid => polytope_gsid_set
      !> Is polytope self-periodic?
-     procedure, pass(this) :: selfp => polytope_self_periodic
+     procedure, pass(this) :: self_periodic => polytope_self_periodic
      !> Return facets shared by polytopes
      procedure, pass(this) :: fct_share => polytope_facet_share
      !> Return ridges shared by polytopes
@@ -129,11 +129,11 @@ contains
        end do
        deallocate(this%ridge)
     end if
-    call this%freep()
+    call this%free_base()
   end subroutine polytope_free
 
   !> @brief Return pointer to the polytope facet
-  !! @parameter[in]   pos   polytope element position
+  !! @parameter[in]   pos   polytope component position
   !! @return ptr
   function polytope_fct_ptr(this, pos) result(ptr)
     class(polytope_topology_t), intent(in) :: this
@@ -147,7 +147,7 @@ contains
   end function polytope_fct_ptr
 
   !> @brief Return pointer to the polytope ridge
-  !! @parameter[in]   pos   polytope element position
+  !! @parameter[in]   pos   polytope component position
   !! @return ptr
   function polytope_rdg_ptr(this, pos) result(ptr)
     class(polytope_topology_t), intent(in) :: this
@@ -161,7 +161,7 @@ contains
   end function polytope_rdg_ptr
 
   !> @brief Return pointer to the polytope peak; not used
-  !! @parameter[in]   pos   polytope element position
+  !! @parameter[in]   pos   polytope component position
   !! @return ptr
   function polytope_pek_ptr(this, pos) result(ptr)
     class(polytope_topology_t), intent(in) :: this
