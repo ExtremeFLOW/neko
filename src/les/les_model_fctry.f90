@@ -1,3 +1,4 @@
+
 ! Copyright (c) 2021-2022, The Neko Authors
 ! All rights reserved.
 !
@@ -30,61 +31,41 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines an output for a mean squared flow field
-module mean_sqr_flow_output
-  use mean_sqr_flow
-  use num_types
-  use output
+module les_model_fctry
+  use les_model, only : les_model_t
+  use vreman, only : vreman_t
+  use dofmap, only : dofmap_t
+  use coefs, only : coef_t
+  use json_module, only : json_file
   implicit none
   private
 
-  type, public, extends(output_t) :: mean_sqr_flow_output_t
-     type(mean_sqr_flow_t), pointer :: msqrf
-     real(kind=rp) :: T_begin
-   contains
-     procedure, pass(this) :: sample => mean_sqr_flow_output_sample
-  end type mean_sqr_flow_output_t
-
-  interface mean_sqr_flow_output_t
-     module procedure mean_sqr_flow_output_init
-  end interface mean_sqr_flow_output_t
+  public :: les_model_factory
 
 contains
+  !> LES model factory. Both constructs and initializes the object.
+  !! @param les_model The object to be allocated.
+  !! @param name The name of the LES model.
+  !! @param dofmap SEM map of degrees of freedom.
+  !! @param coef SEM coefficients.
+  !! @param json A dictionary with parameters.
+  subroutine les_model_factory(les_model, name, dofmap, coef, json)
+    class(les_model_t), allocatable, target, intent(inout) :: les_model
+    character(len=*), intent(in) :: name
+    type(dofmap_t), intent(in) :: dofmap
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) :: json
 
-  function mean_sqr_flow_output_init(msqrf, T_begin, name, path) result(this)
-    type(mean_sqr_flow_t), intent(in), target ::msqrf
-    real(kind=rp), intent(in) :: T_begin
-    character(len=*), intent(in), optional :: name
-    character(len=*), intent(in), optional :: path
-    type(mean_sqr_flow_output_t) :: this
-    character(len=1024) :: fname
-
-    if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // '.fld'
-    else if (present(name)) then
-       fname = trim(name) // '.fld'
-    else if (present(path)) then
-       fname = trim(path) // 'mean_sqr_field.fld'
-    else
-       fname = 'mean_sqr_field.fld'
+    if (allocated(les_model)) then
+       deallocate(les_model)
     end if
 
-    call this%init_base(fname)
-    this%msqrf => msqrf
-    this%T_begin = T_begin
-  end function mean_sqr_flow_output_init
-
-  !> Sample a mean squared flow field at time @a t
-  subroutine mean_sqr_flow_output_sample(this, t)
-    class(mean_sqr_flow_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-
-    if (t .ge. this%T_begin) then
-       call this%file_%write(this%msqrf, t)
+    if (trim(name) .eq. 'vreman') then
+       allocate(vreman_t::les_model)
     end if
 
-  end subroutine mean_sqr_flow_output_sample
+    call les_model%init(dofmap, coef, json)
 
-end module mean_sqr_flow_output
+  end subroutine les_model_factory
 
-
+end module les_model_fctry

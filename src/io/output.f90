@@ -35,12 +35,13 @@ module output
   use num_types, only : rp
   use file, only : file_t
   implicit none
+  private
 
   !> Abstract type defining an output type
   type, public, abstract :: output_t
      type(file_t) :: file_
    contains
-     procedure, pass(this) :: init => output_init
+     procedure, pass(this) :: init_base => output_init
      procedure, pass(this) :: set_counter => output_set_counter
      procedure, pass(this) :: set_start_counter => output_set_start_counter
      procedure(output_sample), pass(this), deferred :: sample
@@ -64,7 +65,7 @@ contains
   subroutine output_init(this, fname, precision)
     class(output_t), intent(inout) :: this
     character(len=*), intent(inout) :: fname
-    integer, intent(inout), optional :: precision
+    integer, intent(in), optional :: precision
 
     if (present(precision)) then
        this%file_ = file_t(fname, precision=precision)

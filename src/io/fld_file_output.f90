@@ -30,81 +30,67 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines an output for a fluid
-module fluid_output
+!> Implements `fld_file_output_t`.
+module fld_file_output
   use num_types, only : rp
-  use fluid_scheme, only : fluid_scheme_t
-  use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
-  use neko_config
-  use device
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   implicit none
+  private
 
-  !> Fluid output
-  type, public, extends(output_t) :: fluid_output_t
-     type(field_list_t) :: fluid
+  !> A simple output saving a list of fields to a .fld file.
+  type, public, extends(output_t) :: fld_file_output_t
+     ! The list of fields to save.
+     type(field_list_t) :: fields
    contains
-     procedure, pass(this) :: sample => fluid_output_sample
-  end type fluid_output_t
-
-  interface fluid_output_t
-     module procedure fluid_output_init
-  end interface fluid_output_t
+     ! Constructor.
+     procedure, pass(this) :: init => fld_file_output_init
+     ! Writes the data.
+     procedure, pass(this) :: sample => fld_file_output_sample
+  end type fld_file_output_t
 
 contains
 
-  function fluid_output_init(precision, fluid, scalar, name, path) result(this)
-    integer, intent(inout) :: precision
-    class(fluid_scheme_t), intent(in), target :: fluid
-    class(scalar_scheme_t), intent(in), optional, target :: scalar
-    character(len=*), intent(in), optional :: name
+  !> Constructor.
+  !! @param precision the precison of the reals in the file.
+  !! @param name The base name of the files.
+  !! @param name The number of field pointers to preallocate in the field list.
+  !! @param path Optional path to the write folder.
+  subroutine fld_file_output_init(this, precision, name, nfields, path)
+    class(fld_file_output_t), intent (inout) :: this
+    integer, intent(in) :: precision
+    character(len=*), intent(in) :: name
     character(len=*), intent(in), optional :: path
-    type(fluid_output_t) :: this
+    integer, intent(in) :: nfields
     character(len=1024) :: fname
 
-    if (present(name) .and. present(path)) then
+    if (present(path)) then
        fname = trim(path) // trim(name) // '.fld'
-    else if (present(name)) then
-       fname = trim(name) // '.fld'
-    else if (present(path)) then
-       fname = trim(path) // 'field.fld'
     else
-       fname = 'field.fld'
+       fname = trim(name) // '.fld'
     end if
 
     call this%init_base(fname, precision)
 
-    if (allocated(this%fluid%fields)) then
-       deallocate(this%fluid%fields)
+    if (allocated(this%fields%fields)) then
+       deallocate(this%fields%fields)
     end if
 
-    if (present(scalar)) then
-       allocate(this%fluid%fields(5))
-    else
-       allocate(this%fluid%fields(4))
-    end if
+    allocate(this%fields%fields(3))
 
-    this%fluid%fields(1)%f => fluid%p
-    this%fluid%fields(2)%f => fluid%u
-    this%fluid%fields(3)%f => fluid%v
-    this%fluid%fields(4)%f => fluid%w
+   end subroutine fld_file_output_init
 
-    if (present(scalar)) then
-       this%fluid%fields(5)%f => scalar%s
-    end if
-
-  end function fluid_output_init
-
-  !> Sample a fluid solution at time @a t
-  subroutine fluid_output_sample(this, t)
-    class(fluid_output_t), intent(inout) :: this
+  !> Writes the data.
+  !! @param t The time value.
+  subroutine fld_file_output_sample(this, t)
+    class(fld_file_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-
-       associate(fields => this%fluid%fields)
+       associate(fields => this%fields%fields)
          do i = 1, size(fields)
             call device_memcpy(fields(i)%f%x, fields(i)%f%x_d, &
                  fields(i)%f%dof%size(), DEVICE_TO_HOST, &
@@ -114,8 +100,8 @@ contains
 
     end if
 
-    call this%file_%write(this%fluid, t)
+    call this%file_%write(this%fields, t)
 
-  end subroutine fluid_output_sample
+  end subroutine fld_file_output_sample
 
-end module fluid_output
+end module fld_file_output
