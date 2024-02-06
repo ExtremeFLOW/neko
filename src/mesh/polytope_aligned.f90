@@ -40,7 +40,7 @@ module polytope_aligned
   public :: polytope_aligned_t
 
   !> Base type for an abstract aligned polytope
-  !! @details This is an abstract type combining polytope class and alignment
+  !! @details This is an abstract type combining @ref polytope_t and an alignment
   !! operator. Note that vertices have no alignment. This type corresponds to
   !! building blocs of the higher dimension abstract objects the topology or
   !! mesh consists of.
