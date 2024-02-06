@@ -31,6 +31,31 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Abstract type for alignment operators
+!! To understand alignment, consider, two neighbouring quads in a 2D mesh,
+!! sharing a single edge. The edge is globally defined by two points, p1 and
+!! p2. However, in the internal numbering of the two quads, the same point can
+!! be numbered as either the first point or the second, depending on which
+!! one gets the higher internal number. Similarly, for the other point.
+!! Alignment basically refers to the relative orientation of the edge
+!! in the internal numbering systems of the two quads it belongs two.
+!! For the case of the edge, only two alignments are possible: either p1 is
+!! is the "first" point in both quads or in one of the quads it is the "second".
+!! For higher dimensional polytopes the situation is more involved, for example,
+!! for the quad, there are 8 possible numberings.
+!! In the code, the various polytope alignments are assigned an integer number.
+!! Each alignment type for each polytope has a designated alignment operator
+!! implemented in the code, all descending from `alignment_t` defined in this
+!! module. The alignment operators are applied to the data living on the polytope
+!! and transform it according to the alignment. So, for example, for the edge
+!! there are two operators: the "identity" one, which doesn't do anything,
+!! and another one, which simply reverses the order of the data. Each operator
+!! type implements both the corresponding transformation and its inverse.
+!! Moreover, there are implementations of the same transformation for different
+!! types of the underlying data: integers (i4 and i8) and the rp real.
+!! It is possible to apply the transformation to only part of the data by
+!! specifying the starting array index from which the transformation is applied.
+!! Finally, subroutines for checking the relative alignment of two polytopes
+!! are provided. Currently, alignment is implemented for edges and quads only.
 module alignment
   use num_types, only : i4, i8, rp
   implicit none
