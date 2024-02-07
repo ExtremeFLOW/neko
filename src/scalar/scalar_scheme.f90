@@ -102,7 +102,7 @@ module scalar_scheme
      integer :: n_dir_bcs = 0
      !> List of boundary conditions.
      type(bc_list_t) :: bclst
-     !> Case paramters.
+     !> Scalar paramters dictionary.
      type(json_file), pointer :: params
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
@@ -118,9 +118,9 @@ module scalar_scheme
      character(len=20), allocatable :: bc_labels(:)
    contains
      !> Constructor for the base type.
-     procedure, pass(this) :: scheme_init => scalar_scheme_init
+     procedure, pass(this) :: init_base => scalar_scheme_init
      !> Destructor for the base type.
-     procedure, pass(this) :: scheme_free => scalar_scheme_free
+     procedure, pass(this) :: free_base => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
      procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
@@ -138,7 +138,8 @@ module scalar_scheme
   !> Abstract interface to initialize a scalar formulation
   abstract interface
      subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user,&
-                                         material_properties)
+                                         material_properties, dealias, &
+                                         dealias_order)
        import scalar_scheme_t
        import json_file
        import coef_t
@@ -153,6 +154,8 @@ module scalar_scheme
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
        type(material_properties_t), intent(inout) :: material_properties
+       logical, intent(in) :: dealias
+       integer, intent(in) :: dealias_order
      end subroutine scalar_scheme_init_intrf
   end interface
 
@@ -270,10 +273,10 @@ contains
     this%w => neko_field_registry%get_field('w')
 
     call neko_log%section('Scalar')
-    call json_get(params, 'case.fluid.velocity_solver.type', solver_type)
-    call json_get(params, 'case.fluid.velocity_solver.preconditioner',&
+    call json_get(params, 'solver.type', solver_type)
+    call json_get(params, 'solver.preconditioner',&
                   solver_precon)
-    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
+    call json_get(params, 'solver.absolute_tolerance',&
                   solver_abstol)
 
     !
@@ -290,8 +293,7 @@ contains
     write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
     call neko_log%message(log_buf)
 
-    call json_get_or_default(params, &
-                            'case.fluid.velocity_solver.projection_space_size',&
+    call json_get_or_default(params, 'solver.projection_space_size',&
                             this%projection_dim, 20)
 
 
@@ -325,10 +327,8 @@ contains
     ! A filler value
     this%bc_labels = "not"
 
-    if (params%valid_path('case.scalar.boundary_types')) then
-       call json_get(params, &
-                     'case.scalar.boundary_types', &
-                     this%bc_labels)
+    if (params%valid_path('boundary_types')) then
+       call json_get(params, 'boundary_types', this%bc_labels)
     end if
 
     !
@@ -353,7 +353,7 @@ contains
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
 
     ! todo parameter file ksp tol should be added
-    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
+    call json_get_or_default(params, 'solver.max_iterations',&
                              integer_val, 800)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol)

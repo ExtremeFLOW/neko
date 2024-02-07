@@ -124,8 +124,10 @@ contains
   !! @param gs The gather-scatter.
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
+  !! @param dealias Whether to apply dealiasing to the advection operator.
+  !! @param dealias_order The polynomial order in the space for dealiasing.
   subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
-                              material_properties)
+                              material_properties, dealias, dealias_order)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: coef
@@ -133,6 +135,8 @@ contains
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     type(material_properties_t), intent(inout) :: material_properties
+    logical, intent(in) :: dealias
+    integer, intent(in) :: dealias_order
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     ! Variables for retrieving json parameters
@@ -142,7 +146,7 @@ contains
     call this%free()
 
     ! Initiliaze base type.
-    call this%scheme_init(msh, coef, gs, params, scheme, user, &
+    call this%init_base(msh, coef, gs, params, scheme, user, &
                           material_properties)
 
     ! Setup backend dependent Ax routines
@@ -189,8 +193,7 @@ contains
     call bc_list_init(this%bclst_ds)
     call bc_list_add(this%bclst_ds, this%bc_res)
 
-    ! @todo not param stuff again, using velocity stuff
-    ! Intialize projection space thingy
+    ! Intialize projection space
     if (this%projection_dim .gt. 0) then
        call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
     end if
@@ -199,15 +202,7 @@ contains
     ! @todo Init chkp object, note, adding 3 slags
     ! call this%chkp%add_lag(this%slag, this%slag, this%slag)
 
-    ! Uses sthe same parameter as the fluid to set dealiasing
-    call json_get(params, 'case.numerics.dealias', logical_val)
-    call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
-                    found)
-    if (.not. found) then
-       call json_get(params, 'case.numerics.polynomial_order', integer_val)
-       integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
-    end if
-    call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
+    call advection_factory(this%adv, this%c_Xh, dealias, dealias_order)
 
   end subroutine scalar_pnpn_init
 
@@ -246,7 +241,7 @@ contains
     class(scalar_pnpn_t), intent(inout) :: this
 
     !Deallocate scalar field
-    call this%scheme_free()
+    call this%free_base()
 
     call bc_list_free(this%bclst_ds)
     call this%proj_s%free()
@@ -319,6 +314,8 @@ contains
 
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
+
+      write(*,*) this%f_Xh%x(:,1,1,1)
 
       ! Pre-multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then
