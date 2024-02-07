@@ -42,11 +42,13 @@ module scalar
   use operators, only : curl
   use case, only : case_t
   use scalar_pnpn, only : scalar_pnpn_t
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use scalar_ic, only : set_scalar_ic
   use json_utils, only : json_get
   use fld_file_output, only : fld_file_output_t
   use mpi_f08, only : MPI_WTIME
+  use material_properties, only : material_properties_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -89,6 +91,9 @@ contains
     character(len=:), allocatable :: ic_type
 
     call this%init_base(json, case)
+
+    ! TODO: should be in the other constructor with json parsed here
+    call set_material_properties(this%case%material_properties, json)
 
     call json_get(json, 'initial_condition.type', ic_type)
 
@@ -158,6 +163,8 @@ contains
     else
        call this%case%f_out%fluid%append(this%scheme%s)
     end if
+
+    call this%scheme%validate
   end subroutine scalar_init_from_attributes
 
   !> Destructor.
@@ -188,5 +195,45 @@ contains
     call neko_log%end_section(log_buf)
 
   end subroutine scalar_compute
+
+
+  subroutine set_material_properties(properties, json)
+    type(material_properties_t), intent(inout) :: properties
+    type(json_file), intent(inout) :: json
+    character(len=LOG_SIZE) :: log_buf
+
+
+    ! Incorrect user input
+    if (json%valid_path('Pe') .and. (json%valid_path('lambda') .or. &
+                                     json%valid_path('cp'))) then
+       call neko_error("To set the material properties for the scalar,&
+       & either provide Pe OR lambda  and cp in the case file.")
+
+    ! Non-dimensional case
+    else if (json%valid_path('Pe')) then
+       write(log_buf, '(A)') 'Non-dimensional scalar material properties &
+       & input.'
+       call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
+       write(log_buf, '(A)') 'Specific heat capacity will be set to 1, &
+       & conductivity to 1/Pe.'
+       call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
+
+       ! Read Pe into lambda for further manipulation.
+       call json_get(json, 'Pe', properties%lambda)
+       write(log_buf, '(A,ES13.6)') 'Pe         :',  properties%lambda
+       call neko_log%message(log_buf)
+
+       ! Set cp and rho to 1 since the setup is non-dimensional.
+       properties%cp = 1.0_rp
+       properties%rho = 1.0_rp
+       ! Invert the Pe to get conductivity
+       properties%lambda = 1.0_rp/properties%lambda
+    ! Dimensional case
+    else
+          call json_get(json, 'lambda', properties%lambda)
+          call json_get(json, 'cp', properties%cp)
+    end if
+
+  end subroutine set_material_properties
 
 end module scalar

@@ -126,56 +126,13 @@ contains
        end if
 
        !
-       ! Scalar
+       ! Scalar dummy values
        !
-       if (.not. params%valid_path('case.scalar')) then
-          ! Set dummy values
-          this%cp = 1.0_rp
-          this%lambda = 1.0_rp
-          call this%write_to_log(.false.)
-          return
-       end if
-
-       ! Incorrect user input
-       if (nondimensional .and. &
-           (params%valid_path('case.scalar.lambda') .or. &
-            params%valid_path('case.scalar.cp'))) then
-          call neko_error("For non-dimensional setup set the Pe number for&
-          & the scalar")
-       else if (.not. nondimensional .and. &
-                params%valid_path('case.scalar.Pe')) then
-          call neko_error("Dimensional material properties input detected,&
-          & because you set rho and mu for the fluid. &
-          & Please set cp and lambda for the scalar.")
-
-          ! Non-dimensional case
-       else if (nondimensional) then
-          write(log_buf, '(A)') 'Non-dimensional scalar material properties &
-          & input.'
-          call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
-          write(log_buf, '(A)') 'Specific heat capacity will be set to 1, &
-          & conductivity to 1/Pe.'
-          call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
-
-          ! Read Pe into lambda for further manipulation.
-          call json_get(params, 'case.scalar.Pe', this%lambda)
-          write(log_buf, '(A,ES13.6)') 'Pe         :',  this%lambda
-          call neko_log%message(log_buf)
-
-          ! Set cp and rho to 1 since the setup is non-dimensional.
-          this%cp = 1.0_rp
-          this%rho = 1.0_rp
-          ! Invert the Pe to get conductivity
-          this%lambda = 1.0_rp/this%lambda
-          ! Dimensional case
-       else
-          call json_get(params, 'case.scalar.lambda', this%lambda)
-          call json_get(params, 'case.scalar.cp', this%cp)
-       end if
+       this%cp = 1.0_rp
+       this%lambda = 1.0_rp
+       call this%write_to_log(.false.)
+       return
     end if
-
-    call this%write_to_log(.true.)
-
   end subroutine material_properties_init
 
   !> Write final dimensional values to the log.
