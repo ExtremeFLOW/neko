@@ -37,13 +37,15 @@
       "output_control": "nsamples",
       "output_value": 1
     },
-    "scalar": {
-      "enabled": true,
+    "simulation_components": [
+     {
+      "type" : "scalar",
       "lambda": 0.01,
       "cp": 1,
       "initial_condition": {
         "type": "user"
       },
+      "output_filename": "scalar",
       "source_terms": [
         {
           "type": "user_vector"
@@ -54,19 +56,9 @@
             "1.0"
           ]
         }
-      ]
-    },
-    "simulation_components": [
-      {
-        "type": "probes",
-        "compute_control": "nsamples",
-        "compute_value": 1,
-        "points_file": "probes.csv",
-        "output_file": "output.csv",
-        "fields": [
-          "s"
-        ]
-      }
+      ],
+      "order": 1
+    }
     ]
   }
 }

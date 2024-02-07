@@ -34,7 +34,7 @@
 !> Implements the `scalar_t` type.
 
 module scalar
-  use num_types, only : rp, dp
+  use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
@@ -45,6 +45,8 @@ module scalar
   use logger, only : neko_log, LOG_SIZE
   use scalar_ic, only : set_scalar_ic
   use json_utils, only : json_get
+  use fld_file_output, only : fld_file_output_t
+  use mpi_f08, only : MPI_WTIME
   implicit none
   private
 
@@ -58,7 +60,10 @@ module scalar
      type(field_t), pointer :: w
 
      !> The scalar scheme.
-     type(scalar_pnpn_t), allocatable :: scheme
+     type(scalar_pnpn_t) :: scheme
+
+     !> Output writer.
+     type(fld_file_output_t), private :: output
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -79,18 +84,40 @@ contains
     class(scalar_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
+    character(len=:), allocatable :: filename
+    character(len=:), allocatable :: precision
+    character(len=:), allocatable :: ic_type
 
     call this%init_base(json, case)
 
-    call scalar_init_from_attributes(this)
+    call json_get(json, 'initial_condition.type', ic_type)
+
+    if (json%valid_path("output_filename")) then
+       call json_get(json, "output_filename", filename)
+       if (json%valid_path("output_precision")) then
+           call json_get(json, "output_precision", precision)
+           if (precision == "double") then
+              call scalar_init_from_attributes(this, ic_type, filename, dp)
+           else
+              call scalar_init_from_attributes(this, ic_type, filename, sp)
+           end if
+       else
+           call scalar_init_from_attributes(this, ic_type, filename)
+       end if
+    else
+       call scalar_init_from_attributes(this, ic_type)
+    end if
+
   end subroutine scalar_init_from_json
 
   !> Actual constructor.
-  subroutine scalar_init_from_attributes(this)
+  subroutine scalar_init_from_attributes(this, ic_type, filename, precision)
     class(scalar_t), target, intent(inout) :: this
-    character(len=:), allocatable :: ic_type
+    character(len=*), intent(in) :: ic_type
+    character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
 
-    allocate(this%scheme)
+    !allocate(this%scheme)
 
     call this%scheme%init(this%case%msh, this%case%fluid%c_Xh, &
        this%case%fluid%gs_Xh, this%case%params, this%case%usr, &
@@ -110,13 +137,26 @@ contains
     call this%scheme%set_user_bc(this%case%usr%scalar_user_bc)
 
     ! Initial condition
-    call json_get(this%case%params, 'case.scalar.initial_condition.type', ic_type)
     if (trim(ic_type) .ne. 'user') then
-       call set_scalar_ic(this%scheme%s, &
-         this%scheme%c_Xh, this%scheme%gs_Xh, ic_type, this%case%params)
+       call set_scalar_ic(this%scheme%s, this%scheme%c_Xh, this%scheme%gs_Xh,&
+                          ic_type, this%case%params)
     else
-       call set_scalar_ic(this%scheme%s, &
-         this%scheme%c_Xh, this%scheme%gs_Xh, this%case%usr%scalar_user_ic, this%case%params)
+       call set_scalar_ic(this%scheme%s,  this%scheme%c_Xh, this%scheme%gs_Xh,&
+                          this%case%usr%scalar_user_ic, this%case%params)
+    end if
+
+    ! Setup file output
+    if (present(filename)) then
+       if (present(precision)) then
+          call this%output%init(precision, filename, 1)
+       else
+          call this%output%init(sp, filename, 1)
+       end if
+       this%output%fields%fields(1)%f => this%scheme%s
+       call this%case%s%add(this%output, this%output_controller%control_value, &
+                            this%output_controller%control_mode)
+    else
+       call this%case%f_out%fluid%append(this%scheme%s)
     end if
   end subroutine scalar_init_from_attributes
 
@@ -126,7 +166,7 @@ contains
     call this%free_base()
 
     call this%scheme%free()
-    deallocate(this%scheme)
+    !deallocate(this%scheme)
   end subroutine scalar_free
 
   !> Solve the scalar equation.
@@ -140,11 +180,11 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
 
-   ! start_time = MPI_WTIME()
+    start_time = MPI_WTIME()
     call neko_log%section('Scalar simcomp')
     call this%scheme%step(t, tstep, this%case%dt, this%case%ext_bdf)
-    !end_time = MPI_WTIME()
-    !write(log_buf, '(A,E15.7)') 'Step time:', end_time-start_time
+    end_time = MPI_WTIME()
+    write(log_buf, '(A,E15.7)') 'Step time:', end_time-start_time
     call neko_log%end_section(log_buf)
 
   end subroutine scalar_compute

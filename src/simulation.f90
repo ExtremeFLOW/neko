@@ -32,6 +32,7 @@
 !
 !> Simulation driver
 module simulation
+  use num_types, only : rp, dp
   use case, only : case_t
   use gather_scatter
   use time_scheme_controller, only : time_scheme_controller_t
@@ -46,6 +47,7 @@ module simulation
   use math, only : col2
   use simcomp_executor, only : neko_simcomps
   use json_utils, only : json_get_or_default
+  use mpi_f08, only: MPI_WTIME
   implicit none
   private
 

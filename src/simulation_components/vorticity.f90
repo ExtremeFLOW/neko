@@ -117,7 +117,6 @@ contains
     class(vorticity_t), intent(inout) :: this
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
-    type(fld_file_output_t) :: output
 
     this%u => neko_field_registry%get_field_by_name("u")
     this%v => neko_field_registry%get_field_by_name("v")

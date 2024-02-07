@@ -319,16 +319,10 @@ contains
     end if
 
     !
-    ! Setup sampler
+    ! Setup sampler and add fluid output
     !
     call C%s%init(C%end_time)
-!    if (scalar) then
-!       C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
-!            path=trim(output_directory))
-!    else
-       C%f_out = fluid_output_t(precision, C%fluid, &
-            path=trim(output_directory))
-!    end if
+    C%f_out = fluid_output_t(precision, C%fluid, path=trim(output_directory))
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
                              string_val, 'org')
