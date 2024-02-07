@@ -78,7 +78,7 @@ contains
        deallocate(this%fields%fields)
     end if
 
-    allocate(this%fields%fields(3))
+    allocate(this%fields%fields(nfields))
 
    end subroutine fld_file_output_init
 
