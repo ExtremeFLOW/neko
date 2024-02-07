@@ -44,6 +44,7 @@ module scalar_source_term
   use json_module, only : json_file, json_core, json_value
   use coefs, only : coef_t
   use user_intf, only : user_t
+  use utils, only : neko_warning
   implicit none
   private
 
@@ -121,6 +122,11 @@ contains
           ! The user source is treated separately
           if ((trim(type) .eq. "user_vector") .or. &
               (trim(type) .eq. "user_pointwise")) then
+             if (source_subdict%valid_path("start_time") .or. &
+                 source_subdict%valid_path("end_time")) then
+                 call neko_warning("The start_time and end_time parameters have&
+                                    & no effect on the scalar user source term")
+             end if
 
              call init_user_source(this%source_terms(i)%source_term, &
                                     rhs_fields, coef, type, user)
