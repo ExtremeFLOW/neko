@@ -300,19 +300,19 @@ contains
   !! @param core JSON core object.
   !! @param parent The parent JSON object with the array.
   !! @param i The index of the item to extract.
-  !! @param subdict JSON object object to be filled with the subdict.
-  subroutine json_extract_item(core, parent, i, subdict)
+  !! @param item JSON object object to be filled with the subdict.
+  subroutine json_extract_item(core, parent, i, item)
     type(json_core), intent(inout) :: core
     type(json_value), pointer, intent(in) :: parent
     integer, intent(in) :: i
-    type(json_file), intent(inout) :: subdict
+    type(json_file), intent(inout) :: item
     type(json_value), pointer :: ptr
     logical :: found
     character(len=:), allocatable :: buffer
 
     call core%get_child(parent, i, ptr, found)
     call core%print_to_string(ptr, buffer)
-    call subdict%load_from_string(buffer)
+    call item%load_from_string(buffer)
 
   end subroutine json_extract_item
 
