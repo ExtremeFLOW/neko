@@ -44,7 +44,7 @@ module scalar
   use scalar_pnpn, only : scalar_pnpn_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use scalar_ic, only : set_scalar_ic
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_default
   use fld_file_output, only : fld_file_output_t
   use mpi_f08, only : MPI_WTIME
   use material_properties, only : material_properties_t
@@ -82,6 +82,8 @@ module scalar
 contains
 
   !> Constructor from json.
+  !! @note We cannot use only this constructor, because `this` is not a
+  !! `target´, which is necessary.
   subroutine scalar_init_from_json(this, json, case)
     class(scalar_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -89,48 +91,66 @@ contains
     character(len=:), allocatable :: filename
     character(len=:), allocatable :: precision
     character(len=:), allocatable :: ic_type
+    logical :: dealias
+    integer :: p_order, dealias_order
 
     call this%init_base(json, case)
 
-    ! TODO: should be in the other constructor with json parsed here
     call set_material_properties(this%case%material_properties, json)
 
     call json_get(json, 'initial_condition.type', ic_type)
 
+    ! Uses global case parameter for dealiasing.
+    call json_get(this%case%params, 'case.numerics.dealias', dealias)
+    call json_get(this%case%params, 'case.numerics.polynomial_order', p_order)
+    call json_get_or_default(this%case%params,&
+                             'case.numerics.dealiased_polynomial_order',&
+                             dealias_order,&
+                             int(3.0_rp / 2.0_rp * (p_order + 1)))
+
+    ! Handle output options and call the other constructor.
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        if (json%valid_path("output_precision")) then
            call json_get(json, "output_precision", precision)
            if (precision == "double") then
-              call scalar_init_from_attributes(this, ic_type, filename, dp)
+              call scalar_init_from_attributes(this, json, ic_type, dealias,&
+                                               dealias_order, filename, dp)
            else
-              call scalar_init_from_attributes(this, ic_type, filename, sp)
+              call scalar_init_from_attributes(this, json, ic_type, dealias,&
+                                               dealias_order, filename, sp)
            end if
        else
-           call scalar_init_from_attributes(this, ic_type, filename)
+            call scalar_init_from_attributes(this, json, ic_type, dealias,&
+                                             dealias_order, filename)
        end if
     else
-       call scalar_init_from_attributes(this, ic_type)
+       call scalar_init_from_attributes(this, json, ic_type, dealias,&
+                                        dealias_order)
     end if
-
   end subroutine scalar_init_from_json
 
-  !> Actual constructor.
-  subroutine scalar_init_from_attributes(this, ic_type, filename, precision)
+  !> The second constructor.
+  !! Admittedly, the split between the two constructors is quite arbitrary.
+  subroutine scalar_init_from_attributes(this, json, ic_type, dealias, &
+                                         dealias_order, filename, precision)
     class(scalar_t), target, intent(inout) :: this
+    type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: ic_type
+    logical, intent(in) :: dealias
+    integer, intent(in) :: dealias_order
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    !allocate(this%scheme)
-
+    ! Init the scheme
     call this%scheme%init(this%case%msh, this%case%fluid%c_Xh, &
-       this%case%fluid%gs_Xh, this%case%params, this%case%usr, &
-       this%case%material_properties)
+                          this%case%fluid%gs_Xh, json, this%case%usr, &
+                          this%case%material_properties, dealias, dealias_order)
 
-    call this%scheme%set_user_bc(this%case%usr%scalar_user_bc)
-
+    ! Set lag arrays
     call this%scheme%slag%set(this%scheme%s)
+
+    ! Validate scheme initialization
     call this%scheme%validate()
 
     call this%case%fluid%chkp%add_scalar(this%scheme%s)
@@ -171,9 +191,7 @@ contains
   subroutine scalar_free(this)
     class(scalar_t), intent(inout) :: this
     call this%free_base()
-
     call this%scheme%free()
-    !deallocate(this%scheme)
   end subroutine scalar_free
 
   !> Solve the scalar equation.
