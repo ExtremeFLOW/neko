@@ -296,9 +296,9 @@ contains
     end if
   end subroutine json_get_or_default_string
 
-  !> Extract `i`th item from a JSON array as a seprate JSON object.
+  !> Extract `i`th item from a JSON array as a separate JSON object.
   !! @param core JSON core object.
-  !! @param parent The parent JSON object with the array.
+  !! @param array The JSON object with the array.
   !! @param i The index of the item to extract.
   !! @param item JSON object object to be filled with the subdict.
   subroutine json_extract_item(core, array, i, item)
