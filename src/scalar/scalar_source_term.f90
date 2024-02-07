@@ -1,5 +1,5 @@
 
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ module scalar_source_term
 
 contains
 
-  !> Costructor.
+  !> Constructor.
   subroutine scalar_source_term_init(this, json, f, coef, user)
     class(scalar_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -101,7 +101,7 @@ contains
 
     if (json%valid_path('case.scalar.source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
-       allocate(rhs_fields%fields(3))
+       allocate(rhs_fields%fields(1))
        rhs_fields%fields(1)%f => f
 
        call json%get_core(core)
@@ -136,7 +136,7 @@ contains
 
   !> Initialize the user source term.
   !! @param source_term The allocatable source term to be initialized to a user.
-  !! @param rhs_fields The field list with the 3 right-hand-side components.
+  !! @param rhs_fields The field list with the right-hand-side.
   !! @param coef The SEM coefs.
   !! @param type The type of the user source term, "user_vector" or
   !! "user_poinwise".

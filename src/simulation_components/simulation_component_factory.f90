@@ -38,6 +38,7 @@ module simulation_component_fctry
   use lambda2, only : lambda2_t
   use scalar, only : scalar_t
   use probes, only : probes_t
+  use les_simcomp, only : les_simcomp_t
   use json_module, only : json_file
   use case, only : case_t
   use json_utils, only : json_get
@@ -67,6 +68,8 @@ contains
        allocate(probes_t::simcomp)
     else if (trim(simcomp_type) .eq. "scalar") then
        allocate(scalar_t::simcomp)
+    else if (trim(simcomp_type) .eq. "les_model") then
+       allocate(les_simcomp_t::simcomp)
     else
        call neko_log%error("Unknown simulation component type: " &
                            // trim(simcomp_type))

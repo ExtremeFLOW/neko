@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2023, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ module scalar_pnpn
   use scalar_aux, only : scalar_step_info
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
-  use math, only : glsc2, col2, add2s2 
+  use math, only : glsc2, col2, add2s2
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
@@ -220,9 +220,9 @@ contains
 
     n = this%s%dof%size()
 
-    call col2(this%s%x, this%c_Xh%mult, n) 
-    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n) 
-    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n) 
+    call col2(this%s%x, this%c_Xh%mult, n)
+    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
+    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
                           n, HOST_TO_DEVICE, sync=.false.)
