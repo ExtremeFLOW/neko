@@ -38,6 +38,17 @@
     },
     "simulation_components": [
      {
+        "type": "probes",
+        "compute_control": "simulationtime",
+        "compute_value": 1,
+        "points_file": "probes.csv",
+        "output_file": "output.csv",
+        "fields": [
+            "s"
+        ],
+        "order" : 2
+     },
+     {
       "type" : "scalar",
       "lambda": 0.01,
       "cp": 1,
@@ -58,7 +69,14 @@
           ]
         }
       ],
-      "order": 1
+      "order": 1,
+      "solver": {
+        "type": "cg",
+        "preconditioner": "jacobi",
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-7,
+        "max_iterations": 800
+      }
     }
     ]
   }
