@@ -32,12 +32,13 @@
 !
 !> Simulation driver
 module simulation
-  use case
+  use num_types, only : rp, dp
+  use case, only : case_t
   use gather_scatter
-  use time_scheme_controller
+  use time_scheme_controller, only : time_scheme_controller_t
   use file
   use math
-  use logger
+  use logger, only : neko_log, LOG_SIZE
   use device
   use device_math
   use jobctrl
@@ -46,6 +47,7 @@ module simulation
   use math, only : col2
   use simcomp_executor, only : neko_simcomps
   use json_utils, only : json_get_or_default
+  use mpi_f08, only: MPI_WTIME
   implicit none
   private
 
@@ -118,16 +120,16 @@ contains
        call neko_log%end_section(log_buf)
 
        ! Scalar step
-       if (allocated(C%scalar)) then
-          start_time = MPI_WTIME()
-          call neko_log%section('Scalar')
-          call C%scalar%step(t, tstep, C%dt, C%ext_bdf)
-          end_time = MPI_WTIME()
-          write(log_buf, '(A,E15.7,A,E15.7)') &
-               'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
-               end_time-start_time
-          call neko_log%end_section(log_buf)
-       end if
+!       if (allocated(C%scalar)) then
+!          start_time = MPI_WTIME()
+!          call neko_log%section('Scalar')
+!          call C%scalar%step(t, tstep, C%dt, C%ext_bdf)
+!          end_time = MPI_WTIME()
+!          write(log_buf, '(A,E15.7,A,E15.7)') &
+!               'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
+!               end_time-start_time
+!          call neko_log%end_section(log_buf)
+!       end if
 
        call neko_log%section('Postprocessing')
        ! Execute all simulation components
@@ -238,7 +240,7 @@ contains
     end do
 
     call C%fluid%restart(C%dtlag, C%tlag)
-    if (allocated(C%scalar)) call C%scalar%restart( C%dtlag, C%tlag)
+!    if (allocated(C%scalar)) call C%scalar%restart( C%dtlag, C%tlag)
 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')

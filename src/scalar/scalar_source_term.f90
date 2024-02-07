@@ -99,13 +99,13 @@ contains
     this%f => f
 
 
-    if (json%valid_path('case.scalar.source_terms')) then
+    if (json%valid_path('source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
        allocate(rhs_fields%fields(1))
        rhs_fields%fields(1)%f => f
 
        call json%get_core(core)
-       call json%get('case.scalar.source_terms', source_object, found)
+       call json%get('source_terms', source_object, found)
 
        n_sources = core%count(source_object)
        allocate(this%source_terms(n_sources))
@@ -187,6 +187,7 @@ contains
 
     ! Add contribution from all source terms.
     if (allocated(this%source_terms)) then
+      write(*,*) "HIIIIIIIIIIIIIII"
        do i=1, size(this%source_terms)
           call this%source_terms(i)%source_term%compute(t, tstep)
        end do

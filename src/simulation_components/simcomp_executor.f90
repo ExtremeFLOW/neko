@@ -37,7 +37,7 @@ module simcomp_executor
   use simulation_component, only : simulation_component_wrapper_t
   use simulation_component_fctry, only : simulation_component_factory
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_default, json_extract_subdict
   use case, only : case_t
   implicit none
   private
@@ -63,7 +63,7 @@ module simcomp_executor
      procedure, pass(this) :: compute => simcomp_executor_compute
      !> Execute restart for all simcomps.
      procedure, pass(this) :: restart=> simcomp_executor_restart
-     
+
   end type simcomp_executor_t
 
   !> Global variable for the simulation component driver.
@@ -83,7 +83,7 @@ contains
     logical :: found
     ! Help array for finding minimal values
     logical, allocatable :: mask(:)
-    ! The order value for each simcomp in order of appearance in the case file. 
+    ! The order value for each simcomp in order of appearance in the case file.
     integer, allocatable :: read_order(:)
     ! Location of the min value
     integer :: loc(1)
@@ -101,20 +101,13 @@ contains
 
        call case%params%get_core(core)
        call case%params%get('case.simulation_components', simcomp_object, found)
+
+       ! We need a separate loop to figure out the order, so that we can
+       ! apply the order to the initialization as well.
        do i=1, n_simcomps
           ! Create a new json containing just the subdict for this simcomp
-          call core%get_child(simcomp_object, i, comp_pointer, found)
-          call core%print_to_string(comp_pointer, buffer)
-          call comp_subdict%load_from_string(buffer)
-
-          ! Default to executing in order of appearance
-          if (.not. comp_subdict%valid_path("order")) then
-             call comp_subdict%add("order", i)
-          end if
-
-          call json_get(comp_subdict, "order", read_order(i))
-          call simulation_component_factory(this%simcomps(i)%simcomp, &
-                                           comp_subdict, case)
+          call json_extract_subdict(core, simcomp_object, i, comp_subdict)
+          call json_get_or_default(comp_subdict, "order", read_order(i), i)
        end do
 
        ! Figure out the execution order using a poor man's argsort.
@@ -124,6 +117,14 @@ contains
          loc = minloc(read_order, mask=mask)
          this%order(i) = loc(1)
          mask(loc) = .false.
+       end do
+
+       ! Init in the determined order.
+       do i=1, n_simcomps
+          call json_extract_subdict(core, simcomp_object, this%order(i),&
+                                    comp_subdict)
+          call simulation_component_factory(this%simcomps(i)%simcomp, &
+                                           comp_subdict, case)
        end do
     end if
   end subroutine simcomp_executor_init

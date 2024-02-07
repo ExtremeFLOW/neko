@@ -121,6 +121,7 @@ contains
     real(kind=rp) :: compute_value, output_value
     integer :: order
 
+    call this%free_base()
     this%case => case
     call json_get_or_default(json, "compute_control", compute_control, &
                              "tsteps")
