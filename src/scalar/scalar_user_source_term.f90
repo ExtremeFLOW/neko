@@ -115,7 +115,7 @@ module scalar_user_source_term
 
 contains
 
-  !> Costructor from JSON.
+  !> Constructor from JSON.
   !! @details
   !! This will throw, as the user source term should be initialized directly
   !! from components.
@@ -129,7 +129,7 @@ contains
 
   end subroutine scalar_user_source_term_init
 
-  !> Costructor from components.
+  !> Constructor from components.
   !! @param fields A list with 1 field for adding the source values.
   !! @param coef The SEM coeffs.
   !! @param sourc_term_type The type of the user source term, "user_vector" or
