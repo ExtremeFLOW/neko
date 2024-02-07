@@ -296,21 +296,21 @@ contains
     end if
   end subroutine json_get_or_default_string
 
-  !> Extract `i`th json object from a json array.
+  !> Extract `i`th item from a JSON array as a seprate JSON object.
   !! @param core JSON core object.
   !! @param parent The parent JSON object with the array.
   !! @param i The index of the item to extract.
   !! @param item JSON object object to be filled with the subdict.
-  subroutine json_extract_item(core, parent, i, item)
+  subroutine json_extract_item(core, array, i, item)
     type(json_core), intent(inout) :: core
-    type(json_value), pointer, intent(in) :: parent
+    type(json_value), pointer, intent(in) :: array
     integer, intent(in) :: i
     type(json_file), intent(inout) :: item
     type(json_value), pointer :: ptr
     logical :: found
     character(len=:), allocatable :: buffer
 
-    call core%get_child(parent, i, ptr, found)
+    call core%get_child(array, i, ptr, found)
     call core%print_to_string(ptr, buffer)
     call item%load_from_string(buffer)
 
