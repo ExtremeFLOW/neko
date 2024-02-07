@@ -1,5 +1,5 @@
 
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ module scalar_source_term
 
 contains
 
-  !> Costructor.
+  !> Constructor.
   subroutine scalar_source_term_init(this, json, f, coef, user)
     class(scalar_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
