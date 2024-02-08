@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -70,9 +70,6 @@ module fluid_scheme
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
-  use source_term, only : source_term_wrapper_t
-  use source_term_fctry, only : source_term_factory
-  use const_source_term, only : const_source_term_t
   use user_intf, only : user_t
   use utils, only : neko_warning, neko_error
   use material_properties, only : material_properties_t

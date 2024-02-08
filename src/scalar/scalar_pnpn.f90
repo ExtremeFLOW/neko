@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2023, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ module scalar_pnpn
   use scalar_aux, only : scalar_step_info
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
-  use math, only : glsc2, col2, add2s2 
+  use math, only : glsc2, col2, add2s2
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
@@ -231,9 +231,9 @@ contains
 
     n = this%s%dof%size()
 
-    call col2(this%s%x, this%c_Xh%mult, n) 
-    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n) 
-    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n) 
+    call col2(this%s%x, this%c_Xh%mult, n)
+    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
+    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
                           n, HOST_TO_DEVICE, sync=.false.)
@@ -328,23 +328,24 @@ contains
          call neko_log%message(log_buf)
       end if
 
-      ! Evaluate the source term and scale with the mass matrix.
-      call f_Xh%eval(t)
+      ! Compute the source terms
+      call this%source_term%compute(t, tstep)
 
+      ! Pre-multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_col2(f_Xh%s_d, c_Xh%B_d, n)
+         call device_col2(f_Xh%x_d, c_Xh%B_d, n)
       else
-         call col2(f_Xh%s, c_Xh%B, n)
+         call col2(f_Xh%x, c_Xh%B, n)
       end if
 
       ! Add the advection operators to the right-hans-side.
-      call this%adv%compute_scalar(u, v, w, s, f_Xh%s, &
+      call this%adv%compute_scalar(u, v, w, s, f_Xh%x, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
-      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%s, rho, &
+      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
            ext_bdf%advection_coeffs, n)
 
-      call makebdf%compute_scalar(slag, f_Xh%s, s, c_Xh%B, rho, dt, &
+      call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
            ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()

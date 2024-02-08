@@ -1,3 +1,5 @@
+#ifndef __KRYLOV_PIPECG_KERNEL_H__
+#define __KRYLOV_PIPECG_KERNEL_H__
 /*
  Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
@@ -137,3 +139,5 @@ __global__ void pipecg_vecops_kernel(T  * __restrict__  p,
   }
 
 }
+
+#endif // __KRYLOV_PIPECG_KERNEL_H__

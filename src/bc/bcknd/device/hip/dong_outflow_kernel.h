@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __BC_DONG_OUTFLOW_KERNEL__
+#define __BC_DONG_OUTFLOW_KERNEL__
+
 /**
  * Device kernel for vector apply for a dong outflow condition
  */
@@ -48,7 +51,7 @@ void dong_outflow_apply_scalar_kernel(const int * __restrict__ msk,
 				      const T uinf,
 				      const T delta,
 				      const int m) {
-  
+
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
@@ -62,3 +65,5 @@ void dong_outflow_apply_scalar_kernel(const int * __restrict__ msk,
     x[k] = -0.5*(uk*uk+vk*vk+wk*wk)*S0;
   }
 }
+
+#endif // __BC_DONG_OUTFLOW_KERNEL__

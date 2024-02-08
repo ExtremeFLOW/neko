@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __BC_INFLOW_KERNEL__
+#define __BC_INFLOW_KERNEL__
+
 /**
  * Device kernel for vector apply for a Dirichlet condition
  */
@@ -54,3 +57,5 @@ __kernel void inflow_apply_vector_kernel(__global const int *msk,
     z[k] = gz;
   }
 }
+
+#endif // __BC_INFLOW_KERNEL__

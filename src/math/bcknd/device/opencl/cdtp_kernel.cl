@@ -1,3 +1,5 @@
+#ifndef __MATH_CDTP_KERNEL_CL__
+#define __MATH_CDTP_KERNEL_CL__
 /*
  Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
@@ -117,3 +119,5 @@ DEFINE_CDTP_KERNEL(10, 256)
 
 
 
+
+#endif // __MATH_CDTP_KERNEL_CL__

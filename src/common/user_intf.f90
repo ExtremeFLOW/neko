@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ module user_intf
   use field
   use field_list, only : field_list_t
   use fluid_user_source_term
-  use source_scalar
+  use scalar_user_source_term
   use coefs
   use bc, only: bc_list_t
   use mesh
@@ -44,6 +44,7 @@ module user_intf
   use field_dirichlet
   use num_types
   use json_module, only : json_file
+  use utils, only : neko_error,  neko_warning
   implicit none
   private
 
@@ -151,8 +152,8 @@ module user_intf
      procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
      procedure(fluid_source_compute_pointwise), nopass, pointer :: fluid_user_f => null()
      procedure(fluid_source_compute_vector), nopass, pointer :: fluid_user_f_vector => null()
-     procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
-     procedure(source_scalar_term), nopass, pointer :: scalar_user_f_vector => null()
+     procedure(scalar_source_compute_pointwise), nopass, pointer :: scalar_user_f => null()
+     procedure(scalar_source_compute_vector), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
      procedure(field_dirichlet_update), nopass, pointer :: user_dirichlet_update => null()
      procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
@@ -270,7 +271,7 @@ contains
 
   !> Dummy user (scalar) forcing
   subroutine dummy_user_scalar_f_vector(f, t)
-    class(source_scalar_t), intent(inout) :: f
+    class(scalar_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_scalar_f_vector

@@ -1,3 +1,5 @@
+#ifndef __MATH_AX_HELM_KERNEL_H__
+#define __MATH_AX_HELM_KERNEL_H__
 /*
  Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
@@ -346,3 +348,5 @@ __global__ void __launch_bounds__(LX*LX,3)
     w[ij + k*LX*LX + ele] = rw[k]; 
   }
 }
+
+#endif // __MATH_AX_HELM_KERNEL_H__
