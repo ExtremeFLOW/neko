@@ -37,7 +37,7 @@ module simcomp_executor
   use simulation_component, only : simulation_component_wrapper_t
   use simulation_component_fctry, only : simulation_component_factory
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_subdict
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   use case, only : case_t
   implicit none
   private
@@ -106,7 +106,7 @@ contains
        ! apply the order to the initialization as well.
        do i=1, n_simcomps
           ! Create a new json containing just the subdict for this simcomp
-          call json_extract_subdict(core, simcomp_object, i, comp_subdict)
+          call json_extract_item(core, simcomp_object, i, comp_subdict)
           call json_get_or_default(comp_subdict, "order", read_order(i), i)
        end do
 
@@ -121,8 +121,10 @@ contains
 
        ! Init in the determined order.
        do i=1, n_simcomps
-          call json_extract_subdict(core, simcomp_object, this%order(i),&
+          call json_extract_item(core, simcomp_object, this%order(i),&
                                     comp_subdict)
+          ! Have to add, the simcomp constructor expects it.
+          call comp_subdict%add("order", this%order(i))
           call simulation_component_factory(this%simcomps(i)%simcomp, &
                                            comp_subdict, case)
        end do
@@ -155,7 +157,7 @@ contains
 
     if (allocated(this%simcomps)) then
        do i=1, size(this%simcomps)
-             call this%simcomps(this%order(i))%simcomp%compute(t, tstep)
+          call this%simcomps(this%order(i))%simcomp%compute(t, tstep)
        end do
     end if
 
