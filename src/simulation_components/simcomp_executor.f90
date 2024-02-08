@@ -126,7 +126,7 @@ contains
           ! Have to add, the simcomp constructor expects it.
           call comp_subdict%add("order", this%order(i))
           call simulation_component_factory(this%simcomps(i)%simcomp, &
-                                           comp_subdict, case)
+                                            comp_subdict, case)
        end do
     end if
   end subroutine simcomp_executor_init
