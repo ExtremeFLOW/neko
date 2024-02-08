@@ -165,7 +165,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    if (t >= this%start_time .and. t<= this%end_time) then
+    if (t .ge. this%start_time .and. t .le. this%end_time) then
        call this%compute_(t, tstep)
     end if
 
