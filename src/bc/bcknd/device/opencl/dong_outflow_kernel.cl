@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __BC_DONG_OUTFLOW_KERNEL__
+#define __BC_DONG_OUTFLOW_KERNEL__
+
 /**
  * Device kernel for scalar apply for a dong outflow condition
  */
@@ -61,3 +64,5 @@ void dong_outflow_apply_scalar_kernel(__global const int * __restrict__ msk,
     x[k] = -0.5*(uk*uk+vk*vk+wk*wk)*S0;
   }
 }
+
+#endif // __BC_DONG_OUTFLOW_KERNEL__

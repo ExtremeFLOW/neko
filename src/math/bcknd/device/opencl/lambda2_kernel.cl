@@ -1,3 +1,5 @@
+#ifndef __MATH_LAMBDA2_KERNEL_CL__
+#define __MATH_LAMBDA2_KERNEL_CL__
 /*
  Copyright (c) 2023, The Neko Authors
  All rights reserved.
@@ -250,3 +252,5 @@ DEFINE_LAMBDA2_KERNEL(10, 256)
 DEFINE_LAMBDA2_KERNEL(11, 256)
 DEFINE_LAMBDA2_KERNEL(12, 256)
 
+
+#endif // __MATH_LAMBDA2_KERNEL_CL__
