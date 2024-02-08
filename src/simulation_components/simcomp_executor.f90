@@ -77,9 +77,8 @@ contains
     type(case_t), intent(inout) :: case
     integer :: n_simcomps, i
     type(json_core) :: core
-    type(json_value), pointer :: simcomp_object, comp_pointer
+    type(json_value), pointer :: simcomp_object
     type(json_file) :: comp_subdict
-    character(len=:), allocatable :: buffer
     logical :: found
     ! Help array for finding minimal values
     logical, allocatable :: mask(:)
