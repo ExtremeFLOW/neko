@@ -123,7 +123,9 @@ contains
           call json_extract_item(core, simcomp_object, this%order(i),&
                                     comp_subdict)
           ! Have to add, the simcomp constructor expects it.
-          call comp_subdict%add("order", this%order(i))
+          if (.not. comp_subdict%valid_path("order")) then
+             call comp_subdict%add("order", this%order(i))
+          end if
           call simulation_component_factory(this%simcomps(i)%simcomp, &
                                             comp_subdict, case)
        end do
