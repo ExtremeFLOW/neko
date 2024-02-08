@@ -158,7 +158,7 @@ contains
     procedure(fluid_source_compute_pointwise), optional :: eval_pointwise
 
     call this%free()
-    call this%init_base(fields, coef, 0.0_rp, huge(0.0_rp))
+    call this%init_base(fields, coef, 0.0_rp, huge(rp))
 
     this%dm => fields%fields(1)%f%dof
 
