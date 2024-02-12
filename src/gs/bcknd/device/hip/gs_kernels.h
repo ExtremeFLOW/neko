@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __GS_GS_KERNELS__
+#define __GS_GS_KERNELS__
+
 /**
  * Device gather kernel for addition of data
  * \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
@@ -74,7 +77,7 @@ __global__ void gather_kernel_add(T * __restrict__ v,
       }
     }
   }
-  
+
 }
 
 /**
@@ -91,7 +94,7 @@ __global__ void gather_kernel_mul(T * __restrict__ v,
                                   const int * __restrict__ gd,
                                   const int nb,
                                   const int * __restrict__ b,
-                                  const int * __restrict__ bo) { 
+                                  const int * __restrict__ bo) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -136,7 +139,7 @@ __global__ void gather_kernel_min(T * __restrict__ v,
                                   const int * __restrict__ gd,
                                   const int nb,
                                   const int * __restrict__ b,
-                                  const int * __restrict__ bo) { 
+                                  const int * __restrict__ bo) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -164,7 +167,7 @@ __global__ void gather_kernel_min(T * __restrict__ v,
       }
     }
   }
-  
+
 }
 
 /**
@@ -181,7 +184,7 @@ __global__ void gather_kernel_max(T * __restrict__ v,
                                   const int * __restrict__ gd,
                                   const int nb,
                                   const int * __restrict__ b,
-                                  const int * __restrict__ bo) { 
+                                  const int * __restrict__ bo) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -195,7 +198,7 @@ __global__ void gather_kernel_max(T * __restrict__ v,
     }
     v[dg[k] - 1] = tmp;
   }
-  
+
   if (o < 0) {
     for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
       v[dg[i] - 1] = u[gd[i] - 1];
@@ -209,7 +212,7 @@ __global__ void gather_kernel_max(T * __restrict__ v,
       }
     }
   }
-  
+
 }
 
 /**
@@ -226,25 +229,25 @@ __global__ void scatter_kernel(T * __restrict__ v,
                                const int nb,
                                const int *__restrict__ b,
                                const int *__restrict__ bo) {
-  
+
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-  
+
   for (int i = idx; i < nb; i += str) {
     const int blk_len = b[i];
     const int k = bo[i];
     T tmp = v[dg[k] - 1];
     for (int j = 0; j < blk_len; j++) {
       u[gd[k + j] - 1] = tmp;
-    }      
+    }
   }
 
   const int facet_offset = bo[nb - 1] + b[nb - 1];
-  
+
   for (int i = ((facet_offset - 1) + idx); i < m; i += str) {
     u[gd[i] - 1] = v[dg[i] - 1];
   }
-  
+
 }
 
 template< typename T >
@@ -281,3 +284,5 @@ __global__ void gs_unpack_add_kernel(T * __restrict__ u,
     u[idx-1] += val;
   }
 }
+
+#endif // __GS_GS_KERNELS__

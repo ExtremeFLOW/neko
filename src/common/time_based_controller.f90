@@ -57,6 +57,11 @@ module time_based_controller
      integer :: nexecutions = 0
      !> Whether to never output.
      logical :: never = .false.
+     !> Control mode defining the meaning of `control_value`.
+     !> Can be `simulationtime`, `tsteps`, `nsamples` or `never`.
+     character(len=:), allocatable :: control_mode
+     !> Defines the frequency of writes.
+     real(kind=rp) :: control_value
 
    contains
      !> Constructor.
@@ -90,6 +95,8 @@ contains
     real(kind=rp), intent(in) :: control_value
 
     this%end_time = end_time
+    this%control_mode = control_mode
+    this%control_value = control_value
 
     if (trim(control_mode) .eq. 'simulationtime') then
        this%time_interval = control_value

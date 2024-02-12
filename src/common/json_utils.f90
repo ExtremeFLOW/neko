@@ -38,7 +38,7 @@ module json_utils
   implicit none
   private
 
-  public :: json_get, json_get_or_default
+  public :: json_get, json_get_or_default, json_extract_item
 
   !> Retrieves a parameter by name or throws an error
   interface json_get
@@ -295,5 +295,25 @@ contains
        call json%add(name, value)
     end if
   end subroutine json_get_or_default_string
+
+  !> Extract `i`th item from a JSON array as a separate JSON object.
+  !! @param core JSON core object.
+  !! @param array The JSON object with the array.
+  !! @param i The index of the item to extract.
+  !! @param item JSON object object to be filled with the subdict.
+  subroutine json_extract_item(core, array, i, item)
+    type(json_core), intent(inout) :: core
+    type(json_value), pointer, intent(in) :: array
+    integer, intent(in) :: i
+    type(json_file), intent(inout) :: item
+    type(json_value), pointer :: ptr
+    logical :: found
+    character(len=:), allocatable :: buffer
+
+    call core%get_child(array, i, ptr, found)
+    call core%print_to_string(ptr, buffer)
+    call item%load_from_string(buffer)
+
+  end subroutine json_extract_item
 
 end module json_utils
