@@ -109,7 +109,6 @@ contains
     class(generic_file_t), intent(in) :: this
     logical :: file_exists
     integer :: neko_mpi_ierr
-    integer :: send_buf
 
     file_exists = .false.
     send_buf = 0
@@ -117,12 +116,10 @@ contains
     if (pe_rank .eq. 0) then
        ! Stop if the file does not exist
        inquire(file=this%fname, exist=file_exists)
-       if (file_exists) send_buf = 1
-
     end if
-    call MPI_Bcast(send_buf, 1, MPI_INT, 0, NEKO_COMM, neko_mpi_ierr)
+    call MPI_Bcast(file_exists, 1, MPI_LOGICAL, 0, NEKO_COMM, neko_mpi_ierr)
 
-    if (send_buf .eq. 0) then
+    if (.not. file_exists) then
        call neko_error('File does not exist: '//trim(this%fname))
     end if
 
