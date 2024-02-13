@@ -215,6 +215,9 @@ contains
     do i = 1, NEKO_MSH_MAX_ZLBLS
        bc_label = trim(bc_labels(i))
        if (bc_label(1:1) .eq. 'd') then
+! The idea of this commented piece of code is to merge bcs with the same
+! Dirichlet value into 1 so that one has less kernel launches. Currently
+! segfaults, needs investigation.
 !          bc_exists = .false.
 !          bc_idx = 0
 !          do j = 1, i-1
@@ -227,11 +230,11 @@ contains
 !          if (bc_exists) then
 !             call this%dir_bcs(j)%mark_zone(zones(i))
 !          else
-             this%n_dir_bcs = this%n_dir_bcs + 1
-             call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
-             call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
-             read(bc_label(3:), *) dir_value
-             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
+          this%n_dir_bcs = this%n_dir_bcs + 1
+          call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
+          call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
+          read(bc_label(3:), *) dir_value
+          call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
 !          end if
        end if
 
