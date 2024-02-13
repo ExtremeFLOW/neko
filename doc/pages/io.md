@@ -45,4 +45,4 @@ mesh.
 Simulations cannot be restarted from `.fld` files. Instead, separate checkpoint
 files can be output for the purpose of restarts. These contain additional
 information allowing a clean restart, with, e.g., the correct time integration
-order. A separate file format, `.chkpt` is adopted for the checkpoint files.
+order. A separate file format, `.chkp` is adopted for the checkpoint files.
