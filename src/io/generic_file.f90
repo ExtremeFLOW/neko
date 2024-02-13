@@ -102,14 +102,27 @@ contains
   !> check if the file exists
   subroutine generic_file_check_exists(this)
     use utils, only: neko_error
+    use comm, only: pe_rank, NEKO_COMM
+    use mpi_f08
     implicit none
 
     class(generic_file_t), intent(in) :: this
     logical :: file_exists
+    integer :: neko_mpi_ierr
+    integer :: send_buf
 
-    ! Stop if the file does not exist
-    inquire(file=this%fname, exist=file_exists)
-    if (.not. file_exists) then
+    file_exists = .false.
+    send_buf = 0
+
+    if (pe_rank .eq. 0) then
+       ! Stop if the file does not exist
+       inquire(file=this%fname, exist=file_exists)
+       if (file_exists) send_buf = 1
+
+    end if
+    call MPI_Bcast(send_buf, 1, MPI_INT, 0, NEKO_COMM, neko_mpi_ierr)
+
+    if (send_buf .eq. 0) then
        call neko_error('File does not exist: '//trim(this%fname))
     end if
 
