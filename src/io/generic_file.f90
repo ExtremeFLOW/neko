@@ -111,7 +111,6 @@ contains
     integer :: neko_mpi_ierr
 
     file_exists = .false.
-    send_buf = 0
 
     if (pe_rank .eq. 0) then
        ! Stop if the file does not exist
