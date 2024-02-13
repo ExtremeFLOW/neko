@@ -283,7 +283,7 @@ that can be described concisely directly in the table.
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                | `false`       |
 
-## Scalar
+## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution.
 The solution variable is called `s`, but saved as `temperature` in the fld
  files.
