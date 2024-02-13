@@ -106,9 +106,9 @@ module scalar_scheme
      integer :: n_dir_bcs = 0
      !> Number of Neumann bcs.
      integer :: n_neumann_bcs = 0
-     !> List of boundary conditions.
-     type(bc_list_t) :: bclst
-     !> Neumann conditions list
+     !> List of Dirichlet boundary conditions, including the user one.
+     type(bc_list_t) :: bclst_dirichlet
+     !> List of Neumann conditions list
      type(bc_list_t) :: bclst_neumann
      !> Case paramters.
      type(json_file), pointer :: params
@@ -252,12 +252,13 @@ contains
 
     do i = 1, this%n_dir_bcs
        call this%dir_bcs(i)%finalize()
-       call bc_list_add(this%bclst, this%dir_bcs(i))
+       call bc_list_add(this%bclst_dirichlet, this%dir_bcs(i))
     end do
 
     ! Create list with just Neumann bcs
     call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
     do i=1, this%n_neumann_bcs
+       call this%neumann_bcs(i)%finalize()
        call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
     end do
 
@@ -339,7 +340,7 @@ contains
     !
     ! Setup scalar boundary conditions
     !
-    call bc_list_init(this%bclst)
+    call bc_list_init(this%bclst_dirichlet)
     call this%user_bc%init(this%dm_Xh)
 
     ! Read boundary types from the case file
@@ -374,7 +375,8 @@ contains
     call this%user_bc%mark_zone(msh%sympln)
     call this%user_bc%finalize()
     call this%user_bc%set_coef(this%c_Xh)
-    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
+    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
+                                                     this%user_bc)
 
 
     ! todo parameter file ksp tol should be added
@@ -383,7 +385,7 @@ contains
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, solver_precon)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_dirichlet, solver_precon)
 
     call neko_log%end_section()
 
@@ -416,7 +418,7 @@ contains
 
     call this%source_term%free()
 
-    call bc_list_free(this%bclst)
+    call bc_list_free(this%bclst_dirichlet)
     call bc_list_free(this%bclst_neumann)
 
   end subroutine scalar_scheme_free

@@ -357,7 +357,7 @@ contains
       !> Apply Dirichlet boundary conditions
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
-      call bc_list_apply_scalar(this%bclst, this%s%x, this%dm_Xh%size())
+      call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
