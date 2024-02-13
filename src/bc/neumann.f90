@@ -35,7 +35,8 @@ module neumann
   use num_types
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error
+  use utils, only : neko_error, nonlinear_index
+  use coefs, only : coef_t
   implicit none
   private
 
@@ -43,12 +44,14 @@ module neumann
   !! \f$ x = g \f$ on \f$\partial \Omega\f$
   type, public, extends(bc_t) :: neumann_t
      real(kind=rp), private :: g
+     !> SEM coeffs.
+     type(coef_t), pointer :: coef
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
      procedure, pass(this) :: apply_vector => neumann_apply_vector
      procedure, pass(this) :: apply_scalar_dev => neumann_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
-     procedure, pass(this) :: set_g => neumann_set_g
+     procedure, pass(this) :: init_neumann => neumann_init_neumann
   end type neumann_t
 
 contains
@@ -62,12 +65,16 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     integer :: i, m, k
+    real(kind=rp) areasum
 
+    areasum = 0
     m = this%msk(0)
     do i = 1, m
        k = this%msk(i)
-       x(k) = this%g
+       x(k) =  x(k) + this%g * this%coef%area(k, 1, 1, 1)
+       areasum = areasum + this%coef%area(k, 1, 1, 1)
     end do
+    write(*,*) "AREA",  areasum, m
   end subroutine neumann_apply_scalar
 
   !> Boundary condition apply for a generic Neumann condition
@@ -115,12 +122,13 @@ contains
   end subroutine neumann_apply_vector_dev
 
   !> Set value of \f$ g \f$
-  subroutine neumann_set_g(this, g)
+  subroutine neumann_init_neumann(this, g, coef)
     class(neumann_t), intent(inout) :: this
     real(kind=rp), intent(in) :: g
+    type(coef_t), target, intent(in) :: coef
 
     this%g = g
-
-  end subroutine neumann_set_g
+    this%coef => coef
+  end subroutine neumann_init_neumann
 
 end module neumann

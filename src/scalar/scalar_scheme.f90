@@ -207,7 +207,7 @@ contains
     character(len=20), intent(in) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     character(len=20) :: bc_label
     integer :: i, j, bc_idx
-    real(kind=rp) :: dir_value
+    real(kind=rp) :: dir_value, flux_value
     logical :: bc_exists
 
     do i = 1, NEKO_MSH_MAX_ZLBLS
@@ -232,6 +232,29 @@ contains
              call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
           end if
        end if
+       write(*,*) i, "SCALAR DIR BC DONE", this%n_dir_bcs, dir_value
+
+       if (bc_label(1:1) .eq. 'n') then
+          bc_exists = .false.
+          bc_idx = 0
+          do j = 1, i-1
+             if (bc_label .eq. bc_labels(j)) then
+                bc_exists = .true.
+                bc_idx = j
+             end if
+          end do
+
+          if (bc_exists) then
+             call this%neumann_bcs(j)%mark_zone(zones(i))
+          else
+             this%n_neumann_bcs = this%n_neumann_bcs + 1
+             call this%neumann_bcs(this%n_neumann_bcs)%init(this%dm_Xh)
+             call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
+             read(bc_label(3:), *) flux_value
+             call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value,&
+                                                                    this%c_Xh)
+          end if
+       end if
 
        !> Check if user bc on this zone
        if (bc_label(1:4) .eq. 'user') then
@@ -242,6 +265,11 @@ contains
     do i = 1, this%n_dir_bcs
        call this%dir_bcs(i)%finalize()
        call bc_list_add(this%bclst, this%dir_bcs(i))
+    end do
+
+    do i = 1, this%n_neumann_bcs
+       call this%neumann_bcs(i)%finalize()
+       call bc_list_add(this%bclst, this%neumann_bcs(i))
     end do
 
   end subroutine scalar_scheme_add_bcs
@@ -337,6 +365,7 @@ contains
                      this%bc_labels)
     end if
 
+
     !
     ! Setup right-hand side field.
     !
@@ -358,6 +387,7 @@ contains
     call this%user_bc%set_coef(this%c_Xh)
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
 
+
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
                              integer_val, 800)
@@ -367,6 +397,7 @@ contains
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, solver_precon)
 
     call neko_log%end_section()
+
   end subroutine scalar_scheme_init
 
 

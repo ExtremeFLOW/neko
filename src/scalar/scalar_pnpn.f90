@@ -40,6 +40,7 @@ module scalar_pnpn
                               rhs_maker_ext_fctry, rhs_maker_bdf_fctry
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
+  use neumann, only : neumann_t
   use field, only : field_t
   use bc, only : bc_list_t, bc_list_init, bc_list_free, bc_list_apply_scalar, &
                  bc_list_add
@@ -86,9 +87,14 @@ module scalar_pnpn
 
      !> Solution projection.
      type(projection_t) :: proj_s
-     !> Dirichlet condition for scala
+
+     !> Dirichlet conditions
      type(dirichlet_t) :: bc_res
      type(bc_list_t) :: bclst_ds
+
+     !> Dirichlet conditions
+     type(neumann_t) :: bc_res_neumann
+     type(bc_list_t) :: bclst_neumann
 
      !> Advection operator.
      class(advection_t), allocatable :: adv
@@ -178,6 +184,12 @@ contains
     call this%bc_res%init(this%dm_Xh)
     do i = 1, this%n_dir_bcs
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
+    end do
+
+    ! Initialize Neumann bcs for scalar residual
+    call this%bc_res_neumann%init(this%dm_Xh)
+    do i = 1, this%n_neumann_bcs
+       call this%bc_res_neumann%mark_facets(this%neumann_bcs(i)%marked_facet)
     end do
 
     ! Check for user bcs
@@ -327,6 +339,9 @@ contains
          call col2(f_Xh%x, c_Xh%B, n)
       end if
 
+      ! Apply Neumann boundary conditions
+      call bc_list_apply_scalar(this%bclst_ds, this%f_Xh%x, dm_Xh%size())
+
       ! Add the advection operators to the right-hans-side.
       call this%adv%compute_scalar(u, v, w, s, f_Xh%x, &
                                    Xh, this%c_Xh, dm_Xh%size())
@@ -351,8 +366,9 @@ contains
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
-      call bc_list_apply_scalar(this%bclst_ds,&
-           s_res%x, dm_Xh%size())
+      ! Apply Dirichlet boundary conditions
+      call bc_list_apply_scalar(this%bclst_ds, s_res%x, dm_Xh%size())
+
       call profiler_end_region
 
       if (tstep .gt. 5 .and. projection_dim .gt. 0) then
