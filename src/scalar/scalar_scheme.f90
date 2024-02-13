@@ -213,47 +213,33 @@ contains
     do i = 1, NEKO_MSH_MAX_ZLBLS
        bc_label = trim(bc_labels(i))
        if (bc_label(1:1) .eq. 'd') then
-          bc_exists = .false.
-          bc_idx = 0
-          do j = 1, i-1
-             if (bc_label .eq. bc_labels(j)) then
-                bc_exists = .true.
-                bc_idx = j
-             end if
-          end do
+!          bc_exists = .false.
+!          bc_idx = 0
+!          do j = 1, i-1
+!             if (bc_label .eq. bc_labels(j)) then
+!                bc_exists = .true.
+!                bc_idx = j
+!             end if
+!          end do
 
-          if (bc_exists) then
-             call this%dir_bcs(j)%mark_zone(zones(i))
-          else
+!          if (bc_exists) then
+!             call this%dir_bcs(j)%mark_zone(zones(i))
+!          else
              this%n_dir_bcs = this%n_dir_bcs + 1
              call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
              call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
              read(bc_label(3:), *) dir_value
              call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
-          end if
+!          end if
        end if
-       write(*,*) i, "SCALAR DIR BC DONE", this%n_dir_bcs, dir_value
 
        if (bc_label(1:1) .eq. 'n') then
-          bc_exists = .false.
-          bc_idx = 0
-          do j = 1, i-1
-             if (bc_label .eq. bc_labels(j)) then
-                bc_exists = .true.
-                bc_idx = j
-             end if
-          end do
-
-          if (bc_exists) then
-             call this%neumann_bcs(j)%mark_zone(zones(i))
-          else
-             this%n_neumann_bcs = this%n_neumann_bcs + 1
-             call this%neumann_bcs(this%n_neumann_bcs)%init(this%dm_Xh)
-             call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
-             read(bc_label(3:), *) flux_value
-             call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value,&
-                                                                    this%c_Xh)
-          end if
+          this%n_neumann_bcs = this%n_neumann_bcs + 1
+          call this%neumann_bcs(this%n_neumann_bcs)%init(this%dm_Xh)
+          call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
+          read(bc_label(3:), *) flux_value
+          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value,&
+                                                                 this%c_Xh)
        end if
 
        !> Check if user bc on this zone

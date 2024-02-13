@@ -92,8 +92,7 @@ module scalar_pnpn
      type(dirichlet_t) :: bc_res
      type(bc_list_t) :: bclst_ds
 
-     !> Dirichlet conditions
-     type(neumann_t) :: bc_res_neumann
+     !> Neumann conditions list
      type(bc_list_t) :: bclst_neumann
 
      !> Advection operator.
@@ -186,23 +185,24 @@ contains
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
     end do
 
-    ! Initialize Neumann bcs for scalar residual
-    call this%bc_res_neumann%init(this%dm_Xh)
-    do i = 1, this%n_neumann_bcs
-       call this%bc_res_neumann%mark_facets(this%neumann_bcs(i)%marked_facet)
-    end do
-
     ! Check for user bcs
     if (this%user_bc%msk(0) .gt. 0) then
        call this%bc_res%mark_facets(this%user_bc%marked_facet)
     end if
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
+
     call bc_list_init(this%bclst_ds)
     call bc_list_add(this%bclst_ds, this%bc_res)
 
-    ! @todo not param stuff again, using velocity stuff
-    ! Intialize projection space thingy
+    ! Create list with just Neumann bcs
+    call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
+
+    do i=1, this%n_neumann_bcs
+       call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
+    end do
+
+    ! Intialize projection space
     if (this%projection_dim .gt. 0) then
        call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
     end if
@@ -220,7 +220,6 @@ contains
        integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
     end if
     call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
-
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
@@ -261,6 +260,7 @@ contains
     call this%scheme_free()
 
     call bc_list_free(this%bclst_ds)
+    call bc_list_free(this%bclst_neumann)
     call this%proj_s%free()
 
     call this%s_res%free()
@@ -340,15 +340,20 @@ contains
       end if
 
       ! Apply Neumann boundary conditions
-      call bc_list_apply_scalar(this%bclst_ds, this%f_Xh%x, dm_Xh%size())
+      call bc_list_apply_scalar(this%bclst_neumann, this%f_Xh%x, dm_Xh%size())
 
       ! Add the advection operators to the right-hans-side.
       call this%adv%compute_scalar(u, v, w, s, f_Xh%x, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
+      ! At this point the RHS contains the sum of the advection operator,
+      ! Neumann boundary sources and additional source terms, evaluated using
+      ! the scalar field from the previous time-step. Now, this value is used in
+      ! the explicit time scheme to advance these terms in time.
       call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
            ext_bdf%advection_coeffs, n)
 
+      ! Add the RHS contributions coming from the BDF scheme.
       call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
            ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
@@ -386,6 +391,7 @@ contains
               this%bclst_ds, gs_Xh, n)
       end if
 
+      ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2s2(s%x_d, ds%x_d, 1.0_rp, n)
       else
