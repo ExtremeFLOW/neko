@@ -375,13 +375,8 @@ contains
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
     type(dofmap_t) :: dof
-    logical :: file_exists
-
-    ! Stop if the file does not exist
-    inquire(file=this%fname, exist=file_exists)
-    if (.not. file_exists) then
-       call neko_error('File does not exist: '//trim(this%fname))
-    end if
+   
+    call this%check_exists()
 
     select type(data)
     type is (chkp_t)

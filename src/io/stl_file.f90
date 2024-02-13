@@ -72,13 +72,7 @@ contains
     type(stl_triangle_t), allocatable :: stl_tri(:)
     integer :: i, p_idx, ierr
 
-    logical :: file_exists
-
-    ! Stop if the file does not exist
-    inquire(file=this%fname, exist=file_exists)
-    if (.not. file_exists) then
-       call neko_error('File does not exist: '//trim(this%fname))
-    end if
+    call this%check_exists()
 
     select type(data)
     type is(tri_mesh_t)

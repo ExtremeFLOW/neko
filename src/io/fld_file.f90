@@ -641,13 +641,8 @@ contains
     type(linear_dist_t) :: dist
     real(kind=sp), parameter :: test_pattern = 6.54321
     character :: rdcode(10),temp_str(4)
-    logical :: file_exists
 
-    ! Stop if the file does not exist
-    inquire(file=this%fname, exist=file_exists)
-    if (.not. file_exists) then
-       call neko_error('File does not exist: '//trim(this%fname))
-    end if
+    call this%check_exists()
 
     select type(data)
     type is (fld_file_data_t)
@@ -885,13 +880,8 @@ contains
     type(MPI_File) :: fh
     type(MPI_Status) :: status
     integer :: n, ierr, lxyz, i, j, e
-    logical :: file_exists
 
-    ! Stop if the file does not exist
-    inquire(file=this%fname, exist=file_exists)
-    if (.not. file_exists) then
-       call neko_error('File does not exist: '//trim(this%fname))
-    end if
+    call this%check_exists()
 
     n = x%n
     lxyz = fld_data%lx*fld_data%ly*fld_data%lz
@@ -926,13 +916,8 @@ contains
     type(MPI_File) :: fh
     type(MPI_Status) :: status
     integer :: n, ierr, lxyz, i, j, e, nd
-    logical :: file_exists
 
-    ! Stop if the file does not exist
-    inquire(file=this%fname, exist=file_exists)
-    if (.not. file_exists) then
-       call neko_error('File does not exist: '//trim(this%fname))
-    end if
+    call this%check_exists()
 
     n = x%n
     nd = n*fld_data%gdim

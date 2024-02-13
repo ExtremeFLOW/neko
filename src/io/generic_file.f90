@@ -50,6 +50,8 @@ module generic_file
      procedure :: set_counter => generic_file_set_counter
      !> Set the file start counter to @a n.
      procedure :: set_start_counter => generic_file_set_start_counter
+     !> Ensure the file exists
+     procedure :: check_exists => generic_file_check_exists
   end type generic_file_t
 
   abstract interface
@@ -96,6 +98,22 @@ contains
     integer, intent(in) :: n
     this%start_counter = n
   end subroutine generic_file_set_start_counter
+
+  !> check if the file exists
+  subroutine generic_file_check_exists(this)
+    use utils, only: neko_error
+    implicit none
+
+    class(generic_file_t), intent(in) :: this
+    logical :: file_exists
+
+    ! Stop if the file does not exist
+    inquire(file=this%fname, exist=file_exists)
+    if (.not. file_exists) then
+       call neko_error('File does not exist: '//trim(this%fname))
+    end if
+
+  end subroutine generic_file_check_exists
 
 
 end module generic_file

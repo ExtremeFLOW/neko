@@ -86,13 +86,8 @@ contains
     integer :: re2_data_bc_size
     logical :: v2_format
     character(len=LOG_SIZE) :: log_buf
-    logical :: file_exists
 
-    ! Stop if the file does not exist
-    inquire(file=this%fname, exist=file_exists)
-    if (.not. file_exists) then
-       call neko_error('File does not exist: '//trim(this%fname))
-    end if
+    call this%check_exists()
 
     select type(data)
     type is (mesh_t)

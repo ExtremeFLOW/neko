@@ -182,13 +182,8 @@ contains
     class(*), target, intent(inout) :: data
     type(vector_t), pointer :: vec
     type(matrix_t), pointer :: mat
-    logical :: file_exists
 
-    ! Stop if the file does not exist
-    inquire(file=this%fname, exist=file_exists)
-    if (.not. file_exists) then
-       call neko_error('File does not exist: '//trim(this%fname))
-    end if
+    call this%check_exists()
 
     nullify(vec)
     nullify(mat)
