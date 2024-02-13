@@ -108,6 +108,8 @@ module scalar_scheme
      integer :: n_neumann_bcs = 0
      !> List of boundary conditions.
      type(bc_list_t) :: bclst
+     !> Neumann conditions list
+     type(bc_list_t) :: bclst_neumann
      !> Case paramters.
      type(json_file), pointer :: params
      !> Mesh.
@@ -253,9 +255,10 @@ contains
        call bc_list_add(this%bclst, this%dir_bcs(i))
     end do
 
-    do i = 1, this%n_neumann_bcs
-       call this%neumann_bcs(i)%finalize()
-       call bc_list_add(this%bclst, this%neumann_bcs(i))
+    ! Create list with just Neumann bcs
+    call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
+    do i=1, this%n_neumann_bcs
+       call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
     end do
 
   end subroutine scalar_scheme_add_bcs
@@ -414,6 +417,7 @@ contains
     call this%source_term%free()
 
     call bc_list_free(this%bclst)
+    call bc_list_free(this%bclst_neumann)
 
   end subroutine scalar_scheme_free
 

@@ -92,9 +92,6 @@ module scalar_pnpn
      type(dirichlet_t) :: bc_res
      type(bc_list_t) :: bclst_ds
 
-     !> Neumann conditions list
-     type(bc_list_t) :: bclst_neumann
-
      !> Advection operator.
      class(advection_t), allocatable :: adv
 
@@ -195,12 +192,6 @@ contains
     call bc_list_init(this%bclst_ds)
     call bc_list_add(this%bclst_ds, this%bc_res)
 
-    ! Create list with just Neumann bcs
-    call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
-
-    do i=1, this%n_neumann_bcs
-       call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
-    end do
 
     ! Intialize projection space
     if (this%projection_dim .gt. 0) then
@@ -260,7 +251,6 @@ contains
     call this%scheme_free()
 
     call bc_list_free(this%bclst_ds)
-    call bc_list_free(this%bclst_neumann)
     call this%proj_s%free()
 
     call this%s_res%free()
