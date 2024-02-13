@@ -183,6 +183,8 @@ contains
     type(vector_t), pointer :: vec
     type(matrix_t), pointer :: mat
 
+    call this%check_exists()
+
     nullify(vec)
     nullify(mat)
 
