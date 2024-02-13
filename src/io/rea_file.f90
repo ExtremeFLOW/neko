@@ -88,6 +88,13 @@ contains
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
     logical :: curve_skip = .false.
     character(len=LOG_SIZE) :: log_buf
+    logical :: file_exists
+
+    ! Stop if the file does not exist
+    inquire(file=this%fname, exist=file_exists)
+    if (.not. file_exists) then
+       call neko_error('File does not exist: '//trim(this%fname))
+    end if
 
     select type(data)
     type is (rea_t)

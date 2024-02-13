@@ -155,6 +155,13 @@ contains
   subroutine file_read(this, data)
     class(file_t), intent(in) :: this
     class(*), intent(inout) :: data
+    logical :: file_exists
+
+    ! Stop if the file does not exist
+    inquire(file=this%fname, exist=file_exists)
+    if (.not. file_exists) then
+       call neko_error('File does not exist: '//trim(this%fname))
+    end if
 
     call this%file_type%read(data)
 
