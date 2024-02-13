@@ -98,7 +98,9 @@ module bc
   !> A list of boundary conditions
   type, public :: bc_list_t
      type(bcp_t), allocatable :: bc(:)
+     !> Number of items.
      integer :: n
+     !> Capacity.
      integer :: size
   end type bc_list_t
 
