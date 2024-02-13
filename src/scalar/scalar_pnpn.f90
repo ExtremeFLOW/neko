@@ -88,8 +88,13 @@ module scalar_pnpn
      !> Solution projection.
      type(projection_t) :: proj_s
 
-     !> Dirichlet conditions
+     !> Dirichlet conditions for the residual
+     !! Collects all the Dirichlet condition facets into one bc and applies 0,
+     !! Since the values never change there during the solve.
      type(dirichlet_t) :: bc_res
+
+     !> A bc list for the bc_res. Contains only that, essentially just to wrap
+     !! the if statement determining whether to apply on the device or CPU.
      type(bc_list_t) :: bclst_ds
 
      !> Advection operator.
@@ -348,10 +353,11 @@ contains
            ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
-      !> We assume that no change of boundary conditions
-      !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
-      !> Apply dirichlet
-      call this%bc_apply()
+
+      !> Apply Dirichlet boundary conditions
+      !! We assume that no change of boundary conditions
+      !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
+      call bc_list_apply_scalar(this%bclst, this%s%x, this%dm_Xh%size())
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
@@ -361,7 +367,7 @@ contains
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
-      ! Apply Dirichlet boundary conditions
+      ! Apply a 0-valued Dirichlet boundary conditions on the ds.
       call bc_list_apply_scalar(this%bclst_ds, s_res%x, dm_Xh%size())
 
       call profiler_end_region

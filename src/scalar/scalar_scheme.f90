@@ -131,7 +131,7 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
-     procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
+     !> Assings the evaluation function for  `user_bc`.
      procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
      !> Constructor.
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
@@ -464,13 +464,6 @@ contains
 !    call this%chkp%init(this%u, this%v, this%w, this%p)
 
   end subroutine scalar_scheme_validate
-
-  !> Apply all boundary conditions defined for the scalar.
-  !! @todo Why can't we call the interface here?
-  subroutine scalar_scheme_bc_apply(this)
-    class(scalar_scheme_t), intent(inout) :: this
-    call bc_list_apply_scalar(this%bclst, this%s%x, this%dm_Xh%size())
-  end subroutine scalar_scheme_bc_apply
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
