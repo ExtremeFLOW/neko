@@ -52,6 +52,7 @@ module fluid_pnpn_stress
   use cg_stress
   use json_utils, only : json_get
   use json_module, only : json_file
+  use shear_stress, only : shear_stress_t
   use material_properties, only : material_properties_t
   implicit none
   private
@@ -84,6 +85,12 @@ module fluid_pnpn_stress
      type(bc_list_t) :: bclst_dv
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
+
+     type(shear_stress_t) :: shear_stress(NEKO_MSH_MAX_ZLBLS)
+     integer :: n_shear_stress = 0
+     type(bc_list_t) :: bclst_neumann
+
+
 
      class(advection_t), allocatable :: adv
 
@@ -134,6 +141,8 @@ contains
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
+    character(len=20) :: bc_label
+    integer :: i
 
     call this%free()
 
@@ -265,6 +274,34 @@ contains
     call bc_list_add(this%bclst_dw,this%bc_sym%bc_z)
     call bc_list_add(this%bclst_dw,this%bc_vel_res_non_normal%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
+
+    ! Shear stress conditions (hard-coded)
+    do i = 1, NEKO_MSH_MAX_ZLBLS
+       bc_label = trim(this%bc_labels(i))
+       if (bc_label(1:2) .eq. 'sh') then
+          this%n_shear_stress = this%n_shear_stress + 1
+          call this%shear_stress(this%n_shear_stress)%init(this%dm_Xh)
+          call this%shear_stress(this%n_shear_stress)%mark_zone(this%msh%labeled_zones(i))
+          ! todo: PARSE VALUES HERE
+          call this%shear_stress(i)%init_shear_stress(5e-5_rp, 0.0_rp,&
+                                                      this%c_Xh)
+       end if
+    end do
+
+    ! Create list with just Neumann bcs, 2 from each shear stress bc
+    call bc_list_init(this%bclst_neumann, 2 * this%n_shear_stress)
+
+    ! Finalize and populate the Neumann list
+    do i=1, this%n_shear_stress
+       call this%shear_stress(i)%neumann1%finalize()
+       call this%shear_stress(i)%neumann2%finalize()
+       call this%shear_stress(i)%dirichlet%finalize()
+
+       call bc_list_add(this%bclst_neumann, this%shear_stress(i)%neumann1)
+       call bc_list_add(this%bclst_neumann, this%shear_stress(i)%neumann2)
+    end do
+
+
 
     !Intialize projection space thingy
     if (this%pr_projection_dim .gt. 0) then
@@ -562,6 +599,14 @@ contains
          call opcolv(f_x%x, f_y%x, f_z%x, c_Xh%B, msh%gdim, n)
       end if
 
+      ! Apply shear stress Neumann boundary conditions
+      do i=1, this%n_shear_stress
+         call this%shear_stress(i)%neumann1%apply_scalar(this%f_x%x,&
+                                                         this%dm_Xh%size())
+         call this%shear_stress(i)%neumann2%apply_scalar(this%f_z%x,&
+                                                         this%dm_Xh%size())
+      end do
+
       ! Add the advection operators to the right-hand-side.
       call this%adv%compute(u, v, w, &
                             f_x%x, f_y%x, f_z%x, &
@@ -590,6 +635,11 @@ contains
       !> Apply dirichlet
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
+
+      do i=1, this%n_shear_stress
+         call this%shear_stress(i)%dirichlet%apply_scalar(this%v%x, &
+                                                         this%dm_Xh%size())
+      end do
 
       ! Compute pressure.
       call profiler_start_region('Pressure residual', 18)
