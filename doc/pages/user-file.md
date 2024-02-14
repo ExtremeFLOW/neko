@@ -406,7 +406,7 @@ the `initial_condition.type` to `"user_vector"` or `"user_pointwise"` in the rel
 See the relevant sections on the [fluid](#case-file_fluid-source-term)
 and [scalar](#case-file_scalar) source terms in the [case file page](#case-file) for more details.
 
-@attention There are two variants of the source term user functions: `fluid_user_f` and `fluid_user_f_vector`. The former is called when setting `"user_pointwise"` as the source term type, while the latter requires the use of the `"user_vector"`keyword in the case file. The pointwise variant, `fluid_user_f` is not supported on GPUs. In general, `fluid_user_f_vector` is the prefered variant, and is the one which will be use in our examples below. The same applies for the scalar source term user functions.
+@attention There are two variants of the source term user functions: `*_user_f` and `**_user_f_vector`. The former is called when setting `"user_pointwise"` as the source term type, while the latter requires the use of the `"user_vector"` keyword in the case file. The pointwise variant, `fluid_user_f` is not supported on GPUs. In general, `fluid_user_f_vector` is the prefered variant, and is the one which will be use in our examples below. The same applies for the scalar source term user functions.
 
 The associated user functions for the fluid and/or scalar source terms can then be added to the user file. An example for the fluid, taken from the [rayleigh-benard-cylinder example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard-cylinder/rayleigh.f90#L101C1-L121C44), is shown below.
 
