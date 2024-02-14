@@ -37,31 +37,43 @@ module shear_stress
     use, intrinsic :: iso_c_binding, only : c_ptr
     use utils, only : neko_error, nonlinear_index
     use coefs, only : coef_t
+    use dirichlet, only : dirichlet_t
+    use neumann, only : neumann_t
     implicit none
     private
 
     !> A shear stress boundary condition.
-    !! This sets a given flux of the boundary-parallel components of the vector
+    !! This sets a given stress of the boundary-parallel components of the vector
     !! field and a homogenoeus Dirichlet condition on the wall-normal component.
     !! @note The condition is imposed weekly by adding an appropriate source
     !! term to the right-hand-side.
     type, public, extends(bc_t) :: shear_stress_t
-       real(kind=rp), private :: flux_
+       !> The stress in the 1st wall-parallel direction.
+       real(kind=rp), private :: tau1_
+       !> The stress in the 2nd wall-parallel direction.
+       real(kind=rp), private :: tau2_
        !> SEM coeffs.
        type(coef_t), pointer :: coef
+       !> Dirchlet bc for the wall-normal component.
+       type(dirichlet_t) :: dirichlet
+       !> Neumann condition for the 1st wall-parallel direction.
+       type(neumann_t) :: neumann1
+       !> Neumann condition for the 2nd wall-parallel direction.
+       type(neumann_t) :: neumann2
      contains
        procedure, pass(this) :: apply_scalar => shear_stress_apply_scalar
        procedure, pass(this) :: apply_vector => shear_stress_apply_vector
        procedure, pass(this) :: apply_scalar_dev => shear_stress_apply_scalar_dev
        procedure, pass(this) :: apply_vector_dev => shear_stress_apply_vector_dev
-       procedure, pass(this) :: init_shear_stress => shear_stress_init_shear_stress
-       procedure, pass(this) :: flux => shear_stress_flux
+       procedure, pass(this) :: init_shear_stress => &
+         shear_stress_init_shear_stress
+       procedure, pass(this) :: tau1 => shear_stress_tau1
+       procedure, pass(this) :: tau2 => shear_stress_tau2
     end type shear_stress_t
 
   contains
 
-    !> Boundary condition apply for a generic shear_stress condition
-    !! to a vector @a x
+    !> Apply shear stress for a scalar field @a x.
     subroutine shear_stress_apply_scalar(this, x, n, t, tstep)
       class(shear_stress_t), intent(inout) :: this
       integer, intent(in) :: n
@@ -72,21 +84,23 @@ module shear_stress
       ! Store non-linear index
       integer :: idx(4)
 
-      m = this%msk(0)
-      do i = 1, m
-         k = this%msk(i)
-         facet = this%facet(i)
-         idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
-                               this%coef%Xh%lx)
-         select case(facet)
-         case(1,2)
-            x(k) = x(k) + this%flux_*this%coef%area(idx(2), idx(3), facet, idx(4))
-         case(3,4)
-            x(k) = x(k) + this%flux_*this%coef%area(idx(1), idx(3), facet, idx(4))
-         case(5,6)
-            x(k) = x(k) + this%flux_*this%coef%area(idx(1), idx(2), facet, idx(4))
-         end select
-      end do
+      call neko_error("The shear stress bc is not applicable to scalar fields.")
+
+!      m = this%msk(0)
+!      do i = 1, m
+!         k = this%msk(i)
+!         facet = this%facet(i)
+!         idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
+!                               this%coef%Xh%lx)
+!         select case(facet)
+!         case(1,2)
+!            x(k) = x(k) + this%flux_*this%coef%area(idx(2), idx(3), facet, idx(4))
+!         case(3,4)
+!            x(k) = x(k) + this%flux_*this%coef%area(idx(1), idx(3), facet, idx(4))
+!         case(5,6)
+!            x(k) = x(k) + this%flux_*this%coef%area(idx(1), idx(2), facet, idx(4))
+!         end select
+!      end do
     end subroutine shear_stress_apply_scalar
 
     !> Boundary condition apply for a generic shear_stress condition
@@ -131,23 +145,45 @@ module shear_stress
 
     end subroutine shear_stress_apply_vector_dev
 
-    !> Constructor
-    !> @param flux The desired flux.
+    !> Constructor.
+    !> @param tau1 The desired stress in the 1st wall-parallel direction.
+    !> @param tau2 The desired stress in the 2nd wall-parallel direction.
     !> @param coef The SEM coefficients.
-    subroutine shear_stress_init_shear_stress(this, flux, coef)
+    subroutine shear_stress_init_shear_stress(this, tau1, tau2, coef)
       class(shear_stress_t), intent(inout) :: this
-      real(kind=rp), intent(in) :: flux
+      real(kind=rp), intent(in) :: tau1, tau2
       type(coef_t), target, intent(in) :: coef
 
-      this%flux_ = flux
+      this%tau1_ = tau1
+      this%tau2_ = tau2
       this%coef => coef
+
+      call this%dirichlet%init(this%coef%dof)
+      call this%neumann1%init(this%coef%dof)
+      call this%neumann2%init(this%coef%dof)
+
+      call this%dirichlet%mark_facets(this%marked_facet)
+      call this%neumann1%mark_facets(this%marked_facet)
+      call this%neumann2%mark_facets(this%marked_facet)
+
+      call this%neumann1%init_neumann(tau1, this%coef)
+      call this%neumann2%init_neumann(tau2, this%coef)
+      call this%dirichlet%set_g(0.0_rp)
     end subroutine shear_stress_init_shear_stress
 
-    !> Get the set flux.
-    pure function shear_stress_flux(this) result(flux)
+    !> Get the stress in the 1st wall-parallel direction.
+    pure function shear_stress_tau1(this) result(tau1)
       class(shear_stress_t), intent(in) :: this
-      real(kind=rp) :: flux
+      real(kind=rp) :: tau1
 
-      flux = this%flux_
-    end function shear_stress_flux
+      tau1 = this%tau1_
+    end function shear_stress_tau1
+
+    !> Get the stress in the 2nd wall-parallel direction.
+    pure function shear_stress_tau2(this) result(tau2)
+      class(shear_stress_t), intent(in) :: this
+      real(kind=rp) :: tau2
+
+      tau2 = this%tau2_
+    end function shear_stress_tau2
   end module shear_stress

@@ -124,6 +124,7 @@ neko_fortran_SOURCES = \
 	bc/bc.f90\
 	bc/dirichlet.f90\
 	bc/neumann.f90\
+	bc/shear_stress.f90\
 	bc/dong_outflow.f90\
 	bc/wall.f90\
 	bc/inflow.f90\
