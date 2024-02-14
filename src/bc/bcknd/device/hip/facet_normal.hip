@@ -52,7 +52,7 @@ extern "C" {
     const dim3 nblcks(((*m) + 1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(facet_normal_apply_surfvec_kernel<real>),
-		       nblcks, nthrds, 0, 0,
+		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
 		       (int *) msk, (int *) facet,
 		       (real *) x, (real *) y, (real *) z,
 		       (real *) u, (real *) v, (real *) w,

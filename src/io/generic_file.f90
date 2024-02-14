@@ -33,16 +33,25 @@
 module generic_file
   use num_types
   implicit none
-  
-  !> A generic file handler
+
+  !> A generic file handler.
   type, abstract :: generic_file_t
      character(len=1024) :: fname
      integer :: counter
+     integer :: start_counter = 0
    contains
-     procedure :: init => generic_file_init           !< Constructor
-     procedure(generic_file_write), deferred :: write !< Write method
-     procedure(generic_file_read), deferred :: read   !< Read method
-     procedure :: set_counter => generic_file_set_counter !< Update counter
+     !> Generic file constructor.
+     procedure :: init => generic_file_init
+     !< Write method.
+     procedure(generic_file_write), deferred :: write
+     !< Read method.
+     procedure(generic_file_read), deferred :: read
+     !> Set the file counter to @a n.
+     procedure :: set_counter => generic_file_set_counter
+     !> Set the file start counter to @a n.
+     procedure :: set_start_counter => generic_file_set_start_counter
+     !> Ensure the file exists
+     procedure :: check_exists => generic_file_check_exists
   end type generic_file_t
 
   abstract interface
@@ -54,7 +63,7 @@ module generic_file
        real(kind=rp), intent(in), optional :: t
      end subroutine generic_file_write
   end interface
-  
+
   abstract interface
      subroutine generic_file_read(this, data)
        import :: generic_file_t
@@ -64,23 +73,56 @@ module generic_file
   end interface
 
 contains
-  
-  !> Generic file constructor
-  !! @param fname Filename
+
+  !> Generic file constructor.
+  !! @param fname Filename.
   subroutine generic_file_init(this, fname)
     class(generic_file_t) :: this
     character(len=*) :: fname
-    
+
     this%fname = fname
     this%counter = 0
-    
+
   end subroutine generic_file_init
 
-  !> Set the file counter to @a n
+  !> Set the file counter to @a n.
   subroutine generic_file_set_counter(this, n)
     class(generic_file_t), intent(inout) :: this
     integer, intent(in) :: n
-    this%counter = n    
+    this%counter = n
   end subroutine generic_file_set_counter
+
+  !> Set the file start counter to @a n.
+  subroutine generic_file_set_start_counter(this, n)
+    class(generic_file_t), intent(inout) :: this
+    integer, intent(in) :: n
+    this%start_counter = n
+  end subroutine generic_file_set_start_counter
+
+  !> check if the file exists
+  subroutine generic_file_check_exists(this)
+    use utils, only: neko_error
+    use comm, only: pe_rank, NEKO_COMM
+    use mpi
+    implicit none
+
+    class(generic_file_t), intent(in) :: this
+    logical :: file_exists
+    integer :: neko_mpi_ierr
+
+    file_exists = .false.
+
+    if (pe_rank .eq. 0) then
+       ! Stop if the file does not exist
+       inquire(file=this%fname, exist=file_exists)
+    end if
+    call MPI_Bcast(file_exists, 1, MPI_LOGICAL, 0, NEKO_COMM, neko_mpi_ierr)
+
+    if (.not. file_exists) then
+       call neko_error('File does not exist: '//trim(this%fname))
+    end if
+
+  end subroutine generic_file_check_exists
+
 
 end module generic_file

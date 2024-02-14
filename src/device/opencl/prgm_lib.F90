@@ -1,8 +1,8 @@
 !> OpenCL JIT program library
 module opencl_prgm_lib
   use opencl_intf
-  use utils
-  use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
 
 #ifdef HAVE_OPENCL
@@ -39,7 +39,7 @@ module opencl_prgm_lib
 
   !> Device onvective kernels
   type(c_ptr), bind(c) :: conv1_program = C_NULL_PTR
-  
+
   !> Device CFL kernels
   type(c_ptr), bind(c) :: cfl_program = C_NULL_PTR
 
@@ -55,8 +55,8 @@ module opencl_prgm_lib
   !> Device jacobi kernels
   type(c_ptr), bind(c) :: jacobi_program = C_NULL_PTR
 
-  !> Device abbdf kernels
-  type(c_ptr), bind(c) :: abbdf_program = C_NULL_PTR
+  !> Device rhs_maker kernels
+  type(c_ptr), bind(c) :: rhs_maker_program = C_NULL_PTR
 
   !> Device pnpn residual kernels
   type(c_ptr), bind(c) :: pnpn_res_program = C_NULL_PTR
@@ -75,6 +75,12 @@ module opencl_prgm_lib
 
   !> Device coef kernels
   type(c_ptr), bind(c) :: coef_program = C_NULL_PTR
+
+  !> Device scalar residual kernels
+  type(c_ptr), bind(c) :: scalar_residual_program = C_NULL_PTR
+
+  !> Device lambda2 kernels
+  type(c_ptr), bind(c) :: lambda2_program = C_NULL_PTR
 
 contains
 
@@ -192,11 +198,11 @@ contains
        jacobi_program = C_NULL_PTR
     end if
 
-    if (c_associated(abbdf_program)) then
-       if(clReleaseProgram(abbdf_program) .ne. CL_SUCCESS) then
+    if (c_associated(rhs_maker_program)) then
+       if(clReleaseProgram(rhs_maker_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
-       abbdf_program = C_NULL_PTR
+       rhs_maker_program = C_NULL_PTR
     end if
 
     if (c_associated(pnpn_res_program)) then
@@ -240,9 +246,23 @@ contains
        end if
        coef_program = C_NULL_PTR
     end if
-    
+
+    if (c_associated(scalar_residual_program)) then
+       if(clReleaseProgram(scalar_residual_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       scalar_residual_program = C_NULL_PTR
+    end if
+
+    if (c_associated(lambda2_program)) then
+       if(clReleaseProgram(lambda2_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       lambda2_program = C_NULL_PTR
+    end if
+
   end subroutine opencl_prgm_lib_release
 
 #endif
-  
+
 end module opencl_prgm_lib

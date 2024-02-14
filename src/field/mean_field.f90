@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,13 +33,16 @@
 !> Defines a mean field
 !
 module mean_field
+  use neko_config
   use stats_quant
-  use num_types
-  use field
-  use math
+  use num_types, only : rp
+  use field, only : field_t
+  use math, only : add2s2
+  use device_math, only : device_cmult, device_add2s2
   implicit none
-  
-  type, extends(stats_quant_t) ::  mean_field_t
+  private
+
+  type, public, extends(stats_quant_t) ::  mean_field_t
      type(field_t), pointer :: f => null()
      type(field_t) :: mf
      real(kind=rp) :: time
@@ -47,24 +50,30 @@ module mean_field
      procedure, pass(this) :: init => mean_field_init
      procedure, pass(this) :: free => mean_field_free
      procedure, pass(this) :: update => mean_field_update
+     procedure, pass(this) :: reset => mean_field_reset
   end type mean_field_t
 
 contains
 
   !> Initialize a mean field for a field @a f
-  subroutine mean_field_init(this, f)
+  subroutine mean_field_init(this, f, field_name)
     class(mean_field_t), intent(inout) :: this
     type(field_t), intent(inout), target :: f
+    character(len=*), optional, intent(in) :: field_name
     character(len=80) :: name
-    
+
+
     call this%free()
 
     this%f => f
     this%time = 0.0_rp
+    if (present(field_name)) then
+       name = field_name
+    else
+       write(name, '(A,A)') 'mean_',trim(f%name)
+    end if
 
-    name = 'mean_'//trim(f%name)
-
-    call field_init(this%mf, f%dof, name)
+    call this%mf%init(f%dof, name)
 
   end subroutine mean_field_init
 
@@ -75,30 +84,37 @@ contains
     if (associated(this%f)) then
        nullify(this%f)
     end if
-
-    call field_free(this%mf)
+    call this%mf%free()
 
   end subroutine mean_field_free
+
+  !> Resets a mean field
+  subroutine mean_field_reset(this)
+    class(mean_field_t), intent(inout) :: this
+
+    this%time = 0.0
+    this%mf = 0.0_rp
+  end subroutine mean_field_reset
+
 
   !> Update a mean field
   subroutine mean_field_update(this, k)
     class(mean_field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k !< Time since last sample
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cmult(this%mf%x_d, this%time, size(this%mf%x))
        call device_add2s2(this%mf%x_d, this%f%x_d, k, size(this%mf%x))
        this%time = this%time + k
        call device_cmult(this%mf%x_d, 1.0_rp / this%time, size(this%mf%x))
     else
        this%mf%x = this%mf%x * this%time
-       call add2s2(this%mf%x, this%f%x, k, this%mf%dof%n_dofs)
+       call add2s2(this%mf%x, this%f%x, k, this%mf%dof%size())
        this%time = this%time + k
        this%mf%x = this%mf%x / this%time
     end if
-       
+
   end subroutine mean_field_update
-  
+
 end module mean_field
 

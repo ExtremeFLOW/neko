@@ -6,6 +6,7 @@ module device_math_parallel
   use device_math  
   use neko_config
   use num_types
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
   @TestCase
@@ -19,16 +20,14 @@ contains
 
   subroutine setUp(this)
     class(test_device_math), intent(inout) :: this
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
   end subroutine setUp
 
   subroutine tearDown(this)
     class(test_device_math), intent(inout) :: this
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_finalize
    end if
   end subroutine tearDown
@@ -41,16 +40,15 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        a = 1.0_rp
        
        call device_map(a, a_d, size(a))
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_rzero(a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(0.0_rp, a(i), tolerance=NEKO_EPS)
@@ -60,11 +58,11 @@ contains
           a(i) = real(i, rp)
        end do
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_rzero(a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(0.0_rp, a(i), tolerance=NEKO_EPS)
@@ -81,16 +79,15 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        a = 0.0_rp
        
        call device_map(a, a_d, size(a))
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_rone(a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(1.0_rp, a(i), tolerance=NEKO_EPS)
@@ -100,11 +97,11 @@ contains
           a(i) = real(i, rp)
        end do
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_rone(a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(1.0_rp, a(i), tolerance=NEKO_EPS)
@@ -122,8 +119,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        
        call rone(a, n)
        call rzero(b, n)
@@ -132,15 +128,15 @@ contains
        end do
 
        call device_map(a, a_d, size(a))
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
     
        call device_map(b, b_d, size(b))
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_copy(b_d, a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
-       call device_memcpy(b, b_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(b, b_d, size(a), DEVICE_TO_HOST, sync=.true.)
     
        do i = 1, n
           @assertEqual(a(i), b(i))
@@ -158,16 +154,15 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        a = 1.0_rp
        
        call device_map(a, a_d, size(a))
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_cfill(a_d, c, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i), tolerance=NEKO_EPS)
@@ -186,16 +181,15 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        a = 40.0_rp
        
        call device_map(a, a_d, size(a))
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_cadd(a_d, c, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i), tolerance=NEKO_EPS)
@@ -214,8 +208,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 40.0_rp
           b(i) = 2.0_rp
@@ -224,12 +217,12 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_add2(a_d, b_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i))
@@ -248,8 +241,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 20.0_rp
           b(i) = 2.0_rp
@@ -258,12 +250,12 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_add2s1(a_d, b_d, c1, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i))
@@ -282,8 +274,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 20.0_rp
           b(i) = 2.0_rp
@@ -292,12 +283,12 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_add2s2(a_d, b_d, c1, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
 
        do i = 1, n
           @assertEqual(24.0_rp, a(i))
@@ -318,8 +309,7 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 0.0_rp
           b(i) = 2.0_rp
@@ -330,13 +320,13 @@ contains
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
        
        call device_add3s2(a_d, b_d, c_d, c1, c2, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
 
        do i = 1, n
           @assertEqual(84.0_rp, a(i))
@@ -353,19 +343,18 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 2.0_rp
        end do
        
        call device_map(a, a_d, size(a))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        call device_invcol1(a_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(0.5_rp, a(i))
@@ -383,8 +372,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 21.0_rp
           b(i) = 2.0_rp
@@ -393,12 +381,12 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_invcol2(a_d, b_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(10.5_rp, a(i))
@@ -416,8 +404,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 21.0_rp
           b(i) = 2.0_rp
@@ -426,12 +413,12 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_col2(a_d, b_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i))
@@ -450,8 +437,7 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 17.0_rp
           b(i) = 2.0_rp
@@ -462,13 +448,13 @@ contains
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
        
        call device_col3(a_d, b_d, c_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i))
@@ -486,8 +472,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 44.0_rp
           b(i) = 2.0_rp
@@ -496,12 +481,12 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        call device_sub2(a_d, b_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(42.0_rp, a(i))
@@ -520,8 +505,7 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 17.0_rp
           b(i) = 2.0_rp
@@ -532,13 +516,13 @@ contains
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
        
        call device_sub3(a_d, b_d, c_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(-19.0_rp, a(i))
@@ -557,8 +541,7 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 4669.0_rp
           b(i) = 2.0_rp
@@ -569,13 +552,13 @@ contains
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
        
        call device_addcol3(a_d, b_d, c_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(4711.0_rp, a(i))
@@ -595,8 +578,7 @@ contains
     type(c_ptr) :: d_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 4669.0_rp
           b(i) = 2.0_rp
@@ -609,14 +591,14 @@ contains
        call device_map(c, c_d, size(c))
        call device_map(d, d_d, size(d))
 
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
-       call device_memcpy(d, d_d, size(d), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(d, d_d, size(d), HOST_TO_DEVICE, sync=.false.)
        
        call device_addcol4(a_d, b_d, c_d, d_d, n)
        
-       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
        
        do i = 1, n
           @assertEqual(4711.0_rp, a(i))
@@ -636,8 +618,7 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i, ierr
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        
        call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
        
@@ -651,9 +632,9 @@ contains
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
-       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE, sync=.false.)
        
        expected = real(this%getNumProcesses(), rp)  * real(n, rp)
        res = device_glsc3(a_d, b_d, c_d, n)
@@ -673,8 +654,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i, ierr
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        
        call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
        
@@ -686,8 +666,8 @@ contains
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
-       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE, sync=.false.)
        
        expected = real(this%getNumProcesses(), rp)  * real(n, rp)
        res = device_glsc2(a_d, b_d, n)
@@ -706,8 +686,7 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i, ierr
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        
        call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
        
@@ -717,7 +696,7 @@ contains
        
        call device_map(a, a_d, size(a))
        
-       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        
        expected = real(this%getNumProcesses(), rp)  * real(n, rp)
        res = device_glsum(a_d, n)

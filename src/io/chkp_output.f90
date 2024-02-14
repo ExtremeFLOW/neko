@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,10 @@
 !
 !> Defines an output for a checkpoint
 module chkp_output
-  use checkpoint
+  use checkpoint, only : chkp_t
   use output
+  use num_types, only : rp
   implicit none
-  private
 
   type, public, extends(output_t) :: chkp_output_t
      type(chkp_t), pointer :: chkp
@@ -46,7 +46,7 @@ module chkp_output
   interface chkp_output_t
      module procedure chkp_output_init
   end interface chkp_output_t
-  
+
 contains
 
   function chkp_output_init(chkp, name, path) result(this)
@@ -66,7 +66,7 @@ contains
        fname = 'fluid.chkp'
     end if
 
-    call output_init(this, fname)
+    call this%init_base(fname)
     this%chkp => chkp
   end function chkp_output_init
 
@@ -79,5 +79,5 @@ contains
     call this%file_%write(this%chkp, t)
 
   end subroutine chkp_output_sample
-  
+
 end module chkp_output

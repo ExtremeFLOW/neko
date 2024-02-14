@@ -27,8 +27,8 @@ program prepart
   call nmsh_file%read(msh)
 
   ! Reset possible periodic ids
-  call mesh_reset_periodic_ids(msh)
-
+  call msh%reset_periodic_ids()
+  call neko_log%message('Splitting mesh')
   ! Compute new partitions
   call parmetis_partmeshkway(msh, parts, nprts=nprts)
 
@@ -54,25 +54,27 @@ program prepart
 
   allocate(idx_map(msh%nelv))
 
+  call neko_log%message('Generating new mesh')
   !
   ! Create redistributed mesh
   !
 
-  call mesh_init(new_msh, msh%gdim, msh%nelv)  
+  new_msh%lgenc = .false.
+  call new_msh%init(msh%gdim, msh%nelv)  
   do i = 1, msh%nelv
      rank = parts%data(i)     
      idx = idx_cntr(rank) + new_el(rank)
      idx_cntr(rank) = idx_cntr(rank) + 1
      idx_map(i) = idx
-     call mesh_add_element(new_msh, idx, &
-          msh%elements(i)%e%pts(1)%p, &
-          msh%elements(i)%e%pts(2)%p, &
-          msh%elements(i)%e%pts(3)%p, &
-          msh%elements(i)%e%pts(4)%p, &
-          msh%elements(i)%e%pts(5)%p, &
-          msh%elements(i)%e%pts(6)%p, &
-          msh%elements(i)%e%pts(7)%p, &
-          msh%elements(i)%e%pts(8)%p)
+     call new_msh%add_element(idx, &
+                              msh%elements(i)%e%pts(1)%p, &
+                              msh%elements(i)%e%pts(2)%p, &
+                              msh%elements(i)%e%pts(3)%p, &
+                              msh%elements(i)%e%pts(4)%p, &
+                              msh%elements(i)%e%pts(5)%p, &
+                              msh%elements(i)%e%pts(6)%p, &
+                              msh%elements(i)%e%pts(7)%p, &
+                              msh%elements(i)%e%pts(8)%p)
 
   end do
 
@@ -84,28 +86,28 @@ program prepart
   ! 
   do i = 1, msh%wall%size
      idx = idx_map(msh%wall%facet_el(i)%x(2))
-     call mesh_mark_wall_facet(new_msh, msh%wall%facet_el(i)%x(1), idx)
+     call new_msh%mark_wall_facet(msh%wall%facet_el(i)%x(1), idx)
   end do
 
   do i = 1, msh%inlet%size
      idx = idx_map(msh%inlet%facet_el(i)%x(2))
-     call mesh_mark_inlet_facet(new_msh, msh%inlet%facet_el(i)%x(1), idx)
+     call new_msh%mark_inlet_facet(msh%inlet%facet_el(i)%x(1), idx)
   end do
 
   do i = 1, msh%outlet%size
      idx = idx_map(msh%outlet%facet_el(i)%x(2))
-     call mesh_mark_outlet_facet(new_msh, msh%outlet%facet_el(i)%x(1), idx)
+     call new_msh%mark_outlet_facet(msh%outlet%facet_el(i)%x(1), idx)
   end do
 
   do i = 1, msh%sympln%size
      idx = idx_map(msh%sympln%facet_el(i)%x(2))
-     call mesh_mark_sympln_facet(new_msh, msh%sympln%facet_el(i)%x(1), idx)
+     call new_msh%mark_sympln_facet(msh%sympln%facet_el(i)%x(1), idx)
   end do
 
   do i = 1, msh%periodic%size
      idx = idx_map(msh%periodic%facet_el(i)%x(2))
      p_idx = idx_map(msh%periodic%p_facet_el(i)%x(2))
-     call mesh_mark_periodic_facet(new_msh, msh%periodic%facet_el(i)%x(1), idx, &
+     call new_msh%mark_periodic_facet(msh%periodic%facet_el(i)%x(1), idx, &
           msh%periodic%p_facet_el(i)%x(1), p_idx, msh%periodic%p_ids(i)%x)
   end do
 
@@ -113,24 +115,29 @@ program prepart
      do i = 1, msh%labeled_zones(j)%size
         idx = idx_map(msh%labeled_zones(j)%facet_el(i)%x(2))
         label = j ! adhere to standards...
-        call mesh_mark_labeled_facet(new_msh, &
-             msh%labeled_zones(j)%facet_el(i)%x(1), idx, label)
+        call new_msh%mark_labeled_facet(msh%labeled_zones(j)%facet_el(i)%x(1), &
+                                        idx, label)
      end do
   end do
   
-
-
-  call mesh_finalize(new_msh)
-
+  do i = 1, msh%periodic%size
+     idx = idx_map(msh%periodic%facet_el(i)%x(2))
+     p_idx = idx_map(msh%periodic%p_facet_el(i)%x(2))
+     call new_msh%apply_periodic_facet(msh%periodic%facet_el(i)%x(1), idx, &
+          msh%periodic%p_facet_el(i)%x(1), p_idx, msh%periodic%p_ids(i)%x)
+  end do
+  
+  call new_msh%finalize()
+  
   deallocate(idx_map)
-  call mesh_free(msh)
+  call msh%free()
 
   output_ = trim(fname(1:scan(trim(fname), &
        '.', back=.true.) - 1))//'_'//trim(nprtschr)//'.nmsh' 
 
   new_msh_file = file_t(output_)
   call new_msh_file%write(new_msh)
-  call mesh_free(new_msh)
+  call new_msh%free()
 
   call neko_finalize
 

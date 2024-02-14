@@ -34,10 +34,11 @@
 module device_jacobi
   use precon
   use coefs
+  use dofmap
   use num_types
   use device_math
+  use device
   use gather_scatter
-  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -65,7 +66,7 @@ module device_jacobi
        integer(c_int) :: nelv, lx
      end subroutine hip_jacobi_update
   end interface
-  
+
   interface
      subroutine cuda_jacobi_update(d_d, dxt_d, dyt_d, dzt_d, &
           G11_d, G22_d, G33_d, G12_d, G13_d, G23_d, nelv, lx) &
@@ -89,7 +90,7 @@ module device_jacobi
   end interface
 
 contains
-  
+
   subroutine device_jacobi_init(this, coef, dof, gs_h)
     class(device_jacobi_t), intent(inout) :: this
     type(coef_t), intent(inout), target :: coef
@@ -117,7 +118,7 @@ contains
        call device_free(this%d_d)
        this%d_d = C_NULL_PTR
     end if
-    
+
     if (allocated(this%d)) then
        deallocate(this%d)
     end if
@@ -130,17 +131,17 @@ contains
   !> The jacobi preconditioner \f$ J z = r \f$
   !! \f$ z = J^{-1}r\f$ where \f$ J^{-1} ~= 1/diag(A) \f$
   subroutine device_jacobi_solve(this, z, r, n)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     class(device_jacobi_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
-    
+
     z_d = device_get_ptr(z)
     r_d = device_get_ptr(r)
-    
+
     call device_col3(z_d, r_d, this%d_d, n)
-    
+
   end subroutine device_jacobi_solve
 
   subroutine device_jacobi_update(this)
@@ -170,15 +171,15 @@ contains
                                 nelv, lx)
 #endif
 
-      call device_col2(this%d_d, coef%h1_d, coef%dof%n_dofs)
+      call device_col2(this%d_d, coef%h1_d, coef%dof%size())
 
       if (coef%ifh2) then
-         call device_addcol3(this%d_d, coef%h2_d, coef%B_d, coef%dof%n_dofs)
+         call device_addcol3(this%d_d, coef%h2_d, coef%B_d, coef%dof%size())
       end if
-      
-      call gs_op(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
 
-      call device_invcol1(this%d_d, dof%n_dofs)
+      call gs_h%op(this%d, dof%size(), GS_OP_ADD)
+
+      call device_invcol1(this%d_d, dof%size())
     end associate
   end subroutine device_jacobi_update
 

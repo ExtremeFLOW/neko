@@ -32,9 +32,16 @@
 !
 !> Defines a pipelined Conjugate Gradient methods
 module pipecg
-  use krylov
-  use math
-  use num_types
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, rzero, copy
+  use comm
   implicit none
   private
 
@@ -52,23 +59,27 @@ module pipecg
      real(kind=rp), allocatable :: mi(:)
      real(kind=rp), allocatable :: ni(:)
    contains
+     !> Constructor.
      procedure, pass(this) :: init => pipecg_init
+     !> Destructor.
      procedure, pass(this) :: free => pipecg_free
+     !> Solve the linear system.
      procedure, pass(this) :: solve => pipecg_solve
   end type pipecg_t
-  
+
 contains
-  
+
   !> Initialise a pipelined PCG solver
-  subroutine pipecg_init(this, n, M, rel_tol, abs_tol)
+  subroutine pipecg_init(this, n, max_iter, M, rel_tol, abs_tol)
     class(pipecg_t), intent(inout) :: this
+    integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-    
+
     call this%free()
-        
+
     allocate(this%p(n))
     allocate(this%q(n))
     allocate(this%r(n))
@@ -78,28 +89,28 @@ contains
     allocate(this%z(n))
     allocate(this%mi(n))
     allocate(this%ni(n))
-    if (present(M)) then 
+    if (present(M)) then
        this%M => M
     end if
-    
+
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(max_iter)
     end if
-    
+
   end subroutine pipecg_init
-  
+
   !> Deallocate a pipelined PCG solver
   subroutine pipecg_free(this)
     class(pipecg_t), intent(inout) :: this
-    
+
     call this%ksp_free()
-    
+
     if (allocated(this%p)) then
        deallocate(this%p)
     end if
@@ -127,18 +138,18 @@ contains
     if (allocated(this%ni)) then
        deallocate(this%ni)
     end if
-    
+
     nullify(this%M)
 
 
   end subroutine pipecg_free
-  
+
   !> Pipelined PCG solve
   function pipecg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(pipecg_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
@@ -152,17 +163,17 @@ contains
     real(kind=rp) :: tmp1, tmp2, tmp3, x_plus(NEKO_BLK_SIZE)
     integer :: request
     integer :: status(MPI_STATUS_SIZE)
-    
+
     if (present(niter)) then
        max_iter = niter
     else
-       max_iter = KSP_MAX_ITER
+       max_iter = this%max_iter
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
-    
+
     associate(p => this%p, q => this%q, r => this%r, s => this%s, &
          u => this%u, w => this%w, z => this%z, mi => this%mi, ni => this%ni)
-      
+
       p_prev = PIPECG_P_SPACE
       u_prev = PIPECG_P_SPACE+1
       p_cur = 1
@@ -174,16 +185,16 @@ contains
       call copy(r, f, n)
       call this%M%solve(u(1,u_prev), r, n)
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
-      call gs_op(gs_h, w, n, GS_OP_ADD)
+      call gs_h%op(w, n, GS_OP_ADD)
       call bc_list_apply(blst, w, n)
-      
+
       rtr = glsc3(r, coef%mult, r, n)
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       if(rnorm .eq. 0.0_rp) return
-      
+
       gamma1 = 0.0_rp
       tmp1 = 0.0_rp
       tmp2 = 0.0_rp
@@ -196,33 +207,33 @@ contains
       reduction(1) = tmp1
       reduction(2) = tmp2
       reduction(3) = tmp3
-      
+
       do iter = 1, max_iter
          call MPI_Iallreduce(MPI_IN_PLACE, reduction, 3, &
               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, request, ierr)
-         
+
          call this%M%solve(mi, w, n)
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
-         call gs_op(gs_h, ni, n, GS_OP_ADD)
+         call gs_h%op(ni, n, GS_OP_ADD)
          call bc_list_apply(blst, ni, n)
-         
+
          call MPI_Wait(request, status, ierr)
-         gamma2 = gamma1       
+         gamma2 = gamma1
          gamma1 = reduction(1)
          delta = reduction(2)
          rtr = reduction(3)
-         
+
          rnorm = sqrt(rtr)*norm_fac
          if (rnorm .lt. this%abs_tol) exit
 
          if (iter .gt. 1) then
             beta(p_cur) = gamma1 / gamma2
             alpha(p_cur) = gamma1 / (delta - (beta(p_cur) * gamma1/alpha(p_prev)))
-         else 
+         else
             beta(p_cur) = 0.0_rp
             alpha(p_cur) = gamma1/delta
          end if
-         
+
          tmp1 = 0.0_rp
          tmp2 = 0.0_rp
          tmp3 = 0.0_rp
@@ -253,11 +264,11 @@ contains
                end do
             end if
          end do
-         
+
          reduction(1) = tmp1
          reduction(2) = tmp2
          reduction(3) = tmp3
-         
+
          if (p_cur .eq. PIPECG_P_SPACE) then
             do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
@@ -276,7 +287,7 @@ contains
                      x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                      u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                   end do
-               else 
+               else
                   do k = 1, n-i
                      x_plus(1) = 0.0_rp
                      p_prev = PIPECG_P_SPACE + 1
@@ -292,7 +303,7 @@ contains
             end do
             p_prev = p_cur
             u_prev = PIPECG_P_SPACE+1
-            alpha(1) = alpha(p_cur) 
+            alpha(1) = alpha(p_cur)
             beta(1) = beta(p_cur)
             p_cur = 1
          else
@@ -301,7 +312,7 @@ contains
             p_cur = p_cur + 1
          end if
       end do
-      
+
       if ( p_cur .ne. 1) then
          do i = 0, n, NEKO_BLK_SIZE
             if (i + NEKO_BLK_SIZE .le. n) then
@@ -320,7 +331,7 @@ contains
                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                   u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                end do
-            else 
+            else
                do k = 1, n-i
                   x_plus(1) = 0.0_rp
                   p_prev = PIPECG_P_SPACE + 1
@@ -335,14 +346,14 @@ contains
             end if
          end do
       end if
-      
+
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
-      
+
     end associate
-    
+
   end function pipecg_solve
-   
+
 end module pipecg
-  
+
 

@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,33 +30,35 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Krylov preconditioner
+!> Krylov preconditioner (identity)
 module identity
-  use math
-  use utils
-  use precon
-  use ax_product
-  use num_types
+  use math, only : copy
+  use precon, only : pc_t
+  use num_types, only : rp
   implicit none
-  
+  private
+
   !> Defines a canonical Krylov preconditioner
   type, public, extends(pc_t) :: ident_t
-  contains
+   contains
      procedure, pass(this) :: solve => ident_solve
      procedure, pass(this) :: update => ident_update
   end type ident_t
 
 contains
+
   !> The (default) naive preconditioner \f$ I z = r \f$
   subroutine ident_solve(this, z, r, n)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     class(ident_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
-    call copy(z, r, n)    
+    call copy(z, r, n)
   end subroutine ident_solve
+
   !> Mandatory update routine
   subroutine ident_update(this)
     class(ident_t), intent(inout) :: this
   end subroutine ident_update
+
 end module identity

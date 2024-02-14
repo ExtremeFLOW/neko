@@ -37,7 +37,7 @@ module rea_file
   use num_types
   use utils
   use mesh
-  use point 
+  use point
   use map
   use rea
   use re2_file
@@ -88,16 +88,18 @@ contains
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
     logical :: curve_skip = .false.
     character(len=LOG_SIZE) :: log_buf
+    
+    call this%check_exists()
 
     select type(data)
     type is (rea_t)
-       call rea_free(data)       
+       call rea_free(data)
        msh => data%msh
        params => data%params
        cbc => data%cbc
        read_param = .true.
        read_bcs = .true.
-    type is (mesh_t)    
+    type is (mesh_t)
        msh => data
        read_param = .false.
        read_bcs = .false.
@@ -108,50 +110,50 @@ contains
     if (read_param .and. read_bcs .and. pe_size .gt. 1) then
        call neko_error('Reading NEKTON session data only implemented in serial')
     end if
-          
-    
+
+
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     call neko_log%message('Reading NEKTON file ' // this%fname)
-    
+
     read(9, *)
     read(9, *)
     read(9, *) ndim
     read(9, *) nparam
-    
+
     if (.not. read_param) then
        ! Skip parameters
        do i = 1, nparam
           read(9, *)
        end do
-    else       
+    else
        allocate(params(nparam))
        do i = 1, nparam
           read(9, *) params(i)
        end do
     end if
-    
+
     ! Skip passive scalars
     read(9, *) nskip
     do i = 1, nskip
        read(9, *)
     end do
-    
+
     ! Skip logic switches
     read(9, *) nlogic
     do i = 1, nlogic
        read(9, *)
     end do
-    
+
     ! Read mesh info
     read(9, *)
     read(9, *)
     read(9, *) nelgs,ndim, nelgv
     if (nelgs .lt. 0) then
        re2_fname = trim(this%fname(1:scan(trim(this%fname), &
-            '.', back=.true.)))//'re2' 
+            '.', back=.true.)))//'re2'
        call re2_file%init(re2_fname)
        call re2_file%read(msh)
-    else       
+    else
        write(log_buf,1) ndim, nelgv
 1      format('gdim = ', i1, ', nelements =', i7)
        call neko_log%message(log_Buf)
@@ -172,7 +174,7 @@ contains
        start_el = dist%start_idx() + 1
        end_el = dist%end_idx() + 1
 
-       call mesh_init(msh, ndim, dist)
+       call msh%init(ndim, dist)
 
        call htp%init(2**ndim * nel, ndim)
 
@@ -188,7 +190,8 @@ contains
                    p(j) = point_t(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
-                call mesh_add_element(msh, el_idx, p(1), p(2), p(3), p(4))
+                ! swap vertices to keep symmetric vertex numbering in neko
+                call msh%add_element(el_idx, p(1), p(2), p(4), p(3))
              end if
           else if (ndim .eq. 3) then
              read(9, *) (xc(j),j=1,4)
@@ -202,8 +205,9 @@ contains
                    p(j) = point_t(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
-                call mesh_add_element(msh, el_idx, &
-                     p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+                ! swap vertices to keep symmetric vertex numbering in neko
+                call msh%add_element(el_idx, &
+                     p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
              end if
           end if
           if (i .ge. start_el .and. i .le. end_el) then
@@ -212,8 +216,8 @@ contains
        end do
 
        call htp%free()
-       
-       read(9, *) 
+
+       read(9, *)
        read(9, *) ncurve
        allocate(curve_data(5,8,nelgv))
        allocate(curve_element(nelgv))
@@ -228,20 +232,22 @@ contains
           end do
        end do
        do i = 1, ncurve
-          read(9, *) edge, el_idx, (curve(j),j=1,5), chtemp       
+          read(9, *) edge, el_idx, (curve(j),j=1,5), chtemp
           do j = 1, 5
              curve_data(j,edge,el_idx) = curve(j)
           end do
-          curve_element(el_idx) = .true. 
+          curve_element(el_idx) = .true.
           select case(trim(chtemp))
           case ('s')
-            curve_type(edge,el_idx) = 1
-            curve_skip = .true.
+             curve_type(edge,el_idx) = 1
+             curve_skip = .true.
           case ('e')
-            curve_type(edge,el_idx) = 2
-            curve_skip = .true.
+             curve_type(edge,el_idx) = 2
+             curve_skip = .true.
           case ('C')
-            curve_type(edge,el_idx) = 3
+             curve_type(edge,el_idx) = 3
+          case ('m')
+             curve_type(edge,el_idx) = 4
           end select
        end do
        if (curve_skip) then
@@ -249,18 +255,18 @@ contains
        else
           do el_idx = 1, nelgv
              if (curve_element(el_idx)) then
-                call mesh_mark_curve_element(msh, el_idx, &
+                call msh%mark_curve_element(el_idx, &
                      curve_data(1,1,el_idx), curve_type(1,el_idx))
              end if
-          end do 
+          end do
        end if
        deallocate(curve_data)
        deallocate(curve_element)
        deallocate(curve_type)
 
        ! Read fluid boundary conditions
-       read(9,*) 
-       read(9,*) 
+       read(9,*)
+       read(9,*)
        if (.not. read_bcs) then ! Mark zones in the mesh
           allocate(cbc(6,nelgv))
           allocate(bc_data(6,2*ndim,nelgv))
@@ -275,18 +281,20 @@ contains
                    sym_facet = facet_map(j)
                    select case(trim(cbc(j,i)))
                    case ('W')
-                      call mesh_mark_wall_facet(msh, sym_facet, el_idx)
+                      call msh%mark_wall_facet(sym_facet, el_idx)
                    case ('v', 'V')
-                      call mesh_mark_inlet_facet(msh, sym_facet, el_idx)
+                      call msh%mark_inlet_facet(sym_facet, el_idx)
                    case ('O', 'o')
-                      call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
+                      call msh%mark_outlet_facet(sym_facet, el_idx)
+                   case ('ON', 'on')
+                      call msh%mark_outlet_normal_facet(sym_facet, el_idx)
                    case ('SYM')
-                      call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
+                      call msh%mark_sympln_facet(sym_facet, el_idx)
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
-                      call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
-                      call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
+                      call msh%get_facet_ids(sym_facet, el_idx, pids)
+                      call msh%mark_periodic_facet(sym_facet, el_idx, &
                                         p_facet, p_el_idx, pids)
                    end select
                 end do
@@ -301,8 +309,8 @@ contains
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
-                      call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
-                                                    p_facet, p_el_idx) 
+                      call msh%create_periodic_ids(sym_facet, el_idx, &
+                                                   p_facet, p_el_idx)
                    end select
                 end do
              end if
@@ -316,8 +324,8 @@ contains
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
-                      call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
-                                                    p_facet, p_el_idx) 
+                      call msh%create_periodic_ids(sym_facet, el_idx, &
+                                                   p_facet, p_el_idx)
                    end select
                 end do
              end if
@@ -331,8 +339,8 @@ contains
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
-                      call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
-                                                    p_facet, p_el_idx) 
+                      call msh%create_periodic_ids(sym_facet, el_idx, &
+                                                   p_facet, p_el_idx)
                    end select
                 end do
              end if
@@ -348,12 +356,12 @@ contains
           end do
        end if
 
-       call mesh_finalize(msh)
-       
+       call msh%finalize()
+
        call neko_log%message('Done')
        close(9)
     endif
-    
+
   end subroutine rea_file_read
 
   subroutine rea_file_write(this, data, t)
@@ -367,7 +375,7 @@ contains
     type(point_t), intent(inout) :: p
     integer, intent(inout) :: idx
     integer :: tmp
-    
+
     if (htp%get(p, tmp) .gt. 0) then
        idx = idx + 1
        call htp%set(p, idx)
@@ -375,7 +383,7 @@ contains
     else
        call p%set_id(tmp)
     end if
-    
+
   end subroutine rea_file_add_point
 
 end module rea_file

@@ -32,13 +32,11 @@
 !
 !> Factory for all fluid schemes
 module fluid_fctry
-  use device_fluid_plan4, only : device_fluid_plan4_t
-  use fluid_method, only : fluid_scheme_t
-  use fluid_plan1, only : fluid_plan1_t
-  use fluid_plan4, only : fluid_plan4_t
-  use fluid_pnpn, only : fluid_pnpn_t    
+  use fluid_scheme, only : fluid_scheme_t
+!  use fluid_plan1, only : fluid_plan1_t
+  use fluid_pnpn, only : fluid_pnpn_t
+  use utils, only : neko_error
   use neko_config
-  use utils
   implicit none
 
 contains
@@ -49,20 +47,13 @@ contains
     character(len=*) :: fluid_scheme
 
     if (trim(fluid_scheme) .eq. 'plan1') then
-       allocate(fluid_plan1_t::fluid)
-    else if (trim(fluid_scheme) .eq. 'plan4') then
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          allocate(device_fluid_plan4_t::fluid)
-       else
-          allocate(fluid_plan4_t::fluid)
-       end if
+!       allocate(fluid_plan1_t::fluid)
     else if (trim(fluid_scheme) .eq. 'pnpn') then
        allocate(fluid_pnpn_t::fluid)
     else
        call neko_error('Invalid fluid scheme')
     end if
-    
+
   end subroutine fluid_scheme_factory
 
 end module fluid_fctry

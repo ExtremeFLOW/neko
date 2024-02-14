@@ -3,6 +3,7 @@ import reframe.utility.sanity as sn
 import os
 import csv
 import string
+import json
 
 def get_gpu_device(partition):
     for device in partition.devices:
@@ -154,17 +155,18 @@ class MakeNeko(rfm.core.buildsystems.BuildSystem):
 
 class NekoTestBase(rfm.RegressionTest):
     valid_systems = ['*']
-    valid_prog_environs = ['PrgEnv-cray', 'PrgEnv-gnu', 'PrgEnv-intel']
+    valid_prog_environs = ['PrgEnv-cray', 'PrgEnv-gnu', 'PrgEnv-intel','default']
     neko_build = fixture(BuildNeko, scope='environment')
 
-    scheme = parameter(os.getenv('NEKO_SCHEME', 'plan4,pnpn').split(','))
+    scheme = parameter(os.getenv('NEKO_SCHEME', 'pnpn').split(','))
     case = variable(str)
 
     mesh_file = variable(str, value='')
-    dt = variable(str, value='')
+    dt = variable(float, value=0.0)
+    T_end = variable(float, value=0.0)
 
-    abstol_vel = {'sp': '1d-5', 'dp': '1d-9'}
-    abstol_prs = {'sp': '1d-5', 'dp': '1d-9'}
+    abstol_vel = {'sp': 1e-5, 'dp': 1e-9}
+    abstol_prs = {'sp': 1e-5, 'dp': 1e-9}
 
     # Set dofs to enable workrate perf var
     dofs = variable(int, value=0)
@@ -188,25 +190,23 @@ class NekoTestBase(rfm.RegressionTest):
         case_template = case_file + '.template'
 
         self.executable_opts.append(self.case)
-
+        
         if os.path.exists(case_file):
             pass
         elif os.path.exists(case_template):
             with open(case_template) as tf:
-                ts = tf.read()
-            template = string.Template(ts)
+                case_json = json.load(tf)
+            case_json["case"]["fluid"]["velocity_solver"]["absolute_tolerance"] = \
+                self.abstol_vel[self.neko_build.real]
+            case_json["case"]["fluid"]["pressure_solver"]["absolute_tolerance"] = \
+                self.abstol_prs[self.neko_build.real]
+            case_json["case"]["fluid"]["scheme"] = self.scheme
+            case_json["case"]["mesh_file"] = self.mesh_file
+            case_json["case"]["timestep"] = self.dt
+            case_json["case"]["end_time"] = self.T_end
 
-            keys = {
-                'abstol_vel': self.abstol_vel[self.neko_build.real],
-                'abstol_prs': self.abstol_prs[self.neko_build.real],
-                'fluid_scheme': self.scheme,
-                'mesh_file': self.mesh_file,
-                'dt': self.dt,
-            }
-
-            ss = template.substitute(keys)
             with open(case_file, 'w') as cf:
-                cf.write(ss)
+                json.dump(case_json, cf, indent=2)
         else:
             raise NekoError(f'Cannot find {case_file} or {case_template}')
 
@@ -235,7 +235,7 @@ class NekoTestBase(rfm.RegressionTest):
 
     @sanity_function
     def normal_end(self):
-        return sn.assert_found('normal end.', self.stdout)
+        return sn.assert_found('Normal end.', self.stdout)
 
     @run_before('performance')
     def set_time_perf(self):
@@ -313,8 +313,9 @@ class TgvBase(NekoTestBase):
 @rfm.simple_test
 class Tgv8(TgvBase):
     mesh_file = 'examples/tgv/512.nmsh'
-    dt = '1d-2'
-
+    dt = 1e-2
+    T_end = 20.0
+    
     @run_before('performance')
     def set_reference(self):
         if self.neko_build.real == 'dp':
@@ -334,7 +335,8 @@ class Tgv8(TgvBase):
 @rfm.simple_test
 class Tgv32(TgvBase):
     mesh_file = 'examples/tgv/32768.nmsh'
-    dt = '1d-3'
+    dt = 1e-3
+    T_end = 20.0    
     dofs = 8**3 * 32**3
     # Where flow has become turbulent
     first_workrate_timestep = 12000
@@ -362,3 +364,37 @@ class MiniHemi(NekoTestBase):
     @run_before('compile')
     def setup_case(self):
         self.executable = os.path.join(self.neko_build.install_dir, 'bin/neko')
+
+@rfm.simple_test
+class MiniTgv8(NekoTestBase):
+    descr = 'Two iterations of TGV as a smoke test'
+    mesh_file = 'examples/tgv/512.nmsh'
+    dt = 1e-2
+    T_end = 0.02
+    executable = './neko'
+    case = 'tgv.case'
+
+    @run_after('setup')
+    def set_build(self):
+        self.build_system = MakeNeko(self.neko_build)
+        self.sourcepath = 'tgv.f90'
+
+@rfm.simple_test
+class MiniRB(NekoTestBase):
+    descr = 'Two iterations of 3D RB as a smoke test'
+    mesh_file = 'examples/rayleigh-benard/box.nmsh'
+    dt = 1e-2
+    T_end = 0.02
+    executable = './neko'
+    case = 'rayleigh.case'
+
+    @run_after('setup')
+    def set_build(self):
+        self.build_system = MakeNeko(self.neko_build)
+        self.sourcepath = 'rayleigh.f90'
+
+    # Restrict small case to 2 tasks
+    @run_before('run')
+    def set_num_tasks(self):
+        if self.neko_build.backend == 'cpu':
+            self.num_tasks = 2

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,22 +35,29 @@
 #include "math_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 extern "C" {
 
+#include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
+  
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
    */
   void cuda_copy(void *a, void *b, int *n) {
     CUDA_CHECK(cudaMemcpyAsync(a, b, (*n) * sizeof(real),
-                               cudaMemcpyDeviceToDevice));
+                               cudaMemcpyDeviceToDevice,
+                               (cudaStream_t) glb_cmd_queue));
   }
 
   /** Fortran wrapper for rzero
    * Zero a real vector
    */
   void cuda_rzero(void *a, int *n) {
-    CUDA_CHECK(cudaMemsetAsync(a, 0, (*n) * sizeof(real)));
+      CUDA_CHECK(cudaMemsetAsync(a, 0, (*n) * sizeof(real),
+                                 (cudaStream_t) glb_cmd_queue));
   }
 
   /** Fortran wrapper for cmult
@@ -61,8 +68,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    cmult_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                           *c, *n);
+    cmult_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, *c, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -75,8 +82,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    cmult2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
-                                           *c, *n);
+    cmult2_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *c, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -89,8 +96,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    cadd_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                          *c, *n);
+    cadd_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, *c, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -104,8 +111,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    cfill_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                           *c, *n);
+    cfill_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, *c, *n);
     CUDA_CHECK(cudaGetLastError());
     
   }
@@ -119,8 +126,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    add2_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                          (real *) b, *n);
+    add2_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *n);
     CUDA_CHECK(cudaGetLastError());
     
   }
@@ -135,9 +142,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    add2s1_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                            (real *) b,
-                                            *c1, *n);
+    add2s1_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *c1, *n);
     CUDA_CHECK(cudaGetLastError());
     
   }
@@ -152,9 +158,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    add2s2_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                            (real *) b,
-                                            *c1, *n);
+    add2s2_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *c1, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -170,9 +175,9 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     
-    add2s2_many_kernel<real><<<nblcks, nthrds>>>((real *) x,
-                                                 (const real **) p,
-                                                 (real *) alpha, *j, *n);
+    add2s2_many_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) x, (const real **) p,
+                                      (real *) alpha, *j, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -187,7 +192,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    addsqr2s2_kernel<real><<<nblcks, nthrds>>>((real *) a,
+    addsqr2s2_kernel<real><<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((real *) a,
                                                (real *) b,
                                                *c1, *n);
     CUDA_CHECK(cudaGetLastError());
@@ -204,10 +209,9 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    add3s2_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                            (real *) b,
-                                            (real *) c,
-                                            *c1, *c2, *n);
+    add3s2_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, (real *) c,
+                                      *c1, *c2, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -221,8 +225,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    invcol1_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                             *n);
+    invcol1_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, *n);
     CUDA_CHECK(cudaGetLastError());
   }
   
@@ -235,8 +239,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    invcol2_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                               (real *) b, *n);
+    invcol2_kernel<real><<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((real *) a,
+                                             (real *) b, *n);
     CUDA_CHECK(cudaGetLastError());
   }
   
@@ -249,8 +253,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    col2_kernel<real><<<nblcks, nthrds>>>((real *) a, 
-                                            (real *) b, *n);
+    col2_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *n);
     CUDA_CHECK(cudaGetLastError());
   }
   
@@ -263,8 +267,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    col3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
-                                            (real *) c, *n);
+    col3_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, (real *) c, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
@@ -277,8 +281,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    subcol3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
-                                             (real *) c, *n);
+    subcol3_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, (real *) c, *n);
     CUDA_CHECK(cudaGetLastError());
   }
   
@@ -292,7 +296,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    sub2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b, *n);
+    sub2_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
@@ -305,7 +310,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    sub3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b, 
+    sub3_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, 
                                             (real *) c, *n);
     CUDA_CHECK(cudaGetLastError());
   }
@@ -319,8 +325,9 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    addcol3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
-                                               (real *) c, *n);
+    addcol3_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b,
+                                      (real *) c, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
@@ -333,9 +340,69 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    addcol4_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
-                                             (real *) c, (real *) d, *n);
+    addcol4_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b,
+                                      (real *) c, (real *) d, *n);
     CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Fortran wrapper for vdot3
+   * \f$ dot = u \cdot v \f$
+   */
+  void cuda_vdot3(void *dot, void *u1, void *u2, void *u3,
+                  void *v1, void *v2, void *v3, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    vdot3_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) dot, (real *) u1,
+                                      (real *) u2, (real *) u3,
+                                      (real *) v1, (real *) v2,
+                                      (real *) v3, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /*
+   * Reduction buffer
+   */
+  int red_s = 0;
+  real * bufred = NULL;
+  real * bufred_d = NULL;
+
+  /**
+   * Fortran wrapper vlsc3
+   * Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
+   */
+  real cuda_vlsc3(void *u, void *v, void *w, int *n) {
+        
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
+    
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        CUDA_CHECK(cudaFreeHost(bufred));
+        CUDA_CHECK(cudaFree(bufred_d));        
+      }
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+    }
+     
+    glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
+      ((real *) u, (real *) v, (real *) w, bufred_d, *n);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
+    CUDA_CHECK(cudaGetLastError());
+
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+
+    return bufred[0];
   }
 
   /**
@@ -347,33 +414,36 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
     
-    real * buf = (real *) malloc(nb * sizeof(real));
-    real * buf_d;
-
-    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        CUDA_CHECK(cudaFreeHost(bufred));
+        CUDA_CHECK(cudaFree(bufred_d));        
+      }
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+    }
      
-    glsc3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
-                                             (real *) c, buf_d, *n);
+    glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
+      ((real *) a, (real *) b, (real *) c, bufred_d, *n);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpy(buf, buf_d, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
+#ifdef HAVE_DEVICE_MPI
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
+#else
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#endif
 
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += buf[i];
-    }
-
-    free(buf);
-    CUDA_CHECK(cudaFree(buf_d));
-
-    return res;
+    return bufred[0];
   }
   
-  int red_s = 0;
-  real * bufred = NULL;
-  real * bufred_d = NULL;
   /**
    * Fortran wrapper for doing an reduction to an array
    * Weighted inner product \f$ w^T v(n,1:j) c \f$
@@ -384,35 +454,36 @@ extern "C" {
       pow2 = 2*pow2;
     }
     const int nt = 1024/pow2;   
-    const dim3 nthrds(nt, pow2, 1);
+    const dim3 nthrds(pow2, nt, 1);
     const dim3 nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int nb = ((*n) + nt - 1)/nt;
-    if((*j)>red_s){
-      red_s = *j;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+    
+    if((*j)*nb>red_s){
+      red_s = (*j)*nb;
       if (bufred != NULL) {
-	free(bufred);
+	CUDA_CHECK(cudaFreeHost(bufred));
 	CUDA_CHECK(cudaFree(bufred_d));
       }
-      bufred = (real *) malloc((*j)*nb * sizeof(real));
+      CUDA_CHECK(cudaMallocHost(&bufred,(*j)*nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }
     
-    glsc3_many_kernel<real><<<nblcks, nthrds>>>((const real *) w,
-                                                (const real **) v,
-                                                (const real *)mult,
-                                                bufred_d, *j, *n);
+    glsc3_many_kernel<real><<<nblcks, nthrds, 0, stream>>>
+      ((const real *) w, (const real **) v,
+       (const real *)mult, bufred_d, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, (*j)*nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
-    for (int k = 0; k < (*j); k++) {
-      h[k] = 0.0;
-    }
-    
-    for (int i = 0; i < nb; i++) {
-      for (int k = 0; k < (*j); k++) {
-        h[k] += bufred[i*(*j)+k];
-      }
-    }
+    glsc3_reduce_kernel<real><<<(*j), 1024, 0, stream>>>(bufred_d, nb, *j);
+    CUDA_CHECK(cudaGetLastError());
+
+#ifdef HAVE_DEVICE_MPI
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real), DEVICE_MPI_SUM);
+#else    
+    CUDA_CHECK(cudaMemcpyAsync(h, bufred_d, (*j) * sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#endif
   }
 
   /**
@@ -424,28 +495,36 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
-    
-    real * buf = (real *) malloc(nb * sizeof(real));
-    real * buf_d;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
 
-    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
-     
-    glsc2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
-                                              buf_d, *n);
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        CUDA_CHECK(cudaFreeHost(bufred));
+        CUDA_CHECK(cudaFree(bufred_d));        
+      }
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+    }
+         
+    glsc2_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) a,
+                                      (real *) b,
+                                      bufred_d, *n);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpy(buf, buf_d, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
+#ifdef HAVE_DEVICE_MPI
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
+#else
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#endif
 
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += buf[i];
-    }
-
-    free(buf);
-    CUDA_CHECK(cudaFree(buf_d));
-
-    return res;
+    return bufred[0];
   }
 
   /** 
@@ -456,27 +535,34 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
     
-    real * buf = (real *) malloc(nb * sizeof(real));
-    real * buf_d;
-
-    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        CUDA_CHECK(cudaFreeHost(bufred));
+        CUDA_CHECK(cudaFree(bufred_d));        
+      }
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+    }
      
-    glsum_kernel<real><<<nblcks, nthrds>>>((real *) a, buf_d, *n);
+    glsum_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) a, bufred_d, *n);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpy(buf, buf_d, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
-
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += buf[i];
-    }
-
-    free(buf);
-    CUDA_CHECK(cudaFree(buf_d));
-
-    return res;
+#ifdef HAVE_DEVICE_MPI
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
+#else
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#endif
+    
+    return bufred[0];
   }
 
 }

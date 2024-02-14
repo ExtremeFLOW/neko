@@ -53,8 +53,8 @@ extern void *ax_helm_program;
 /** Device jacobi kernels */
 extern void *jacobi_program;
 
-/** Device abbdf kernels */
-extern void *abbdf_program;
+/** Device rhs_maker kernels */
+extern void *rhs_maker_program;
 
 /** Device pnpn residual kernels */
 extern void *pnpn_res_program;
@@ -73,6 +73,13 @@ extern void *dong_program;
 
 /** Device coef kernels */
 extern void *coef_program;
+
+/** Device scalar residual kernels */
+extern void *scalar_residual_program;
+
+/** Device lambda2 kernel */
+extern void *lambda2_program;
+
 
 
 #endif

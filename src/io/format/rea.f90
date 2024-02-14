@@ -2,8 +2,8 @@
 !> NEKTON session data
 !! @details This module is used to represent NEKTON session data
 module rea
-  use num_types
-  use mesh
+  use num_types, only : dp
+  use mesh, only : mesh_t
   implicit none
   private
 
@@ -16,17 +16,17 @@ module rea
      character(len=3), allocatable :: cbc(:,:)
   end type rea_t
 
-  
+
   public :: rea_free
 
 contains
-  
+
   !> Free a NEKTON session data
   subroutine rea_free(r)
     type(rea_t), intent(inout) :: r
 
-    call mesh_free(r%msh)
-    
+    call r%msh%free()
+
     if (allocated(r%params)) then
        deallocate(r%params)
     end if

@@ -36,21 +36,23 @@ module flow_ic
   use neko_config
   use flow_profile
   use device_math
-  use parameters
+  use device
   use field
   use utils
   use coefs
   use math
   use user_intf, only : useric
+  use json_module, only : json_file
+  use json_utils, only: json_get
   implicit none
   private
 
   interface set_flow_ic
      module procedure set_flow_ic_int, set_flow_ic_usr
-  end interface
+  end interface set_flow_ic
 
   public :: set_flow_ic
-  
+
 contains
 
   !> Set initial flow condition (builtin)
@@ -62,19 +64,28 @@ contains
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
-    type(param_t), intent(in) :: params
+    type(json_file), intent(inout) :: params
+    ! Variables for retrieving json parameters
+    logical :: found
+    real(kind=rp) :: delta
+    real(kind=rp), allocatable :: uinf(:)
+    character(len=:), allocatable :: blasius_approximation
 
-    if (trim(type) .eq. 'uniform') then       
-       call set_flow_ic_uniform(u, v, w, params%uinf)
+    if (trim(type) .eq. 'uniform') then
+       call json_get(params, 'case.fluid.initial_condition.value', uinf)
+       call set_flow_ic_uniform(u, v, w, uinf)
     else if (trim(type) .eq. 'blasius') then
-       call set_flow_ic_blasius(u, v, w, &
-            params%delta, params%uinf, params%blasius_approx)
+       call json_get(params, 'case.fluid.blasius.delta', delta)
+       call json_get(params, 'case.fluid.blasius.approximation',&
+                     blasius_approximation)
+       call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
+       call set_flow_ic_blasius(u, v, w, delta, uinf, blasius_approximation)
     else
        call neko_error('Invalid initial condition')
     end if
-    
+
     call set_flow_ic_common(u, v, w, p, coef, gs)
-    
+
   end subroutine set_flow_ic_int
 
   !> Set intial flow condition (user defined)
@@ -86,12 +97,12 @@ contains
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     procedure(useric) :: usr_ic
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
 
     call usr_ic(u, v, w, p, params)
-    
+
     call set_flow_ic_common(u, v, w, p, coef, gs)
-    
+
   end subroutine set_flow_ic_usr
 
   subroutine set_flow_ic_common(u, v, w, p, coef, gs)
@@ -101,30 +112,31 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(u%x, u%x_d, u%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(v%x, v%x_d, v%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(w%x, w%x_d, w%dof%n_dofs, HOST_TO_DEVICE)
-    end if
-    
-    ! Ensure continuity across elements for initial conditions
-    call gs_op(gs, u%x, u%dof%n_dofs, GS_OP_ADD) 
-    call gs_op(gs, v%x, v%dof%n_dofs, GS_OP_ADD) 
-    call gs_op(gs, w%x, w%dof%n_dofs, GS_OP_ADD) 
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_col2(u%x_d, coef%mult_d, u%dof%n_dofs)
-       call device_col2(v%x_d, coef%mult_d, v%dof%n_dofs)
-       call device_col2(w%x_d, coef%mult_d, w%dof%n_dofs)
-    else
-       call col2(u%x, coef%mult, u%dof%n_dofs)
-       call col2(v%x, coef%mult, v%dof%n_dofs)
-       call col2(w%x, coef%mult, w%dof%n_dofs)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(u%x, u%x_d, u%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(v%x, v%x_d, v%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(w%x, w%x_d, w%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
+    ! Ensure continuity across elements for initial conditions
+    call gs%op(u%x, u%dof%size(), GS_OP_ADD)
+    call gs%op(v%x, v%dof%size(), GS_OP_ADD)
+    call gs%op(w%x, w%dof%size(), GS_OP_ADD)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col2(u%x_d, coef%mult_d, u%dof%size())
+       call device_col2(v%x_d, coef%mult_d, v%dof%size())
+       call device_col2(w%x_d, coef%mult_d, w%dof%size())
+    else
+       call col2(u%x, coef%mult, u%dof%size())
+       call col2(v%x, coef%mult, v%dof%size())
+       call col2(w%x, coef%mult, w%dof%size())
+    end if
+
   end subroutine set_flow_ic_common
 
   !> Uniform initial condition
@@ -137,9 +149,8 @@ contains
     u = uinf(1)
     v = uinf(2)
     w = uinf(3)
-    n = u%dof%n_dofs
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    n = u%dof%size()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call cfill(u%x, uinf(1), n)
        call cfill(v%x, uinf(2), n)
        call cfill(w%x, uinf(3), n)
@@ -173,7 +184,7 @@ contains
     case default
        call neko_error('Invalid Blasius approximation')
     end select
-    
+
     if ((uinf(1) .gt. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
          .and. (uinf(3) .eq. 0.0_rp)) then
        do i = 1, u%dof%size()
@@ -194,9 +205,9 @@ contains
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = bla(u%dof%y(i,1,1,1), delta, uinf(3))
-       end do       
+       end do
     end if
-    
+
   end subroutine set_flow_ic_blasius
-  
+
 end module flow_ic

@@ -9,7 +9,7 @@
 
 AC_DEFUN([AX_CUDA],[
 	AC_ARG_WITH([cuda],
-		    AC_HELP_STRING([--with-cuda=DIR],
+		    AS_HELP_STRING([--with-cuda=DIR],
 		    [Compile with CUDA backend]),
 		    [
 		    if test -d "$withval"; then
@@ -25,7 +25,7 @@ AC_DEFUN([AX_CUDA],[
 	   	   CPPFLAGS_SAVED="$CPPFLAGS"
 		   LDFLAGS_SAVED="$LDFLAGS"
 		   CPPFLAGS="$CUDA_CPPFLAGS $CPPFLAGS"
-		   LDFLAGS="$CUDA_LDFLAGS $LDFLAGS"
+		   LDFLAGS="$CUDA_LDFLAGS"
 		   export CPPFLAGS
 		   export LDFLAGS
 		   AC_PATH_PROG(NVCC, nvcc, "no")
@@ -34,8 +34,12 @@ AC_DEFUN([AX_CUDA],[
                 AS_IF([test "$CUDA_CFLAGS"],[],[CUDA_CFLAGS="-O3"])
 		
 		_CC=$CC
+                _CFLAGS=$CFLAGS
+		_LIBS=$LIBS
 		AC_LANG_PUSH([C])
 		CC=$NVCC
+                CFLAGS=""
+		LIBS=""
 
 		AC_CHECK_LIB(cudart, cudaFree,
 		             [have_cuda=yes;CUDA_LIBS="-lcudart"],[have_cuda=no])
@@ -43,11 +47,13 @@ AC_DEFUN([AX_CUDA],[
 		if test x"${have_cuda}" = xyes; then		   
                    cuda_bcknd="1"
 		   AC_DEFINE(HAVE_CUDA,1,[Define if you have CUDA.])
-		   LIBS="$CUDA_LIBS $LIBS"
+		   LIBS="$CUDA_LIBS $_LIBS"
+		   LDFLAGS="$CUDA_LDFLAGS $LDFLAGS_SAVED"
 		else
 		   AC_MSG_ERROR([CUDA not found])
 		fi
 	        CC=$_CC
+                CFLAGS=$_CFLAGS
 		AC_LANG_POP([C])
 	fi
 	AC_SUBST(cuda_bcknd)	

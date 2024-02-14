@@ -37,13 +37,12 @@ module symmetry
   use num_types
   use dirichlet
   use bc
-  use device
   use coefs
   use math
   use utils
   use stack
   use tuple
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -58,7 +57,6 @@ module symmetry
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
      procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
-     final :: symmetry_free
   end type symmetry_t
 
 contains
@@ -73,13 +71,13 @@ contains
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
-    
+
     call symmetry_free(this)
 
     call this%bc_x%init(c%dof)
     call this%bc_y%init(c%dof)
     call this%bc_z%init(c%dof)
-    
+
     associate(nx => c%nx, ny => c%ny, nz => c%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
@@ -89,7 +87,7 @@ contains
          sx = 0d0
          sy = 0d0
          sz = 0d0
-         select case (facet)               
+         select case (facet)
          case(1,2)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx -1
@@ -113,7 +111,7 @@ contains
                   sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
                   sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
                end do
-            end do               
+            end do
          end select
          sx = sx / (c%Xh%lx - 2)**2
          sy = sy / (c%Xh%lx - 2)**2
@@ -140,50 +138,58 @@ contains
     call this%bc_z%set_g(0.0_rp)
 
   end subroutine symmetry_init_msk
-  
+
   subroutine symmetry_free(this)
     type(symmetry_t), intent(inout) :: this
-    
+
     call this%bc_x%free()
     call this%bc_y%free()
     call this%bc_z%free()
 
   end subroutine symmetry_free
-  
+
   !> No-op scalar apply
-  subroutine symmetry_apply_scalar(this, x, n)
+  subroutine symmetry_apply_scalar(this, x, n, t, tstep)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
   end subroutine symmetry_apply_scalar
 
   !> Apply symmetry conditions (axis aligned)
-  subroutine symmetry_apply_vector(this, x, y, z, n)
+  subroutine symmetry_apply_vector(this, x, y, z, n, t, tstep)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     integer :: i, m, k
 
     call this%bc_x%apply_scalar(x,n)
     call this%bc_y%apply_scalar(y,n)
     call this%bc_z%apply_scalar(z,n)
-    
+
   end subroutine symmetry_apply_vector
 
   !> No-op scalar apply (device version)
-  subroutine symmetry_apply_scalar_dev(this, x_d)
+  subroutine symmetry_apply_scalar_dev(this, x_d, t, tstep)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
   end subroutine symmetry_apply_scalar_dev
 
   !> Apply symmetry conditions (axis aligned) (device version)
-  subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d)
+  subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
 
     call device_symmetry_apply_vector(this%bc_x%msk_d, this%bc_y%msk_d, &
                                       this%bc_z%msk_d, x_d, y_d, z_d, &
@@ -192,5 +198,5 @@ contains
                                       this%bc_z%msk(0))
 
   end subroutine symmetry_apply_vector_dev
-      
+
 end module symmetry

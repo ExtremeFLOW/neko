@@ -35,7 +35,7 @@ module wall
   use device_wall
   use num_types
   use dirichlet
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -52,10 +52,12 @@ contains
 
   !> Boundary condition apply for a no-slip wall condition
   !! to a vector @a x
-  subroutine no_slip_wall_apply_scalar(this, x, n)
+  subroutine no_slip_wall_apply_scalar(this, x, n, t, tstep)
     class(no_slip_wall_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     integer :: i, m, k
 
     m = this%msk(0)
@@ -63,17 +65,19 @@ contains
        k = this%msk(i)
        x(k) = 0d0
     end do
-    
+
   end subroutine no_slip_wall_apply_scalar
-  
+
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z
-  subroutine no_slip_wall_apply_vector(this, x, y, z, n)
+  subroutine no_slip_wall_apply_vector(this, x, y, z, n, t, tstep)
     class(no_slip_wall_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     integer :: i, m, k
 
     m = this%msk(0)
@@ -83,30 +87,34 @@ contains
        y(k) = 0d0
        z(k) = 0d0
     end do
-    
+
   end subroutine no_slip_wall_apply_vector
 
   !> Boundary condition apply for a no-slip wall condition
   !! to a vector @a x (device version)
-  subroutine no_slip_wall_apply_scalar_dev(this, x_d)
+  subroutine no_slip_wall_apply_scalar_dev(this, x_d, t, tstep)
     class(no_slip_wall_t), intent(inout), target :: this
     type(c_ptr) :: x_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
 
     call device_no_slip_wall_apply_scalar(this%msk_d, x_d, size(this%msk))
-    
+
   end subroutine no_slip_wall_apply_scalar_dev
-  
+
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine no_slip_wall_apply_vector_dev(this, x_d, y_d, z_d)
+  subroutine no_slip_wall_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(no_slip_wall_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
 
     call device_no_slip_wall_apply_vector(this%msk_d, x_d, y_d, z_d, &
                                           size(this%msk))
-    
+
   end subroutine no_slip_wall_apply_vector_dev
-  
+
 end module wall

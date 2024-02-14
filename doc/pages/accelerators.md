@@ -54,11 +54,11 @@ Since allocation and association is such an ordinary operation, Neko provides a 
   ...
   allocate(x(n))
   ...
-  call device_associate(x, x_d, n)
+  call device_map(x, x_d, n)
 ~~~~~~~~~~~~~~~
 
 #### Data transfer
-To copy data between host and device (and device to use) use the routine device::device_memcpy which takes a Fortran array `x` of type `integer`, `integer(i8)`, `real(kind=sp)` or `real(kind=dp)`, its size `n` and the direction as the third argument which can either be `HOST_TO_DEVICE` to copy data to the device, or `DEVICE_TO_HOST` to retrieve data from the device.
+To copy data between host and device (and device to use) use the routine device::device_memcpy which takes a Fortran array `x` of type `integer`, `integer(i8)`, `real(kind=sp)` or `real(kind=dp)`, its size `n` and the direction as the third argument which can either be `HOST_TO_DEVICE` to copy data to the device, or `DEVICE_TO_HOST` to retrieve data from the device. The fourth boolean argument, `sync`, controls whether the transfer is synchronous (`.true.`) or asynchronous (`.false.`).
 ~~~~~~~~~~~~~~~{.f90}
   integer, allocatable :: x(:)
   type(c_ptr) :: x_d
@@ -67,10 +67,10 @@ To copy data between host and device (and device to use) use the routine device:
   allocate(x(n))
   ...
   ! Fill the device with data
-  call device_memcpy(x, x_d, n, HOST_TO_DEVICE)
+  call device_memcpy(x, x_d, n, HOST_TO_DEVICE, sync=.false.)
   ...
   ! Retrieve data from device
-  call device_memcpy(x, x_d, n, DEVICE_TO_HOST)
+  call device_memcpy(x, x_d, n, DEVICE_TO_HOST, sync=.true.)
 ~~~~~~~~~~~~~~~
 
 @note that there's a special device::device_memcpy_cptr routine which only works with pointers, either on the host or the device, and the size needs to be given in bytes. This routine can be used to copy data between two arrays on a device with the direction `DEVICE_TO_DEVICE`.
@@ -81,6 +81,8 @@ To copy data between host and device (and device to use) use the routine device:
   ! Copy the content of x into y on the device
   call device_memcpy_cptr(y_d, x_d, s, DEVICE_TO_DEVICE)
 ~~~~~~~~~~~~~~~
+
+@attention device::device_memcpy_cptr defaults to asynchronous data transfer. The optional boolean argument `sync` must be true if synchronous transfers are needed.
 
 @attention It is the programmers' responsibility to make sure that device arrays are kept in sync with the associated host array. Neko does not perform any implicit data movement.
 

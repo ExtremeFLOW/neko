@@ -1,23 +1,18 @@
 /*
  Copyright (c) 2022, The Neko Authors
  All rights reserved.
-
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
-
    * Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
-
    * Redistributions in binary form must reproduce the above
      copyright notice, this list of conditions and the following
      disclaimer in the documentation and/or other materials provided
      with the distribution.
-
    * Neither the name of the authors nor the names of its
      contributors may be used to endorse or promote products derived
      from this software without specific prior written permission.
-
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -32,6 +27,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __FLUID_PNPN_RES_KERNEL__
+#define __FLUID_PNPN_RES_KERNEL__
+
 __kernel void prs_res_part1_kernel(__global real * __restrict__ ta1,
                                    __global real * __restrict__ ta2,
                                    __global real * __restrict__ ta3,
@@ -43,20 +41,19 @@ __kernel void prs_res_part1_kernel(__global real * __restrict__ ta1,
                                    __global const real * __restrict__ f_w,
                                    __global const real * __restrict__ B,
                                    __global real * __restrict__ h1,
-                                   const real Re,
+                                   const real mu,
                                    const real rho,
                                    const int n) {
   
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
   const real inv_rho = 1.0 / rho;
-  const real inv_Re = 1.0 / Re;
   
   for (int i = idx; i < n; i += str) {
     h1[i] = inv_rho;
-    ta1[i] = (f_u[i] / rho) - ((wa1[i] * (inv_Re / rho)) * B[i]);
-    ta2[i] = (f_v[i] / rho) - ((wa2[i] * (inv_Re / rho)) * B[i]);
-    ta3[i] = (f_w[i] / rho) - ((wa3[i] * (inv_Re / rho)) * B[i]);
+    ta1[i] = (f_u[i] / rho) - ((wa1[i] * (mu / rho)) * B[i]);
+    ta2[i] = (f_v[i] / rho) - ((wa2[i] * (mu / rho)) * B[i]);
+    ta3[i] = (f_w[i] / rho) - ((wa3[i] * (mu / rho)) * B[i]);
   }
 
 }
@@ -114,3 +111,4 @@ __kernel void vel_res_update_kernel(__global real * __restrict__ u_res,
 
 }
 
+#endif // __FLUID_PNPN_RES_KERNEL__

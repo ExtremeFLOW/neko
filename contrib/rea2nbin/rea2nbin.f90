@@ -32,6 +32,8 @@ program rea2nbin
      
   
   rea_file = file_t(fname)
+    
+  msh%lgenc = .false.
   
   call rea_file%read(msh)
   
@@ -39,7 +41,7 @@ program rea2nbin
   
   call nmsh_file%write(msh)
   
-  call mesh_free(msh)
+  call msh%free()
   
   call neko_finalize
 

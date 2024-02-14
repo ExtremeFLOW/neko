@@ -219,11 +219,11 @@ subroutine test_quad_facet_id
 
   call q%facet_id(t, 1)
   @assertEqual(t%x(1), p1%id())
-  @assertEqual(t%x(2), p4%id())
+  @assertEqual(t%x(2), p3%id())
 
   call q%facet_id(t, 2)
   @assertEqual(t%x(1), p2%id())
-  @assertEqual(t%x(2), p3%id())
+  @assertEqual(t%x(2), p4%id())
 
   call q%facet_id(t, 3)
   @assertEqual(t%x(1), p1%id())

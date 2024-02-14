@@ -23,10 +23,10 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_usr_ic => user_ic
-    u%fluid_usr_if => user_inflow_eval
-    !u%usr_chk => user_do_stuff
-    u%usr_msh_setup => cylinder_deform
+    u%fluid_user_ic => user_ic
+    u%fluid_user_if => user_inflow_eval
+    !u%user_check => user_do_stuff
+    u%user_mesh_setup => cylinder_deform
   end subroutine user_setup
  
   subroutine cylinder_deform(msh)
@@ -64,7 +64,7 @@ contains
     end do
   end subroutine cylinder_gen_curve
   
-  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: u
     real(kind=rp), intent(inout) :: v
     real(kind=rp), intent(inout) :: w
@@ -78,6 +78,8 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     real(kind=rp) ::  u_th,dist,th, yy
     real(kind=rp) ::  arg
 
@@ -135,7 +137,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     integer :: i
     real(kind=rp) :: y
 

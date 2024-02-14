@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,37 +32,58 @@
 !
 !> Routines to interpolate between different spaces
 module interpolation
-  use speclib
+  use neko_config
+  use num_types, only : rp
   use device
-  use utils
-  use math
   use fast3d
-  use tensor
-  use space
-  use device
-  use, intrinsic :: iso_c_binding
+  use tensor, only : tnsr3d
+  use tensor_cpu, only : tnsr3d_cpu
+  use space, only : space_t, operator(.eq.), GL, GLL
   implicit none
   private
-  
-  type, public :: interpolator_t
-     type(space_t), pointer :: Xh
-     type(space_t), pointer :: Yh
-     real(kind=rp), allocatable :: Xh_to_Yh(:,:), Xh_to_YhT(:,:)
-     real(kind=rp), allocatable :: Yh_to_Xh(:,:), Yh_to_XhT(:,:)
-     type(c_ptr) :: Xh_Yh_d = C_NULL_PTR
-     type(c_ptr) :: Xh_YhT_d = C_NULL_PTR
-     type(c_ptr) :: Yh_Xh_d = C_NULL_PTR
-     type(c_ptr) :: Yh_XhT_d = C_NULL_PTR
 
+  !> Interpolation between two \ref space::space_t.
+  !! @details
+  !! This type implements functionality to interpolate between a pair of spaces.
+  !! Simply put, given some data of form (lx1, lx1, lx1, nelem) we can map it to
+  !! (lx2, lx2, lx2, nelem), corresponding to a different polynomial order in
+  !! each element.
+  type, public :: interpolator_t
+     !> First space.
+     type(space_t), pointer :: Xh
+     !> Second space.
+     type(space_t), pointer :: Yh
+     !> Interpolation weights from Xh to Yh.
+     real(kind=rp), allocatable :: Xh_to_Yh(:,:), Xh_to_YhT(:,:)
+     !> Interpolation weights from Yh to Xh.
+     real(kind=rp), allocatable :: Yh_to_Xh(:,:), Yh_to_XhT(:,:)
+     !> Device pointer for Xh_to_Yh.
+     type(c_ptr) :: Xh_Yh_d = C_NULL_PTR
+     !> Device pointer for Xh_to_YhT.
+     type(c_ptr) :: Xh_YhT_d = C_NULL_PTR
+     !> Device pointer for Yh_to_Xh.
+     type(c_ptr) :: Yh_Xh_d = C_NULL_PTR
+     !> Device pointer for Yh_to_XhT.
+     type(c_ptr) :: Yh_XhT_d = C_NULL_PTR
    contains
-     procedure, pass(this) :: init => interp_init
-     procedure, pass(this) :: free => interp_free
-     procedure, pass(this) :: map => interpolate
+
+     !> Constructor.
+     procedure, pass(this) :: init => interpolator_init
+     !> Destructor.
+     procedure, pass(this) :: free => interpolator_free
+     !> Interpolate an array to one of Xh or Yh.
+     procedure, pass(this) :: map => interpolator_map
+     !> Interpolate an array to one of Xh or Yh on the host.
+     procedure, pass(this) :: map_host => interpolator_map_host
+
   end type interpolator_t
-  
+
 contains
-  
-  subroutine interp_init(this, Xh, Yh)
+
+  !> Constructor to initialize with two different spaces.
+  !> @param Xh The first space.
+  !> @param Xh The second space.
+  subroutine interpolator_init(this, Xh, Yh)
     class(interpolator_t), intent(inout), target :: this
     type(space_t), intent(inout), target :: Xh
     type(space_t), intent(inout), target :: Yh
@@ -74,6 +95,7 @@ contains
     allocate(this%Xh_to_YhT(Xh%lx,Yh%lx))
     allocate(this%Yh_to_Xh(Xh%lx,Yh%lx))
     allocate(this%Yh_to_XhT(Yh%lx,Xh%lx))
+
     if (Xh%t .eq. GLL .and. Yh%t .eq. GLL) then
     else if ((Xh%t .eq. GL .and. Yh%t .eq. GLL) .or. &
          (Yh%t .eq. GL .and. Xh%t .eq. GLL)) then
@@ -88,21 +110,24 @@ contains
 
     this%Xh => Xh
     this%Yh => Yh
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx)
        call device_map(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx)
        call device_map(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx)
        call device_map(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx)
-       call device_memcpy(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
-       call device_memcpy(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
-       call device_memcpy(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
-       call device_memcpy(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
+       call device_memcpy(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
-  end subroutine interp_init
+  end subroutine interpolator_init
 
-  subroutine interp_free(this)
+  subroutine interpolator_free(this)
     class(interpolator_t), intent(inout) :: this
 
     if (allocated(this%Xh_to_Yh)) then
@@ -130,10 +155,14 @@ contains
        call device_free(this%Xh_YhT_d)
     end if
 
-  end subroutine interp_free
+  end subroutine interpolator_free
 
-  !> Interpolates array x -> y in to_space
-  subroutine interpolate(this, y, x, nel,to_space)
+  !> Interpolates an array to one of Xh or Yh.
+  !! @param x Original array.
+  !! @param y Interpolated array.
+  !! @param nel Number of elements in the mesh.
+  !! @param to_space The space to interpolate to, must be either Xh or Yh.
+  subroutine interpolator_map(this, y, x, nel, to_space)
     class(interpolator_t), intent(inout) :: this
     integer :: nel
     type(space_t) :: to_space
@@ -150,6 +179,33 @@ contains
     else
        call neko_error('Invalid interpolation')
     end if
-  end subroutine interpolate
+  end subroutine interpolator_map
+
+
+  !> Interpolates an array to one of Xh or Yh on host.
+  !! @param x Original array.
+  !! @param y Interpolated array.
+  !! @param nel Number of elements in the mesh.
+  !! @param to_space The space to interpolate to, must be either Xh or Yh.
+  !! @note Not optimized for performance, should only be used during init.
+  subroutine interpolator_map_host(this, y, x, nel, to_space)
+    class(interpolator_t), intent(inout) :: this
+    integer :: nel
+    type(space_t) :: to_space
+    real(kind=rp), intent(inout) :: x(1,nel)
+    real(kind=rp), intent(inout) :: y(1,nel)
+    if (to_space .eq. this%Yh) then
+       call tnsr3d_cpu(y, this%Yh%lx, x, &
+                   this%Xh%lx,this%Yh_to_XhT, &
+                   this%Yh_to_Xh, this%Yh_to_Xh, nel)
+    else if (to_space .eq. this%Xh) then
+       call tnsr3d_cpu(y, this%Xh%lx, x, &
+                   this%Yh%lx,this%Yh_to_Xh, &
+                   this%Yh_to_XhT, this%Yh_to_XhT, nel)
+    else
+       call neko_error('Invalid interpolation')
+    end if
+  end subroutine interpolator_map_host
+
 
 end module interpolation

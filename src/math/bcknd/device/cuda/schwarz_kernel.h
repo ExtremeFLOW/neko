@@ -1,3 +1,5 @@
+#ifndef __MATH_SCHWARZ_KERNEL_H__
+#define __MATH_SCHWARZ_KERNEL_H__
 /*
  Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
@@ -34,66 +36,55 @@
 
 /**
  * Device kernel for schwarz extrude
- * This can probably be done i a better way...
  * We sum the "shell" of a1 that is l1 steps in scaled with f1
  * with the shell of a2 that is l2 steps in and scale with f3.
- * Right now we just thorw away all arrays that are not
+ * Right now we just throw away all arrays that are not
  * on the first face of dimension (nx-2)(nx-2)
  * It should be noted that a1, a2 are often the same array.
- * If l1,l2 are not the same or if one is not 0 this might lead to a race.
  */
-template< typename T>
+template< typename T, const int NX>
 __global__ void schwarz_extrude_kernel(T * a1,
                                        const int l1,
                                        const T f1,
                                        T * a2,
                                        const int l2,
-                                       const T f2,
-                                       const int nx) {
+                                       const T f2){
 
   const int idx = threadIdx.x;
-  const int el = blockIdx.x*nx*nx*nx;
+  const int el = blockIdx.x*NX*NX*NX;
+  const int x = idx%(NX-2) + 1;
+  const int y = idx/(NX-2) + 1;
+  int idx1,idx2;
 
-  for(int ijk = idx; ijk<nx*nx*nx; ijk+=blockDim.x){
-     int jk = ijk/nx;
-     int i = ijk - nx*jk;
-     int k = jk/nx;
-     int j = jk -k*nx;
-     if(j>0 && j< nx-1 && k > 0 && k < nx -1){
-       int idx1 = i + j*nx + k*nx*nx + el;
-       if(i == l1){
-         int idx2 = l2 + j*nx + k*nx*nx + el;
-         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-       }
-       if(i == nx-1-l1){
-         int idx2 = nx-1-l2 + j*nx + k*nx*nx + el;
-         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-       }
-     }
-     if( i > 0 && i < nx-1 && k > 0 && k < nx -1){
-       int idx1 = i + j*nx + k*nx*nx + el;
-       if(j == l1){
-         int idx2 = i + l2*nx + k*nx*nx + el;
-         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-       }
-       if(j == nx-1-l1){
-         int idx2 = i + (nx-1-l2)*nx + k*nx*nx + el;
-         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-       }
-     }
-     if( i > 0 && i < nx-1 && j>0 && j< nx-1 ){
-       int idx1 = i + j*nx + k*nx*nx + el;
-       if(k == l1){
-         int idx2 = i + j*nx + l2*nx*nx + el;
-         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-       }
-       if(k == nx-1-l1){
-         int idx2 = i + j*nx + (nx-l2-1)*nx*nx + el;
-         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-       }
-     }
-  }    
+  idx1 = l1 + x*NX + y*NX*NX + el;
+  idx2 = l2 + x*NX + y*NX*NX + el;
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+
+  idx1 = (NX-1-l1) + x*NX + y*NX*NX + el;
+  idx2 = (NX-1-l2) + x*NX + y*NX*NX + el;
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+
+  __syncthreads();
+
+  idx1 = x + l1*NX + y*NX*NX + el;
+  idx2 = x + l2*NX + y*NX*NX + el;
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+
+  idx1 = x + (NX-1-l1)*NX + y*NX*NX + el;
+  idx2 = x + (NX-1-l2)*NX + y*NX*NX + el;
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+
+  __syncthreads();
+
+  idx1 = x + y*NX + l1*NX*NX + el;
+  idx2 = x + y*NX + l2*NX*NX + el;
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+
+  idx1 = x + y*NX + (NX-1-l1)*NX*NX + el;
+  idx2 = x + y*NX + (NX-1-l2)*NX*NX + el;
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
 }
+
 
 /**
  * Device kernel for schwarz extrude
@@ -137,3 +128,5 @@ __global__ void schwarz_toreg3d_kernel(T * __restrict__ b,
     b[ijk+el] = a[(i+1)+(j+1)*nx2+(k+1)*nx2*nx2+el2];
   }
 }
+
+#endif // __MATH_SCHWARZ_KERNEL_H__

@@ -1,16 +1,19 @@
 !> Wrapper for all matrix-matrix product implementations
 module mxm_wrapper
   use num_types
-  use utils
+  use utils, only : neko_error
 #ifdef HAVE_LIBXSMM
   use libxsmm
 #endif
   implicit none
+  private
+
+  public :: mxm
 
   interface mxm_blas
      module procedure mxm_blas_sp, mxm_blas_dp, mxm_blas_qp
   end interface mxm_blas
-  
+
   interface mxm_libxsmm
      module procedure mxm_libxsmm_sp, mxm_libxsmm_dp, mxm_libxsmm_qp
   end interface mxm_libxsmm
@@ -45,7 +48,7 @@ contains
     call sgemm('N','N',n1,n3,n2,1.0,a,n1,b,n2,0.0,c,n1)
 
   end subroutine mxm_blas_sp
-  
+
   subroutine mxm_blas_dp(a,n1,b,n2,c,n3)
     integer, intent(in) :: n1, n2, n3
     real(kind=dp), intent(in) :: a(n1, n2)
@@ -80,9 +83,9 @@ contains
        call libxsmm_smmcall_abc(xmm, a, b, c)
        return
     end if
-#endif       
+#endif
   end subroutine mxm_libxsmm_sp
-  
+
   subroutine mxm_libxsmm_dp(a,n1,b,n2,c,n3)
     integer, intent(in) :: n1, n2, n3
     real(kind=dp), intent(in) :: a(n1, n2)
@@ -109,5 +112,5 @@ contains
     call neko_error('Not implemented yet!')
 
   end subroutine mxm_libxsmm_qp
-  
+
 end module mxm_wrapper

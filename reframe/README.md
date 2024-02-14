@@ -1,6 +1,6 @@
 # Neko Reframe test suite
 
-Requires Reframe to run (`spack install reframe` or `pip install reframe`).
+Requires Reframe to run (`spack install reframe` or `pip install reframe-hpc`).
 
 ```
 reframe -C settings.py -c checks.py -r --performance-report
@@ -33,7 +33,7 @@ Control which configurations are used with environment variables:
 NEKO_REAL=sp,dp
 
 # Fluid scheme
-NEKO_SCHEME=plan4,pnpn
+NEKO_SCHEME=pnpn
 ```
 
 ## How to add a new system

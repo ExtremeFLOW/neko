@@ -43,11 +43,11 @@ module precon_fctry
   implicit none
 
 contains
-  
+
   !> Create a preconditioner
   subroutine precon_factory(pc, pctype)
     class(pc_t), target, allocatable, intent(inout) :: pc
-    character(len=*) :: pctype
+    character(len=*), intent(in) :: pctype
 
     if (allocated(pc)) then
        call precon_destroy(pc)
@@ -57,8 +57,7 @@ contains
     if (trim(pctype) .eq. 'jacobi') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_jacobi_t::pc)
-       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(device_jacobi_t::pc)
        else
           allocate(jacobi_t::pc)
@@ -66,16 +65,15 @@ contains
     else if (pctype(1:4) .eq. 'hsmg') then
        allocate(hsmg_t::pc)
     else if(trim(pctype) .eq. 'ident') then
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(device_ident_t::pc)
        else
           allocate(ident_t::pc)
        end if
     else
-       call neko_error('Unknown preconditioner')
+       call neko_error('Unknown preconditioner '//trim(pctype))
     end if
-    
+
   end subroutine precon_factory
 
   !> Destroy a preconditioner
@@ -92,9 +90,9 @@ contains
           call pcp%free()
        type is (hsmg_t)
           call pcp%free()
-       end select                 
+       end select
     end if
-    
+
   end subroutine precon_destroy
-  
+
 end module precon_fctry

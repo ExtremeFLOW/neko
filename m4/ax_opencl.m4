@@ -9,7 +9,7 @@
 
 AC_DEFUN([AX_OPENCL],[
 	AC_ARG_WITH([opencl],
-		    AC_HELP_STRING([--with-opencl=DIR],
+		    AS_HELP_STRING([--with-opencl=DIR],
 		    [Compile with OpenCL backend]),
 		    [
    		    if test -d "$withval"; then

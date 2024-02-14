@@ -1,5 +1,7 @@
+#ifndef __SEM_COEF_KERNEL_CL__
+#define __SEM_COEF_KERNEL_CL__
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2023, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -113,6 +115,8 @@ DEFINE_GENERATE_GEO_KERNEL(11, 256)
 DEFINE_GENERATE_GEO_KERNEL(12, 256)
 DEFINE_GENERATE_GEO_KERNEL(13, 256)
 DEFINE_GENERATE_GEO_KERNEL(14, 256)
+DEFINE_GENERATE_GEO_KERNEL(15, 256)
+DEFINE_GENERATE_GEO_KERNEL(16, 256)
 
 /**
  * Device kernel for coef dxyz
@@ -258,6 +262,8 @@ DEFINE_GENERATE_DXYZ_KERNEL(11, 256)
 DEFINE_GENERATE_DXYZ_KERNEL(12, 256)
 DEFINE_GENERATE_DXYZ_KERNEL(13, 256)
 DEFINE_GENERATE_DXYZ_KERNEL(14, 256)
+DEFINE_GENERATE_DXYZ_KERNEL(15, 256)
+DEFINE_GENERATE_DXYZ_KERNEL(16, 256)
 
 /**
  * Device kernel for coef drst
@@ -310,3 +316,5 @@ __kernel void coef_generate_drst_kernel(__global real * __restrict__ jac,
   }
 
 }
+
+#endif // __SEM_COEF_KERNEL_CL__

@@ -9,7 +9,7 @@
 
 AC_DEFUN([AX_LIBXSMM],[
 	AC_ARG_WITH([libxsmm],
-		    AC_HELP_STRING([--with-libxsmm],
+		    AS_HELP_STRING([--with-libxsmm],
 		    [Compile with support for libxsmm]),
 		    [with_libxsmm=${withval}], [with_libxsmm=no])
 

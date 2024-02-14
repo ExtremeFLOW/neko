@@ -107,10 +107,11 @@ extern "C" {
     const int lx = *lxp;
     const int threads = 1024;
     const int blocks = ((*nel * lx*lx*lx) + threads - 1) / threads;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define CASE(N)\
     case N:\
-    jacobi_kernel<real, N><<<blocks, threads>>>(\
+      jacobi_kernel<real, N><<<blocks, threads, 0, stream>>>(  \
 	(real*)d,\
 	(real*)dxt, (real*)dyt, (real*)dzt,\
 	(real*)G11, (real*)G22, (real*)G33,\

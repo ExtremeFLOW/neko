@@ -35,23 +35,26 @@ module cpr
   use gather_scatter
   use neko_config
   use num_types
-  use field  
-  use space  
+  use field, only : field_t
+  use space, only : space_t
   use math
-  use mesh
-  use coefs
+  use mesh, only : mesh_t
+  use coefs, only : coef_t
   use tensor
   use mxm_wrapper
+  use logger
+  use dofmap, only : dofmap_t
   implicit none
+  private
 
   !> include information needed for compressing fields
-  type :: cpr_t
+  type, public  :: cpr_t
      real(kind=rp), allocatable :: v(:,:) !< Transformation matrix
 
      real(kind=rp), allocatable :: vt(:,:) !< Transformation matrix transposed
-     real(kind=rp), allocatable :: vinv(:,:) !< Transformation matrix inversed 
+     real(kind=rp), allocatable :: vinv(:,:) !< Transformation matrix inversed
      real(kind=rp), allocatable :: vinvt(:,:) !< Transformation matrix
-     !! inversed and transposed 
+     !! inversed and transposed
      real(kind=rp), allocatable :: w(:,:) !< Diagonal matrix with weights
 
      real(kind=rp), allocatable :: fldhat(:,:,:,:) !< transformed Field data
@@ -144,7 +147,7 @@ contains
     real(kind=rp) :: L(0:cpr%Xh%lx-1)
     real(kind=rp) :: delta(cpr%Xh%lx)
     integer :: i, kj, j, j2, kk
-    character(len=LOG_SIZE) :: log_buf 
+    character(len=LOG_SIZE) :: log_buf
 
     associate(Xh => cpr%Xh, v=> cpr%v, vt => cpr%vt, &
          vinv => cpr%vinv, vinvt => cpr%vinvt, w => cpr%w)
@@ -156,14 +159,14 @@ contains
          L(1) = Xh%zg(j,1)
          do j2 = 2, Xh%lx-1
             L(j2) = ( (2*j2-1) * Xh%zg(j,1) * L(j2-1) &
-                 - (j2-1) * L(j2-2) ) / j2 
+                 - (j2-1) * L(j2-2) ) / j2
          end do
          do kk = 1, Xh%lx
             kj = kj+1
             v(kj,1) = L(KK-1)
          end do
       end do
-      
+
       ! transpose the matrix
       call trsp1(v, Xh%lx) !< non orthogonal wrt weights
 
@@ -171,24 +174,24 @@ contains
       do i = 1, Xh%lx
          delta(i) = 2.0_rp / (2*(i-1)+1)
       end do
-      ! modify last entry  
+      ! modify last entry
       delta(Xh%lx) = 2.0_rp / (Xh%lx-1)
-      
+
       ! calculate the inverse to multiply the matrix
       do i = 1, Xh%lx
          delta(i) = sqrt(1.0_rp / delta(i))
       end do
-      ! scale the matrix      
+      ! scale the matrix
       do i = 1, Xh%lx
          do j = 1, Xh%lx
             v(i,j) = v(i,j) * delta(j) ! orthogonal wrt weights
          end do
       end do
-    
+
       ! get the trasposed
       call copy(vt, v, Xh%lx * Xh%lx)
       call trsp1(vt, Xh%lx)
-      
+
       !populate the mass matrix
       kk = 1
       do i = 1, Xh%lx
@@ -201,15 +204,15 @@ contains
             end if
          end do
       end do
-      
+
       !Get the inverse of the transform matrix
       call mxm(vt, Xh%lx, w, Xh%lx, vinv, Xh%lx)
-      
+
       !get the transposed of the inverse
       call copy(vinvt, vinv, Xh%lx * Xh%lx)
       call trsp1(vinvt, Xh%lx)
     end associate
-    
+
   end subroutine cpr_generate_specmat
 
 
@@ -222,14 +225,14 @@ contains
     real(kind=rp) :: specmat(cpr%Xh%lx,cpr%Xh%lx)
     real(kind=rp) :: specmatt(cpr%Xh%lx,cpr%Xh%lx)
     integer :: i, j, k, e, nxyz, nelv
-    character(len=LOG_SIZE) :: log_buf 
-    character(len=4) :: space 
+    character(len=LOG_SIZE) :: log_buf
+    character(len=4) :: space
 
     ! define some constants
     nxyz = cpr%Xh%lx*cpr%Xh%lx*cpr%Xh%lx
     nelv = cpr%msh%nelv
 
-    ! Define the matrix according to which transform to do 
+    ! Define the matrix according to which transform to do
     if (space .eq. 'spec') then
        call copy(specmat, cpr%vinv, cpr%Xh%lx*cpr%Xh%lx)
        call copy(specmatt, cpr%vinvt, cpr%Xh%lx*cpr%Xh%lx)
@@ -268,15 +271,15 @@ contains
     real(kind=rp) :: vsort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: vtrunc(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: vtemp(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
-    real(kind=rp) :: errvec(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx) 
-    real(kind=rp) :: fx(cpr%Xh%lx, cpr%Xh%lx) 
-    real(kind=rp) :: fy(cpr%Xh%lx, cpr%Xh%lx) 
-    real(kind=rp) :: fz(cpr%Xh%lx, cpr%Xh%lx) 
+    real(kind=rp) :: errvec(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: fx(cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: fy(cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: fz(cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: l2norm, oldl2norm, targeterr
     integer :: isort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     integer :: i, j, k, e, nxyz, nelv
     integer :: kut, kutx, kuty, kutz, nx
-    character(len=LOG_SIZE) :: log_buf 
+    character(len=LOG_SIZE) :: log_buf
 
     ! define some constants
     nx = cpr%Xh%lx
@@ -290,7 +293,7 @@ contains
        call copy(vtemp, cpr%fldhat(1,1,1,e), nxyz)
        call copy(vtrunc, cpr%fldhat(1,1,1,e), nxyz)
        ! sort the coefficients by absolute value
-       call sortcoeff(vsort, cpr%fldhat(1,1,1,e), isort, nxyz) 
+       call sortcoeff(vsort, cpr%fldhat(1,1,1,e), isort, nxyz)
        ! initialize values for iterative procedure
        l2norm = 0.0_rp
        kut = 0
@@ -371,10 +374,10 @@ contains
 
   end subroutine cpr_truncate_wn
 
-  !> Sort the spectral coefficient in descending order 
+  !> Sort the spectral coefficient in descending order
   !! array vsort. The original indices are stored in the isort vector.
-  subroutine sortcoeff(vsort, v, isort, nxyz) 
-    integer, intent(in) :: nxyz      
+  subroutine sortcoeff(vsort, v, isort, nxyz)
+    integer, intent(in) :: nxyz
     real(kind=rp), intent(inout) :: vsort(nxyz)
     real(kind=rp), intent(inout) :: v(nxyz)
     integer, intent(inout) :: isort(nxyz)
@@ -401,9 +404,9 @@ contains
 
   end subroutine sortcoeff
 
-  !> Flip vector b and ind 
+  !> Flip vector b and ind
   subroutine flipv(b, ind, n)
-    integer, intent(in) :: n      
+    integer, intent(in) :: n
     real(kind=rp), intent(inout) :: b(n)
     integer, intent(inout) :: ind(n)
     real(kind=rp) :: temp(n)
@@ -424,7 +427,7 @@ contains
 
   !> sort the array acording to ind vector
   subroutine swap(b, ind, n)
-    integer, intent(in) :: n      
+    integer, intent(in) :: n
     real(kind=rp), intent(inout) :: b(n)
     integer, intent(inout) :: ind(n)
     real(kind=rp) :: temp(n)
@@ -442,7 +445,7 @@ contains
 
   !> reorder the array - inverse of swap
   subroutine reord(b, ind, n)
-    integer, intent(in) :: n      
+    integer, intent(in) :: n
     real(kind=rp), intent(inout) :: b(n)
     integer, intent(inout) :: ind(n)
     real(kind=rp) :: temp(n)
@@ -458,10 +461,10 @@ contains
 
   end subroutine reord
 
-  !> create filter transfer function 
-  subroutine build_filter_tf(fx, fy, fz, kut, lx) 
-    integer, intent(in) :: lx      
-    integer, intent(in) :: kut      
+  !> create filter transfer function
+  subroutine build_filter_tf(fx, fy, fz, kut, lx)
+    integer, intent(in) :: lx
+    integer, intent(in) :: kut
     real(kind=rp), intent(inout) :: fx(lx,lx)
     real(kind=rp), intent(inout) :: fy(lx,lx)
     real(kind=rp), intent(inout) :: fz(lx,lx)
@@ -529,7 +532,7 @@ contains
     real(kind=rp) :: elemdata(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx)
     real(kind=rp) :: vole, suma, l2e
     integer i, e, eg, nxyz
-    character(len=4) :: space 
+    character(len=4) :: space
 
     ! Get the volume of the element
     nxyz = coef%Xh%lx*coef%Xh%lx*coef%Xh%lx

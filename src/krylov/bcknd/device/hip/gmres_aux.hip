@@ -39,33 +39,55 @@
 #include <device/hip/check.h>
 
 extern "C" {
+
+#include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
+  
+  /**
+   * @todo Make sure that this gets deleted at some point...
+   */
   real * gmres_bf1 = NULL;
   real * gmres_bfd1 = NULL;
-  
+  int gmres_bf_len = 0;  
+
   real hip_gmres_part2(void *w, void *v, void *h, void * mult, int *j, int *n) {
 	
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
+    if (gmres_bf1 != NULL && gmres_bf_len < nb) {
+      HIP_CHECK(hipHostFree(gmres_bf1));
+      HIP_CHECK(hipFree(gmres_bfd1));
+      gmres_bf1 = NULL;
+    }
+
     if (gmres_bf1 == NULL){
-      gmres_bf1 = (real *) malloc(nb * sizeof(real));
+      HIP_CHECK(hipHostMalloc(&gmres_bf1, nb*sizeof(real)));
       HIP_CHECK(hipMalloc(&gmres_bfd1, nb*sizeof(real)));
+      gmres_bf_len = nb;
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(gmres_part2_kernel<real>),
-		       nblcks, nthrds, 0, 0, (real *) w, (real **) v,
-		       (real *) mult, (real *) h, gmres_bfd1, *j, *n);
+		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) w, (real **) v, (real *) mult,
+                       (real *) h, gmres_bfd1, *j, *n);
+    HIP_CHECK(hipGetLastError());
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+                       1, 1024, 0, (hipStream_t) glb_cmd_queue, gmres_bfd1, nb);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(gmres_bf1, gmres_bfd1, nb * sizeof(real),
-			hipMemcpyDeviceToHost));
+#ifdef HAVE_DEVICE_MPI
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    device_mpi_allreduce(gmres_bfd1, gmres_bf1, 1, sizeof(real), DEVICE_MPI_SUM);
+#else
+    
+    HIP_CHECK(hipMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
+                             hipMemcpyDeviceToHost,
+                             (hipStream_t) glb_cmd_queue));
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+#endif
+    return gmres_bf1[0];
 
-    real res1 = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res1 += gmres_bf1[i];
-    }
-
-    return res1;
   }
 }

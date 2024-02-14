@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,25 +33,26 @@
 !> Master module
 module neko
   use num_types
-  use parameters    
   use comm
   use utils
   use logger
   use math
   use speclib
-  use dofmap
+  use dofmap, only : dofmap_t
   use space
   use htable
   use uset
   use stack
   use tuple
-  use mesh
-  use mesh_field
+  use mesh, only : mesh_t
+  use point
+  use mesh_field, only : mesh_fld_t
   use map
   use mxm_wrapper
+  use global_interpolation
   use file
-  use field
-  use mpi_types
+  use field, only : field_t
+  use neko_mpi_types
   use gather_scatter
   use coefs
   use bc
@@ -60,7 +61,6 @@ module neko
   use krylov_fctry
   use precon_fctry
   use ax_helm_fctry
-  use precon
   use ax_product
   use neko_config
   use case
@@ -75,7 +75,32 @@ module neko
   use signal
   use jobctrl
   use device
+  use device_math
   use cpr
+  use fluid_stats
+  use field_list, only : field_list_t
+  use fluid_user_source_term
+  use scalar_user_source_term
+  use vector
+  use tensor
+  use simulation_component
+  use probes
+  use spectral_error_indicator
+  use system
+  use field_registry, only : neko_field_registry
+  use scratch_registry, only : neko_scratch_registry
+  use simcomp_executor, only : neko_simcomps
+  use data_streamer
+  use time_interpolator
+  use point_interpolator, only : point_interpolator_t
+  use point_zone, only: point_zone_t
+  use box_point_zone, only: box_point_zone_t
+  use sphere_point_zone, only: sphere_point_zone_t
+  use point_zone_registry, only: neko_point_zone_registry
+  use, intrinsic :: iso_fortran_env
+  !$ use omp_lib
+  implicit none
+
 contains
 
   subroutine neko_init(C)
@@ -85,16 +110,17 @@ contains
     character(len=10) :: suffix
     character(10) :: time
     character(8) :: date
-    integer :: argc
+    integer :: argc, nthrds, rw, sw
 
-    call date_and_time(time=time, date=date)           
+    call date_and_time(time=time, date=date)
 
     call comm_init
-    call mpi_types_init
+    call neko_mpi_types_init
     call jobctrl_init
     call device_init
 
     call neko_log%init()
+    call neko_field_registry%init()
 
     if (pe_rank .eq. 0) then
        write(*,*) ''
@@ -128,30 +154,65 @@ contains
        !
        ! Job information
        !
-       call neko_log%section("Job Information")       
+       call neko_log%section("Job Information")
        write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
             time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
        write(log_buf, '(a)') 'Running on: '
+       sw = 10
        if (pe_size .lt. 1e1)  then
           write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
           if (pe_size .eq. 1) then
              write(log_buf(19:), '(a)') 'rank'
+             sw = 9
           else
              write(log_buf(19:), '(a)') 'ranks'
           end if
+          rw = 1
        else if (pe_size .lt. 1e2) then
           write(log_buf(13:), '(i2,a)') pe_size, ' MPI ranks'
+          rw = 2
        else if (pe_size .lt. 1e3) then
           write(log_buf(13:), '(i3,a)') pe_size, ' MPI ranks'
+          rw = 3
        else if (pe_size .lt. 1e4) then
           write(log_buf(13:), '(i4,a)') pe_size, ' MPI ranks'
+          rw = 4
        else if (pe_size .lt. 1e5) then
           write(log_buf(13:), '(i5,a)') pe_size, ' MPI ranks'
+          rw = 5
        else
           write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
+          rw = 6
        end if
-       call neko_log%message(log_buf)
+
+       nthrds = 1
+       !$omp parallel
+       !$omp master
+       !$ nthrds = omp_get_num_threads()
+       !$omp end master
+       !$omp end parallel
+
+       if (nthrds .gt. 1) then
+          if (nthrds .lt. 1e1) then
+             write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e2) then
+             write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e3) then
+             write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e4) then
+             write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
+                  nthrds, ' thrds each'
+          end if
+       end if
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
+
+       write(log_buf, '(a)') 'CPU type  : '
+       call system_cpu_name(log_buf(13:))
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
        write(log_buf, '(a)') 'Bcknd type: '
        if (NEKO_BCKND_SX .eq. 1) then
@@ -167,13 +228,13 @@ contains
        else
           write(log_buf(13:), '(a)') 'CPU'
        end if
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
        if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
             NEKO_BCKND_OPENCL .eq. 1) then
           write(log_buf, '(a)') 'Dev. name : '
           call device_name(log_buf(13:))
-          call neko_log%message(log_buf)
+          call neko_log%message(log_buf, NEKO_LOG_QUIET)
        end if
 
        write(log_buf, '(a)') 'Real type : '
@@ -185,7 +246,7 @@ contains
        case (real128)
           write(log_buf(13:), '(a)') 'quad precision'
        end select
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
        call neko_log%end()
 
@@ -193,9 +254,14 @@ contains
        ! Create case
        !
        call case_init(C, case_file)
-       
+
+       !
+       ! Create simulation components
+       !
+       call neko_simcomps%init(C)
+
     end if
-    
+
   end subroutine neko_init
 
   subroutine neko_finalize(C)
@@ -204,9 +270,11 @@ contains
     if (present(C)) then
        call case_free(C)
     end if
-    
+
+    call neko_field_registry%free()
+    call neko_scratch_registry%free()
     call device_finalize
-    call mpi_types_free
+    call neko_mpi_types_free
     call comm_free
   end subroutine neko_finalize
 

@@ -4,6 +4,7 @@ subroutine test_mathops_opchsign
   use pfunit
   use device
   use device_mathops
+  use num_types
   use neko_config
   implicit none 
   integer, parameter :: n = 17
@@ -27,15 +28,15 @@ subroutine test_mathops_opchsign
         a2 = 2.0_rp
         a3 = 3.0_rp
         
-        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE)
-        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE)
-        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE, sync=.false.)
         
         call device_opchsign(a1_d, a2_d, a3_d, gdim, n)
 
-        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST, sync=.false.)
+        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST, sync=.false.)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST, sync=.true.)
         
         do i = 1, n
            @assertEqual(a1(i), -1.0_rp)
@@ -57,6 +58,7 @@ subroutine test_mathops_opcolv
   use pfunit
   use device
   use device_mathops
+  use num_types
   use neko_config
   implicit none 
   integer, parameter :: n = 17
@@ -82,16 +84,16 @@ subroutine test_mathops_opcolv
         a3 = 3.0_rp
         c = 42.0_rp
 
-        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE)
-        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE)
-        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE)
-        call device_memcpy(c, c_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(c, c_d, n, HOST_TO_DEVICE, sync=.false.)
         
         call device_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n)
 
-        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST, sync=.false.)
+        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST, sync=.false.)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST, sync=.true.)
         
         do i = 1, n
            @assertEqual(a1(i), 42.0_rp)
@@ -112,6 +114,7 @@ subroutine test_mathops_opcolv3c
   use pfunit
   use device
   use device_mathops
+  use num_types
   use neko_config
   implicit none 
   integer, parameter :: n = 17
@@ -149,19 +152,19 @@ subroutine test_mathops_opcolv3c
         b3 = 3.0_rp
         c = 42.0_rp
 
-        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE)
-        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE)
-        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE)
-        call device_memcpy(b1, b1_d, n, HOST_TO_DEVICE)
-        call device_memcpy(b2, b2_d, n, HOST_TO_DEVICE)
-        call device_memcpy(b3, b3_d, n, HOST_TO_DEVICE)
-        call device_memcpy(c, c_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(b1, b1_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(b2, b2_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(b3, b3_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(c, c_d, n, HOST_TO_DEVICE, sync=.false.)
         
         call device_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, n, gdim)
 
-        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST, sync=.false.)
+        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST, sync=.false.)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST, sync=.true.)
 
         do i = 1, n
            @assertEqual(a1(i), 1.0_rp)
@@ -181,6 +184,7 @@ subroutine test_mathops_opadd2cm
   use pfunit
   use device
   use device_mathops
+  use num_types
   use neko_config
   implicit none 
   integer, parameter :: n = 17
@@ -214,18 +218,18 @@ subroutine test_mathops_opadd2cm
         b2 = 2.0_rp
         b3 = 3.0_rp
 
-        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE)
-        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE)
-        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE)
-        call device_memcpy(b1, b1_d, n, HOST_TO_DEVICE)
-        call device_memcpy(b2, b2_d, n, HOST_TO_DEVICE)
-        call device_memcpy(b3, b3_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(b1, b1_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(b2, b2_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(b3, b3_d, n, HOST_TO_DEVICE, sync=.false.)
         
         call device_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, n, gdim)
 
-        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST, sync=.false.)
+        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST, sync=.false.)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST, sync=.true.)
                 
         do i = 1, n
            @assertEqual(a1(i), 4753.0_rp)
@@ -245,6 +249,7 @@ subroutine test_mathops_opadd2col
   use pfunit
   use device
   use device_mathops
+  use num_types
   use neko_config
   implicit none 
   integer, parameter :: n = 17
@@ -281,19 +286,19 @@ subroutine test_mathops_opadd2col
         b3 = 3.0_rp
         c = 42.0_rp
 
-        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE)
-        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE)
-        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE)
-        call device_memcpy(b1, b1_d, n, HOST_TO_DEVICE)
-        call device_memcpy(b2, b2_d, n, HOST_TO_DEVICE)
-        call device_memcpy(b3, b3_d, n, HOST_TO_DEVICE)
-        call device_memcpy(c, c_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(b1, b1_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(b2, b2_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(b3, b3_d, n, HOST_TO_DEVICE, sync=.false.)
+        call device_memcpy(c, c_d, n, HOST_TO_DEVICE, sync=.false.)
         
         call device_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, n, gdim)
 
-        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
-        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)        
+        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST, sync=.false.)
+        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST, sync=.false.)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST, sync=.true.)
         
         do i = 1, n
            @assertEqual(a1(i), 4753.0_rp)

@@ -1,4 +1,4 @@
-! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC. 
+! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -21,64 +21,70 @@
 ! may be used to endorse or promote products derived from this software
 ! without specific prior written permission.
 !
-! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF 
-! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF
+! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 ! Additional BSD Notice
 ! ---------------------
 ! 1. This notice is required to be provided under our contract with
 ! the U.S. Department of Energy (DOE). This work was produced at
-! Argonne National Laboratory under Contract 
+! Argonne National Laboratory under Contract
 ! No. DE-AC02-06CH11357 with the DOE.
 !
-! 2. Neither the United States Government nor UCHICAGO ARGONNE, 
-! LLC nor any of their employees, makes any warranty, 
+! 2. Neither the United States Government nor UCHICAGO ARGONNE,
+! LLC nor any of their employees, makes any warranty,
 ! express or implied, or assumes any liability or responsibility for the
 ! accuracy, completeness, or usefulness of any information, apparatus,
 ! product, or process disclosed, or represents that its use would not
 ! infringe privately-owned rights.
 !
-! 3. Also, reference herein to any specific commercial products, process, 
-! or services by trade name, trademark, manufacturer or otherwise does 
-! not necessarily constitute or imply its endorsement, recommendation, 
-! or favoring by the United States Government or UCHICAGO ARGONNE LLC. 
-! The views and opinions of authors expressed 
-! herein do not necessarily state or reflect those of the United States 
-! Government or UCHICAGO ARGONNE, LLC, and shall 
+! 3. Also, reference herein to any specific commercial products, process,
+! or services by trade name, trademark, manufacturer or otherwise does
+! not necessarily constitute or imply its endorsement, recommendation,
+! or favoring by the United States Government or UCHICAGO ARGONNE LLC.
+! The views and opinions of authors expressed
+! herein do not necessarily state or reflect those of the United States
+! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
 !> Krylov preconditioner
 module hsmg
   use neko_config
+  use num_types
   use math
-  use utils
-  use precon
-  use ax_product
-  use ax_helm_fctry  
-  use krylov_fctry
+  use utils, only : neko_error
+  use precon, only : pc_t
+  use ax_product, only : ax_t
+  use ax_helm_fctry, only : ax_helm_factory
   use gather_scatter
-  use fast3d
   use interpolation
   use bc
-  use dirichlet
-  use fdm
-  use schwarz
-  use tensor
-  use jacobi
-  use sx_jacobi
-  use device_jacobi
+  use dirichlet, only : dirichlet_t
+  use schwarz, only : schwarz_t
+  use jacobi, only : jacobi_t
+  use sx_jacobi, only : sx_jacobi_t
+  use device_jacobi, only : device_jacobi_t
   use device
   use device_math
+  use profiler
+  use space
+  use dofmap, only : dofmap_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use mesh, only : mesh_t
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
+  !$ use omp_lib
   implicit none
   private
 
@@ -92,19 +98,20 @@ module hsmg
      type(schwarz_t), pointer :: schwarz
      type(field_t), pointer :: e
   end type multigrid_t
- 
+
   type, public, extends(pc_t) :: hsmg_t
      type(mesh_t), pointer :: msh
      integer :: nlvls !< Number of levels in the multigrid
      type(multigrid_t), allocatable :: grids(:) !< array for multigrids
      type(gs_t) :: gs_crs, gs_mg !< gather scatter for lower levels
      type(space_t) :: Xh_crs, Xh_mg !< spaces for lower levels
-     type(dofmap_t) :: dm_crs, dm_mg 
-     type(coef_t) :: c_crs, c_mg 
+     type(dofmap_t) :: dm_crs, dm_mg
+     type(coef_t) :: c_crs, c_mg
      type(dirichlet_t) :: bc_crs, bc_mg, bc_reg
      type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
+     type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
      integer :: niter = 10 !< Number of iter of crs sovlve
      class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
@@ -115,15 +122,17 @@ module hsmg
      real(kind=rp), allocatable :: w(:) !< work array
      type(c_ptr) :: w_d = C_NULL_PTR
      type(c_ptr) :: r_d = C_NULL_PTR
-  contains
+     type(c_ptr) :: hsmg_event
+     type(c_ptr) :: gs_event
+   contains
      procedure, pass(this) :: init => hsmg_init
      procedure, pass(this) :: free => hsmg_free
      procedure, pass(this) :: solve => hsmg_solve
      procedure, pass(this) :: update => hsmg_set_h
   end type hsmg_t
-  
+
 contains
-  
+
   !> @note I do not think we actually use the same grids as they do in the original!
   subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst, crs_pctype)
     class(hsmg_t), intent(inout), target :: this
@@ -131,39 +140,48 @@ contains
     type(space_t), intent(inout), target :: Xh
     type(coef_t), intent(inout), target :: coef
     type(dofmap_t), intent(inout), target :: dof
-    type(gs_t), intent(inout), target :: gs_h 
+    type(gs_t), intent(inout), target :: gs_h
     type(bc_list_t), intent(inout), target :: bclst
     character(len=*), optional :: crs_pctype
     integer :: n, i
-    
+    integer :: lx_crs, lx_mid
+
     call this%free()
-    if(Xh%lx .lt. 5) then
-       call neko_error('Insufficient number of GLL points for hsmg precon. Minimum degree 4 and 5 GLL points required.')
+    this%nlvls = 3
+    lx_crs = 2
+    if (Xh%lx .lt. 5) then
+       lx_mid = max(Xh%lx-1,3)
+
+       if(Xh%lx .le. 2) call neko_error('Polynomial order < 2 not supported for hsmg precon')
+
+    else
+       lx_mid = 4
     end if
-    this%nlvls = 3 
     this%msh => msh
     allocate(this%grids(this%nlvls))
-    allocate(this%w(dof%n_dofs))
-    allocate(this%r(dof%n_dofs))
+    allocate(this%w(dof%size()))
+    allocate(this%r(dof%size()))
 
-    
+
     ! Compute all elements as if they are deformed
-    call mesh_all_deformed(msh)
+    call msh%all_deformed()
 
-    n = dof%n_dofs
-    call field_init(this%e, dof,'work array')
-    
-    call space_init(this%Xh_crs, GLL, 2, 2, 2)
-    this%dm_crs = dofmap_t(msh, this%Xh_crs) 
-    call gs_init(this%gs_crs, this%dm_crs)
-    call field_init(this%e_crs, this%dm_crs,'work crs')
-    call coef_init(this%c_crs, this%gs_crs)
-    
-    call space_init(this%Xh_mg, GLL, 4, 4, 4)
-    this%dm_mg = dofmap_t(msh, this%Xh_mg) 
-    call gs_init(this%gs_mg, this%dm_mg)
-    call field_init(this%e_mg, this%dm_mg,'work midl')
-    call coef_init(this%c_mg, this%gs_mg)
+    n = dof%size()
+    call this%e%init(dof, 'work array')
+    call this%wf%init(dof, 'work 2')
+
+    call this%Xh_crs%init(GLL, lx_crs, lx_crs, lx_crs)
+    this%dm_crs = dofmap_t(msh, this%Xh_crs)
+    call this%gs_crs%init(this%dm_crs)
+    call this%e_crs%init(this%dm_crs, 'work crs')
+    call this%c_crs%init(this%gs_crs)
+
+    call this%Xh_mg%init(GLL, lx_mid, lx_mid, lx_mid)
+    this%dm_mg = dofmap_t(msh, this%Xh_mg)
+    call this%gs_mg%init(this%dm_mg)
+    call this%e_mg%init(this%dm_mg, 'work midl')
+    call this%c_mg%init(this%gs_mg)
+
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax)
 
@@ -174,8 +192,7 @@ contains
        allocate(sx_jacobi_t::this%pc_crs)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        allocate(jacobi_t::this%pc_crs)
-    else if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        allocate(device_jacobi_t::this%pc_crs)
     else
        allocate(jacobi_t::this%pc_crs)
@@ -184,10 +201,10 @@ contains
     ! Create a backend specific krylov solver
     if (present(crs_pctype)) then
        call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%n_dofs, trim(crs_pctype), M = this%pc_crs)
+            this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, M = this%pc_crs)
     else
        call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%n_dofs, 'cg', M = this%pc_crs)
+            this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
     end if
 
     call this%bc_crs%init(this%dm_crs)
@@ -210,7 +227,7 @@ contains
     call bc_list_init(this%bclst_crs)
     call bc_list_add(this%bclst_crs, this%bc_crs)
 
-    
+
     call this%bc_mg%finalize()
     call this%bc_mg%set_g(0.0_rp)
     call bc_list_init(this%bclst_mg)
@@ -224,17 +241,16 @@ contains
     call this%interp_mid_crs%init(this%Xh_mg,this%Xh_crs)
 
     call hsmg_fill_grid(dof, gs_h, Xh, coef, this%bclst_reg, this%schwarz, &
-                        this%e, this%grids, 3) 
+                        this%e, this%grids, 3)
     call hsmg_fill_grid(this%dm_mg, this%gs_mg, this%Xh_mg, this%c_mg, &
                         this%bclst_mg, this%schwarz_mg, this%e_mg, &
-                        this%grids, 2) 
+                        this%grids, 2)
     call hsmg_fill_grid(this%dm_crs, this%gs_crs, this%Xh_crs, &
                         this%c_crs, this%bclst_crs, this%schwarz_crs, &
-                        this%e_crs, this%grids, 1) 
-                 
+                        this%e_crs, this%grids, 1)
+
     call hsmg_set_h(this)
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%w, this%w_d, n)
        call device_map(this%r, this%r_d, n)
     end if
@@ -246,27 +262,25 @@ contains
     type is (device_jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
-
-
-
+    call device_event_create(this%hsmg_event, 2)
+    call device_event_create(this%gs_event, 2)
   end subroutine hsmg_init
-  
+
   subroutine hsmg_set_h(this)
-   class(hsmg_t), intent(inout) :: this
+    class(hsmg_t), intent(inout) :: this
 !    integer :: i
-   !Yeah I dont really know what to do here. For incompressible flow not much happens
+    !Yeah I dont really know what to do here. For incompressible flow not much happens
     this%grids(1)%coef%ifh2 = .false.
     call copy(this%grids(1)%coef%h1, this%grids(3)%coef%h1, &
-         this%grids(1)%dof%n_dofs)
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+         this%grids(1)%dof%size())
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(this%grids(1)%coef%h1_d, this%grids(3)%coef%h1_d, &
-            this%grids(1)%dof%n_dofs)
+            this%grids(1)%dof%size())
     end if
   end subroutine hsmg_set_h
 
 
-  subroutine hsmg_fill_grid(dof, gs_h, Xh, coef, bclst, schwarz, e, grids, l) 
+  subroutine hsmg_fill_grid(dof, gs_h, Xh, coef, bclst, schwarz, e, grids, l)
     type(dofmap_t), target, intent(in):: dof
     type(gs_t), target, intent(in) :: gs_h
     type(space_t), target, intent(in) :: Xh
@@ -294,28 +308,30 @@ contains
     if (allocated(this%ax)) then
        deallocate(this%ax)
     end if
-    
+
     if (allocated(this%grids)) then
        deallocate(this%grids)
     end if
-    
+
     if (allocated(this%w)) then
        deallocate(this%w)
     end if
-    
+
     if (allocated(this%r)) then
        deallocate(this%r)
     end if
 
     call this%schwarz%free()
     call this%schwarz_mg%free()
-    call coef_free(this%c_crs)
-    call coef_free(this%c_mg)
-    call field_free(this%e)
-    call field_free(this%e_mg)
-    call field_free(this%e_crs)
-    call gs_free(this%gs_crs)
-    call gs_free(this%gs_mg)
+
+    call this%c_crs%free()
+    call this%c_mg%free()
+    call this%e%free()
+    call this%e_mg%free()
+    call this%e_crs%free()
+
+    call this%gs_crs%free()
+    call this%gs_mg%free()
     call this%interp_mid_crs%free()
     call this%interp_fine_mid%free()
 
@@ -323,114 +339,152 @@ contains
        call krylov_solver_destroy(this%crs_solver)
        deallocate(this%crs_solver)
     end if
-    
-    if (allocated(this%pc_crs)) then 
+
+    if (allocated(this%pc_crs)) then
        select type(pc => this%pc_crs)
        type is (jacobi_t)
           call pc%free()
        type is (sx_jacobi_t)
           call pc%free()
-       end select       
+       end select
        deallocate(this%pc_crs)
     end if
-    
+
   end subroutine hsmg_free
 
   !> The h1mg preconditioner from Nek5000.
   subroutine hsmg_solve(this, z, r, n)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     class(hsmg_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: crs_info
-     
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    integer :: i, thrdid, nthrds
+
+    call profiler_start_region('HSMG solve', 8)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        z_d = device_get_ptr(z)
        r_d = device_get_ptr(r)
-       !We should not work with the input 
+       !We should not work with the input
        call device_copy(this%r_d, r_d, n)
+       call bc_list_apply_scalar(this%bclst_reg, r, n)
 
        !OVERLAPPING Schwarz exchange and solve
-       call this%grids(3)%schwarz%compute(z, this%r)      
        !! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
        call device_col2(this%r_d, this%grids(3)%coef%mult_d, &
-                    this%grids(3)%dof%n_dofs)
+                        this%grids(3)%dof%size())
        !Restrict to middle level
-       call this%interp_fine_mid%map(this%w,this%r,this%msh%nelv,this%grids(2)%Xh)
-       call gs_op(this%grids(2)%gs_h, this%w, &
-                         this%grids(2)%dof%n_dofs, GS_OP_ADD)
+       call this%interp_fine_mid%map(this%e%x, this%r, &
+                                     this%msh%nelv, this%grids(2)%Xh)
+       call this%grids(2)%gs_h%op(this%e%x, &
+                  this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
+       call device_event_sync(this%gs_event)
+       call device_copy(this%r_d, r_d, n)
+       call bc_list_apply_scalar(this%bclst_reg, r, n)
+       call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
+       call bc_list_apply_scalar(this%bclst_mg, this%w, &
+                                 this%grids(2)%dof%size())
        !OVERLAPPING Schwarz exchange and solve
-       call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
-       call device_col2(this%w_d, this%grids(2)%coef%mult_d, this%grids(2)%dof%n_dofs)
+       call device_col2(this%w_d, this%grids(2)%coef%mult_d, &
+                        this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
+       call this%interp_mid_crs%map(this%wf%x, this%w,this%msh%nelv, &
+                                    this%grids(1)%Xh)
        !Crs solve
+       call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
+       call bc_list_apply_scalar(this%bclst_mg, this%w, &
+                                 this%grids(2)%dof%size())
 
-       call gs_op(this%grids(1)%gs_h, this%r, &
-                         this%grids(1)%dof%n_dofs, GS_OP_ADD)
-       call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
-                                 this%grids(1)%dof%n_dofs)
-       crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
-                                    this%grids(1)%dof%n_dofs, &
-                                    this%grids(1)%coef, &
-                                    this%grids(1)%bclst, &
-                                    this%grids(1)%gs_h, this%niter)          
-       call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
-                                 this%grids(1)%dof%n_dofs)
+       !$omp parallel private(thrdid, nthrds)
 
+       thrdid = 0
+       nthrds = 1
+       !$ thrdid = omp_get_thread_num()
+       !$ nthrds = omp_get_num_threads()
 
-       call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
-       call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%n_dofs)
+       if (thrdid .eq. 0) then
+          call profiler_start_region('HSMG schwarz', 9)
+          call this%grids(3)%schwarz%compute(z, this%r)
+          call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
+          call profiler_end_region
+       end if
+       if (nthrds .eq. 1 .or. thrdid .eq. 1) then
+          call profiler_start_region('HSMG coarse grid', 10)
+          call this%grids(1)%gs_h%op(this%wf%x, &
+               this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
+          call device_event_sync(this%gs_event)
+          call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
+                                    this%grids(1)%dof%size())
+          call profiler_start_region('HSMG coarse-solve', 11)
+          crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%wf%x, &
+                                       this%grids(1)%dof%size(), &
+                                       this%grids(1)%coef, &
+                                       this%grids(1)%bclst, &
+                                       this%grids(1)%gs_h, this%niter)
+          call profiler_end_region
+          call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
+                                    this%grids(1)%dof%size())
+          call profiler_end_region
+       end if
+       !$omp end parallel
 
-       call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
-       call device_add2(z_d, this%w_d, this%grids(3)%dof%n_dofs)
-       call gs_op(this%grids(3)%gs_h, z, &
-                         this%grids(3)%dof%n_dofs, GS_OP_ADD)
-       call device_col2(z_d, this%grids(3)%coef%mult_d, this%grids(3)%dof%n_dofs)
+       call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
+                                    this%msh%nelv, this%grids(2)%Xh)
+       call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%size())
+
+       call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
+                                     this%msh%nelv, this%grids(3)%Xh)
+       call device_add2(z_d, this%w_d, this%grids(3)%dof%size())
+       call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), &
+                                     GS_OP_ADD, this%gs_event)
+       call device_event_sync(this%gs_event)
+       call device_col2(z_d, this%grids(3)%coef%mult_d, this%grids(3)%dof%size())
     else
-       !We should not work with the input 
+       !We should not work with the input
        call copy(this%r, r, n)
 
        !OVERLAPPING Schwarz exchange and solve
-       call this%grids(3)%schwarz%compute(z, this%r)      
+       call this%grids(3)%schwarz%compute(z, this%r)
        ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
        call col2(this%r, this%grids(3)%coef%mult, &
-                    this%grids(3)%dof%n_dofs)
+                 this%grids(3)%dof%size())
        !Restrict to middle level
-       call this%interp_fine_mid%map(this%w,this%r,this%msh%nelv,this%grids(2)%Xh)
-       call gs_op(this%grids(2)%gs_h, this%w, &
-                         this%grids(2)%dof%n_dofs, GS_OP_ADD)
+       call this%interp_fine_mid%map(this%w, this%r, &
+                                     this%msh%nelv, this%grids(2)%Xh)
+       call this%grids(2)%gs_h%op(this%w, this%grids(2)%dof%size(), GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
-       call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
-       call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%n_dofs)
+       call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
+       call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%size())
        !restrict residual to crs
        call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
        !Crs solve
 
-       call gs_op(this%grids(1)%gs_h, this%r, &
-                         this%grids(1)%dof%n_dofs, GS_OP_ADD)
+       call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
-                                 this%grids(1)%dof%n_dofs)
+                                 this%grids(1)%dof%size())
+       call profiler_start_region('HSMG coarse-solve', 11)
        crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
-                                    this%grids(1)%dof%n_dofs, &
+                                    this%grids(1)%dof%size(), &
                                     this%grids(1)%coef, &
                                     this%grids(1)%bclst, &
-                                    this%grids(1)%gs_h, this%niter)    
+                                    this%grids(1)%gs_h, this%niter)
+       call profiler_end_region
        call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
-                                 this%grids(1)%dof%n_dofs)
+                                 this%grids(1)%dof%size())
 
 
-       call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
-       call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%n_dofs)
+       call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
+                                    this%msh%nelv, this%grids(2)%Xh)
+       call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%size())
 
-       call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
-       call add2(z, this%w, this%grids(3)%dof%n_dofs)
-       call gs_op(this%grids(3)%gs_h, z, &
-                         this%grids(3)%dof%n_dofs, GS_OP_ADD)
-       call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%n_dofs)
+       call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
+                                     this%msh%nelv, this%grids(3)%Xh)
+       call add2(z, this%w, this%grids(3)%dof%size())
+       call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), GS_OP_ADD)
+       call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%size())
 
     end if
+    call profiler_end_region
   end subroutine hsmg_solve
 end module hsmg

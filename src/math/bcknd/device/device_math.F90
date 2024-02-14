@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_math
-  use num_types
-  use utils
   use comm
+  use utils, only : neko_error
+  use num_types, only : rp, c_rp
   use, intrinsic :: iso_c_binding
   implicit none
+  private
 
 #ifdef HAVE_HIP
   interface
@@ -90,7 +91,7 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_cfill
   end interface
-  
+
   interface
      subroutine hip_rzero(a_d, n) &
           bind(c, name='hip_rzero')
@@ -99,23 +100,23 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_rzero
   end interface
-  
+
   interface
      subroutine hip_add2(a_d, b_d, n) &
           bind(c, name='hip_add2')
        use, intrinsic :: iso_c_binding
-       import c_rp                     
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine hip_add2
   end interface
-  
+
   interface
      subroutine hip_add2s1(a_d, b_d, c1, n) &
           bind(c, name='hip_add2s1')
        use, intrinsic :: iso_c_binding
-       import c_rp                     
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d
        real(c_rp) :: c1
@@ -134,7 +135,7 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_add2s2
   end interface
-  
+
   interface
      subroutine hip_add2s2_many(y_d,x_d_d,a_d,j,n) &
           bind(c, name='hip_add2s2_many')
@@ -162,7 +163,7 @@ module device_math
      subroutine hip_add3s2(a_d, b_d, c_d, c1, c2, n) &
           bind(c, name='hip_add3s2')
        use, intrinsic :: iso_c_binding
-       import c_rp                     
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d
        real(c_rp) :: c1, c2
@@ -189,7 +190,7 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_invcol2
   end interface
-  
+
   interface
      subroutine hip_col2(a_d, b_d, n) &
           bind(c, name='hip_col2')
@@ -199,7 +200,7 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_col2
   end interface
-  
+
   interface
      subroutine hip_col3(a_d, b_d, c_d, n) &
           bind(c, name='hip_col3')
@@ -229,7 +230,7 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_sub2
   end interface
-  
+
   interface
      subroutine hip_sub3(a_d, b_d, c_d, n) &
           bind(c, name='hip_sub3')
@@ -261,6 +262,27 @@ module device_math
   end interface
 
   interface
+     subroutine hip_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &
+          bind(c, name='hip_vdot3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
+       integer(c_int) :: n
+     end subroutine hip_vdot3
+  end interface
+
+  interface
+     real(c_rp) function hip_vlsc3(u_d, v_d, w_d, n) &
+          bind(c, name='hip_vlsc3')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: u_d, v_d, w_d
+       integer(c_int) :: n
+     end function hip_vlsc3
+  end interface
+
+  interface
      real(c_rp) function hip_glsc3(a_d, b_d, c_d, n) &
           bind(c, name='hip_glsc3')
        use, intrinsic :: iso_c_binding
@@ -270,7 +292,7 @@ module device_math
        integer(c_int) :: n
      end function hip_glsc3
   end interface
-  
+
   interface
      subroutine hip_glsc3_many(h,w_d,v_d_d,mult_d,j,n) &
           bind(c, name='hip_glsc3_many')
@@ -367,7 +389,7 @@ module device_math
        integer(c_int) :: n
      end subroutine cuda_rzero
   end interface
-  
+
   interface
      subroutine cuda_add2(a_d, b_d, n) &
           bind(c, name='cuda_add2')
@@ -378,7 +400,7 @@ module device_math
        integer(c_int) :: n
      end subroutine cuda_add2
   end interface
-  
+
   interface
      subroutine cuda_add2s1(a_d, b_d, c1, n) &
           bind(c, name='cuda_add2s1')
@@ -419,7 +441,7 @@ module device_math
      subroutine cuda_add3s2(a_d, b_d, c_d, c1, c2, n) &
           bind(c, name='cuda_add3s2')
        use, intrinsic :: iso_c_binding
-       import c_rp                     
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d
        real(c_rp) :: c1, c2
@@ -440,13 +462,13 @@ module device_math
   interface
      subroutine cuda_invcol2(a_d, b_d, n) &
           bind(c, name='cuda_invcol2')
-       use, intrinsic :: iso_c_binding       
+       use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine cuda_invcol2
   end interface
-  
+
   interface
      subroutine cuda_col2(a_d, b_d, n) &
           bind(c, name='cuda_col2')
@@ -456,7 +478,7 @@ module device_math
        integer(c_int) :: n
      end subroutine cuda_col2
   end interface
-  
+
   interface
      subroutine cuda_col3(a_d, b_d, c_d, n) &
           bind(c, name='cuda_col3')
@@ -486,7 +508,7 @@ module device_math
        integer(c_int) :: n
      end subroutine cuda_sub2
   end interface
-  
+
   interface
      subroutine cuda_sub3(a_d, b_d, c_d, n) &
           bind(c, name='cuda_sub3')
@@ -515,6 +537,27 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d, d_d
        integer(c_int) :: n
      end subroutine cuda_addcol4
+  end interface
+
+  interface
+     subroutine cuda_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &
+          bind(c, name='cuda_vdot3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
+       integer(c_int) :: n
+     end subroutine cuda_vdot3
+  end interface
+
+  interface
+     real(c_rp) function cuda_vlsc3(u_d, v_d, w_d, n) &
+          bind(c, name='cuda_vlsc3')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: u_d, v_d, w_d
+       integer(c_int) :: n
+     end function cuda_vlsc3
   end interface
 
   interface
@@ -572,7 +615,7 @@ module device_math
      end function cuda_glsum
   end interface
 #elif HAVE_OPENCL
-    interface
+  interface
      subroutine opencl_copy(a_d, b_d, n) &
           bind(c, name='opencl_copy')
        use, intrinsic :: iso_c_binding
@@ -651,12 +694,12 @@ module device_math
        integer(c_int) :: n
      end subroutine opencl_add2
   end interface
-  
+
   interface
      subroutine opencl_add2s1(a_d, b_d, c1, n) &
           bind(c, name='opencl_add2s1')
        use, intrinsic :: iso_c_binding
-       import c_rp                     
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d
        real(c_rp) :: c1
@@ -668,7 +711,7 @@ module device_math
      subroutine opencl_add2s2(a_d, b_d, c1, n) &
           bind(c, name='opencl_add2s2')
        use, intrinsic :: iso_c_binding
-       import c_rp                     
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d
        real(c_rp) :: c1
@@ -691,7 +734,7 @@ module device_math
      subroutine opencl_addsqr2s2(a_d, b_d, c1, n) &
           bind(c, name='opencl_addsqr2s2')
        use, intrinsic :: iso_c_binding
-       import c_rp                     
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d
        real(c_rp) :: c1
@@ -703,7 +746,7 @@ module device_math
      subroutine opencl_add3s2(a_d, b_d, c_d, c1, c2, n) &
           bind(c, name='opencl_add3s2')
        use, intrinsic :: iso_c_binding
-       import c_rp                     
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d
        real(c_rp) :: c1, c2
@@ -724,13 +767,13 @@ module device_math
   interface
      subroutine opencl_invcol2(a_d, b_d, n) &
           bind(c, name='opencl_invcol2')
-       use, intrinsic :: iso_c_binding       
+       use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine opencl_invcol2
   end interface
-  
+
   interface
      subroutine opencl_col2(a_d, b_d, n) &
           bind(c, name='opencl_col2')
@@ -770,7 +813,7 @@ module device_math
        integer(c_int) :: n
      end subroutine opencl_sub2
   end interface
-  
+
   interface
      subroutine opencl_sub3(a_d, b_d, c_d, n) &
           bind(c, name='opencl_sub3')
@@ -790,7 +833,7 @@ module device_math
        integer(c_int) :: n
      end subroutine opencl_addcol3
   end interface
-  
+
   interface
      subroutine opencl_addcol4(a_d, b_d, c_d, d_d, n) &
           bind(c, name='opencl_addcol4')
@@ -799,6 +842,16 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d, d_d
        integer(c_int) :: n
      end subroutine opencl_addcol4
+  end interface
+
+  interface
+     subroutine opencl_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &
+          bind(c, name='opencl_vdot3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
+       integer(c_int) :: n
+     end subroutine opencl_vdot3
   end interface
 
   interface
@@ -846,7 +899,14 @@ module device_math
      end function opencl_glsum
   end interface
 #endif
-  
+
+  public :: device_copy, device_rzero, device_rone, device_cmult, device_cmult2,&
+       device_cadd, device_cfill, device_add2, device_add2s1, device_add2s2, &
+       device_addsqr2s2, device_add3s2, device_invcol1, device_invcol2, &
+       device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
+       device_addcol3, device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
+       device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum
+
 contains
 
   subroutine device_copy(a_d, b_d, n)
@@ -964,7 +1024,7 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2
-  
+
   subroutine device_add2s1(a_d, b_d, c1, n)
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
@@ -994,7 +1054,7 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2s2
-  
+
   subroutine device_addsqr2s2(a_d, b_d, c1, n)
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
@@ -1066,7 +1126,7 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_col2
-  
+
   subroutine device_col3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
@@ -1108,7 +1168,7 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_sub2
-  
+
   subroutine device_sub3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
@@ -1150,7 +1210,38 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_addcol4
-  
+
+  subroutine device_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
+    type(c_ptr) :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
+#elif HAVE_CUDA
+    call cuda_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
+#elif HAVE_OPENCL
+    call opencl_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_vdot3
+
+  function device_vlsc3(u_d, v_d, w_d, n) result(res)
+    type(c_ptr) :: u_d, v_d, w_d
+    integer :: n
+    real(kind=rp) :: res
+    res = 0.0_rp
+#ifdef HAVE_HIP
+    res = hip_vlsc3(u_d, v_d, w_d, n)
+#elif HAVE_CUDA
+    res = cuda_vlsc3(u_d, v_d, w_d, n)
+#elif HAVE_OPENCL
+    ! Same kernel as glsc3 (currently no device MPI for OpenCL)
+    res = opencl_glsc3(u_d, v_d, w_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end function device_vlsc3
+
   function device_glsc3(a_d, b_d, c_d, n) result(res)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n, ierr
@@ -1165,12 +1256,14 @@ contains
     call neko_error('No device backend configured')
 #endif
 
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end function device_glsc3
-  
+
   subroutine device_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
     type(c_ptr), value :: w_d, v_d_d, mult_d
     integer(c_int) :: j, n
@@ -1185,12 +1278,15 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
+
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, h, j, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end subroutine device_glsc3_many
-  
+
   subroutine device_add2s2_many(y_d,x_d_d,a_d,j,n)
     type(c_ptr), value :: y_d, x_d_d, a_d
     integer(c_int) :: j, n
@@ -1204,7 +1300,7 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2s2_many
- 
+
   function device_glsc2(a_d, b_d, n) result(res)
     type(c_ptr) :: a_d, b_d
     integer :: n, ierr
@@ -1219,10 +1315,12 @@ contains
     call neko_error('No device backend configured')
 #endif
 
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end function device_glsc2
 
   function device_glsum(a_d, n) result(res)
@@ -1239,11 +1337,13 @@ contains
     call neko_error('No device backend configured')
 #endif
 
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end function device_glsum
-  
- 
+
+
 end module device_math

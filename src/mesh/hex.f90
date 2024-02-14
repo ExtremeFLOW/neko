@@ -32,10 +32,10 @@
 !
 !> Defines a hexahedron element
 module hex
-  use num_types
-  use element
-  use tuple
-  use point
+  use num_types, only : dp
+  use element, only : element_t
+  use tuple, only : tuple_t, tuple_i4_t, tuple4_i4_t
+  use point, only : point_t
   implicit none
   private
 
@@ -49,14 +49,14 @@ module hex
   !! @details
   !! 3D element composed of 8 points
   !! @verbatim
-  !! Node numbering (NEKTON preprocessor notation)
+  !! Node numbering (NEKTON symmetric notation)
   !!
-  !!          4+-----+3    ^ s                 
-  !!          /     /|     |                   
-  !!         /     / |     |                   
-  !!       8+-----+7 +2    +----> r            
-  !!        |     | /     /                    
-  !!        |     |/     /                     
+  !!          3+-----+4    ^ s
+  !!          /     /|     |
+  !!         /     / |     |
+  !!       7+-----+8 +2    +----> r
+  !!        |     | /     /
+  !!        |     |/     /
   !!       5+-----+6    t
   !!
   !! @endverbatim
@@ -67,7 +67,7 @@ module hex
      procedure, pass(this) :: facet_order => hex_facet_order
      procedure, pass(this) :: diameter => hex_diameter
      procedure, pass(this) :: centroid => hex_centroid
-     procedure, pass(this) :: edge_id => hex_edge_id          
+     procedure, pass(this) :: edge_id => hex_edge_id
      procedure, pass(this) :: equal => hex_equal
      generic :: operator(.eq.) => equal
   end type hex_t
@@ -76,7 +76,7 @@ module hex
   !! @details
   !! @verbatim
   !! Face numbering (NEKTON symmetric notation)
-  !!                     
+  !!
   !!          +--------+     ^ S
   !!         /        /|     |
   !!        /    4   / |     |
@@ -90,20 +90,20 @@ module hex
   !!
   !! @endverbatim
   !! @note Local node numbering (points)
-  integer, parameter, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                                2,6,7,3,&
+  integer, parameter, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+                                                                2,6,8,4,&
                                                                 1,2,6,5,&
-                                                                4,3,7,8,&
-                                                                1,2,3,4,&
-                                                                5,6,7,8/),&
+                                                                3,4,8,7,&
+                                                                1,2,4,3,&
+                                                                5,6,8,7/),&
                                                                 (/4,6/))
-  
+
   !> Edge node ids
   !! @details
   !! @verbatim
   !! Edge numbering (similar to NEKTON symmetric notation)
   !!
-  !!              2      
+  !!              2
   !!          +--------+        ^ S
   !!         /        /|        |
   !!  11--> /   12-->/ | <--6   |
@@ -117,21 +117,21 @@ module hex
   !!
   !! @endverbatim
   integer, parameter, dimension(2, 12) :: edge_nodes = reshape((/1,2,&
-                                                                4,3,&
+                                                                3,4,&
                                                                 5,6,&
-                                                                8,7,&
-                                                                1,4,&
-                                                                2,3,&
-                                                                5,8,&
-                                                                6,7,&
+                                                                7,8,&
+                                                                1,3,&
+                                                                2,4,&
+                                                                5,7,&
+                                                                6,8,&
                                                                 1,5,&
                                                                 2,6,&
-                                                                4,8,&
-                                                                3,7/),&
+                                                                3,7,&
+                                                                4,8/),&
                                                                 (/2,12/))
-  
+
 contains
-  
+
   !> Create a hexahedron element based upon eight points
   subroutine hex_init(this, id, p1, p2, p3, p4, p5, p6, p7, p8)
     class(hex_t), intent(inout) :: this
@@ -139,7 +139,7 @@ contains
     type(point_t), target, intent(in) :: p1, p2, p3, p4, p5, p6, p7, p8
 
     call this%element(id, NEKO_HEX_GDIM, NEKO_HEX_NPTS)
-    
+
     this%pts(1)%p => p1
     this%pts(2)%p => p2
     this%pts(3)%p => p3
@@ -152,7 +152,7 @@ contains
   end subroutine hex_init
 
   !> Return the facet id for face @a i as a 4-tuple @a t
-  subroutine hex_facet_id(this, t, side) 
+  subroutine hex_facet_id(this, t, side)
     class(hex_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
@@ -167,7 +167,7 @@ contains
     select type(t)
     type is(tuple4_i4_t)
        t%x = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
-       do i = 1, 3 
+       do i = 1, 3
           do j = i+1,4
              if(t%x(j) .lt. t%x(i)) then
                 temp = t%x(i)
@@ -181,7 +181,7 @@ contains
   end subroutine hex_facet_id
 
   !> Return the ordered points for face @a i as a 4-tuple @a t
-  subroutine hex_facet_order(this, t, side) 
+  subroutine hex_facet_order(this, t, side)
     class(hex_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
@@ -201,7 +201,7 @@ contains
 
 
   !> Return the edge id for an edge @a i as a 2-tuple @a t
-  subroutine hex_edge_id(this, t, side) 
+  subroutine hex_edge_id(this, t, side)
     class(hex_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
@@ -214,14 +214,14 @@ contains
     type is(tuple_i4_t)
        if (p1%id() .lt. p2%id()) then
           t%x = (/ p1%id(), p2%id() /)
-      else
+       else
           t%x = (/ p2%id(), p1%id() /)
-      endif
+       endif
 
     end select
 
   end subroutine hex_edge_id
-  
+
   !> Compute the diameter of a hexahedron element
   function hex_diameter(this) result(res)
     class(hex_t), intent(in) :: this
@@ -244,10 +244,10 @@ contains
     p8 => this%p(8)
 
     do i = 1, NEKO_HEX_GDIM
-       d1 = d1 + (p7%x(i) - p1%x(i))**2
-       d2 = d2 + (p8%x(i) - p2%x(i))**2
-       d3 = d3 + (p5%x(i) - p3%x(i))**2
-       d4 = d4 + (p6%x(i) - p4%x(i))**2
+       d1 = d1 + (p8%x(i) - p1%x(i))**2
+       d2 = d2 + (p7%x(i) - p2%x(i))**2
+       d3 = d3 + (p5%x(i) - p4%x(i))**2
+       d4 = d4 + (p6%x(i) - p3%x(i))**2
     end do
 
     res = sqrt(max(max(d1, d2), max(d3, d4)))
@@ -275,7 +275,7 @@ contains
        res%x(i) = 0.125 * (p1%x(i) + p2%x(i) + p3%x(i) + p4%x(i) + &
             p5%x(i) + p6%x(i) + p7%x(i) + p8%x(i))
     end do
-    
+
   end function hex_centroid
 
   !> Check if two hex elements are equal
@@ -301,5 +301,5 @@ contains
     end select
 
   end function hex_equal
-  
+
 end module hex

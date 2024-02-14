@@ -58,7 +58,7 @@ extern "C" {
     case LX:                                                                    \
       hipLaunchKernelGGL(                                                       \
                HIP_KERNEL_NAME(coef_generate_geo_kernel<real, LX, 1024>),       \
-               nblcks, nthrds, 0, 0,                                            \
+               nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,                  \
                (real *) G11, (real *) G12, (real *) G13,                        \
                (real *) G22, (real *) G23, (real *) G33,                        \
                (real *) drdx, (real *) drdy, (real *) drdz,                     \
@@ -82,6 +82,8 @@ extern "C" {
       GEO_CASE(12);
       GEO_CASE(13);
       GEO_CASE(14);
+      GEO_CASE(15);
+      GEO_CASE(16);
     default:
       {
         fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
@@ -113,7 +115,7 @@ extern "C" {
     case LX:								       \
       hipLaunchKernelGGL(						       \
                HIP_KERNEL_NAME(coef_generate_dxyz_kernel<real, LX, 1024>),     \
-	       nblcks_dxyz, nthrds, 0, 0,				       \
+	       nblcks_dxyz, nthrds, 0, (hipStream_t) glb_cmd_queue,	       \
   	       (real *) dxdr, (real *) dydr, (real *) dzdr,		       \
 	       (real *) dxds, (real *) dyds, (real *) dzds,		       \
 	       (real *) dxdt, (real *) dydt, (real *) dzdt,		       \
@@ -146,7 +148,7 @@ extern "C" {
     }
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME(coef_generate_drst_kernel<real>),
-		       nblcks_drst, nthrds, 0, 0,
+		       nblcks_drst, nthrds, 0, (hipStream_t) glb_cmd_queue,
 		       (real *) jac, (real *) jacinv, 
 		       (real *) drdx, (real *) drdy, (real *) drdz,
 		       (real *) dsdx, (real *) dsdy, (real *) dsdz,

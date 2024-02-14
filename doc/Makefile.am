@@ -19,4 +19,11 @@ EXTRA_DIST = pages/code-style.md\
 	     pages/publication-list.md\
 	     pages/accelerators.md\
 	     pages/case-file.md\
+	     pages/statistics.md\
+             pages/simcomps.md\
+             pages/point-zones.md\
+             pages/testing.md\
+             pages/appendix.md\
+             pages/installation.md\
+             pages/dev_patterns.md\
 	     pages/index.md

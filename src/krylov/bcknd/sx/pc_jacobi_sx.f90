@@ -35,6 +35,7 @@ module sx_jacobi
   use math
   use precon
   use coefs
+  use dofmap
   use num_types
   use gather_scatter
   implicit none
@@ -54,7 +55,7 @@ module sx_jacobi
   end type sx_jacobi_t
 
 contains
-  
+
   subroutine sx_jacobi_init(this, coef, dof, gs_h)
     class(sx_jacobi_t), intent(inout) :: this
     type(coef_t), intent(inout), target :: coef
@@ -83,7 +84,7 @@ contains
   !> The jacobi preconditioner \f$ J z = r \f$
   !! \f$ z = J^{-1}r\f$ where \f$ J^{-1} ~= 1/diag(A) \f$
   subroutine sx_jacobi_solve(this, z, r, n)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     class(sx_jacobi_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
@@ -145,11 +146,11 @@ contains
               nelv, lx)
       end select
 
-      call col2(this%d, coef%h1, coef%dof%n_dofs)
-      if (coef%ifh2) call addcol3(this%d, coef%h2, coef%B, coef%dof%n_dofs)
-      call gs_op(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
-      if (.not. coef%ifh2) call col2(this%d, coef%mult, coef%dof%n_dofs)
-      call invcol1(this%d, dof%n_dofs)
+      call col2(this%d, coef%h1, coef%dof%size())
+      if (coef%ifh2) call addcol3(this%d, coef%h2, coef%B, coef%dof%size())
+      call gs_h%op(this%d, dof%size(), GS_OP_ADD)
+      if (.not. coef%ifh2) call col2(this%d, coef%mult, coef%dof%size())
+      call invcol1(this%d, dof%size())
     end associate
   end subroutine sx_jacobi_update
 
@@ -228,7 +229,7 @@ contains
     end do
 
   end subroutine sx_update_lx
-  
+
   subroutine sx_update_lx14(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 14
     integer, parameter :: ly = 14
@@ -307,7 +308,7 @@ contains
     end do
 
   end subroutine sx_update_lx14
-  
+
   subroutine sx_update_lx13(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 13
     integer, parameter :: ly = 13
@@ -386,7 +387,7 @@ contains
     end do
 
   end subroutine sx_update_lx13
-  
+
   subroutine sx_update_lx12(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 12
     integer, parameter :: ly = 12
@@ -623,7 +624,7 @@ contains
     end do
 
   end subroutine sx_update_lx10
-  
+
   subroutine sx_update_lx9(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 9
     integer, parameter :: ly = 9
@@ -702,7 +703,7 @@ contains
     end do
 
   end subroutine sx_update_lx9
-  
+
   subroutine sx_update_lx8(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 8
     integer, parameter :: ly = 8
@@ -781,7 +782,7 @@ contains
     end do
 
   end subroutine sx_update_lx8
-  
+
   subroutine sx_update_lx7(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 7
     integer, parameter :: ly = 7
@@ -860,7 +861,7 @@ contains
 
 
   end subroutine sx_update_lx7
-  
+
   subroutine sx_update_lx6(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 6
     integer, parameter :: ly = 6
@@ -1018,7 +1019,7 @@ contains
 
 
   end subroutine sx_update_lx5
-  
+
   subroutine sx_update_lx4(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 4
     integer, parameter :: ly = 4
@@ -1097,7 +1098,7 @@ contains
 
 
   end subroutine sx_update_lx4
-  
+
   subroutine sx_update_lx3(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 3
     integer, parameter :: ly = 3
@@ -1176,7 +1177,7 @@ contains
     end do
 
   end subroutine sx_update_lx3
-  
+
   subroutine sx_update_lx2(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 2
     integer, parameter :: ly = 2
