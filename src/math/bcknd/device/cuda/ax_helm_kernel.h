@@ -1,3 +1,5 @@
+#ifndef __MATH_AX_HELM_KERNEL_H__
+#define __MATH_AX_HELM_KERNEL_H__
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -344,3 +346,5 @@ __global__ void ax_helm_kernel_kstep_padded(T * __restrict__ w,
     w[ij + k*LX*LX + ele] = rw[k]; 
   }
 }
+
+#endif // __MATH_AX_HELM_KERNEL_H__

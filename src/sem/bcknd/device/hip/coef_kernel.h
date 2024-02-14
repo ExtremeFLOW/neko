@@ -1,3 +1,5 @@
+#ifndef __SEM_COEF_KERNEL_H__
+#define __SEM_COEF_KERNEL_H__
 /*
  Copyright (c) 2022, The Neko Authors
  All rights reserved.
@@ -280,3 +282,5 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
   }
 
 }
+
+#endif // __SEM_COEF_KERNEL_H__
