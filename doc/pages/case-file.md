@@ -128,7 +128,7 @@ The means of prescribing the values are controlled via the `type` keyword:
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
    in the `case.fluid.blasius` object, see below.
 
-### Initial conditions
+### Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
 It is mandatory.
 Note that this currently pertains to both the fluid, but also scalars.

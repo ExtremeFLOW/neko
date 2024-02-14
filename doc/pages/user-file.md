@@ -24,8 +24,6 @@ end module user
 
 The user file implements the `user` module. The `user` modules contains a subroutine named `user_setup`, which we use to interface the internal procedures defined in `src/common/user_intf.f90` with the subroutines that you will implement in your user file. Each user subroutine should be implemented under the `contains` statement, below `user_setup`.
 
-A basic working example is demonstrated [below](#basic-working-example).
-
 @note The above code snippet is the most basic code structure for the user file. Compiling it and running it would be equivalent to running the "vanilla" neko executable `bin/neko` in your local neko installation folder.
 
 ## Default user functions
@@ -148,7 +146,7 @@ u%material_properties => set_material_properties
 
 ### Runtime mesh deformation {#user-file_user-mesh-setup}
 
-This user function allows for the modification of the mesh at runtime, by acting on the element nodes of the mesh specified in the case file. The example below is taken from the [compression example](https://github.com/ExtremeFLOW/neko/blob/a0613606360240e5059e65d6d98f4a57cf73e237/examples/tgv/tgv.f90#L27).
+This user function allows for the modification of the mesh at runtime, by acting on the element nodes of the mesh specified in the case file. This function is only called once before the simulation time loop. The example below is taken from the [compression example](https://github.com/ExtremeFLOW/neko/blob/a0613606360240e5059e65d6d98f4a57cf73e237/examples/tgv/tgv.f90#L27).
 
 ```.f90
   ! Rescale mesh
@@ -179,30 +177,284 @@ u%user_mesh_setup => user_mesh_scale
 
 ### Scalar boundary conditions {#user-file_scalar-bc}
 
-This user functions allows for the speci
+This user function can be used to specify the scalar boundary values, on all zones that are not already set to uniform dirichlet values e.g. `d=1`. For more information on the scalar, see the [relevant section of the case file](#case-file_scalar). The example below sets the scalar to be a linear function of the `z` coordinate (taken from the [rayleigh-benard example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh-benard-cylinder/rayleigh.f90#L41)).
+
+```.f90
+
+  subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+    real(kind=rp), intent(inout) :: s
+    real(kind=rp), intent(in) :: x
+    real(kind=rp), intent(in) :: y
+    real(kind=rp), intent(in) :: z
+    real(kind=rp), intent(in) :: nx
+    real(kind=rp), intent(in) :: ny
+    real(kind=rp), intent(in) :: nz
+    integer, intent(in) :: ix
+    integer, intent(in) :: iy
+    integer, intent(in) :: iz
+    integer, intent(in) :: ie
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    ! This will be used on all zones without labels
+    s = 1.0_rp - z
+
+  end subroutine set_scalar_boundary_conditions
+
+```
+
+This function will called on all the points on the relevant boundaries. The registering of the above function in `user_setup` should be done as follows:
+
+```.f90
+u%scalar_user_bc => set_scalar_boundary_conditions
+```
+
 
 ## Case-specific user functions 
 
-As explained in the [case file](case-file.md) page, certain components of the simulation can be set to be user defined. These components are:
+As explained in the [case file](case-file.md) page, certain components of the simulation can be set to be user defined. These components and their associated user functions are:
 
-- The initial condition defined in `case.fluid.initial_condition`,
-- The inflow boundary condition defined in `case.fluid.inflow_condition`,
-- The fluid forcing/source term defined in `case.fluid.source_terms`,
-- The scalar source term defined in `case.scalar.source_terms`,
+| Description                     | User function                               | JSON Object in the case files                                                              |
+|---------------------------------|---------------------------------------------|--------------------------------------------------------------------------------------------|
+| Fluid initial condition         | [fluid_user_ic](#user-file_user-ic)         | `case.fluid.initial_condition`                                                             |
+| Scalar initial condition        | [scalar_user_ic](#user-file_user-ic)        | `case.scalar.initial_condition`                                                            |
+| Fluid inflow boundary condition | [fluid_user_if](#user-file_fluid-user-if)   | `case.fluid.inflow_condition`                                                              |
+| Scalar boundary conditions      | [scalar_user_bc](#user-file_scalar-bc) | - (user function is always called)
+| Fluid source term               | [fluid_user_f_vector or fluid_user_f](#user-file_user-f) | `case.fluid.source_terms`     |
+| Scalar source term              | [scalar_user_f_vector or scalar_user_f](#user-file_user-f) | `case.scalar.source_terms` |
 
-### Initial condition
+### Fluid and Scalar initial conditions {#user-file_user-ic}
 
+Enabling user defined initial conditions for the fluid and/or scalar is done by setting
+the `initial_condition.type` to `"user"` in the relevant sections of the case file, `case.fluid` and/or `case.scalar`.
 
+```.json
 
-### Inflow condition
+"case": {
+    "fluid": {
+        "initial_condition": {
+            "type": "user"
+        }
+    }
+}
+```
 
-### Fluid source term
+See the relevant sections on the [fluid](#case-file_fluid-ic)
+and [scalar](#case-file_scalar) initial conditions in the [case file page](#case-file) for more details.
 
-### Scalar source term
+The associated user functions for the fluid and/or scalar initial conditions can then be added to the user file. An example for the fluid, inspired from the [advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L48), is shown below.
 
-### Scalar boundary condition
+```.f90
 
-## Basic working example {#basic-working-example}
+  !> Set the advecting velocity field.
+  subroutine set_velocity(u, v, w, p, params)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    type(json_file), intent(inout) :: params
+    integer :: i, e, k, j
+    real(kind=rp) :: x, y
+
+    do i = 1, u%dof%size()
+       x = u%dof%x(i,1,1,1)
+       y = u%dof%y(i,1,1,1)
+
+       ! Angular velocity is pi, giving a full rotation in 2 sec
+       u%x(i,1,1,1) = -y*pi
+       v%x(i,1,1,1) = x*pi
+       w%x(i,1,1,1) = 0
+    end do
+
+  end subroutine set_velocity
+
+```
+
+The same can be done for the scalar, with the example below also inspired from the [advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L48):
+
+```.f90
+
+  !> User initial condition for the scalar
+  subroutine set_s_ic(s, params)
+    type(field_t), intent(inout) :: s
+    type(json_file), intent(inout) :: params
+    integer :: i, e, k, j
+    real(kind=rp) :: cone_radius, mux, muy, x, y, r, theta
+
+    ! Center of the cone
+    mux = 1
+    muy = 0
+
+    cone_radius = 0.5
+
+    do i = 1, s%dof%size()
+       x = s%dof%x(i,1,1,1) - mux
+       y = s%dof%y(i,1,1,1) - muy
+
+       r = sqrt(x**2 + y**2)
+       theta = atan2(y, x)
+
+       ! Check if the point is inside the cone's base
+       if (r > cone_radius) then
+         s%x(i,1,1,1) = 0.0
+       else
+         s%x(i,1,1,1) = 1.0 - r / cone_radius
+       endif
+    end do
+    
+  end subroutine set_s_ic
+
+```
+
+We should also add of the following lines in `user_setup`, registering our user functions `set_velocity` and `set_s_ic` to be used as the fluid and scalar initial conditions:
+
+```.f90
+u%fluid_user_ic => set_velocity
+u%scalar_user_ic => set_s_ic
+```
+
+### Fluid inflow condition {#user-file_fluid-user-if}
+
+Enabling user defined inflow condition for the fluid is done by setting
+the `case.fluid.inflow_condition.type` to `"user"`:_
+
+```.json
+
+"case": {
+    "fluid": {
+        "inflow_condition": {
+            "type": "user"
+        }
+    }
+}
+```
+
+See the [the relevant section](#case-file_fluid-if) in the [case file page](#case-file) for more details. The associated user function for the fluid inflow condition can then be added to the user file. An example inspired from the [lid-driven cavity example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/lid/lid.f90#L29) is shown below.
+
+```.f90
+ ! user-defined boundary condition
+  subroutine user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+    real(kind=rp), intent(inout) :: u
+    real(kind=rp), intent(inout) :: v
+    real(kind=rp), intent(inout) :: w
+    real(kind=rp), intent(in) :: x
+    real(kind=rp), intent(in) :: y
+    real(kind=rp), intent(in) :: z
+    real(kind=rp), intent(in) :: nx
+    real(kind=rp), intent(in) :: ny
+    real(kind=rp), intent(in) :: nz
+    integer, intent(in) :: ix
+    integer, intent(in) :: iy
+    integer, intent(in) :: iz
+    integer, intent(in) :: ie
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    real(kind=rp) lsmoothing
+    lsmoothing = 0.05_rp    ! length scale of smoothing at the edges
+
+    u = step( x/lsmoothing ) * step( (1._rp-x)/lsmoothing )
+    v = 0._rp
+    w = 0._rp
+    
+  end subroutine user_bc
+```
+
+We should also add of the following line in `user_setup`, registering our user function `user_bc` to be used as the fluid inflow conditions:
+
+```.f90
+u%fluid_user_if => user_bc
+```
+
+### Fluid and scalar source terms {#user-file_user-f}
+
+Enabling user defined source terms for the fluid and/or scalar is done by adding JSON Objects to the `case.fluid.source_terms` and/or `case.scalar.source_terms` lists. 
+the `initial_condition.type` to `"user"` in the relevant sections of the case file, `case.fluid` and/or `case.scalar`.
+
+```.json
+
+"case": {
+    "fluid": {
+        "initial_condition": {
+            "type": "user"
+        }
+    }
+}
+```
+
+See the relevant sections on the [fluid](#case-file_fluid-ic)
+and [scalar](#case-file_scalar) initial conditions in the [case file page](#case-file) for more details.
+
+The associated user functions for the fluid and/or scalar initial conditions can then be added to the user file. An example for the fluid, inspired from the [advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L48), is shown below.
+
+```.f90
+
+  !> Set the advecting velocity field.
+  subroutine set_velocity(u, v, w, p, params)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    type(json_file), intent(inout) :: params
+    integer :: i, e, k, j
+    real(kind=rp) :: x, y
+
+    do i = 1, u%dof%size()
+       x = u%dof%x(i,1,1,1)
+       y = u%dof%y(i,1,1,1)
+
+       ! Angular velocity is pi, giving a full rotation in 2 sec
+       u%x(i,1,1,1) = -y*pi
+       v%x(i,1,1,1) = x*pi
+       w%x(i,1,1,1) = 0
+    end do
+
+  end subroutine set_velocity
+
+```
+
+The same can be done for the scalar, with the example below also inspired from the [advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L48):
+
+```.f90
+
+  !> User initial condition for the scalar
+  subroutine set_s_ic(s, params)
+    type(field_t), intent(inout) :: s
+    type(json_file), intent(inout) :: params
+    integer :: i, e, k, j
+    real(kind=rp) :: cone_radius, mux, muy, x, y, r, theta
+
+    ! Center of the cone
+    mux = 1
+    muy = 0
+
+    cone_radius = 0.5
+
+    do i = 1, s%dof%size()
+       x = s%dof%x(i,1,1,1) - mux
+       y = s%dof%y(i,1,1,1) - muy
+
+       r = sqrt(x**2 + y**2)
+       theta = atan2(y, x)
+
+       ! Check if the point is inside the cone's base
+       if (r > cone_radius) then
+         s%x(i,1,1,1) = 0.0
+       else
+         s%x(i,1,1,1) = 1.0 - r / cone_radius
+       endif
+    end do
+    
+  end subroutine set_s_ic
+
+```
+
+We should also add of the following lines in `user_setup`, registering our user functions `set_velocity` and `set_s_ic` to be used as the fluid and scalar initial conditions:
+
+```.f90
+u%fluid_user_ic => set_velocity
+u%scalar_user_ic => set_s_ic
+```
 
 ## Compiling and running
 
