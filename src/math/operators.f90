@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,19 +32,25 @@
 !
 !> Operators
 module operators
-  use neko_config
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE, NEKO_BCKND_XSMM,&
+                          NEKO_DEVICE_MPI
   use num_types, only : rp
-  use opr_cpu
-  use opr_sx
-  use opr_xsmm
-  use opr_device
+  use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, opr_cpu_conv1,&
+                      opr_cpu_cdtp, opr_cpu_dudxyz
+  use opr_sx, only : opr_sx_cfl, opr_sx_curl, opr_sx_dudxyz, opr_sx_opgrad, &
+                     opr_sx_cdtp, opr_sx_conv1
+  use opr_xsmm, only : opr_xsmm_cdtp, opr_xsmm_conv1, opr_xsmm_curl, &
+                       opr_xsmm_dudxyz, opr_xsmm_opgrad
+  use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
+                         opr_device_conv1, opr_device_dudxyz, &
+                         opr_device_lambda2, opr_device_opgrad
   use space, only : space_t
   use coefs, only : coef_t
-  use field, only: field_t
-  use math
-  use comm
-  use device
-  use device_math
+  use field, only : field_t
+  use math, only : glsum, pi, cmult, add2, cadd
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, MPI_MAX, MPI_IN_PLACE
+  use device, only : c_ptr, device_get_ptr
+  use device_math, only : device_add2, device_cmult
   implicit none
   private
 
@@ -53,8 +59,14 @@ module operators
 
 contains
 
-  !> Compute dU/dx or dU/dy or dU/dz
-  subroutine dudxyz (du,u,dr,ds,dt,coef)
+  !> Compute derivative of a scalar field along a single direction.
+  !! @param du Holds the resulting derivative values.
+  !! @param u The values of the field.
+  !! @param dr The derivative of r with respect to the chosen direction.
+  !! @param ds The derivative of s with respect to the chosen direction.
+  !! @param dt The derivative of t with respect to the chosen direction.
+  !! @param coef The SEM coefficients.
+  subroutine dudxyz (du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
          intent(inout) ::  du
@@ -73,8 +85,18 @@ contains
 
   end subroutine dudxyz
 
-  !> Equals wgradm1 in nek5000. Gradient of velocity vectors.
-  subroutine opgrad(ux,uy,uz,u,coef, es, ee) ! weak form of grad
+  !> Compute the gradient of a scalar field.
+  !! @details By providing `es` and `ee`, it is possible to compute only for a
+  !! range of element indices.
+  !! @param ux Will store the x component of the gradient.
+  !! @param uy Will store the y component of the gradient.
+  !! @param uz Will store the z component of the gradient.
+  !! @param u The values of the field.
+  !! @param coef The SEM coefficients.
+  !! @param es Starting element index, optional, defaults to 1.
+  !! @param ee Ending element index, optional, defaults to `nelv`.
+  !! @note Equals wgradm1 in Nek5000, the weak form of the gradient.
+  subroutine opgrad(ux, uy, uz, u, coef, es, ee)
     type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
@@ -108,20 +130,30 @@ contains
   end subroutine opgrad
 
   !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
-  subroutine ortho(x,n ,glb_n)
+  !! @param x The vector to orthogonolize.
+  !! @param n The size of `x`.
+  !! @param glb_n ?
+  subroutine ortho(x, n, glb_n)
     integer, intent(in) :: n
     integer, intent(in) :: glb_n
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp) :: rlam
 
-    rlam = glsum(x,n)/glb_n
-    call cadd(x,-rlam,n)
+    rlam = glsum(x, n)/glb_n
+    call cadd(x, -rlam, n)
 
   end subroutine ortho
 
-  !> Compute DT*X (entire field)
-  !> This needs to be revised... the loop over n1,n2 is probably unesccssary
-  subroutine cdtp (dtx,x,dr,ds,dt, coef)
+  !> Apply D^T to a scalar field, where D is the derivative matrix.
+  !! @param dtx Will store the result.
+  !! @param x The values of the field.
+  !! @param dr The derivative of r with respect to the chosen direction.
+  !! @param ds The derivative of s with respect to the chosen direction.
+  !! @param dt The derivative of t with respect to the chosen direction.
+  !! @param coef The SEM coefficients.
+  !> @note This needs to be revised... the loop over n1,n2 is probably
+  !! unesccssary
+  subroutine cdtp (dtx, x, dr, ds, dt, coef)
     type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
@@ -148,7 +180,7 @@ contains
   !! @param vy The y component of the advecting velocity.
   !! @param vz The z component of the advecting velocity.
   !! @param Xh The function space for the fields involved.
-  !! @param coeff The coeffients of the (Xh, mesh) pair.
+  !! @param coef The coeffients of the (Xh, mesh) pair.
   !! @param es Starting element index, defaults to 1.
   !! @param ee Last element index, defaults to mesh size.
   subroutine conv1(du, u, vx, vy, vz, Xh, coef, es, ee)
@@ -188,7 +220,17 @@ contains
 
   end subroutine conv1
 
-  subroutine curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+  !! Compute the curl fo a vector field.
+  !! @param w1 Will store the x component of the curl.
+  !! @param w2 Will store the y component of the curl.
+  !! @param w3 Will store the z component of the curl.
+  !! @param u1 The x component of the vector field.
+  !! @param u2 The y component of the vector field.
+  !! @param u3 The z component of the vector field.
+  !! @param work1 A temporary array for computations.
+  !! @param work2 A temporary array for computations.
+  !! @param coef The SEM coefficients.
+  subroutine curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
@@ -197,26 +239,35 @@ contains
     type(field_t), intent(inout) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
-    type(coef_t), intent(in)  :: c_Xh
+    type(coef_t), intent(in)  :: coef
 
     if (NEKO_BCKND_SX .eq. 1) then
-       call opr_sx_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+       call opr_sx_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
-       call opr_xsmm_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+       call opr_xsmm_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+       call opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     else
-       call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+       call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     end if
 
   end subroutine curl
 
+  !! Compute the CFL number
+  !! @param dt The timestep.
+  !! @param u The x component of velocity.
+  !! @param v The y component of velocity.
+  !! @param w The z component of velocity.
+  !! @param Xh The SEM function space.
+  !! @param coef The SEM coefficients.
+  !! @param nelv The total number of elements.
+  !! @param gdim Number of geometric dimensions.
   function cfl(dt, u, v, w, Xh, coef, nelv, gdim)
-    type(space_t) :: Xh
-    type(coef_t) :: coef
-    integer :: nelv, gdim
-    real(kind=rp) :: dt
-    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: nelv, gdim
+    real(kind=rp), intent(in) :: dt
+    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv), intent(in) ::  u, v, w
     real(kind=rp) :: cfl
     integer :: ierr
 
@@ -236,9 +287,18 @@ contains
   end function cfl
 
   !> Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i
-  !! Similar to comp_sij in Nek5000.
-  subroutine strain_rate(s11, s22, s33, s12, s13, s23, &
-                         u, v, w, coef)
+  !! @param s11 Will hold the 1,1 component of the strain rate tensor.
+  !! @param s22 Will hold the 2,2 component of the strain rate tensor.
+  !! @param s33 Will hold the 3,3 component of the strain rate tensor.
+  !! @param s12 Will hold the 1,2 component of the strain rate tensor.
+  !! @param s13 Will hold the 1,3 component of the strain rate tensor.
+  !! @param s23 Will hold the 2,3 component of the strain rate tensor.
+  !! @param u The x component of velocity.
+  !! @param v The y component of velocity.
+  !! @param w The z component of velocity.
+  !! @param coef The SEM coefficients.
+  !! @note Similar to comp_sij in Nek5000.
+  subroutine strain_rate(s11, s22, s33, s12, s13, s23, u, v, w, coef)
     type(field_t), intent(in) :: u, v, w !< velocity components
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: s11(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
@@ -305,13 +365,13 @@ contains
 
   end subroutine strain_rate
 
-  !> Lambda2 calcuation.
-  !! @param lambda2 holds the second eigen values.
-  !! @param u, the x-velocity
-  !! @param v, the y-velocity
-  !! @param w, the z-velocity
-  !! @param coef, the field coefficients
-  subroutine lambda2op(lambda2, u, v, w,coef)
+  !> Compute the Lambda2 field for a given velocity field.
+  !! @param lambda2 Holds the computed Lambda2 field.
+  !! @param u The x-velocity.
+  !! @param v The y-velocity.
+  !! @param w the z-velocity.
+  !! @param coef The SEM coefficients.
+  subroutine lambda2op(lambda2, u, v, w, coef)
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: lambda2
     type(field_t), intent(in) :: u, v, w
