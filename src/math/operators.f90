@@ -180,7 +180,7 @@ contains
   !! @param vy The y component of the advecting velocity.
   !! @param vz The z component of the advecting velocity.
   !! @param Xh The function space for the fields involved.
-  !! @param coef The SEM coeffients.
+  !! @param coef The SEM coefficients.
   !! @param es Starting element index, defaults to 1.
   !! @param ee Last element index, defaults to mesh size.
   subroutine conv1(du, u, vx, vy, vz, Xh, coef, es, ee)
