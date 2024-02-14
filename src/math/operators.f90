@@ -132,7 +132,7 @@ contains
   !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
   !! @param x The vector to orthogonolize.
   !! @param n The size of `x`.
-  !! @param glb_n ?
+  !! @param glb_n The global number of elements of `x` across all MPI ranks. Be careful with overflow!
   subroutine ortho(x, n, glb_n)
     integer, intent(in) :: n
     integer, intent(in) :: glb_n
