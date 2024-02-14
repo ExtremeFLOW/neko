@@ -214,12 +214,12 @@ u%scalar_user_bc => set_scalar_boundary_conditions
 
 As explained in the [case file](case-file.md) page, certain components of the simulation can be set to be user defined. These components and their associated user functions are:
 
-| Description                     | User function                               | JSON Object in the case files                                                              |
+| Description                     | User function                               | JSON Object in the case file                                                              |
 |---------------------------------|---------------------------------------------|--------------------------------------------------------------------------------------------|
 | Fluid initial condition         | [fluid_user_ic](#user-file_user-ic)         | `case.fluid.initial_condition`                                                             |
 | Scalar initial condition        | [scalar_user_ic](#user-file_user-ic)        | `case.scalar.initial_condition`                                                            |
 | Fluid inflow boundary condition | [fluid_user_if](#user-file_fluid-user-if)   | `case.fluid.inflow_condition`                                                              |
-| Scalar boundary conditions      | [scalar_user_bc](#user-file_scalar-bc) | - (user function is always called)
+| Scalar boundary conditions      | [scalar_user_bc](#user-file_scalar-bc) | (user function is always called)
 | Fluid source term               | [fluid_user_f_vector or fluid_user_f](#user-file_user-f) | `case.fluid.source_terms`     |
 | Scalar source term              | [scalar_user_f_vector or scalar_user_f](#user-file_user-f) | `case.scalar.source_terms` |
 
@@ -265,10 +265,21 @@ The associated user functions for the fluid and/or scalar initial conditions can
        v%x(i,1,1,1) = x*pi
        w%x(i,1,1,1) = 0
     end do
-
+    
+     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(u%x, u%x_d, u%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(v%x, v%x_d, v%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(w%x, w%x_d, w%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+    end if
+    
   end subroutine set_velocity
 
 ```
+
+@note Notice the use of the `NEKO_BCKND_DEVICE` flag, which will be set to 1 if running on GPUs, and the calls to `device_memcpy` to transfer data between the host and the device. See [transferring data to the device](#accelerators_data-transfer) for more information on how this works and [Running on GPUs](#user-file_tips_running-on-gpus) for why we need to do this.
 
 The same can be done for the scalar, with the example below also inspired from the [advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L48):
 
@@ -302,9 +313,16 @@ The same can be done for the scalar, with the example below also inspired from t
        endif
     end do
     
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(s%x, s%x_d, s%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+    end if
+  
   end subroutine set_s_ic
 
 ```
+
+@note Notice the use of the `NEKO_BCKND_DEVICE` flag, which will be set to 1 if running on GPUs, and the calls to `device_memcpy` to transfer data between the host and the device. See [transferring data to the device](#accelerators_data-transfer) for more information on how this works and [Running on GPUs](#user-file_tips_running-on-gpus) for why we need to do this.
 
 We should also add of the following lines in `user_setup`, registering our user functions `set_velocity` and `set_s_ic` to be used as the fluid and scalar initial conditions:
 
@@ -369,92 +387,101 @@ u%fluid_user_if => user_bc
 ### Fluid and scalar source terms {#user-file_user-f}
 
 Enabling user defined source terms for the fluid and/or scalar is done by adding JSON Objects to the `case.fluid.source_terms` and/or `case.scalar.source_terms` lists. 
-the `initial_condition.type` to `"user"` in the relevant sections of the case file, `case.fluid` and/or `case.scalar`.
+the `initial_condition.type` to `"user_vector"` or `"user_pointwise"` in the relevant sections of the case file, `case.fluid` and/or `case.scalar`.
 
 ```.json
 
 "case": {
     "fluid": {
-        "initial_condition": {
-            "type": "user"
-        }
+        "source_terms": 
+        [
+            {
+                "type": "user_vector"
+            }
+        ]
     }
 }
 ```
 
-See the relevant sections on the [fluid](#case-file_fluid-ic)
-and [scalar](#case-file_scalar) initial conditions in the [case file page](#case-file) for more details.
+See the relevant sections on the [fluid](#case-file_fluid-source-term)
+and [scalar](#case-file_scalar) source terms in the [case file page](#case-file) for more details.
 
-The associated user functions for the fluid and/or scalar initial conditions can then be added to the user file. An example for the fluid, inspired from the [advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L48), is shown below.
+@attention There are two variants of the source term user functions: `fluid_user_f` and `fluid_user_f_vector`. The former is called when setting `"user_pointwise"` as the source term type, while the latter requires the use of the `"user_vector"`keyword in the case file. The pointwise variant, `fluid_user_f` is not supported on GPUs. In general, `fluid_user_f_vector` is the prefered variant, and is the one which will be use in our examples below. The same applies for the scalar source term user functions.
+
+The associated user functions for the fluid and/or scalar source terms can then be added to the user file. An example for the fluid, taken from the [rayleigh-benard-cylinder example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard-cylinder/rayleigh.f90#L101C1-L121C44), is shown below.
+
+```.f90
+  ! Sets the z-component of the fluid forcing term = scalar 
+  subroutine set_bousinesq_forcing_term(f, t)
+    class(fluid_user_source_term_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
+
+    ! Retrieve u,v,w,s fields from the field registry
+    type(field_t), pointer :: u, v, w, s    
+    u => neko_field_registry%get_field('u')
+    v => neko_field_registry%get_field('v')
+    w => neko_field_registry%get_field('w')
+    s => neko_field_registry%get_field('s')
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_rzero(f%u_d,f%dm%size())
+       call device_rzero(f%v_d,f%dm%size())
+       call device_copy(f%w_d,s%x_d,f%dm%size())
+    else
+       call rzero(f%u,f%dm%size())
+       call rzero(f%v,f%dm%size())
+       call copy(f%w,s%x,f%dm%size())
+    end if
+  end subroutine set_bousinesq_forcing_term
+```
+
+@note Here, we make use of the `neko_field_registry` to retrieve the velocity and scalar fields. See [below](#user-file_tips_registries) for more information on how to use registries in neko. 
+@note Notice the use of the `NEKO_BCKND_DEVICE` flag, which will be set to 1 if running on GPUs, and the calls to `device_memcpy` to transfer data between the host and the device. See [transferring data to the device](#accelerators_data-transfer) for more information on how this works and [Running on GPUs](#user-file_tips_running-on-gpus) for why we need to do this.
+
+The same can be done for the scalar, with the example below also taken from the [scalar_mms example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/scalar_mms/scalar_mms.f90#L28):
 
 ```.f90
 
-  !> Set the advecting velocity field.
-  subroutine set_velocity(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
-    integer :: i, e, k, j
+  !> Set source term
+  subroutine set_source(f, t)
+    class(scalar_user_source_term_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
     real(kind=rp) :: x, y
+    integer :: i
 
-    do i = 1, u%dof%size()
-       x = u%dof%x(i,1,1,1)
-       y = u%dof%y(i,1,1,1)
+    do i = 1, f%dm%size()
+       x = f%dm%x(i,1,1,1)
+       y = f%dm%y(i,1,1,1)
 
-       ! Angular velocity is pi, giving a full rotation in 2 sec
-       u%x(i,1,1,1) = -y*pi
-       v%x(i,1,1,1) = x*pi
-       w%x(i,1,1,1) = 0
+       ! 0.01 is the viscosity
+       f%s(i,1,1,1) = cos(x) - 0.01 * sin(x) - 1.0_rp
     end do
 
-  end subroutine set_velocity
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(f%s, f%s_d, f%dm%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+    end if
+
+  end subroutine set_source
 
 ```
 
-The same can be done for the scalar, with the example below also inspired from the [advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L48):
+@note Notice the use of the `NEKO_BCKND_DEVICE` flag, which will be set to 1 if running on GPUs, and the call to `device_memcpy` to transfer data between the host and the device. See [transferring data to the device](#accelerators_data-transfer) for more information on how this works and [Running on GPUs](#user-file_tips_running-on-gpus) for why we need to do this.
+
+We should also add of the following lines in `user_setup`, registering our user functions `set_boussinesq_forcing_term` and `set_source` to be used as the fluid and scalar source terms:
 
 ```.f90
-
-  !> User initial condition for the scalar
-  subroutine set_s_ic(s, params)
-    type(field_t), intent(inout) :: s
-    type(json_file), intent(inout) :: params
-    integer :: i, e, k, j
-    real(kind=rp) :: cone_radius, mux, muy, x, y, r, theta
-
-    ! Center of the cone
-    mux = 1
-    muy = 0
-
-    cone_radius = 0.5
-
-    do i = 1, s%dof%size()
-       x = s%dof%x(i,1,1,1) - mux
-       y = s%dof%y(i,1,1,1) - muy
-
-       r = sqrt(x**2 + y**2)
-       theta = atan2(y, x)
-
-       ! Check if the point is inside the cone's base
-       if (r > cone_radius) then
-         s%x(i,1,1,1) = 0.0
-       else
-         s%x(i,1,1,1) = 1.0 - r / cone_radius
-       endif
-    end do
-    
-  end subroutine set_s_ic
-
+u%fluid_user_f_vector => set_boussinesq_forcing_term
+u%scalar_user_f_vector => set_source
 ```
 
-We should also add of the following lines in `user_setup`, registering our user functions `set_velocity` and `set_s_ic` to be used as the fluid and scalar initial conditions:
+## Additional remarks and tips
 
-```.f90
-u%fluid_user_ic => set_velocity
-u%scalar_user_ic => set_s_ic
-```
+### Running on GPUs {#user-file_tips_running-on-gpus}
+
+When running on GPUs, special care must be taken when user certain user functions, namely for the [source terms](#user-file_user-f) and the [initial conditions](#user-file_user-ic).
+
+### Using the field and point zone registries {#user-file_tips_registries}
 
 ## Compiling and running
 
