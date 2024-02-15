@@ -35,7 +35,7 @@
 module source_term_fctry
   use source_term, only : source_term_t
   use const_source_term, only : const_source_term_t
-  use immersed_boundary_source_term, only: immersed_boundary_source_term_t
+  use brinkman_source_term, only: brinkman_source_term_t
   use json_module, only : json_file
   use json_utils, only : json_get
   use field_list, only : field_list_t
@@ -61,8 +61,8 @@ contains
 
     if (trim(source_type) .eq. "constant") then
        allocate(const_source_term_t::source_term)
-    else if (trim(source_type) .eq. "immersed_boundary") then
-       allocate(immersed_boundary_source_term_t::source_term)
+    else if (trim(source_type) .eq. "brinkman") then
+       allocate(brinkman_source_term_t::source_term)
     else
        call neko_error('Unknown source term '//trim(source_type))
     end if

@@ -30,24 +30,24 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the cpu kernel for the `immersed_boundary_source_term_t` type.
-module immersed_boundary_source_term_device
+!> Implements the device kernel for the `brinkman_source_term_t` type.
+module brinkman_source_term_device
   use num_types, only : rp
   use field, only : field_t
   use field_list, only : field_list_t
-  use device_math, only : device_col3
+  use device_math, only : device_col3, device_addcol3
   use field_registry, only : neko_field_registry
   implicit none
   private
 
-  public :: immersed_boundary_source_term_compute_device
+  public :: brinkman_source_term_compute_device
 
 contains
 
   !> Computs the constant source term on the cpu.
   !! @param fields The right-hand side.
   !! @param values The values of the source components.
-  subroutine immersed_boundary_source_term_compute_device(fields, brinkman)
+  subroutine brinkman_source_term_compute_device(fields, brinkman)
     type(field_list_t), intent(inout) :: fields
     type(field_t), intent(in) :: brinkman
     integer :: n
@@ -59,10 +59,10 @@ contains
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
 
-    call device_col3(fields%fields(1)%f%x_d, u%x_d, brinkman%x_d, n)
-    call device_col3(fields%fields(2)%f%x_d, v%x_d, brinkman%x_d, n)
-    call device_col3(fields%fields(3)%f%x_d, w%x_d, brinkman%x_d, n)
+    call device_addcol3(fields%fields(1)%f%x_d, u%x_d, brinkman%x_d, n)
+    call device_addcol3(fields%fields(2)%f%x_d, v%x_d, brinkman%x_d, n)
+    call device_addcol3(fields%fields(3)%f%x_d, w%x_d, brinkman%x_d, n)
 
-  end subroutine immersed_boundary_source_term_compute_device
+  end subroutine brinkman_source_term_compute_device
 
-end module immersed_boundary_source_term_device
+end module brinkman_source_term_device

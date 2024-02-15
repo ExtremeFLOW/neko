@@ -30,24 +30,24 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the cpu kernel for the `immersed_boundary_source_term_t` type.
-module immersed_boundary_source_term_cpu
+!> Implements the cpu kernel for the `brinkman_source_term_t` type.
+module brinkman_source_term_cpu
   use num_types, only : rp
   use field, only : field_t
   use field_list, only : field_list_t
-  use math, only : col3
+  use math, only : col3, addcol3
   use field_registry, only : neko_field_registry
   implicit none
   private
 
-  public :: immersed_boundary_source_term_compute_cpu
+  public :: brinkman_source_term_compute_cpu
 
 contains
 
   !> Computs the constant source term on the cpu.
   !! @param fields The right-hand side.
   !! @param values The values of the source components.
-  subroutine immersed_boundary_source_term_compute_cpu(fields, brinkman)
+  subroutine brinkman_source_term_compute_cpu(fields, brinkman)
     type(field_list_t), intent(inout) :: fields
     type(field_t), intent(in) :: brinkman
     type(field_t), pointer :: u, v, w
@@ -59,10 +59,10 @@ contains
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
 
-    call col3(fields%fields(1)%f%x, u%x, brinkman%x, n)
-    call col3(fields%fields(2)%f%x, v%x, brinkman%x, n)
-    call col3(fields%fields(3)%f%x, w%x, brinkman%x, n)
+    call addcol3(fields%fields(1)%f%x, u%x, brinkman%x, n)
+    call addcol3(fields%fields(2)%f%x, v%x, brinkman%x, n)
+    call addcol3(fields%fields(3)%f%x, w%x, brinkman%x, n)
 
-  end subroutine immersed_boundary_source_term_compute_cpu
+  end subroutine brinkman_source_term_compute_cpu
 
-end module immersed_boundary_source_term_cpu
+end module brinkman_source_term_cpu

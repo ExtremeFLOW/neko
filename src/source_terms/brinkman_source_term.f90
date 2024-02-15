@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the `immersed_boundary_source_term_t` type.
-module immersed_boundary_source_term
+!> Implements the `brinkman_source_term_t` type.
+module brinkman_source_term
   use num_types, only: rp
   use field, only: field_t
   use field_list, only: field_list_t
@@ -42,41 +42,43 @@ module immersed_boundary_source_term
   use coefs, only: coef_t
   use neko_config, only: NEKO_BCKND_DEVICE
   use utils, only: neko_error
-  use immersed_boundary_source_term_cpu, only: immersed_boundary_source_term_compute_cpu
-  use immersed_boundary_source_term_device, only: immersed_boundary_source_term_compute_device
+  use brinkman_source_term_cpu, only: brinkman_source_term_compute_cpu
+  use brinkman_source_term_device, only: brinkman_source_term_compute_device
   implicit none
   private
 
   !> A constant source term.
   !! The strength is specified with the `values` keyword, which should be an
   !! array, with a value for each component of the source.
-  type, public, extends(source_term_t) :: immersed_boundary_source_term_t
+  type, public, extends(source_term_t) :: brinkman_source_term_t
      private
      !> The value of the source term.
      type(field_t), pointer :: brinkman => null()
    contains
      !> The common constructor using a JSON object.
-     procedure, public, pass(this) :: init => immersed_boundary_source_term_init_from_json
+     procedure, public, pass(this) :: init => brinkman_source_term_init_from_json
      !> Destructor.
-     procedure, public, pass(this) :: free => immersed_boundary_source_term_free
+     procedure, public, pass(this) :: free => brinkman_source_term_free
      !> Computes the source term and adds the result to `fields`.
-     procedure, public, pass(this) :: compute_ => immersed_boundary_source_term_compute
-  end type immersed_boundary_source_term_t
+     procedure, public, pass(this) :: compute_ => brinkman_source_term_compute
+  end type brinkman_source_term_t
 
 contains
+
   !> The common constructor using a JSON object.
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine immersed_boundary_source_term_init_from_json(this, json, fields, coef)
+  subroutine brinkman_source_term_init_from_json(this, json, fields, coef)
     use file, only: file_t
     use tri_mesh, only: tri_mesh_t
     use device, only: device_memcpy, HOST_TO_DEVICE
     use filters, only: smooth_step_field, step_function_field, permeability_field
     use signed_distance, only: signed_distance_field
+    use profiler, only: profiler_start_region, profiler_end_region
     implicit none
 
-    class(immersed_boundary_source_term_t), intent(inout) :: this
+    class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
     type(coef_t), intent(inout) :: coef
@@ -90,6 +92,7 @@ contains
     real(kind=rp), dimension(:), allocatable :: brinkman_limits
     real(kind=rp) :: brinkman_penalty
 
+    character(len=:), allocatable :: json_read_string
     real(kind=rp) :: json_read_scalar
 
     type(file_t) :: mesh_file
@@ -104,6 +107,12 @@ contains
 
     ! ------------------------------------------------------------------------ !
     ! Read options for the immersed boundary source term
+
+    call json_get_or_default(json, 'region_type', json_read_string, 'mesh')
+
+    if (json_read_string .ne. 'mesh') then
+       call neko_error('Unknown region type')
+    end if
 
     call json_get(json, 'mesh_file', mesh_file_name)
 
@@ -188,28 +197,28 @@ contains
                           this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
     end if
 
-  end subroutine immersed_boundary_source_term_init_from_json
+  end subroutine brinkman_source_term_init_from_json
 
   !> Destructor.
-  subroutine immersed_boundary_source_term_free(this)
-    class(immersed_boundary_source_term_t), intent(inout) :: this
+  subroutine brinkman_source_term_free(this)
+    class(brinkman_source_term_t), intent(inout) :: this
 
     call this%free_base()
-  end subroutine immersed_boundary_source_term_free
+  end subroutine brinkman_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine immersed_boundary_source_term_compute(this, t, tstep)
-    class(immersed_boundary_source_term_t), intent(inout) :: this
+  subroutine brinkman_source_term_compute(this, t, tstep)
+    class(brinkman_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call immersed_boundary_source_term_compute_device(this%fields, this%brinkman)
+       call brinkman_source_term_compute_device(this%fields, this%brinkman)
     else
-       call immersed_boundary_source_term_compute_cpu(this%fields, this%brinkman)
+       call brinkman_source_term_compute_cpu(this%fields, this%brinkman)
     end if
-  end subroutine immersed_boundary_source_term_compute
+  end subroutine brinkman_source_term_compute
 
-end module immersed_boundary_source_term
+end module brinkman_source_term
