@@ -86,21 +86,6 @@ module shear_stress
 
       call neko_error("The shear stress bc is not applicable to scalar fields.")
 
-!      m = this%msk(0)
-!      do i = 1, m
-!         k = this%msk(i)
-!         facet = this%facet(i)
-!         idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
-!                               this%coef%Xh%lx)
-!         select case(facet)
-!         case(1,2)
-!            x(k) = x(k) + this%flux_*this%coef%area(idx(2), idx(3), facet, idx(4))
-!         case(3,4)
-!            x(k) = x(k) + this%flux_*this%coef%area(idx(1), idx(3), facet, idx(4))
-!         case(5,6)
-!            x(k) = x(k) + this%flux_*this%coef%area(idx(1), idx(2), facet, idx(4))
-!         end select
-!      end do
     end subroutine shear_stress_apply_scalar
 
     !> Boundary condition apply for a generic shear_stress condition
@@ -113,9 +98,31 @@ module shear_stress
       real(kind=rp), intent(inout),  dimension(n) :: z
       real(kind=rp), intent(in), optional :: t
       integer, intent(in), optional :: tstep
-      integer :: i, m, k
+      integer :: i, m, k, fid
+      ! Store non-linear index
+      integer :: idx(4)
 
-      call neko_error("shear_stress bc not implemented for vectors")
+      m = this%msk(0)
+      do i = 1, m
+         k = this%msk(i)
+         fid = this%facet(i)
+         idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
+                               this%coef%Xh%lx)
+         select case(fid)
+         case(1,2)
+            x(k) = x(k) + this%tau1_*this%coef%area(idx(2), idx(3), fid, idx(4))
+            z(k) = z(k) + this%tau2_*this%coef%area(idx(2), idx(3), fid, idx(4))
+            y(k) = 0.0_rp
+         case(3,4)
+            x(k) = x(k) + this%tau1_*this%coef%area(idx(1), idx(3), fid, idx(4))
+            z(k) = z(k) + this%tau2_*this%coef%area(idx(1), idx(3), fid, idx(4))
+            y(k) = 0.0_rp
+         case(5,6)
+            x(k) = x(k) + this%tau1_*this%coef%area(idx(1), idx(2), fid, idx(4))
+            z(k) = z(k) + this%tau2_*this%coef%area(idx(1), idx(2), fid, idx(4))
+            y(k) = 0.0_rp
+         end select
+      end do
 
     end subroutine shear_stress_apply_vector
 
@@ -162,9 +169,9 @@ module shear_stress
       call this%neumann1%init(this%coef%dof)
       call this%neumann2%init(this%coef%dof)
 
-      call this%dirichlet%mark_facets(this%marked_facet)
-      call this%neumann1%mark_facets(this%marked_facet)
-      call this%neumann2%mark_facets(this%marked_facet)
+!      call this%dirichlet%mark_facets(this%marked_facet)
+!      call this%neumann1%mark_facets(this%marked_facet)
+!      call this%neumann2%mark_facets(this%marked_facet)
 
       call this%neumann1%init_neumann(tau1, this%coef)
       call this%neumann2%init_neumann(tau2, this%coef)

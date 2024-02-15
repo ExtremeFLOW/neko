@@ -90,8 +90,6 @@ module fluid_pnpn_stress
      integer :: n_shear_stress = 0
      type(bc_list_t) :: bclst_neumann
 
-
-
      class(advection_t), allocatable :: adv
 
      ! Time variables
@@ -143,6 +141,8 @@ contains
     real(kind=rp) :: real_val
     character(len=20) :: bc_label
     integer :: i
+    ! Hard-coded shear stress component
+    real(kind=rp) :: tau
 
     call this%free()
 
@@ -208,6 +208,38 @@ contains
 
     end associate
 
+    ! Shear stress conditions (hard-coded)
+    do i = 1, NEKO_MSH_MAX_ZLBLS
+       bc_label = trim(this%bc_labels(i))
+       if (bc_label(1:2) .eq. 'sh') then
+          this%n_shear_stress = this%n_shear_stress + 1
+          call this%shear_stress(this%n_shear_stress)%init(this%dm_Xh)
+          ! todo: PARSE VALUES HERE
+          read(bc_label(4:), *) tau
+          call this%shear_stress(this%n_shear_stress)%init_shear_stress(tau,&
+                                                                        0.0_rp,&
+                                                                        this%c_Xh)
+          call this%shear_stress(this%n_shear_stress)%mark_zone(this%msh%labeled_zones(i))
+
+          call this%shear_stress(this%n_shear_stress)%dirichlet%mark_zone(this%msh%labeled_zones(i))
+
+
+       end if
+    end do
+
+    ! Create list with just Neumann bcs, 2 from each shear stress bc
+    call bc_list_init(this%bclst_neumann, this%n_shear_stress)
+
+    ! Finalize and populate the Neumann list
+    do i=1, this%n_shear_stress
+
+       call this%shear_stress(i)%finalize()
+       call this%shear_stress(i)%dirichlet%finalize()
+
+       call bc_list_add(this%bclst_neumann, this%shear_stress(i))
+!       call bc_list_add(this%bclst_vel, this%shear_stress(i)%dirichlet)
+    end do
+
     ! Initialize velocity surface terms in pressure rhs
     call this%bc_prs_surface%init(this%dm_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
@@ -261,45 +293,28 @@ contains
 
     !Initialize bcs for u, v, w velocity components
     call bc_list_init(this%bclst_du)
-    call bc_list_add(this%bclst_du,this%bc_sym%bc_x)
-    call bc_list_add(this%bclst_du,this%bc_vel_res_non_normal%bc_x)
+    call bc_list_add(this%bclst_du, this%bc_sym%bc_x)
+    call bc_list_add(this%bclst_du, this%bc_vel_res_non_normal%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res)
 
     call bc_list_init(this%bclst_dv)
-    call bc_list_add(this%bclst_dv,this%bc_sym%bc_y)
-    call bc_list_add(this%bclst_dv,this%bc_vel_res_non_normal%bc_y)
+    call bc_list_add(this%bclst_dv, this%bc_sym%bc_y)
+    call bc_list_add(this%bclst_dv, this%bc_vel_res_non_normal%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res)
 
     call bc_list_init(this%bclst_dw)
-    call bc_list_add(this%bclst_dw,this%bc_sym%bc_z)
-    call bc_list_add(this%bclst_dw,this%bc_vel_res_non_normal%bc_z)
+    call bc_list_add(this%bclst_dw, this%bc_sym%bc_z)
+    call bc_list_add(this%bclst_dw, this%bc_vel_res_non_normal%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
-    ! Shear stress conditions (hard-coded)
-    do i = 1, NEKO_MSH_MAX_ZLBLS
-       bc_label = trim(this%bc_labels(i))
-       if (bc_label(1:2) .eq. 'sh') then
-          this%n_shear_stress = this%n_shear_stress + 1
-          call this%shear_stress(this%n_shear_stress)%init(this%dm_Xh)
-          call this%shear_stress(this%n_shear_stress)%mark_zone(this%msh%labeled_zones(i))
-          ! todo: PARSE VALUES HERE
-          call this%shear_stress(i)%init_shear_stress(5e-5_rp, 0.0_rp,&
-                                                      this%c_Xh)
-       end if
-    end do
-
-    ! Create list with just Neumann bcs, 2 from each shear stress bc
-    call bc_list_init(this%bclst_neumann, 2 * this%n_shear_stress)
-
-    ! Finalize and populate the Neumann list
+    ! Add the homogeneous Dirichlet condition from the shear stress to the dv
     do i=1, this%n_shear_stress
-       call this%shear_stress(i)%neumann1%finalize()
-       call this%shear_stress(i)%neumann2%finalize()
-       call this%shear_stress(i)%dirichlet%finalize()
-
-       call bc_list_add(this%bclst_neumann, this%shear_stress(i)%neumann1)
-       call bc_list_add(this%bclst_neumann, this%shear_stress(i)%neumann2)
+!      call bc_list_add(this%bclst_du, this%shear_stress(i)%dirichlet)
+      call bc_list_add(this%bclst_dv, this%shear_stress(i)%dirichlet)
+!      call bc_list_add(this%bclst_dw, this%shear_stress(i)%dirichlet)
+!      call bc_list_add(this%bclst_vel_res, this%shear_stress(i)%dirichlet)
     end do
+
 
 
 
@@ -601,11 +616,18 @@ contains
 
       ! Apply shear stress Neumann boundary conditions
       do i=1, this%n_shear_stress
-         call this%shear_stress(i)%neumann1%apply_scalar(this%f_x%x,&
-                                                         this%dm_Xh%size())
-         call this%shear_stress(i)%neumann2%apply_scalar(this%f_z%x,&
-                                                         this%dm_Xh%size())
+!         call this%shear_stress(i)%neumann1%apply_scalar(this%f_x%x,&
+!                                                         this%dm_Xh%size())
+         call this%shear_stress(i)%apply_vector(f_x%x, v%x, f_z%x, this%dm_Xh%size())
       end do
+
+!      do i=1, this%n_shear_stress
+!         call this%shear_stress(i)%neumann1%apply_scalar(this%f_x%x,&
+!                                                         this%dm_Xh%size())
+!         call this%shear_stress(i)%dirichlet%apply_scalar(u%x, this%dm_Xh%size())
+!         call this%shear_stress(i)%dirichlet%apply_scalar(v%x, this%dm_Xh%size())
+!         call this%shear_stress(i)%dirichlet%apply_scalar(w%x, this%dm_Xh%size())
+!      end do
 
       ! Add the advection operators to the right-hand-side.
       call this%adv%compute(u, v, w, &
@@ -635,11 +657,6 @@ contains
       !> Apply dirichlet
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
-
-      do i=1, this%n_shear_stress
-         call this%shear_stress(i)%dirichlet%apply_scalar(this%v%x, &
-                                                         this%dm_Xh%size())
-      end do
 
       ! Compute pressure.
       call profiler_start_region('Pressure residual', 18)
@@ -693,6 +710,10 @@ contains
       call bc_list_apply_vector(this%bclst_vel_res,&
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
                                 t, tstep)
+
+      do i=1, this%n_shear_stress
+         call this%shear_stress(i)%dirichlet%apply_scalar(v_res%x, this%dm_Xh%size())
+      end do
 
       call profiler_end_region
 
