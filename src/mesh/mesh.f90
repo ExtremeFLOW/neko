@@ -380,7 +380,39 @@ contains
 
   subroutine mesh_finalize(this)
     class(mesh_t), target, intent(inout) :: this
-    integer :: i
+    integer :: i, id, el
+    class(element_t), pointer :: ep
+    type(tuple_i4_t) :: e
+    type(tuple4_i4_t) :: f
+    integer :: p_local_idx, res
+
+    if (this%lgenc) then
+    do el = 1, this%nelv
+       ep => this%elements(el)%e
+       select type(ep)
+       type is (hex_t)
+          do i = 1, NEKO_HEX_NPTS
+             !Only for getting the id
+             call this%add_point(ep%pts(i)%p, id)
+             p_local_idx = this%get_local(this%points(id))
+             !should stack have inout on what we push? would be neat with in
+             id = ep%id()
+             call this%point_neigh(p_local_idx)%push(id)
+         end do
+         do i = 1, NEKO_HEX_NFCS
+             call ep%facet_id(f, i)
+             call this%add_face(f)
+          end do
+
+          do i = 1, NEKO_HEX_NEDS
+             call ep%edge_id(e, i)
+             call this%add_edge(e)
+          end do
+       end select
+    end do
+
+    end if
+
 
 
     call mesh_generate_flags(this)
@@ -1402,12 +1434,6 @@ contains
 
     ep => this%elements(el)%e
     el_glb_idx = el + this%offset_el
-    if (this%lgenc) then
-       do i = 1, NEKO_HEX_NPTS
-          p_local_idx = this%get_local(this%points(p(i)))
-          call this%point_neigh(p_local_idx)%push(el_glb_idx)
-       end do
-    end if
     select type(ep)
     type is (hex_t)
        call ep%init(el_glb_idx, &
@@ -1415,19 +1441,6 @@ contains
             this%points(p(3)), this%points(p(4)), &
             this%points(p(5)), this%points(p(6)), &
             this%points(p(7)), this%points(p(8)))
-
-       if (this%lgenc) then
-          do i = 1, NEKO_HEX_NFCS
-             call ep%facet_id(f, i)
-             call this%add_face(f)
-          end do
-
-          do i = 1, NEKO_HEX_NEDS
-             call ep%edge_id(e, i)
-             call this%add_edge(e)
-          end do
-       end if
-
     class default
        call neko_error('Invalid element type')
     end select
@@ -1717,7 +1730,7 @@ contains
     integer, intent(in) :: pe
     type(point_t), pointer :: pi, pj
     real(kind=dp) :: L(3)
-    integer :: i, j, id, p_local_idx
+    integer :: i, j, id, p_local_idx, match
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
     integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
@@ -1745,6 +1758,7 @@ contains
           L = L/4
           do i = 1, 4
              pi => ele%pts(face_nodes(i,f))%p
+             match = 0
              do j = 1, 4
                 pj => elp%pts(face_nodes(j,pf))%p
                 if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
@@ -1752,31 +1766,34 @@ contains
                    call pi%set_id(id)
                    call pj%set_id(id)
                    p_local_idx = this%get_local(this%points(id))
-                   if (this%lgenc) then
-                      id = ele%id()
-                      call this%point_neigh(p_local_idx)%push(id)
-                      id = elp%id()
-                      call this%point_neigh(p_local_idx)%push(id)
-                   end if
+                 !  if (this%lgenc) then
+                 !     id = ele%id()
+                 !     call this%point_neigh(p_local_idx)%push(id)
+                 !     id = elp%id()
+                 !     call this%point_neigh(p_local_idx)%push(id)
+                 !  end if
+                   match = match + 1
                 end if
              end do
           end do
 
-          if (this%lgenc) then
-             do i = 1, NEKO_HEX_NFCS
-                call ele%facet_id(ft, i)
-                call this%add_face(ft)
-                call elp%facet_id(ft, i)
-                call this%add_face(ft)
-             end do
+         ! if (this%lgenc) then
+         !    do i = 1, NEKO_HEX_NFCS
+         !       call ele%facet_id(ft, i)
+         !       if (e .eq. 4950) print *, ft
+         !       call this%add_face(ft)
+         !       call elp%facet_id(ft, i)
+         !       call this%add_face(ft)
+         !       if (pe .eq. 4950) print *, ft
+         !    end do
 
-             do i = 1, NEKO_HEX_NEDS
-                call ele%edge_id(et, i)
-                call this%add_edge(et)
-                call elp%edge_id(et, i)
-                call this%add_edge(et)
-             end do
-          end if
+         !    do i = 1, NEKO_HEX_NEDS
+         !       call ele%edge_id(et, i)
+         !       call this%add_edge(et)
+         !       call elp%edge_id(et, i)
+         !       call this%add_edge(et)
+         !    end do
+         ! end if
        end select
     type is(quad_t)
        select type(elp => this%elements(pe)%e)
@@ -1838,8 +1855,10 @@ contains
                                                        1,2,4,3,&
                                                        5,6,8,7/),&
                                                        (/4,6/))
-
+    print *, 'in apply?', e,pe, pids
     select type(ele => this%elements(e)%e)
+    type is(hex_t)
+    select type(elp => this%elements(pe)%e)
     type is(hex_t)
        do i = 1, 4
           pi => ele%pts(face_nodes(i,f))%p
@@ -1847,21 +1866,25 @@ contains
           call this%add_point(pi, id)
           p_local_idx = this%get_local(this%points(id))
           id = ele%id()
-          if (this%lgenc) then
-             call this%point_neigh(p_local_idx)%push(id)
-          end if
+         ! if (this%lgenc) then
+         !    call this%point_neigh(p_local_idx)%push(id)
+         ! end if
        end do
-       if (this%lgenc) then
-          do i = 1, NEKO_HEX_NFCS
-             call ele%facet_id(ft, i)
-             call this%add_face(ft)
-          end do
+      ! if (this%lgenc) then
+      !    do i = 1, NEKO_HEX_NFCS
+      !       call ele%facet_id(ft, i)
+      !       if (e .eq. 4950) print *, ft
+      !       if (e .eq. 33740) print *, ft
+      !       if (e .eq. 4951) print *, 4951, ft
+      !       call this%add_face(ft)
+      !    end do
 
-          do i = 1, NEKO_HEX_NEDS
-             call ele%edge_id(et, i)
-             call this%add_edge(et)
-          end do
-       end if
+      !    do i = 1, NEKO_HEX_NEDS
+      !       call ele%edge_id(et, i)
+      !       call this%add_edge(et)
+      !    end do
+      ! end if
+    end select
     end select
 
   end subroutine mesh_apply_periodic_facet
@@ -1902,6 +1925,7 @@ contains
     integer :: local_id
 
     if (this%htf%get(f, local_id) .gt. 0) then
+       print *, 'eror', f
        call neko_error('Invalid global id (local facet)')
     end if
 
