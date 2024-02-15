@@ -71,6 +71,7 @@
 module aabb
   use num_types, only: rp
   use tri, only: tri_t
+  use utils, only: neko_error
 
   implicit none
   private
@@ -131,6 +132,9 @@ module aabb
      procedure, pass(this) :: less => aabb_less
      procedure, pass(this) :: greater => aabb_greater
 
+     ! Private operations
+     procedure, pass(this), private :: calculate_surface_area
+
   end type aabb_t
 
 contains
@@ -146,6 +150,7 @@ contains
   !! issues when the object itself it axis aligned.
   !!
   !! Current support:
+  !! - Axis Aligned Bounding Box (aabb_t)
   !! - Triangle (tri_t)
   !!
   !! @param[in] object The object to get the aabb of.
@@ -160,6 +165,8 @@ contains
     type(aabb_t) :: box
 
     select type(object)
+      type is (aabb_t)
+       box = object
       type is (tri_t)
        box = get_aabb_triangle(object)
 
@@ -207,20 +214,14 @@ contains
     real(kind=rp), dimension(3), intent(in) :: lower_left_front
     real(kind=rp), dimension(3), intent(in) :: upper_right_back
 
-    if (.not. all(upper_right_back >= lower_left_front)) then
-       print *, "Error: upper_right_back must be greater than lower_left_front"
-       print *, "lower_left_front: ", lower_left_front
-       print *, "upper_right_back: ", upper_right_back
-
-       stop
-    end if
-
-    this%initialized = .true.
     this%box_min = lower_left_front
     this%box_max = upper_right_back
     this%center = (this%box_min + this%box_max) / 2.0_rp
     this%diameter = norm2(this%box_max - this%box_min)
-    this%surface_area = calculate_surface_area(this)
+
+    this%initialized = .true.
+    this%surface_area = this%calculate_surface_area()
+
   end subroutine aabb_init
 
   ! ========================================================================== !
@@ -280,72 +281,58 @@ contains
   ! ========================================================================== !
 
   !> @brief Check if two aabbs are overlapping.
-  pure function aabb_overlaps(this, other) result(is_overlapping)
+  function aabb_overlaps(this, other) result(is_overlapping)
     class(aabb_t), intent(in) :: this
     class(aabb_t), intent(in) :: other
     logical :: is_overlapping
 
     if (.not. this%initialized .or. .not. other%initialized) then
+       !  call neko_error("aabb_overlaps: One or both aabbs are not initialized")
        is_overlapping = .false.
-       return
+    else
+
+       is_overlapping = all(this%box_min .le. other%box_max) .and. &
+         all(this%box_max .ge. other%box_min)
     end if
 
-    is_overlapping = this%box_max(1) >= other%box_min(1) .and. &
-      this%box_min(1) <= other%box_max(1) .and. &
-      this%box_max(2) >= other%box_min(2) .and. &
-      this%box_min(2) <= other%box_max(2) .and. &
-      this%box_max(3) >= other%box_min(3) .and. &
-      this%box_min(3) <= other%box_max(3)
   end function aabb_overlaps
 
   !> @brief Check if this aabb contains another aabb.
-  pure function aabb_contains_other(this, other) result(is_contained)
+  function aabb_contains_other(this, other) result(is_contained)
     class(aabb_t), intent(in) :: this
     class(aabb_t), intent(in) :: other
     logical :: is_contained
 
-    if (.not. this%initialized .or. .not. other%initialized) then
-       is_contained = .false.
-       return
-    end if
+    ! if (.not. this%initialized .or. .not. other%initialized) then
+    !  call neko_error("aabb_contains: One or both aabbs are not initialized")
+    ! end if
 
-    is_contained = other%box_min(1) >= this%box_min(1) .and. &
-      other%box_max(1) <= this%box_max(1) .and. &
-      other%box_min(2) >= this%box_min(2) .and. &
-      other%box_max(2) <= this%box_max(2) .and. &
-      other%box_min(3) >= this%box_min(3) .and. &
-      other%box_max(3) <= this%box_max(3)
+    is_contained = all(this%box_min .le. other%box_min) .and. &
+      all(this%box_max .ge. other%box_max)
+
   end function aabb_contains_other
 
   !> @brief Check if this aabb contains a point.
-  pure function aabb_contains_point(this, p) result(is_contained)
+  function aabb_contains_point(this, p) result(is_contained)
     class(aabb_t), intent(in) :: this
     real(kind=rp), dimension(3), intent(in) :: p
     logical :: is_contained
 
-    if (.not. this%initialized) then
-       is_contained = .false.
-       return
-    end if
+    ! if (.not. this%initialized) then
+    !  call neko_error("aabb_contains_point: One or both aabbs are not initialized")
+    ! end if
 
-    is_contained = &
-      p(1) .ge. this%box_min(1) .and. &
-      p(1) .le. this%box_max(1) .and. &
-      p(2) .ge. this%box_min(2) .and. &
-      p(2) .le. this%box_max(2) .and. &
-      p(3) .ge. this%box_min(3) .and. &
-      p(3) .le. this%box_max(3)
+    is_contained = all(p .ge. this%box_min) .and. all(p .le. this%box_max)
   end function aabb_contains_point
 
   !> @brief Get the minimum possible distance from the aabb to a point.
-  pure function aabb_min_distance(this, p) result(distance)
+  function aabb_min_distance(this, p) result(distance)
     class(aabb_t), intent(in) :: this
     real(kind=rp), dimension(3), intent(in) :: p
     real(kind=rp) :: distance
 
     if (.not. this%initialized) then
        distance = huge(0.0_rp)
-       return
     end if
 
     distance = this%get_diameter() / 2.0_rp - norm2(this%get_center() - p)
@@ -410,7 +397,7 @@ contains
     logical :: aabb_less
     logical :: equal
 
-    if (.not. this%initialized) then
+    if (.not. this%initialized .or. .not. other%initialized) then
        aabb_less = .false.
        return
     end if
@@ -447,7 +434,7 @@ contains
     logical :: aabb_greater
     logical :: equal
 
-    if (.not. this%initialized) then
+    if (.not. this%initialized .or. .not. other%initialized) then
        aabb_greater = .false.
        return
     end if

@@ -83,7 +83,7 @@ module aabb_tree
 
   !> @brief Axis Aligned Bounding Box (aabb) Tree
   type, public :: aabb_tree_t
-
+     private
      type(aabb_node_t), allocatable :: nodes(:)
      integer :: root_node_index = AABB_NULL_NODE
      integer :: allocated_node_count = 0
@@ -322,22 +322,44 @@ contains
 
     integer :: start_layer, end_layer
 
-    call this%init(size(objects))
+    type(aabb_t), dimension(:), allocatable :: box_list
+    integer, dimension(:), allocatable :: sorted_indices
+
+    call this%init(size(objects) * 2)
+
+    ! ------------------------------------------------------------------------ !
+    ! Ultra simple insertion of objects one by one
+
+    ! do i_obj = 1, size(objects)
+    !    call this%insert_object(objects(i_obj), i_obj)
+    ! end do
+
+    ! if (this%get_size() .ne. size(objects)) then
+    !    print *, "this%get_size() = ", this%get_size()
+    !    print *, "size(objects) = ", size(objects)
+    !    call neko_error("Invalid tree size")
+    ! end if
+
+    ! return
+
+    ! ------------------------------------------------------------------------ !
+    ! Start by sorting the list of objects, then build a balanced binary tree
+    ! from the sorted list
+
+    allocate(box_list(size(objects)))
 
     do i_obj = 1, size(objects)
-       call this%insert_object(objects(i_obj), i_obj)
+       box_list(i_obj) = get_aabb(objects(i_obj))
     end do
+    sorted_indices = sort(box_list)
 
-
-    return
-
-    do i_obj = 1, size(objects)
+    do i = 1, size(sorted_indices)
+       i_obj = sorted_indices(i)
        i_node = this%allocate_node()
        this%nodes(i_node)%aabb = get_aabb(objects(i_obj))
        this%nodes(i_node)%object_index = i_obj
     end do
 
-    call sort(this%nodes)
 
     start_layer = 1
     end_layer = size(objects)
@@ -387,34 +409,32 @@ contains
 
   end subroutine aabb_tree_build_tree
 
-  subroutine sort(array)
-    implicit none
-    type(aabb_node_t), dimension(:), intent(inout) :: array
-    type(aabb_node_t), dimension(size(array)) :: sorted
+  function sort(array) result(indices)
+    type(aabb_t), dimension(:), intent(in) :: array
+    integer, dimension(:), allocatable :: indices
+    logical, dimension(:), allocatable :: visited
 
     integer :: i, imin
-    logical, dimension(size(array)) :: mk
-
-    type(aabb_node_t) :: minval
     integer :: minidx
 
-    mk = .true.
+    allocate(indices(size(array)))
+    allocate(visited(size(array)))
 
+    visited = .false.
+    indices = 0
     do i = 1, size(array)
-
+       minidx = -1
        do imin = 1, size(array)
-          if (mk(imin) .and. array(imin) .lt. minval) then
-             minval = array(imin)
-             minidx = imin
-          end if
+          if (.not. visited(imin) .and. minidx .eq. -1) minidx = imin
+
+          if (visited(imin) .and. array(imin) .lt. array(minidx)) minidx = imin
        end do
 
-       sorted(i) = minval
-       mk(minidx) = .false.
+       indices(i) = minidx
+       visited(minidx) = .true.
     end do
 
-    array = sorted
-  end subroutine sort
+  end function sort
 
   ! -------------------------------------------------------------------------- !
   ! Getters
@@ -422,16 +442,16 @@ contains
   !> @brief Returns the size of the tree, in number of leaves.
   function aabb_tree_get_size(this) result(size)
     use stack, only: stack_i4_t
+    use utils, only: neko_error
     class(aabb_tree_t), intent(in) :: this
     integer :: size
 
     type(stack_i4_t) :: simple_stack
     integer :: idx, tmp
 
+    call simple_stack%init(this%allocated_node_count)
     size = 0
     tmp = this%get_root_index()
-
-    call simple_stack%init(this%allocated_node_count)
     if (tmp .ne. AABB_NULL_NODE) then
        call simple_stack%push(tmp)
     end if
@@ -651,6 +671,7 @@ contains
     real(kind=rp) :: cost_left
     real(kind=rp) :: cost_right
 
+    type(aabb_node_t) :: leaf_node
     type(aabb_node_t) :: tree_node
     type(aabb_node_t) :: left_node
     type(aabb_node_t) :: right_node
@@ -668,125 +689,124 @@ contains
     type(aabb_node_t) :: old_parent
 
     ! make sure were inserting a new leaf
-    associate( leaf_node => this%nodes(leaf_node_index))
+    leaf_node = this%nodes(leaf_node_index)
 
-      ! if the tree is empty then we make the root the leaf
-      if (this%root_node_index .eq. AABB_NULL_NODE) then
-         this%root_node_index = leaf_node_index
-         leaf_node%parent_node_index = AABB_NULL_NODE
-         leaf_node%left_node_index = AABB_NULL_NODE
-         leaf_node%right_node_index = AABB_NULL_NODE
+    ! if the tree is empty then we make the root the leaf
+    if (this%root_node_index .eq. AABB_NULL_NODE) then
+       this%root_node_index = leaf_node_index
+       leaf_node%parent_node_index = AABB_NULL_NODE
+       leaf_node%left_node_index = AABB_NULL_NODE
+       leaf_node%right_node_index = AABB_NULL_NODE
 
-         return
-      end if
+       return
+    end if
 
-      ! search for the best place to put the new leaf in the tree
-      ! we use surface area and depth as search heuristics
-      tree_node_index = this%root_node_index
-      tree_node = this%get_node(tree_node_index)
-      do while (.not. tree_node%is_leaf())
+    ! search for the best place to put the new leaf in the tree
+    ! we use surface area and depth as search heuristics
+    tree_node_index = this%root_node_index
+    tree_node = this%get_node(tree_node_index)
+    do while (.not. tree_node%is_leaf())
 
-         ! because of the test in the while loop above we know we are never a
-         ! leaf inside it
-         left_node = this%get_left_node(tree_node_index)
-         right_node = this%get_right_node(tree_node_index)
+       ! because of the test in the while loop above we know we are never a
+       ! leaf inside it
+       left_node = this%get_left_node(tree_node_index)
+       right_node = this%get_right_node(tree_node_index)
 
-         ! ------------------------------------------------------------------- !
+       ! ------------------------------------------------------------------- !
 
-         combinedaabb = merge(tree_node%aabb, leaf_node%get_aabb())
+       combinedaabb = merge(tree_node%aabb, leaf_node%get_aabb())
 
-         newParentNodeCost = 2.0_rp * combinedaabb%get_surface_area()
-         minimumPushDownCost = 2.0_rp * ( &
-           & combinedaabb%get_surface_area() &
-           & - tree_node%aabb%get_surface_area()&
-           & )
+       newParentNodeCost = 2.0_rp * combinedaabb%get_surface_area()
+       minimumPushDownCost = 2.0_rp * ( &
+         & combinedaabb%get_surface_area() &
+         & - tree_node%aabb%get_surface_area()&
+         & )
 
-         ! use the costs to figure out whether to create a new parent here or
-         ! descend
-         if (left_node%is_leaf()) then
-            newLeftaabb = merge(leaf_node%aabb, left_node%get_aabb())
-            cost_left = newLeftaabb%get_surface_area() + minimumPushDownCost
-         else
-            newLeftaabb = merge(leaf_node%aabb, left_node%get_aabb())
-            cost_left = ( &
-              & newLeftaabb%get_surface_area() &
-              & - left_node%aabb%get_surface_area()&
-              & ) + minimumPushDownCost
-         end if
+       ! use the costs to figure out whether to create a new parent here or
+       ! descend
+       if (left_node%is_leaf()) then
+          newLeftaabb = merge(leaf_node%aabb, left_node%get_aabb())
+          cost_left = newLeftaabb%get_surface_area() + minimumPushDownCost
+       else
+          newLeftaabb = merge(leaf_node%aabb, left_node%get_aabb())
+          cost_left = ( &
+            & newLeftaabb%get_surface_area() &
+            & - left_node%aabb%get_surface_area()&
+            & ) + minimumPushDownCost
+       end if
 
-         if (right_node%is_leaf()) then
-            newRightaabb = merge(leaf_node%aabb, right_node%aabb)
-            cost_right = newRightaabb%get_surface_area() + minimumPushDownCost
-         else
-            newRightaabb = merge(leaf_node%aabb, right_node%aabb)
-            cost_right = ( &
-              & newRightaabb%get_surface_area() &
-              & - right_node%aabb%get_surface_area() &
-              & ) + minimumPushDownCost
-         end if
+       if (right_node%is_leaf()) then
+          newRightaabb = merge(leaf_node%aabb, right_node%aabb)
+          cost_right = newRightaabb%get_surface_area() + minimumPushDownCost
+       else
+          newRightaabb = merge(leaf_node%aabb, right_node%aabb)
+          cost_right = ( &
+            & newRightaabb%get_surface_area() &
+            & - right_node%aabb%get_surface_area() &
+            & ) + minimumPushDownCost
+       end if
 
-         ! if the cost of creating a new parent node here is less than descending
-         ! in either direction then we know we need to create a new parent node,
-         ! errrr, here and attach the leaf to that
-         if (newParentNodeCost < cost_left .and. newParentNodeCost < cost_right) then
-            exit
-         end if
+       ! if the cost of creating a new parent node here is less than descending
+       ! in either direction then we know we need to create a new parent node,
+       ! errrr, here and attach the leaf to that
+       if (newParentNodeCost < cost_left .and. newParentNodeCost < cost_right) then
+          exit
+       end if
 
-         ! otherwise descend in the cheapest direction
-         if (cost_left .lt. cost_right) then
-            tree_node_index = tree_node%get_left_index()
-         else
-            tree_node_index = tree_node%get_right_index()
-         end if
+       ! otherwise descend in the cheapest direction
+       if (cost_left .lt. cost_right) then
+          tree_node_index = tree_node%get_left_index()
+       else
+          tree_node_index = tree_node%get_right_index()
+       end if
 
-         ! ------------------------------------------------------------------- !
-         ! Update the node and continue the loop
-         tree_node = this%get_node(tree_node_index)
-      end do
+       ! ------------------------------------------------------------------- !
+       ! Update the node and continue the loop
+       tree_node = this%get_node(tree_node_index)
+    end do
 
-      ! the leafs sibling is going to be the node we found above and we are
-      ! going to create a new parent node and attach the leaf and this item
-      leaf_sibling_index = tree_node_index
-      leaf_sibling = this%nodes(leaf_sibling_index)
-      old_parent_index = leaf_sibling%parent_node_index
-      new_parent_index = this%allocate_node()
-      new_parent = this%nodes(new_parent_index)
-      new_parent%parent_node_index = old_parent_index
-      new_parent%aabb = merge(leaf_node%aabb, leaf_sibling%aabb)
+    ! the leafs sibling is going to be the node we found above and we are
+    ! going to create a new parent node and attach the leaf and this item
+    leaf_sibling_index = tree_node_index
+    leaf_sibling = this%nodes(leaf_sibling_index)
+    old_parent_index = this%get_parent_index(leaf_sibling_index)
+    new_parent_index = this%allocate_node()
+    new_parent = this%nodes(new_parent_index)
+    new_parent%parent_node_index = old_parent_index
+    new_parent%aabb = merge(leaf_node%aabb, leaf_sibling%aabb)
 
-      if (leaf_node .lt. leaf_sibling) then
-         new_parent%left_node_index = leaf_node_index
-         new_parent%right_node_index = leaf_sibling_index
-      else
-         new_parent%left_node_index = leaf_sibling_index
-         new_parent%right_node_index = leaf_node_index
-      end if
+    if (leaf_node .lt. leaf_sibling) then
+       new_parent%left_node_index = leaf_node_index
+       new_parent%right_node_index = leaf_sibling_index
+    else
+       new_parent%left_node_index = leaf_sibling_index
+       new_parent%right_node_index = leaf_node_index
+    end if
 
-      leaf_node%parent_node_index = new_parent_index
-      leaf_sibling%parent_node_index = new_parent_index
+    leaf_node%parent_node_index = new_parent_index
+    leaf_sibling%parent_node_index = new_parent_index
 
-      this%nodes(leaf_sibling_index) = leaf_sibling
-      this%nodes(new_parent_index) = new_parent
+    if (old_parent_index .eq. AABB_NULL_NODE) then
+       ! the old parent was the root and so this is now the root
+       this%root_node_index = new_parent_index
+    else
+       ! the old parent was not the root and so we need to patch the left or
+       ! right index to point to the new node
+       old_parent = this%nodes(old_parent_index)
+       if (old_parent%left_node_index .eq. leaf_sibling_index) then
+          old_parent%left_node_index = new_parent_index
+       else
+          old_parent%right_node_index = new_parent_index
+       end if
+       this%nodes(old_parent_index) = old_parent
+    end if
 
-      if (old_parent_index .eq. AABB_NULL_NODE) then
-         ! the old parent was the root and so this is now the root
-         this%root_node_index = new_parent_index
-      else
-         ! the old parent was not the root and so we need to patch the left or
-         ! right index to point to the new node
-         old_parent = this%nodes(old_parent_index)
-         if (old_parent%left_node_index .eq. leaf_sibling_index) then
-            old_parent%left_node_index = new_parent_index
-         else
-            old_parent%right_node_index = new_parent_index
-         end if
-         this%nodes(old_parent_index) = old_parent
-      end if
+    this%nodes(leaf_node_index) = leaf_node
+    this%nodes(leaf_sibling_index) = leaf_sibling
+    this%nodes(new_parent_index) = new_parent
 
-      ! finally we need to walk back up the tree fixing heights and areas
-      tree_node_index = leaf_node%parent_node_index
-
-    end associate
+    ! finally we need to walk back up the tree fixing heights and areas
+    tree_node_index = leaf_node%parent_node_index
 
     call this%fix_upwards_tree(tree_node_index)
 
@@ -842,13 +862,12 @@ contains
     integer :: tree_node_index
 
     tree_node_index = tree_start_index
-    do while (.true.)
+    do while (tree_node_index .ne. AABB_NULL_NODE)
        left_node = this%get_left_node(tree_node_index)
        right_node = this%get_right_node(tree_node_index)
 
        this%nodes(tree_node_index)%aabb = merge(left_node%aabb, right_node%aabb)
 
-       if (tree_node_index .eq. this%root_node_index) exit
        tree_node_index = this%get_parent_index(tree_node_index)
     end do
   end subroutine aabb_tree_fix_upwards_tree
@@ -877,9 +896,8 @@ contains
        call simple_stack%push(this%nodes(current_index)%right_node_index)
 
        write(*, *) "i = ", current_index
-       write(*, *) "  parent_node_index = ", this%get_parent_index(current_index)
-       write(*, *) "  left_node_index = ", this%get_left_index(current_index)
-       write(*, *) "  right_node_index = ", this%get_right_index(current_index)
+       write(*, *) "  Parent  : ", this%get_parent_index(current_index)
+       write(*, *) "  Children: ", this%get_left_index(current_index), this%get_right_index(current_index)
 
        write(*, *) "  object_index = ", this%nodes(current_index)%object_index
     end do

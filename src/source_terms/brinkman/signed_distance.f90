@@ -97,7 +97,7 @@ contains
     real(kind=rp), intent(in) :: max_distance
 
     integer :: total_size
-    integer :: id, el_id
+    integer :: id
     type(aabb_tree_t) :: search_tree
     real(kind=rp), dimension(3) :: p
 
@@ -274,16 +274,20 @@ contains
           end if
        else
 
-          left_node = tree%get_left_node(current_index)
-          if (left_node%aabb%overlaps(search_box)) then
-             left_index = tree%get_left_index(current_index)
-             call simple_stack%push(left_index)
+          left_index = tree%get_left_index(current_index)
+          if (left_index .ne. AABB_NULL_NODE) then
+             left_node = tree%get_left_node(current_index)
+             if (left_node%aabb%overlaps(search_box)) then
+                call simple_stack%push(left_index)
+             end if
           end if
 
-          right_node = tree%get_right_node(current_index)
-          if (right_node%aabb%overlaps(search_box)) then
-             right_index = tree%get_right_index(current_index)
-             call simple_stack%push(right_index)
+          right_index = tree%get_right_index(current_index)
+          if (right_index .ne. AABB_NULL_NODE) then
+             right_node = tree%get_right_node(current_index)
+             if (right_node%aabb%overlaps(search_box)) then
+                call simple_stack%push(right_index)
+             end if
           end if
        end if
     end do
