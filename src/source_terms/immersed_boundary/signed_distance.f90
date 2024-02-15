@@ -91,6 +91,7 @@ contains
   !! @param[in] mesh Triangular mesh
   !! @param[in] max_distance Maximum distance outside the mesh
   subroutine signed_distance_field_tri_mesh(field_data, mesh, max_distance)
+    use utils, only: neko_error
     type(field_t), intent(inout) :: field_data
     type(tri_mesh_t), intent(in) :: mesh
     real(kind=rp), intent(in) :: max_distance
@@ -106,11 +107,12 @@ contains
 
     print *, "Building the search tree."
 
-    ! Build the search tree
     call search_tree%init(mesh%nelv)
-    do el_id = 1, mesh%nelv
-       call search_tree%insert_object(mesh%el(el_id), el_id)
-    end do
+    call search_tree%build(mesh%el)
+
+    if (search_tree%get_size() .ne. mesh%nelv) then
+       call neko_error("signed_distance_field_tri_mesh: Error building the search tree.")
+    end if
 
     print *, "Computing the signed distance field."
 
@@ -120,7 +122,7 @@ contains
        p(3) = field_data%dof%z(id, 1, 1, 1)
 
        field_data%x(id, 1, 1, 1) = tri_mesh_aabb_tree(search_tree, mesh%el, p, max_distance)
-       !  field_data%x(id, 1, 1, 1) = tri_mesh_brute_force(mesh, p)
+       !  field_data%x(id, 1, 1, 1) = tri_mesh_brute_force(mesh, p, max_distance)
     end do
 
   end subroutine signed_distance_field_tri_mesh
@@ -212,27 +214,38 @@ contains
     type(aabb_node_t) :: left_node
     type(aabb_node_t) :: right_node
 
+    type(aabb_t) :: root_box
     type(aabb_t) :: search_box
 
     integer :: root_index, left_index, right_index
 
-    root_index = tree%get_root_index()
-
+    ! Initialize the stack and the search box
     call simple_stack%init(size(object_list) * 2)
-    call simple_stack%push(root_index)
+    call search_box%init(p - max_distance, p + max_distance)
 
-    ! Assign the initial distance as the distance to the center a random object
-    ! in the list, with the diagonal of the object added to the distance.
+    ! Check if the root node overlaps the search box, if it does, push it to
+    ! the stack and update the search box to a randomly selected object.
+    root_index = tree%get_root_index()
+    root_box = tree%get_aabb(root_index)
+
+    if (.not. root_box%overlaps(search_box)) then
+       distance = max_distance
+       weighted_sign = 1.0_rp
+       return
+    end if
+
+    ! Grab a random object and compute the distance to it
     current_object_index = floor(rand() * size(object_list) + 1)
     call element_distance(object_list(current_object_index), p, distance, weighted_sign)
     distance = distance + object_list(current_object_index)%diameter()
 
-    call search_box%init(p - min(distance, max_distance), &
-                         p + min(distance, max_distance))
+    ! Update the search box to the new distance and push the root node
+    call search_box%init(p - distance, p + distance)
+    call simple_stack%push(root_index)
 
+    ! Traverse the tree and compute the signed distance to the elements
     do while (.not. simple_stack%is_empty())
        current_index = simple_stack%pop()
-
        current_node = tree%get_node(current_index)
        current_aabb = current_node%get_aabb()
 
@@ -257,8 +270,7 @@ contains
           if (distance .gt. current_aabb%get_diagonal()) then
              call search_box%init(p - distance, p + distance)
           end if
-
-       else if (current_aabb%overlaps(search_box)) then
+       else
 
           left_node = tree%get_left_node(current_index)
           right_node = tree%get_right_node(current_index)
@@ -274,14 +286,12 @@ contains
           end if
 
        end if
-
     end do
 
     if (distance .gt. max_distance) then
        distance = max_distance
-    else
-       distance = sign(distance, weighted_sign)
     end if
+    distance = sign(distance, weighted_sign)
 
   end function tri_mesh_aabb_tree
 
@@ -299,6 +309,7 @@ contains
     select type(element)
       type is (tri_t)
        call element_distance_triangle(element, p, distance, weighted_sign)
+
       class default
        print *, "Error: Element type not supported."
        stop
@@ -326,7 +337,6 @@ contains
   !! @return Distance value
   !! @return[optional] Weighted sign
   subroutine element_distance_triangle(triangle, p, distance, weighted_sign)
-
     type(tri_t), intent(in) :: triangle
     real(kind=rp), dimension(3), intent(in) :: p
 
@@ -352,18 +362,22 @@ contains
 
     normal = cross(v2 - v1, v3 - v1)
     normal_length = norm2(normal)
-    if (normal_length .gt. tol)then
-       normal = normal / normal_length
+
+    if (normal_length .lt. tol) then
+       distance = huge(1.0_rp)
+       weighted_sign = 0.0_rp
+       return
     end if
+    normal = normal / normal_length
 
     ! Compute Barycentric coordinates to determine if the point is inside the
-    ! triangular prism, along an edge or by a face.
+    ! triangular prism, of along an edge or by a face.
     face_distance = dot_product(p - v1, normal)
 
     projection = p - normal * face_distance
     b1 = dot_product(normal, cross(v2 - v1, projection - v1)) / normal_length
     b2 = dot_product(normal, cross(v3 - v2, projection - v2)) / normal_length
-    b3 = 1.0_rp - b1 - b2
+    b3 = dot_product(normal, cross(v1 - v3, projection - v3)) / normal_length
 
     if (b1 .le. tol) then
        edge = v2 - v1
@@ -385,11 +399,11 @@ contains
        projection = v3 + t * edge
     end if
 
+    distance = norm2(projection - p)
     if (present(weighted_sign)) then
-       distance = norm2(projection - p)
        weighted_sign = face_distance / distance
     else
-       distance = sign(norm2(projection - p), face_distance)
+       distance = sign(distance, face_distance)
     end if
 
   end subroutine element_distance_triangle

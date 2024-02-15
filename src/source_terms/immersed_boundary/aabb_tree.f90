@@ -85,18 +85,18 @@ module aabb_tree
   type, public :: aabb_tree_t
      private
      type(aabb_node_t), allocatable :: nodes(:)
-     integer :: root_node_index
-     integer :: allocated_node_count
-     integer :: next_free_node_index
-     integer :: node_capacity
-     integer :: growth_size
+     integer :: root_node_index = AABB_NULL_NODE
+     integer :: allocated_node_count = 0
+     integer :: next_free_node_index = AABB_NULL_NODE
+     integer :: node_capacity = 0
+     integer :: growth_size = 1
 
    contains
 
      ! Initializers
      procedure, pass(this), public :: init => aabb_tree_init
+     procedure, pass(this), public :: build => aabb_tree_build_tree
      procedure, pass(this), public :: insert_object => aabb_tree_insert_object
-     procedure, pass(this), public :: build_tree => aabb_tree_build_tree
 
      ! Getters
      procedure, pass(this), public :: get_size => aabb_tree_get_size
@@ -111,6 +111,8 @@ module aabb_tree
      procedure, pass(this), public :: get_parent_node => aabb_tree_get_parent_node
      procedure, pass(this), public :: get_left_node => aabb_tree_get_left_node
      procedure, pass(this), public :: get_right_node => aabb_tree_get_right_node
+
+     procedure, pass(this), public :: get_aabb => aabb_tree_get_aabb
 
      procedure, pass(this), public :: query_overlaps => aabb_tree_query_overlaps
 
@@ -238,7 +240,8 @@ contains
     class(aabb_node_t), intent(in) :: this
     logical :: res
 
-    res = (this%left_node_index == AABB_NULL_NODE)
+    res = this%left_node_index == AABB_NULL_NODE .and. &
+      this%right_node_index == AABB_NULL_NODE
   end function aabb_node_is_leaf
 
   !> @brief Returns true if the node is a valid node.
@@ -312,19 +315,26 @@ contains
   !> @brief Builds the tree.
   subroutine aabb_tree_build_tree(this, objects)
     use utils, only: neko_error
+    implicit none
+
     class(aabb_tree_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: objects
+
     select type(objects)
       type is (tri_t)
        call this%build_tree_tri(objects)
+
       class default
-       call neko_error("aabb_tree_build_tree: Unsupported type")
+       call neko_error("build_tree: Unsupported type")
     end select
 
   end subroutine aabb_tree_build_tree
 
   !> @brief Builds the tree from a list of triangles.
   subroutine aabb_tree_build_tree_tri(this, tri_list)
+    use utils, only: neko_error
+    implicit none
+
     class(aabb_tree_t), intent(inout) :: this
     type(tri_t), dimension(:), intent(in) :: tri_list
 
@@ -334,8 +344,11 @@ contains
        call this%insert_object(tri_list(i), i)
     end do
 
-  end subroutine aabb_tree_build_tree_tri
+    if (this%get_size() .ne. size(tri_list)) then
+       call neko_error('Not all mesh elements inserted into tree')
+    end if
 
+  end subroutine aabb_tree_build_tree_tri
 
   ! -------------------------------------------------------------------------- !
   ! Getters
@@ -346,7 +359,30 @@ contains
     class(aabb_tree_t), intent(in) :: this
     integer :: size
 
-    size = this%allocated_node_count
+    type(stack_i4_t) :: simple_stack
+    integer :: idx, tmp
+
+    size = 0
+    tmp = this%get_root_index()
+
+    call simple_stack%init(this%allocated_node_count)
+    if (tmp .ne. AABB_NULL_NODE) then
+       call simple_stack%push(tmp)
+    end if
+
+    do while (.not. simple_stack%is_empty())
+       idx = simple_stack%pop()
+
+       if (this%nodes(idx)%is_leaf()) then
+          size = size + 1
+       else
+          tmp = this%get_left_index(idx)
+          call simple_stack%push(tmp)
+          tmp = this%get_right_index(idx)
+          call simple_stack%push(tmp)
+       end if
+    end do
+
   end function aabb_tree_get_size
 
   ! -------------------------------------------------------------------------- !
@@ -433,6 +469,14 @@ contains
 
     right_node = this%nodes(this%nodes(node_index)%right_node_index)
   end function aabb_tree_get_right_node
+
+  pure function aabb_tree_get_aabb(this, node_index) result(out_box)
+    class(aabb_tree_t), intent(in) :: this
+    integer, intent(in) :: node_index
+    type(aabb_t) :: out_box
+
+    out_box = this%nodes(node_index)%aabb
+  end function aabb_tree_get_aabb
 
   ! -------------------------------------------------------------------------- !
 
@@ -562,6 +606,10 @@ contains
       ! if the tree is empty then we make the root the leaf
       if (this%root_node_index .eq. AABB_NULL_NODE) then
          this%root_node_index = leaf_node_index
+         leaf_node%parent_node_index = AABB_NULL_NODE
+         leaf_node%left_node_index = AABB_NULL_NODE
+         leaf_node%right_node_index = AABB_NULL_NODE
+
          return
       end if
 
@@ -725,14 +773,14 @@ contains
     integer :: tree_node_index
 
     tree_node_index = tree_start_index
-    do while (tree_node_index .ne. AABB_NULL_NODE)
-       associate (tree_node => this%nodes(tree_node_index))
-         left_node = this%nodes(tree_node%left_node_index)
-         right_node = this%nodes(tree_node%right_node_index)
+    do while (.true.)
+       left_node = this%get_left_node(tree_node_index)
+       right_node = this%get_right_node(tree_node_index)
 
-         tree_node%aabb = left_node%aabb%merge(right_node%aabb)
-         tree_node_index = tree_node%parent_node_index
-       end associate
+       this%nodes(tree_node_index)%aabb = left_node%aabb%merge(right_node%aabb)
+
+       if (tree_node_index .eq. this%root_node_index) exit
+       tree_node_index = this%get_parent_index(tree_node_index)
     end do
   end subroutine aabb_tree_fix_upwards_tree
 

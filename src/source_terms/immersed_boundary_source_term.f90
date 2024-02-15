@@ -53,7 +53,7 @@ module immersed_boundary_source_term
   type, public, extends(source_term_t) :: immersed_boundary_source_term_t
      private
      !> The value of the source term.
-     type(field_t), pointer :: brinkman
+     type(field_t), pointer :: brinkman => null()
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => immersed_boundary_source_term_init_from_json
@@ -80,7 +80,6 @@ contains
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time
 
     ! Options
@@ -99,6 +98,9 @@ contains
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
+
+    call this%free()
+    call this%init_base(fields, coef, start_time, end_time)
 
     ! ------------------------------------------------------------------------ !
     ! Read options for the immersed boundary source term
@@ -185,9 +187,6 @@ contains
        call device_memcpy(this%brinkman%x, this%brinkman%x_d, &
                           this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
     end if
-
-    call this%free()
-    call this%init_base(fields, coef, start_time, end_time)
 
   end subroutine immersed_boundary_source_term_init_from_json
 

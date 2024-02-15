@@ -35,7 +35,7 @@ module immersed_boundary_source_term_cpu
   use num_types, only : rp
   use field, only : field_t
   use field_list, only : field_list_t
-  use math, only : addcol3
+  use math, only : col3
   use field_registry, only : neko_field_registry
   implicit none
   private
@@ -59,9 +59,9 @@ contains
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
 
-    call addcol3(fields%fields(1)%f%x, u%x, brinkman%x, n)
-    call addcol3(fields%fields(2)%f%x, v%x, brinkman%x, n)
-    call addcol3(fields%fields(3)%f%x, w%x, brinkman%x, n)
+    call col3(fields%fields(1)%f%x, u%x, brinkman%x, n)
+    call col3(fields%fields(2)%f%x, v%x, brinkman%x, n)
+    call col3(fields%fields(3)%f%x, w%x, brinkman%x, n)
 
   end subroutine immersed_boundary_source_term_compute_cpu
 
