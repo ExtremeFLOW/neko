@@ -129,6 +129,15 @@ contains
     end if
 
     ! ------------------------------------------------------------------------ !
+    ! Allocate the permeability field
+
+    if (.not. neko_field_registry%field_exists('brinkman')) then
+       call neko_field_registry%add_field(fields%fields(1)%f%dof, 'brinkman')
+    end if
+
+    this%brinkman => neko_field_registry%get_field_by_name('brinkman')
+
+    ! ------------------------------------------------------------------------ !
     ! Load the immersed boundary mesh
 
     mesh_file = file_t(mesh_file_name)
@@ -137,15 +146,6 @@ contains
     if (boundary_mesh%nelv .eq. 0) then
        call neko_error('No elements in the boundary mesh')
     end if
-
-    ! ------------------------------------------------------------------------ !
-    ! Allocate the permeability field
-
-    if (.not. neko_field_registry%field_exists('brinkman')) then
-       call neko_field_registry%add_field(fields%fields(1)%f%dof, 'brinkman')
-    end if
-
-    this%brinkman => neko_field_registry%get_field_by_name('brinkman')
 
     ! ------------------------------------------------------------------------ !
     ! Compute the permeability field

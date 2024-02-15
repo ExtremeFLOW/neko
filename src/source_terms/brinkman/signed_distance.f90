@@ -105,16 +105,12 @@ contains
     field_data%x = 0.0_rp
     total_size = field_data%dof%size()
 
-    print *, "Building the search tree."
-
     call search_tree%init(mesh%nelv)
     call search_tree%build(mesh%el)
 
     if (search_tree%get_size() .ne. mesh%nelv) then
        call neko_error("signed_distance_field_tri_mesh: Error building the search tree.")
     end if
-
-    print *, "Computing the signed distance field."
 
     do id = 1, total_size
        p(1) = field_data%dof%x(id, 1, 1, 1)
