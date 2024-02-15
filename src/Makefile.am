@@ -245,6 +245,13 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
 	source_terms/bcknd/device/const_source_term_device.f90\
 	source_terms/source_term_factory.f90\
+	source_terms/immersed_boundary_source_term.f90\
+	source_terms/bcknd/cpu/immersed_boundary_source_term_cpu.f90\
+	source_terms/bcknd/device/immersed_boundary_source_term_device.f90\
+	source_terms/immersed_boundary/filters.f90\
+	source_terms/immersed_boundary/aabb.f90\
+	source_terms/immersed_boundary/aabb_tree.f90\
+	source_terms/immersed_boundary/signed_distance.f90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
 	les/vreman.f90\

@@ -179,6 +179,26 @@ The following types are currently implemented.
    pointwise user file subroutine. Only works on CPUs!
 3. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
+4. `immersed_boundary`, brinkman permeability forcing along a pre-defined mesh.
+
+#### Immersed boundary
+The immersed boundary source term allow the immersion of a triangulated mesh
+into the fluid domain. Close to and inside the mesh the fluid will be slowed to
+a stop by applying a force term.
+
+Additional keywords are available to modify the immersed boundary.
+
+- `mesh_file`, the mesh to be immersed into the domain. Currently only STL files
+  are supported.
+- `brinkman`, contains a number of settings. `brinkman.limits` define the limits
+  of the brinkman equation (two real values) and `brinkman.penalty` defines the
+  penalty parameter in the brinkman equation.
+- `distance_transform`, defines how the signed distance field should be
+  transformed into a [0, 1] range. A couple of options are available for
+  `distance_transform.type`
+  - `step`, step function applied at the `distance_transform.value`-contour.
+  - `smooth_step`, applies a smooth step function between the
+    `distance_transform.value` and the 0-contour of the signed distance field.
 
 
 ### Boundary types
@@ -305,16 +325,16 @@ example case.
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
-Name                      | Description                                              | Admissable values              | Default value
---------------------------|----------------------------------------------------------|--------------------------------|--------------
-`enabled`                 | Whether to enable the scalar computation.                | `true` or `false`              | `true`
-`Pe`                      | The Peclet number.                                       | Positive real                  | -
-`cp`                      | Specific heat cpacity.                                   | Positive real                  | -
-`lambda`                  | Thermal conductivity.                                    | Positive real                  | -
-`boundary_types`          | Boundary types/conditions labels.                        | Array of strings               | -
-`initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`              | -
-`initial_condition.value` | Value of the velocity initial condition.                 | Real                           | -
-`source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above | -
+| Name                      | Description                                              | Admissable values              | Default value |
+| ------------------------- | -------------------------------------------------------- | ------------------------------ | ------------- |
+| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`              | `true`        |
+| `Pe`                      | The Peclet number.                                       | Positive real                  | -             |
+| `cp`                      | Specific heat cpacity.                                   | Positive real                  | -             |
+| `lambda`                  | Thermal conductivity.                                    | Positive real                  | -             |
+| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings               | -             |
+| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`              | -             |
+| `initial_condition.value` | Value of the velocity initial condition.                 | Real                           | -             |
+| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above | -             |
 
 ## Statistics
 
@@ -322,11 +342,11 @@ This object adds the collection of statistics for the fluid fields. For
 additional details on the workflow, see the corresponding page in the user
 manual.
 
-Name                | Description                                                          | Admissable values | Default value
---------------------|----------------------------------------------------------------------|-------------------|--------------
-`enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`
-`start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0
-`sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10
+| Name                | Description                                                          | Admissable values | Default value |
+| ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
+| `enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`        |
+| `start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0             |
+| `sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10            |
 
 ## Simulation components
 Simulation components enable the user to perform various additional operations,
