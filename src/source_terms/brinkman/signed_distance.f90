@@ -111,6 +111,7 @@ contains
     call search_tree%build(mesh%el)
 
     if (search_tree%get_size() .ne. mesh%nelv) then
+       print *, search_tree%get_size(), mesh%nelv
        call neko_error("signed_distance_field_tri_mesh: Error building the search tree.")
     end if
 

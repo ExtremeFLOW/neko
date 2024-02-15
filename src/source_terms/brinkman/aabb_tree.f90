@@ -83,7 +83,7 @@ module aabb_tree
 
   !> @brief Axis Aligned Bounding Box (aabb) Tree
   type, public :: aabb_tree_t
-     private
+
      type(aabb_node_t), allocatable :: nodes(:)
      integer :: root_node_index = AABB_NULL_NODE
      integer :: allocated_node_count = 0
@@ -327,6 +327,8 @@ contains
     do i_obj = 1, size(objects)
        call this%insert_object(objects(i_obj), i_obj)
     end do
+
+
     return
 
     do i_obj = 1, size(objects)
