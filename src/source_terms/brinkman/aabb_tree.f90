@@ -75,7 +75,7 @@ module aabb_tree
   implicit none
   private
 
-  integer, parameter :: AABB_NULL_NODE = -1
+  integer, parameter, public :: AABB_NULL_NODE = -1
 
   ! ========================================================================== !
   ! Type definitions
@@ -129,9 +129,6 @@ module aabb_tree
      procedure, pass(this) :: fix_upwards_tree => aabb_tree_fix_upwards_tree
 
      procedure, pass(this) :: valid_tree => aabb_tree_valid_tree
-
-     ! Private builders
-     procedure, pass(this) :: build_tree_tri => aabb_tree_build_tree_tri
 
   end type aabb_tree_t
 
@@ -320,35 +317,102 @@ contains
     class(aabb_tree_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: objects
 
-    select type(objects)
-      type is (tri_t)
-       call this%build_tree_tri(objects)
+    integer :: i_obj, i_node, i
+    logical :: done
 
-      class default
-       call neko_error("build_tree: Unsupported type")
-    end select
+    integer :: start_layer, end_layer
+
+    call this%init(size(objects))
+
+    do i_obj = 1, size(objects)
+       call this%insert_object(objects(i_obj), i_obj)
+    end do
+    return
+
+    do i_obj = 1, size(objects)
+       i_node = this%allocate_node()
+       this%nodes(i_node)%aabb = get_aabb(objects(i_obj))
+       this%nodes(i_node)%object_index = i_obj
+    end do
+
+    call sort(this%nodes)
+
+    start_layer = 1
+    end_layer = size(objects)
+    done = .false.
+    do while (.not. done)
+
+       ! build the next layer
+       do i = start_layer, end_layer - 1, 2
+          i_node = this%allocate_node()
+
+          this%nodes(i_node)%aabb = merge(this%nodes(i)%aabb, this%nodes(i + 1)%aabb)
+
+          this%nodes(i_node)%left_node_index = i
+          this%nodes(i_node)%right_node_index = i + 1
+
+          this%nodes(i)%parent_node_index = i_node
+          this%nodes(i + 1)%parent_node_index = i_node
+       end do
+
+       ! if the number of nodes is odd, we need to create a new node to hold the
+       ! last node
+       if (mod(end_layer - start_layer, 2) .eq. 0) then
+          i_node = this%allocate_node()
+          this%nodes(i_node)%aabb = this%nodes(end_layer)%aabb
+          this%nodes(i_node)%left_node_index = end_layer
+          this%nodes(i_node)%right_node_index = AABB_NULL_NODE
+
+          this%nodes(end_layer)%parent_node_index = i_node
+       end if
+
+       ! move to the next layer
+       start_layer = end_layer + 1
+       end_layer = this%allocated_node_count
+
+       ! If there is only one node left, we are done
+       done = start_layer .eq. end_layer
+    end do
+
+    ! The last node allocated is the root node
+    this%root_node_index = this%allocated_node_count
+
+    if (this%get_size() .ne. size(objects)) then
+       print *, "this%get_size() = ", this%get_size()
+       print *, "size(objects) = ", size(objects)
+       call neko_error("Invalid tree size")
+    end if
 
   end subroutine aabb_tree_build_tree
 
-  !> @brief Builds the tree from a list of triangles.
-  subroutine aabb_tree_build_tree_tri(this, tri_list)
-    use utils, only: neko_error
+  subroutine sort(array)
     implicit none
+    type(aabb_node_t), dimension(:), intent(inout) :: array
+    type(aabb_node_t), dimension(size(array)) :: sorted
 
-    class(aabb_tree_t), intent(inout) :: this
-    type(tri_t), dimension(:), intent(in) :: tri_list
+    integer :: i, imin
+    logical, dimension(size(array)) :: mk
 
-    integer :: i
+    type(aabb_node_t) :: minval
+    integer :: minidx
 
-    do i = 1, size(tri_list)
-       call this%insert_object(tri_list(i), i)
+    mk = .true.
+
+    do i = 1, size(array)
+
+       do imin = 1, size(array)
+          if (mk(imin) .and. array(imin) .lt. minval) then
+             minval = array(imin)
+             minidx = imin
+          end if
+       end do
+
+       sorted(i) = minval
+       mk(minidx) = .false.
     end do
 
-    if (this%get_size() .ne. size(tri_list)) then
-       call neko_error('Not all mesh elements inserted into tree')
-    end if
-
-  end subroutine aabb_tree_build_tree_tri
+    array = sorted
+  end subroutine sort
 
   ! -------------------------------------------------------------------------- !
   ! Getters
@@ -372,6 +436,7 @@ contains
 
     do while (.not. simple_stack%is_empty())
        idx = simple_stack%pop()
+       if (idx .eq. AABB_NULL_NODE) cycle
 
        if (this%nodes(idx)%is_leaf()) then
           size = size + 1
@@ -483,7 +548,7 @@ contains
   !> @brief Inserts an object into the tree.
   subroutine aabb_tree_insert_object(this, object, object_index)
     class(aabb_tree_t), intent(inout) :: this
-    type(tri_t), intent(in) :: object
+    class(*), intent(in) :: object
     integer, intent(in) :: object_index
 
     integer :: node_index
@@ -501,7 +566,7 @@ contains
     implicit none
 
     class(aabb_tree_t), intent(in) :: this
-    type(tri_t), intent(in) :: object
+    class(*), intent(in) :: object
     integer, intent(in) :: object_index
     integer, intent(out) :: overlaps(:)
 
@@ -626,7 +691,7 @@ contains
 
          ! ------------------------------------------------------------------- !
 
-         combinedaabb = tree_node%aabb%merge(leaf_node%get_aabb())
+         combinedaabb = merge(tree_node%aabb, leaf_node%get_aabb())
 
          newParentNodeCost = 2.0_rp * combinedaabb%get_surface_area()
          minimumPushDownCost = 2.0_rp * ( &
@@ -637,10 +702,10 @@ contains
          ! use the costs to figure out whether to create a new parent here or
          ! descend
          if (left_node%is_leaf()) then
-            newLeftaabb = leaf_node%aabb%merge(left_node%get_aabb())
+            newLeftaabb = merge(leaf_node%aabb, left_node%get_aabb())
             cost_left = newLeftaabb%get_surface_area() + minimumPushDownCost
          else
-            newLeftaabb = leaf_node%aabb%merge(left_node%get_aabb())
+            newLeftaabb = merge(leaf_node%aabb, left_node%get_aabb())
             cost_left = ( &
               & newLeftaabb%get_surface_area() &
               & - left_node%aabb%get_surface_area()&
@@ -648,10 +713,10 @@ contains
          end if
 
          if (right_node%is_leaf()) then
-            newRightaabb = leaf_node%aabb%merge(right_node%aabb)
+            newRightaabb = merge(leaf_node%aabb, right_node%aabb)
             cost_right = newRightaabb%get_surface_area() + minimumPushDownCost
          else
-            newRightaabb = leaf_node%aabb%merge(right_node%aabb)
+            newRightaabb = merge(leaf_node%aabb, right_node%aabb)
             cost_right = ( &
               & newRightaabb%get_surface_area() &
               & - right_node%aabb%get_surface_area() &
@@ -685,7 +750,7 @@ contains
       new_parent_index = this%allocate_node()
       new_parent = this%nodes(new_parent_index)
       new_parent%parent_node_index = old_parent_index
-      new_parent%aabb = leaf_node%aabb%merge(leaf_sibling%aabb)
+      new_parent%aabb = merge(leaf_node%aabb, leaf_sibling%aabb)
 
       if (leaf_node .lt. leaf_sibling) then
          new_parent%left_node_index = leaf_node_index
@@ -749,6 +814,8 @@ contains
 
     do while (.not. simple_stack%is_empty())
        current_index = simple_stack%pop()
+       if (current_index == AABB_NULL_NODE) cycle
+
        valid = valid .and. this%nodes(current_index)%is_valid()
 
        if (.not. this%nodes(current_index)%is_leaf()) then
@@ -777,7 +844,7 @@ contains
        left_node = this%get_left_node(tree_node_index)
        right_node = this%get_right_node(tree_node_index)
 
-       this%nodes(tree_node_index)%aabb = left_node%aabb%merge(right_node%aabb)
+       this%nodes(tree_node_index)%aabb = merge(left_node%aabb, right_node%aabb)
 
        if (tree_node_index .eq. this%root_node_index) exit
        tree_node_index = this%get_parent_index(tree_node_index)

@@ -74,7 +74,19 @@ module aabb
 
   implicit none
   private
-  public :: aabb_t, get_aabb
+  public :: aabb_t, get_aabb, merge, intersection
+
+  ! ========================================================================== !
+  ! Public interface for free functions
+  ! ========================================================================== !
+
+  interface merge
+     module procedure merge_aabb
+  end interface merge
+
+  interface intersection
+     module procedure intersection_aabb
+  end interface intersection
 
   !> @brief Axis Aligned Bounding Box (aabb) data structure.
   !! @details The aabb is a box that is aligned to the x, y and z axes. It is
@@ -84,10 +96,11 @@ module aabb
   type :: aabb_t
      private
 
-     real(kind=rp) :: box_min(3) = [huge(0.0_rp), huge(0.0_rp), huge(0.0_rp)]
-     real(kind=rp) :: box_max(3) = [-huge(0.0_rp), -huge(0.0_rp), -huge(0.0_rp)]
+     logical :: initialized = .false.
+     real(kind=rp) :: box_min(3)
+     real(kind=rp) :: box_max(3)
      real(kind=rp) :: center(3)
-     real(kind=rp) :: diagonal
+     real(kind=rp) :: diameter
      real(kind=rp) :: surface_area
 
    contains
@@ -99,13 +112,9 @@ module aabb
      procedure, pass(this), public :: get_width => aabb_get_width
      procedure, pass(this), public :: get_height => aabb_get_height
      procedure, pass(this), public :: get_depth => aabb_get_depth
-     procedure, pass(this), public :: get_diagonal => aabb_get_diagonal
+     procedure, pass(this), public :: get_diameter => aabb_get_diameter
      procedure, pass(this), public :: get_surface_area => aabb_get_surface_area
      procedure, pass(this), public :: get_center => aabb_get_center
-
-     ! Binary operations
-     procedure, pass(this), public :: merge => aabb_merge
-     procedure, pass(this), public :: intersection => aabb_intersection
 
      ! Unary operations
      procedure, pass(this), public :: min_distance => aabb_min_distance
@@ -133,7 +142,7 @@ contains
   !> @brief Construct the aabb of a predefined object.
   !! @details This function is used to get the aabb of a predefined object.
   !! Optionally, the user can define the padding of the aabb, which is a
-  !! multiple of the diagonal of the aabb. This is used to avoid numerical
+  !! multiple of the diameter of the aabb. This is used to avoid numerical
   !! issues when the object itself it axis aligned.
   !!
   !! Current support:
@@ -160,15 +169,15 @@ contains
     end select
 
     if (present(padding)) then
-       box%box_min = box%box_min - padding * box%diagonal
-       box%box_max = box%box_max + padding * box%diagonal
+       box%box_min = box%box_min - padding * box%diameter
+       box%box_max = box%box_max + padding * box%diameter
     end if
 
   end function get_aabb
 
   !> @brief Get the aabb of a triangle.
   !! @details This function calculates the aabb of a triangle. The padding is a
-  !! multiple of the diagonal of the aabb, and is used to avoid numerical issues
+  !! multiple of the diameter of the aabb, and is used to avoid numerical issues
   !! when the triangle itself it axis aligned.
   !! @param triangle The triangle to get the aabb of.
   !! @return The aabb of the triangle.
@@ -206,10 +215,11 @@ contains
        stop
     end if
 
+    this%initialized = .true.
     this%box_min = lower_left_front
     this%box_max = upper_right_back
     this%center = (this%box_min + this%box_max) / 2.0_rp
-    this%diagonal = norm2(this%box_max - this%box_min)
+    this%diameter = norm2(this%box_max - this%box_min)
     this%surface_area = calculate_surface_area(this)
   end subroutine aabb_init
 
@@ -241,13 +251,13 @@ contains
     height = this%box_max(3) - this%box_min(3)
   end function aabb_get_height
 
-  !> @brief Get the diagonal length of the aabb.
-  pure function aabb_get_diagonal(this) result(diagonal)
+  !> @brief Get the diameter length of the aabb.
+  pure function aabb_get_diameter(this) result(diameter)
     class(aabb_t), intent(in) :: this
-    real(kind=rp) :: diagonal
+    real(kind=rp) :: diameter
 
-    diagonal = this%diagonal
-  end function aabb_get_diagonal
+    diameter = this%diameter
+  end function aabb_get_diameter
 
   !> @brief Get the surface area of the aabb.
   pure function aabb_get_surface_area(this) result(surface_area)
@@ -275,6 +285,11 @@ contains
     class(aabb_t), intent(in) :: other
     logical :: is_overlapping
 
+    if (.not. this%initialized .or. .not. other%initialized) then
+       is_overlapping = .false.
+       return
+    end if
+
     is_overlapping = this%box_max(1) >= other%box_min(1) .and. &
       this%box_min(1) <= other%box_max(1) .and. &
       this%box_max(2) >= other%box_min(2) .and. &
@@ -288,6 +303,11 @@ contains
     class(aabb_t), intent(in) :: this
     class(aabb_t), intent(in) :: other
     logical :: is_contained
+
+    if (.not. this%initialized .or. .not. other%initialized) then
+       is_contained = .false.
+       return
+    end if
 
     is_contained = other%box_min(1) >= this%box_min(1) .and. &
       other%box_max(1) <= this%box_max(1) .and. &
@@ -303,6 +323,11 @@ contains
     real(kind=rp), dimension(3), intent(in) :: p
     logical :: is_contained
 
+    if (.not. this%initialized) then
+       is_contained = .false.
+       return
+    end if
+
     is_contained = &
       p(1) .ge. this%box_min(1) .and. &
       p(1) .le. this%box_max(1) .and. &
@@ -312,38 +337,51 @@ contains
       p(3) .le. this%box_max(3)
   end function aabb_contains_point
 
-  !> @brief Merge two aabbs.
-  function aabb_merge(this, other) result(merged)
-    class(aabb_t), intent(in) :: this
-    class(aabb_t), intent(in) :: other
-    type(aabb_t) :: merged
-
-    call merged%init( &
-      & min(this%box_min, other%box_min), &
-      & max(this%box_max, other%box_max) &
-      & )
-  end function aabb_merge
-
-  !> @brief Get the intersection of two aabbs.
-  function aabb_intersection(this, other) result(intersection)
-    class(aabb_t), intent(in) :: this
-    class(aabb_t), intent(in) :: other
-    type(aabb_t) :: intersection
-
-    call intersection%init( &
-      & min(this%box_min, other%box_min), &
-      & max(this%box_max, other%box_max) &
-      & )
-  end function aabb_intersection
-
   !> @brief Get the minimum possible distance from the aabb to a point.
   pure function aabb_min_distance(this, p) result(distance)
     class(aabb_t), intent(in) :: this
     real(kind=rp), dimension(3), intent(in) :: p
     real(kind=rp) :: distance
 
-    distance = this%get_diagonal() / 2.0_rp - norm2(this%get_center() - p)
+    if (.not. this%initialized) then
+       distance = huge(0.0_rp)
+       return
+    end if
+
+    distance = this%get_diameter() / 2.0_rp - norm2(this%get_center() - p)
   end function aabb_min_distance
+
+  ! ========================================================================== !
+  ! Binary operations
+  ! ========================================================================== !
+
+  !> @brief Merge two aabbs.
+  function merge_aabb(box1, box2) result(merged)
+    class(aabb_t), intent(in) :: box1
+    class(aabb_t), intent(in) :: box2
+    type(aabb_t) :: merged
+
+    real(kind=rp), dimension(3) :: box_min, box_max
+
+    box_min = min(box1%box_min, box2%box_min)
+    box_max = max(box1%box_max, box2%box_max)
+
+    call merged%init(box_min, box_max)
+  end function merge_aabb
+
+  !> @brief Get the intersection of two aabbs.
+  function intersection_aabb(box1, box2) result(intersected)
+    class(aabb_t), intent(in) :: box1
+    class(aabb_t), intent(in) :: box2
+    type(aabb_t) :: intersected
+
+    real(kind=rp), dimension(3) :: box_min, box_max
+
+    box_min = max(box1%box_min, box2%box_min)
+    box_max = min(box1%box_max, box2%box_max)
+
+    call intersected%init(box_min, box_max)
+  end function intersection_aabb
 
   ! ========================================================================== !
   ! Private operations
@@ -371,6 +409,11 @@ contains
     class(aabb_t), intent(in) :: other
     logical :: aabb_less
     logical :: equal
+
+    if (.not. this%initialized) then
+       aabb_less = .false.
+       return
+    end if
 
     aabb_less = this%box_min(1) .lt. other%box_min(1)
     equal = this%box_min(1) .le. other%box_min(1)
@@ -403,6 +446,11 @@ contains
     class(aabb_t), intent(in) :: other
     logical :: aabb_greater
     logical :: equal
+
+    if (.not. this%initialized) then
+       aabb_greater = .false.
+       return
+    end if
 
     aabb_greater = this%box_min(1) .gt. other%box_min(1)
     equal = this%box_min(1) .ge. other%box_min(1)

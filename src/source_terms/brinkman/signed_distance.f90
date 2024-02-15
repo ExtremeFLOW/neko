@@ -105,6 +105,8 @@ contains
     field_data%x = 0.0_rp
     total_size = field_data%dof%size()
 
+    print *, "Building search tree"
+
     call search_tree%init(mesh%nelv)
     call search_tree%build(mesh%el)
 
@@ -112,6 +114,7 @@ contains
        call neko_error("signed_distance_field_tri_mesh: Error building the search tree.")
     end if
 
+    print *, "Computing signed distance field"
     do id = 1, total_size
        p(1) = field_data%dof%x(id, 1, 1, 1)
        p(2) = field_data%dof%y(id, 1, 1, 1)
@@ -184,7 +187,7 @@ contains
   !! @return Signed distance value
   function tri_mesh_aabb_tree(tree, object_list, p, max_distance) result(distance)
     use aabb, only: aabb_t
-    use aabb_tree, only: aabb_node_t
+    use aabb_tree, only: aabb_node_t, AABB_NULL_NODE
     use stack, only: stack_i4_t
     implicit none
 
@@ -242,6 +245,8 @@ contains
     ! Traverse the tree and compute the signed distance to the elements
     do while (.not. simple_stack%is_empty())
        current_index = simple_stack%pop()
+       if (current_index .eq. AABB_NULL_NODE) cycle
+
        current_node = tree%get_node(current_index)
        current_aabb = current_node%get_aabb()
 
@@ -263,24 +268,22 @@ contains
           distance = min(distance, current_distance)
 
           ! Update the search box to the new distance
-          if (distance .gt. current_aabb%get_diagonal()) then
+          if (distance .gt. current_aabb%get_diameter()) then
              call search_box%init(p - distance, p + distance)
           end if
        else
 
           left_node = tree%get_left_node(current_index)
-          right_node = tree%get_right_node(current_index)
-
           if (left_node%aabb%overlaps(search_box)) then
              left_index = tree%get_left_index(current_index)
              call simple_stack%push(left_index)
           end if
 
+          right_node = tree%get_right_node(current_index)
           if (right_node%aabb%overlaps(search_box)) then
              right_index = tree%get_right_index(current_index)
              call simple_stack%push(right_index)
           end if
-
        end if
     end do
 
