@@ -6,11 +6,11 @@
         "output_at_end": true,
         "output_boundary": true,
         "output_checkpoints": false,
-        "end_time": 0.01,
+        "end_time": 0.5,
         "timestep": 5e-4,
         "numerics": {
             "time_order": 3,
-            "polynomial_order": 7,
+            "polynomial_order": 8,
             "dealias": true
         },
         "fluid": {
@@ -19,7 +19,7 @@
             "initial_condition": {
                 "type": "uniform",
                 "value": [
-                    10.0,
+                    100.0,
                     0.0,
                     0.0
                 ]
@@ -27,7 +27,7 @@
             "inflow_condition": {
                 "type": "uniform",
                 "value": [
-                    10.0
+                    100.0
                 ]
             },
             "velocity_solver": {
@@ -49,6 +49,9 @@
             "boundary_types": [
                 "v",
                 "o",
+                "w",
+                "w",
+                "w",
                 "w"
             ],
             "source_terms": [
@@ -57,14 +60,14 @@
                     "mesh_file": "bunny.stl",
                     "brinkman": {
                         "limits": [
-                            -500.0,
+                            -1000.0,
                             0.0
                         ],
                         "penalty": 1.0
                     },
                     "distance_transform": {
                         "type": "smooth_step",
-                        "value": 5.0
+                        "value": 10.0
                     }
                 }
             ]
