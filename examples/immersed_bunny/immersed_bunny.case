@@ -57,8 +57,10 @@
             "source_terms": [
                 {
                     "type": "brinkman",
-                    "region": "boundary_mesh",
-                    "mesh_file": "bunny.stl",
+                    "region": {
+                        "type": "boundary_mesh",
+                        "name": "bunny.stl"
+                    },
                     "brinkman": {
                         "limits": [
                             -1000.0,
