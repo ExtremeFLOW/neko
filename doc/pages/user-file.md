@@ -479,7 +479,50 @@ u%scalar_user_f_vector => set_source
 
 ### Running on GPUs {#user-file_tips_running-on-gpus}
 
-When running on GPUs, special care must be taken when user certain user functions, namely for the [source terms](#user-file_user-f) and the [initial conditions](#user-file_user-ic).
+When running on GPUs, special care must be taken when user certain user functions. To understand why, let us have a look at the [fluid initial condition code snippet](#user-file_user-ic):
+
+```.f90
+
+  !> Set the advecting velocity field.
+  subroutine set_velocity(u, v, w, p, params)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    type(json_file), intent(inout) :: params
+    integer :: i, e, k, j
+    real(kind=rp) :: x, y
+
+    !
+    ! 1. Set the initial condition in fields u%x, v%x, w%x
+    !
+    do i = 1, u%dof%size()
+       x = u%dof%x(i,1,1,1)
+       y = u%dof%y(i,1,1,1)
+
+       ! Angular velocity is pi, giving a full rotation in 2 sec
+       u%x(i,1,1,1) = -y*pi
+       v%x(i,1,1,1) = x*pi
+       w%x(i,1,1,1) = 0
+    end do
+    
+    !
+    ! 2. Copy the data set in u%x, v%x, w%x to the device arrays
+    ! u%x_d, v%x_d, w%x_d.
+    !
+     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(u%x, u%x_d, u%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(v%x, v%x_d, v%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(w%x, w%x_d, w%dof%size(), &
+                          HOST_TO_DEVICE, sync=.false.)
+    end if
+    
+  end subroutine set_velocity
+
+```
+
 
 ### Using the field and point zone registries {#user-file_tips_registries}
 
