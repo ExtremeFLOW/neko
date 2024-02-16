@@ -81,6 +81,43 @@ module aabb_tree
   ! Type definitions
   ! ========================================================================== !
 
+  !> @brief Node type for the Axis Aligned Bounding Box (aabb) Tree
+  type, public :: aabb_node_t
+     private
+     type(aabb_t), public :: aabb
+     integer :: object_index = -1
+
+     ! tree links
+     integer :: parent_node_index = AABB_NULL_NODE
+     integer :: left_node_index = AABB_NULL_NODE
+     integer :: right_node_index = AABB_NULL_NODE
+
+     ! node linked list link
+     integer :: next_node_index = AABB_NULL_NODE
+
+   contains
+     procedure, pass(this), public :: init => aabb_node_init
+
+     ! Getters
+     procedure, pass(this), public :: get_aabb => aabb_node_get_aabb
+     procedure, pass(this), public :: get_object_index => aabb_node_get_object_index
+     procedure, pass(this), public :: get_parent_index => aabb_node_get_parent_index
+     procedure, pass(this), public :: get_left_index => aabb_node_get_left_index
+     procedure, pass(this), public :: get_right_index => aabb_node_get_right_index
+
+     ! Boolean operators
+     procedure, pass(this), public :: is_leaf => aabb_node_is_leaf
+     procedure, pass(this), public :: is_valid => aabb_node_is_valid
+
+     ! Comparison operators
+     generic :: operator(.lt.) => less
+     generic :: operator(.gt.) => greater
+
+     procedure, pass(this) :: less => aabb_node_less
+     procedure, pass(this) :: greater => aabb_node_greater
+
+  end type aabb_node_t
+
   !> @brief Axis Aligned Bounding Box (aabb) Tree
   type, public :: aabb_tree_t
      private
@@ -131,43 +168,6 @@ module aabb_tree
      procedure, pass(this) :: valid_tree => aabb_tree_valid_tree
 
   end type aabb_tree_t
-
-  !> @brief Node type for the Axis Aligned Bounding Box (aabb) Tree
-  type, public :: aabb_node_t
-     private
-     type(aabb_t), public :: aabb
-     integer :: object_index = -1
-
-     ! tree links
-     integer :: parent_node_index = AABB_NULL_NODE
-     integer :: left_node_index = AABB_NULL_NODE
-     integer :: right_node_index = AABB_NULL_NODE
-
-     ! node linked list link
-     integer :: next_node_index = AABB_NULL_NODE
-
-   contains
-     procedure, pass(this), public :: init => aabb_node_init
-
-     ! Getters
-     procedure, pass(this), public :: get_aabb => aabb_node_get_aabb
-     procedure, pass(this), public :: get_object_index => aabb_node_get_object_index
-     procedure, pass(this), public :: get_parent_index => aabb_node_get_parent_index
-     procedure, pass(this), public :: get_left_index => aabb_node_get_left_index
-     procedure, pass(this), public :: get_right_index => aabb_node_get_right_index
-
-     ! Boolean operators
-     procedure, pass(this), public :: is_leaf => aabb_node_is_leaf
-     procedure, pass(this), public :: is_valid => aabb_node_is_valid
-
-     ! Comparison operators
-     generic :: operator(.lt.) => less
-     generic :: operator(.gt.) => greater
-
-     procedure, pass(this) :: less => aabb_node_less
-     procedure, pass(this) :: greater => aabb_node_greater
-
-  end type aabb_node_t
 
 contains
 
