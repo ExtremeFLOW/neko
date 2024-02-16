@@ -82,6 +82,7 @@ module neko
   use fluid_user_source_term
   use scalar_user_source_term
   use vector
+  use matrix
   use tensor
   use simulation_component
   use probes
