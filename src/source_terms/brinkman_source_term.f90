@@ -61,6 +61,10 @@ module brinkman_source_term
      procedure, public, pass(this) :: free => brinkman_source_term_free
      !> Computes the source term and adds the result to `fields`.
      procedure, public, pass(this) :: compute_ => brinkman_source_term_compute
+
+     ! ----------------------------------------------------------------------- !
+     ! Private methods
+     procedure, pass(this) :: init_boundary_mesh => brinkman_source_term_init_boundary_mesh
   end type brinkman_source_term_t
 
 contains
@@ -84,19 +88,7 @@ contains
     type(coef_t), intent(inout) :: coef
     real(kind=rp) :: start_time, end_time
 
-    ! Options
-    character(len=:), allocatable :: mesh_file_name
-    character(len=:), allocatable :: distance_transform
-    character(len=:), allocatable :: filter_type
-
-    real(kind=rp), dimension(:), allocatable :: brinkman_limits
-    real(kind=rp) :: brinkman_penalty
-
-    character(len=:), allocatable :: json_read_string
-    real(kind=rp) :: json_read_scalar
-
-    type(file_t) :: mesh_file
-    type(tri_mesh_t) :: boundary_mesh
+    character(len=:), allocatable :: string
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -106,13 +98,54 @@ contains
     call this%init_base(fields, coef, start_time, end_time)
 
     ! ------------------------------------------------------------------------ !
-    ! Read options for the immersed boundary source term
+    ! Allocate the permeability field
 
-    call json_get_or_default(json, 'region_type', json_read_string, 'mesh')
-
-    if (json_read_string .ne. 'mesh') then
-       call neko_error('Unknown region type')
+    if (.not. neko_field_registry%field_exists('brinkman')) then
+       call neko_field_registry%add_field(fields%fields(1)%f%dof, 'brinkman')
     end if
+
+    this%brinkman => neko_field_registry%get_field_by_name('brinkman')
+
+    ! ------------------------------------------------------------------------ !
+    ! Select which constructor should be called
+
+    call json_get(json, 'region_type', string)
+
+    select case (string)
+      case ('boundary_mesh')
+       call this%init_boundary_mesh(json)
+      case default
+       call neko_error('Unknown region type')
+    end select
+
+  end subroutine brinkman_source_term_init_from_json
+
+  subroutine brinkman_source_term_init_boundary_mesh(this, json)
+    use file, only: file_t
+    use tri_mesh, only: tri_mesh_t
+    use device, only: device_memcpy, HOST_TO_DEVICE
+    use filters, only: smooth_step_field, step_function_field, permeability_field
+    use signed_distance, only: signed_distance_field
+    use profiler, only: profiler_start_region, profiler_end_region
+    implicit none
+
+    class(brinkman_source_term_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+
+    ! Options
+    character(len=:), allocatable :: mesh_file_name
+    character(len=:), allocatable :: distance_transform
+    character(len=:), allocatable :: filter_type
+
+    real(kind=rp), dimension(:), allocatable :: brinkman_limits
+    real(kind=rp) :: brinkman_penalty
+
+    type(file_t) :: mesh_file
+    type(tri_mesh_t) :: boundary_mesh
+    real(kind=rp) :: scalar
+
+    ! ------------------------------------------------------------------------ !
+
 
     call json_get(json, 'mesh_file', mesh_file_name)
 
@@ -127,15 +160,6 @@ contains
     if (size(brinkman_limits) .ne. 2) then
        call neko_error('brinkman_limits must be a 2 element array of reals')
     end if
-
-    ! ------------------------------------------------------------------------ !
-    ! Allocate the permeability field
-
-    if (.not. neko_field_registry%field_exists('brinkman')) then
-       call neko_field_registry%add_field(fields%fields(1)%f%dof, 'brinkman')
-    end if
-
-    this%brinkman => neko_field_registry%get_field_by_name('brinkman')
 
     ! ------------------------------------------------------------------------ !
     ! Load the immersed boundary mesh
@@ -158,17 +182,17 @@ contains
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
       case ('smooth_step')
-       call json_get(json, 'distance_transform.value', json_read_scalar)
+       call json_get(json, 'distance_transform.value', scalar)
 
-       call signed_distance_field(this%brinkman, boundary_mesh, json_read_scalar)
-       call smooth_step_field(this%brinkman, 0.0_rp, json_read_scalar)
+       call signed_distance_field(this%brinkman, boundary_mesh, scalar)
+       call smooth_step_field(this%brinkman, 0.0_rp, scalar)
 
       case ('step')
 
-       call json_get(json, 'distance_transform.value', json_read_scalar)
+       call json_get(json, 'distance_transform.value', scalar)
 
-       call signed_distance_field(this%brinkman, boundary_mesh, json_read_scalar)
-       call step_function_field(this%brinkman, json_read_scalar, 1.0_rp, 0.0_rp)
+       call signed_distance_field(this%brinkman, boundary_mesh, scalar)
+       call step_function_field(this%brinkman, scalar, 1.0_rp, 0.0_rp)
 
       case default
        call neko_error('Unknown distance transform')
@@ -192,12 +216,13 @@ contains
     call permeability_field(this%brinkman, &
       & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
 
+    ! Copy the permeability field to the device
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%brinkman%x, this%brinkman%x_d, &
                           this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
     end if
 
-  end subroutine brinkman_source_term_init_from_json
+  end subroutine brinkman_source_term_init_boundary_mesh
 
   !> Destructor.
   subroutine brinkman_source_term_free(this)

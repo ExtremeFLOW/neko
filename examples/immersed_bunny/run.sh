@@ -26,12 +26,15 @@ done
 # ============================================================================ #
 # Ensure Neko can be found and set default mesh size
 
-if [ ! -z $NEKO_DIR ]; then
-    export PATH=$NEKO_DIR/bin:$PATH
-elif [[ -z $(which neko) ]]; then
-    NEKO_DIR=$(realpath $0 | xargs dirname)
-    NEKO_DIR=${NEKO_DIR%/example*}/external/neko
-    export PATH=$NEKO_DIR/bin:$PATH
+if [ "$NEKO_DIR" ]; then
+    export PATH=$NEKO_DIR:$PATH
+fi
+
+if [[ -z $(which neko) ]]; then
+    echo -e "Neko not found." >&2
+    echo -e "Please ensure Neko is installed and in your PATH." >&2
+    echo -e "Alternatively, set the NEKO_DIR environment variable." >&2
+    exit 1
 fi
 
 if [ $# -lt 1 ]; then Nx=16; else Nx=$1; fi
@@ -42,7 +45,7 @@ if [ $# -lt 3 ]; then Nz=8; else Nz=$3; fi
 # Generate mesh and run case
 
 echo "Generating mesh with dimensions: $Nx $Ny $Nz"
-genmeshbox -100 400 -100 100 0 200 $Nx $Ny $Nz .false. .false. .false.
+genmeshbox -200 600 -100 100 0 200 $Nx $Ny $Nz .false. .false. .false.
 neko immersed_bunny.case
 
 # End of file
