@@ -93,7 +93,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: s
     type(field_t), intent(inout) :: s_res
-    type(source_scalar_t), intent(inout) :: f_Xh
+    type(field_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     real(kind=rp), intent(in) :: lambda
     real(kind=rp), intent(in) :: rhocp
@@ -108,11 +108,11 @@ contains
     call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
 
 #ifdef HAVE_HIP
-    call scalar_residual_update_hip(s_res%x_d, f_Xh%s_d, n)
+    call scalar_residual_update_hip(s_res%x_d, f_Xh%x_d, n)
 #elif HAVE_CUDA
-    call scalar_residual_update_cuda(s_res%x_d, f_Xh%s_d, n)
+    call scalar_residual_update_cuda(s_res%x_d, f_Xh%x_d, n)
 #elif HAVE_OPENCL
-    call scalar_residual_update_opencl(s_res%x_d, f_Xh%s_d, n)
+    call scalar_residual_update_opencl(s_res%x_d, f_Xh%x_d, n)
 #endif
 
   end subroutine scalar_residual_device_compute

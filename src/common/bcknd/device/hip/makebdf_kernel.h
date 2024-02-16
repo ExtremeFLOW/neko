@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __COMMON_MAKEBDF_KERNEL__
+#define __COMMON_MAKEBDF_KERNEL__
+
 template< typename T >
 __global__ void makebdf_kernel(const T * __restrict__ ulag1,
                                const T * __restrict__ ulag2,
@@ -116,3 +119,5 @@ __global__ void scalar_makebdf_kernel(const T * __restrict__ s_lag,
   }
 
 }
+
+#endif //__COMMON_MAKEBDF_KERNEL__

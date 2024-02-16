@@ -185,7 +185,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, glb_n
+    integer :: iter, max_iter, glb_n
     integer :: i, j, k, ierr
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp) :: rnorm
@@ -198,6 +198,12 @@ contains
     iter = 0
     glb_n = n / x%msh%nelv * x%msh%glb_nelv
 
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = this%max_iter
+    end if
+
     call rone(this%ml, n)
     call rone(this%mu, n)
     norm_fac = one / sqrt(coef%volume)
@@ -207,7 +213,7 @@ contains
     call rone(this%c, this%lgmres)
     call rzero(this%h, this%lgmres * this%lgmres)
     outer = 0
-    do while (.not. conv .and. iter .lt. niter)
+    do while (.not. conv .and. iter .lt. max_iter)
        outer = outer + 1
 
        if(iter.eq.0) then
@@ -291,7 +297,7 @@ contains
              exit
           end if
 
-          if (iter + 1 .gt. niter) exit
+          if (iter + 1 .gt. max_iter) exit
 
           if( j .lt. this%lgmres) then
              temp = one / alpha
