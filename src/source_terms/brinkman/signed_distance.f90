@@ -218,6 +218,7 @@ contains
     type(aabb_t) :: search_box
 
     integer :: root_index, left_index, right_index
+    real(kind=rp) :: random_value
 
     ! Initialize the stack and the search box
     call simple_stack%init(size(object_list) * 2)
@@ -235,7 +236,8 @@ contains
     end if
 
     ! Grab a random object and compute the distance to it
-    current_object_index = floor(rand() * size(object_list) + 1)
+    call random_number(random_value)
+    current_object_index = floor(random_value * size(object_list) + 1)
     call element_distance(object_list(current_object_index), p, distance, weighted_sign)
     distance = distance + object_list(current_object_index)%diameter()
 
