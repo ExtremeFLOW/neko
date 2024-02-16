@@ -65,6 +65,7 @@ module brinkman_source_term
      ! ----------------------------------------------------------------------- !
      ! Private methods
      procedure, pass(this) :: init_boundary_mesh => brinkman_source_term_init_boundary_mesh
+     !   procedure, pass(this) :: init_point_zone => brinkman_source_term_init_point_zone
   end type brinkman_source_term_t
 
 contains
@@ -109,11 +110,13 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Select which constructor should be called
 
-    call json_get(json, 'region_type', string)
+    call json_get(json, 'region.type', string)
 
     select case (string)
       case ('boundary_mesh')
        call this%init_boundary_mesh(json)
+       ! case ('point_zone')
+       !  call this%init_point_zone(json)
       case default
        call neko_error('Unknown region type')
     end select
@@ -145,9 +148,9 @@ contains
     real(kind=rp) :: scalar
 
     ! ------------------------------------------------------------------------ !
+    ! Read the options for the boundary mesh
 
-
-    call json_get(json, 'mesh_file', mesh_file_name)
+    call json_get(json, 'region.name', mesh_file_name)
 
     ! Settings on how to filter the design field
     call json_get(json, 'distance_transform.type', distance_transform)
