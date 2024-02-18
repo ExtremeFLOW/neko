@@ -131,6 +131,7 @@ contains
     class(les_model_t), intent(inout) :: this
 
     nullify(this%nut)
+    nullify(this%delta)
     nullify(this%coef)
   end subroutine les_model_free_base
 
