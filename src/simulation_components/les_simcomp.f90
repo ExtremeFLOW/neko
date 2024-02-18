@@ -70,6 +70,8 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: name
 
+    call this%free()
+
     call json_get(json, "model", name)
 
     call this%init_base(json, case)
