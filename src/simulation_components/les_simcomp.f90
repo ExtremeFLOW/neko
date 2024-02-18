@@ -125,7 +125,7 @@ contains
   subroutine les_simcomp_free(this)
     class(les_simcomp_t), intent(inout) :: this
     call this%free_base()
-    nullify(this%rho_field)
+    nullify(this%rho)
     nullify(this%mu_field)
   end subroutine les_simcomp_free
 

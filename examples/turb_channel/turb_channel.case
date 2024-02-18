@@ -15,7 +15,7 @@
         "dealias": true
     },
     "fluid": {
-        "scheme": "pnpn",
+        "scheme": "pnpn_stress",
         "Re": 2860,
         "initial_condition": {
             "type": "user"
@@ -39,7 +39,7 @@
             "value": 1.0,
             "use_averaged_flow": true
         },
-        "boundary_types": ["", "", "w", "w"],
+        "boundary_types": ["", "", "sh=-0.00406", "sh=-0.00406"],
         "output_control": "simulationtime",
         "output_value": 20
     },
