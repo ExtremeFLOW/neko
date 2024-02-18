@@ -34,7 +34,7 @@
 !> Implements the `les_simcomp_t` type.
 
 module les_simcomp
-  use num_types, only : rp
+  use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
@@ -44,6 +44,11 @@ module les_simcomp
   use les_model, only : les_model_t
   use les_model_fctry, only : les_model_factory
   use json_utils, only : json_get
+  use fluid_pnpn_stress, only : fluid_pnpn_stress_t
+  use math, only : addcol3
+  use device_math, only : device_addcol3
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use fld_file_output, only : fld_file_output_t
   implicit none
   private
 
@@ -52,6 +57,12 @@ module les_simcomp
    type, public, extends(simulation_component_t) :: les_simcomp_t
      !> The LES model.
      class(les_model_t), allocatable :: les_model
+     !> Density field
+     type(field_t), pointer :: rho => null()
+     !> Variable dynamic viscosity fields.
+     type(field_t), pointer :: mu_field => null()
+     !> Molecular dynamic visocity.
+     real(kind=rp) :: mu = 0.0
      !> Output writer.
      type(fld_file_output_t), private :: output
    contains
@@ -80,6 +91,13 @@ contains
 
     call les_model_factory(this%les_model, name, case%fluid%dm_Xh,&
                            case%fluid%c_Xh, json)
+
+    select type(f => case%fluid)
+    type is(fluid_pnpn_stress_t)
+      this%rho => f%rho_field
+      this%mu_field => f%mu_field
+      this%mu = f%mu
+    end select
 
     ! Configure output for delta and nut
     if (json%valid_path("output_filename")) then
@@ -118,6 +136,17 @@ contains
     integer, intent(in) :: tstep
 
     call this%les_model%compute(t, tstep)
+    this%mu_field = this%mu
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+        call device_addcol3(this%mu_field%x_d, this%rho%x_d, &
+                            this%les_model%nut%x_d, this%rho%dof%size())
+    else
+        call addcol3(this%mu_field%x, this%rho%x, this%les_model%nut%x, &
+                     this%rho%dof%size())
+    end if
+
+
+
 
   end subroutine les_simcomp_compute
 
