@@ -83,6 +83,11 @@ contains
   subroutine les_simcomp_free(this)
     class(les_simcomp_t), intent(inout) :: this
     call this%free_base()
+
+    if (allocated(this%les_model)) then
+      call this%les_model%free()
+      deallocate(this%les_model)
+    end if
   end subroutine les_simcomp_free
 
   !> Compute the les_simcomp field.
