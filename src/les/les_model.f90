@@ -182,7 +182,7 @@ contains
        enddo
     enddo
 
-    call this%coef%gs_h%op(this%delta, GS_OP_ADD)
+!    call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
