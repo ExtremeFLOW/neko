@@ -42,6 +42,8 @@ module les_model
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, HOST_TO_DEVICE
+  use math, only : col2
+  use device_math, only : device_col2
   implicit none
   private
 
