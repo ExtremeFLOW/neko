@@ -52,6 +52,8 @@ module les_simcomp
    type, public, extends(simulation_component_t) :: les_simcomp_t
      !> The LES model.
      class(les_model_t), allocatable :: les_model
+     !> Output writer.
+     type(fld_file_output_t), private :: output
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => les_simcomp_init_from_json
@@ -69,6 +71,8 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: name
+    character(len=:), allocatable :: filename
+    character(len=:), allocatable :: precision
 
     call json_get(json, "model", name)
 
@@ -76,6 +80,26 @@ contains
 
     call les_model_factory(this%les_model, name, case%fluid%dm_Xh,&
                            case%fluid%c_Xh, json)
+
+    ! Configure output for delta and nut
+    if (json%valid_path("output_filename")) then
+       call json_get(json, "output_filename", filename)
+       if (json%valid_path("output_precision")) then
+           call json_get(json, "output_precision", precision)
+           if (precision == "double") then
+              call this%output%init(dp, filename, 2)
+           end if
+       else
+           call this%output%init(sp, filename, 2)
+       end if
+       this%output%fields%fields(1)%f => this%les_model%nut
+       this%output%fields%fields(2)%f => this%les_model%delta
+       call this%case%s%add(this%output, this%output_controller%control_value, &
+                            this%output_controller%control_mode)
+    else
+       call this%case%f_out%fluid%append(this%les_model%nut)
+       call this%case%f_out%fluid%append(this%les_model%delta)
+    end if
 
   end subroutine les_simcomp_init_from_json
 
