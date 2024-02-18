@@ -85,6 +85,8 @@ contains
     character(len=:), allocatable :: filename
     character(len=:), allocatable :: precision
 
+    call this%free()
+
     call json_get(json, "model", name)
 
     call this%init_base(json, case)
