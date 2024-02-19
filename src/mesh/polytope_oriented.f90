@@ -43,6 +43,10 @@ module polytope_oriented
   !! @details This is an abstract type basically equal to
   !! @ref polytope_aligned_t This type corresponds to building blocs of
   !! the higher dimension abstract objects the mesh topology consists of.
+  !! @note The reason we need this type is to define a deferred
+  !! constructor. We cannot define it in the base type because the type
+  !! @ref polytope_actualisation_t also descends from it  but requires a
+  !! constructor with a different signature.
   type, extends(polytope_aligned_t), abstract :: polytope_oriented_t
    contains
      !> Free aligned polytope
