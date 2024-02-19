@@ -328,21 +328,6 @@ contains
     call this%init(size(objects) * 2)
 
     ! ------------------------------------------------------------------------ !
-    ! Ultra simple insertion of objects one by one
-
-    ! do i_obj = 1, size(objects)
-    !    call this%insert_object(objects(i_obj), i_obj)
-    ! end do
-
-    ! if (this%get_size() .ne. size(objects)) then
-    !    print *, "this%get_size() = ", this%get_size()
-    !    print *, "size(objects) = ", size(objects)
-    !    call neko_error("Invalid tree size")
-    ! end if
-
-    ! return
-
-    ! ------------------------------------------------------------------------ !
     ! Start by sorting the list of objects, then build a balanced binary tree
     ! from the sorted list
 

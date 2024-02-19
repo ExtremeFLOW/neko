@@ -30,7 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!>
+!> A module containing filter functions and subroutines. These functions
+!! are used to modify fields in a way that is useful for various
+!! simulations.
 module filters
   use field, only: field_t
   use num_types, only: rp
@@ -57,6 +59,8 @@ contains
   !! @param[in] edge0 Edge giving output 0.
   !! @param[in] edge1 Edge giving output 1.
   subroutine smooth_step_field(F, edge0, edge1)
+    use filters_cpu, only: smooth_step_cpu
+
     type(field_t), pointer, intent(inout) :: F
     real(kind=rp), intent(in) :: edge0, edge1
 
@@ -71,6 +75,8 @@ contains
   !! @param[in] perm_1 Permeability at x=1.
   !! @param[in] penalty Penalty factor.
   subroutine permeability_field(F, perm_0, perm_1, penalty)
+    use filters_cpu, only: permeability_cpu
+
     type(field_t), pointer, intent(inout) :: F
     real(kind=rp), intent(in) :: perm_0, perm_1
     real(kind=rp), intent(in) :: penalty
@@ -84,54 +90,12 @@ contains
   !! @param[in] value0 Value of the field before the step.
   !! @param[in] value1 Value of the field after the step.
   subroutine step_function_field(F, x0, value0, value1)
+    use filters_cpu, only: step_function_cpu
+
     type(field_t), pointer, intent(inout) :: F
     real(kind=rp), intent(in) :: x0, value0, value1
 
     F%x = step_function_cpu(F%x, x0, value0, value1)
   end subroutine step_function_field
-
-  ! ========================================================================== !
-  ! Internal functions and subroutines
-  ! ========================================================================== !
-
-  !> @brief Apply a smooth step function to a scalar.
-  elemental function smooth_step_cpu(x, edge0, edge1) result(res)
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: edge0, edge1
-    real(kind=rp) :: res, t
-
-    t = clamp((x - edge0) / (edge1 - edge0), 0.0_rp, 1.0_rp)
-
-    res = t**3 * (t * (6.0_rp * t - 15.0_rp) + 10.0_rp)
-
-  end function smooth_step_cpu
-
-  !> @brief Clamp a value between two limits.
-  elemental function clamp(x, lowerlimit, upperlimit) result(res)
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: lowerlimit, upperlimit
-    real(kind=rp) :: res
-
-    res = max(lowerlimit, min(upperlimit, x))
-  end function clamp
-
-  !> @brief Apply a step function to a scalar.
-  elemental function step_function_cpu(x, x0, value0, value1) result(res)
-    real(kind=rp), intent(in) :: x, x0, value0, value1
-    real(kind=rp) :: res
-
-    res = merge(value0, value1, x > x0)
-
-  end function step_function_cpu
-
-  !> @brief Apply a permeability function to a scalar.
-  elemental function permeability_cpu(x, perm_0, perm_1, penalty) result(perm)
-    real(kind=rp), intent(in) :: x, perm_0, perm_1, penalty
-    real(kind=rp) :: perm
-
-    perm = perm_0 + (perm_1 - perm_0) * x * (penalty + 1.0_rp) / (penalty + x)
-
-  end function permeability_cpu
-
 
 end module filters
