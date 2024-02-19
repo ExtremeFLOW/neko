@@ -43,16 +43,19 @@ contains
 
   !> @brief Apply a smooth step function to a field.
   !! @details The smooth step function is defined as:
-  !! \f[ f(x) = \begin{cases}
-  !!            x^3 (x (6x - 15) + 10), & x \in [edge0, edge1] \\
-  !!            0, & x \leq edge0 \\
-  !!            1, & x \geq edge1 \\
+  !! \f[
+  !! t = (x - edge0) / (edge1 - edge0)
+  !!  f(t) = \begin{cases}
+  !!            t^3 (t (6x - 15) + 10), & t \in [0, 1] \\
+  !!              0, & t \leq 0 \\
+  !!              1, & t \geq 1 \\
+  !!          \end{cases}
   !! \f]
   !! @note The step can be inverted by swapping edge0 and edge1.
   !!
   !! @param[in,out] F Field to be modified.
-  !! @param[in] edge0 Lower edge of the step.
-  !! @param[in] edge1 Upper edge of the step.
+  !! @param[in] edge0 Edge giving output 0.
+  !! @param[in] edge1 Edge giving output 1.
   subroutine smooth_step_field(F, edge0, edge1)
     type(field_t), pointer, intent(inout) :: F
     real(kind=rp), intent(in) :: edge0, edge1
@@ -62,7 +65,7 @@ contains
 
   !> @brief Apply a permeability function to a field.
   !! @details The permeability function is defined as:
-  !! \f[ k(x) = k_0 + \frac{k_1 - k_0}{1 + \frac{\text{penalty + 1}}{penalty + x}} \f]
+  !! \f[ k(x) = k_0 + (k_1 - k_0) x \frac{penalty + 1}{penalty + x}} \f]
   !! @param[in,out] F Field to be modified.
   !! @param[in] perm_0 Permeability at x=0.
   !! @param[in] perm_1 Permeability at x=1.
@@ -126,7 +129,7 @@ contains
     real(kind=rp), intent(in) :: x, perm_0, perm_1, penalty
     real(kind=rp) :: perm
 
-    perm = perm_0 + (perm_1 - perm_0) * x * (penalty + 1.0_rp) / (penalty + x)
+    perm = x * (penalty + 1.0_rp) / (penalty + x) * (perm_1 - perm_0) - perm_1
 
   end function permeability_cpu
 

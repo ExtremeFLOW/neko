@@ -37,9 +37,14 @@ if [[ -z $(which neko) ]]; then
     exit 1
 fi
 
-if [ $# -lt 1 ]; then Nx=16; else Nx=$1; fi
-if [ $# -lt 2 ]; then Ny=8; else Ny=$2; fi
-if [ $# -lt 3 ]; then Nz=8; else Nz=$3; fi
+if [ $# == 0 ]; then
+    Nx=16; Ny=8; Nz=8
+elif [ $# == 3 ]; then
+    Nx=$1; Ny=$2; Nz=$3
+else
+    echo -e "Invalid number of input arguments." >&2
+    help
+fi
 
 # ============================================================================ #
 # Generate mesh and run case

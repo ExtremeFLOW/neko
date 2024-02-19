@@ -188,7 +188,7 @@ contains
        call json_get(json, 'distance_transform.value', scalar)
 
        call signed_distance_field(this%brinkman, boundary_mesh, scalar)
-       call smooth_step_field(this%brinkman, 0.0_rp, scalar)
+       call smooth_step_field(this%brinkman, scalar, 0.0_rp)
 
       case ('step')
 

@@ -179,27 +179,34 @@ The following types are currently implemented.
    pointwise user file subroutine. Only works on CPUs!
 3. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
-4. `immersed_boundary`, brinkman permeability forcing along a pre-defined mesh.
+4. `brinkman`, Brinkman permeability forcing along a pre-defined mesh.
 
-#### Immersed boundary
-The immersed boundary source term allow the immersion of a triangulated mesh
-into the fluid domain. Close to and inside the mesh the fluid will be slowed to
-a stop by applying a force term.
+#### Brinkman
+The Brinkman source term introduces regions of resistance in the fluid domain.
+The volume force $f_i$ applied in the selected regions are proportional to the fluid
+velocity component $u_i$.
 
-Additional keywords are available to modify the immersed boundary.
+$$
+   f_i(x) = - B(x) u_i(x), \\
+   B(x) = \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)},
+$$
 
-- `mesh_file`, the mesh to be immersed into the domain. Currently only STL files
-  are supported.
-- `brinkman`, contains a number of settings. `brinkman.limits` define the limits
-  of the brinkman equation (two real values) and `brinkman.penalty` defines the
-  penalty parameter in the brinkman equation.
-- `distance_transform`, defines how the signed distance field should be
-  transformed into a [0, 1] range. A couple of options are available for
-  `distance_transform.type`
-  - `step`, step function applied at the `distance_transform.value`-contour.
-  - `smooth_step`, applies a smooth step function between the
-    `distance_transform.value` and the 0-contour of the signed distance field.
+where, $x$ is the current location in the domain, $\xi: x\mapsto [0,1]$
+represent an indicator function for the resistance where $\xi(x) = 0$ is a free
+flow. $\kappa_i$ describes the limits for the force application at $\xi(x)=0$
+and $\xi(x)=1$. A penalty parameter $q$ help us to reduce numerical problems.
 
+Additional keywords are available to modify the Brinkman force term.
+
+| Name                       | Description                                                             | Admissable values     | Default value |
+| -------------------------- | ----------------------------------------------------------------------- | --------------------- | ------------- |
+| `region.type`              | Type of region to enforce the Brinkman force term.                      | `boundary_mesh`       | -             |
+| `region.name`              | Name of the region.                                                     | String, file name.    | -             |
+| `brinkman.limits`          | Brinkman factor at freeflow ($\xi(x)=0$) and solid domain ($\xi(x)=1$). | Vector if 2 reals.    | -             |
+| `brinkman.penalty`         | Panalty parameter when estimating Brinkman factor                       | Real                  | $1.0$         |
+| `distance_transform.type`  | How to map from distance field to indicator field.                      | `step`, `smooth_step` | -             |
+| `distance_transform.value` | Values used to define the distance transform, such as cutoff distance.  | Real                  | -             |
+| `filter.type`              | Type of filtering appllied to the indicator field.                      | `none`                | `none`        |
 
 ### Boundary types
 The optional `boundary_types` keyword can be used to specify boundary conditions.
