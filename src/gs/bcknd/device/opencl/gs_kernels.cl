@@ -32,6 +32,10 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+
+#ifndef __GS_GS_KERNELS__
+#define __GS_GS_KERNELS__
+
 /**
  * Device gather kernel for addition of data
  * \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
@@ -241,3 +245,5 @@ __kernel void scatter_kernel(__global real * __restrict__ v,
   }
   
 }
+
+#endif // __GS_GS_KERNELS__

@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __BC_NO_SLIP_WALL_KERNEL__
+#define __BC_NO_SLIP_WALL_KERNEL__
+
 #include <hip/hip_runtime.h>
 
 /**
@@ -72,3 +75,4 @@ __global__ void no_slip_wall_apply_vector_kernel(const int * __restrict__ msk,
   }
 }
 
+#endif // __BC_NO_SLIP_WALL_KERNEL__
