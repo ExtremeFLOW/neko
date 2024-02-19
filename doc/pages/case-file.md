@@ -156,7 +156,7 @@ It requires  the following parameters:
    - `quartic`, quartic approximation.
    - `sin`, sine function approximation.
 
-### Source terms
+### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
 momentum equation. The object is not mandatory, by default no forcing term is
 present. Each source term, is itself a JSON object, so `source_terms` is just an
