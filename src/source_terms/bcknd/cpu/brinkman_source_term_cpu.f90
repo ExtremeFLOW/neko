@@ -32,11 +32,11 @@
 !
 !> Implements the cpu kernel for the `brinkman_source_term_t` type.
 module brinkman_source_term_cpu
-  use num_types, only : rp
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use math, only : col3, addcol3
-  use field_registry, only : neko_field_registry
+  use num_types, only: rp
+  use field, only: field_t
+  use field_list, only: field_list_t
+  use math, only: subcol3
+  use field_registry, only: neko_field_registry
   implicit none
   private
 
@@ -59,9 +59,9 @@ contains
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
 
-    call addcol3(fields%fields(1)%f%x, u%x, brinkman%x, n)
-    call addcol3(fields%fields(2)%f%x, v%x, brinkman%x, n)
-    call addcol3(fields%fields(3)%f%x, w%x, brinkman%x, n)
+    call subcol3(fields%fields(1)%f%x, u%x, brinkman%x, n)
+    call subcol3(fields%fields(2)%f%x, v%x, brinkman%x, n)
+    call subcol3(fields%fields(3)%f%x, w%x, brinkman%x, n)
 
   end subroutine brinkman_source_term_compute_cpu
 

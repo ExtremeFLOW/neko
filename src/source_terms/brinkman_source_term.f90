@@ -52,6 +52,7 @@ module brinkman_source_term
   !! array, with a value for each component of the source.
   type, public, extends(source_term_t) :: brinkman_source_term_t
      private
+
      !> The value of the source term.
      type(field_t), pointer :: brinkman => null()
    contains
@@ -64,11 +65,14 @@ module brinkman_source_term
 
      ! ----------------------------------------------------------------------- !
      ! Private methods
-     procedure, pass(this) :: init_boundary_mesh => brinkman_source_term_init_boundary_mesh
+     procedure, pass(this) :: init_boundary_mesh
      !   procedure, pass(this) :: init_point_zone => brinkman_source_term_init_point_zone
   end type brinkman_source_term_t
 
 contains
+
+  ! ========================================================================== !
+  ! Public methods
 
   !> The common constructor using a JSON object.
   !! @param json The JSON object for the source.
@@ -123,7 +127,33 @@ contains
 
   end subroutine brinkman_source_term_init_from_json
 
-  subroutine brinkman_source_term_init_boundary_mesh(this, json)
+  !> Destructor.
+  subroutine brinkman_source_term_free(this)
+    class(brinkman_source_term_t), intent(inout) :: this
+
+    call this%free_base()
+  end subroutine brinkman_source_term_free
+
+  !> Computes the source term and adds the result to `fields`.
+  !! @param t The time value.
+  !! @param tstep The current time-step.
+  subroutine brinkman_source_term_compute(this, t, tstep)
+    class(brinkman_source_term_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call brinkman_source_term_compute_device(this%fields, this%brinkman)
+    else
+       call brinkman_source_term_compute_cpu(this%fields, this%brinkman)
+    end if
+  end subroutine brinkman_source_term_compute
+
+  ! ========================================================================== !
+  ! Private methods
+
+  !> Initializes the source term from a boundary mesh.
+  subroutine init_boundary_mesh(this, json)
     use file, only: file_t
     use tri_mesh, only: tri_mesh_t
     use device, only: device_memcpy, HOST_TO_DEVICE
@@ -225,28 +255,6 @@ contains
                           this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
     end if
 
-  end subroutine brinkman_source_term_init_boundary_mesh
-
-  !> Destructor.
-  subroutine brinkman_source_term_free(this)
-    class(brinkman_source_term_t), intent(inout) :: this
-
-    call this%free_base()
-  end subroutine brinkman_source_term_free
-
-  !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine brinkman_source_term_compute(this, t, tstep)
-    class(brinkman_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call brinkman_source_term_compute_device(this%fields, this%brinkman)
-    else
-       call brinkman_source_term_compute_cpu(this%fields, this%brinkman)
-    end if
-  end subroutine brinkman_source_term_compute
+  end subroutine init_boundary_mesh
 
 end module brinkman_source_term

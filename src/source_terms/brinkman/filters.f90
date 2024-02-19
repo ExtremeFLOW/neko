@@ -129,7 +129,7 @@ contains
     real(kind=rp), intent(in) :: x, perm_0, perm_1, penalty
     real(kind=rp) :: perm
 
-    perm = x * (penalty + 1.0_rp) / (penalty + x) * (perm_1 - perm_0) - perm_1
+    perm = perm_0 + (perm_1 - perm_0) * x * (penalty + 1.0_rp) / (penalty + x)
 
   end function permeability_cpu
 

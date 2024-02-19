@@ -35,7 +35,7 @@ module brinkman_source_term_device
   use num_types, only : rp
   use field, only : field_t
   use field_list, only : field_list_t
-  use device_math, only : device_col3, device_addcol3
+  use device_math, only : device_subcol3
   use field_registry, only : neko_field_registry
   implicit none
   private
@@ -59,9 +59,9 @@ contains
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
 
-    call device_addcol3(fields%fields(1)%f%x_d, u%x_d, brinkman%x_d, n)
-    call device_addcol3(fields%fields(2)%f%x_d, v%x_d, brinkman%x_d, n)
-    call device_addcol3(fields%fields(3)%f%x_d, w%x_d, brinkman%x_d, n)
+    call device_subcol3(fields%fields(1)%f%x_d, u%x_d, brinkman%x_d, n)
+    call device_subcol3(fields%fields(2)%f%x_d, v%x_d, brinkman%x_d, n)
+    call device_subcol3(fields%fields(3)%f%x_d, w%x_d, brinkman%x_d, n)
 
   end subroutine brinkman_source_term_compute_device
 
