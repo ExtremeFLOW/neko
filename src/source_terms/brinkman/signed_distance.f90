@@ -105,24 +105,21 @@ contains
     field_data%x = 0.0_rp
     total_size = field_data%dof%size()
 
-    print *, "Building search tree"
-
     call search_tree%init(mesh%nelv)
     call search_tree%build(mesh%el)
 
     if (search_tree%get_size() .ne. mesh%nelv) then
-       print *, search_tree%get_size(), mesh%nelv
-       call neko_error("signed_distance_field_tri_mesh: Error building the search tree.")
+       call neko_error("signed_distance_field_tri_mesh: &
+         & Error building the search tree.")
     end if
 
-    print *, "Computing signed distance field"
     do id = 1, total_size
        p(1) = field_data%dof%x(id, 1, 1, 1)
        p(2) = field_data%dof%y(id, 1, 1, 1)
        p(3) = field_data%dof%z(id, 1, 1, 1)
 
-       field_data%x(id, 1, 1, 1) = tri_mesh_aabb_tree(search_tree, mesh%el, p, max_distance)
-       !  field_data%x(id, 1, 1, 1) = tri_mesh_brute_force(mesh, p, max_distance)
+       field_data%x(id, 1, 1, 1) = tri_mesh_aabb_tree(search_tree, &
+                                                      mesh%el, p, max_distance)
     end do
 
   end subroutine signed_distance_field_tri_mesh
