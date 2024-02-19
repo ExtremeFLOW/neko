@@ -95,7 +95,12 @@ contains
 
 
     ! Gradient of viscosity
-    call opgrad(ta1%x, ta2%x, ta3%x, mu%x, c_Xh)
+    !call opgrad(ta1%x, ta2%x, ta3%x, mu%x, c_Xh)
+    call dudxyz(ta1%x, mu%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+    call dudxyz(ta2%x, mu%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+    call dudxyz(ta3%x, mu%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+
+
 
     ! S^T grad \mu
     do e=1, nelv
@@ -217,7 +222,7 @@ contains
     ! Pressure gradient
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
-    ! Sum all the terms 
+    ! Sum all the terms
     do i = 1, n
        u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1)
        v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
