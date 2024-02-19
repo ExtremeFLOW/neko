@@ -436,7 +436,7 @@ The associated user functions for the fluid and/or scalar source terms can then 
 ```
 
 @note Here, we make use of the `neko_field_registry` to retrieve the velocity and scalar fields. See [below](#user-file_tips_registries) for more information on how to use registries in neko. 
-@note Notice the use of the `NEKO_BCKND_DEVICE` flag, which will be set to 1 if running on GPUs, and the calls to `device_memcpy` to transfer data between the host and the device. See [transferring data to the device](#accelerators_data-transfer) for more information on how this works and [Running on GPUs](#user-file_tips_running-on-gpus) for why we need to do this.
+@note Notice the use of the `NEKO_BCKND_DEVICE` flag, which will be set to 1 if running on GPUs. See [Running on GPUs](#user-file_tips_running-on-gpus) for more explanations.
 
 The same can be done for the scalar, with the example below also taken from the [scalar_mms example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/scalar_mms/scalar_mms.f90#L28):
 
@@ -479,7 +479,13 @@ u%scalar_user_f_vector => set_source
 
 ### Running on GPUs {#user-file_tips_running-on-gpus}
 
-When running on GPUs, special care must be taken when user certain user functions. To understand why, let us have a look at the [fluid initial condition code snippet](#user-file_user-ic):
+When running on GPUs, special care must be taken when user certain user functions. The short explanation is that the device (GPU) has its own memory and cannot directly access the memory on the host (CPU). This means that data and more specifically arrays must be copied manually from the host to the device (see [device_memcpy](https://neko.cfd/docs/d6/dac/interfacedevice_1_1device__memcpy.html)). 
+
+@note In some cases, data transfer via `device_memcpy` is avoidable. Neko has some device math functions implemented that operate directly on device arrays. If you can decompose whatever operations you are performing on your arrays in your user function into a set of instructions from the `math` module (e.g. `cadd`, `cfill`, `sub2`, ...), you may use the corresponding `device_math` functions to [offload work to the GPU](#accelerators_offload-work). See the [fluid forcing code snippet](#user-file_user-f) for a simple example. For more advanced examples, see the [rayleigh-benard example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard/rayleigh.f90#L96) or the [tgv example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/tgv/tgv.f90#L146).
+
+@note In Neko, variables that refer to device arrays are usually suffixed with `_d`. For example, the `field_t` type has an attribute `x` that is allocated on the host (CPU) and `x_d` that refers to the array allocated on the device (GPU).
+
+To illustrate this, let us have a look at the [fluid initial condition code snippet](#user-file_user-ic):
 
 ```.f90
 
@@ -510,7 +516,7 @@ When running on GPUs, special care must be taken when user certain user function
     ! 2. Copy the data set in u%x, v%x, w%x to the device arrays
     ! u%x_d, v%x_d, w%x_d.
     !
-     if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, u%dof%size(), &
                           HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(v%x, v%x_d, v%dof%size(), &
@@ -523,8 +529,24 @@ When running on GPUs, special care must be taken when user certain user function
 
 ```
 
+The code above is used to set the fluid initial condition, by specifying the values of fields `u,v,w` (and `p`) at all points in the domain. Notice that we have divided the above code into two parts. 
+
+In the first part, we set the velocity components to `u=-y*pi*`, `v=x*pi*`, and `w=0`. Here, we set the values of the arrays `u%x`, `v%x`, and `w%x` that are allocated on the **host (CPU)**. If we were to run on GPUs, the first step would only act on the arrays allocated on the host (CPU), leaving the device (GPU) arrays untouched. To update the device (GPU) arrays, we use the `device_memcpy` function to copy the data contained in a host (CPU) arrays to a device (GPU) array.
+
+This is what is done in the second part, for all three velocity arrays. Looking at the details of the `device_memcpy` calls, we note the following:
+- Device arrays are refered to by appending the suffix `_d` to the host array variable name (e.g. `u%x` and `u%x_d`).
+- We specify the "**direction**" of the data movement with the flag `HOST_TO_DEVICE`. Other flags can also be used to move data from device to host (`DEVICE_TO_HOST`) or device to device (`DEVICE_TO_DEVICE`). See the [accelerators page](#accelerators_data-transfer) for more details on this.
+- The `sync` argument is a non-optional argument which dictates wether or not to perform the data transfer synchronously. 
+
+@attention Use asynchronous data transfers at your own risk! Debugging code on the GPU can be tricky: if you are unsure, use `sync = .true.`.
+
+Finally, observe that we use the flag `NEKO_BCKND_DEVICE` to check if we are indeed running on GPUs. 
 
 ### Using the field and point zone registries {#user-file_tips_registries}
+
+Neko uses the concept of `registry` as a practical way to retrieve fields and point zones anywhere in the user file. 
+
+The field registry is often used in user function where certain fields are not directly accessible as arguments.  
 
 ## Compiling and running
 
