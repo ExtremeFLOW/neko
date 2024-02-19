@@ -3,7 +3,7 @@ subroutine test_quad_topology_simple
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
   use quad_new, only : quad_tpl_t
@@ -12,7 +12,7 @@ subroutine test_quad_topology_simple
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t), dimension(4) :: edt
   type(quad_tpl_t) :: qut1
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(4) :: idv, gsv
   integer(i4), dimension(4) :: ide, gse, bne
   integer(i4) :: il, algn, idq1, bnq1, gsq1
@@ -90,7 +90,7 @@ end subroutine test_quad_topology_simple
 subroutine test_quad_topology_permute
   use pfunit
   use num_types, only : i4
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
   use quad_new, only : quad_tpl_t
@@ -98,7 +98,7 @@ subroutine test_quad_topology_permute
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t), dimension(4) :: edt, edtP
   type(quad_tpl_t) :: qut1, qut1P
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(4) :: idv, gsv
   integer(i4), dimension(4) :: ide, gse, bne, ideP, gseP
   integer(i4) :: il, jl, itmp, idq1, bnq1, gsq1
@@ -164,7 +164,7 @@ end subroutine test_quad_topology_permute
 subroutine test_quad_topology_share
   use pfunit
   use num_types, only : i4
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET
@@ -172,14 +172,14 @@ subroutine test_quad_topology_share
   type(vertex_tpl_t), dimension(8) :: vrt
   type(edge_tpl_t), dimension(8) :: edt
   type(quad_tpl_t) :: qut1, qut2
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(8) :: idv, gsv
   integer(i4), dimension(8) :: ide, gse, bne
   integer(i4) :: il, jl, itmp, algn, idq1, bnq1, gsq1, idq2, bnq2, gsq2
   integer(i4), dimension(4) :: permv, perme
   integer(i4), dimension(:, :), allocatable :: facetp
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  type(topology_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(NEKO_QUAD_NFACET) :: fctq
 
   do il = 1, 8
      idv(il) = il
@@ -316,7 +316,7 @@ end subroutine test_quad_topology_share
 subroutine test_quad_topology_periodic_stripe
   use pfunit
   use num_types, only : i4
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET
@@ -324,14 +324,14 @@ subroutine test_quad_topology_periodic_stripe
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t), dimension(6) :: edt
   type(quad_tpl_t) :: qut1, qut2
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(8) :: idv, gsv
   integer(i4), dimension(6) :: ide, gse, bne
   integer(i4) :: il, jl, itmp, algn, idq1, bnq1, gsq1, idq2, bnq2, gsq2
   integer(i4), dimension(4) :: permv, perme
   integer(i4), dimension(:, :), allocatable :: facetp
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  type(topology_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(NEKO_QUAD_NFACET) :: fctq
 
   do il = 1, 4
      idv(il) = il
@@ -425,7 +425,7 @@ end subroutine test_quad_topology_periodic_stripe
 subroutine test_quad_topology_Mobius_stripe
   use pfunit
   use num_types, only : i4
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET
@@ -433,14 +433,14 @@ subroutine test_quad_topology_Mobius_stripe
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t), dimension(6) :: edt
   type(quad_tpl_t) :: qut1, qut2
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(8) :: idv, gsv
   integer(i4), dimension(6) :: ide, gse, bne
   integer(i4) :: il, jl, itmp, algn, idq1, bnq1, gsq1, idq2, bnq2, gsq2
   integer(i4), dimension(4) :: permv, perme
   integer(i4), dimension(:, :), allocatable :: facetp
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  type(topology_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(NEKO_QUAD_NFACET) :: fctq
 
   do il = 1, 4
      idv(il) = il
@@ -544,7 +544,7 @@ end subroutine test_quad_topology_Mobius_stripe
 subroutine test_quad_topology_selfperiodic_simple
   use pfunit
   use num_types, only : i4
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET
@@ -552,12 +552,12 @@ subroutine test_quad_topology_selfperiodic_simple
   type(vertex_tpl_t), dimension(2) :: vrt
   type(edge_tpl_t), dimension(3) :: edt
   type(quad_tpl_t) :: qut1
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(2) :: idv, gsv
   integer(i4), dimension(3) :: ide, gse, bne
   integer(i4) :: il, jl, itmp, algn, idq1, bnq1, gsq1
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  type(topology_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(NEKO_QUAD_NFACET) :: fctq
 
   do il = 1, 2
      idv(il) = il
@@ -621,7 +621,7 @@ end subroutine test_quad_topology_selfperiodic_simple
 subroutine test_quad_topology_selfperiodic_Mobius
   use pfunit
   use num_types, only : i4
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET
@@ -629,12 +629,12 @@ subroutine test_quad_topology_selfperiodic_Mobius
   type(vertex_tpl_t), dimension(2) :: vrt
   type(edge_tpl_t), dimension(3) :: edt
   type(quad_tpl_t) :: qut1
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(2) :: idv, gsv
   integer(i4), dimension(3) :: ide, gse, bne
   integer(i4) :: il, jl, itmp, algn, idq1, bnq1, gsq1
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  type(topology_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(NEKO_QUAD_NFACET) :: fctq
 
   do il = 1, 2
      idv(il) = il
@@ -702,7 +702,7 @@ end subroutine test_quad_topology_selfperiodic_Mobius
 subroutine test_quad_topology_selfperiodic_torus
   use pfunit
   use num_types, only : i4
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET
@@ -710,12 +710,12 @@ subroutine test_quad_topology_selfperiodic_torus
   type(vertex_tpl_t) :: vrt
   type(edge_tpl_t), dimension(2) :: edt
   type(quad_tpl_t) :: qut1
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4) :: idv, gsv
   integer(i4), dimension(2) :: ide, gse, bne
   integer(i4) :: il, jl, itmp, algn, idq1, bnq1, gsq1
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  type(topology_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(NEKO_QUAD_NFACET) :: fctq
 
   idv = 1
   gsv = 8
@@ -770,7 +770,7 @@ subroutine test_quad_actualisation_simple
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
   use quad_new, only : quad_tpl_t, quad_act_t, NEKO_QUAD_NFACET
@@ -780,7 +780,7 @@ subroutine test_quad_actualisation_simple
   type(edge_tpl_t), dimension(4) :: edt
   type(quad_tpl_t) :: qut1
   type(quad_act_t) :: qua1
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(4) :: idv, gsv, ide, gse, bne
   integer(i4) :: il, algn, hng, pos, idq1, bnq1, gsq1
   integer(i4), dimension(4) :: permv, perme
@@ -878,7 +878,7 @@ subroutine test_quad_actualisation_permute
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
   use quad_new, only : quad_tpl_t, quad_act_t, NEKO_QUAD_NFACET
@@ -888,7 +888,7 @@ subroutine test_quad_actualisation_permute
   type(edge_tpl_t), dimension(4) :: edt, edtP
   type(quad_tpl_t) :: qut1, qut1P
   type(quad_act_t) :: qua1
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(4) :: idv, gsv, ide, gse, bne, ideP, gseP
   integer(i4) :: il, algn, hng, pos, idq1, bnq1, gsq1
   integer(i4), dimension(4) :: permv, perme
@@ -951,7 +951,7 @@ subroutine test_quad_actualisation_separate
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
   use quad_new, only : quad_tpl_t, quad_act_t, NEKO_QUAD_NFACET
@@ -961,7 +961,7 @@ subroutine test_quad_actualisation_separate
   type(edge_tpl_t), dimension(8) :: edt
   type(quad_tpl_t) :: qut1, qut2
   type(quad_act_t) :: qua1
-  type(topology_object_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(8) :: idv, gsv, ide, gse, bne
   integer(i4) :: il, algn, hng, pos, idq1, bnq1, gsq1, idq2, bnq2, gsq2
   integer(i4), dimension(4) :: permv, perme
@@ -1017,18 +1017,17 @@ subroutine test_quad_mesh_simple
   use pfunit
   use num_types, only : i4, dp
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
-  use polytope_mesh, only : mesh_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
-  use quad_new, only : quad_msh_t
+  use quad_new, only : quad_elm_t
   use point, only : point_ptr, point_t
   implicit none
   class(polytope_t), pointer :: poly
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t), dimension(4) :: edt
-  type(quad_msh_t) :: qum1
-  type(topology_object_t), dimension(0) :: fctv
+  type(quad_elm_t) :: qum1
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(8) :: idv, gsv, idp
   integer(i4), dimension(8) :: ide, gse, bne
   integer(i4) :: il, jl, itmp, idq1
@@ -1162,17 +1161,16 @@ end subroutine test_quad_mesh_simple
 subroutine test_quad_mesh_permute
   use pfunit
   use num_types, only : i4, dp
-  use polytope_topology, only : topology_object_t
-  use polytope_mesh, only : mesh_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
-  use quad_new, only : quad_msh_t
+  use quad_new, only : quad_elm_t
   use point, only : point_ptr, point_t
   implicit none
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t), dimension(8) :: edt
-  type(quad_msh_t) :: qum1, qum2
-  type(topology_object_t), dimension(0) :: fctv
+  type(quad_elm_t) :: qum1, qum2
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(4) :: idv, gsv, idp
   integer(i4), dimension(8) :: ide, gse, bne
   integer(i4) :: il, jl, itmp, idq1
@@ -1256,17 +1254,16 @@ end subroutine test_quad_mesh_permute
 subroutine test_quad_mesh_share
   use pfunit
   use num_types, only : i4, dp
-  use polytope_topology, only : topology_object_t
-  use polytope_mesh, only : mesh_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
-  use quad_new, only : quad_msh_t
+  use quad_new, only : quad_elm_t
   use point, only : point_ptr, point_t
   implicit none
   type(vertex_tpl_t), dimension(8) :: vrt
   type(edge_tpl_t), dimension(8) :: edt
-  type(quad_msh_t) :: qum1, qum2
-  type(topology_object_t), dimension(0) :: fctv
+  type(quad_elm_t) :: qum1, qum2
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(8) :: idv, gsv, idp
   integer(i4), dimension(8) :: ide, gse, bne
   integer(i4) :: il, jl, itmp, idq1, idq2
@@ -1424,7 +1421,7 @@ end subroutine quad_permutations_inv
 subroutine quad_algn_tpl_get(permv, perme, vrt, istr, bne, idq, gsq, bnq, edt, &
      & ide, gse, qut)
   use num_types, only : i4
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET, fct_to_rdg
@@ -1436,8 +1433,8 @@ subroutine quad_algn_tpl_get(permv, perme, vrt, istr, bne, idq, gsq, bnq, edt, &
   type(edge_tpl_t), dimension(4), intent(out) :: edt
   integer(i4), dimension(4), intent(out) :: ide, gse
   type(quad_tpl_t), intent(out) :: qut
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  type(topology_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(NEKO_QUAD_NFACET) :: fctq
   integer(i4) :: il, algn
 
   do il = 1, NEKO_QUAD_NFACET
@@ -1468,11 +1465,11 @@ end subroutine quad_algn_tpl_get
 subroutine quad_algn_msh_get(permv, perme, vrt, pts, istr, bne, idq, gdim, &
      & edt, ide, gse, qum)
   use num_types, only : i4
-  use polytope_topology, only : topology_object_t
-  use polytope_mesh, only : mesh_object_t
+  use topology, only : topology_component_t
+  use element_new, only : element_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_act_t, NEKO_EDGE_NFACET
-  use quad_new, only : quad_msh_t, NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
+  use quad_new, only : quad_elm_t, NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
        & fct_to_rdg
   use point, only : point_ptr
   implicit none
@@ -1483,9 +1480,9 @@ subroutine quad_algn_msh_get(permv, perme, vrt, pts, istr, bne, idq, gdim, &
   integer(i4), dimension(4), intent(in) :: bne
   type(edge_tpl_t), dimension(4), intent(out) :: edt
   integer(i4), dimension(4), intent(out) :: ide, gse
-  type(quad_msh_t), intent(out) :: qum
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  type(mesh_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  type(quad_elm_t), intent(out) :: qum
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(element_component_t), dimension(NEKO_QUAD_NFACET) :: fctq
   type(point_ptr), dimension(NEKO_QUAD_NRIDGE) :: ptsl
   integer(i4) :: il, algn, hng
   logical :: ifintp

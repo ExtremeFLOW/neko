@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -51,13 +51,13 @@ module alignment_edge
      !> Is transformation identity
      procedure, pass(this) :: ifid => ifidentity_edge_I
      !> Direct transformation of full array, different types
-     procedure, nopass :: trns_i4 => transform_edge_I_i4
-     procedure, nopass :: trns_i8 => transform_edge_I_i8
-     procedure, nopass :: trns_rp => transform_edge_I_rp
+     procedure, nopass :: trns_i4 => alignment_edge_I_i4
+     procedure, nopass :: trns_i8 => alignment_edge_I_i8
+     procedure, nopass :: trns_rp => alignment_edge_I_rp
      !> Inverse transformation of full array, different types
-     procedure, nopass :: trns_inv_i4 => transform_edge_I_i4
-     procedure, nopass :: trns_inv_i8 => transform_edge_I_i8
-     procedure, nopass :: trns_inv_rp => transform_edge_I_rp
+     procedure, nopass :: trns_inv_i4 => alignment_edge_I_i4
+     procedure, nopass :: trns_inv_i8 => alignment_edge_I_i8
+     procedure, nopass :: trns_inv_rp => alignment_edge_I_rp
   end type alignment_edge_I_t
 
   !> Edge row permutation (P) transformation type
@@ -66,13 +66,13 @@ module alignment_edge
      !> Is transformation identity
      procedure, pass(this) :: ifid => ifidentity_edge_P
      !> Direct transformation of full array, different types
-     procedure, nopass :: trns_i4 => transform_edge_P_i4
-     procedure, nopass :: trns_i8 => transform_edge_P_i8
-     procedure, nopass :: trns_rp => transform_edge_P_rp
+     procedure, nopass :: trns_i4 => alignment_edge_P_i4
+     procedure, nopass :: trns_i8 => alignment_edge_P_i8
+     procedure, nopass :: trns_rp => alignment_edge_P_rp
      !> Inverse transformation of full array, different types
-     procedure, nopass :: trns_inv_i4 => transform_edge_P_i4
-     procedure, nopass :: trns_inv_i8 => transform_edge_P_i8
-     procedure, nopass :: trns_inv_rp => transform_edge_P_rp
+     procedure, nopass :: trns_inv_i4 => alignment_edge_P_i4
+     procedure, nopass :: trns_inv_i8 => alignment_edge_P_i8
+     procedure, nopass :: trns_inv_rp => alignment_edge_P_rp
   end type alignment_edge_P_t
 
 contains
@@ -151,10 +151,10 @@ contains
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_edge_I_i4(vec, n1, n2, ist)
+  pure subroutine alignment_edge_I_i4(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i4), dimension(n1, n2), intent(inout) :: vec
-  end subroutine transform_edge_I_i4
+  end subroutine alignment_edge_I_i4
 
   !> @brief Permutation transformation, single integer
   !! @notice It is a common interface for 1D and 2D operations, so the data
@@ -162,7 +162,7 @@ contains
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_edge_P_i4(vec, n1, n2, ist)
+  pure subroutine alignment_edge_P_i4(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i4), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -176,7 +176,7 @@ contains
        vec(il, n2) = vec(itmp2, n2)
        vec(itmp2, n2) = iedg
     end do
-  end subroutine transform_edge_P_i4
+  end subroutine alignment_edge_P_i4
 
   !> @brief Identity transformation, double integer array
   !! @notice It is a common interface for 1D and 2D operations, so the data
@@ -184,10 +184,10 @@ contains
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_edge_I_i8(vec, n1, n2, ist)
+  pure subroutine alignment_edge_I_i8(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i8), dimension(n1, n2), intent(inout) :: vec
-  end subroutine transform_edge_I_i8
+  end subroutine alignment_edge_I_i8
 
   !> @brief Permutation transformation, double integer, full array
   !! @notice It is a common interface for 1D and 2D operations, so the data
@@ -195,7 +195,7 @@ contains
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_edge_P_i8(vec, n1, n2, ist)
+  pure subroutine alignment_edge_P_i8(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i8), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -209,7 +209,7 @@ contains
        vec(il, n2) = vec(itmp2, n2)
        vec(itmp2, n2) = iedg
     end do
-  end subroutine transform_edge_P_i8
+  end subroutine alignment_edge_P_i8
 
   !> @brief Identity transformation, double precision array
   !! @notice It is a common interface for 1D and 2D operations, so the data
@@ -217,10 +217,10 @@ contains
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_edge_I_rp(vec, n1, n2, ist)
+  pure subroutine alignment_edge_I_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     real(rp), dimension(n1, n2), intent(inout) :: vec
-  end subroutine transform_edge_I_rp
+  end subroutine alignment_edge_I_rp
 
   !> @brief Permutation transformation, double precision, full array
   !! @notice It is a common interface for 1D and 2D operations, so the data
@@ -228,7 +228,7 @@ contains
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_edge_P_rp(vec, n1, n2, ist)
+  pure subroutine alignment_edge_P_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     real(rp), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -242,6 +242,6 @@ contains
        vec(il, n2) = vec(itmp2, n2)
        vec(itmp2, n2) = redg
     end do
-  end subroutine transform_edge_P_rp
+  end subroutine alignment_edge_P_rp
 
 end module alignment_edge

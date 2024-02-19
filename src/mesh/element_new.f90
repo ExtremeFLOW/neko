@@ -30,7 +30,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
  !> Abstract type for mesh element class
-module polytope_mesh
+module element_new
   use num_types, only : i4, dp
   use utils, only : neko_error
   use polytope, only : polytope_t
@@ -39,84 +39,84 @@ module polytope_mesh
   implicit none
   private
 
-  public :: mesh_object_t, polytope_mesh_t, mesh_element_t
+  public :: element_component_t, element_new_t, mesh_element_t
 
   !> Single component object allocatable space
-  type :: mesh_object_t
+  type :: element_component_t
      class(polytope_actualisation_t), allocatable :: obj
-  end type mesh_object_t
+  end type element_component_t
 
-  !> Base type for a mesh polytope.
+  !> Base type for a mesh elements.
   !! @details This is an abstract type building on actualisation and point data.
   !! It contains both topology and geometry information and provides the highest
   !! dimension objects in the mesh called elements in a spectral element method.
-  type, extends(polytope_t), abstract :: polytope_mesh_t
+  type, extends(polytope_t), abstract :: element_new_t
      !> Geometrical dimension
      integer(i4), private :: gdim_ = -1
      !> Polytope facets
-     type(mesh_object_t), dimension(:), allocatable :: facet
+     type(element_component_t), dimension(:), allocatable :: facet
      !> Polytope ridges
-     type(mesh_object_t), dimension(:), allocatable :: ridge
+     type(element_component_t), dimension(:), allocatable :: ridge
      !> Polytope peaks
-     type(mesh_object_t), dimension(:), allocatable ::  peak
+     type(element_component_t), dimension(:), allocatable ::  peak
      !> Number of points
      integer(i4), private :: npts_
      !> Element vertices position
      type(point_ptr), dimension(:), allocatable :: pts
    contains
      !> Free aligned polytope and interpolation data
-     procedure, pass(this) :: free => polytope_free
+     procedure, pass(this) :: free => element_free
      !> Initialise general data
-     procedure, pass(this) :: init_dat => polytope_init_data
+     procedure, pass(this) :: init_base => element_init_base
      !> Return geometrical dimension
-     procedure, pass(this) :: gdim => polytope_gdim_get
+     procedure, pass(this) :: gdim => element_gdim_get
      !> Return number of points
-     procedure, pass(this) :: npts => polytope_npts_get
+     procedure, pass(this) :: npts => element_npts_get
      !> Return a pointer to the polytope facets (faces or edges)
-     procedure, pass(this) :: fct => polytope_fct_ptr
+     procedure, pass(this) :: fct => element_fct_ptr
      !> Return a pointer to the polytope ridges (vertices or edges)
-     procedure, pass(this) :: rdg => polytope_rdg_ptr
+     procedure, pass(this) :: rdg => element_rdg_ptr
      !> Return a pointer to the polytope peaks (vertices)
-     procedure, pass(this) :: pek => polytope_pek_ptr
+     procedure, pass(this) :: pek => element_pek_ptr
      !> Return a pointer to the polytope vertex points
-     procedure, pass(this) :: pnt => polytope_pnt_ptr
+     procedure, pass(this) :: pnt => element_pnt_ptr
      !> Is polytope self-periodic?
-     procedure, pass(this) :: self_periodic => polytope_self_periodic
+     procedure, pass(this) :: self_periodic => element_self_periodic
      !> Return facets shared by polytopes
-     procedure, pass(this) :: fct_share => polytope_facet_share
+     procedure, pass(this) :: fct_share => element_facet_share
      !> Return ridges shared by polytopes
-     procedure, pass(this) :: rdg_share => polytope_ridge_share
+     procedure, pass(this) :: rdg_share => element_ridge_share
      !> Return peaks shared by polytopes
-     procedure, pass(this) :: pek_share => polytope_peak_share
+     procedure, pass(this) :: pek_share => element_peak_share
      !> Return boundary flag for a given facet
-     procedure, pass(this) :: fct_bnd => polytope_fct_bnd
+     procedure, pass(this) :: fct_bnd => element_fct_bnd
      !> Return communication id for a given facet
-     procedure, pass(this) :: fct_gsid => polytope_fct_gsid
+     procedure, pass(this) :: fct_gsid => element_fct_gsid
      !> Return communication id for a given ridge
-     procedure, pass(this) :: rdg_gsid => polytope_rdg_gsid
+     procedure, pass(this) :: rdg_gsid => element_rdg_gsid
      !> Return communication id for a given peak
-     procedure, pass(this) :: pek_gsid => polytope_pek_gsid
+     procedure, pass(this) :: pek_gsid => element_pek_gsid
      !> Return facet alignment
-     procedure, pass(this) :: falgn => polytope_fct_algn
+     procedure, pass(this) :: falgn => element_fct_algn
      !> Just required
-     procedure, pass(this) :: bnd => polytope_int_dummy
+     procedure, pass(this) :: bnd => element_int_dummy
      !> Just required
-     procedure, pass(this) :: gsid => polytope_int_dummy
+     procedure, pass(this) :: gsid => element_int_dummy
      !> Initialise a topology polytope
-     procedure(polytope_mesh_init), pass(this), deferred :: init
+     procedure(element_init), pass(this), deferred :: init
      !> Return element diameter
-     procedure(polytope_mesh_diameter), pass(this), deferred :: diameter
+     procedure(element_diameter), pass(this), deferred :: diameter
      !> Return element centroid
-     procedure(polytope_mesh_centroid), pass(this), deferred :: centroid
+     procedure(element_centroid), pass(this), deferred :: centroid
      !> Return facet @a r and @s local directions with respect to the element
      procedure(polytope_fct_dir), pass(this), deferred :: fct_dir
      !> Return ridge @a r local direction with respect to the element
      procedure(polytope_rdg_dir), pass(this), deferred :: rdg_dir
-  end type polytope_mesh_t
+  end type element_new_t
 
   !> Single mesh element allocatable space
   type :: mesh_element_t
-     class(polytope_mesh_t), allocatable :: el
+     class(element_new_t), allocatable :: obj
   end type mesh_element_t
 
   !> Initialise a polytope with geometry information
@@ -129,40 +129,40 @@ module polytope_mesh
   !! @parameter[in]   nrdg     number of hanging ridges
   !! @parameter[in]   rdg_hng  ridge hanging flag
   abstract interface
-     subroutine polytope_mesh_init(this, id, nfct, fct, npts, pts, gdim, nrdg, &
+     subroutine element_init(this, id, nfct, fct, npts, pts, gdim, nrdg, &
           & rdg_hng)
        import i4
-       import polytope_mesh_t
-       import mesh_object_t
+       import element_new_t
+       import element_component_t
        import point_ptr
-       class(polytope_mesh_t), intent(inout) :: this
+       class(element_new_t), intent(inout) :: this
        integer(i4), intent(in) :: id, nfct, npts, gdim, nrdg
-       type(mesh_object_t), dimension(nfct), intent(inout) :: fct
+       type(element_component_t), dimension(nfct), intent(inout) :: fct
        type(point_ptr), dimension(npts), intent(in) :: pts
        integer(i4), dimension(2, 3), intent(in) :: rdg_hng
-     end subroutine polytope_mesh_init
+     end subroutine element_init
   end interface
 
   !> Get element diameter
   !! @return res
   abstract interface
-     function polytope_mesh_diameter(this) result(res)
+     function element_diameter(this) result(res)
        import dp
-       import polytope_mesh_t
-       class(polytope_mesh_t), intent(in) :: this
+       import element_new_t
+       class(element_new_t), intent(in) :: this
        real(dp) :: res
-     end function polytope_mesh_diameter
+     end function element_diameter
   end interface
 
   !> Get element centroid
   !! @return res
   abstract interface
-     function polytope_mesh_centroid(this) result(res)
-       import polytope_mesh_t
+     function element_centroid(this) result(res)
+       import element_new_t
        import point_t
-       class(polytope_mesh_t), intent(in) :: this
+       class(element_new_t), intent(in) :: this
        type(point_t) :: res
-     end function polytope_mesh_centroid
+     end function element_centroid
   end interface
 
   !> Get @a r and @a s facet local directions
@@ -171,8 +171,8 @@ module polytope_mesh
   abstract interface
      subroutine polytope_fct_dir(this, pos, dirr, dirs)
        import i4
-       import polytope_mesh_t
-       class(polytope_mesh_t), intent(in) :: this
+       import element_new_t
+       class(element_new_t), intent(in) :: this
        integer(i4), intent(in) :: pos
        integer(i4), intent(out) :: dirr, dirs
      end subroutine polytope_fct_dir
@@ -184,8 +184,8 @@ module polytope_mesh
   abstract interface
      subroutine polytope_rdg_dir(this, pos, dirr)
        import i4
-       import polytope_mesh_t
-       class(polytope_mesh_t), intent(in) :: this
+       import element_new_t
+       class(element_new_t), intent(in) :: this
        integer(i4), intent(in) :: pos
        integer(i4), intent(out) :: dirr
      end subroutine polytope_rdg_dir
@@ -194,8 +194,8 @@ module polytope_mesh
 contains
 
   !> Free polytope data
-  subroutine polytope_free(this)
-    class(polytope_mesh_t), intent(inout) :: this
+  subroutine element_free(this)
+    class(element_new_t), intent(inout) :: this
     integer(i4) :: il
     this%gdim_ = -1
     if (allocated(this%facet)) then
@@ -227,7 +227,7 @@ contains
        deallocate(this%pts)
     end if
     this%npts_ = -1
-  end subroutine polytope_free
+  end subroutine element_free
 
   !> Initialise general data
   !! @parameter[in]   pltp   polytope
@@ -235,36 +235,36 @@ contains
   !! @parameter[in]   ifint  interpolation flag
   !! @parameter[in]   hng    hanging information
   !! @parameter[in]   pos    position in the higher order element
-  subroutine polytope_init_data(this, gdim, npts)
-    class(polytope_mesh_t), intent(inout) :: this
+  subroutine element_init_base(this, gdim, npts)
+    class(element_new_t), intent(inout) :: this
     integer(i4), intent(in) :: gdim, npts
 
     this%gdim_ = gdim
     this%npts_ = npts
 
-  end subroutine polytope_init_data
+  end subroutine element_init_base
 
   !> @brief Get geometrical dimension
   !! @return   gdim
-  pure function polytope_gdim_get(this) result(gdim)
-    class(polytope_mesh_t), intent(in) :: this
+  pure function element_gdim_get(this) result(gdim)
+    class(element_new_t), intent(in) :: this
     integer(i4) :: gdim
     gdim = this%gdim_
-  end function polytope_gdim_get
+  end function element_gdim_get
 
   !> @brief Get number of points
   !! @return   npts
-  pure function polytope_npts_get(this) result(npts)
-    class(polytope_mesh_t), intent(in) :: this
+  pure function element_npts_get(this) result(npts)
+    class(element_new_t), intent(in) :: this
     integer(i4) :: npts
     npts = this%npts_
-  end function polytope_npts_get
+  end function element_npts_get
 
   !> @brief Return pointer to the polytope facet
   !! @parameter[in]   pos   polytope component position
   !! @return ptr
-  function polytope_fct_ptr(this, pos) result(ptr)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_fct_ptr(this, pos) result(ptr)
+    class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     class(polytope_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%nfacet)) then
@@ -272,13 +272,13 @@ contains
     else
        call neko_error('Wrong facet number for mesh objects.')
     end if
-  end function polytope_fct_ptr
+  end function element_fct_ptr
 
   !> @brief Return pointer to the polytope ridge
   !! @parameter[in]   pos   polytope component position
   !! @return ptr
-  function polytope_rdg_ptr(this, pos) result(ptr)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_rdg_ptr(this, pos) result(ptr)
+    class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     class(polytope_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%nridge)) then
@@ -286,13 +286,13 @@ contains
     else
        call neko_error('Wrong ridge number for mesh objects.')
     end if
-  end function polytope_rdg_ptr
+  end function element_rdg_ptr
 
   !> @brief Return pointer to the polytope peak
   !! @parameter[in]   pos   polytope component position
   !! @return ptr
-  function polytope_pek_ptr(this, pos) result(ptr)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_pek_ptr(this, pos) result(ptr)
+    class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     class(polytope_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%npeak)) then
@@ -300,13 +300,13 @@ contains
     else
        call neko_error('Wrong peak number for mesh objects.')
     end if
-  end function polytope_pek_ptr
+  end function element_pek_ptr
 
   !> @brief Return pointer to the polytope vertex point
   !! @parameter[in]   pos   polytope point position
   !! @return ptr
-  function polytope_pnt_ptr(this, pos) result(ptr)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_pnt_ptr(this, pos) result(ptr)
+    class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     type(point_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%npts_)) then
@@ -314,12 +314,12 @@ contains
     else
        call neko_error('Wrong point number for mesh objects.')
     end if
-  end function polytope_pnt_ptr
+  end function element_pnt_ptr
 
   !> @brief Check if polytope is self-periodic
   !! @return   selfp
-  function polytope_self_periodic(this) result(selfp)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_self_periodic(this) result(selfp)
+    class(element_new_t), intent(in) :: this
     logical :: selfp
     integer(i4) :: il, jl, itmp, algn
 
@@ -352,15 +352,15 @@ contains
     else
        selfp = .true.
     end if
-  end function polytope_self_periodic
+  end function element_self_periodic
 
   !> @brief Return positions of facets shared by polytopes
   !! @note Polytopes can be self-periodic
   !! @parameter[in]   other   second polytope
   !! @parameter[out]  ishare  number of shared facets
   !! @parameter[out]  facetp  integer position of shared facets
-  subroutine polytope_facet_share(this, other, ishare, facetp)
-    class(polytope_mesh_t), intent(in) :: this, other
+  subroutine element_facet_share(this, other, ishare, facetp)
+    class(element_new_t), intent(in) :: this, other
     integer(i4), intent(out) :: ishare
     integer(i4), dimension(:, :), allocatable, intent(out) :: facetp
     integer(i4) :: il, jl
@@ -377,15 +377,15 @@ contains
           end if
        end do
     end do
-  end subroutine polytope_facet_share
+  end subroutine element_facet_share
 
   !> @brief Return positions of ridges shared by polytopes
   !! @note Polytopes can be self-periodic
   !! @parameter[in]   other   second polytope
   !! @parameter[out]  ishare  number of shared facets
   !! @parameter[out]  facetp  integer position of shared facets
-  subroutine polytope_ridge_share(this, other, ishare, facetp)
-    class(polytope_mesh_t), intent(in) :: this, other
+  subroutine element_ridge_share(this, other, ishare, facetp)
+    class(element_new_t), intent(in) :: this, other
     integer(i4), intent(out) :: ishare
     integer(i4), dimension(:, :), allocatable, intent(out) :: facetp
     integer(i4) :: il, jl
@@ -402,15 +402,15 @@ contains
           end if
        end do
     end do
-  end subroutine polytope_ridge_share
+  end subroutine element_ridge_share
 
   !> @brief Return positions of peaks (vertices) shared by polytopes
   !! @note Plytopes can be self-periodic
   !! @parameter[in]   other   second polytope
   !! @parameter[out]  ishare  number of shared vertices
   !! @parameter[out]  ridgep  integer position of shared vertices
-  pure subroutine polytope_peak_share(this, other, ishare, ridgep)
-    class(polytope_mesh_t), intent(in) :: this, other
+  pure subroutine element_peak_share(this, other, ishare, ridgep)
+    class(element_new_t), intent(in) :: this, other
     integer(i4), intent(out) :: ishare
     integer(i4), dimension(:, :), allocatable, intent(out) :: ridgep
     integer(i4) :: il, jl
@@ -428,13 +428,13 @@ contains
           end if
        end do
     end do
-  end subroutine polytope_peak_share
+  end subroutine element_peak_share
 
   !> @brief Return boundary flag of the polytope facet
   !! @parameter[in]   pos   polytope facet position
   !! @return bnd
-  function polytope_fct_bnd(this, pos) result(bnd)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_fct_bnd(this, pos) result(bnd)
+    class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     integer(i4) :: bnd
     if ((pos > 0) .and. (pos <= this%nfacet)) then
@@ -442,13 +442,13 @@ contains
     else
        call neko_error('Wrong facet number for mesh objects boundary.')
     end if
-  end function polytope_fct_bnd
+  end function element_fct_bnd
 
   !> @brief Return communication id of the polytope facet
   !! @parameter[in]   pos   polytope facet position
   !! @return gsid
-  function polytope_fct_gsid(this, pos) result(gsid)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_fct_gsid(this, pos) result(gsid)
+    class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     integer(i4) :: gsid
     if ((pos > 0) .and. (pos <= this%nfacet)) then
@@ -456,13 +456,13 @@ contains
     else
        call neko_error('Wrong facet number for mesh objects gsid.')
     end if
-  end function polytope_fct_gsid
+  end function element_fct_gsid
 
   !> @brief Return communication id of the polytope ridge
   !! @parameter[in]   pos   polytope ridge position
   !! @return gsid
-  function polytope_rdg_gsid(this, pos) result(gsid)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_rdg_gsid(this, pos) result(gsid)
+    class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     integer(i4) :: gsid
     if ((pos > 0) .and. (pos <= this%nridge)) then
@@ -470,13 +470,13 @@ contains
     else
        call neko_error('Wrong ridge number for mesh objects gsid.')
     end if
-  end function polytope_rdg_gsid
+  end function element_rdg_gsid
 
   !> @brief Return communication id of the polytope peak
   !! @parameter[in]   pos   polytope peak position
   !! @return gsid
-  function polytope_pek_gsid(this, pos) result(gsid)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_pek_gsid(this, pos) result(gsid)
+    class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     integer(i4) :: gsid
     if ((pos > 0) .and. (pos <= this%npeak)) then
@@ -484,24 +484,24 @@ contains
     else
        call neko_error('Wrong peak number for mesh objects gsid.')
     end if
-  end function polytope_pek_gsid
+  end function element_pek_gsid
 
   !> Return facet alignment
   !! @return algn
-  function polytope_fct_algn(this, pos) result(algn)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_fct_algn(this, pos) result(algn)
+    class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     integer(i4) :: algn
     algn = this%facet(pos)%obj%algn_op%algn()
-  end function polytope_fct_algn
+  end function element_fct_algn
 
   !> Dummy routine pretending to extract integer property
   !! @return intp
-  function polytope_int_dummy(this) result(intp)
-    class(polytope_mesh_t), intent(in) :: this
+  function element_int_dummy(this) result(intp)
+    class(element_new_t), intent(in) :: this
     integer(i4) :: intp
     intp = - 1
     call neko_error('This property should not be used for mesh objects.')
-  end function polytope_int_dummy
+  end function element_int_dummy
 
-end module polytope_mesh
+end module element_new

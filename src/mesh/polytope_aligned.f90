@@ -40,10 +40,10 @@ module polytope_aligned
   public :: polytope_aligned_t
 
   !> Base type for an abstract aligned polytope
-  !! @details This is an abstract type combining @ref polytope_t and an alignment
-  !! operator. Note that vertices have no alignment. This type corresponds to
-  !! building blocs of the higher dimension abstract objects the topology or
-  !! mesh consists of.
+  !! @details This is an abstract type combining @ref polytope_t and an
+  !! alignment operator. Note that vertices have no alignment. This type
+  !! corresponds to building blocs of the higher dimension abstract objects
+  !! the topology or mesh consists of.
   type, abstract :: polytope_aligned_t
      !> Polytope pointer
      class(polytope_t), pointer :: polytope => null()
@@ -53,22 +53,32 @@ module polytope_aligned
      class(alignment_t), allocatable :: algn_op
    contains
      !> Free polytope and aligned data
-     procedure, pass(this) :: free_base => polytope_free_base
+     procedure, pass(this) :: free_base => polytope_aligned_free_base
      !> Initialise alignment data
-     procedure, pass(this) :: init_data => polytope_init_data
+     procedure, pass(this) :: init_base => polytope_aligned_init_base
      !> Return a pointer to the polytope
-     procedure, pass(this) :: polyp => polytope_ptr
+     procedure, pass(this) :: polyp => polytope_aligned_ptr
      !> Return alignment flag
-     procedure, pass(this) :: ifalgn => polytope_ifalgn_get
+     procedure, pass(this) :: ifalgn => polytope_aligned_ifalgn_get
      !> Return alignment value
-     procedure, pass(this) :: algn => polytope_algn_get
+     procedure, pass(this) :: algn => polytope_aligned_algn_get
      !> Test equality
-     procedure, pass(this) :: equal => polytope_equal
+     procedure, pass(this) :: equal => polytope_aligned_equal
+     !> Free type
+     procedure(polytope_aligned_free), pass(this), deferred :: free
      !> Test equality and find alignment
      procedure(polytope_aligned_equal_algn), pass(this), deferred :: equal_algn
      !> Test alignment
      procedure(polytope_aligned_test), pass(this), deferred :: test
   end type polytope_aligned_t
+
+  !> Free type
+  abstract interface
+     subroutine polytope_aligned_free(this)
+       import polytope_aligned_t
+       class(polytope_aligned_t), intent(inout) :: this
+     end subroutine polytope_aligned_free
+  end interface
 
   !> Check polytope equality and return alignment
   !! @parameter[in]    other  polytope
@@ -102,44 +112,44 @@ module polytope_aligned
 contains
 
   !> Free polytope and aligned data
-  subroutine polytope_free_base(this)
+  subroutine polytope_aligned_free_base(this)
     class(polytope_aligned_t), intent(inout) :: this
     this%polytope => null()
     this%ifaligned_ = .false.
     if (allocated(this%algn_op)) deallocate(this%algn_op)
-  end subroutine polytope_free_base
+  end subroutine polytope_aligned_free_base
 
   !> Initialise general data
   !! @parameter[in]   pltp   polytope
   !! @parameter[in]   ifalgn if non identity alignment
-  subroutine polytope_init_data(this, pltp, ifalgn)
+  subroutine polytope_aligned_init_base(this, pltp, ifalgn)
     class(polytope_aligned_t), intent(inout) :: this
     class(polytope_t), target, intent(in) :: pltp
     logical, intent(in)  :: ifalgn
 
     this%polytope => pltp
     this%ifaligned_ = ifalgn
-  end subroutine polytope_init_data
+  end subroutine polytope_aligned_init_base
 
   !> @brief Return pointer to the polytope
   !! @parameter[out]  poly   polytope pointer
-  subroutine polytope_ptr(this, poly)
+  subroutine polytope_aligned_ptr(this, poly)
     class(polytope_aligned_t), intent(in) :: this
     class(polytope_t), pointer, intent(out) :: poly
     poly => this%polytope
-  end subroutine polytope_ptr
+  end subroutine polytope_aligned_ptr
 
   !> @brief Get polytope alignment flag
   !! @return   ifalgn
-  pure function polytope_ifalgn_get(this) result(ifalgn)
+  pure function polytope_aligned_ifalgn_get(this) result(ifalgn)
     class(polytope_aligned_t), intent(in) :: this
     logical :: ifalgn
     ifalgn = this%ifaligned_
-  end function polytope_ifalgn_get
+  end function polytope_aligned_ifalgn_get
 
   !> @brief Get polytope alignment
   !! @return   algn
-  pure function polytope_algn_get(this) result(algn)
+  pure function polytope_aligned_algn_get(this) result(algn)
     class(polytope_aligned_t), intent(in) :: this
     integer(i4) :: algn
     if (allocated(this%algn_op)) then
@@ -147,17 +157,17 @@ contains
     else
        algn = -1
     end if
-  end function polytope_algn_get
+  end function polytope_aligned_algn_get
 
   !> Test equality
   !! @parameter[in]   other   polytope
   !! @return equal
-  function polytope_equal(this, other) result(equal)
+  function polytope_aligned_equal(this, other) result(equal)
     class(polytope_aligned_t), intent(in) :: this
     class(polytope_t), intent(in) :: other
     logical :: equal
     integer(i4) :: itmp
     call this%equal_algn(other, equal, itmp)
-  end function polytope_equal
+  end function polytope_aligned_equal
 
 end module polytope_aligned

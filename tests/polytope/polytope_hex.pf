@@ -3,20 +3,19 @@ subroutine test_hex_mesh_simple
   use pfunit
   use num_types, only : i4, dp
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
-  use polytope_mesh, only : mesh_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET
-  use hex_new, only : hex_msh_t, NEKO_HEX_NFACET
+  use hex_new, only : hex_elm_t, NEKO_HEX_NFACET
   use point, only : point_ptr, point_t
   implicit none
   class(polytope_t), pointer :: poly
   type(vertex_tpl_t), dimension(8) :: vrt
   type(edge_tpl_t), dimension(12) :: edt
   type(quad_tpl_t), dimension(6) :: qut
-  type(hex_msh_t) :: hxm1
-  type(topology_object_t), dimension(0) :: fctv
+  type(hex_elm_t) :: hxm1
+  type(topology_component_t), dimension(0) :: fctv
   integer(i4), dimension(8) :: idv, gsv, idp
   integer(i4), dimension(12) :: ide, gse
   integer(i4), dimension(6) :: idq, gsq, bnq
@@ -190,12 +189,12 @@ end subroutine hex_permutations
 subroutine hex_algn_msh_get(permv, perme, permq, vrt, pts, istr, idh, gdim, &
      & edt, ide, gse, qut, idq, gsq, bnq, hxm)
   use num_types, only : i4
-  use polytope_topology, only : topology_object_t
-  use polytope_mesh, only : mesh_object_t
+  use topology, only : topology_component_t
+  use element_new, only : element_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, quad_act_t, NEKO_QUAD_NFACET
-  use hex_new, only : hex_msh_t, NEKO_HEX_NFACET, NEKO_HEX_NRIDGE, &
+  use hex_new, only : hex_elm_t, NEKO_HEX_NFACET, NEKO_HEX_NRIDGE, &
        & NEKO_HEX_NPEAK, fct_to_rdg, rdg_to_pek
   use point, only : point_ptr
   implicit none
@@ -209,10 +208,10 @@ subroutine hex_algn_msh_get(permv, perme, permq, vrt, pts, istr, idh, gdim, &
   integer(i4), dimension(12), intent(out) :: ide, gse
   type(quad_tpl_t), dimension(6), intent(out) :: qut
   integer(i4), dimension(6), intent(out) :: idq, gsq, bnq
-  type(hex_msh_t), intent(out) :: hxm
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  type(topology_object_t), dimension(NEKO_QUAD_NFACET) :: fctq
-  type(mesh_object_t), dimension(NEKO_HEX_NFACET) :: fcth
+  type(hex_elm_t), intent(out) :: hxm
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(NEKO_QUAD_NFACET) :: fctq
+  type(element_component_t), dimension(NEKO_HEX_NFACET) :: fcth
   type(point_ptr), dimension(NEKO_HEX_NPEAK) :: ptsl
   integer(i4) :: il, bne, algn, hng
   logical :: ifintp

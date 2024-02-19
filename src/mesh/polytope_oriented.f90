@@ -50,7 +50,7 @@ module polytope_oriented
   type, extends(polytope_aligned_t), abstract :: polytope_oriented_t
    contains
      !> Free aligned polytope
-     procedure, pass(this) :: free => polytope_free
+     procedure, pass(this) :: free => polytope_oriented_free
      !> Initialise an aligned polytope
      procedure(polytope_oriented_init), pass(this), deferred :: init
   end type polytope_oriented_t
@@ -72,10 +72,10 @@ module polytope_oriented
 contains
 
   !> Free oriented polytope
-  subroutine polytope_free(this)
+  subroutine polytope_oriented_free(this)
     class(polytope_oriented_t), intent(inout) :: this
 
     call this%free_base()
-  end subroutine polytope_free
+  end subroutine polytope_oriented_free
 
 end module polytope_oriented

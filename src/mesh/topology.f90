@@ -30,7 +30,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Abstract type for abstract polytope class for mesh topology
-module polytope_topology
+module topology
   use num_types, only : i4
   use utils, only : neko_error
   use polytope, only : polytope_t
@@ -38,57 +38,57 @@ module polytope_topology
   implicit none
   private
 
-  public :: topology_object_t, polytope_topology_t, topology_element_t
+  public :: topology_component_t, topology_t, topology_element_t
 
   !> Single topology object allocatable space
-  type :: topology_object_t
+  type :: topology_component_t
      class(polytope_oriented_t), allocatable :: obj
-  end type topology_object_t
+  end type topology_component_t
 
   !> Base type for an abstract topology polytope
   !! @details This is an abstract type combining a set of lower dimension
   !! polytopes and boundary condition into the topology object.
-  type, extends(polytope_t), abstract :: polytope_topology_t
+  type, extends(polytope_t), abstract :: topology_t
      !> Polytope facets
-     type(topology_object_t), dimension(:), allocatable :: facet
+     type(topology_component_t), dimension(:), allocatable :: facet
      !> Polytope ridges
-     type(topology_object_t), dimension(:), allocatable :: ridge
+     type(topology_component_t), dimension(:), allocatable :: ridge
      !> Internal/external boundary condition flag
      integer(i4), private :: boundary_ = -1
      !> Polytope global id used for numbering of dof for gather-scatter
      integer(i4), private :: gsid_ = -1
    contains
      !> Free polytope data
-     procedure, pass(this) :: free => polytope_free
+     procedure, pass(this) :: free => topology_free
      !> Return a pointer to the polytope facets
-     procedure, pass(this) :: fct => polytope_fct_ptr
+     procedure, pass(this) :: fct => topology_fct_ptr
      !> Return a pointer to the polytope ridges
-     procedure, pass(this) :: rdg => polytope_rdg_ptr
+     procedure, pass(this) :: rdg => topology_rdg_ptr
      !> Return a pointer to the polytope peaks; not used
-     procedure, pass(this) :: pek => polytope_pek_ptr
+     procedure, pass(this) :: pek => topology_pek_ptr
      !> Return boundary value
-     procedure, pass(this) :: bnd => polytope_bnd_get
+     procedure, pass(this) :: bnd => topology_bnd_get
      !> Set boundary value
-     procedure, pass(this) :: set_bnd => polytope_bnd_set
+     procedure, pass(this) :: set_bnd => topology_bnd_set
      !> Return communication global id
-     procedure, pass(this) :: gsid => polytope_gsid_get
+     procedure, pass(this) :: gsid => topology_gsid_get
      !> Set communication global id
-     procedure, pass(this) :: set_gsid => polytope_gsid_set
+     procedure, pass(this) :: set_gsid => topology_gsid_set
      !> Is polytope self-periodic?
-     procedure, pass(this) :: self_periodic => polytope_self_periodic
+     procedure, pass(this) :: self_periodic => topology_self_periodic
      !> Return facets shared by polytopes
-     procedure, pass(this) :: fct_share => polytope_facet_share
+     procedure, pass(this) :: fct_share => topology_facet_share
      !> Return ridges shared by polytopes
-     procedure, pass(this) :: rdg_share => polytope_ridge_share
+     procedure, pass(this) :: rdg_share => topology_ridge_share
      !> Return facet alignment
-     procedure, pass(this) :: falgn => polytope_fct_algn
+     procedure, pass(this) :: falgn => topology_fct_algn
      !> Initialise a topology polytope
-     procedure(polytope_topology_init), pass(this), deferred :: init
-  end type polytope_topology_t
+     procedure(topology_init), pass(this), deferred :: init
+  end type topology_t
 
   !> Single topology element allocatable space
   type :: topology_element_t
-     class(polytope_topology_t), allocatable :: el
+     class(topology_t), allocatable :: obj
   end type topology_element_t
 
   !> Abstract interface to initialise a polytope with boundary information
@@ -97,21 +97,21 @@ module polytope_topology
   !! @parameter[inout]   fct    polytope facets
   !! @parameter[in]      bnd    external boundary information
   abstract interface
-     subroutine polytope_topology_init(this, id, nfct, fct, bnd)
+     subroutine topology_init(this, id, nfct, fct, bnd)
        import i4
-       import polytope_topology_t
-       import topology_object_t
-       class(polytope_topology_t), intent(inout) :: this
+       import topology_t
+       import topology_component_t
+       class(topology_t), intent(inout) :: this
        integer(i4), intent(in) :: id, nfct, bnd
-       type(topology_object_t), dimension(nfct), intent(inout) :: fct
-     end subroutine polytope_topology_init
+       type(topology_component_t), dimension(nfct), intent(inout) :: fct
+     end subroutine topology_init
   end interface
 
 contains
 
   !> Free polytope data
-  subroutine polytope_free(this)
-    class(polytope_topology_t), intent(inout) :: this
+  subroutine topology_free(this)
+    class(topology_t), intent(inout) :: this
     integer(i4) :: il
     this%boundary_ = -1
     this%gsid_ = -1
@@ -130,13 +130,13 @@ contains
        deallocate(this%ridge)
     end if
     call this%free_base()
-  end subroutine polytope_free
+  end subroutine topology_free
 
   !> @brief Return pointer to the polytope facet
   !! @parameter[in]   pos   polytope component position
   !! @return ptr
-  function polytope_fct_ptr(this, pos) result(ptr)
-    class(polytope_topology_t), intent(in) :: this
+  function topology_fct_ptr(this, pos) result(ptr)
+    class(topology_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     class(polytope_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%nfacet)) then
@@ -144,13 +144,13 @@ contains
     else
        call neko_error('Wrong facet number for topology objects.')
     end if
-  end function polytope_fct_ptr
+  end function topology_fct_ptr
 
   !> @brief Return pointer to the polytope ridge
   !! @parameter[in]   pos   polytope component position
   !! @return ptr
-  function polytope_rdg_ptr(this, pos) result(ptr)
-    class(polytope_topology_t), intent(in) :: this
+  function topology_rdg_ptr(this, pos) result(ptr)
+    class(topology_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     class(polytope_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%nridge)) then
@@ -158,55 +158,55 @@ contains
     else
        call neko_error('Wrong ridge number for topology objects.')
     end if
-  end function polytope_rdg_ptr
+  end function topology_rdg_ptr
 
   !> @brief Return pointer to the polytope peak; not used
   !! @parameter[in]   pos   polytope component position
   !! @return ptr
-  function polytope_pek_ptr(this, pos) result(ptr)
-    class(polytope_topology_t), intent(in) :: this
+  function topology_pek_ptr(this, pos) result(ptr)
+    class(topology_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     class(polytope_t), pointer :: ptr
     ptr => null()
     call neko_error('Topology objects have no peaks.')
-  end function polytope_pek_ptr
+  end function topology_pek_ptr
 
   !> @brief Get polytope boundary information
   !! @return   intp
-  pure function polytope_bnd_get(this) result(intp)
-    class(polytope_topology_t), intent(in) :: this
+  pure function topology_bnd_get(this) result(intp)
+    class(topology_t), intent(in) :: this
     integer(i4) :: intp
     intp = this%boundary_
-  end function polytope_bnd_get
+  end function topology_bnd_get
 
   !> @brief Set boundary value
   !! @parameter[in]   bnd     boundary information
-  subroutine polytope_bnd_set(this, bnd)
-    class(polytope_topology_t), intent(inout) :: this
+  subroutine topology_bnd_set(this, bnd)
+    class(topology_t), intent(inout) :: this
     integer(i4), intent(in) :: bnd
     this%boundary_ = bnd
-  end subroutine polytope_bnd_set
+  end subroutine topology_bnd_set
 
   !> @brief Get communication global id
   !! @return   intp
-  pure function polytope_gsid_get(this) result(intp)
-    class(polytope_topology_t), intent(in) :: this
+  pure function topology_gsid_get(this) result(intp)
+    class(topology_t), intent(in) :: this
     integer(i4) :: intp
     intp = this%gsid_
-  end function polytope_gsid_get
+  end function topology_gsid_get
 
   !> @brief Set communication global id
   !! @parameter[in]   gsid     polytope communication global id
-  subroutine polytope_gsid_set(this, gsid)
-    class(polytope_topology_t), intent(inout) :: this
+  subroutine topology_gsid_set(this, gsid)
+    class(topology_t), intent(inout) :: this
     integer(i4), intent(in) :: gsid
     this%gsid_ = gsid
-  end subroutine polytope_gsid_set
+  end subroutine topology_gsid_set
 
   !> @brief Check if polytope is self-periodic
   !! @return   selfp
-  function polytope_self_periodic(this) result(selfp)
-    class(polytope_topology_t), intent(in) :: this
+  function topology_self_periodic(this) result(selfp)
+    class(topology_t), intent(in) :: this
     logical :: selfp
     integer(i4) :: il, jl, itmp, algn
 
@@ -231,15 +231,15 @@ contains
     else
        selfp = .true.
     end if
-  end function polytope_self_periodic
+  end function topology_self_periodic
 
   !> @brief Return positions of facets shared by polytopes
   !! @note Polytopes can be self-periodic
   !! @parameter[in]   other   second polytope
   !! @parameter[out]  ishare  number of shared facets
   !! @parameter[out]  facetp  integer position of shared facets
-  subroutine polytope_facet_share(this, other, ishare, facetp)
-    class(polytope_topology_t), intent(in) :: this, other
+  subroutine topology_facet_share(this, other, ishare, facetp)
+    class(topology_t), intent(in) :: this, other
     integer(i4), intent(out) :: ishare
     integer(i4), dimension(:, :), allocatable, intent(out) :: facetp
     integer(i4) :: il, jl
@@ -256,15 +256,15 @@ contains
           end if
        end do
     end do
-  end subroutine polytope_facet_share
+  end subroutine topology_facet_share
 
   !> @brief Return positions of ridges (vertices) shared by polytopes
   !! @note Plytopes can be self-periodic
   !! @parameter[in]   other   second polytope
   !! @parameter[out]  ishare  number of shared vertices
   !! @parameter[out]  ridgep  integer position of shared vertices
-  pure subroutine polytope_ridge_share(this, other, ishare, ridgep)
-    class(polytope_topology_t), intent(in) :: this, other
+  pure subroutine topology_ridge_share(this, other, ishare, ridgep)
+    class(topology_t), intent(in) :: this, other
     integer(i4), intent(out) :: ishare
     integer(i4), dimension(:, :), allocatable, intent(out) :: ridgep
     integer(i4) :: il, jl
@@ -282,12 +282,12 @@ contains
           end if
        end do
     end do
-  end subroutine polytope_ridge_share
+  end subroutine topology_ridge_share
 
   !> Return facet alignment
   !! @return algn
-  function polytope_fct_algn(this, pos) result(algn)
-    class(polytope_topology_t), intent(in) :: this
+  function topology_fct_algn(this, pos) result(algn)
+    class(topology_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     integer(i4) :: algn
     if ((pos > 0) .and. (pos <= this%nfacet)) then
@@ -295,6 +295,6 @@ contains
     else
        call neko_error('Wrong facet number for topology objects.')
     end if
-  end function polytope_fct_algn
+  end function topology_fct_algn
 
-end module polytope_topology
+end module topology

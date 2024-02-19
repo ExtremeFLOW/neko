@@ -3,15 +3,15 @@ subroutine test_edge_topology_simple
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
   implicit none
   class(polytope_t), pointer :: poly
   type(vertex_tpl_t), dimension(2) :: vrt
   type(edge_tpl_t) :: edt1
-  type(topology_object_t), dimension(0) :: fctv
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
   integer(i4), dimension(2) :: idv, gsv
   integer(i4) :: il, itmp, ide1, bne1, gse1
 
@@ -77,15 +77,15 @@ subroutine test_edge_topology_permutation
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
   implicit none
   class(polytope_t), pointer :: poly
   type(vertex_tpl_t), dimension(2) :: vrt
   type(edge_tpl_t) :: edt1, edt2
-  type(topology_object_t), dimension(0) :: fctv
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
   integer(i4), dimension(2) :: idv, gsv
   integer(i4) :: il, itmp, ide1, bne1, gse1, ide2, bne2, gse2
   integer(i4), dimension(:, :), allocatable :: facetp
@@ -170,15 +170,15 @@ subroutine test_edge_topology_share
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
   implicit none
   class(polytope_t), pointer :: poly
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t) :: edt1, edt2
-  type(topology_object_t), dimension(0) :: fctv
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
   integer(i4), dimension(4) :: idv, gsv
   integer(i4) :: il, itmp, ide1, bne1, gse1, ide2, bne2, gse2
   integer(i4), dimension(:, :), allocatable :: facetp
@@ -275,7 +275,7 @@ subroutine test_edge_oriented_simple
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   implicit none
@@ -283,8 +283,8 @@ subroutine test_edge_oriented_simple
   type(vertex_tpl_t), dimension(2) :: vrt
   type(edge_tpl_t) :: edt1
   type(edge_ornt_t) :: edo1
-  type(topology_object_t), dimension(0) :: fctv
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
   integer(i4), dimension(2) :: idv, gsv
   integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, gse1, gse2, algn
   logical :: equal
@@ -366,7 +366,7 @@ subroutine test_edge_oriented_permute
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   implicit none
@@ -374,8 +374,8 @@ subroutine test_edge_oriented_permute
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t) :: edt1, edt1P, edt2
   type(edge_ornt_t) :: edo1
-  type(topology_object_t), dimension(0) :: fctv
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
   integer(i4), dimension(4) :: idv, gsv
   integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, gse1, gse2, algn
   logical :: equal
@@ -478,7 +478,7 @@ subroutine test_edge_actualisation
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use polytope_topology, only : topology_object_t
+  use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_act_t, NEKO_EDGE_NFACET
   implicit none
@@ -486,8 +486,8 @@ subroutine test_edge_actualisation
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t) :: edt1, edt1P, edt2
   type(edge_act_t) :: eda1
-  type(topology_object_t), dimension(0) :: fctv
-  type(topology_object_t), dimension(NEKO_EDGE_NFACET) :: fcte
+  type(topology_component_t), dimension(0) :: fctv
+  type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
   integer(i4), dimension(4) :: idv, gsv
   integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, gse1, gse2, algn, hng, pos
   logical :: equal, ifintp

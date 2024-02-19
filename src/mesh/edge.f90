@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ module edge
   use utils, only : neko_error
   use polytope, only : polytope_t
   use polytope_oriented, only : polytope_oriented_t
-  use polytope_topology, only : polytope_topology_t, topology_object_t
+  use topology, only : topology_t, topology_component_t
   use polytope_actualisation, only : polytope_actualisation_t
   use alignment_edge, only : alignment_edge_init, alignment_edge_find
   use vertex, only : NEKO_VERTEX_TDIM
@@ -65,7 +65,7 @@ module edge
   !! structure we add this information here. This information is stored in
   !! @a boundary field (0 -internal, 1 - periodic, ....). In case of 3D mesh
   !! its value should be set to -1 and not used.
-  type, extends(polytope_topology_t) :: edge_tpl_t
+  type, extends(topology_t) :: edge_tpl_t
    contains
      !> Initialise a topology polytope
      procedure, pass(this) :: init => edge_tpl_init
@@ -162,7 +162,7 @@ contains
   subroutine edge_tpl_init(this, id, nfct, fct, bnd)
     class(edge_tpl_t), intent(inout) :: this
     integer(i4), intent(in) :: id, nfct, bnd
-    type(topology_object_t), dimension(nfct), intent(inout) :: fct
+    type(topology_component_t), dimension(nfct), intent(inout) :: fct
     integer(i4) :: il
 
     call this%free()
@@ -244,7 +244,7 @@ contains
        call alignment_edge_init(algn, this%algn_op)
        ! mark non identity alignment
        ifalgn = .not. this%algn_op%ifid()
-       call this%init_data(pltp, ifalgn)
+       call this%init_base(pltp, ifalgn)
     else
        call neko_error('Edge aligned; wrong pointer dimension.')
     end if
@@ -346,7 +346,7 @@ contains
        ! mark non identity alignment
        ifalgn = .not. this%algn_op%ifid()
        if (hng >= 0 .and. hng <= 5) then
-          call this%init_dat(pltp, ifalgn, ifint, hng, pos)
+          call this%init_act(pltp, ifalgn, ifint, hng, pos)
        else
           call neko_error('Inconsistent edge hanging information.')
        end if

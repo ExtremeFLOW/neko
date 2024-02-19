@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,9 @@ module quad_new
   use num_types, only : i4, dp
   use utils, only : neko_error
   use polytope, only : polytope_t, polytope_ptr
-  use polytope_topology, only : polytope_topology_t, topology_object_t
+  use topology, only : topology_t, topology_component_t
   use polytope_actualisation, only : polytope_actualisation_t
-  use polytope_mesh, only : polytope_mesh_t, mesh_object_t
+  use element_new, only : element_new_t, element_component_t
   use alignment_quad, only : alignment_quad_init, alignment_quad_find
   use vertex, only : vertex_ornt_t, vertex_act_t
   use edge, only : NEKO_EDGE_TDIM, NEKO_EDGE_NFACET
@@ -45,7 +45,7 @@ module quad_new
   implicit none
   private
 
-  public :: quad_tpl_t, quad_act_t, quad_msh_t
+  public :: quad_tpl_t, quad_act_t, quad_elm_t
 
   ! object information
   integer(i4), public, parameter :: NEKO_QUAD_TDIM = 2
@@ -73,7 +73,7 @@ module quad_new
   !! @endverbatim
   !! Abstract quad actualisation are facets of cells. For three-dimensional
   !! meshes quads contain internal/external boundary information.
-  type, extends(polytope_topology_t) :: quad_tpl_t
+  type, extends(topology_t) :: quad_tpl_t
    contains
      !> Initialise a topology polytope
      procedure, pass(this) :: init => quad_tpl_init
@@ -114,25 +114,25 @@ module quad_new
      procedure, pass(this) :: test => quad_act_test
   end type quad_act_t
 
-  !> Type for quad as mesh object
-  !! @details For two-dimensional meshes quads are mesh objects. For facet and
+  !> Type for quad as a mesh element
+  !! @details For two-dimensional meshes quads are elements. For facet and
   !! ridge numbering see @ref quad_tpl_t. Local numbering of the geometrical
   !! points corresponds to the ridge numbering.
-  type, extends(polytope_mesh_t) :: quad_msh_t
+  type, extends(element_new_t) :: quad_elm_t
    contains
      !> Initialise a topology polytope
-     procedure, pass(this)  :: init => quad_msh_init
+     procedure, pass(this)  :: init => quad_elm_init
      !> Test equality
-     procedure, pass(this) :: equal => quad_msh_equal
+     procedure, pass(this) :: equal => quad_elm_equal
      !> Return element diameter
-     procedure, pass(this) :: diameter => quad_msh_diameter
+     procedure, pass(this) :: diameter => quad_elm_diameter
      !> Return element centroid
-     procedure, pass(this) :: centroid => quad_msh_centroid
+     procedure, pass(this) :: centroid => quad_elm_centroid
      !> Return facet @a r and @s local directions with respect to the element
-     procedure, pass(this) :: fct_dir => quad_fct_dir
+     procedure, pass(this) :: fct_dir => quad_elm_fct_dir
      !> Return ridge @a r local direction with respect to the element
-     procedure, pass(this) :: rdg_dir => quad_rdg_dir
-  end type quad_msh_t
+     procedure, pass(this) :: rdg_dir => quad_elm_rdg_dir
+  end type quad_elm_t
 
   ! Lookup tables
   !> Facet corner to ridge
@@ -184,7 +184,7 @@ contains
   subroutine quad_tpl_init(this, id, nfct, fct, bnd)
     class(quad_tpl_t), intent(inout) :: this
     integer(i4), intent(in) :: id, nfct, bnd
-    type(topology_object_t), dimension(nfct), intent(inout) :: fct
+    type(topology_component_t), dimension(nfct), intent(inout) :: fct
     integer(i4) :: il, jl, ifct, icrn
     integer(i4), dimension(NEKO_EDGE_NFACET) :: rdg
     type(polytope_ptr), dimension(2) :: vrt
@@ -325,7 +325,7 @@ contains
        ! mark non identity alignment
        ifalgn =  .not. this%algn_op%ifid()
        if (hng >= 0 .and. hng <= 4) then
-          call this%init_dat(pltp, ifalgn, ifint, hng, pos)
+          call this%init_act(pltp, ifalgn, ifint, hng, pos)
        else
           call neko_error('Inconsistent quad hanging information.')
        end if
@@ -481,11 +481,11 @@ contains
   !! @parameter[in]   gdim     geometrical dimension
   !! @parameter[in]   nrdg     number of hanging ridges
   !! @parameter[in]   rdg_hng  ridge hanging flag
-  subroutine quad_msh_init(this, id, nfct, fct, npts, pts, gdim, nrdg, &
+  subroutine quad_elm_init(this, id, nfct, fct, npts, pts, gdim, nrdg, &
           & rdg_hng)
-    class(quad_msh_t), intent(inout) :: this
+    class(quad_elm_t), intent(inout) :: this
     integer(i4), intent(in) :: id, nfct, npts, gdim, nrdg
-    type(mesh_object_t), dimension(nfct), intent(inout) :: fct
+    type(element_component_t), dimension(nfct), intent(inout) :: fct
     type(point_ptr), dimension(npts), intent(in) :: pts
     integer(i4), dimension(2, 3), intent(in) :: rdg_hng
     integer(i4) :: il, jl, ifct, icrn, itmp
@@ -500,7 +500,7 @@ contains
     call this%set_ncomp(NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
          & NEKO_QUAD_NPEAK)
     call this%set_id(id)
-    call this%init_dat(gdim, npts)
+    call this%init_base(gdim, npts)
     ! get facets
     if (nfct == NEKO_QUAD_NFACET) then
        allocate (this%facet(NEKO_QUAD_NFACET))
@@ -597,13 +597,13 @@ contains
     do il = 1, npts
        this%pts(il)%p => pts(il)%p
     end do
-  end subroutine quad_msh_init
+  end subroutine quad_elm_init
 
   !> Test equality
   !! @parameter[in]   other   polytope
   !! @return equal
-  function quad_msh_equal(this, other) result(equal)
-    class(quad_msh_t), intent(in) :: this
+  function quad_elm_equal(this, other) result(equal)
+    class(quad_elm_t), intent(in) :: this
     class(polytope_t), intent(in) :: other
     logical :: equal
 
@@ -616,7 +616,7 @@ contains
        ! (may not work for self-periodic)
        if (equal) then
           select type(other)
-          type is (quad_msh_t)
+          type is (quad_elm_t)
              ! geometrical dimension
              equal = (this%gdim() == other%gdim())
              if (equal) then
@@ -635,12 +635,12 @@ contains
        end if
     end if
 
-  end function quad_msh_equal
+  end function quad_elm_equal
 
   !> Get element diameter
   !! @return res
-  function quad_msh_diameter(this) result(res)
-    class(quad_msh_t), intent(in) :: this
+  function quad_elm_diameter(this) result(res)
+    class(quad_elm_t), intent(in) :: this
     real(dp) :: res
     real(dp) :: d1, d2
     integer(i4) :: il
@@ -653,12 +653,12 @@ contains
     end do
 
     res = sqrt(max(d1, d2))
-  end function quad_msh_diameter
+  end function quad_elm_diameter
 
   !> Get element centroid
   !! @return res
-  function quad_msh_centroid(this) result(res)
-    class(quad_msh_t), intent(in) :: this
+  function quad_elm_centroid(this) result(res)
+    class(quad_elm_t), intent(in) :: this
     type(point_t) :: res
     integer(i4) :: il
 
@@ -667,27 +667,27 @@ contains
        res%x(il) = 0.25d0 * (this%pts(1)%p%x(il) + this%pts(2)%p%x(il) + &
             & this%pts(3)%p%x(il) + this%pts(4)%p%x(il))
     end do
-  end function quad_msh_centroid
+  end function quad_elm_centroid
 
   !> Get @a r and @a s facet local directions
   !! @parameter[in]   pos          facet position
   !! @parameter[out]  dirr, dirs   local directions
-  subroutine quad_fct_dir(this, pos, dirr, dirs)
-    class(quad_msh_t), intent(in) :: this
+  subroutine quad_elm_fct_dir(this, pos, dirr, dirs)
+    class(quad_elm_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     integer(i4), intent(out) :: dirr, dirs
     dirr = fct_to_dir(pos)
     dirs = -1
-  end subroutine quad_fct_dir
+  end subroutine quad_elm_fct_dir
 
   !> Get @a r ridge local direction
   !! @parameter[in]   pos          ridge position
   !! @parameter[out]  dirr         local direction
-  subroutine quad_rdg_dir(this, pos, dirr)
-    class(quad_msh_t), intent(in) :: this
+  subroutine quad_elm_rdg_dir(this, pos, dirr)
+    class(quad_elm_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     integer(i4), intent(out) :: dirr
     dirr = -1
-  end subroutine quad_rdg_dir
+  end subroutine quad_elm_rdg_dir
 
 end module quad_new

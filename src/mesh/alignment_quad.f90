@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -53,13 +53,13 @@ module alignment_quad
      !> Is transformation identity
      procedure, pass(this) :: ifid => ifidentity_quad_I
      !> Direct transformation of full array, different types
-     procedure, nopass :: trns_i4 => transform_quad_I_i4
-     procedure, nopass :: trns_i8 => transform_quad_I_i8
-     procedure, nopass :: trns_rp => transform_quad_I_rp
+     procedure, nopass :: trns_i4 => alignment_quad_I_i4
+     procedure, nopass :: trns_i8 => alignment_quad_I_i8
+     procedure, nopass :: trns_rp => alignment_quad_I_rp
      !> Inverse transformation of full array, different types
-     procedure, nopass :: trns_inv_i4 => transform_quad_I_i4
-     procedure, nopass :: trns_inv_i8 => transform_quad_I_i8
-     procedure, nopass :: trns_inv_rp => transform_quad_I_rp
+     procedure, nopass :: trns_inv_i4 => alignment_quad_I_i4
+     procedure, nopass :: trns_inv_i8 => alignment_quad_I_i8
+     procedure, nopass :: trns_inv_rp => alignment_quad_I_rp
   end type alignment_quad_I_t
 
   !> Quad transposition (T) transformation type
@@ -68,13 +68,13 @@ module alignment_quad
      !> Is transformation identity
      procedure, pass(this) :: ifid => ifidentity_quad_T
      !> Direct transformation of full array, different types
-     procedure, nopass :: trns_i4 => transform_quad_T_i4
-     procedure, nopass :: trns_i8 => transform_quad_T_i8
-     procedure, nopass :: trns_rp => transform_quad_T_rp
+     procedure, nopass :: trns_i4 => alignment_quad_T_i4
+     procedure, nopass :: trns_i8 => alignment_quad_T_i8
+     procedure, nopass :: trns_rp => alignment_quad_T_rp
      !> Inverse transformation of full array, different types
-     procedure, nopass :: trns_inv_i4 => transform_quad_T_i4
-     procedure, nopass :: trns_inv_i8 => transform_quad_T_i8
-     procedure, nopass :: trns_inv_rp => transform_quad_T_rp
+     procedure, nopass :: trns_inv_i4 => alignment_quad_T_i4
+     procedure, nopass :: trns_inv_i8 => alignment_quad_T_i8
+     procedure, nopass :: trns_inv_rp => alignment_quad_T_rp
   end type alignment_quad_T_t
 
   !> Quad row permutation (PX) transformation type
@@ -83,13 +83,13 @@ module alignment_quad
      !> Is transformation identity
      procedure, pass(this) :: ifid => ifidentity_quad_PX
      !> Direct transformation of full array, different types
-     procedure, nopass :: trns_i4 => transform_quad_PX_i4
-     procedure, nopass :: trns_i8 => transform_quad_PX_i8
-     procedure, nopass :: trns_rp => transform_quad_PX_rp
+     procedure, nopass :: trns_i4 => alignment_quad_PX_i4
+     procedure, nopass :: trns_i8 => alignment_quad_PX_i8
+     procedure, nopass :: trns_rp => alignment_quad_PX_rp
      !> Inverse transformation of full array, different types
-     procedure, nopass :: trns_inv_i4 => transform_quad_PX_i4
-     procedure, nopass :: trns_inv_i8 => transform_quad_PX_i8
-     procedure, nopass :: trns_inv_rp => transform_quad_PX_rp
+     procedure, nopass :: trns_inv_i4 => alignment_quad_PX_i4
+     procedure, nopass :: trns_inv_i8 => alignment_quad_PX_i8
+     procedure, nopass :: trns_inv_rp => alignment_quad_PX_rp
   end type alignment_quad_PX_t
 
   !> Quad row permutation and transposition (PXT) transformation type
@@ -98,13 +98,13 @@ module alignment_quad
      !> Is transformation identity
      procedure, pass(this) :: ifid => ifidentity_quad_PXT
      !> Direct transformation of full array, different types
-     procedure, nopass :: trns_i4 => transform_quad_PXT_i4
-     procedure, nopass :: trns_i8 => transform_quad_PXT_i8
-     procedure, nopass :: trns_rp => transform_quad_PXT_rp
+     procedure, nopass :: trns_i4 => alignment_quad_PXT_i4
+     procedure, nopass :: trns_i8 => alignment_quad_PXT_i8
+     procedure, nopass :: trns_rp => alignment_quad_PXT_rp
      !> Inverse transformation of full array, different types
-     procedure, nopass :: trns_inv_i4 => transform_quad_PYT_i4
-     procedure, nopass :: trns_inv_i8 => transform_quad_PYT_i8
-     procedure, nopass :: trns_inv_rp => transform_quad_PYT_rp
+     procedure, nopass :: trns_inv_i4 => alignment_quad_PYT_i4
+     procedure, nopass :: trns_inv_i8 => alignment_quad_PYT_i8
+     procedure, nopass :: trns_inv_rp => alignment_quad_PYT_rp
   end type alignment_quad_PXT_t
 
   !> Quad column permutation and transposition (PYT) transformation type
@@ -113,13 +113,13 @@ module alignment_quad
      !> Is transformation identity
      procedure, pass(this) :: ifid => ifidentity_quad_PYT
      !> Direct transformation of full array, different types
-     procedure, nopass :: trns_i4 => transform_quad_PYT_i4
-     procedure, nopass :: trns_i8 => transform_quad_PYT_i8
-     procedure, nopass :: trns_rp => transform_quad_PYT_rp
+     procedure, nopass :: trns_i4 => alignment_quad_PYT_i4
+     procedure, nopass :: trns_i8 => alignment_quad_PYT_i8
+     procedure, nopass :: trns_rp => alignment_quad_PYT_rp
      !> Inverse transformation of full array, different types
-     procedure, nopass :: trns_inv_i4 => transform_quad_PXT_i4
-     procedure, nopass :: trns_inv_i8 => transform_quad_PXT_i8
-     procedure, nopass :: trns_inv_rp => transform_quad_PXT_rp
+     procedure, nopass :: trns_inv_i4 => alignment_quad_PXT_i4
+     procedure, nopass :: trns_inv_i8 => alignment_quad_PXT_i8
+     procedure, nopass :: trns_inv_rp => alignment_quad_PXT_rp
   end type alignment_quad_PYT_t
 
   !> Quad column permutation (PY) transformation type
@@ -128,13 +128,13 @@ module alignment_quad
      !> Is transformation identity
      procedure, pass(this) :: ifid => ifidentity_quad_PY
      !> Direct transformation of full array, different types
-     procedure, nopass :: trns_i4 => transform_quad_PY_i4
-     procedure, nopass :: trns_i8 => transform_quad_PY_i8
-     procedure, nopass :: trns_rp => transform_quad_PY_rp
+     procedure, nopass :: trns_i4 => alignment_quad_PY_i4
+     procedure, nopass :: trns_i8 => alignment_quad_PY_i8
+     procedure, nopass :: trns_rp => alignment_quad_PY_rp
      !> Inverse transformation of full array, different types
-     procedure, nopass :: trns_inv_i4 => transform_quad_PY_i4
-     procedure, nopass :: trns_inv_i8 => transform_quad_PY_i8
-     procedure, nopass :: trns_inv_rp => transform_quad_PY_rp
+     procedure, nopass :: trns_inv_i4 => alignment_quad_PY_i4
+     procedure, nopass :: trns_inv_i8 => alignment_quad_PY_i8
+     procedure, nopass :: trns_inv_rp => alignment_quad_PY_rp
   end type alignment_quad_PY_t
 
   !> Quad row, column permutation and transposition (PXPYT) transformation type
@@ -143,13 +143,13 @@ module alignment_quad
      !> Is transformation identity
      procedure, pass(this) :: ifid => ifidentity_quad_PXPYT
      !> Direct transformation of full array, different types
-     procedure, nopass :: trns_i4 => transform_quad_PXPYT_i4
-     procedure, nopass :: trns_i8 => transform_quad_PXPYT_i8
-     procedure, nopass :: trns_rp => transform_quad_PXPYT_rp
+     procedure, nopass :: trns_i4 => alignment_quad_PXPYT_i4
+     procedure, nopass :: trns_i8 => alignment_quad_PXPYT_i8
+     procedure, nopass :: trns_rp => alignment_quad_PXPYT_rp
      !> Inverse transformation of full array, different types
-     procedure, nopass :: trns_inv_i4 => transform_quad_PXPYT_i4
-     procedure, nopass :: trns_inv_i8 => transform_quad_PXPYT_i8
-     procedure, nopass :: trns_inv_rp => transform_quad_PXPYT_rp
+     procedure, nopass :: trns_inv_i4 => alignment_quad_PXPYT_i4
+     procedure, nopass :: trns_inv_i8 => alignment_quad_PXPYT_i8
+     procedure, nopass :: trns_inv_rp => alignment_quad_PXPYT_rp
   end type alignment_quad_PXPYT_t
 
   !> Quad row, column permutation (PXPY) transformation type
@@ -158,13 +158,13 @@ module alignment_quad
      !> Is transformation identity
      procedure, pass(this) :: ifid => ifidentity_quad_PXPY
      !> Direct transformation of full array, different types
-     procedure, nopass :: trns_i4 => transform_quad_PXPY_i4
-     procedure, nopass :: trns_i8 => transform_quad_PXPY_i8
-     procedure, nopass :: trns_rp => transform_quad_PXPY_rp
+     procedure, nopass :: trns_i4 => alignment_quad_PXPY_i4
+     procedure, nopass :: trns_i8 => alignment_quad_PXPY_i8
+     procedure, nopass :: trns_rp => alignment_quad_PXPY_rp
      !> Inverse transformation of full array, different types
-     procedure, nopass :: trns_inv_i4 => transform_quad_PXPY_i4
-     procedure, nopass :: trns_inv_i8 => transform_quad_PXPY_i8
-     procedure, nopass :: trns_inv_rp => transform_quad_PXPY_rp
+     procedure, nopass :: trns_inv_i4 => alignment_quad_PXPY_i4
+     procedure, nopass :: trns_inv_i8 => alignment_quad_PXPY_i8
+     procedure, nopass :: trns_inv_rp => alignment_quad_PXPY_rp
   end type alignment_quad_PXPY_t
 
 contains
@@ -361,17 +361,17 @@ contains
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_I_i4(vec, n1, n2, ist)
+  pure subroutine alignment_quad_I_i4(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i4), dimension(n1, n2), intent(inout) :: vec
-  end subroutine transform_quad_I_i4
+  end subroutine alignment_quad_I_i4
 
   !> @brief Transpose transformation, single integer
   !! @note This routine works for lx=ly(=lz) only.
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_T_i4(vec, n1, n2, ist)
+  pure subroutine alignment_quad_T_i4(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i4), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -385,13 +385,13 @@ contains
           vec(jl, il) = iface
        end do
     end do
-  end subroutine transform_quad_T_i4
+  end subroutine alignment_quad_T_i4
 
   !> @brief Column permutation transformation, single integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PX_i4(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PX_i4(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i4), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -405,13 +405,13 @@ contains
           vec(n1 + 1 - il, jl) = iface
        end do
     end do
-  end subroutine transform_quad_PX_i4
+  end subroutine alignment_quad_PX_i4
 
   !> @brief Row permutation transformation, single integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PY_i4(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PY_i4(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i4), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -425,72 +425,72 @@ contains
           vec(il, n2 + 1 - jl) = iface
        end do
     end do
-  end subroutine transform_quad_PY_i4
+  end subroutine alignment_quad_PY_i4
 
   !> @brief PXT = TPY transformation, single integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PXT_i4(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PXT_i4(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i4), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_i4(vec, n1, n2, ist)
-    call transform_quad_T_i4(vec, n1, n2, ist)
-  end subroutine transform_quad_PXT_i4
+    call alignment_quad_PX_i4(vec, n1, n2, ist)
+    call alignment_quad_T_i4(vec, n1, n2, ist)
+  end subroutine alignment_quad_PXT_i4
 
   !> @brief PYT = TPX transformation, single integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PYT_i4(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PYT_i4(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i4), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PY_i4(vec, n1, n2, ist)
-    call transform_quad_T_i4(vec, n1, n2, ist)
-  end subroutine transform_quad_PYT_i4
+    call alignment_quad_PY_i4(vec, n1, n2, ist)
+    call alignment_quad_T_i4(vec, n1, n2, ist)
+  end subroutine alignment_quad_PYT_i4
 
   !> @brief PXPYT=PYPXT=TPYPX=TPXPY, single integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PXPYT_i4(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PXPYT_i4(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i4), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_i4(vec, n1, n2, ist)
-    call transform_quad_PY_i4(vec, n1, n2, ist)
-    call transform_quad_T_i4(vec, n1, n2, ist)
-  end subroutine transform_quad_PXPYT_i4
+    call alignment_quad_PX_i4(vec, n1, n2, ist)
+    call alignment_quad_PY_i4(vec, n1, n2, ist)
+    call alignment_quad_T_i4(vec, n1, n2, ist)
+  end subroutine alignment_quad_PXPYT_i4
 
   !> @brief PXPY = PYPX transformation, single integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PXPY_i4(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PXPY_i4(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i4), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_i4(vec, n1, n2, ist)
-    call transform_quad_PY_i4(vec, n1, n2, ist)
-  end subroutine transform_quad_PXPY_i4
+    call alignment_quad_PX_i4(vec, n1, n2, ist)
+    call alignment_quad_PY_i4(vec, n1, n2, ist)
+  end subroutine alignment_quad_PXPY_i4
 
   !> @brief Identity transformation, double integer array
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_I_i8(vec, n1, n2, ist)
+  pure subroutine alignment_quad_I_i8(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i8), dimension(n1, n2), intent(inout) :: vec
-  end subroutine transform_quad_I_i8
+  end subroutine alignment_quad_I_i8
 
   !> @brief Transpose transformation, double integer
   !! @note This routine works for lx=ly(=lz) only.
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_T_i8(vec, n1, n2, ist)
+  pure subroutine alignment_quad_T_i8(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i8), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -504,13 +504,13 @@ contains
           vec(jl, il) = iface
        end do
     end do
-  end subroutine transform_quad_T_i8
+  end subroutine alignment_quad_T_i8
 
   !> @brief Column permutation transformation, double integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PX_i8(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PX_i8(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i8), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -524,13 +524,13 @@ contains
           vec(n1 + 1 - il, jl) = iface
        end do
     end do
-  end subroutine transform_quad_PX_i8
+  end subroutine alignment_quad_PX_i8
 
   !> @brief Row permutation transformation, double integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PY_i8(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PY_i8(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i8), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -544,72 +544,72 @@ contains
           vec(il, n2 + 1 - jl) = iface
        end do
     end do
-  end subroutine transform_quad_PY_i8
+  end subroutine alignment_quad_PY_i8
 
   !> @brief PXT = TPY transformation, double integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PXT_i8(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PXT_i8(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i8), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_i8(vec, n1, n2, ist)
-    call transform_quad_T_i8(vec, n1, n2, ist)
-  end subroutine transform_quad_PXT_i8
+    call alignment_quad_PX_i8(vec, n1, n2, ist)
+    call alignment_quad_T_i8(vec, n1, n2, ist)
+  end subroutine alignment_quad_PXT_i8
 
   !> @brief PYT = TPX transformation, double integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PYT_i8(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PYT_i8(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i8), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PY_i8(vec, n1, n2, ist)
-    call transform_quad_T_i8(vec, n1, n2, ist)
-  end subroutine transform_quad_PYT_i8
+    call alignment_quad_PY_i8(vec, n1, n2, ist)
+    call alignment_quad_T_i8(vec, n1, n2, ist)
+  end subroutine alignment_quad_PYT_i8
 
   !> @brief PXPYT=PYPXT=TPYPX=TPXPY, double integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PXPYT_i8(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PXPYT_i8(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i8), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_i8(vec, n1, n2, ist)
-    call transform_quad_PY_i8(vec, n1, n2, ist)
-    call transform_quad_T_i8(vec, n1, n2, ist)
-  end subroutine transform_quad_PXPYT_i8
+    call alignment_quad_PX_i8(vec, n1, n2, ist)
+    call alignment_quad_PY_i8(vec, n1, n2, ist)
+    call alignment_quad_T_i8(vec, n1, n2, ist)
+  end subroutine alignment_quad_PXPYT_i8
 
   !> @brief PXPY = PYPX transformation, double integer
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PXPY_i8(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PXPY_i8(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     integer(i8), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_i8(vec, n1, n2, ist)
-    call transform_quad_PY_i8(vec, n1, n2, ist)
-  end subroutine transform_quad_PXPY_i8
+    call alignment_quad_PX_i8(vec, n1, n2, ist)
+    call alignment_quad_PY_i8(vec, n1, n2, ist)
+  end subroutine alignment_quad_PXPY_i8
 
   !> @brief Identity transformation, double precision array
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_I_rp(vec, n1, n2, ist)
+  pure subroutine alignment_quad_I_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     real(rp), dimension(n1, n2), intent(inout) :: vec
-  end subroutine transform_quad_I_rp
+  end subroutine alignment_quad_I_rp
 
   !> @brief Transpose transformation, double precision
   !! @note This routine works for lx=ly(=lz) only.
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_T_rp(vec, n1, n2, ist)
+  pure subroutine alignment_quad_T_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     real(rp), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -623,13 +623,13 @@ contains
           vec(jl, il) = rface
        end do
     end do
-  end subroutine transform_quad_T_rp
+  end subroutine alignment_quad_T_rp
 
   !> @brief Column permutation transformation, double precision
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PX_rp(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PX_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     real(rp), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -643,13 +643,13 @@ contains
           vec(n1 + 1 - il, jl) = rface
        end do
     end do
-  end subroutine transform_quad_PX_rp
+  end subroutine alignment_quad_PX_rp
 
   !> @brief Row permutation transformation, double precision
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PY_rp(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PY_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     real(rp), dimension(n1, n2), intent(inout) :: vec
     ! local variables
@@ -663,55 +663,55 @@ contains
           vec(il, n2 + 1 - jl) = rface
        end do
     end do
-  end subroutine transform_quad_PY_rp
+  end subroutine alignment_quad_PY_rp
 
   !> @brief PXT = TPY transformation, double precision
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PXT_rp(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PXT_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     real(rp), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_rp(vec, n1, n2, ist)
-    call transform_quad_T_rp(vec, n1, n2, ist)
-  end subroutine transform_quad_PXT_rp
+    call alignment_quad_PX_rp(vec, n1, n2, ist)
+    call alignment_quad_T_rp(vec, n1, n2, ist)
+  end subroutine alignment_quad_PXT_rp
 
   !> @brief PYT = TPX transformation, double precision
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PYT_rp(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PYT_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     real(rp), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PY_rp(vec, n1, n2, ist)
-    call transform_quad_T_rp(vec, n1, n2, ist)
-  end subroutine transform_quad_PYT_rp
+    call alignment_quad_PY_rp(vec, n1, n2, ist)
+    call alignment_quad_T_rp(vec, n1, n2, ist)
+  end subroutine alignment_quad_PYT_rp
 
   !> @brief PXPYT=PYPXT=TPYPX=TPXPY, double precision
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PXPYT_rp(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PXPYT_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     real(rp), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_rp(vec, n1, n2, ist)
-    call transform_quad_PY_rp(vec, n1, n2, ist)
-    call transform_quad_T_rp(vec, n1, n2, ist)
-  end subroutine transform_quad_PXPYT_rp
+    call alignment_quad_PX_rp(vec, n1, n2, ist)
+    call alignment_quad_PY_rp(vec, n1, n2, ist)
+    call alignment_quad_T_rp(vec, n1, n2, ist)
+  end subroutine alignment_quad_PXPYT_rp
 
   !> @brief PXPY = PYPX transformation, double precision
   !! @parameter[inout]   vec      data vector
   !! @parameter[in]      n1, n2   dimensions
   !! @parameter[in]      ist      starting position
-  pure subroutine transform_quad_PXPY_rp(vec, n1, n2, ist)
+  pure subroutine alignment_quad_PXPY_rp(vec, n1, n2, ist)
     integer(i4), intent(in) :: n1, n2, ist
     real(rp), dimension(n1, n2), intent(inout) :: vec
 
-    call transform_quad_PX_rp(vec, n1, n2, ist)
-    call transform_quad_PY_rp(vec, n1, n2, ist)
-  end subroutine transform_quad_PXPY_rp
+    call alignment_quad_PX_rp(vec, n1, n2, ist)
+    call alignment_quad_PY_rp(vec, n1, n2, ist)
+  end subroutine alignment_quad_PXPY_rp
 
 end module alignment_quad

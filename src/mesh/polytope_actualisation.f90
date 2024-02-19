@@ -54,15 +54,15 @@ module polytope_actualisation
      integer(i4), private :: position_ = -1
    contains
      !> Free aligned polytope and interpolation data
-     procedure, pass(this) :: free => polytope_free
+     procedure, pass(this) :: free => polytope_actualisation_free
      !> Initialise general data
-     procedure, pass(this) :: init_dat => polytope_init_data
+     procedure, pass(this) :: init_act => polytope_actualisation_init_act
      !> Return interpolation flag
-     procedure, pass(this) :: ifintp => polytope_ifintp_get
+     procedure, pass(this) :: ifintp => polytope_actualisation_ifintp_get
      !> Return hanging node information
-     procedure, pass(this) :: hng => polytope_hng_get
+     procedure, pass(this) :: hng => polytope_actualisation_hng_get
      !> Return position in the higher dimension object
-     procedure, pass(this) :: pos => polytope_pos_get
+     procedure, pass(this) :: pos => polytope_actualisation_pos_get
      !> Initialise a polytope actualisation
      procedure(polytope_actualisation_init), pass(this), deferred :: init
   end type polytope_actualisation_t
@@ -88,7 +88,7 @@ module polytope_actualisation
 contains
 
   !> Free aligned polytope and interpolation data
-  subroutine polytope_free(this)
+  subroutine polytope_actualisation_free(this)
     class(polytope_actualisation_t), intent(inout) :: this
 
     call this%free_base()
@@ -96,7 +96,7 @@ contains
     this%ifinterpolation_ = .false.
     this%hanging_ = 0
     this%position_ = -1
-  end subroutine polytope_free
+  end subroutine polytope_actualisation_free
 
   !> Initialise general data
   !! @parameter[in]   pltp   polytope
@@ -104,40 +104,41 @@ contains
   !! @parameter[in]   ifint  interpolation flag
   !! @parameter[in]   hng    hanging information
   !! @parameter[in]   pos    position in the higher order element
-  subroutine polytope_init_data(this, pltp, ifalgn, ifint, hng, pos)
+  subroutine polytope_actualisation_init_act(this, pltp, ifalgn, ifint, hng, &
+       & pos)
     class(polytope_actualisation_t), intent(inout) :: this
     class(polytope_t), target, intent(in) :: pltp
     logical, intent(in)  :: ifalgn, ifint
     integer(i4), intent(in) :: hng, pos
 
-    call this%init_data(pltp, ifalgn)
+    call this%init_base(pltp, ifalgn)
     this%ifinterpolation_ = ifint
     this%hanging_ = hng
     this%position_ = pos
-  end subroutine polytope_init_data
+  end subroutine polytope_actualisation_init_act
 
   !> @brief Get interpolation flag
   !! @return   ifintp
-  pure function polytope_ifintp_get(this) result(ifintp)
+  pure function polytope_actualisation_ifintp_get(this) result(ifintp)
     class(polytope_actualisation_t), intent(in) :: this
     logical :: ifintp
     ifintp = this%ifinterpolation_
-  end function polytope_ifintp_get
+  end function polytope_actualisation_ifintp_get
 
   !> @brief Get hanging information
   !! @return   hng
-  pure function polytope_hng_get(this) result(hng)
+  pure function polytope_actualisation_hng_get(this) result(hng)
     class(polytope_actualisation_t), intent(in) :: this
     integer(i4) :: hng
     hng = this%hanging_
-  end function polytope_hng_get
+  end function polytope_actualisation_hng_get
 
   !> @brief Get position information
   !! @return   pos
-  pure function polytope_pos_get(this) result(pos)
+  pure function polytope_actualisation_pos_get(this) result(pos)
     class(polytope_actualisation_t), intent(in) :: this
     integer(i4) :: pos
     pos = this%position_
-  end function polytope_pos_get
+  end function polytope_actualisation_pos_get
 
 end module polytope_actualisation

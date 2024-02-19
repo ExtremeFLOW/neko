@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ module vertex
   use utils, only : neko_error, neko_warning
   use polytope, only : polytope_t
   use polytope_oriented, only : polytope_oriented_t
-  use polytope_topology, only : polytope_topology_t, topology_object_t
+  use topology, only : topology_t, topology_component_t
   use polytope_actualisation, only : polytope_actualisation_t
   implicit none
   private
@@ -53,7 +53,7 @@ module vertex
   !! @details Vertex is the only realisation of zero-dimensional polytope
   !! (monon) and contains a unique global id only. Vertex has no alignment.
   !! Its only actualisation are components of higher-dimension objects.
-    type, extends(polytope_topology_t) :: vertex_tpl_t
+    type, extends(topology_t) :: vertex_tpl_t
    contains
      !> Initialise a topology polytope
      procedure, pass(this) :: init => vertex_tpl_init
@@ -127,7 +127,7 @@ contains
   subroutine vertex_tpl_init(this, id, nfct, fct, bnd)
     class(vertex_tpl_t), intent(inout) :: this
     integer(i4), intent(in) :: id, nfct, bnd
-    type(topology_object_t), dimension(nfct), intent(inout) :: fct
+    type(topology_component_t), dimension(nfct), intent(inout) :: fct
 
     call this%free()
 
@@ -169,7 +169,7 @@ contains
     ! There is just a single realisation of monon, so just check dimension
     if (pltp%tdim() == NEKO_VERTEX_TDIM) then
        ! vertex has no alignment
-       call this%init_data(pltp, .false.)
+       call this%init_base(pltp, .false.)
     else
        call neko_error('Vertex aligned; wrong pointer dimension.')
     end if
@@ -229,7 +229,7 @@ contains
     if (pltp%tdim() == NEKO_VERTEX_TDIM) then
        if (hng >= 0 .and. hng <= 2) then
           ! vertex has no alignment and cannot be interpolated
-          call this%init_dat(pltp, .false., .false., hng, pos)
+          call this%init_act(pltp, .false., .false., hng, pos)
        else
           call neko_error('Inconsistent vertex hanging information.')
        end if

@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -45,13 +45,13 @@
 !! In the code, the various polytope alignments are assigned an integer number.
 !! Each alignment type for each polytope has a designated alignment operator
 !! implemented in the code, all descending from `alignment_t` defined in this
-!! module. The alignment operators are applied to the data living on the polytope
-!! and transform it according to the alignment. So, for example, for the edge
-!! there are two operators: the "identity" one, which doesn't do anything,
-!! and another one, which simply reverses the order of the data. Each operator
-!! type implements both the corresponding transformation and its inverse.
-!! Moreover, there are implementations of the same transformation for different
-!! types of the underlying data: integers (i4 and i8) and the rp real.
+!! module. The alignment operators are applied to the data living on the
+!! polytope and transform it according to the alignment. So, for example, for
+!! the edge there are two operators: the "identity" one, which doesn't do
+!! anything, and another one, which simply reverses the order of the data. Each
+!! operator type implements both the corresponding transformation and its
+!! inverse. Moreover, there are implementations of the same transformation for
+!! different types of the underlying data: integers (i4 and i8) and the rp real.
 !! It is possible to apply the transformation to only part of the data by
 !! specifying the starting array index from which the transformation is applied.
 !! Finally, subroutines for checking the relative alignment of two polytopes

@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,8 @@ module hex_new
   use num_types, only : i4, dp
   use utils, only : neko_error
   use polytope, only : polytope_t, polytope_ptr
-  use polytope_topology, only : topology_object_t
-  use polytope_mesh, only : polytope_mesh_t, mesh_object_t
+  use topology, only : topology_t
+  use element_new, only : element_new_t, element_component_t
   use vertex, only : vertex_act_t, vertex_ornt_t
   use edge, only : edge_act_t, edge_tpl_t, NEKO_EDGE_NFACET
   use quad_new, only : NEKO_QUAD_TDIM, NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
@@ -45,7 +45,7 @@ module hex_new
   implicit none
   private
 
-  public :: hex_msh_t
+  public :: hex_elm_t
 
   ! object information
   integer(i4), public, parameter :: NEKO_HEX_TDIM = 3
@@ -53,8 +53,8 @@ module hex_new
   integer(i4), public, parameter :: NEKO_HEX_NRIDGE = 12
   integer(i4), public, parameter :: NEKO_HEX_NPEAK = 8
 
-  !> Type for hex as mesh object
-  !! @details For three-dimensional meshes hexes are mesh objects. Hex is one
+  !> Type for hex as mesh element
+  !! @details For three-dimensional meshes hexes are elements. Hex is one
   !! of the realisations of cell containing 6 facets (quads), 12 ridges (edges)
   !! and 8 peaks (vertices). Facets are oriented according to the numbers of
   !! ridges and peaks (from the peak with the smaller number towards the one
@@ -99,21 +99,21 @@ module hex_new
   !! @endverbatim
   !! Local numbering of the geometrical points corresponds to the peak
   !! numbering.
-  type, extends(polytope_mesh_t) :: hex_msh_t
+  type, extends(element_new_t) :: hex_elm_t
    contains
      !> Initialise a topology polytope
-     procedure, pass(this)  :: init => hex_msh_init
+     procedure, pass(this)  :: init => hex_elm_init
      !> Test equality
-     procedure, pass(this) :: equal => hex_msh_equal
+     procedure, pass(this) :: equal => hex_elm_equal
      !> Return element diameter
-     procedure, pass(this) :: diameter => hex_msh_diameter
+     procedure, pass(this) :: diameter => hex_elm_diameter
      !> Return element centroid
-     procedure, pass(this) :: centroid => hex_msh_centroid
+     procedure, pass(this) :: centroid => hex_elm_centroid
      !> Return facet @a r and @s local directions with respect to the element
-     procedure, pass(this) :: fct_dir => hex_fct_dir
+     procedure, pass(this) :: fct_dir => hex_elm_fct_dir
      !> Return ridge @a r local direction with respect to the element
-     procedure, pass(this) :: rdg_dir => hex_rdg_dir
-  end type hex_msh_t
+     procedure, pass(this) :: rdg_dir => hex_elm_rdg_dir
+  end type hex_elm_t
 
   ! Lookup tables
   !> Facet edge to ridge
@@ -187,11 +187,11 @@ contains
   !! @parameter[in]   gdim     geometrical dimension
   !! @parameter[in]   nrdg     number of hanging ridges
   !! @parameter[in]   rdg_hng  ridge hanging flag
-  subroutine hex_msh_init(this, id, nfct, fct, npts, pts, gdim, nrdg, &
+  subroutine hex_elm_init(this, id, nfct, fct, npts, pts, gdim, nrdg, &
           & rdg_hng)
-    class(hex_msh_t), intent(inout) :: this
+    class(hex_elm_t), intent(inout) :: this
     integer(i4), intent(in) :: id, nfct, npts, gdim, nrdg
-    type(mesh_object_t), dimension(nfct), intent(inout) :: fct
+    type(element_component_t), dimension(nfct), intent(inout) :: fct
     type(point_ptr), dimension(npts), intent(in) :: pts
     integer(i4), dimension(2, 3), intent(in) :: rdg_hng
     integer(i4) :: il, jl, kl, ifct, icrn, itmp
@@ -212,7 +212,7 @@ contains
     call this%set_ncomp(NEKO_HEX_NFACET, NEKO_HEX_NRIDGE,&
          & NEKO_HEX_NPEAK)
     call this%set_id(id)
-    call this%init_dat(gdim, npts)
+    call this%init_base(gdim, npts)
     ! get facets
     if (nfct == NEKO_HEX_NFACET) then
        allocate (this%facet(NEKO_HEX_NFACET))
@@ -528,13 +528,13 @@ contains
        this%pts(il)%p => pts(il)%p
     end do
 
-  end subroutine hex_msh_init
+  end subroutine hex_elm_init
 
   !> Test equality
   !! @parameter[in]   other   polytope
   !! @return equal
-  function hex_msh_equal(this, other) result(equal)
-    class(hex_msh_t), intent(in) :: this
+  function hex_elm_equal(this, other) result(equal)
+    class(hex_elm_t), intent(in) :: this
     class(polytope_t), intent(in) :: other
     logical :: equal
 
@@ -547,7 +547,7 @@ contains
        ! (may not work for self-periodic)
        if (equal) then
           select type(other)
-          type is (hex_msh_t)
+          type is (hex_elm_t)
              ! geometrical dimension
              equal = (this%gdim() == other%gdim())
              if (equal) then
@@ -566,12 +566,12 @@ contains
        end if
     end if
 
-  end function hex_msh_equal
+  end function hex_elm_equal
 
   !> Get element diameter
   !! @return res
-  function hex_msh_diameter(this) result(res)
-    class(hex_msh_t), intent(in) :: this
+  function hex_elm_diameter(this) result(res)
+    class(hex_elm_t), intent(in) :: this
     real(dp) :: res
     real(dp) :: d1, d2, d3, d4
     integer(i4) :: il
@@ -588,12 +588,12 @@ contains
     end do
 
     res = sqrt(max(d1, d2, d3, d4))
-  end function hex_msh_diameter
+  end function hex_elm_diameter
 
   !> Get element centroid
   !! @return res
-  function hex_msh_centroid(this) result(res)
-    class(hex_msh_t), intent(in) :: this
+  function hex_elm_centroid(this) result(res)
+    class(hex_elm_t), intent(in) :: this
     type(point_t) :: res
     integer(i4) :: il
 
@@ -603,27 +603,27 @@ contains
             & this%pts(3)%p%x(il) + this%pts(4)%p%x(il) + this%pts(5)%p%x(il) &
             & + this%pts(6)%p%x(il) + this%pts(7)%p%x(il) + this%pts(8)%p%x(il))
     end do
-  end function hex_msh_centroid
+  end function hex_elm_centroid
 
   !> Get @a r and @a s facet local directions
   !! @parameter[in]   pos          facet position
   !! @parameter[out]  dirr, dirs   local directions
-  subroutine hex_fct_dir(this, pos, dirr, dirs)
-    class(hex_msh_t), intent(in) :: this
+  subroutine hex_elm_fct_dir(this, pos, dirr, dirs)
+    class(hex_elm_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     integer(i4), intent(out) :: dirr, dirs
     dirr = fct_to_dir(1, pos)
     dirs = fct_to_dir(2, pos)
-  end subroutine hex_fct_dir
+  end subroutine hex_elm_fct_dir
 
   !> Get @a r ridge local direction
   !! @parameter[in]   pos          ridge position
   !! @parameter[out]  dirr         local direction
-  subroutine hex_rdg_dir(this, pos, dirr)
-    class(hex_msh_t), intent(in) :: this
+  subroutine hex_elm_rdg_dir(this, pos, dirr)
+    class(hex_elm_t), intent(in) :: this
     integer(i4), intent(in) :: pos
     integer(i4), intent(out) :: dirr
     dirr = rdg_to_dir(pos)
-  end subroutine hex_rdg_dir
+  end subroutine hex_elm_rdg_dir
 
 end module hex_new
