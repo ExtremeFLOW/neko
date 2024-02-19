@@ -481,9 +481,7 @@ u%scalar_user_f_vector => set_source
 
 When running on GPUs, special care must be taken when user certain user functions. The short explanation is that the device (GPU) has its own memory and cannot directly access the memory on the host (CPU). This means that data and more specifically arrays must be copied manually from the host to the device (see [device_memcpy](https://neko.cfd/docs/d6/dac/interfacedevice_1_1device__memcpy.html)). 
 
-@note In some cases, data transfer via `device_memcpy` is avoidable. Neko has some device math functions implemented that operate directly on device arrays. If you can decompose whatever operations you are performing on your arrays in your user function into a set of instructions from the `math` module (e.g. `cadd`, `cfill`, `sub2`, ...), you may use the corresponding `device_math` functions to [offload work to the GPU](#accelerators_offload-work). See the [fluid forcing code snippet](#user-file_user-f) for a simple example. For more advanced examples, see the [rayleigh-benard example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard/rayleigh.f90#L96) or the [tgv example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/tgv/tgv.f90#L146).
-
-@note In Neko, variables that refer to device arrays are usually suffixed with `_d`. For example, the `field_t` type has an attribute `x` that is allocated on the host (CPU) and `x_d` that refers to the array allocated on the device (GPU).
+@attention In some cases, data transfer via `device_memcpy` is avoidable. Neko has some device math functions implemented that operate directly on device arrays. If you can decompose whatever operations you are performing in a user function into a set of instructions from the `math` module (e.g. `cadd`, `cfill`, `sub2`, ...), you may use the corresponding `device_math` functions to [offload work to the GPU](#accelerators_offload-work). See the [fluid forcing code snippet](#user-file_user-f) for a simple example. For more advanced examples, see the [rayleigh-benard example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard/rayleigh.f90#L96) or the [tgv example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/tgv/tgv.f90#L146).
 
 To illustrate this, let us have a look at the [fluid initial condition code snippet](#user-file_user-ic):
 
@@ -531,14 +529,14 @@ To illustrate this, let us have a look at the [fluid initial condition code snip
 
 The code above is used to set the fluid initial condition, by specifying the values of fields `u,v,w` (and `p`) at all points in the domain. Notice that we have divided the above code into two parts. 
 
-In the first part, we set the velocity components to `u=-y*pi*`, `v=x*pi*`, and `w=0`. Here, we set the values of the arrays `u%x`, `v%x`, and `w%x` that are allocated on the **host (CPU)**. If we were to run on GPUs, the first step would only act on the arrays allocated on the host (CPU), leaving the device (GPU) arrays untouched. To update the device (GPU) arrays, we use the `device_memcpy` function to copy the data contained in a host (CPU) arrays to a device (GPU) array.
+In the first part, we set the velocity components to `u=-y*pi*`, `v=x*pi*`, and `w=0`. Here, we set the values of the arrays `u%x`, `v%x`, and `w%x` that are allocated on the **host (CPU)**. If we were to run on GPUs, the lines of code in the first step would only act on the arrays allocated on the host (CPU), leaving the device (GPU) arrays untouched. To update the device (GPU) arrays, we use the `device_memcpy` function to copy the data contained in a host (CPU) arrays to a device (GPU) array.
 
 This is what is done in the second part, for all three velocity arrays. Looking at the details of the `device_memcpy` calls, we note the following:
 - Device arrays are refered to by appending the suffix `_d` to the host array variable name (e.g. `u%x` and `u%x_d`).
 - We specify the "**direction**" of the data movement with the flag `HOST_TO_DEVICE`. Other flags can also be used to move data from device to host (`DEVICE_TO_HOST`) or device to device (`DEVICE_TO_DEVICE`). See the [accelerators page](#accelerators_data-transfer) for more details on this.
 - The `sync` argument is a non-optional argument which dictates wether or not to perform the data transfer synchronously. 
 
-@attention Use asynchronous data transfers at your own risk! Debugging code on the GPU can be tricky: if you are unsure, use `sync = .true.`.
+@attention Use asynchronous data transfers at your own risk! If you are unsure, use `sync = .true.` as a starting point.
 
 Finally, observe that we use the flag `NEKO_BCKND_DEVICE` to check if we are indeed running on GPUs. 
 
@@ -546,7 +544,15 @@ Finally, observe that we use the flag `NEKO_BCKND_DEVICE` to check if we are ind
 
 Neko uses the concept of `registry` as a practical way to retrieve fields and point zones anywhere in the user file. 
 
-The field registry is often used in user function where certain fields are not directly accessible as arguments.  
+The field registry `neko_field_registry` is often used in user functions where certain fields are not directly accessible as arguments. One can retrieve any field in the registry by its `name` with `neko_field_registry%get_field(name)`. Default fields that are added to the registry are `u,v,w,p` and `s` if running with the scalar enabled. For a practical example of usage, see the [rayleigh benard example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard/rayleigh.f90#L102-L105)
+
+Other fields will be added the registry in the following cases:
+- If running with `simulation_components.vorticity` enabled, the fields `omega_x, omega_y, omega_z` will be accessible in the registry.
+- If running with `simulation_components.lambda2` enabled, the field `lambda2` will be accessible in the registry.
+
+@note You can add your own fields to the registry with [neko_field_registry%add_field](https://neko.cfd/docs/d1/dc4/namespacefield__registry.html#a10e4570d0cae94f110c9b0eacbb56769).
+
+The point zone registry can be used to retrieve pointers to `point_zone_t` objects defined in the case file. See [using point zones](#point-zones_using-point-zones) for detailed instructions.
 
 ## Compiling and running
 

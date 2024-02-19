@@ -53,7 +53,7 @@ The current version of Neko does not support user-defined shapes from the case
 file. That said, shapes can be defined manually into new types by extending 
 `point_zone_t` and implementing the abstract `criterion` interface.
 
-## Using point zones
+## Using point zones {#point-zones_using-point-zones}
 
 Point zones defined in the case file are stored in a point zone registry, 
 `neko_point_zone_registry`. The point zone registry allows for the retrieval of
