@@ -166,7 +166,7 @@ contains
        distance = min(cd, distance)
     end do
 
-    distance = sign(distance, weighted_sign)
+    distance = sign(min(distance, max_distance), weighted_sign)
 
   end function tri_mesh_brute_force
 
