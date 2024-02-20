@@ -63,6 +63,7 @@ module scalar_scheme
   use material_properties, only : material_properties_t
   use utils, only : neko_error
   use scalar_source_term, only : scalar_source_term_t
+  use field_series
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -75,6 +76,8 @@ module scalar_scheme
      type(field_t), pointer :: w
      !> The scalar.
      type(field_t), pointer :: s
+     !> Lag arrays, i.e. solutions at previous timesteps.
+     type(field_series_t) :: slag
      !> Function space \f$ X_h \f$.
      type(space_t), pointer :: Xh
      !> Dofmap associated with \f$ X_h \f$.
@@ -309,6 +312,8 @@ contains
     call neko_field_registry%add_field(this%dm_Xh, 's')
     this%s => neko_field_registry%get_field('s')
 
+    call this%slag%init(this%s, 2)
+
     this%gs_Xh => gs_Xh
     this%c_Xh => c_Xh
 
@@ -391,6 +396,8 @@ contains
     call this%source_term%free()
 
     call bc_list_free(this%bclst)
+
+    call this%slag%free()
 
   end subroutine scalar_scheme_free
 
