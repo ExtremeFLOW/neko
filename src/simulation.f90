@@ -309,9 +309,9 @@ contains
           dt_last_change .ge. min_update_frequency) then
 
           if (set_cfl/cfl .ge. 1) then 
-             scaling_factor = min(1.2, set_cfl/cfl) 
+             scaling_factor = min(1.2_rp, set_cfl/cfl) 
           else
-             scaling_factor = max(0.8, set_cfl/cfl) 
+             scaling_factor = max(0.8_rp, set_cfl/cfl) 
           end if
 
           dt_old = dt
