@@ -80,7 +80,7 @@ module fluid_scheme
      type(field_t), pointer :: v => null() !< y-component of Velocity
      type(field_t), pointer :: w => null() !< z-component of Velocity
      type(field_t), pointer :: p => null() !< Pressure
-     type(field_series_t) :: ulag, vlag, wlag, plag !< fluid field (lag)
+     type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
@@ -532,7 +532,7 @@ contains
     call this%ulag%init(this%u, 2)
     call this%vlag%init(this%v, 2)
     call this%wlag%init(this%w, 2)
-    call this%plag%init(this%p, 2)
+
 
     !
     ! Setup pressure boundary conditions
@@ -668,7 +668,7 @@ contains
     call this%ulag%free()
     call this%vlag%free()
     call this%wlag%free()
-    call this%plag%free()
+
 
     if (associated(this%f_x)) then
        call this%f_x%free()
