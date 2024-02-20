@@ -35,8 +35,8 @@ module time_interpolator
   use num_types, only : rp
   use field, only : field_t
   use neko_config
-  use device_math, only : device_add3s2
-  use math, only : add3s2
+  use device_math, only : device_add3s2, device_copy
+  use math, only : add3s2, copy
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
@@ -64,9 +64,6 @@ contains
     class(time_interpolator_t), intent(inout) :: this
     integer, intent(in), target :: order
 
-    !> call destructior
-    call this%free()
-
     !> Assign values
     this%order = order
 
@@ -76,7 +73,10 @@ contains
   !> Destructor
   subroutine time_interpolator_free(this)
     class(time_interpolator_t), intent(inout) :: this
- 
+    
+    !> call destructior
+    call this%free()
+
   end subroutine time_interpolator_free
 
   !> Interpolate a field at time t from fields at time t-dt and t+dt
@@ -88,26 +88,33 @@ contains
   !! @param f_future time in future for interpolation
   subroutine time_interpolator_interpolate(this, t, f, t_past, f_past, t_future, f_future)
     class(time_interpolator_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: t, t_past, t_future 
-    type(field_t), intent(inout) :: f, f_past, f_future
+    real(kind=rp), intent(in) :: t, t_past, t_future
+    type(field_t), intent(inout) :: f
+    type(field_t), intent(in) :: f_past, f_future
     real(kind=rp) :: w_past, w_future !Weights for the interpolation
     integer :: n
 
     if (this%order .eq. 2) then
+       n = f%dof%size()
+       if (abs(t_future - t_past) .gt. 1e-7_rp) then
+          w_past   = ( t_future - t ) / ( t_future - t_past )
+          w_future = ( t - t_past ) / ( t_future - t_past )
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+              call device_add3s2(f%x_d, f_past%x_d, f_future%x_d, &
+            w_past, w_future, n)
+          else
+              call add3s2(f%x, f_past%x, f_future%x, w_past, w_future, n)
+          end if
+       else
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+              call device_copy(f%x_d, f_past%x_d, n)
+          else
+              call copy(f%x, f_past%x, n)
+          end if
+       end if
 
-      n = f%dof%size()
-      w_past   = ( t_future - t ) / ( t_future - t_past )
-      w_future = ( t - t_past ) / ( t_future - t_past )
-
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-        call device_add3s2(f%x_d, f_past%x_d, f_future%x_d, &
-        w_past, w_future, n) 
-      else
-        call add3s2(f%x, f_past%x, f_future%x, w_past, w_future, n)
-      end if
-    
     else
-      call neko_error("Time interpolation of required order is not implemented")
+       call neko_error("Time interpolation of required order is not implemented")
     end if
 
   end subroutine time_interpolator_interpolate
