@@ -168,7 +168,7 @@ step.
 ```
 
 In the example above, the subroutine `usercheck` contains the actual
-implementation, and need to be registered by adding:
+implementation, and needs to be registered by adding:
 
 ```.f90
 u%user_check => usercheck
@@ -250,10 +250,10 @@ u%user_mesh_setup => user_mesh_scale
 ### Scalar boundary conditions {#user-file_scalar-bc}
 
 This user function can be used to specify the scalar boundary values, on all
-zones that are not already set to uniform dirichlet values e.g. `d=1`. For more
-information on the scalar, see the [relevant section of the case
-file](#case-file_scalar). The example below sets the scalar boundary condition
-values to be a linear function of the `z` coordinate (taken from the
+zones that are not already set to uniform Dirichlet or Neumann values e.g. `d=1`
+or `n=0`. For more information on the scalar, see the [relevant section of the
+case file](#case-file_scalar). The example below sets the scalar boundary
+condition values to be a linear function of the `z` coordinate (taken from the
 [rayleigh-benard
 example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh-benard-cylinder/rayleigh.f90#L41-L63)).
 
@@ -713,7 +713,8 @@ with the scalar enabled. For a practical example of usage, see the [rayleigh
 benard
 example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard/rayleigh.f90#L102-L105)
 
-Other fields will be added the registry in the following cases:
+Other fields may be added to the registry by various simulation components. For
+example:
 - If running with `simulation_components.vorticity` enabled, the fields
   `omega_x, omega_y, omega_z` will be accessible in the registry.
 - If running with `simulation_components.lambda2` enabled, the field `lambda2`
