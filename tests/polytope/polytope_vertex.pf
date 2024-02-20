@@ -111,6 +111,29 @@ subroutine test_vertex_topology
 end subroutine test_vertex_topology
 
 @test
+subroutine test_vertex_tpl_add
+  use pfunit
+  use num_types, only : i4
+  use topology, only : topology_t
+  use vertex, only : vertex_tpl_add
+  implicit none
+  class(topology_t), allocatable :: vrt
+  integer(i4) :: id
+
+  id = 10
+  call vertex_tpl_add(vrt, id)
+
+  ! vertex dimensions
+  @assertEqual(vrt%id(), id)
+  @assertEqual(vrt%tdim(), 0)
+  @assertTrue(vrt%check_comp(0, 0, 0))
+
+  call vrt%free()
+  deallocate(vrt)
+
+end subroutine test_vertex_tpl_add
+
+@test
 subroutine test_vertex_oriented
   use pfunit
   use num_types, only : i4

@@ -73,6 +73,39 @@ subroutine test_edge_topology_simple
 end subroutine test_edge_topology_simple
 
 @test
+subroutine test_edge_tpl_add
+  use pfunit
+  use num_types, only : i4
+  use topology, only : topology_t
+  use vertex, only : vertex_tpl_add
+  use edge, only : edge_tpl_add
+  implicit none
+  class(topology_t), allocatable :: edg, vrt1, vrt2
+  integer(i4) :: id, bnd
+
+  id = 1
+  call vertex_tpl_add(vrt1, id)
+  id = 2
+  call vertex_tpl_add(vrt2, id)
+
+  id = 10
+  bnd = 20
+  call edge_tpl_add(edg, id, bnd, vrt1, vrt2)
+
+  ! edge dimensions
+  @assertEqual(edg%id(), id)
+  @assertEqual(edg%bnd(), bnd)
+  @assertEqual(edg%tdim(), 1)
+  @assertTrue(edg%check_comp(2, 0, 0))
+
+  call edg%free()
+  call vrt1%free()
+  call vrt2%free()
+  deallocate(edg, vrt1, vrt2)
+
+end subroutine test_edge_tpl_add
+
+@test
 subroutine test_edge_topology_permutation
   use pfunit
   use num_types, only : i4

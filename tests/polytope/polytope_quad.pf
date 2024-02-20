@@ -87,6 +87,61 @@ subroutine test_quad_topology_simple
 end subroutine test_quad_topology_simple
 
 @test
+subroutine test_quad_tpl_add
+  use pfunit
+  use num_types, only : i4
+  use topology, only : topology_t
+  use vertex, only : vertex_tpl_add
+  use edge, only : edge_tpl_add
+  use quad_new, only : quad_tpl_add
+  implicit none
+  class(topology_t), allocatable :: qad, vrt1, vrt2, vrt3, vrt4, edg1, edg2, &
+       & edg3, edg4
+  integer(i4) :: id, bnd
+
+  id = 1
+  call vertex_tpl_add(vrt1, id)
+  id = 2
+  call vertex_tpl_add(vrt2, id)
+  id = 3
+  call vertex_tpl_add(vrt3, id)
+  id = 4
+  call vertex_tpl_add(vrt4, id)
+
+  id = 1
+  call edge_tpl_add(edg1, id, -1, vrt1, vrt3)
+  id = 2
+  call edge_tpl_add(edg2, id, -1, vrt2, vrt4)
+  id = 3
+  call edge_tpl_add(edg3, id, -1, vrt1, vrt2)
+  id = 4
+  call edge_tpl_add(edg4, id, -1, vrt3, vrt4)
+
+
+  id = 100
+  bnd = 200
+  call quad_tpl_add(qad, id, bnd, edg1, edg2, edg3, edg4, 0, 0, 0, 0)
+
+  ! edge dimensions
+  @assertEqual(qad%id(), id)
+  @assertEqual(qad%bnd(), bnd)
+  @assertEqual(qad%tdim(), 2)
+  @assertTrue(qad%check_comp(4, 4, 0))
+
+  call qad%free()
+  call edg1%free()
+  call edg2%free()
+  call edg3%free()
+  call edg4%free()
+  call vrt1%free()
+  call vrt2%free()
+  call vrt3%free()
+  call vrt4%free()
+  deallocate(qad, edg1, edg2, edg3, edg4, vrt1, vrt2, vrt3, vrt4)
+
+end subroutine test_quad_tpl_add
+
+@test
 subroutine test_quad_topology_permute
   use pfunit
   use num_types, only : i4
@@ -1156,6 +1211,104 @@ subroutine test_quad_mesh_simple
   call qum1%free()
 
 end subroutine test_quad_mesh_simple
+
+@test
+subroutine test_quad_elm_add
+  use pfunit
+  use num_types, only : i4, dp
+  use polytope, only : polytope_t
+  use topology, only : topology_element_t
+  use element_new, only : mesh_element_t
+  use vertex, only : vertex_tpl_add
+  use edge, only : edge_tpl_add
+  use quad_new, only : fct_to_rdg, quad_elm_add
+  use point, only : point_t
+  implicit none
+  type(topology_element_t), dimension(4) :: vrt, edg
+  type(mesh_element_t) :: qad
+  integer(i4) :: id, il
+  integer(i4), dimension(4) :: idp, idv, ide, bne
+  integer(i4), dimension(2, 3) :: rdg_hng
+  integer(i4), parameter :: gdim = 3
+  ! point coordinates
+  real(dp), dimension(gdim, 4) :: crd = reshape((/ 0.0d0, 0.0d0, 0.0d0, &
+       &  1.0d0, 0.0d0, 0.0d0,  0.0d0, 1.0d0, 0.0d0,  1.0d0, 1.0d0, 0.0d0 /), &
+       & shape(crd))
+  type(point_t), dimension(4) :: pts
+  class(polytope_t), pointer :: poly
+  type(point_t), pointer :: point
+
+  ! points
+  do il = 1, 4
+     idp(il) = il + 20
+     pts(il) = point_t(crd(1: 3, il), idp(il))
+  end do
+  ! vertices
+  do il = 1, 4
+     idv(il) = il
+     call vertex_tpl_add(vrt(il)%obj, idv(il))
+  end do
+  ! edges
+  do il = 1, 4
+     ide(il) = il
+     bne(il) = 10 + il
+     call edge_tpl_add(edg(il)%obj, ide(il), bne(il), &
+          &vrt(fct_to_rdg(1, il))%obj, vrt(fct_to_rdg(2, il))%obj)
+  end do
+
+  id = 100
+  call quad_elm_add(qad%obj, id, &
+       & edg(1)%obj, edg(2)%obj, edg(3)%obj, edg(4)%obj, &
+       & 0, 0, 0, 0, .false., .false., .false., .false., 0, 0, 0, 0, &
+       & 0, rdg_hng, &
+       & gdim, pts(1), pts(2), pts(3), pts(4))
+
+  ! quad dimensions
+  @assertEqual(qad%obj%id(), id)
+  @assertEqual(qad%obj%tdim(), 2)
+  @assertTrue(qad%obj%check_comp(4, 4, 0))
+
+  ! pointers
+  ! facets
+  do il = 1, 4
+     poly => qad%obj%fct(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), ide(il))
+     @assertEqual(poly%tdim(), 1)
+     @assertTrue(poly%check_comp(2, 0, 0))
+     @assertEqual(poly%bnd(), bne(il))
+     @assertTrue(poly%equal(edg(il)%obj))
+  end do
+  ! ridges
+  do il = 1, 4
+     poly => qad%obj%rdg(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), idv(il))
+     @assertEqual(poly%tdim(), 0)
+     @assertTrue(poly%check_comp(0, 0, 0))
+     @assertEqual(poly%bnd(), -1)
+     @assertTrue(poly%equal(vrt(il)%obj))
+  end do
+  ! points
+  @assertEqual(qad%obj%gdim(), gdim)
+  @assertEqual(qad%obj%npts(), 4)
+  do il = 1, 4
+     point => qad%obj%pnt(il)
+     @assertTrue(point .eq. pts(il))
+  end do
+
+  call qad%obj%free()
+  deallocate(qad%obj)
+  do il = 1, 4
+     call edg(il)%obj%free()
+     deallocate(edg(il)%obj)
+  end do
+  do il = 1, 4
+     call vrt(il)%obj%free()
+     deallocate(vrt(il)%obj)
+  end do
+
+end subroutine test_quad_elm_add
 
 @test
 subroutine test_quad_mesh_permute

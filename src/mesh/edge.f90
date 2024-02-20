@@ -39,11 +39,11 @@ module edge
   use topology, only : topology_t, topology_component_t
   use polytope_actualisation, only : polytope_actualisation_t
   use alignment_edge, only : alignment_edge_init, alignment_edge_find
-  use vertex, only : NEKO_VERTEX_TDIM
+  use vertex, only : NEKO_VERTEX_TDIM, vertex_ornt_t
   implicit none
   private
 
-  public :: edge_ornt_t, edge_tpl_t, edge_act_t
+  public :: edge_ornt_t, edge_tpl_t, edge_act_t, edge_tpl_add
 
   ! object information
   integer(i4), public, parameter :: NEKO_EDGE_TDIM = 1
@@ -153,6 +153,28 @@ module edge
   end type edge_act_t
 
 contains
+
+  !> Create topology edge
+  !! @parameter[out]     tpl    topology edge
+  !! @parameter[in]      id     edge id
+  !! @parameter[in]      bnd    boundary condition (for 2D mesh only)
+  !! @parameter[in]      vrt1, vrt2  bounding topology vertices
+  subroutine edge_tpl_add(tpl, id, bnd, vrt1, vrt2)
+    class(topology_t), intent(inout), allocatable :: tpl
+    integer(i4), intent(in) :: id, bnd
+    class(topology_t), intent(in) :: vrt1, vrt2
+    type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fct
+
+    if (allocated(tpl)) deallocate(tpl)
+    allocate(edge_tpl_t :: tpl)
+    ! facets
+    allocate(vertex_ornt_t :: fct(1)%obj)
+    call fct(1)%obj%init(vrt1, -1)
+    allocate(vertex_ornt_t :: fct(2)%obj)
+    call fct(2)%obj%init(vrt2, -1)
+    ! edge initialisation
+    call tpl%init(id, NEKO_EDGE_NFACET, fct, bnd)
+  end subroutine edge_tpl_add
 
   !> Initialise a polytope with boundary information
   !! @parameter[in]      id     polytope id

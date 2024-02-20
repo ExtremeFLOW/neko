@@ -40,12 +40,12 @@ module quad_new
   use element_new, only : element_new_t, element_component_t
   use alignment_quad, only : alignment_quad_init, alignment_quad_find
   use vertex, only : vertex_ornt_t, vertex_act_t
-  use edge, only : NEKO_EDGE_TDIM, NEKO_EDGE_NFACET
+  use edge, only : NEKO_EDGE_TDIM, NEKO_EDGE_NFACET, edge_ornt_t, edge_act_t
   use point, only : point_t, point_ptr
   implicit none
   private
 
-  public :: quad_tpl_t, quad_act_t, quad_elm_t
+  public :: quad_tpl_t, quad_act_t, quad_elm_t, quad_tpl_add, quad_elm_add
 
   ! object information
   integer(i4), public, parameter :: NEKO_QUAD_TDIM = 2
@@ -175,6 +175,34 @@ module quad_new
   integer, public, parameter, dimension(4) :: fct_to_dir = (/ 2, 2, 1, 1 /)
 
 contains
+
+  !> Create topology quad (3D mesh only)
+  !! @parameter[out]     tpl    topology quad
+  !! @parameter[in]      id     quad id
+  !! @parameter[in]      bnd    boundary condition (for 3D mesh only)
+  !! @parameter[in]      edg1, edg2, edg3, edg4   bounding topology edges
+  !! @parameter[in]      eo1, eo2, eo3, eo4       edge orientation
+  subroutine quad_tpl_add(tpl, id, bnd, edg1, edg2, edg3, edg4, eo1, eo2, eo3, &
+       & eo4)
+    class(topology_t), intent(inout), allocatable :: tpl
+    integer(i4), intent(in) :: id, bnd, eo1, eo2, eo3, eo4
+    class(topology_t), intent(in) :: edg1, edg2, edg3, edg4
+    type(topology_component_t), dimension(NEKO_QUAD_NFACET) :: fct
+
+    if (allocated(tpl)) deallocate(tpl)
+    allocate(quad_tpl_t :: tpl)
+    ! facets
+    allocate(edge_ornt_t :: fct(1)%obj)
+    call fct(1)%obj%init(edg1, eo1)
+    allocate(edge_ornt_t :: fct(2)%obj)
+    call fct(2)%obj%init(edg2, eo2)
+    allocate(edge_ornt_t :: fct(3)%obj)
+    call fct(3)%obj%init(edg3, eo3)
+    allocate(edge_ornt_t :: fct(4)%obj)
+    call fct(4)%obj%init(edg4, eo4)
+    ! edge initialisation
+    call tpl%init(id, NEKO_QUAD_NFACET, fct, bnd)
+  end subroutine quad_tpl_add
 
   !> Initialise a polytope with boundary information
   !! @parameter[in]      id     polytope id
@@ -471,6 +499,51 @@ contains
        end if
     end if
   end function quad_act_test
+
+  !> Create quad element (2D meshes only)
+  !! @parameter[out]     elm    element quad
+  !! @parameter[in]      id     quad id
+  !! @parameter[in]      edg1, edg2, edg3, edg4   bounding topology edges
+  !! @parameter[in]      eo1, eo2, eo3, eo4       edge orientation
+  !! @parameter[in]      in1, in2, in3, in4       edge interpolation flag
+  !! @parameter[in]      hn1, hn2, hn3, hn4       edge hanging position
+  !! @parameter[in]      nrdg     number of hanging ridges
+  !! @parameter[in]      rdg_hng  ridge hanging flag
+  !! @parameter[in]      gdim     geometrical dimension
+  !! @parameter[in]      pt1, pt2, pt3, pt4       vertex points
+  subroutine quad_elm_add(elm, id, edg1, edg2, edg3, edg4, eo1, eo2, eo3, eo4, &
+       & in1, in2, in3, in4, hn1, hn2, hn3, hn4, nrdg, rdg_hng, gdim, &
+       & pt1, pt2, pt3, pt4)
+    class(element_new_t), intent(inout), allocatable :: elm
+    integer(i4), intent(in) :: id, eo1, eo2, eo3, eo4, hn1, hn2, hn3, hn4, &
+         & nrdg, gdim
+    logical, intent(in) :: in1, in2, in3, in4
+    class(topology_t), intent(in) :: edg1, edg2, edg3, edg4
+    integer(i4), dimension(2, 3), intent(in) :: rdg_hng
+    type(point_t), intent(in), target :: pt1, pt2, pt3, pt4
+    type(element_component_t), dimension(NEKO_QUAD_NFACET) :: fct
+    type(point_ptr), dimension(NEKO_QUAD_NRIDGE) :: ptsl
+
+    if (allocated(elm)) deallocate(elm)
+    allocate(quad_elm_t :: elm)
+    ! facets
+    allocate(edge_act_t :: fct(1)%obj)
+    call fct(1)%obj%init(edg1, eo1, in1, hn1, 1)
+    allocate(edge_act_t :: fct(2)%obj)
+    call fct(2)%obj%init(edg2, eo2, in2, hn2, 2)
+    allocate(edge_act_t :: fct(3)%obj)
+    call fct(3)%obj%init(edg3, eo3, in3, hn3, 3)
+    allocate(edge_act_t :: fct(4)%obj)
+    call fct(4)%obj%init(edg4, eo4, in4, hn4, 4)
+    ! points
+    ptsl(1)%p => pt1
+    ptsl(2)%p => pt2
+    ptsl(3)%p => pt3
+    ptsl(4)%p => pt4
+    ! edge initialisation
+    call elm%init(id, NEKO_QUAD_NFACET, fct, NEKO_QUAD_NRIDGE, ptsl, gdim, &
+         & nrdg, rdg_hng)
+  end subroutine quad_elm_add
 
   !> Initialise a polytope with geometry information
   !! @parameter[in]   id       polytope id

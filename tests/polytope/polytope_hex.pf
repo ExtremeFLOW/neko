@@ -169,6 +169,118 @@ subroutine test_hex_mesh_simple
 
 end subroutine test_hex_mesh_simple
 
+@test
+subroutine test_hex_elm_add
+  use pfunit
+  use num_types, only : i4, dp
+  use polytope, only : polytope_t
+  use topology, only : topology_element_t
+  use element_new, only : mesh_element_t
+  use vertex, only : vertex_tpl_add
+  use edge, only : edge_tpl_add
+  use quad_new, only : quad_tpl_add
+  use hex_new, only : rdg_to_pek, fct_to_rdg, hex_elm_add
+  use point, only : point_t
+  implicit none
+  type(topology_element_t), dimension(8) :: vrt
+  type(topology_element_t), dimension(12) :: edg
+  type(topology_element_t), dimension(6) :: qad
+  type(mesh_element_t) :: hex
+  integer(i4) :: id, bne, il
+  integer(i4), dimension(8) :: idp, idv
+  integer(i4), dimension(12) :: ide
+  integer(i4), dimension(6) :: idq, bnq
+  integer(i4), dimension(2, 3) :: rdg_hng
+  integer(i4), parameter :: gdim = 3
+  ! point coordinates
+  real(dp), dimension(gdim, 8) :: crd = reshape((/ 0.0d0, 0.0d0, 0.0d0, &
+       &  1.0d0, 0.0d0, 0.0d0,  0.0d0, 1.0d0, 0.0d0,  1.0d0, 1.0d0, 0.0d0, &
+       &  0.0d0, 0.0d0, 1.0d0,  1.0d0, 0.0d0, 1.0d0,  0.0d0, 1.0d0, 1.0d0, &
+       &  1.0d0, 1.0d0, 1.0d0 /), shape(crd))
+  type(point_t), dimension(8) :: pts
+  class(polytope_t), pointer :: poly
+  type(point_t), pointer :: point
+
+  ! points
+  do il = 1, 8
+     idp(il) = il + 20
+     pts(il) = point_t(crd(1: 3, il), idp(il))
+  end do
+  ! vertices
+  do il = 1, 8
+     idv(il) = il
+     call vertex_tpl_add(vrt(il)%obj, idv(il))
+  end do
+  ! edges
+  bne = -1
+  do il = 1, 12
+     ide(il) = il
+     call edge_tpl_add(edg(il)%obj, ide(il), bne, vrt(rdg_to_pek(1, il))%obj, &
+          & vrt(rdg_to_pek(2, il))%obj)
+  end do
+  ! quads
+  do il = 1, 6
+     idq(il) = il
+     bnq(il) = 10 + il
+     call quad_tpl_add(qad(il)%obj, idq(il), bnq(il), &
+          & edg(fct_to_rdg(1, il))%obj, edg(fct_to_rdg(2, il))%obj, &
+          & edg(fct_to_rdg(3, il))%obj, edg(fct_to_rdg(4, il))%obj, 0, 0, 0, 0)
+  end do
+
+  id = 100
+  call hex_elm_add(hex%obj, id, &
+       & qad(1)%obj, qad(2)%obj, qad(3)%obj, qad(4)%obj, qad(5)%obj, &
+       & qad(6)%obj, 0, 0, 0, 0, 0, 0, .false., &
+       & .false., .false., .false., .false., .false., 0, 0, 0, 0, 0, 0, &
+       & 0, rdg_hng, &
+       & gdim, pts(1), pts(2), pts(3), pts(4), pts(5), pts(6), pts(7), pts(8))
+
+  ! hex dimensions
+  @assertEqual(hex%obj%id(), id)
+  @assertEqual(hex%obj%tdim(), 3)
+  @assertTrue(hex%obj%check_comp(6, 12, 8))
+
+  ! pointers
+  ! facets
+  do il = 1, 6
+     poly => hex%obj%fct(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), idq(il))
+     @assertEqual(poly%tdim(), 2)
+     @assertTrue(poly%check_comp(4, 4, 0))
+     @assertEqual(poly%bnd(), bnq(il))
+     @assertTrue(poly%equal(qad(il)%obj))
+  end do
+  ! ridges
+  do il = 1, 12
+     poly => hex%obj%rdg(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), ide(il))
+     @assertEqual(poly%tdim(), 1)
+     @assertTrue(poly%check_comp(2, 0, 0))
+     @assertEqual(poly%bnd(), -1)
+     @assertTrue(poly%equal(edg(il)%obj))
+  end do
+  !peaks
+  do il = 1, 8
+     poly => hex%obj%pek(il)
+     @assertTrue(associated(poly))
+     @assertEqual(poly%id(), idv(il))
+     @assertEqual(poly%tdim(), 0)
+     @assertTrue(poly%check_comp(0, 0, 0))
+     @assertEqual(poly%bnd(), -1)
+     @assertTrue(poly%equal(vrt(il)%obj))
+  end do
+  ! points
+  @assertEqual(hex%obj%gdim(), gdim)
+  @assertEqual(hex%obj%npts(), 8)
+  do il = 1, 8
+     point => hex%obj%pnt(il)
+     @assertTrue(point .eq. pts(il))
+  end do
+
+end subroutine test_hex_elm_add
+
 subroutine hex_permutations(algn, permv, perme, permq)
   use num_types, only : i4
   implicit none

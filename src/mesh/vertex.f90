@@ -41,7 +41,7 @@ module vertex
   implicit none
   private
 
-  public :: vertex_tpl_t, vertex_ornt_t, vertex_act_t
+  public :: vertex_tpl_t, vertex_ornt_t, vertex_act_t, vertex_tpl_add
 
   ! object information
   integer(i4), public, parameter :: NEKO_VERTEX_TDIM = 0
@@ -118,6 +118,20 @@ module vertex
   end type vertex_act_t
 
 contains
+
+  !> Create topology vertex
+  !! @parameter[out]     tpl    topology vertex
+  !! @parameter[in]      id     vertex id
+  subroutine vertex_tpl_add(tpl, id)
+    class(topology_t), intent(inout), allocatable :: tpl
+    integer(i4), intent(in) :: id
+
+    type(topology_component_t), dimension(NEKO_VERTEX_NFACET) :: fct
+
+    if (allocated(tpl)) deallocate(tpl)
+    allocate(vertex_tpl_t :: tpl)
+    call tpl%init(id, NEKO_VERTEX_NFACET, fct, -1)
+  end subroutine vertex_tpl_add
 
   !> Initialise a topology polytope with boundary information
   !! @parameter[in]      id     polytope id

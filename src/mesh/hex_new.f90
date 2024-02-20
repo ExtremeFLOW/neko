@@ -40,12 +40,12 @@ module hex_new
   use vertex, only : vertex_act_t, vertex_ornt_t
   use edge, only : edge_act_t, edge_tpl_t, NEKO_EDGE_NFACET
   use quad_new, only : NEKO_QUAD_TDIM, NEKO_QUAD_NFACET, NEKO_QUAD_NRIDGE, &
-       & NEKO_QUAD_NPEAK, quad_to_edg_algn_inv
+       & NEKO_QUAD_NPEAK, quad_to_edg_algn_inv, quad_act_t
   use point, only : point_t, point_ptr
   implicit none
   private
 
-  public :: hex_elm_t
+  public :: hex_elm_t, hex_elm_add
 
   ! object information
   integer(i4), public, parameter :: NEKO_HEX_TDIM = 3
@@ -177,6 +177,60 @@ module hex_new
        & 2, 2, 2, 2  ,  3, 3, 3, 3 /)
 
 contains
+
+  !> Create hex element (3D meshes only)
+  !! @parameter[out]     elm    element hex
+  !! @parameter[in]      id     hex id
+  !! @parameter[in]      qd1, qd2, qd3, qd4, qd5, qd6   bounding topology quads
+  !! @parameter[in]      qo1, qo2, qo3, qo4, qo5, qo6   quad orientation
+  !! @parameter[in]      in1, in2, in3, in4, in5, in6   quad interpolation flag
+  !! @parameter[in]      hn1, hn2, hn3, hn4, hn5, hn6   quad hanging position
+  !! @parameter[in]      nrdg     number of hanging ridges
+  !! @parameter[in]      rdg_hng  ridge hanging flag
+  !! @parameter[in]      gdim     geometrical dimension
+  !! @parameter[in]      pt1, pt2, pt3, pt4, p5, p6, pt7, pt8   vertex points
+  subroutine hex_elm_add(elm, id, qd1, qd2, qd3, qd4, qd5, qd6, &
+       & qo1, qo2, qo3, qo4, qo5, qo6, in1, in2, in3, in4, in5, in6, &
+       & hn1, hn2, hn3, hn4, hn5, hn6, nrdg, rdg_hng, &
+       & gdim, pt1, pt2, pt3, pt4, pt5, pt6, pt7, pt8)
+    class(element_new_t), intent(inout), allocatable :: elm
+    integer(i4), intent(in) :: id, qo1, qo2, qo3, qo4, qo5, qo6, hn1, hn2, &
+         & hn3, hn4, hn5, hn6, nrdg, gdim
+    logical, intent(in) :: in1, in2, in3, in4, in5, in6
+    class(topology_t), intent(in) :: qd1, qd2, qd3, qd4, qd5, qd6
+    integer(i4), dimension(2, 3), intent(in) :: rdg_hng
+    type(point_t), intent(in), target :: pt1, pt2, pt3, pt4, pt5, pt6, pt7, pt8
+    type(element_component_t), dimension(NEKO_HEX_NFACET) :: fct
+    type(point_ptr), dimension(NEKO_HEX_NPEAK) :: ptsl
+
+    if (allocated(elm)) deallocate(elm)
+    allocate(hex_elm_t :: elm)
+    ! facets
+    allocate(quad_act_t :: fct(1)%obj)
+    call fct(1)%obj%init(qd1, qo1, in1, hn1, 1)
+    allocate(quad_act_t :: fct(2)%obj)
+    call fct(2)%obj%init(qd2, qo2, in2, hn2, 2)
+    allocate(quad_act_t :: fct(3)%obj)
+    call fct(3)%obj%init(qd3, qo3, in3, hn3, 3)
+    allocate(quad_act_t :: fct(4)%obj)
+    call fct(4)%obj%init(qd4, qo4, in4, hn4, 4)
+    allocate(quad_act_t :: fct(5)%obj)
+    call fct(5)%obj%init(qd5, qo5, in5, hn5, 5)
+    allocate(quad_act_t :: fct(6)%obj)
+    call fct(6)%obj%init(qd6, qo6, in6, hn6, 6)
+    ! points
+    ptsl(1)%p => pt1
+    ptsl(2)%p => pt2
+    ptsl(3)%p => pt3
+    ptsl(4)%p => pt4
+    ptsl(5)%p => pt5
+    ptsl(6)%p => pt6
+    ptsl(7)%p => pt7
+    ptsl(8)%p => pt8
+    ! edge initialisation
+    call elm%init(id, NEKO_HEX_NFACET, fct, NEKO_HEX_NPEAK, ptsl, gdim, &
+         & nrdg, rdg_hng)
+  end subroutine hex_elm_add
 
   !> Initialise a polytope with geometry information
   !! @parameter[in]   id       polytope id
