@@ -132,6 +132,14 @@ contains
     call json_get_or_default(json, "output_value", output_value, &
                              compute_value)
 
+
+    if (output_control == "global") then
+       call json_get(this%case%params, 'case.fluid.output_control', &
+                     output_control)
+       call json_get(this%case%params, 'case.fluid.output_value', &
+                     output_value)
+    end if
+
     call json_get(json, "order", order)
     this%order = order
 

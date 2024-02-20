@@ -111,6 +111,7 @@ neko_fortran_SOURCES = \
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
+	io/fld_file_output.f90\
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
 	io/fluid_stats_output.f90\
@@ -228,6 +229,8 @@ neko_fortran_SOURCES = \
 	scalar/scalar_residual.f90\
 	scalar/scalar_residual_fctry.f90\
 	scalar/scalar_ic.f90\
+	scalar/scalar_source_term.f90\
+	scalar/scalar_user_source_term.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\
