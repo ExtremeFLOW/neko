@@ -6,8 +6,8 @@
         "output_at_end": false,
         "output_boundary": false,
         "output_checkpoints": false,
-        "end_time": 0.02,
-        "timestep": 1e-5,
+        "end_time": 5.0,
+        "timestep": 1e-4,
         "numerics": {
             "time_order": 3,
             "polynomial_order": 8,
