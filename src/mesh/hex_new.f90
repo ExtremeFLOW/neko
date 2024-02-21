@@ -591,6 +591,10 @@ contains
     class(hex_elm_t), intent(in) :: this
     class(polytope_t), intent(in) :: other
     logical :: equal
+    integer(i4) :: il
+    integer(i4), dimension(NEKO_HEX_NFACET) :: fctt, fcto, indf
+    integer(i4), dimension(NEKO_HEX_NRIDGE) :: rdgt, rdgo, indr
+    integer(i4), dimension(NEKO_HEX_NPEAK) :: pekt, peko, indp
 
     ! check polygon information
     equal = this%equal_poly(other)
@@ -605,9 +609,61 @@ contains
              ! geometrical dimension
              equal = (this%gdim() == other%gdim())
              if (equal) then
-
-                call neko_error('Not finished; missing sorting routines.')
-
+                ! This is the highest dimension object for 2D meshes, so we do
+                ! not consider any transformations. Simply take facets/ridges/
+                ! peaks and sort them. in a similar way we treat points.
+                ! We simply assume the objects built of the same components
+                ! should be the same.
+                ! Check facets
+                do il = 1, NEKO_HEX_NFACET
+                   fctt(il) = this%facet(il)%obj%polytope%id()
+                   fcto(il) = other%facet(il)%obj%polytope%id()
+                end do
+                call sorti4(fctt, indf, NEKO_HEX_NFACET)
+                call sorti4(fcto, indf, NEKO_HEX_NFACET)
+                do il = 1, NEKO_HEX_NFACET
+                   equal = fctt(il) == fcto(il)
+                   if (.not.equal) exit
+                end do
+                if (equal) then
+                   ! Check ridges
+                   do il = 1, NEKO_HEX_NRIDGE
+                      rdgt(il) = this%ridge(il)%obj%polytope%id()
+                      rdgo(il) = other%ridge(il)%obj%polytope%id()
+                   end do
+                   call sorti4(rdgt, indr, NEKO_HEX_NRIDGE)
+                   call sorti4(rdgo, indr, NEKO_HEX_NRIDGE)
+                   do il = 1, NEKO_HEX_NRIDGE
+                      equal = rdgt(il) == rdgo(il)
+                      if (.not.equal) exit
+                   end do
+                   if (equal) then
+                      ! Check peaks
+                      do il = 1, NEKO_HEX_NPEAK
+                         pekt(il) = this%peak(il)%obj%polytope%id()
+                         peko(il) = other%peak(il)%obj%polytope%id()
+                      end do
+                      call sorti4(pekt, indp, NEKO_HEX_NPEAK)
+                      call sorti4(peko, indp, NEKO_HEX_NPEAK)
+                      do il = 1, NEKO_HEX_NPEAK
+                         equal = pekt(il) == peko(il)
+                         if (.not.equal) exit
+                      end do
+                      if (equal) then
+                         ! Check points (the same number as peaks)
+                         do il = 1, NEKO_HEX_NPEAK
+                            pekt(il) = this%pts(il)%p%id()
+                            peko(il) = other%pts(il)%p%id()
+                         end do
+                         call sorti4(pekt, indp, NEKO_HEX_NPEAK)
+                         call sorti4(peko, indp, NEKO_HEX_NPEAK)
+                         do il = 1, NEKO_HEX_NPEAK
+                            equal = pekt(il) == peko(il)
+                            if (.not.equal) exit
+                         end do
+                      endif
+                   end if
+                end if
              end if
           class default
              equal = .false.
@@ -615,7 +671,7 @@ contains
           if (.not. equal) then
              ! Something wrong; edge with the same global id should have
              ! the same type and the same facets/ridges
-             call neko_error('Mismatch in class or element global id')
+             call neko_error('Mismatch in class or element global id; hex')
           end if
        end if
     end if
@@ -679,5 +735,63 @@ contains
     integer(i4), intent(out) :: dirr
     dirr = rdg_to_dir(pos)
   end subroutine hex_elm_rdg_dir
+
+  ! THIS SHOULD BE LOCATED IN OTHER PLACE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !> Heap Sort for single integer arrays
+  !! @details Following p 231 Num. Rec., 1st Ed.
+  !! @param[inout]   a     vector to be sorted
+  !! @param[out]     ind   permutation array
+  !! @param[in]      n     array size
+  subroutine sorti4(a, ind, n)
+    integer, intent(in) :: n
+    integer(i4), intent(inout) :: a(n)
+    integer, intent(out) :: ind(n)
+    integer(i4) :: aa
+    integer :: j, ir, i, ii, l
+
+    do j = 1, n
+       ind(j) = j
+    end do
+
+    if (n.le.1) return
+
+    l = n/2+1
+    ir = n
+    do while (.true.)
+       if (l.gt.1) then
+          l=l-1
+          aa  = a  (l)
+          ii  = ind(l)
+       else
+          aa =   a(ir)
+          ii = ind(ir)
+          a(ir) =   a( 1)
+          ind(ir) = ind( 1)
+          ir=ir-1
+          if (ir.eq.1) then
+             a(1) = aa
+             ind(1) = ii
+             return
+          endif
+       endif
+       i=l
+       j=l+l
+       do while (j .le. ir)
+          if (j.lt.ir) then
+             if ( a(j).lt.a(j+1) ) j=j+1
+          endif
+          if (aa.lt.a(j)) then
+             a(i) = a(j)
+             ind(i) = ind(j)
+             i=j
+             j=j+j
+          else
+             j=ir+1
+          endif
+       end do
+       a(i) = aa
+       ind(i) = ii
+    end do
+  end subroutine sorti4
 
 end module hex_new
