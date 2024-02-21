@@ -179,34 +179,43 @@ The following types are currently implemented.
    pointwise user file subroutine. Only works on CPUs!
 3. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
-4. `brinkman`, Brinkman permeability forcing along a pre-defined mesh.
+4. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
-The volume force $f_i$ applied in the selected regions are proportional to the fluid
-velocity component $u_i$.
+The volume force $f_i$ applied in the selected regions are proportional to the
+fluid velocity component $u_i$.
 
 $$
    f_i(x) = - B(x) u_i(x), \\
    B(x) = \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)},
 $$
 
-where, $x$ is the current location in the domain, $\xi: x\mapsto [0,1]$
+where, $x$ is the current location in the domain, $\xi: x \mapsto [0,1]$
 represent an indicator function for the resistance where $\xi(x) = 0$ is a free
 flow. $\kappa_i$ describes the limits for the force application at $\xi(x)=0$
 and $\xi(x)=1$. A penalty parameter $q$ help us to reduce numerical problems.
 
+The indicator function will be defined based on the region type. The following
+types are currently implemented.
+
+1. `boundary_mesh`, the indicator function is defined based on the signed
+   distance function to the specified mesh and a transformation such as a `step`
+   or `smooth_step` function.
+2. `point_zone`, the indicator function is the characteristic function of the
+   specified point zone. The point zone is defined in the case file.
+
 Additional keywords are available to modify the Brinkman force term.
 
-| Name                       | Description                                                             | Admissable values     | Default value |
-| -------------------------- | ----------------------------------------------------------------------- | --------------------- | ------------- |
-| `region.type`              | Type of region to enforce the Brinkman force term.                      | `boundary_mesh`       | -             |
-| `region.name`              | Name of the region.                                                     | String, file name.    | -             |
-| `brinkman.limits`          | Brinkman factor at freeflow ($\xi(x)=0$) and solid domain ($\xi(x)=1$). | Vector if 2 reals.    | -             |
-| `brinkman.penalty`         | Panalty parameter when estimating Brinkman factor                       | Real                  | $1.0$         |
-| `distance_transform.type`  | How to map from distance field to indicator field.                      | `step`, `smooth_step` | -             |
-| `distance_transform.value` | Values used to define the distance transform, such as cutoff distance.  | Real                  | -             |
-| `filter.type`              | Type of filtering appllied to the indicator field.                      | `none`                | `none`        |
+| Name                       | Description                                                             | Admissable values             | Default value |
+| -------------------------- | ----------------------------------------------------------------------- | ----------------------------- | ------------- |
+| `region.type`              | Type of region to enforce the Brinkman force term.                      | `boundary_mesh`, `point_zone` | -             |
+| `region.name`              | Name of the region.                                                     | String, file name.            | -             |
+| `brinkman.limits`          | Brinkman factor at freeflow ($\xi(x)=0$) and solid domain ($\xi(x)=1$). | Vector if 2 reals.            | -             |
+| `brinkman.penalty`         | Panalty parameter when estimating Brinkman factor                       | Real                          | $1.0$         |
+| `distance_transform.type`  | How to map from distance field to indicator field.                      | `step`, `smooth_step`         | -             |
+| `distance_transform.value` | Values used to define the distance transform, such as cutoff distance.  | Real                          | -             |
+| `filter.type`              | Type of filtering appllied to the indicator field.                      | `none`                        | `none`        |
 
 ### Boundary types
 The optional `boundary_types` keyword can be used to specify boundary conditions.
