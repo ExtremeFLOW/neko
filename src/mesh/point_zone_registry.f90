@@ -32,10 +32,11 @@
 !
 ! Implements a point zone registry for storing point zones.
 module point_zone_registry
-  use point_zone, only : point_zone_t, point_zone_wrapper_t
+  use point_zone, only: point_zone_t, point_zone_wrapper_t
   use point_zone_fctry, only: point_zone_factory
-  use dofmap, only : dofmap_t
-  use utils, only : neko_error
+  use dofmap, only: dofmap_t
+  use mesh, only: mesh_t
+  use space, only: space_t, GLL
   use utils, only: neko_error
   use json_utils, only: json_get
   use json_module, only: json_file, json_core, json_value
@@ -83,17 +84,17 @@ module point_zone_registry
 contains
   !> Constructor, reading from json point zones.
   !! @param json Json file object.
-  !! @param dof Dofmap to map the point zone from GLL points.
+  !! @param msh Mesh associated with the point zone.
   !! @param size Size of the point zone registry.
   !! @param expansion_size Expansion size for the point zone registry.
   !! @note At this stage, the point_zone registry is only allocated
   !! if we find anything in the `case.point_zones` json path. Any
   !! point_zones that are not defined in that way will need to be added
   !! using the `add_point_zone` subroutine.
-  subroutine point_zone_registry_init(this, json, dof, expansion_size)
+  subroutine point_zone_registry_init(this, json, msh, expansion_size)
     class(point_zone_registry_t), intent(inout):: this
     type(json_file), intent(inout) :: json
-    type(dofmap_t), intent(inout) :: dof
+    type(mesh_t), target, intent(inout) :: msh
     integer, optional, intent(in) :: expansion_size
 
     ! Json low-level manipulator.
@@ -104,9 +105,24 @@ contains
     character(len=:), allocatable :: buffer
     ! A single source term as its own json_file.
     type(json_file) :: source_subdict
-    character(len=:), allocatable :: type
     logical :: found
     integer :: n_zones, i
+
+    ! Parameters used to setup the GLL space.
+    integer :: order
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+
+
+    call json_get(json, 'case.numerics.polynomial_order', order)
+    order = order + 1 ! add 1 to get poly order
+
+    if (msh%gdim .eq. 2) then
+       call Xh%init(GLL, order, order)
+    else
+       call Xh%init(GLL, order, order, order)
+    end if
+    dof = dofmap_t(msh, Xh)
 
     call this%free()
 
@@ -199,7 +215,7 @@ contains
     ! Check if point zone exists with the input name
     if (this%point_zone_exists(trim(str_read))) then
        call neko_error("Field with name " // trim(str_read) // &
-            " is already registered")
+                       " is already registered")
     end if
 
     !
@@ -287,7 +303,7 @@ contains
 
     if (.not. found) then
        call neko_error("Point zone " // trim(name) // &
-            " could not be found in the registry")
+                       " could not be found in the registry")
     end if
   end function get_point_zone_by_name
 
