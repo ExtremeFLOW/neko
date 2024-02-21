@@ -217,7 +217,7 @@ u%material_properties => set_material_properties
 This user function allows for the modification of the mesh at runtime, by acting
 on the element nodes of the mesh specified in the case file. This function is
 only called once before the simulation time loop. The example below is taken
-from the [compression
+from the [tgv
 example](https://github.com/ExtremeFLOW/neko/blob/a0613606360240e5059e65d6d98f4a57cf73e237/examples/tgv/tgv.f90#L27-L42).
 
 ```.f90
