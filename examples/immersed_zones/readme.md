@@ -24,3 +24,6 @@ The following examples are included in this directory:
   domain.
 - `block_sphere`: A flow past a block and a sphere both with size and placement
   as above.
+- `cylinder`: A flow past a cylinder with radius 0.1 placed horizontally in the
+  middle of the domain.
+  
