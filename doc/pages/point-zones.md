@@ -12,10 +12,10 @@ being applying a localized source term or probing a particular zone of interest.
 
 ## Predefined geometrical shapes
 
-There are two predefined shapes from which to initialize a point zone in the case
-file: boxes and spheres. Each shape is described by its own subtype
-`box_point_zone_t` and `sphere_point_zone_t`, extending the abstract class 
-`point_zone_t`.
+There are three predefined shapes from which to initialize a point zone in the
+case file: boxes, spheres and cylinders. Each shape is described by its own
+subtype `box_point_zone_t`, `sphere_point_zone_t` and `cylinder_point_zone_t`,
+extending the abstract class `point_zone_t`.
 
 ### Box
 
@@ -42,6 +42,22 @@ A sphere is defined by its center and its radius.
         "name": "mysphere",
         "geometry": "sphere",
         "center": [0.0, 0.0, 0.0],
+        "radius": 0.01
+    },
+]
+~~~~~~~~~~~~~~~
+
+### Cylinder
+
+A cylinder is defined by its end points and its radius.
+
+~~~~~~~~~~~~~~~{.json}
+[
+    {
+        "name": "mycylinder",
+        "geometry": "cylinder",
+        "start": [0.0, 0.0, 0.0],
+        "end": [0.0, 0.0, 1.0],
         "radius": 0.01
     },
 ]
