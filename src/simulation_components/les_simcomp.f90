@@ -45,8 +45,8 @@ module les_simcomp
   use les_model_fctry, only : les_model_factory
   use json_utils, only : json_get
   use fluid_pnpn_stress, only : fluid_pnpn_stress_t
-  use math, only : addcol3
-  use device_math, only : device_addcol3
+  use math, only : addcol3, add2s2, cfill
+  use device_math, only : device_addcol3, device_add2s2, device_cfill
   use neko_config, only : NEKO_BCKND_DEVICE
   use fld_file_output, only : fld_file_output_t
   implicit none
@@ -154,8 +154,19 @@ contains
                      this%rho%dof%size())
     end if
 
-
-
+    if (allocated(this%case%scalar)) then
+      associate (s => this%case%scalar)
+        if (NEKO_BCKND_DEVICE .eq. 1) then
+           call device_cfill(s%lambda_field%x_d, s%lambda, s%dm_Xh%size())
+           call device_add2s2(s%lambda_field%x_d, this%les_model%nut%x_d, &
+                              s%rho*s%cp, s%dm_Xh%size())
+        else
+           call cfill(s%lambda_field%x, s%lambda, s%dm_Xh%size())
+           call add2s2(s%lambda_field%x, this%les_model%nut%x, s%rho*s%cp, &
+                       s%dm_Xh%size())
+        end if
+      end associate
+    end if
 
   end subroutine les_simcomp_compute
 
