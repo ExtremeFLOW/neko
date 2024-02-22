@@ -97,7 +97,7 @@ module element_new
      !> Return communication id for a given peak
      procedure, pass(this) :: pek_gsid => element_pek_gsid
      !> Return facet alignment
-     procedure, pass(this) :: falgn => element_fct_algn
+     procedure, pass(this) :: fct_algn => element_fct_algn
      !> Just required
      procedure, pass(this) :: bnd => element_int_dummy
      !> Just required

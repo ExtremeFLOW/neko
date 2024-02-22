@@ -62,8 +62,8 @@ subroutine test_edge_topology_simple
   @assertFalse(edt1%self_periodic())
 
   ! facet alignment tests
-  @assertEqual(edt1%falgn(1), -1)
-  @assertEqual(edt1%falgn(2), -1)
+  @assertEqual(edt1%fct_algn(1), -1)
+  @assertEqual(edt1%fct_algn(2), -1)
 
    do il =1, 2
      call vrt(il)%free()

@@ -83,7 +83,7 @@ module polytope
      !> Test self-periodicity
      procedure(polytope_self_periodic), pass(this), deferred :: self_periodic
      !> Return facet alignment
-     procedure(polytope_algn), pass(this), deferred :: falgn
+     procedure(polytope_fct_algn), pass(this), deferred :: fct_algn
      !> Return boundary information (topology object only)
      procedure(polytope_int), pass(this), deferred :: bnd
      !> Return communication id (topology object only)
@@ -142,13 +142,13 @@ module polytope
   !! @parameter[in]   pos   polytope component position
   !! @return algn
   abstract interface
-     function polytope_algn(this, pos) result(algn)
+     function polytope_fct_algn(this, pos) result(algn)
        import i4
        import polytope_t
        class(polytope_t), intent(in) :: this
        integer(i4), intent(in) :: pos
        integer(i4) :: algn
-     end function polytope_algn
+     end function polytope_fct_algn
   end interface
 
   !> Extract integer property

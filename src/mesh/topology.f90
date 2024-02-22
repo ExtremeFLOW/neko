@@ -81,7 +81,7 @@ module topology
      !> Return ridges shared by polytopes
      procedure, pass(this) :: rdg_share => topology_ridge_share
      !> Return facet alignment
-     procedure, pass(this) :: falgn => topology_fct_algn
+     procedure, pass(this) :: fct_algn => topology_fct_algn
      !> Initialise a topology polytope
      procedure(topology_init), pass(this), deferred :: init
   end type topology_t

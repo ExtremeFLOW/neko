@@ -75,7 +75,7 @@ subroutine test_quad_topology_simple
   ! facet alignment tests
   algn = 0
   do il = 1, 4
-     @assertEqual(qut1%falgn(il), algn)
+     @assertEqual(qut1%fct_algn(il), algn)
   end do
 
    do il =1, 4
@@ -553,10 +553,10 @@ subroutine test_quad_topology_Mobius_stripe
   call qut2%set_gsid(gsq2)
 
   ! facet alignment tests
-  @assertEqual(qut2%falgn(1), 0)
-  @assertEqual(qut2%falgn(2), 1)
+  @assertEqual(qut2%fct_algn(1), 0)
+  @assertEqual(qut2%fct_algn(2), 1)
   do il = 3, 4
-     @assertEqual(qut2%falgn(il), 0)
+     @assertEqual(qut2%fct_algn(il), 0)
   end do
 
   ! shared facets
@@ -1181,7 +1181,7 @@ subroutine test_quad_mesh_simple
 
   ! facet alignment
   do il = 1, 4
-     @assertEqual(qum1%falgn(il), 0)
+     @assertEqual(qum1%fct_algn(il), 0)
   end do
 
   ! quad diameter

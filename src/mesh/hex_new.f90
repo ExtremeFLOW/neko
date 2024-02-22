@@ -460,13 +460,13 @@ contains
              vrt(jl)%ptr => this%facet(ifct)%obj%polytope%fct(mapf(icrn))
              ! extract alignment
              edg_algn(jl) = quad_to_edg_algn_inv( &
-                  & this%facet(ifct)%obj%polytope%falgn(mapf(icrn)), &
+                  & this%facet(ifct)%obj%polytope%fct_algn(mapf(icrn)), &
                   & mapf(icrn), this%facet(ifct)%obj%algn_op%algn())
           else
              vrt(jl)%ptr => this%facet(ifct)%obj%polytope%fct(icrn)
              ! extract alignment
              edg_algn(jl) = quad_to_edg_algn_inv( &
-                  & this%facet(ifct)%obj%polytope%falgn(icrn), &
+                  & this%facet(ifct)%obj%polytope%fct_algn(icrn), &
                   & icrn, this%facet(ifct)%obj%algn_op%algn())
           end if
           ! collect facet hanging information

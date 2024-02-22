@@ -129,7 +129,7 @@ subroutine test_hex_mesh_simple
 
   ! facet alignment
   do il = 1, 6
-     @assertEqual(hxm1%falgn(il), 0)
+     @assertEqual(hxm1%fct_algn(il), 0)
   end do
 
   ! quad diameter
