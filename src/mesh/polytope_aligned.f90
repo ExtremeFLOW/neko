@@ -64,6 +64,7 @@ module polytope_aligned
      procedure, pass(this) :: algn => polytope_aligned_algn_get
      !> Test equality
      procedure, pass(this) :: equal => polytope_aligned_equal
+     generic :: operator(.eq.) => equal
      !> Free type
      procedure(polytope_aligned_free), pass(this), deferred :: free
      !> Test equality and find alignment

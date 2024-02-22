@@ -60,8 +60,8 @@ mesh/octree.o : mesh/octree.f90 common/utils.o mesh/point.o config/num_types.o
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o 
 mesh/alignment.o : mesh/alignment.f90 config/num_types.o 
-mesh/alignment_edge.o : mesh/alignment_edge.f90 config/num_types.o common/utils.o math/math.o mesh/alignment.o 
-mesh/alignment_quad.o : mesh/alignment_quad.f90 config/num_types.o common/utils.o math/math.o mesh/alignment.o 
+mesh/alignment_edge.o : mesh/alignment_edge.f90 config/num_types.o common/utils.o mesh/alignment.o 
+mesh/alignment_quad.o : mesh/alignment_quad.f90 config/num_types.o common/utils.o mesh/alignment.o 
 mesh/polytope.o : mesh/polytope.f90 config/num_types.o common/utils.o mesh/entity.o 
 mesh/polytope_aligned.o : mesh/polytope_aligned.f90 config/num_types.o mesh/polytope.o mesh/alignment.o 
 mesh/polytope_oriented.o : mesh/polytope_oriented.f90 config/num_types.o mesh/polytope.o mesh/polytope_aligned.o 

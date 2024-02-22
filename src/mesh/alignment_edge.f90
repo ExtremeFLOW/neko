@@ -34,7 +34,6 @@
 module alignment_edge
   use num_types, only : i4, i8, rp
   use utils, only : neko_error
-  use math, only : arreq
   use alignment, only : alignment_t
   implicit none
   private
@@ -114,14 +113,14 @@ contains
     type(alignment_edge_P_t) :: op_P
 
     algn = -1
-    equal = arreq(edg1, edg2, n1, n2)
+    equal = all(edg1 .eq. edg2)
     if (equal) then
        algn = 0
        return
     end if
 
     call op_P%trns_inv_i4(edg1, n1, n2, 1)
-    equal = arreq(edg1, edg2, n1, n2)
+    equal = all(edg1 .eq. edg2)
     if (equal) then
        algn = 1
        return

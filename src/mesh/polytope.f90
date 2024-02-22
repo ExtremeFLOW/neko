@@ -80,6 +80,7 @@ module polytope
      procedure(polytope_pointer), pass(this), deferred :: pek
      !> Test equality
      procedure(polytope_equal), pass(this), deferred :: equal
+     generic :: operator(.eq.) => equal
      !> Test self-periodicity
      procedure(polytope_self_periodic), pass(this), deferred :: self_periodic
      !> Return facet alignment

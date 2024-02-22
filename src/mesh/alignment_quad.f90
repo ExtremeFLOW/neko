@@ -34,7 +34,6 @@
 module alignment_quad
   use num_types, only : i4, i8, rp
   use utils, only : neko_error
-  use math, only : arreq
   use alignment, only : alignment_t
   implicit none
   private
@@ -230,14 +229,14 @@ contains
     type(alignment_quad_PXPY_t) :: op_PXPY
 
     algn = -1
-    equal = arreq(qad1, qad2, n1, n2)
+    equal = all(qad1 .eq. qad2)
     if (equal) then
        algn = 0
        return
     end if
 
     call op_T%trns_inv_i4(qad1, n1, n2, 1)
-    equal = arreq(qad1, qad2, n1, n2)
+    equal = all(qad1 .eq. qad2)
     if (equal) then
        algn = 1
        return
@@ -245,7 +244,7 @@ contains
     call op_T%trns_i4(qad1, n1, n2, 1)
 
     call op_PX%trns_inv_i4(qad1, n1, n2, 1)
-    equal = arreq(qad1, qad2, n1, n2)
+    equal = all(qad1 .eq. qad2)
     if (equal) then
        algn = 2
        return
@@ -253,7 +252,7 @@ contains
     call op_PX%trns_i4(qad1, n1, n2, 1)
 
     call op_PXT%trns_inv_i4(qad1, n1, n2, 1)
-    equal = arreq(qad1, qad2, n1, n2)
+    equal = all(qad1 .eq. qad2)
     if (equal) then
        algn = 3
        return
@@ -261,7 +260,7 @@ contains
     call op_PXT%trns_i4(qad1, n1, n2, 1)
 
     call op_PYT%trns_inv_i4(qad1, n1, n2, 1)
-    equal = arreq(qad1, qad2, n1, n2)
+    equal = all(qad1 .eq. qad2)
     if (equal) then
        algn = 4
        return
@@ -269,7 +268,7 @@ contains
     call op_PYT%trns_i4(qad1, n1, n2, 1)
 
     call op_PY%trns_inv_i4(qad1, n1, n2, 1)
-    equal = arreq(qad1, qad2, n1, n2)
+    equal = all(qad1 .eq. qad2)
     if (equal) then
        algn = 5
        return
@@ -277,7 +276,7 @@ contains
     call op_PY%trns_i4(qad1, n1, n2, 1)
 
     call op_PXPYT%trns_inv_i4(qad1, n1, n2, 1)
-    equal = arreq(qad1, qad2, n1, n2)
+    equal = all(qad1 .eq. qad2)
     if (equal) then
        algn = 6
        return
@@ -285,7 +284,7 @@ contains
     call op_PXPYT%trns_i4(qad1, n1, n2, 1)
 
     call op_PXPY%trns_inv_i4(qad1, n1, n2, 1)
-    equal = arreq(qad1, qad2, n1, n2)
+    equal = all(qad1 .eq. qad2)
     if (equal) then
        algn = 7
        return
