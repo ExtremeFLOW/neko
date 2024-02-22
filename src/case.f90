@@ -187,6 +187,11 @@ contains
     call json_get(C%params, 'case.end_time', C%end_time)
 
     !
+    ! Initialize point_zones registry
+    !
+    call neko_point_zone_registry%init(C%params, C%msh)
+
+    !
     ! Setup user defined functions
     !
     call C%usr%init()
@@ -224,11 +229,6 @@ contains
     ! Setup scratch registry
     !
     neko_scratch_registry = scratch_registry_t(C%fluid%dm_Xh, 10, 10)
-
-    !
-    ! Initialize point_zones registry
-    !
-    call neko_point_zone_registry%init(C%params, C%fluid%u%dof)
 
     !
     ! Setup scalar scheme

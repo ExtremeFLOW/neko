@@ -642,8 +642,6 @@ contains
     real(kind=sp), parameter :: test_pattern = 6.54321
     character :: rdcode(10),temp_str(4)
 
-    call this%check_exists()
-
     select type(data)
     type is (fld_file_data_t)
        call filename_chsuffix(this%fname, meta_fname,'nek5000')
@@ -686,6 +684,9 @@ contains
        end if
        call MPI_File_open(NEKO_COMM, trim(fname), &
            MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
+
+       if (ierr .ne. 0) call neko_error("Could not read "//trim(fname))
+
        call MPI_File_read_all(fh, hdr, 132, MPI_CHARACTER,  status, ierr)
        !This read can prorbably be done wihtout the temp variables, temp_str, i, j
 
@@ -881,8 +882,6 @@ contains
     type(MPI_Status) :: status
     integer :: n, ierr, lxyz, i, j, e
 
-    call this%check_exists()
-
     n = x%n
     lxyz = fld_data%lx*fld_data%ly*fld_data%lz
 
@@ -916,8 +915,6 @@ contains
     type(MPI_File) :: fh
     type(MPI_Status) :: status
     integer :: n, ierr, lxyz, i, j, e, nd
-
-    call this%check_exists()
 
     n = x%n
     nd = n*fld_data%gdim

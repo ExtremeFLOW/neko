@@ -53,7 +53,8 @@ mesh/facet_zone.o : mesh/facet_zone.f90 common/utils.o adt/stack.o adt/tuple.o
 mesh/point_zone.o : mesh/point_zone.f90 device/device.o config/neko_config.o sem/dofmap.o common/utils.o config/num_types.o adt/stack.o 
 mesh/point_zones/sphere_point_zone.o : mesh/point_zones/sphere_point_zone.f90 math/math.o common/json_utils.o config/num_types.o mesh/point_zone.o 
 mesh/point_zones/box_point_zone.o : mesh/point_zones/box_point_zone.f90 math/math.o common/json_utils.o config/num_types.o mesh/point_zone.o 
-mesh/point_zone_factory.o : mesh/point_zone_factory.f90 common/utils.o sem/dofmap.o common/json_utils.o mesh/point_zones/sphere_point_zone.o mesh/point_zones/box_point_zone.o mesh/point_zone.o 
+mesh/point_zones/cylinder_point_zone.o : mesh/point_zones/cylinder_point_zone.f90 math/math.o common/json_utils.o config/num_types.o mesh/point_zone.o 
+mesh/point_zone_factory.o : mesh/point_zone_factory.f90 common/utils.o sem/dofmap.o common/json_utils.o mesh/point_zones/sphere_point_zone.o mesh/point_zones/box_point_zone.o mesh/point_zones/cylinder_point_zone.o mesh/point_zone.o 
 mesh/point_zone_registry.o : mesh/point_zone_registry.f90 common/json_utils.o common/utils.o sem/dofmap.o mesh/point_zone_factory.o mesh/point_zone.o 
 mesh/mesh.o : mesh/mesh.f90 mesh/curve.o adt/uset.o math/math.o mesh/facet_zone.o comm/comm.o common/distdata.o common/datadist.o adt/htable.o adt/tuple.o adt/stack.o common/utils.o mesh/quad.o mesh/hex.o mesh/element.o mesh/point.o config/num_types.o 
 mesh/octree.o : mesh/octree.f90 common/utils.o mesh/point.o config/num_types.o 

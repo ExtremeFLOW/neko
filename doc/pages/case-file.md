@@ -339,9 +339,15 @@ A more detailed description as well as a  full list of available components and
  their setup is provided in a [separate page of the manual](simcomps.md).
 
 ## Point zones
-Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.
+Point zones enable the user to select GLL points in the computational domain
+according to some geometric criterion. Two predefined geometric shapes are
+selectable from the case file, boxes and spheres.
 
-A point zone object defined in the case file can be retrieved from the point zone registry, `neko_point_zone_registry`, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.
+A point zone object defined in the case file can be retrieved from the point
+zone registry, `neko_point_zone_registry`, and can be used to perform any
+zone-specific operations (e.g. localized source term, probing...). User-specific
+point zones can also be added manually to the point zone registry from the user
+file.
 
 A more detailed description as well as a  full list of available components and
  their setup is provided in a [separate page of the manual](point-zones.md).
