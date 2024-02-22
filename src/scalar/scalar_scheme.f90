@@ -64,6 +64,7 @@ module scalar_scheme
   use material_properties, only : material_properties_t
   use utils, only : neko_error
   use scalar_source_term, only : scalar_source_term_t
+  use math, only : cfill
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -118,6 +119,8 @@ module scalar_scheme
      type(chkp_t) :: chkp
      !> Thermal diffusivity.
      real(kind=rp), pointer :: lambda
+     !> The variable lambda field
+     type(field_t) :: lambda_field
      !> Density.
      real(kind=rp), pointer :: rho
      !> Specific heat capacity.
@@ -303,19 +306,7 @@ contains
     call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
                   solver_abstol)
 
-    !
-    ! Material properties
-    !
-    this%rho => material_properties%rho
-    this%lambda => material_properties%lambda
-    this%cp => material_properties%cp
 
-    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
-    call neko_log%message(log_buf)
 
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
@@ -338,6 +329,25 @@ contains
 
     this%gs_Xh => gs_Xh
     this%c_Xh => c_Xh
+
+    !
+    ! Material properties
+    !
+    this%rho => material_properties%rho
+    this%lambda => material_properties%lambda
+    this%cp => material_properties%cp
+
+    call this%lambda_field%init(this%dm_Xh, "lambda")
+
+    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
+    call neko_log%message(log_buf)
+
+    ! TODO GPU ?
+    call cfill(this%lambda_field%x, this%lambda, this%dm_Xh%size())
 
 
     !
@@ -421,6 +431,8 @@ contains
 
     call bc_list_free(this%bclst_dirichlet)
     call bc_list_free(this%bclst_neumann)
+
+    call this%lambda_field%free()
 
   end subroutine scalar_scheme_free
 

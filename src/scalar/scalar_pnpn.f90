@@ -308,6 +308,7 @@ contains
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
+         lambda_field => this%lambda_field, &
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
@@ -361,9 +362,8 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda, rho * cp, &
-          ext_bdf%diffusion_coeffs(1), dt, &
-          dm_Xh%size())
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda_field, rho*cp,&
+          ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
