@@ -238,7 +238,7 @@ contains
 !          end if
        end if
 
-       if (bc_label(1:1) .eq. 'n') then
+       if (bc_label(1:2) .eq. 'n=') then
           this%n_neumann_bcs = this%n_neumann_bcs + 1
           call this%neumann_bcs(this%n_neumann_bcs)%init(this%dm_Xh)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
@@ -353,11 +353,9 @@ contains
     this%bc_labels = "not"
 
     if (params%valid_path('case.scalar.boundary_types')) then
-       call json_get(params, &
-                     'case.scalar.boundary_types', &
-                     this%bc_labels)
+       call json_get(params, 'case.scalar.boundary_types', this%bc_labels,&
+                     'not')
     end if
-
 
     !
     ! Setup right-hand side field.
