@@ -30,46 +30,40 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!
-!> Defines a factory subroutine for source terms.
-module source_term_fctry
-  use source_term, only : source_term_t
-  use const_source_term, only : const_source_term_t
-  use boussinesq_source_term, only : boussinesq_source_term_t
-  use json_module, only : json_file
-  use json_utils, only : json_get
+!> Implements the cpu kernel for the  `boussinesq_source_term_t` type.
+module boussinesq_source_term_cpu
+  use num_types, only : rp
   use field_list, only : field_list_t
-  use utils, only : neko_error
-  use coefs, only : coef_t
+  use field, only : field_t
+  use math, only : add2s2, cadd
   implicit none
   private
 
-  public :: source_term_factory
+  public :: boussinesq_source_term_compute_cpu
 
 contains
 
-  !> Source term factory. Both constructs and initializes the object.
-  !! @param json JSON object initializing the source term.
-  subroutine source_term_factory(source_term, json, fields, coef)
-    class(source_term_t), allocatable, intent(inout) :: source_term
-    type(json_file), intent(inout) :: json
+  !> Computes the Boussinesq source term on the cpu.
+  !! @param fields The right-hand side.
+  !! @param s The scalar field
+  !! @param ref_value The reference value of the scalar field.
+  !! @param g The gravity vector.
+  !! @param beta The thermal expansion coefficient.
+  subroutine boussinesq_source_term_compute_cpu(fields, s, ref_value, g, beta)
     type(field_list_t), intent(inout) :: fields
-    type(coef_t), intent(inout) :: coef
-    character(len=:), allocatable :: source_type
+    type(field_t), intent(inout) :: s
+    real(kind=rp), intent(in) :: ref_value
+    real(kind=rp), intent(in) :: g(3)
+    real(kind=rp), intent(in) :: beta
+    integer :: n_fields, i, n
 
-    call json_get(json, "type", source_type)
+    n_fields = size(fields%fields)
+    n = fields%fields(1)%f%dof%size()
 
-    if (trim(source_type) .eq. "constant") then
-       allocate(const_source_term_t::source_term)
-    else if (trim(source_type) .eq. "boussinesq") then
-       allocate(boussinesq_source_term_t::source_term)
-    else
-       call neko_error('Unknown source term '//trim(source_type))
-    end if
+    do i=1, n_fields
+       call add2s2(fields%fields(i)%f%x, s%x, g(i)*beta, n)
+       call cadd(fields%fields(i)%f%x, -g(i)*beta*ref_value, n)
+    end do
+  end subroutine boussinesq_source_term_compute_cpu
 
-    ! Initialize
-    call source_term%init(json, fields, coef)
-
-  end subroutine source_term_factory
-
-end module source_term_fctry
+end module boussinesq_source_term_cpu
