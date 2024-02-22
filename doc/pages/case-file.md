@@ -175,9 +175,22 @@ The following types are currently implemented.
 
 1. `constant`, constant forcing. Strength defined by the `values` array with 3
    reals corresponding to the 3 components of the forcing.
-2. `user_pointwise`, the values are set inside the compiled user file, using the
+2. `boussinesq`, a source term introducing boyancy based on the Boussinesq
+   approximation, \f$ \rho \beta (T - T_{ref} \cdot g) \f$. Here, \f$ rho \f$ is
+   density, \f$ \beta \f$ the thermal expansion coefficient, \f$ g \f$ the
+   gravity vector, and $T_{ref}$ a reference value of the scalar, typically
+   temperature.
+
+   Reads the following entries:
+   - `scalar_field`: The name of the scalar that drives the source term,
+     defaults to "s".
+   - `ref_value`: The reference value of the scalar.
+   - `g`: The gravity vector.
+   - `beta`: The the thermal expansion coefficient, defaults to the inverse of
+      `ref_value`.
+3. `user_pointwise`, the values are set inside the compiled user file, using the
    pointwise user file subroutine. Only works on CPUs!
-3. `user_vector`, the values are set inside the compiled user file, using the
+4. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
 
 
