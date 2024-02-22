@@ -128,7 +128,7 @@ The means of prescribing the values are controlled via the `type` keyword:
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
    in the `case.fluid.blasius` object, see below.
 
-### Initial conditions
+### Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
 It is mandatory.
 Note that this currently pertains to both the fluid, but also scalars.
@@ -156,7 +156,7 @@ It requires  the following parameters:
    - `quartic`, quartic approximation.
    - `sin`, sine function approximation.
 
-### Source terms
+### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
 momentum equation. The object is not mandatory, by default no forcing term is
 present. Each source term, is itself a JSON object, so `source_terms` is just an
@@ -283,7 +283,7 @@ that can be described concisely directly in the table.
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                | `false`       |
 
-## Scalar
+## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution.
 The solution variable is called `s`, but saved as `temperature` in the fld
  files.
