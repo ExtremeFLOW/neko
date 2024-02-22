@@ -82,6 +82,7 @@ To copy data between host and device (and device to use) use the routine device:
   call device_memcpy_cptr(y_d, x_d, s, DEVICE_TO_DEVICE)
 ~~~~~~~~~~~~~~~
 
+@attention device::device_memcpy_cptr defaults to asynchronous data transfer. The optional boolean argument `sync` must be true if synchronous transfers are needed.
 @attention It is the programmers' responsibility to make sure that device arrays are kept in sync with the associated host array. Neko does not perform any implicit data movement.
 
 ### Offload work {#accelerators_offload-work}
