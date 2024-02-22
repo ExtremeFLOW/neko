@@ -306,7 +306,9 @@ contains
     this%dm_Xh => this%u%dof
     this%params => params
     this%msh => msh
-    call neko_field_registry%add_field(this%dm_Xh, 's')
+    if (.not. neko_field_registry%field_exists('s')) then
+       call neko_field_registry%add_field(this%dm_Xh, 's')
+    end if
     this%s => neko_field_registry%get_field('s')
 
     this%gs_Xh => gs_Xh
