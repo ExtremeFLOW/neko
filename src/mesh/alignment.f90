@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Abstract type for alignment operators
-!! To understand alignment, consider, two neighbouring quads in a 2D mesh,
-!! sharing a single edge. The edge is globally defined by two points, p1 and
-!! p2. However, in the internal numbering of the two quads, the same point can
-!! be numbered as either the first point or the second, depending on which
+!! @details To understand alignment, consider, two neighbouring quads in a 2D
+!! mesh, sharing a single edge. The edge is globally defined by two points, p1
+!! and p2. However, in the internal numbering of the two quads, the same point
+!! can be numbered as either the first point or the second, depending on which
 !! one gets the higher internal number. Similarly, for the other point.
 !! Alignment basically refers to the relative orientation of the edge
 !! in the internal numbering systems of the two quads it belongs two.

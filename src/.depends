@@ -73,6 +73,10 @@ mesh/vertex.o : mesh/vertex.f90 config/num_types.o common/utils.o mesh/polytope.
 mesh/edge.o : mesh/edge.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_oriented.o mesh/topology.o mesh/polytope_actualisation.o mesh/alignment_edge.o mesh/vertex.o 
 mesh/quad_new.o : mesh/quad_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/topology.o mesh/polytope_actualisation.o mesh/element_new.o mesh/alignment_quad.o mesh/vertex.o mesh/edge.o mesh/point.o 
 mesh/hex_new.o : mesh/hex_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/topology.o mesh/element_new.o mesh/vertex.o mesh/edge.o mesh/quad_new.o mesh/point.o 
+common/obj_sharing.o : common/obj_sharing.f90 config/num_types.o common/utils.o 
+mesh/element_list.o : mesh/element_list.f90 config/num_types.o common/utils.o common/obj_sharing.o mesh/element_new.o 
+mesh/point_list.o : mesh/point_list.f90 config/num_types.o common/utils.o common/obj_sharing.o mesh/point.o 
+mesh/topology_list.o : mesh/topology_list.f90 config/num_types.o common/utils.o common/obj_sharing.o mesh/topology.o 
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 
 field/scratch_registry.o : field/scratch_registry.f90 sem/dofmap.o field/field.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 

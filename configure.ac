@@ -300,6 +300,9 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/math/Makefile\
 		 tests/alignment/Makefile\
 		 tests/polytope/Makefile\
+		 tests/element_list/Makefile\
+		 tests/point_list/Makefile\
+		 tests/topology_list/Makefile\
 		 tests/mesh/Makefile\
 		 tests/space/Makefile\
 		 tests/dofmap/Makefile\

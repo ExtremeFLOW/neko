@@ -10,6 +10,9 @@ SUBDIRS = tuple\
 	  math\
 	  alignment\
 	  polytope\
+	  element_list\
+	  point_list\
+	  topology_list\
 	  mesh\
 	  space\
 	  dofmap\
@@ -47,6 +50,9 @@ TESTS = device/device_test\
 	math/math_test\
 	alignment/alignment_test\
 	polytope/polytope_test\
+	element_list/element_list_test\
+	point_list/point_list_test\
+	topology_list/topology_list_test\
 	mesh/mesh_test\
 	space/space_test\
 	dofmap/dofmap_test\
@@ -78,6 +84,9 @@ EXTRA_DIST = \
 	polytope/polytope_edge.pf\
 	polytope/polytope_quad.pf\
 	polytope/polytope_hex.pf\
+	element_list/element_list.pf\
+	point_list/point_list.pf\
+	topology_list/topology_list.pf\
 	mesh/mesh_parallel.pf\
 	quad/quad.pf\
 	gather_scatter/gather_scatter_parallel.pf\

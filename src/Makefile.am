@@ -61,6 +61,10 @@ neko_fortran_SOURCES = \
 	mesh/edge.f90\
 	mesh/quad_new.f90\
 	mesh/hex_new.f90\
+	common/obj_sharing.f90\
+	mesh/element_list.f90\
+	mesh/point_list.f90\
+	mesh/topology_list.f90\
 	adt/htable.f90\
 	adt/uset.f90\
 	adt/stack.f90\
