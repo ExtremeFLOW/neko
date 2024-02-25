@@ -186,7 +186,7 @@ The following types are currently implemented.
      defaults to "s".
    - `ref_value`: The reference value of the scalar.
    - `g`: The gravity vector.
-   - `beta`: The the thermal expansion coefficient, defaults to the inverse of
+   - `beta`: The thermal expansion coefficient, defaults to the inverse of
       `ref_value`.
 3. `user_pointwise`, the values are set inside the compiled user file, using the
    pointwise user file subroutine. Only works on CPUs!
