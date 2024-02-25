@@ -184,7 +184,7 @@ The following types are currently implemented.
    Reads the following entries:
    - `scalar_field`: The name of the scalar that drives the source term,
      defaults to "s".
-   - `ref_value`: The reference value of the scalar.
+   - `reference_value`: The reference value of the scalar.
    - `g`: The gravity vector.
    - `beta`: The thermal expansion coefficient, defaults to the inverse of
       `ref_value`.
