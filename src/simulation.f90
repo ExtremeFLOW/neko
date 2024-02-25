@@ -66,14 +66,21 @@ contains
     ! for variable_time_steping
     integer :: dt_last_change = 0
     real(kind=rp) :: cfl_avrg = 0_rp
+    real(kind=rp) :: set_cfl
 
     t = 0d0
     tstep = 0
     call neko_log%section('Starting simulation')
     write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%end_time,')'
     call neko_log%message(log_buf)
-    write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
-    call neko_log%message(log_buf)
+    call C%params%get('case.constant_cfl', set_cfl, found)
+    if (.not. found) then
+       write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
+       call neko_log%message(log_buf)
+    else
+       write(log_buf,'(A, E15.7)') 'cfl :  ', set_cfl
+       call neko_log%message(log_buf)
+    end if
 
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
@@ -102,8 +109,12 @@ contains
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()
-       cfl = C%fluid%compute_cfl(C%dt)
+       if (tstep .eq. 1) cfl = C%fluid%compute_cfl(C%dt)
        if (dt_last_change .eq. 0) cfl_avrg = cfl
+       call simulation_setdt(C%dt, C%params, cfl, cfl_avrg, dt_last_change, tstep)
+       !calculate the cfl after the possibly varied dt
+       cfl = C%fluid%compute_cfl(C%dt)
+
        call neko_log%status(t, C%end_time)
        write(log_buf, '(A,I6)') 'Time-step: ', tstep
        call neko_log%message(log_buf)
@@ -112,8 +123,6 @@ contains
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%dt
        call neko_log%message(log_buf)
        
-       call simulation_setdt(C%dt, C%params, cfl, cfl_avrg, dt_last_change)
-
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 
        call neko_log%section('Fluid')
@@ -230,15 +239,12 @@ contains
                       found)
 
     if (found) C%fluid%chkp%mesh2mesh_tol = tol
-
-    C%dtlag(:) = C%dt
-    C%tlag(:) = t
-    do i = 1, size(C%tlag)
-       C%tlag(i) = t - i*C%dtlag(i)
-    end do
-
+    
     chkpf = file_t(trim(restart_file))
     call chkpf%read(C%fluid%chkp)
+    C%dtlag = C%fluid%chkp%dtlag
+    C%tlag = C%fluid%chkp%tlag
+
     !Free the previous mesh, dont need it anymore
     call C%fluid%chkp%previous_mesh%free()
     do i = 1, size(C%dtlag)
@@ -281,7 +287,7 @@ contains
   !! @param cfl courant number of current iteration
   !! @param cfl_avrg average courant number
   !! @param dt_last_change time step since last dt change
-  subroutine simulation_setdt(dt, params, cfl, cfl_avrg, dt_last_change)
+  subroutine simulation_setdt(dt, params, cfl, cfl_avrg, dt_last_change, tstep)
     implicit none
     real(kind=rp), intent(inout) :: dt
     type(json_file), intent(inout) :: params
@@ -293,43 +299,47 @@ contains
     character(len=LOG_SIZE) :: log_buf    
     logical :: found
     real(kind=rp) :: alpha = 0.5_rp !coefficient of running average
+    integer, intent(in):: tstep
 
     call params%get('case.timestep', max_dt, found)
     call params%get('case.constant_cfl', set_cfl, found)
 
     if (found .eqv. .true.) then
-
-       call json_get_or_default(params, 'case.cfl_min_update_frequency',&
-                                   min_update_frequency, 1)
-
-       ! Calculate the average of cfl over the desired interval
-       cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
-
-       if (abs(cfl_avrg - set_cfl) .ge. 0.2*set_cfl .and. &
-          dt_last_change .ge. min_update_frequency) then
-
-          if (set_cfl/cfl .ge. 1) then 
-             scaling_factor = min(1.2_rp, set_cfl/cfl) 
-          else
-             scaling_factor = max(0.8_rp, set_cfl/cfl) 
-          end if
-
-          dt_old = dt
-          dt = scaling_factor * dt_old
-          dt = min(dt, max_dt)
-
-          write(log_buf, '(A,E15.7,1x,A,E15.7)') 'Avrg CFL:', cfl_avrg, &
-                       'set_cfl:', set_cfl
-          call neko_log%message(log_buf)
-
-          write(log_buf, '(A,E15.7,1x,A,E15.7)') 'old dt:', dt_old, &
-                       'new dt:', dt
-          call neko_log%message(log_buf)
-
-          dt_last_change = 0
-
+       if (tstep .eq. 1) then ! set the first dt for desired cfl
+          dt = min(set_cfl/cfl*dt, max_dt)
        else
-          dt_last_change = dt_last_change + 1
+         call json_get_or_default(params, 'case.cfl_min_update_frequency',&
+                                    min_update_frequency, 1)
+
+         ! Calculate the average of cfl over the desired interval
+         cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
+
+         if (abs(cfl_avrg - set_cfl) .ge. 0.2*set_cfl .and. &
+            dt_last_change .ge. min_update_frequency) then
+
+            if (set_cfl/cfl .ge. 1) then 
+               scaling_factor = min(1.2_rp, set_cfl/cfl) 
+            else
+               scaling_factor = max(0.8_rp, set_cfl/cfl) 
+            end if
+
+            dt_old = dt
+            dt = scaling_factor * dt_old
+            dt = min(dt, max_dt)
+
+            write(log_buf, '(A,E15.7,1x,A,E15.7)') 'Avrg CFL:', cfl_avrg, &
+                        'set_cfl:', set_cfl
+            call neko_log%message(log_buf)
+
+            write(log_buf, '(A,E15.7,1x,A,E15.7)') 'old dt:', dt_old, &
+                        'new dt:', dt
+            call neko_log%message(log_buf)
+
+            dt_last_change = 0
+
+         else
+            dt_last_change = dt_last_change + 1
+         end if
        end if
 
     end if
