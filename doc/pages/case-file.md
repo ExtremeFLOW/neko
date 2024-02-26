@@ -128,7 +128,7 @@ The means of prescribing the values are controlled via the `type` keyword:
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
    in the `case.fluid.blasius` object, see below.
 
-### Initial conditions
+### Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
 It is mandatory.
 Note that this currently pertains to both the fluid, but also scalars.
@@ -156,7 +156,7 @@ It requires  the following parameters:
    - `quartic`, quartic approximation.
    - `sin`, sine function approximation.
 
-### Source terms
+### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
 momentum equation. The object is not mandatory, by default no forcing term is
 present. Each source term, is itself a JSON object, so `source_terms` is just an
@@ -192,7 +192,40 @@ The following types are currently implemented.
    pointwise user file subroutine. Only works on CPUs!
 4. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
+4. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
 
+#### Brinkman
+The Brinkman source term introduces regions of resistance in the fluid domain.
+The volume force $f_i$ applied in the selected regions are proportional to the
+fluid velocity component $u_i$.
+
+$$
+   f_i(x) = - B(x) u_i(x), \\
+   B(x) = \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)},
+$$
+
+where, $x$ is the current location in the domain, $\xi: x \mapsto [0,1]$
+represent an indicator function for the resistance where $\xi(x) = 0$ is a free
+flow. $\kappa_i$ describes the limits for the force application at $\xi(x)=0$
+and $\xi(x)=1$. A penalty parameter $q$ help us to reduce numerical problems.
+
+The indicator function will be defined based on the region type. The following
+types are currently implemented.
+
+1. `boundary_mesh`, the indicator function is defined based on the signed
+   distance function to the specified mesh and a transformation such as a `step`
+   or `smooth_step` function.
+Additional keywords are available to modify the Brinkman force term.
+
+| Name                       | Description                                                             | Admissable values     | Default value |
+| -------------------------- | ----------------------------------------------------------------------- | --------------------- | ------------- |
+| `region.type`              | Type of region to enforce the Brinkman force term.                      | `boundary_mesh`       | -             |
+| `region.name`              | Name of the region.                                                     | String, file name.    | -             |
+| `brinkman.limits`          | Brinkman factor at freeflow ($\xi(x)=0$) and solid domain ($\xi(x)=1$). | Vector if 2 reals.    | -             |
+| `brinkman.penalty`         | Panalty parameter when estimating Brinkman factor                       | Real                  | $1.0$         |
+| `distance_transform.type`  | How to map from distance field to indicator field.                      | `step`, `smooth_step` | -             |
+| `distance_transform.value` | Values used to define the distance transform, such as cutoff distance.  | Real                  | -             |
+| `filter.type`              | Type of filtering appllied to the indicator field.                      | `none`                | `none`        |
 
 ### Boundary types
 The optional `boundary_types` keyword can be used to specify boundary conditions.
@@ -296,7 +329,7 @@ that can be described concisely directly in the table.
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                | `false`       |
 
-## Scalar
+## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution.
 The solution variable is called `s`, but saved as `temperature` in the fld
  files.
@@ -318,16 +351,16 @@ example case.
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
-Name                      | Description                                              | Admissable values              | Default value
---------------------------|----------------------------------------------------------|--------------------------------|--------------
-`enabled`                 | Whether to enable the scalar computation.                | `true` or `false`              | `true`
-`Pe`                      | The Peclet number.                                       | Positive real                  | -
-`cp`                      | Specific heat cpacity.                                   | Positive real                  | -
-`lambda`                  | Thermal conductivity.                                    | Positive real                  | -
-`boundary_types`          | Boundary types/conditions labels.                        | Array of strings               | -
-`initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`              | -
-`initial_condition.value` | Value of the velocity initial condition.                 | Real                           | -
-`source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above | -
+| Name                      | Description                                              | Admissable values              | Default value |
+| ------------------------- | -------------------------------------------------------- | ------------------------------ | ------------- |
+| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`              | `true`        |
+| `Pe`                      | The Peclet number.                                       | Positive real                  | -             |
+| `cp`                      | Specific heat cpacity.                                   | Positive real                  | -             |
+| `lambda`                  | Thermal conductivity.                                    | Positive real                  | -             |
+| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings               | -             |
+| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`              | -             |
+| `initial_condition.value` | Value of the velocity initial condition.                 | Real                           | -             |
+| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above | -             |
 
 ## Statistics
 
@@ -335,11 +368,11 @@ This object adds the collection of statistics for the fluid fields. For
 additional details on the workflow, see the corresponding page in the user
 manual.
 
-Name                | Description                                                          | Admissable values | Default value
---------------------|----------------------------------------------------------------------|-------------------|--------------
-`enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`
-`start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0
-`sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10
+| Name                | Description                                                          | Admissable values | Default value |
+| ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
+| `enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`        |
+| `start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0             |
+| `sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10            |
 
 ## Simulation components
 Simulation components enable the user to perform various additional operations,

@@ -61,6 +61,8 @@ neko_fortran_SOURCES = \
 	mesh/point_zone_registry.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
+	mesh/search_tree/aabb.f90\
+	mesh/aabb_tree.f90\
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	field/field_registry.f90\
@@ -97,6 +99,7 @@ neko_fortran_SOURCES = \
 	math/schwarz.f90\
 	math/vector.f90\
 	math/matrix.f90\
+	math/signed_distance.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -249,6 +252,11 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90\
 	source_terms/bcknd/device/boussinesq_source_term_device.f90\
 	source_terms/source_term_factory.f90\
+	source_terms/brinkman_source_term.f90\
+	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
+	source_terms/bcknd/device/brinkman_source_term_device.f90\
+	source_terms/brinkman/filters.f90\
+	source_terms/bcknd/cpu/filters_cpu.f90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
 	les/vreman.f90\

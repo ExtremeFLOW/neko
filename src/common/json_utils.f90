@@ -179,11 +179,13 @@ contains
   !> Retrieves a string array parameter by name or throws an error
   !! @param json The json to retrieve the parameter from.
   !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
-  subroutine json_get_string_array(json, name, value)
+  !! @param value The variable to be populated with the retrieved parameter.
+  !! @param filler The default string to fill empty array items with.
+  subroutine json_get_string_array(json, name, value, filler)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     character(len=*), allocatable, intent(out) :: value(:)
+    character(len=*), optional, intent(in) :: filler
     logical :: found
     type(json_value), pointer :: json_val, val_ptr
     type(json_core) :: core
@@ -211,6 +213,8 @@ contains
 
        if (len(string_value) .gt. 0) then
           value(i) = string_value
+       else if(present(filler)) then
+          value(i) = filler
        end if
     end do
 
