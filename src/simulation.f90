@@ -102,15 +102,16 @@ contains
     call neko_log%newline()
 
     call profiler_start
-
+    cfl = C%fluid%compute_cfl(C%dt)
     start_time_org = MPI_WTIME()
 
     do while (t .lt. C%end_time .and. (.not. jobctrl_time_limit()))
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()
-       if (tstep .eq. 1) cfl = C%fluid%compute_cfl(C%dt)
-       if (dt_last_change .eq. 0) cfl_avrg = cfl
+       if (dt_last_change .eq. 0) then
+          cfl_avrg = cfl
+       end
        call simulation_setdt(C%dt, C%params, cfl, cfl_avrg, dt_last_change, tstep)
        !calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%dt)
