@@ -66,7 +66,7 @@ module brinkman_source_term
      ! ----------------------------------------------------------------------- !
      ! Private methods
      procedure, pass(this) :: init_boundary_mesh
-     !   procedure, pass(this) :: init_point_zone => brinkman_source_term_init_point_zone
+     procedure, pass(this) :: init_point_zone
   end type brinkman_source_term_t
 
 contains
@@ -133,8 +133,8 @@ contains
     select case (string)
       case ('boundary_mesh')
        call this%init_boundary_mesh(json)
-       ! case ('point_zone')
-       !  call this%init_point_zone(json)
+      case ('point_zone')
+       call this%init_point_zone(json)
       case default
        call neko_error('Unknown region type')
     end select
@@ -258,5 +258,40 @@ contains
     end select
 
   end subroutine init_boundary_mesh
+
+  !> Initializes the source term from a point zone.
+  subroutine init_point_zone(this, json)
+    use filters, only: smooth_step_field, step_function_field, permeability_field
+    use signed_distance, only: signed_distance_field
+    use profiler, only: profiler_start_region, profiler_end_region
+    use point_zone, only: point_zone_t
+    use device, only: device_memcpy, HOST_TO_DEVICE
+    use point_zone_registry, only: neko_point_zone_registry
+    implicit none
+
+    class(brinkman_source_term_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+
+    ! Options
+    character(len=:), allocatable :: zone_name
+
+    class(point_zone_t), pointer :: my_point_zone
+    integer :: i
+
+    ! ------------------------------------------------------------------------ !
+    ! Read the options for the point zone
+
+    call json_get(json,'region.name', zone_name)
+
+    ! ------------------------------------------------------------------------ !
+    ! Compute the permeability field
+
+    my_point_zone => neko_point_zone_registry%get_point_zone(zone_name)
+
+    do i = 1, my_point_zone%size
+       this%brinkman%x(my_point_zone%mask(i), 1, 1, 1) = 1.0_rp
+    end do
+
+  end subroutine init_point_zone
 
 end module brinkman_source_term
