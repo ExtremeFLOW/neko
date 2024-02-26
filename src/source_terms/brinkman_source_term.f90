@@ -54,6 +54,8 @@ module brinkman_source_term
      private
 
      !> The value of the source term.
+     type(field_t), pointer :: indicator => null()
+     !> Brinkman permeability field.
      type(field_t), pointer :: brinkman => null()
    contains
      !> The common constructor using a JSON object.
@@ -117,12 +119,16 @@ contains
     call this%init_base(fields, coef, start_time, end_time)
 
     ! ------------------------------------------------------------------------ !
-    ! Allocate the permeability field
+    ! Allocate the permeability and indicator field
 
+    if (.not. neko_field_registry%field_exists('brinkman_indicator')) then
+       call neko_field_registry%add_field(coef%dof, 'brinkman_indicator')
+    end if
     if (.not. neko_field_registry%field_exists('brinkman')) then
-       call neko_field_registry%add_field(fields%fields(1)%f%dof, 'brinkman')
+       call neko_field_registry%add_field(coef%dof, 'brinkman')
     end if
 
+    this%indicator => neko_field_registry%get_field_by_name('brinkman_indicator')
     this%brinkman => neko_field_registry%get_field_by_name('brinkman')
 
     ! ------------------------------------------------------------------------ !
@@ -152,9 +158,9 @@ contains
     end select
 
     ! ------------------------------------------------------------------------ !
-    ! Compute the permeability field and copy to the device
+    ! Compute the permeability field
 
-    call permeability_field(this%brinkman, &
+    call permeability_field(this%brinkman, this%indicator, &
       & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
 
     ! Copy the permeability field to the device
@@ -177,6 +183,9 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine brinkman_source_term_compute(this, t, tstep)
+    use device, only: device_memcpy, HOST_TO_DEVICE
+    implicit none
+
     class(brinkman_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -212,6 +221,8 @@ contains
     type(tri_mesh_t) :: boundary_mesh
     real(kind=rp) :: scalar
 
+    type(field_t) :: temp_field
+
     ! ------------------------------------------------------------------------ !
     ! Read the options for the boundary mesh
 
@@ -238,24 +249,29 @@ contains
     ! compute the signed distance function. This should be replaced with a
     ! more efficient method, such as a tree search.
 
+    call temp_field%init(this%indicator%dof)
+
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
       case ('smooth_step')
        call json_get(json, 'distance_transform.value', scalar)
 
-       call signed_distance_field(this%brinkman, boundary_mesh, scalar)
-       call smooth_step_field(this%brinkman, scalar, 0.0_rp)
+       call signed_distance_field(temp_field, boundary_mesh, scalar)
+       call smooth_step_field(temp_field, scalar, 0.0_rp)
 
       case ('step')
 
        call json_get(json, 'distance_transform.value', scalar)
 
-       call signed_distance_field(this%brinkman, boundary_mesh, scalar)
-       call step_function_field(this%brinkman, scalar, 1.0_rp, 0.0_rp)
+       call signed_distance_field(temp_field, boundary_mesh, scalar)
+       call step_function_field(temp_field, scalar, 1.0_rp, 0.0_rp)
 
       case default
        call neko_error('Unknown distance transform')
     end select
+
+    ! Update the global indicator field by max operator
+    this%indicator%x = max(this%indicator%x, temp_field%x)
 
   end subroutine init_boundary_mesh
 
@@ -275,6 +291,7 @@ contains
     ! Options
     character(len=:), allocatable :: zone_name
 
+    type(field_t) :: temp_field
     class(point_zone_t), pointer :: my_point_zone
     integer :: i
 
@@ -286,11 +303,16 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Compute the permeability field
 
+    call temp_field%init(this%indicator%dof)
+
     my_point_zone => neko_point_zone_registry%get_point_zone(zone_name)
 
     do i = 1, my_point_zone%size
-       this%brinkman%x(my_point_zone%mask(i), 1, 1, 1) = 1.0_rp
+       this%indicator%x(my_point_zone%mask(i), 1, 1, 1) = 1.0_rp
     end do
+
+    ! Update the global indicator field by max operator
+    this%indicator%x = max(this%indicator%x, temp_field%x)
 
   end subroutine init_point_zone
 
