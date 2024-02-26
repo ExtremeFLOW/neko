@@ -150,8 +150,6 @@ contains
        call neko_simcomps%compute(t, tstep)
 
        call C%q%eval(t, C%dt, tstep)
-       !> Sample is called after fluid step. Therefore, C%ulag(1) has 
-       !! u for the last time step
        call C%s%sample(t, tstep)
 
        ! Update material properties
