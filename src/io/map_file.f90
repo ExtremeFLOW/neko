@@ -56,6 +56,8 @@ contains
     type(map_t), pointer :: nm
     integer :: j, k, neli, nnzi, ierr
 
+    call this%check_exists()
+
     select type(data)
     type is (map_t)
        nm => data

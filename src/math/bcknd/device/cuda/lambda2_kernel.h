@@ -1,3 +1,5 @@
+#ifndef __MATH_LAMBDA2_KERNEL_H__
+#define __MATH_LAMBDA2_KERNEL_H__
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -358,3 +360,5 @@ lambda2_kernel_kstep(T * __restrict__ lambda2,
   }
 }
 
+
+#endif // __MATH_LAMBDA2_KERNEL_H__

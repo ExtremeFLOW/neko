@@ -1,3 +1,5 @@
+#ifndef __KRYLOV_FUSEDCG_KERNEL_H__
+#define __KRYLOV_FUSEDCG_KERNEL_H__
 /*
  Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
@@ -118,3 +120,5 @@ __global__ void fusedcg_part2_kernel(T * __restrict__ a,
   }
 }
                                      
+
+#endif // __KRYLOV_FUSEDCG_KERNEL_H__

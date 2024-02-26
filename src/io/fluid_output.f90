@@ -32,12 +32,13 @@
 !
 !> Defines an output for a fluid
 module fluid_output
+  use num_types, only : rp
   use fluid_scheme, only : fluid_scheme_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config
   use device
-  use output
+  use output, only : output_t
   implicit none
 
   !> Fluid output
@@ -72,7 +73,7 @@ contains
        fname = 'field.fld'
     end if
 
-    call output_init(this, fname, precision)
+    call this%init_base(fname, precision)
 
     if (allocated(this%fluid%fields)) then
        deallocate(this%fluid%fields)

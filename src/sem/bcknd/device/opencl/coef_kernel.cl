@@ -1,3 +1,5 @@
+#ifndef __SEM_COEF_KERNEL_CL__
+#define __SEM_COEF_KERNEL_CL__
 /*
  Copyright (c) 2022-2023, The Neko Authors
  All rights reserved.
@@ -314,3 +316,5 @@ __kernel void coef_generate_drst_kernel(__global real * __restrict__ jac,
   }
 
 }
+
+#endif // __SEM_COEF_KERNEL_CL__

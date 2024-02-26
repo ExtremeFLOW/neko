@@ -1,3 +1,5 @@
+#ifndef __SCALAR_SCALAR_RESIDUAL_UPDATE_KERNEL_H__
+#define __SCALAR_SCALAR_RESIDUAL_UPDATE_KERNEL_H__
 /*
  Copyright (c) 2022, The Neko Authors
  All rights reserved.
@@ -46,3 +48,5 @@ __global__ void scalar_residual_update_kernel(T * __restrict__ s_res,
 
 }
 
+
+#endif // __SCALAR_SCALAR_RESIDUAL_UPDATE_KERNEL_H__

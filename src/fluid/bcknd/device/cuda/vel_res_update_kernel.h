@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __FLUID_VEL_RES_UPDATE_KERNEL__
+#define __FLUID_VEL_RES_UPDATE_KERNEL__
+
 template< typename T >
 __global__ void vel_res_update_kernel(T * __restrict__ u_res,
                                       T * __restrict__ v_res,
@@ -55,3 +58,4 @@ __global__ void vel_res_update_kernel(T * __restrict__ u_res,
 
 }
 
+#endif // __FLUID_VEL_RES_UPDATE_KERNEL__

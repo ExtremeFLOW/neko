@@ -27,6 +27,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __FLUID_PNPN_RES_KERNEL__
+#define __FLUID_PNPN_RES_KERNEL__
+
 __kernel void prs_res_part1_kernel(__global real * __restrict__ ta1,
                                    __global real * __restrict__ ta2,
                                    __global real * __restrict__ ta3,
@@ -107,3 +110,5 @@ __kernel void vel_res_update_kernel(__global real * __restrict__ u_res,
   }
 
 }
+
+#endif // __FLUID_PNPN_RES_KERNEL__

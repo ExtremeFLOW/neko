@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __COMMON_SUMAB_KERNEL__
+#define __COMMON_SUMAB_KERNEL__
+
 template< typename T >
 __global__ void sumab_kernel(T * __restrict__ u,
                              T * __restrict__ v,
@@ -70,3 +73,4 @@ __global__ void sumab_kernel(T * __restrict__ u,
   
 }
 
+#endif // __COMMON_SUMAB_KERNEL__

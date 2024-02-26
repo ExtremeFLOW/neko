@@ -1,3 +1,5 @@
+#ifndef __MATH_MATH_KERNEL_CL__
+#define __MATH_MATH_KERNEL_CL__
 /*
  Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
@@ -503,3 +505,5 @@ __kernel void glsum_kernel(__global const real * __restrict__ a,
   }
 
 }
+
+#endif // __MATH_MATH_KERNEL_CL__

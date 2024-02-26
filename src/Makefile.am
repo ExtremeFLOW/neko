@@ -56,10 +56,13 @@ neko_fortran_SOURCES = \
 	mesh/point_zone.f90\
 	mesh/point_zones/sphere_point_zone.f90\
 	mesh/point_zones/box_point_zone.f90\
+	mesh/point_zones/cylinder_point_zone.f90\
 	mesh/point_zone_factory.f90\
 	mesh/point_zone_registry.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
+	mesh/search_tree/aabb.f90\
+	mesh/aabb_tree.f90\
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	field/field_registry.f90\
@@ -96,6 +99,7 @@ neko_fortran_SOURCES = \
 	math/schwarz.f90\
 	math/vector.f90\
 	math/matrix.f90\
+	math/signed_distance.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -111,6 +115,7 @@ neko_fortran_SOURCES = \
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
+	io/fld_file_output.f90\
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
 	io/fluid_stats_output.f90\
@@ -228,6 +233,8 @@ neko_fortran_SOURCES = \
 	scalar/scalar_residual.f90\
 	scalar/scalar_residual_fctry.f90\
 	scalar/scalar_ic.f90\
+	scalar/scalar_source_term.f90\
+	scalar/scalar_user_source_term.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\
@@ -235,12 +242,22 @@ neko_fortran_SOURCES = \
 	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
+	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_factory.f90\
 	source_terms/source_term.f90\
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
 	source_terms/bcknd/device/const_source_term_device.f90\
 	source_terms/source_term_factory.f90\
+	source_terms/brinkman_source_term.f90\
+	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
+	source_terms/bcknd/device/brinkman_source_term_device.f90\
+	source_terms/brinkman/filters.f90\
+	source_terms/bcknd/cpu/filters_cpu.f90\
+	les/les_model.f90\
+	les/les_model_fctry.f90\
+	les/vreman.f90\
+	les/bcknd/cpu/vreman_cpu.f90\
 	neko.f90
 
 neko_c_SOURCES = comm/comm_wrapper.c\

@@ -36,6 +36,7 @@ module point_zone_fctry
   use point_zone, only: point_zone_t
   use box_point_zone, only: box_point_zone_t
   use sphere_point_zone, only: sphere_point_zone_t
+  use cylinder_point_zone, only: cylinder_point_zone_t
   use json_module, only: json_file
   use json_utils, only: json_get
   use dofmap, only: dofmap_t
@@ -63,9 +64,11 @@ contains
        allocate(box_point_zone_t::point_zone)
     else if (trim(zone_type) .eq. "sphere") then
        allocate(sphere_point_zone_t::point_zone)
+    else if (trim(zone_type) .eq. "cylinder") then
+       allocate(cylinder_point_zone_t::point_zone)
     else
        call neko_error("Unknown source term "//trim(zone_type)//"! Valid &
-       &source terms are 'box', 'sphere'.")
+         &source terms are 'box', 'sphere', 'cylinder'.")
     end if
 
     call point_zone%init(json, dof%size())

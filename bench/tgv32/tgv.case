@@ -6,7 +6,7 @@
   "output_boundary": false,
   "output_checkpoints": false,
   "output_at_end": false,
-  "end_time": 20.0,
+  "end_time": 10.0,
   "timestep": 1e-3,
   "numerics": {
     "time_order": 3,

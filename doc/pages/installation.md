@@ -4,7 +4,7 @@ Neko can be installed in various ways, either building directly from source, man
 
 ## Building from source
 
-To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are gslib and ParMETIS. 
+To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, gslib and ParMETIS. 
 
 Follow the steps below to install the less common dependencies (e.g. JSON-Fortran).
 
@@ -100,31 +100,31 @@ In the above command, `[options]` refers to either optional features or packages
 
 Features are enabled and disabled by passing either `--enable-FEATURE[=arg]` or `--disable-FEATURE` to `configure`. A list of currently supported features are given in the table below.
 
-Name                  |  Description
-----                  | ------------
-`--enable-real=Xp`    | Specify working precision of REAL types:<br>`sp` -- `REAL(kind=4)`<br>`dp` -- `REAL(kind=8)` (default)<br>`qp` -- `REAL(kind=16)`<br>
-`--enable-contrib`    | Compile various tools
-`--enable-device-mpi` | Enable device aware MPI
+| Name                  | Description                                                                                                                           |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `--enable-real=Xp`    | Specify working precision of REAL types:<br>`sp` -- `REAL(kind=4)`<br>`dp` -- `REAL(kind=8)` (default)<br>`qp` -- `REAL(kind=16)`<br> |
+| `--enable-contrib`    | Compile various tools                                                                                                                 |
+| `--enable-device-mpi` | Enable device aware MPI                                                                                                               |
 
 Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--without-PACKAGE` to `configure`. A list of all supported optional packages are given in the table below.
 
-Name                            | Description
-----                            | -----------
-`--with-blas=<lib>`             | Use BLAS library `<lib>`
-`--with-lapack=<lib>`           | Use LAPACK library `<lib>`
-`--with-metis=DIR`              | Directory for metis
-`--with-metis-libdir=LIBDIR`    | Directory for metis library (if different)
-`--with-parmetis=DIR`           | Compile with support for parmetis library
-`--with-parmetis-libdir=LIBDIR` | Directory for parmetis library (if different)
-`--with-adios2=DIR`             | Compile with support for ADIOS2
-`--with-gslib=DIR`              | Compile with support for gslib
-`--with-libxsmm`                | Compile with support for libxsmm
-`--with-hip=DIR`                | Compile with HIP backend
-`--with-cuda=DIR`               | Compile with CUDA backend
-`--with-opencl=DIR`             | Compile with OpenCL backend
-`--with-nvtx=DIR`               | Compile with support for NVTX
-`--with-roctx=DIR`              | Compile with support for ROCTX
-`--with-pfunit=DIR`             | Directory for pFUnit (see \subpage testing)   
+| Name                            | Description                                   |
+| ------------------------------- | --------------------------------------------- |
+| `--with-blas=<lib>`             | Use BLAS library `<lib>`                      |
+| `--with-lapack=<lib>`           | Use LAPACK library `<lib>`                    |
+| `--with-metis=DIR`              | Directory for metis                           |
+| `--with-metis-libdir=LIBDIR`    | Directory for metis library (if different)    |
+| `--with-parmetis=DIR`           | Compile with support for parmetis library     |
+| `--with-parmetis-libdir=LIBDIR` | Directory for parmetis library (if different) |
+| `--with-adios2=DIR`             | Compile with support for ADIOS2               |
+| `--with-gslib=DIR`              | Compile with support for gslib                |
+| `--with-libxsmm`                | Compile with support for libxsmm              |
+| `--with-hip=DIR`                | Compile with HIP backend                      |
+| `--with-cuda=DIR`               | Compile with CUDA backend                     |
+| `--with-opencl=DIR`             | Compile with OpenCL backend                   |
+| `--with-nvtx=DIR`               | Compile with support for NVTX                 |
+| `--with-roctx=DIR`              | Compile with support for ROCTX                |
+| `--with-pfunit=DIR`             | Directory for pFUnit (see \subpage testing)   |
 
 @note Accelerators backends are not enabled as a feature in Neko, but rather via optional packages.
 

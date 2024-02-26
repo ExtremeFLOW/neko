@@ -69,7 +69,7 @@ contains
        fname = 'mean_sqr_field.fld'
     end if
 
-    call output_init(this, fname)
+    call this%init_base(fname)
     this%msqrf => msqrf
     this%T_begin = T_begin
   end function mean_sqr_flow_output_init

@@ -1,3 +1,5 @@
+#ifndef __MATH_TENSOR_KERNEL_CL__
+#define __MATH_TENSOR_KERNEL_CL__
 /*
  Copyright (c) 2022-2023, The Neko Authors
  All rights reserved.
@@ -147,3 +149,5 @@ __kernel void tnsr3d_el_kernel(__global real  * __restrict__  v,
 }
 
 
+
+#endif // __MATH_TENSOR_KERNEL_CL__

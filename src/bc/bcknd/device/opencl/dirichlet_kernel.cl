@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __BC_DIRICHLET_KERNEL__
+#define __BC_DIRICHLET_KERNEL__
+
 /**
  * Device kernel for scalar apply for a Dirichlet condition
  */
@@ -69,3 +72,5 @@ __kernel void dirichlet_apply_vector_kernel(__global const int *msk,
     z[k] = g;
   }
 }
+
+#endif // __BC_DIRICHLET_KERNEL__

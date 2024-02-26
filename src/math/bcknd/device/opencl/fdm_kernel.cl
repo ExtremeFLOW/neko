@@ -1,3 +1,5 @@
+#ifndef __MATH_FDM_KERNEL_CL__
+#define __MATH_FDM_KERNEL_CL__
 /*
  Copyright (c) 2022, The Neko Authors
  All rights reserved.
@@ -161,3 +163,5 @@ DEFINE_FDM_DO_FAST_KERNEL(13)
 DEFINE_FDM_DO_FAST_KERNEL(14)
 DEFINE_FDM_DO_FAST_KERNEL(15)
 
+
+#endif // __MATH_FDM_KERNEL_CL__

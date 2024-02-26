@@ -1,3 +1,5 @@
+#ifndef __MATH_CFL_KERNEL_H__
+#define __MATH_CFL_KERNEL_H__
 /*
  Copyright (c) 2022, The Neko Authors
  All rights reserved.
@@ -180,3 +182,5 @@ __global__ void cfl_kernel(const T dt,
     cfl_h[blockIdx.x] = cfl_tmp;  
 }
 
+
+#endif // __MATH_CFL_KERNEL_H__

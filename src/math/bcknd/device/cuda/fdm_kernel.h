@@ -1,3 +1,5 @@
+#ifndef __MATH_FDM_KERNEL_H__
+#define __MATH_FDM_KERNEL_H__
 /*
  Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
@@ -135,3 +137,5 @@ __global__ void fdm_do_fast_kernel(T  * __restrict__ e,
 }
 
 
+
+#endif // __MATH_FDM_KERNEL_H__

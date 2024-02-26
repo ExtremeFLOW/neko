@@ -1,3 +1,5 @@
+#ifndef __MATH_MATHOPS_KERNEL_CL__
+#define __MATH_MATHOPS_KERNEL_CL__
 /*
  Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
@@ -187,3 +189,5 @@ __kernel void opadd2col_kernel(__global real *a1,
 
 }
 
+
+#endif // __MATH_MATHOPS_KERNEL_CL__

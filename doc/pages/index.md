@@ -24,6 +24,8 @@ Technology.
 
 \subpage point-zones
 
+\subpage user-file
+
 \subpage accelerators
 
 \subpage statistics-guide

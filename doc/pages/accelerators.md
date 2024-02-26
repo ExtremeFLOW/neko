@@ -57,7 +57,7 @@ Since allocation and association is such an ordinary operation, Neko provides a 
   call device_map(x, x_d, n)
 ~~~~~~~~~~~~~~~
 
-#### Data transfer
+#### Data transfer {#accelerators_data-transfer}
 To copy data between host and device (and device to use) use the routine device::device_memcpy which takes a Fortran array `x` of type `integer`, `integer(i8)`, `real(kind=sp)` or `real(kind=dp)`, its size `n` and the direction as the third argument which can either be `HOST_TO_DEVICE` to copy data to the device, or `DEVICE_TO_HOST` to retrieve data from the device. The fourth boolean argument, `sync`, controls whether the transfer is synchronous (`.true.`) or asynchronous (`.false.`).
 ~~~~~~~~~~~~~~~{.f90}
   integer, allocatable :: x(:)
@@ -83,10 +83,9 @@ To copy data between host and device (and device to use) use the routine device:
 ~~~~~~~~~~~~~~~
 
 @attention device::device_memcpy_cptr defaults to asynchronous data transfer. The optional boolean argument `sync` must be true if synchronous transfers are needed.
-
 @attention It is the programmers' responsibility to make sure that device arrays are kept in sync with the associated host array. Neko does not perform any implicit data movement.
 
-### Offload work
+### Offload work {#accelerators_offload-work}
 To offload work to a device, most routines in Neko have a device version prefixed with `device_<name of routine>`. These routines have the same arguments as the host equivalent, but one must pass device pointers instead of Fortran arrays.
 
 For example, we call the `math::add2` routine to add two arrays together on the host.

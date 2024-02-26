@@ -1,3 +1,5 @@
+#ifndef __MATH_TENSOR_KERNEL_H__
+#define __MATH_TENSOR_KERNEL_H__
 /*
  Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
@@ -206,3 +208,5 @@ __global__ void tnsr3d_kernel_large(T  * __restrict__  v,
 }
 
 
+
+#endif // __MATH_TENSOR_KERNEL_H__

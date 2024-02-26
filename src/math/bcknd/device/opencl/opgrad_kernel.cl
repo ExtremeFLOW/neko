@@ -1,3 +1,5 @@
+#ifndef __MATH_OPGRAD_KERNEL_CL__
+#define __MATH_OPGRAD_KERNEL_CL__
 /*
  Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
@@ -127,3 +129,5 @@ DEFINE_OPGRAD_KERNEL(5, 256)
 DEFINE_OPGRAD_KERNEL(4, 256)
 DEFINE_OPGRAD_KERNEL(3, 256)
 DEFINE_OPGRAD_KERNEL(2, 256)
+
+#endif // __MATH_OPGRAD_KERNEL_CL__

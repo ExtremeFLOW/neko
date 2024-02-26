@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,6 @@ module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
   use num_types, only: rp
-  use source_scalar, only : source_scalar_t, source_scalar_term_pw, &
-                            source_scalar_term, source_scalar_eval_noforce, &
-                            source_scalar_init, source_scalar_set_type, &
-                            source_scalar_set_pw_type, source_scalar_free
   use field, only : field_t
   use space, only : space_t
   use dofmap, only :  dofmap_t
@@ -66,6 +62,7 @@ module scalar_scheme
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use utils, only : neko_error
+  use scalar_source_term, only : scalar_source_term_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -86,8 +83,10 @@ module scalar_scheme
      type(gs_t), pointer :: gs_Xh
      !> Coefficients associated with \f$ X_h \f$.
      type(coef_t), pointer  :: c_Xh
-     !> Source term associated with \f$ X_h \f$
-     type(source_scalar_t) :: f_Xh
+     !> Right-hand side.
+     type(field_t), pointer :: f_Xh => null()
+     !> The source term for equation.
+     type(scalar_source_term_t) :: source_term
      !> Krylov solver.
      class(ksp_t), allocatable  :: ksp
      !> Max iterations in the Krylov solver.
@@ -125,7 +124,6 @@ module scalar_scheme
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
      procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
-     procedure, pass(this) :: set_source => scalar_scheme_set_source
      procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
      !> Constructor.
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
@@ -314,7 +312,6 @@ contains
     this%gs_Xh => gs_Xh
     this%c_Xh => c_Xh
 
-    call source_scalar_init(this%f_Xh, this%dm_Xh)
 
     !
     ! Setup scalar boundary conditions
@@ -333,6 +330,15 @@ contains
                      'case.scalar.boundary_types', &
                      this%bc_labels)
     end if
+
+    !
+    ! Setup right-hand side field.
+    !
+    allocate(this%f_Xh)
+    call this%f_Xh%init(this%dm_Xh, fld_name="scalar_rhs")
+
+    ! Initialize the source term
+    call this%source_term%init(params, this%f_Xh, this%c_Xh, user)
 
     call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
 
@@ -382,7 +388,7 @@ contains
        deallocate(this%bc_labels)
     end if
 
-    call source_scalar_free(this%f_Xh)
+    call this%source_term%free()
 
     call bc_list_free(this%bclst)
 
@@ -416,8 +422,8 @@ contains
        call neko_error('No coefficients defined')
     end if
 
-    if (.not. associated(this%f_Xh%eval)) then
-       call neko_error('No source term defined')
+    if (.not. associated(this%f_Xh)) then
+       call neko_error('No rhs allocated')
     end if
 
     if (.not. associated(this%params)) then
@@ -487,25 +493,6 @@ contains
     call ksp%set_pc(pc)
 
   end subroutine scalar_scheme_precon_factory
-
-  !> Initialize source term
-  subroutine scalar_scheme_set_source(this, source_term_type, usr_f, usr_f_vec)
-    class(scalar_scheme_t), intent(inout) :: this
-    character(len=*) :: source_term_type
-    procedure(source_scalar_term_pw), optional :: usr_f
-    procedure(source_scalar_term), optional :: usr_f_vec
-
-    if (trim(source_term_type) .eq. 'noforce') then
-       call source_scalar_set_type(this%f_Xh, source_scalar_eval_noforce)
-    else if (trim(source_term_type) .eq. 'user' .and. present(usr_f)) then
-       call source_scalar_set_pw_type(this%f_Xh, usr_f)
-    else if (trim(source_term_type) .eq. 'user_vector' .and. present(usr_f_vec)) then
-       call source_scalar_set_type(this%f_Xh, usr_f_vec)
-    else
-       call neko_error('Invalid scalar source term '//source_term_type)
-    end if
-
-  end subroutine scalar_scheme_set_source
 
   !> Initialize a user defined scalar bc
   !! @param usr_eval User specified boundary condition for scalar field

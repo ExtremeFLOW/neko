@@ -1,3 +1,5 @@
+#ifndef __KRYLOV_GMRES_KERNEL_H__
+#define __KRYLOV_GMRES_KERNEL_H__
 /*
  Copyright (c) 2022, The Neko Authors
  All rights reserved.
@@ -79,3 +81,5 @@ __global__ void gmres_part2_kernel(T  * __restrict__  w,
 }
 
 
+
+#endif // __KRYLOV_GMRES_KERNEL_H__

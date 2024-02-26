@@ -66,7 +66,7 @@ contains
        fname = 'fluid.chkp'
     end if
 
-    call output_init(this, fname)
+    call this%init_base(fname)
     this%chkp => chkp
   end function chkp_output_init
 

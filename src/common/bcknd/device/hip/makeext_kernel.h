@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __COMMON_MAKEEXT_KERNEL__
+#define __COMMON_MAKEEXT_KERNEL__
+
 template< typename T >
 __global__ void makeext_kernel(T * __restrict__ abx1,
                                T * __restrict__ aby1,
@@ -93,3 +96,5 @@ __global__ void scalar_makeext_kernel(T * __restrict__ fs_lag,
   } 
   
 }
+
+#endif // __COMMON_MAKEEXT_KERNEL__

@@ -79,6 +79,8 @@ contains
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
 
+    call this%check_exists()
+
     select type(data)
     type is(mesh_t)
        msh => data

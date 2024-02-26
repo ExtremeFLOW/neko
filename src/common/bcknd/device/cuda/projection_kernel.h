@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __COMMON_PROJECTION_KERNEL__
+#define __COMMON_PROJECTION_KERNEL__
+
 /**
  * Project on vector operations
  */
@@ -90,3 +93,4 @@ __global__ void project_ortho_vec_kernel(T * __restrict__ x,
 }
 
 
+#endif // __COMMON_PROJECTION_KERNEL__

@@ -1,3 +1,5 @@
+#ifndef __KRYLOV_JACOBI_KERNEL_CL__
+#define __KRYLOV_JACOBI_KERNEL_CL__
 /*
  Copyright (c) 2022, The Neko Authors
  All rights reserved.
@@ -115,3 +117,5 @@ DEFINE_JACOBI_KERNEL(14)
 DEFINE_JACOBI_KERNEL(15)
 DEFINE_JACOBI_KERNEL(16)
 
+
+#endif // __KRYLOV_JACOBI_KERNEL_CL__

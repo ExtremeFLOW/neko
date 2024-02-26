@@ -1,3 +1,5 @@
+#ifndef __MATH_SCHWARZ_KERNEL_CL__
+#define __MATH_SCHWARZ_KERNEL_CL__
 /*
  Copyright (c) 2022-2023, The Neko Authors
  All rights reserved.
@@ -175,3 +177,5 @@ __kernel void schwarz_toreg3d_kernel(__global real * __restrict__ b,
     b[ijk+el] = a[(i+1)+(j+1)*nx2+(k+1)*nx2*nx2+el2];
   }
 }
+
+#endif // __MATH_SCHWARZ_KERNEL_CL__

@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __BC_NO_SLIP_WALL_KERNEL__
+#define __BC_NO_SLIP_WALL_KERNEL__
+
 /**
  * Device kernel for scalar apply for a no-slip wall conditon
  */
@@ -68,3 +71,4 @@ __kernel void no_slip_wall_apply_vector_kernel(__global const int *msk,
   }
 }
 
+#endif // __BC_NO_SLIP_WALL_KERNEL__

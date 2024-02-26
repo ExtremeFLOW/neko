@@ -1,3 +1,5 @@
+#ifndef __MATH_CONV1_KERNEL_H__
+#define __MATH_CONV1_KERNEL_H__
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -210,3 +212,5 @@ __global__ void __launch_bounds__(LX*LX,3)
   }
 }
 
+
+#endif // __MATH_CONV1_KERNEL_H__

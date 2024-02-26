@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __COMMON_RHS_MAKER_KENEL__
+#define __COMMON_RHS_MAKER_KENEL__
+
 __kernel void sumab_kernel(__global real * __restrict__ u,
                            __global real * __restrict__ v,
                            __global real * __restrict__ w,
@@ -212,3 +215,4 @@ __kernel void scalar_makebdf_kernel(__global const real * __restrict__ s_lag,
 }
 
 
+#endif // __COMMON_RHS_MAKER_KENEL__
