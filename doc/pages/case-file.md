@@ -202,17 +202,20 @@ types are currently implemented.
 1. `boundary_mesh`, the indicator function is defined based on the signed
    distance function to the specified mesh and a transformation such as a `step`
    or `smooth_step` function.
+2. `point_zone`, the indicator function is the characteristic function of the
+   specified point zone. The point zone is defined in the case file.
+
 Additional keywords are available to modify the Brinkman force term.
 
-| Name                       | Description                                                             | Admissable values     | Default value |
-| -------------------------- | ----------------------------------------------------------------------- | --------------------- | ------------- |
-| `region.type`              | Type of region to enforce the Brinkman force term.                      | `boundary_mesh`       | -             |
-| `region.name`              | Name of the region.                                                     | String, file name.    | -             |
-| `brinkman.limits`          | Brinkman factor at freeflow ($\xi(x)=0$) and solid domain ($\xi(x)=1$). | Vector if 2 reals.    | -             |
-| `brinkman.penalty`         | Panalty parameter when estimating Brinkman factor                       | Real                  | $1.0$         |
-| `distance_transform.type`  | How to map from distance field to indicator field.                      | `step`, `smooth_step` | -             |
-| `distance_transform.value` | Values used to define the distance transform, such as cutoff distance.  | Real                  | -             |
-| `filter.type`              | Type of filtering appllied to the indicator field.                      | `none`                | `none`        |
+| Name                       | Description                                                             | Admissable values             | Default value |
+| -------------------------- | ----------------------------------------------------------------------- | ----------------------------- | ------------- |
+| `region.type`              | Type of region to enforce the Brinkman force term.                      | `boundary_mesh`, `point_zone` | -             |
+| `region.name`              | Name of the region.                                                     | String, file name.            | -             |
+| `brinkman.limits`          | Brinkman factor at freeflow ($\xi(x)=0$) and solid domain ($\xi(x)=1$). | Vector if 2 reals.            | -             |
+| `brinkman.penalty`         | Panalty parameter when estimating Brinkman factor                       | Real                          | $1.0$         |
+| `distance_transform.type`  | How to map from distance field to indicator field.                      | `step`, `smooth_step`         | -             |
+| `distance_transform.value` | Values used to define the distance transform, such as cutoff distance.  | Real                          | -             |
+| `filter.type`              | Type of filtering appllied to the indicator field.                      | `none`                        | `none`        |
 
 ### Boundary types
 The optional `boundary_types` keyword can be used to specify boundary conditions.
