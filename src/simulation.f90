@@ -78,7 +78,7 @@ contains
        write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
        call neko_log%message(log_buf)
     else
-       write(log_buf,'(A, E15.7)') 'cfl :  ', set_cfl
+       write(log_buf,'(A, E15.7)') 'CFL :  ', set_cfl
        call neko_log%message(log_buf)
     end if
 
