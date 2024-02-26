@@ -78,6 +78,7 @@ subroutine test_device_associate
   if (NEKO_BCKND_DEVICE .eq. 1) then
        
      size_ = size(x) * 4
+     x_d = C_NULL_PTR
      
      call device_alloc(x_d, size_)
      call device_associate(x, x_d)
@@ -101,6 +102,7 @@ subroutine test_device_associated
   if (NEKO_BCKND_DEVICE .eq. 1) then
      
      size_ = size(x) * 4
+     x_d = C_NULL_PTR
 
      call device_alloc(x_d, size_)
      call device_associate(x, x_d)
@@ -121,10 +123,13 @@ subroutine test_device_get_ptr
   integer(c_size_t) :: size_
   integer :: x(42)
   logical :: same_ptr
-
+  
   if (NEKO_BCKND_DEVICE .eq. 1) then
-
+   
      size_ = size(x) * 4
+
+     x_d = C_NULL_PTR
+     dev = C_NULL_PTR
   
      call device_alloc(x_d, size_)
      call device_associate(x, x_d)
@@ -148,10 +153,12 @@ subroutine test_device_map
   integer(c_size_t) :: size_
   integer :: x(42)
   logical :: same_ptr
-  
+
   if (NEKO_BCKND_DEVICE .eq. 1) then
 
      size_ = size(x) * 4
+     x_d = C_NULL_PTR
+     dev = C_NULL_PTR
 
      call device_map(x, x_d, size(x))
 
@@ -178,6 +185,9 @@ subroutine test_device_memcpy
   if (NEKO_BCKND_DEVICE .eq. 1) then
      
      size_ = size(x) * 4
+     x_d = C_NULL_PTR
+     y_d = C_NULL_PTR
+     dev = C_NULL_PTR
 
      call device_map(x, x_d, size(x))
 
