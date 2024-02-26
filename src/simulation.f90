@@ -111,7 +111,7 @@ contains
        start_time = MPI_WTIME()
        if (dt_last_change .eq. 0) then
           cfl_avrg = cfl
-       end
+       end if
        call simulation_setdt(C%dt, C%params, cfl, cfl_avrg, dt_last_change, tstep)
        !calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%dt)
