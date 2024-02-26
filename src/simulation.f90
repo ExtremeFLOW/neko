@@ -284,7 +284,7 @@ contains
   !! @param params json case file
   !! @param cfl Courant number of current iteration.
   !! @param cfl_avrg Average courant number.
-  !! @param dt_last_change time step since last dt change
+  !! @param dt_last_change Time step since last dt change.
   subroutine simulation_setdt(dt, params, cfl, cfl_avrg, dt_last_change, tstep)
     implicit none
     real(kind=rp), intent(inout) :: dt
