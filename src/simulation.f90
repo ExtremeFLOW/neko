@@ -281,7 +281,7 @@ contains
 
   end subroutine simulation_joblimit_chkp
 
-    !> Set new dt based on cfl if requested
+  !> Set new dt based on cfl if requested
   !! @param dt current time step
   !! @param params json case file
   !! @param cfl courant number of current iteration
