@@ -6,8 +6,8 @@
         "output_at_end": false,
         "output_boundary": false,
         "output_checkpoints": false,
-        "end_time": 5.0,
-        "timestep": 1e-4,
+        "end_time": 2.0,
+        "timestep": 5e-5,
         "numerics": {
             "time_order": 3,
             "polynomial_order": 8,
@@ -59,7 +59,7 @@
                     "type": "brinkman",
                     "region": {
                         "type": "point_zone",
-                        "name": "ball"
+                        "name": "cylinder"
                     },
                     "brinkman": {
                         "limits": [
@@ -73,14 +73,14 @@
         },
         "point_zones": [
             {
-                "name": "ball",
-                "geometry": "sphere",
-                "end_1": [
+                "name": "cylinder",
+                "geometry": "cylinder",
+                "start": [
                     2.0,
                     0.0,
                     0.5
                 ],
-                "end_2": [
+                "end": [
                     2.0,
                     1.0,
                     0.5

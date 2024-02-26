@@ -20,10 +20,13 @@ function help() {
     echo -e "  -x#         Number of cells in the x direction."
     echo -e "  -y#         Number of cells in the y direction."
     echo -e "  -z#         Number of cells in the z direction."
+    echo -e "  -a, --all   Run all cases."
+    echo -e "  -q, --quiet Suppress output."
     echo -e ""
     echo -e "  See Readme for additional details."
     exit 0
 }
+if [ $# -eq 0 ]; then help; fi
 
 # Handle options
 Nx=32 && Ny=8 && Nz=8
@@ -31,6 +34,8 @@ for arg in "$@"; do
     if [ "${arg:0:2}" == "--" ]; then
         case ${arg:2} in
         help) help ;;
+        all) ALL=1 ;;
+        quiet) QUIET=1 ;;
         *) echo -e "Invalid option: $arg" >&2 && help ;;
         esac
     elif [ "${arg:0:1}" == "-" ]; then
@@ -39,6 +44,8 @@ for arg in "$@"; do
         x) Nx=${arg:2} ;;
         y) Ny=${arg:2} ;;
         z) Nz=${arg:2} ;;
+        a) ALL=1 ;;
+        q) QUIET=1 ;;
         *) echo -e "Invalid option: ${arg:1}" >&2 && help ;;
         esac
     else
@@ -46,7 +53,9 @@ for arg in "$@"; do
     fi
 done
 
-# ============================================================================ #
+if [ "$ALL" ]; then
+    cases=$(find $(dirname $0) -name "*.case")
+fi
 
 # ============================================================================ #
 # Ensure Neko can be found and set default mesh size
@@ -70,7 +79,11 @@ genmeshbox 0 4 0 1 0 1 $Nx $Ny $Nz .false. .false. .false.
 
 for case in $cases; do
     echo "Running case: $case"
-    neko $case >${case%.*}.log
+    if [ "$QUIET" ]; then
+        neko $case >/dev/null
+    else
+        neko $case >${case%.case}.log
+    fi
 done
 
 # End of file
