@@ -7,7 +7,7 @@
         "output_boundary": false,
         "output_checkpoints": false,
         "end_time": 20.0,
-        "timestep": 5e-4,
+        "timestep": 5e-5,
         "numerics": {
             "time_order": 3,
             "polynomial_order": 8,
@@ -15,7 +15,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 1000.0,
+            "Re": 2000.0,
             "initial_condition": {
                 "type": "uniform",
                 "value": [
@@ -64,7 +64,7 @@
                     "brinkman": {
                         "limits": [
                             0.0,
-                            1000.0
+                            1500.0
                         ],
                         "penalty": 1.0
                     }

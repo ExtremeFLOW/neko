@@ -61,7 +61,7 @@ fi
 # Ensure Neko can be found and set default mesh size
 
 if [ "$NEKO_DIR" ]; then
-    export PATH=$NEKO_DIR:$PATH
+    PATH=$NEKO_DIR/bin:$PATH
 fi
 
 if [[ -z $(which neko) ]]; then
