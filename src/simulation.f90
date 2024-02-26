@@ -122,7 +122,6 @@ contains
 
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%dt
        call neko_log%message(log_buf)
-       
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 
        call neko_log%section('Fluid')
