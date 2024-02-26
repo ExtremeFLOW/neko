@@ -116,6 +116,7 @@ module aabb
      procedure, pass(this), public :: get_diameter => aabb_get_diameter
      procedure, pass(this), public :: get_surface_area => aabb_get_surface_area
      procedure, pass(this), public :: get_center => aabb_get_center
+     procedure, pass(this), public :: get_diagonal => aabb_get_diagonal
 
      ! Unary operations
      procedure, pass(this), public :: min_distance => aabb_min_distance
@@ -278,6 +279,14 @@ contains
 
     center = this%center
   end function aabb_get_center
+
+  !> @brief Get the diagonal of the aabb.
+  pure function aabb_get_diagonal(this) result(diagonal)
+    class(aabb_t), intent(in) :: this
+    real(kind=rp), dimension(3) :: diagonal
+
+    diagonal = this%box_max - this%box_min
+  end function aabb_get_diagonal
 
   ! ========================================================================== !
   ! Operations
