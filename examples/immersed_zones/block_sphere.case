@@ -2,7 +2,7 @@
     "version": 1.0,
     "case": {
         "mesh_file": "box.nmsh",
-        "output_directory": "sphere_fields",
+        "output_directory": "block_sphere_fields",
         "output_at_end": false,
         "output_boundary": false,
         "output_checkpoints": false,
@@ -59,6 +59,20 @@
                     "type": "brinkman",
                     "region": {
                         "type": "point_zone",
+                        "name": "block"
+                    },
+                    "brinkman": {
+                        "limits": [
+                            0.0,
+                            1000.0
+                        ],
+                        "penalty": 1.0
+                    }
+                },
+                {
+                    "type": "brinkman",
+                    "region": {
+                        "type": "point_zone",
                         "name": "ball"
                     },
                     "brinkman": {
@@ -81,6 +95,22 @@
                     0.5
                 ],
                 "radius": 0.1
+            },
+            {
+                "name": "block",
+                "geometry": "box",
+                "x_bounds": [
+                    1.75,
+                    2.25
+                ],
+                "y_bounds": [
+                    0.0,
+                    1.0
+                ],
+                "z_bounds": [
+                    0.0,
+                    0.5
+                ]
             }
         ]
     }
