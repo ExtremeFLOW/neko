@@ -282,7 +282,7 @@ contains
   !> Set new dt based on cfl if requested
   !! @param dt current time step
   !! @param params json case file
-  !! @param cfl courant number of current iteration
+  !! @param cfl Courant number of current iteration.
   !! @param cfl_avrg average courant number
   !! @param dt_last_change time step since last dt change
   subroutine simulation_setdt(dt, params, cfl, cfl_avrg, dt_last_change, tstep)
