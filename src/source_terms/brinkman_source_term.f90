@@ -93,11 +93,25 @@ contains
     type(coef_t), intent(inout) :: coef
     real(kind=rp) :: start_time, end_time
 
+    character(len=:), allocatable :: filter_type
+    real(kind=rp), dimension(:), allocatable :: brinkman_limits
+    real(kind=rp) :: brinkman_penalty
+
     character(len=:), allocatable :: string
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
+
+    call json_get_or_default(json, 'filter.type', filter_type, 'none')
+
+    ! Read the options for the permeability field
+    call json_get(json, 'brinkman.limits', brinkman_limits)
+    call json_get(json, 'brinkman.penalty', brinkman_penalty)
+
+    if (size(brinkman_limits) .ne. 2) then
+       call neko_error('brinkman_limits must be a 2 element array of reals')
+    end if
 
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
@@ -124,6 +138,30 @@ contains
       case default
        call neko_error('Unknown region type')
     end select
+
+    ! Run filter on the permeability field to smooth it out.
+    ! This filter should initially be the classic heaviside filter, but we wish
+    ! to alter it to be a PDE based filter to avoid MPI communication.
+    ! The "helmholtz" solver in Neko should be able to solve the PDE filter.
+
+    select case (filter_type)
+      case ('none')
+       ! Do nothing
+      case default
+       call neko_error('Unknown filter type')
+    end select
+
+    ! ------------------------------------------------------------------------ !
+    ! Compute the permeability field and copy to the device
+
+    call permeability_field(this%brinkman, &
+      & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
+
+    ! Copy the permeability field to the device
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%brinkman%x, this%brinkman%x_d, &
+                          this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
+    end if
 
   end subroutine brinkman_source_term_init_from_json
 
@@ -169,10 +207,6 @@ contains
     ! Options
     character(len=:), allocatable :: mesh_file_name
     character(len=:), allocatable :: distance_transform
-    character(len=:), allocatable :: filter_type
-
-    real(kind=rp), dimension(:), allocatable :: brinkman_limits
-    real(kind=rp) :: brinkman_penalty
 
     type(file_t) :: mesh_file
     type(tri_mesh_t) :: boundary_mesh
@@ -185,15 +219,6 @@ contains
 
     ! Settings on how to filter the design field
     call json_get(json, 'distance_transform.type', distance_transform)
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
-
-    ! Read the options for the permeability field
-    call json_get(json, 'brinkman.limits', brinkman_limits)
-    call json_get(json, 'brinkman.penalty', brinkman_penalty)
-
-    if (size(brinkman_limits) .ne. 2) then
-       call neko_error('brinkman_limits must be a 2 element array of reals')
-    end if
 
     ! ------------------------------------------------------------------------ !
     ! Load the immersed boundary mesh
@@ -231,30 +256,6 @@ contains
       case default
        call neko_error('Unknown distance transform')
     end select
-
-    ! Run filter on the permeability field to smooth it out.
-    ! This filter should initially be the classic heaviside filter, but we wish
-    ! to alter it to be a PDE based filter to avoid MPI communication.
-    ! The "helmholtz" solver in Neko should be able to solve the PDE filter.
-
-    select case (filter_type)
-      case ('none')
-       ! Do nothing
-      case default
-       call neko_error('Unknown filter type')
-    end select
-
-    ! ------------------------------------------------------------------------ !
-    ! Compute the permeability field and copy to the device
-
-    call permeability_field(this%brinkman, &
-      & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
-
-    ! Copy the permeability field to the device
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%brinkman%x, this%brinkman%x_d, &
-                          this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
-    end if
 
   end subroutine init_boundary_mesh
 
