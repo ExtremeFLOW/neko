@@ -283,7 +283,7 @@ contains
   !! @param dt current time step
   !! @param params json case file
   !! @param cfl Courant number of current iteration.
-  !! @param cfl_avrg average courant number
+  !! @param cfl_avrg Average courant number.
   !! @param dt_last_change time step since last dt change
   subroutine simulation_setdt(dt, params, cfl, cfl_avrg, dt_last_change, tstep)
     implicit none
