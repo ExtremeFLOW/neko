@@ -44,7 +44,7 @@ module brinkman_source_term_cpu
 
 contains
 
-  !> Computs the constant source term on the cpu.
+  !> Computes the Brinkman source term on the cpu.
   !! @param fields The right-hand side.
   !! @param values The values of the source components.
   subroutine brinkman_source_term_compute_cpu(fields, brinkman)

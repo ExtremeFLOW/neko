@@ -44,7 +44,7 @@ module brinkman_source_term_device
 
 contains
 
-  !> Computs the constant source term on the cpu.
+  !> Computes the Brinkman source term on the device.
   !! @param fields The right-hand side.
   !! @param values The values of the source components.
   subroutine brinkman_source_term_compute_device(fields, brinkman)

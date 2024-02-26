@@ -47,9 +47,9 @@ module brinkman_source_term
   implicit none
   private
 
-  !> A constant source term.
-  !! The strength is specified with the `values` keyword, which should be an
-  !! array, with a value for each component of the source.
+  !> A Brinkman source term.
+  !! The region and strength are controlled by assigning regions types and
+  !! brinkman limits to the source term.
   type, public, extends(source_term_t) :: brinkman_source_term_t
      private
 
@@ -131,6 +131,7 @@ contains
   subroutine brinkman_source_term_free(this)
     class(brinkman_source_term_t), intent(inout) :: this
 
+    this%brinkman => null()
     call this%free_base()
   end subroutine brinkman_source_term_free
 

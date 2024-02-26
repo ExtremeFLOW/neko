@@ -661,11 +661,11 @@ contains
     type(aabb_node_t) :: left_node
     type(aabb_node_t) :: right_node
 
-    type(aabb_t) :: combinedaabb
-    real(kind=rp) :: newParentNodeCost
-    real(kind=rp) :: minimumPushDownCost
-    type(aabb_t) :: newLeftaabb
-    type(aabb_t) :: newRightaabb
+    type(aabb_t) :: combined_aabb
+    real(kind=rp) :: new_parent_node_cost
+    real(kind=rp) :: minimum_push_down_cost
+    type(aabb_t) :: new_left_aabb
+    type(aabb_t) :: new_right_aabb
     integer :: leaf_sibling_index
     type(aabb_node_t) :: leaf_sibling
     integer :: old_parent_index
@@ -699,42 +699,42 @@ contains
 
        ! ------------------------------------------------------------------- !
 
-       combinedaabb = merge(tree_node%aabb, leaf_node%get_aabb())
+       combined_aabb = merge(tree_node%aabb, leaf_node%get_aabb())
 
-       newParentNodeCost = 2.0_rp * combinedaabb%get_surface_area()
-       minimumPushDownCost = 2.0_rp * ( &
-         & combinedaabb%get_surface_area() &
+       new_parent_node_cost = 2.0_rp * combined_aabb%get_surface_area()
+       minimum_push_down_cost = 2.0_rp * ( &
+         & combined_aabb%get_surface_area() &
          & - tree_node%aabb%get_surface_area()&
          & )
 
        ! use the costs to figure out whether to create a new parent here or
        ! descend
        if (left_node%is_leaf()) then
-          newLeftaabb = merge(leaf_node%aabb, left_node%get_aabb())
-          cost_left = newLeftaabb%get_surface_area() + minimumPushDownCost
+          new_left_aabb = merge(leaf_node%aabb, left_node%get_aabb())
+          cost_left = new_left_aabb%get_surface_area() + minimum_push_down_cost
        else
-          newLeftaabb = merge(leaf_node%aabb, left_node%get_aabb())
+          new_left_aabb = merge(leaf_node%aabb, left_node%get_aabb())
           cost_left = ( &
-            & newLeftaabb%get_surface_area() &
+            & new_left_aabb%get_surface_area() &
             & - left_node%aabb%get_surface_area()&
-            & ) + minimumPushDownCost
+            & ) + minimum_push_down_cost
        end if
 
        if (right_node%is_leaf()) then
-          newRightaabb = merge(leaf_node%aabb, right_node%aabb)
-          cost_right = newRightaabb%get_surface_area() + minimumPushDownCost
+          new_right_aabb = merge(leaf_node%aabb, right_node%aabb)
+          cost_right = new_right_aabb%get_surface_area() + minimum_push_down_cost
        else
-          newRightaabb = merge(leaf_node%aabb, right_node%aabb)
+          new_right_aabb = merge(leaf_node%aabb, right_node%aabb)
           cost_right = ( &
-            & newRightaabb%get_surface_area() &
+            & new_right_aabb%get_surface_area() &
             & - right_node%aabb%get_surface_area() &
-            & ) + minimumPushDownCost
+            & ) + minimum_push_down_cost
        end if
 
        ! if the cost of creating a new parent node here is less than descending
        ! in either direction then we know we need to create a new parent node,
        ! errrr, here and attach the leaf to that
-       if (newParentNodeCost < cost_left .and. newParentNodeCost < cost_right) then
+       if (new_parent_node_cost < cost_left .and. new_parent_node_cost < cost_right) then
           exit
        end if
 

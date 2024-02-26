@@ -124,8 +124,11 @@ module aabb
      generic :: operator(.lt.) => less
      generic :: operator(.gt.) => greater
 
+     !> @brief Check if two aabbs are overlapping.
      procedure, pass(this), public :: overlaps => aabb_overlaps
+     !> @brief Check if this aabb fully contains another aabb.
      procedure, pass(this), public :: contains => aabb_contains_other
+     !> @brief Check if this aabb contains a point.
      procedure, pass(this), public :: contains_point => aabb_contains_point
 
      ! Private comparison operators
