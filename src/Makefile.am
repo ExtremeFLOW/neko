@@ -159,6 +159,7 @@ neko_fortran_SOURCES = \
 	time_schemes/ab_time_scheme.f90\
 	time_schemes/time_scheme_controller.f90\
 	common/time_based_controller.f90\
+	common/time_step_controller.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
 	common/rhs_maker.f90\

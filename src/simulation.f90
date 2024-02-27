@@ -46,6 +46,7 @@ module simulation
   use math, only : col2
   use simcomp_executor, only : neko_simcomps
   use json_utils, only : json_get_or_default
+  use time_step_controller
   implicit none
   private
 
@@ -63,18 +64,19 @@ contains
     integer :: tstep, i
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
-    ! for variable_time_steping
+    ! for variable_tsteping
     integer :: dt_last_change = 0
     real(kind=rp) :: cfl_avrg = 0_rp
     real(kind=rp) :: set_cfl
+    type(time_step_controller_t) :: dt_controller
 
     t = 0d0
     tstep = 0
     call neko_log%section('Starting simulation')
     write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%end_time,')'
     call neko_log%message(log_buf)
-    call C%params%get('case.constant_cfl', set_cfl, found)
-    if (.not. found) then
+    call dt_controller%init(C)
+    if (.not. dt_controller%if_variable_dt) then
        write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
        call neko_log%message(log_buf)
     else
@@ -112,7 +114,7 @@ contains
        if (dt_last_change .eq. 0) then
           cfl_avrg = cfl
        end if
-       call simulation_setdt(C%dt, C%params, cfl, cfl_avrg, dt_last_change, tstep)
+       call dt_controller%set_dt(C, cfl, cfl_avrg, dt_last_change, tstep)
        !calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%dt)
 
@@ -279,72 +281,82 @@ contains
 
   end subroutine simulation_joblimit_chkp
 
-  !> Set new dt based on cfl if requested
-  !! @param dt current time step
-  !! @param params json case file
-  !! @param cfl Courant number of current iteration.
-  !! @param cfl_avrg Average courant number.
-  !! @param dt_last_change Time step since last dt change.
-  subroutine simulation_setdt(dt, params, cfl, cfl_avrg, dt_last_change, tstep)
-    implicit none
-    real(kind=rp), intent(inout) :: dt
-    type(json_file), intent(inout) :: params
-    real(kind=rp), intent(in) :: cfl
-    real(kind=rp), intent(inout) :: cfl_avrg
-    integer, intent(inout) :: dt_last_change
-    real(kind=rp) :: set_cfl, dt_old, scaling_factor, max_dt
-    integer :: min_update_frequency
-    character(len=LOG_SIZE) :: log_buf    
-    logical :: found
-    real(kind=rp) :: alpha = 0.5_rp !coefficient of running average
-    integer, intent(in):: tstep
+!   !> Set new dt based on cfl if requested
+!   !! @param dt current time step.
+!   !! @param params json case file.
+!   !! @param cfl courant number of current iteration.
+!   !! @param cfl_avrg average Courant number.
+!   !! @param dt_last_change time step since last dt change.
+!   !! @Algorithm: 
+!   !! 1. If the simulation is not a restarted one,
+!   !! set the first time step such that cfl is the set one;
+!   !! 2. If the simulation is a restarted one,
+!   !! set the first time step from the restart file.
+!   !! 3. During time-stepping, adjust dt when cfl_avrg is offset by 20%.
+!   subroutine simulation_setdt(C, cfl, cfl_avrg, dt_last_change, tstep)
+!     implicit none
+!     type(case_t), intent(inout) :: C
+!     real(kind=rp), intent(in) :: cfl
+!     real(kind=rp), intent(inout) :: cfl_avrg
+!     integer, intent(inout) :: dt_last_change
+!     real(kind=rp) :: set_cfl, dt_old, scaling_factor, max_dt
+!     integer :: max_update_frequency
+!     character(len=LOG_SIZE) :: log_buf    
+!     logical :: found, found_restart
+!     real(kind=rp) :: alpha = 0.5_rp !coefficient of running average
+!     integer, intent(in):: tstep
+!     character(len=:), allocatable :: restart_file
 
-    call params%get('case.timestep', max_dt, found)
-    call params%get('case.constant_cfl', set_cfl, found)
+!     call C%params%get('case.timestep', max_dt, found)
+!     call C%params%get('case.constant_cfl', set_cfl, found)
+!     call C%params%get('case.restart_file', restart_file, found_restart)
 
-    if (found .eqv. .true.) then
-       if (tstep .eq. 1) then ! set the first dt for desired cfl
-          dt = min(set_cfl/cfl*dt, max_dt)
-       else
-         call json_get_or_default(params, 'case.cfl_min_update_frequency',&
-                                    min_update_frequency, 1)
+!     if (found .eqv. .true.) then
+!        if ((tstep .eq. 1) .and. .not. found_restart) then ! set the first dt for desired cfl
+!           C%dt = min(set_cfl/cfl*C%dt, max_dt)
+!        else if ((tstep .eq. 1) .and. found_restart) then
+!           C%dt = C%dtlag(1)
+!        else
+!           call json_get_or_default(C%params, 'case.cfl_max_update_frequency',&
+!                                     max_update_frequency, 1)
 
-         ! Calculate the average of cfl over the desired interval
-         cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
+!           ! Calculate the average of cfl over the desired interval
+!           cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
 
-         if (abs(cfl_avrg - set_cfl) .ge. 0.2*set_cfl .and. &
-            dt_last_change .ge. min_update_frequency) then
+!           if (abs(cfl_avrg - set_cfl) .ge. 0.2*set_cfl .and. &
+!              dt_last_change .ge. max_update_frequency) then
 
-            if (set_cfl/cfl .ge. 1) then 
-               scaling_factor = min(1.2_rp, set_cfl/cfl) 
-            else
-               scaling_factor = max(0.8_rp, set_cfl/cfl) 
-            end if
+!              if (set_cfl/cfl .ge. 1) then 
+!                 scaling_factor = min(1.2_rp, set_cfl/cfl) 
+!              else
+!                 scaling_factor = max(0.8_rp, set_cfl/cfl) 
+!              end if
 
-            dt_old = dt
-            dt = scaling_factor * dt_old
-            dt = min(dt, max_dt)
+!              dt_old = C%dt
+!              C%dt = scaling_factor * dt_old
+!              C%dt = min(C%dt, max_dt)
 
-            write(log_buf, '(A,E15.7,1x,A,E15.7)') 'Avrg CFL:', cfl_avrg, &
-                        'set_cfl:', set_cfl
-            call neko_log%message(log_buf)
+!              write(log_buf, '(A,E15.7,1x,A,E15.7)') 'Avrg CFL:', cfl_avrg, &
+!                          'set_cfl:', set_cfl
+!              call neko_log%message(log_buf)
 
-            write(log_buf, '(A,E15.7,1x,A,E15.7)') 'old dt:', dt_old, &
-                        'new dt:', dt
-            call neko_log%message(log_buf)
+!              write(log_buf, '(A,E15.7,1x,A,E15.7)') 'old dt:', dt_old, &
+!                          'new dt:', C%dt
+!              call neko_log%message(log_buf)
 
-            dt_last_change = 0
+!              dt_last_change = 0
 
-         else
-            dt_last_change = dt_last_change + 1
-         end if
-       end if
+!           else
+!              dt_last_change = dt_last_change + 1
+!           end if
+!        end if
 
-    end if
+!     end if
 
-  end subroutine simulation_setdt
+!   end subroutine simulation_setdt
 
 
 
 end module simulation
+
 
