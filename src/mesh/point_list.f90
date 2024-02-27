@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!>
+!> Type defining unique geometrical point list.
 module point_list
   use num_types, only : i4
   use utils, only : neko_error
@@ -60,7 +60,7 @@ contains
     class(point_list_t), intent(inout) :: this
     integer(i4) :: il
 
-    call this%free_own()
+    call this%free_map()
 
     if (allocated(this%points)) then
        deallocate(this%points)

@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!>
+!> Type defining unique topology element (vertex, edge, face) list.
 module topology_list
   use num_types, only : i4
   use utils, only : neko_error
@@ -60,7 +60,7 @@ contains
     class(topology_list_t), intent(inout) :: this
     integer(i4) :: il
 
-    call this%free_own()
+    call this%free_share()
 
     if (allocated(this%elements)) then
        do il = 1, size(this%elements)

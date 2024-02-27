@@ -36,7 +36,8 @@
 module obj_sharing
   use num_types, only : i4
   use utils, only : neko_error
-  use comm, only : NEKO_COMM, MPI_INTEGER, MPI_SUM
+  use comm, only : NEKO_COMM, MPI_INTEGER, MPI_SUM, pe_rank, pe_size
+  use stack, only : stack_i4_t
 
   implicit none
   private
@@ -51,16 +52,28 @@ module obj_sharing
      integer(i4), private :: gnum_ = -1
      !> Global object offset based on local owned objects
      integer(i4), private :: goff_ = -1
+     !> MPI id of the owner process
+     integer(i4), dimension(:), allocatable :: owner_pid
      !> Number of local owned objects
      integer(i4), private :: lown_ = -1
      !> List of local numbers of local owned objects
      integer(i4), dimension(:), allocatable :: owned_list
+     !> MPI ranks sharing owned object
+     type(stack_i4_t), dimension(:), allocatable :: owned_ranks
      !> Global to local mapping
    contains
      !> Set space for ownership data
      procedure, pass(this) :: init_own => obj_ownership_init_own
      !> Free ownership data
      procedure, pass(this) :: free_own => obj_ownership_free_own
+     !> Local number of objects
+     procedure, pass(this) :: lnum => obj_ownership_lnum
+     !> Global number of objects
+     procedure, pass(this) :: gnum => obj_ownership_gnum
+     !> Global object offset
+     procedure, pass(this) :: goff => obj_ownership_goff
+     !> Local number of owned objects
+     procedure, pass(this) :: lown => obj_ownership_lown
      !> Global to local id mapping
      procedure, pass(this) :: glb_loc_id => obj_ownership_glb_loc_id
      !> Local to global id mapping
@@ -70,11 +83,15 @@ module obj_sharing
   !> Base type for the lists with defined object mapping
   type, extends(obj_ownership_t), abstract :: obj_mapping_t
    contains
+     !> Free mapping data
+     procedure, pass(this) :: free_map => obj_mapping_free_map
   end type obj_mapping_t
 
   !> Base type for the lists with defined object sharing
   type, extends(obj_mapping_t), abstract :: obj_sharing_t
    contains
+     !> Free mapping data
+     procedure, pass(this) :: free_share => obj_sharing_free_share
   end type obj_sharing_t
 
   !> Returns global object id based on it's local position
@@ -92,61 +109,148 @@ module obj_sharing
 
 contains
 
-  !> Set space for ownership data
-  !! @parameter[in]    lnum     local number of objects
-  !! @parameter[inout] gid_list list of object global ids
-  !! @parameter[in]    lown     number of local owned
-  !! @parameter[inout] gid_list list of owned object
-  subroutine obj_ownership_init_own(this, lnum, gid_list, lown, own_list)
+  !> Initialise ownership data
+  !> @details The ownership data consists of list of global object ids and MPI
+  !! rank id of the owning process. In addition global-to-local and
+  !! local-to-global id mappings are added. There are possible simplifications
+  !! of the general algorithm. If none of the objects is shared there is no need
+  !! to identify owner MPI id. This situation is flagged by @a ifsimple
+  !! argument. In some cases the ownership data can be given, so no additional
+  !! operation is needed. In this situation data from @a owner_pid and
+  !! (optionally) @a owned_ranks are used. In other case some addition
+  !! constraint to the ownership data may be available (e.g, edges can be owned
+  !! by ranks owning vertices only). In this case @a owner_cnst is used.
+  !! @parameter[in]    gid_list    list of object global ids
+  !! @parameter[in]    ifsimple    are objects shared among MPI ranks
+  !! @parameter[inout] own_copy    available ownership to copy
+  !! @parameter[inout] own_cnst    available ownership constraint
+  subroutine obj_ownership_init_own(this, gid_list, ifsimple, owner_pid, &
+       & owned_ranks, owner_cnst)
     class(obj_ownership_t), intent(inout) :: this
-    integer(i4), intent(in) :: lnum, lown
-    integer(i4), dimension(:), allocatable, intent(inout) :: gid_list, own_list
-    integer(i4) :: ierr
+    integer(i4), dimension(:), intent(in) :: gid_list
+    logical, intent(in) :: ifsimple
+    integer(i4), dimension(size(gid_list)), optional, intent(inout) :: owner_pid
+    type(stack_i4_t), dimension(:), allocatable, optional, intent(inout) :: &
+         & owned_ranks
+    integer(i4), dimension(:), optional, intent(inout) :: owner_cnst
+    integer(i4) :: il, itmp, ierr
 
     call this%free_own()
 
-    ! CHANGE IT TO CALCULATE OWNERSHIP INTERNALLY
-    ! ADD FLAG TO SKIP OWNERSHIP CALCULATION AND ASSUME ALL OBJECTS ARE OWNED
-    if (lnum > 0) then
-       this%lnum_ = lnum
-       if (allocated(gid_list)) then
-          ! place to work on global to local mapping
-          !call move_alloc(own_list, this%owned_list)
-       else
-          call neko_error('Missing object global id list.')
+    ! Simple distribution; no shared objects
+    if (ifsimple .or. (pe_size == 1)) then
+       this%lnum_ = size(gid_list)
+       this%lown_ = this%lnum_
+       allocate(this%owner_pid(this%lnum_), this%owned_list(this%lown_), &
+            & this%owned_ranks(this%lown_))
+       this%owner_pid(:) = pe_rank
+       ! as little as possible
+       itmp = 1
+       do il = 1, this%lown_
+          this%owned_list(il) = il
+          call this%owned_ranks(il)%init(itmp)
+       end do
+    else if (present(owner_pid)) then
+       this%lnum_ = size(gid_list)
+       allocate(this%owner_pid(this%lnum_))
+       this%owner_pid(:) = owner_pid(:)
+       ! count owned objects
+       itmp = 0
+       do il = 1, this%lnum_
+          if (owner_pid(il) == pe_rank) itmp = itmp + 1
+       end do
+       this%lown_ = itmp
+       ! get owned object list
+       if (this%lown_ > 0) then
+          allocate(this%owned_list(this%lown_))
+          itmp = 0
+          do il = 1, this%lnum_
+             if (owner_pid(il) == pe_rank) then
+                itmp = itmp + 1
+                this%owned_list(itmp) = il
+             end if
+          end do
+          ! get list of MPI ranks sharing a given object
+          if (present(owned_ranks)) then
+             ! sanity check
+             if (this%lown_ /= size(owned_ranks)) &
+                  &call neko_error('Inconsistent owned_ranks size')
+             call move_alloc(owned_ranks, this%owned_ranks)
+          else
+             allocate(this%owned_list(this%lown_))
+
+
+
+             
+          end if
        end if
+    else if (present(owner_cnst)) then
+
     else
-       this%lnum_ = 0
-    end if
-    if (lown > 0) then
-       if (lown > this%lnum_) &
-            & call neko_error('Inconsistent owned object number.')
-       this%lown_ = lown
-       if (allocated(own_list)) then
-          call move_alloc(own_list, this%owned_list)
-       else
-          call neko_error('Missing owned object list.')
-       end if
-    else
-       this%lown_ = 0
+
     end if
 
+    ! global to local mapping
+
+
+    ! get global object number (based on owned objects) and offset
     call MPI_Allreduce(this%lown_, this%gnum_, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     this%goff_ = 0
     call MPI_Exscan(this%lown_, this%goff_, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
   end subroutine obj_ownership_init_own
 
   !> Free ownership data
   subroutine obj_ownership_free_own(this)
     class(obj_ownership_t), intent(inout) :: this
+    integer(i4) :: il
     this%lnum_ = -1
     this%gnum_ = -1
     this%goff_ = -1
     this%lown_ = -1
+    if (allocated(this%owner_pid)) deallocate(this%owner_pid)
     if (allocated(this%owned_list)) deallocate(this%owned_list)
+    if (allocated(this%owned_ranks)) then
+       do il = 1, size(this%owned_ranks)
+          call this%owned_ranks(il)%free()
+       end do
+       deallocate(this%owned_ranks)
+    end if
   end subroutine obj_ownership_free_own
+
+  !> Local number of objects
+  !! @return itmp
+  function obj_ownership_lnum(this) result(itmp)
+    class(obj_ownership_t), intent(in) :: this
+    integer(i4) :: itmp
+    itmp = this%lnum_
+  end function obj_ownership_lnum
+
+  !> Global number of objects
+  !! @return itmp
+  function obj_ownership_gnum(this) result(itmp)
+    class(obj_ownership_t), intent(in) :: this
+    integer(i4) :: itmp
+    itmp = this%gnum_
+  end function obj_ownership_gnum
+
+  !> Global object offset
+  !! @return itmp
+  function obj_ownership_goff(this) result(itmp)
+    class(obj_ownership_t), intent(in) :: this
+    integer(i4) :: itmp
+    itmp = this%goff_
+  end function obj_ownership_goff
+
+  !> Local number of owned objects
+  !! @return itmp
+  function obj_ownership_lown(this) result(itmp)
+    class(obj_ownership_t), intent(in) :: this
+    integer(i4) :: itmp
+    itmp = this%lown_
+  end function obj_ownership_lown
 
   !> Returns local object position based on it's global id
   !! @parameter[in]   gid   object local id position
@@ -155,6 +259,23 @@ contains
     class(obj_ownership_t), intent(in) :: this
     integer(i4), intent(in) :: gid
     integer(i4) :: lid
+    lid = 0
   end function obj_ownership_glb_loc_id
+
+  !> Free mapping data
+  subroutine obj_mapping_free_map(this)
+    class(obj_mapping_t), intent(inout) :: this
+
+    call this%free_own()
+
+  end subroutine obj_mapping_free_map
+
+  !> Free sharing data
+  subroutine obj_sharing_free_share(this)
+    class(obj_sharing_t), intent(inout) :: this
+
+    call this%free_map()
+
+  end subroutine obj_sharing_free_share
 
 end module obj_sharing

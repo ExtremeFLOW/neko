@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!>
+!> Type defining mesh element list.
 module element_list
   use num_types, only : i4
   use utils, only : neko_error
