@@ -50,13 +50,14 @@ end subroutine test_vertex_polytope
 @test
 subroutine test_vertex_topology
   use pfunit
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t
   implicit none
   type(vertex_tpl_t) :: vrt1, vrt2
   type(topology_component_t), dimension(0) :: fct
-  integer(i4) :: itmp, id1, id2, bnd1, bnd2, gsid
+  integer(i4) :: itmp, id1, id2, bnd1, bnd2
+  integer(i8) :: gsid
   integer(i4), dimension(:, :), allocatable :: facetp
 
   id1 = 1
@@ -79,7 +80,7 @@ subroutine test_vertex_topology
   @assertEqual(vrt1%bnd(), bnd2)
 
   ! gather-scatter id
-  @assertEqual(vrt1%gsid(), -1)
+  @assertEqual(vrt1%gsid(), -1_i8)
   call vrt1%set_gsid(gsid)
   @assertEqual(vrt1%gsid(), gsid)
 
@@ -136,7 +137,7 @@ end subroutine test_vertex_tpl_add
 @test
 subroutine test_vertex_oriented
   use pfunit
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use polytope_oriented, only : polytope_oriented_t
@@ -146,7 +147,8 @@ subroutine test_vertex_oriented
   type(vertex_tpl_t) :: vrt1, vrt2
   type(vertex_ornt_t) :: vro1
   type(topology_component_t), dimension(0) :: fct
-  integer(i4) :: itmp, id1, id2, bnd1, bnd2, gsid, algn
+  integer(i4) :: itmp, id1, id2, bnd1, bnd2, algn
+  integer(i8) :: gsid
   logical :: equal
 
   id1 = 1
@@ -201,7 +203,7 @@ end subroutine test_vertex_oriented
 @test
 subroutine test_vertex_actualisation
   use pfunit
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use polytope, only : polytope_t
   use topology, only : topology_component_t
   use polytope_oriented, only : polytope_oriented_t
@@ -211,7 +213,8 @@ subroutine test_vertex_actualisation
   type(vertex_tpl_t) :: vrt1, vrt2
   type(vertex_act_t) :: vra1
   type(topology_component_t), dimension(0) :: fct
-  integer(i4) :: itmp, id1, id2, bnd1, bnd2, gsid, algn, hng, pos
+  integer(i4) :: itmp, id1, id2, bnd1, bnd2, algn, hng, pos
+  integer(i8) :: gsid
   logical :: equal, ifintp
 
   id1 = 1

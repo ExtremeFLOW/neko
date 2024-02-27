@@ -31,7 +31,7 @@
 !
 !> Abstract type for mesh element class
 module element_new
-  use num_types, only : i4, dp
+  use num_types, only : i4, i8, dp
   use utils, only : neko_error
   use polytope, only : polytope_t
   use topology, only : topology_t
@@ -452,7 +452,7 @@ contains
   function element_fct_gsid(this, pos) result(gsid)
     class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
-    integer(i4) :: gsid
+    integer(i8) :: gsid
     if ((pos > 0) .and. (pos <= this%nfacet)) then
        select type(polytope => this%facet(pos)%obj%polytope)
        class is (topology_t)
@@ -471,7 +471,7 @@ contains
   function element_rdg_gsid(this, pos) result(gsid)
     class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
-    integer(i4) :: gsid
+    integer(i8) :: gsid
     if ((pos > 0) .and. (pos <= this%nridge)) then
        select type(polytope => this%ridge(pos)%obj%polytope)
        class is (topology_t)
@@ -490,7 +490,7 @@ contains
   function element_pek_gsid(this, pos) result(gsid)
     class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
-    integer(i4) :: gsid
+    integer(i8) :: gsid
     if ((pos > 0) .and. (pos <= this%npeak)) then
        select type(polytope => this%peak(pos)%obj%polytope)
        class is (topology_t)

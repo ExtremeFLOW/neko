@@ -1,7 +1,7 @@
 @test
 subroutine test_edge_topology_simple
   use pfunit
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
@@ -12,8 +12,10 @@ subroutine test_edge_topology_simple
   type(edge_tpl_t) :: edt1
   type(topology_component_t), dimension(0) :: fctv
   type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  integer(i4), dimension(2) :: idv, gsv
-  integer(i4) :: il, itmp, ide1, bne1, gse1
+  integer(i4), dimension(2) :: idv
+  integer(i8), dimension(2) :: gsv
+  integer(i4) :: il, itmp, ide1, bne1
+  integer(i8) :: gse1
 
   do il = 1, 2
      idv(il) = il
@@ -111,7 +113,7 @@ end subroutine test_edge_tpl_add
 @test
 subroutine test_edge_topology_permutation
   use pfunit
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use polytope, only : polytope_t
   use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
@@ -122,8 +124,10 @@ subroutine test_edge_topology_permutation
   type(edge_tpl_t) :: edt1, edt2
   type(topology_component_t), dimension(0) :: fctv
   type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  integer(i4), dimension(2) :: idv, gsv
-  integer(i4) :: il, itmp, ide1, bne1, gse1, ide2, bne2, gse2
+  integer(i4), dimension(2) :: idv
+  integer(i8), dimension(2) :: gsv
+  integer(i4) :: il, itmp, ide1, bne1, ide2, bne2
+  integer(i8) :: gse1, gse2
   integer(i4), dimension(:, :), allocatable :: facetp
 
   do il = 1, 2
@@ -204,7 +208,7 @@ end subroutine test_edge_topology_permutation
 @test
 subroutine test_edge_topology_share
   use pfunit
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use polytope, only : polytope_t
   use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
@@ -215,8 +219,10 @@ subroutine test_edge_topology_share
   type(edge_tpl_t) :: edt1, edt2
   type(topology_component_t), dimension(0) :: fctv
   type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  integer(i4), dimension(4) :: idv, gsv
-  integer(i4) :: il, itmp, ide1, bne1, gse1, ide2, bne2, gse2
+  integer(i4), dimension(4) :: idv
+  integer(i8), dimension(4) :: gsv
+  integer(i4) :: il, itmp, ide1, bne1, ide2, bne2
+  integer(i8) :: gse1, gse2
   integer(i4), dimension(:, :), allocatable :: facetp
 
   do il = 1, 4
@@ -309,7 +315,7 @@ end subroutine test_edge_topology_share
 @test
 subroutine test_edge_oriented_simple
   use pfunit
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
@@ -321,8 +327,10 @@ subroutine test_edge_oriented_simple
   type(edge_ornt_t) :: edo1
   type(topology_component_t), dimension(0) :: fctv
   type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  integer(i4), dimension(2) :: idv, gsv
-  integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, gse1, gse2, algn
+  integer(i4), dimension(2) :: idv
+  integer(i8), dimension(2) :: gsv
+  integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, algn
+  integer(i8) :: gse1, gse2
   logical :: equal
 
   do il = 1, 2
@@ -403,7 +411,7 @@ end subroutine test_edge_oriented_simple
 @test
 subroutine test_edge_oriented_permute
   use pfunit
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use polytope, only : polytope_t
   use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
@@ -415,8 +423,10 @@ subroutine test_edge_oriented_permute
   type(edge_ornt_t) :: edo1
   type(topology_component_t), dimension(0) :: fctv
   type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  integer(i4), dimension(4) :: idv, gsv
-  integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, gse1, gse2, algn
+  integer(i4), dimension(4) :: idv
+  integer(i8), dimension(4) :: gsv
+  integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, algn
+  integer(i8) :: gse1, gse2
   logical :: equal
 
   do il = 1, 4
@@ -515,7 +525,7 @@ end subroutine test_edge_oriented_permute
 @test
 subroutine test_edge_actualisation
   use pfunit
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
@@ -527,8 +537,10 @@ subroutine test_edge_actualisation
   type(edge_act_t) :: eda1
   type(topology_component_t), dimension(0) :: fctv
   type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
-  integer(i4), dimension(4) :: idv, gsv
-  integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, gse1, gse2, algn, hng, pos
+  integer(i4), dimension(4) :: idv
+  integer(i8), dimension(4) :: gsv
+  integer(i4) :: il, itmp, ide1, ide2, bne1, bne2, algn, hng, pos
+  integer(i8) :: gse1, gse2
   logical :: equal, ifintp
 
   do il = 1, 4

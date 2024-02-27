@@ -1,7 +1,7 @@
 @test
 subroutine test_hex_mesh_simple
   use pfunit
-  use num_types, only : i4, dp
+  use num_types, only : i4, i8, dp
   use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
@@ -16,9 +16,12 @@ subroutine test_hex_mesh_simple
   type(quad_tpl_t), dimension(6) :: qut
   type(hex_elm_t) :: hxm1
   type(topology_component_t), dimension(0) :: fctv
-  integer(i4), dimension(8) :: idv, gsv, idp
-  integer(i4), dimension(12) :: ide, gse
-  integer(i4), dimension(6) :: idq, gsq, bnq
+  integer(i4), dimension(8) :: idv, idp
+  integer(i8), dimension(8) :: gsv
+  integer(i4), dimension(12) :: ide
+  integer(i8), dimension(12) :: gse
+  integer(i4), dimension(6) :: idq, bnq
+  integer(i8), dimension(6) :: gsq
   integer(i4) :: il, jl, idh1
   integer(i4), dimension(8) :: permv
   integer(i4), dimension(12) :: perme
@@ -314,7 +317,7 @@ end subroutine test_hex_elm_add_simple
 @test
 subroutine test_hex_mesh_permute
   use pfunit
-  use num_types, only : i4, dp
+  use num_types, only : i4, i8, dp
   use polytope, only : polytope_t
   use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
@@ -329,9 +332,12 @@ subroutine test_hex_mesh_permute
   type(quad_tpl_t), dimension(12) :: qut
   type(hex_elm_t) :: hxm1, hxm2
   type(topology_component_t), dimension(0) :: fctv
-  integer(i4), dimension(8) :: idv, gsv, idp
-  integer(i4), dimension(24) :: ide, gse
-  integer(i4), dimension(12) :: idq, gsq, bnq
+  integer(i4), dimension(8) :: idv, idp
+  integer(i8), dimension(8) :: gsv
+  integer(i4), dimension(24) :: ide
+  integer(i8), dimension(24) :: gse
+  integer(i4), dimension(12) :: idq, bnq
+  integer(i8), dimension(12) :: gsq
   integer(i4) :: il, jl, itmp, idh1
   integer(i4), dimension(8) :: permv
   integer(i4), dimension(12) :: perme
@@ -533,7 +539,7 @@ end subroutine hex_permutations_inv
 
 subroutine hex_algn_msh_get(permv, perme, permq, vrt, pts, istr, idh, gdim, &
      & edt, ide, gse, qut, idq, gsq, bnq, hxm)
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use topology, only : topology_component_t
   use element_new, only : element_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
@@ -550,9 +556,11 @@ subroutine hex_algn_msh_get(permv, perme, permq, vrt, pts, istr, idh, gdim, &
   type(point_ptr), dimension(8), intent(in) :: pts
   integer(i4), intent(in) :: istr, idh, gdim
   type(edge_tpl_t), dimension(12), intent(out) :: edt
-  integer(i4), dimension(12), intent(out) :: ide, gse
+  integer(i4), dimension(12), intent(out) :: ide
+  integer(i8), dimension(12), intent(out) :: gse
   type(quad_tpl_t), dimension(6), intent(out) :: qut
-  integer(i4), dimension(6), intent(out) :: idq, gsq, bnq
+  integer(i4), dimension(6), intent(out) :: idq, bnq
+  integer(i8), dimension(6), intent(out) :: gsq
   type(hex_elm_t), intent(out) :: hxm
   type(topology_component_t), dimension(NEKO_EDGE_NFACET) :: fcte
   type(topology_component_t), dimension(NEKO_QUAD_NFACET) :: fctq

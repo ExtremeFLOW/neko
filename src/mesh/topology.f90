@@ -31,7 +31,7 @@
 !
 !> Abstract type for abstract polytope class for mesh topology
 module topology
-  use num_types, only : i4
+  use num_types, only : i4, i8
   use utils, only : neko_error
   use polytope, only : polytope_t
   use polytope_oriented, only : polytope_oriented_t
@@ -56,7 +56,7 @@ module topology
      !> Internal/external boundary condition flag
      integer(i4), private :: boundary_ = -1
      !> Polytope global id used for numbering of dof for gather-scatter
-     integer(i4), private :: gsid_ = -1
+     integer(i8), private :: gsid_ = -1
    contains
      !> Free polytope data
      procedure, pass(this) :: free => topology_free
@@ -191,7 +191,7 @@ contains
   !! @return   intp
   pure function topology_gsid_get(this) result(intp)
     class(topology_t), intent(in) :: this
-    integer(i4) :: intp
+    integer(i8) :: intp
     intp = this%gsid_
   end function topology_gsid_get
 
@@ -199,7 +199,7 @@ contains
   !! @parameter[in]   gsid     polytope communication global id
   subroutine topology_gsid_set(this, gsid)
     class(topology_t), intent(inout) :: this
-    integer(i4), intent(in) :: gsid
+    integer(i8), intent(in) :: gsid
     this%gsid_ = gsid
   end subroutine topology_gsid_set
 
