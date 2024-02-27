@@ -122,7 +122,6 @@ subroutine test_device_get_ptr
   type(c_ptr) :: x_d, dev
   integer(c_size_t) :: size_
   integer :: x(42)
-  logical :: same_ptr
 
   if (NEKO_BCKND_DEVICE .eq. 1) then
 
@@ -152,7 +151,6 @@ subroutine test_device_map
   type(c_ptr) :: x_d, dev
   integer(c_size_t) :: size_
   integer :: x(42)
-  logical :: same_ptr
 
   if (NEKO_BCKND_DEVICE .eq. 1) then
 
@@ -180,7 +178,6 @@ subroutine test_device_memcpy
   type(c_ptr) :: x_d, y_d, dev
   integer(c_size_t) :: size_
   integer :: x(42), i
-  logical :: same_ptr
 
   if (NEKO_BCKND_DEVICE .eq. 1) then
 
