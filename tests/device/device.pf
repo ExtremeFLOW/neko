@@ -2,7 +2,7 @@
 @test
 subroutine test_device_init
   use pfunit
-  use device  
+  use device
   implicit none
   call device_init()
 end subroutine test_device_init
@@ -15,13 +15,13 @@ subroutine test_device_sync
 
   call device_init()
   call device_sync()
-  
+
 end subroutine test_device_sync
 
 @test
 subroutine test_device_alloc
-  use neko_config  
-  use pfunit  
+  use neko_config
+  use pfunit
   use device
   implicit none
   type(c_ptr) :: x_d
@@ -36,12 +36,12 @@ subroutine test_device_alloc
      @assertTrue(c_associated(x_d))
 
   end if
-  
+
 end subroutine test_device_alloc
 
 @test
 subroutine test_device_free
-  use neko_config  
+  use neko_config
   use pfunit
   use device
   implicit none
@@ -49,25 +49,25 @@ subroutine test_device_free
   integer(c_size_t) :: size_
 
   if (NEKO_BCKND_DEVICE .eq. 1) then
-         
+
      size_ = 42 * 4
      x_d = C_NULL_PTR
 
      call device_alloc(x_d, size_)
-     
+
      @assertTrue(c_associated(x_d))
 
      call device_free(x_d)
-     
+
      @assertFalse(c_associated(x_d))
 
   end if
-  
+
 end subroutine test_device_free
 
 @test
 subroutine test_device_associate
-  use neko_config  
+  use neko_config
   use pfunit
   use device
   implicit none
@@ -76,21 +76,22 @@ subroutine test_device_associate
   integer :: x(42)
 
   if (NEKO_BCKND_DEVICE .eq. 1) then
-       
+
      size_ = size(x) * 4
-     
+     x_d = C_NULL_PTR
+
      call device_alloc(x_d, size_)
      call device_associate(x, x_d)
-     
+
      @assertTrue(c_associated(x_d))
 
   end if
-  
+
 end subroutine test_device_associate
 
 @test
 subroutine test_device_associated
-  use neko_config  
+  use neko_config
   use pfunit
   use device
   implicit none
@@ -99,8 +100,9 @@ subroutine test_device_associated
   integer :: x(42)
 
   if (NEKO_BCKND_DEVICE .eq. 1) then
-     
+
      size_ = size(x) * 4
+     x_d = C_NULL_PTR
 
      call device_alloc(x_d, size_)
      call device_associate(x, x_d)
@@ -108,24 +110,26 @@ subroutine test_device_associated
      @assertTrue(device_associated(x))
 
   end if
-  
+
 end subroutine test_device_associated
 
 @test
 subroutine test_device_get_ptr
-  use neko_config  
+  use neko_config
   use pfunit
   use device
   implicit none
   type(c_ptr) :: x_d, dev
   integer(c_size_t) :: size_
   integer :: x(42)
-  logical :: same_ptr
 
   if (NEKO_BCKND_DEVICE .eq. 1) then
 
      size_ = size(x) * 4
-  
+
+     x_d = C_NULL_PTR
+     dev = C_NULL_PTR
+
      call device_alloc(x_d, size_)
      call device_associate(x, x_d)
 
@@ -135,23 +139,24 @@ subroutine test_device_get_ptr
 
   end if
 
-  
+
 end subroutine test_device_get_ptr
 
 @test
 subroutine test_device_map
-  use neko_config  
+  use neko_config
   use pfunit
   use device
   implicit none
   type(c_ptr) :: x_d, dev
   integer(c_size_t) :: size_
   integer :: x(42)
-  logical :: same_ptr
-  
+
   if (NEKO_BCKND_DEVICE .eq. 1) then
 
      size_ = size(x) * 4
+     x_d = C_NULL_PTR
+     dev = C_NULL_PTR
 
      call device_map(x, x_d, size(x))
 
@@ -161,23 +166,25 @@ subroutine test_device_map
 
   end if
 
-  
+
 end subroutine test_device_map
 
 @test
 subroutine test_device_memcpy
-  use neko_config  
+  use neko_config
   use pfunit
   use device
   implicit none
   type(c_ptr) :: x_d, y_d, dev
   integer(c_size_t) :: size_
   integer :: x(42), i
-  logical :: same_ptr
 
   if (NEKO_BCKND_DEVICE .eq. 1) then
-     
+
      size_ = size(x) * 4
+     x_d = C_NULL_PTR
+     y_d = C_NULL_PTR
+     dev = C_NULL_PTR
 
      call device_map(x, x_d, size(x))
 
@@ -192,7 +199,7 @@ subroutine test_device_memcpy
      x = 0
 
      call device_memcpy(x, x_d, size(x), DEVICE_TO_HOST, sync=.true.)
-     
+
      do i = 1, size(x)
         @assertEqual(x(i), i)
      end do
@@ -204,23 +211,23 @@ subroutine test_device_memcpy
      x = 0
 
      call device_memcpy(x, y_d, size(x), DEVICE_TO_HOST, sync=.true.)
-     
+
      do i = 1, size(x)
         @assertEqual(x(i), i)
      end do
-     
+
   end if
 
 end subroutine test_device_memcpy
 
 @test
 subroutine test_device_stream_create
-  use neko_config  
+  use neko_config
   use pfunit
   use device
   implicit none
   type(c_ptr) :: stream
-  
+
   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
 
      stream = C_NULL_PTR
@@ -228,17 +235,17 @@ subroutine test_device_stream_create
      @assertTrue(c_associated(stream))
 
   end if
-  
+
 end subroutine test_device_stream_create
 
 @test
 subroutine test_device_stream_destroy
-  use neko_config  
+  use neko_config
   use pfunit
   use device
   implicit none
   type(c_ptr) :: stream
-  
+
   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
 
      stream = C_NULL_PTR
@@ -248,17 +255,17 @@ subroutine test_device_stream_destroy
      call device_stream_destroy(stream)
 
   end if
-  
+
 end subroutine test_device_stream_destroy
 
 @test
 subroutine test_device_sync_stream
-  use neko_config  
+  use neko_config
   use pfunit
   use device
   implicit none
   type(c_ptr) :: stream1, stream2
-  
+
   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
 
      stream1 = C_NULL_PTR
@@ -277,5 +284,5 @@ subroutine test_device_sync_stream
      call device_stream_destroy(stream2)
 
   end if
-  
+
 end subroutine test_device_sync_stream
