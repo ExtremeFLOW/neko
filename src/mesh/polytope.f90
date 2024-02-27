@@ -85,10 +85,6 @@ module polytope
      procedure(polytope_self_periodic), pass(this), deferred :: self_periodic
      !> Return facet alignment
      procedure(polytope_fct_algn), pass(this), deferred :: fct_algn
-     !> Return boundary information (topology object only)
-     procedure(polytope_int), pass(this), deferred :: bnd
-     !> Return communication id (topology object only)
-     procedure(polytope_int), pass(this), deferred :: gsid
   end type polytope_t
 
   !> The general pointer type to the polytope class
@@ -150,17 +146,6 @@ module polytope
        integer(i4), intent(in) :: pos
        integer(i4) :: algn
      end function polytope_fct_algn
-  end interface
-
-  !> Extract integer property
-  !! @return intp
-  abstract interface
-     function polytope_int(this) result(intp)
-       import i4
-       import polytope_t
-       class(polytope_t), intent(in) :: this
-       integer(i4) :: intp
-     end function polytope_int
   end interface
 
 contains

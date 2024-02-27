@@ -3,7 +3,7 @@ subroutine test_edge_topology_simple
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use topology, only : topology_component_t
+  use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
   implicit none
@@ -47,8 +47,11 @@ subroutine test_edge_topology_simple
      @assertEqual(poly%id(), idv(il))
      @assertEqual(poly%tdim(), 0)
      @assertTrue(poly%check_comp(0, 0, 0))
-     @assertEqual(poly%bnd(), -1)
-     @assertEqual(poly%gsid(), gsv(il))
+     select type (poly)
+     class is (topology_t)
+        @assertEqual(poly%bnd(), -1)
+        @assertEqual(poly%gsid(), gsv(il))
+     end select
      @assertTrue(poly%equal(vrt(il)))
   end do
 
@@ -308,7 +311,7 @@ subroutine test_edge_oriented_simple
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use topology, only : topology_component_t
+  use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   implicit none
@@ -350,8 +353,11 @@ subroutine test_edge_oriented_simple
   @assertEqual(poly%id(), ide1)
   @assertEqual(poly%tdim(), 1)
   @assertTrue(poly%check_comp(2, 0, 0))
-  @assertEqual(poly%bnd(), bne1)
-  @assertEqual(poly%gsid(), gse1)
+  select type (poly)
+  class is (topology_t)
+     @assertEqual(poly%bnd(), bne1)
+     @assertEqual(poly%gsid(), gse1)
+  end select
   @assertTrue(poly%equal(edt1))
 
   ! alignment
@@ -511,7 +517,7 @@ subroutine test_edge_actualisation
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use topology, only : topology_component_t
+  use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_act_t, NEKO_EDGE_NFACET
   implicit none
@@ -575,8 +581,11 @@ subroutine test_edge_actualisation
   @assertEqual(poly%id(), ide1)
   @assertEqual(poly%tdim(), 1)
   @assertTrue(poly%check_comp(2, 0, 0))
-  @assertEqual(poly%bnd(), bne1)
-  @assertEqual(poly%gsid(), gse1)
+  select type (poly)
+  class is (topology_t)
+     @assertEqual(poly%bnd(), bne1)
+     @assertEqual(poly%gsid(), gse1)
+  end select
   @assertTrue(poly%equal(edt1))
 
   ! alignment

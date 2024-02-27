@@ -68,12 +68,12 @@ mesh/polytope_aligned.o : mesh/polytope_aligned.f90 config/num_types.o mesh/poly
 mesh/polytope_oriented.o : mesh/polytope_oriented.f90 config/num_types.o mesh/polytope.o mesh/polytope_aligned.o 
 mesh/topology.o : mesh/topology.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_oriented.o 
 mesh/polytope_actualisation.o : mesh/polytope_actualisation.f90 config/num_types.o mesh/polytope.o mesh/polytope_aligned.o 
-mesh/element_new.o : mesh/element_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_actualisation.o mesh/point.o 
+mesh/element_new.o : mesh/element_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/topology.o mesh/polytope_actualisation.o mesh/point.o 
 mesh/vertex.o : mesh/vertex.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_oriented.o mesh/topology.o mesh/polytope_actualisation.o 
 mesh/edge.o : mesh/edge.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/polytope_oriented.o mesh/topology.o mesh/polytope_actualisation.o mesh/alignment_edge.o mesh/vertex.o 
 mesh/quad_new.o : mesh/quad_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/topology.o mesh/polytope_actualisation.o mesh/element_new.o mesh/alignment_quad.o mesh/vertex.o mesh/edge.o mesh/point.o 
 mesh/hex_new.o : mesh/hex_new.f90 config/num_types.o common/utils.o mesh/polytope.o mesh/topology.o mesh/element_new.o mesh/vertex.o mesh/edge.o mesh/quad_new.o mesh/point.o 
-common/obj_sharing.o : common/obj_sharing.f90 config/num_types.o common/utils.o comm/comm.o 
+common/obj_sharing.o : common/obj_sharing.f90 config/num_types.o common/utils.o comm/comm.o adt/stack.o 
 mesh/element_list.o : mesh/element_list.f90 config/num_types.o common/utils.o common/obj_sharing.o mesh/element_new.o 
 mesh/point_list.o : mesh/point_list.f90 config/num_types.o common/utils.o common/obj_sharing.o mesh/point.o 
 mesh/topology_list.o : mesh/topology_list.f90 config/num_types.o common/utils.o common/obj_sharing.o mesh/topology.o 

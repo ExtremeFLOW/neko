@@ -29,11 +29,12 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
- !> Abstract type for mesh element class
+!> Abstract type for mesh element class
 module element_new
   use num_types, only : i4, dp
   use utils, only : neko_error
   use polytope, only : polytope_t
+  use topology, only : topology_t
   use polytope_actualisation, only : polytope_actualisation_t
   use point, only : point_ptr, point_t
   implicit none
@@ -98,10 +99,6 @@ module element_new
      procedure, pass(this) :: pek_gsid => element_pek_gsid
      !> Return facet alignment
      procedure, pass(this) :: fct_algn => element_fct_algn
-     !> Just required
-     procedure, pass(this) :: bnd => element_int_dummy
-     !> Just required
-     procedure, pass(this) :: gsid => element_int_dummy
      !> Initialise a topology polytope
      procedure(element_init), pass(this), deferred :: init
      !> Return element diameter
@@ -438,7 +435,12 @@ contains
     integer(i4), intent(in) :: pos
     integer(i4) :: bnd
     if ((pos > 0) .and. (pos <= this%nfacet)) then
-       bnd = this%facet(pos)%obj%polytope%bnd()
+       select type(polytope => this%facet(pos)%obj%polytope)
+       class is (topology_t)
+          bnd = polytope%bnd()
+       class default
+          call neko_error('Inconsistent class for mesh objects facet boundary.')
+       end select
     else
        call neko_error('Wrong facet number for mesh objects boundary.')
     end if
@@ -452,7 +454,12 @@ contains
     integer(i4), intent(in) :: pos
     integer(i4) :: gsid
     if ((pos > 0) .and. (pos <= this%nfacet)) then
-       gsid = this%facet(pos)%obj%polytope%gsid()
+       select type(polytope => this%facet(pos)%obj%polytope)
+       class is (topology_t)
+          gsid = polytope%gsid()
+       class default
+          call neko_error('Inconsistent class for mesh objects facet gsid.')
+       end select
     else
        call neko_error('Wrong facet number for mesh objects gsid.')
     end if
@@ -466,7 +473,12 @@ contains
     integer(i4), intent(in) :: pos
     integer(i4) :: gsid
     if ((pos > 0) .and. (pos <= this%nridge)) then
-       gsid = this%ridge(pos)%obj%polytope%gsid()
+       select type(polytope => this%ridge(pos)%obj%polytope)
+       class is (topology_t)
+          gsid = polytope%gsid()
+       class default
+          call neko_error('Inconsistent class for mesh objects ridge gsid.')
+       end select
     else
        call neko_error('Wrong ridge number for mesh objects gsid.')
     end if
@@ -480,7 +492,12 @@ contains
     integer(i4), intent(in) :: pos
     integer(i4) :: gsid
     if ((pos > 0) .and. (pos <= this%npeak)) then
-       gsid = this%peak(pos)%obj%polytope%gsid()
+       select type(polytope => this%peak(pos)%obj%polytope)
+       class is (topology_t)
+          gsid = polytope%gsid()
+       class default
+          call neko_error('Inconsistent class for mesh objects peak gsid.')
+       end select
     else
        call neko_error('Wrong peak number for mesh objects gsid.')
     end if
@@ -494,14 +511,5 @@ contains
     integer(i4) :: algn
     algn = this%facet(pos)%obj%algn_op%algn()
   end function element_fct_algn
-
-  !> Dummy routine pretending to extract integer property
-  !! @return intp
-  function element_int_dummy(this) result(intp)
-    class(element_new_t), intent(in) :: this
-    integer(i4) :: intp
-    intp = - 1
-    call neko_error('This property should not be used for mesh objects.')
-  end function element_int_dummy
 
 end module element_new

@@ -138,7 +138,7 @@ subroutine test_vertex_oriented
   use pfunit
   use num_types, only : i4
   use polytope, only : polytope_t
-  use topology, only : topology_component_t
+  use topology, only : topology_t, topology_component_t
   use polytope_oriented, only : polytope_oriented_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   implicit none
@@ -167,8 +167,11 @@ subroutine test_vertex_oriented
   @assertEqual(poly%id(), id1)
   @assertEqual(poly%tdim(), 0)
   @assertTrue(poly%check_comp(0, 0, 0))
-  @assertEqual(poly%bnd(), -1)
-  @assertEqual(poly%gsid(), gsid)
+  select type (poly)
+  class is (topology_t)
+     @assertEqual(poly%bnd(), -1)
+     @assertEqual(poly%gsid(), gsid)
+  end select
   @assertTrue(poly%equal(vrt1))
 
   ! alignment; vertex has no alignment

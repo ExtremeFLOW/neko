@@ -3,7 +3,7 @@ subroutine test_hex_mesh_simple
   use pfunit
   use num_types, only : i4, dp
   use polytope, only : polytope_t
-  use topology, only : topology_component_t
+  use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET
@@ -70,8 +70,11 @@ subroutine test_hex_mesh_simple
      @assertEqual(poly%id(), idq(il))
      @assertEqual(poly%tdim(), 2)
      @assertTrue(poly%check_comp(4, 4, 0))
-     @assertEqual(poly%bnd(), bnq(il))
-     @assertEqual(poly%gsid(), gsq(il))
+     select type (poly)
+     class is (topology_t)
+        @assertEqual(poly%bnd(), bnq(il))
+        @assertEqual(poly%gsid(), gsq(il))
+     end select
      @assertTrue(poly%equal(qut(il)))
   end do
   ! ridges
@@ -81,8 +84,11 @@ subroutine test_hex_mesh_simple
      @assertEqual(poly%id(), ide(il))
      @assertEqual(poly%tdim(), 1)
      @assertTrue(poly%check_comp(2, 0, 0))
-     @assertEqual(poly%bnd(), -1)
-     @assertEqual(poly%gsid(), gse(il))
+     select type (poly)
+     class is (topology_t)
+        @assertEqual(poly%bnd(), -1)
+        @assertEqual(poly%gsid(), gse(il))
+     end select
      @assertTrue(poly%equal(edt(il)))
   end do
   !peaks
@@ -92,8 +98,11 @@ subroutine test_hex_mesh_simple
      @assertEqual(poly%id(), idv(il))
      @assertEqual(poly%tdim(), 0)
      @assertTrue(poly%check_comp(0, 0, 0))
-     @assertEqual(poly%bnd(), -1)
-     @assertEqual(poly%gsid(), gsv(il))
+     select type (poly)
+     class is (topology_t)
+        @assertEqual(poly%bnd(), -1)
+        @assertEqual(poly%gsid(), gsv(il))
+     end select
      @assertTrue(poly%equal(vrt(il)))
   end do
   ! points
@@ -185,7 +194,7 @@ subroutine test_hex_elm_add_simple
   use pfunit
   use num_types, only : i4, dp
   use polytope, only : polytope_t
-  use topology, only : topology_element_t
+  use topology, only : topology_t, topology_element_t
   use element_new, only : mesh_element_t
   use vertex, only : vertex_tpl_add
   use edge, only : edge_tpl_add
@@ -259,7 +268,10 @@ subroutine test_hex_elm_add_simple
      @assertEqual(poly%id(), idq(il))
      @assertEqual(poly%tdim(), 2)
      @assertTrue(poly%check_comp(4, 4, 0))
-     @assertEqual(poly%bnd(), bnq(il))
+     select type (poly)
+     class is (topology_t)
+        @assertEqual(poly%bnd(), bnq(il))
+     end select
      @assertTrue(poly%equal(qad(il)%obj))
   end do
   ! ridges
@@ -269,7 +281,10 @@ subroutine test_hex_elm_add_simple
      @assertEqual(poly%id(), ide(il))
      @assertEqual(poly%tdim(), 1)
      @assertTrue(poly%check_comp(2, 0, 0))
-     @assertEqual(poly%bnd(), -1)
+     select type (poly)
+     class is (topology_t)
+        @assertEqual(poly%bnd(), -1)
+     end select
      @assertTrue(poly%equal(edg(il)%obj))
   end do
   !peaks
@@ -279,7 +294,10 @@ subroutine test_hex_elm_add_simple
      @assertEqual(poly%id(), idv(il))
      @assertEqual(poly%tdim(), 0)
      @assertTrue(poly%check_comp(0, 0, 0))
-     @assertEqual(poly%bnd(), -1)
+     select type (poly)
+     class is (topology_t)
+        @assertEqual(poly%bnd(), -1)
+     end select
      @assertTrue(poly%equal(vrt(il)%obj))
   end do
   ! points
