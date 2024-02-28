@@ -156,6 +156,7 @@ time_schemes/ext_time_scheme.o : time_schemes/ext_time_scheme.f90 common/utils.o
 time_schemes/ab_time_scheme.o : time_schemes/ab_time_scheme.f90 common/utils.o math/math.o time_schemes/time_scheme.o config/num_types.o config/neko_config.o 
 time_schemes/time_scheme_controller.o : time_schemes/time_scheme_controller.f90 device/device.o time_schemes/ab_time_scheme.o time_schemes/ext_time_scheme.o time_schemes/bdf_time_scheme.o config/num_types.o config/neko_config.o 
 common/time_based_controller.o : common/time_based_controller.f90 common/utils.o config/num_types.o 
+common/time_step_controller.o : common/time_step_controller.f90 case.o
 common/stats_quant.o : common/stats_quant.f90 config/num_types.o 
 common/statistics.o : common/statistics.f90 comm/comm.o common/log.o common/stats_quant.o config/num_types.o 
 common/rhs_maker.o : common/rhs_maker.f90 field/field.o field/field_series.o config/num_types.o 
