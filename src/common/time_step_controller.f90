@@ -32,7 +32,6 @@
 !
 !> Implements type time_step_controller.
 module time_step_controller
-  use num_types, only : rp
   use case
   use json_utils, only : json_get_or_default
   implicit none
