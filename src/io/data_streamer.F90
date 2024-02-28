@@ -65,6 +65,8 @@ module data_streamer
      procedure, pass(this) :: free => data_streamer_free
      !> Stream data
      procedure, pass(this) :: stream => data_streamer_stream
+     !> Stream back the data
+     procedure, pass(this) :: stream_back => data_streamer_stream_back
 
   end type data_streamer_t
 
@@ -163,6 +165,34 @@ contains
 #endif
 
   end subroutine data_streamer_stream
+  
+  !> streamer to neko
+  !! wraps the adios2 stream function.
+  !! @param u velocity in x
+  !! @param v velocity in y
+  !! @param w velocity in z
+  !! @param p pressure
+  !! @param coef type
+  subroutine data_streamer_stream_back(this, u, v, w, p, coef)
+    class(data_streamer_t), intent(inout) :: this
+    type(coef_t), intent(inout) :: coef
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    integer :: nelv, npts
+
+    nelv  = coef%msh%nelv
+    npts  = coef%Xh%lx*coef%Xh%ly*coef%Xh%lz
+
+#ifdef HAVE_ADIOS2
+    call fortran_adios2_stream_back(this%lglel, p%x, u%x, v%x, w%x, coef%B, u%x)
+#else
+    call neko_warning('Is not being built with ADIOS2 support.')
+    call neko_warning('Not able to use stream/compression functionality')
+#endif
+
+  end subroutine data_streamer_stream_back
 
   !> Supporting function to calculate the element number offset.
   !! returns the number of elements that the ranks previous to the
@@ -293,6 +323,52 @@ contains
 
     call c_adios2_stream(lglel, p, u, v, w, bm1, t)
   end subroutine fortran_adios2_stream
+  
+  !> Interface to adios2_stream_back in c++.
+  !! @details This routine communicates the data to a global array that
+  !! is accessed by a data processor. The operations do not write to disk.
+  !! data is communicated with mpi.
+  !! @param lglel global element number
+  !! @param p pressure
+  !! @param u velocity in x
+  !! @param v velocity in y
+  !! @param w velocity in z
+  !! @param bm1 mass matrix
+  !! @param t temperature / (Not really used in adios2 routine)
+  subroutine fortran_adios2_stream_back(lglel, p, u, v, w, bm1, t)
+    use, intrinsic :: ISO_C_BINDING
+    implicit none
+    integer, dimension(:), intent(inout) :: lglel
+    real(kind=rp), dimension(:,:,:,:), intent(inout) :: p
+    real(kind=rp), dimension(:,:,:,:), intent(inout) :: u
+    real(kind=rp), dimension(:,:,:,:), intent(inout) :: v
+    real(kind=rp), dimension(:,:,:,:), intent(inout) :: w
+    real(kind=rp), dimension(:,:,:,:), intent(inout) :: bm1
+    real(kind=rp), dimension(:,:,:,:), intent(inout) :: t
+
+    interface
+       !> C-definition is: void adios2_stream_back_(
+       !! const int *lglel, const double *pr, const double *u,
+       !! const double *v, const double *w, const double *mass1,
+       !! const double *temp)
+       subroutine c_adios2_stream_back(lglel, p, u, v, w, bm1, t) &
+                                  bind(C,name="adios2_stream_back_")
+         use, intrinsic :: ISO_C_BINDING
+         import c_rp
+         implicit none
+         integer(kind=C_INT), intent(INOUT) :: lglel(*)
+         real(kind=c_rp), intent(INOUT) :: p(*)
+         real(kind=c_rp), intent(INOUT)  :: u(*)
+         real(kind=c_rp), intent(INOUT)  :: v(*)
+         real(kind=c_rp), intent(INOUT)  :: w(*)
+         real(kind=c_rp), intent(INOUT)  :: bm1(*)
+         real(kind=c_rp), intent(INOUT)  :: t(*)
+       end subroutine c_adios2_stream_back
+    end interface
+
+    call c_adios2_stream_back(lglel, p, u, v, w, bm1, t)
+  end subroutine fortran_adios2_stream_back
+
 #endif
 
 end module data_streamer

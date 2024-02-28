@@ -12,6 +12,7 @@ adios2::Engine writer;
 adios2::Engine writer_head;
 adios2::Engine readr; 
 adios2::Engine writer_st;
+adios2::Engine reader_st;
 adios2::Variable<double> x;
 adios2::Variable<double> y;
 adios2::Variable<double> z;
@@ -46,7 +47,9 @@ int ifile;
 int ifilew;
 int ifstream;
 int decide_stream_global;
-
+// global one
+int read_start;
+int read_count;
 
 extern "C" void adios2_setup_(
     const int *nval,
@@ -90,6 +93,10 @@ extern "C" void adios2_setup_(
     // gn is the total size of the arrays, not per io rank 
     unsigned int gn = static_cast<unsigned int>((*nelgv)*(*nval));
     std::cout << rank << ": " << gn << ", " << start << "," << n << std::endl;
+
+    // Put it in a global vector
+    read_start = start;
+    read_count = n;
 
     // Create the adios2 variables for writer that depend on the current start and n
     p = io.DefineVariable<double>("P_OUT", {gn}, {start}, {n});
@@ -138,6 +145,7 @@ extern "C" void adios2_setup_(
     if (decide_stream == 1){
 	std::cout << "create global array" << std::endl;
     	writer_st = io_asynchronous.Open("globalArray", adios2::Mode::Write);
+    	reader_st = io_asynchronous.Open("globalArray_r", adios2::Mode::Read);
     }
 
     // Initialize global variables for writing. This could be done in global definition    
@@ -190,6 +198,31 @@ extern "C" void adios2_stream_(
     writer_st.EndStep();
     dataTime += (std::clock() - startT) / (double) CLOCKS_PER_SEC;
 }
+
+extern "C" void adios2_stream_back_(
+    int *lglel,
+    double *pr,
+    double *u,
+    double *v,
+    double *w,
+    double *mass1,
+    double *temp
+){
+    startT = std::clock();
+    // Begin a step of the writer
+    reader_st.BeginStep();
+    //reader_st.Get<double>(p_st, pr);
+    //reader_st.Get<double>(vx_st, u);
+    //reader_st.Get<double>(vy_st, v);
+    //reader_st.Get<double>(vz_st, w);
+    vxr = io_asynchronous.InquireVariable<double>("BM1_IN");
+    vxr.SetSelection({{read_start}, {read_count}});
+    reader_st.Get<double>(vxr, mass1);
+    //reader_st.Get<int>(lglelw_st, lglel);
+    reader_st.EndStep();
+    dataTime += (std::clock() - startT) / (double) CLOCKS_PER_SEC;
+}
+
 extern "C" void adios2_read_(
     int *lglelrr,
     double *pr,
@@ -354,6 +387,7 @@ extern "C" void adios2_finalize_(){
     if (decide_stream_global == 1){
 	std::cout << "Close global array" << std::endl;
     	writer_st.Close();
+    	reader_st.Close();
     	std::cout <<  "rank: " << rank << " in-situ time: " << dataTime << "s." << std::endl;
     }
 

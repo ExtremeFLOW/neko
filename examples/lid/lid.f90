@@ -112,7 +112,7 @@ module user
     integer :: ntot, i
     real(kind=rp) :: e1, e2
 
-    if (mod(tstep,1000).ne.0) return
+    if (mod(tstep,100).ne.0) return
 
     om1 => neko_field_registry%get_field("omega_x")
     om2 => neko_field_registry%get_field("omega_y")
@@ -136,8 +136,17 @@ module user
     call output_file%write(vec_out, t)
 
     ! Stream the data
+    do i=1, 100
+       write(*,*) coef%B(i,1,1,1)
+    end do
     call dstream%stream(u,v,w,p,coef)
 
+
+    call dstream%stream_back(u,v,w,p,coef)
+    ! Stream the data
+    do i=1, 100
+       write(*,*) coef%B(i,1,1,1)
+    end do
 
   end subroutine user_calc_quantities
 

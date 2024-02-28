@@ -9,7 +9,7 @@
 	"number_of_snapshots": 500,
 	"batch_size"         : 100,
 	"keep_modes"         : 100,
- 	"fields"             : [0,1,2],
+ 	"fields"             : [0],
 	"IO":{
 		"base_data": {
         		"dataPath"           : "./",

@@ -82,24 +82,6 @@ while iterator.status == True:
     else:
         io_controller.step(params,case,iterator,comm)  
     
-    # Perform the streaming modal decomposition
-    if iterator.run_update_loop:
-        
-        if iterator.first_iteration:
-            md.firststep(params,case,iterator, io_controller,comm)
-
-        if iterator.load_buffer1:
-            md.load_buffer1(params,case,iterator,io_controller,comm)
-        
-        if iterator.update_from_buffer1:
-            md.update_from_buffer1(params,case,iterator,io_controller,comm)
-        
-        if iterator.load_buffer2:
-            md.load_buffer2(params,case,iterator,io_controller,comm)
-        
-        if iterator.update_from_buffer2:
-            md.update_from_buffer2(params,case,iterator,io_controller,comm)
-
 
     iterator.mark_iteration()
     iterator.check_status(io_controller)
