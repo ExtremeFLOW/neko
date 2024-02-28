@@ -1,0 +1,5 @@
+<map id="aabb_tree::aabb_tree_query_overlaps" name="aabb_tree::aabb_tree_query_overlaps">
+<area shape="rect" id="node1" title="Queries the tree for overlapping objects." alt="" coords="5,5,165,47"/>
+<area shape="rect" id="node2" href="$d5/de2/namespaceaabb.html#a9a79814aa9d37785cb4d53a4aef2beb8" title="Construct the aabb of a predefined object." alt="" coords="213,13,336,39"/>
+<area shape="rect" id="node3" href="$d5/de2/namespaceaabb.html#afd9ada21a4249503ad0a05173938bf56" title="Get the aabb of a triangle." alt="" coords="384,13,563,39"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="gather_scatter::gs_init" name="gather_scatter::gs_init">
+<area shape="rect" id="node1" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,173,172,200"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="220,60,369,87"/>
+<area shape="rect" id="node3" href="$d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="225,111,364,153"/>
+<area shape="rect" id="node8" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="225,198,364,239"/>
+<area shape="rect" id="node11" href="$d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793" title="Schedule shared gather&#45;scatter operations." alt="" coords="225,263,364,305"/>
+<area shape="rect" id="node4" href="$d5/d7e/gather__scatter_8f90.html#a0df0f0f94eb369fc80627b7721fad2c3" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="446,5,549,32"/>
+<area shape="rect" id="node5" href="$d5/d7e/gather__scatter_8f90.html#af8cc5f86931d4ca4f75ac2ddc0b311d8" title="Register a unique dof." alt="" coords="417,56,577,83"/>
+<area shape="rect" id="node6" href="$d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b" title="Sort the dof lists based on the dof to gather&#45;scatter list." alt="" coords="430,107,565,133"/>
+<area shape="rect" id="node7" href="$d6/d84/namespaceutils.html#ae14221a870025e675db24d2b136d2aa0" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="428,157,567,184"/>
+<area shape="rect" id="node9" href="$dc/dfc/namespaceprofiler.html#ab9b09ecf716565d7eb06a640affe74e0" title="End the most recently started profiler region." alt="" coords="436,209,559,250"/>
+<area shape="rect" id="node10" href="$dc/dfc/namespaceprofiler.html#a1369e41c9b885e4618fdc23e0717512b" title="Started a named (name) profiler region." alt="" coords="436,274,559,315"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="bc::bc_list_free" name="bc::bc_list_free">
+<area shape="rect" id="node1" title="Destructor for a list of boundary conditions." alt="" coords="881,218,1001,245"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="693,159,807,186"/>
+<area shape="rect" id="node11" href="$d8/d09/namespacefluid__scheme.html#a163ce93c7c8e760a2172e915aab75525" title="Deallocate a fluid formulation." alt="" coords="678,211,822,252"/>
+<area shape="rect" id="node12" href="$da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b" title="Deallocate a scalar formulation." alt="" coords="667,276,833,317"/>
+<area shape="rect" id="node3" href="$d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="243,5,387,47"/>
+<area shape="rect" id="node5" href="$d8/d09/namespacefluid__scheme.html#a11bba55b2a5d6a93db2d79e5d5130a07" title="Initialize common data for the current scheme." alt="" coords="447,64,619,105"/>
+<area shape="rect" id="node7" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="467,130,598,157"/>
+<area shape="rect" id="node8" href="$db/d56/namespacescalar__pnpn.html#af70b26869059aa4be9721e2b29202e27" title="Constructor." alt="" coords="459,181,606,223"/>
+<area shape="rect" id="node9" href="$da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc" title="Initialize boundary conditions." alt="" coords="449,247,616,288"/>
+<area shape="rect" id="node10" href="$da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="232,276,399,317"/>
+<area shape="rect" id="node4" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a68771dde3cb366be76253bdfeeff0437" title=" " alt="" coords="5,39,184,80"/>
+<area shape="rect" id="node6" href="$d8/d09/namespacefluid__scheme.html#aef307227a58707a41b65d2b72e8ce2dd" title="Initialize all velocity related components of the current scheme." alt="" coords="243,71,387,112"/>
+</map>

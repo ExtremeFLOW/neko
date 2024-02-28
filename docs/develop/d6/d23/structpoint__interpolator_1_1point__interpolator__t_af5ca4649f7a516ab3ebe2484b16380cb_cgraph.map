@@ -1,0 +1,6 @@
+<map id="point_interpolator::point_interpolator_t::jacobian" name="point_interpolator::point_interpolator_t::jacobian">
+<area shape="rect" id="node1" title="Constructs the Jacobian for a point ." alt="" coords="5,45,152,101"/>
+<area shape="rect" id="node2" href="$df/d77/namespacepoint__interpolator.html#ae10ae860d6ec95fb423e1b43ab5244cb" title="Constructs the Jacobian, returns a 3&#45;by&#45;3 array where ." alt="" coords="224,5,387,61"/>
+<area shape="rect" id="node4" href="$df/d77/namespacepoint__interpolator.html#a1a52275b306e17305274789c30f0eca8" title="Interpolates a vector field &#160;and constructs the Jacobian at a point . Returns a vector ." alt="" coords="200,85,411,141"/>
+<area shape="rect" id="node3" href="$dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4" title="Compute finite&#45;difference stencil weights for evaluating derivatives up to order &#160;at a point." alt="" coords="459,60,629,87"/>
+</map>

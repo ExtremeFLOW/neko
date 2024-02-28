@@ -1,0 +1,12 @@
+<map id="projection::bcknd_project_on" name="projection::bcknd_project_on">
+<area shape="rect" id="node1" title=" " alt="" coords="5,199,215,225"/>
+<area shape="rect" id="node2" href="$d3/d06/namespaceprojection.html#ac63a40c6adff939561cd8b6b8432d1e4" title=" " alt="" coords="263,107,456,133"/>
+<area shape="rect" id="node8" href="$d3/d06/namespaceprojection.html#a0e69123af0e0009083f2da33c8771fb8" title=" " alt="" coords="290,158,429,199"/>
+<area shape="rect" id="node9" href="$dc/dfc/namespaceprofiler.html#ab9b09ecf716565d7eb06a640affe74e0" title="End the most recently started profiler region." alt="" coords="298,223,421,265"/>
+<area shape="rect" id="node10" href="$dc/dfc/namespaceprofiler.html#a1369e41c9b885e4618fdc23e0717512b" title="Started a named (name) profiler region." alt="" coords="298,289,421,330"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="504,5,615,32"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="505,56,614,83"/>
+<area shape="rect" id="node5" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="510,107,609,133"/>
+<area shape="rect" id="node6" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="511,157,608,184"/>
+<area shape="rect" id="node7" href="$dd/d47/namespacemath.html#af4c83f4aa26f2ac67268743d989dd3e5" title="Compute multiplication sum ." alt="" coords="510,208,609,235"/>
+</map>

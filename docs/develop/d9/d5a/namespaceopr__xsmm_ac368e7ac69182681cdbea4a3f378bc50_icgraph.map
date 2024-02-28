@@ -1,0 +1,12 @@
+<map id="opr_xsmm::opr_xsmm_opgrad" name="opr_xsmm::opr_xsmm_opgrad">
+<area shape="rect" id="node1" title=" " alt="" coords="685,195,853,236"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the gradient of a scalar field." alt="" coords="500,202,637,229"/>
+<area shape="rect" id="node3" href="$d3/d69/namespaceadvection.html#a50867235873a10384e4958a3f5dcdf32" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="281,5,432,47"/>
+<area shape="rect" id="node4" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields." alt="" coords="294,71,419,112"/>
+<area shape="rect" id="node5" href="$d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="283,136,430,177"/>
+<area shape="rect" id="node6" href="$dd/d30/namespaceoperators.html#ab94fb6f7ef7c7147e433b1c0c3b67510" title="Compute the Lambda2 field for a given velocity field." alt="" coords="274,202,439,229"/>
+<area shape="rect" id="node8" href="$d2/de4/namespacepnpn__res__cpu.html#a83914561389a65c3071032ec84207d10" title=" " alt="" coords="271,253,442,295"/>
+<area shape="rect" id="node9" href="$d8/dea/namespacepnpn__res__device.html#a55ee2fb2b8a79727bd59543ce201fe58" title=" " alt="" coords="261,319,452,360"/>
+<area shape="rect" id="node10" href="$d4/da3/namespacepnpn__res__sx.html#a65fca305c4add463124daa0753282294" title=" " alt="" coords="271,384,442,425"/>
+<area shape="rect" id="node7" href="$d0/d66/namespacelambda2.html#a1416b50f4728d561d2964d2a16eced3f" title="Compute the lambda2 field." alt="" coords="5,202,213,229"/>
+</map>

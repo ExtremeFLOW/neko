@@ -1,0 +1,13 @@
+<map id="precon_fctry::precon_destroy" name="precon_fctry::precon_destroy">
+<area shape="rect" id="node1" title="Destroy a preconditioner." alt="" coords="893,128,1048,169"/>
+<area shape="rect" id="node2" href="$d8/d09/namespacefluid__scheme.html#a163ce93c7c8e760a2172e915aab75525" title="Deallocate a fluid formulation." alt="" coords="690,63,834,104"/>
+<area shape="rect" id="node3" href="$dc/d51/namespaceprecon__fctry.html#afff90caf28849e7a442f5856ccf578b0" title="Create a preconditioner." alt="" coords="685,128,839,169"/>
+<area shape="rect" id="node11" href="$da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b" title="Deallocate a scalar formulation." alt="" coords="679,193,845,235"/>
+<area shape="rect" id="node4" href="$d8/d09/namespacefluid__scheme.html#ae118e3aebe30e81422421926063456d0" title="Initialize a Krylov preconditioner." alt="" coords="447,88,631,129"/>
+<area shape="rect" id="node9" href="$da/de3/namespacescalar__scheme.html#a9ab0bf4dfdd4312aef79f94f07faa1f8" title="Initialize a Krylov preconditioner." alt="" coords="447,169,631,211"/>
+<area shape="rect" id="node5" href="$d6/d78/namespacefluid__plan1.html#ab1fb9c5e6fea5145cee2e111f6ce9404" title=" " alt="" coords="251,5,380,47"/>
+<area shape="rect" id="node6" href="$d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="243,71,387,112"/>
+<area shape="rect" id="node8" href="$d8/d09/namespacefluid__scheme.html#aef307227a58707a41b65d2b72e8ce2dd" title="Initialize all velocity related components of the current scheme." alt="" coords="243,136,387,177"/>
+<area shape="rect" id="node7" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a68771dde3cb366be76253bdfeeff0437" title=" " alt="" coords="5,104,184,145"/>
+<area shape="rect" id="node10" href="$da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="232,201,399,243"/>
+</map>

@@ -1,0 +1,38 @@
+<map id="math::col2" name="math::col2">
+<area shape="rect" id="node1" title="Vector multiplication ." alt="" coords="1151,598,1241,625"/>
+<area shape="rect" id="node2" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields." alt="" coords="939,5,1064,47"/>
+<area shape="rect" id="node3" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="929,71,1073,98"/>
+<area shape="rect" id="node4" href="$dd/d49/namespacejacobi.html#a2b15f287f6c23fdb2b2c5b113e9d04dd" title=" " alt="" coords="921,122,1081,149"/>
+<area shape="rect" id="node6" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="917,173,1085,215"/>
+<area shape="rect" id="node12" href="$d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title=" " alt="" coords="928,239,1075,280"/>
+<area shape="rect" id="node15" href="$d8/ddf/namespacescalar__ic.html#a284c2151baaf62794c62dfa896b63a6b" title="Set scalar initial condition (common)" alt="" coords="925,304,1078,345"/>
+<area shape="rect" id="node18" href="$d3/d6b/namespacesx__dudxyz.html#a5ad7d540f70084270dc860688588f461" title=" " alt="" coords="908,370,1095,397"/>
+<area shape="rect" id="node21" href="$d3/d6b/namespacesx__dudxyz.html#acd8382ff959eda86ce98f0d7d1b21122" title=" " alt="" coords="900,421,1103,447"/>
+<area shape="rect" id="node22" href="$d3/d6b/namespacesx__dudxyz.html#ae5605ef08a3f14cce510d3e8eb2a6907" title=" " alt="" coords="900,471,1103,498"/>
+<area shape="rect" id="node23" href="$d3/d6b/namespacesx__dudxyz.html#a516f47fda73f7c92888865b8fc505e41" title=" " alt="" coords="900,522,1103,549"/>
+<area shape="rect" id="node24" href="$d3/d6b/namespacesx__dudxyz.html#a777f23a2701f51ea449c2e30fe475730" title=" " alt="" coords="900,573,1103,599"/>
+<area shape="rect" id="node25" href="$d3/d6b/namespacesx__dudxyz.html#a8b7bb900eb7c9d8237607d977216203d" title=" " alt="" coords="900,623,1103,650"/>
+<area shape="rect" id="node26" href="$d3/d6b/namespacesx__dudxyz.html#a892ddfc921132fd9aefb11d02d0f0858" title=" " alt="" coords="904,674,1099,701"/>
+<area shape="rect" id="node27" href="$d3/d6b/namespacesx__dudxyz.html#a61674d57f05689b6bf4f4e0d3050820d" title=" " alt="" coords="904,725,1099,751"/>
+<area shape="rect" id="node28" href="$d3/d6b/namespacesx__dudxyz.html#a2ecde54d91c4b1703b49175ea052033c" title=" " alt="" coords="904,775,1099,802"/>
+<area shape="rect" id="node29" href="$d3/d6b/namespacesx__dudxyz.html#ae9437e76b98e40c6a2cb9498aafb3e6b" title=" " alt="" coords="904,826,1099,853"/>
+<area shape="rect" id="node30" href="$d3/d6b/namespacesx__dudxyz.html#a66effde2eceed44fe9e1bc41a5d92459" title=" " alt="" coords="904,877,1099,903"/>
+<area shape="rect" id="node31" href="$d3/d6b/namespacesx__dudxyz.html#a771e6848212fb21a2bc56182196389f5" title=" " alt="" coords="904,927,1099,954"/>
+<area shape="rect" id="node32" href="$d3/d6b/namespacesx__dudxyz.html#a154d7de7cc923ebb74dd23028a7e5c9b" title=" " alt="" coords="904,978,1099,1005"/>
+<area shape="rect" id="node33" href="$d3/d6b/namespacesx__dudxyz.html#af99daaaec0cc8286b7196b4522ae98a2" title=" " alt="" coords="904,1029,1099,1055"/>
+<area shape="rect" id="node34" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="923,1080,1079,1121"/>
+<area shape="rect" id="node35" href="$dd/d6e/namespacesx__jacobi.html#add1b1766274e20b0a12d2f36627adecb" title=" " alt="" coords="925,1145,1077,1187"/>
+<area shape="rect" id="node5" href="$dd/d49/namespacejacobi.html#a5c43a3d9d05e1ba76322ba2a8f1faea6" title=" " alt="" coords="685,83,821,110"/>
+<area shape="rect" id="node7" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="463,381,601,407"/>
+<area shape="rect" id="node11" href="$d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="653,185,852,211"/>
+<area shape="rect" id="node8" href="$dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i." alt="" coords="248,351,411,378"/>
+<area shape="rect" id="node9" href="$d9/da0/namespacevreman__cpu.html#afd690af29ff96e9cde941ebdafd9ca44" title="Compute eddy viscosity on the CPU." alt="" coords="249,403,409,444"/>
+<area shape="rect" id="node10" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,410,200,437"/>
+<area shape="rect" id="node13" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="679,236,826,277"/>
+<area shape="rect" id="node14" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#adae7fa3c28ad065d2dd29d0ac26d2afa" title="Set intial flow condition (user defined)" alt="" coords="679,301,826,343"/>
+<area shape="rect" id="node16" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#acec97723c5e2c32e459b067fd352bf65" title="Set scalar initial condition (builtin)" alt="" coords="675,367,831,408"/>
+<area shape="rect" id="node17" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aa53b59c1c405887a1b3408e21bbb4801" title="Set scalar intial condition (user defined)" alt="" coords="673,432,832,473"/>
+<area shape="rect" id="node19" href="$df/db5/namespaceopr__sx.html#a56ac313734cbbecb066b0e45f68fafc4" title=" " alt="" coords="667,674,838,701"/>
+<area shape="rect" id="node20" href="$df/db5/namespaceopr__sx.html#aa4b37924e1cf872be2526581325b9ec9" title=" " alt="" coords="459,674,605,701"/>
+<area shape="rect" id="node36" href="$dd/d6e/namespacesx__jacobi.html#a8e0d95bbb8f2b6dc135d59f47b066669" title=" " alt="" coords="663,1153,843,1179"/>
+</map>

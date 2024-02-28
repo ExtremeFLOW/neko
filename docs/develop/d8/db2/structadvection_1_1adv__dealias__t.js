@@ -1,0 +1,27 @@
+var structadvection_1_1adv__dealias__t =
+[
+    [ "compute", "d8/db2/structadvection_1_1adv__dealias__t.html#a9964af7c06ff4d23084456058074e126", null ],
+    [ "compute_scalar", "d8/db2/structadvection_1_1adv__dealias__t.html#a267a056cffeed06223aca86991b5ea4b", null ],
+    [ "init", "d8/db2/structadvection_1_1adv__dealias__t.html#ada2d9f174484a188cf5acc64d7e6a8f1", null ],
+    [ "coef_gl", "d8/db2/structadvection_1_1adv__dealias__t.html#a458d5ae8a23f4fa7728ce8180bc8d476", null ],
+    [ "coef_gll", "d8/db2/structadvection_1_1adv__dealias__t.html#acc9f301c0ae1ee2e28ac5f94d1fbaa3b", null ],
+    [ "gll_to_gl", "d8/db2/structadvection_1_1adv__dealias__t.html#a245acee74fde58b8901f1311e09c3fa6", null ],
+    [ "tbf", "d8/db2/structadvection_1_1adv__dealias__t.html#a67f683754f0ace8cc7b4e8a66c885a7e", null ],
+    [ "tbf_d", "d8/db2/structadvection_1_1adv__dealias__t.html#a3463a13ef2d2461a18f4362f8ccfa00c", null ],
+    [ "temp", "d8/db2/structadvection_1_1adv__dealias__t.html#ad8199d0d8fa0ad213b9d30f672782000", null ],
+    [ "temp_d", "d8/db2/structadvection_1_1adv__dealias__t.html#a39511592b6f1484e6e1ba55d8b51fe88", null ],
+    [ "tx", "d8/db2/structadvection_1_1adv__dealias__t.html#af62d0a106ef2f8c92d77060f0e09d7d9", null ],
+    [ "tx_d", "d8/db2/structadvection_1_1adv__dealias__t.html#a18af7bec822be1081fed462f3d3f3c2e", null ],
+    [ "ty", "d8/db2/structadvection_1_1adv__dealias__t.html#a29015e9b1bb0d7b46a7f185eeca94cac", null ],
+    [ "ty_d", "d8/db2/structadvection_1_1adv__dealias__t.html#a87a130277c5c490c417bcf4520a49d51", null ],
+    [ "tz", "d8/db2/structadvection_1_1adv__dealias__t.html#a8d77a2aa09369c2ad0d1fb457a6d3e8e", null ],
+    [ "tz_d", "d8/db2/structadvection_1_1adv__dealias__t.html#a16fce513bf9ee356115377835dc9dd91", null ],
+    [ "vr", "d8/db2/structadvection_1_1adv__dealias__t.html#ae14acd31ee2d18748afdf213828517dd", null ],
+    [ "vr_d", "d8/db2/structadvection_1_1adv__dealias__t.html#aa0610551bc8e2bf8ba0fe04e4f8b3e7b", null ],
+    [ "vs", "d8/db2/structadvection_1_1adv__dealias__t.html#a65e5420617e57f2057c7fd56fa5fdedd", null ],
+    [ "vs_d", "d8/db2/structadvection_1_1adv__dealias__t.html#a82b59f7366388285dd0bdca66e2df514", null ],
+    [ "vt", "d8/db2/structadvection_1_1adv__dealias__t.html#abf25d76d620a0c0a7eb5ef21217c93b3", null ],
+    [ "vt_d", "d8/db2/structadvection_1_1adv__dealias__t.html#a149a570afffeecefe5a305464a88505a", null ],
+    [ "xh_gl", "d8/db2/structadvection_1_1adv__dealias__t.html#aec89221d74a25939a575c896a1dc75b3", null ],
+    [ "xh_gll", "d8/db2/structadvection_1_1adv__dealias__t.html#a9c785b4ce7e1f879615c8a9902259b9a", null ]
+];

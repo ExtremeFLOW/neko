@@ -1,0 +1,4 @@
+<map id="device::device_map::device_map_r1" name="device::device_map::device_map_r1">
+<area shape="rect" id="node1" title="Map a Fortran rank 1 array to a device (allocate and associate)" alt="" coords="5,5,157,47"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="205,13,360,39"/>
+</map>

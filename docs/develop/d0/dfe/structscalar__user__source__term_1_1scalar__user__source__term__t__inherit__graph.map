@@ -1,0 +1,4 @@
+<map id="scalar_user_source_term::scalar_user_source_term_t" name="scalar_user_source_term::scalar_user_source_term_t">
+<area shape="rect" id="node1" title="A source&#45;term for the scalar, with procedure pointers pointing to the actual implementation in the us..." alt="" coords="5,95,197,151"/>
+<area shape="rect" id="node2" href="$d8/d03/structsource__term_1_1source__term__t.html" title="Base abstract type for source terms." alt="" coords="24,5,179,47"/>
+</map>

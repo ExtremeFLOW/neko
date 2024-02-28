@@ -1,0 +1,7 @@
+<map id="gs_cpu::gs_gather_cpu" name="gs_cpu::gs_gather_cpu">
+<area shape="rect" id="node1" title="Gather kernel." alt="" coords="5,81,175,108"/>
+<area shape="rect" id="node2" href="$d5/d22/namespacegs__cpu.html#a12423f1ca516ed9de07ac811317729c8" title="Gather kernel for addition of data ." alt="" coords="225,5,443,32"/>
+<area shape="rect" id="node3" href="$d5/d22/namespacegs__cpu.html#ac953001f66ee043f225c907ce2cd0583" title="Gather kernel for maximum of data ." alt="" coords="223,56,445,83"/>
+<area shape="rect" id="node4" href="$d5/d22/namespacegs__cpu.html#ac86e65fcd35ad765f18abf5e64ffac26" title="Gather kernel for minimum of data ." alt="" coords="225,107,443,133"/>
+<area shape="rect" id="node5" href="$d5/d22/namespacegs__cpu.html#a974599f87d5473ca6e043f5f6f276837" title="Gather kernel for multiplication of data ." alt="" coords="225,157,443,184"/>
+</map>

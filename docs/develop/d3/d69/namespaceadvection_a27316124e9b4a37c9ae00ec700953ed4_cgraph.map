@@ -1,0 +1,6 @@
+<map id="advection::advection_factory" name="advection::advection_factory">
+<area shape="rect" id="node1" title="A factory for advection_t decendants." alt="" coords="5,49,164,90"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="222,5,371,32"/>
+<area shape="rect" id="node3" href="$d3/d69/namespaceadvection.html#a155e772f99b667b81fe8a8c30c6aedb7" title="Constructor." alt="" coords="212,56,381,83"/>
+<area shape="rect" id="node4" href="$d3/d69/namespaceadvection.html#a646ee7d2b5eaded46dd282b6c5899d44" title="Constructor." alt="" coords="227,107,366,149"/>
+</map>

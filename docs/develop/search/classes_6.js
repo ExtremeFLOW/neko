@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['generic_5ffile_5fread_4657',['generic_file_read',['../d5/d27/interfacegeneric__file_1_1generic__file__read.html',1,'generic_file']]],
+  ['generic_5ffile_5ft_4658',['generic_file_t',['../d5/d37/structgeneric__file_1_1generic__file__t.html',1,'generic_file']]],
+  ['generic_5ffile_5fwrite_4659',['generic_file_write',['../dd/d86/interfacegeneric__file_1_1generic__file__write.html',1,'generic_file']]],
+  ['global_5finterpolation_5ft_4660',['global_interpolation_t',['../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html',1,'global_interpolation']]],
+  ['gmres_5fdevice_5ft_4661',['gmres_device_t',['../d8/d1e/structgmres__device_1_1gmres__device__t.html',1,'gmres_device']]],
+  ['gmres_5ft_4662',['gmres_t',['../df/db9/structgmres_1_1gmres__t.html',1,'gmres']]],
+  ['gs_5fbackend_5ffree_4663',['gs_backend_free',['../d6/d28/interfacegs__bcknd_1_1gs__backend__free.html',1,'gs_bcknd']]],
+  ['gs_5fbackend_5finit_4664',['gs_backend_init',['../dc/d59/interfacegs__bcknd_1_1gs__backend__init.html',1,'gs_bcknd']]],
+  ['gs_5fbcknd_5ft_4665',['gs_bcknd_t',['../d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html',1,'gs_bcknd']]],
+  ['gs_5fcomm_5ffree_4666',['gs_comm_free',['../dc/dc5/interfacegs__comm_1_1gs__comm__free.html',1,'gs_comm']]],
+  ['gs_5fcomm_5finit_4667',['gs_comm_init',['../d8/db4/interfacegs__comm_1_1gs__comm__init.html',1,'gs_comm']]],
+  ['gs_5fcomm_5fmpi_5ft_4668',['gs_comm_mpi_t',['../d7/d9f/structgs__mpi_1_1gs__comm__mpi__t.html',1,'gs_mpi']]],
+  ['gs_5fcomm_5ft_4669',['gs_comm_t',['../d5/d1c/structgs__comm_1_1gs__comm__t.html',1,'gs_comm']]],
+  ['gs_5fcpu_5ft_4670',['gs_cpu_t',['../da/dc2/structgs__cpu_1_1gs__cpu__t.html',1,'gs_cpu']]],
+  ['gs_5fdevice_5fmpi_5fbuf_5ft_4671',['gs_device_mpi_buf_t',['../db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html',1,'gs_device_mpi']]],
+  ['gs_5fdevice_5fmpi_5ft_4672',['gs_device_mpi_t',['../dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html',1,'gs_device_mpi']]],
+  ['gs_5fdevice_5ft_4673',['gs_device_t',['../db/df2/structgs__device_1_1gs__device__t.html',1,'gs_device']]],
+  ['gs_5fgather_4674',['gs_gather',['../d3/de4/interfacegs__bcknd_1_1gs__gather.html',1,'gs_bcknd']]],
+  ['gs_5fmpi_5ft_4675',['gs_mpi_t',['../d6/d6b/structgs__mpi_1_1gs__mpi__t.html',1,'gs_mpi']]],
+  ['gs_5fnbrecv_4676',['gs_nbrecv',['../df/dce/interfacegs__comm_1_1gs__nbrecv.html',1,'gs_comm']]],
+  ['gs_5fnbsend_4677',['gs_nbsend',['../d6/d38/interfacegs__comm_1_1gs__nbsend.html',1,'gs_comm']]],
+  ['gs_5fnbwait_4678',['gs_nbwait',['../d3/d94/interfacegs__comm_1_1gs__nbwait.html',1,'gs_comm']]],
+  ['gs_5fscatter_4679',['gs_scatter',['../d2/df0/interfacegs__bcknd_1_1gs__scatter.html',1,'gs_bcknd']]],
+  ['gs_5fsx_5ft_4680',['gs_sx_t',['../db/d5b/structgs__sx_1_1gs__sx__t.html',1,'gs_sx']]],
+  ['gs_5ft_4681',['gs_t',['../dd/db8/structgather__scatter_1_1gs__t.html',1,'gather_scatter']]]
+];

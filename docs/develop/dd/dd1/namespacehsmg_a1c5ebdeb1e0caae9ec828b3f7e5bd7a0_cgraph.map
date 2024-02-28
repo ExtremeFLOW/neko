@@ -1,0 +1,20 @@
+<map id="hsmg::hsmg_solve" name="hsmg::hsmg_solve">
+<area shape="rect" id="node1" title="The h1mg preconditioner from Nek5000." alt="" coords="5,233,149,260"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="248,5,344,32"/>
+<area shape="rect" id="node3" href="$d0/dc0/namespacebc.html#ad2f682d4c03f5b33164d1e2f10fc41ef" title="Apply a list of boundary conditions to a scalar field." alt="" coords="208,56,384,83"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="251,107,341,133"/>
+<area shape="rect" id="node5" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="249,157,343,184"/>
+<area shape="rect" id="node6" href="$d2/d73/namespacedevice__math.html#a01473fcab0cde33512431de42b050384" title=" " alt="" coords="198,208,394,235"/>
+<area shape="rect" id="node10" href="$d2/d73/namespacedevice__math.html#a14206e58118cce6865c6ce1bb6454061" title=" " alt="" coords="201,259,391,285"/>
+<area shape="rect" id="node13" href="$d2/d73/namespacedevice__math.html#addb4596de81a7518fcafd9e40aa7ed57" title=" " alt="" coords="199,309,393,336"/>
+<area shape="rect" id="node16" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="197,360,395,387"/>
+<area shape="rect" id="node17" href="$dc/dfc/namespaceprofiler.html#ab9b09ecf716565d7eb06a640affe74e0" title="End the most recently started profiler region." alt="" coords="235,411,357,453"/>
+<area shape="rect" id="node18" href="$dc/dfc/namespaceprofiler.html#a1369e41c9b885e4618fdc23e0717512b" title="Started a named (name) profiler region." alt="" coords="235,477,357,518"/>
+<area shape="rect" id="node7" href="$de/d1e/math_8cu.html#aaa6924194d49c85252879439e1c5378d" title=" " alt="" coords="449,132,541,159"/>
+<area shape="rect" id="node8" href="$d6/da3/math_8c.html#aaf2f9ac78f3d79bcbe2e0584fa86fcf9" title=" " alt="" coords="443,183,547,209"/>
+<area shape="rect" id="node9" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="595,233,727,260"/>
+<area shape="rect" id="node11" href="$de/d1e/math_8cu.html#a40678eabb334647d2b2ddfc1b530b1bb" title=" " alt="" coords="451,233,538,260"/>
+<area shape="rect" id="node12" href="$d6/da3/math_8c.html#a50e530ce31fce86fc27271f0a6277691" title=" " alt="" coords="445,284,544,311"/>
+<area shape="rect" id="node14" href="$de/d1e/math_8cu.html#aaa922bf0afc80480ef12d8260376bf53" title=" " alt="" coords="449,335,540,361"/>
+<area shape="rect" id="node15" href="$d6/da3/math_8c.html#af2055c7811d3d143b549d14a0f302079" title=" " alt="" coords="443,385,546,412"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="aabb::get_aabb" name="aabb::get_aabb">
+<area shape="rect" id="node1" title="Construct the aabb of a predefined object." alt="" coords="5,5,128,32"/>
+<area shape="rect" id="node2" href="$d5/de2/namespaceaabb.html#afd9ada21a4249503ad0a05173938bf56" title="Get the aabb of a triangle." alt="" coords="176,5,355,32"/>
+</map>

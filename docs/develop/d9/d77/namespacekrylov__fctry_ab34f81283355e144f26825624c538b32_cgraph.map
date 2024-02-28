@@ -1,0 +1,4 @@
+<map id="krylov_fctry::krylov_solver_factory" name="krylov_fctry::krylov_solver_factory">
+<area shape="rect" id="node1" title="Initialize an iterative Krylov solver." alt="" coords="5,5,153,47"/>
+<area shape="rect" id="node2" href="$d9/d77/namespacekrylov__fctry.html#a7dfe5acfded2cc272ea672dce234367c" title="Destroy an interative Krylov solver." alt="" coords="201,5,349,47"/>
+</map>

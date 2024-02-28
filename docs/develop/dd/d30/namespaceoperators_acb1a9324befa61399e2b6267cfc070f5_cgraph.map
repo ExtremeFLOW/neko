@@ -1,0 +1,5 @@
+<map id="operators::ortho" name="operators::ortho">
+<area shape="rect" id="node1" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="5,31,132,57"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="185,5,279,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="180,56,284,83"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="opencl_no_slip_wall_apply_scalar" name="opencl_no_slip_wall_apply_scalar">
+<area shape="rect" id="node1" title=" " alt="" coords="481,50,633,91"/>
+<area shape="rect" id="node2" href="$d0/d29/namespacedevice__wall.html#aeac8ad3a7a4b2e7b8123dc2b4094cf6f" title=" " alt="" coords="281,43,433,99"/>
+<area shape="rect" id="node3" href="$d0/df8/interfacedevice__wall_1_1hip__no__slip__wall__apply__vector.html#ace801224233fcf9d8a3cdaad5e065934" title=" " alt="" coords="5,5,233,61"/>
+<area shape="rect" id="node4" href="$da/dd2/namespacewall.html#a92a559c9cda228fd4f4b5669c94c1913" title="Boundary condition apply for a no&#45;slip wall condition to a vector x (device version)" alt="" coords="48,86,191,127"/>
+</map>

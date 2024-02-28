@@ -1,0 +1,4 @@
+<map id="gather_scatter::gs_init_mapping" name="gather_scatter::gs_init_mapping">
+<area shape="rect" id="node1" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="220,5,359,47"/>
+<area shape="rect" id="node2" href="$d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,39"/>
+</map>

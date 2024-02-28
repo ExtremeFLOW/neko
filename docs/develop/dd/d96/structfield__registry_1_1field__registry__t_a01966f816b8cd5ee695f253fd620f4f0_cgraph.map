@@ -1,0 +1,5 @@
+<map id="field_registry::field_registry_t::get_field" name="field_registry::field_registry_t::get_field">
+<area shape="rect" id="node1" title=" " alt="" coords="5,39,160,80"/>
+<area shape="rect" id="node2" href="$d1/dc4/namespacefield__registry.html#ad50498d2f33da66aa905d4dab0e59083" title="Get pointer to a stored field by index." alt="" coords="208,5,343,47"/>
+<area shape="rect" id="node3" href="$d1/dc4/namespacefield__registry.html#aecce2a1da9ad053088cfbae139d9e2c3" title="Get pointer to a stored field by field name." alt="" coords="208,71,343,112"/>
+</map>

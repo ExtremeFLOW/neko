@@ -1,0 +1,5 @@
+<map id="file::file_t::file_init" name="file::file_t::file_init">
+<area shape="rect" id="node1" title="File reader/writer constructor." alt="" coords="5,5,144,32"/>
+<area shape="rect" id="node2" href="$d6/d84/namespaceutils.html#a1867761c68e88c73ae0e8c2b987fe8a7" title="Extract a filename&#39;s suffix." alt="" coords="192,5,351,32"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#a590765fef437ae3c76556bf6b967afae" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="399,5,587,32"/>
+</map>

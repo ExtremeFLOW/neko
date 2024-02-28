@@ -1,0 +1,11 @@
+<map id="tensor::tnsr1_3d" name="tensor::tnsr1_3d">
+<area shape="rect" id="node1" title="In place tensor product ." alt="" coords="5,175,132,202"/>
+<area shape="rect" id="node2" href="$d4/d59/namespacetensor__cpu.html#a0ce56f0447074d585b8e90834f9e0ad5" title=" " alt="" coords="180,78,367,105"/>
+<area shape="rect" id="node5" href="$db/de7/namespacetensor__sx.html#aa0a3063cf69b1073298bc28b9cceb074" title=" " alt="" coords="188,175,359,202"/>
+<area shape="rect" id="node8" href="$dd/d89/namespacetensor__xsmm.html#a8ef51fba0cd22249f9274b8667bfc73c" title=" " alt="" coords="197,243,349,284"/>
+<area shape="rect" id="node3" href="$d4/d59/namespacetensor__cpu.html#abeea0dc92be66f294dfdfedbcfbe535f" title=" " alt="" coords="415,5,573,47"/>
+<area shape="rect" id="node4" href="$d4/d59/namespacetensor__cpu.html#a76c565e69f284712e065de8ccb82082c" title=" " alt="" coords="415,71,573,112"/>
+<area shape="rect" id="node6" href="$db/de7/namespacetensor__sx.html#ade5f95c1c535a1ebe9d05318e9ad56bc" title=" " alt="" coords="419,136,569,177"/>
+<area shape="rect" id="node7" href="$db/de7/namespacetensor__sx.html#abf171250601738436d26e9d1907a949e" title=" " alt="" coords="419,201,569,243"/>
+<area shape="rect" id="node9" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="415,267,573,294"/>
+</map>

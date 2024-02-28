@@ -1,0 +1,6 @@
+<map id="aabb_tree::aabb_tree_build_tree" name="aabb_tree::aabb_tree_build_tree">
+<area shape="rect" id="node1" title="Builds the tree." alt="" coords="5,23,165,65"/>
+<area shape="rect" id="node2" href="$d5/de2/namespaceaabb.html#a9a79814aa9d37785cb4d53a4aef2beb8" title="Construct the aabb of a predefined object." alt="" coords="213,5,336,32"/>
+<area shape="rect" id="node4" href="$de/dbe/namespaceaabb__tree.html#ab005b48a94d453913bfa417f9c450e7c" title=" " alt="" coords="215,56,335,83"/>
+<area shape="rect" id="node3" href="$d5/de2/namespaceaabb.html#afd9ada21a4249503ad0a05173938bf56" title="Get the aabb of a triangle." alt="" coords="384,5,563,32"/>
+</map>

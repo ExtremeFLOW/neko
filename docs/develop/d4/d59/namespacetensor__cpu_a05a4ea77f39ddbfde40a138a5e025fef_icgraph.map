@@ -1,0 +1,9 @@
+<map id="tensor_cpu::tnsr3d_el_n4_cpu" name="tensor_cpu::tnsr3d_el_n4_cpu">
+<area shape="rect" id="node1" title=" " alt="" coords="657,49,800,90"/>
+<area shape="rect" id="node2" href="$d4/d59/namespacetensor__cpu.html#ab9029742eaa9e1d7e803ae63ff6acbab" title=" " alt="" coords="467,49,609,90"/>
+<area shape="rect" id="node3" href="$da/db7/namespacefdm__cpu.html#a6cfa04a90992de2138efc0c36836b3ec" title=" " alt="" coords="221,5,419,32"/>
+<area shape="rect" id="node4" href="$dd/d8c/namespacetensor.html#afb27d9f86d0c3799290bb235cbad97df" title="Tensor product &#160;performed on a single element." alt="" coords="255,56,385,83"/>
+<area shape="rect" id="node6" href="$dd/d8c/namespacetensor.html#a9578e54c6fd6906866131eec193169b0" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="241,113,399,140"/>
+<area shape="rect" id="node5" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#a70ef42619fcb8aed48dfd008029ce644" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="5,33,173,89"/>
+<area shape="rect" id="node7" href="$da/d80/namespacelocal__interpolation.html#a4707f5b542b2a511476d0bdf808ab48d" title="Interpolates a list of fields based on a set of element ids." alt="" coords="17,113,161,169"/>
+</map>

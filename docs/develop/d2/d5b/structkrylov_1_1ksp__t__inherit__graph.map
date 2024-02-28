@@ -1,0 +1,15 @@
+<map id="krylov::ksp_t" name="krylov::ksp_t">
+<area shape="rect" id="node1" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,296,111,323"/>
+<area shape="rect" id="node2" href="$dc/dd5/structbicgstab_1_1bicgstab__t.html" title="Standard preconditioned Bi&#45;Conjugate Gradient Stabilized method." alt="" coords="174,5,326,32"/>
+<area shape="rect" id="node3" href="$de/d56/structcacg_1_1cacg__t.html" title="S&#45;step communication avoiding preconditioned conjugate gradient method." alt="" coords="199,56,301,83"/>
+<area shape="rect" id="node4" href="$db/d98/structcg_1_1cg__t.html" title="Standard preconditioned conjugate gradient method." alt="" coords="214,107,286,133"/>
+<area shape="rect" id="node5" href="$dd/d8e/structcg__device_1_1cg__device__t.html" title="Device based preconditioned conjugate gradient method." alt="" coords="164,157,336,184"/>
+<area shape="rect" id="node6" href="$d5/d34/structcg__sx_1_1sx__cg__t.html" title="Standard preconditioned conjugate gradient method." alt="" coords="192,208,308,235"/>
+<area shape="rect" id="node7" href="$dc/d03/structfusedcg__device_1_1fusedcg__device__t.html" title="Fused preconditioned conjugate gradient method." alt="" coords="159,259,341,301"/>
+<area shape="rect" id="node8" href="$df/db9/structgmres_1_1gmres__t.html" title="Standard preconditioned generalized minimal residual method." alt="" coords="188,325,312,352"/>
+<area shape="rect" id="node9" href="$d8/d1e/structgmres__device_1_1gmres__device__t.html" title="Standard preconditioned generalized minimal residual method." alt="" coords="169,377,331,418"/>
+<area shape="rect" id="node10" href="$d3/d41/structgmres__sx_1_1sx__gmres__t.html" title="Standard preconditioned conjugate gradient method." alt="" coords="166,443,334,469"/>
+<area shape="rect" id="node11" href="$d4/db4/structpipecg_1_1pipecg__t.html" title="Pipelined preconditioned conjugate gradient method." alt="" coords="186,493,314,520"/>
+<area shape="rect" id="node12" href="$dc/d01/structpipecg__device_1_1pipecg__device__t.html" title="Pipelined preconditioned conjugate gradient method." alt="" coords="167,545,333,586"/>
+<area shape="rect" id="node13" href="$d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html" title="Pipelined preconditioned conjugate gradient method for SX&#45;Aurora." alt="" coords="164,611,336,637"/>
+</map>

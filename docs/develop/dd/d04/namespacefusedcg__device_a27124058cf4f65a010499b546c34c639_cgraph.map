@@ -1,0 +1,10 @@
+<map id="fusedcg_device::fusedcg_device_solve" name="fusedcg_device::fusedcg_device_solve">
+<area shape="rect" id="node1" title="Pipelined PCG solve." alt="" coords="5,71,188,112"/>
+<area shape="rect" id="node2" href="$dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646" title=" " alt="" coords="236,5,411,47"/>
+<area shape="rect" id="node5" href="$dd/d04/namespacefusedcg__device.html#ad32400ca22c2ca83585ebf9245ff0ae6" title=" " alt="" coords="236,71,411,112"/>
+<area shape="rect" id="node7" href="$dd/d04/namespacefusedcg__device.html#a6c565ca5074aeb3779af13900552a342" title=" " alt="" coords="236,136,411,177"/>
+<area shape="rect" id="node3" href="$db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="471,13,613,39"/>
+<area shape="rect" id="node4" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="673,13,837,39"/>
+<area shape="rect" id="node6" href="$db/df7/fusedcg__aux_8hip.html#a9cc3940ab477454bca2f83d72f77853c" title=" " alt="" coords="459,78,625,105"/>
+<area shape="rect" id="node8" href="$db/df7/fusedcg__aux_8hip.html#a0f309cac69abed9947b6106bc7708310" title=" " alt="" coords="459,143,625,170"/>
+</map>

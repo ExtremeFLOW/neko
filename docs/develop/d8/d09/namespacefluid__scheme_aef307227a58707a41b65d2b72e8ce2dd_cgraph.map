@@ -1,0 +1,13 @@
+<map id="fluid_scheme::fluid_scheme_init_uvw" name="fluid_scheme::fluid_scheme_init_uvw">
+<area shape="rect" id="node1" title="Initialize all velocity related components of the current scheme." alt="" coords="5,110,149,151"/>
+<area shape="rect" id="node2" href="$d8/d09/namespacefluid__scheme.html#a11bba55b2a5d6a93db2d79e5d5130a07" title="Initialize common data for the current scheme." alt="" coords="203,45,375,86"/>
+<area shape="rect" id="node6" href="$d8/d09/namespacefluid__scheme.html#ae118e3aebe30e81422421926063456d0" title="Initialize a Krylov preconditioner." alt="" coords="197,110,381,151"/>
+<area shape="rect" id="node9" href="$d8/d09/namespacefluid__scheme.html#a5fb59358d3639df4c60c471642d27e1f" title="Initialize a linear solver." alt="" coords="199,175,379,217"/>
+<area shape="rect" id="node3" href="$d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="447,5,566,32"/>
+<area shape="rect" id="node4" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="449,56,564,83"/>
+<area shape="rect" id="node5" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="649,56,769,83"/>
+<area shape="rect" id="node7" href="$dc/d51/namespaceprecon__fctry.html#afff90caf28849e7a442f5856ccf578b0" title="Create a preconditioner." alt="" coords="429,110,584,151"/>
+<area shape="rect" id="node8" href="$dc/d51/namespaceprecon__fctry.html#a18ffcb1756eab1b82266908473cf1f99" title="Destroy a preconditioner." alt="" coords="632,110,787,151"/>
+<area shape="rect" id="node10" href="$d9/d77/namespacekrylov__fctry.html#ab34f81283355e144f26825624c538b32" title="Initialize an iterative Krylov solver." alt="" coords="433,175,581,217"/>
+<area shape="rect" id="node11" href="$d9/d77/namespacekrylov__fctry.html#a7dfe5acfded2cc272ea672dce234367c" title="Destroy an interative Krylov solver." alt="" coords="635,175,783,217"/>
+</map>

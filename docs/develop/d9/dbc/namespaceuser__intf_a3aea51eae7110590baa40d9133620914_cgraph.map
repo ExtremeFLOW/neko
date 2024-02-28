@@ -1,0 +1,16 @@
+<map id="user_intf::user_intf_init" name="user_intf::user_intf_init">
+<area shape="rect" id="node1" title="User interface initialization." alt="" coords="5,355,176,382"/>
+<area shape="rect" id="node2" href="$d9/dbc/namespaceuser__intf.html#aee374a521177b65edebfae898d814f0f" title="Dummy user boundary condition for scalar." alt="" coords="227,5,410,47"/>
+<area shape="rect" id="node4" href="$d9/dbc/namespaceuser__intf.html#a4796aa8aaff63bdae658f7041bd03226" title="Dummy user (scalar) forcing." alt="" coords="227,71,410,112"/>
+<area shape="rect" id="node5" href="$d9/dbc/namespaceuser__intf.html#ad01a005b829c6abedb4505dc54395951" title="Dummy user check." alt="" coords="233,136,404,177"/>
+<area shape="rect" id="node6" href="$d9/dbc/namespaceuser__intf.html#a4eb07fa36130219796c3878cde6f6ada" title="Dummy user (fluid) forcing." alt="" coords="227,202,410,229"/>
+<area shape="rect" id="node7" href="$d9/dbc/namespaceuser__intf.html#a08b997dac3f349331f8eb7f0f2a87a92" title="Dummy user (fluid) forcing." alt="" coords="233,253,404,295"/>
+<area shape="rect" id="node8" href="$d9/dbc/namespaceuser__intf.html#a2ff23f9ded60c7baa061293cd4371827" title=" " alt="" coords="233,319,404,360"/>
+<area shape="rect" id="node9" href="$d9/dbc/namespaceuser__intf.html#a77e34db38c07863fa933ccc0bc6bc38a" title="Dummy user initial condition." alt="" coords="224,385,413,411"/>
+<area shape="rect" id="node10" href="$d9/dbc/namespaceuser__intf.html#a23d49954f7593aa8639938720b6d5a39" title="Dummy user initial condition for scalar field." alt="" coords="233,436,404,477"/>
+<area shape="rect" id="node11" href="$d9/dbc/namespaceuser__intf.html#aef0a1bc778a373b2cf32deb12bb122ac" title=" " alt="" coords="233,501,404,543"/>
+<area shape="rect" id="node12" href="$d9/dbc/namespaceuser__intf.html#aba0d51dec107387f593759651232a314" title=" " alt="" coords="233,567,404,608"/>
+<area shape="rect" id="node13" href="$d9/dbc/namespaceuser__intf.html#a65f7550c76dc49541fadb22fdb8b6fb9" title="Dummy user mesh apply." alt="" coords="233,632,404,673"/>
+<area shape="rect" id="node14" href="$d9/dbc/namespaceuser__intf.html#adad964acbf0b8c1571e1acea77fd07f3" title="Dummy user (scalar) forcing." alt="" coords="233,697,404,739"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#a2d69c93bf37f2e6ef3e1134b5bda2f1b" title=" " alt="" coords="461,13,609,39"/>
+</map>

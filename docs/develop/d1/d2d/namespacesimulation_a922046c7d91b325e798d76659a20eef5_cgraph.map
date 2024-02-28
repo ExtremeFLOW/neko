@@ -1,0 +1,15 @@
+<map id="simulation::neko_solve" name="simulation::neko_solve">
+<area shape="rect" id="node1" title="Main driver to solve a case C." alt="" coords="5,256,177,283"/>
+<area shape="rect" id="node2" href="$d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b" title="Check if the job&#39;s time limit has been reached." alt="" coords="235,23,384,65"/>
+<area shape="rect" id="node5" href="$dc/dfc/namespaceprofiler.html#ab9b09ecf716565d7eb06a640affe74e0" title="End the most recently started profiler region." alt="" coords="248,89,371,130"/>
+<area shape="rect" id="node6" href="$dc/dfc/namespaceprofiler.html#a5e8238cb516ab2660af163e2f152848d" title="Start profiling." alt="" coords="248,154,371,195"/>
+<area shape="rect" id="node8" href="$dc/dfc/namespaceprofiler.html#a1369e41c9b885e4618fdc23e0717512b" title="Started a named (name) profiler region." alt="" coords="248,219,371,261"/>
+<area shape="rect" id="node9" href="$dc/dfc/namespaceprofiler.html#a5cf19165cb25aee603d09aeeaaa39f4f" title="Stop profiling." alt="" coords="231,285,388,312"/>
+<area shape="rect" id="node11" href="$d1/d2d/namespacesimulation.html#a933da001f4561bdb159de8e62593bec3" title="Write a checkpoint at joblimit." alt="" coords="225,337,393,378"/>
+<area shape="rect" id="node12" href="$d1/d2d/namespacesimulation.html#af82971b79cd67a50aaed87190a60dd9d" title="Restart a case C from a given checkpoint." alt="" coords="225,402,393,443"/>
+<area shape="rect" id="node13" href="$d1/d2d/namespacesimulation.html#a111609fb01cc2ce135762498895b0515" title=" " alt="" coords="225,467,393,509"/>
+<area shape="rect" id="node3" href="$d1/daf/namespacesignal.html#a1eb78f2982b116e2f5498b9e6957efad" title="Check if any timeout has occurred (either SIGXCPU or SIGALRM)" alt="" coords="460,5,627,32"/>
+<area shape="rect" id="node4" href="$d1/daf/namespacesignal.html#a42871d9700820dd7854d334d465637d8" title="Check if a user signal has been raised." alt="" coords="476,56,611,83"/>
+<area shape="rect" id="node7" href="$d0/dbe/namespacedevice.html#a6e8f2cb5ecf9fa00e06346d10dc8d478" title="Start device profiling." alt="" coords="459,154,628,195"/>
+<area shape="rect" id="node10" href="$d0/dbe/namespacedevice.html#a61bac73fa0ec55d800487ab4c645ad86" title="Stop device profiling." alt="" coords="441,285,645,312"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="mesh::mesh_init_dist" name="mesh::mesh_init_dist">
+<area shape="rect" id="node1" title="Initialise a mesh this based on a distribution dist." alt="" coords="5,5,167,32"/>
+<area shape="rect" id="node2" href="$db/dfc/namespacemesh.html#a84fb89799d74a310f3612f5334cf5b74" title=" " alt="" coords="215,5,409,32"/>
+<area shape="rect" id="node3" href="$dc/d48/namespacedistdata.html#a7393efc050ceff8d2b1577e814766df8" title="Initialise a distdata type." alt="" coords="457,5,621,32"/>
+<area shape="rect" id="node4" href="$dc/d48/namespacedistdata.html#a3a77ef0dd4cbeff5d6c510c493007288" title="Free a distdata type." alt="" coords="669,5,839,32"/>
+</map>

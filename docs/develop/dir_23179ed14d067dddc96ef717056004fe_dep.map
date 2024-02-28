@@ -1,0 +1,19 @@
+<map id="/home/runner/work/neko/neko/src/math/bcknd/device" name="/home/runner/work/neko/neko/src/math/bcknd/device">
+<area shape="rect" id="node6" href="dir_d0537398ec3fe72d8d4f5c6709d28acc.html" title="comm" alt="" coords="37,186,109,234"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000062_000015.html" title="1" alt="" coords="77,160,86,175"/>
+<area shape="rect" id="node2" href="dir_4c3596ec6e7f8d381657f6ce7bbe76a2.html" title="cuda" alt="" coords="229,90,301,138"/>
+<area shape="rect" id="node5" href="dir_16dc92632bab467dc50b01bd02b3341a.html" title="device" alt="" coords="277,186,349,234"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000063_000025.html" title="24" alt="" coords="292,158,309,173"/>
+<area shape="rect" id="node7" href="dir_fdedb0aba14d44ce9d99bc100e026e6a.html" title="common" alt="" coords="430,90,509,138"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000063_000016.html" title="6" alt="" coords="455,62,464,77"/>
+<area shape="rect" id="node3" href="dir_f48359d827d7566deae6b1b647b520e2.html" title="hip" alt="" coords="133,90,205,138"/>
+<area shape="rect" id="edge5-headlabel" href="dir_000064_000025.html" title="24" alt="" coords="256,169,273,184"/>
+<area shape="rect" id="edge6-headlabel" href="dir_000064_000016.html" title="6" alt="" coords="455,62,464,77"/>
+<area shape="rect" id="node4" href="dir_a753435b69305af25b1972a8c16b18f4.html" title="opencl" alt="" coords="325,90,397,138"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000065_000025.html" title="48" alt="" coords="332,166,350,180"/>
+<area shape="rect" id="edge8-headlabel" href="dir_000016_000063.html" title="1" alt="" coords="283,69,292,83"/>
+<area shape="rect" id="edge9-headlabel" href="dir_000016_000064.html" title="1" alt="" coords="187,69,196,83"/>
+<area shape="rect" id="edge7-headlabel" href="dir_000016_000025.html" title="12" alt="" coords="361,185,378,200"/>
+<area shape="rect" id="clust2" href="dir_23179ed14d067dddc96ef717056004fe.html" alt="" coords="27,79,408,148"/>
+<area shape="rect" id="clust1" href="dir_50770e26e3ba115102e9374c0e502830.html" title="bcknd" alt="" coords="16,43,419,159"/>
+</map>

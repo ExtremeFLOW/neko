@@ -1,0 +1,6 @@
+<map id="element::element_t" name="element::element_t">
+<area shape="rect" id="node1" title="Base type for an element." alt="" coords="5,260,156,287"/>
+<area shape="rect" id="node2" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="17,5,134,32"/>
+<area shape="rect" id="node4" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="100,81,208,108"/>
+<area shape="rect" id="node3" href="$d7/d33/structpoint_1_1point__ptr.html" title="Defines a pointer to a point type." alt="" coords="97,171,219,197"/>
+</map>

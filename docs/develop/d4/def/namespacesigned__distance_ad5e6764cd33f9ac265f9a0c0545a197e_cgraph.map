@@ -1,0 +1,5 @@
+<map id="signed_distance::element_distance" name="signed_distance::element_distance">
+<area shape="rect" id="node1" title="Main interface for the signed distance function for an element." alt="" coords="5,5,195,47"/>
+<area shape="rect" id="node2" href="$d4/def/namespacesigned__distance.html#a3fa90e6ec506576aacc9f7086e8f2a54" title="Signed distance function for a triangle." alt="" coords="243,5,432,47"/>
+<area shape="rect" id="node3" href="$d4/def/namespacesigned__distance.html#adca1f23c8d7a349ba2a6818b5aa9ce76" title="Compute cross product of two vectors." alt="" coords="480,13,649,39"/>
+</map>

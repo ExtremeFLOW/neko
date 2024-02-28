@@ -1,0 +1,28 @@
+<map id="coefs::coef_init_all" name="coefs::coef_init_all">
+<area shape="rect" id="node1" title="Initialize coefficients." alt="" coords="5,444,149,471"/>
+<area shape="rect" id="node2" href="$d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484" title="Generate facet area and surface normals." alt="" coords="218,202,377,243"/>
+<area shape="rect" id="node3" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="218,267,377,309"/>
+<area shape="rect" id="node13" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="488,427,581,453"/>
+<area shape="rect" id="node16" href="$d6/dbe/namespacecoefs.html#a1b615b359ab35faee3c6522857bdac33" title="Generate geometric data for the given mesh." alt="" coords="203,419,392,445"/>
+<area shape="rect" id="node17" href="$d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462" title="Generate mass matrix B for the given mesh and space." alt="" coords="197,469,397,496"/>
+<area shape="rect" id="node18" href="$d2/d73/namespacedevice__math.html#a46a957f0ada862da2400fb93b64b4cd9" title=" " alt="" coords="219,521,376,562"/>
+<area shape="rect" id="node21" href="$d2/d73/namespacedevice__math.html#a3b08a6d3bd4244c6750bbbb6f7f27ca3" title=" " alt="" coords="201,587,394,613"/>
+<area shape="rect" id="node26" href="$dd/d47/namespacemath.html#a9f8d1d3598c97b83bfc4fa14bed440e6" title="Invert a vector ." alt="" coords="242,637,353,664"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="477,5,592,32"/>
+<area shape="rect" id="node5" href="$dd/d47/namespacemath.html#aa1412314da40d2e416830c43f18dd504" title="Change sign of vector ." alt="" coords="481,56,588,83"/>
+<area shape="rect" id="node6" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="487,107,582,133"/>
+<area shape="rect" id="node7" href="$df/d80/namespacedevice__coef.html#a6bf9ddbe771387016c5f4cd71fe51256" title=" " alt="" coords="445,158,624,199"/>
+<area shape="rect" id="node11" href="$dd/d47/namespacemath.html#a3789b839284889e98200fa663a5e040f" title="Compute inverted vector ." alt="" coords="479,224,591,251"/>
+<area shape="rect" id="node12" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="455,275,614,301"/>
+<area shape="rect" id="node14" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="486,325,583,352"/>
+<area shape="rect" id="node15" href="$dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f" title="Returns ." alt="" coords="477,376,592,403"/>
+<area shape="rect" id="node8" href="$d4/d95/coef_8cu.html#ae353b24ed06280c0189697af736a6b7d" title=" " alt="" coords="678,158,831,199"/>
+<area shape="rect" id="node9" href="$d6/da9/coef_8c.html#aafbd283d930483605855d2397a10ab8d" title=" " alt="" coords="672,342,837,383"/>
+<area shape="rect" id="node10" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="885,507,1017,533"/>
+<area shape="rect" id="node19" href="$de/d1e/math_8cu.html#a0a5482ae60456664d32a9c509f28bee0" title=" " alt="" coords="481,477,588,504"/>
+<area shape="rect" id="node20" href="$d6/da3/math_8c.html#a050d326970f16412fdc23791968bc012" title=" " alt="" coords="695,507,814,533"/>
+<area shape="rect" id="node22" href="$d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612" title=" " alt="" coords="456,579,613,621"/>
+<area shape="rect" id="node25" href="$d6/da3/math_8c.html#a1eab7133913c8bb2e0b6fc63db40d79b" title=" " alt="" coords="484,645,585,672"/>
+<area shape="rect" id="node23" href="$de/d1e/math_8cu.html#acb4fe9bc0a09e3ef698a39bb71086356" title=" " alt="" coords="713,557,796,584"/>
+<area shape="rect" id="node24" href="$d6/da3/math_8c.html#ace53d8c6b37b7549d3d1c15a5bda29ca" title=" " alt="" coords="707,608,802,635"/>
+</map>

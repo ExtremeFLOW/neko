@@ -1,0 +1,28 @@
+<map id="math::rzero" name="math::rzero">
+<area shape="rect" id="node1" title="Zero a real vector." alt="" coords="1067,611,1164,637"/>
+<area shape="rect" id="node2" href="$dc/df5/namespaceab__time__scheme.html#a0c7ea248befdd7fc4bf7271271642cd3" title="Compute the scheme coefficients." alt="" coords="825,5,1006,61"/>
+<area shape="rect" id="node3" href="$d4/db4/namespacebdf__time__scheme.html#a572e81f602b6a7aa1f362257dc5c5e4a" title="Compute the scheme coefficients." alt="" coords="825,85,1006,141"/>
+<area shape="rect" id="node4" href="$dd/d2f/namespacebicgstab.html#afdcb9c0f169349daf77759d283479c43" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="845,166,985,207"/>
+<area shape="rect" id="node5" href="$d2/d10/namespacecacg.html#a96a12044cfb692eb6d097ee3ed4aeda0" title="S&#45;step CA PCG solve." alt="" coords="849,232,981,259"/>
+<area shape="rect" id="node6" href="$d9/df6/namespacecg.html#aa74f8eea3f12b0f69c7eae810e63bf96" title="Standard PCG solve." alt="" coords="864,283,967,309"/>
+<area shape="rect" id="node7" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="836,334,995,375"/>
+<area shape="rect" id="node9" href="$d3/d06/namespaceprojection.html#ac63a40c6adff939561cd8b6b8432d1e4" title=" " alt="" coords="819,400,1012,427"/>
+<area shape="rect" id="node11" href="$d2/d75/namespaceext__time__scheme.html#adf75631dc4c73c73b558f4eeb29fe65b" title="Compute the scheme coefficients." alt="" coords="825,451,1006,507"/>
+<area shape="rect" id="node12" href="$d2/d75/namespaceext__time__scheme.html#a1654d689ca92903729de891e38caf174" title="Compute the modified scheme coefficients." alt="" coords="825,531,1006,587"/>
+<area shape="rect" id="node13" href="$d3/d4c/namespacefdm.html#af3a1a3b08ecd8ff4dd376ac7afaa555f" title=" " alt="" coords="604,813,715,840"/>
+<area shape="rect" id="node14" href="$dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="812,611,1019,637"/>
+<area shape="rect" id="node18" href="$dd/dd2/namespacedofmap.html#ae710cdf2efdddfe06dfd930addd83c84" title="Extend faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and edges 3 &#45; vertex,..." alt="" coords="812,661,1019,688"/>
+<area shape="rect" id="node19" href="$dc/d48/namespacegmres.html#a96f21cb206d8da8611f3c630ae4459ca" title="Standard GMRES solve." alt="" coords="838,763,993,789"/>
+<area shape="rect" id="node20" href="$d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="816,813,1015,840"/>
+<area shape="rect" id="node21" href="$de/d49/namespacepipecg.html#ae519e8f58edbf66c6b746e28363de31f" title="Pipelined PCG solve." alt="" coords="836,864,995,891"/>
+<area shape="rect" id="node22" href="$d3/d06/namespaceprojection.html#afa912cf217031bb8243a7e5d50c6f511" title=" " alt="" coords="821,915,1009,941"/>
+<area shape="rect" id="node23" href="$d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="814,1016,1017,1043"/>
+<area shape="rect" id="node25" href="$dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="855,965,975,992"/>
+<area shape="rect" id="node26" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="837,1067,993,1109"/>
+<area shape="rect" id="node8" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="587,341,731,368"/>
+<area shape="rect" id="node10" href="$d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6" title=" " alt="" coords="555,400,764,427"/>
+<area shape="rect" id="node15" href="$dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="563,636,755,663"/>
+<area shape="rect" id="node16" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,636,507,663"/>
+<area shape="rect" id="node17" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,636,233,663"/>
+<area shape="rect" id="node24" href="$d2/d37/namespaceschwarz.html#ae614e2a33b051d6843ac45bcff07c6b6" title=" " alt="" coords="577,1016,741,1043"/>
+</map>

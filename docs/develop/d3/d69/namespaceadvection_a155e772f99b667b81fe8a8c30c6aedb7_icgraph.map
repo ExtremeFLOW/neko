@@ -1,0 +1,7 @@
+<map id="advection::init_dealias" name="advection::init_dealias">
+<area shape="rect" id="node1" title="Constructor." alt="" coords="452,85,621,112"/>
+<area shape="rect" id="node2" href="$d3/d69/namespaceadvection.html#a27316124e9b4a37c9ae00ec700953ed4" title="A factory for advection_t decendants." alt="" coords="245,78,404,119"/>
+<area shape="rect" id="node3" href="$dc/d64/interfaceadvection_1_1compute__scalar__adv.html#aa89af396d36bea8ca592547eed9bcb1e" title=" " alt="" coords="20,5,183,61"/>
+<area shape="rect" id="node4" href="$dc/da3/namespacefluid__pnpn.html#a24a6187aed087af84495969693831775" title=" " alt="" coords="5,85,197,112"/>
+<area shape="rect" id="node5" href="$db/d56/namespacescalar__pnpn.html#af70b26869059aa4be9721e2b29202e27" title="Constructor." alt="" coords="28,137,175,178"/>
+</map>

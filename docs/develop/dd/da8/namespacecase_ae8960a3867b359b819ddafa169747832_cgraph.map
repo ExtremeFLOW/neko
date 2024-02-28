@@ -1,0 +1,13 @@
+<map id="case::case_init_common" name="case::case_init_common">
+<area shape="rect" id="node1" title="Initialize a case from its (loaded) params object." alt="" coords="5,122,188,149"/>
+<area shape="rect" id="node2" href="$d8/dc8/namespacefluid__fctry.html#a8ffcb24fa2b7fe8bca93fbba82499a35" title="Initialise a fluid scheme." alt="" coords="243,5,376,47"/>
+<area shape="rect" id="node3" href="$da/dc3/namespacemesh__field.html#a8db8f80b2676dca5b068e135557fcf53" title=" " alt="" coords="904,97,1109,123"/>
+<area shape="rect" id="node4" href="$da/dc3/namespacemesh__field.html#aaa97d6c142cefd8fa464a140d00aeb77" title=" " alt="" coords="656,122,856,149"/>
+<area shape="rect" id="node5" href="$d1/dd7/namespaceparmetis.html#a7015f5a8d7bb32005378d0df25fc45e7" title="Compute a k&#45;way partitioning of a mesh msh." alt="" coords="236,199,383,240"/>
+<area shape="rect" id="node9" href="$db/dbb/namespaceredist.html#a0495227a7bc72edb4553026a816d7ebf" title="Redistribute a mesh msh according to new partitions." alt="" coords="236,341,383,367"/>
+<area shape="rect" id="node6" href="$d1/dd7/namespaceparmetis.html#a4d14c4d16427d26c17bd770369629803" title="Compute the (parallel) vertex distribution of the dual graph." alt="" coords="431,173,608,199"/>
+<area shape="rect" id="node7" href="$d1/dd7/namespaceparmetis.html#a167b3313549fa07a2cd414118bd40489" title="Fill mesh field according to new partitions." alt="" coords="446,224,593,265"/>
+<area shape="rect" id="node8" href="$d1/dd7/namespaceparmetis.html#af3f78958dd47849888ed6650aed8e129" title="Setup weights and balance constraints for the dual graph." alt="" coords="431,290,608,317"/>
+<area shape="rect" id="node10" href="$db/dbb/namespaceredist.html#ae07ae81a5fb1331996356b54d531fa72" title="Fill redistribution list for zone data." alt="" coords="446,341,593,367"/>
+<area shape="rect" id="node11" href="$db/dbb/namespaceredist.html#a95ec995daa3e10e200586e964ec37700" title="Fill redistribution list for zone data." alt="" coords="448,391,591,418"/>
+</map>

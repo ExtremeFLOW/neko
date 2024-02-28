@@ -1,0 +1,6 @@
+<map id="jobctrl::jobctrl_init" name="jobctrl::jobctrl_init">
+<area shape="rect" id="node1" title="Initialize jobctrl." alt="" coords="5,64,145,91"/>
+<area shape="rect" id="node2" href="$d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f" title="Returns a job&#39;s time in seconds relative to the first call." alt="" coords="193,5,363,32"/>
+<area shape="rect" id="node3" href="$d1/daf/namespacesignal.html#ab353a56ce0a5bd079355cab41e59e04b" title="Initialize signal handler to trap SIGXCPU." alt="" coords="207,57,349,98"/>
+<area shape="rect" id="node4" href="$d1/daf/namespacesignal.html#a0a092878b72d07b72fc18278e38321e6" title="Initialize signal handler to trap SIGUSR1 and SIGUSR2." alt="" coords="194,123,362,149"/>
+</map>

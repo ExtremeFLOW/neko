@@ -1,0 +1,15 @@
+<map id="pnpn_res_cpu::pnpn_prs_res_cpu_compute" name="pnpn_res_cpu::pnpn_prs_res_cpu_compute">
+<area shape="rect" id="node1" title=" " alt="" coords="5,99,176,141"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#a0567ee7595ffc5b3ad3e1cf7359b112b" title="Apply D^T to a scalar field, where D is the derivative matrix." alt="" coords="224,81,344,108"/>
+<area shape="rect" id="node13" href="$dd/d30/namespaceoperators.html#a9343ee2d446da0065a98c1767b36c709" title=" " alt="" coords="226,132,342,159"/>
+<area shape="rect" id="node3" href="$d0/d94/namespaceopr__cpu.html#a811e4c006443cc206608a9695e473f39" title=" " alt="" coords="412,5,579,32"/>
+<area shape="rect" id="node4" href="$d3/d4d/namespaceopr__device.html#a5976c035ccc91cc8b346fc866e476775" title=" " alt="" coords="392,56,599,83"/>
+<area shape="rect" id="node8" href="$df/db5/namespaceopr__sx.html#ac006a5aef9f52758ab076ed545f2b838" title=" " alt="" coords="420,107,571,133"/>
+<area shape="rect" id="node9" href="$d9/d5a/namespaceopr__xsmm.html#a57bf41f6f4190d4e8f728bd37db80ec9" title=" " alt="" coords="394,157,597,184"/>
+<area shape="rect" id="node5" href="$df/d14/opr__cdtp_8cu.html#a217704e9e0aec3b1aec80eba77c3eefc" title=" " alt="" coords="658,5,746,32"/>
+<area shape="rect" id="node6" href="$d6/d10/opr__cdtp_8c.html#ad014ae6fead1604386995ca75f53a3e1" title=" " alt="" coords="652,56,752,83"/>
+<area shape="rect" id="node7" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="805,56,937,83"/>
+<area shape="rect" id="node10" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="654,107,750,133"/>
+<area shape="rect" id="node11" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="657,157,747,184"/>
+<area shape="rect" id="node12" href="$dd/d47/namespacemath.html#a1164b01f82dfbc02272aecd16afec842" title="Vector division ." alt="" coords="647,208,757,235"/>
+</map>

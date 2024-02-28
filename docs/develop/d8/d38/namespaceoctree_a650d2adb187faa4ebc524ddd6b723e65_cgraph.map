@@ -1,0 +1,5 @@
+<map id="octree::octree_oct_insert" name="octree::octree_oct_insert">
+<area shape="rect" id="node1" title="Insert a point p into the octree rooted at o." alt="" coords="5,23,144,65"/>
+<area shape="rect" id="node2" href="$d8/d38/namespaceoctree.html#a960420894f5a5e971364de039ffca66c" title="Return the octant for a given point." alt="" coords="206,5,345,32"/>
+<area shape="rect" id="node3" href="$d8/d38/namespaceoctree.html#aab2074f46ccdf70a1002b9a77ac922e7" title="Initialize an octant width a given width, origin and level." alt="" coords="192,56,359,83"/>
+</map>

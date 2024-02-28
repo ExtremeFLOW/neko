@@ -1,0 +1,8 @@
+<map id="tensor_xsmm::tnsr3d_el_xsmm" name="tensor_xsmm::tnsr3d_el_xsmm">
+<area shape="rect" id="node1" title=" " alt="" coords="503,49,663,90"/>
+<area shape="rect" id="node2" href="$dc/da1/namespacefdm__xsmm.html#aaeba743f54a16c03e2157c64ce2322b8" title=" " alt="" coords="221,5,455,32"/>
+<area shape="rect" id="node3" href="$dd/d8c/namespacetensor.html#afb27d9f86d0c3799290bb235cbad97df" title="Tensor product &#160;performed on a single element." alt="" coords="273,56,403,83"/>
+<area shape="rect" id="node5" href="$dd/d8c/namespacetensor.html#a9578e54c6fd6906866131eec193169b0" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="259,113,417,140"/>
+<area shape="rect" id="node4" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#a70ef42619fcb8aed48dfd008029ce644" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="5,33,173,89"/>
+<area shape="rect" id="node6" href="$da/d80/namespacelocal__interpolation.html#a4707f5b542b2a511476d0bdf808ab48d" title="Interpolates a list of fields based on a set of element ids." alt="" coords="17,113,161,169"/>
+</map>

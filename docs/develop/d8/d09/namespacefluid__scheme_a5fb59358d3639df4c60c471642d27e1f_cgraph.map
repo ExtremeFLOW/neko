@@ -1,0 +1,5 @@
+<map id="fluid_scheme::fluid_scheme_solver_factory" name="fluid_scheme::fluid_scheme_solver_factory">
+<area shape="rect" id="node1" title="Initialize a linear solver." alt="" coords="5,5,185,47"/>
+<area shape="rect" id="node2" href="$d9/d77/namespacekrylov__fctry.html#ab34f81283355e144f26825624c538b32" title="Initialize an iterative Krylov solver." alt="" coords="233,5,381,47"/>
+<area shape="rect" id="node3" href="$d9/d77/namespacekrylov__fctry.html#a7dfe5acfded2cc272ea672dce234367c" title="Destroy an interative Krylov solver." alt="" coords="429,5,577,47"/>
+</map>

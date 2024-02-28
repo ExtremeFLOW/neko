@@ -1,0 +1,8 @@
+<map id="/home/runner/work/neko/neko/src/fluid/bcknd/device/hip/pnpn_res.hip" name="/home/runner/work/neko/neko/src/fluid/bcknd/device/hip/pnpn_res.hip">
+<area shape="rect" id="node1" title=" " alt="" coords="201,5,381,61"/>
+<area shape="rect" id="node2" title=" " alt="" coords="71,184,207,211"/>
+<area shape="rect" id="node3" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="24,109,195,136"/>
+<area shape="rect" id="node4" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="220,109,362,136"/>
+<area shape="rect" id="node5" href="$d8/dc2/hip_2prs__res__kernel_8h.html" title=" " alt="" coords="387,109,515,136"/>
+<area shape="rect" id="node6" href="$d7/d82/hip_2vel__res__update__kernel_8h.html" title=" " alt="" coords="540,109,720,136"/>
+</map>

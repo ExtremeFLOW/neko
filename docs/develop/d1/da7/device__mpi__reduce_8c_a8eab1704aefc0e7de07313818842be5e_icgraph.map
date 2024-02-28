@@ -1,0 +1,30 @@
+<map id="device_mpi_allreduce" name="device_mpi_allreduce">
+<area shape="rect" id="node1" title=" " alt="" coords="679,335,843,361"/>
+<area shape="rect" id="node2" href="$da/d37/opr__cfl_8cu.html#adeaa12656ff2c67c96231368ffc58bc7" title=" " alt="" coords="517,5,592,32"/>
+<area shape="rect" id="node4" href="$d2/dba/fusedcg__aux_8cu.html#a0d3d53e8ce39bb62fab78e6878ddbefa" title=" " alt="" coords="479,56,631,83"/>
+<area shape="rect" id="node5" href="$de/d1e/math_8cu.html#a7fd14caee093513e59d4c7e965b7a57a" title=" " alt="" coords="507,107,602,133"/>
+<area shape="rect" id="node9" href="$de/d1e/math_8cu.html#ae5a1628374d65b302e8a5f9993fab70a" title=" " alt="" coords="507,259,602,285"/>
+<area shape="rect" id="node13" href="$de/d1e/math_8cu.html#a408f8df05939f3f8cab4fa4261aaa223" title=" " alt="" coords="485,157,624,184"/>
+<area shape="rect" id="node15" href="$de/d1e/math_8cu.html#a7cce06711ad27eb80cb6ff22647cf013" title=" " alt="" coords="505,208,605,235"/>
+<area shape="rect" id="node17" href="$d6/d29/gmres__aux_8cu.html#a3952e21e8b02d7069a6d91b3708cffca" title=" " alt="" coords="483,309,626,336"/>
+<area shape="rect" id="node20" href="$d1/d38/opr__cfl_8hip.html#a71a2e6ecec4dd085491f08ce82c5bbd4" title=" " alt="" coords="523,360,587,387"/>
+<area shape="rect" id="node21" href="$db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="484,411,625,437"/>
+<area shape="rect" id="node24" href="$de/d9b/math_8hip.html#a4b1e8ce61679d8f6d437971a85d0578d" title=" " alt="" coords="513,461,596,488"/>
+<area shape="rect" id="node25" href="$de/d9b/math_8hip.html#a20759849decfd5e4e7c83271f7c8440c" title=" " alt="" coords="513,512,596,539"/>
+<area shape="rect" id="node26" href="$de/d9b/math_8hip.html#ac10c972f369598497f623a8bad84e291" title=" " alt="" coords="491,563,618,589"/>
+<area shape="rect" id="node27" href="$de/d9b/math_8hip.html#a8ab301c94569ae020c7492b41a876fdb" title=" " alt="" coords="510,613,599,640"/>
+<area shape="rect" id="node28" href="$da/d1d/gmres__aux_8hip.html#ad1130bc0fe9218ff1432134acd57f48d" title=" " alt="" coords="489,664,620,691"/>
+<area shape="rect" id="node3" href="$d3/d4d/namespaceopr__device.html#a48e31f37921fd3b5e22da120678bd948" title=" " alt="" coords="236,5,431,32"/>
+<area shape="rect" id="node6" href="$d2/d73/namespacedevice__math.html#ab57c11009415162bd0eff486c8fb1616" title=" " alt="" coords="255,70,412,111"/>
+<area shape="rect" id="node7" href="$d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="23,70,170,111"/>
+<area shape="rect" id="node8" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="6,135,187,177"/>
+<area shape="rect" id="node10" href="$d2/d73/namespacedevice__math.html#ac80b69645b556fc4dc3022739f00bbd1" title=" " alt="" coords="255,266,412,307"/>
+<area shape="rect" id="node11" href="$d6/d60/namespacecg__device.html#a6e1d10056d59ba4295673097d13ac0f4" title="Standard PCG solve." alt="" coords="17,201,177,242"/>
+<area shape="rect" id="node12" href="$da/d46/namespacepipecg__device.html#a97a1fd422c4c03f238038a1d3e8154fe" title="Pipelined PCG solve." alt="" coords="13,266,180,307"/>
+<area shape="rect" id="node14" href="$d2/d73/namespacedevice__math.html#ae12856b035e05a988f6e6778c76cea92" title=" " alt="" coords="255,135,412,177"/>
+<area shape="rect" id="node16" href="$d2/d73/namespacedevice__math.html#ad690c17ceae42edb16e83f3f518a65fd" title=" " alt="" coords="255,201,412,242"/>
+<area shape="rect" id="node18" href="$de/df2/namespacegmres__device.html#a0a158df824f0f1613e4f18806ea3a81e" title=" " alt="" coords="251,331,415,373"/>
+<area shape="rect" id="node19" href="$de/df2/namespacegmres__device.html#a3d1f074e8e4ff202a95e86f16386fafa" title="Standard GMRES solve." alt="" coords="15,331,178,373"/>
+<area shape="rect" id="node22" href="$dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646" title=" " alt="" coords="246,403,421,445"/>
+<area shape="rect" id="node23" href="$dd/d04/namespacefusedcg__device.html#a27124058cf4f65a010499b546c34c639" title="Pipelined PCG solve." alt="" coords="5,403,188,445"/>
+</map>

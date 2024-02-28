@@ -1,0 +1,6 @@
+<map id="scalar_source_term::scalar_source_term_init" name="scalar_source_term::scalar_source_term_init">
+<area shape="rect" id="node1" title="Constructor." alt="" coords="5,64,191,105"/>
+<area shape="rect" id="node2" href="$d9/d13/namespacescalar__source__term.html#a05b6db53a4d51f8cf4bf000daeb27c92" title="Initialize the user source term." alt="" coords="242,5,391,47"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#a2d69c93bf37f2e6ef3e1134b5bda2f1b" title=" " alt="" coords="243,71,391,98"/>
+<area shape="rect" id="node4" href="$d6/d25/namespacesource__term__fctry.html#abf118384a3e9494348693c5ef6555ff8" title="Source term factory. Both constructs and initializes the object." alt="" coords="239,123,395,164"/>
+</map>

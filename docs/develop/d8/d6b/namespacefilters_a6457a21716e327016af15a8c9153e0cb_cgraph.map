@@ -1,0 +1,4 @@
+<map id="filters::permeability_field" name="filters::permeability_field">
+<area shape="rect" id="node1" title="Apply a permeability function to a field." alt="" coords="5,5,156,47"/>
+<area shape="rect" id="node2" href="$d9/d3d/namespacefilters__cpu.html#a980964006f7e557921cdd56841e8b05c" title="Apply a permeability function to a scalar." alt="" coords="204,13,415,39"/>
+</map>

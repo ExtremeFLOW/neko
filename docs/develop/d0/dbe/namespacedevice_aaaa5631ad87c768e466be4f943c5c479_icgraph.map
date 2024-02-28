@@ -1,0 +1,9 @@
+<map id="device::device_event_create" name="device::device_event_create">
+<area shape="rect" id="node1" title="Create a device event queue." alt="" coords="245,137,405,178"/>
+<area shape="rect" id="node2" href="$d6/d60/namespacecg__device.html#aa1ab1caf8cecbfc2ec368aa0f4c18bd5" title="Initialise a device based PCG solver." alt="" coords="7,5,195,32"/>
+<area shape="rect" id="node3" href="$d8/dcd/namespacegs__device.html#a4bb66ded555ba4ec7d3004165a21273d" title="Accelerator backend initialisation." alt="" coords="7,56,195,83"/>
+<area shape="rect" id="node4" href="$d9/dfa/namespacegs__device__mpi.html#afe2c32b8ff7fe4f3941b8653b47ec885" title="Initialise MPI based communication method." alt="" coords="5,107,197,149"/>
+<area shape="rect" id="node5" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="36,173,167,200"/>
+<area shape="rect" id="node6" href="$da/d46/namespacepipecg__device.html#aaf543bffce512e5b03781224e38a9b7d" title="Initialise a pipelined PCG solver." alt="" coords="18,225,185,266"/>
+<area shape="rect" id="node7" href="$d2/d37/namespaceschwarz.html#ae614e2a33b051d6843ac45bcff07c6b6" title=" " alt="" coords="19,291,183,317"/>
+</map>

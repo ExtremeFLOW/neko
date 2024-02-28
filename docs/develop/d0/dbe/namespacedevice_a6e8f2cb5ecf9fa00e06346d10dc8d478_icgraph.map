@@ -1,0 +1,5 @@
+<map id="device::device_profiler_start" name="device::device_profiler_start">
+<area shape="rect" id="node1" title="Start device profiling." alt="" coords="396,5,565,47"/>
+<area shape="rect" id="node2" href="$dc/dfc/namespaceprofiler.html#a5e8238cb516ab2660af163e2f152848d" title="Start profiling." alt="" coords="225,5,348,47"/>
+<area shape="rect" id="node3" href="$d1/d2d/namespacesimulation.html#a922046c7d91b325e798d76659a20eef5" title="Main driver to solve a case C." alt="" coords="5,13,177,39"/>
+</map>

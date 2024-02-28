@@ -1,0 +1,52 @@
+<map id="mxm_wrapper::mxm" name="mxm_wrapper::mxm">
+<area shape="rect" id="node1" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="1608,433,1767,459"/>
+<area shape="rect" id="node2" href="$d3/d57/namespaceax__helm__xsmm.html#ac20549a607a115111fad2c42a8fdb813" title=" " alt="" coords="1361,9,1551,51"/>
+<area shape="rect" id="node3" href="$d2/d10/namespacecacg.html#a96a12044cfb692eb6d097ee3ed4aeda0" title="S&#45;step CA PCG solve." alt="" coords="1390,75,1522,102"/>
+<area shape="rect" id="node4" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="1377,127,1535,168"/>
+<area shape="rect" id="node6" href="$d2/d80/namespacecpr.html#ae689f520261060721e9a32eee074c3d7" title="Generate spectral tranform matrices." alt="" coords="1357,193,1555,219"/>
+<area shape="rect" id="node8" href="$d9/d5a/namespaceopr__xsmm.html#ae87af796709692f90edc89ad48a47e93" title=" " alt="" coords="1369,243,1543,270"/>
+<area shape="rect" id="node19" href="$d9/d5a/namespaceopr__xsmm.html#af292cc34652bea326c44a8024cccd14f" title=" " alt="" coords="1372,295,1540,336"/>
+<area shape="rect" id="node21" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="1372,360,1540,401"/>
+<area shape="rect" id="node27" href="$d5/d0d/namespacespace.html#a5c41cc585bf24744ee74ef6a516cd3d7" title="Generate spectral tranform matrices." alt="" coords="1361,425,1551,467"/>
+<area shape="rect" id="node29" href="$dd/d8c/namespacetensor.html#a1b363bd341668a929386a65996c56d68" title="Tensor product ." alt="" coords="1131,491,1243,518"/>
+<area shape="rect" id="node34" href="$dd/d89/namespacetensor__xsmm.html#a8ef51fba0cd22249f9274b8667bfc73c" title=" " alt="" coords="1380,804,1532,845"/>
+<area shape="rect" id="node36" href="$d4/d59/namespacetensor__cpu.html#a17b15417dc2acf377aa232f937924e89" title=" " alt="" coords="1385,543,1527,584"/>
+<area shape="rect" id="node39" href="$db/de7/namespacetensor__sx.html#a1880f92e708eda2d24e1a7b0852289e2" title=" " alt="" coords="1369,609,1543,635"/>
+<area shape="rect" id="node41" href="$dd/d89/namespacetensor__xsmm.html#a3cb6ef649688a05f0cd0dc7ad19ab8d6" title=" " alt="" coords="1376,660,1536,701"/>
+<area shape="rect" id="node43" href="$dd/d89/namespacetensor__xsmm.html#a1bb0471cd41ad48f1662e73e0bfe7e07" title=" " alt="" coords="1376,732,1536,773"/>
+<area shape="rect" id="node48" href="$dd/d89/namespacetensor__xsmm.html#aa91377dd88cec4f1f3727fb96185c3c8" title=" " alt="" coords="1352,883,1560,910"/>
+<area shape="rect" id="node5" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="1115,106,1259,133"/>
+<area shape="rect" id="node7" href="$d0/d6c/interfacecpr_1_1cpr__init.html#a13d7775a54aa77d22ca967b13c0fbe64" title="Initialize cpr." alt="" coords="1124,157,1251,199"/>
+<area shape="rect" id="node9" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="1103,223,1271,264"/>
+<area shape="rect" id="node10" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the gradient of a scalar field." alt="" coords="841,207,979,234"/>
+<area shape="rect" id="node11" href="$d3/d69/namespaceadvection.html#a50867235873a10384e4958a3f5dcdf32" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="577,384,727,425"/>
+<area shape="rect" id="node12" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields." alt="" coords="589,5,715,47"/>
+<area shape="rect" id="node13" href="$d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="579,71,725,112"/>
+<area shape="rect" id="node14" href="$dd/d30/namespaceoperators.html#ab94fb6f7ef7c7147e433b1c0c3b67510" title="Compute the Lambda2 field for a given velocity field." alt="" coords="569,137,735,163"/>
+<area shape="rect" id="node16" href="$d2/de4/namespacepnpn__res__cpu.html#a83914561389a65c3071032ec84207d10" title=" " alt="" coords="567,188,737,229"/>
+<area shape="rect" id="node17" href="$d8/dea/namespacepnpn__res__device.html#a55ee2fb2b8a79727bd59543ce201fe58" title=" " alt="" coords="557,253,747,295"/>
+<area shape="rect" id="node18" href="$d4/da3/namespacepnpn__res__sx.html#a65fca305c4add463124daa0753282294" title=" " alt="" coords="567,319,737,360"/>
+<area shape="rect" id="node15" href="$d0/d66/namespacelambda2.html#a1416b50f4728d561d2964d2a16eced3f" title="Compute the lambda2 field." alt="" coords="290,137,498,163"/>
+<area shape="rect" id="node20" href="$dd/d30/namespaceoperators.html#af4d7e0e187615ed2bb3cd3b90d77bd45" title="Compute the advection term." alt="" coords="1122,289,1253,315"/>
+<area shape="rect" id="node22" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="1118,339,1257,366"/>
+<area shape="rect" id="node26" href="$d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="1088,390,1287,417"/>
+<area shape="rect" id="node23" href="$dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i." alt="" coords="829,339,991,366"/>
+<area shape="rect" id="node24" href="$d9/da0/namespacevreman__cpu.html#afd690af29ff96e9cde941ebdafd9ca44" title="Compute eddy viscosity on the CPU." alt="" coords="830,408,990,449"/>
+<area shape="rect" id="node25" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="555,450,749,477"/>
+<area shape="rect" id="node28" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="1120,441,1255,467"/>
+<area shape="rect" id="node30" href="$dd/dd2/namespacedofmap.html#ad3de108e62dbf0bc0c617b43f620bed8" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="822,542,998,569"/>
+<area shape="rect" id="node33" href="$dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="556,503,748,530"/>
+<area shape="rect" id="node31" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,529,507,555"/>
+<area shape="rect" id="node32" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,529,233,555"/>
+<area shape="rect" id="node35" href="$dd/d8c/namespacetensor.html#a3b2edcf3fb40ae83a3aebb6876cc0853" title="In place tensor product ." alt="" coords="1124,846,1251,873"/>
+<area shape="rect" id="node37" href="$da/db7/namespacefdm__cpu.html#a6cfa04a90992de2138efc0c36836b3ec" title=" " alt="" coords="1089,542,1286,569"/>
+<area shape="rect" id="node38" href="$dd/d8c/namespacetensor.html#aa50503d37312ded5c29134df83216e65" title="Computes ." alt="" coords="1122,593,1253,619"/>
+<area shape="rect" id="node40" href="$d3/d45/namespacefdm__sx.html#a762fb6300072552516a196633c67e7c4" title=" " alt="" coords="1097,643,1278,670"/>
+<area shape="rect" id="node42" href="$dc/da1/namespacefdm__xsmm.html#aaeba743f54a16c03e2157c64ce2322b8" title=" " alt="" coords="1071,694,1304,721"/>
+<area shape="rect" id="node44" href="$dd/d8c/namespacetensor.html#afb27d9f86d0c3799290bb235cbad97df" title="Tensor product &#160;performed on a single element." alt="" coords="1122,745,1253,771"/>
+<area shape="rect" id="node46" href="$dd/d8c/namespacetensor.html#a9578e54c6fd6906866131eec193169b0" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="1108,795,1267,822"/>
+<area shape="rect" id="node45" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#a70ef42619fcb8aed48dfd008029ce644" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="826,715,994,771"/>
+<area shape="rect" id="node47" href="$da/d80/namespacelocal__interpolation.html#a4707f5b542b2a511476d0bdf808ab48d" title="Interpolates a list of fields based on a set of element ids." alt="" coords="838,795,982,851"/>
+<area shape="rect" id="node49" href="$dd/d8c/namespacetensor.html#a31e5a2faed314a1d5896d5061b803055" title="Tensor product &#160;performed on nelv elements." alt="" coords="1131,897,1243,923"/>
+<area shape="rect" id="node50" href="$d9/da0/namespaceinterpolation.html#a54fff1a3a8d409fda1871c53c8e4b7dd" title="Interpolates an array to one of Xh or Yh." alt="" coords="797,897,1023,923"/>
+</map>

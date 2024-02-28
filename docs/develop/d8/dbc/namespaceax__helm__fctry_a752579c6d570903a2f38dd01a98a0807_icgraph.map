@@ -1,0 +1,6 @@
+<map id="ax_helm_fctry::ax_helm_factory" name="ax_helm_fctry::ax_helm_factory">
+<area shape="rect" id="node1" title="Factory routine for the a Helmholtz problem matrix&#45;vector product. The selection is based on the comp..." alt="" coords="245,49,424,90"/>
+<area shape="rect" id="node2" href="$dc/da3/namespacefluid__pnpn.html#a24a6187aed087af84495969693831775" title=" " alt="" coords="5,5,197,32"/>
+<area shape="rect" id="node3" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="36,56,167,83"/>
+<area shape="rect" id="node4" href="$db/d56/namespacescalar__pnpn.html#af70b26869059aa4be9721e2b29202e27" title="Constructor." alt="" coords="28,107,175,149"/>
+</map>

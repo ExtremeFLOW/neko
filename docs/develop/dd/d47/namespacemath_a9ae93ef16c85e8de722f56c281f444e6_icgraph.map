@@ -1,0 +1,32 @@
+<map id="math::addcol3" name="math::addcol3">
+<area shape="rect" id="node1" title="Returns ." alt="" coords="1151,507,1265,534"/>
+<area shape="rect" id="node2" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="922,5,1081,47"/>
+<area shape="rect" id="node4" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields." alt="" coords="939,71,1064,112"/>
+<area shape="rect" id="node5" href="$dd/d49/namespacejacobi.html#a2b15f287f6c23fdb2b2c5b113e9d04dd" title=" " alt="" coords="921,137,1081,163"/>
+<area shape="rect" id="node7" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="917,188,1085,229"/>
+<area shape="rect" id="node13" href="$d3/d6b/namespacesx__dudxyz.html#a5ad7d540f70084270dc860688588f461" title=" " alt="" coords="908,254,1095,281"/>
+<area shape="rect" id="node16" href="$d3/d6b/namespacesx__dudxyz.html#acd8382ff959eda86ce98f0d7d1b21122" title=" " alt="" coords="900,305,1103,331"/>
+<area shape="rect" id="node17" href="$d3/d6b/namespacesx__dudxyz.html#ae5605ef08a3f14cce510d3e8eb2a6907" title=" " alt="" coords="900,355,1103,382"/>
+<area shape="rect" id="node18" href="$d3/d6b/namespacesx__dudxyz.html#a516f47fda73f7c92888865b8fc505e41" title=" " alt="" coords="900,406,1103,433"/>
+<area shape="rect" id="node19" href="$d3/d6b/namespacesx__dudxyz.html#a777f23a2701f51ea449c2e30fe475730" title=" " alt="" coords="900,457,1103,483"/>
+<area shape="rect" id="node20" href="$d3/d6b/namespacesx__dudxyz.html#a8b7bb900eb7c9d8237607d977216203d" title=" " alt="" coords="900,507,1103,534"/>
+<area shape="rect" id="node21" href="$d3/d6b/namespacesx__dudxyz.html#a892ddfc921132fd9aefb11d02d0f0858" title=" " alt="" coords="904,558,1099,585"/>
+<area shape="rect" id="node22" href="$d3/d6b/namespacesx__dudxyz.html#a61674d57f05689b6bf4f4e0d3050820d" title=" " alt="" coords="904,609,1099,635"/>
+<area shape="rect" id="node23" href="$d3/d6b/namespacesx__dudxyz.html#a2ecde54d91c4b1703b49175ea052033c" title=" " alt="" coords="904,659,1099,686"/>
+<area shape="rect" id="node24" href="$d3/d6b/namespacesx__dudxyz.html#ae9437e76b98e40c6a2cb9498aafb3e6b" title=" " alt="" coords="904,710,1099,737"/>
+<area shape="rect" id="node25" href="$d3/d6b/namespacesx__dudxyz.html#a66effde2eceed44fe9e1bc41a5d92459" title=" " alt="" coords="904,761,1099,787"/>
+<area shape="rect" id="node26" href="$d3/d6b/namespacesx__dudxyz.html#a771e6848212fb21a2bc56182196389f5" title=" " alt="" coords="904,811,1099,838"/>
+<area shape="rect" id="node27" href="$d3/d6b/namespacesx__dudxyz.html#a154d7de7cc923ebb74dd23028a7e5c9b" title=" " alt="" coords="904,862,1099,889"/>
+<area shape="rect" id="node28" href="$d3/d6b/namespacesx__dudxyz.html#af99daaaec0cc8286b7196b4522ae98a2" title=" " alt="" coords="904,913,1099,939"/>
+<area shape="rect" id="node29" href="$dd/d6e/namespacesx__jacobi.html#add1b1766274e20b0a12d2f36627adecb" title=" " alt="" coords="925,964,1077,1005"/>
+<area shape="rect" id="node3" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="681,13,825,39"/>
+<area shape="rect" id="node6" href="$dd/d49/namespacejacobi.html#a5c43a3d9d05e1ba76322ba2a8f1faea6" title=" " alt="" coords="685,137,821,163"/>
+<area shape="rect" id="node8" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="463,351,601,378"/>
+<area shape="rect" id="node12" href="$d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="653,246,852,273"/>
+<area shape="rect" id="node9" href="$dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i." alt="" coords="248,322,411,349"/>
+<area shape="rect" id="node10" href="$d9/da0/namespacevreman__cpu.html#afd690af29ff96e9cde941ebdafd9ca44" title="Compute eddy viscosity on the CPU." alt="" coords="249,373,409,415"/>
+<area shape="rect" id="node11" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,381,200,407"/>
+<area shape="rect" id="node14" href="$df/db5/namespaceopr__sx.html#a56ac313734cbbecb066b0e45f68fafc4" title=" " alt="" coords="667,558,838,585"/>
+<area shape="rect" id="node15" href="$df/db5/namespaceopr__sx.html#aa4b37924e1cf872be2526581325b9ec9" title=" " alt="" coords="459,558,605,585"/>
+<area shape="rect" id="node30" href="$dd/d6e/namespacesx__jacobi.html#a8e0d95bbb8f2b6dc135d59f47b066669" title=" " alt="" coords="663,971,843,998"/>
+</map>

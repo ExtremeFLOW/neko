@@ -1,0 +1,8 @@
+<map id="parmetis::parmetis_mark_parts" name="parmetis::parmetis_mark_parts">
+<area shape="rect" id="node1" title="Fill mesh field according to new partitions." alt="" coords="635,39,781,80"/>
+<area shape="rect" id="node2" href="$d1/dd7/namespaceparmetis.html#afc65e966bf7728f9211082aa10b19989" title="Compute a k&#45;way partitioning of a mesh msh using a coordinated&#45;based space&#45;filing curves method." alt="" coords="440,5,587,47"/>
+<area shape="rect" id="node3" href="$d1/dd7/namespaceparmetis.html#a7015f5a8d7bb32005378d0df25fc45e7" title="Compute a k&#45;way partitioning of a mesh msh." alt="" coords="440,71,587,112"/>
+<area shape="rect" id="node4" href="$dd/da8/namespacecase.html#ae8960a3867b359b819ddafa169747832" title="Initialize a case from its (loaded) params object." alt="" coords="209,78,392,105"/>
+<area shape="rect" id="node5" href="$d8/d36/interfacecase_1_1case__init.html#a96fd088f5a85b607a614f31a86b826e6" title="Initialize a case from an input file case_file." alt="" coords="5,37,161,79"/>
+<area shape="rect" id="node6" href="$d8/d36/interfacecase_1_1case__init.html#a3fe242ef6c179c5b11d1004ac20f043e" title="Initialize a case from a JSON object describing a case." alt="" coords="5,103,161,144"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="aabb::get_aabb" name="aabb::get_aabb">
+<area shape="rect" id="node1" title="Construct the aabb of a predefined object." alt="" coords="213,78,336,105"/>
+<area shape="rect" id="node2" href="$de/dbe/namespaceaabb__tree.html#a9436c192bfc12ea59cce3fd54e787b9c" title="Builds the tree." alt="" coords="5,5,165,47"/>
+<area shape="rect" id="node3" href="$de/dbe/namespaceaabb__tree.html#a4712a2a8811238d8662927d80039af0d" title="Inserts an object into the tree." alt="" coords="5,71,165,112"/>
+<area shape="rect" id="node4" href="$de/dbe/namespaceaabb__tree.html#a91bbc6b82fa750c901f9aee8627ab9c0" title="Queries the tree for overlapping objects." alt="" coords="5,136,165,177"/>
+</map>

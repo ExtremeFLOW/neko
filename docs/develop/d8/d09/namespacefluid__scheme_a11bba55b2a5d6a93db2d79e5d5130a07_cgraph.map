@@ -1,0 +1,6 @@
+<map id="fluid_scheme::fluid_scheme_init_common" name="fluid_scheme::fluid_scheme_init_common">
+<area shape="rect" id="node1" title="Initialize common data for the current scheme." alt="" coords="5,23,177,65"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="225,5,344,32"/>
+<area shape="rect" id="node3" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="227,56,342,83"/>
+<area shape="rect" id="node4" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="392,56,512,83"/>
+</map>

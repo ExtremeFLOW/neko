@@ -1,0 +1,14 @@
+<map id="scalar_pnpn::scalar_pnpn_init" name="scalar_pnpn::scalar_pnpn_init">
+<area shape="rect" id="node1" title="Constructor." alt="" coords="5,223,152,265"/>
+<area shape="rect" id="node2" href="$d3/d69/namespaceadvection.html#a27316124e9b4a37c9ae00ec700953ed4" title="A factory for advection_t decendants." alt="" coords="211,49,370,90"/>
+<area shape="rect" id="node6" href="$d8/dbc/namespaceax__helm__fctry.html#a752579c6d570903a2f38dd01a98a0807" title="Factory routine for the a Helmholtz problem matrix&#45;vector product. The selection is based on the comp..." alt="" coords="201,114,380,155"/>
+<area shape="rect" id="node7" href="$d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="231,180,350,207"/>
+<area shape="rect" id="node8" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="233,231,348,257"/>
+<area shape="rect" id="node10" href="$d2/dd3/namespacerhs__maker__fctry.html#a82ed202652887c07758d242887869dce" title=" " alt="" coords="213,282,368,323"/>
+<area shape="rect" id="node11" href="$d2/dd3/namespacerhs__maker__fctry.html#abe3ce643553952f6d3fa023951e4a216" title=" " alt="" coords="213,347,368,389"/>
+<area shape="rect" id="node12" href="$dd/daa/namespacescalar__residual__fctry.html#a90b130272e53d882fb406662d150edb5" title=" " alt="" coords="200,413,381,454"/>
+<area shape="rect" id="node3" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="439,5,589,32"/>
+<area shape="rect" id="node4" href="$d3/d69/namespaceadvection.html#a155e772f99b667b81fe8a8c30c6aedb7" title="Constructor." alt="" coords="429,56,599,83"/>
+<area shape="rect" id="node5" href="$d3/d69/namespaceadvection.html#a646ee7d2b5eaded46dd282b6c5899d44" title="Constructor." alt="" coords="445,107,583,149"/>
+<area shape="rect" id="node9" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="454,231,574,257"/>
+</map>
