@@ -1,0 +1,41 @@
+{
+"Version": 1.0,
+"case": {
+	"decomposition":"POD",
+	"execution": {
+		"type" :"fromAdios",
+		"adiosPath": "/scratch/adperez/adios2/scratch/adperez/miniconda3/.conda/envs/mypython3.9.5-spMoDePy/lib/python3.9/site-packages/adios2"	
+	},
+	"number_of_snapshots": 500,
+	"batch_size"         : 100,
+	"keep_modes"         : 100,
+ 	"fields"             : [0,1,2],
+	"IO":{
+		"base_data": {
+        		"dataPath"           : "./",
+			"casename"           : "field",
+			"first_index"        : 0
+		},
+		"field_data": {
+        		"dataPath"           : "./mixlay/",
+			"casename"           : "mixlay",
+			"first_index"        : 1
+		},
+		"mass_data": {
+        		"dataPath"           : "./mixlay/",
+			"casename"           : "bm1mixlay",
+			"first_index"        : 1
+		}
+	},
+	"update_type"        : "global",	
+	"autoupdate": {
+		"value": "False",
+		"maximun_number_of_modes": 10,
+		"minimun_orthogonality_ratio": 0.0001
+		},
+	"restart":{
+		"value": "False",
+		"filePath" : "data/mixlay/restart.hdf5" 
+		}	
+	}
+}
