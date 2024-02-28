@@ -9,7 +9,7 @@ layout: default
 
 Neko is a portable framework for high-order spectral element flow simulations. Written in modern Fortran, Neko adopts an object-oriented approach, allowing multi-tier abstractions of the solver stack and facilitating various hardware backends ranging from general-purpose processors, CUDA and HIP enabled accelerators to SX-Aurora vector processors. Neko has its roots in the spectral element code Nek5000 from UChicago/ANL, from where many of the namings, code structure and numerical methods are adopted.
 
-* Documentation for Neko is available [here](./docs/index.html) for the latest release, and [here](./docs/develop/index.html) for nightly builds of develop.
+* Documentation for Neko is available for the [latest release](./docs/index.html) and [nightly develop](./docs/develop/index.html).
 * Please use Neko's [user discussions](https://github.com/ExtremeFLOW/neko/discussions) for questions and feature requests.
 
 * * *
