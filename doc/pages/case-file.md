@@ -74,7 +74,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `constant_cfl`       | Desired CFL number                                                                                    | Positive real
                           | -             |
 | `cfl_max_update_frequency` | Minimum interval between two time-step-updating step in terms of time steps                     | Integer
-                          | -             | `1`
+                          | `1`           |
 | `time_step`          | Time-step size if `constant_cfl` is not specified; maximum time-step size if `constant_cfl` is specified.                                             | Positive reals                                  | -             |
 | `end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`      | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
