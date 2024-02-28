@@ -1,8 +1,9 @@
 name: Documentation (develop)
 
 on:
- # push:
- #   branches: [ master ]
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '35 19 * * *'
   workflow_dispatch:
   
 jobs:
