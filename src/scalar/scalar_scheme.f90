@@ -206,13 +206,13 @@ contains
   subroutine scalar_scheme_add_bcs(this, zones, bc_labels)
     class(scalar_scheme_t), intent(inout) :: this
     type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
-    character(len=20), intent(in) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
+    character(len=20), intent(in) :: bc_labels(:)
     character(len=20) :: bc_label
     integer :: i, j, bc_idx
     real(kind=rp) :: dir_value, flux_value
     logical :: bc_exists
 
-    do i = 1, NEKO_MSH_MAX_ZLBLS
+    do i = 1, size(bc_labels)
        bc_label = trim(bc_labels(i))
        if (bc_label(1:1) .eq. 'd') then
 ! The idea of this commented piece of code is to merge bcs with the same
