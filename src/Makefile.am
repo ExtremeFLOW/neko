@@ -141,6 +141,7 @@ neko_fortran_SOURCES = \
 	common/craypat.F90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
+	bc/neumann.f90\
 	bc/dong_outflow.f90\
 	bc/wall.f90\
 	bc/inflow.f90\
