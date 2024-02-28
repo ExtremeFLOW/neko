@@ -1,0 +1,43 @@
+name: Documentation (develop)
+
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '55 19 * * *'
+#  workflow_dispatch:
+  
+jobs:
+  build-dev-documentation:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup env.
+      run: |
+        sudo apt-get update && sudo apt-get install -y git openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 doxygen fonts-freefont-ttf graphviz
+        git clone https://github.com/ExtremeFLOW/doxygen-awesome-css doc/doxygen-awesome-css
+        git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
+        cd json-fortran
+        mkdir build && cd build
+        cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
+        make -j$(nproc) && make install && cd ../../
+        echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
+    - name: Doxygen
+      run: |
+        ./regen.sh
+        ./configure FC=${FC}
+        make html
+    
+    # Deploy the HTML documentation to GitHub Pages
+    - name: GH Pages Deployment
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./doc/html/
+        allow_empty_commit: false
+        force_orphan: false
+        publish_branch: gh-pages
+        destination_dir: docs/develop
+        keep_files: false
+        enable_jekyll: true
