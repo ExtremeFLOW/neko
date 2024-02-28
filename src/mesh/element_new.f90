@@ -30,17 +30,49 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Abstract type for mesh element class
+!! @details There are two classes added: @ref polytope_actualisation_t and
+!! @ref element_new_t. The first one represents realisation of the abstract
+!! topology object in the real mesh and the second one introduces mesh elements
+!! that combine topology structure with geometrical data.
 module element_new
   use num_types, only : i4, i8, dp
   use utils, only : neko_error
   use polytope, only : polytope_t
-  use topology, only : topology_t
-  use polytope_actualisation, only : polytope_actualisation_t
+  use topology, only : polytope_aligned_t, topology_t
   use point, only : point_ptr, point_t
   implicit none
   private
 
+  public :: polytope_actualisation_t
   public :: element_component_t, element_new_t, mesh_element_t
+
+  !> Base type for a polytope actualisation.
+  !! @details This is an abstract type building on topology and alignment data
+  !! with nonconforming and interpolation information. Note that vertices can be
+  !! hanging but have no interpolation operation. This type corresponds to
+  !! the realisation of an abstract objects as parts of an existing higher
+  !! dimension elements.
+  type, extends(polytope_aligned_t), abstract :: polytope_actualisation_t
+     !> Is there any interpolation operator active (excluding identity)
+     logical, private :: ifinterpolation_ = .false.
+     !> Hanging information
+     integer(i4), private :: hanging_ = 0
+     !> position in the higher dimension polytope
+     integer(i4), private :: position_ = -1
+   contains
+     !> Free aligned polytope and interpolation data
+     procedure, pass(this) :: free => polytope_actualisation_free
+     !> Initialise general data
+     procedure, pass(this) :: init_act => polytope_actualisation_init_act
+     !> Return interpolation flag
+     procedure, pass(this) :: ifintp => polytope_actualisation_ifintp_get
+     !> Return hanging node information
+     procedure, pass(this) :: hng => polytope_actualisation_hng_get
+     !> Return position in the higher dimension object
+     procedure, pass(this) :: pos => polytope_actualisation_pos_get
+     !> Initialise a polytope actualisation
+     procedure(polytope_actualisation_init), pass(this), deferred :: init
+  end type polytope_actualisation_t
 
   !> Single component object allocatable space
   type :: element_component_t
@@ -116,6 +148,24 @@ module element_new
      class(element_new_t), allocatable :: obj
   end type mesh_element_t
 
+  !> Initialise a polytope with hanging information
+  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   algn   alignment information
+  !! @parameter[in]   ifint  interpolation flag
+  !! @parameter[in]   hng    hanging information
+  !! @parameter[in]   pos    position in the higher order element
+  abstract interface
+     subroutine polytope_actualisation_init(this, pltp, algn, ifint, hng, pos)
+       import i4
+       import topology_t
+       import polytope_actualisation_t
+       class(polytope_actualisation_t), intent(inout) :: this
+       class(topology_t), target, intent(in) :: pltp
+       integer(i4), intent(in) :: algn, hng, pos
+       logical, intent(in) :: ifint
+     end subroutine polytope_actualisation_init
+  end interface
+
   !> Initialise a polytope with geometry information
   !! @parameter[in]   id       polytope id
   !! @parameter[in]   nfct     number of facets
@@ -190,6 +240,60 @@ module element_new
 
 contains
 
+  !> Free aligned polytope and interpolation data
+  subroutine polytope_actualisation_free(this)
+    class(polytope_actualisation_t), intent(inout) :: this
+
+    call this%free_base()
+
+    this%ifinterpolation_ = .false.
+    this%hanging_ = 0
+    this%position_ = -1
+  end subroutine polytope_actualisation_free
+
+  !> Initialise general data
+  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   ifalgn if non identity alignment
+  !! @parameter[in]   ifint  interpolation flag
+  !! @parameter[in]   hng    hanging information
+  !! @parameter[in]   pos    position in the higher order element
+  subroutine polytope_actualisation_init_act(this, pltp, ifalgn, ifint, hng, &
+       & pos)
+    class(polytope_actualisation_t), intent(inout) :: this
+    class(topology_t), target, intent(in) :: pltp
+    logical, intent(in)  :: ifalgn, ifint
+    integer(i4), intent(in) :: hng, pos
+
+    call this%init_base(pltp, ifalgn)
+    this%ifinterpolation_ = ifint
+    this%hanging_ = hng
+    this%position_ = pos
+  end subroutine polytope_actualisation_init_act
+
+  !> @brief Get interpolation flag
+  !! @return   ifintp
+  pure function polytope_actualisation_ifintp_get(this) result(ifintp)
+    class(polytope_actualisation_t), intent(in) :: this
+    logical :: ifintp
+    ifintp = this%ifinterpolation_
+  end function polytope_actualisation_ifintp_get
+
+  !> @brief Get hanging information
+  !! @return   hng
+  pure function polytope_actualisation_hng_get(this) result(hng)
+    class(polytope_actualisation_t), intent(in) :: this
+    integer(i4) :: hng
+    hng = this%hanging_
+  end function polytope_actualisation_hng_get
+
+  !> @brief Get position information
+  !! @return   pos
+  pure function polytope_actualisation_pos_get(this) result(pos)
+    class(polytope_actualisation_t), intent(in) :: this
+    integer(i4) :: pos
+    pos = this%position_
+  end function polytope_actualisation_pos_get
+
   !> Free polytope data
   subroutine element_free(this)
     class(element_new_t), intent(inout) :: this
@@ -263,7 +367,7 @@ contains
   function element_fct_ptr(this, pos) result(ptr)
     class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
-    class(polytope_t), pointer :: ptr
+    class(topology_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%nfacet)) then
        ptr => this%facet(pos)%obj%polytope
     else
@@ -277,7 +381,7 @@ contains
   function element_rdg_ptr(this, pos) result(ptr)
     class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
-    class(polytope_t), pointer :: ptr
+    class(topology_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%nridge)) then
        ptr => this%ridge(pos)%obj%polytope
     else
@@ -291,7 +395,7 @@ contains
   function element_pek_ptr(this, pos) result(ptr)
     class(element_new_t), intent(in) :: this
     integer(i4), intent(in) :: pos
-    class(polytope_t), pointer :: ptr
+    class(topology_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%npeak)) then
        ptr => this%peak(pos)%obj%polytope
     else
@@ -435,12 +539,7 @@ contains
     integer(i4), intent(in) :: pos
     integer(i4) :: bnd
     if ((pos > 0) .and. (pos <= this%nfacet)) then
-       select type(polytope => this%facet(pos)%obj%polytope)
-       class is (topology_t)
-          bnd = polytope%bnd()
-       class default
-          call neko_error('Inconsistent class for mesh objects facet boundary.')
-       end select
+       bnd = this%facet(pos)%obj%polytope%bnd()
     else
        call neko_error('Wrong facet number for mesh objects boundary.')
     end if
@@ -454,12 +553,7 @@ contains
     integer(i4), intent(in) :: pos
     integer(i8) :: gsid
     if ((pos > 0) .and. (pos <= this%nfacet)) then
-       select type(polytope => this%facet(pos)%obj%polytope)
-       class is (topology_t)
-          gsid = polytope%gsid()
-       class default
-          call neko_error('Inconsistent class for mesh objects facet gsid.')
-       end select
+       gsid = this%facet(pos)%obj%polytope%gsid()
     else
        call neko_error('Wrong facet number for mesh objects gsid.')
     end if
@@ -473,12 +567,7 @@ contains
     integer(i4), intent(in) :: pos
     integer(i8) :: gsid
     if ((pos > 0) .and. (pos <= this%nridge)) then
-       select type(polytope => this%ridge(pos)%obj%polytope)
-       class is (topology_t)
-          gsid = polytope%gsid()
-       class default
-          call neko_error('Inconsistent class for mesh objects ridge gsid.')
-       end select
+       gsid = this%ridge(pos)%obj%polytope%gsid()
     else
        call neko_error('Wrong ridge number for mesh objects gsid.')
     end if
@@ -492,12 +581,7 @@ contains
     integer(i4), intent(in) :: pos
     integer(i8) :: gsid
     if ((pos > 0) .and. (pos <= this%npeak)) then
-       select type(polytope => this%peak(pos)%obj%polytope)
-       class is (topology_t)
-          gsid = polytope%gsid()
-       class default
-          call neko_error('Inconsistent class for mesh objects peak gsid.')
-       end select
+       gsid = this%peak(pos)%obj%polytope%gsid()
     else
        call neko_error('Wrong peak number for mesh objects gsid.')
     end if

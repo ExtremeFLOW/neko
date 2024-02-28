@@ -34,8 +34,8 @@
 module hex_new
   use num_types, only : i4, dp
   use utils, only : neko_error
-  use polytope, only : polytope_t, polytope_ptr
-  use topology, only : topology_t
+  use polytope, only : polytope_t
+  use topology, only : topology_t, topology_ptr
   use element_new, only : element_new_t, element_component_t
   use vertex, only : vertex_act_t, vertex_ornt_t
   use edge, only : edge_act_t, edge_tpl_t, NEKO_EDGE_NFACET
@@ -257,7 +257,7 @@ contains
     integer(i4), dimension(3) :: hng
     integer(i4), dimension(2) :: edg_algn
     logical :: ifint
-    type(polytope_ptr), dimension(3) :: vrt
+    type(topology_ptr), dimension(3) :: vrt
     integer(i4), dimension(NEKO_EDGE_NFACET, 1) :: edgt
 
     call this%free()
@@ -313,9 +313,11 @@ contains
              mapr(3) = trans(1, 3)
              mapr(4) = trans(3, 3)
              ! extract vertex
-             vrt(jl)%ptr => this%facet(ifct)%obj%polytope%rdg(mapr(icrn))
+             vrt(jl)%ptr => &
+                  & this%facet(ifct)%obj%polytope%ridge(mapr(icrn))%obj%polyp()
           else
-             vrt(jl)%ptr => this%facet(ifct)%obj%polytope%rdg(icrn)
+             vrt(jl)%ptr => &
+                  & this%facet(ifct)%obj%polytope%ridge(icrn)%obj%polyp()
           end if
           ! collect facet hanging information
           hng_fct(1, jl) = this%facet(ifct)%obj%hng()
@@ -457,13 +459,15 @@ contains
              mapf(3) = trans(2, 1)
              mapf(4) = trans(2, 3)
              ! extract edge
-             vrt(jl)%ptr => this%facet(ifct)%obj%polytope%fct(mapf(icrn))
+             vrt(jl)%ptr => &
+                  & this%facet(ifct)%obj%polytope%facet(mapf(icrn))%obj%polyp()
              ! extract alignment
              edg_algn(jl) = quad_to_edg_algn_inv( &
                   & this%facet(ifct)%obj%polytope%fct_algn(mapf(icrn)), &
                   & mapf(icrn), this%facet(ifct)%obj%algn_op%algn())
           else
-             vrt(jl)%ptr => this%facet(ifct)%obj%polytope%fct(icrn)
+             vrt(jl)%ptr => &
+                  & this%facet(ifct)%obj%polytope%facet(icrn)%obj%polyp()
              ! extract alignment
              edg_algn(jl) = quad_to_edg_algn_inv( &
                   & this%facet(ifct)%obj%polytope%fct_algn(icrn), &
@@ -565,8 +569,8 @@ contains
        edgt(1, 1) = this%peak(rdg_to_pek(1, il))%obj%polytope%id()
        edgt(2, 1) = this%peak(rdg_to_pek(2, il))%obj%polytope%id()
        call this%ridge(il)%obj%algn_op%trns_inv_i4(edgt, NEKO_EDGE_NFACET, 1, 1)
-       vrt(1)%ptr => this%ridge(il)%obj%polytope%fct(1)
-       vrt(2)%ptr => this%ridge(il)%obj%polytope%fct(2)
+       vrt(1)%ptr => this%ridge(il)%obj%polytope%facet(1)%obj%polyp()
+       vrt(2)%ptr => this%ridge(il)%obj%polytope%facet(2)%obj%polyp()
        ifint = (vrt(1)%ptr%id() == edgt(1, 1)) .and. &
             & (vrt(2)%ptr%id() == edgt(2, 1))
        if (.not. ifint) &

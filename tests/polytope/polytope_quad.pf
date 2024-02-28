@@ -2,13 +2,12 @@
 subroutine test_quad_topology_simple
   use pfunit
   use num_types, only : i4, i8
-  use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
   use quad_new, only : quad_tpl_t
   implicit none
-  class(polytope_t), pointer :: poly
+  class(topology_t), pointer :: poly
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t), dimension(4) :: edt
   type(quad_tpl_t) :: qut1
@@ -50,11 +49,8 @@ subroutine test_quad_topology_simple
      @assertEqual(poly%id(), ide(il))
      @assertEqual(poly%tdim(), 1)
      @assertTrue(poly%check_comp(2, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), bne(il))
-        @assertEqual(poly%gsid(), gse(il))
-     end select
+     @assertEqual(poly%bnd(), bne(il))
+     @assertEqual(poly%gsid(), gse(il))
      @assertTrue(poly%equal(edt(il)))
   end do
   ! ridges
@@ -64,11 +60,8 @@ subroutine test_quad_topology_simple
      @assertEqual(poly%id(), idv(il))
      @assertEqual(poly%tdim(), 0)
      @assertTrue(poly%check_comp(0, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), -1)
-        @assertEqual(poly%gsid(), gsv(il))
-     end select
+     @assertEqual(poly%bnd(), -1)
+     @assertEqual(poly%gsid(), gsv(il))
      @assertTrue(poly%equal(vrt(il)))
   end do
 
@@ -853,13 +846,12 @@ end subroutine test_quad_topology_selfperiodic_torus
 subroutine test_quad_actualisation_simple
   use pfunit
   use num_types, only : i4, i8
-  use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
   use quad_new, only : quad_tpl_t, quad_act_t, NEKO_QUAD_NFACET
   implicit none
-  class(polytope_t), pointer :: poly, polye
+  class(topology_t), pointer :: poly, polye
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t), dimension(4) :: edt
   type(quad_tpl_t) :: qut1
@@ -897,16 +889,13 @@ subroutine test_quad_actualisation_simple
   call qua1%init(qut1, algn, ifintp, hng, pos)
 
   ! pointer
-  call qua1%polyp(poly)
+  poly => qua1%polyp()
   @assertTrue(associated(poly))
   @assertEqual(poly%id(), idq1)
   @assertEqual(poly%tdim(), 2)
   @assertTrue(poly%check_comp(4, 4, 0))
-  select type (poly)
-  class is (topology_t)
-     @assertEqual(poly%bnd(), bnq1)
-     @assertEqual(poly%gsid(), gsq1)
-  end select
+  @assertEqual(poly%bnd(), bnq1)
+  @assertEqual(poly%gsid(), gsq1)
   @assertTrue(poly%equal(qut1))
 
   ! component pointers
@@ -917,11 +906,8 @@ subroutine test_quad_actualisation_simple
      @assertEqual(polye%id(), ide(il))
      @assertEqual(polye%tdim(), 1)
      @assertTrue(polye%check_comp(2, 0, 0))
-     select type (polye)
-     class is (topology_t)
-        @assertEqual(polye%bnd(), bne(il))
-        @assertEqual(polye%gsid(), gse(il))
-     end select
+     @assertEqual(polye%bnd(), bne(il))
+     @assertEqual(polye%gsid(), gse(il))
      @assertTrue(polye%equal(edt(il)))
   end do
   ! ridges
@@ -931,11 +917,8 @@ subroutine test_quad_actualisation_simple
      @assertEqual(polye%id(), idv(il))
      @assertEqual(polye%tdim(), 0)
      @assertTrue(polye%check_comp(0, 0, 0))
-     select type (polye)
-     class is (topology_t)
-        @assertEqual(polye%bnd(), -1)
-        @assertEqual(polye%gsid(), gsv(il))
-     end select
+     @assertEqual(polye%bnd(), -1)
+     @assertEqual(polye%gsid(), gsv(il))
      @assertTrue(polye%equal(vrt(il)))
   end do
 
@@ -972,13 +955,11 @@ end subroutine test_quad_actualisation_simple
 subroutine test_quad_actualisation_permute
   use pfunit
   use num_types, only : i4, i8
-  use polytope, only : polytope_t
   use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
   use quad_new, only : quad_tpl_t, quad_act_t, NEKO_QUAD_NFACET
   implicit none
-  class(polytope_t), pointer :: poly, polye
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t), dimension(4) :: edt, edtP
   type(quad_tpl_t) :: qut1, qut1P
@@ -1047,13 +1028,11 @@ end subroutine test_quad_actualisation_permute
 subroutine test_quad_actualisation_separate
   use pfunit
   use num_types, only : i4, i8
-  use polytope, only : polytope_t
   use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
   use quad_new, only : quad_tpl_t, quad_act_t, NEKO_QUAD_NFACET
   implicit none
-  class(polytope_t), pointer :: poly, polye
   type(vertex_tpl_t), dimension(8) :: vrt
   type(edge_tpl_t), dimension(8) :: edt
   type(quad_tpl_t) :: qut1, qut2
@@ -1115,14 +1094,13 @@ end subroutine test_quad_actualisation_separate
 subroutine test_quad_mesh_simple
   use pfunit
   use num_types, only : i4, i8, dp
-  use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t
   use quad_new, only : quad_elm_t
   use point, only : point_ptr, point_t
   implicit none
-  class(polytope_t), pointer :: poly
+  class(topology_t), pointer :: poly
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t), dimension(4) :: edt
   type(quad_elm_t) :: qum1
@@ -1183,11 +1161,8 @@ subroutine test_quad_mesh_simple
      @assertEqual(poly%id(), ide(il))
      @assertEqual(poly%tdim(), 1)
      @assertTrue(poly%check_comp(2, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), bne(il))
-        @assertEqual(poly%gsid(), gse(il))
-     end select
+     @assertEqual(poly%bnd(), bne(il))
+     @assertEqual(poly%gsid(), gse(il))
      @assertTrue(poly%equal(edt(il)))
   end do
   ! ridges
@@ -1197,11 +1172,8 @@ subroutine test_quad_mesh_simple
      @assertEqual(poly%id(), idv(il))
      @assertEqual(poly%tdim(), 0)
      @assertTrue(poly%check_comp(0, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), -1)
-        @assertEqual(poly%gsid(), gsv(il))
-     end select
+     @assertEqual(poly%bnd(), -1)
+     @assertEqual(poly%gsid(), gsv(il))
      @assertTrue(poly%equal(vrt(il)))
   end do
   ! points
@@ -1267,7 +1239,6 @@ end subroutine test_quad_mesh_simple
 subroutine test_quad_elm_add_simple
   use pfunit
   use num_types, only : i4, dp
-  use polytope, only : polytope_t
   use topology, only : topology_t, topology_element_t
   use element_new, only : mesh_element_t
   use vertex, only : vertex_tpl_add
@@ -1286,7 +1257,7 @@ subroutine test_quad_elm_add_simple
        &  1.0d0, 0.0d0, 0.0d0,  0.0d0, 1.0d0, 0.0d0,  1.0d0, 1.0d0, 0.0d0 /), &
        & shape(crd))
   type(point_t), dimension(4) :: pts
-  class(polytope_t), pointer :: poly
+  class(topology_t), pointer :: poly
   type(point_t), pointer :: point
 
   ! points
@@ -1327,10 +1298,7 @@ subroutine test_quad_elm_add_simple
      @assertEqual(poly%id(), ide(il))
      @assertEqual(poly%tdim(), 1)
      @assertTrue(poly%check_comp(2, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), bne(il))
-     end select
+     @assertEqual(poly%bnd(), bne(il))
      @assertTrue(poly%equal(edg(il)%obj))
   end do
   ! ridges
@@ -1340,10 +1308,7 @@ subroutine test_quad_elm_add_simple
      @assertEqual(poly%id(), idv(il))
      @assertEqual(poly%tdim(), 0)
      @assertTrue(poly%check_comp(0, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), -1)
-     end select
+     @assertEqual(poly%bnd(), -1)
      @assertTrue(poly%equal(vrt(il)%obj))
   end do
   ! points

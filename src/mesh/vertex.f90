@@ -35,9 +35,8 @@ module vertex
   use num_types, only : i4
   use utils, only : neko_error, neko_warning
   use polytope, only : polytope_t
-  use polytope_oriented, only : polytope_oriented_t
-  use topology, only : topology_t, topology_component_t
-  use polytope_actualisation, only : polytope_actualisation_t
+  use topology, only : polytope_oriented_t, topology_t, topology_component_t
+  use element_new, only : polytope_actualisation_t
   implicit none
   private
 
@@ -175,7 +174,7 @@ contains
   !! @parameter[in]   algn   alignment information
   subroutine vertex_ornt_init(this, pltp, algn)
     class(vertex_ornt_t), intent(inout) :: this
-    class(polytope_t), target, intent(in) :: pltp
+    class(topology_t), target, intent(in) :: pltp
     integer(i4), intent(in) :: algn
 
     call this%free()
@@ -218,7 +217,7 @@ contains
   !! @return ifalgn
   function vertex_ornt_test(this, other) result(ifalgn)
     class(vertex_ornt_t), intent(in) :: this
-    class(polytope_t), intent(in) :: other
+    class(topology_t), intent(in) :: other
     logical :: ifalgn
     ! there is no alignment and there is just one realisation
     ifalgn = (this%polytope%tdim() == other%tdim()) .and. &
@@ -233,7 +232,7 @@ contains
   !! @parameter[in]   pos    position in the higher order element
   subroutine vertex_act_init(this, pltp, algn, ifint, hng, pos)
     class(vertex_act_t), intent(inout) :: this
-    class(polytope_t), target, intent(in) :: pltp
+    class(topology_t), target, intent(in) :: pltp
     integer(i4), intent(in) :: algn, hng, pos
     logical, intent(in) :: ifint
 
@@ -282,7 +281,7 @@ contains
   !! @return ifalgn
   function vertex_act_test(this, other) result(ifalgn)
     class(vertex_act_t), intent(in) :: this
-    class(polytope_t), intent(in) :: other
+    class(topology_t), intent(in) :: other
     logical :: ifalgn
     ! there is no alignment and there is just one realisation
     ifalgn = (this%polytope%tdim() == other%tdim()) .and. &

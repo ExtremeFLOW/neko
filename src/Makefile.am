@@ -52,10 +52,7 @@ neko_fortran_SOURCES = \
 	mesh/alignment_edge.f90\
 	mesh/alignment_quad.f90\
 	mesh/polytope.f90\
-	mesh/polytope_aligned.f90\
-	mesh/polytope_oriented.f90\
 	mesh/topology.f90\
-	mesh/polytope_actualisation.f90\
 	mesh/element_new.f90\
 	mesh/vertex.f90\
 	mesh/edge.f90\

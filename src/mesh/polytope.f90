@@ -72,12 +72,6 @@ module polytope
      procedure, pass(this) :: check_comp => polytope_check_component
      !> Free type
      procedure(polytope_free), pass(this), deferred :: free
-     !> Pointer to the polytope facet
-     procedure(polytope_pointer), pass(this), deferred :: fct
-     !> Pointer to the polytope ridge
-     procedure(polytope_pointer), pass(this), deferred :: rdg
-     !> Pointer to the polytope peak
-     procedure(polytope_pointer), pass(this), deferred :: pek
      !> Test equality
      procedure(polytope_equal), pass(this), deferred :: equal
      generic :: operator(.eq.) => equal
@@ -98,19 +92,6 @@ module polytope
        import polytope_t
        class(polytope_t), intent(inout) :: this
      end subroutine polytope_free
-  end interface
-
-  !> Returns polytope component pointer
-  !! @parameter[in]   pos   polytope component position
-  !! @return ptr
-  abstract interface
-     function polytope_pointer(this, pos) result(ptr)
-       import i4
-       import polytope_t
-       class(polytope_t), intent(in) :: this
-       integer(i4), intent(in) :: pos
-       class(polytope_t), pointer :: ptr
-     end function polytope_pointer
   end interface
 
   !> Test equality

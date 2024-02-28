@@ -29,16 +29,75 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Abstract type for abstract polytope class for mesh topology
+!> Abstract types for abstract polytope class for mesh topology
+!! @details There are three classes introduced: @ref polytope_aligned_t,
+!! @ref polytope_oriented_t and @ref topology_t. The first one combines polytope
+!! (topology one) with alignment information. The second is similar to the firs
+!! one and is introduced to define deferred initialisation interface. This one
+!! is different from the initialisation interface defined in
+!! @ref polytope_actualisation_t descending from @ref polytope_alignment_t
+!! as well. The last one stores information of the abstract (an unique in the
+!! mesh) topology objects like vertices, edges and faces.
 module topology
   use num_types, only : i4, i8
   use utils, only : neko_error
   use polytope, only : polytope_t
-  use polytope_oriented, only : polytope_oriented_t
+  use alignment, only : alignment_t
   implicit none
   private
 
-  public :: topology_component_t, topology_t, topology_element_t
+  public :: polytope_aligned_t, polytope_oriented_t
+  public :: topology_component_t, topology_t, topology_ptr, topology_element_t
+
+  !> Base type for an abstract aligned polytope
+  !! @details This is an abstract type combining @ref polytope_t and an
+  !! alignment operator. Note that vertices have no alignment. This type
+  !! corresponds to building blocs of the higher dimension abstract objects
+  !! the topology or mesh consists of.
+  type, abstract :: polytope_aligned_t
+     !> Polytope pointer
+     class(topology_t), pointer :: polytope => null()
+     !> Is the object aligned
+     logical, private :: ifaligned_ = .false.
+     !> Alignment operator
+     class(alignment_t), allocatable :: algn_op
+   contains
+     !> Free polytope and aligned data
+     procedure, pass(this) :: free_base => polytope_aligned_free_base
+     !> Initialise alignment data
+     procedure, pass(this) :: init_base => polytope_aligned_init_base
+     !> Return a pointer to the polytope
+     procedure, pass(this) :: polyp => polytope_aligned_ptr
+     !> Return alignment flag
+     procedure, pass(this) :: ifalgn => polytope_aligned_ifalgn_get
+     !> Return alignment value
+     procedure, pass(this) :: algn => polytope_aligned_algn_get
+     !> Test equality
+     procedure, pass(this) :: equal => polytope_aligned_equal
+     generic :: operator(.eq.) => equal
+     !> Free type
+     procedure(polytope_aligned_free), pass(this), deferred :: free
+     !> Test equality and find alignment
+     procedure(polytope_aligned_equal_algn), pass(this), deferred :: equal_algn
+     !> Test alignment
+     procedure(polytope_aligned_test), pass(this), deferred :: test
+  end type polytope_aligned_t
+
+  !> Base type for an abstract oriented polytope
+  !! @details This is an abstract type basically equal to
+  !! @ref polytope_aligned_t This type corresponds to building blocs of
+  !! the higher dimension abstract objects the mesh topology consists of.
+  !! @note The reason we need this type is to define a deferred
+  !! constructor. We cannot define it in the base type because the type
+  !! @ref polytope_actualisation_t also descends from it  but requires a
+  !! constructor with a different signature.
+  type, extends(polytope_aligned_t), abstract :: polytope_oriented_t
+   contains
+     !> Free aligned polytope
+     procedure, pass(this) :: free => polytope_oriented_free
+     !> Initialise an aligned polytope
+     procedure(polytope_oriented_init), pass(this), deferred :: init
+  end type polytope_oriented_t
 
   !> Single topology object allocatable space
   type :: topology_component_t
@@ -64,8 +123,6 @@ module topology
      procedure, pass(this) :: fct => topology_fct_ptr
      !> Return a pointer to the polytope ridges
      procedure, pass(this) :: rdg => topology_rdg_ptr
-     !> Return a pointer to the polytope peaks; not used
-     procedure, pass(this) :: pek => topology_pek_ptr
      !> Return boundary value
      procedure, pass(this) :: bnd => topology_bnd_get
      !> Set boundary value
@@ -86,10 +143,66 @@ module topology
      procedure(topology_init), pass(this), deferred :: init
   end type topology_t
 
+  !> The general pointer type to the topology polytope class
+  type :: topology_ptr
+     class(topology_t), pointer :: ptr
+  end type topology_ptr
+
   !> Single topology element allocatable space
   type :: topology_element_t
      class(topology_t), allocatable :: obj
   end type topology_element_t
+
+  !> Free type
+  abstract interface
+     subroutine polytope_aligned_free(this)
+       import polytope_aligned_t
+       class(polytope_aligned_t), intent(inout) :: this
+     end subroutine polytope_aligned_free
+  end interface
+
+  !> Check polytope equality and return alignment
+  !! @parameter[in]    other  polytope
+  !! @parameter[out]   equal  polytope equality
+  !! @parameter[out]   algn   alignment information
+  abstract interface
+     subroutine polytope_aligned_equal_algn(this, other, equal, algn)
+       import i4
+       import polytope_t
+       import polytope_aligned_t
+       class(polytope_aligned_t), intent(in) :: this
+       class(polytope_t), intent(in) :: other
+       logical, intent(out) :: equal
+       integer(i4), intent(out) :: algn
+     end subroutine polytope_aligned_equal_algn
+  end interface
+
+  !> Test alignment
+  !! @parameter[in]   other   polytope
+  !! @return ifalgn
+  abstract interface
+     function polytope_aligned_test(this, other) result(ifalgn)
+       import topology_t
+       import polytope_aligned_t
+       class(polytope_aligned_t), intent(in) :: this
+       class(topology_t), intent(in) :: other
+       logical :: ifalgn
+     end function polytope_aligned_test
+  end interface
+
+  !> Initialise a polytope with alignment information for topology
+  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   algn   alignment information
+  abstract interface
+     subroutine polytope_oriented_init(this, pltp, algn)
+       import i4
+       import topology_t
+       import polytope_oriented_t
+       class(polytope_oriented_t), intent(inout) :: this
+       class(topology_t), target, intent(in) :: pltp
+       integer(i4), intent(in) :: algn
+     end subroutine polytope_oriented_init
+  end interface
 
   !> Abstract interface to initialise a polytope with boundary information
   !! @parameter[in]      id     polytope id
@@ -108,6 +221,72 @@ module topology
   end interface
 
 contains
+
+  !> Free polytope and aligned data
+  subroutine polytope_aligned_free_base(this)
+    class(polytope_aligned_t), intent(inout) :: this
+    this%polytope => null()
+    this%ifaligned_ = .false.
+    if (allocated(this%algn_op)) deallocate(this%algn_op)
+  end subroutine polytope_aligned_free_base
+
+  !> Initialise general data
+  !! @parameter[in]   pltp   polytope
+  !! @parameter[in]   ifalgn if non identity alignment
+  subroutine polytope_aligned_init_base(this, pltp, ifalgn)
+    class(polytope_aligned_t), intent(inout) :: this
+    class(topology_t), target, intent(in) :: pltp
+    logical, intent(in)  :: ifalgn
+
+    this%polytope => pltp
+    this%ifaligned_ = ifalgn
+  end subroutine polytope_aligned_init_base
+
+  !> @brief Return pointer to the polytope
+  !! @return  poly
+  function polytope_aligned_ptr(this) result(poly)
+    class(polytope_aligned_t), intent(in) :: this
+    class(topology_t), pointer :: poly
+    poly => this%polytope
+  end function polytope_aligned_ptr
+
+  !> @brief Get polytope alignment flag
+  !! @return   ifalgn
+  pure function polytope_aligned_ifalgn_get(this) result(ifalgn)
+    class(polytope_aligned_t), intent(in) :: this
+    logical :: ifalgn
+    ifalgn = this%ifaligned_
+  end function polytope_aligned_ifalgn_get
+
+  !> @brief Get polytope alignment
+  !! @return   algn
+  pure function polytope_aligned_algn_get(this) result(algn)
+    class(polytope_aligned_t), intent(in) :: this
+    integer(i4) :: algn
+    if (allocated(this%algn_op)) then
+       algn = this%algn_op%algn()
+    else
+       algn = -1
+    end if
+  end function polytope_aligned_algn_get
+
+  !> Test equality
+  !! @parameter[in]   other   polytope
+  !! @return equal
+  function polytope_aligned_equal(this, other) result(equal)
+    class(polytope_aligned_t), intent(in) :: this
+    class(polytope_t), intent(in) :: other
+    logical :: equal
+    integer(i4) :: itmp
+    call this%equal_algn(other, equal, itmp)
+  end function polytope_aligned_equal
+
+  !> Free oriented polytope
+  subroutine polytope_oriented_free(this)
+    class(polytope_oriented_t), intent(inout) :: this
+
+    call this%free_base()
+  end subroutine polytope_oriented_free
 
   !> Free polytope data
   subroutine topology_free(this)
@@ -138,9 +317,9 @@ contains
   function topology_fct_ptr(this, pos) result(ptr)
     class(topology_t), intent(in) :: this
     integer(i4), intent(in) :: pos
-    class(polytope_t), pointer :: ptr
+    class(topology_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%nfacet)) then
-       ptr => this%facet(pos)%obj%polytope
+       ptr => this%facet(pos)%obj%polyp()
     else
        call neko_error('Wrong facet number for topology objects.')
     end if
@@ -152,24 +331,13 @@ contains
   function topology_rdg_ptr(this, pos) result(ptr)
     class(topology_t), intent(in) :: this
     integer(i4), intent(in) :: pos
-    class(polytope_t), pointer :: ptr
+    class(topology_t), pointer :: ptr
     if ((pos > 0) .and. (pos <= this%nridge)) then
-       ptr => this%ridge(pos)%obj%polytope
+       ptr => this%ridge(pos)%obj%polyp()
     else
        call neko_error('Wrong ridge number for topology objects.')
     end if
   end function topology_rdg_ptr
-
-  !> @brief Return pointer to the polytope peak; not used
-  !! @parameter[in]   pos   polytope component position
-  !! @return ptr
-  function topology_pek_ptr(this, pos) result(ptr)
-    class(topology_t), intent(in) :: this
-    integer(i4), intent(in) :: pos
-    class(polytope_t), pointer :: ptr
-    ptr => null()
-    call neko_error('Topology objects have no peaks.')
-  end function topology_pek_ptr
 
   !> @brief Get polytope boundary information
   !! @return   intp

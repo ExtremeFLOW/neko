@@ -34,10 +34,10 @@
 module quad_new
   use num_types, only : i4, dp
   use utils, only : neko_error
-  use polytope, only : polytope_t, polytope_ptr
-  use topology, only : topology_t, topology_component_t
-  use polytope_actualisation, only : polytope_actualisation_t
-  use element_new, only : element_new_t, element_component_t
+  use polytope, only : polytope_t
+  use topology, only : topology_t, topology_component_t, topology_ptr
+  use element_new, only : polytope_actualisation_t, element_new_t, &
+       & element_component_t
   use alignment_quad, only : alignment_quad_init, alignment_quad_find
   use vertex, only : vertex_ornt_t, vertex_act_t
   use edge, only : NEKO_EDGE_TDIM, NEKO_EDGE_NFACET, edge_ornt_t, edge_act_t
@@ -215,7 +215,7 @@ contains
     type(topology_component_t), dimension(nfct), intent(inout) :: fct
     integer(i4) :: il, jl, ifct, icrn
     integer(i4), dimension(NEKO_EDGE_NFACET) :: rdg
-    type(polytope_ptr), dimension(2) :: vrt
+    type(topology_ptr), dimension(2) :: vrt
 
     call this%free()
 
@@ -259,9 +259,11 @@ contains
              call this%facet(ifct)%obj%algn_op%trns_inv_i4(rdg, &
                   & NEKO_EDGE_NFACET, 1, 1)
              ! extract vertex
-             vrt(jl)%ptr => this%facet(ifct)%obj%polytope%fct(rdg(icrn))
+             vrt(jl)%ptr => &
+                  & this%facet(ifct)%obj%polytope%facet(rdg(icrn))%obj%polyp()
           else
-             vrt(jl)%ptr => this%facet(ifct)%obj%polytope%fct(icrn)
+             vrt(jl)%ptr => &
+                  & this%facet(ifct)%obj%polytope%facet(icrn)%obj%polyp()
           end if
        end do
        if (vrt(1)%ptr%id() == vrt(2)%ptr%id()) then
@@ -338,7 +340,7 @@ contains
   !! @parameter[in]   pos    position in the higher order element
   subroutine quad_act_init(this, pltp, algn, ifint, hng, pos)
     class(quad_act_t), intent(inout) :: this
-    class(polytope_t), target, intent(in) :: pltp
+    class(topology_t), target, intent(in) :: pltp
     integer(i4), intent(in) :: algn, hng, pos
     logical, intent(in) :: ifint
     logical :: ifalgn
@@ -377,7 +379,7 @@ contains
     integer(i4), intent(out) :: algn
     integer(i4), parameter :: sz = 3
     integer(i4), dimension(sz, sz) :: qad1, qad2
-    class(polytope_t), pointer :: ptr
+    class(topology_t), pointer :: ptr
 
     algn = -1
     ! check polygon information
@@ -440,14 +442,14 @@ contains
   !! @return ifalgn
   function quad_act_test(this, other) result(ifalgn)
     class(quad_act_t), intent(in) :: this
-    class(polytope_t), intent(in) :: other
+    class(topology_t), intent(in) :: other
     logical :: ifalgn
     integer(i4), parameter :: sz = 3
     integer(i4), dimension(sz, sz) :: trans
     integer(i4), dimension(NEKO_QUAD_NFACET) :: mapf
     integer(i4), dimension(NEKO_QUAD_NRIDGE) :: mapr
     integer(i4) :: il
-    class(polytope_t), pointer :: tptr, optr
+    class(topology_t), pointer :: tptr, optr
 
     ! check polygon information; multiple possible realisations
     ifalgn = this%polytope%equal_poly(other)
@@ -565,7 +567,7 @@ contains
     integer(i4), dimension(NEKO_EDGE_NFACET) :: rdg
     integer(i4), dimension(3, 2) :: hng_fct
     integer(i4), dimension(2) :: hng
-    type(polytope_ptr), dimension(2) :: vrt
+    type(topology_ptr), dimension(2) :: vrt
 
     call this%free()
 
@@ -610,9 +612,11 @@ contains
              call this%facet(ifct)%obj%algn_op%trns_inv_i4(rdg, &
                   & NEKO_EDGE_NFACET, 1, 1)
              ! extract vertex
-             vrt(jl)%ptr => this%facet(ifct)%obj%polytope%fct(rdg(icrn))
+             vrt(jl)%ptr => &
+                  & this%facet(ifct)%obj%polytope%facet(rdg(icrn))%obj%polyp()
           else
-             vrt(jl)%ptr => this%facet(ifct)%obj%polytope%fct(icrn)
+             vrt(jl)%ptr => &
+                  & this%facet(ifct)%obj%polytope%facet(icrn)%obj%polyp()
           end if
           ! collect facet hanging information
           hng_fct(1, jl) = this%facet(ifct)%obj%hng()

@@ -2,7 +2,6 @@
 subroutine test_hex_mesh_simple
   use pfunit
   use num_types, only : i4, i8, dp
-  use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
@@ -10,7 +9,7 @@ subroutine test_hex_mesh_simple
   use hex_new, only : hex_elm_t, NEKO_HEX_NFACET
   use point, only : point_ptr, point_t
   implicit none
-  class(polytope_t), pointer :: poly
+  class(topology_t), pointer :: poly
   type(vertex_tpl_t), dimension(8) :: vrt
   type(edge_tpl_t), dimension(12) :: edt
   type(quad_tpl_t), dimension(6) :: qut
@@ -73,11 +72,8 @@ subroutine test_hex_mesh_simple
      @assertEqual(poly%id(), idq(il))
      @assertEqual(poly%tdim(), 2)
      @assertTrue(poly%check_comp(4, 4, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), bnq(il))
-        @assertEqual(poly%gsid(), gsq(il))
-     end select
+     @assertEqual(poly%bnd(), bnq(il))
+     @assertEqual(poly%gsid(), gsq(il))
      @assertTrue(poly%equal(qut(il)))
   end do
   ! ridges
@@ -87,11 +83,8 @@ subroutine test_hex_mesh_simple
      @assertEqual(poly%id(), ide(il))
      @assertEqual(poly%tdim(), 1)
      @assertTrue(poly%check_comp(2, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), -1)
-        @assertEqual(poly%gsid(), gse(il))
-     end select
+     @assertEqual(poly%bnd(), -1)
+     @assertEqual(poly%gsid(), gse(il))
      @assertTrue(poly%equal(edt(il)))
   end do
   !peaks
@@ -101,11 +94,8 @@ subroutine test_hex_mesh_simple
      @assertEqual(poly%id(), idv(il))
      @assertEqual(poly%tdim(), 0)
      @assertTrue(poly%check_comp(0, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), -1)
-        @assertEqual(poly%gsid(), gsv(il))
-     end select
+     @assertEqual(poly%bnd(), -1)
+     @assertEqual(poly%gsid(), gsv(il))
      @assertTrue(poly%equal(vrt(il)))
   end do
   ! points
@@ -196,7 +186,6 @@ end subroutine test_hex_mesh_simple
 subroutine test_hex_elm_add_simple
   use pfunit
   use num_types, only : i4, dp
-  use polytope, only : polytope_t
   use topology, only : topology_t, topology_element_t
   use element_new, only : mesh_element_t
   use vertex, only : vertex_tpl_add
@@ -221,7 +210,7 @@ subroutine test_hex_elm_add_simple
        &  0.0d0, 0.0d0, 1.0d0,  1.0d0, 0.0d0, 1.0d0,  0.0d0, 1.0d0, 1.0d0, &
        &  1.0d0, 1.0d0, 1.0d0 /), shape(crd))
   type(point_t), dimension(8) :: pts
-  class(polytope_t), pointer :: poly
+  class(topology_t), pointer :: poly
   type(point_t), pointer :: point
 
   ! points
@@ -271,10 +260,7 @@ subroutine test_hex_elm_add_simple
      @assertEqual(poly%id(), idq(il))
      @assertEqual(poly%tdim(), 2)
      @assertTrue(poly%check_comp(4, 4, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), bnq(il))
-     end select
+     @assertEqual(poly%bnd(), bnq(il))
      @assertTrue(poly%equal(qad(il)%obj))
   end do
   ! ridges
@@ -284,10 +270,7 @@ subroutine test_hex_elm_add_simple
      @assertEqual(poly%id(), ide(il))
      @assertEqual(poly%tdim(), 1)
      @assertTrue(poly%check_comp(2, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), -1)
-     end select
+     @assertEqual(poly%bnd(), -1)
      @assertTrue(poly%equal(edg(il)%obj))
   end do
   !peaks
@@ -297,10 +280,7 @@ subroutine test_hex_elm_add_simple
      @assertEqual(poly%id(), idv(il))
      @assertEqual(poly%tdim(), 0)
      @assertTrue(poly%check_comp(0, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), -1)
-     end select
+     @assertEqual(poly%bnd(), -1)
      @assertTrue(poly%equal(vrt(il)%obj))
   end do
   ! points
@@ -318,15 +298,13 @@ end subroutine test_hex_elm_add_simple
 subroutine test_hex_mesh_permute
   use pfunit
   use num_types, only : i4, i8, dp
-  use polytope, only : polytope_t
-  use topology, only : topology_component_t
+  use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   use quad_new, only : quad_tpl_t, NEKO_QUAD_NFACET
   use hex_new, only : hex_elm_t, NEKO_HEX_NFACET
   use point, only : point_ptr, point_t
   implicit none
-  class(polytope_t), pointer :: poly
   type(vertex_tpl_t), dimension(8) :: vrt
   type(edge_tpl_t), dimension(24) :: edt
   type(quad_tpl_t), dimension(12) :: qut
@@ -352,6 +330,7 @@ subroutine test_hex_mesh_permute
        &  1.0d0, 1.0d0, 1.0d0 /), shape(crd))
   integer(i4), dimension(:, :), allocatable :: facetp
   logical :: equal
+  class(topology_t), pointer :: poly
 
   do il = 1, 8
      idv(il) = il

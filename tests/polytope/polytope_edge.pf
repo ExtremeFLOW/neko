@@ -2,12 +2,11 @@
 subroutine test_edge_topology_simple
   use pfunit
   use num_types, only : i4, i8
-  use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
   implicit none
-  class(polytope_t), pointer :: poly
+  class(topology_t), pointer :: poly
   type(vertex_tpl_t), dimension(2) :: vrt
   type(edge_tpl_t) :: edt1
   type(topology_component_t), dimension(0) :: fctv
@@ -49,11 +48,9 @@ subroutine test_edge_topology_simple
      @assertEqual(poly%id(), idv(il))
      @assertEqual(poly%tdim(), 0)
      @assertTrue(poly%check_comp(0, 0, 0))
-     select type (poly)
-     class is (topology_t)
-        @assertEqual(poly%bnd(), -1)
-        @assertEqual(poly%gsid(), gsv(il))
-     end select
+     @assertEqual(poly%bnd(), -1)
+     @assertEqual(poly%gsid(), gsv(il))
+
      @assertTrue(poly%equal(vrt(il)))
   end do
 
@@ -114,12 +111,10 @@ end subroutine test_edge_tpl_add
 subroutine test_edge_topology_permutation
   use pfunit
   use num_types, only : i4, i8
-  use polytope, only : polytope_t
   use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
   implicit none
-  class(polytope_t), pointer :: poly
   type(vertex_tpl_t), dimension(2) :: vrt
   type(edge_tpl_t) :: edt1, edt2
   type(topology_component_t), dimension(0) :: fctv
@@ -209,12 +204,10 @@ end subroutine test_edge_topology_permutation
 subroutine test_edge_topology_share
   use pfunit
   use num_types, only : i4, i8
-  use polytope, only : polytope_t
   use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, NEKO_EDGE_NFACET
   implicit none
-  class(polytope_t), pointer :: poly
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t) :: edt1, edt2
   type(topology_component_t), dimension(0) :: fctv
@@ -316,12 +309,11 @@ end subroutine test_edge_topology_share
 subroutine test_edge_oriented_simple
   use pfunit
   use num_types, only : i4, i8
-  use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   implicit none
-  class(polytope_t), pointer :: poly
+  class(topology_t), pointer :: poly
   type(vertex_tpl_t), dimension(2) :: vrt
   type(edge_tpl_t) :: edt1
   type(edge_ornt_t) :: edo1
@@ -356,16 +348,13 @@ subroutine test_edge_oriented_simple
   call edo1%init(edt1, algn)
 
   ! pointer
-  call edo1%polyp(poly)
+  poly => edo1%polyp()
   @assertTrue(associated(poly))
   @assertEqual(poly%id(), ide1)
   @assertEqual(poly%tdim(), 1)
   @assertTrue(poly%check_comp(2, 0, 0))
-  select type (poly)
-  class is (topology_t)
-     @assertEqual(poly%bnd(), bne1)
-     @assertEqual(poly%gsid(), gse1)
-  end select
+  @assertEqual(poly%bnd(), bne1)
+  @assertEqual(poly%gsid(), gse1)
   @assertTrue(poly%equal(edt1))
 
   ! alignment
@@ -412,12 +401,10 @@ end subroutine test_edge_oriented_simple
 subroutine test_edge_oriented_permute
   use pfunit
   use num_types, only : i4, i8
-  use polytope, only : polytope_t
   use topology, only : topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_ornt_t, NEKO_EDGE_NFACET
   implicit none
-  class(polytope_t), pointer :: poly
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t) :: edt1, edt1P, edt2
   type(edge_ornt_t) :: edo1
@@ -526,12 +513,11 @@ end subroutine test_edge_oriented_permute
 subroutine test_edge_actualisation
   use pfunit
   use num_types, only : i4, i8
-  use polytope, only : polytope_t
   use topology, only : topology_t, topology_component_t
   use vertex, only : vertex_tpl_t, vertex_ornt_t
   use edge, only : edge_tpl_t, edge_act_t, NEKO_EDGE_NFACET
   implicit none
-  class(polytope_t), pointer :: poly
+  class(topology_t), pointer :: poly
   type(vertex_tpl_t), dimension(4) :: vrt
   type(edge_tpl_t) :: edt1, edt1P, edt2
   type(edge_act_t) :: eda1
@@ -588,16 +574,13 @@ subroutine test_edge_actualisation
   call eda1%init(edt1, algn, ifintp, hng, pos)
 
   ! pointer
-  call eda1%polyp(poly)
+  poly => eda1%polyp()
   @assertTrue(associated(poly))
   @assertEqual(poly%id(), ide1)
   @assertEqual(poly%tdim(), 1)
   @assertTrue(poly%check_comp(2, 0, 0))
-  select type (poly)
-  class is (topology_t)
-     @assertEqual(poly%bnd(), bne1)
-     @assertEqual(poly%gsid(), gse1)
-  end select
+  @assertEqual(poly%bnd(), bne1)
+  @assertEqual(poly%gsid(), gse1)
   @assertTrue(poly%equal(edt1))
 
   ! alignment
