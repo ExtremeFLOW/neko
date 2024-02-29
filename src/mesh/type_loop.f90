@@ -15,7 +15,7 @@ module type_loop
   implicit none
   
   type, abstract :: loop_1_t
-     class(loop_2_t), pointer :: ptr => null()
+     class(base_t), pointer :: ptr => null()
   end type loop_1_t
 
   type, extends(loop_1_t), abstract :: desc_t
