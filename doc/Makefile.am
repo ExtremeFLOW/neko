@@ -18,6 +18,7 @@ html-local: doxygen.stamp
 EXTRA_DIST = pages/code-style.md\
 	     pages/publication-list.md\
 	     pages/accelerators.md\
+	     pages/user-file.md\
 	     pages/case-file.md\
 	     pages/statistics.md\
              pages/simcomps.md\
