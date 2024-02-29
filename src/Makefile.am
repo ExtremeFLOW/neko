@@ -48,7 +48,6 @@ neko_fortran_SOURCES = \
 	mesh/hex.f90\
 	mesh/tet.f90\
 	mesh/tri.f90\
-	mesh/type_loop.f90\
 	mesh/alignment.f90\
 	mesh/alignment_edge.f90\
 	mesh/alignment_quad.f90\
