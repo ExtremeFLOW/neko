@@ -41,7 +41,6 @@ module time_step_controller
   type, public :: time_step_controller_t
      !> Components recording time stepping info
      logical :: if_variable_dt = .false.
-     logical :: if_restart = .false.
      real(kind=rp) :: set_cfl = 0.0_rp
      real(kind=rp) :: max_dt = 0.0_rp
      integer :: max_update_frequency = 1
@@ -61,11 +60,9 @@ contains
     class(time_step_controller_t), intent(inout) :: this
     type(case_t), intent(inout) :: C
     logical :: found
-    character(len=:), allocatable :: restart_file
 
     call C%params%get('case.timestep', this%max_dt, found)
     call C%params%get('case.constant_cfl', this%set_cfl, this%if_variable_dt)
-    call C%params%get('case.restart_file', restart_file, this%if_restart)
     call json_get_or_default(C%params, 'case.cfl_max_update_frequency',&
                                     this%max_update_frequency, 1)
 
@@ -78,11 +75,8 @@ contains
   !! @param dt_last_change time step since last dt change.
   !! @param tstep the current time step.
   !! @Algorithm: 
-  !! 1. If the simulation is not a restarted one,
-  !! set the first time step such that cfl is the set one;
-  !! 2. If the simulation is a restarted one,
-  !! set the first time step from the restart file.
-  !! 3. During time-stepping, adjust dt when cfl_avrg is offset by 20%.
+  !! 1. Set the first time step such that cfl is the set one;
+  !! 2. During time-stepping, adjust dt when cfl_avrg is offset by 20%.
   subroutine time_step_controller_set_dt(this, C, cfl, cfl_avrg, dt_last_change, tstep)
     implicit none
     class(time_step_controller_t), intent(inout) :: this
@@ -96,11 +90,9 @@ contains
     integer, intent(in):: tstep
 
     if (this%if_variable_dt .eqv. .true.) then
-       if ((tstep .eq. 1) .and. .not. this%if_restart) then
+       if (tstep .eq. 1) then
           ! set the first dt for desired cfl
           C%dt = min(this%set_cfl/cfl*C%dt, this%max_dt)
-       else if ((tstep .eq. 1) .and. this%if_restart) then
-          C%dt = C%dtlag(1)
        else
           ! Calculate the average of cfl over the desired interval
           cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
