@@ -3,14 +3,14 @@
 #include <iostream>
 #include <ctime>
 
-// Adios2 variables
+// Global Adios2 variables
 adios2::ADIOS adios;
 adios2::IO io_asynchronous;
 adios2::Engine writer_st;
 adios2::Engine reader_st;
 adios2::Variable<double> f2py_field;
 adios2::Variable<double> py2f_field;
-// Global variables
+// Global C variables
 int rank, size;
 int reader_start;
 int reader_count;
@@ -52,8 +52,20 @@ extern "C" void adios2_initialize_(
     std::cout << "create global array" << std::endl;
     writer_st = io_asynchronous.Open("globalArray_f2py", adios2::Mode::Write);
     reader_st = io_asynchronous.Open("globalArray_py2f", adios2::Mode::Read);
-}
 
+    // Put necesary information in a header stream
+    writer_st.BeginStep();
+    adios2::Variable<int> hdr_elems = io_asynchronous.DefineVariable<int>("global_elements");
+    adios2::Variable<int> hdr_lxyz = io_asynchronous.DefineVariable<int>("points_per_element");
+    adios2::Variable<int> hdr_gdim = io_asynchronous.DefineVariable<int>("problem_dimension");
+    if( rank == 0 )
+    {
+       writer_st.Put(hdr_elems, static_cast<int> (*glb_nelv));
+       writer_st.Put(hdr_lxyz,  static_cast<int> (*lxyz));
+       writer_st.Put(hdr_gdim,  static_cast<int> (*gdim));
+    }
+    writer_st.EndStep();
+}
 
 extern "C" void adios2_finalize_(){
     std::cout << "Close global arrays" << std::endl;
