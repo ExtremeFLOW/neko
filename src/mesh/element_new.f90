@@ -138,9 +138,11 @@ module element_new
      !> Return element centroid
      procedure(element_centroid), pass(this), deferred :: centroid
      !> Return facet @a r and @s local directions with respect to the element
-     procedure(polytope_fct_dir), pass(this), deferred :: fct_dir
+     procedure(element_fct_dir), pass(this), deferred :: fct_dir
      !> Return ridge @a r local direction with respect to the element
-     procedure(polytope_rdg_dir), pass(this), deferred :: rdg_dir
+     procedure(element_rdg_dir), pass(this), deferred :: rdg_dir
+     !> Check consistency of element's geometry
+     procedure(element_geom_check), pass(this), deferred :: geom_check
   end type element_new_t
 
   !> Single mesh element allocatable space
@@ -216,26 +218,36 @@ module element_new
   !! @parameter[in]   pos          facet position
   !! @parameter[out]  dirr, dirs   local directions
   abstract interface
-     subroutine polytope_fct_dir(this, pos, dirr, dirs)
+     subroutine element_fct_dir(this, pos, dirr, dirs)
        import i4
        import element_new_t
        class(element_new_t), intent(in) :: this
        integer(i4), intent(in) :: pos
        integer(i4), intent(out) :: dirr, dirs
-     end subroutine polytope_fct_dir
+     end subroutine element_fct_dir
   end interface
 
   !> Get @a r ridge local direction
   !! @parameter[in]   pos          ridge position
   !! @parameter[out]  dirr         local direction
   abstract interface
-     subroutine polytope_rdg_dir(this, pos, dirr)
+     subroutine element_rdg_dir(this, pos, dirr)
        import i4
        import element_new_t
        class(element_new_t), intent(in) :: this
        integer(i4), intent(in) :: pos
        integer(i4), intent(out) :: dirr
-     end subroutine polytope_rdg_dir
+     end subroutine element_rdg_dir
+  end interface
+
+  !> Check consistency of element's geometry
+  !! @return test
+  abstract interface
+     function element_geom_check(this) result(test)
+       import element_new_t
+       class(element_new_t), intent(in) :: this
+       logical :: test
+     end function element_geom_check
   end interface
 
 contains

@@ -132,6 +132,8 @@ module quad_new
      procedure, pass(this) :: fct_dir => quad_elm_fct_dir
      !> Return ridge @a r local direction with respect to the element
      procedure, pass(this) :: rdg_dir => quad_elm_rdg_dir
+     !> Check consistency of element's geometry
+     procedure, pass(this) :: geom_check => quad_elm_geom_check
   end type quad_elm_t
 
   ! Lookup tables
@@ -669,11 +671,14 @@ contains
     ! Add geometrical points
     ! Sanity check
     if (npts /= NEKO_QUAD_NRIDGE) &
-         &call neko_error('Inconsistent point number in the mesh quad.')
+         & call neko_error('Inconsistent point number in the mesh quad.')
     allocate(this%pts(NEKO_QUAD_NRIDGE))
     do il = 1, npts
        this%pts(il)%p => pts(il)%p
     end do
+    ! Test right-handedness of element
+    if (.not. this%geom_check()) &
+         & call neko_error('Detected non-right-handed quad')
   end subroutine quad_elm_init
 
   !> Test equality
@@ -808,6 +813,60 @@ contains
     integer(i4), intent(out) :: dirr
     dirr = -1
   end subroutine quad_elm_rdg_dir
+
+  !> Check consistency of element's geometry
+  !! @details This is approximate test only and it does not take into account
+  !! element curvature. We assume the elements are relatively small compared
+  !! with the mesh deformation.
+  !! @return test
+  function quad_elm_geom_check(this) result(test)
+    class(quad_elm_t), intent(in) :: this
+    logical :: test
+    real(dp) :: cp
+    real(dp), dimension(3, 4) :: vcp
+    real(dp), dimension(3) :: vx , vy
+    integer(i4) :: il , jl
+    ! check if the local coordinate system is right-handed
+    ! take proper vector products with respect of each quad vertex
+    vx(:) = this%pts(2)%p%x(:) - this%pts(1)%p%x(:)
+    vy(:) = this%pts(3)%p%x(:) - this%pts(1)%p%x(:)
+    vcp(1:3, 1) = cross_prod(vx, vy)
+    vx(:) = this%pts(4)%p%x(:) - this%pts(2)%p%x(:)
+    vy(:) = this%pts(1)%p%x(:) - this%pts(2)%p%x(:)
+    vcp(1:3, 2) = cross_prod(vx, vy)
+    vx(:) = this%pts(1)%p%x(:) - this%pts(3)%p%x(:)
+    vy(:) = this%pts(4)%p%x(:) - this%pts(3)%p%x(:)
+    vcp(1:3, 3) = cross_prod(vx, vy)
+    vx(:) = this%pts(3)%p%x(:) - this%pts(4)%p%x(:)
+    vy(:) = this%pts(2)%p%x(:) - this%pts(4)%p%x(:)
+    vcp(1:3, 4) = cross_prod(vx, vy)
+    test = .true.
+    ! take inner products
+    do il = 1, 3
+       do jl = il + 1, 4
+          cp = vcp(1, il) * vcp(1, jl) + vcp(2, il) * vcp(2, jl) + &
+               & vcp(3, il) * vcp(3, jl)
+          if (cp <= 0.0d0) then
+             test = .false.
+             return
+          end if
+       end do
+    end do
+  end function quad_elm_geom_check
+
+  ! THIS SHOULD BE LOCATED IN OTHER PLACE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !> @brief Vector cross-product
+  !! @param[in]  vx,vy    input vectors
+  !! @return     cross_prod
+  pure function cross_prod(vx, vy)
+    ! argument list
+    real(dp), dimension(3), intent(in) :: vx, vy
+    real(dp), dimension(3) :: cross_prod
+
+    cross_prod(1) = vx(2)*vy(3) - vx(3)*vy(2)
+    cross_prod(2) = vx(3)*vy(1) - vx(1)*vy(3)
+    cross_prod(3) = vx(1)*vy(2) - vx(2)*vy(1)
+  end function cross_prod
 
   ! THIS SHOULD BE LOCATED IN OTHER PLACE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !> Heap Sort for single integer arrays

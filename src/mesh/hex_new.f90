@@ -113,6 +113,8 @@ module hex_new
      procedure, pass(this) :: fct_dir => hex_elm_fct_dir
      !> Return ridge @a r local direction with respect to the element
      procedure, pass(this) :: rdg_dir => hex_elm_rdg_dir
+     !> Check consistency of element's geometry
+     procedure, pass(this) :: geom_check => hex_elm_geom_check
   end type hex_elm_t
 
   ! Lookup tables
@@ -286,7 +288,6 @@ contains
     else
        call neko_error('Hex mesh; inconsistent number of facets.')
     end if
-
 
     ! Get peak pointers checking hex structure and face orientation
     ! no special treatment of self-periodic faces
@@ -585,7 +586,9 @@ contains
     do il = 1, npts
        this%pts(il)%p => pts(il)%p
     end do
-
+    ! Test right-handedness of element
+    if (.not. this%geom_check()) &
+         & call neko_error('Detected non-right-handed hex')
   end subroutine hex_elm_init
 
   !> Test equality
@@ -739,6 +742,114 @@ contains
     integer(i4), intent(out) :: dirr
     dirr = rdg_to_dir(pos)
   end subroutine hex_elm_rdg_dir
+
+  !> Check consistency of element's geometry
+  !! @details This is approximate test only and it does not take into account
+  !! element curvature. We assume the elements are relatively small compared
+  !! with the mesh deformation.
+  !! @return test
+  function hex_elm_geom_check(this) result(test)
+    class(hex_elm_t), intent(in) :: this
+    logical :: test
+    real(dp) :: vol
+    real(dp), dimension(3) :: vx , vy, vz
+    ! check if the local coordinate system is right-handed
+    ! take element volume with respect of each hex vertex
+    test = .true.
+    vx(:) = this%pts(2)%p%x(:) - this%pts(1)%p%x(:)
+    vy(:) = this%pts(3)%p%x(:) - this%pts(1)%p%x(:)
+    vz(:) = this%pts(5)%p%x(:) - this%pts(1)%p%x(:)
+    vol = volume(vx, vy, vz)
+    if (vol <= 0.0d0) then
+       test = .false.
+       return
+    end if
+    vx(:) = this%pts(4)%p%x(:) - this%pts(2)%p%x(:)
+    vy(:) = this%pts(1)%p%x(:) - this%pts(2)%p%x(:)
+    vz(:) = this%pts(6)%p%x(:) - this%pts(2)%p%x(:)
+    vol = volume(vx, vy, vz)
+    if (vol <= 0.0d0) then
+       test = .false.
+       return
+    end if
+    vx(:) = this%pts(1)%p%x(:) - this%pts(3)%p%x(:)
+    vy(:) = this%pts(4)%p%x(:) - this%pts(3)%p%x(:)
+    vz(:) = this%pts(7)%p%x(:) - this%pts(3)%p%x(:)
+    vol = volume(vx, vy, vz)
+    if (vol <= 0.0d0) then
+       test = .false.
+       return
+    end if
+    vx(:) = this%pts(3)%p%x(:) - this%pts(4)%p%x(:)
+    vy(:) = this%pts(2)%p%x(:) - this%pts(4)%p%x(:)
+    vz(:) = this%pts(8)%p%x(:) - this%pts(4)%p%x(:)
+    vol = volume(vx, vy, vz)
+    if (vol <= 0.0d0) then
+       test = .false.
+       return
+    end if
+    vx(:) = this%pts(7)%p%x(:) - this%pts(5)%p%x(:)
+    vy(:) = this%pts(6)%p%x(:) - this%pts(5)%p%x(:)
+    vz(:) = this%pts(1)%p%x(:) - this%pts(5)%p%x(:)
+    vol = volume(vx, vy, vz)
+    if (vol <= 0.0d0) then
+       test = .false.
+       return
+    end if
+    vx(:) = this%pts(5)%p%x(:) - this%pts(6)%p%x(:)
+    vy(:) = this%pts(8)%p%x(:) - this%pts(6)%p%x(:)
+    vz(:) = this%pts(2)%p%x(:) - this%pts(6)%p%x(:)
+    vol = volume(vx, vy, vz)
+    if (vol <= 0.0d0) then
+       test = .false.
+       return
+    end if
+    vx(:) = this%pts(8)%p%x(:) - this%pts(7)%p%x(:)
+    vy(:) = this%pts(5)%p%x(:) - this%pts(7)%p%x(:)
+    vz(:) = this%pts(3)%p%x(:) - this%pts(7)%p%x(:)
+    vol = volume(vx, vy, vz)
+    if (vol <= 0.0d0) then
+       test = .false.
+       return
+    end if
+    vx(:) = this%pts(6)%p%x(:) - this%pts(8)%p%x(:)
+    vy(:) = this%pts(7)%p%x(:) - this%pts(8)%p%x(:)
+    vz(:) = this%pts(4)%p%x(:) - this%pts(8)%p%x(:)
+    vol = volume(vx, vy, vz)
+    if (vol <= 0.0d0) then
+       test = .false.
+       return
+    end if
+  end function hex_elm_geom_check
+
+  ! THIS SHOULD BE LOCATED IN OTHER PLACE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !> @brief Volume given by three vectors vx, vy, vz
+  !! @param[in]  vx,vy,vz    input vectors
+  !! @return     volume
+  pure function volume(vx, vy, vz)
+    ! argument list
+    real(dp), dimension(3), intent(in) :: vx, vy, vz
+    real(dp) :: volume
+    real(dp), dimension(3) :: cross
+
+    cross(:) = cross_prod(vx, vy)
+    volume = vz(1) * cross(1) + vz(2) * cross(2) + &
+               & vz(3) * cross(3)
+  end function volume
+
+  ! THIS SHOULD BE LOCATED IN OTHER PLACE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !> @brief Vector cross-product
+  !! @param[in]  vx,vy    input vectors
+  !! @return     cross_prod
+  pure function cross_prod(vx, vy)
+    ! argument list
+    real(dp), dimension(3), intent(in) :: vx, vy
+    real(dp), dimension(3) :: cross_prod
+
+    cross_prod(1) = vx(2)*vy(3) - vx(3)*vy(2)
+    cross_prod(2) = vx(3)*vy(1) - vx(1)*vy(3)
+    cross_prod(3) = vx(1)*vy(2) - vx(2)*vy(1)
+  end function cross_prod
 
   ! THIS SHOULD BE LOCATED IN OTHER PLACE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !> Heap Sort for single integer arrays
