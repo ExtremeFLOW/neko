@@ -299,7 +299,10 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/tri/Makefile\
 		 tests/math/Makefile\
 		 tests/alignment/Makefile\
-		 tests/polytope/Makefile\
+		 tests/vertex/Makefile\
+		 tests/edge/Makefile\
+		 tests/quad_new/Makefile\
+		 tests/hex_new/Makefile\
 		 tests/element_list/Makefile\
 		 tests/point_list/Makefile\
 		 tests/topology_list/Makefile\

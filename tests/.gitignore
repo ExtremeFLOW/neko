@@ -1,7 +1,10 @@
 test-suite.log
 alignment/alignment_test
 ncnf_interpolation/interpolation_test
-polytope/polytope_test
+vertex/vertex_test
+edge/edge_test
+quad_new/quad_test
+hex_new/hex_test
 element_list/element_list_test
 point_list/point_list_test
 topology_list/topology_list_test
