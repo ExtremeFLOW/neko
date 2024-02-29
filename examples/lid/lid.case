@@ -3,7 +3,7 @@
   "case":
   {
   "mesh_file": "lid.nmsh",
-  "end_time": 1,
+  "end_time": 50,
   "timestep": 1e-3,
   "numerics": {
     "time_order": 3,

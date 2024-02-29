@@ -12,8 +12,6 @@ module user
 
   type(file_t) output_file ! output file
   type(vector_t) :: vec_out    ! will store our output data
-    
-  type(data_streamer_t) :: dstream
 
  contains
 
@@ -78,11 +76,6 @@ module user
     type(json_file), intent(inout) :: params
 
     integer tstep
- 
-    ! Initialize the streamer
-    call dstream%init(coef, 1)
-
- 
     ! Initialize the file object and create the output.csv file
     ! in the working directory
     output_file = file_init("output.csv")
@@ -112,7 +105,7 @@ module user
     integer :: ntot, i
     real(kind=rp) :: e1, e2
 
-    if (mod(tstep,100).ne.0) return
+    if (mod(tstep,50).ne.0) return
 
     om1 => neko_field_registry%get_field("omega_x")
     om2 => neko_field_registry%get_field("omega_y")
@@ -134,19 +127,6 @@ module user
     call neko_log%message("Writing csv file")
     vec_out%x = (/e1, e2/)
     call output_file%write(vec_out, t)
-
-    ! Stream the data
-    do i=1, 100
-       write(*,*) coef%B(i,1,1,1)
-    end do
-    call dstream%stream(u,v,w,p,coef)
-
-
-    call dstream%stream_back(u,v,w,p,coef)
-    ! Stream the data
-    do i=1, 100
-       write(*,*) coef%B(i,1,1,1)
-    end do
 
   end subroutine user_calc_quantities
 
@@ -173,9 +153,6 @@ module user
   subroutine user_finalize(t, params)
     real(kind=rp) :: t
     type(json_file), intent(inout) :: params
-
-    ! Finalize the stream
-    call dstream%free()
 
     ! Deallocate the fields
     call w1%free()
