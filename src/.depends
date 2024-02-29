@@ -62,6 +62,7 @@ mesh/aabb_tree.o : mesh/aabb_tree.f90 adt/stack.o common/utils.o config/num_type
 mesh/search_tree/aabb.o : mesh/search_tree/aabb.f90 common/utils.o mesh/tri.o config/num_types.o 
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o 
+mesh/type_loop.o : mesh/type_loop.f90 
 mesh/alignment.o : mesh/alignment.f90 config/num_types.o 
 mesh/alignment_edge.o : mesh/alignment_edge.f90 config/num_types.o common/utils.o mesh/alignment.o 
 mesh/alignment_quad.o : mesh/alignment_quad.f90 config/num_types.o common/utils.o mesh/alignment.o 
