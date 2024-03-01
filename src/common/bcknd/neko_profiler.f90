@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -218,7 +218,7 @@ contains
 
   end subroutine end_region
 
-  !> Print the regions to a file, profiler.log
+  !> Print the regions to a file, profiler.log or the provided filename
   subroutine print_regions(filename)
     character(len=*), intent(in), optional :: filename
     integer :: i, n, file_id, ierr
@@ -237,9 +237,7 @@ contains
        end if
     end do
 
-    if (pe_size .gt. 1) then
-       call synchronize_regions()
-    end if
+    if (pe_size .gt. 1) call synchronize_regions()
     if (pe_rank .ne. 0) return
 
     if (present(filename)) then
@@ -248,7 +246,7 @@ contains
        open(newunit=file_id, file="profiler.log", status="new", action="write")
     end if
 
-    write(file_id, *) 'Region, CPU Time [s], Evaluations'
+    write(file_id, *) "Region, CPU Time [s], Evaluations"
 
     do i = 1, n_regions
        name = trim(region_list(i)%name)
@@ -348,6 +346,11 @@ contains
     call mpi_waitall(buffer_size*pe_size, req_id, MPI_STATUSES_IGNORE, ierr)
     call mpi_waitall(buffer_size*pe_size, req_times, MPI_STATUSES_IGNORE, ierr)
     call mpi_waitall(buffer_size*pe_size, req_n, MPI_STATUSES_IGNORE, ierr)
+
+    ! Build a new list of regions. Every entry must be unique and the same on
+    ! all ranks. Two regions are considered the same if they have the same name
+    ! and the same ID. If a region is not present on a rank, it is added with a
+    ! time of 0.0 and a count of 0.
 
     ! First, build the global list from the local list
     allocate(global_region_list(0))
