@@ -173,11 +173,11 @@ contains
     ! If the profiler is not initialized, return
     if (.not. allocated(region_list)) return
 
+    id_ = 0
+    if (present(id)) id_ = id
+
+    ! If a name is provided, find the region by name and id
     if (present(name)) then
-
-       id_ = 0
-       if (present(id)) id_ = id
-
        do i = 1, n_regions
           if (region_list(i)%name == trim(name) &
               .and. region_list(i)%id == id_) then
@@ -185,6 +185,7 @@ contains
           end if
        end do
 
+       ! Clean the detected region from the stack
        i_stack = active_regions%pop()
        do while (i_stack /= i)
           call tmp_stack%push(i_stack)
@@ -197,7 +198,7 @@ contains
        end do
 
     else
-
+       ! If no name is provided, end the last region
        if (active_regions%is_empty()) then
           call neko_error("Error in profiler: no active region to end")
        end if
@@ -205,13 +206,12 @@ contains
        i = active_regions%pop()
     end if
 
-
     if (.not. region_list(i)%active) then
        call neko_error("Error in profiler: region is not active: " // name)
     end if
 
+    ! Update the region time and count
     t = mpi_wtime() - region_list(i)%start
-
     region_list(i)%time = region_list(i)%time + t
     region_list(i)%n = region_list(i)%n + 1
     region_list(i)%active = .false.
