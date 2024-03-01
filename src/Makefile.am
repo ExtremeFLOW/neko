@@ -124,6 +124,7 @@ neko_fortran_SOURCES = \
 	common/sampler.f90\
 	common/global_interpolation.F90\
 	common/profiler.F90\
+	common/bcknd/neko_profiler.f90\
 	common/craypat.F90\
 	bc/bc.f90\
 	bc/dirichlet.f90\

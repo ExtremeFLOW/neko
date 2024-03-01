@@ -105,6 +105,7 @@ Features are enabled and disabled by passing either `--enable-FEATURE[=arg]` or 
 | `--enable-real=Xp`    | Specify working precision of REAL types:<br>`sp` -- `REAL(kind=4)`<br>`dp` -- `REAL(kind=8)` (default)<br>`qp` -- `REAL(kind=16)`<br> |
 | `--enable-contrib`    | Compile various tools                                                                                                                 |
 | `--enable-device-mpi` | Enable device aware MPI                                                                                                               |
+| `--enable-profiling`  | Enable built in profiling support                                                                                                     |
 
 Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--without-PACKAGE` to `configure`. A list of all supported optional packages are given in the table below.
 

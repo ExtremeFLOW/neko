@@ -27,6 +27,10 @@ AC_ARG_ENABLE(device-mpi,
 	      AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
 	      [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
+AC_ARG_ENABLE(profiling,
+	      AS_HELP_STRING([--enable-profiling],[Enable profiling support]),
+	      [enable_profiling=${enableval}], [enable_profiling=no])
+
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
 AC_PROG_FC(,90)
@@ -250,6 +254,13 @@ AX_NVTX
 
 # Checks for ROCTX profiling
 AX_ROCTX
+
+# Cheks for profiling
+if test "x${enable_profiling}" = xyes; then
+   AC_SUBST(enable_profiling, .true.)
+else
+   AC_SUBST(enable_profiling, .false.)
+fi
 
 # JSON-Fortran
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
