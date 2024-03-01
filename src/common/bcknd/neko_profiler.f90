@@ -299,10 +299,10 @@ contains
     allocate(buffer_id(buffer_size, pe_size))
     allocate(buffer_n(buffer_size, pe_size))
 
-    allocate(req_names(buffer_size))
-    allocate(req_id(buffer_size))
-    allocate(req_times(buffer_size))
-    allocate(req_n(buffer_size))
+    allocate(req_names(buffer_size * pe_size))
+    allocate(req_id(buffer_size * pe_size))
+    allocate(req_times(buffer_size * pe_size))
+    allocate(req_n(buffer_size * pe_size))
 
     ! Fill the buffers with the local region information
     do i_reg = 1, buffer_size
@@ -325,30 +325,29 @@ contains
     ! Broadcast the information to everyone
     do i_pe = 0, pe_size - 1
        do i_reg = 1, buffer_size
-          call mpi_ibcast(buffer_names(i_reg, i_pe + 1), name_len, MPI_CHARACTER, i_pe, &
-                          NEKO_COMM, req_names(i_reg), ierr)
+          call mpi_ibcast(buffer_names(i_reg, i_pe + 1), name_len, &
+                          MPI_CHARACTER, i_pe, NEKO_COMM, &
+                          req_names(i_reg + i_pe * buffer_size), ierr)
 
-          call mpi_ibcast(buffer_id(i_reg, i_pe + 1), 1, MPI_INTEGER, i_pe, &
-                          NEKO_COMM, req_id(i_reg), ierr)
+          call mpi_ibcast(buffer_id(i_reg, i_pe + 1), 1, &
+                          MPI_INTEGER, i_pe, NEKO_COMM, &
+                          req_id(i_reg + i_pe * buffer_size), ierr)
 
-          call mpi_ibcast(buffer_times(i_reg, i_pe + 1), 1, MPI_DOUBLE, i_pe, &
-                          NEKO_COMM, req_times(i_reg), ierr)
+          call mpi_ibcast(buffer_times(i_reg, i_pe + 1), 1, &
+                          MPI_DOUBLE, i_pe, NEKO_COMM, &
+                          req_times(i_reg + i_pe * buffer_size), ierr)
 
-          call mpi_ibcast(buffer_n(i_reg, i_pe + 1), 1, MPI_INTEGER, i_pe, &
-                          NEKO_COMM, req_n(i_reg), ierr)
+          call mpi_ibcast(buffer_n(i_reg, i_pe + 1), 1, &
+                          MPI_INTEGER, i_pe, NEKO_COMM, &
+                          req_n(i_reg + i_pe * buffer_size), ierr)
        end do
-
-       ! Wait for the broadcasts to finish
-       call mpi_waitall(buffer_size, req_names, MPI_STATUSES_IGNORE, ierr)
-       call mpi_waitall(buffer_size, req_id, MPI_STATUSES_IGNORE, ierr)
-       call mpi_waitall(buffer_size, req_times, MPI_STATUSES_IGNORE, ierr)
-       call mpi_waitall(buffer_size, req_n, MPI_STATUSES_IGNORE, ierr)
     end do
 
-    ! Build a new list of regions. Every entry must be unique and the same on all
-    ! ranks. Two regions are considered the same if they have the same name and
-    ! the same ID. If a region is not present on a rank, it is added with a time
-    ! of 0.0 and a count of 0.
+    ! Wait for the broadcasts to finish
+    call mpi_waitall(buffer_size*pe_size, req_names, MPI_STATUSES_IGNORE, ierr)
+    call mpi_waitall(buffer_size*pe_size, req_id, MPI_STATUSES_IGNORE, ierr)
+    call mpi_waitall(buffer_size*pe_size, req_times, MPI_STATUSES_IGNORE, ierr)
+    call mpi_waitall(buffer_size*pe_size, req_n, MPI_STATUSES_IGNORE, ierr)
 
     ! First, build the global list from the local list
     allocate(global_region_list(0))
