@@ -71,6 +71,7 @@
 module aabb
   use num_types, only: rp
   use tri, only: tri_t
+  use hex, only: hex_t
   use utils, only: neko_error
 
   implicit none
@@ -156,6 +157,7 @@ contains
   !! Current support:
   !! - Axis Aligned Bounding Box (aabb_t)
   !! - Triangle (tri_t)
+  !! - Hexahedron (hex_t)
   !!
   !! @param[in] object The object to get the aabb of.
   !! @param[in] padding The padding of the aabb.
@@ -172,8 +174,10 @@ contains
       type is (aabb_t)
        box = object
       type is (tri_t)
-       box = get_aabb_triangle(object)
-
+         box = get_aabb_triangle(object)
+      type is (hex_t)
+         box = get_aabb_hexahedron(object)
+         
       class default
        print *, "Error: get_aabb not implemented for this type"
        stop
@@ -205,6 +209,29 @@ contains
 
     call aabb%init(box_min, box_max)
   end function get_aabb_triangle
+
+  !> @brief Get the aabb of a hexahedron.
+  !! @details This function calculates the aabb of a hexahedron. The
+  !! padding is a multiple of the diameter of the aabb, and is used to
+  !! avoid numerical issues when the hexahedron itself it axis
+  !! aligned.
+  !! @param hexahedron The hexahedron to get the aabb of.
+  !! @return The aabb of the hexahedron.
+  function get_aabb_hexahedron(hexahedron) result(aabb)
+    type(hex_t), intent(in) :: hexahedron
+    type(aabb_t) :: aabb
+
+    real(kind=rp), dimension(3) :: box_min, box_max
+
+    associate(pts => hexahedron%pts)
+      box_min = min(pts(1)%p%x, pts(2)%p%x, pts(3)%p%x, pts(4)%p%x, &
+                    pts(5)%p%x, pts(6)%p%x, pts(7)%p%x, pts(8)%p%x)
+      box_max = max(pts(1)%p%x, pts(2)%p%x, pts(3)%p%x, pts(4)%p%x, &
+                    pts(5)%p%x, pts(6)%p%x, pts(7)%p%x, pts(8)%p%x)
+    end associate
+
+    call aabb%init(box_min, box_max)
+  end function get_aabb_hexahedron
 
   ! ========================================================================== !
   ! Initializers
