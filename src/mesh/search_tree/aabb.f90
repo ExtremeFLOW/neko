@@ -213,7 +213,7 @@ contains
   !> @brief Get the aabb of a hexahedron.
   !! @details This function calculates the aabb of a hexahedron. The
   !! padding is a multiple of the diameter of the aabb, and is used to
-  !! avoid numerical issues when the hexahedron itself it axis
+  !! avoid numerical issues when the hexahedron itself is axis
   !! aligned.
   !! @param hexahedron The hexahedron to get the aabb of.
   !! @return The aabb of the hexahedron.
