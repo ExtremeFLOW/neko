@@ -174,10 +174,10 @@ contains
       type is (aabb_t)
        box = object
       type is (tri_t)
-         box = get_aabb_triangle(object)
+       box = get_aabb_triangle(object)
       type is (hex_t)
-         box = get_aabb_hexahedron(object)
-         
+       box = get_aabb_hexahedron(object)
+
       class default
        print *, "Error: get_aabb not implemented for this type"
        stop
