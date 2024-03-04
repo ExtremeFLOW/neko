@@ -95,7 +95,7 @@ contains
     end do
 
     do i = 1, u%dof%size()
-       if (.not. inArray(u%dof%y(i,1,1,1),y_GLL)) then
+       if (.not. in_array(u%dof%y(i,1,1,1),y_GLL)) then
           y_GLL(i_y) = u%dof%y(i,1,1,1)
           i_y = i_y +1
        end if
@@ -109,16 +109,16 @@ contains
     end do
 
     do i = 1, u%dof%size()
-       ur_2D = pickPt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,1))
-       ui_2D = pickPt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,2))
-       vr_2D = pickPt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,3))
-       vi_2D = pickPt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,4))
-       ur_3D = pickPt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,1))
-       ui_3D = pickPt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,2))
-       vr_3D = pickPt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,3))
-       vi_3D = pickPt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,4))
-       wr_3D = pickPt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,5))
-       wi_3D = pickPt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,6))
+       ur_2D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,1))
+       ui_2D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,2))
+       vr_2D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,3))
+       vi_2D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,4))
+       ur_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,1))
+       ui_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,2))
+       vr_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,3))
+       vi_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,4))
+       wr_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,5))
+       wi_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,6))
        uvw = channel_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1), &
                         ur_2D,ui_2D,vr_2D,vi_2D, &
                         ur_3D,ui_3D,vr_3D,vi_3D,wr_3D,wi_3D)
@@ -129,25 +129,25 @@ contains
 
   end subroutine user_ic
 
-  function inArray(y,y_list) result(isIn)
-    logical :: isIn
+  function in_array(y,y_list) result(is_in)
+    logical :: is_in
     real(kind=rp) :: y, y_list(num_ygll)
     integer :: i
     real(kind=rp) :: tol
 
     tol = 1e-7_rp
-    isIn = .false.
+    is_in = .false.
 
     do i = 1, num_ygll
        if (abs(y-y_list(i)).le.tol) then
-          isIn = .true.
+          is_in = .true.
           exit
        end if
     end do 
 
-  end function inArray
+  end function in_array
 
-  function pickPt(y_target,y_source,Pt_source) result(Pt_target)
+  function pick_pt(y_target,y_source,Pt_source) result(Pt_target)
     real(kind=rp) :: y_target, Pt_target
     real(kind=rp), dimension(num_ygll) :: y_source, Pt_source
     real(kind=rp) :: tol
@@ -168,7 +168,7 @@ contains
        print *, 'tolerence too small for picking points!!!!!!'
     end if
 
-  end function pickPt
+  end function pick_pt
 
   function channel_ic(x, y, z, &
                       ur_2D,ui_2D,vr_2D,vi_2D, &
@@ -236,7 +236,7 @@ contains
     real(kind=rp), dimension(num_rows) :: chi, psi
     real(kind=rp) :: xn, xs, xe, xnc, dchebyshev 
     integer :: i, N, cj
-    logical :: isNaN
+    logical :: is_nan
 
     N = num_rows - 1
     xn = x_GLL
@@ -260,8 +260,8 @@ contains
        psi(i) = ((-1.0_rp)**(i) * (1.0_rp-xnc*xnc) * dchebyshev)/ &
                 (cj * N*N * (xnc-chi(i)))
 
-       isNaN = ieee_is_nan(psi(i))
-       if (isNaN .or. psi(i) .gt. 1e+3) then
+       is_nan = ieee_is_nan(psi(i))
+       if (is_nan .or. psi(i) .gt. 1e+3) then
           psi(i) = 1.0_rp
        end if
 
@@ -275,8 +275,8 @@ contains
   end function GLC_GLL_interp
 
   ! Evaluate the derivative of the Chebyshev polynomials of the first kind
-  function eval_dchebyshev(x,N) result(dTNx)
-    real(kind=rp) :: x, dTNx, tmp
+  function eval_dchebyshev(x,N) result(dT_Nx)
+    real(kind=rp) :: x, dT_Nx, tmp
     integer :: N, j, nn ! N should be num_rows - 1
     real(kind=rp), dimension(N+1) :: dT
 
@@ -293,12 +293,12 @@ contains
        end if
     end do
 
-    dTNx = dT(N+1)
+    dT_Nx = dT(N+1)
   end function eval_dchebyshev
   
   ! Evaluate the Chebyshev polynomials of the first kind
-  function eval_chebyshev(x,N) result(TNx)
-    real(kind=rp) :: x, TNx
+  function eval_chebyshev(x,N) result(T_Nx)
+    real(kind=rp) :: x, T_Nx
     integer :: N, j ! N should be num_rows - 1
     real(kind=rp), dimension(N+1) :: T
     T(1) = 1.0_rp
@@ -306,7 +306,7 @@ contains
     do j = 3, N+1
        T(j) = 2.0_rp*x*T(j-1) - T(j-2)
     end do
-    TNx = T(N+1)
+    T_Nx = T(N+1)
   end function eval_chebyshev
 
 end module user
