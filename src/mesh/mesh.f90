@@ -1400,11 +1400,6 @@ contains
     ep => this%elements(el)%e
     el_glb_idx = el + this%offset_el
 
-    do i = 1, NEKO_QUAD_NPTS
-       p_local_idx = this%get_local(this%points(p(i)))
-       call this%point_neigh(p_local_idx)%push(el_glb_idx)
-    end do
-
     select type(ep)
     type is (quad_t)
        call ep%init(el_glb_idx, &
