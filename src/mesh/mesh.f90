@@ -380,55 +380,12 @@ contains
 
   subroutine mesh_finalize(this)
     class(mesh_t), target, intent(inout) :: this
-    integer :: i, id, el
+    integer :: i
     class(element_t), pointer :: ep
     type(tuple_i4_t) :: e
     type(tuple4_i4_t) :: f
     integer :: p_local_idx, res
     
-    !If we generate connectivity, we do that here.
-    if (this%lgenc) then
-       do el = 1, this%nelv
-          ep => this%elements(el)%e
-          select type(ep)
-          type is (hex_t)
-             do i = 1, NEKO_HEX_NPTS
-                !Only for getting the id
-                call this%add_point(ep%pts(i)%p, id)
-                p_local_idx = this%get_local(this%points(id))
-                !should stack have inout on what we push? would be neat with in
-                id = ep%id()
-                call this%point_neigh(p_local_idx)%push(id)
-            end do
-            do i = 1, NEKO_HEX_NFCS
-                call ep%facet_id(f, i)
-                call this%add_face(f)
-             end do
-
-             do i = 1, NEKO_HEX_NEDS
-                call ep%edge_id(e, i)
-                call this%add_edge(e)
-             end do
-          type is (quad_t)
-             do i = 1, NEKO_QUAD_NPTS
-                !Only for getting the id
-                call this%add_point(ep%pts(i)%p, id)
-                p_local_idx = this%get_local(this%points(id))
-                !should stack have inout on what we push? would be neat with in
-                id = ep%id()
-                call this%point_neigh(p_local_idx)%push(id)
-             end do
-
-             do i = 1, NEKO_QUAD_NEDS
-                call ep%facet_id(e, i)
-                call this%add_edge(e)
-             end do
-          end select
-       end do
-    end if
-
-
-
     call mesh_generate_flags(this)
     call mesh_generate_conn(this)
 
@@ -490,12 +447,56 @@ contains
     type(tuple4_i4_t) :: face, face_comp
     type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: neigh_order
-
+    class(element_t), pointer :: ep
+    type(tuple_i4_t) :: e
+    type(tuple4_i4_t) :: f
+    integer :: p_local_idx, res
+    integer :: el, id
     integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, src, dst
 
     if (this%lconn) return
 
     if (.not. this%lgenc) return
+ 
+    !If we generate connectivity, we do that here.
+    do el = 1, this%nelv
+       ep => this%elements(el)%e
+       select type(ep)
+       type is (hex_t)
+          do i = 1, NEKO_HEX_NPTS
+             !Only for getting the id
+             call this%add_point(ep%pts(i)%p, id)
+             p_local_idx = this%get_local(this%points(id))
+             !should stack have inout on what we push? would be neat with in
+             id = ep%id()
+             call this%point_neigh(p_local_idx)%push(id)
+         end do
+         do i = 1, NEKO_HEX_NFCS
+             call ep%facet_id(f, i)
+             call this%add_face(f)
+          end do
+
+          do i = 1, NEKO_HEX_NEDS
+             call ep%edge_id(e, i)
+             call this%add_edge(e)
+          end do
+       type is (quad_t)
+          do i = 1, NEKO_QUAD_NPTS
+             !Only for getting the id
+             call this%add_point(ep%pts(i)%p, id)
+             p_local_idx = this%get_local(this%points(id))
+             !should stack have inout on what we push? would be neat with in
+             id = ep%id()
+             call this%point_neigh(p_local_idx)%push(id)
+          end do
+
+          do i = 1, NEKO_QUAD_NEDS
+             call ep%facet_id(e, i)
+             call this%add_edge(e)
+          end do
+       end select
+    end do
+
 
     if (this%gdim .eq. 2) then
        n_sides = 4
