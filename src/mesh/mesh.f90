@@ -1411,10 +1411,6 @@ contains
             this%points(p(1)), this%points(p(2)), &
             this%points(p(3)), this%points(p(4)))
 
-       do i = 1, NEKO_QUAD_NEDS
-          call ep%facet_id(e, i)
-          call this%add_edge(e)
-       end do
 
     class default
        call neko_error('Invalid element type')
