@@ -211,10 +211,7 @@ contains
   end function get_aabb_triangle
 
   !> @brief Get the aabb of a hexahedron.
-  !! @details This function calculates the aabb of a hexahedron. The
-  !! padding is a multiple of the diameter of the aabb, and is used to
-  !! avoid numerical issues when the hexahedron itself is axis
-  !! aligned.
+  !! @details This function calculates the aabb of a hexahedron.
   !! @param hexahedron The hexahedron to get the aabb of.
   !! @return The aabb of the hexahedron.
   function get_aabb_hexahedron(hexahedron) result(aabb)
