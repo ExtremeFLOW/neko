@@ -420,12 +420,11 @@ contains
              end do
 
              do i = 1, NEKO_QUAD_NEDS
-                call ep%edge_id(e, i)
+                call ep%facet_id(e, i)
                 call this%add_edge(e)
              end do
           end select
        end do
-
     end if
 
 
@@ -1788,6 +1787,7 @@ contains
                 call neko_error('Multiple matches when creating periodic ids')
              else if (match .eq. 0) then
                 call neko_error('Cannot find matching periodic point')
+             end if
           end do
        end select
     type is(quad_t)
