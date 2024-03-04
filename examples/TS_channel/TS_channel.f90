@@ -22,7 +22,8 @@ contains
 
 
   ! Rescale mesh
-  ! New mesh can easily be genreated with genmeshbox
+  ! Original mesh size: (2.0, 2.0, 1.0).
+  ! New mesh can easily be genreated with genmeshbox.
   subroutine user_mesh_scale(msh)
     type(mesh_t), intent(inout) :: msh
     integer :: i
@@ -61,25 +62,25 @@ contains
 
     ! data reading
     open(unit=10, file='TSwave_cheb_2D.csv', status='old', action='read', iostat=ios)
-      if (ios /= 0) then
-        print *, "Error opening the file!"
-        stop
-      end if
-      do i = 1, num_rows
-        read(10,*) (data_mode_cheb_2D(i, j), j = 1, num_columns)
-      end do
+       if (ios /= 0) then
+          print *, "Error opening the file!"
+          stop
+       end if
+       do i = 1, num_rows
+          read(10,*) (data_mode_cheb_2D(i, j), j = 1, num_columns)
+       end do
     close(10)
     y_GLC = data_mode_cheb_2D(:,1)
     TS2D_GLC = data_mode_cheb_2D(:,2:num_columns)
 
     open(unit=10, file='TSwave_cheb_3D.csv', status='old', action='read', iostat=ios)
-      if (ios /= 0) then
-        print *, "Error opening the file!"
-        stop
-      end if
-      do i = 1, num_rows
-        read(10,*) (data_mode_cheb_3D(i, j), j = 1, num_columns)
-      end do
+       if (ios /= 0) then
+          print *, "Error opening the file!"
+          stop
+       end if
+       do i = 1, num_rows
+          read(10,*) (data_mode_cheb_3D(i, j), j = 1, num_columns)
+       end do
     close(10)
     TS3D_GLC = data_mode_cheb_3D(:,2:num_columns)
 
@@ -90,22 +91,21 @@ contains
     
     ! initialize y_GLL
     do i = 1, num_ygll
-      y_GLL(i) = 0.0
+       y_GLL(i) = 0.0
     end do
 
     do i = 1, u%dof%size()
-      if (.not. inArray(u%dof%y(i,1,1,1),y_GLL)) then
-        y_GLL(i_y) = u%dof%y(i,1,1,1)
-        i_y = i_y +1
-
-      end if
+       if (.not. inArray(u%dof%y(i,1,1,1),y_GLL)) then
+          y_GLL(i_y) = u%dof%y(i,1,1,1)
+          i_y = i_y +1
+       end if
     end do
 
     do i = 1, num_columns-1
-      do j = 1, num_ygll
-        TS2D_GLL(j,i) = GLC_GLL_interp(TS2D_GLC(:,i),y_GLC,y_GLL(j))
-        TS3D_GLL(j,i) = GLC_GLL_interp(TS3D_GLC(:,i),y_GLC,y_GLL(j))
-      end do
+       do j = 1, num_ygll
+          TS2D_GLL(j,i) = GLC_GLL_interp(TS2D_GLC(:,i),y_GLC,y_GLL(j))
+          TS3D_GLL(j,i) = GLC_GLL_interp(TS3D_GLC(:,i),y_GLC,y_GLL(j))
+       end do
     end do
 
     do i = 1, u%dof%size()
@@ -135,17 +135,17 @@ contains
     integer :: i
     real(kind=rp) :: tol
 
-    tol=1e-7_rp
+    tol = 1e-7_rp
     isIn = .false.
 
     do i = 1, num_ygll
-      if (abs(y-y_list(i)).le.tol) then
-        isIn = .true.
-        exit
-      end if
+       if (abs(y-y_list(i)).le.tol) then
+          isIn = .true.
+          exit
+       end if
     end do 
 
-  end function
+  end function inArray
 
   function pickPt(y_target,y_source,Pt_source) result(Pt_target)
     real(kind=rp) :: y_target, Pt_target
@@ -157,15 +157,15 @@ contains
     tol = 1e-14_rp
     found = .false.
     do i = 1, num_ygll
-      if (abs(y_target-y_source(i)) .le. tol) then
-        Pt_target = Pt_source(i)
-        found = .true.
-        exit
-      end if
+       if (abs(y_target-y_source(i)) .le. tol) then
+          Pt_target = Pt_source(i)
+          found = .true.
+          exit
+       end if
     end do
     
     if (.not. found) then
-      print *, 'tolerence too small for picking points!!!!!!'
+       print *, 'tolerence too small for picking points!!!!!!'
     end if
 
   end function pickPt
@@ -188,11 +188,15 @@ contains
     complex(kind=rp) :: u_mode_3D, v_mode_3D, w_mode_3D
     complex(kind=rp) :: spa_osci_3D_p, spa_osci_3D_n
     real(kind=rp) :: u_pert_TS_3D, v_pert_TS_3D, w_pert_TS_3D
-
+    
+    ! amplitude for decaying TS wave:
     ! TS_amp_2D = 1e-6_rp
     ! TS_amp_3D = 0.0_rp
+
+    ! amplitude for secondary instability TS wave:
     TS_amp_2D = 3e-2_rp
     TS_amp_3D = 1e-4_rp
+
     alpha = 1.12_rp
     beta = 2.1_rp
 
@@ -224,7 +228,8 @@ contains
 
   end function channel_ic
 
-
+  ! The raw data in .csv file is on GLC points,
+  ! hence a interpolation from GLC points to GLL points is performed.
   function GLC_GLL_interp(f_GLC,x_GLC,x_GLL) result(f_GLL)
     real(kind=rp) :: x_GLL, f_GLL
     real(kind=rp), dimension(num_rows) :: f_GLC, x_GLC
@@ -241,34 +246,35 @@ contains
           ( xe - xs)
     dchebyshev = eval_dchebyshev(xnc,N)
     do i = 1, N+1
-      chi(i) = ( 2.0_rp*x_GLC(i) - (xs+xe) )/ &
+       chi(i) = ( 2.0_rp*x_GLC(i) - (xs+xe) )/ &
                 ( xe - xs)
 
-      if (i .eq. 1) then
-        cj = 2.0_rp
-      else if (i .eq. N+1) then
-        cj = 2.0_rp
-      else
-        cj = 1.0_rp
-      end if
+       if (i .eq. 1) then
+          cj = 2.0_rp
+       else if (i .eq. N+1) then
+          cj = 2.0_rp
+       else
+          cj = 1.0_rp
+       end if
 
-      psi(i) = ((-1.0_rp)**(i) * (1.0_rp-xnc*xnc) * dchebyshev)/ &
+       psi(i) = ((-1.0_rp)**(i) * (1.0_rp-xnc*xnc) * dchebyshev)/ &
                 (cj * N*N * (xnc-chi(i)))
 
-      isNaN = ieee_is_nan(psi(i))
-      if (isNaN .or. psi(i) .gt. 1e+3) then
-        psi(i) = 1.0_rp
-      end if
+       isNaN = ieee_is_nan(psi(i))
+       if (isNaN .or. psi(i) .gt. 1e+3) then
+          psi(i) = 1.0_rp
+       end if
 
     end do
 
     f_GLL = 0.0_rp
     do i = 1, N+1
-      f_GLL = f_GLL + psi(i)*f_GLC(i)
+       f_GLL = f_GLL + psi(i)*f_GLC(i)
     end do
 
   end function GLC_GLL_interp
 
+  ! Evaluate the derivative of the Chebyshev polynomials of the first kind
   function eval_dchebyshev(x,N) result(dTNx)
     real(kind=rp) :: x, dTNx, tmp
     integer :: N, j, nn ! N should be num_rows - 1
@@ -278,18 +284,19 @@ contains
     dT(2) = 1.0_rp
 
     do j = 3, N+1
-      nn = j - 2
-      tmp = eval_chebyshev(x,nn)
-      if (nn .eq. 1) then
-        dT(j) = 2.0_rp*(nn+1.0_rp)*tmp
-      else
-        dT(j) = 2.0_rp*(nn+1.0_rp)*tmp + (nn+1.0_rp)/(nn-1.0_rp)*dT(j-2)
-      end if
+       nn = j - 2
+       tmp = eval_chebyshev(x,nn)
+       if (nn .eq. 1) then
+          dT(j) = 2.0_rp*(nn+1.0_rp)*tmp
+       else
+          dT(j) = 2.0_rp*(nn+1.0_rp)*tmp + (nn+1.0_rp)/(nn-1.0_rp)*dT(j-2)
+       end if
     end do
 
     dTNx = dT(N+1)
   end function eval_dchebyshev
-
+  
+  ! Evaluate the Chebyshev polynomials of the first kind
   function eval_chebyshev(x,N) result(TNx)
     real(kind=rp) :: x, TNx
     integer :: N, j ! N should be num_rows - 1
@@ -297,7 +304,7 @@ contains
     T(1) = 1.0_rp
     T(2) = x
     do j = 3, N+1
-      T(j) = 2.0_rp*x*T(j-1) - T(j-2)
+       T(j) = 2.0_rp*x*T(j-1) - T(j-2)
     end do
     TNx = T(N+1)
   end function eval_chebyshev
