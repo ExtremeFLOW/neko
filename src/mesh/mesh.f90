@@ -1876,8 +1876,7 @@ contains
     integer :: local_id
 
     if (this%htf%get(f, local_id) .gt. 0) then
-       print *, 'error', f
-       call neko_error('Invalid global id (local facet)')
+       call neko_error('Invalid global id (local facet) ' // f)
     end if
 
   end function mesh_get_local_facet
