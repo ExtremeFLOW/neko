@@ -72,11 +72,11 @@ contains
   end function step_function_cpu
 
   !> @brief Apply a permeability function to a scalar.
-  elemental function permeability_cpu(x, perm_0, perm_1, penalty) result(perm)
-    real(kind=rp), intent(in) :: x, perm_0, perm_1, penalty
+  elemental function permeability_cpu(x, k_0, k_1, q) result(perm)
+    real(kind=rp), intent(in) :: x, k_0, k_1, q
     real(kind=rp) :: perm
 
-    perm = perm_0 + (perm_1 - perm_0) * x * (penalty + 1.0_rp) / (penalty + x)
+    perm = k_0 + (k_1 - k_0) * x * (q + 1.0_rp) / (q + x)
 
   end function permeability_cpu
 

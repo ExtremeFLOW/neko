@@ -61,7 +61,7 @@ contains
   subroutine smooth_step_field(F, edge0, edge1)
     use filters_cpu, only: smooth_step_cpu
 
-    type(field_t), pointer, intent(inout) :: F
+    type(field_t), intent(inout) :: F
     real(kind=rp), intent(in) :: edge0, edge1
 
     F%x = smooth_step_cpu(F%x, edge0, edge1)
@@ -69,19 +69,20 @@ contains
 
   !> @brief Apply a permeability function to a field.
   !! @details The permeability function is defined as:
-  !! \f[ k(x) = k_0 + (k_1 - k_0) x \frac{penalty + 1}{penalty + x}} \f]
+  !! \f[ k(x) = k_0 + (k_1 - k_0) x \frac{q + 1}{q + x}} \f]
   !! @param[in,out] F Field to be modified.
-  !! @param[in] perm_0 Permeability at x=0.
-  !! @param[in] perm_1 Permeability at x=1.
-  !! @param[in] penalty Penalty factor.
-  subroutine permeability_field(F, perm_0, perm_1, penalty)
+  !! @param[in] k_0 Permeability at x=0.
+  !! @param[in] k_1 Permeability at x=1.
+  !! @param[in] q Penalty factor.
+  subroutine permeability_field(F_out, x, k_0, k_1, q)
     use filters_cpu, only: permeability_cpu
 
-    type(field_t), pointer, intent(inout) :: F
-    real(kind=rp), intent(in) :: perm_0, perm_1
-    real(kind=rp), intent(in) :: penalty
+    type(field_t), intent(inout) :: F_out
+    type(field_t), intent(in) :: x
+    real(kind=rp), intent(in) :: k_0, k_1
+    real(kind=rp), intent(in) :: q
 
-    F%x = permeability_cpu(F%x, perm_0, perm_1, penalty)
+    F_out%x = permeability_cpu(x%x, k_0, k_1, q)
   end subroutine permeability_field
 
   !> @brief Apply a step function to a field.
@@ -92,7 +93,7 @@ contains
   subroutine step_function_field(F, x0, value0, value1)
     use filters_cpu, only: step_function_cpu
 
-    type(field_t), pointer, intent(inout) :: F
+    type(field_t), intent(inout) :: F
     real(kind=rp), intent(in) :: x0, value0, value1
 
     F%x = step_function_cpu(F%x, x0, value0, value1)
