@@ -375,16 +375,16 @@ contains
     call this%outlet_normal%free()
     call this%sympln%free()
     call this%periodic%free()
+    this%lconn = .false.
+    this%lnumr = .false.
+    this%ldist = .false.
+    this%lgenc = .true.
 
   end subroutine mesh_free
 
   subroutine mesh_finalize(this)
     class(mesh_t), target, intent(inout) :: this
     integer :: i
-    class(element_t), pointer :: ep
-    type(tuple_i4_t) :: e
-    type(tuple4_i4_t) :: f
-    integer :: p_local_idx, res
     
     call mesh_generate_flags(this)
     call mesh_generate_conn(this)
@@ -605,6 +605,7 @@ contains
     !
     ! Find all external (between PEs) boundaries
     !
+    print *, pe_size
     if (pe_size .gt. 1) then
 
        call mesh_generate_external_point_conn(this)
