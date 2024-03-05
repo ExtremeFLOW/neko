@@ -33,7 +33,7 @@ program usrneko
 end program usrneko
 _ACEOF
 
-$FC $FCFLAGS -I$includedir_pkg -L$libdir $1 usr_driver.f90\
+$FC $FCFLAGS -I$includedir_pkg -L$libdir $@ usr_driver.f90\
     -lneko @LDFLAGS@ @LIBS@ -o neko
 
 rm -f usr_driver.f90
