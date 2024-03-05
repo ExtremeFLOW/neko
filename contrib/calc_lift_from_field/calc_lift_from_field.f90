@@ -35,7 +35,8 @@ program calc_lift_from_field
      if (pe_rank .eq. 0) then
         write(*,*) 'Usage: ./calc_lift_from_field mesh.nmsh field.fld zone_number viscosity function_of_coord output.csv' 
         write(*,*) 'Example command: ./calc_lift_from_field mesh.nmsh fieldblabla.fld 5 0.04 y out.csv'
-        write(*,*) 'Computes the lift at each level in the mesh at coord y'
+        write(*,*) 'Outputs the total force and torque on zone 5 using velocity values from fieldblabla.fld'
+        write(*,*)  'as well as writes the distribution of the force and torque across y to output.csv'
      end if
      stop
   end if
