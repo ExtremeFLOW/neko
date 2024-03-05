@@ -87,6 +87,7 @@ contains
     use filters, only: smooth_step_field, step_function_field, permeability_field
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
+    use json_module, only: json_core, json_value
     implicit none
 
     class(brinkman_source_term_t), intent(inout) :: this
@@ -99,13 +100,22 @@ contains
     real(kind=rp), dimension(:), allocatable :: brinkman_limits
     real(kind=rp) :: brinkman_penalty
 
-    character(len=:), allocatable :: string
+    type(json_value), pointer :: json_object_list
+    type(json_core) :: core
+    type(json_value), pointer :: json_object_pointer
+    character(len=:), allocatable :: json_buffer
+
+    character(len=:), allocatable :: object_type
+    type(json_file) :: object_settings
+    integer :: n_regions
+    integer :: i
+    logical :: found
+
+
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
-
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     ! Read the options for the permeability field
     call json_get(json, 'brinkman.limits', brinkman_limits)
@@ -121,34 +131,45 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Allocate the permeability and indicator field
 
-    if (.not. neko_field_registry%field_exists('brinkman_indicator')) then
-       call neko_field_registry%add_field(coef%dof, 'brinkman_indicator')
-    end if
-    if (.not. neko_field_registry%field_exists('brinkman')) then
-       call neko_field_registry%add_field(coef%dof, 'brinkman')
+    if (neko_field_registry%field_exists('brinkman_indicator') &
+        .or. neko_field_registry%field_exists('brinkman')) then
+       call neko_error('Brinkman field already exists.')
     end if
 
+    call neko_field_registry%add_field(coef%dof, 'brinkman_indicator')
     this%indicator => neko_field_registry%get_field_by_name('brinkman_indicator')
+
+    call neko_field_registry%add_field(coef%dof, 'brinkman')
     this%brinkman => neko_field_registry%get_field_by_name('brinkman')
 
     ! ------------------------------------------------------------------------ !
     ! Select which constructor should be called
 
-    call json_get(json, 'region.type', string)
+    call json%get('objects', json_object_list)
+    n_regions = core%count(json_object_list)
 
-    select case (string)
-      case ('boundary_mesh')
-       call this%init_boundary_mesh(json)
-      case ('point_zone')
-       call this%init_point_zone(json)
-      case default
-       call neko_error('Unknown region type')
-    end select
+    do i=1, n_regions
 
-    ! Run filter on the permeability field to smooth it out.
-    ! This filter should initially be the classic heaviside filter, but we wish
-    ! to alter it to be a PDE based filter to avoid MPI communication.
-    ! The "helmholtz" solver in Neko should be able to solve the PDE filter.
+       ! Create a new json containing just the subdict for this object.
+       call core%get_child(json_object_list, i, json_object_pointer)
+       call core%print_to_string(json_object_pointer, json_buffer)
+       call object_settings%load_from_string(json_buffer)
+
+
+       call json_get(object_settings, 'type', object_type)
+       select case (object_type)
+         case ('boundary_mesh')
+          call this%init_boundary_mesh(object_settings)
+         case ('point_zone')
+          call this%init_point_zone(object_settings)
+         case default
+          call neko_error('Unknown region type')
+       end select
+
+    end do
+
+    ! Run filter on the full indicator field to smooth it out.
+    call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     select case (filter_type)
       case ('none')
@@ -216,6 +237,7 @@ contains
     ! Options
     character(len=:), allocatable :: mesh_file_name
     character(len=:), allocatable :: distance_transform
+    character(len=:), allocatable :: filter_type
 
     type(file_t) :: mesh_file
     type(tri_mesh_t) :: boundary_mesh
@@ -226,7 +248,7 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Read the options for the boundary mesh
 
-    call json_get(json, 'region.name', mesh_file_name)
+    call json_get(json, 'name', mesh_file_name)
 
     ! Settings on how to filter the design field
     call json_get(json, 'distance_transform.type', distance_transform)
@@ -270,6 +292,17 @@ contains
        call neko_error('Unknown distance transform')
     end select
 
+    ! ------------------------------------------------------------------------ !
+    ! Run filter on the temporary indicator field to smooth it out.
+    call json_get_or_default(json, 'filter.type', filter_type, 'none')
+
+    select case (filter_type)
+      case ('none')
+       ! Do nothing
+      case default
+       call neko_error('Unknown filter type')
+    end select
+
     ! Update the global indicator field by max operator
     this%indicator%x = max(this%indicator%x, temp_field%x)
 
@@ -290,6 +323,7 @@ contains
 
     ! Options
     character(len=:), allocatable :: zone_name
+    character(len=:), allocatable :: filter_type
 
     type(field_t) :: temp_field
     class(point_zone_t), pointer :: my_point_zone
@@ -298,18 +332,27 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Read the options for the point zone
 
-    call json_get(json,'region.name', zone_name)
+    call json_get(json,'name', zone_name)
+    call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
-    ! ------------------------------------------------------------------------ !
-    ! Compute the permeability field
+    ! Compute the indicator field
 
     call temp_field%init(this%indicator%dof)
 
     my_point_zone => neko_point_zone_registry%get_point_zone(zone_name)
 
     do i = 1, my_point_zone%size
-       this%indicator%x(my_point_zone%mask(i), 1, 1, 1) = 1.0_rp
+       temp_field%x(my_point_zone%mask(i), 1, 1, 1) = 1.0_rp
     end do
+
+    ! Run filter on the temporary indicator field to smooth it out.
+
+    select case (filter_type)
+      case ('none')
+       ! Do nothing
+      case default
+       call neko_error('Unknown filter type')
+    end select
 
     ! Update the global indicator field by max operator
     this%indicator%x = max(this%indicator%x, temp_field%x)

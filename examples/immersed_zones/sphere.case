@@ -57,10 +57,12 @@
             "source_terms": [
                 {
                     "type": "brinkman",
-                    "region": {
-                        "type": "point_zone",
-                        "name": "ball"
-                    },
+                    "objects": [
+                        {
+                            "type": "point_zone",
+                            "name": "ball"
+                        }
+                    ],
                     "brinkman": {
                         "limits": [
                             0.0,

@@ -6,7 +6,7 @@
         "output_at_end": false,
         "output_boundary": false,
         "output_checkpoints": false,
-        "end_time": 20.0,
+        "end_time": 0.01,
         "timestep": 5e-5,
         "numerics": {
             "time_order": 3,
@@ -57,10 +57,12 @@
             "source_terms": [
                 {
                     "type": "brinkman",
-                    "region": {
-                        "type": "point_zone",
-                        "name": "block"
-                    },
+                    "objects": [
+                        {
+                            "type": "point_zone",
+                            "name": "block"
+                        }
+                    ],
                     "brinkman": {
                         "limits": [
                             0.0,

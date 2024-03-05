@@ -57,10 +57,12 @@
             "source_terms": [
                 {
                     "type": "brinkman",
-                    "region": {
-                        "type": "point_zone",
-                        "name": "cylinder"
-                    },
+                    "objects": [
+                        {
+                            "type": "point_zone",
+                            "name": "cylinder"
+                        }
+                    ],
                     "brinkman": {
                         "limits": [
                             0.0,
