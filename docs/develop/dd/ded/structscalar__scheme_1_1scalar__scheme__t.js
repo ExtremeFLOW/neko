@@ -30,6 +30,7 @@ var structscalar__scheme_1_1scalar__scheme__t =
     [ "projection_dim", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#abc0eca030b98a2cee78f5ae183d8aa76", null ],
     [ "rho", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a544f369ba8672656a59489ab0831cb69", null ],
     [ "s", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a4dba49c8c38c10944716140cad07f7dd", null ],
+    [ "slag", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a783436e16b2fc713401118a35ee89fa5", null ],
     [ "source_term", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#abd115b21b6eb902c045d17561f254617", null ],
     [ "u", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a44037993bd8743a0f5021ddf8c0b49de", null ],
     [ "user_bc", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a31ceba29e0bd91df045e97b4c02622c5", null ],

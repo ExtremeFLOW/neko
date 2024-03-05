@@ -1,5 +1,8 @@
 var NAVTREEINDEX9 =
 {
+"d3/de8/interfacehip__intf_1_1hipDeviceSynchronize.html":[6,0,93,4],
+"d3/de8/interfacehip__intf_1_1hipDeviceSynchronize.html#ab884a5bd286b465c1c093e37ce576695":[6,0,93,4,0],
+"d3/df3/interfacecuda__intf_1_1cudaStreamCreateWithPriority.html":[6,0,28,8],
 "d3/df3/interfacecuda__intf_1_1cudaStreamCreateWithPriority.html#a990b282487f16a54a1dfb9edc174d00c":[6,0,28,8,0],
 "d4/d06/opr__sx_8f90.html":[7,0,2,12,0,2,2],
 "d4/d06/opr__sx_8f90.html#a261b72a402008e447b2d4d07c9d21271":[7,0,2,12,0,2,2,2],
@@ -190,11 +193,11 @@ var NAVTREEINDEX9 =
 "d4/d68/time__interpolator_8f90.html#a2435dfe0fac0851b0a38cc776453359f":[7,0,2,3,24,1],
 "d4/d68/time__interpolator_8f90.html#a77d8400840ecc2e7f94bb3c41b3d2040":[7,0,2,3,24,2],
 "d4/d68/time__interpolator_8f90_source.html":[7,0,2,3,24],
-"d4/d6e/namespacevreman.html":[5,0,256],
-"d4/d6e/namespacevreman.html#a38e1648a411d3d00d122c6e6fd26b9bd":[5,0,256,3],
-"d4/d6e/namespacevreman.html#a40225f68654a941310b904955b1921b6":[5,0,256,4],
-"d4/d6e/namespacevreman.html#a4605388367b16cc15e240957fe029213":[5,0,256,2],
-"d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485":[5,0,256,1],
+"d4/d6e/namespacevreman.html":[5,0,257],
+"d4/d6e/namespacevreman.html#a38e1648a411d3d00d122c6e6fd26b9bd":[5,0,257,3],
+"d4/d6e/namespacevreman.html#a40225f68654a941310b904955b1921b6":[5,0,257,4],
+"d4/d6e/namespacevreman.html#a4605388367b16cc15e240957fe029213":[5,0,257,2],
+"d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485":[5,0,257,1],
 "d4/d6f/field__registry_8f90.html":[7,0,2,6,2],
 "d4/d6f/field__registry_8f90.html#a10e4570d0cae94f110c9b0eacbb56769":[7,0,2,6,2,1],
 "d4/d6f/field__registry_8f90.html#a37b2c888042990813baac46ab5acf05c":[7,0,2,6,2,4],
@@ -246,8 +249,5 @@ var NAVTREEINDEX9 =
 "d4/d86/namespacefacet__normal.html#a5c89b4ec6d9a951ff5fdad061bd83bb2":[5,0,66,5],
 "d4/d86/namespacefacet__normal.html#a6f2b4d382c546c7d4e007577af7184ef":[5,0,66,3],
 "d4/d86/namespacefacet__normal.html#a7d88ac5b4935e57a90a908a97ab7740f":[5,0,66,2],
-"d4/d86/namespacefacet__normal.html#ac7eecb9ef3cac51804ed5a62ba1f698f":[5,0,66,1],
-"d4/d86/namespacefacet__normal.html#af5b1ba41688f7007490af1adc30a7f37":[5,0,66,4],
-"d4/d8d/neko__log_8h.html":[7,0,2,3,11],
-"d4/d8d/neko__log_8h.html#a2eb7fca59244516787b0701a7011b1a3":[7,0,2,3,11,1]
+"d4/d86/namespacefacet__normal.html#ac7eecb9ef3cac51804ed5a62ba1f698f":[5,0,66,1]
 };

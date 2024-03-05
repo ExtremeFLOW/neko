@@ -47,8 +47,11 @@ var structfluid__scheme_1_1fluid__scheme__t =
     [ "source_term", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aac122a8841f951d2c5fe011b15371324", null ],
     [ "stats", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ab4d83ffb539b98cd5f3dc0ba3490af30", null ],
     [ "u", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#af28e1c83551bdd725ff4a2b2fe7512a7", null ],
+    [ "ulag", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a840ffbcc93f7e5cbb7e2457ad1a39136", null ],
     [ "v", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a04ee9d7eff3591a0ac4b57afb75a01e7", null ],
     [ "vel_projection_dim", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ac1a95c8ab830828238fa16a30b9f4f05", null ],
+    [ "vlag", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aa446cc66f4a6f8310670bbe6df0caaf3", null ],
     [ "w", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a8fea3a5b9c15961d77b221824be9dbf1", null ],
+    [ "wlag", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a0a6a20a89f1f3c37dd1784ac7fb465ce", null ],
     [ "xh", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aa28e8f6ab8506107f02ef254bc5d5220", null ]
 ];

@@ -700,6 +700,7 @@ var namespaces_dup =
     [ "time_interpolator", "d7/d12/namespacetime__interpolator.html", "d7/d12/namespacetime__interpolator" ],
     [ "time_scheme", "dd/d54/namespacetime__scheme.html", "dd/d54/namespacetime__scheme" ],
     [ "time_scheme_controller", "dc/dfb/namespacetime__scheme__controller.html", "dc/dfb/namespacetime__scheme__controller" ],
+    [ "time_step_controller", "d3/dda/namespacetime__step__controller.html", "d3/dda/namespacetime__step__controller" ],
     [ "tri", "df/d69/namespacetri.html", "df/d69/namespacetri" ],
     [ "tri_mesh", "df/d32/namespacetri__mesh.html", "df/d32/namespacetri__mesh" ],
     [ "tuple", "df/dec/namespacetuple.html", "df/dec/namespacetuple" ],

@@ -50,9 +50,12 @@ var structfluid__plan1_1_1fluid__plan1__t =
     [ "source_term", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#aac122a8841f951d2c5fe011b15371324", null ],
     [ "stats", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#ab4d83ffb539b98cd5f3dc0ba3490af30", null ],
     [ "u", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#af28e1c83551bdd725ff4a2b2fe7512a7", null ],
+    [ "ulag", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a840ffbcc93f7e5cbb7e2457ad1a39136", null ],
     [ "v", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a04ee9d7eff3591a0ac4b57afb75a01e7", null ],
     [ "vel_projection_dim", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#ac1a95c8ab830828238fa16a30b9f4f05", null ],
+    [ "vlag", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#aa446cc66f4a6f8310670bbe6df0caaf3", null ],
     [ "w", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a8fea3a5b9c15961d77b221824be9dbf1", null ],
+    [ "wlag", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a0a6a20a89f1f3c37dd1784ac7fb465ce", null ],
     [ "xh", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#aa28e8f6ab8506107f02ef254bc5d5220", null ],
     [ "yh", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a54bc23b757e602fdb5306128a6798d78", null ]
 ];

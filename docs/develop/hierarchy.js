@@ -539,6 +539,7 @@ var hierarchy =
       [ "bdf_time_scheme::bdf_time_scheme_t", "d7/dac/structbdf__time__scheme_1_1bdf__time__scheme__t.html", null ],
       [ "ext_time_scheme::ext_time_scheme_t", "d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html", null ]
     ] ],
+    [ "time_step_controller::time_step_controller_t", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html", null ],
     [ "tensor::transpose", "db/da7/interfacetensor_1_1transpose.html", null ],
     [ "tri_mesh::tri_mesh_t", "d2/dd7/structtri__mesh_1_1tri__mesh__t.html", null ],
     [ "tensor::triple_tensor_product", "dc/d32/interfacetensor_1_1triple__tensor__product.html", null ],

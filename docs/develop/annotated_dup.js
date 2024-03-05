@@ -876,6 +876,9 @@ var annotated_dup =
     [ "time_scheme_controller", "dc/dfb/namespacetime__scheme__controller.html", [
       [ "time_scheme_controller_t", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t" ]
     ] ],
+    [ "time_step_controller", "d3/dda/namespacetime__step__controller.html", [
+      [ "time_step_controller_t", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html", "d5/dab/structtime__step__controller_1_1time__step__controller__t" ]
+    ] ],
     [ "tri", "df/d69/namespacetri.html", [
       [ "tri_t", "d6/d51/structtri_1_1tri__t.html", "d6/d51/structtri_1_1tri__t" ]
     ] ],
