@@ -113,7 +113,7 @@ program calc_lift_from_field
      dir = 3
      line => dof%z
   else 
-     call neko_error('homogenous direction not supported')
+     call neko_error('The homogeneous direction should be "x", "y"or "z"')
   end if
   call map_1d%init(dof, gs_h, dir, 1e-7_rp)
 
