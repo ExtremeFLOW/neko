@@ -64,6 +64,7 @@ module scalar_scheme
   use material_properties, only : material_properties_t
   use utils, only : neko_error
   use scalar_source_term, only : scalar_source_term_t
+  use field_series
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -76,6 +77,8 @@ module scalar_scheme
      type(field_t), pointer :: w
      !> The scalar.
      type(field_t), pointer :: s
+     !> Lag arrays, i.e. solutions at previous timesteps.
+     type(field_series_t) :: slag
      !> Function space \f$ X_h \f$.
      type(space_t), pointer :: Xh
      !> Dofmap associated with \f$ X_h \f$.
@@ -214,7 +217,7 @@ contains
 
     do i = 1, size(bc_labels)
        bc_label = trim(bc_labels(i))
-       if (bc_label(1:1) .eq. 'd') then
+       if (bc_label(1:2) .eq. 'd=') then
 ! The idea of this commented piece of code is to merge bcs with the same
 ! Dirichlet value into 1 so that one has less kernel launches. Currently
 ! segfaults, needs investigation.
@@ -238,7 +241,7 @@ contains
 !          end if
        end if
 
-       if (bc_label(1:1) .eq. 'n') then
+       if (bc_label(1:2) .eq. 'n=') then
           this%n_neumann_bcs = this%n_neumann_bcs + 1
           call this%neumann_bcs(this%n_neumann_bcs)%init(this%dm_Xh)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
@@ -336,6 +339,8 @@ contains
     call neko_field_registry%add_field(this%dm_Xh, 's')
     this%s => neko_field_registry%get_field('s')
 
+    call this%slag%init(this%s, 2)
+
     this%gs_Xh => gs_Xh
     this%c_Xh => c_Xh
 
@@ -423,6 +428,8 @@ contains
 
     call bc_list_free(this%bclst_dirichlet)
     call bc_list_free(this%bclst_neumann)
+
+    call this%slag%free()
 
   end subroutine scalar_scheme_free
 
