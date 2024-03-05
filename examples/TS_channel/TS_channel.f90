@@ -63,7 +63,7 @@ contains
     ! data reading
     open(unit=10, file='TSwave_cheb_2D.csv', status='old', action='read', iostat=ios)
        if (ios /= 0) then
-          print *, "Error opening the file!"
+          print *, "2D TS wave: Error opening the file!"
           stop
        end if
        do i = 1, num_rows
@@ -75,7 +75,7 @@ contains
 
     open(unit=10, file='TSwave_cheb_3D.csv', status='old', action='read', iostat=ios)
        if (ios /= 0) then
-          print *, "Error opening the file!"
+          print *, "3D TS wave: Error opening the file!"
           stop
        end if
        do i = 1, num_rows
