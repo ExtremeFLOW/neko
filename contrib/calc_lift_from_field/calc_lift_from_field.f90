@@ -1,6 +1,8 @@
-!> Program to calculate the lift generated along one zone.
-!! Can also calculate the torque around a point if one changes the value center (defaults to 0,0,0)
-!! Computes both the total drag/lift and outputs in stdout as well as the drag lift along a specified direction (x,y,z)
+!> Program to calculate the force and acting on a single boundary zone as well as
+!! the torque around a point if one changes the value of center (defaults to 0,0,0).
+!! Outputs the x,y,z prjections of the pressure and viscous forces and torques and
+!! additionally saves the distribution of these quantities along a selected homogenous
+!! direction to a csv file.
 !! Martin Karp 17/01-24
 program calc_lift_from_field
   use neko
