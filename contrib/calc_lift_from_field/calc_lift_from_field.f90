@@ -130,8 +130,8 @@ program calc_lift_from_field
   call s23%init(dof)
   glb_n_gll_pts = map_1d%n_el_lvls*lx
   call drag_torq%init(glb_n_gll_pts, 14)
-  if (pe_rank .eq. 0) call output_file%set_header('time, coord, dragpx, dragpy, &
-             & dragpz, dragvx, dragvy, dragvz, torqpx, torqpy, &
+  if (pe_rank .eq. 0) call output_file%set_header('time, coord, forcepx, forcepy, &
+             & forcepz, forcevx, forcevy, forcevz, torqpx, torqpy, &
              & torqpz, torqvx, torqvy, torqvz')
 
   do t = 1, field_data%meta_nsamples
