@@ -30,52 +30,39 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!
-!> Defines a factory subroutine for point zones.
-module point_zone_fctry
-  use point_zone, only: point_zone_t
-  use box_point_zone, only: box_point_zone_t
-  use sphere_point_zone, only: sphere_point_zone_t
-  use cylinder_point_zone, only: cylinder_point_zone_t
-  use json_module, only: json_file
-  use json_utils, only: json_get
-  use dofmap, only: dofmap_t
-  use utils, only: neko_error
+!> Implements the cpu kernel for the `brinkman_source_term_t` type.
+module brinkman_source_term_cpu
+  use num_types, only: rp
+  use field, only: field_t
+  use field_list, only: field_list_t
+  use math, only: subcol3
+  use field_registry, only: neko_field_registry
   implicit none
   private
 
-  public :: point_zone_factory
+  public :: brinkman_source_term_compute_cpu
 
 contains
 
-  !> Point zone factory. Constructs, initializes, and maps the
-  !! point zone object.
-  !! @param json JSON object initializing the point zone.
-  !! @param dof Dofmap from which to map the point zone.
-  subroutine point_zone_factory(point_zone, json, dof)
-    class(point_zone_t), allocatable, intent(inout) :: point_zone
-    type(json_file), intent(inout) :: json
-    type(dofmap_t), intent(inout) :: dof
-    character(len=:), allocatable :: zone_type
+  !> Computes the Brinkman source term on the cpu.
+  !! @param fields The right-hand side.
+  !! @param values The values of the source components.
+  subroutine brinkman_source_term_compute_cpu(fields, brinkman)
+    type(field_list_t), intent(inout) :: fields
+    type(field_t), intent(in) :: brinkman
+    type(field_t), pointer :: u, v, w
+    integer :: n
 
-    call json_get(json, "geometry", zone_type)
+    n = fields%fields(1)%f%dof%size()
 
-    if (trim(zone_type) .eq. "box") then
-       allocate(box_point_zone_t::point_zone)
-    else if (trim(zone_type) .eq. "sphere") then
-       allocate(sphere_point_zone_t::point_zone)
-    else if (trim(zone_type) .eq. "cylinder") then
-       allocate(cylinder_point_zone_t::point_zone)
-    else
-       call neko_error("Unknown source term "//trim(zone_type)//"! Valid &
-         &source terms are 'box', 'sphere', 'cylinder'.")
-    end if
+    u => neko_field_registry%get_field('u')
+    v => neko_field_registry%get_field('v')
+    w => neko_field_registry%get_field('w')
 
-    call point_zone%init(json, dof%size())
+    call subcol3(fields%fields(1)%f%x, u%x, brinkman%x, n)
+    call subcol3(fields%fields(2)%f%x, v%x, brinkman%x, n)
+    call subcol3(fields%fields(3)%f%x, w%x, brinkman%x, n)
 
-    call point_zone%map(dof)
-    call point_zone%finalize()
+  end subroutine brinkman_source_term_compute_cpu
 
-  end subroutine point_zone_factory
-
-end module point_zone_fctry
+end module brinkman_source_term_cpu
