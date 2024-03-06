@@ -1,7 +1,8 @@
 <map id="filters_cpu::clamp_cpu" name="filters_cpu::clamp_cpu">
-<area shape="rect" id="node1" title="Clamp a value between two limits." alt="" coords="627,57,793,84"/>
-<area shape="rect" id="node2" href="$d9/d3d/namespacefilters__cpu.html#a176e59a922a594ebb14a3fe12fe52625" title="Apply a smooth step function to a scalar." alt="" coords="432,50,579,91"/>
-<area shape="rect" id="node3" href="$d8/d6b/namespacefilters.html#a6821c9aa8b19449830fc3783dcf07347" title="Apply a smooth step function to a field." alt="" coords="233,50,384,91"/>
+<area shape="rect" id="node1" title="Clamp a value between two limits." alt="" coords="627,93,793,120"/>
+<area shape="rect" id="node2" href="$d9/d3d/namespacefilters__cpu.html#a176e59a922a594ebb14a3fe12fe52625" title="Apply a smooth step function to a scalar." alt="" coords="432,86,579,127"/>
+<area shape="rect" id="node3" href="$d8/d6b/namespacefilters.html#a6821c9aa8b19449830fc3783dcf07347" title="Apply a smooth step function to a field." alt="" coords="233,86,384,127"/>
 <area shape="rect" id="node4" href="$d0/d7b/namespacebrinkman__source__term.html#afe8b8690187e910e3bc2a27eecfa6ae6" title="The common constructor using a JSON object." alt="" coords="5,5,185,61"/>
 <area shape="rect" id="node5" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="9,86,181,127"/>
+<area shape="rect" id="node6" href="$d0/d7b/namespacebrinkman__source__term.html#a34a09d4f75fd09e6858941e79f0229ae" title="Initializes the source term from a point zone." alt="" coords="9,151,181,193"/>
 </map>

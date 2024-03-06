@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['quad_5227',['quad',['../d1/da7/namespacequad.html',1,'']]]
+  ['quad_5231',['quad',['../d1/da7/namespacequad.html',1,'']]]
 ];

@@ -126,7 +126,7 @@ The case object</h1>
 <p>This object is mostly used as a high-level container for all the other objects, but also defines several parameters that pertain to the simulation as a whole.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissable values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>mesh_file</code>   </td><td class="markdownTableBodyNone">The name of the mesh file.   </td><td class="markdownTableBodyNone">Strings ending with <code>.nmsh</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
@@ -163,7 +163,7 @@ Numerics</h1>
 <p>Used to define the properties of the numerical discretization.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissable values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>polynomial_order</code>   </td><td class="markdownTableBodyNone">The oder of the polynomial basis.   </td><td class="markdownTableBodyNone">Integers, typically 5 to 9   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
@@ -229,29 +229,62 @@ Brinkman</h3>
 <p>The Brinkman source term introduces regions of resistance in the fluid domain. The volume force $f_i$ applied in the selected regions are proportional to the fluid velocity component $u_i$.</p>
 <p>$$ f_i(x) = - B(x) u_i(x), \ B(x) = \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)}, $$</p>
 <p>where, $x$ is the current location in the domain, $\xi: x \mapsto [0,1]$ represent an indicator function for the resistance where $\xi(x) = 0$ is a free flow. $\kappa_i$ describes the limits for the force application at $\xi(x)=0$ and $\xi(x)=1$. A penalty parameter $q$ help us to reduce numerical problems.</p>
-<p>The indicator function will be defined based on the region type. The following types are currently implemented.</p>
+<p>The indicator function will be defined based on the object type. The following types are currently implemented.</p>
 <ol type="1">
-<li><code>boundary_mesh</code>, the indicator function is defined based on the signed distance function to the specified mesh and a transformation such as a <code>step</code> or <code>smooth_step</code> function. Additional keywords are available to modify the Brinkman force term.</li>
+<li><code>boundary_mesh</code>, the indicator function for a boundary mesh is computed in two steps. First, the signed distance function is computed for the boundary mesh. Then, the indicator function is computed using the distance transform function specified in the case file.</li>
+<li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the indicator function is defined as 1 inside the point zone and 0 outside.</li>
 </ol>
+<p>Each object are added to a common indicator field by means of a point-wise max operator. This means that the indicator field will be the union of all the regions defined by the objects.</p>
+<p>After the indicator field is computed, it is filtered using a filter type specified in the case file. The filter is used to smooth the indicator field before computing the Brinkman force. The following types are currently implemented.</p>
+<ol type="1">
+<li><code>none</code>, no filtering is applied.</li>
+</ol>
+<p>The filtering can be defined for each object separately. Additionally, the filter can be specified for the entire source term, in which case it will be applied to the final indicator field, after all sources have been added.</p>
+<p>Additional keywords are available to modify the Brinkman force term.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissable values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>region.type</code>   </td><td class="markdownTableBodyNone">Type of region to enforce the Brinkman force term.   </td><td class="markdownTableBodyNone"><code>boundary_mesh</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>brinkman.limits</code>   </td><td class="markdownTableBodyNone">Brinkman factor at free-flow ($\kappa_0$) and solid domain ($\kappa_1$).   </td><td class="markdownTableBodyNone">Vector of 2 reals.   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>region.name</code>   </td><td class="markdownTableBodyNone">Name of the region.   </td><td class="markdownTableBodyNone">String, file name.   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>brinkman.penalty</code>   </td><td class="markdownTableBodyNone">Penalty parameter $q$ when estimating Brinkman factor.   </td><td class="markdownTableBodyNone">Real   </td><td class="markdownTableBodyNone">$1.0$    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>brinkman.limits</code>   </td><td class="markdownTableBodyNone">Brinkman factor at freeflow ($\xi(x)=0$) and solid domain ($\xi(x)=1$).   </td><td class="markdownTableBodyNone">Vector if 2 reals.   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>objects</code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining the objects to be immersed.   </td><td class="markdownTableBodyNone">Each object must specify a <code>type</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>brinkman.penalty</code>   </td><td class="markdownTableBodyNone">Panalty parameter when estimating Brinkman factor   </td><td class="markdownTableBodyNone">Real   </td><td class="markdownTableBodyNone">$1.0$    </td></tr>
-<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>distance_transform.type</code>   </td><td class="markdownTableBodyNone">How to map from distance field to indicator field.   </td><td class="markdownTableBodyNone"><code>step</code>, <code>smooth_step</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>distance_transform.value</code>   </td><td class="markdownTableBodyNone">Values used to define the distance transform, such as cutoff distance.   </td><td class="markdownTableBodyNone">Real   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>filter.type</code>   </td><td class="markdownTableBodyNone">Type of filtering appllied to the indicator field.   </td><td class="markdownTableBodyNone"><code>none</code>   </td><td class="markdownTableBodyNone"><code>none</code>   </td></tr>
+<td class="markdownTableBodyNone"><code>distance_transform.value</code>   </td><td class="markdownTableBodyNone">Values used to define the distance transform, such as cut-off distance for the step function.   </td><td class="markdownTableBodyNone">Real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>filter.type</code>   </td><td class="markdownTableBodyNone">Type of filtering applied to the indicator field either globally or for the current object.   </td><td class="markdownTableBodyNone"><code>none</code>   </td><td class="markdownTableBodyNone"><code>none</code>   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<p>Example of a Brinkman source term where a boundary mesh and a point zone are combined to define the resistance in the fluid domain. The indicator field for the boundary mesh is computed using a step function with a cut-off distance of $0.1$. The indicator field for the point zone is not filtered.</p>
+<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
+<div class="line">   {</div>
+<div class="line">      &quot;type&quot;: &quot;brinkman&quot;,</div>
+<div class="line">      &quot;objects&quot;: [</div>
+<div class="line">         {</div>
+<div class="line">            &quot;type&quot;: &quot;boundary_mesh&quot;,</div>
+<div class="line">            &quot;name&quot;: &quot;some_mesh.stl&quot;,</div>
+<div class="line">            &quot;distance_transform&quot;: {</div>
+<div class="line">               &quot;type&quot;: &quot;step&quot;,</div>
+<div class="line">               &quot;value&quot;: 0.1</div>
+<div class="line">            },</div>
+<div class="line">         },</div>
+<div class="line">         {</div>
+<div class="line">            &quot;type&quot;: &quot;point_zone&quot;,</div>
+<div class="line">            &quot;name&quot;: &quot;cylinder_zone&quot;,</div>
+<div class="line">            &quot;filter&quot;: {</div>
+<div class="line">               &quot;type&quot;: &quot;none&quot;</div>
+<div class="line">            }</div>
+<div class="line">         }</div>
+<div class="line">      ],</div>
+<div class="line">      &quot;brinkman&quot;: {</div>
+<div class="line">         &quot;limits&quot;: [0.0, 100.0],</div>
+<div class="line">         &quot;penalty&quot;: 1.0</div>
+<div class="line">      }</div>
+<div class="line">   }</div>
+<div class="line">]</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md12"></a>
 Boundary types</h2>
 <p>The optional <code>boundary_types</code> keyword can be used to specify boundary conditions. The reason for it being optional, is that some conditions can be specified directly inside the mesh file. In particular, this happens when Nek5000 <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code> files are converted to <code>.nmsh</code>. Periodic boundary conditions are <em>always</em> defined inside the mesh file.</p>
 <p>The value of the keyword is an array of strings, with the following possible values:</p><ul>
@@ -300,7 +333,7 @@ Full parameter table</h2>
 <p>All the parameters are summarized in the table below. This includes all the subobjects discussed above, as well as keyword parameters that can be described concisely directly in the table.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissable values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>scheme</code>   </td><td class="markdownTableBodyNone">The fluid solve type.   </td><td class="markdownTableBodyNone"><code>pnpn</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
@@ -324,7 +357,7 @@ Full parameter table</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>blasius.delta</code>   </td><td class="markdownTableBodyNone">Boundary layer thickness in the Blasius profile.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>blasius.freestream_velocity</code>   </td><td class="markdownTableBodyNone">Freestream velocity in the Blasius profile.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>blasius.freestream_velocity</code>   </td><td class="markdownTableBodyNone">Free-stream velocity in the Blasius profile.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>blasius.approximation</code>   </td><td class="markdownTableBodyNone">Numerical approximation of the Blasius profile.   </td><td class="markdownTableBodyNone"><code>linear</code>, <code>quadratic</code>, <code>cubic</code>, <code>quartic</code>, <code>sin</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
@@ -368,7 +401,7 @@ Scalar</h1>
 <p>The configuration of source terms is the same as for the fluid. A demonstration of using source terms for the scalar can be found in the <code>scalar_mms</code> example.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissable values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>enabled</code>   </td><td class="markdownTableBodyNone">Whether to enable the scalar computation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
 <tr class="markdownTableRowEven">
@@ -391,7 +424,7 @@ Statistics</h1>
 <p>This object adds the collection of statistics for the fluid fields. For additional details on the workflow, see the corresponding page in the user manual.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissable values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>enabled</code>   </td><td class="markdownTableBodyNone">Whether to enable the statistics computation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
 <tr class="markdownTableRowEven">
@@ -415,7 +448,7 @@ Point zones</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Tue Mar 5 2024 03:34:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Mar 6 2024 03:33:57 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

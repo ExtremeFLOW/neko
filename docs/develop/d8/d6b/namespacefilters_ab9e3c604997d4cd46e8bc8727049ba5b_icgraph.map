@@ -1,5 +1,6 @@
 <map id="filters::step_function_field" name="filters::step_function_field">
-<area shape="rect" id="node1" title="Apply a step function to a field." alt="" coords="233,50,388,91"/>
+<area shape="rect" id="node1" title="Apply a step function to a field." alt="" coords="233,86,388,127"/>
 <area shape="rect" id="node2" href="$d0/d7b/namespacebrinkman__source__term.html#afe8b8690187e910e3bc2a27eecfa6ae6" title="The common constructor using a JSON object." alt="" coords="5,5,185,61"/>
 <area shape="rect" id="node3" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="9,86,181,127"/>
+<area shape="rect" id="node4" href="$d0/d7b/namespacebrinkman__source__term.html#a34a09d4f75fd09e6858941e79f0229ae" title="Initializes the source term from a point zone." alt="" coords="9,151,181,193"/>
 </map>

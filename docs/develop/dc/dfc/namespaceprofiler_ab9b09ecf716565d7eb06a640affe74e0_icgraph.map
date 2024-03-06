@@ -1,13 +1,14 @@
 <map id="profiler::profiler_end_region" name="profiler::profiler_end_region">
-<area shape="rect" id="node1" title="End the most recently started profiler region." alt="" coords="679,217,801,258"/>
+<area shape="rect" id="node1" title="End the most recently started profiler region." alt="" coords="679,246,801,287"/>
 <area shape="rect" id="node2" href="$d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18" title=" " alt="" coords="407,5,631,32"/>
 <area shape="rect" id="node3" href="$d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6" title=" " alt="" coords="414,56,623,83"/>
 <area shape="rect" id="node4" href="$d0/d7b/namespacebrinkman__source__term.html#afe8b8690187e910e3bc2a27eecfa6ae6" title="The common constructor using a JSON object." alt="" coords="429,107,609,163"/>
 <area shape="rect" id="node5" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="449,187,588,229"/>
 <area shape="rect" id="node10" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="447,253,591,280"/>
 <area shape="rect" id="node11" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="433,305,605,346"/>
-<area shape="rect" id="node12" href="$d1/d2d/namespacesimulation.html#a922046c7d91b325e798d76659a20eef5" title="Main driver to solve a case C." alt="" coords="433,371,605,397"/>
-<area shape="rect" id="node13" href="$dc/d85/namespacesampler.html#a6d11f19c2558190a0eecf277e81be184" title="Sample all outputs in the sampler." alt="" coords="423,421,614,448"/>
+<area shape="rect" id="node12" href="$d0/d7b/namespacebrinkman__source__term.html#a34a09d4f75fd09e6858941e79f0229ae" title="Initializes the source term from a point zone." alt="" coords="433,370,605,411"/>
+<area shape="rect" id="node13" href="$d1/d2d/namespacesimulation.html#a922046c7d91b325e798d76659a20eef5" title="Main driver to solve a case C." alt="" coords="433,436,605,463"/>
+<area shape="rect" id="node14" href="$dc/d85/namespacesampler.html#a6d11f19c2558190a0eecf277e81be184" title="Sample all outputs in the sampler." alt="" coords="423,487,614,513"/>
 <area shape="rect" id="node6" href="$d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="192,107,359,133"/>
 <area shape="rect" id="node7" href="$d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="206,158,345,199"/>
 <area shape="rect" id="node8" href="$dd/db8/structgather__scatter_1_1gs__t.html#a0a1700eec560dbb99d1ec0359c60de84" title=" " alt="" coords="5,217,144,258"/>

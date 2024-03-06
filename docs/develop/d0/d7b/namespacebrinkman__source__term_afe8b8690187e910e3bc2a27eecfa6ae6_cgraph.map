@@ -1,12 +1,12 @@
 <map id="brinkman_source_term::brinkman_source_term_init_from_json" name="brinkman_source_term::brinkman_source_term_init_from_json">
 <area shape="rect" id="node1" title="The common constructor using a JSON object." alt="" coords="5,162,185,218"/>
-<area shape="rect" id="node2" href="$d8/d6b/namespacefilters.html#a6457a21716e327016af15a8c9153e0cb" title="Apply a permeability function to a field." alt="" coords="247,5,398,47"/>
+<area shape="rect" id="node2" href="$d8/d6b/namespacefilters.html#aeb6ab3bdc35ace182934e19e924f8781" title="Apply a permeability function to a field." alt="" coords="247,5,398,47"/>
 <area shape="rect" id="node4" href="$dc/dfc/namespaceprofiler.html#ab9b09ecf716565d7eb06a640affe74e0" title="End the most recently started profiler region." alt="" coords="261,71,384,112"/>
 <area shape="rect" id="node5" href="$dc/dfc/namespaceprofiler.html#a1369e41c9b885e4618fdc23e0717512b" title="Started a named (name) profiler region." alt="" coords="261,136,384,177"/>
 <area shape="rect" id="node6" href="$d4/def/namespacesigned__distance.html#aaacd6c5bec83fbff7c2205b5ed63af6a" title="Signed distance field." alt="" coords="233,201,412,243"/>
 <area shape="rect" id="node12" href="$d8/d6b/namespacefilters.html#a6821c9aa8b19449830fc3783dcf07347" title="Apply a smooth step function to a field." alt="" coords="247,267,398,308"/>
 <area shape="rect" id="node15" href="$d8/d6b/namespacefilters.html#ab9e3c604997d4cd46e8bc8727049ba5b" title="Apply a step function to a field." alt="" coords="245,332,400,373"/>
-<area shape="rect" id="node3" href="$d9/d3d/namespacefilters__cpu.html#a980964006f7e557921cdd56841e8b05c" title="Apply a permeability function to a scalar." alt="" coords="462,13,673,39"/>
+<area shape="rect" id="node3" href="$d9/d3d/namespacefilters__cpu.html#aa1fa0d603d65877cf3a3a52b15357c18" title="Apply a permeability function to a scalar." alt="" coords="462,13,673,39"/>
 <area shape="rect" id="node7" href="$d4/def/namespacesigned__distance.html#a0aadae5f88457c621981eef96209853e" title="Signed distance field for a triangular mesh." alt="" coords="476,201,659,243"/>
 <area shape="rect" id="node8" href="$d4/def/namespacesigned__distance.html#a1227089847337e04529b39e143f412e7" title="Signed distance function using an AABB tree." alt="" coords="731,201,881,243"/>
 <area shape="rect" id="node9" href="$d4/def/namespacesigned__distance.html#ad5e6764cd33f9ac265f9a0c0545a197e" title="Main interface for the signed distance function for an element." alt="" coords="937,201,1127,243"/>

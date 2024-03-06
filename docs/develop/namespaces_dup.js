@@ -181,13 +181,13 @@ var namespaces_dup =
     [ "field_series", "d6/d32/namespacefield__series.html", "d6/d32/namespacefield__series" ],
     [ "file", "da/d16/namespacefile.html", "da/d16/namespacefile" ],
     [ "filters", "d8/d6b/namespacefilters.html", [
-      [ "permeability_field", "d8/d6b/namespacefilters.html#a6457a21716e327016af15a8c9153e0cb", null ],
+      [ "permeability_field", "d8/d6b/namespacefilters.html#aeb6ab3bdc35ace182934e19e924f8781", null ],
       [ "smooth_step_field", "d8/d6b/namespacefilters.html#a6821c9aa8b19449830fc3783dcf07347", null ],
       [ "step_function_field", "d8/d6b/namespacefilters.html#ab9e3c604997d4cd46e8bc8727049ba5b", null ]
     ] ],
     [ "filters_cpu", "d9/d3d/namespacefilters__cpu.html", [
       [ "clamp_cpu", "d9/d3d/namespacefilters__cpu.html#a38d250a39b1d11c75c66c4ec6c7e2970", null ],
-      [ "permeability_cpu", "d9/d3d/namespacefilters__cpu.html#a980964006f7e557921cdd56841e8b05c", null ],
+      [ "permeability_cpu", "d9/d3d/namespacefilters__cpu.html#aa1fa0d603d65877cf3a3a52b15357c18", null ],
       [ "smooth_step_cpu", "d9/d3d/namespacefilters__cpu.html#a176e59a922a594ebb14a3fe12fe52625", null ],
       [ "step_function_cpu", "d9/d3d/namespacefilters__cpu.html#add89f6e38abe2bb614b27290c934d2f0", null ]
     ] ],

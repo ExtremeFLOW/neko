@@ -1,6 +1,0 @@
-<map id="filters_cpu::permeability_cpu" name="filters_cpu::permeability_cpu">
-<area shape="rect" id="node1" title="Apply a permeability function to a scalar." alt="" coords="432,57,643,84"/>
-<area shape="rect" id="node2" href="$d8/d6b/namespacefilters.html#a6457a21716e327016af15a8c9153e0cb" title="Apply a permeability function to a field." alt="" coords="233,50,384,91"/>
-<area shape="rect" id="node3" href="$d0/d7b/namespacebrinkman__source__term.html#afe8b8690187e910e3bc2a27eecfa6ae6" title="The common constructor using a JSON object." alt="" coords="5,5,185,61"/>
-<area shape="rect" id="node4" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="9,86,181,127"/>
-</map>

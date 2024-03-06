@@ -1,5 +1,6 @@
 var NAVTREEINDEX9 =
 {
+"d3/de4/interfacegs__bcknd_1_1gs__gather.html#af9b8e813a533cc409ea349b7e4841127":[6,0,85,3,0],
 "d3/de8/interfacehip__intf_1_1hipDeviceSynchronize.html":[6,0,93,4],
 "d3/de8/interfacehip__intf_1_1hipDeviceSynchronize.html#ab884a5bd286b465c1c093e37ce576695":[6,0,93,4,0],
 "d3/df3/interfacecuda__intf_1_1cudaStreamCreateWithPriority.html":[6,0,28,8],
@@ -248,6 +249,5 @@ var NAVTREEINDEX9 =
 "d4/d86/namespacefacet__normal.html":[5,0,66],
 "d4/d86/namespacefacet__normal.html#a5c89b4ec6d9a951ff5fdad061bd83bb2":[5,0,66,5],
 "d4/d86/namespacefacet__normal.html#a6f2b4d382c546c7d4e007577af7184ef":[5,0,66,3],
-"d4/d86/namespacefacet__normal.html#a7d88ac5b4935e57a90a908a97ab7740f":[5,0,66,2],
-"d4/d86/namespacefacet__normal.html#ac7eecb9ef3cac51804ed5a62ba1f698f":[5,0,66,1]
+"d4/d86/namespacefacet__normal.html#a7d88ac5b4935e57a90a908a97ab7740f":[5,0,66,2]
 };

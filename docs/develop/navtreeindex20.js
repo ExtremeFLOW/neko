@@ -1,5 +1,7 @@
 var NAVTREEINDEX20 =
 {
+"d8/db2/structadvection_1_1adv__dealias__t.html#a8d77a2aa09369c2ad0d1fb457a6d3e8e":[6,0,3,2,14],
+"d8/db2/structadvection_1_1adv__dealias__t.html#a9964af7c06ff4d23084456058074e126":[6,0,3,2,0],
 "d8/db2/structadvection_1_1adv__dealias__t.html#a9c785b4ce7e1f879615c8a9902259b9a":[6,0,3,2,23],
 "d8/db2/structadvection_1_1adv__dealias__t.html#aa0610551bc8e2bf8ba0fe04e4f8b3e7b":[6,0,3,2,17],
 "d8/db2/structadvection_1_1adv__dealias__t.html#abf25d76d620a0c0a7eb5ef21217c93b3":[6,0,3,2,20],
@@ -247,7 +249,5 @@ var NAVTREEINDEX20 =
 "d9/d09/projection_8hip.html#a42860edd1d4001a5cd1275feeda44795":[7,0,2,3,0,1,1,2,1],
 "d9/d09/projection_8hip.html#a520b26405c8b712cc5329f49033acfa8":[7,0,2,3,0,1,1,2,0],
 "d9/d09/projection_8hip.html#a96fba13aeeb6a88f2b95177129d5db93":[7,0,2,3,0,1,1,2,3],
-"d9/d09/projection_8hip.html#aad77229d5b446c36e39e3ba693d11b16":[7,0,2,3,0,1,1,2,2],
-"d9/d09/projection_8hip_source.html":[7,0,2,3,0,1,1,2],
-"d9/d0b/tensor_8cu.html":[7,0,2,12,0,1,0,22]
+"d9/d09/projection_8hip.html#aad77229d5b446c36e39e3ba693d11b16":[7,0,2,3,0,1,1,2,2]
 };

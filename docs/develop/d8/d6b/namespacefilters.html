@@ -106,9 +106,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a6821c9aa8b19449830fc3783dcf07347"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d6b/namespacefilters.html#a6821c9aa8b19449830fc3783dcf07347">smooth_step_field</a> (F, edge0, edge1)</td></tr>
 <tr class="memdesc:a6821c9aa8b19449830fc3783dcf07347"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a smooth step function to a field.  <a href="../../d8/d6b/namespacefilters.html#a6821c9aa8b19449830fc3783dcf07347">More...</a><br /></td></tr>
 <tr class="separator:a6821c9aa8b19449830fc3783dcf07347"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6457a21716e327016af15a8c9153e0cb"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d6b/namespacefilters.html#a6457a21716e327016af15a8c9153e0cb">permeability_field</a> (F, perm_0, perm_1, penalty)</td></tr>
-<tr class="memdesc:a6457a21716e327016af15a8c9153e0cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a permeability function to a field.  <a href="../../d8/d6b/namespacefilters.html#a6457a21716e327016af15a8c9153e0cb">More...</a><br /></td></tr>
-<tr class="separator:a6457a21716e327016af15a8c9153e0cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb6ab3bdc35ace182934e19e924f8781"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d6b/namespacefilters.html#aeb6ab3bdc35ace182934e19e924f8781">permeability_field</a> (F_out, x, k_0, k_1, q)</td></tr>
+<tr class="memdesc:aeb6ab3bdc35ace182934e19e924f8781"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a permeability function to a field.  <a href="../../d8/d6b/namespacefilters.html#aeb6ab3bdc35ace182934e19e924f8781">More...</a><br /></td></tr>
+<tr class="separator:aeb6ab3bdc35ace182934e19e924f8781"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9e3c604997d4cd46e8bc8727049ba5b"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d6b/namespacefilters.html#ab9e3c604997d4cd46e8bc8727049ba5b">step_function_field</a> (F, x0, value0, value1)</td></tr>
 <tr class="memdesc:ab9e3c604997d4cd46e8bc8727049ba5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a step function to a field.  <a href="../../d8/d6b/namespacefilters.html#ab9e3c604997d4cd46e8bc8727049ba5b">More...</a><br /></td></tr>
 <tr class="separator:ab9e3c604997d4cd46e8bc8727049ba5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -116,8 +116,8 @@ Functions/Subroutines</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A module containing filter functions and subroutines. These functions are used to modify fields in a way that is useful for various simulations. </p>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a6457a21716e327016af15a8c9153e0cb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6457a21716e327016af15a8c9153e0cb">&#9670;&nbsp;</a></span>permeability_field()</h2>
+<a id="aeb6ab3bdc35ace182934e19e924f8781"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb6ab3bdc35ace182934e19e924f8781">&#9670;&nbsp;</a></span>permeability_field()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -125,26 +125,32 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="memname">subroutine, public filters::permeability_field </td>
           <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), pointer&#160;</td>
-          <td class="paramname"><em>F</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>F_out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(in)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
-          <td class="paramname"><em>perm_0</em>, </td>
+          <td class="paramname"><em>k_0</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
-          <td class="paramname"><em>perm_1</em>, </td>
+          <td class="paramname"><em>k_1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
-          <td class="paramname"><em>penalty</em>&#160;</td>
+          <td class="paramname"><em>q</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -156,14 +162,14 @@ Functions/Subroutines</h2></td></tr>
 
 <p>Apply a permeability function to a field. </p>
 <p>The permeability function is defined as: </p><p class="formulaDsp">
-\[ k(x) = k_0 + (k_1 - k_0) x \frac{penalty + 1}{penalty + x}} \]
+\[ k(x) = k_0 + (k_1 - k_0) x \frac{q + 1}{q + x}} \]
 </p>
  <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">F</td><td>Field to be modified. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">perm_0</td><td>Permeability at x=0. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">perm_1</td><td>Permeability at x=1. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">penalty</td><td>Penalty factor. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">k_0</td><td>Permeability at x=0. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">k_1</td><td>Permeability at x=1. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">q</td><td>Penalty factor. </td></tr>
   </table>
   </dd>
 </dl>
@@ -172,20 +178,21 @@ Functions/Subroutines</h2></td></tr>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d8/d6b/namespacefilters_a6457a21716e327016af15a8c9153e0cb_cgraph.png" border="0" usemap="#ad8/d6b/namespacefilters_a6457a21716e327016af15a8c9153e0cb_cgraph" alt=""/></div>
-<map name="ad8/d6b/namespacefilters_a6457a21716e327016af15a8c9153e0cb_cgraph" id="ad8/d6b/namespacefilters_a6457a21716e327016af15a8c9153e0cb_cgraph">
+<div class="center"><img src="../../d8/d6b/namespacefilters_aeb6ab3bdc35ace182934e19e924f8781_cgraph.png" border="0" usemap="#ad8/d6b/namespacefilters_aeb6ab3bdc35ace182934e19e924f8781_cgraph" alt=""/></div>
+<map name="ad8/d6b/namespacefilters_aeb6ab3bdc35ace182934e19e924f8781_cgraph" id="ad8/d6b/namespacefilters_aeb6ab3bdc35ace182934e19e924f8781_cgraph">
 <area shape="rect" title="Apply a permeability function to a field." alt="" coords="5,5,156,47"/>
-<area shape="rect" href="../../d9/d3d/namespacefilters__cpu.html#a980964006f7e557921cdd56841e8b05c" title="Apply a permeability function to a scalar." alt="" coords="204,13,415,39"/>
+<area shape="rect" href="../../d9/d3d/namespacefilters__cpu.html#aa1fa0d603d65877cf3a3a52b15357c18" title="Apply a permeability function to a scalar." alt="" coords="204,13,415,39"/>
 </map>
 </div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d8/d6b/namespacefilters_a6457a21716e327016af15a8c9153e0cb_icgraph.png" border="0" usemap="#ad8/d6b/namespacefilters_a6457a21716e327016af15a8c9153e0cb_icgraph" alt=""/></div>
-<map name="ad8/d6b/namespacefilters_a6457a21716e327016af15a8c9153e0cb_icgraph" id="ad8/d6b/namespacefilters_a6457a21716e327016af15a8c9153e0cb_icgraph">
-<area shape="rect" title="Apply a permeability function to a field." alt="" coords="233,50,384,91"/>
+<div class="center"><img src="../../d8/d6b/namespacefilters_aeb6ab3bdc35ace182934e19e924f8781_icgraph.png" border="0" usemap="#ad8/d6b/namespacefilters_aeb6ab3bdc35ace182934e19e924f8781_icgraph" alt=""/></div>
+<map name="ad8/d6b/namespacefilters_aeb6ab3bdc35ace182934e19e924f8781_icgraph" id="ad8/d6b/namespacefilters_aeb6ab3bdc35ace182934e19e924f8781_icgraph">
+<area shape="rect" title="Apply a permeability function to a field." alt="" coords="233,86,384,127"/>
 <area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#afe8b8690187e910e3bc2a27eecfa6ae6" title="The common constructor using a JSON object." alt="" coords="5,5,185,61"/>
 <area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="9,86,181,127"/>
+<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a34a09d4f75fd09e6858941e79f0229ae" title="Initializes the source term from a point zone." alt="" coords="9,151,181,193"/>
 </map>
 </div>
 
@@ -200,7 +207,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname">subroutine, public filters::smooth_step_field </td>
           <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), pointer&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)&#160;</td>
           <td class="paramname"><em>F</em>, </td>
         </tr>
         <tr>
@@ -253,9 +260,10 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/d6b/namespacefilters_a6821c9aa8b19449830fc3783dcf07347_icgraph.png" border="0" usemap="#ad8/d6b/namespacefilters_a6821c9aa8b19449830fc3783dcf07347_icgraph" alt=""/></div>
 <map name="ad8/d6b/namespacefilters_a6821c9aa8b19449830fc3783dcf07347_icgraph" id="ad8/d6b/namespacefilters_a6821c9aa8b19449830fc3783dcf07347_icgraph">
-<area shape="rect" title="Apply a smooth step function to a field." alt="" coords="233,50,384,91"/>
+<area shape="rect" title="Apply a smooth step function to a field." alt="" coords="233,86,384,127"/>
 <area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#afe8b8690187e910e3bc2a27eecfa6ae6" title="The common constructor using a JSON object." alt="" coords="5,5,185,61"/>
 <area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="9,86,181,127"/>
+<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a34a09d4f75fd09e6858941e79f0229ae" title="Initializes the source term from a point zone." alt="" coords="9,151,181,193"/>
 </map>
 </div>
 
@@ -270,7 +278,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname">subroutine, public filters::step_function_field </td>
           <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), pointer&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)&#160;</td>
           <td class="paramname"><em>F</em>, </td>
         </tr>
         <tr>
@@ -310,7 +318,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/dca/filters_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d4/dca/filters_8f90_source.html">filters.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/dca/filters_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d4/dca/filters_8f90_source.html">filters.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -325,9 +333,10 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/d6b/namespacefilters_ab9e3c604997d4cd46e8bc8727049ba5b_icgraph.png" border="0" usemap="#ad8/d6b/namespacefilters_ab9e3c604997d4cd46e8bc8727049ba5b_icgraph" alt=""/></div>
 <map name="ad8/d6b/namespacefilters_ab9e3c604997d4cd46e8bc8727049ba5b_icgraph" id="ad8/d6b/namespacefilters_ab9e3c604997d4cd46e8bc8727049ba5b_icgraph">
-<area shape="rect" title="Apply a step function to a field." alt="" coords="233,50,388,91"/>
+<area shape="rect" title="Apply a step function to a field." alt="" coords="233,86,388,127"/>
 <area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#afe8b8690187e910e3bc2a27eecfa6ae6" title="The common constructor using a JSON object." alt="" coords="5,5,185,61"/>
 <area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="9,86,181,127"/>
+<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a34a09d4f75fd09e6858941e79f0229ae" title="Initializes the source term from a point zone." alt="" coords="9,151,181,193"/>
 </map>
 </div>
 
@@ -339,7 +348,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d6b/namespacefilters.html">filters</a></li>
-    <li class="footer">Generated on Tue Mar 5 2024 03:34:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Mar 6 2024 03:33:57 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

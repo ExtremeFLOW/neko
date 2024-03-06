@@ -1,5 +1,6 @@
 var NAVTREEINDEX4 =
 {
+"d1/d83/structsymmetry_1_1symmetry__t.html#a89f78ba67f1763201e2e17b7bfd86bf4":[6,0,181,0,3],
 "d1/d83/structsymmetry_1_1symmetry__t.html#aa41e41065c9e29dc8cf48f739eeff18a":[6,0,181,0,22],
 "d1/d83/structsymmetry_1_1symmetry__t.html#aaaaf9fc32f0292aecd7ec2bc0aaaaf6a":[6,0,181,0,0],
 "d1/d83/structsymmetry_1_1symmetry__t.html#ac9c45a8ed2e761cf3d3460567cbc4336":[6,0,181,0,19],
@@ -160,7 +161,7 @@ var NAVTREEINDEX4 =
 "d1/dd1/filters__cpu_8f90.html":[7,0,2,17,0,0,2],
 "d1/dd1/filters__cpu_8f90.html#a176e59a922a594ebb14a3fe12fe52625":[7,0,2,17,0,0,2,2],
 "d1/dd1/filters__cpu_8f90.html#a38d250a39b1d11c75c66c4ec6c7e2970":[7,0,2,17,0,0,2,0],
-"d1/dd1/filters__cpu_8f90.html#a980964006f7e557921cdd56841e8b05c":[7,0,2,17,0,0,2,1],
+"d1/dd1/filters__cpu_8f90.html#aa1fa0d603d65877cf3a3a52b15357c18":[7,0,2,17,0,0,2,1],
 "d1/dd1/filters__cpu_8f90.html#add89f6e38abe2bb614b27290c934d2f0":[7,0,2,17,0,0,2,3],
 "d1/dd1/filters__cpu_8f90_source.html":[7,0,2,17,0,0,2],
 "d1/dd5/ax__helm__fctry_8f90.html":[7,0,2,12,2],
@@ -248,6 +249,5 @@ var NAVTREEINDEX4 =
 "d1/dea/tensor_8hip.html":[7,0,2,12,0,1,1,22],
 "d1/dea/tensor_8hip.html#a8259c29503b71758d8df53676d857d2f":[7,0,2,12,0,1,1,22,0],
 "d1/dea/tensor_8hip.html#ac9df3c49a0bb68678973a45b2b8c0111":[7,0,2,12,0,1,1,22,1],
-"d1/dea/tensor_8hip.html#ad582353ff0c30533cb9ea157c7eb1931":[7,0,2,12,0,1,1,22,3],
-"d1/dea/tensor_8hip.html#ad72859a2621de8f777601fdbca332be5":[7,0,2,12,0,1,1,22,4]
+"d1/dea/tensor_8hip.html#ad582353ff0c30533cb9ea157c7eb1931":[7,0,2,12,0,1,1,22,3]
 };
