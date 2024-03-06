@@ -76,9 +76,6 @@ module scalar_pnpn
      !> The residual of the transport equation.
      type(field_t) :: s_res
 
-     !> Lag arrays, i.e. solutions at previous timesteps.
-     type(field_series_t) :: slag
-
      !> Solution increment.
      type(field_t) :: ds
 
@@ -175,8 +172,6 @@ contains
       call this%abx2%init(dm_Xh, "abx2")
 
       call this%ds%init(dm_Xh, 'ds')
-
-      call this%slag%init(this%s, 2)
 
     end associate
 
@@ -280,9 +275,6 @@ contains
     if (allocated(this%makebdf)) then
        deallocate(this%makebdf)
     end if
-
-
-    call this%slag%free()
 
   end subroutine scalar_pnpn_free
 

@@ -18,11 +18,13 @@ neko_fortran_SOURCES = \
 	common/system.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
+	qoi/drag_torque.f90\
 	sem/local_interpolation.f90 \
 	math/math.f90\
 	math/mathops.f90\
 	math/fast3d.f90\
 	sem/space.f90\
+	sem/map_1d.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
 	sem/cpr.f90\
@@ -208,6 +210,7 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/device/pnpn_res_device.F90\
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
+	common/time_step_controller.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\

@@ -54,9 +54,9 @@ module operators
   implicit none
   private
 
-  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, lambda2op,&
-            strain_rate
-
+  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
+            lambda2op, strain_rate
+  
 contains
 
   !> Compute derivative of a scalar field along a single direction.

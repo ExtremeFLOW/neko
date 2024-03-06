@@ -2,12 +2,12 @@
     "version": 1.0,
     "case": {
         "mesh_file": "box.nmsh",
-        "output_directory": "fields",
-        "output_at_end": true,
-        "output_boundary": true,
+        "output_directory": "block_sphere_fields",
+        "output_at_end": false,
+        "output_boundary": false,
         "output_checkpoints": false,
-        "end_time": 20.0,
-        "timestep": 1e-4,
+        "end_time": 0.01,
+        "timestep": 5e-5,
         "numerics": {
             "time_order": 3,
             "polynomial_order": 8,
@@ -15,11 +15,11 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 1000.0,
+            "Re": 2000.0,
             "initial_condition": {
                 "type": "uniform",
                 "value": [
-                    100.0,
+                    1.0,
                     0.0,
                     0.0
                 ]
@@ -27,7 +27,7 @@
             "inflow_condition": {
                 "type": "uniform",
                 "value": [
-                    100.0
+                    1.0
                 ]
             },
             "velocity_solver": {
@@ -59,23 +59,51 @@
                     "type": "brinkman",
                     "objects": [
                         {
-                            "type": "boundary_mesh",
-                            "name": "bunny.stl",
-                            "distance_transform": {
-                                "type": "smooth_step",
-                                "value": 10.0
-                            }
+                            "type": "point_zone",
+                            "name": "block"
+                        },
+                        {
+                            "type": "point_zone",
+                            "name": "ball"
                         }
                     ],
                     "brinkman": {
                         "limits": [
                             0.0,
-                            1000.0
+                            1500.0
                         ],
                         "penalty": 1.0
-                    },
-                }
+                    }
+                },
             ]
-        }
+        },
+        "point_zones": [
+            {
+                "name": "ball",
+                "geometry": "sphere",
+                "center": [
+                    1.0,
+                    0.5,
+                    0.5
+                ],
+                "radius": 0.1
+            },
+            {
+                "name": "block",
+                "geometry": "box",
+                "x_bounds": [
+                    0.90,
+                    1.10
+                ],
+                "y_bounds": [
+                    0.0,
+                    1.0
+                ],
+                "z_bounds": [
+                    0.0,
+                    0.5
+                ]
+            }
+        ]
     }
 }
