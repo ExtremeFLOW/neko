@@ -32,9 +32,9 @@
 !
 !> Defines a hexahedron element
 module hex
-  use num_types, only : dp
+  use num_types, only : i8, dp
   use element, only : element_t
-  use tuple, only : tuple_t, tuple_i4_t, tuple4_i4_t
+  use tuple, only : tuple_t, tuple_i8_t, tuple4_i8_t
   use point, only : point_t
   implicit none
   private
@@ -135,7 +135,7 @@ contains
   !> Create a hexahedron element based upon eight points
   subroutine hex_init(this, id, p1, p2, p3, p4, p5, p6, p7, p8)
     class(hex_t), intent(inout) :: this
-    integer, intent(inout) :: id
+    integer(i8), intent(inout) :: id
     type(point_t), target, intent(in) :: p1, p2, p3, p4, p5, p6, p7, p8
 
     call this%element(id, NEKO_HEX_GDIM, NEKO_HEX_NPTS)
@@ -165,7 +165,7 @@ contains
     p4 => this%p(face_nodes(4, side))
 
     select type(t)
-    type is(tuple4_i4_t)
+    type is(tuple4_i8_t)
        t%x = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
        do i = 1, 3
           do j = i+1,4
@@ -193,7 +193,7 @@ contains
     p4 => this%p(face_nodes(4, side))
 
     select type(t)
-    type is(tuple4_i4_t)
+    type is(tuple4_i8_t)
        t%x = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
     end select
 
@@ -211,7 +211,7 @@ contains
     p2 => this%p(edge_nodes(2, side))
 
     select type(t)
-    type is(tuple_i4_t)
+    type is(tuple_i8_t)
        if (p1%id() .lt. p2%id()) then
           t%x = (/ p1%id(), p2%id() /)
        else

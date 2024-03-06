@@ -32,9 +32,9 @@
 !
 !> Defines a tetrahedral element
 module tet
-  use num_types, only : dp
+  use num_types, only : i8, dp
   use element, only : element_t
-  use tuple
+  use tuple, only : tuple_t, tuple_i8_t, tuple4_i8_t
   use point, only : point_t
   implicit none
   private
@@ -124,7 +124,7 @@ contains
   !> Create a tetrahedral element based upon four points
   subroutine tet_init(this, id, p1, p2, p3, p4)
     class(tet_t), intent(inout) :: this
-    integer, intent(inout) :: id
+    integer(i8), intent(inout) :: id
     type(point_t), target, intent(in) :: p1, p2, p3, p4
 
     call this%element(id, NEKO_TET_GDIM, NEKO_TET_NPTS)
@@ -149,7 +149,7 @@ contains
     p3 => this%p(face_nodes(3, side))
 
     select type(t)
-    type is(tuple3_i4_t)
+    type is(tuple3_i8_t)
        t%x = (/ p1%id(), p2%id(), p3%id() /)
        do i = 1, 2
           do j = i+1,3
@@ -176,7 +176,7 @@ contains
     p3 => this%p(face_nodes(3, side))
 
     select type(t)
-    type is(tuple3_i4_t)
+    type is(tuple3_i8_t)
        t%x = (/ p1%id(), p2%id(), p3%id() /)
     end select
 
@@ -194,7 +194,7 @@ contains
     p2 => this%p(edge_nodes(2, side))
 
     select type(t)
-    type is(tuple_i4_t)
+    type is(tuple_i8_t)
        if (p1%id() .lt. p2%id()) then
           t%x = (/ p1%id(), p2%id() /)
        else

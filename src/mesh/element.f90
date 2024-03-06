@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module element
-  use num_types
+  use num_types, only :: i8
   use entity, only : entity_t
   use tuple, only : tuple_t
   use point, only : point_ptr, point_t
@@ -111,7 +111,7 @@ contains
   !> Create an element with @a npts
   subroutine element_init(this, id, gdim, npts)
     class(element_t), intent(inout)  :: this
-    integer, intent(inout) :: id
+    integer(i8), intent(inout) :: id
     integer, intent(in) :: gdim
     integer, intent(in) :: npts
 

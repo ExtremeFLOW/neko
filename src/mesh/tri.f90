@@ -32,9 +32,9 @@
 !
 !> Defines a triangular element
 module tri
-  use num_types, only : dp
+  use num_types, only : i8, dp
   use element, only : element_t
-  use tuple, only : tuple_t, tuple_i4_t
+  use tuple, only : tuple_t, tuple_i8_t
   use point, only : point_t
   implicit none
   private
@@ -92,7 +92,7 @@ contains
   !> Create a trinagular element based upon three points
   subroutine tri_init(this, id, p1, p2, p3)
     class(tri_t), intent(inout) :: this
-    integer, intent(inout) :: id
+    integer(i8), intent(inout) :: id
     type(point_t), target, intent(in) :: p1, p2, p3
 
     call this%element(id, NEKO_TRI_GDIM, NEKO_TRI_NPTS)
@@ -115,7 +115,7 @@ contains
     p2 => this%p(edge_nodes(2, side))
 
     select type(t)
-    type is(tuple_i4_t)
+    type is(tuple_i8_t)
        if (p1 .lt. p2) then
           t%x = (/ p1%id(), p2%id() /)
        else
@@ -136,7 +136,7 @@ contains
     p2 => this%p(edge_nodes(2, side))
 
     select type(t)
-    type is(tuple_i4_t)
+    type is(tuple_i8_t)
        t%x = (/ p1%id(), p2%id() /)
     end select
 

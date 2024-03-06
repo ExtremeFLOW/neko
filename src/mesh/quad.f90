@@ -32,9 +32,9 @@
 !
 !> Defines a quadrilateral element
 module quad
-  use num_types, only : dp
+  use num_types, only : i8, dp
   use element, only : element_t
-  use tuple, only : tuple_t, tuple_i4_t
+  use tuple, only : tuple_t, tuple_i8_t
   use point, only : point_t
   implicit none
   private
@@ -89,7 +89,7 @@ contains
   !> Create a quadrilateral element based upon four points
   subroutine quad_init(this, id, p1, p2, p3, p4)
     class(quad_t), intent(inout) :: this
-    integer, intent(inout) :: id
+    integer(i8), intent(inout) :: id
     type(point_t), target, intent(in) :: p1, p2, p3, p4
 
     call this%element(id, NEKO_QUAD_GDIM, NEKO_QUAD_NPTS)
@@ -113,7 +113,7 @@ contains
     p2 => this%p(edge_nodes(2, side))
 
     select type(t)
-    type is(tuple_i4_t)
+    type is(tuple_i8_t)
        if (p1%id() .lt. p2%id()) then
           t%x = (/ p1%id(), p2%id() /)
        else
@@ -133,7 +133,7 @@ contains
     p2 => this%p(edge_nodes(2, side))
 
     select type(t)
-    type is(tuple_i4_t)
+    type is(tuple_i8_t)
        t%x = (/ p1%id(), p2%id() /)
     end select
 

@@ -33,7 +33,7 @@
 !> Implements a point.
 !
 module point
-  use num_types, only : dp, rp
+  use num_types, only : i8, dp, rp
   use math, only : abscmp
   use entity, only : entity_t
   implicit none
@@ -77,13 +77,13 @@ contains
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
   function point_init(x, id) result(this)
     real(kind=dp), dimension(3), intent(in) :: x
-    integer, optional, intent(inout) :: id
+    integer(i8), optional, intent(inout) :: id
     type(point_t) :: this
 
     if (present(id)) then
        call this%set_id(id)
     else
-       call this%set_id(-1)
+       call this%set_id(-1_i8)
     end if
 
     this%x = x
@@ -95,13 +95,13 @@ contains
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
     real(kind=dp), intent(in) :: z
-    integer, optional, intent(inout) :: id
+    integer(i8), optional, intent(inout) :: id
     type(point_t) :: this
 
     if (present(id)) then
        call this%set_id(id)
     else
-       call this%set_id(-1)
+       call this%set_id(-1_i8)
     end if
 
     this%x(1) = x
@@ -222,7 +222,7 @@ contains
 
   end function point_scalar_mult
 
-  !> Returns the Euclidean distance between two points \f$ \mid p_1 -  p_2 \mid \f$
+  !> Returns the Euclidean distance between two points \f$ \mid p_1 - p_2 \mid \f$
   pure function point_euclid_dist(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     type(point_t), intent(in) :: p2

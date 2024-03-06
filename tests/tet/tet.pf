@@ -6,13 +6,12 @@ subroutine test_tet_init
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
   real(kind=dp), parameter :: c4(3) = (/0d0, 0d0, 1d0/)
   type(tet_t) :: t
-  integer :: i, id
 
   id = 1
   p1 = point_t(c1, id)
@@ -25,7 +24,6 @@ subroutine test_tet_init
 
   id = 4
   p4 = point_t(c4, id)
-  
 
   id = 42
   call t%init(id, p1, p2, p3, p4)
@@ -38,7 +36,6 @@ subroutine test_tet_init
   @assertTrue(t%p(3) .eq. p3)
   @assertTrue(t%p(4) .eq. p4)
 
-
 end subroutine test_tet_init
 
 @test
@@ -49,7 +46,7 @@ subroutine test_tet_free
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
@@ -68,7 +65,7 @@ subroutine test_tet_free
 
   id = 4
   p4 = point_t(c4, id)
-  
+
   id = 42
   call t%init(id, p1, p2, p3, p4)
   call t%free()
@@ -83,7 +80,7 @@ subroutine test_tet_centroid
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
@@ -91,7 +88,6 @@ subroutine test_tet_centroid
   real(kind=dp), parameter :: center(3) = (/0.25d0, 0.25d0, 0.25d0/)
   type(tet_t) :: t
   type(point_t) :: centroid
-  integer :: i, id
 
   p1 = point_t(c1)
   p2 = point_t(c2)
@@ -115,13 +111,12 @@ subroutine test_tet_diameter
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
   real(kind=dp), parameter :: c4(3) = (/0d0, 0d0, 1d0/)
   type(tet_t) :: t
-  integer :: i, id
 
   p1 = point_t(c1)
   p2 = point_t(c2)
@@ -131,7 +126,7 @@ subroutine test_tet_diameter
   call t%init(id, p1, p2, p3, p4)
 
   @assertEqual(t%diameter(), 1.414213562373095d0, tolerance=1d-14)
-  
+
 end subroutine test_tet_diameter
 
 @test
@@ -142,7 +137,7 @@ subroutine test_tet_equal
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
@@ -152,7 +147,6 @@ subroutine test_tet_equal
   real(kind=dp), parameter :: d3(3) = (/-1d0, 1d0, -1d0/)
   real(kind=dp), parameter :: d4(3) = (/-1d0, -1d0, -2d0/)
   type(tet_t) :: t1, t2, t3
-  integer :: i, id
 
   p1 = point_t(c1)
   p2 = point_t(c2)
@@ -180,7 +174,7 @@ subroutine test_tet_equal
   p7 = point_t(c3)
   p8 = point_t(c4)
   @assertTrue(t1 .eq. t3)
-  
+
 end subroutine test_tet_equal
 
 @test
@@ -192,14 +186,14 @@ subroutine test_tet_facet_id
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
   real(kind=dp), parameter :: c4(3) = (/0d0, 0d0, 1d0/)
   type(tet_t) :: tr
   integer :: i, id
-  type(tuple3_i4_t) :: t
+  type(tuple3_i8_t) :: t
 
   id = 1
   p1 = point_t(c1, id)
@@ -212,7 +206,7 @@ subroutine test_tet_facet_id
 
   id = 4
   p4 = point_t(c4, id)
-  
+
   id = 42
   call tr%init(id, p1, p2, p3, p4)
 
@@ -236,5 +230,4 @@ subroutine test_tet_facet_id
   @assertEqual(t%x(2), p2%id())
   @assertEqual(t%x(3), p3%id())
 
-    
 end subroutine test_tet_facet_id

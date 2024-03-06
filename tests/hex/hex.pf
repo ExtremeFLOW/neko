@@ -6,7 +6,7 @@ subroutine test_hex_init
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
@@ -16,7 +16,6 @@ subroutine test_hex_init
   real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
   real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
   type(hex_t) :: h
-  integer :: i, id
 
   id = 1
   p1 = point_t(c1, id)
@@ -26,7 +25,7 @@ subroutine test_hex_init
 
   id = 4
   p3 = point_t(c3, id)
-  
+
   id = 3
   p4 = point_t(c4, id)
 
@@ -38,7 +37,7 @@ subroutine test_hex_init
 
   id = 8
   p7 = point_t(c7, id)
-  
+
   id = 7
   p8 = point_t(c8, id)
 
@@ -69,7 +68,7 @@ subroutine test_hex_free
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
@@ -79,7 +78,6 @@ subroutine test_hex_free
   real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
   real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
   type(hex_t) :: h
-  integer :: i, id
 
   id = 1
   p1 = point_t(c1, id)
@@ -89,7 +87,7 @@ subroutine test_hex_free
 
   id = 4
   p3 = point_t(c3, id)
-  
+
   id = 3
   p4 = point_t(c4, id)
 
@@ -101,14 +99,14 @@ subroutine test_hex_free
 
   id = 8
   p7 = point_t(c7, id)
-  
+
   id = 7
   p8 = point_t(c8, id)
 
   id = 42
   call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
   call h%free()
-  
+
 end subroutine test_hex_free
 
 @test
@@ -119,7 +117,7 @@ subroutine test_hex_centroid
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
@@ -131,7 +129,7 @@ subroutine test_hex_centroid
   real(kind=dp), parameter :: center(3) = (/0.5d0, 0.5d0, 0.5d0/)
   type(point_t) :: centroid
   type(hex_t) :: h
-  integer :: i, id
+  integer :: i
 
   p1 = point_t(c1)
   p2 = point_t(c2)
@@ -149,7 +147,7 @@ subroutine test_hex_centroid
   do i = 1, 3
      @assertEqual(centroid%x(i), center(i))
   end do
-  
+
 end subroutine test_hex_centroid
 
 @test
@@ -160,7 +158,7 @@ subroutine test_hex_diameter
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
@@ -170,7 +168,6 @@ subroutine test_hex_diameter
   real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
   real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
   type(hex_t) :: h
-  integer :: id
 
   p1 = point_t(c1)
   p2 = point_t(c2)
@@ -184,7 +181,7 @@ subroutine test_hex_diameter
   id = 42
   call h%init(id, p1, p2, p4, p3, p5, p6, p8, p7)
   @assertEqual(h%diameter(), 1.414213562373095d0, tolerance=1d-14)
-  
+
 end subroutine test_hex_diameter
 
 @test
@@ -196,7 +193,7 @@ subroutine test_hex_equal
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   type(point_t) :: pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
@@ -214,7 +211,6 @@ subroutine test_hex_equal
   real(kind=dp), parameter :: d7(3) = (/-1d0, 1d0, 1d0/)
   real(kind=dp), parameter :: d8(3) = (/1d0, 1d0, 1d0/)
   type(hex_t) :: h1, h2, h3
-  integer :: id
 
   p1 = point_t(c1, id)
   p2 = point_t(c2, id)
@@ -255,9 +251,9 @@ subroutine test_hex_equal
   pp6 = point_t(c6, id)
   pp7 = point_t(c7, id)
   pp8 = point_t(c8, id)
- 
+
   @assertTrue(h1 .eq. h3)
-  
+
 end subroutine test_hex_equal
 
 @test
@@ -269,7 +265,7 @@ subroutine test_hex_facet_id
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
@@ -279,9 +275,8 @@ subroutine test_hex_facet_id
   real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
   real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
   type(hex_t) :: h
-  type(tuple4_i4_t) :: t
-  integer :: id
-  
+  type(tuple4_i8_t) :: t
+
   id = 1
   p1 = point_t(c1, id)
 
@@ -290,7 +285,7 @@ subroutine test_hex_facet_id
 
   id = 3
   p3 = point_t(c3, id)
-  
+
   id = 4
   p4 = point_t(c4, id)
 
@@ -302,7 +297,7 @@ subroutine test_hex_facet_id
 
   id = 8
   p7 = point_t(c7, id)
-  
+
   id = 7
   p8 = point_t(c8, id)
 
@@ -344,8 +339,7 @@ subroutine test_hex_facet_id
   @assertEqual(t%x(2), p6%id())
   @assertEqual(t%x(3), p8%id())
   @assertEqual(t%x(4), p7%id())
-  
-  
+
 end subroutine test_hex_facet_id
 
 @test
@@ -357,7 +351,7 @@ subroutine test_hex_edge_id
   use num_types
   implicit none
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
-  integer :: point_id
+  integer(i8) :: id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
@@ -367,9 +361,8 @@ subroutine test_hex_edge_id
   real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
   real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
   type(hex_t) :: h
-  type(tuple_i4_t) :: t
-  integer :: id
-  
+  type(tuple_i8_t) :: t
+
   id = 1
   p1 = point_t(c1, id)
 
@@ -378,7 +371,7 @@ subroutine test_hex_edge_id
 
   id = 4
   p3 = point_t(c3, id)
-  
+
   id = 3
   p4 = point_t(c4, id)
 
@@ -390,7 +383,7 @@ subroutine test_hex_edge_id
 
   id = 8
   p7 = point_t(c7, id)
-  
+
   id = 7
   p8 = point_t(c8, id)
 
@@ -408,7 +401,7 @@ subroutine test_hex_edge_id
   call h%edge_id(t, 3)
   @assertEqual(t%x(1), p5%id())
   @assertEqual(t%x(2), p6%id())
-  
+
   call h%edge_id(t, 4)
   @assertEqual(t%x(1), p8%id())
   @assertEqual(t%x(2), p7%id())
