@@ -15,17 +15,17 @@ program average_field_in_space
   type(space_t) :: Xh
   type(mesh_t) :: msh
   type(gs_t) :: gs_h
+  type(map_1d_t) :: map_1d
   type(field_t), pointer :: u, avg_u, old_u, el_heights
   type(vector_ptr_t), allocatable :: fields(:)
-  integer, allocatable :: hom_dir_el(:)
-  integer :: argc, i, n, lx, j, e, n_levels
+  integer :: argc, i, n, lx, j, e, n_levels, dir
   
   argc = command_argument_count()
 
-  if ((argc .lt. 5) .or. (argc .gt. 5)) then
+  if ((argc .lt. 4) .or. (argc .gt. 4)) then
      if (pe_rank .eq. 0) then
-        write(*,*) 'Usage: ./average_field_in_space mesh.nmsh field.fld dir(x, y, z) n_levels  outfield.fld' 
-        write(*,*) 'Example command: ./average_field_in_space mesh.nmsh fieldblabla.fld x n_levels outfield.fld'
+        write(*,*) 'Usage: ./average_field_in_space mesh.nmsh field.fld dir(x, y, z)  outfield.fld' 
+        write(*,*) 'Example command: ./average_field_in_space mesh.nmsh fieldblabla.fld x  outfield.fld'
         write(*,*) 'Computes the spatial average in x of the field fieldblabla.nek5000 and stores in outfield.fld'
      end if
      stop
@@ -42,8 +42,6 @@ program average_field_in_space
   call get_command_argument(3, inputchar) 
   read(inputchar, *) hom_dir
   call get_command_argument(4, inputchar) 
-  read(inputchar, *) n_levels
-  call get_command_argument(5, inputchar) 
   read(inputchar, *) output_fname
   
   call mesh_file%read(msh)
@@ -96,9 +94,19 @@ program average_field_in_space
   old_u => neko_field_registry%get_field('old_u')
   call neko_field_registry%add_field(dof, 'el_heights')
   el_heights => neko_field_registry%get_field('el_heights')
+  ! 1 corresponds to r, 2 to s, 3 to t
+  if (trim(hom_dir) .eq. 'x') then
+     dir = 1
+  else if (trim(hom_dir) .eq. 'y') then
+     dir = 2
+  else if (trim(hom_dir) .eq. 'z') then
+     dir = 3
+  else 
+     call neko_error('homogenous direction not supported')
+  end if
+  call map_1d%init(dof, gs_h,  dir, 1e-7_rp)
 
-  !test
-  allocate(hom_dir_el(msh%nelv))
+  n_levels = map_1d%n_el_lvls
 
   do i = 1, msh%nelv
      !find height in hom-dir
@@ -109,18 +117,7 @@ program average_field_in_space
      el_dim(2,:) = abs(msh%elements(i)%e%pts(1)%p%x-msh%elements(i)%e%pts(3)%p%x)
      el_dim(3,:) = abs(msh%elements(i)%e%pts(1)%p%x-msh%elements(i)%e%pts(5)%p%x)
      ! 1 corresponds to r, 2 to s, 3 to t
-     if (trim(hom_dir) .eq. 'x') then
-        hom_dir_el(i) = maxloc(el_dim(:,1),dim=1)
-        el_h = el_dim(1,hom_dir_el(i))
-     else if (trim(hom_dir) .eq. 'y') then
-        hom_dir_el(i) = maxloc(el_dim(:,2),dim=1)
-        el_h = el_dim(2,hom_dir_el(i))
-     else if (trim(hom_dir) .eq. 'z') then
-        hom_dir_el(i) = maxloc(el_dim(:,3),dim=1)
-        el_h = el_dim(3,hom_dir_el(i))
-     else 
-        call neko_error('homogenous direction not supported')
-     end if
+     el_h = el_dim(map_1d%dir_el(i),dir)
      el_heights%x(:,:,:,i) = el_h
   end do
   n = u%dof%size()
@@ -129,7 +126,7 @@ program average_field_in_space
   call copy(old_u%x,el_heights%x,n)
   call copy(avg_u%x,el_heights%x,n)
   call perform_global_summation(u, avg_u, old_u, n_levels, &
-       hom_dir_el,gs_h, coef%mult, msh%nelv, lx)
+       map_1d%dir_el,gs_h, coef%mult, msh%nelv, lx)
   domain_height = u%x(1,1,1,1)
 
   allocate(fields(field_data%size()))
@@ -139,11 +136,11 @@ program average_field_in_space
   do i = 1, field_data%size()
      call copy(old_u%x,fields(i)%v%x,n)
      call perform_local_summation(u,old_u, el_heights, domain_height, &
-          hom_dir_el, coef, msh%nelv, lx)
+          map_1d%dir_el, coef, msh%nelv, lx)
      call copy(old_u%x,u%x,n)
      call copy(avg_u%x,u%x,n)
      call perform_global_summation(u, avg_u, old_u, n_levels, &
-          hom_dir_el,gs_h, coef%mult, msh%nelv, lx)
+          map_1d%dir_el,gs_h, coef%mult, msh%nelv, lx)
      call copy(fields(i)%v%x,u%x,n)
   end do 
   output_file = file_t(trim(output_fname))
