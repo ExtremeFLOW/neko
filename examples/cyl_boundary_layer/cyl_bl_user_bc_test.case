@@ -5,8 +5,8 @@
     "output_at_end": false,
     "output_boundary": true,
     "output_checkpoints": false,
-    "end_time": 1.6e-3,
-    "output_directory": "results_user_bc_test",
+    "end_time": 100,
+    "output_directory": "results_dirichlet_bcs",
     "timestep": 8e-4,
     "numerics": {
         "time_order": 3,
@@ -41,8 +41,8 @@
             "max_iterations": 800
         },
         "boundary_types": ["d_vel", "d_pres/d_vel", "sym", "w", "on", "on", "w"],
-        "output_control": "tsteps",
-        "output_value": 1
+        "output_control": "nsample",
+        "output_value": 400
     },
     "scalar": {
 	    "enabled": true,
