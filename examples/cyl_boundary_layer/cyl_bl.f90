@@ -161,6 +161,9 @@ contains
     ! and p = 2 on the outlet
     !
 
+    ! Only do this at the first time step since our BCs are constants.
+    if (tstep .ne. 1) return
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        if (allocated(field_bc_list%fields(1)%f%x)) &
        call device_cfill(field_bc_list%fields(1)%f%x_d,1d0,field_bc_list%fields(1)%f%dof%size())
