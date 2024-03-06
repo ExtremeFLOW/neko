@@ -605,7 +605,6 @@ contains
     !
     ! Find all external (between PEs) boundaries
     !
-    print *, pe_size
     if (pe_size .gt. 1) then
 
        call mesh_generate_external_point_conn(this)
