@@ -15,7 +15,9 @@ stack_test_TESTS := stack_i4.pf\
 		    stack_i8.pf\
 		    stack_r8.pf\
 		    stack_i4t2.pf\
+		    stack_i8t2.pf\
 		    stack_i4t4.pf\
+		    stack_i8t4.pf\
 		    stack_i4r8t2.pf\
 		    stack_2i4r8t3.pf\
 		    stack_nq.pf\

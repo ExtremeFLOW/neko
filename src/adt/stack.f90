@@ -39,7 +39,8 @@ module stack
   use point, only : point_t
   use structs, only : struct_curve_t
   use math, only : NEKO_M_LN2
-  use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_i4r8_t, tuple_2i4r8_t
+  use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_i8_t, tuple4_i8_t, &
+       & tuple_i4r8_t, tuple_2i4r8_t
   implicit none
   private
 
@@ -87,12 +88,26 @@ module stack
      procedure, public, pass(this) :: array => stack_i4t2_data
   end type stack_i4t2_t
 
+  !> Integer*8 2-tuple based stack
+  type, public, extends(stack_t) :: stack_i8t2_t
+   contains
+     procedure, public, pass(this) :: pop => stack_i8t2_pop
+     procedure, public, pass(this) :: array => stack_i8t2_data
+  end type stack_i8t2_t
+
   !> Integer 4-tuple based stack
   type, public, extends(stack_t) :: stack_i4t4_t
    contains
      procedure, public, pass(this) :: pop => stack_i4t4_pop
      procedure, public, pass(this) :: array => stack_i4t4_data
   end type stack_i4t4_t
+
+  !> Integer*8 4-tuple based stack
+  type, public, extends(stack_t) :: stack_i8t4_t
+   contains
+     procedure, public, pass(this) :: pop => stack_i8t4_pop
+     procedure, public, pass(this) :: array => stack_i8t4_data
+  end type stack_i8t4_t
 
   !> Mixed integer-double precision 2-tuple based stack
   type, public, extends(stack_t) :: stack_i4r8t2_t
@@ -180,8 +195,12 @@ contains
        allocate(double precision::this%data(this%size_))
     type is (stack_i4t2_t)
        allocate(tuple_i4_t::this%data(this%size_))
+    type is (stack_i8t2_t)
+       allocate(tuple_i8_t::this%data(this%size_))
     type is (stack_i4t4_t)
        allocate(tuple4_i4_t::this%data(this%size_))
+    type is (stack_i8t4_t)
+       allocate(tuple4_i8_t::this%data(this%size_))
     type is (stack_i4r8t2_t)
        allocate(tuple_i4r8_t::this%data(this%size_))
     type is (stack_2i4r8t3_t)
@@ -254,8 +273,12 @@ contains
           allocate(double precision::tmp(this%size_))
        type is(tuple_i4_t)
           allocate(tuple_i4_t::tmp(this%size_))
+       type is(tuple_i8_t)
+          allocate(tuple_i8_t::tmp(this%size_))
        type is(tuple4_i4_t)
           allocate(tuple4_i4_t::tmp(this%size_))
+       type is(tuple4_i8_t)
+          allocate(tuple4_i8_t::tmp(this%size_))
        type is(tuple_i4r8_t)
           allocate(tuple_i4r8_t::tmp(this%size_))
        type is(tuple_2i4r8_t)
@@ -299,9 +322,23 @@ contains
                 tmp(i) = sdp(i)
              end do
           end select
+       type is (tuple_i8_t)
+          select type(sdp=>this%data)
+          type is (tuple_i8_t)
+             do i = 1, this%top_
+                tmp(i) = sdp(i)
+             end do
+          end select
        type is (tuple4_i4_t)
           select type(sdp=>this%data)
           type is (tuple4_i4_t)
+             do i = 1, this%top_
+                tmp(i) = sdp(i)
+             end do
+          end select
+       type is (tuple4_i8_t)
+          select type(sdp=>this%data)
+          type is (tuple4_i8_t)
              do i = 1, this%top_
                 tmp(i) = sdp(i)
              end do
@@ -379,9 +416,19 @@ contains
        type is (tuple_i4_t)
           sdp(this%top_) = data
        end select
+    type is (tuple_i8_t)
+       select type(data)
+       type is (tuple_i8_t)
+          sdp(this%top_) = data
+       end select
     type is (tuple4_i4_t)
        select type(data)
        type is (tuple4_i4_t)
+          sdp(this%top_) = data
+       end select
+    type is (tuple4_i8_t)
+       select type(data)
+       type is (tuple4_i8_t)
           sdp(this%top_) = data
        end select
     type is (tuple_i4r8_t)
@@ -537,6 +584,33 @@ contains
     end select
   end function stack_i4t2_data
 
+  !> Pop an integer*8 2-tuple of the stack
+  function stack_i8t2_pop(this) result(data)
+    class(stack_i8t2_t), target, intent(inout) :: this
+    type(tuple_i8_t) :: data
+
+    select type (sdp=>this%data)
+    type is (tuple_i8_t)
+       data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (i8t2 pop)')
+    end select
+    this%top_ = this%top_ -1
+  end function stack_i8t2_pop
+
+  !> Return a pointer to the interal 2-tuple array
+  function stack_i8t2_data(this) result(data)
+    class(stack_i8t2_t), target, intent(inout) :: this
+    type(tuple_i8_t), pointer :: data(:)
+
+    select type (sdp=>this%data)
+    type is (tuple_i8_t)
+       data => sdp
+    class default
+       call neko_error('Invalid data type (i8t2 array)')
+    end select
+  end function stack_i8t2_data
+
   !> Pop an integer 4-tuple of the stack
   function stack_i4t4_pop(this) result(data)
     class(stack_i4t4_t), target, intent(inout) :: this
@@ -563,6 +637,33 @@ contains
        call neko_error('Invalid data type (i4t4 array)')
     end select
   end function stack_i4t4_data
+
+  !> Pop an integer*8 4-tuple of the stack
+  function stack_i8t4_pop(this) result(data)
+    class(stack_i8t4_t), target, intent(inout) :: this
+    type(tuple4_i8_t) :: data
+
+    select type (sdp=>this%data)
+    type is (tuple4_i8_t)
+       data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (i8t4 pop)')
+    end select
+    this%top_ = this%top_ -1
+  end function stack_i8t4_pop
+
+  !> Return a pointer to the internal 4-tuple array
+  function stack_i8t4_data(this) result(data)
+    class(stack_i8t4_t), target, intent(inout) :: this
+    type(tuple4_i8_t), pointer :: data(:)
+
+    select type (sdp=>this%data)
+    type is (tuple4_i8_t)
+       data => sdp
+    class default
+       call neko_error('Invalid data type (i8t4 array)')
+    end select
+  end function stack_i8t4_data
 
   !> Pop a mixed integer-double precision  2-tuple of the stack
   function stack_i4r8t2_pop(this) result(data)
