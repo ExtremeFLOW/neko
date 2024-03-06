@@ -380,6 +380,7 @@ contains
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
+    real(kind=rp) :: msk1, msk2, msk3
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_lambda2(lambda2, u, v, w, coef)
@@ -430,21 +431,18 @@ contains
              eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - B / 3.0
              eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - B / 3.0
 
-             if (eigen(1) .le. eigen(2) .and. eigen(2) .le. eigen(3)) then
-                l2 = eigen(2)
-             else if (eigen(3) .le. eigen(2) .and. eigen(2) .le. eigen(1)) then
-                l2 = eigen(2)
-             else if (eigen(1) .le. eigen(3) .and. eigen(3) .le. eigen(2)) then
-                l2 = eigen(3)
-             else if (eigen(2) .le. eigen(3) .and. eigen(3) .le. eigen(1)) then
-                l2 = eigen(3)
-             else if (eigen(2) .le. eigen(1) .and. eigen(1) .le. eigen(3)) then
-                l2 = eigen(1)
-             else if (eigen(3) .le. eigen(1) .and. eigen(1) .le. eigen(2)) then
-                l2 = eigen(1)
-             else
-                l2 = 0.0
-             end if
+             msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &
+                          .and. eigen(1) .le. eigen(3) .or.  eigen(3) &
+                          .le. eigen(1) .and. eigen(1) .le. eigen(2) )
+             msk2 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(2) &
+                          .and. eigen(2) .le. eigen(3) .or. eigen(3) &
+                          .le. eigen(2) .and. eigen(2) .le. eigen(1))
+             msk3 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(3) &
+                          .and. eigen(3) .le. eigen(2) .or. eigen(2) &
+                          .le. eigen(3) .and. eigen(3) .le. eigen(1))
+
+             l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)
+
              lambda2%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)
           end do
        end do
