@@ -117,7 +117,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     if (this%msk(0) .gt. 0) then
-       call masked_copy(x,this%field_bc%x,this%msk, n, this%msk(0))
+       call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
   end subroutine field_dirichlet_apply_scalar
   
