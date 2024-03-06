@@ -1,12 +1,12 @@
 @test
-subroutine test_htable_init_i8
+subroutine test_htable_init_i8t4
   use pfunit
   use htable
   use num_types
   use point
   use tuple
   implicit none
-  type(htable_i8_t) :: h
+  type(htable_i8t4_t) :: h
   integer :: data_i4
   integer(kind=i8) :: data_i8
   real(kind=dp) :: data_r8
@@ -40,25 +40,25 @@ subroutine test_htable_init_i8
   call h%init(4, data_pt)
   @assertEqual(h%num_entries(), 0)
 
-end subroutine test_htable_init_i8
+end subroutine test_htable_init_i8t4
 
 @test
-subroutine test_htable_add_i8
+subroutine test_htable_add_i8t4
   use pfunit
   use htable
   use num_types
   use point
   use tuple
   implicit none
-  type(htable_i8_t) :: h1, h2, h3, h4, h5, h6, h7, h8
+  type(htable_i8t4_t) :: h1, h2, h3, h4, h5, h6, h7, h8
   integer :: i
   integer :: data_i4
-  integer(kind=i8) :: data_i8, key, itmp
+  integer(kind=i8) :: data_i8, itmp
   real(kind=dp) :: data_r8
   type(tuple_i4_t) :: data_ti4
   type(tuple_i8_t) :: data_ti8
   type(tuple4_i4_t) :: data_t4i4
-  type(tuple4_i8_t) :: data_t4i8
+  type(tuple4_i8_t) :: data_t4i8, key
   type(point_t) :: data_pt
 
   call h1%init(4, data=data_i4)
@@ -72,7 +72,7 @@ subroutine test_htable_add_i8
 
   do i = 1, 6
      itmp = int(i, i8)
-     key = itmp
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
      data_i4 = -i
      data_i8 = -itmp
      data_r8 = dble(-i)
@@ -103,7 +103,7 @@ subroutine test_htable_add_i8
 
   do i = 6, 8
      itmp = int(i, i8)
-     key = itmp
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
      data_i4 = -i
      data_i8 = -itmp
      data_r8 = dble(-i)
@@ -132,72 +132,77 @@ subroutine test_htable_add_i8
   @assertEqual(h7%num_entries(), 8)
   @assertEqual(h8%num_entries(), 8)
 
-end subroutine test_htable_add_i8
+end subroutine test_htable_add_i8t4
 
 @test
-subroutine test_htable_clear_i8
+subroutine test_htable_clear_i8t4
   use pfunit
+  use num_types
   use htable
-  use num_types, only : i8
+  use tuple
   implicit none
-  type(htable_i8_t) :: h
+  type(htable_i8t4_t) :: h
   integer :: i
-  integer(kind=i8) :: key, data
+  integer(i8) :: itmp
+  type(tuple4_i8_t) :: key, data
 
   call h%init(64)
 
   do i = 1, 42
-     key = int(i, i8)
-     data = int(-i, i8)
+     itmp = int(i, i8)
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
+     data = (/-itmp, -itmp**2, -itmp**3, -itmp**4/)
      call h%set(key, data)
   end do
   @assertEqual(h%num_entries(), 42)
   call h%clear()
   @assertEqual(h%num_entries(), 0)
 
-end subroutine test_htable_clear_i8
+end subroutine test_htable_clear_i8t4
 
 @test
-subroutine test_htable_free_i8
+subroutine test_htable_free_i8t4
   use pfunit
+  use num_types
   use htable
-  use num_types, only : i8
+  use tuple
   implicit none
-  type(htable_i8_t) :: h
+  type(htable_i8t4_t) :: h
   integer :: i
-  integer(kind=i8) :: key, data
+  integer(i8) :: itmp
+  type(tuple4_i8_t) :: key, data
 
   call h%init(64)
 
   do i = 1, 42
-     key = int(i, i8)
-     data = int(-i, i8)
+     itmp = int(i, i8)
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
+     data = (/-itmp, -itmp**2, -itmp**3, -itmp**4/)
      call h%set(key, data)
   end do
   @assertEqual(h%num_entries(), 42)
   call h%free()
   @assertEqual(h%num_entries(), 0)
 
-end subroutine test_htable_free_i8
-
+end subroutine test_htable_free_i8t4
 
 @test
-subroutine test_htable_get_i8
+subroutine test_htable_get_i8t4
   use pfunit
   use htable
   use num_types
   use point
   use tuple
   implicit none
-  type(htable_i8_t) :: h1, h2, h3, h4, h5, h6, h7, h8
+  type(htable_i8t4_t) :: h1, h2, h3, h4, h5, h6, h7, h8
   integer :: i
   integer :: data_i4
-  integer(kind=i8) :: data_i8, key, itmp
+  integer(kind=i8) :: data_i8, itmp
   real(kind=dp) :: data_r8
   type(tuple_i4_t) :: data_ti4, ti4
   type(tuple_i8_t) :: data_ti8, ti8
   type(tuple4_i4_t) :: data_t4i4, t4i4
-  type(tuple4_i8_t) :: data_t4i8, t4i8
+  type(tuple4_i8_t) :: data_t4i8, t4i8, key
   type(point_t) :: data_pt, pt
 
   call h1%init(4, data=data_i4)
@@ -211,7 +216,7 @@ subroutine test_htable_get_i8
 
   do i = 1, 42
      itmp = int(i, i8)
-     key = itmp
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
      data_i4 = -i
      data_i8 = -itmp
      data_r8 = dble(-i)
@@ -233,7 +238,7 @@ subroutine test_htable_get_i8
 
   do i = 1, 42
      itmp = int(i, i8)
-     key = itmp
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
      @assertEqual(h1%get(key, data_i4), 0)
      @assertEqual(h2%get(key, data_i8), 0)
      @assertEqual(h3%get(key, data_r8), 0)
@@ -261,7 +266,7 @@ subroutine test_htable_get_i8
 
   do i = 42, 1, -1
      itmp = int(i, i8)
-     key = itmp
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
      @assertEqual(h1%get(key, data_i4), 0)
      @assertEqual(h2%get(key, data_i8), 0)
      @assertEqual(h3%get(key, data_r8), 0)
@@ -289,7 +294,7 @@ subroutine test_htable_get_i8
 
   do i = 1, 42, 2
      itmp = int(i, i8)
-     key = itmp
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
      @assertEqual(h1%get(key, data_i4), 0)
      @assertEqual(h2%get(key, data_i8), 0)
      @assertEqual(h3%get(key, data_r8), 0)
@@ -315,26 +320,26 @@ subroutine test_htable_get_i8
      @assertTrue(data_t4i8 .eq. t4i8)
   end do
 
-end subroutine test_htable_get_i8
+end subroutine test_htable_get_i8t4
 
 
 @test
-subroutine test_htable_remove_i8
+subroutine test_htable_remove_i8t4
   use pfunit
   use htable
   use num_types
   use point
   use tuple
   implicit none
-  type(htable_i8_t) :: h1, h2, h3, h4, h5, h6, h7, h8
+  type(htable_i8t4_t) :: h1, h2, h3, h4, h5, h6, h7, h8
   integer :: i
   integer :: data_i4
-  integer(kind=i8) :: data_i8, key, itmp
+  integer(kind=i8) :: data_i8, itmp
   real(kind=dp) :: data_r8
   type(tuple_i4_t) :: data_ti4, ti4
   type(tuple_i8_t) :: data_ti8, ti8
   type(tuple4_i4_t) :: data_t4i4, t4i4
-  type(tuple4_i8_t) :: data_t4i8, t4i8
+  type(tuple4_i8_t) :: data_t4i8, t4i8, key
   type(point_t) :: data_pt, pt
 
   call h1%init(4, data=data_i4)
@@ -348,7 +353,7 @@ subroutine test_htable_remove_i8
 
   do i = 1, 42
      itmp = int(i, i8)
-     key = itmp
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
      data_i4 = -i
      data_i8 = -itmp
      data_r8 = dble(-i)
@@ -369,7 +374,8 @@ subroutine test_htable_remove_i8
   end do
 
   do i = 1, 42, 2
-     key = int(i, i8)
+     itmp = int(i, i8)
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
      call h1%remove(key)
      call h2%remove(key)
      call h3%remove(key)
@@ -390,7 +396,7 @@ subroutine test_htable_remove_i8
 
   do i = 2, 42, 2
      itmp = int(i, i8)
-     key = itmp
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
      @assertEqual(h1%get(key, data_i4), 0)
      @assertEqual(h2%get(key, data_i8), 0)
      @assertEqual(h3%get(key, data_r8), 0)
@@ -418,7 +424,8 @@ subroutine test_htable_remove_i8
 
 
   do i = 1, 42, 2
-     key = int(i, i8)
+     itmp = int(i, i8)
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
      @assertEqual(h1%get(key, data_i4), 1)
      @assertEqual(h2%get(key, data_i8), 1)
      @assertEqual(h3%get(key, data_r8), 1)
@@ -429,26 +436,29 @@ subroutine test_htable_remove_i8
      @assertEqual(h8%get(key, data_t4i8), 1)
   end do
 
-end subroutine test_htable_remove_i8
+end subroutine test_htable_remove_i8t4
 
 @test
-subroutine test_htable_iter_i8
+subroutine test_htable_iter_i8t4
   use pfunit
-  use htable
   use num_types
+  use htable
+  use tuple
   implicit none
-  type(htable_i8_t) :: h
-  type(htable_iter_i8_t) :: it
+  type(htable_i8t4_t) :: h
+  type(htable_iter_i8t4_t) :: it
   integer :: i, rcode
-  integer(kind=i8) :: key, data_i8
-  integer(kind=i8), pointer :: kp, di8p
+  integer(i8) :: itmp
+  type(tuple4_i8_t) :: key, data_t4i8
+  type(tuple4_i8_t), pointer :: kp, dt4i8p
 
-  call h%init(4, data=data_i8)
+  call h%init(4, data=data_t4i8)
 
   do i = 1, 42
-     key = int(i, i8)
-     data_i8 = int(-i, i8)
-     call h%set(key, data_i8)
+     itmp = int(i, i8)
+     key = (/itmp, itmp**2, itmp**3, itmp**4/)
+     data_t4i8 = (/-itmp, -itmp**2, -itmp**3, -itmp**4/)
+     call h%set(key, data_t4i8)
   end do
 
   call it%init(h)
@@ -456,16 +466,15 @@ subroutine test_htable_iter_i8
   i = 0
   do while(it%next())
      kp => it%key()
-     di8p=> it%value()
+     dt4i8p=> it%value()
+     data_t4i8 = (/-kp%x(1), -kp%x(2), -kp%x(3), -kp%x(4)/)
+     @assertTrue(data_t4i8 .eq. dt4i8p)
 
-     data_i8 = -kp
-     @assertEqual(data_i8, di8p)
-
-     rcode = h%get(kp, data_i8)
+     rcode = h%get(kp, data_t4i8)
      @assertEqual(rcode, 0)
-     @assertEqual(data_i8, di8p)
+     @assertTrue(data_t4i8 .eq. dt4i8p)
      if (rcode .eq. 0) i = i + 1
   end do
   @assertEqual(i, 42)
 
-end subroutine test_htable_iter_i8
+end subroutine test_htable_iter_i8t4

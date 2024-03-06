@@ -101,11 +101,13 @@ EXTRA_DIST = \
 	stack/stack_nh.pf\
 	stack/stack_pt.pf\
 	htable/htable_i4t2.pf\
+	htable/htable_i8t2.pf\
 	htable/htable_i8.pf\
 	htable/htable_pt.pf\
 	htable/htable_r8.pf\
 	htable/htable_i4.pf\
 	htable/htable_i4t4.pf\
+	htable/htable_i8t4.pf\
 	mathops/mathops.pf\
 	device_mathops/device_mathops.pf\
 	device_math/device_math_parallel.pf\
