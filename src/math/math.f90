@@ -219,7 +219,13 @@ contains
 
   end subroutine copy
 
-  !> Copy a masked vector \f$ a(mask) = b(mask) \f$
+  !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
+  !! @param a Destination array of size `n`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length m+1, where `mask(0)=m`
+  !! the length of the mask array.
+  !! @param n Size of the arrays `a` and `b`.
+  !! @param m Size of the mask array `mask`.
   subroutine masked_copy(a, b, mask, n, m)
     integer, intent(in) :: n, m
     real(kind=rp), dimension(n), intent(in) :: b
