@@ -147,16 +147,20 @@ contains
        w%x(i,1,1,1) = 0.0
     end do
   end subroutine user_ic
+
   !Initial example of using user specified dirichlet bcs
-  !TODO: should we pass down coef? 
-  !Can it perhaps be made prettier, should one always check allocated?
-  !RIght now they are only allocated if there is a user specified dirichlet bc for that field
   subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep)
     type(field_list_t), intent(inout) :: field_bc_list
     type(bc_list_t), intent(inout) :: bc_bc_list
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+  
+    ! 
+    ! Simple example that sets (u,v,w) = (1,0,0) and s = 2 on the inlet/outlet
+    ! and p = 2 on the outlet
+    !
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        if (allocated(field_bc_list%fields(1)%f%x)) &
        call device_cfill(field_bc_list%fields(1)%f%x_d,1d0,field_bc_list%fields(1)%f%dof%size())

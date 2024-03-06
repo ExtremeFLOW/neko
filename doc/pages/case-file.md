@@ -59,7 +59,7 @@ The three following options are possible.
 This object is mostly used as a high-level container for all the other objects,
 but also defines several parameters that pertain to the simulation as a whole.
 
-| Name                 | Description                                                                                           | Admissable values                               | Default value |
+| Name                 | Description                                                                                           | Admissible values                               | Default value |
 | -------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------- |
 | `mesh_file`          | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`    | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
@@ -71,14 +71,16 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
 | `checkpoint_value`   | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
 | `restart_file`       | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
-| `time_step`          | Time-step size.                                                                                       | Positive reals                                  | -             |
+| `constant_cfl`       | The desired CFL number                                                                                    | Positive real | - |
+| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps                     | Integer | `1` |
+| `time_step`          | Time-step size if `constant_cfl` is not specified; maximum time-step size if `constant_cfl` is specified.                                             | Positive reals                                  | -             |
 | `end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`      | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
 
 ## Numerics
 Used to define the properties of the numerical discretization.
 
-| Name                         | Description                                                                                                   | Admissable values          | Default value                   |
+| Name                         | Description                                                                                                   | Admissible values          | Default value                   |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------- |
 | `polynomial_order`           | The oder of the polynomial basis.                                                                             | Integers, typically 5 to 9 | -                               |
 | `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documention for details. | 1,2, 3                     | -                               |
@@ -128,7 +130,7 @@ The means of prescribing the values are controlled via the `type` keyword:
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
    in the `case.fluid.blasius` object, see below.
 
-### Initial conditions
+### Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
 It is mandatory.
 Note that this currently pertains to both the fluid, but also scalars.
@@ -156,7 +158,7 @@ It requires  the following parameters:
    - `quartic`, quartic approximation.
    - `sin`, sine function approximation.
 
-### Source terms
+### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
 momentum equation. The object is not mandatory, by default no forcing term is
 present. Each source term, is itself a JSON object, so `source_terms` is just an
@@ -179,7 +181,92 @@ The following types are currently implemented.
    pointwise user file subroutine. Only works on CPUs!
 3. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
+4. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
 
+#### Brinkman
+The Brinkman source term introduces regions of resistance in the fluid domain.
+The volume force $f_i$ applied in the selected regions are proportional to the
+fluid velocity component $u_i$.
+
+$$
+   f_i(x) = - B(x) u_i(x), \\
+   B(x) = \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)},
+$$
+
+where, $x$ is the current location in the domain, $\xi: x \mapsto [0,1]$
+represent an indicator function for the resistance where $\xi(x) = 0$ is a free
+flow. $\kappa_i$ describes the limits for the force application at $\xi(x)=0$
+and $\xi(x)=1$. A penalty parameter $q$ help us to reduce numerical problems.
+
+The indicator function will be defined based on the object type. The following
+types are currently implemented.
+
+1. `boundary_mesh`, the indicator function for a boundary mesh is computed in
+   two steps. First, the signed distance function is computed for the boundary
+   mesh. Then, the indicator function is computed using the distance transform
+   function specified in the case file.
+2. `point_zone`, the indicator function is defined as 1 inside the point zone
+   and 0 outside.
+
+Each object are added to a common indicator field by means of a point-wise max
+operator. This means that the indicator field will be the union of all the
+regions defined by the objects.
+
+After the indicator field is computed, it is filtered using a filter type
+specified in the case file. The filter is used to smooth the indicator field
+before computing the Brinkman force. The following types are currently
+implemented.
+
+1. `none`, no filtering is applied.
+
+The filtering can be defined for each object separately. Additionally, the
+filter can be specified for the entire source term, in which case it will be
+applied to the final indicator field, after all sources have been added.
+
+Additional keywords are available to modify the Brinkman force term.
+
+| Name                       | Description                                                                                   | Admissible values                 | Default value |
+| -------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
+| `brinkman.limits`          | Brinkman factor at free-flow ($\kappa_0$) and solid domain ($\kappa_1$).                      | Vector of 2 reals.                | -             |
+| `brinkman.penalty`         | Penalty parameter $q$ when estimating Brinkman factor.                                        | Real                              | $1.0$         |
+| `objects`                  | Array of JSON objects, defining the objects to be immersed.                                   | Each object must specify a `type` | -             |
+| `distance_transform.type`  | How to map from distance field to indicator field.                                            | `step`, `smooth_step`             | -             |
+| `distance_transform.value` | Values used to define the distance transform, such as cut-off distance for the step function. | Real                              | -             |
+| `filter.type`              | Type of filtering applied to the indicator field either globally or for the current object.   | `none`                            | `none`        |
+
+Example of a Brinkman source term where a boundary mesh and a point zone are
+combined to define the resistance in the fluid domain. The indicator field for
+the boundary mesh is computed using a step function with a cut-off distance of
+$0.1$. The indicator field for the point zone is not filtered.
+
+~~~~~~~~~~~~~~~{.json}
+"source_terms": [
+   {
+      "type": "brinkman",
+      "objects": [
+         {
+            "type": "boundary_mesh",
+            "name": "some_mesh.stl",
+            "distance_transform": {
+               "type": "step",
+               "value": 0.1
+            },
+         },
+         {
+            "type": "point_zone",
+            "name": "cylinder_zone",
+            "filter": {
+               "type": "none"
+            }
+         }
+      ],
+      "brinkman": {
+         "limits": [0.0, 100.0],
+         "penalty": 1.0
+      }
+   }
+]
+~~~~~~~~~~~~~~~
 
 ### Boundary types
 The optional `boundary_types` keyword can be used to specify boundary conditions.
@@ -253,7 +340,7 @@ All the parameters are summarized in the table below.
 This includes all the subobjects discussed above, as well as keyword parameters
 that can be described concisely directly in the table.
 
-| Name                                    | Description                                                                                       | Admissable values                                | Default value |
+| Name                                    | Description                                                                                       | Admissible values                                | Default value |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------------- |
 | `scheme`                                | The fluid solve type.                                                                             | `pnpn`                                           | -             |
 | `Re`                                    | The Reynolds number.                                                                              | Positive real                                    | -             |
@@ -266,7 +353,7 @@ that can be described concisely directly in the table.
 | `initial_condition.type`                | Initial condition type.                                                                           | `user`, `uniform`, `blasius`                     | -             |
 | `initial_condition.value`               | Value of the velocity initial condition.                                                          | Vector of 3 reals                                | -             |
 | `blasius.delta`                         | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                    | -             |
-| `blasius.freestream_velocity`           | Freestream velocity in the Blasius profile.                                                       | Vector of 3 reals                                | -             |
+| `blasius.freestream_velocity`           | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                | -             |
 | `blasius.approximation`                 | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin` | -             |
 | `source_terms`                          | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                   | -             |
 | `boundary_types`                        | Boundary types/conditions labels.                                                                 | Array of strings                                 | -             |
@@ -285,7 +372,7 @@ that can be described concisely directly in the table.
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                | `false`       |
 
-## Scalar
+## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution.
 The solution variable is called `s`, but saved as `temperature` in the fld
  files.
@@ -307,16 +394,16 @@ example case.
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
-Name                      | Description                                              | Admissable values              | Default value
---------------------------|----------------------------------------------------------|--------------------------------|--------------
-`enabled`                 | Whether to enable the scalar computation.                | `true` or `false`              | `true`
-`Pe`                      | The Peclet number.                                       | Positive real                  | -
-`cp`                      | Specific heat cpacity.                                   | Positive real                  | -
-`lambda`                  | Thermal conductivity.                                    | Positive real                  | -
-`boundary_types`          | Boundary types/conditions labels.                        | Array of strings               | -
-`initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`              | -
-`initial_condition.value` | Value of the velocity initial condition.                 | Real                           | -
-`source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above | -
+| Name                      | Description                                              | Admissible values              | Default value |
+| ------------------------- | -------------------------------------------------------- | ------------------------------ | ------------- |
+| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`              | `true`        |
+| `Pe`                      | The Peclet number.                                       | Positive real                  | -             |
+| `cp`                      | Specific heat cpacity.                                   | Positive real                  | -             |
+| `lambda`                  | Thermal conductivity.                                    | Positive real                  | -             |
+| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings               | -             |
+| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`              | -             |
+| `initial_condition.value` | Value of the velocity initial condition.                 | Real                           | -             |
+| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above | -             |
 
 ## Statistics
 
@@ -324,11 +411,11 @@ This object adds the collection of statistics for the fluid fields. For
 additional details on the workflow, see the corresponding page in the user
 manual.
 
-Name                | Description                                                          | Admissable values | Default value
---------------------|----------------------------------------------------------------------|-------------------|--------------
-`enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`
-`start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0
-`sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10
+| Name                | Description                                                          | Admissible values | Default value |
+| ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
+| `enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`        |
+| `start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0             |
+| `sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10            |
 
 ## Simulation components
 Simulation components enable the user to perform various additional operations,

@@ -98,7 +98,9 @@ module bc
   !> A list of boundary conditions
   type, public :: bc_list_t
      type(bcp_t), allocatable :: bc(:)
+     !> Number of items.
      integer :: n
+     !> Capacity.
      integer :: size
   end type bc_list_t
 
@@ -345,7 +347,7 @@ contains
 
     ! Loop through each (facet, element) id tuple
     ! Then loop over all the nodes of the face and compute their linear index
-    ! This index goes into This%msk, whereas the corresponding face id goes into
+    ! This index goes into this%msk, whereas the corresponding face id goes into
     ! this%facet
     do i = 1, this%marked_facet%size()
        bc_facet = bfp(i)

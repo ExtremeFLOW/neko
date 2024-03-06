@@ -58,8 +58,6 @@ module fluid_pnpn
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
      type(field_t) :: p_res, u_res, v_res, w_res
 
-     type(field_series_t) :: ulag, vlag, wlag
-
      type(field_t) :: dp, du, dv, dw
 
      class(ax_t), allocatable :: Ax
@@ -177,10 +175,6 @@ contains
       call this%dv%init(dm_Xh, 'dv')
       call this%dw%init(dm_Xh, 'dw')
       call this%dp%init(dm_Xh, 'dp')
-
-      call this%ulag%init(this%u, 2)
-      call this%vlag%init(this%v, 2)
-      call this%wlag%init(this%w, 2)
 
     end associate
 
@@ -493,10 +487,6 @@ contains
     end if
 
     call this%vol_flow%free()
-
-    call this%ulag%free()
-    call this%vlag%free()
-    call this%wlag%free()
 
   end subroutine fluid_pnpn_free
 
