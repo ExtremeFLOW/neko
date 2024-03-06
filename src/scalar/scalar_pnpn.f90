@@ -40,6 +40,7 @@ module scalar_pnpn
                               rhs_maker_ext_fctry, rhs_maker_bdf_fctry
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
+  use neumann, only : neumann_t
   use field, only : field_t
   use bc, only : bc_list_t, bc_list_init, bc_list_free, bc_list_apply_scalar, &
                  bc_list_add
@@ -75,9 +76,6 @@ module scalar_pnpn
      !> The residual of the transport equation.
      type(field_t) :: s_res
 
-     !> Lag arrays, i.e. solutions at previous timesteps.
-     type(field_series_t) :: slag
-
      !> Solution increment.
      type(field_t) :: ds
 
@@ -86,8 +84,14 @@ module scalar_pnpn
 
      !> Solution projection.
      type(projection_t) :: proj_s
-     !> Dirichlet condition for scala
+
+     !> Dirichlet conditions for the residual
+     !! Collects all the Dirichlet condition facets into one bc and applies 0,
+     !! Since the values never change there during the solve.
      type(dirichlet_t) :: bc_res
+
+     !> A bc list for the bc_res. Contains only that, essentially just to wrap
+     !! the if statement determining whether to apply on the device or CPU.
      type(bc_list_t) :: bclst_ds
 
      !> Advection operator.
@@ -169,8 +173,6 @@ contains
 
       call this%ds%init(dm_Xh, 'ds')
 
-      call this%slag%init(this%s, 2)
-
     end associate
 
     ! Initialize dirichlet bcs for scalar residual
@@ -186,11 +188,12 @@ contains
     end if
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
+
     call bc_list_init(this%bclst_ds)
     call bc_list_add(this%bclst_ds, this%bc_res)
 
-    ! @todo not param stuff again, using velocity stuff
-    ! Intialize projection space thingy
+
+    ! Intialize projection space
     if (this%projection_dim .gt. 0) then
        call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
     end if
@@ -208,7 +211,6 @@ contains
        integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
     end if
     call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
-
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
@@ -274,9 +276,6 @@ contains
        deallocate(this%makebdf)
     end if
 
-
-    call this%slag%free()
-
   end subroutine scalar_pnpn_free
 
   subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf)
@@ -327,21 +326,30 @@ contains
          call col2(f_Xh%x, c_Xh%B, n)
       end if
 
+      ! Apply Neumann boundary conditions
+      call bc_list_apply_scalar(this%bclst_neumann, this%f_Xh%x, dm_Xh%size())
+
       ! Add the advection operators to the right-hans-side.
       call this%adv%compute_scalar(u, v, w, s, f_Xh%x, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
+      ! At this point the RHS contains the sum of the advection operator,
+      ! Neumann boundary sources and additional source terms, evaluated using
+      ! the scalar field from the previous time-step. Now, this value is used in
+      ! the explicit time scheme to advance these terms in time.
       call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
            ext_bdf%advection_coeffs, n)
 
+      ! Add the RHS contributions coming from the BDF scheme.
       call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
            ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
-      !> We assume that no change of boundary conditions
-      !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
-      !> Apply dirichlet
-      call this%bc_apply()
+
+      !> Apply Dirichlet boundary conditions
+      !! We assume that no change of boundary conditions
+      !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
+      call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
@@ -351,8 +359,9 @@ contains
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
-      call bc_list_apply_scalar(this%bclst_ds,&
-           s_res%x, dm_Xh%size())
+      ! Apply a 0-valued Dirichlet boundary conditions on the ds.
+      call bc_list_apply_scalar(this%bclst_ds, s_res%x, dm_Xh%size())
+
       call profiler_end_region
 
       if (tstep .gt. 5 .and. projection_dim .gt. 0) then
@@ -370,6 +379,7 @@ contains
               this%bclst_ds, gs_Xh, n)
       end if
 
+      ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2s2(s%x_d, ds%x_d, 1.0_rp, n)
       else

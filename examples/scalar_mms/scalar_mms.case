@@ -54,6 +54,9 @@
             "1.0"
           ]
         }
+      ],
+      "boundary_types": [
+          "d=0", "n=0.01"
       ]
     },
     "simulation_components": [

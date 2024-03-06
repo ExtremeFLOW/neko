@@ -43,6 +43,7 @@ module scalar_scheme
   use krylov, only : ksp_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
+  use neumann, only : neumann_t
   use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
@@ -63,6 +64,7 @@ module scalar_scheme
   use material_properties, only : material_properties_t
   use utils, only : neko_error
   use scalar_source_term, only : scalar_source_term_t
+  use field_series
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -75,6 +77,8 @@ module scalar_scheme
      type(field_t), pointer :: w
      !> The scalar.
      type(field_t), pointer :: s
+     !> Lag arrays, i.e. solutions at previous timesteps.
+     type(field_series_t) :: slag
      !> Function space \f$ X_h \f$.
      type(space_t), pointer :: Xh
      !> Dofmap associated with \f$ X_h \f$.
@@ -97,11 +101,18 @@ module scalar_scheme
      class(pc_t), allocatable :: pc
      !> Dirichlet conditions.
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)
+     !> Neumann conditions.
+     type(neumann_t) :: neumann_bcs(NEKO_MSH_MAX_ZLBLS)
      !> User Dirichlet conditions.
      type(usr_scalar_t) :: user_bc
+     !> Number of Dirichlet bcs.
      integer :: n_dir_bcs = 0
-     !> List of boundary conditions.
-     type(bc_list_t) :: bclst
+     !> Number of Neumann bcs.
+     integer :: n_neumann_bcs = 0
+     !> List of Dirichlet boundary conditions, including the user one.
+     type(bc_list_t) :: bclst_dirichlet
+     !> List of Neumann conditions list
+     type(bc_list_t) :: bclst_neumann
      !> Case paramters.
      type(json_file), pointer :: params
      !> Mesh.
@@ -123,7 +134,7 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
-     procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
+     !> Assings the evaluation function for  `user_bc`.
      procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
      !> Constructor.
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
@@ -198,33 +209,45 @@ contains
   subroutine scalar_scheme_add_bcs(this, zones, bc_labels)
     class(scalar_scheme_t), intent(inout) :: this
     type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
-    character(len=20), intent(in) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
+    character(len=20), intent(in) :: bc_labels(:)
     character(len=20) :: bc_label
     integer :: i, j, bc_idx
-    real(kind=rp) :: dir_value
+    real(kind=rp) :: dir_value, flux_value
     logical :: bc_exists
 
-    do i = 1, NEKO_MSH_MAX_ZLBLS
+    do i = 1, size(bc_labels)
        bc_label = trim(bc_labels(i))
-       if (bc_label(1:1) .eq. 'd') then
-          bc_exists = .false.
-          bc_idx = 0
-          do j = 1, i-1
-             if (bc_label .eq. bc_labels(j)) then
-                bc_exists = .true.
-                bc_idx = j
-             end if
-          end do
+       if (bc_label(1:2) .eq. 'd=') then
+! The idea of this commented piece of code is to merge bcs with the same
+! Dirichlet value into 1 so that one has less kernel launches. Currently
+! segfaults, needs investigation.
+!          bc_exists = .false.
+!          bc_idx = 0
+!          do j = 1, i-1
+!             if (bc_label .eq. bc_labels(j)) then
+!                bc_exists = .true.
+!                bc_idx = j
+!             end if
+!          end do
 
-          if (bc_exists) then
-             call this%dir_bcs(j)%mark_zone(zones(i))
-          else
-             this%n_dir_bcs = this%n_dir_bcs + 1
-             call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
-             call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
-             read(bc_label(3:), *) dir_value
-             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
-          end if
+!          if (bc_exists) then
+!             call this%dir_bcs(j)%mark_zone(zones(i))
+!          else
+          this%n_dir_bcs = this%n_dir_bcs + 1
+          call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
+          call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
+          read(bc_label(3:), *) dir_value
+          call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
+!          end if
+       end if
+
+       if (bc_label(1:2) .eq. 'n=') then
+          this%n_neumann_bcs = this%n_neumann_bcs + 1
+          call this%neumann_bcs(this%n_neumann_bcs)%init(this%dm_Xh)
+          call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
+          read(bc_label(3:), *) flux_value
+          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value,&
+                                                                 this%c_Xh)
        end if
 
        !> Check if user bc on this zone
@@ -235,7 +258,14 @@ contains
 
     do i = 1, this%n_dir_bcs
        call this%dir_bcs(i)%finalize()
-       call bc_list_add(this%bclst, this%dir_bcs(i))
+       call bc_list_add(this%bclst_dirichlet, this%dir_bcs(i))
+    end do
+
+    ! Create list with just Neumann bcs
+    call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
+    do i=1, this%n_neumann_bcs
+       call this%neumann_bcs(i)%finalize()
+       call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
     end do
 
   end subroutine scalar_scheme_add_bcs
@@ -311,6 +341,8 @@ contains
     end if
     this%s => neko_field_registry%get_field('s')
 
+    call this%slag%init(this%s, 2)
+
     this%gs_Xh => gs_Xh
     this%c_Xh => c_Xh
 
@@ -318,7 +350,7 @@ contains
     !
     ! Setup scalar boundary conditions
     !
-    call bc_list_init(this%bclst)
+    call bc_list_init(this%bclst_dirichlet)
     call this%user_bc%init(this%dm_Xh)
 
     ! Read boundary types from the case file
@@ -332,6 +364,7 @@ contains
                      'case.scalar.boundary_types', &
                      this%bc_labels)
     end if
+
 
     !
     ! Setup right-hand side field.
@@ -352,7 +385,9 @@ contains
     call this%user_bc%mark_zone(msh%sympln)
     call this%user_bc%finalize()
     call this%user_bc%set_coef(this%c_Xh)
-    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
+    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
+                                                     this%user_bc)
+
 
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
@@ -360,9 +395,10 @@ contains
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, solver_precon)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_dirichlet, solver_precon)
 
     call neko_log%end_section()
+
   end subroutine scalar_scheme_init
 
 
@@ -392,7 +428,10 @@ contains
 
     call this%source_term%free()
 
-    call bc_list_free(this%bclst)
+    call bc_list_free(this%bclst_dirichlet)
+    call bc_list_free(this%bclst_neumann)
+
+    call this%slag%free()
 
   end subroutine scalar_scheme_free
 
@@ -439,13 +478,6 @@ contains
 !    call this%chkp%init(this%u, this%v, this%w, this%p)
 
   end subroutine scalar_scheme_validate
-
-  !> Apply all boundary conditions defined for the scalar.
-  !! @todo Why can't we call the interface here?
-  subroutine scalar_scheme_bc_apply(this)
-    class(scalar_scheme_t), intent(inout) :: this
-    call bc_list_apply_scalar(this%bclst, this%s%x, this%dm_Xh%size())
-  end subroutine scalar_scheme_bc_apply
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
