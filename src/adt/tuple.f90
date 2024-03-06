@@ -33,7 +33,7 @@
 !> Implements a n-tuple
 module tuple
   use math, only : abscmp
-  use num_types, only : dp
+  use num_types, only : i8, dp
   implicit none
   private
 
@@ -73,6 +73,33 @@ module tuple
      procedure, pass(this) :: assign_vector => tuple4_i4_assign_vector
      procedure, pass(this) :: equal => tuple4_i4_equal
   end type tuple4_i4_t
+
+  !> Double integer based 2-tuple
+  type, extends(tuple_t), public :: tuple_i8_t
+     integer(i8) :: x(2) = (/0_i8, 0_i8/)
+   contains
+     procedure, pass(this) :: assign_tuple => tuple_i8_assign_tuple
+     procedure, pass(this) :: assign_vector => tuple_i8_assign_vector
+     procedure, pass(this) :: equal => tuple_i8_equal
+  end type tuple_i8_t
+
+  !> Double integer based 3-tuple
+  type, extends(tuple_t), public :: tuple3_i8_t
+     integer(i8) :: x(3) = (/0_i8, 0_i8, 0_i8/)
+   contains
+     procedure, pass(this) :: assign_tuple => tuple3_i8_assign_tuple
+     procedure, pass(this) :: assign_vector => tuple3_i8_assign_vector
+     procedure, pass(this) :: equal => tuple3_i8_equal
+  end type tuple3_i8_t
+
+  !> Double integer based 4-tuple
+  type, extends(tuple_t), public :: tuple4_i8_t
+     integer(i8) :: x(4) = (/0_i8, 0_i8, 0_i8, 0_i8/)
+   contains
+     procedure, pass(this) :: assign_tuple => tuple4_i8_assign_tuple
+     procedure, pass(this) :: assign_vector => tuple4_i8_assign_vector
+     procedure, pass(this) :: equal => tuple4_i8_equal
+  end type tuple4_i8_t
 
   !> Double precision based 2-tuple
   type, extends(tuple_t), public :: tuple_r8_t
@@ -237,6 +264,111 @@ contains
        res = all(this%x .eq. other%x)
     end select
   end function tuple4_i4_equal
+
+  !> Assign an double integer 2-tuple to a tuple
+  subroutine tuple_i8_assign_tuple(this, other)
+    class(tuple_i8_t), intent(inout) :: this
+    class(tuple_t), intent(in) :: other
+
+    select type(other)
+    type is (tuple_i8_t)
+       this%x = other%x
+    end select
+  end subroutine tuple_i8_assign_tuple
+
+  !> Assign an double integer vector to a tuple
+  subroutine tuple_i8_assign_vector(this, x)
+    class(tuple_i8_t), intent(inout) :: this
+    class(*), dimension(:), intent(in) :: x
+
+    select type(x)
+    type is (integer(i8))
+       this%x = x
+    end select
+  end subroutine tuple_i8_assign_vector
+
+  !> Check if two double integer based tuples are equal
+  pure function tuple_i8_equal(this, other) result(res)
+    class(tuple_i8_t), intent(in) :: this
+    class(tuple_t), intent(in) :: other
+    logical :: res
+
+    res = .false.
+    select type(other)
+    type is(tuple_i8_t)
+       res = all(this%x .eq. other%x)
+    end select
+  end function tuple_i8_equal
+
+  !> Assign an double integer 3-tuple to a tuple
+  subroutine tuple3_i8_assign_tuple(this, other)
+    class(tuple3_i8_t), intent(inout) :: this
+    class(tuple_t), intent(in) :: other
+
+    select type(other)
+    type is(tuple3_i8_t)
+       this%x = other%x
+    end select
+  end subroutine tuple3_i8_assign_tuple
+
+  !> Assign an double integer vector to a tuple
+  subroutine tuple3_i8_assign_vector(this, x)
+    class(tuple3_i8_t), intent(inout) :: this
+    class(*), dimension(:), intent(in) :: x
+
+    select type(x)
+    type is (integer(i8))
+       this%x = x
+    end select
+  end subroutine tuple3_i8_assign_vector
+
+  !> Check if two double integer based tuples are equal
+  pure function tuple3_i8_equal(this, other) result(res)
+    class(tuple3_i8_t), intent(in) :: this
+    class(tuple_t), intent(in) :: other
+    logical :: res
+
+    res = .false.
+    select type(other)
+    type is(tuple3_i8_t)
+       res = all(this%x .eq. other%x)
+    end select
+  end function tuple3_i8_equal
+
+  !> Assign an double integer 4-tuple to a tuple
+  subroutine tuple4_i8_assign_tuple(this, other)
+    class(tuple4_i8_t), intent(inout) :: this
+    class(tuple_t), intent(in) :: other
+
+    select type(other)
+    type is(tuple4_i8_t)
+       this%x = other%x
+    end select
+  end subroutine tuple4_i8_assign_tuple
+
+  !> Assign an double integer vector to a tuple
+  subroutine tuple4_i8_assign_vector(this, x)
+    class(tuple4_i8_t), intent(inout) :: this
+    class(*), dimension(:), intent(in) :: x
+
+    select type(x)
+    type is (integer(i8))
+       this%x = x
+    end select
+  end subroutine tuple4_i8_assign_vector
+
+  !> Check if two double integer based tuples are equal
+  pure function tuple4_i8_equal(this, other) result(res)
+    class(tuple4_i8_t), intent(in) :: this
+    class(tuple_t), intent(in) :: other
+    logical :: res
+
+    res = .false.
+    select type(other)
+    type is(tuple4_i8_t)
+       res = all(this%x .eq. other%x)
+    end select
+  end function tuple4_i8_equal
 
   !> Assign a double precision 2-tuple to a tuple
   subroutine tuple_r8_assign_tuple(this, other)
