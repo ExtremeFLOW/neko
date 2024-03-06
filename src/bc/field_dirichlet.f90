@@ -73,7 +73,7 @@ module field_dirichlet
      !! @param dirichlet_bc_list List of BCs containing field_dirichlet_t BCs only.
      !! @param coef Coef object.
      !! @param t Current time.
-     !! @param tstep Current Time step.
+     !! @param tstep Current time step.
      subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list, coef, t, tstep)
        import rp
        import field_list_t
