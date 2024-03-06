@@ -132,7 +132,7 @@ contains
     integer, intent(in), optional :: tstep
 
     if (this%msk(0) .gt. 0) then
-       call device_masked_copy(x_d, this%field_bc%x_d,this%msk_d, &
+       call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
             this%field_bc%dof%size(), this%msk(0))
     end if
   
