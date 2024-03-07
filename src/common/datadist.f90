@@ -33,6 +33,7 @@
 !> Defines practical data distributions
 module datadist
   use mpi_f08, only : MPI_Comm
+  use num_types, only : i8
   implicit none
   private
 
@@ -42,7 +43,7 @@ module datadist
      integer :: pe_size     !< Size of communicator in the given dist.
      integer :: L
      integer :: R
-     integer :: M !< Total, global, size
+     integer(i8) :: M !< Total, global, size
      integer :: Ip !< Number of local values on this process
   end type dist_t
 
@@ -64,7 +65,7 @@ module datadist
 contains
 
   function linear_dist_init(n, rank, size, comm) result(this)
-    integer, intent(in) :: n    !< Total size
+    integer(i8), intent(in) :: n    !< Total size
     integer :: rank             !< PE's rank to define the dist. over
     integer :: size             !< Size of comm where the dist. is def. on
     type(MPI_Comm) :: comm      !< comm. to define the dist. over
@@ -89,19 +90,19 @@ contains
 
   pure function linear_dist_M(this) result(M)
     class(linear_dist_t), intent(in) :: this
-    integer :: M
+    integer(i8) :: M
     M = this%M
   end function linear_dist_M
 
   pure function linear_dist_start(this) result(start)
     class(linear_dist_t), intent(in) :: this
-    integer :: start
-    start = this%pe_rank * this%L + min(this%pe_rank, this%R)
+    integer(i8) :: start
+    start = this%pe_rank * int(this%L, i8) + min(this%pe_rank, this%R)
   end function linear_dist_start
 
   function linear_dist_end(this) result(end)
     class(linear_dist_t), intent(inout) :: this
-    integer :: end
+    integer(i8) :: end
     end = linear_dist_start(this) + (this%Ip - 1)
   end function linear_dist_end
 end module datadist

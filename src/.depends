@@ -8,8 +8,8 @@ common/log.o : common/log.f90 config/num_types.o comm/comm.o
 comm/comm.o : comm/comm.F90 config/neko_config.o common/utils.o 
 mesh/curve.o : mesh/curve.f90 common/utils.o adt/stack.o common/structs.o config/num_types.o 
 comm/mpi_types.o : comm/mpi_types.f90 io/format/stl.o io/format/nmsh.o io/format/re2.o comm/comm.o 
-common/datadist.o : common/datadist.f90 
-common/distdata.o : common/distdata.f90 adt/uset.o adt/tuple.o adt/stack.o 
+common/datadist.o : common/datadist.f90 config/num_types.o 
+common/distdata.o : common/distdata.f90 adt/uset.o adt/tuple.o adt/stack.o config/num_types.o 
 common/utils.o : common/utils.f90 
 common/json_utils.o : common/json_utils.f90 common/utils.o config/num_types.o 
 common/system.o : common/system.f90 
@@ -102,13 +102,13 @@ math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/a
 common/checkpoint.o : common/checkpoint.f90 mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
 io/generic_file.o : io/generic_file.f90 comm/comm.o common/utils.o config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
-io/re2_file.o : io/re2_file.f90 common/log.o adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
-io/rea_file.o : io/rea_file.f90 common/log.o adt/htable.o common/datadist.o comm/comm.o io/map_file.o io/re2_file.o io/format/rea.o io/format/map.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
-io/fld_file.o : io/fld_file.f90 comm/mpi_types.o math/math.o common/datadist.o comm/comm.o common/utils.o mesh/mesh.o fluid/mean_sqr_flow.o fluid/mean_flow.o io/fld_file_data.o math/vector.o common/structs.o sem/space.o sem/dofmap.o field/field_list.o field/field.o io/generic_file.o 
+io/re2_file.o : io/re2_file.f90 common/log.o adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o config/num_types.o 
+io/rea_file.o : io/rea_file.f90 common/log.o adt/htable.o common/datadist.o comm/comm.o io/map_file.o io/re2_file.o io/format/rea.o io/format/map.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o config/num_types.o 
+io/fld_file.o : io/fld_file.f90 comm/mpi_types.o math/math.o common/datadist.o comm/comm.o common/utils.o mesh/mesh.o fluid/mean_sqr_flow.o fluid/mean_flow.o io/fld_file_data.o math/vector.o common/structs.o sem/space.o sem/dofmap.o field/field_list.o field/field.o io/generic_file.o config/num_types.o 
 io/fld_file_data.o : io/fld_file_data.f90 math/vector.o math/math.o config/num_types.o 
 io/vtk_file.o : io/vtk_file.f90 comm/comm.o common/log.o mesh/tri_mesh.o mesh/tet_mesh.o field/mesh_field.o sem/dofmap.o field/field.o mesh/mesh.o common/utils.o io/generic_file.o config/num_types.o 
 io/stl_file.o : io/stl_file.f90 io/format/stl.o comm/comm.o common/utils.o comm/mpi_types.o mesh/point.o common/log.o mesh/tri_mesh.o io/generic_file.o config/num_types.o 
-io/nmsh_file.o : io/nmsh_file.f90 common/log.o comm/mpi_types.o common/datadist.o mesh/element.o io/format/nmsh.o adt/tuple.o mesh/point.o common/utils.o mesh/mesh.o comm/comm.o io/generic_file.o 
+io/nmsh_file.o : io/nmsh_file.f90 common/log.o comm/mpi_types.o common/datadist.o mesh/element.o io/format/nmsh.o adt/tuple.o mesh/point.o common/utils.o mesh/mesh.o comm/comm.o io/generic_file.o config/num_types.o 
 io/chkp_file.o : io/chkp_file.f90 common/global_interpolation.o comm/comm.o comm/mpi_types.o sem/interpolation.o math/math.o mesh/mesh.o sem/space.o common/utils.o math/bcknd/device/device_math.o sem/dofmap.o field/field.o config/num_types.o common/checkpoint.o field/field_series.o io/generic_file.o 
 io/csv_file.o : io/csv_file.f90 comm/comm.o common/log.o config/num_types.o common/utils.o io/generic_file.o math/matrix.o math/vector.o 
 io/file.o : io/file.f90 io/csv_file.o io/stl_file.o io/vtk_file.o io/fld_file_data.o io/fld_file.o io/re2_file.o io/rea_file.o io/map_file.o io/chkp_file.o io/nmsh_file.o io/generic_file.o config/num_types.o common/utils.o 

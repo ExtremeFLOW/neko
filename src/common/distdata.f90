@@ -32,6 +32,7 @@
 !
 !> Distributed mesh data
 module distdata
+  use num_types, only : i8
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
   use uset, only : uset_i4_t
@@ -45,8 +46,8 @@ module distdata
      type(uset_i4_t) :: shared_edge     !< List of shared edges
      type(uset_i4_t) :: shared_point    !< List of shared points
 
-     integer, allocatable :: local_to_global_facet(:)!< Local to global (facets)
-     integer, allocatable :: local_to_global_edge(:) !< Local to global (edges)
+     integer(i8), allocatable :: local_to_global_facet(:)!< Local to global (facets)
+     integer(i8), allocatable :: local_to_global_edge(:) !< Local to global (edges)
 
   end type distdata_t
 
@@ -135,7 +136,7 @@ contains
   subroutine distdata_set_local_to_global_facet(ddata, local, global)
     type(distdata_t), intent(inout) :: ddata
     integer, intent(in), value :: local  !< Local facet index
-    integer, intent(in), value :: global !< Global facet index
+    integer(i8), intent(in), value :: global !< Global facet index
 
     ddata%local_to_global_facet(local) = global
 
@@ -145,7 +146,7 @@ contains
   subroutine distdata_set_local_to_global_edge(ddata, local, global)
     type(distdata_t), intent(inout) :: ddata
     integer, intent(in) , value :: local  !< Local edge index
-    integer, intent(in) , value :: global !< Global edge index
+    integer(i8), intent(in) , value :: global !< Global edge index
 
     ddata%local_to_global_edge(local) = global
 
