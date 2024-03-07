@@ -57,10 +57,16 @@
             "source_terms": [
                 {
                     "type": "brinkman",
-                    "region": {
-                        "type": "boundary_mesh",
-                        "name": "bunny.stl"
-                    },
+                    "objects": [
+                        {
+                            "type": "boundary_mesh",
+                            "name": "bunny.stl",
+                            "distance_transform": {
+                                "type": "smooth_step",
+                                "value": 10.0
+                            }
+                        }
+                    ],
                     "brinkman": {
                         "limits": [
                             0.0,
@@ -68,10 +74,6 @@
                         ],
                         "penalty": 1.0
                     },
-                    "distance_transform": {
-                        "type": "smooth_step",
-                        "value": 10.0
-                    }
                 }
             ]
         }
