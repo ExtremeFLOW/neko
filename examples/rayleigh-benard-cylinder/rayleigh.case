@@ -5,7 +5,7 @@
         "output_at_end": true,
         "output_boundary": true,
         "end_time": 250,
-        "timestep": 2e-1,
+        "timestep": 2e-3,
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 50,
