@@ -277,7 +277,7 @@ contains
 
       !First round of CGS
       call rzero(alpha, this%m)
-      this%proj_res = glsc3(b,b,coef%mult,n)
+      this%proj_res = sqrt(glsc3(b,b,coef%mult,n)/coef%volume)
       this%proj_m = this%m
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
@@ -336,7 +336,7 @@ contains
 
 
 
-      this%proj_res = device_glsc3(b_d,b_d,coef%mult_d,n)
+      this%proj_res = sqrt(device_glsc3(b_d,b_d,coef%mult_d,n)/coef%volume)
       this%proj_m = this%m
       if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
          call device_proj_on(alpha_d, b_d, xx_d_d, bb_d_d, &
