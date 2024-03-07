@@ -1,6 +1,7 @@
 var structcoefs_1_1coef__t =
 [
     [ "free", "d0/dea/structcoefs_1_1coef__t.html#ac0cc2c425cf73f4fe566738c94670a70", null ],
+    [ "get_area", "d0/dea/structcoefs_1_1coef__t.html#a68a0d57588b45c6a2ae08aea7b7dea8c", null ],
     [ "get_normal", "d0/dea/structcoefs_1_1coef__t.html#a6f4dc4f9d2d1ad2fb56f66daed987c1b", null ],
     [ "init", "d0/dea/structcoefs_1_1coef__t.html#ac257cfdd3d2994f2a01cbba808355058", null ],
     [ "init_all", "d0/dea/structcoefs_1_1coef__t.html#a681993601ba5bed4ce15eefb13eef66a", null ],

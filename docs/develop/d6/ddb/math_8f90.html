@@ -107,6 +107,8 @@ $(document).ready(function(){initNavTree('d6/ddb/math_8f90.html','../../'); init
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d34/interfacemath_1_1abscmp.html">math::abscmp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d4d/interfacemath_1_1relcmp.html">math::relcmp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
 Modules</h2></td></tr>
@@ -124,6 +126,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a23a60c5aa3ca2fb59eb72e5d0d81d1e1"><td class="memItemLeft" align="right" valign="top">pure logical function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a23a60c5aa3ca2fb59eb72e5d0d81d1e1">math::qabscmp</a> (x, y)</td></tr>
 <tr class="memdesc:a23a60c5aa3ca2fb59eb72e5d0d81d1e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return double precision absolute comparison \( | x - y | &lt; \epsilon \).  <a href="../../dd/d47/namespacemath.html#a23a60c5aa3ca2fb59eb72e5d0d81d1e1">More...</a><br /></td></tr>
 <tr class="separator:a23a60c5aa3ca2fb59eb72e5d0d81d1e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af05f79c5a26850d384f5f5852bb9b526"><td class="memItemLeft" align="right" valign="top">pure logical function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#af05f79c5a26850d384f5f5852bb9b526">math::srelcmp</a> (x, y, eps)</td></tr>
+<tr class="memdesc:af05f79c5a26850d384f5f5852bb9b526"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return single precision relative comparison \( | x - y |&lt;= \epsilon*|y| \).  <a href="../../dd/d47/namespacemath.html#af05f79c5a26850d384f5f5852bb9b526">More...</a><br /></td></tr>
+<tr class="separator:af05f79c5a26850d384f5f5852bb9b526"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2fcdee74563190bd832055d9efe4d51"><td class="memItemLeft" align="right" valign="top">pure logical function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#ac2fcdee74563190bd832055d9efe4d51">math::drelcmp</a> (x, y, eps)</td></tr>
+<tr class="memdesc:ac2fcdee74563190bd832055d9efe4d51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return double precision relative comparison \( | x - y |/|y| &lt; \epsilon \).  <a href="../../dd/d47/namespacemath.html#ac2fcdee74563190bd832055d9efe4d51">More...</a><br /></td></tr>
+<tr class="separator:ac2fcdee74563190bd832055d9efe4d51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac79bdac321f5d661827c7dd6babebbe6"><td class="memItemLeft" align="right" valign="top">pure logical function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#ac79bdac321f5d661827c7dd6babebbe6">math::qrelcmp</a> (x, y, eps)</td></tr>
+<tr class="memdesc:ac79bdac321f5d661827c7dd6babebbe6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return quad precision relative comparison \( | x - y |/|y| &lt; \epsilon \).  <a href="../../dd/d47/namespacemath.html#ac79bdac321f5d661827c7dd6babebbe6">More...</a><br /></td></tr>
+<tr class="separator:ac79bdac321f5d661827c7dd6babebbe6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:accd3b06fc22b453552cc46d0fbf80677"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">math::rzero</a> (a, n)</td></tr>
 <tr class="memdesc:accd3b06fc22b453552cc46d0fbf80677"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zero a real vector.  <a href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">More...</a><br /></td></tr>
 <tr class="separator:accd3b06fc22b453552cc46d0fbf80677"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -154,9 +165,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aa96bddc7b993fc15b1fa1263b875044d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#aa96bddc7b993fc15b1fa1263b875044d">math::glmax</a> (a, n)</td></tr>
 <tr class="memdesc:aa96bddc7b993fc15b1fa1263b875044d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Max of a vector of length n.  <a href="../../dd/d47/namespacemath.html#aa96bddc7b993fc15b1fa1263b875044d">More...</a><br /></td></tr>
 <tr class="separator:aa96bddc7b993fc15b1fa1263b875044d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf2291fe82a8e395c51038a2c6dce168"><td class="memItemLeft" align="right" valign="top">integer function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#adf2291fe82a8e395c51038a2c6dce168">math::glimax</a> (a, n)</td></tr>
+<tr class="memdesc:adf2291fe82a8e395c51038a2c6dce168"><td class="mdescLeft">&#160;</td><td class="mdescRight">Max of an integer vector of length n.  <a href="../../dd/d47/namespacemath.html#adf2291fe82a8e395c51038a2c6dce168">More...</a><br /></td></tr>
+<tr class="separator:adf2291fe82a8e395c51038a2c6dce168"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee45fd2307691bcc94e2986af286775e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#aee45fd2307691bcc94e2986af286775e">math::glmin</a> (a, n)</td></tr>
 <tr class="memdesc:aee45fd2307691bcc94e2986af286775e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Min of a vector of length n.  <a href="../../dd/d47/namespacemath.html#aee45fd2307691bcc94e2986af286775e">More...</a><br /></td></tr>
 <tr class="separator:aee45fd2307691bcc94e2986af286775e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a794b2ff7041b1f3fc1d9d8fcf24854c9"><td class="memItemLeft" align="right" valign="top">integer function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a794b2ff7041b1f3fc1d9d8fcf24854c9">math::glimin</a> (a, n)</td></tr>
+<tr class="memdesc:a794b2ff7041b1f3fc1d9d8fcf24854c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Min of an integer vector of length n.  <a href="../../dd/d47/namespacemath.html#a794b2ff7041b1f3fc1d9d8fcf24854c9">More...</a><br /></td></tr>
+<tr class="separator:a794b2ff7041b1f3fc1d9d8fcf24854c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1412314da40d2e416830c43f18dd504"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#aa1412314da40d2e416830c43f18dd504">math::chsign</a> (a, n)</td></tr>
 <tr class="memdesc:aa1412314da40d2e416830c43f18dd504"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change sign of vector \( a = -a \).  <a href="../../dd/d47/namespacemath.html#aa1412314da40d2e416830c43f18dd504">More...</a><br /></td></tr>
 <tr class="separator:aa1412314da40d2e416830c43f18dd504"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -280,7 +297,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../d6/ddb/math_8f90.html">math.f90</a></li>
-    <li class="footer">Generated on Wed Mar 6 2024 03:33:57 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Thu Mar 7 2024 03:34:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

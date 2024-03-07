@@ -499,6 +499,9 @@ var annotated_dup =
       [ "map_t", "da/d40/structmap_1_1map__t.html", "da/d40/structmap_1_1map__t" ],
       [ "map_init", "d2/d3d/interfacemap_1_1map__init.html", "d2/d3d/interfacemap_1_1map__init" ]
     ] ],
+    [ "map_1d", "d8/d8b/namespacemap__1d.html", [
+      [ "map_1d_t", "d6/daf/structmap__1d_1_1map__1d__t.html", "d6/daf/structmap__1d_1_1map__1d__t" ]
+    ] ],
     [ "map_file", "dc/da2/namespacemap__file.html", [
       [ "map_file_t", "de/d14/structmap__file_1_1map__file__t.html", "de/d14/structmap__file_1_1map__file__t" ]
     ] ],
@@ -506,7 +509,8 @@ var annotated_dup =
       [ "material_properties_t", "d1/dd5/structmaterial__properties_1_1material__properties__t.html", "d1/dd5/structmaterial__properties_1_1material__properties__t" ]
     ] ],
     [ "math", "dd/d47/namespacemath.html", [
-      [ "abscmp", "de/d34/interfacemath_1_1abscmp.html", "de/d34/interfacemath_1_1abscmp" ]
+      [ "abscmp", "de/d34/interfacemath_1_1abscmp.html", "de/d34/interfacemath_1_1abscmp" ],
+      [ "relcmp", "d9/d4d/interfacemath_1_1relcmp.html", "d9/d4d/interfacemath_1_1relcmp" ]
     ] ],
     [ "matrix", "d0/de4/namespacematrix.html", [
       [ "matrix_t", "da/d95/structmatrix_1_1matrix__t.html", "da/d95/structmatrix_1_1matrix__t" ]

@@ -328,6 +328,7 @@ var hierarchy =
     ] ],
     [ "local_interpolation::local_interpolator_t", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html", null ],
     [ "logger::log_t", "d0/d7b/structlogger_1_1log__t.html", null ],
+    [ "map_1d::map_1d_t", "d6/daf/structmap__1d_1_1map__1d__t.html", null ],
     [ "map::map_init", "d2/d3d/interfacemap_1_1map__init.html", null ],
     [ "map::map_t", "da/d40/structmap_1_1map__t.html", null ],
     [ "material_properties::material_properties_t", "d1/dd5/structmaterial__properties_1_1material__properties__t.html", null ],
@@ -421,6 +422,7 @@ var hierarchy =
       [ "re2::re2v2_xyz_t", "d9/df1/structre2_1_1re2v2__xyz__t.html", null ]
     ] ],
     [ "rea::rea_t", "d1/db3/structrea_1_1rea__t.html", null ],
+    [ "math::relcmp", "d9/d4d/interfacemath_1_1relcmp.html", null ],
     [ "rhs_maker::rhs_maker_bdf", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf.html", null ],
     [ "rhs_maker_device::rhs_maker_bdf_hip", "db/d09/interfacerhs__maker__device_1_1rhs__maker__bdf__hip.html", null ],
     [ "rhs_maker::rhs_maker_bdf_t", "d4/d7a/structrhs__maker_1_1rhs__maker__bdf__t.html", [

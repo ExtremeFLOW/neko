@@ -14,6 +14,7 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "les", "dir_6ac2283507a4fed10461ea6c78ce067a.html", "dir_6ac2283507a4fed10461ea6c78ce067a" ],
     [ "math", "dir_ae9a93452e2a84339148a16bcf2eb561.html", "dir_ae9a93452e2a84339148a16bcf2eb561" ],
     [ "mesh", "dir_7be0d8c199b9408ae01f5d77515b8def.html", "dir_7be0d8c199b9408ae01f5d77515b8def" ],
+    [ "qoi", "dir_9c6b613226289d4f549a5bc7de136af8.html", "dir_9c6b613226289d4f549a5bc7de136af8" ],
     [ "scalar", "dir_0691d6202b68dc26b40b4865e3c53c6d.html", "dir_0691d6202b68dc26b40b4865e3c53c6d" ],
     [ "sem", "dir_03fb5b14824697692326bbb959ec235e.html", "dir_03fb5b14824697692326bbb959ec235e" ],
     [ "simulation_components", "dir_702567638a028346607c31c39047d6bd.html", "dir_702567638a028346607c31c39047d6bd" ],

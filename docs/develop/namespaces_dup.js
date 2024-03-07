@@ -139,6 +139,11 @@ var namespaces_dup =
     [ "distdata", "dc/d48/namespacedistdata.html", "dc/d48/namespacedistdata" ],
     [ "dofmap", "dd/dd2/namespacedofmap.html", "dd/dd2/namespacedofmap" ],
     [ "dong_outflow", "d5/d79/namespacedong__outflow.html", "d5/d79/namespacedong__outflow" ],
+    [ "drag_torque", "d0/d6f/namespacedrag__torque.html", [
+      [ "drag_torque_facet", "d0/d6f/namespacedrag__torque.html#a43fea5ee661f9c93108fab10bc380043", null ],
+      [ "drag_torque_pt", "d0/d6f/namespacedrag__torque.html#aa0aaba6013da47ebecf4ef3c36e0708c", null ],
+      [ "drag_torque_zone", "d0/d6f/namespacedrag__torque.html#a06338b4cbb5d4959b061910b60e2bf42", null ]
+    ] ],
     [ "dummy_device", "d0/d7a/namespacedummy__device.html", null ],
     [ "element", "d6/d0d/namespaceelement.html", "d6/d0d/namespaceelement" ],
     [ "entity", "db/de9/namespaceentity.html", "db/de9/namespaceentity" ],
@@ -255,6 +260,7 @@ var namespaces_dup =
     [ "local_interpolation", "da/d80/namespacelocal__interpolation.html", "da/d80/namespacelocal__interpolation" ],
     [ "logger", "d8/da0/namespacelogger.html", "d8/da0/namespacelogger" ],
     [ "map", "d3/dca/namespacemap.html", "d3/dca/namespacemap" ],
+    [ "map_1d", "d8/d8b/namespacemap__1d.html", "d8/d8b/namespacemap__1d" ],
     [ "map_file", "dc/da2/namespacemap__file.html", "dc/da2/namespacemap__file" ],
     [ "material_properties", "d8/d15/namespacematerial__properties.html", "d8/d15/namespacematerial__properties" ],
     [ "math", "dd/d47/namespacemath.html", "dd/d47/namespacemath" ],

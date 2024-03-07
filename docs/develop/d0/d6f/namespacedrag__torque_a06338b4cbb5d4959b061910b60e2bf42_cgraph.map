@@ -1,0 +1,6 @@
+<map id="drag_torque::drag_torque_zone" name="drag_torque::drag_torque_zone">
+<area shape="rect" id="node1" title="Some functions to calculate the lift/drag and torque Calculation can be done on a zone,..." alt="" coords="5,31,229,57"/>
+<area shape="rect" id="node2" href="$d0/d6f/namespacedrag__torque.html#a43fea5ee661f9c93108fab10bc380043" title="Calculate drag and torque over a facet." alt="" coords="277,23,464,65"/>
+<area shape="rect" id="node3" href="$d0/d6f/namespacedrag__torque.html#aa0aaba6013da47ebecf4ef3c36e0708c" title="Calculate drag and torque from one point." alt="" coords="512,5,719,32"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="767,31,864,57"/>
+</map>

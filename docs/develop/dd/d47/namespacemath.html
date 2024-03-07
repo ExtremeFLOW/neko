@@ -104,6 +104,8 @@ $(document).ready(function(){initNavTree('dd/d47/namespacemath.html','../../'); 
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d34/interfacemath_1_1abscmp.html">abscmp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d4d/interfacemath_1_1relcmp.html">relcmp</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
@@ -116,6 +118,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a23a60c5aa3ca2fb59eb72e5d0d81d1e1"><td class="memItemLeft" align="right" valign="top">pure logical function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a23a60c5aa3ca2fb59eb72e5d0d81d1e1">qabscmp</a> (x, y)</td></tr>
 <tr class="memdesc:a23a60c5aa3ca2fb59eb72e5d0d81d1e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return double precision absolute comparison \( | x - y | &lt; \epsilon \).  <a href="../../dd/d47/namespacemath.html#a23a60c5aa3ca2fb59eb72e5d0d81d1e1">More...</a><br /></td></tr>
 <tr class="separator:a23a60c5aa3ca2fb59eb72e5d0d81d1e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af05f79c5a26850d384f5f5852bb9b526"><td class="memItemLeft" align="right" valign="top">pure logical function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#af05f79c5a26850d384f5f5852bb9b526">srelcmp</a> (x, y, eps)</td></tr>
+<tr class="memdesc:af05f79c5a26850d384f5f5852bb9b526"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return single precision relative comparison \( | x - y |&lt;= \epsilon*|y| \).  <a href="../../dd/d47/namespacemath.html#af05f79c5a26850d384f5f5852bb9b526">More...</a><br /></td></tr>
+<tr class="separator:af05f79c5a26850d384f5f5852bb9b526"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2fcdee74563190bd832055d9efe4d51"><td class="memItemLeft" align="right" valign="top">pure logical function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#ac2fcdee74563190bd832055d9efe4d51">drelcmp</a> (x, y, eps)</td></tr>
+<tr class="memdesc:ac2fcdee74563190bd832055d9efe4d51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return double precision relative comparison \( | x - y |/|y| &lt; \epsilon \).  <a href="../../dd/d47/namespacemath.html#ac2fcdee74563190bd832055d9efe4d51">More...</a><br /></td></tr>
+<tr class="separator:ac2fcdee74563190bd832055d9efe4d51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac79bdac321f5d661827c7dd6babebbe6"><td class="memItemLeft" align="right" valign="top">pure logical function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#ac79bdac321f5d661827c7dd6babebbe6">qrelcmp</a> (x, y, eps)</td></tr>
+<tr class="memdesc:ac79bdac321f5d661827c7dd6babebbe6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return quad precision relative comparison \( | x - y |/|y| &lt; \epsilon \).  <a href="../../dd/d47/namespacemath.html#ac79bdac321f5d661827c7dd6babebbe6">More...</a><br /></td></tr>
+<tr class="separator:ac79bdac321f5d661827c7dd6babebbe6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:accd3b06fc22b453552cc46d0fbf80677"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a> (a, n)</td></tr>
 <tr class="memdesc:accd3b06fc22b453552cc46d0fbf80677"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zero a real vector.  <a href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">More...</a><br /></td></tr>
 <tr class="separator:accd3b06fc22b453552cc46d0fbf80677"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,9 +157,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aa96bddc7b993fc15b1fa1263b875044d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#aa96bddc7b993fc15b1fa1263b875044d">glmax</a> (a, n)</td></tr>
 <tr class="memdesc:aa96bddc7b993fc15b1fa1263b875044d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Max of a vector of length n.  <a href="../../dd/d47/namespacemath.html#aa96bddc7b993fc15b1fa1263b875044d">More...</a><br /></td></tr>
 <tr class="separator:aa96bddc7b993fc15b1fa1263b875044d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf2291fe82a8e395c51038a2c6dce168"><td class="memItemLeft" align="right" valign="top">integer function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#adf2291fe82a8e395c51038a2c6dce168">glimax</a> (a, n)</td></tr>
+<tr class="memdesc:adf2291fe82a8e395c51038a2c6dce168"><td class="mdescLeft">&#160;</td><td class="mdescRight">Max of an integer vector of length n.  <a href="../../dd/d47/namespacemath.html#adf2291fe82a8e395c51038a2c6dce168">More...</a><br /></td></tr>
+<tr class="separator:adf2291fe82a8e395c51038a2c6dce168"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee45fd2307691bcc94e2986af286775e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#aee45fd2307691bcc94e2986af286775e">glmin</a> (a, n)</td></tr>
 <tr class="memdesc:aee45fd2307691bcc94e2986af286775e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Min of a vector of length n.  <a href="../../dd/d47/namespacemath.html#aee45fd2307691bcc94e2986af286775e">More...</a><br /></td></tr>
 <tr class="separator:aee45fd2307691bcc94e2986af286775e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a794b2ff7041b1f3fc1d9d8fcf24854c9"><td class="memItemLeft" align="right" valign="top">integer function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a794b2ff7041b1f3fc1d9d8fcf24854c9">glimin</a> (a, n)</td></tr>
+<tr class="memdesc:a794b2ff7041b1f3fc1d9d8fcf24854c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Min of an integer vector of length n.  <a href="../../dd/d47/namespacemath.html#a794b2ff7041b1f3fc1d9d8fcf24854c9">More...</a><br /></td></tr>
+<tr class="separator:a794b2ff7041b1f3fc1d9d8fcf24854c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1412314da40d2e416830c43f18dd504"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#aa1412314da40d2e416830c43f18dd504">chsign</a> (a, n)</td></tr>
 <tr class="memdesc:aa1412314da40d2e416830c43f18dd504"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change sign of vector \( a = -a \).  <a href="../../dd/d47/namespacemath.html#aa1412314da40d2e416830c43f18dd504">More...</a><br /></td></tr>
 <tr class="separator:aa1412314da40d2e416830c43f18dd504"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -301,7 +318,7 @@ Variables</h2></td></tr>
 
 <p>Vector addition \( a = a + b \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00403">403</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00480">480</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -368,7 +385,7 @@ Here is the caller graph for this function:</div>
 
 <p>Vector addition with scalar multiplication \( a = c_1 a + b \) (multiplication on first argument) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00474">474</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00551">551</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -421,7 +438,7 @@ Here is the caller graph for this function:</div>
 
 <p>Vector addition with scalar multiplication \( a = a + c_1 b \) (multiplication on second argument) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00489">489</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00566">566</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -478,7 +495,7 @@ Here is the caller graph for this function:</div>
 
 <p>Vector addition \( a = b + c \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00416">416</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00493">493</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -546,7 +563,7 @@ Here is the caller graph for this function:</div>
 
 <p>Returns \( a = c1 * b + c2 * c \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00586">586</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00663">663</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -605,7 +622,7 @@ Here is the caller graph for this function:</div>
 
 <p>Vector addition \( a = b + c + d\). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00430">430</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00507">507</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -649,7 +666,7 @@ Here is the caller graph for this function:</div>
 
 <p>Returns \( a = a + b*c \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00617">617</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00694">694</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -736,7 +753,7 @@ Here is the caller graph for this function:</div>
 
 <p>Returns \( a = a + b*c*d \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00631">631</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00708">708</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -790,7 +807,7 @@ Here is the caller graph for this function:</div>
 
 <p>Returns \( a = a + c1 * (b * b )\). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00503">503</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00580">580</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -855,7 +872,7 @@ Here is the caller graph for this function:</div>
 
 <p>Returns \( a = b \dot c - d \cdot e \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00646">646</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00723">723</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -893,7 +910,7 @@ Here is the caller graph for this function:</div>
 
 <p>Add a scalar to vector \( a = \sum a_i + s \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00187">187</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00235">235</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -942,7 +959,7 @@ Here is the caller graph for this function:</div>
 
 <p>Set all elements to a constant c \( a = c \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00199">199</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00247">247</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -986,7 +1003,7 @@ Here is the caller graph for this function:</div>
 
 <p>Change sign of vector \( a = -a \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00256">256</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00333">333</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1034,7 +1051,7 @@ Here is the caller graph for this function:</div>
 
 <p>Multiplication by constant c \( a = c \cdot a \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00175">175</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00223">223</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1087,7 +1104,7 @@ Here is the caller graph for this function:</div>
 
 <p>Multiplication by constant c \( a = c \cdot b \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00517">517</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00594">594</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1137,7 +1154,7 @@ Here is the caller graph for this function:</div>
 
 <p>Vector multiplication \( a = a \cdot b \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00545">545</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00622">622</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1224,7 +1241,7 @@ Here is the caller graph for this function:</div>
 
 <p>Vector multiplication with 3 vectors \( a = b \cdot c \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00558">558</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00635">635</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1294,7 +1311,7 @@ Here is the caller graph for this function:</div>
 
 <p>Copy a vector \( a = b \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00162">162</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00210">210</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1370,7 +1387,7 @@ Here is the caller graph for this function:</div>
 
 <p>Return double precision absolute comparison \( | x - y | &lt; \epsilon \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00098">98</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1380,6 +1397,134 @@ Here is the caller graph for this function:</div>
 <area shape="rect" href="../../de/d34/interfacemath_1_1abscmp.html#ac9f4823d3babd4ae3d020a3074b4e84a" title="Return double precision absolute comparison ." alt="" coords="5,5,188,32"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="ac2fcdee74563190bd832055d9efe4d51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2fcdee74563190bd832055d9efe4d51">&#9670;&nbsp;</a></span>drelcmp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">pure logical function math::drelcmp </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), intent(in)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), intent(in)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), intent(in), optional&#160;</td>
+          <td class="paramname"><em>eps</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return double precision relative comparison \( | x - y |/|y| &lt; \epsilon \). </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00137">137</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d47/namespacemath_ac2fcdee74563190bd832055d9efe4d51_icgraph.png" border="0" usemap="#add/d47/namespacemath_ac2fcdee74563190bd832055d9efe4d51_icgraph" alt=""/></div>
+<map name="add/d47/namespacemath_ac2fcdee74563190bd832055d9efe4d51_icgraph" id="add/d47/namespacemath_ac2fcdee74563190bd832055d9efe4d51_icgraph">
+<area shape="rect" title="Return double precision relative comparison ." alt="" coords="224,5,341,32"/>
+<area shape="rect" href="../../d9/d4d/interfacemath_1_1relcmp.html#a254f3e169b6c5fc69b0a3eaf7f19173e" title="Return double precision relative comparison ." alt="" coords="5,5,176,32"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="adf2291fe82a8e395c51038a2c6dce168"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf2291fe82a8e395c51038a2c6dce168">&#9670;&nbsp;</a></span>glimax()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer function, public math::glimax </td>
+          <td>(</td>
+          <td class="paramtype">integer, dimension(n)&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Max of an integer vector of length n. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00288">288</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d47/namespacemath_adf2291fe82a8e395c51038a2c6dce168_icgraph.png" border="0" usemap="#add/d47/namespacemath_adf2291fe82a8e395c51038a2c6dce168_icgraph" alt=""/></div>
+<map name="add/d47/namespacemath_adf2291fe82a8e395c51038a2c6dce168_icgraph" id="add/d47/namespacemath_adf2291fe82a8e395c51038a2c6dce168_icgraph">
+<area shape="rect" title="Max of an integer vector of length n." alt="" coords="216,5,325,32"/>
+<area shape="rect" href="../../d8/d8b/namespacemap__1d.html#ab18be3a40599881af5a9d0aeb33f08a3" title=" " alt="" coords="5,5,168,32"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a794b2ff7041b1f3fc1d9d8fcf24854c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a794b2ff7041b1f3fc1d9d8fcf24854c9">&#9670;&nbsp;</a></span>glimin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer function, public math::glimin </td>
+          <td>(</td>
+          <td class="paramtype">integer, dimension(n)&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Min of an integer vector of length n. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00316">316</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -1411,14 +1556,15 @@ Here is the caller graph for this function:</div>
 
 <p>Max of a vector of length n. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00226">226</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00274">274</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_aa96bddc7b993fc15b1fa1263b875044d_icgraph.png" border="0" usemap="#add/d47/namespacemath_aa96bddc7b993fc15b1fa1263b875044d_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_aa96bddc7b993fc15b1fa1263b875044d_icgraph" id="add/d47/namespacemath_aa96bddc7b993fc15b1fa1263b875044d_icgraph">
-<area shape="rect" title="Max of a vector of length n." alt="" coords="200,13,305,39"/>
-<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="5,5,152,47"/>
+<area shape="rect" title="Max of a vector of length n." alt="" coords="216,42,321,69"/>
+<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="13,5,160,47"/>
+<area shape="rect" href="../../d8/d8b/namespacemap__1d.html#ab18be3a40599881af5a9d0aeb33f08a3" title=" " alt="" coords="5,71,168,98"/>
 </map>
 </div>
 
@@ -1452,14 +1598,15 @@ Here is the caller graph for this function:</div>
 
 <p>Min of a vector of length n. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00240">240</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00302">302</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_aee45fd2307691bcc94e2986af286775e_icgraph.png" border="0" usemap="#add/d47/namespacemath_aee45fd2307691bcc94e2986af286775e_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_aee45fd2307691bcc94e2986af286775e_icgraph" id="add/d47/namespacemath_aee45fd2307691bcc94e2986af286775e_icgraph">
-<area shape="rect" title="Min of a vector of length n." alt="" coords="200,13,301,39"/>
-<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="5,5,152,47"/>
+<area shape="rect" title="Min of a vector of length n." alt="" coords="216,42,317,69"/>
+<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="13,5,160,47"/>
+<area shape="rect" href="../../d8/d8b/namespacemap__1d.html#ab18be3a40599881af5a9d0aeb33f08a3" title=" " alt="" coords="5,71,168,98"/>
 </map>
 </div>
 
@@ -1499,7 +1646,7 @@ Here is the caller graph for this function:</div>
 
 <p>Weighted inner product \( a^T b c \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00692">692</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00769">769</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1552,7 +1699,7 @@ Here is the caller graph for this function:</div>
 
 <p>Weighted inner product \( a^T b c \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00710">710</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00787">787</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1618,7 +1765,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00727">727</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00804">804</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -1650,7 +1797,7 @@ Here is the caller graph for this function:</div>
 
 <p>Sum a vector of length n. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00211">211</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00259">259</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1691,7 +1838,7 @@ Here is the caller graph for this function:</div>
 
 <p>Invert a vector \( a = 1 / a \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00291">291</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00368">368</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1742,7 +1889,7 @@ Here is the caller graph for this function:</div>
 
 <p>Vector division \( a = a / b \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00531">531</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00608">608</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1814,7 +1961,7 @@ Here is the caller graph for this function:</div>
 
 <p>Invert a vector \( a = b / c \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00303">303</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00380">380</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -1852,7 +1999,7 @@ Here is the caller graph for this function:</div>
 
 <p>Compute inverted vector \( a = 1 / b \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00316">316</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00393">393</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1894,7 +2041,7 @@ Here is the caller graph for this function:</div>
 
 <p>Zero an integer vector. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00129">129</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00177">177</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -1950,7 +2097,7 @@ Here is the caller graph for this function:</div>
 
 <p>Returns \( a = b \dot c1 ( a - c2 \cdot c )\). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00662">662</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00739">739</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1999,7 +2146,7 @@ Here is the caller graph for this function:</div>
 
 <p>Return double precision absolute comparison \( | x - y | &lt; \epsilon \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00108">108</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2007,6 +2154,61 @@ Here is the caller graph for this function:</div>
 <map name="add/d47/namespacemath_a23a60c5aa3ca2fb59eb72e5d0d81d1e1_icgraph" id="add/d47/namespacemath_a23a60c5aa3ca2fb59eb72e5d0d81d1e1_icgraph">
 <area shape="rect" title="Return double precision absolute comparison ." alt="" coords="236,5,359,32"/>
 <area shape="rect" href="../../de/d34/interfacemath_1_1abscmp.html#a28bc5fc62da7699040cf5a93c0a5e286" title="Return double precision absolute comparison ." alt="" coords="5,5,188,32"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ac79bdac321f5d661827c7dd6babebbe6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac79bdac321f5d661827c7dd6babebbe6">&#9670;&nbsp;</a></span>qrelcmp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">pure logical function math::qrelcmp </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=qp), intent(in)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=qp), intent(in)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=qp), intent(in), optional&#160;</td>
+          <td class="paramname"><em>eps</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return quad precision relative comparison \( | x - y |/|y| &lt; \epsilon \). </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00152">152</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d47/namespacemath_ac79bdac321f5d661827c7dd6babebbe6_icgraph.png" border="0" usemap="#add/d47/namespacemath_ac79bdac321f5d661827c7dd6babebbe6_icgraph" alt=""/></div>
+<map name="add/d47/namespacemath_ac79bdac321f5d661827c7dd6babebbe6_icgraph" id="add/d47/namespacemath_ac79bdac321f5d661827c7dd6babebbe6_icgraph">
+<area shape="rect" title="Return quad precision relative comparison ." alt="" coords="224,5,341,32"/>
+<area shape="rect" href="../../d9/d4d/interfacemath_1_1relcmp.html#a01c26f0aa568aada585efcc43ceeff2b" title="Return quad precision relative comparison ." alt="" coords="5,5,176,32"/>
 </map>
 </div>
 
@@ -2040,7 +2242,7 @@ Here is the caller graph for this function:</div>
 
 <p>Set all elements to one. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00151">151</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00199">199</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2102,7 +2304,7 @@ Here is the caller graph for this function:</div>
 
 <p>Sets row e to 0 in matrix a. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00140">140</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00188">188</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -2134,13 +2336,13 @@ Here is the caller graph for this function:</div>
 
 <p>Zero a real vector. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00166">166</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_accd3b06fc22b453552cc46d0fbf80677_icgraph.png" border="0" usemap="#add/d47/namespacemath_accd3b06fc22b453552cc46d0fbf80677_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_accd3b06fc22b453552cc46d0fbf80677_icgraph" id="add/d47/namespacemath_accd3b06fc22b453552cc46d0fbf80677_icgraph">
-<area shape="rect" title="Zero a real vector." alt="" coords="1067,611,1164,637"/>
+<area shape="rect" title="Zero a real vector." alt="" coords="1067,647,1164,673"/>
 <area shape="rect" href="../../dc/df5/namespaceab__time__scheme.html#a0c7ea248befdd7fc4bf7271271642cd3" title="Compute the scheme coefficients." alt="" coords="825,5,1006,61"/>
 <area shape="rect" href="../../d4/db4/namespacebdf__time__scheme.html#a572e81f602b6a7aa1f362257dc5c5e4a" title="Compute the scheme coefficients." alt="" coords="825,85,1006,141"/>
 <area shape="rect" href="../../dd/d2f/namespacebicgstab.html#afdcb9c0f169349daf77759d283479c43" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="845,166,985,207"/>
@@ -2148,24 +2350,27 @@ Here is the caller graph for this function:</div>
 <area shape="rect" href="../../d9/df6/namespacecg.html#aa74f8eea3f12b0f69c7eae810e63bf96" title="Standard PCG solve." alt="" coords="864,283,967,309"/>
 <area shape="rect" href="../../d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="836,334,995,375"/>
 <area shape="rect" href="../../d3/d06/namespaceprojection.html#ac63a40c6adff939561cd8b6b8432d1e4" title=" " alt="" coords="819,400,1012,427"/>
-<area shape="rect" href="../../d2/d75/namespaceext__time__scheme.html#adf75631dc4c73c73b558f4eeb29fe65b" title="Compute the scheme coefficients." alt="" coords="825,451,1006,507"/>
-<area shape="rect" href="../../d2/d75/namespaceext__time__scheme.html#a1654d689ca92903729de891e38caf174" title="Compute the modified scheme coefficients." alt="" coords="825,531,1006,587"/>
-<area shape="rect" href="../../d3/d4c/namespacefdm.html#af3a1a3b08ecd8ff4dd376ac7afaa555f" title=" " alt="" coords="604,813,715,840"/>
-<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="812,611,1019,637"/>
-<area shape="rect" href="../../dd/dd2/namespacedofmap.html#ae710cdf2efdddfe06dfd930addd83c84" title="Extend faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and edges 3 &#45; vertex,..." alt="" coords="812,661,1019,688"/>
-<area shape="rect" href="../../dc/d48/namespacegmres.html#a96f21cb206d8da8611f3c630ae4459ca" title="Standard GMRES solve." alt="" coords="838,763,993,789"/>
-<area shape="rect" href="../../d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="816,813,1015,840"/>
-<area shape="rect" href="../../de/d49/namespacepipecg.html#ae519e8f58edbf66c6b746e28363de31f" title="Pipelined PCG solve." alt="" coords="836,864,995,891"/>
-<area shape="rect" href="../../d3/d06/namespaceprojection.html#afa912cf217031bb8243a7e5d50c6f511" title=" " alt="" coords="821,915,1009,941"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="814,1016,1017,1043"/>
-<area shape="rect" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="855,965,975,992"/>
-<area shape="rect" href="../../d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="837,1067,993,1109"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a43fea5ee661f9c93108fab10bc380043" title="Calculate drag and torque over a facet." alt="" coords="566,473,753,514"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#aa0aaba6013da47ebecf4ef3c36e0708c" title="Calculate drag and torque from one point." alt="" coords="812,501,1019,528"/>
+<area shape="rect" href="../../d2/d75/namespaceext__time__scheme.html#adf75631dc4c73c73b558f4eeb29fe65b" title="Compute the scheme coefficients." alt="" coords="825,552,1006,608"/>
+<area shape="rect" href="../../d2/d75/namespaceext__time__scheme.html#a1654d689ca92903729de891e38caf174" title="Compute the modified scheme coefficients." alt="" coords="825,632,1006,688"/>
+<area shape="rect" href="../../d3/d4c/namespacefdm.html#af3a1a3b08ecd8ff4dd376ac7afaa555f" title=" " alt="" coords="604,940,715,967"/>
+<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="812,712,1019,739"/>
+<area shape="rect" href="../../dd/dd2/namespacedofmap.html#ae710cdf2efdddfe06dfd930addd83c84" title="Extend faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and edges 3 &#45; vertex,..." alt="" coords="812,763,1019,789"/>
+<area shape="rect" href="../../dc/d48/namespacegmres.html#a96f21cb206d8da8611f3c630ae4459ca" title="Standard GMRES solve." alt="" coords="838,864,993,891"/>
+<area shape="rect" href="../../d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="816,915,1015,941"/>
+<area shape="rect" href="../../de/d49/namespacepipecg.html#ae519e8f58edbf66c6b746e28363de31f" title="Pipelined PCG solve." alt="" coords="836,965,995,992"/>
+<area shape="rect" href="../../d3/d06/namespaceprojection.html#afa912cf217031bb8243a7e5d50c6f511" title=" " alt="" coords="821,1016,1009,1043"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="814,1117,1017,1144"/>
+<area shape="rect" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="855,1067,975,1093"/>
+<area shape="rect" href="../../d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="837,1169,993,1210"/>
 <area shape="rect" href="../../d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="587,341,731,368"/>
 <area shape="rect" href="../../d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6" title=" " alt="" coords="555,400,764,427"/>
-<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="563,636,755,663"/>
-<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,636,507,663"/>
-<area shape="rect" href="../../d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,636,233,663"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#ae614e2a33b051d6843ac45bcff07c6b6" title=" " alt="" coords="577,1016,741,1043"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a06338b4cbb5d4959b061910b60e2bf42" title="Some functions to calculate the lift/drag and torque Calculation can be done on a zone,..." alt="" coords="282,480,506,507"/>
+<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="563,737,755,764"/>
+<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,737,507,764"/>
+<area shape="rect" href="../../d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,737,233,764"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#ae614e2a33b051d6843ac45bcff07c6b6" title=" " alt="" coords="577,1117,741,1144"/>
 </map>
 </div>
 
@@ -2207,7 +2412,7 @@ Here is the caller graph for this function:</div>
 
 <p>Return single precision absolute comparison \( | x - y | &lt; \epsilon \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2254,7 +2459,62 @@ Here is the caller graph for this function:</div>
 
 <p>Use Heap Sort (p 231 Num. Rec., 1st Ed.) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00746">746</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00823">823</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+
+</div>
+</div>
+<a id="af05f79c5a26850d384f5f5852bb9b526"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af05f79c5a26850d384f5f5852bb9b526">&#9670;&nbsp;</a></span>srelcmp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">pure logical function math::srelcmp </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=sp), intent(in)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=sp), intent(in)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=sp), intent(in), optional&#160;</td>
+          <td class="paramname"><em>eps</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return single precision relative comparison \( | x - y |&lt;= \epsilon*|y| \). </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00123">123</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d47/namespacemath_af05f79c5a26850d384f5f5852bb9b526_icgraph.png" border="0" usemap="#add/d47/namespacemath_af05f79c5a26850d384f5f5852bb9b526_icgraph" alt=""/></div>
+<map name="add/d47/namespacemath_af05f79c5a26850d384f5f5852bb9b526_icgraph" id="add/d47/namespacemath_af05f79c5a26850d384f5f5852bb9b526_icgraph">
+<area shape="rect" title="Return single precision relative comparison ." alt="" coords="223,5,339,32"/>
+<area shape="rect" href="../../d9/d4d/interfacemath_1_1relcmp.html#a614fb6794e34a67286b908d675427a74" title="Return single precision relative comparison ." alt="" coords="5,5,175,32"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -2292,7 +2552,7 @@ Here is the caller graph for this function:</div>
 
 <p>Vector substraction \( a = a - b \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00445">445</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00522">522</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2346,7 +2606,7 @@ Here is the caller graph for this function:</div>
 
 <p>Vector subtraction \( a = b - c \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00458">458</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00535">535</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2399,7 +2659,7 @@ Here is the caller graph for this function:</div>
 
 <p>Returns \( a = a - b*c \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00572">572</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00649">649</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2461,7 +2721,7 @@ Here is the caller graph for this function:</div>
 
 <p>Returns \( a = a - b*c*d \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00602">602</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00679">679</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -2541,7 +2801,7 @@ Here is the caller graph for this function:</div>
 
 <p>Compute a cross product \( u = v \times w \) assuming vector components \( u = (u_1, u_2, u_3) \) etc. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00330">330</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00407">407</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -2597,7 +2857,7 @@ Here is the caller graph for this function:</div>
 
 <p>Compute a dot product \( dot = u \cdot v \) (2-d version) assuming vector components \( u = (u_1, u_2, u_3) \) etc. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00347">347</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00424">424</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -2665,7 +2925,7 @@ Here is the caller graph for this function:</div>
 
 <p>Compute a dot product \( dot = u \cdot v \) (3-d version) assuming vector components \( u = (u_1, u_2, u_3) \) etc. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00361">361</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00438">438</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2706,7 +2966,7 @@ Here is the caller graph for this function:</div>
 
 <p>maximum value of a vector of length <em>n</em> </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00268">268</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00345">345</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2749,7 +3009,7 @@ Here is the caller graph for this function:</div>
 
 <p>minimun value of a vector of length <em>n</em> </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00279">279</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00356">356</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2798,7 +3058,7 @@ Here is the caller graph for this function:</div>
 
 <p>Compute multiplication sum \( dot = u \cdot v \cdot w \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00389">389</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00466">466</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -2842,7 +3102,7 @@ Here is the caller graph for this function:</div>
 
 <p>Compute multiplication sum \( dot = u \cdot v \cdot w \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00375">375</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00452">452</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2908,7 +3168,7 @@ Here is the caller graph for this function:</div>
 
 <p>Returns \( a = b \dot c1 ( a - c2 \cdot c )\). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00677">677</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00754">754</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2982,7 +3242,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/d47/namespacemath.html">math</a></li>
-    <li class="footer">Generated on Wed Mar 6 2024 03:33:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Thu Mar 7 2024 03:34:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -1,4 +1,5 @@
 <map id="math::glmin" name="math::glmin">
-<area shape="rect" id="node1" title="Min of a vector of length n." alt="" coords="200,13,301,39"/>
-<area shape="rect" id="node2" href="$d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node1" title="Min of a vector of length n." alt="" coords="216,42,317,69"/>
+<area shape="rect" id="node2" href="$d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="13,5,160,47"/>
+<area shape="rect" id="node3" href="$d8/d8b/namespacemap__1d.html#ab18be3a40599881af5a9d0aeb33f08a3" title=" " alt="" coords="5,71,168,98"/>
 </map>
