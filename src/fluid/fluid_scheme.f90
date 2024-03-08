@@ -385,7 +385,7 @@ contains
     ! dirichlet for uvw-velocity
     call this%bc_field_u%init(this%dm_Xh)
     call this%bc_field_u%mark_zones_from_list(msh%labeled_zones,&
-                        'd_vel', this%bc_labels)
+                        'd_u', this%bc_labels)
     call this%bc_field_u%finalize()
 
     call MPI_Allreduce(this%bc_field_u%msk(0), integer_val, 1, &
@@ -395,7 +395,7 @@ contains
     ! dirichlet for v-velocity
     call this%bc_field_v%init(this%dm_Xh)
     call this%bc_field_v%mark_zones_from_list(msh%labeled_zones,&
-                        'd_vel', this%bc_labels)
+                        'd_v', this%bc_labels)
     call this%bc_field_v%finalize()
     call MPI_Allreduce(this%bc_field_v%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -404,7 +404,7 @@ contains
     ! dirichlet for w-velocity
     call this%bc_field_w%init(this%dm_Xh)
     call this%bc_field_w%mark_zones_from_list(msh%labeled_zones,&
-                        'd_vel', this%bc_labels)
+                        'd_w', this%bc_labels)
     call this%bc_field_w%finalize()
     call MPI_Allreduce(this%bc_field_w%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)

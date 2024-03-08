@@ -287,13 +287,17 @@ contains
     if(trim(bc_key) .eq. 'o' .or. trim(bc_key) .eq. 'on' &
        .or. trim(bc_key) .eq. 'o+dong' .or. trim(bc_key) .eq. 'on+dong') then
        msh_bc_type = 1
-    else if(trim(bc_key) .eq. 'd_pres') then
+    else if(trim(bc_key) .eq. 'd_p') then
        msh_bc_type = 1
     else if(trim(bc_key) .eq. 'w') then
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'v') then
        msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'd_vel') then
+    else if(trim(bc_key) .eq. 'd_u') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_v') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_w') then
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'sym') then
        msh_bc_type = 2

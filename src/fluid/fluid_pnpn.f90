@@ -185,11 +185,11 @@ contains
                                                  'v', this%bc_labels)
     !Thsi impacts the rhs of the pressure, need to check what is correct to add here
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel', this%bc_labels)
+                                                 'd_u', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel', this%bc_labels)
+                                                 'd_v', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel', this%bc_labels)
+                                                 'd_w', this%bc_labels)
     call this%bc_prs_surface%finalize()
     call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
@@ -226,19 +226,19 @@ contains
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
     call this%bc_du%init(this%dm_Xh)
-    call this%bc_du%mark_zones_from_list(msh%labeled_zones, 'd_vel', &
+    call this%bc_du%mark_zones_from_list(msh%labeled_zones, 'd_u', &
                                          this%bc_labels)
     call this%bc_du%finalize()
     call this%bc_du%set_g(0.0_rp)
 
     call this%bc_dv%init(this%dm_Xh)
-    call this%bc_dv%mark_zones_from_list(msh%labeled_zones, 'd_vel', &
+    call this%bc_dv%mark_zones_from_list(msh%labeled_zones, 'd_v', &
                                          this%bc_labels)
     call this%bc_dv%finalize()
     call this%bc_dv%set_g(0.0_rp)
 
     call this%bc_dw%init(this%dm_Xh)
-    call this%bc_dw%mark_zones_from_list(msh%labeled_zones, 'd_vel', &
+    call this%bc_dw%mark_zones_from_list(msh%labeled_zones, 'd_w', &
                                          this%bc_labels)
     call this%bc_dw%finalize()
     call this%bc_dw%set_g(0.0_rp)
