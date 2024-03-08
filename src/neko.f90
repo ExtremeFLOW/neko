@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2023, The Neko Authors
+! Copyright (c) 2019-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -76,17 +76,20 @@ module neko
   use jobctrl
   use device
   use device_math
+  use map_1d
   use cpr
   use fluid_stats
   use field_list, only : field_list_t
   use fluid_user_source_term
+  use scalar_user_source_term
   use vector
   use tensor
   use simulation_component
   use probes
   use spectral_error_indicator
   use system
-  use field_registry, only : neko_field_registry
+  use drag_torque
+  use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry
   use simcomp_executor, only : neko_simcomps
   use data_streamer

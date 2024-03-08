@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __BC_FACET_NORMAL_KERNEL__
+#define __BC_FACET_NORMAL_KERNEL__
+
 /**
  * Computes the linear index for area and normal arrays
  * @note Fortran indexing input, C indexing output
@@ -120,3 +123,4 @@ void facet_normal_apply_surfvec_kernel(__global const int *msk,
   }
 }
 
+#endif // __BC_FACET_NORMAL_KERNEL__

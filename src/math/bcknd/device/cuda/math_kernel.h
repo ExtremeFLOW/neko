@@ -1,3 +1,5 @@
+#ifndef __MATH_MATH_KERNEL_H__
+#define __MATH_MATH_KERNEL_H__
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -424,7 +426,6 @@ __global__ void reduce_kernel(T * bufred, const int n) {
     bufred[blockIdx.x] = sum;
 }
 
-
 /**
  * Reduction kernel for glsc3
  */
@@ -606,3 +607,5 @@ __global__ void glsum_kernel(const T * a,
     buf_h[blockIdx.x] = sum;
   
 }
+
+#endif // __MATH_MATH_KERNEL_H__

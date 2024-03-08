@@ -20,8 +20,8 @@ program rea2nbin_dirichlet
   call neko_init 
   
   !
-  ! Parse first argument: rea file
-  ! If the user gives a .rea file, we work
+  ! Parse first argument: rea/re2 file
+  ! If the user gives a .rea/.re2 file, we work
   ! from a temporary copy with extension .readirichlet
   !
   call get_command_argument(1, fname_in) 
@@ -37,7 +37,8 @@ program rea2nbin_dirichlet
      call execute_command_line("cp "//trim(fname_in)//" temp.re2dirichlet")
      fname_in = "temp.re2dirichlet"
      remove_at_end = .true.
-  else if (suffix .ne. "readirichlet") then
+  else if (suffix .ne. "readirichlet" .or. &
+           suffix .ne. "re2dirichlet") then
      call neko_error("Invalid input format")
   end if
 
@@ -70,7 +71,7 @@ program rea2nbin_dirichlet
   call nmsh_file%write(msh)
   call msh%free()
   
-  call execute_command_line("rm temp.readirichlet temp.re2dirichlet")
+  call execute_command_line("rm -f temp.readirichlet temp.re2dirichlet")
   
   call neko_finalize
 

@@ -1,3 +1,5 @@
+#ifndef __MATH_MATHOPS_KERNEL_H__
+#define __MATH_MATHOPS_KERNEL_H__
 /*
  Copyright (c) 2021, The Neko Authors
  All rights reserved.
@@ -192,3 +194,5 @@ __global__ void opadd2col_kernel(T * __restrict__ a1,
 
 }
 
+
+#endif // __MATH_MATHOPS_KERNEL_H__

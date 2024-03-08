@@ -381,7 +381,7 @@ contains
     end do
 
 
-    !> Include metadata with bounding boxes (Just copying from nek5000) 
+    !> Include metadata with bounding boxes (Just copying from nek5000)
     if (write_mesh) then
        !The offset is: mpioff + element_off*2(min max value)*4(single precision)*gdim(dimensions)
        byte_offset = int(mpi_offset,i8) + &
@@ -450,7 +450,7 @@ contains
                        int(2, i8) * &
                        int(MPI_REAL_SIZE, i8)
        end if
-       
+
        byte_offset = int(mpi_offset,i8) + &
                      int(offset_el, i8) * &
                      int(2, i8) * &
@@ -461,7 +461,7 @@ contains
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8)
     end do
-    
+
 
     call MPI_File_sync(fh, ierr)
     call MPI_File_close(fh, ierr)
@@ -510,12 +510,12 @@ contains
 
      ! write out data
      nout = 2*gdim*nelv
-  
+
      call MPI_File_write_at_all(fh, byte_offset, buffer, nout, &
             MPI_REAL, status, ierr)
 
   end subroutine fld_file_write_metadata_vector
-  
+
   subroutine fld_file_write_metadata_scalar(this, fh, byte_offset, x, lxyz, nelv)
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
@@ -535,7 +535,7 @@ contains
 
      ! write out data
      nout = 2*nelv
-  
+
      call MPI_File_write_at_all(fh, byte_offset, buffer, nout, &
             MPI_REAL, status, ierr)
 
@@ -641,6 +641,7 @@ contains
     type(linear_dist_t) :: dist
     real(kind=sp), parameter :: test_pattern = 6.54321
     character :: rdcode(10),temp_str(4)
+
     select type(data)
     type is (fld_file_data_t)
        call filename_chsuffix(this%fname, meta_fname,'nek5000')
@@ -683,6 +684,9 @@ contains
        end if
        call MPI_File_open(NEKO_COMM, trim(fname), &
            MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
+
+       if (ierr .ne. 0) call neko_error("Could not read "//trim(fname))
+
        call MPI_File_read_all(fh, hdr, 132, MPI_CHARACTER,  status, ierr)
        !This read can prorbably be done wihtout the temp variables, temp_str, i, j
 
@@ -711,10 +715,10 @@ contains
        end if
 
 
-       if (this%dp_precision) then
-          FLD_DATA_SIZE = MPI_DOUBLE_PRECISION_SIZE
+       if (FLD_DATA_SIZE .eq. MPI_DOUBLE_PRECISION_SIZE) then
+          this%dp_precision = .true.
        else
-          FLD_DATA_SIZE = MPI_REAL_SIZE
+          this%dp_precision = .false.
        end if
        if (this%dp_precision) then
           allocate(tmp_dp(data%gdim*n))
@@ -967,7 +971,7 @@ contains
 
   subroutine fld_file_set_precision(this, precision)
     class(fld_file_t) :: this
-    integer, intent(inout) :: precision
+    integer, intent(in) :: precision
 
     if (precision .eq. dp) then
        this%dp_precision = .true.

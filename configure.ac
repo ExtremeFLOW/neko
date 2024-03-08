@@ -328,8 +328,10 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/rea2nbin_dirichlet/Makefile\
 		    contrib/genmeshbox/Makefile\
 		    contrib/average_fields_in_time/Makefile\
+		    contrib/calc_lift_from_field/Makefile\
 		    contrib/postprocess_fluid_stats/Makefile\
 		    contrib/average_field_in_space/Makefile\
+		    contrib/map_to_equidistant_1d/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen

@@ -70,7 +70,7 @@ contains
        fname = 'mean_field.fld'
     end if
 
-    call output_init(this, fname)
+    call this%init_base(fname)
     this%mf => mf
     this%T_begin = T_begin
   end function mean_flow_output_init

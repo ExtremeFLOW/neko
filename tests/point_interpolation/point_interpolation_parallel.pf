@@ -118,7 +118,7 @@ contains
     type(space_t) :: Xh
 
     integer :: e = 1 ! our element index (in this example we only use a 1-element mesh)
-
+    call device_init
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -162,6 +162,7 @@ contains
     xyz_real = interp%interpolate(rst, coef%dof%x(:,:,:,e))
     @assertRelativelyEqual(xyz_real, (/ 2.0_rp, 1.7_rp, 1.0_rp, 2.0_rp/), tolerance=1e-4_rp)
 
+    call device_finalize
   end subroutine point_interpolation_test_interpolation
 
   @test(npes=[1])
@@ -183,7 +184,7 @@ contains
     type(space_t) :: Xh
 
     integer :: e = 1 ! our element index (in this example we only use a 1-element mesh)
-
+    call device_init
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -218,6 +219,7 @@ contains
     xyz_real = interp%interpolate(rst, coef%dof%x(:,:,:,e))
     @assertRelativelyEqual(xyz_real, (/ 2.0_rp/), tolerance=1e-4_rp)
 
+    call device_finalize
   end subroutine point_interpolation_test_interpolation_single_point
 
 end module

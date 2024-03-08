@@ -33,11 +33,11 @@
 !> NEKTON mesh data in re2 format
 !! @details This module is used to read/write binary NEKTION mesh data
 module re2_file_dirichlet
-  use generic_file
-  use num_types
+  use generic_file, only: generic_file_t
+  use num_types, only: rp
   use utils
-  use mesh
-  use point
+  use mesh, only: mesh_t
+  use point, only: point_t
   use comm
   use mpi_f08
   use neko_mpi_types
@@ -46,7 +46,7 @@ module re2_file_dirichlet
   use map
   use map_file
   use htable
-  use logger
+  use logger, only: neko_log
   implicit none
   private
   
@@ -519,7 +519,7 @@ contains
     labeled_zone_total_offset = 0
     labeled_zone_offsets = 0
 
-    call neko_log("Reading boundary conditions")
+    call neko_log%message("Reading boundary conditions")
     if (.not. v2_format) then
        allocate(re2v1_data_bc(nbcs))
        call MPI_File_read_at_all(fh, mpi_offset, re2v1_data_bc, nbcs, &

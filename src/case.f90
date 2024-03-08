@@ -85,7 +85,7 @@ module case
   end type case_t
 
   interface case_init
-     module procedure case_init_from_file
+     module procedure case_init_from_file, case_init_from_json
   end interface case_init
 
   private :: case_init_from_file, case_init_from_json, case_init_common
@@ -184,6 +184,11 @@ contains
     call json_get(C%params, 'case.end_time', C%end_time)
 
     !
+    ! Initialize point_zones registry
+    !
+    call neko_point_zone_registry%init(C%params, C%msh)
+
+    !
     ! Setup user defined functions
     !
     call C%usr%init()
@@ -223,11 +228,6 @@ contains
     neko_scratch_registry = scratch_registry_t(C%fluid%dm_Xh, 10, 10)
 
     !
-    ! Initialize point_zones registry
-    !
-    call neko_point_zone_registry%init(C%params, C%fluid%u%dof)
-
-    !
     ! Setup scalar scheme
     !
     ! @todo no scalar factory for now, probably not needed
@@ -257,22 +257,8 @@ contains
        end if
     end if
 
-    ! Setup source term for the scalar
-    ! @todo should be expanded for user sources etc. Now copies the fluid one
+    ! Setup user boundary conditions for the scalar.
     if (scalar) then
-       logical_val = C%params%valid_path('case.scalar.source_term')
-       call json_get_or_default(C%params, 'case.scalar.source_term.type',&
-                                string_val, 'noforce')
-       if (trim(string_val) .eq. 'user') then
-          call C%scalar%set_source(trim(string_val), &
-               usr_f=C%usr%scalar_user_f)
-       else if (trim(string_val) .eq. 'user_vector') then
-          call C%scalar%set_source(trim(string_val), &
-               usr_f_vec=C%usr%scalar_user_f_vector)
-       else
-          call C%scalar%set_source(trim(string_val))
-       end if
-
        call C%scalar%set_user_bc(C%usr%scalar_user_bc)
     end if
 
@@ -397,6 +383,8 @@ contains
        call C%s%add(C%f_out, real_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
        ! Fix a dummy 0.0 output_value
+       call json_get_or_default(C%params, 'case.fluid.output_value', real_val, &
+                                0.0_rp)
        call C%s%add(C%f_out, 0.0_rp, string_val)
     else
        call json_get(C%params, 'case.fluid.output_value', real_val)
