@@ -46,7 +46,7 @@ module re2_file_dirichlet
   use map
   use map_file
   use htable
-  use logger, only: neko_log
+  use logger, only: neko_log, LOG_SIZE
   implicit none
   private
   
