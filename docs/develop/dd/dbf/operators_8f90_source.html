@@ -417,79 +417,77 @@ $(document).ready(function(){initNavTree('dd/dbf/operators_8f90_source.html','..
 <div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;<span class="keywordtype">    real</span>(kind=rp) :: eigen(3), b, c, d, q, r, theta, l2</div>
 <div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;<span class="keywordtype">    real</span>(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23</div>
 <div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;<span class="keywordtype">    real</span>(kind=rp) :: a11, a22, a33, a12, a13, a23</div>
-<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160; </div>
-<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;       <span class="keyword">call </span>opr_device_lambda2(<a class="code" href="../../d0/d66/namespacelambda2.html">lambda2</a>, u, v, w, coef)</div>
-<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;    <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;       <span class="keywordflow">do</span> e = 1, coef%msh%nelv</div>
-<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;          <span class="keyword">call </span><a class="code" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">opgrad</a>(grad(1,1,1), grad(1,1,2), grad(1,1,3), &amp;</div>
-<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;                              u%x(1,1,1,e),coef,e,e)</div>
-<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;          <span class="keyword">call </span><a class="code" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">opgrad</a>(grad(1,2,1), grad(1,2,2), grad(1,2,3), &amp;</div>
-<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;                              v%x(1,1,1,e),coef,e,e)</div>
-<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;          <span class="keyword">call </span><a class="code" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">opgrad</a>(grad(1,3,1), grad(1,3,2), grad(1,3,3), &amp;</div>
-<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;                              w%x(1,1,1,e),coef,e,e)</div>
-<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160; </div>
-<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;          <span class="keywordflow">do</span> i = 1, coef%Xh%lxyz</div>
-<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;             s11 = grad(i,1,1)</div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;             s22 = grad(i,2,2)</div>
-<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;             s33 = grad(i,3,3)</div>
-<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160; </div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;<span class="keywordtype">    real</span>(kind=rp) :: msk1, msk2, msk3</div>
+<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160; </div>
+<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;       <span class="keyword">call </span>opr_device_lambda2(<a class="code" href="../../d0/d66/namespacelambda2.html">lambda2</a>, u, v, w, coef)</div>
+<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;    <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;       <span class="keywordflow">do</span> e = 1, coef%msh%nelv</div>
+<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;          <span class="keyword">call </span><a class="code" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">opgrad</a>(grad(1,1,1), grad(1,1,2), grad(1,1,3), &amp;</div>
+<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;                              u%x(1,1,1,e),coef,e,e)</div>
+<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;          <span class="keyword">call </span><a class="code" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">opgrad</a>(grad(1,2,1), grad(1,2,2), grad(1,2,3), &amp;</div>
+<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;                              v%x(1,1,1,e),coef,e,e)</div>
+<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;          <span class="keyword">call </span><a class="code" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">opgrad</a>(grad(1,3,1), grad(1,3,2), grad(1,3,3), &amp;</div>
+<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;                              w%x(1,1,1,e),coef,e,e)</div>
+<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160; </div>
+<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;          <span class="keywordflow">do</span> i = 1, coef%Xh%lxyz</div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;             s11 = grad(i,1,1)</div>
+<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;             s22 = grad(i,2,2)</div>
+<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;             s33 = grad(i,3,3)</div>
 <div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160; </div>
-<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;             s12 = 0.5*(grad(i,1,2) + grad(i,2,1))</div>
-<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;             s13 = 0.5*(grad(i,1,3) + grad(i,3,1))</div>
-<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;             s23 = 0.5*(grad(i,2,3) + grad(i,3,2))</div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160; </div>
-<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;             o12 = 0.5*(grad(i,1,2) - grad(i,2,1))</div>
-<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;             o13 = 0.5*(grad(i,1,3) - grad(i,3,1))</div>
-<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;             o23 = 0.5*(grad(i,2,3) - grad(i,3,2))</div>
-<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160; </div>
-<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;             a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13</div>
-<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;             a12 = s11 * s12  +  s12 * s22  +  s13 * s23 - o13 * o23</div>
-<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;             a13 = s11 * s13  +  s12 * s23  +  s13 * s33 + o12 * o23</div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160; </div>
-<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;             a22 = s12*s12 + s22*s22 + s23*s23 - o12*o12 - o23*o23</div>
-<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;             a23 = s12 * s13 + s22 * s23 + s23 * s33 - o12 * o13</div>
-<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;             a33 = s13*s13 + s23*s23 + s33*s33 - o13*o13 - o23*o23</div>
-<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160; </div>
+<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160; </div>
+<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;             s12 = 0.5*(grad(i,1,2) + grad(i,2,1))</div>
+<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;             s13 = 0.5*(grad(i,1,3) + grad(i,3,1))</div>
+<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;             s23 = 0.5*(grad(i,2,3) + grad(i,3,2))</div>
+<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160; </div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;             o12 = 0.5*(grad(i,1,2) - grad(i,2,1))</div>
+<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;             o13 = 0.5*(grad(i,1,3) - grad(i,3,1))</div>
+<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;             o23 = 0.5*(grad(i,2,3) - grad(i,3,2))</div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160; </div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;             a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13</div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;             a12 = s11 * s12  +  s12 * s22  +  s13 * s23 - o13 * o23</div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;             a13 = s11 * s13  +  s12 * s23  +  s13 * s33 + o12 * o23</div>
+<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160; </div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;             a22 = s12*s12 + s22*s22 + s23*s23 - o12*o12 - o23*o23</div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;             a23 = s12 * s13 + s22 * s23 + s23 * s33 - o12 * o13</div>
+<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;             a33 = s13*s13 + s23*s23 + s33*s33 - o13*o13 - o23*o23</div>
 <div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160; </div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;             b = -(a11 + a22 + a33)</div>
-<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;             c = -(a12*a12 + a13*a13 + a23*a23 &amp;</div>
-<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;                  - a11 * a22 - a11 * a33 - a22 * a33)</div>
-<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;             d = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 &amp;</div>
-<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;                  - a22 * a13*a13 - a33 * a12*a12  +  a11 * a22 * a33)</div>
-<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160; </div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160; </div>
+<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;             b = -(a11 + a22 + a33)</div>
+<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;             c = -(a12*a12 + a13*a13 + a23*a23 &amp;</div>
+<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;                  - a11 * a22 - a11 * a33 - a22 * a33)</div>
+<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;             d = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 &amp;</div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;                  - a22 * a13*a13 - a33 * a12*a12  +  a11 * a22 * a33)</div>
 <div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160; </div>
-<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;             q = (3.0 * c - b*b) / 9.0</div>
-<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;             r = (9.0 * c * b - 27.0 * d - 2.0 * b*b*b) / 54.0</div>
-<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;             theta = acos( r / sqrt(-q*q*q) )</div>
-<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160; </div>
-<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;             eigen(1) = 2.0 * sqrt(-q) * cos(theta / 3.0) - b / 3.0</div>
-<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;             eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - b / 3.0</div>
-<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;             eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - b / 3.0</div>
-<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160; </div>
-<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;             <span class="keywordflow">if</span> (eigen(1) .le. eigen(2) .and. eigen(2) .le. eigen(3)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;                l2 = eigen(2)</div>
-<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (eigen(3) .le. eigen(2) .and. eigen(2) .le. eigen(1)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;                l2 = eigen(2)</div>
-<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (eigen(1) .le. eigen(3) .and. eigen(3) .le. eigen(2)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;                l2 = eigen(3)</div>
-<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (eigen(2) .le. eigen(3) .and. eigen(3) .le. eigen(1)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;                l2 = eigen(3)</div>
-<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (eigen(2) .le. eigen(1) .and. eigen(1) .le. eigen(3)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;                l2 = eigen(1)</div>
-<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (eigen(3) .le. eigen(1) .and. eigen(1) .le. eigen(2)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;                l2 = eigen(1)</div>
-<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160;             <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;                l2 = 0.0</div>
-<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;<span class="keywordflow">             end if</span></div>
-<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;             <a class="code" href="../../d0/d66/namespacelambda2.html">lambda2</a>%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)</div>
-<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;<span class="keywordflow">          end do</span></div>
-<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160; </div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;             q = (3.0 * c - b*b) / 9.0</div>
+<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;             r = (9.0 * c * b - 27.0 * d - 2.0 * b*b*b) / 54.0</div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;             theta = acos( r / sqrt(-q*q*q) )</div>
+<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160; </div>
+<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;             eigen(1) = 2.0 * sqrt(-q) * cos(theta / 3.0) - b / 3.0</div>
+<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;             eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - b / 3.0</div>
+<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;             eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - b / 3.0</div>
+<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160; </div>
+<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;             msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &amp;</div>
+<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;                          .and. eigen(1) .le. eigen(3) .or.  eigen(3) &amp;</div>
+<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;                          .le. eigen(1) .and. eigen(1) .le. eigen(2) )</div>
+<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;             msk2 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(2) &amp;</div>
+<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;                          .and. eigen(2) .le. eigen(3) .or. eigen(3) &amp;</div>
+<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;                          .le. eigen(2) .and. eigen(2) .le. eigen(1))</div>
+<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;             msk3 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(3) &amp;</div>
+<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;                          .and. eigen(3) .le. eigen(2) .or. eigen(2) &amp;</div>
+<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;                          .le. eigen(3) .and. eigen(3) .le. eigen(1))</div>
+<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160; </div>
+<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;             l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)</div>
+<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160; </div>
+<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;             <a class="code" href="../../d0/d66/namespacelambda2.html">lambda2</a>%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)</div>
+<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;<span class="keywordflow">          end do</span></div>
+<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;<span class="keywordflow">       end do</span></div>
+<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160; </div>
+<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../dd/d30/namespaceoperators.html#ab94fb6f7ef7c7147e433b1c0c3b67510">lambda2op</a></div>
 <div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160; </div>
-<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../dd/d30/namespaceoperators.html#ab94fb6f7ef7c7147e433b1c0c3b67510">lambda2op</a></div>
-<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160; </div>
-<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;<span class="keyword">end module </span><a class="code" href="../../dd/d30/namespaceoperators.html">operators</a></div>
+<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;<span class="keyword">end module </span><a class="code" href="../../dd/d30/namespaceoperators.html">operators</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00081">device.F90:81</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
@@ -562,7 +560,7 @@ $(document).ready(function(){initNavTree('dd/dbf/operators_8f90_source.html','..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dd/dbf/operators_8f90.html">operators.f90</a></li>
-    <li class="footer">Generated on Thu Mar 7 2024 03:34:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Mar 8 2024 03:34:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
