@@ -32,9 +32,17 @@
 !
 !> Defines various Conjugate Gradient methods for accelerators
 module cg_device
-  use krylov
+  use num_types, only: rp
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
   use device
-  use device_math
+  use device_math, only : device_rzero, device_copy, device_glsc3, &
+                          device_add2s2, device_add2s1
   implicit none
 
   !> Device based preconditioned conjugate gradient method
@@ -57,10 +65,11 @@ module cg_device
 contains
 
   !> Initialise a device based PCG solver
-  subroutine cg_device_init(this, n, M, rel_tol, abs_tol)
+  subroutine cg_device_init(this, n, max_iter, M, rel_tol, abs_tol)
     class(cg_device_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
+    integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
 
@@ -82,13 +91,13 @@ contains
 
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(max_iter)
     end if
 
     call device_event_create(this%gs_event, 2)
@@ -164,7 +173,7 @@ contains
     if (present(niter)) then
        max_iter = niter
     else
-       max_iter = KSP_MAX_ITER
+       max_iter = this%max_iter
     end if
     norm_fac = one/sqrt(coef%volume)
 

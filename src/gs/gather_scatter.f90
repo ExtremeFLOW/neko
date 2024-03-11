@@ -205,7 +205,8 @@ contains
                 allocate(tmp(dofmap%size()))
                 call device_map(tmp, tmp_d, dofmap%size())
                 tmp = 1.0_rp
-                call device_memcpy(tmp, tmp_d, dofmap%size(), HOST_TO_DEVICE)
+                call device_memcpy(tmp, tmp_d, dofmap%size(), &
+                                   HOST_TO_DEVICE, sync=.false.)
                 call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
 
                 do i = 1, size(strtgy)
@@ -1299,17 +1300,17 @@ contains
     m = gs%nlocal
     l = gs%nshared
 
-    call profiler_start_region("gather-scatter")
+    call profiler_start_region("gather-scatter", 5)
     ! Gather shared dofs
     if (pe_size .gt. 1) then
-       call profiler_start_region("gs_nbrecv")
+       call profiler_start_region("gs_nbrecv", 13)
        call gs%comm%nbrecv()
        call profiler_end_region
-       call profiler_start_region("gs_gather_shared")
+       call profiler_start_region("gs_gather_shared", 14)
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
        call profiler_end_region
-       call profiler_start_region("gs_nbsend")
+       call profiler_start_region("gs_nbsend", 6)
        call gs%comm%nbsend(gs%shared_gs, l, &
             gs%bcknd%gather_event, gs%bcknd%gs_stream)
        call profiler_end_region
@@ -1317,7 +1318,7 @@ contains
     end if
 
     ! Gather-scatter local dofs
-    call profiler_start_region("gs_local")
+    call profiler_start_region("gs_local", 12)
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
@@ -1325,10 +1326,10 @@ contains
     call profiler_end_region
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
-       call profiler_start_region("gs_nbwait")
+       call profiler_start_region("gs_nbwait", 7)
        call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
        call profiler_end_region
-       call profiler_start_region("gs_scatter_shared")
+       call profiler_start_region("gs_scatter_shared", 15)
        if (present(event)) then
           call gs%bcknd%scatter(gs%shared_gs, l,&
                                 gs%shared_dof_gs, u, n, &

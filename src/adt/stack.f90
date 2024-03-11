@@ -39,7 +39,7 @@ module stack
   use point, only : point_t
   use structs, only : struct_curve_t
   use math, only : NEKO_M_LN2
-  use tuple, only : tuple_t, tuple_i4_t, tuple4_i4_t, tuple_i4r8_t, tuple_2i4r8_t
+  use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_i4r8_t, tuple_2i4r8_t
   implicit none
   private
 
@@ -55,6 +55,7 @@ module stack
      procedure, non_overridable, pass(this) :: free => stack_free
      procedure, non_overridable, pass(this) :: clear => stack_clear
      procedure, non_overridable, pass(this) :: size => stack_size
+     procedure, non_overridable, pass(this) :: is_empty => stack_is_empty
      procedure, non_overridable, pass(this) :: push => stack_push
   end type stack_t
 
@@ -227,6 +228,13 @@ contains
     integer :: size
     size = this%top_
   end function stack_size
+
+  !> Return true if the stack is empty
+   pure function stack_is_empty(this) result(is_empty)
+      class(stack_t), intent(in) :: this
+      logical :: is_empty
+      is_empty = this%top_ .eq. 0
+   end function stack_is_empty
 
   !> Push data onto the stack
   subroutine stack_push(this, data)

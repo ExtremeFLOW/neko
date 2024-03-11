@@ -103,15 +103,17 @@ contains
 
   end subroutine rhs_maker_ext_cpu
 
-  subroutine scalar_rhs_maker_ext_cpu(temp1, fs_lag, fs_laglag, fs, rho, ext_coeffs, &
-                                n)
-    type(field_t), intent(inout) :: temp1
+  subroutine scalar_rhs_maker_ext_cpu(fs_lag, fs_laglag, fs, rho, ext_coeffs, n)
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
     real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fs(n)
     integer :: i
+    type(field_t), pointer :: temp1
+    integer :: temp_index
+
+    call neko_scratch_registry%request_field(temp1, temp_index)
     !$omp parallel
     !$omp do
     do i = 1, n
@@ -190,16 +192,19 @@ contains
 
   end subroutine rhs_maker_bdf_cpu
 
-  subroutine scalar_rhs_maker_bdf_cpu(temp1, temp2, s_lag, fs, s, B, rho, dt, &
-       bd, nbd, n)
+  subroutine scalar_rhs_maker_bdf_cpu(s_lag, fs, s, B, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
-    type(field_t), intent(inout) :: temp1, temp2
     type(field_t), intent(in) :: s
     type(field_series_t), intent(in) :: s_lag
     real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)
     integer :: i, ilag
+    type(field_t), pointer :: temp1, temp2
+    integer :: temp_indices(2)
+
+    call neko_scratch_registry%request_field(temp1, temp_indices(1))
+    call neko_scratch_registry%request_field(temp2, temp_indices(2))
     !$omp parallel private(ilag)
     !$omp do
     do i = 1, n

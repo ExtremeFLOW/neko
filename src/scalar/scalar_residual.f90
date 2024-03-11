@@ -50,8 +50,21 @@ module scalar_residual
   end type scalar_residual_t
 
   abstract interface
-     subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, bd,&
-                dt, n)
+     !> Interface for computing the residual of a scalar transport equation.
+     !! @param Ax The Helmholtz operator.
+     !! @param s The values of the scalar.
+     !! @param s_res The values of the scalar residual.
+     !! @param f_xH The right hand side.
+     !! @param c_xH The SEM coefficients.
+     !! @param msh The mesh.
+     !! @param Xh The SEM function space.
+     !! @param lambda The thermal conductivity.
+     !! @param rhocp The density multiplied by the specific heat capacity.
+     !! @param bd The coefficeints from the BDF differencing scheme.
+     !! @param dt The timestep.
+     !! @param n The total number of degrees of freedom.
+     subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
+                                          lambda, rhocp, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t
@@ -66,11 +79,10 @@ module scalar_residual
        type(space_t), intent(inout) :: Xh
        type(field_t), intent(inout) :: s
        type(field_t), intent(inout) :: s_res
-       type(source_scalar_t), intent(inout) :: f_Xh
+       type(field_t), intent(inout) :: f_Xh
        type(coef_t), intent(inout) :: c_Xh
-       real(kind=rp), intent(in) :: Pr
-       real(kind=rp), intent(in) :: Re
-       real(kind=rp), intent(in) :: rho
+       real(kind=rp), intent(in) :: lambda
+       real(kind=rp), intent(in) :: rhocp
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
        integer, intent(in) :: n

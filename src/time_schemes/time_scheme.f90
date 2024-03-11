@@ -61,7 +61,6 @@
 module time_scheme
   use neko_config
   use num_types, only : rp
-  use utils, only : neko_warning
   use, intrinsic :: iso_c_binding
   implicit none
   private

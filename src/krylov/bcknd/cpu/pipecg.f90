@@ -32,8 +32,15 @@
 !
 !> Defines a pipelined Conjugate Gradient methods
 module pipecg
-  use krylov
-  use math
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, rzero, copy
   use comm
   implicit none
   private
@@ -52,16 +59,20 @@ module pipecg
      real(kind=rp), allocatable :: mi(:)
      real(kind=rp), allocatable :: ni(:)
    contains
+     !> Constructor.
      procedure, pass(this) :: init => pipecg_init
+     !> Destructor.
      procedure, pass(this) :: free => pipecg_free
+     !> Solve the linear system.
      procedure, pass(this) :: solve => pipecg_solve
   end type pipecg_t
 
 contains
 
   !> Initialise a pipelined PCG solver
-  subroutine pipecg_init(this, n, M, rel_tol, abs_tol)
+  subroutine pipecg_init(this, n, max_iter, M, rel_tol, abs_tol)
     class(pipecg_t), intent(inout) :: this
+    integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
@@ -83,13 +94,13 @@ contains
     end if
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(max_iter)
     end if
 
   end subroutine pipecg_init
@@ -156,7 +167,7 @@ contains
     if (present(niter)) then
        max_iter = niter
     else
-       max_iter = KSP_MAX_ITER
+       max_iter = this%max_iter
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 

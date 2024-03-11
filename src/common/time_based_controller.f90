@@ -57,6 +57,11 @@ module time_based_controller
      integer :: nexecutions = 0
      !> Whether to never output.
      logical :: never = .false.
+     !> Control mode defining the meaning of `control_value`.
+     !> Can be `simulationtime`, `tsteps`, `nsamples` or `never`.
+     character(len=:), allocatable :: control_mode
+     !> Defines the frequency of writes.
+     real(kind=rp) :: control_value
 
    contains
      !> Constructor.
@@ -66,6 +71,9 @@ module time_based_controller
      !> Increment `nexectutions`.
      procedure, pass(this) :: register_execution => &
        time_based_controller_register_execution
+     !> Set the counter based on a time (for restarts)
+     procedure, pass(this) :: set_counter => &
+       time_based_controller_set_counter
 
   end type time_based_controller_t
 
@@ -87,6 +95,8 @@ contains
     real(kind=rp), intent(in) :: control_value
 
     this%end_time = end_time
+    this%control_mode = control_mode
+    this%control_value = control_value
 
     if (trim(control_mode) .eq. 'simulationtime') then
        this%time_interval = control_value
@@ -172,6 +182,17 @@ contains
 
   end subroutine time_based_controller_register_execution
 
+  !> Set the counter based on a time (for restarts)
+  !! @param t simulation time.
+  subroutine time_based_controller_set_counter(this,t)
+    class(time_based_controller_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+
+    if (this%nsteps .eq. 0) then
+       this%nexecutions = int(t / this%time_interval) + 1
+    end if
+
+  end subroutine time_based_controller_set_counter
 
 
 end module time_based_controller

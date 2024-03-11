@@ -37,8 +37,9 @@ module stl_file
   use tri_mesh
   use logger
   use point
-  use mpi_types
+  use neko_mpi_types
   use mpi_f08
+  use utils, only: neko_error
   use comm
   use stl
   implicit none
@@ -70,6 +71,8 @@ contains
     type(stl_hdr_t) :: stl_hdr
     type(stl_triangle_t), allocatable :: stl_tri(:)
     integer :: i, p_idx, ierr
+
+    call this%check_exists()
 
     select type(data)
     type is(tri_mesh_t)

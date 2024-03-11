@@ -38,10 +38,10 @@ module bc
   use dofmap, only : dofmap_t
   use space, only : space_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
-  use zone, only : zone_t
+  use facet_zone, only : facet_zone_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
-  use utils, only : neko_error, linear_index
+  use utils, only : linear_index
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
@@ -98,7 +98,9 @@ module bc
   !> A list of boundary conditions
   type, public :: bc_list_t
      type(bcp_t), allocatable :: bc(:)
+     !> Number of items.
      integer :: n
+     !> Capacity.
      integer :: size
   end type bc_list_t
 
@@ -260,7 +262,7 @@ contains
   !! @param bc_zone Boundary zone to be marked.
   subroutine bc_mark_zone(this, bc_zone)
     class(bc_t), intent(inout) :: this
-    class(zone_t), intent(inout) :: bc_zone
+    class(facet_zone_t), intent(inout) :: bc_zone
     integer :: i
     do i = 1, bc_zone%size
        call this%marked_facet%push(bc_zone%facet_el(i))
@@ -275,7 +277,7 @@ contains
   !! @param bc_label List of boundary condition labels.
   subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels)
     class(bc_t), intent(inout) :: this
-    class(zone_t), intent(inout) :: bc_zones(:)
+    class(facet_zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
     character(len=20) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     integer :: i, j, k, msh_bc_type
@@ -335,7 +337,7 @@ contains
 
     ! Loop through each (facet, element) id tuple
     ! Then loop over all the nodes of the face and compute their linear index
-    ! This index goes into This%msk, whereas the corresponding face id goes into
+    ! This index goes into this%msk, whereas the corresponding face id goes into
     ! this%facet
     do i = 1, this%marked_facet%size()
        bc_facet = bfp(i)
@@ -401,8 +403,10 @@ contains
        call device_map(this%msk, this%msk_d, n)
        call device_map(this%facet, this%facet_d, n)
 
-       call device_memcpy(this%msk, this%msk_d, n, HOST_TO_DEVICE)
-       call device_memcpy(this%facet, this%facet_d, n, HOST_TO_DEVICE)
+       call device_memcpy(this%msk, this%msk_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%facet, this%facet_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine bc_finalize

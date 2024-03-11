@@ -492,7 +492,7 @@ contains
     IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
     REAL(KIND=RP)  XJAC(1)
     DATA KSTOP /10/
-    DATA EPS/1.0e-12/
+    DATA EPS/1.0e-12_RP/
     N   = NP-1
     one = 1.
     DTH = 4.*ATAN(one)/(2.*((N))+2.)

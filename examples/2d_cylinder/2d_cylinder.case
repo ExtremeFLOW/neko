@@ -16,8 +16,6 @@
 
   "fluid": {
     "scheme": "pnpn",
-    "rho": 1.0,
-    "mu": 1.0,
     "Re": 160,
 
     "initial_condition": {
@@ -41,8 +39,8 @@
       "max_iterations": 800
     },
 
-    "output_control": "samples",
-    "output_value": 100
+    "output_control": "nsamples",
+    "output_value": 20
   }
   }
 }

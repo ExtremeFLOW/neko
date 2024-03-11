@@ -82,7 +82,7 @@ module hsmg
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
-  use krylov, only : ksp_t, ksp_monitor_t
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
   !$ use omp_lib
   implicit none
@@ -201,10 +201,10 @@ contains
     ! Create a backend specific krylov solver
     if (present(crs_pctype)) then
        call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), trim(crs_pctype), M = this%pc_crs)
+            this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, M = this%pc_crs)
     else
        call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), 'cg', M = this%pc_crs)
+            this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
     end if
 
     call this%bc_crs%init(this%dm_crs)
@@ -362,7 +362,7 @@ contains
     type(ksp_monitor_t) :: crs_info
     integer :: i, thrdid, nthrds
 
-    call profiler_start_region('HSMG solve')
+    call profiler_start_region('HSMG solve', 8)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        z_d = device_get_ptr(z)
        r_d = device_get_ptr(r)
@@ -404,16 +404,19 @@ contains
        !$ nthrds = omp_get_num_threads()
 
        if (thrdid .eq. 0) then
+          call profiler_start_region('HSMG schwarz', 9)
           call this%grids(3)%schwarz%compute(z, this%r)
           call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
+          call profiler_end_region
        end if
        if (nthrds .eq. 1 .or. thrdid .eq. 1) then
+          call profiler_start_region('HSMG coarse grid', 10)
           call this%grids(1)%gs_h%op(this%wf%x, &
                this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
           call device_event_sync(this%gs_event)
           call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
                                     this%grids(1)%dof%size())
-          call profiler_start_region('HSMG coarse-solve')
+          call profiler_start_region('HSMG coarse-solve', 11)
           crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%wf%x, &
                                        this%grids(1)%dof%size(), &
                                        this%grids(1)%coef, &
@@ -422,7 +425,7 @@ contains
           call profiler_end_region
           call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                     this%grids(1)%dof%size())
-
+          call profiler_end_region
        end if
        !$omp end parallel
 
@@ -478,7 +481,7 @@ contains
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
                                  this%grids(1)%dof%size())
        !$omp end parallel
-       call profiler_start_region('HSMG coarse-solve')
+       call profiler_start_region('HSMG coarse-solve', 11)
        crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
                                     this%grids(1)%dof%size(), &
                                     this%grids(1)%coef, &

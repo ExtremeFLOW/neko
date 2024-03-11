@@ -61,7 +61,7 @@ module fluid_volflow
   use operators
   use num_types
   use mathops
-  use krylov
+  use krylov, only : ksp_t, ksp_monitor_t
   use precon
   use dofmap
   use field
@@ -72,9 +72,12 @@ module fluid_volflow
   use neko_config
   use device_math
   use device_mathops
+  use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
   use json_utils, only: json_get
   use scratch_registry, only : scratch_registry_t
+  use bc, only : bc_list_t, bc_list_apply_vector, bc_list_apply_scalar
+  use ax_product, only : ax_t
   implicit none
   private
 
@@ -145,7 +148,7 @@ contains
   !! @brief Compute pressure and velocity using fractional step method.
   !! (Tombo splitting scheme).
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
-       ext_bdf, gs_Xh, c_Xh, rho, Re, bd, dt, &
+       ext_bdf, gs_Xh, c_Xh, rho, mu, bd, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
        Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
@@ -159,7 +162,7 @@ contains
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     real(kind=rp), intent(inout) :: bd
-    real(kind=rp), intent(in) :: rho, Re, dt
+    real(kind=rp), intent(in) :: rho, mu, dt
     integer, intent(in) :: vel_max_iter, prs_max_iter
     integer :: n, i
     real(kind=rp) :: xlmin, xlmax
@@ -259,11 +262,11 @@ contains
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_cfill(c_Xh%h1_d, (1.0_rp / Re), n)
+         call device_cfill(c_Xh%h1_d, mu, n)
          call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
       else
          do i = 1, n
-            c_Xh%h1(i,1,1,1) = (1.0_rp / Re)
+            c_Xh%h1(i,1,1,1) = mu
             c_Xh%h2(i,1,1,1) = rho * (bd / dt)
          end do
       end if
@@ -327,7 +330,7 @@ contains
   !!
   !! pff 6/28/98
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
-       c_Xh, gs_Xh, ext_bdf, rho, Re, dt, &
+       c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
        Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
 
@@ -337,7 +340,7 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
-    real(kind=rp), intent(in) :: rho, Re, dt
+    real(kind=rp), intent(in) :: rho, mu, dt
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(inout) :: Ax
@@ -372,9 +375,9 @@ contains
 
       if (ifcomp .gt. 0d0) then
          call this%compute(u_res, v_res, w_res, p_res, &
-              ext_bdf, gs_Xh, c_Xh, rho, Re, ext_bdf%diffusion_coeffs(1), dt, &
+              ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-              Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+              Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -401,6 +404,8 @@ contains
       if (this%avflow) then
          xsec = c_Xh%volume / this%domain_length
          flow_rate = this%flow_rate*xsec
+      else
+         flow_rate = this%flow_rate
       endif
 
       delta_flow = flow_rate - current_flow

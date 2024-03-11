@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -171,13 +171,12 @@ contains
   function tri_centroid(this) result(res)
     class(tri_t), intent(in) :: this
     type(point_t) :: res
-    type(point_t), pointer :: p1, p2, p3, p4
+    type(point_t), pointer :: p1, p2, p3
     integer :: i
 
     p1 => this%p(1)
     p2 => this%p(2)
     p3 => this%p(3)
-    p4 => this%p(4)
     res%x = 0d0
 
     do i = 1, this%gdim()

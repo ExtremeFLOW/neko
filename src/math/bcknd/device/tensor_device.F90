@@ -72,8 +72,15 @@ module tensor_device
        integer(c_int) :: nu, nv, nelv
      end subroutine cuda_tnsr3d
   end interface
-
 #elif HAVE_OPENCL
+  interface
+     subroutine opencl_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points) &
+          bind(c, name='opencl_tnsr3d_el_list')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, elements
+       integer(c_int) :: nu, nv, n_points
+     end subroutine opencl_tnsr3d_el_list
+  end interface
   interface
      subroutine opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
           bind(c, name='opencl_tnsr3d')
@@ -107,8 +114,7 @@ contains
 #elif HAVE_CUDA
     call cuda_tnsr3d_el_list( v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points)
 #elif HAVE_OPENCL
-    call neko_error("No OpenCL backend for tnsr3d_el_list")
-!!$    call opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, n_points)
+    call opencl_tnsr3d_el_list( v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points)
 #else
     call neko_error('No device backend configured')
 #endif

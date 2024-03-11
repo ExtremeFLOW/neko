@@ -32,9 +32,20 @@
 !
 !> Defines various GMRES methods
 module gmres_device
-  use krylov
-  use math
-  use device_math
+  use krylov, only : ksp_t, ksp_monitor_t
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp, c_rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use device_identity, only : device_ident_t
+  use math, only : rone, rzero
+  use device_math, only : device_rzero, device_copy, device_glsc3, &
+                          device_add2s2, device_add2s1, device_rone, &
+                          device_cmult2, device_add2s2_many, device_glsc3_many,&
+                          device_sub2
   use device
   use comm
   use, intrinsic :: iso_c_binding
@@ -118,9 +129,10 @@ contains
   end function device_gmres_part2
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_device_init(this, n, M, m_restart, rel_tol, abs_tol)
+  subroutine gmres_device_init(this, n, max_iter, M, m_restart, rel_tol, abs_tol)
     class(gmres_device_t), target,  intent(inout) :: this
     integer, intent(in) :: n
+    integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, optional, intent(inout) :: m_restart
     real(kind=rp), optional, intent(inout) :: rel_tol
@@ -179,21 +191,24 @@ contains
     call device_alloc(this%v_d_d, z_size)
     call device_alloc(this%h_d_d, z_size)
     ptr = c_loc(this%z_d)
-    call device_memcpy(ptr,this%z_d_d, z_size, HOST_TO_DEVICE)
+    call device_memcpy(ptr,this%z_d_d, z_size, &
+                       HOST_TO_DEVICE, sync=.false.)
     ptr = c_loc(this%v_d)
-    call device_memcpy(ptr,this%v_d_d, z_size, HOST_TO_DEVICE)
+    call device_memcpy(ptr,this%v_d_d, z_size, &
+                       HOST_TO_DEVICE, sync=.false.)
     ptr = c_loc(this%h_d)
-    call device_memcpy(ptr,this%h_d_d, z_size, HOST_TO_DEVICE)
+    call device_memcpy(ptr,this%h_d_d, z_size, &
+                       HOST_TO_DEVICE, sync=.false.)
 
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init(abs_tol)
+       call this%ksp_init(max_iter)
     end if
 
     call device_event_create(this%gs_event, 2)
@@ -299,7 +314,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter
+    integer :: iter, max_iter
     integer :: i, j, k
     real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
     logical :: conv
@@ -309,6 +324,12 @@ contains
 
     conv = .false.
     iter = 0
+
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = this%max_iter
+    end if
 
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
           v => this%v, s => this%s, gam => this%gam, v_d => this%v_d, &
@@ -329,7 +350,7 @@ contains
 !       do j = 1, this%m_restart
 !          call device_rzero(h_d(j), this%m_restart)
 !       end do
-      do while (.not. conv .and. iter .lt. niter)
+      do while (.not. conv .and. iter .lt. max_iter)
 
          if(iter.eq.0) then
             call device_copy(r_d, f_d, n)
@@ -373,7 +394,8 @@ contains
             else
                call device_glsc3_many(h(1,j), w_d, v_d_d, coef%mult_d, j, n)
 
-               call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
+               call device_memcpy(h(:,j), h_d(j), j, &
+                                   HOST_TO_DEVICE, sync=.false.)
 
                alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), coef%mult_d, j, n)
 
@@ -397,7 +419,8 @@ contains
             c(j) = h(j,j) * temp
             s(j) = alpha  * temp
             h(j,j) = lr
-            call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
+            call device_memcpy(h(:,j), h_d(j), j, &
+                                HOST_TO_DEVICE, sync=.false.)
             gam(j+1) = -s(j) * gam(j)
             gam(j)   =  c(j) * gam(j)
 
@@ -407,7 +430,7 @@ contains
                exit
             end if
 
-            if (iter + 1 .gt. niter) exit
+            if (iter + 1 .gt. max_iter) exit
 
             if( j .lt. this%m_restart) then
                temp = 1.0_rp / alpha
@@ -430,7 +453,7 @@ contains
                call device_add2s2(x_d, this%z_d(i), c(i), n)
             end do
          else
-            call device_memcpy(c, c_d, j, HOST_TO_DEVICE)
+            call device_memcpy(c, c_d, j, HOST_TO_DEVICE, sync=.false.)
             call device_add2s2_many(x_d, z_d_d, c_d, j, n)
          end if
       end do

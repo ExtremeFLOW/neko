@@ -40,7 +40,6 @@ module opr_cpu
   use space, only : space_t
   use coefs, only : coef_t
   use math
-  use mesh, only : mesh_t
   use field, only : field_t
   use gather_scatter
   use mathops

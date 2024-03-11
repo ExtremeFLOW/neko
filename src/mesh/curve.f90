@@ -57,7 +57,6 @@ contains
   !! @details Create a static list of (facet,el) tuples
   subroutine curve_element_finalize(z)
     class(curve_t), target, intent(inout) :: z
-    class(struct_curve_t), pointer :: tp(:)
     integer :: i
 
     if (.not. z%finalized) then

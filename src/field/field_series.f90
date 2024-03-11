@@ -119,6 +119,7 @@ contains
        this%lf(i) = g
     end do
     !$omp end parallel
+
   end subroutine field_series_set
 
 end module field_series

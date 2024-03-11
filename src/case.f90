@@ -39,13 +39,13 @@ module case
   use mean_sqr_flow_output
   use mean_flow_output
   use fluid_stats_output
-  use mpi_types
   use mpi_f08
   use mesh_field
   use parmetis
   use redist
   use sampler
   use flow_ic
+  use scalar_ic, only : set_scalar_ic
   use stats
   use file
   use utils
@@ -59,6 +59,8 @@ module case
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
+  use point_zone_registry, only: neko_point_zone_registry
+  use material_properties, only : material_properties_t
   implicit none
 
   type :: case_t
@@ -79,10 +81,11 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
+     type(material_properties_t):: material_properties
   end type case_t
 
   interface case_init
-     module procedure case_init_from_file
+     module procedure case_init_from_file, case_init_from_json
   end interface case_init
 
   private :: case_init_from_file, case_init_from_json, case_init_common
@@ -97,7 +100,8 @@ contains
     character(len=:), allocatable :: json_buffer
 
     call neko_log%section('Case')
-    call neko_log%message('Reading case file ' // trim(case_file))
+    call neko_log%message('Reading case file ' // trim(case_file), &
+                          NEKO_LOG_QUIET)
 
     if (pe_rank .eq. 0) then
        call C%params%load_file(filename=trim(case_file))
@@ -122,7 +126,7 @@ contains
     type(json_file), intent(in) :: case_json
 
     call neko_log%section('Case')
-    call neko_log%message('Creating case from JSON object')
+    call neko_log%message('Creating case from JSON object', NEKO_LOG_QUIET)
 
     C%params = case_json
 
@@ -145,10 +149,8 @@ contains
     real(kind=rp) :: stats_start_time, stats_output_val
     integer ::  stats_sampling_interval
     integer :: output_dir_len
-    integer :: n_simcomps, i
-    type(json_core) :: core
-    type(json_value), pointer :: json_val1, json_val2
-    type(json_file) :: json_subdict
+    integer :: n_simcomps
+    integer :: precision
 
     !
     ! Load mesh
@@ -182,10 +184,21 @@ contains
     call json_get(C%params, 'case.end_time', C%end_time)
 
     !
+    ! Initialize point_zones registry
+    !
+    call neko_point_zone_registry%init(C%params, C%msh)
+
+    !
     ! Setup user defined functions
     !
     call C%usr%init()
     call C%usr%user_mesh_setup(C%msh)
+
+
+    !
+    ! Material properties
+    !
+    call C%material_properties%init(C%params, C%usr)
 
     !
     ! Setup fluid scheme
@@ -195,7 +208,18 @@ contains
 
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get poly order
-    call C%fluid%init(C%msh, lx, C%params, C%usr)
+    call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
+    C%fluid%chkp%tlag => C%tlag
+    C%fluid%chkp%dtlag => C%dtlag
+    select type(f => C%fluid)
+    type is(fluid_pnpn_t)
+       f%chkp%abx1 => f%abx1
+       f%chkp%abx2 => f%abx2
+       f%chkp%aby1 => f%aby1
+       f%chkp%aby2 => f%aby2
+       f%chkp%abz1 => f%abz1
+       f%chkp%abz2 => f%abz2
+    end select
 
 
     !
@@ -214,8 +238,12 @@ contains
 
     if (scalar) then
        allocate(C%scalar)
-       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
+       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
+                          C%material_properties)
        call C%fluid%chkp%add_scalar(C%scalar%s)
+       C%fluid%chkp%abs1 => C%scalar%abx1
+       C%fluid%chkp%abs2 => C%scalar%abx2
+       C%fluid%chkp%slag => C%scalar%slag
     end if
 
     !
@@ -229,22 +257,8 @@ contains
        end if
     end if
 
-    ! Setup source term for the scalar
-    ! @todo should be expanded for user sources etc. Now copies the fluid one
+    ! Setup user boundary conditions for the scalar.
     if (scalar) then
-       logical_val = C%params%valid_path('case.scalar.source_term')
-       call json_get_or_default(C%params, 'case.scalar.source_term.type',&
-                                string_val, 'noforce')
-       if (trim(string_val) .eq. 'user') then
-          call C%scalar%set_source(trim(string_val), &
-               usr_f=C%usr%scalar_user_f)
-       else if (trim(string_val) .eq. 'user_vector') then
-          call C%scalar%set_source(trim(string_val), &
-               usr_f_vec=C%usr%scalar_user_f_vector)
-       else
-          call C%scalar%set_source(trim(string_val))
-       end if
-
        call C%scalar%set_user_bc(C%usr%scalar_user_bc)
     end if
 
@@ -259,6 +273,17 @@ contains
     else
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
             C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
+    end if
+
+    if (scalar) then
+       call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
+       if (trim(string_val) .ne. 'user') then
+          call set_scalar_ic(C%scalar%s, &
+            C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
+       else
+          call set_scalar_ic(C%scalar%s, &
+            C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
+       end if
     end if
 
     ! Add initial conditions to BDF scheme (if present)
@@ -326,13 +351,27 @@ contains
     end if
 
     !
+    ! Setup output precision of the field files
+    !
+    call json_get_or_default(C%params, 'case.output_precision', string_val,&
+         'single')
+
+    if (trim(string_val) .eq. 'double') then
+       precision = dp
+    else
+       precision = sp
+    end if
+
+    !
     ! Setup sampler
     !
     call C%s%init(C%end_time)
     if (scalar) then
-       C%f_out = fluid_output_t(C%fluid, C%scalar, path=trim(output_directory))
+       C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
+            path=trim(output_directory))
     else
-       C%f_out = fluid_output_t(C%fluid, path=trim(output_directory))
+       C%f_out = fluid_output_t(precision, C%fluid, &
+            path=trim(output_directory))
     end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
@@ -344,6 +383,8 @@ contains
        call C%s%add(C%f_out, real_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
        ! Fix a dummy 0.0 output_value
+       call json_get_or_default(C%params, 'case.fluid.output_value', real_val, &
+                                0.0_rp)
        call C%s%add(C%f_out, 0.0_rp, string_val)
     else
        call json_get(C%params, 'case.fluid.output_value', real_val)
@@ -354,11 +395,13 @@ contains
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
     call json_get_or_default(C%params, 'case.output_checkpoints',&
-                             logical_val, .false.)
+                             logical_val, .true.)
     if (logical_val) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory)
-       call json_get(C%params, 'case.checkpoint_control', string_val)
-       call json_get(C%params, 'case.checkpoint_value', real_val)
+       call json_get_or_default(C%params, 'case.checkpoint_control', &
+            string_val, "simulationtime")
+       call json_get_or_default(C%params, 'case.checkpoint_value', real_val,&
+            1e10_rp)
        call C%s%add(C%f_chkp, real_val, string_val)
     end if
 

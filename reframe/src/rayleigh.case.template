@@ -13,17 +13,16 @@
     },
     "fluid": {
         "scheme": "pnpn",
-        "rho": 1,
-        "mu": 1,
-        "Re": 1.408541,
-        "source_terms": 
+        "Ra": 1750,
+        "source_terms":
         [
             {
                 "type": "user_vector"
             }
         ],
         "initial_condition": {
-            "type": "user"
+            "type": "uniform",
+            "value": [0,0,0]
         },
         "velocity_solver": {
             "type": "cg",
@@ -53,6 +52,9 @@
     "scalar": {
         "enabled": true,
         "Pr": 0.71,
+        "initial_condition": {
+            "type": "user"
+        },
         "boundary_types": [
             "",
             "",

@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -68,10 +68,10 @@ module fluid_scheme
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
-  use source_term, only : source_term_wrapper_t
-  use source_term_fctry, only : source_term_factory
-  use const_source_term, only : const_source_term_t
   use user_intf, only : user_t
+  use utils, only : neko_warning, neko_error
+  use material_properties, only : material_properties_t
+  use field_series
   implicit none
 
   !> Base type of all fluid formulations
@@ -80,6 +80,7 @@ module fluid_scheme
      type(field_t), pointer :: v => null() !< y-component of Velocity
      type(field_t), pointer :: w => null() !< z-component of Velocity
      type(field_t), pointer :: p => null() !< Pressure
+     type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
@@ -96,8 +97,6 @@ module fluid_scheme
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
      class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
-     integer :: ksp_vel_maxiter                !< Max iterations in ksp_vel
-     integer :: ksp_pr_maxiter                 !< Max iterattions in ksp_pr
      integer :: vel_projection_dim         !< Size of the projection space for ksp_vel
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
@@ -116,12 +115,10 @@ module fluid_scheme
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
-     !> The Reynolds number
-     real(kind=rp) :: Re
      !> Dynamic viscosity
-     real(kind=rp) :: mu
+     real(kind=rp), pointer :: mu
      !> Density
-     real(kind=rp) :: rho
+     real(kind=rp), pointer :: rho
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=20), allocatable :: bc_labels(:)
@@ -137,21 +134,25 @@ module fluid_scheme
      procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
      procedure(fluid_scheme_free_intrf), pass(this), deferred :: free
      procedure(fluid_scheme_step_intrf), pass(this), deferred :: step
+     procedure(fluid_scheme_restart_intrf), pass(this), deferred :: restart
      generic :: scheme_init => fluid_scheme_init_all, fluid_scheme_init_uvw
   end type fluid_scheme_t
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_scheme_init_intrf(this, msh, lx, params, user)
+     subroutine fluid_scheme_init_intrf(this, msh, lx, params, user, &
+                                        material_properties)
        import fluid_scheme_t
        import json_file
        import mesh_t
        import user_t
+       import material_properties_t
        class(fluid_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
        integer, intent(inout) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), intent(in) :: user
+       type(material_properties_t), intent(inout) :: material_properties
      end subroutine fluid_scheme_init_intrf
   end interface
 
@@ -177,10 +178,23 @@ module fluid_scheme
      end subroutine fluid_scheme_step_intrf
   end interface
 
+  !> Abstract interface to restart a fluid scheme
+  abstract interface
+     subroutine fluid_scheme_restart_intrf(this, dtlag, tlag)
+       import fluid_scheme_t
+       import rp
+       class(fluid_scheme_t), target, intent(inout) :: this
+       real(kind=rp) :: dtlag(10), tlag(10)
+
+     end subroutine fluid_scheme_restart_intrf
+  end interface
+
+
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user)
+  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
+      material_properties)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
@@ -188,13 +202,14 @@ contains
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(material_properties_t), target, intent(inout) :: material_properties
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
     real(kind=rp) :: real_val
     logical :: logical_val
-    integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
+    ! A local pointer that is needed to make Intel happy
 
 
     call neko_log%section('Fluid')
@@ -208,15 +223,15 @@ contains
        write(log_buf, '(A, I3)') 'lx         : ', lx
     end if
 
-    call json_get(params, 'case.fluid.Re', this%Re)
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'Re         :',  this%Re
+    !
+    ! Material properties
+    !
 
-    call json_get(params, 'case.fluid.rho', this%rho)
+    this%rho => material_properties%rho
+    this%mu => material_properties%mu
+
     call neko_log%message(log_buf)
     write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
-
-    call json_get(params, 'case.fluid.mu', this%mu)
     call neko_log%message(log_buf)
     write(log_buf, '(A,ES13.6)') 'mu         :',  this%mu
 
@@ -251,12 +266,6 @@ contains
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
 
-    call json_get_or_default(params, &
-                            'case.fluid.velocity_solver.max_iterations', &
-                            this%ksp_vel_maxiter, 800)
-    call json_get_or_default(params, &
-                            'case.fluid.pressure_solver.max_iterations', &
-                            this%ksp_pr_maxiter, 800)
 
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
@@ -445,22 +454,24 @@ contains
 
   !> Initialize all velocity related components of the current scheme
   subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init, scheme, &
-                                   user)
+                                   user, material_properties)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(material_properties_t), target, intent(inout) :: material_properties
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
     ! Variables for extracting json
-    logical :: found, logical_val
     real(kind=rp) :: abs_tol
     character(len=:), allocatable :: solver_type, precon_type
+    integer :: ksp_vel_maxiter
 
 
-    call fluid_scheme_init_common(this, msh, lx, params, scheme, user)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
+                                  material_properties)
 
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
@@ -476,8 +487,11 @@ contains
                   abs_tol)
 
     if (kspv_init) then
+      call json_get_or_default(params, &
+                              'case.fluid.velocity_solver.max_iterations', &
+                              ksp_vel_maxiter, 800)
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            solver_type, abs_tol)
+            solver_type, ksp_vel_maxiter, abs_tol)
        call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, precon_type)
     end if
@@ -486,23 +500,24 @@ contains
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, params, &
-                                   kspv_init, kspp_init, scheme, user)
+  subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init,&
+                                   scheme, user, material_properties)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(material_properties_t), target, intent(inout) :: material_properties
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: real_val, dong_delta, dong_uchar
-    real(kind=rp), allocatable :: real_vec(:)
-    integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
+    integer :: integer_val
 
-    call fluid_scheme_init_common(this, msh, lx, params, scheme, user)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
+                                  material_properties)
 
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
@@ -512,6 +527,12 @@ contains
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
     this%p => neko_field_registry%get_field('p')
+
+    !! lag fields
+    call this%ulag%init(this%u, 2)
+    call this%vlag%init(this%v, 2)
+    call this%wlag%init(this%w, 2)
+
 
     !
     ! Setup pressure boundary conditions
@@ -552,6 +573,9 @@ contains
 
 
     if (kspv_init) then
+       call json_get_or_default(params, &
+                                'case.fluid.velocity_solver.max_iterations', &
+                                integer_val, 800)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
        call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
                      string_val2)
@@ -559,12 +583,15 @@ contains
                      real_val)
 
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            string_val1, real_val)
+            string_val1, integer_val, real_val)
        call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, string_val2)
     end if
 
     if (kspp_init) then
+       call json_get_or_default(params, &
+                               'case.fluid.pressure_solver.max_iterations', &
+                               integer_val, 800)
        call json_get(params, 'case.fluid.pressure_solver.type', string_val1)
        call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
                      string_val2)
@@ -572,7 +599,7 @@ contains
                      real_val)
 
        call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-            string_val1, real_val)
+            string_val1, integer_val, real_val)
        call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, string_val2)
     end if
@@ -585,7 +612,6 @@ contains
   !> Deallocate a fluid formulation
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
-    integer :: i
 
     call this%bdry%free()
 
@@ -639,6 +665,11 @@ contains
     nullify(this%w)
     nullify(this%p)
 
+    call this%ulag%free()
+    call this%vlag%free()
+    call this%wlag%free()
+
+
     if (associated(this%f_x)) then
        call this%f_x%free()
     end if
@@ -663,7 +694,7 @@ contains
   subroutine fluid_scheme_validate(this)
     class(fluid_scheme_t), target, intent(inout) :: this
     ! Variables for retrieving json parameters
-    logical :: found, logical_val
+    logical :: logical_val
 
     if ( (.not. associated(this%u)) .or. &
          (.not. associated(this%v)) .or. &
@@ -746,13 +777,14 @@ contains
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine fluid_scheme_solver_factory(ksp, n, solver, abstol)
+  subroutine fluid_scheme_solver_factory(ksp, n, solver, max_iter, abstol)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=*), intent(in) :: solver
+    integer, intent(in) :: max_iter
     real(kind=rp), intent(in) :: abstol
 
-    call krylov_solver_factory(ksp, n, solver, abstol)
+    call krylov_solver_factory(ksp, n, solver, max_iter, abstol)
 
   end subroutine fluid_scheme_solver_factory
 

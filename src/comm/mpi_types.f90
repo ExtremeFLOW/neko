@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> MPI derived types
-module mpi_types
+module neko_mpi_types
   use comm
   use re2
   use nmsh
@@ -77,12 +77,12 @@ module mpi_types
        MPI_STL_HEADER, MPI_STL_TRIANGLE
 
   ! Public subroutines
-  public :: mpi_types_init, mpi_types_free
+  public :: neko_mpi_types_init, neko_mpi_types_free
 
 contains
 
   !> Define all MPI derived types
-  subroutine mpi_types_init
+  subroutine neko_mpi_types_init
     integer :: ierr
 
     ! Define derived types
@@ -109,7 +109,7 @@ contains
 
     call MPI_Barrier(NEKO_COMM, ierr)
 
-  end subroutine mpi_types_init
+  end subroutine neko_mpi_types_init
 
   !> Define a MPI derived type for a 3d nmsh hex
   subroutine mpi_type_nmsh_hex_init
@@ -519,7 +519,7 @@ contains
   end subroutine mpi_type_stl_triangle_init
 
   !> Deallocate all derived MPI types
-  subroutine mpi_types_free
+  subroutine neko_mpi_types_free
     call mpi_type_nmsh_hex_free
     call mpi_Type_nmsh_quad_free
     call mpi_Type_nmsh_zone_free
@@ -529,7 +529,7 @@ contains
     call mpi_type_re2_bc_free
     call mpi_type_stl_header_free
     call mpi_type_stl_triangle_free
-  end subroutine mpi_types_free
+  end subroutine neko_mpi_types_free
 
   !> Deallocate nmsh hex derived MPI type
   subroutine mpi_type_nmsh_hex_free
@@ -594,4 +594,4 @@ contains
     integer ierr
     call MPI_Type_free(MPI_STL_TRIANGLE, ierr)
   end subroutine mpi_type_stl_triangle_free
-end module mpi_types
+end module neko_mpi_types

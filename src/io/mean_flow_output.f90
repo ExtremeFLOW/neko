@@ -70,7 +70,7 @@ contains
        fname = 'mean_field.fld'
     end if
 
-    call output_init(this, fname)
+    call this%init_base(fname)
     this%mf => mf
     this%T_begin = T_begin
   end function mean_flow_output_init
@@ -81,10 +81,14 @@ contains
     real(kind=rp), intent(in) :: t
 
     if (t .ge. this%T_begin) then
-       call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
-       call device_memcpy(this%mf%u%mf%x, this%mf%u%mf%x_d, this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
-       call device_memcpy(this%mf%v%mf%x, this%mf%v%mf%x_d, this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
-       call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
+       call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, this%mf%p%mf%dof%size(), &
+                          DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%mf%u%mf%x, this%mf%u%mf%x_d, this%mf%p%mf%dof%size(), &
+                          DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%mf%v%mf%x, this%mf%v%mf%x_d, this%mf%p%mf%dof%size(), &
+                          DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), &
+                          DEVICE_TO_HOST, sync=.true.)
        call this%file_%write(this%mf, t)
        call this%mf%reset()
     end if

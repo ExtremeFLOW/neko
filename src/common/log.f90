@@ -59,6 +59,14 @@ module logger
 
   !> Global log stream
   type(log_t), public :: neko_log
+  !> Always logged
+  integer, public, parameter :: NEKO_LOG_QUIET = 0
+  !> Default log level
+  integer, public, parameter :: NEKO_LOG_INFO = 1
+  !> Verbose log level
+  integer, public, parameter :: NEKO_LOG_VERBOSE = 2
+  !> Debug log level
+  integer, public, parameter :: NEKO_LOG_DEBUG = 10
 
 contains
 
@@ -75,7 +83,7 @@ contains
     if (envvar_len .gt. 0) then
        read(log_level(1:envvar_len), *) this%level_
     else
-       this%level_ = 1
+       this%level_ = NEKO_LOG_INFO
     end if
 
   end subroutine log_init
@@ -126,12 +134,17 @@ contains
   subroutine log_message(this, msg, lvl)
     class(log_t), intent(in) :: this
     character(len=*), intent(in) :: msg
-    integer, optional, intent(in) :: lvl
+    integer, optional :: lvl
+    integer :: lvl_
 
     if (present(lvl)) then
-       if (lvl .gt. this%level_) then
-          return
-       end if
+       lvl_ = lvl
+    else
+       lvl_ = NEKO_LOG_INFO
+    end if
+
+    if (lvl_ .gt. this%level_) then
+       return
     end if
 
     if (pe_rank .eq. 0) then
@@ -199,7 +212,7 @@ contains
     character(len=*), intent(in), optional :: msg
 
     if (present(msg)) then
-       call this%message(msg)
+       call this%message(msg, NEKO_LOG_QUIET)
     end if
 
     if (pe_rank .eq. 0) then
@@ -220,12 +233,14 @@ contains
 
     t_prog = 100d0 * t / T_end
 
-    call this%message('----------------------------------------------------------------')
-    write(log_buf, '(A,E15.7,A,F6.2,A)') 't = ', t,&
-         '                                  [ ',t_prog,'% ]'
+    call this%message('----------------------------------------------------------------', &
+                      NEKO_LOG_QUIET)
+    write(log_buf, '(A,E15.7,A,F6.2,A)') &
+    't = ', t, '                                  [ ',t_prog,'% ]'
 
-    call this%message(log_buf)
-    call this%message('----------------------------------------------------------------')
+    call this%message(log_buf, NEKO_LOG_QUIET)
+    call this%message('----------------------------------------------------------------', &
+                      NEKO_LOG_QUIET)
   end subroutine log_status
 
   !

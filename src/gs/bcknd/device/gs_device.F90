@@ -260,17 +260,20 @@ contains
 
          if (.not. c_associated(dg_d)) then
             call device_map(dg, dg_d, m)
-            call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(gd_d)) then
             call device_map(gd, gd_d, m)
-            call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(b_d)) then
             call device_map(b, b_d, nb)
-            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(bo_d)) then
@@ -279,7 +282,8 @@ contains
             do  i = 2, nb
                bo(i) = bo(i - 1) + b(i - 1)
             end do
-            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
 #ifdef HAVE_HIP
@@ -308,17 +312,20 @@ contains
 
          if (.not. c_associated(dg_d)) then
             call device_map(dg, dg_d, m)
-            call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(gd_d)) then
             call device_map(gd, gd_d, m)
-            call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(b_d)) then
             call device_map(b, b_d, nb)
-            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
          if (.not. c_associated(bo_d)) then
@@ -327,7 +334,8 @@ contains
             do  i = 2, nb
                bo(i) = bo(i - 1) + b(i - 1)
             end do
-            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
 
@@ -350,7 +358,8 @@ contains
 
          if (this%shared_on_host) then
             if (this%nshared .eq. m) then
-               call device_memcpy(v, v_d, m, DEVICE_TO_HOST,strm=strm)
+               call device_memcpy(v, v_d, m, DEVICE_TO_HOST, &
+                                  sync=.true., strm=strm)
             end if
          end if
 
@@ -396,7 +405,8 @@ contains
             bo_d=>this%shared_blk_off_d, strm=>this%gs_stream)
 
          if (this%shared_on_host) then
-            call device_memcpy(v, v_d, m, HOST_TO_DEVICE, strm=strm)
+            call device_memcpy(v, v_d, m, HOST_TO_DEVICE, &
+                               sync=.false., strm=strm)
          end if
 
 #ifdef HAVE_HIP

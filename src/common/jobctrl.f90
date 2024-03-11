@@ -110,8 +110,9 @@ contains
     jstop = (signal_timeout() .or. signal_usr(1))
 
     if (jstop) then
+       ! Todo: This might be a warning instead of a message?
        write(log_buf, '(A)') '! stop at job limit >>>'
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
     end if
 
     ! Let rank zero decide if we should stop

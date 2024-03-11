@@ -1,0 +1,94 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "box.nmsh",
+        "output_directory": "cylinder_fields",
+        "output_at_end": false,
+        "output_boundary": false,
+        "output_checkpoints": false,
+        "end_time": 20.0,
+        "timestep": 5e-5,
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 8,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 2000.0,
+            "initial_condition": {
+                "type": "uniform",
+                "value": [
+                    1.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "inflow_condition": {
+                "type": "uniform",
+                "value": [
+                    1.0
+                ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": "jacobi",
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-8,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": "hsmg",
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-7,
+                "max_iterations": 800
+            },
+            "output_control": "nsamples",
+            "output_value": 250,
+            "boundary_types": [
+                "v",
+                "o",
+                "w",
+                "w",
+                "w",
+                "w"
+            ],
+            "source_terms": [
+                {
+                    "type": "brinkman",
+                    "objects": [
+                        {
+                            "type": "point_zone",
+                            "name": "cylinder"
+                        }
+                    ],
+                    "brinkman": {
+                        "limits": [
+                            0.0,
+                            1500.0
+                        ],
+                        "penalty": 1.0
+                    }
+                }
+            ]
+        },
+        "point_zones": [
+            {
+                "name": "cylinder",
+                "geometry": "cylinder",
+                "start": [
+                    1.0,
+                    0.0,
+                    0.5
+                ],
+                "end": [
+                    1.0,
+                    1.0,
+                    0.5
+                ],
+                "radius": 0.1
+            }
+        ]
+    }
+}

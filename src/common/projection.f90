@@ -152,10 +152,12 @@ contains
        ptr_size = c_sizeof(C_NULL_PTR) * this%L
        call device_alloc(this%xx_d_d, ptr_size)
        ptr = c_loc(this%xx_d)
-       call device_memcpy(ptr,this%xx_d_d, ptr_size, HOST_TO_DEVICE)
+       call device_memcpy(ptr,this%xx_d_d, ptr_size, &
+                          HOST_TO_DEVICE, sync=.false.)
        call device_alloc(this%bb_d_d, ptr_size)
        ptr = c_loc(this%bb_d)
-       call device_memcpy(ptr,this%bb_d_d, ptr_size, HOST_TO_DEVICE)
+       call device_memcpy(ptr,this%bb_d_d, ptr_size, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
 
@@ -207,7 +209,7 @@ contains
     integer, intent(inout) :: n
     class(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout), dimension(n) :: b
-    call profiler_start_region('Project on')
+    call profiler_start_region('Project on', 16)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_project_on(this, b, coef, n)
     else
@@ -227,13 +229,17 @@ contains
     type(c_ptr) :: x_d
     integer :: i
 
-    call profiler_start_region('Project back')
-    this%m = min(this%m+1,this%L)
-    !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
+    call profiler_start_region('Project back', 17)
+    !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))    
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        if (this%m .gt. 0) call device_add2(x_d,this%xbar_d,n)      ! Restore desired solution
-       if (this%m .eq. this%L) this%m = 1
+       if (this%m .eq. this%L) then
+          this%m = 1
+       else
+          this%m = min(this%m+1,this%L)
+       end if
+
        call device_copy(this%xx_d(this%m),x_d,n)   ! Update (X,B)
 
     else
@@ -245,6 +251,15 @@ contains
           end do
           !$omp end do
        end if
+       !$omp barrier
+       !$omp single
+       if (this%m .eq. this%L) then
+          this%m = 1
+       else
+          this%m = min(this%m+1,this%L)
+       end if
+       !$omp end single
+       !$omp barrier
        ! Update (X,B)
        !$omp do
        do i = 1, n
@@ -284,7 +299,7 @@ contains
 
       !First round of CGS
       call rzero(alpha, this%m)
-      this%proj_res = glsc3(b,b,coef%mult,n)
+      this%proj_res = sqrt(glsc3(b,b,coef%mult,n)/coef%volume)
       this%proj_m = this%m
       !$omp parallel do private(i,j,k) reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
@@ -347,7 +362,7 @@ contains
 
 
 
-      this%proj_res = device_glsc3(b_d,b_d,coef%mult_d,n)
+      this%proj_res = sqrt(device_glsc3(b_d,b_d,coef%mult_d,n)/coef%volume)
       this%proj_m = this%m
       if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
          call device_proj_on(alpha_d, b_d, xx_d_d, bb_d_d, &
@@ -359,7 +374,8 @@ contains
             end do
          else
             call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
-            call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE)
+            call device_memcpy(alpha, alpha_d, this%m, &
+                               HOST_TO_DEVICE, sync=.false.)
          end if
          call device_rzero(xbar_d, n)
          if (NEKO_BCKND_OPENCL .eq. 1) then
@@ -380,7 +396,8 @@ contains
          else
             call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
             call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
-            call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE)
+            call device_memcpy(alpha, alpha_d, this%m, &
+                               HOST_TO_DEVICE, sync=.false.)
          end if
 
          if (NEKO_BCKND_OPENCL .eq. 1) then
@@ -435,7 +452,8 @@ contains
                alpha(i) = device_glsc3(bb_d(m),xx_d(i),w_d,n)
             end do
          else
-            call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE)
+            call device_memcpy(alpha, alpha_d, this%m, &
+                               HOST_TO_DEVICE, sync=.false.)
             call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
             call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
 
@@ -449,7 +467,8 @@ contains
                alpha(i) =  device_glsc3(bb_d(m),xx_d(i),w_d,n)
             end do
          else
-            call device_memcpy(alpha, alpha_d, m, HOST_TO_DEVICE)
+            call device_memcpy(alpha, alpha_d, m, &
+                               HOST_TO_DEVICE, sync=.false.)
             call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
             call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
             call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
@@ -556,27 +575,6 @@ contains
             bb(i,m) = scl1 * bb(i,m)
          end do
          !$omp end parallel do
-
-         !We want to throw away the oldest information
-         !The below propagates newest information to first vector.
-         !This will make the first vector a scalar
-         !multiple of x.
-         do k = m, 2, -1
-            h = k - 1
-            call givens_rotation(alpha(h), alpha(k), c, s, nrm)
-            alpha(h) = nrm
-            !$omp parallel do private(scl1, scl2)
-            do i = 1, n !Apply rotation to xx and bb
-               scl1 = c*xx(i,h) + s*xx(i,k)
-               xx(i,k) = -s*xx(i,h) + c*xx(i,k)
-               xx(i,h) = scl1
-               scl2 = c*bb(i,h) + s*bb(i,k)
-               bb(i,k) = -s*bb(i,h) + c*bb(i,k)
-               bb(i,h) = scl2
-            end do
-            !$omp end parallel do
-         end do
-
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column
          if(pe_rank .eq. 0) then

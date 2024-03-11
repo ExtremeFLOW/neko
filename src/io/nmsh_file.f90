@@ -41,7 +41,7 @@ module nmsh_file
   use nmsh
   use element
   use datadist
-  use mpi_types
+  use neko_mpi_types
   use mpi_f08
   use logger
   implicit none
@@ -78,6 +78,8 @@ contains
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
+
+    call this%check_exists()
 
     select type(data)
     type is(mesh_t)

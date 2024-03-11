@@ -33,7 +33,6 @@
 !> Implements type spectral_error_indicator_t.
 module spectral_error_indicator
   use num_types, only: rp
-  use logger, only: neko_log, LOG_SIZE
   use field, only: field_t
   use coefs, only: coef_t
   use field_list, only: field_list_t
@@ -225,7 +224,6 @@ contains
     type(coef_t), intent(inout) :: coef
     character(len=4), intent(in) :: space
     integer :: i, j, k, e, nxyz, nelv, n
-    character(len=LOG_SIZE) :: log_buf
 
     !> Define some constants
     nxyz = coef%Xh%lx*coef%Xh%lx*coef%Xh%lx
@@ -256,7 +254,7 @@ contains
        (NEKO_BCKND_OPENCL .eq. 1)) then
 
        call device_memcpy(u_hat%x,u_hat%x_d, n, &
-                         DEVICE_TO_HOST)
+                         DEVICE_TO_HOST, sync=.true.)
     end if
 
   end subroutine transform_to_spec_or_phys

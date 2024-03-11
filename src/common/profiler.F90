@@ -68,11 +68,16 @@ contains
   end subroutine profiler_stop
 
   !> Started a named (@a name) profiler region
-  subroutine profiler_start_region(name)
+  subroutine profiler_start_region(name, region_id)
     character(kind=c_char,len=*) :: name
+    integer, optional :: region_id
 
 #ifdef HAVE_NVTX
-    call nvtxStartRange(name)
+    if (present(region_id)) then
+       call nvtxStartRange(name, region_id)
+    else
+       call nvtxStartRange(name)
+    end if
 #elif HAVE_ROCTX
     call roctxStartRange(name)
 #elif CRAYPAT

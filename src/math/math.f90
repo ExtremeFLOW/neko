@@ -76,11 +76,16 @@ module math
      module procedure sabscmp, dabscmp, qabscmp
   end interface abscmp
 
+  interface relcmp
+     module procedure srelcmp, drelcmp, qrelcmp
+  end interface relcmp
+
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
-       glsum, glmax, glmin, chsign, vlmax, invcol1, invcol3, invers2, vcross, &
+       glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, vcross, &
        vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, add2s1, add2s2, &
        addsqr2s2, cmult2, invcol2, col2, col3, subcol3, add3s2, subcol4, addcol3,&
-       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort
+       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort, relcmp,&
+       glimax, glimin
 
 contains
 
@@ -113,6 +118,49 @@ contains
     qabscmp = abs(x - y) .lt. NEKO_EPS
 
   end function qabscmp
+
+  !> Return single precision relative comparison \f$ | x - y |<= \epsilon*|y| \f$
+  pure function srelcmp(x, y, eps)
+    real(kind=sp), intent(in) :: x
+    real(kind=sp), intent(in) :: y
+    real(kind=sp), intent(in), optional :: eps
+    logical :: srelcmp 
+    if (present(eps)) then
+       srelcmp = abs(x - y) .le. eps*abs(y)
+    else
+       srelcmp = abs(x - y) .le. NEKO_EPS*abs(y)
+    end if
+
+  end function srelcmp
+
+  !> Return double precision relative comparison \f$ | x - y |/|y| < \epsilon \f$
+  pure function drelcmp(x, y, eps)
+    real(kind=dp), intent(in) :: x
+    real(kind=dp), intent(in) :: y
+    real(kind=dp), intent(in), optional :: eps
+    logical :: drelcmp 
+    if (present(eps)) then
+       drelcmp = abs(x - y) .le. eps*abs(y)
+    else
+       drelcmp = abs(x - y) .le. NEKO_EPS*abs(y)
+    end if
+
+  end function drelcmp
+
+
+  !> Return quad precision relative comparison \f$ | x - y |/|y| < \epsilon \f$
+  pure function qrelcmp(x, y, eps)
+    real(kind=qp), intent(in) :: x
+    real(kind=qp), intent(in) :: y
+    real(kind=qp), intent(in), optional :: eps
+    logical :: qrelcmp 
+    if (present(eps)) then
+       qrelcmp = abs(x - y)/abs(y) .lt. eps
+    else
+       qrelcmp = abs(x - y)/abs(y) .lt. NEKO_EPS
+    end if
+
+  end function qrelcmp
 
   !> Zero a real vector
   subroutine rzero(a, n)
@@ -235,7 +283,21 @@ contains
     call MPI_Allreduce(tmp, glmax, 1, &
          MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
   end function glmax
-
+   
+  !>Max of an integer vector of length n 
+  function glimax(a, n) 
+    integer, intent(in) :: n
+    integer, dimension(n) :: a
+    integer :: tmp, glimax
+    integer :: i, ierr
+    tmp = a(1)
+    do i = 2, n
+       tmp =  max(tmp,a(i))
+    end do
+    call MPI_Allreduce(tmp, glimax, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+  end function glimax
+  
   !>Min of a vector of length n
   function glmin(a, n)
     integer, intent(in) :: n
@@ -249,6 +311,21 @@ contains
     call MPI_Allreduce(tmp, glmin, 1, &
          MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
   end function glmin
+
+  !>Min of an integer vector of length n 
+  function glimin(a, n) 
+    integer, intent(in) :: n
+    integer, dimension(n) :: a
+    integer :: tmp, glimin
+    integer :: i, ierr
+    tmp = a(1)
+    do i = 2, n
+       tmp =  min(tmp,a(i))
+    end do
+    call MPI_Allreduce(tmp, glimin, 1, &
+         MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
+  end function glimin
+
 
 
 
@@ -264,7 +341,7 @@ contains
 
   end subroutine chsign
 
-  !> Maximum value of a vector of length @a n
+  !> maximum value of a vector of length @a n
   function vlmax(vec,n) result(tmax)
     integer :: n, i
     real(kind=rp), intent(in) :: vec(n)
@@ -274,6 +351,18 @@ contains
        tmax = max(tmax,vec(i))
     end do
   end function vlmax
+  
+  !> minimun value of a vector of length @a n
+  function vlmin(vec,n) result(tmin)
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) ::  vec(n)
+    real(kind=rp) :: tmin
+    integer :: i
+    tmin = real(99.0e20, rp)
+    do i=1,n
+         tmin = min(tmin,vec(i))
+    end do
+  end function vlmin
 
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine invcol1(a, n)
@@ -781,5 +870,5 @@ contains
        ind(i) = ii
     end do
   end subroutine sort
-
+  
 end module math
