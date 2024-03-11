@@ -146,7 +146,7 @@ krylov/bcknd/cpu/cacg.o : krylov/bcknd/cpu/cacg.f90 math/mxm_wrapper.o comm/comm
 krylov/bcknd/cpu/pipecg.o : krylov/bcknd/cpu/pipecg.f90 comm/comm.o math/math.o bc/bc.o gs/gather_scatter.o sem/coef.o field/field.o config/num_types.o math/ax.o krylov/precon.o krylov/krylov.o 
 krylov/bcknd/cpu/bicgstab.o : krylov/bcknd/cpu/bicgstab.f90 common/utils.o math/math.o bc/bc.o gs/gather_scatter.o sem/coef.o field/field.o math/ax.o krylov/precon.o krylov/krylov.o config/num_types.o 
 krylov/bcknd/cpu/gmres.o : krylov/bcknd/cpu/gmres.f90 comm/comm.o math/math.o bc/bc.o gs/gather_scatter.o sem/coef.o field/field.o config/num_types.o math/ax.o krylov/precon.o krylov/krylov.o 
-krylov/bcknd/cpu/pc_jacobi.o : krylov/bcknd/cpu/pc_jacobi.f90 gs/gather_scatter.o sem/dofmap.o config/num_types.o sem/coef.o krylov/precon.o math/math.o 
+krylov/bcknd/cpu/pc_jacobi.o : krylov/bcknd/cpu/pc_jacobi.f90 gs/gather_scatter.o sem/dofmap.o config/num_types.o sem/coef.o krylov/precon.o 
 krylov/bcknd/sx/cg_sx.o : krylov/bcknd/sx/cg_sx.f90 math/math.o bc/bc.o gs/gather_scatter.o sem/coef.o field/field.o math/ax.o krylov/precon.o krylov/krylov.o config/num_types.o 
 krylov/bcknd/sx/pipecg_sx.o : krylov/bcknd/sx/pipecg_sx.f90 comm/comm.o math/math.o bc/bc.o gs/gather_scatter.o sem/coef.o field/field.o config/num_types.o math/ax.o krylov/precon.o krylov/krylov.o 
 krylov/bcknd/sx/gmres_sx.o : krylov/bcknd/sx/gmres_sx.f90 comm/comm.o math/math.o bc/bc.o gs/gather_scatter.o sem/coef.o field/field.o config/num_types.o math/ax.o krylov/precon.o krylov/krylov.o 
@@ -241,8 +241,8 @@ scalar/bcknd/sx/scalar_residual_sx.o : scalar/bcknd/sx/scalar_residual_sx.f90 ma
 scalar/source_scalar.o : scalar/source_scalar.f90 math/bcknd/device/device_math.o device/device.o common/utils.o sem/dofmap.o config/num_types.o config/neko_config.o 
 simulation_components/simulation_component.o : simulation_components/simulation_component.f90 common/json_utils.o common/time_based_controller.o case.o config/num_types.o 
 simulation_components/simcomp_executor.o : simulation_components/simcomp_executor.f90 case.o common/json_utils.o simulation_components/simulation_component_factory.o simulation_components/simulation_component.o config/num_types.o 
-simulation_components/vorticity.o : simulation_components/vorticity.f90 common/json_utils.o io/fld_file_output.o case.o math/operators.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
-simulation_components/lambda2.o : simulation_components/lambda2.f90 device/device.o case.o math/operators.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
+simulation_components/vorticity.o : simulation_components/vorticity.f90 common/json_utils.o io/fld_file_output.o config/neko_config.o case.o math/operators.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
+simulation_components/lambda2.o : simulation_components/lambda2.f90 config/neko_config.o case.o math/operators.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
 simulation_components/les_simcomp.o : simulation_components/les_simcomp.f90 common/json_utils.o les/les_model_fctry.o les/les_model.o case.o math/operators.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
 simulation_components/simulation_component_factory.o : simulation_components/simulation_component_factory.f90 common/log.o common/json_utils.o case.o simulation_components/les_simcomp.o simulation_components/probes.o simulation_components/lambda2.o simulation_components/vorticity.o simulation_components/simulation_component.o 
 source_terms/source_term.o : source_terms/source_term.f90 field/field_list.o sem/coef.o config/num_types.o config/neko_config.o 
