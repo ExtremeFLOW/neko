@@ -229,7 +229,6 @@ contains
     type(c_ptr) :: x_d
 
     call profiler_start_region('Project back', 17)
-    this%m = min(this%m+1,this%L)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
@@ -244,7 +243,12 @@ contains
 
     else
        if (this%m.gt.0) call add2(x,this%xbar,n)      ! Restore desired solution
-       this%m = min(this%m+1,this%L)
+       if (this%m .eq. this%L) then
+          this%m = 1
+       else
+          this%m = min(this%m+1,this%L)
+       end if
+       
        call copy        (this%xx(1,this%m),x,n)   ! Update (X,B)
     end if
 
@@ -545,24 +549,6 @@ contains
          scl1 = 1.0_rp / alpha(m)
          call cmult(xx(1,m), scl1, n)
          call cmult(bb(1,m), scl1, n)
-
-         !We want to throw away the oldest information
-         !The below propagates newest information to first vector.
-         !This will make the first vector a scalar
-         !multiple of x.
-         do k = m, 2, -1
-            h = k - 1
-            call givens_rotation(alpha(h), alpha(k), c, s, nrm)
-            alpha(h) = nrm
-            do i = 1, n !Apply rotation to xx and bb
-               scl1 = c*xx(i,h) + s*xx(i,k)
-               xx(i,k) = -s*xx(i,h) + c*xx(i,k)
-               xx(i,h) = scl1
-               scl2 = c*bb(i,h) + s*bb(i,k)
-               bb(i,k) = -s*bb(i,h) + c*bb(i,k)
-               bb(i,h) = scl2
-            end do
-         end do
 
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column
