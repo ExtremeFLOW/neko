@@ -1,0 +1,6 @@
+# Only include the files needed for the example
+*
+!.gitignore
+!*.case
+!readme.md
+!run.sh
