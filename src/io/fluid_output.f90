@@ -67,7 +67,7 @@ contains
        fname = trim(name) // '.fld'
     else if (present(path)) then
        fname = trim(path) // 'field.fld'
-    else       
+    else
        fname = 'field.fld'
     end if
 
@@ -91,7 +91,7 @@ contains
     if (present(scalar)) then
        this%fluid%fields(5)%f => scalar%s
     end if
-    
+
   end function fluid_output_init
 
   !> Sample a fluid solution at time @a t
@@ -110,9 +110,9 @@ contains
        end associate
 
     end if
-       
+
     call this%file_%write(this%fluid, t)
 
   end subroutine fluid_output_sample
-  
+
 end module fluid_output

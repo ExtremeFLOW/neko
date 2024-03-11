@@ -1,4 +1,4 @@
-! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC. 
+! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -21,40 +21,40 @@
 ! may be used to endorse or promote products derived from this software
 ! without specific prior written permission.
 !
-! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF 
-! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF
+! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 ! Additional BSD Notice
 ! ---------------------
 ! 1. This notice is required to be provided under our contract with
 ! the U.S. Department of Energy (DOE). This work was produced at
-! Argonne National Laboratory under Contract 
+! Argonne National Laboratory under Contract
 ! No. DE-AC02-06CH11357 with the DOE.
 !
-! 2. Neither the United States Government nor UCHICAGO ARGONNE, 
-! LLC nor any of their employees, makes any warranty, 
+! 2. Neither the United States Government nor UCHICAGO ARGONNE,
+! LLC nor any of their employees, makes any warranty,
 ! express or implied, or assumes any liability or responsibility for the
 ! accuracy, completeness, or usefulness of any information, apparatus,
 ! product, or process disclosed, or represents that its use would not
 ! infringe privately-owned rights.
 !
-! 3. Also, reference herein to any specific commercial products, process, 
-! or services by trade name, trademark, manufacturer or otherwise does 
-! not necessarily constitute or imply its endorsement, recommendation, 
-! or favoring by the United States Government or UCHICAGO ARGONNE LLC. 
-! The views and opinions of authors expressed 
-! herein do not necessarily state or reflect those of the United States 
-! Government or UCHICAGO ARGONNE, LLC, and shall 
+! 3. Also, reference herein to any specific commercial products, process,
+! or services by trade name, trademark, manufacturer or otherwise does
+! not necessarily constitute or imply its endorsement, recommendation,
+! or favoring by the United States Government or UCHICAGO ARGONNE LLC.
+! The views and opinions of authors expressed
+! herein do not necessarily state or reflect those of the United States
+! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
 !> Project x onto X, the space of old solutions and back again
@@ -111,16 +111,16 @@ contains
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
     real(c_rp) :: dummy
-     
+
     call this%free()
-    
+
     if (present(L)) then
        this%L = L
     else
        this%L = 20
     end if
 
-    this%m = 0 
+    this%m = 0
 
     allocate(this%xx(n,this%L))
     allocate(this%bb(n,this%L))
@@ -205,8 +205,8 @@ contains
   subroutine bcknd_project_on(this, b, coef, n)
     class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
-    class(coef_t), intent(inout) :: coef   
-    real(kind=rp), intent(inout), dimension(n) :: b 
+    class(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(inout), dimension(n) :: b
     call profiler_start_region('Project on')
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_project_on(this, b, coef, n)
@@ -215,21 +215,21 @@ contains
     end if
     call profiler_end_region
   end subroutine bcknd_project_on
-  
+
   subroutine bcknd_project_back(this,x,Ax,coef, bclst, gs_h, n)
     class(projection_t) :: this
     integer, intent(inout) :: n
-    class(Ax_t), intent(inout) :: Ax    
-    class(coef_t), intent(inout) :: coef   
+    class(Ax_t), intent(inout) :: Ax
+    class(coef_t), intent(inout) :: coef
     class(bc_list_t), intent(inout) :: bclst
     type(gs_t), intent(inout) :: gs_h
-    real(kind=rp), intent(inout), dimension(n) :: x 
+    real(kind=rp), intent(inout), dimension(n) :: x
     type(c_ptr) :: x_d
     integer :: i
 
     call profiler_start_region('Project back')
     this%m = min(this%m+1,this%L)
-    !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))    
+    !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        if (this%m .gt. 0) call device_add2(x_d,this%xbar_d,n)      ! Restore desired solution
@@ -238,7 +238,7 @@ contains
 
     else
        if (this%m .gt. 0) then
-          ! Restore desired solution          
+          ! Restore desired solution
           !$omp do
           do i = 1, n
              x(i) = x(i) + this%xbar(i)
@@ -261,27 +261,27 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1)  then
        call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
     else
-       call cpu_proj_ortho  (this,this%xx,this%bb,coef%mult,n) 
+       call cpu_proj_ortho  (this,this%xx,this%bb,coef%mult,n)
     end if
 
     call profiler_end_region
   end subroutine bcknd_project_back
- 
+
 
 
   subroutine cpu_project_on(this, b, coef, n)
     class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
-    class(coef_t), intent(inout) :: coef   
-    real(kind=rp), intent(inout), dimension(n) :: b 
+    class(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(inout), dimension(n) :: b
     integer :: i, j, k, ierr
     real(kind=rp) :: work(this%L), alpha(this%L)
 
     associate(xbar => this%xbar, xx => this%xx, &
               bb => this%bb)
-    
+
       if (this%m .le. 0) return
-            
+
       !First round of CGS
       call rzero(alpha, this%m)
       this%proj_res = glsc3(b,b,coef%mult,n)
@@ -289,16 +289,16 @@ contains
       !$omp parallel do private(i,j,k) reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
-         do k = 1, this%m 
+         do k = 1, this%m
             alpha(k) = alpha(k) + vlsc3(xx(i,k), coef%mult(i,1,1,1), b(i), j)
          end do
       end do
       !$omp end parallel do
-      
+
       !First one outside loop to avoid zeroing xbar and bbar
       call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      
+
       call rzero(work, this%m)
       !$omp parallel do private(i,j,k) reduction(+:work)
       do i = 1, n, NEKO_BLK_SIZE
@@ -315,7 +315,7 @@ contains
          end do
       end do
       !$omp end parallel do
-      
+
       call MPI_Allreduce(work, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
       !$omp parallel do private(i,j,k)
@@ -333,8 +333,8 @@ contains
   subroutine device_project_on(this, b, coef, n)
     class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
-    class(coef_t), intent(inout) :: coef   
-    real(kind=rp), intent(inout), dimension(n) :: b 
+    class(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(inout), dimension(n) :: b
     real(kind=rp) :: alpha(this%L)
     type(c_ptr) :: b_d
     integer :: i
@@ -342,7 +342,7 @@ contains
 
     associate(xbar_d => this%xbar_d, xx_d => this%xx_d, xx_d_d => this%xx_d_d, &
               bb_d => this%bb_d, bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
-    
+
       if (this%m .le. 0) return
 
 
@@ -359,12 +359,12 @@ contains
             end do
          else
             call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
-            call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
+            call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE)
          end if
          call device_rzero(xbar_d, n)
          if (NEKO_BCKND_OPENCL .eq. 1) then
             do i = 1, this%m
-               call device_add2s2(xbar_d, xx_d(i), alpha(i), n)            
+               call device_add2s2(xbar_d, xx_d(i), alpha(i), n)
             end do
             call cmult(alpha, -1.0_rp, this%m)
          else
@@ -395,7 +395,7 @@ contains
             call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
          end if
       end if
-      
+
     end associate
   end subroutine device_project_on
 
@@ -411,7 +411,7 @@ contains
 
     associate(m => this%m,  xx_d_d => this%xx_d_d, &
               bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
-      
+
       if(m .le. 0) return
 
       if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
@@ -431,14 +431,14 @@ contains
             do i = 1, m - 1
                call device_add2s2(xx_d(m),xx_d(i),alpha(i), n)
                call device_add2s2(bb_d(m),bb_d(i),alpha(i),n)
-         
+
                alpha(i) = device_glsc3(bb_d(m),xx_d(i),w_d,n)
             end do
          else
-            call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
+            call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE)
             call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
             call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
-         
+
             call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
          end if
          call cmult(alpha, -1.0_rp,m)
@@ -449,22 +449,22 @@ contains
                alpha(i) =  device_glsc3(bb_d(m),xx_d(i),w_d,n)
             end do
          else
-            call device_memcpy(alpha, alpha_d, m, HOST_TO_DEVICE) 
+            call device_memcpy(alpha, alpha_d, m, HOST_TO_DEVICE)
             call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
             call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
             call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
          end if
       end if
-      
+
       alpha(m) = device_glsc3(xx_d(m), w_d, bb_d(m), n)
       alpha(m) = sqrt(alpha(m))
 
-      if(alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent    
-         scl = 1.0_rp / alpha(m) 
-         call device_cmult(xx_d(m), scl, n)   
-         call device_cmult(bb_d(m), scl, n)   
+      if(alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
+         scl = 1.0_rp / alpha(m)
+         call device_cmult(xx_d(m), scl, n)
+         call device_cmult(bb_d(m), scl, n)
 
-        
+
       else !New vector is not linearly independent, forget about it
          if(pe_rank .eq. 0) then
             call neko_warning('New vector not linearly indepependent!')
@@ -475,8 +475,8 @@ contains
     end associate
 
   end subroutine device_proj_ortho
-  
-  
+
+
   subroutine cpu_proj_ortho(this, xx, bb, w, n)
     type(projection_t)  :: this
     integer, intent(inout) :: n
@@ -487,11 +487,11 @@ contains
     integer :: i, j, k, h, ierr
 
     associate(m => this%m)
-      
-      if(m .le. 0) return !No vectors to ortho-normalize 
+
+      if(m .le. 0) return !No vectors to ortho-normalize
 
       ! AX = B
-      ! Calculate dx, db: dx = x-XX^Tb, db=b-BX^Tb     
+      ! Calculate dx, db: dx = x-XX^Tb, db=b-BX^Tb
       call rzero(alpha, m)
       !$omp parallel do private(i, j, k) reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
@@ -502,12 +502,12 @@ contains
          end do
       end do
       !$omp end parallel do
-      
+
       call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      
+
       nrm = sqrt(alpha(m)) !Calculate A-norm of new vector
-      
+
       call rzero(beta,m)
       !$omp parallel do private(i, j, k) reduction(+:beta)
       do i = 1, n, NEKO_BLK_SIZE
@@ -520,7 +520,7 @@ contains
          end do
       end do
       !$omp end parallel do
-      
+
       call MPI_Allreduce(MPI_IN_PLACE, beta, this%m-1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
@@ -540,14 +540,14 @@ contains
          alpha(k) = alpha(k) + beta(k)
       end do
       !$omp end parallel do
-      
-      !alpha(m) = glsc3(xx(1,m), w, bb(1,m), n) 
+
+      !alpha(m) = glsc3(xx(1,m), w, bb(1,m), n)
       call MPI_Allreduce(MPI_IN_PLACE, alpha(m), 1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
       alpha(m) = sqrt(alpha(m))
       !dx and db now stored in last column of xx and bb
 
-      if(alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent    
+      if(alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
          !Normalize dx and db
          scl1 = 1.0_rp / alpha(m)
          !$omp parallel do
@@ -559,24 +559,24 @@ contains
 
          !We want to throw away the oldest information
          !The below propagates newest information to first vector.
-         !This will make the first vector a scalar 
+         !This will make the first vector a scalar
          !multiple of x.
          do k = m, 2, -1
-            h = k - 1   
+            h = k - 1
             call givens_rotation(alpha(h), alpha(k), c, s, nrm)
             alpha(h) = nrm
             !$omp parallel do private(scl1, scl2)
             do i = 1, n !Apply rotation to xx and bb
                scl1 = c*xx(i,h) + s*xx(i,k)
                xx(i,k) = -s*xx(i,h) + c*xx(i,k)
-               xx(i,h) = scl1       
+               xx(i,h) = scl1
                scl2 = c*bb(i,h) + s*bb(i,k)
-               bb(i,k) = -s*bb(i,h) + c*bb(i,k)    
-               bb(i,h) = scl2        
+               bb(i,k) = -s*bb(i,h) + c*bb(i,k)
+               bb(i,h) = scl2
             end do
             !$omp end parallel do
          end do
-         
+
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column
          if(pe_rank .eq. 0) then
@@ -586,15 +586,15 @@ contains
       endif
 
     end associate
-    
+
   end subroutine cpu_proj_ortho
-  
+
   subroutine givens_rotation(a, b, c, s, r)
     real(kind=rp), intent(inout) :: a, b, c, s, r
     real(kind=rp) ::  h, d
 
     if(b .ne. 0.0_rp) then
-       h = hypot(a, b) 
+       h = hypot(a, b)
        d = 1.0_rp / h
        c = abs(a) * d
        s = sign(d, a) * b
@@ -604,7 +604,7 @@ contains
        s = 0.0_rp
        r = a
     endif
-      
+
     return
   end subroutine givens_rotation
 

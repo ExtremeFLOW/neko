@@ -62,9 +62,9 @@ contains
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
 
-        
+
     call this%free()
-    
+
     allocate(this%p(n))
     allocate(this%p_hat(n))
     allocate(this%r(n))
@@ -72,7 +72,7 @@ contains
     allocate(this%s_hat(n))
     allocate(this%t(n))
     allocate(this%v(n))
-    if (present(M)) then 
+    if (present(M)) then
        this%M => M
     end if
 
@@ -85,7 +85,7 @@ contains
     else
        call this%ksp_init()
     end if
-          
+
   end subroutine bicgstab_init
 
   !> Deallocate a standard BiCGSTAB solver
@@ -101,7 +101,7 @@ contains
     if (allocated(this%r)) then
        deallocate(this%r)
     end if
-    
+
     if (allocated(this%t)) then
        deallocate(this%t)
     end if
@@ -109,15 +109,15 @@ contains
     if (allocated(this%p)) then
        deallocate(this%p)
     end if
- 
+
     if (allocated(this%p_hat)) then
        deallocate(this%p_hat)
     end if
-    
+
     if (allocated(this%s)) then
        deallocate(this%s)
     end if
- 
+
     if (allocated(this%s_hat)) then
        deallocate(this%s_hat)
     end if
@@ -126,7 +126,7 @@ contains
 
 
   end subroutine bicgstab_free
-  
+
   !> Bi-Conjugate Gradient Stabilized method solve
   function bicgstab_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(bicgstab_t), intent(inout) :: this
@@ -142,7 +142,7 @@ contains
     integer :: iter, max_iter
     real(kind=rp) :: rnorm, rtr, norm_fac, gamma
     real(kind=rp) :: beta, alpha, omega, rho_1, rho_2
-    
+
     if (present(niter)) then
        max_iter = niter
     else
@@ -152,7 +152,7 @@ contains
 
     associate(r => this%r, t => this%t, s => this%s, v => this%v, p => this%p, &
          s_hat => this%s_hat, p_hat => this%p_hat)
-    
+
       call rzero(x%x, n)
       call copy(r, f, n)
 
@@ -164,20 +164,20 @@ contains
       ksp_results%iter = 0
       if(rnorm .eq. 0.0_rp) return
       do iter = 1, max_iter
-         
+
          rho_1 = glsc3(r, coef%mult, f ,n)
-         
+
          if (abs(rho_1) .lt. NEKO_EPS) then
             call neko_error('Bi-CGStab rho failure')
          end if
-   
+
          if (iter .eq. 1) then
-            call copy(p, r, n) 
+            call copy(p, r, n)
          else
             beta = (rho_1 / rho_2) * (alpha / omega)
             call p_update(p, r, v, beta, omega, n)
          end if
-       
+
          call this%M%solve(p_hat, p, n)
          call Ax%compute(v, p_hat, coef, x%msh, x%Xh)
          call gs_h%op(v, n, GS_OP_ADD)
@@ -191,7 +191,7 @@ contains
             call add2s2(x%x, p_hat, alpha,n)
             exit
          end if
-       
+
          call this%M%solve(s_hat, s, n)
          call Ax%compute(t, s_hat, coef, x%msh, x%Xh)
          call gs_h%op(t, n, GS_OP_ADD)
@@ -201,18 +201,18 @@ contains
          call x_update(x%x, p_hat, s_hat, alpha, omega, n)
          call copy(r, s, n)
          call add2s2(r, t, -omega, n)
-      
+
          rtr = glsc3(r, coef%mult, r, n)
          rnorm = sqrt(rtr) * norm_fac
          if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
             exit
          end if
-    
+
          if (omega .lt. NEKO_EPS) then
             call neko_error('Bi-CGstab omega failure')
          end if
          rho_2 = rho_1
-    
+
       end do
     end associate
     ksp_results%res_final = rnorm
@@ -220,5 +220,5 @@ contains
   end function bicgstab_solve
 
 end module bicgstab
-  
+
 

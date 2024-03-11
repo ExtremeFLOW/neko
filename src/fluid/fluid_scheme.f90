@@ -73,7 +73,7 @@ module fluid_scheme
   use const_source_term, only : const_source_term_t
   use user_intf, only : user_t
   implicit none
-  
+
   !> Base type of all fluid formulations
   type, abstract :: fluid_scheme_t
      type(field_t), pointer :: u => null() !< x-component of Velocity
@@ -107,8 +107,8 @@ module fluid_scheme
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
-     type(field_t) :: bdry                     !< Boundary markings     
-     type(json_file), pointer :: params        !< Parameters          
+     type(field_t) :: bdry                     !< Boundary markings
+     type(json_file), pointer :: params        !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
      type(mean_flow_t) :: mean                 !< Mean flow field
@@ -162,7 +162,7 @@ module fluid_scheme
        class(fluid_scheme_t), intent(inout) :: this
      end subroutine fluid_scheme_free_intrf
   end interface
-  
+
   !> Abstract interface to compute a time-step
   abstract interface
      subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf)
@@ -196,7 +196,7 @@ contains
     integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
 
-    
+
     call neko_log%section('Fluid')
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
     call neko_log%message(log_buf)
@@ -267,9 +267,9 @@ contains
 
     call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
 
-   if (params%valid_path("case.fluid.flow_rate_force")) then
-      this%forced_flow_rate = .true.
-   end if
+    if (params%valid_path("case.fluid.flow_rate_force")) then
+       this%forced_flow_rate = .true.
+    end if
 
     if (msh%gdim .eq. 2) then
        call this%Xh%init(GLL, lx, lx)
@@ -287,12 +287,12 @@ contains
 
     call this%c_Xh%init(this%gs_Xh)
 
-    
+
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
     allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
     this%bc_labels = "not"
-    
+
     !
     ! Setup velocity boundary conditions
     !
@@ -301,7 +301,7 @@ contains
                                   'case.fluid.boundary_types', &
                                   this%bc_labels)
     end if
-    
+
     call bc_list_init(this%bclst_vel)
 
     call this%bc_sym%init(this%dm_Xh)
@@ -309,11 +309,11 @@ contains
     call this%bc_sym%mark_zones_from_list(msh%labeled_zones,&
                         'sym', this%bc_labels)
     call this%bc_sym%finalize()
-    call this%bc_sym%init_msk(this%c_Xh)    
+    call this%bc_sym%init_msk(this%c_Xh)
     call bc_list_add(this%bclst_vel, this%bc_sym)
 
     !
-    ! Inflow 
+    ! Inflow
     !
     if (params%valid_path('case.fluid.inflow_condition')) then
        call json_get(params, 'case.fluid.inflow_condition.type', string_val1)
@@ -335,8 +335,8 @@ contains
        call bc_list_add(this%bclst_vel, this%bc_inflow)
 
        if (trim(string_val1) .eq. "uniform") then
-           call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
-           call this%bc_inflow%set_inflow(real_vec)
+          call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
+          call this%bc_inflow%set_inflow(real_vec)
        else if (trim(string_val1) .eq. "blasius") then
           select type(bc_if => this%bc_inflow)
           type is(blasius_t)
@@ -353,25 +353,25 @@ contains
           end select
        else if (trim(string_val1) .eq. "user") then
           select type(bc_if => this%bc_inflow)
-             type is(usr_inflow_t)
+          type is(usr_inflow_t)
              call bc_if%set_coef(this%C_Xh)
           end select
        end if
     end if
-    
+
     call this%bc_wall%init(this%dm_Xh)
     call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%mark_zones_from_list(msh%labeled_zones,&
                         'w', this%bc_labels)
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
-       
+
     call json_get_or_default(params, 'case.output_boundary', logical_val,&
                              .false.)
     if (logical_val) then
        call this%bdry%init(this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
-       
+
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
@@ -461,7 +461,7 @@ contains
 
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user)
-    
+
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
     call neko_field_registry%add_field(this%dm_Xh, 'w')
@@ -579,7 +579,7 @@ contains
 
 
     call neko_log%end_section()
-    
+
   end subroutine fluid_scheme_init_all
 
   !> Deallocate a fluid formulation
@@ -629,7 +629,7 @@ contains
     call this%c_Xh%free()
 
     call bc_list_free(this%bclst_vel)
-    
+
     call this%scratch%free()
 
     nullify(this%params)
@@ -640,22 +640,22 @@ contains
     nullify(this%p)
 
     if (associated(this%f_x)) then
-      call this%f_x%free()
+       call this%f_x%free()
     end if
 
     if (associated(this%f_y)) then
-      call this%f_y%free()
+       call this%f_y%free()
     end if
 
     if (associated(this%f_z)) then
-      call this%f_z%free()
+       call this%f_z%free()
     end if
 
     nullify(this%f_x)
     nullify(this%f_y)
     nullify(this%f_z)
-    
-    
+
+
   end subroutine fluid_scheme_free
 
   !> Validate that all fields, solvers etc necessary for
@@ -671,7 +671,7 @@ contains
          (.not. associated(this%p))) then
        call neko_error('Fields are not registered')
     end if
-    
+
     if ( (.not. allocated(this%u%x)) .or. &
          (.not. allocated(this%v%x)) .or. &
          (.not. allocated(this%w%x)) .or. &
@@ -682,7 +682,7 @@ contains
     if (.not. allocated(this%ksp_vel)) then
        call neko_error('No Krylov solver for velocity defined')
     end if
-    
+
     if (.not. allocated(this%ksp_prs)) then
        call neko_error('No Krylov solver for pressure defined')
     end if
@@ -731,7 +731,7 @@ contains
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
     !$omp end parallel
   end subroutine fluid_scheme_bc_apply_vel
-  
+
   !> Apply all boundary conditions defined for pressure
   !! @todo Why can't we call the interface here?
   subroutine fluid_scheme_bc_apply_prs(this, t, tstep)
@@ -743,7 +743,7 @@ contains
                               this%p%dof%size(), t, tstep)
     !$omp end parallel
   end subroutine fluid_scheme_bc_apply_prs
-  
+
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine fluid_scheme_solver_factory(ksp, n, solver, abstol)
@@ -751,9 +751,9 @@ contains
     integer, intent(in), value :: n
     character(len=*), intent(in) :: solver
     real(kind=rp), intent(in) :: abstol
-    
+
     call krylov_solver_factory(ksp, n, solver, abstol)
-    
+
   end subroutine fluid_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
@@ -765,9 +765,9 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
-    
+
     call precon_factory(pc, pctype)
-    
+
     select type(pcp => pc)
     type is(jacobi_t)
        call pcp%init(coef, dof, gs)
@@ -789,7 +789,7 @@ contains
     end select
 
     call ksp%set_pc(pc)
-    
+
   end subroutine fluid_scheme_precon_factory
 
   !> Initialize a user defined inflow condition
@@ -799,9 +799,9 @@ contains
 
     select type(bc_if => this%bc_inflow)
     type is(usr_inflow_t)
-      call bc_if%set_eval(usr_eval)
+       call bc_if%set_eval(usr_eval)
     class default
-      call neko_error("Not a user defined inflow condition")
+       call neko_error("Not a user defined inflow condition")
     end select
   end subroutine fluid_scheme_set_usr_inflow
 
@@ -813,7 +813,7 @@ contains
 
     c = cfl(dt, this%u%x, this%v%x, this%w%x, &
          this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
-    
+
   end function fluid_compute_cfl
-      
+
 end module fluid_scheme

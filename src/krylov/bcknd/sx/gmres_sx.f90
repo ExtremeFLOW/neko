@@ -75,11 +75,11 @@ contains
     else
        this%lgmres = 30
     end if
-    
+
 
     call this%free()
-    
-    if (present(M)) then 
+
+    if (present(M)) then
        this%M => M
     end if
 
@@ -88,17 +88,17 @@ contains
     allocate(this%ml(n))
     allocate(this%mu(n))
     allocate(this%wk1(n))
-    
+
     allocate(this%c(this%lgmres))
     allocate(this%s(this%lgmres))
     allocate(this%gam(this%lgmres + 1))
-    
+
     allocate(this%z(n,this%lgmres))
     allocate(this%v(n,this%lgmres))
-    
+
     allocate(this%h(this%lgmres,this%lgmres))
-    
-       
+
+
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)
     else if (present(rel_tol)) then
@@ -108,7 +108,7 @@ contains
     else
        call this%ksp_init(abs_tol)
     end if
-          
+
   end subroutine sx_gmres_init
 
   !> Deallocate a standard GMRES solver
@@ -128,7 +128,7 @@ contains
     if (allocated(this%r)) then
        deallocate(this%r)
     end if
- 
+
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
@@ -136,35 +136,35 @@ contains
     if (allocated(this%h)) then
        deallocate(this%h)
     end if
-    
+
     if (allocated(this%ml)) then
        deallocate(this%ml)
     end if
-    
+
     if (allocated(this%v)) then
        deallocate(this%v)
     end if
-    
+
     if (allocated(this%s)) then
        deallocate(this%s)
     end if
-    
+
     if (allocated(this%mu)) then
        deallocate(this%mu)
     end if
-    
+
     if (allocated(this%gam)) then
        deallocate(this%gam)
     end if
-    
+
     if (allocated(this%wk1)) then
        deallocate(this%wk1)
     end if
-    
+
     nullify(this%M)
-    
+
   end subroutine sx_gmres_free
- 
+
   !> Standard PCG solve
   function sx_gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(sx_gmres_t), intent(inout) :: this
@@ -178,9 +178,9 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, glb_n
-    integer :: i, j, k, ierr 
+    integer :: i, j, k, ierr
     real(kind=rp), parameter :: one = 1.0
-    real(kind=rp) :: rnorm 
+    real(kind=rp) :: rnorm
     real(kind=rp) ::  alpha, temp, l
     real(kind=rp) :: ratio, div0, norm_fac
     logical :: conv
@@ -202,16 +202,16 @@ contains
     do while (.not. conv .and. iter .lt. niter)
        outer = outer + 1
 
-       if(iter.eq.0) then               
-          call col3(this%r,this%ml,f,n) 
+       if(iter.eq.0) then
+          call col3(this%r,this%ml,f,n)
        else
           !update residual
-          call copy  (this%r,f,n)      
+          call copy  (this%r,f,n)
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_h%op(this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call add2s2(this%r,this%w,-one,n) 
-          call col2(this%r,this%ml,n)       
+          call add2s2(this%r,this%w,-one,n)
+          call col2(this%r,this%ml,n)
        endif
        this%gam(1) = sqrt(glsc3(this%r, this%r, coef%mult, n))
        if(iter.eq.0) then
@@ -223,7 +223,7 @@ contains
 
        rnorm = 0.0_rp
        temp = one / this%gam(1)
-       call cmult2(this%v(1,1), this%r, temp, n) 
+       call cmult2(this%v(1,1), this%r, temp, n)
        do j = 1, this%lgmres
           iter = iter+1
           call col3(this%w, this%mu, this%v(1,j), n)
@@ -234,7 +234,7 @@ contains
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_h%op(this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call col2(this%w, this%ml, n)       
+          call col2(this%w, this%ml, n)
 
           do i = 1, j
              this%h(i,j) = 0.0_rp
@@ -247,7 +247,7 @@ contains
           !Could probably be done inplace...
           call MPI_Allreduce(this%h(1,j), this%wk1, j, &
                MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-          call copy(this%h(1,j), this%wk1, j) 
+          call copy(this%h(1,j), this%wk1, j)
 
           do i = 1, j
              do k = 1, n
@@ -257,16 +257,16 @@ contains
 
           !apply Givens rotations to new column
           do i=1,j-1
-             temp = this%h(i,j)                   
-             this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)  
+             temp = this%h(i,j)
+             this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)
              this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
           end do
 
-          alpha = sqrt(glsc3(this%w, this%w, coef%mult, n))   
+          alpha = sqrt(glsc3(this%w, this%w, coef%mult, n))
           rnorm = 0.0_rp
-          if(alpha .eq. 0.0_rp) then 
-            conv = .true.
-            exit
+          if(alpha .eq. 0.0_rp) then
+             conv = .true.
+             exit
           end if
           l = sqrt(this%h(j,j) * this%h(j,j) + alpha**2)
           temp = one / l
@@ -278,16 +278,16 @@ contains
 
           rnorm = abs(this%gam(j+1)) * norm_fac
           ratio = rnorm / div0
-          if (rnorm .lt. this%abs_tol) then 
+          if (rnorm .lt. this%abs_tol) then
              conv = .true.
              exit
           end if
-         
+
           if (iter + 1 .gt. niter) exit
-          
+
           if( j .lt. this%lgmres) then
-            temp = one / alpha
-            call cmult2(this%v(1,j+1), this%w, temp, n)
+             temp = one / alpha
+             call cmult2(this%v(1,j+1), this%w, temp, n)
           endif
        end do
        j = min(j, this%lgmres)
@@ -304,7 +304,7 @@ contains
           do k = 1, n
              x%x(k,1,1,1) = x%x(k,1,1,1) + this%c(i) * this%z(k,i)
           end do
-       end do 
+       end do
     end do
 
     ksp_results%res_final = rnorm
@@ -312,5 +312,5 @@ contains
   end function sx_gmres_solve
 
 end module gmres_sx
-  
+
 

@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines MPI gather-scatter communication 
+!> Defines MPI gather-scatter communication
 module gs_mpi
   use neko_config
   use num_types
@@ -38,18 +38,18 @@ module gs_mpi
   use gs_ops
   use stack, only : stack_i4_t
   use comm
-  use, intrinsic :: iso_c_binding 
+  use, intrinsic :: iso_c_binding
   !$ use omp_lib
   implicit none
   private
-  
+
   !> MPI buffer for non-blocking operations
   type, private :: gs_comm_mpi_t
      type(MPI_Status) :: status
      type(MPI_Request) :: request
      logical :: flag
      real(kind=rp), allocatable :: data(:)
-  end type  gs_comm_mpi_t
+  end type gs_comm_mpi_t
 
   !> Gather-scatter communication using MPI
   type, public, extends(gs_comm_t) :: gs_mpi_t
@@ -69,10 +69,10 @@ contains
   subroutine gs_mpi_init(this, send_pe, recv_pe)
     class(gs_mpi_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
-    type(stack_i4_t), intent(inout) :: recv_pe       
+    type(stack_i4_t), intent(inout) :: recv_pe
     integer, pointer :: sp(:), rp(:)
     integer :: i
-    
+
     call this%init_order(send_pe, recv_pe)
 
     allocate(this%send_buf(send_pe%size()))
@@ -116,7 +116,7 @@ contains
 
     call this%free_order()
     call this%free_dofs()
-    
+
   end subroutine gs_mpi_free
 
   !> Post non-blocking send operations
@@ -176,7 +176,7 @@ contains
   !> Wait for non-blocking operations
   subroutine gs_nbwait_mpi(this, u, n, op, strm)
     class(gs_mpi_t), intent(inout) :: this
-    integer, intent(in) :: n    
+    integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: strm
     integer :: i, j, src, ierr
@@ -186,7 +186,7 @@ contains
     !$omp single
     nreqs = size(this%recv_pe)
 
-    do while (nreqs .gt. 0) 
+    do while (nreqs .gt. 0)
        do i = 1, size(this%recv_pe)
           if (.not. this%recv_buf(i)%flag) then
              call MPI_Test(this%recv_buf(i)%request, this%recv_buf(i)%flag, &
@@ -224,7 +224,7 @@ contains
     end do
 
     nreqs = size(this%send_pe)
-    do while (nreqs .gt. 0) 
+    do while (nreqs .gt. 0)
        do i = 1, size(this%send_pe)
           if (.not. this%send_buf(i)%flag) then
              call MPI_Test(this%send_buf(i)%request, this%send_buf(i)%flag, &
@@ -235,5 +235,5 @@ contains
     end do
     !$omp end single
   end subroutine gs_nbwait_mpi
-  
+
 end module gs_mpi

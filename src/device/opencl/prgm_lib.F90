@@ -39,7 +39,7 @@ module opencl_prgm_lib
 
   !> Device onvective kernels
   type(c_ptr), bind(c) :: conv1_program = C_NULL_PTR
-  
+
   !> Device CFL kernels
   type(c_ptr), bind(c) :: cfl_program = C_NULL_PTR
 
@@ -253,16 +253,16 @@ contains
        end if
        scalar_residual_program = C_NULL_PTR
     end if
-    
+
     if (c_associated(lambda2_program)) then
        if(clReleaseProgram(lambda2_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
        lambda2_program = C_NULL_PTR
     end if
-    
+
   end subroutine opencl_prgm_lib_release
 
 #endif
-  
+
 end module opencl_prgm_lib

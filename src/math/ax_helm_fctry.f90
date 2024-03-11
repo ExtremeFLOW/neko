@@ -46,7 +46,7 @@ contains
 
   subroutine ax_helm_factory(Ax)
     class(ax_t), allocatable, intent(inout) :: Ax
-    
+
     if (allocated(Ax)) then
        deallocate(Ax)
     end if

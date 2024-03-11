@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements the `vorticity_t` type. 
+!> Implements the `vorticity_t` type.
 
 module vorticity
   use num_types, only : rp
@@ -44,7 +44,7 @@ module vorticity
   use neko_config
   implicit none
   private
-  
+
   !> A simulation component that computes the vorticity field.
   !! Added to the field registry as `omega_x`, `omega_y``, and `omega_z`.
   type, public, extends(simulation_component_t) :: vorticity_t
@@ -67,75 +67,75 @@ module vorticity
      !> Work array.
      type(field_t) :: temp2
 
-     contains
-      !> Constructor from json, wrapping the actual constructor.
-      procedure, pass(this) :: init => vorticity_init_from_json
-      !> Actual constructor.
-      procedure, pass(this) :: init_from_attributes => &
+   contains
+     !> Constructor from json, wrapping the actual constructor.
+     procedure, pass(this) :: init => vorticity_init_from_json
+     !> Actual constructor.
+     procedure, pass(this) :: init_from_attributes => &
         vorticity_init_from_attributes
-      !> Destructor.
-      procedure, pass(this) :: free => vorticity_free
-      !> Compute the vorticity field.
-      procedure, pass(this) :: compute_ => vorticity_compute
+     !> Destructor.
+     procedure, pass(this) :: free => vorticity_free
+     !> Compute the vorticity field.
+     procedure, pass(this) :: compute_ => vorticity_compute
   end type vorticity_t
-  
-  contains
-  
+
+contains
+
   !> Constructor from json.
   subroutine vorticity_init_from_json(this, json, case)
-       class(vorticity_t), intent(inout) :: this
-       type(json_file), intent(inout) :: json
-       class(case_t), intent(inout), target :: case 
-       
-       call this%init_base(json, case)
+    class(vorticity_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    class(case_t), intent(inout), target :: case
 
-       call vorticity_init_from_attributes(this)
+    call this%init_base(json, case)
+
+    call vorticity_init_from_attributes(this)
   end subroutine vorticity_init_from_json
 
   !> Actual constructor.
   subroutine vorticity_init_from_attributes(this)
-       class(vorticity_t), intent(inout) :: this
+    class(vorticity_t), intent(inout) :: this
 
-       this%u => neko_field_registry%get_field_by_name("u")
-       this%v => neko_field_registry%get_field_by_name("v")
-       this%w => neko_field_registry%get_field_by_name("w")
+    this%u => neko_field_registry%get_field_by_name("u")
+    this%v => neko_field_registry%get_field_by_name("v")
+    this%w => neko_field_registry%get_field_by_name("w")
 
-       if (.not. neko_field_registry%field_exists("omega_x")) then
-          call neko_field_registry%add_field(this%u%dof, "omega_x")
-       end if
-       if (.not. neko_field_registry%field_exists("omega_y")) then
-          call neko_field_registry%add_field(this%u%dof, "omega_y")
-       end if
-       if (.not. neko_field_registry%field_exists("omega_z")) then
-          call neko_field_registry%add_field(this%u%dof, "omega_z")
-       end if
-       this%omega_x => neko_field_registry%get_field_by_name("omega_x")
-       this%omega_y => neko_field_registry%get_field_by_name("omega_y")
-       this%omega_z => neko_field_registry%get_field_by_name("omega_z")
+    if (.not. neko_field_registry%field_exists("omega_x")) then
+       call neko_field_registry%add_field(this%u%dof, "omega_x")
+    end if
+    if (.not. neko_field_registry%field_exists("omega_y")) then
+       call neko_field_registry%add_field(this%u%dof, "omega_y")
+    end if
+    if (.not. neko_field_registry%field_exists("omega_z")) then
+       call neko_field_registry%add_field(this%u%dof, "omega_z")
+    end if
+    this%omega_x => neko_field_registry%get_field_by_name("omega_x")
+    this%omega_y => neko_field_registry%get_field_by_name("omega_y")
+    this%omega_z => neko_field_registry%get_field_by_name("omega_z")
 
-       call this%temp1%init(this%u%dof)
-       call this%temp2%init(this%u%dof)
+    call this%temp1%init(this%u%dof)
+    call this%temp2%init(this%u%dof)
   end subroutine vorticity_init_from_attributes
 
   !> Destructor.
   subroutine vorticity_free(this)
-       class(vorticity_t), intent(inout) :: this
-       call this%free_base()
-       call this%temp1%free()
-       call this%temp2%free()
+    class(vorticity_t), intent(inout) :: this
+    call this%free_base()
+    call this%temp1%free()
+    call this%temp2%free()
   end subroutine vorticity_free
 
   !> Compute the vorticity field.
   !! @param t The time value.
   !! @param tstep The current time-step
   subroutine vorticity_compute(this, t, tstep)
-       class(vorticity_t), intent(inout) :: this
-       real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
-       !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
-       call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
+    class(vorticity_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
+    call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
                  this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
-       !$omp end parallel
+    !$omp end parallel
   end subroutine vorticity_compute
-  
+
 end module vorticity

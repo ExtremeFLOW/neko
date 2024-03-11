@@ -80,7 +80,7 @@ contains
   subroutine lambda2_init_from_json(this, json, case)
     class(lambda2_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    class(case_t), intent(inout), target ::case 
+    class(case_t), intent(inout), target ::case
 
     call this%init_base(json, case)
 

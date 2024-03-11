@@ -207,7 +207,7 @@ contains
     res%x(2) = p1%x(2) - p2%x(2)
     res%x(3) = p1%x(3) - p2%x(3)
 
- end function point_subtract
+  end function point_subtract
 
   !> Returns the multiplication of a point by a scalar \f$ a*p_{1} \f$.
   function point_scalar_mult(p, a) result(res)

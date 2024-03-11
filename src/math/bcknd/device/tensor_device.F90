@@ -37,9 +37,9 @@ module tensor_device
   private
 
   public :: tnsr3d_device, tnsr3d_el_list_device
-  
+
 #ifdef HAVE_HIP
-   interface
+  interface
      subroutine hip_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points) &
           bind(c, name='hip_tnsr3d_el_list')
        use, intrinsic :: iso_c_binding

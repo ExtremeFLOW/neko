@@ -54,7 +54,7 @@ module jacobi
   end type jacobi_t
 
 contains
-  
+
   subroutine jacobi_init(this, coef, dof, gs_h)
     class(jacobi_t), intent(inout) :: this
     type(coef_t), intent(inout), target :: coef
@@ -108,7 +108,7 @@ contains
 
       this%d = 0d0
       !$omp parallel private(e,l,k,j,i)
-      !$omp do 
+      !$omp do
       do e = 1,dof%msh%nelv
          do l = 1,lx
             do k = 1,lz
@@ -180,7 +180,7 @@ contains
       do i = 1, coef%dof%size()
          this%d(i,1,1,1) = this%d(i,1,1,1) * coef%h1(i,1,1,1)
       end do
-      !$omp end do     
+      !$omp end do
       if (coef%ifh2) then
          !$omp do
          do i = 1, coef%dof%size()

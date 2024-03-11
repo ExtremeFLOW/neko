@@ -53,7 +53,7 @@ module ax_product
   !! @param msh mesh
   !! @param Xh function space \f$ X_h \f$
   abstract interface
-  subroutine ax_compute(w, u, coef, msh, Xh)
+     subroutine ax_compute(w, u, coef, msh, Xh)
        import space_t
        import mesh_t
        import coef_t
@@ -61,11 +61,11 @@ module ax_product
        import rp
        implicit none
        type(space_t), intent(inout) :: Xh
-       type(mesh_t), intent(inout) :: msh       
+       type(mesh_t), intent(inout) :: msh
        type(coef_t), intent(inout) :: coef
        real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
        real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
      end subroutine ax_compute
   end interface
-  
+
 end module ax_product

@@ -60,7 +60,7 @@ module probes
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+
   type, public :: probes_t
      !> Number of probes
      integer :: n_probes
@@ -117,25 +117,25 @@ module probes
      character(len=20), allocatable  :: which_fields(:)
 
 
-     contains
-       !> Initialize probes object.
-       procedure, pass(this) :: allocate_fields => probes_allocate_fields
-       !> Initialize user defined parameters.
-       procedure, pass(this) :: init => probes_init
-       !> Destructor
-       procedure, pass(this) :: free => probes_free
-       !> Print current probe status, with number of probes and coordinates
-       procedure, pass(this) :: show => probes_show
-       !> Show the status of processor/element owner and error code for each point
-       procedure, pass(this) :: debug => probes_debug
-       !> Setup the probes for mapping process (with fgslib_findpts_setup).
-       procedure, pass(this) :: setup => probes_setup
-       !> Maps `x,y,z` to `r,s,t` coordinates.
-       procedure, pass(this) :: map => probes_map
-       !> Interpolate each probe from its `r,s,t` coordinates.
-       procedure, pass(this) :: interpolate => probes_interpolate
+   contains
+     !> Initialize probes object.
+     procedure, pass(this) :: allocate_fields => probes_allocate_fields
+     !> Initialize user defined parameters.
+     procedure, pass(this) :: init => probes_init
+     !> Destructor
+     procedure, pass(this) :: free => probes_free
+     !> Print current probe status, with number of probes and coordinates
+     procedure, pass(this) :: show => probes_show
+     !> Show the status of processor/element owner and error code for each point
+     procedure, pass(this) :: debug => probes_debug
+     !> Setup the probes for mapping process (with fgslib_findpts_setup).
+     procedure, pass(this) :: setup => probes_setup
+     !> Maps `x,y,z` to `r,s,t` coordinates.
+     procedure, pass(this) :: map => probes_map
+     !> Interpolate each probe from its `r,s,t` coordinates.
+     procedure, pass(this) :: interpolate => probes_interpolate
 
-    end type probes_t
+  end type probes_t
 
 contains
 
@@ -151,7 +151,7 @@ contains
 
     ! Counter
     integer :: i
-    ! Controller parameters 
+    ! Controller parameters
     real(kind=rp)                  :: T_end
     real(kind=rp)                  :: output_value
     character(len=:), allocatable  :: output_control
@@ -159,7 +159,7 @@ contains
 
     !> Read from case file
     call params%info('case.probes.fields', n_children=this%n_fields)
-    call json_get(params, 'case.probes.fields', this%which_fields) 
+    call json_get(params, 'case.probes.fields', this%which_fields)
     call json_get(params, 'case.end_time', T_end)
     call json_get(params, 'case.probes.output_control', &
          output_control)
@@ -176,12 +176,12 @@ contains
     end do
 
     !> Controllers
-    ! Calculate relevant parameters and restart                     
+    ! Calculate relevant parameters and restart
     call this%controller%init(T_end, output_control, &
                                   output_value)
     ! Update nexecutions in restarts
     if (this%controller%nsteps .eq. 0) then
-        this%controller%nexecutions = &
+       this%controller%nexecutions = &
                int(t / this%controller%time_interval) + 1
     end if
 
@@ -253,7 +253,7 @@ contains
     end do
     call neko_log%end_section()
     call neko_log%newline()
-    
+
   end subroutine probes_show
 
   !> Show the status of processor/element owner and error code for each point
@@ -316,7 +316,7 @@ contains
   !! @param coef Coefficients associated with the probe's fields.
   subroutine probes_map(this, coef)
     class(probes_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef 
+    type(coef_t), intent(in) :: coef
 
     real(kind=rp) :: rst_gslib_raw(3*this%n_probes)
 
@@ -432,7 +432,7 @@ contains
     if (this%controller%check(t, tstep, .false.)) then
 
        size_outfields = this%n_probes * this%n_fields
-       
+
        ! Fill the out_field array with 0s as we are reducing later
        ! with MPI_SUM
        call rzero(this%out_fields, size_outfields)
@@ -442,7 +442,7 @@ contains
 
           lx = this%interpolator%Xh%lx
           size_weights = this%n_local_probes * lx
-          
+
           !
           ! Only update weights if necessary
           !
@@ -532,10 +532,10 @@ contains
     file_in = file_t(trim(points_file))
 
     select type(ft => file_in%file_type)
-      type is (csv_file_t)
-          call read_from_csv(this, ft, mat_in)
-      class default
-          call neko_error("Invalid data. Expected csv_file_t.")
+    type is (csv_file_t)
+       call read_from_csv(this, ft, mat_in)
+    class default
+       call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
     !> After reading the number of probes is know, as well as number of fields
@@ -584,7 +584,7 @@ contains
     n_fields = this%n_fields
 
     ! Size of xyz as used in gslib
-    allocate(this%xyz(3, n_probes))    
+    allocate(this%xyz(3, n_probes))
     allocate(this%proc_owner(n_probes))
     allocate(this%el_owner(n_probes))
     allocate(this%dist2(n_probes))

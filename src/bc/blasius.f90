@@ -79,9 +79,9 @@ contains
     if (c_associated(this%blaz_d)) then
        call device_free(this%blaz_d)
     end if
-    
+
   end subroutine blasius_free
-  
+
   !> No-op scalar apply
   subroutine blasius_apply_scalar(this, x, n, t, tstep)
     class(blasius_t), intent(inout) :: this
@@ -98,7 +98,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
   end subroutine blasius_apply_scalar_dev
-  
+
   !> Apply blasius conditions (vector valued)
   subroutine blasius_apply_vector(this, x, y, z, n, t, tstep)
     class(blasius_t), intent(inout) :: this
@@ -123,10 +123,10 @@ contains
          case(1,2)
             x(k) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
                  this%delta, this%x(1))
-            y(k) = 0.0_rp 
+            y(k) = 0.0_rp
             z(k) = 0.0_rp
          case(3,4)
-            x(k) = 0.0_rp 
+            x(k) = 0.0_rp
             y(k) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
                  this%delta, this%x(2))
             z(k) = 0.0_rp
@@ -135,7 +135,7 @@ contains
             y(k) = 0.0_rp
             z(k) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &
                  this%delta, this%x(3))
-         end select            
+         end select
       end do
       !$omp end do
     end associate
@@ -174,7 +174,7 @@ contains
          call device_alloc(blax_d, s)
          call device_alloc(blay_d, s)
          call device_alloc(blaz_d, s)
-         
+
          do i = 1, m
             k = this%msk(i)
             facet = this%facet(i)
@@ -183,10 +183,10 @@ contains
             case(1,2)
                bla_x(i) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
                     this%delta, this%x(1))
-               bla_y(i) = 0.0_rp 
+               bla_y(i) = 0.0_rp
                bla_z(i) = 0.0_rp
             case(3,4)
-               bla_x(i) = 0.0_rp 
+               bla_x(i) = 0.0_rp
                bla_y(i) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
                     this%delta, this%x(2))
                bla_z(i) = 0.0_rp
@@ -207,7 +207,7 @@ contains
 
       call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
            blax_d, blay_d, blaz_d, m)
-      
+
     end associate
 
   end subroutine blasius_apply_vector_dev
@@ -218,7 +218,7 @@ contains
     real(kind=rp) :: delta
     character(len=*) :: type
     this%delta = delta
-    
+
     select case(trim(type))
     case('linear')
        this%bla => blasius_linear
@@ -241,5 +241,5 @@ contains
     type(coef_t), target, intent(inout) :: c
     this%c => c
   end subroutine blasius_set_coef
-     
+
 end module blasius

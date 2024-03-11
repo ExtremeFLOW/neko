@@ -50,9 +50,9 @@ module tri
   !! Node numbering
   !!
   !!    3+
-  !!     |\          
+  !!     |\
   !!     | \        ^ s
-  !!     |  \       | 
+  !!     |  \       |
   !!     |   \      |
   !!    1+----+2    +---> r
   !!
@@ -74,9 +74,9 @@ module tri
   !! Edge numbering
   !!
   !!     +
-  !!     |\          
+  !!     |\
   !!     | \       ^ s
-  !!   1 |  \ 2    | 
+  !!   1 |  \ 2    |
   !!     |   \     |
   !!     +----+    +---> r
   !!       3
@@ -109,7 +109,7 @@ contains
     class(tri_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    type(point_t), pointer :: p1, p2    
+    type(point_t), pointer :: p1, p2
 
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
@@ -122,7 +122,7 @@ contains
           t%x = (/ p2%id(), p1%id() /)
        end if
     end select
-    
+
   end subroutine tri_facet_id
 
   !> Return the ordered edge for face @a i as a 2-tuple @a t
@@ -190,7 +190,7 @@ contains
   pure function tri_equal(this, other) result(res)
     class(tri_t), intent(in) :: this
     class(element_t), intent(in) :: other
-    integer :: i    
+    integer :: i
     logical :: res
 
     res = .false.
@@ -206,7 +206,7 @@ contains
           res = .true.
        end if
     end select
-    
+
   end function tri_equal
-  
+
 end module tri

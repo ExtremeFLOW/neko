@@ -34,7 +34,7 @@
 module precon
   use num_types, only : rp
   implicit none
-  
+
   !> Defines a canonical Krylov preconditioner
   type, public, abstract :: pc_t
    contains

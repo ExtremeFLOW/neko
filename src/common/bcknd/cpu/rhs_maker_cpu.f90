@@ -6,7 +6,7 @@ module rhs_maker_cpu
   use scratch_registry
   implicit none
   private
-  
+
   type, public, extends(rhs_maker_sumab_t) :: rhs_maker_sumab_cpu_t
    contains
      procedure, nopass :: compute_fluid => rhs_maker_sumab_cpu
@@ -23,7 +23,7 @@ module rhs_maker_cpu
      procedure, nopass :: compute_fluid => rhs_maker_bdf_cpu
      procedure, nopass :: compute_scalar => scalar_rhs_maker_bdf_cpu
   end type rhs_maker_bdf_cpu_t
-  
+
 contains
 
   subroutine rhs_maker_sumab_cpu(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
@@ -52,7 +52,7 @@ contains
        end do
        !$omp end do
     end if
-    !$omp end parallel    
+    !$omp end parallel
   end subroutine rhs_maker_sumab_cpu
 
   subroutine rhs_maker_ext_cpu(fx_lag, fy_lag, fz_lag, &
@@ -66,7 +66,7 @@ contains
     integer :: i
     type(field_t), pointer :: temp1, temp2, temp3
     integer :: temp_indices(3)
-    
+
     call neko_scratch_registry%request_field(temp1, temp_indices(1))
     call neko_scratch_registry%request_field(temp2, temp_indices(2))
     call neko_scratch_registry%request_field(temp3, temp_indices(3))
@@ -100,7 +100,7 @@ contains
     !$omp end do
     !$omp end parallel
     call neko_scratch_registry%relinquish_field(temp_indices)
-    
+
   end subroutine rhs_maker_ext_cpu
 
   subroutine scalar_rhs_maker_ext_cpu(temp1, fs_lag, fs_laglag, fs, rho, ext_coeffs, &
@@ -130,14 +130,14 @@ contains
        fs(i) = (ext_coeffs(1) * fs(i) + temp1%x(i,1,1,1)) * rho
     end do
     !$omp end do
-    !$omp end parallel    
+    !$omp end parallel
   end subroutine scalar_rhs_maker_ext_cpu
 
   subroutine rhs_maker_bdf_cpu(ulag, vlag, wlag, bfx, bfy, bfz, &
-                               u, v, w, B, rho, dt, bd, nbd, n)    
+                               u, v, w, B, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(in) :: u, v, w
-    type(field_series_t), intent(in) :: ulag, vlag, wlag        
+    type(field_series_t), intent(in) :: ulag, vlag, wlag
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)
@@ -191,7 +191,7 @@ contains
   end subroutine rhs_maker_bdf_cpu
 
   subroutine scalar_rhs_maker_bdf_cpu(temp1, temp2, s_lag, fs, s, B, rho, dt, &
-       bd, nbd, n)    
+       bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(inout) :: temp1, temp2
     type(field_t), intent(in) :: s

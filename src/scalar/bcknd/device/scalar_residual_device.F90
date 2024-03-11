@@ -39,7 +39,7 @@ module scalar_residual_device
   use, intrinsic :: iso_c_binding
   implicit none
   private
- 
+
   type, public, extends(scalar_residual_t) :: scalar_residual_device_t
    contains
      procedure, nopass :: compute => scalar_residual_device_compute
@@ -57,7 +57,7 @@ module scalar_residual_device
      end subroutine scalar_residual_update_hip
   end interface
 #elif HAVE_CUDA
-  
+
   interface
      subroutine scalar_residual_update_cuda(s_res_d,f_s_d, n) &
           bind(c, name='scalar_residual_update_cuda')
@@ -69,7 +69,7 @@ module scalar_residual_device
      end subroutine scalar_residual_update_cuda
   end interface
 #elif HAVE_OPENCL
-  
+
   interface
      subroutine scalar_residual_update_opencl(s_res_d,f_s_d, n) &
           bind(c, name='scalar_residual_update_opencl')
@@ -82,7 +82,7 @@ module scalar_residual_device
   end interface
 #endif
 
-  
+
 contains
 
 
@@ -90,7 +90,7 @@ contains
              Pr, Re, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh    
+    type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: s
     type(field_t), intent(inout) :: s_res
     type(source_scalar_t), intent(inout) :: f_Xh
@@ -101,11 +101,11 @@ contains
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
-    
+
     call device_cfill(c_Xh%h1_d, (1.0_rp / (Pr * Re)), n)
     call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
     c_Xh%ifh2 = .true.
-    
+
     call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
 
 #ifdef HAVE_HIP
@@ -115,7 +115,7 @@ contains
 #elif HAVE_OPENCL
     call scalar_residual_update_opencl(s_res%x_d, f_Xh%s_d, n)
 #endif
-    
+
   end subroutine scalar_residual_device_compute
-  
+
 end module scalar_residual_device

@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Subroutines to add advection terms to the RHS of a transport equation. 
+!> Subroutines to add advection terms to the RHS of a transport equation.
 module advection
   use num_types
   use math
@@ -48,7 +48,7 @@ module advection
                                           c_associated
   implicit none
   private
-  
+
   !> Base abstract type for computing the advection operator
   type, public, abstract :: advection_t
    contains
@@ -143,7 +143,7 @@ module advection
 
   abstract interface
      !> Add advection operator to the right-hand-side for a scalar.
-     !! @param this The object. 
+     !! @param this The object.
      !! @param vx The x component of velocity.
      !! @param vy The y component of velocity.
      !! @param vz The z component of velocity.
@@ -171,7 +171,7 @@ module advection
   public :: advection_factory
 
 contains
-  
+
   !> A factory for \ref advection_t decendants.
   !! @param this Polymorphic object of class \ref advection_t.
   !! @param coeff The coefficients of the (space, mesh) pair.
@@ -205,11 +205,11 @@ contains
     else
        allocate(adv_no_dealias_t::this)
     end if
-    
+
     select type(adv => this)
     type is(adv_dealias_t)
        if (lxd .gt. 0) then
-          call init_dealias(adv, lxd, coef) 
+          call init_dealias(adv, lxd, coef)
        else
           call init_dealias(adv, coef%Xh%lx * 3/2,  coef)
        end if
@@ -275,7 +275,7 @@ contains
        allocate(this%vs(n_GL))
        allocate(this%vt(n_GL))
     end if
-    
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%temp, this%temp_d, n_GL)
        call device_map(this%tbf, this%tbf_d, n_GL)
@@ -288,7 +288,7 @@ contains
     end if
 
   end subroutine init_dealias
-  
+
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
   !! the RHS.
   !! @param vx The x component of velocity.
@@ -309,7 +309,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
-    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz 
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vr, vs, vt
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: tempx, tempy, tempz
     type(c_ptr) :: fx_d, fy_d, fz_d
@@ -318,92 +318,92 @@ contains
     n_GL = nel * this%Xh_GL%lxyz
     !This is extremely primitive and unoptimized  on the device //Karp
     associate(c_GL => this%coef_GL)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       fx_d = device_get_ptr(fx)
-       fy_d = device_get_ptr(fy)
-       fz_d = device_get_ptr(fz)
-       call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
-       call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
-       call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         fx_d = device_get_ptr(fx)
+         fy_d = device_get_ptr(fy)
+         fz_d = device_get_ptr(fz)
+         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
 
-       call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
-       call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
+         call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
+         call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                          this%tx_d, this%ty_d, this%tz_d, n_GL)
-       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call device_sub2(fx_d, this%temp_d, n)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call device_sub2(fx_d, this%temp_d, n)
 
 
-       call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
-       call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
+         call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
+         call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                          this%tx_d, this%ty_d, this%tz_d, n_GL)
-       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call device_sub2(fy_d, this%temp_d, n)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call device_sub2(fy_d, this%temp_d, n)
 
-       call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
-       call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
+         call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
+         call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                          this%tx_d, this%ty_d, this%tz_d, n_GL)
-       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call device_sub2(fz_d, this%temp_d, n)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call device_sub2(fz_d, this%temp_d, n)
 
-    else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
+      else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
 
-       call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
-       call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
-       call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
 
-       call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
-       call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+         call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
+         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
                   this%tx, this%ty, this%tz, n_GL)
-       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call sub2(fx, this%temp, n)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call sub2(fx, this%temp, n)
 
 
-       call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
-       call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+         call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
+         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
                   this%tx, this%ty, this%tz, n_GL)
-       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call sub2(fy, this%temp, n)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call sub2(fy, this%temp, n)
 
-       call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
-       call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+         call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
+         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
                   this%tx, this%ty, this%tz, n_GL)
-       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call sub2(fz, this%temp, n)
-       
-    else
-       !$omp parallel do private(e, i, idx, tx, ty, tz, vr, vs, vt)&
-       !$omp& private(tempx, tempy, tempz, tfx, tfy, tfz)
-       do e = 1, coef%msh%nelv
-          call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
-          call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
-          call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call sub2(fz, this%temp, n)
 
-          call opgrad(vr, vs, vt, tx, c_GL, e, e)
-          do i = 1, this%Xh_GL%lxyz
-             tfx(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
-          end do
+      else
+         !$omp parallel do private(e, i, idx, tx, ty, tz, vr, vs, vt)&
+         !$omp& private(tempx, tempy, tempz, tfx, tfy, tfz)
+         do e = 1, coef%msh%nelv
+            call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
 
-          call opgrad(vr, vs, vt, ty, c_GL, e, e)
-          do i = 1, this%Xh_GL%lxyz
-             tfy(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
-          end do
+            call opgrad(vr, vs, vt, tx, c_GL, e, e)
+            do i = 1, this%Xh_GL%lxyz
+               tfx(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
+            end do
 
-          call opgrad(vr, vs, vt, tz, c_GL, e, e)
-          do i = 1, this%Xh_GL%lxyz
-             tfz(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
-          end do
+            call opgrad(vr, vs, vt, ty, c_GL, e, e)
+            do i = 1, this%Xh_GL%lxyz
+               tfy(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
+            end do
 
-          call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-          call this%GLL_to_GL%map(tempy, tfy, 1, this%Xh_GLL)
-          call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
+            call opgrad(vr, vs, vt, tz, c_GL, e, e)
+            do i = 1, this%Xh_GL%lxyz
+               tfz(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
+            end do
 
-          idx = (e-1)*this%Xh_GLL%lxyz+1
-          call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
-          call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
-          call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
-       end do
-       !$omp end parallel do
-    end if
+            call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map(tempy, tfy, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
+
+            idx = (e-1)*this%Xh_GLL%lxyz+1
+            call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
+            call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
+            call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
+         end do
+         !$omp end parallel do
+      end if
     end associate
 
   end subroutine compute_advection_dealias
@@ -434,7 +434,7 @@ contains
        fx_d = device_get_ptr(fx)
        fy_d = device_get_ptr(fy)
        fz_d = device_get_ptr(fz)
-       
+
        call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
        call device_subcol3 (fx_d, coef%B_d, this%temp_d, n)
        call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
@@ -454,7 +454,7 @@ contains
        end do
        !$omp end do
        call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-      !$omp do
+       !$omp do
        do i = 1, n
           fy(i) = fy(i) - coef%B(i,1,1,1) * this%temp(i)
        end do
@@ -480,7 +480,7 @@ contains
 
   !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to the
   !! RHS.
-  !! @param this The object. 
+  !! @param this The object.
   !! @param vx The x component of velocity.
   !! @param vy The y component of velocity.
   !! @param vz The z component of velocity.
@@ -503,7 +503,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        fs_d = device_get_ptr(fs)
-       
+
        call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
        call device_subcol3 (fs_d, coef%B_d, this%temp_d, n)
        if (coef%Xh%lz .eq. 1) then
@@ -524,7 +524,7 @@ contains
 
   !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to the
   !! RHS.
-  !! @param this The object. 
+  !! @param this The object.
   !! @param vx The x component of velocity.
   !! @param vy The y component of velocity.
   !! @param vz The z component of velocity.
@@ -554,83 +554,83 @@ contains
     n_GL = nel * this%Xh_GL%lxyz
 
     associate(c_GL => this%coef_GL)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       fs_d = device_get_ptr(fs)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         fs_d = device_get_ptr(fs)
 
-       ! Map advecting velocity onto the higher-order space
-       call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
-       call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
-       call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+         ! Map advecting velocity onto the higher-order space
+         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
 
-       ! Map the scalar onto the high-order space
-       call this%GLL_to_GL%map(this%temp, s%x, nel, this%Xh_GL)
-       
-       ! Compute the scalar gradient in the high-order space
-       call opgrad(this%vr, this%vs, this%vt, this%temp, c_GL)
-       
-       ! Compute the convective term, i.e dot the velocity with the scalar grad
-       call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
+         ! Map the scalar onto the high-order space
+         call this%GLL_to_GL%map(this%temp, s%x, nel, this%Xh_GL)
+
+         ! Compute the scalar gradient in the high-order space
+         call opgrad(this%vr, this%vs, this%vt, this%temp, c_GL)
+
+         ! Compute the convective term, i.e dot the velocity with the scalar grad
+         call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                          this%tx_d, this%ty_d, this%tz_d, n_GL)
 
-       ! Map back to the original space (we reuse this%temp)
-       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       
-       ! Update the source term
-       call device_sub2(fs_d, this%temp_d, n)
+         ! Map back to the original space (we reuse this%temp)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
 
-    else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
+         ! Update the source term
+         call device_sub2(fs_d, this%temp_d, n)
 
-       ! Map advecting velocity onto the higher-order space
-       call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
-       call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
-       call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+      else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
 
-       ! Map the scalar onto the high-order space
-       call this%GLL_to_GL%map(this%temp, s%x, nel, this%Xh_GL)
-       
-       ! Compute the scalar gradient in the high-order space
-       call opgrad(this%vr, this%vs, this%vt, this%temp, c_GL)
-       
-       ! Compute the convective term, i.e dot the velocity with the scalar grad
-       call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+         ! Map advecting velocity onto the higher-order space
+         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+
+         ! Map the scalar onto the high-order space
+         call this%GLL_to_GL%map(this%temp, s%x, nel, this%Xh_GL)
+
+         ! Compute the scalar gradient in the high-order space
+         call opgrad(this%vr, this%vs, this%vt, this%temp, c_GL)
+
+         ! Compute the convective term, i.e dot the velocity with the scalar grad
+         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
                   this%tx, this%ty, this%tz, n_GL)
 
-       ! Map back to the original space (we reuse this%temp)
-       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       
-       ! Update the source term
-       call sub2(fs, this%temp, n)
+         ! Map back to the original space (we reuse this%temp)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
 
-    else
-       !$omp parallel do private(e, i, idx, vx_GL, vy_GL, vz_GL) &
-       !$omp& private(dsdx, dsdy, dsdz, s_Gl, temp, f_GL)
-       do e = 1, coef%msh%nelv
-          ! Map advecting velocity onto the higher-order space
-          call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
-          call this%GLL_to_GL%map(vy_GL, vy%x(1,1,1,e), 1, this%Xh_GL)
-          call this%GLL_to_GL%map(vz_GL, vz%x(1,1,1,e), 1, this%Xh_GL)
+         ! Update the source term
+         call sub2(fs, this%temp, n)
 
-          ! Map scalar onto the higher-order space
-          call this%GLL_to_GL%map(s_GL, s%x(1,1,1,e), 1, this%Xh_GL)
+      else
+         !$omp parallel do private(e, i, idx, vx_GL, vy_GL, vz_GL) &
+         !$omp& private(dsdx, dsdy, dsdz, s_Gl, temp, f_GL)
+         do e = 1, coef%msh%nelv
+            ! Map advecting velocity onto the higher-order space
+            call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(vy_GL, vy%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(vz_GL, vz%x(1,1,1,e), 1, this%Xh_GL)
 
-          ! Gradient of s in the higher-order space
-          call opgrad(dsdx, dsdy, dsdz, s_GL, c_GL, e, e)
-          
-          ! vx * ds/dx + vy * ds/dy + vz * ds/dz for each point in the element
-          do i = 1, this%Xh_GL%lxyz
-             f_GL(i) = vx_GL(i)*dsdx(i) + vy_GL(i)*dsdy(i) + vz_GL(i)*dsdz(i)
-          end do
+            ! Map scalar onto the higher-order space
+            call this%GLL_to_GL%map(s_GL, s%x(1,1,1,e), 1, this%Xh_GL)
 
-          ! Map back the contructed operator to the original space
-          call this%GLL_to_GL%map(temp, f_GL, 1, this%Xh_GLL)
+            ! Gradient of s in the higher-order space
+            call opgrad(dsdx, dsdy, dsdz, s_GL, c_GL, e, e)
 
-          idx = (e-1)*this%Xh_GLL%lxyz + 1
+            ! vx * ds/dx + vy * ds/dy + vz * ds/dz for each point in the element
+            do i = 1, this%Xh_GL%lxyz
+               f_GL(i) = vx_GL(i)*dsdx(i) + vy_GL(i)*dsdy(i) + vz_GL(i)*dsdz(i)
+            end do
 
-          call sub2(fs(idx), temp, this%Xh_GLL%lxyz)
-       end do
-       !$omp end parallel do
-   end if
-   end associate
+            ! Map back the contructed operator to the original space
+            call this%GLL_to_GL%map(temp, f_GL, 1, this%Xh_GLL)
+
+            idx = (e-1)*this%Xh_GLL%lxyz + 1
+
+            call sub2(fs(idx), temp, this%Xh_GLL%lxyz)
+         end do
+         !$omp end parallel do
+      end if
+    end associate
 
   end subroutine compute_scalar_advection_dealias
 

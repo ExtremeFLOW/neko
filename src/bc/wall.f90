@@ -67,16 +67,16 @@ contains
        x(k) = 0d0
     end do
     !$omp end do
-    
+
   end subroutine no_slip_wall_apply_scalar
-  
+
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z
   subroutine no_slip_wall_apply_vector(this, x, y, z, n, t, tstep)
     class(no_slip_wall_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y    
+    real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
@@ -102,9 +102,9 @@ contains
     integer, intent(in), optional :: tstep
 
     call device_no_slip_wall_apply_scalar(this%msk_d, x_d, size(this%msk))
-    
+
   end subroutine no_slip_wall_apply_scalar_dev
-  
+
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine no_slip_wall_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
@@ -117,7 +117,7 @@ contains
 
     call device_no_slip_wall_apply_vector(this%msk_d, x_d, y_d, z_d, &
                                           size(this%msk))
-    
+
   end subroutine no_slip_wall_apply_vector_dev
-  
+
 end module wall

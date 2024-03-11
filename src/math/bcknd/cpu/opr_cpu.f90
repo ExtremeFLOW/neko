@@ -49,7 +49,7 @@ module opr_cpu
 
   public :: opr_cpu_dudxyz, opr_cpu_opgrad, opr_cpu_cdtp, &
        opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl
-  
+
 contains
 
   subroutine opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
@@ -62,54 +62,54 @@ contains
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(coef%Xh%lx)
       case(14)
-         call cpu_dudxyz_lx14(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx14(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(13)
-         call cpu_dudxyz_lx13(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx13(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(12)
-         call cpu_dudxyz_lx12(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx12(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(11)
-         call cpu_dudxyz_lx11(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx11(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(10)
-         call cpu_dudxyz_lx10(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx10(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(9)
-         call cpu_dudxyz_lx9(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx9(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(8)
-         call cpu_dudxyz_lx8(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx8(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(7)
-         call cpu_dudxyz_lx7(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx7(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(6)
-         call cpu_dudxyz_lx6(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx6(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(5)
-         call cpu_dudxyz_lx5(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx5(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(4)
-         call cpu_dudxyz_lx4(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx4(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(3)
-         call cpu_dudxyz_lx3(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx3(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(2)
-         call cpu_dudxyz_lx2(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx2(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case default
-         call cpu_dudxyz_lx(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, Xh%lx)
       end select
     end associate
 
   end subroutine opr_cpu_dudxyz
 
-  subroutine opr_cpu_opgrad(ux, uy, uz, u, coef, e_start, e_end) 
-    type(coef_t), intent(in) :: coef  
+  subroutine opr_cpu_opgrad(ux, uy, uz, u, coef, e_start, e_end)
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: e_start, e_end
     real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: uy
@@ -154,7 +154,7 @@ contains
                  drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
                  drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
                  Xh%w3)
-         end if            
+         end if
       case(16)
          if (e_len .gt. 1) then
             call cpu_opgrad_lx16(ux, uy, uz, u, &
@@ -186,7 +186,7 @@ contains
                  drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
                  drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
                  Xh%w3)
-         end if            
+         end if
       case(14)
          if (e_len .gt. 1) then
             call cpu_opgrad_lx14(ux, uy, uz, u, &
@@ -202,7 +202,7 @@ contains
                  drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
                  drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
                  Xh%w3)
-         end if            
+         end if
       case(13)
          if (e_len .gt. 1) then
             call cpu_opgrad_lx13(ux, uy, uz, u, &
@@ -266,7 +266,7 @@ contains
                  drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
                  drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
                  Xh%w3)
-         end if            
+         end if
       case(9)
          if (e_len .gt. 1) then
             call cpu_opgrad_lx9(ux, uy, uz, u, &
@@ -519,25 +519,25 @@ contains
               drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
               drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
               drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)         
+              jacinv(1,1,1,e_start), e_len)
       case(9)
          call cpu_conv1_lx9(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
               drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
               drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
               drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)         
+              jacinv(1,1,1,e_start), e_len)
       case(8)
          call cpu_conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
               drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
               drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
               drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)         
+              jacinv(1,1,1,e_start), e_len)
       case(7)
          call cpu_conv1_lx7(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
               drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
               drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
               drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)         
+              jacinv(1,1,1,e_start), e_len)
       case(6)
          call cpu_conv1_lx6(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
               drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
@@ -576,7 +576,7 @@ contains
               jacinv(1,1,1,e_start), e_len, Xh%lx)
       end select
     end associate
-    
+
   end subroutine opr_cpu_conv1
 
   subroutine opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
@@ -642,9 +642,9 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
-    call c_Xh%gs_h%op(w1, GS_OP_ADD) 
-    call c_Xh%gs_h%op(w2, GS_OP_ADD) 
-    call c_Xh%gs_h%op(w3, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w1, GS_OP_ADD)
+    call c_Xh%gs_h%op(w2, GS_OP_ADD)
+    call c_Xh%gs_h%op(w3, GS_OP_ADD)
     call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
 
   end subroutine opr_cpu_curl
@@ -676,11 +676,11 @@ contains
                    ut = ( u(i,j,k,e)*coef%dtdx(i,j,k,e) &
                       +   v(i,j,k,e)*coef%dtdy(i,j,k,e) &
                       +   w(i,j,k,e)*coef%dtdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
- 
+
                    cflr = abs(dt*ur*Xh%dr_inv(i))
                    cfls = abs(dt*us*Xh%ds_inv(j))
                    cflt = abs(dt*ut*Xh%dt_inv(k))
- 
+
                    cflm = cflr + cfls + cflt
                    cfl  = max(cfl,cflm)
                 end do
@@ -700,14 +700,14 @@ contains
 
                 cflr = abs(dt*ur*Xh%dr_inv(i))
                 cfls = abs(dt*us*Xh%ds_inv(j))
-                
+
                 cflm = cflr + cfls
                 cfl  = max(cfl,cflm)
 
              end do
           end do
        end do
-      !$omp end do
+       !$omp end do
     end if
     !$omp end parallel
   end function opr_cpu_cfl

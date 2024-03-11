@@ -41,7 +41,7 @@ module scalar_residual_fctry
 
 contains
 
-  
+
   subroutine scalar_residual_factory(scalar_res)
     class(scalar_residual_t), allocatable, intent(inout) :: scalar_res
 
@@ -57,7 +57,7 @@ contains
     else
        allocate(scalar_residual_cpu_t::scalar_res)
     end if
-       
-    
+
+
   end subroutine scalar_residual_factory
 end module scalar_residual_fctry

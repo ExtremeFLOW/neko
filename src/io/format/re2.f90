@@ -15,14 +15,14 @@ module re2
   end type re2v1_t
 
   !> NEKTON re2 element data (3d) (version 1)
-  type, public, extends(re2v1_t) :: re2v1_xyz_t    
+  type, public, extends(re2v1_t) :: re2v1_xyz_t
      real(kind=sp), dimension(8) :: x
      real(kind=sp), dimension(8) :: y
      real(kind=sp), dimension(8) :: z
   end type re2v1_xyz_t
 
   !> NEKTON re2 element data (2d) (version 1)
-  type, public, extends(re2v1_t) :: re2v1_xy_t    
+  type, public, extends(re2v1_t) :: re2v1_xy_t
      real(kind=sp), dimension(4) :: x
      real(kind=sp), dimension(4) :: y
   end type re2v1_xy_t
@@ -34,7 +34,7 @@ module re2
      real(kind=sp), dimension(5) :: point
      character(len=4) :: type
   end type re2v1_curve_t
-  
+
   !> NEKTON re2 bc data (version 1)
   type, public :: re2v1_bc_t
      integer :: elem
@@ -49,14 +49,14 @@ module re2
   end type re2v2_t
 
   !> NEKTON re2 element data (3d) (version 2)
-  type, public, extends(re2v2_t) :: re2v2_xyz_t    
+  type, public, extends(re2v2_t) :: re2v2_xyz_t
      real(kind=dp), dimension(8) :: x
      real(kind=dp), dimension(8) :: y
      real(kind=dp), dimension(8) :: z
   end type re2v2_xyz_t
 
   !> NEKTON re2 element data (2d) (version 2)
-  type, public, extends(re2v1_t) :: re2v2_xy_t    
+  type, public, extends(re2v1_t) :: re2v2_xy_t
      real(kind=dp), dimension(4) :: x
      real(kind=dp), dimension(4) :: y
   end type re2v2_xy_t
@@ -68,7 +68,7 @@ module re2
      real(kind=dp), dimension(5) :: point
      character(len=8) :: type
   end type re2v2_curve_t
-  
+
   !> NEKTON re2 bc data (version 2)
   type, public :: re2v2_bc_t
      real(kind=dp) :: elem

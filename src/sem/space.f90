@@ -36,7 +36,7 @@ module space
   use num_types, only : rp
   use speclib
   use device
-  use utils, only : neko_error    
+  use utils, only : neko_error
   use fast3d, only : setup_intp
   use math
   use tensor, only : trsp1
@@ -44,7 +44,7 @@ module space
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+
   integer, public, parameter :: GL = 0, GLL = 1, GJ = 2
 
   !> The function space for the SEM solution fields
@@ -52,7 +52,7 @@ module space
   !! In SEM, the solution fields are represented as a linear combination of
   !! basis functions for a particular function space. Thus, the properties of
   !! the space define that of the solution. The global SEM basis is never build,
-  !! but is implictly defined by the local basis for each element. 
+  !! but is implictly defined by the local basis for each element.
   !! The latter is polynomial, and is therefore defined by the order of the
   !! polys and the selected locations of the nodes for storing the solution.
   !! In SEM, the latter coincides with a Gaussian quadrature (GL, GLL, etc.)
@@ -68,9 +68,9 @@ module space
      integer :: lyz             !< Number of points in yz-plane
      integer :: lxz             !< Number of points in xz-plane
      integer :: lxyz            !< Number of points in xyz-block
-     
+
      real(kind=rp), allocatable :: zg(:,:) !< Quadrature points
-     
+
      real(kind=rp), allocatable :: dr_inv(:) !< 1/dist quadrature points
      real(kind=rp), allocatable :: ds_inv(:) !< 1/dist quadrature points
      real(kind=rp), allocatable :: dt_inv(:) !< 1/dist quadrature points
@@ -94,7 +94,7 @@ module space
      real(kind=rp), allocatable :: dyt(:,:)
      !> Transposed derivative operator \f$ D_3^T \f$
      real(kind=rp), allocatable :: dzt(:,:)
-     
+
      !> Legendre transformation matrices
      real(kind=rp), allocatable :: v(:,:)        !< legendre to physical
      real(kind=rp), allocatable :: vt(:,:)       !< legendre to physical t
@@ -140,7 +140,7 @@ module space
   end interface operator(.ne.)
 
   public :: operator(.eq.), operator(.ne.)
-  
+
 contains
 
   !> Initialize a function space @a s with given polynomial dimensions
@@ -151,7 +151,7 @@ contains
     integer, intent(in) :: ly           !< Polynomial dimension in y-direction
     integer, optional, intent(in) :: lz !< Polynomial dimension in z-direction
     integer :: ix, iy, iz
- 
+
     call space_free(s)
 
     s%lx = lx
@@ -180,7 +180,7 @@ contains
     allocate(s%wx(s%lx))
     allocate(s%wy(s%ly))
     allocate(s%wz(s%lz))
-    
+
     allocate(s%dr_inv(s%lx))
     allocate(s%ds_inv(s%ly))
     allocate(s%dt_inv(s%lz))
@@ -194,13 +194,13 @@ contains
     allocate(s%dxt(s%lx, s%lx))
     allocate(s%dyt(s%ly, s%ly))
     allocate(s%dzt(s%lz, s%lz))
-    
+
     allocate(s%v(s%lx, s%lx))
     allocate(s%vt(s%lx, s%lx))
     allocate(s%vinv(s%lx, s%lx))
     allocate(s%vinvt(s%lx, s%lx))
     allocate(s%w(s%lx, s%lx))
-    
+
     ! Call low-level routines to compute nodes and quadrature weights
     if (t .eq. GLL) then
        call zwgll(s%zg(1,1), s%wx, s%lx)
@@ -233,27 +233,27 @@ contains
     end do
     !> Setup derivative matrices
     if (t .eq. GLL) then
-        call dgll(s%dx, s%dxt, s%zg(1,1), s%lx, s%lx)
-        call dgll(s%dy, s%dyt, s%zg(1,2), s%ly, s%ly)
-        if (s%lz .gt. 1) then
-           call dgll(s%dz, s%dzt, s%zg(1,3), s%lz, s%lz)
-        else
-           s%dz = 0d0
-           s%dzt = 0d0
-        end if
+       call dgll(s%dx, s%dxt, s%zg(1,1), s%lx, s%lx)
+       call dgll(s%dy, s%dyt, s%zg(1,2), s%ly, s%ly)
+       if (s%lz .gt. 1) then
+          call dgll(s%dz, s%dzt, s%zg(1,3), s%lz, s%lz)
+       else
+          s%dz = 0d0
+          s%dzt = 0d0
+       end if
     else if (t .eq. GL) then
        call setup_intp(s%dx, s%dxt, s%zg(1,1), s%zg(1,1), s%lx, s%lx,1)
        call setup_intp(s%dy, s%dyt, s%zg(1,2), s%zg(1,2), s%ly, s%ly,1)
-        if (s%lz .gt. 1) then
-           call setup_intp(s%dz, s%dzt, s%zg(1,3), s%zg(1,3), s%lz, s%lz, 1)
-        else
-           s%dz = 0d0
-           s%dzt = 0d0
-        end if
-     else
-        call neko_error("Invalid quadrature rule")
-     end if
-    
+       if (s%lz .gt. 1) then
+          call setup_intp(s%dz, s%dzt, s%zg(1,3), s%zg(1,3), s%lz, s%lz, 1)
+       else
+          s%dz = 0d0
+          s%dzt = 0d0
+       end if
+    else
+       call neko_error("Invalid quadrature rule")
+    end if
+
     call space_compute_dist(s%dr_inv, s%zg(1,1), s%lx)
     call space_compute_dist(s%ds_inv, s%zg(1,2), s%ly)
     if (s%lz .gt. 1) then
@@ -300,11 +300,11 @@ contains
        call device_map(s%zg, s%zg_d, ix)
        call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE)
     end if
-    
+
     call space_generate_transformation_matrices(s)
 
   end subroutine space_init
-   
+
   !> Deallocate a space @a s
   subroutine space_free(s)
     class(space_t), intent(inout) :: s
@@ -352,19 +352,19 @@ contains
     if (allocated(s%dzt)) then
        deallocate(s%dzt)
     end if
-    
+
     if (allocated(s%dr_inv)) then
        deallocate(s%dr_inv)
     end if
-    
+
     if (allocated(s%ds_inv)) then
        deallocate(s%ds_inv)
     end if
-    
+
     if (allocated(s%dt_inv)) then
        deallocate(s%dt_inv)
     end if
-    
+
     if(allocated(s%v)) then
        deallocate(s%v)
     end if
@@ -388,7 +388,7 @@ contains
     !
     ! Cleanup the device (if present)
     !
-    
+
     if (c_associated(s%dr_inv_d)) then
        call device_free(s%dr_inv_d)
     end if
@@ -412,7 +412,7 @@ contains
     if (c_associated(s%dzt_d)) then
        call device_free(s%dzt_d)
     end if
-    
+
     if (c_associated(s%dx_d)) then
        call device_free(s%dx_d)
     end if
@@ -444,7 +444,7 @@ contains
     if (c_associated(s%zg_d)) then
        call device_free(s%zg_d)
     end if
-    
+
     if (c_associated(s%v_d)) then
        call device_free(s%v_d)
     end if
@@ -481,7 +481,7 @@ contains
     else
        res = .false.
     end if
-    
+
   end function space_eq
 
   !> Check if \f$ X_h \ne Y_H \f$
@@ -498,9 +498,9 @@ contains
     else
        res = .true.
     end if
-    
+
   end function space_ne
-  
+
   subroutine space_compute_dist(dx, x, lx)
     integer, intent(in) :: lx
     real(kind=rp), intent(inout) :: dx(lx), x(lx)
@@ -514,13 +514,13 @@ contains
        dx(i) = 1.0_rp / dx(i)
     end do
   end subroutine space_compute_dist
-  
-  
+
+
   !> Generate spectral tranform matrices
   !! @param Xh SEM function space.
   subroutine space_generate_transformation_matrices(Xh)
     type(space_t), intent(inout) :: Xh
-    
+
     real(kind=rp) :: L(0:Xh%lx-1)
     real(kind=rp) :: delta(Xh%lx)
     integer :: i, kj, j, j2, kk
@@ -535,7 +535,7 @@ contains
          L(1) = Xh%zg(j,1)
          do j2 = 2, Xh%lx-1
             L(j2) = ( (2*j2-1) * Xh%zg(j,1) * L(j2-1) &
-                  - (j2-1) * L(j2-2) ) / j2 
+                  - (j2-1) * L(j2-2) ) / j2
          end do
          do kk = 1, Xh%lx
             kj = kj+1
@@ -550,14 +550,14 @@ contains
       do i = 1, Xh%lx
          delta(i) = 2.0_rp / (2*(i-1)+1)
       end do
-      ! modify last entry  
+      ! modify last entry
       delta(Xh%lx) = 2.0_rp / (Xh%lx-1)
 
       ! calculate the inverse to multiply the matrix
       do i = 1, Xh%lx
          delta(i) = sqrt(1.0_rp / delta(i))
       end do
-      ! scale the matrix      
+      ! scale the matrix
       do i = 1, Xh%lx
          do j = 1, Xh%lx
             v(i,j) = v(i,j) * delta(j) ! orthogonal wrt weights
@@ -590,9 +590,9 @@ contains
     end associate
 
     ! Copy the data to the GPU
-    ! Move all this to space.f90 to for next version 
+    ! Move all this to space.f90 to for next version
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-    (NEKO_BCKND_OPENCL .eq. 1)) then 
+    (NEKO_BCKND_OPENCL .eq. 1)) then
 
        call device_memcpy(Xh%v,     Xh%v_d,     Xh%lxy, &
                           HOST_TO_DEVICE)

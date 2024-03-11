@@ -84,7 +84,7 @@ module neko
   use probes
   use spectral_error_indicator
   use system
-  use field_registry, only : neko_field_registry    
+  use field_registry, only : neko_field_registry
   use scratch_registry, only : neko_scratch_registry
   use simulation_component_global, only : simcomps_global_init
   use data_streamer
@@ -103,7 +103,7 @@ contains
     character(8) :: date
     integer :: argc, nthrds, rw, sw
 
-    call date_and_time(time=time, date=date)           
+    call date_and_time(time=time, date=date)
 
     call comm_init
     call mpi_types_init
@@ -112,8 +112,8 @@ contains
 
     call neko_log%init()
     call neko_field_registry%init()
-    
-    
+
+
 
     if (pe_rank .eq. 0) then
        write(*,*) ''
@@ -147,12 +147,12 @@ contains
        !
        ! Job information
        !
-       call neko_log%section("Job Information")       
+       call neko_log%section("Job Information")
        write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
             time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
        call neko_log%message(log_buf)
        write(log_buf, '(a)') 'Running on: '
-       sw = 10 
+       sw = 10
        if (pe_size .lt. 1e1)  then
           write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
           if (pe_size .eq. 1) then
@@ -178,7 +178,7 @@ contains
           write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
           rw = 6
        end if
-       
+
        nthrds = 1
        !$omp parallel
        !$omp master
@@ -187,7 +187,7 @@ contains
        !$omp end parallel
 
        if (nthrds .gt. 1) then
-          if (nthrds .lt. 1e1) then                
+          if (nthrds .lt. 1e1) then
              write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
                   nthrds, ' thrds each'
           else if (nthrds .lt. 1e2) then
@@ -201,7 +201,7 @@ contains
                   nthrds, ' thrds each'
           end if
        end if
-       call neko_log%message(log_buf)      
+       call neko_log%message(log_buf)
 
        write(log_buf, '(a)') 'CPU type  : '
        call system_cpu_name(log_buf(13:))
@@ -252,9 +252,9 @@ contains
        ! Create simulation components
        !
        call simcomps_global_init(C)
-       
+
     end if
-    
+
   end subroutine neko_init
 
   subroutine neko_finalize(C)
@@ -263,7 +263,7 @@ contains
     if (present(C)) then
        call case_free(C)
     end if
-    
+
     call neko_field_registry%free()
     call neko_scratch_registry%free()
     call device_finalize

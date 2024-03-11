@@ -36,11 +36,11 @@ module scalar_pnpn
   use ax_helm_fctry
   use rhs_maker_fctry
   use scalar_scheme
-  use field_series  
+  use field_series
   use facet_normal
   use device_math
   use device_mathops
-  use scalar_aux    
+  use scalar_aux
   use time_scheme_controller
   use projection
   use math
@@ -54,7 +54,7 @@ module scalar_pnpn
 
 
   type, public, extends(scalar_scheme_t) :: scalar_pnpn_t
-     
+
      type(field_t) :: s_res
 
      type(field_series_t) :: slag
@@ -64,15 +64,15 @@ module scalar_pnpn
      type(field_t) :: wa1
      type(field_t) :: ta1
 
-     
+
      class(ax_t), allocatable :: Ax
 
      type(projection_t) :: proj_s
 
-     type(dirichlet_t) :: bc_res   !< Dirichlet condition for scala 
+     type(dirichlet_t) :: bc_res   !< Dirichlet condition for scala
      type(bc_list_t) :: bclst_ds
 
-     class(advection_t), allocatable :: adv 
+     class(advection_t), allocatable :: adv
 
      ! Time variables
      type(field_t) :: abx1
@@ -95,7 +95,7 @@ module scalar_pnpn
 
 contains
 
-  subroutine scalar_pnpn_init(this, msh, coef, gs, params)    
+  subroutine scalar_pnpn_init(this, msh, coef, gs, params)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: coef
@@ -168,8 +168,8 @@ contains
 
     ! Add lagged term to checkpoint
     ! @todo Init chkp object, note, adding 3 slags
-    ! call this%chkp%add_lag(this%slag, this%slag, this%slag)    
-    
+    ! call this%chkp%add_lag(this%slag, this%slag, this%slag)
+
     ! Uses sthe same parameter as the fluid to set dealiasing
     call json_get(params, 'case.numerics.dealias', logical_val)
     call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
@@ -235,7 +235,7 @@ contains
     type(ksp_monitor_t) :: ksp_results(1)
 
     n = this%dm_Xh%size()
-    
+
     call profiler_start_region('Scalar')
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          Re => this%Re, Pr => this%Pr, rho => this%rho, &
@@ -271,7 +271,7 @@ contains
            rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
-      !> We assume that no change of boundary conditions 
+      !> We assume that no change of boundary conditions
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply dirichlet
       call this%bc_apply()
@@ -282,13 +282,13 @@ contains
           ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
 
-      call gs_Xh%op(s_res, GS_OP_ADD) 
+      call gs_Xh%op(s_res, GS_OP_ADD)
 
       call bc_list_apply_scalar(this%bclst_ds,&
            s_res%x, dm_Xh%size())
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
          call this%proj_s%project_on(s_res%x, c_Xh, n)
       end if
 
@@ -298,7 +298,7 @@ contains
            c_Xh, this%bclst_ds, gs_Xh, ksp_maxiter)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
          call this%proj_s%project_back(ds%x, Ax, c_Xh, &
               this%bclst_ds, gs_Xh, n)
       end if

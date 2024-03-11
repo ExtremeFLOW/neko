@@ -407,7 +407,7 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(tmp, tmp_d, n_points, DEVICE_TO_HOST, sync = .true.)
        end if
-       
+
        res(:,i) = tmp
     end do
 

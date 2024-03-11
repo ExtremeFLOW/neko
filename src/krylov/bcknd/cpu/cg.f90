@@ -39,7 +39,7 @@ module cg
   private
 
   integer, parameter :: CG_P_SPACE = 7
-  
+
   !> Standard preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_t
      real(kind=rp), allocatable :: w(:)
@@ -75,7 +75,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-        
+
     call this%free()
 
     allocate(this%w(n))
@@ -83,8 +83,8 @@ contains
     allocate(this%p(n,CG_P_SPACE))
     allocate(this%z(n))
     allocate(this%alpha(CG_P_SPACE))
-    
-    if (present(M)) then 
+
+    if (present(M)) then
        this%M => M
     end if
 
@@ -97,7 +97,7 @@ contains
     else
        call this%ksp_init()
     end if
-          
+
   end subroutine cg_init
 
   !> Deallocate a standard PCG solver
@@ -117,11 +117,11 @@ contains
     if (allocated(this%p)) then
        deallocate(this%p)
     end if
-    
+
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
-    
+
     if (allocated(this%alpha)) then
        deallocate(this%alpha)
     end if
@@ -129,7 +129,7 @@ contains
     nullify(this%M)
 
   end subroutine cg_free
-  
+
   !> Standard PCG solve
   function cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(cg_t), intent(inout) :: this
@@ -145,7 +145,7 @@ contains
     integer :: iter, max_iter, i, j, k, p_cur, p_prev
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: beta, pap, norm_fac
-    
+
     if (present(niter)) then
        max_iter = niter
     else
@@ -173,19 +173,19 @@ contains
          call this%M%solve(z, r, n)
          rtz2 = rtz1
          rtz1 = glsc3(r, coef%mult, z, n)
-      
+
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
          do i = 1, n
             p(i,p_cur) = z(i) + beta * p(i,p_prev)
          end do
-       
+
          call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
          call bc_list_apply(blst, w, n)
-         
+
          pap = glsc3(w, coef%mult, p(1,p_cur), n)
-         
+
          alpha(p_cur) = rtz1 / pap
          call second_cg_part(rtr, r, coef%mult, w, alpha(p_cur), n)
          rnorm = sqrt(rtr) * norm_fac
@@ -205,7 +205,7 @@ contains
                   do k = 1, NEKO_BLK_SIZE
                      x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                   end do
-               else 
+               else
                   do k = 1, n-i
                      x_plus(1) = 0.0_rp
                      do j = 1, p_cur
@@ -233,7 +233,7 @@ contains
   subroutine second_cg_part(rtr, r, mult, w, alpha, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: r(n), rtr
-    real(kind=rp), intent(in) ::mult(n), w(n), alpha 
+    real(kind=rp), intent(in) ::mult(n), w(n), alpha
     integer :: i, ierr
 
     rtr = 0.0_rp
@@ -253,15 +253,15 @@ contains
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-        
+
     call this%free()
-    
+
     allocate(this%w(n))
     allocate(this%r(n))
     allocate(this%p(n))
     allocate(this%z(n))
-    
-    if (present(M)) then 
+
+    if (present(M)) then
        this%M => M
     end if
 
@@ -274,7 +274,7 @@ contains
     else
        call this%ksp_init()
     end if
-          
+
   end subroutine cg_omp_init
 
   !> Deallocate a standard PCG solver (OpenMP version)
@@ -294,7 +294,7 @@ contains
     if (allocated(this%p)) then
        deallocate(this%p)
     end if
-    
+
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
@@ -302,7 +302,7 @@ contains
     nullify(this%M)
 
   end subroutine cg_omp_free
-  
+
   !> Standard PCG solve (OpenMP version)
   function cg_omp_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(cg_omp_t), intent(inout) :: this
@@ -318,7 +318,7 @@ contains
     integer :: i, iter, max_iter, ierr
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, norm_fac
-    
+
     if (present(niter)) then
        max_iter = niter
     else
@@ -378,7 +378,7 @@ contains
           this%p(i) = beta * this%p(i) + this%z(i)
        end do
        !$omp end do
-       
+
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_h%op(this%w, n, GS_OP_ADD)
        call bc_list_apply(blst, this%w, n)
@@ -398,7 +398,7 @@ contains
 
        alpha = rtz1 / pap
        rtr = 0.0_rp
-       !$omp end single 
+       !$omp end single
        !$omp do reduction(+:rtr)
        do i = 1, n
           x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * this%p(i)
@@ -409,7 +409,7 @@ contains
        !$omp single
        call MPI_Allreduce(MPI_IN_PLACE, rtr, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-       
+
        rnorm = sqrt(rtr) * norm_fac
        !$omp end single
        !$omp end parallel
@@ -422,5 +422,5 @@ contains
   end function cg_omp_solve
 
 end module cg
-  
+
 

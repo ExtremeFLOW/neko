@@ -1,4 +1,4 @@
-!> Fast Diagonalization 
+!> Fast Diagonalization
 module fdm_cpu
   use num_types, only : rp
   use tensor_cpu
@@ -14,7 +14,7 @@ contains
     real(kind=rp), intent(inout) :: e(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: r(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: s(nl*nl,2,ldim, nelv)
-    real(kind=rp), intent(inout) :: d(nl**ldim, nelv)    
+    real(kind=rp), intent(inout) :: d(nl**ldim, nelv)
     integer ::  ie, nn, i
 
     nn = nl**ldim
@@ -42,5 +42,5 @@ contains
        !$omp end do
     end if
   end subroutine fdm_do_fast_cpu
-  
+
 end module fdm_cpu

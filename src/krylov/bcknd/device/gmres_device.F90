@@ -41,7 +41,7 @@ module gmres_device
   implicit none
   private
 
-  !> Standard preconditioned generalized minimal residual method 
+  !> Standard preconditioned generalized minimal residual method
   type, public, extends(ksp_t) :: gmres_device_t
      integer :: m_restart
      real(kind=rp), allocatable :: w(:)
@@ -80,7 +80,7 @@ module gmres_device
      end function hip_gmres_part2
   end interface
 #elif HAVE_CUDA
-  
+
   interface
      real(c_rp) function cuda_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n) &
           bind(c, name='cuda_gmres_part2')
@@ -95,21 +95,21 @@ module gmres_device
 
 contains
 
-   function device_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n) result(alpha)
-     type(c_ptr), value :: h_d, w_d, v_d_d, mult_d
-     integer(c_int) :: j, n
-     real(c_rp) :: alpha
-     integer :: ierr
+  function device_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n) result(alpha)
+    type(c_ptr), value :: h_d, w_d, v_d_d, mult_d
+    integer(c_int) :: j, n
+    real(c_rp) :: alpha
+    integer :: ierr
 #ifdef HAVE_HIP
-     alpha = hip_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
+    alpha = hip_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
 #elif HAVE_CUDA
-     alpha = cuda_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
+    alpha = cuda_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
 #else
-     call neko_error('No device backend configured')
+    call neko_error('No device backend configured')
 #endif
 
 #ifndef HAVE_DEVICE_MPI
-     if (pe_size .gt. 1) then
+    if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, alpha, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
@@ -135,13 +135,13 @@ contains
     else
        this%m_restart = 30
     end if
-    
+
 
     call this%free()
-    
-    if (present(M)) then 
+
+    if (present(M)) then
        this%M => M
-    else 
+    else
        this%M => M_ident
     end if
 
@@ -149,14 +149,14 @@ contains
     allocate(this%r(n))
     call device_map(this%w, this%w_d, n)
     call device_map(this%r, this%r_d, n)
-    
+
     allocate(this%c(this%m_restart))
     allocate(this%s(this%m_restart))
     allocate(this%gam(this%m_restart + 1))
     call device_map(this%c, this%c_d, this%m_restart)
     call device_map(this%s, this%s_d, this%m_restart)
     call device_map(this%gam, this%gam_d, this%m_restart+1)
-    
+
     allocate(this%z(n,this%m_restart))
     allocate(this%v(n,this%m_restart))
     allocate(this%h(this%m_restart,this%m_restart))
@@ -173,7 +173,7 @@ contains
        this%h_d(i) = c_null_ptr
        call device_map(this%h(:,i), this%h_d(i), this%m_restart)
     end do
-    
+
     z_size = c_sizeof(C_NULL_PTR) * (this%m_restart)
     call device_alloc(this%z_d_d, z_size)
     call device_alloc(this%v_d_d, z_size)
@@ -184,8 +184,8 @@ contains
     call device_memcpy(ptr,this%v_d_d, z_size, HOST_TO_DEVICE)
     ptr = c_loc(this%h_d)
     call device_memcpy(ptr,this%h_d_d, z_size, HOST_TO_DEVICE)
-    
-       
+
+
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)
     else if (present(rel_tol)) then
@@ -197,7 +197,7 @@ contains
     end if
 
     call device_event_create(this%gs_event, 2)
-          
+
   end subroutine gmres_device_init
 
   !> Deallocate a standard GMRES solver
@@ -218,7 +218,7 @@ contains
     if (allocated(this%r)) then
        deallocate(this%r)
     end if
- 
+
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
@@ -226,17 +226,17 @@ contains
     if (allocated(this%h)) then
        deallocate(this%h)
     end if
-    
+
     if (allocated(this%v)) then
        deallocate(this%v)
     end if
-    
+
     if (allocated(this%s)) then
        deallocate(this%s)
     end if
     if (allocated(this%gam)) then
        deallocate(this%gam)
-    end if   
+    end if
 
     if (allocated(this%v_d)) then
        do i = 1, this%m_restart
@@ -262,7 +262,7 @@ contains
     end if
 
 
-    
+
     if (c_associated(this%gam_d)) then
        call device_free(this%gam_d)
     end if
@@ -284,9 +284,9 @@ contains
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
     end if
-    
+
   end subroutine gmres_device_free
- 
+
   !> Standard GMRES solve
   function gmres_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
@@ -299,7 +299,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter 
+    integer :: iter
     integer :: i, j, k
     real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
     logical :: conv
@@ -310,138 +310,138 @@ contains
     conv = .false.
     iter = 0
 
-     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
+    associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
           v => this%v, s => this%s, gam => this%gam, v_d => this%v_d, &
           w_d => this%w_d, r_d => this%r_d, h_d => this%h_d, v_d_d => this%v_d_d, &
           x_d => x%x_d, z_d_d => this%z_d_d, c_d => this%c_d)
 
-       norm_fac = 1.0_rp / sqrt(coef%volume)
-       call rzero(gam, this%m_restart + 1)
-       call rone(s, this%m_restart)
-       call rone(c, this%m_restart)
-       call rzero(h, this%m_restart * this%m_restart)
-       call device_rzero(x%x_d, n)
-       call device_rzero(this%gam_d, this%m_restart + 1)
-       call device_rone(this%s_d, this%m_restart)
-       call device_rone(this%c_d, this%m_restart)
+      norm_fac = 1.0_rp / sqrt(coef%volume)
+      call rzero(gam, this%m_restart + 1)
+      call rone(s, this%m_restart)
+      call rone(c, this%m_restart)
+      call rzero(h, this%m_restart * this%m_restart)
+      call device_rzero(x%x_d, n)
+      call device_rzero(this%gam_d, this%m_restart + 1)
+      call device_rone(this%s_d, this%m_restart)
+      call device_rone(this%c_d, this%m_restart)
 
-       call rzero(this%h, this%m_restart**2)
+      call rzero(this%h, this%m_restart**2)
 !       do j = 1, this%m_restart
 !          call device_rzero(h_d(j), this%m_restart)
 !       end do
-       do while (.not. conv .and. iter .lt. niter)
+      do while (.not. conv .and. iter .lt. niter)
 
-          if(iter.eq.0) then               
-             call device_copy(r_d, f_d, n) 
-          else
-             call device_copy(r_d, f_d, n)      
-             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
-             call gs_h%op(w, n, GS_OP_ADD)
-             call device_event_sync(this%gs_event)
-             call bc_list_apply(blst, w, n)
-             call device_sub2(r_d, w_d, n) 
-          end if
-          
-          gam(1) = sqrt(device_glsc3(r_d, r_d, coef%mult_d, n))
-          if(iter.eq.0) then
-             ksp_results%res_start = gam(1) * norm_fac
-          end if
+         if(iter.eq.0) then
+            call device_copy(r_d, f_d, n)
+         else
+            call device_copy(r_d, f_d, n)
+            call Ax%compute(w, x%x, coef, x%msh, x%Xh)
+            call gs_h%op(w, n, GS_OP_ADD)
+            call device_event_sync(this%gs_event)
+            call bc_list_apply(blst, w, n)
+            call device_sub2(r_d, w_d, n)
+         end if
 
-          if (gam(1) .eq. 0) return
+         gam(1) = sqrt(device_glsc3(r_d, r_d, coef%mult_d, n))
+         if(iter.eq.0) then
+            ksp_results%res_start = gam(1) * norm_fac
+         end if
 
-          rnorm = 0.0_rp
-          temp = 1.0_rp / gam(1)
-          call device_cmult2(v_d(1), r_d, temp, n) 
-          do j = 1, this%m_restart
-             iter = iter+1
-          
-             call this%M%solve(z(1,j), v(1,j), n)
+         if (gam(1) .eq. 0) return
 
-             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
-             call gs_h%op(w, n, GS_OP_ADD)
-             call device_event_sync(this%gs_event)
-             call bc_list_apply(blst, w, n)
+         rnorm = 0.0_rp
+         temp = 1.0_rp / gam(1)
+         call device_cmult2(v_d(1), r_d, temp, n)
+         do j = 1, this%m_restart
+            iter = iter+1
 
-             if (NEKO_BCKND_OPENCL .eq. 1) then
-                do i = 1, j
-                   h(i,j) = device_glsc3(w_d, v_d(i), coef%mult_d, n) 
+            call this%M%solve(z(1,j), v(1,j), n)
 
-                   call device_add2s2(w_d, v_d(i), -h(i,j), n)
+            call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
+            call gs_h%op(w, n, GS_OP_ADD)
+            call device_event_sync(this%gs_event)
+            call bc_list_apply(blst, w, n)
 
-                   alpha2 = device_glsc3(w_d, w_d, coef%mult_d, n)
-                end do
-             else
-                call device_glsc3_many(h(1,j), w_d, v_d_d, coef%mult_d, j, n)
-            
-                call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
+            if (NEKO_BCKND_OPENCL .eq. 1) then
+               do i = 1, j
+                  h(i,j) = device_glsc3(w_d, v_d(i), coef%mult_d, n)
 
-                alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), coef%mult_d, j, n)
-                
-             end if
-             
-             alpha = sqrt(alpha2)
-             do i=1,j-1
-                temp = h(i,j)                   
-                h(i  ,j) =  c(i)*temp + s(i) * h(i+1,j)  
-                h(i+1,j) = -s(i)*temp + c(i) * h(i+1,j)
-             end do
-             
-             rnorm = 0.0_rp
-             if(alpha .eq. 0.0_rp) then 
-                conv = .true.
-                exit
-             end if
-             
-             lr = sqrt(h(j,j) * h(j,j) + alpha**2)
-             temp = 1.0_rp / lr
-             c(j) = h(j,j) * temp
-             s(j) = alpha  * temp
-             h(j,j) = lr
-             call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
-             gam(j+1) = -s(j) * gam(j)
-             gam(j)   =  c(j) * gam(j)
-             
-             rnorm = abs(gam(j+1)) * norm_fac
-             if (rnorm .lt. this%abs_tol) then 
-                conv = .true.
-                exit
-             end if
-             
-             if (iter + 1 .gt. niter) exit
-             
-             if( j .lt. this%m_restart) then
-                temp = 1.0_rp / alpha
-                call device_cmult2(v_d(j+1), w_d, temp, n)
-             end if
-             
-          end do
+                  call device_add2s2(w_d, v_d(i), -h(i,j), n)
 
-          j = min(j, this%m_restart)
-          do k = j, 1, -1
-             temp = gam(k)
-             do i = j, k+1, -1
-                temp = temp - h(k,i) * c(i)
-             end do
-             c(k) = temp / h(k,k)
-          end do
+                  alpha2 = device_glsc3(w_d, w_d, coef%mult_d, n)
+               end do
+            else
+               call device_glsc3_many(h(1,j), w_d, v_d_d, coef%mult_d, j, n)
 
-          if (NEKO_BCKND_OPENCL .eq. 1) then
-             do i = 1, j
-                call device_add2s2(x_d, this%z_d(i), c(i), n)
-             end do
-          else
-             call device_memcpy(c, c_d, j, HOST_TO_DEVICE)
-             call device_add2s2_many(x_d, z_d_d, c_d, j, n)
-          end if
-       end do
+               call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
 
-     end associate
+               alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), coef%mult_d, j, n)
 
-       ksp_results%res_final = rnorm
-       ksp_results%iter = iter
+            end if
+
+            alpha = sqrt(alpha2)
+            do i=1,j-1
+               temp = h(i,j)
+               h(i  ,j) =  c(i)*temp + s(i) * h(i+1,j)
+               h(i+1,j) = -s(i)*temp + c(i) * h(i+1,j)
+            end do
+
+            rnorm = 0.0_rp
+            if(alpha .eq. 0.0_rp) then
+               conv = .true.
+               exit
+            end if
+
+            lr = sqrt(h(j,j) * h(j,j) + alpha**2)
+            temp = 1.0_rp / lr
+            c(j) = h(j,j) * temp
+            s(j) = alpha  * temp
+            h(j,j) = lr
+            call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
+            gam(j+1) = -s(j) * gam(j)
+            gam(j)   =  c(j) * gam(j)
+
+            rnorm = abs(gam(j+1)) * norm_fac
+            if (rnorm .lt. this%abs_tol) then
+               conv = .true.
+               exit
+            end if
+
+            if (iter + 1 .gt. niter) exit
+
+            if( j .lt. this%m_restart) then
+               temp = 1.0_rp / alpha
+               call device_cmult2(v_d(j+1), w_d, temp, n)
+            end if
+
+         end do
+
+         j = min(j, this%m_restart)
+         do k = j, 1, -1
+            temp = gam(k)
+            do i = j, k+1, -1
+               temp = temp - h(k,i) * c(i)
+            end do
+            c(k) = temp / h(k,k)
+         end do
+
+         if (NEKO_BCKND_OPENCL .eq. 1) then
+            do i = 1, j
+               call device_add2s2(x_d, this%z_d(i), c(i), n)
+            end do
+         else
+            call device_memcpy(c, c_d, j, HOST_TO_DEVICE)
+            call device_add2s2_many(x_d, z_d_d, c_d, j, n)
+         end if
+      end do
+
+    end associate
+
+    ksp_results%res_final = rnorm
+    ksp_results%iter = iter
 
   end function gmres_device_solve
 
 end module gmres_device
-  
+
 

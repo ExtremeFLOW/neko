@@ -49,10 +49,10 @@ module flow_ic
 
   interface set_flow_ic
      module procedure set_flow_ic_int, set_flow_ic_usr
-  end interface
+  end interface set_flow_ic
 
   public :: set_flow_ic
-  
+
 contains
 
   !> Set initial flow condition (builtin)
@@ -71,7 +71,7 @@ contains
     real(kind=rp), allocatable :: uinf(:)
     character(len=:), allocatable :: blasius_approximation
 
-    if (trim(type) .eq. 'uniform') then       
+    if (trim(type) .eq. 'uniform') then
        call json_get(params, 'case.fluid.initial_condition.value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
     else if (trim(type) .eq. 'blasius') then
@@ -83,9 +83,9 @@ contains
     else
        call neko_error('Invalid initial condition')
     end if
-    
+
     call set_flow_ic_common(u, v, w, p, coef, gs)
-    
+
   end subroutine set_flow_ic_int
 
   !> Set intial flow condition (user defined)
@@ -100,9 +100,9 @@ contains
     type(json_file), intent(inout) :: params
 
     call usr_ic(u, v, w, p, params)
-    
+
     call set_flow_ic_common(u, v, w, p, coef, gs)
-    
+
   end subroutine set_flow_ic_usr
 
   subroutine set_flow_ic_common(u, v, w, p, coef, gs)
@@ -112,17 +112,17 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    
-    if (NEKO_BCKND_DEVICE .eq. 1) then 
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, u%dof%size(), HOST_TO_DEVICE)
        call device_memcpy(v%x, v%x_d, v%dof%size(), HOST_TO_DEVICE)
        call device_memcpy(w%x, w%x_d, w%dof%size(), HOST_TO_DEVICE)
     end if
-    
+
     ! Ensure continuity across elements for initial conditions
-    call gs%op(u%x, u%dof%size(), GS_OP_ADD) 
-    call gs%op(v%x, v%dof%size(), GS_OP_ADD) 
-    call gs%op(w%x, w%dof%size(), GS_OP_ADD) 
+    call gs%op(u%x, u%dof%size(), GS_OP_ADD)
+    call gs%op(v%x, v%dof%size(), GS_OP_ADD)
+    call gs%op(w%x, w%dof%size(), GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(u%x_d, coef%mult_d, u%dof%size())
@@ -133,7 +133,7 @@ contains
        call col2(v%x, coef%mult, v%dof%size())
        call col2(w%x, coef%mult, w%dof%size())
     end if
-    
+
   end subroutine set_flow_ic_common
 
   !> Uniform initial condition
@@ -181,7 +181,7 @@ contains
     case default
        call neko_error('Invalid Blasius approximation')
     end select
-    
+
     if ((uinf(1) .gt. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
          .and. (uinf(3) .eq. 0.0_rp)) then
        do i = 1, u%dof%size()
@@ -202,9 +202,9 @@ contains
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = bla(u%dof%y(i,1,1,1), delta, uinf(3))
-       end do       
+       end do
     end if
-    
+
   end subroutine set_flow_ic_blasius
-  
+
 end module flow_ic
