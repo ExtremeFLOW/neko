@@ -280,6 +280,8 @@ else
     AC_SUBST(device_bcknd, "0")
 fi
 
+AC_CONFIG_HEADERS(src/config/neko_config.h)
+
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
 		 tests/Makefile\
