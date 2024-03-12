@@ -139,7 +139,8 @@ contains
        if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')
-          call C%scalar%step(t, tstep, C%dt, C%ext_bdf)
+          call C%scalar%step(t, tstep, C%dt, C%ext_bdf, &
+                           dt_controller%if_variable_dt, dt_controller%dt_last_change)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7,A,E15.7)') &
                'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
