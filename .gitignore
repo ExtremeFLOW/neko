@@ -47,3 +47,4 @@ average_field_in_space
 average_fields_in_time
 postprocess_fluid_stats
 map_to_equidistant_1d
+calc_lift_from_field
