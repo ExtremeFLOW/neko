@@ -259,7 +259,7 @@ contains
           this%m = min(this%m+1,this%L)
        end if
        !$omp end single
-       !$omp barrier
+
        ! Update (X,B)
        !$omp do
        do i = 1, n
