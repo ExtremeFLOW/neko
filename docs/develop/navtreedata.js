@@ -26,11 +26,6 @@ var NAVTREE =
 [
   [ "Neko", "index.html", [
     [ "Neko Manual", "index.html", "index" ],
-    [ "Input-output", "d7/d7f/io.html", [
-      [ "Mesh", "d7/d7f/io.html#autotoc_md24", null ],
-      [ "Three-dimensional field output", "d7/d7f/io.html#autotoc_md25", null ],
-      [ "Checkpoint files", "d7/d7f/io.html#autotoc_md26", null ]
-    ] ],
     [ "Publication List", "dd/ddd/publication-list.html", null ],
     [ "Todo List", "dd/da0/todo.html", null ],
     [ "Deprecated List", "da/d58/deprecated.html", null ],
