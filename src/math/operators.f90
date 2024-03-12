@@ -385,7 +385,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_lambda2(lambda2, u, v, w, coef)
     else
-       !$omp parallel do private(e, i, s11,s22, s33, s12, s13, s23), &
+       !$omp parallel do if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))&
+       !$omp& private(e, i, s11,s22, s33, s12, s13, s23), &
        !$omp& private(o12, o13, o23, a11, a12, a13, a22, a23, a33), &
        !$omp& private(B, C, D, q, r, theta, eigen, msk1, msk2, msk3, l2, grad)
        do e = 1, coef%msh%nelv
