@@ -376,7 +376,7 @@ contains
     type(field_t), intent(inout) :: lambda2
     type(field_t), intent(in) :: u, v, w
     real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
-    integer :: temp_indices(9), e, i, ind_sort(3)
+    integer :: e, i
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -385,6 +385,9 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_lambda2(lambda2, u, v, w, coef)
     else
+       !$omp parallel do private(e, i, s11,s22, s33, s12, s13, s23), &
+       !$omp& private(o12, o13, o23, a11, a12, a13, a22, a23, a33), &
+       !$omp& private(B, C, D, q, r, theta, eigen, msk1, msk2, msk3, l2, grad)
        do e = 1, coef%msh%nelv
           call opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
                               u%x(1,1,1,e),coef,e,e)
@@ -446,6 +449,7 @@ contains
              lambda2%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)
           end do
        end do
+       !$omp end parallel do
     end if
 
   end subroutine lambda2op
