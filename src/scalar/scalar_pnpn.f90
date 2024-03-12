@@ -278,7 +278,7 @@ contains
 
   end subroutine scalar_pnpn_free
 
-  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf)
+  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf, if_variable_dt, dt_last_change)
     class(scalar_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
@@ -289,6 +289,9 @@ contains
     ! Linear solver results monitor
     type(ksp_monitor_t) :: ksp_results(1)
     character(len=LOG_SIZE) :: log_buf
+    ! time step controller
+    logical, intent(in) :: if_variable_dt
+    integer, intent(in) :: dt_last_change
 
     n = this%dm_Xh%size()
 
@@ -365,7 +368,11 @@ contains
       call profiler_end_region
 
       if (tstep .gt. 5 .and. projection_dim .gt. 0) then
-         call this%proj_s%project_on(s_res%x, c_Xh, n)
+         if (if_variable_dt .and. dt_last_change .lt. 5) then
+            call this%proj_s%clear(n)
+         else
+            call this%proj_s%project_on(s_res%x, c_Xh, n)
+         end if
       end if
 
       call this%pc%update()
@@ -375,8 +382,10 @@ contains
       call profiler_end_region
 
       if (tstep .gt. 5 .and. projection_dim .gt. 0) then
-         call this%proj_s%project_back(ds%x, Ax, c_Xh, &
-              this%bclst_ds, gs_Xh, n)
+         if (.not.(if_variable_dt .and. dt_last_change .lt. 5)) then
+            call this%proj_s%project_back(ds%x, Ax, c_Xh, &
+                  this%bclst_ds, gs_Xh, n)
+         end if
       end if
 
       ! Update the solution
