@@ -461,7 +461,7 @@ contains
   !! @param tstep The current interation.
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
-  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf)
+  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, if_variable_dt, dt_last_change)
     class(fluid_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
@@ -477,6 +477,9 @@ contains
     integer :: temp_indices(3)
     ! Counter
     integer :: i
+    ! time step controller
+    logical, intent(in) :: if_variable_dt
+    integer, intent(in) :: dt_last_change
 
     if (this%freeze) return
 
@@ -556,8 +559,12 @@ contains
       call profiler_end_region
 
       if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
-         call this%proj_prs%project_on(p_res%x, c_Xh, n)
-         call this%proj_prs%log_info('Pressure')
+         if (if_variable_dt .and. dt_last_change .lt. 5) then
+            call this%proj_prs%clear(n)
+         else
+            call this%proj_prs%project_on(p_res%x, c_Xh, n)
+            call this%proj_prs%log_info('Pressure')
+         end if
       end if
 
       call this%pc_prs%update()
@@ -568,8 +575,10 @@ contains
       call profiler_end_region
 
       if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
-         call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
+         if (.not.(if_variable_dt .and. dt_last_change .lt. 5)) then
+            call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
                                          this%bclst_dp, gs_Xh, n)
+         end if
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -600,9 +609,15 @@ contains
       call profiler_end_region
 
       if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
-         call this%proj_u%project_on(u_res%x, c_Xh, n)
-         call this%proj_v%project_on(v_res%x, c_Xh, n)
-         call this%proj_w%project_on(w_res%x, c_Xh, n)
+         if (if_variable_dt .and. dt_last_change .lt. 5) then
+            call this%proj_u%clear(n)
+            call this%proj_v%clear(n)
+            call this%proj_w%clear(n)
+         else
+            call this%proj_u%project_on(u_res%x, c_Xh, n)
+            call this%proj_v%project_on(v_res%x, c_Xh, n)
+            call this%proj_w%project_on(w_res%x, c_Xh, n)
+         end if
       end if
 
       call this%pc_vel%update()
@@ -617,12 +632,14 @@ contains
       call profiler_end_region
 
       if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
-         call this%proj_u%project_back(du%x, Ax, c_Xh, &
-                                  this%bclst_du, gs_Xh, n)
-         call this%proj_v%project_back(dv%x, Ax, c_Xh, &
-                                  this%bclst_dv, gs_Xh, n)
-         call this%proj_w%project_back(dw%x, Ax, c_Xh, &
-                                  this%bclst_dw, gs_Xh, n)
+         if (.not.(if_variable_dt .and. dt_last_change .lt. 5)) then
+            call this%proj_u%project_back(du%x, Ax, c_Xh, &
+                                    this%bclst_du, gs_Xh, n)
+            call this%proj_v%project_back(dv%x, Ax, c_Xh, &
+                                    this%bclst_dv, gs_Xh, n)
+            call this%proj_w%project_back(dw%x, Ax, c_Xh, &
+                                    this%bclst_dw, gs_Xh, n)
+         end if
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then

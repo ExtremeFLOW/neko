@@ -94,6 +94,7 @@ module projection
      real(kind=rp) :: proj_res
      integer :: proj_m = 0
    contains
+     procedure, pass(this) :: clear => bcknd_clear
      procedure, pass(this) :: project_on => bcknd_project_on
      procedure, pass(this) :: project_back => bcknd_project_back
      procedure, pass(this) :: log_info => print_proj_info
@@ -585,14 +586,30 @@ contains
     class(projection_t) :: this
     character(len=*) :: string
     character(len=LOG_SIZE) :: log_buf
-
-    write(log_buf, '(A,A)') 'Projection ', string
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,A)') 'Proj. vec.:','   Orig. residual:'
-    call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
-    call neko_log%message(log_buf)
+    
+    if (this%proj_m .gt. 0) then
+       write(log_buf, '(A,A)') 'Projection ', string
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,A)') 'Proj. vec.:','   Orig. residual:'
+       call neko_log%message(log_buf)
+       write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
+       call neko_log%message(log_buf)
+    end if
 
   end subroutine print_proj_info
+
+  subroutine bcknd_clear(this, n)
+    class(projection_t) :: this
+    integer, intent(inout) :: n
+    integer :: i
+
+    this%m = 0
+    this%proj_m = 0
+    do i = 1, this%L
+       call rzero(this%xx(1,i),n)
+       call rzero(this%bb(1,i),n)
+    end do
+
+  end subroutine bcknd_clear
 
 end module projection

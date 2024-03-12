@@ -44,6 +44,7 @@ module time_step_controller
      real(kind=rp) :: set_cfl = 0.0_rp
      real(kind=rp) :: max_dt = 0.0_rp
      integer :: max_update_frequency = 1
+     integer :: dt_last_change = 0
    contains
      !> Initialize object.
      procedure, pass(this) :: init => time_step_controller_init
@@ -61,6 +62,7 @@ contains
     type(case_t), intent(inout) :: C
     logical :: found
 
+    this%dt_last_change = 0
     call C%params%get('case.timestep', this%max_dt, found)
     call C%params%get('case.constant_cfl', this%set_cfl, this%if_variable_dt)
     call json_get_or_default(C%params, 'case.cfl_max_update_frequency',&
@@ -72,18 +74,16 @@ contains
   !! @param C case type.
   !! @param cfl courant number of current iteration.
   !! @param cfl_avrg average Courant number.
-  !! @param dt_last_change time step since last dt change.
   !! @param tstep the current time step.
   !! @Algorithm: 
   !! 1. Set the first time step such that cfl is the set one;
   !! 2. During time-stepping, adjust dt when cfl_avrg is offset by 20%.
-  subroutine time_step_controller_set_dt(this, C, cfl, cfl_avrg, dt_last_change, tstep)
+  subroutine time_step_controller_set_dt(this, C, cfl, cfl_avrg, tstep)
     implicit none
     class(time_step_controller_t), intent(inout) :: this
     type(case_t), intent(inout) :: C
     real(kind=rp), intent(in) :: cfl
     real(kind=rp), intent(inout) :: cfl_avrg
-    integer, intent(inout) :: dt_last_change
     real(kind=rp) :: dt_old, scaling_factor
     character(len=LOG_SIZE) :: log_buf    
     real(kind=rp) :: alpha = 0.5_rp !coefficient of running average
@@ -98,7 +98,7 @@ contains
           cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
 
           if (abs(cfl_avrg - this%set_cfl) .ge. 0.2*this%set_cfl .and. &
-             dt_last_change .ge. this%max_update_frequency) then
+             this%dt_last_change .ge. this%max_update_frequency) then
 
              if (this%set_cfl/cfl .ge. 1) then 
                 scaling_factor = min(1.2_rp, this%set_cfl/cfl) 
@@ -118,10 +118,10 @@ contains
                          'new dt:', C%dt
              call neko_log%message(log_buf)
 
-             dt_last_change = 0
+             this%dt_last_change = 0
 
           else
-             dt_last_change = dt_last_change + 1
+             this%dt_last_change = this%dt_last_change + 1
           end if
        end if
 

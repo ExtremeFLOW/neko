@@ -166,7 +166,7 @@ module fluid_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf)
+     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf, if_variable_dt, dt_last_change)
        import fluid_scheme_t
        import time_scheme_controller_t
        import rp
@@ -175,6 +175,8 @@ module fluid_scheme
        integer, intent(inout) :: tstep
        real(kind=rp), intent(in) :: dt
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
+       logical, intent(in) :: if_variable_dt
+       integer, intent(in) :: dt_last_change
      end subroutine fluid_scheme_step_intrf
   end interface
 

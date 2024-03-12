@@ -65,7 +65,6 @@ contains
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
     ! for variable_tsteping
-    integer :: dt_last_change = 0
     real(kind=rp) :: cfl_avrg = 0_rp
     real(kind=rp) :: set_cfl
     type(time_step_controller_t) :: dt_controller
@@ -111,10 +110,10 @@ contains
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()
-       if (dt_last_change .eq. 0) then
+       if (dt_controller%dt_last_change .eq. 0) then
           cfl_avrg = cfl
        end if
-       call dt_controller%set_dt(C, cfl, cfl_avrg, dt_last_change, tstep)
+       call dt_controller%set_dt(C, cfl, cfl_avrg, tstep)
        !calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%dt)
 
@@ -128,7 +127,8 @@ contains
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 
        call neko_log%section('Fluid')
-       call C%fluid%step(t, tstep, C%dt, C%ext_bdf)
+       call C%fluid%step(t, tstep, C%dt, C%ext_bdf, &
+                        dt_controller%if_variable_dt, dt_controller%dt_last_change)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7,A,E15.7)') &
             'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
