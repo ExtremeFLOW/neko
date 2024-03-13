@@ -559,9 +559,10 @@ contains
       call profiler_end_region
 
       if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
-         if (if_variable_dt .and. dt_last_change .lt. 5) then
+         if (if_variable_dt .and. dt_last_change .eq. 0) then
             call this%proj_prs%clear(n)
-         else
+         else if (if_variable_dt .and. dt_last_change .gt. 5 &
+                  .or. (.not. if_variable_dt)) then
             call this%proj_prs%project_on(p_res%x, c_Xh, n)
             call this%proj_prs%log_info('Pressure')
          end if
@@ -609,11 +610,12 @@ contains
       call profiler_end_region
 
       if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
-         if (if_variable_dt .and. dt_last_change .lt. 5) then
+         if (if_variable_dt .and. dt_last_change .eq. 0) then
             call this%proj_u%clear(n)
             call this%proj_v%clear(n)
             call this%proj_w%clear(n)
-         else
+         else if (if_variable_dt .and. dt_last_change .gt. 5 &
+                  .or. (.not. if_variable_dt)) then
             call this%proj_u%project_on(u_res%x, c_Xh, n)
             call this%proj_v%project_on(v_res%x, c_Xh, n)
             call this%proj_w%project_on(w_res%x, c_Xh, n)

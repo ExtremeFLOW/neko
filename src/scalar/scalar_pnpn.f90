@@ -368,9 +368,10 @@ contains
       call profiler_end_region
 
       if (tstep .gt. 5 .and. projection_dim .gt. 0) then
-         if (if_variable_dt .and. dt_last_change .lt. 5) then
+         if (if_variable_dt .and. dt_last_change .eq. 0) then
             call this%proj_s%clear(n)
-         else
+         else if (if_variable_dt .and. dt_last_change .gt. 5 &
+            .or. (.not. if_variable_dt)) then
             call this%proj_s%project_on(s_res%x, c_Xh, n)
          end if
       end if
