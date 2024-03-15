@@ -45,6 +45,18 @@ module user_intf
   implicit none
   private
 
+	 ! Harry ---------------------------------------
+  !> Abstract interface for user implicit Brinkman forcing
+  abstract interface
+     subroutine implicit_brinkman(chi, t)
+       import field_t
+       import rp
+       type(field_t), intent(inout) :: chi
+    	 real(kind=rp), intent(in) :: t
+     end subroutine implicit_brinkman
+  end interface
+	 ! ---------------------------------------------
+
   !> Abstract interface for user defined initial conditions
   abstract interface
      subroutine useric(u, v, w, p, params)
@@ -151,6 +163,7 @@ module user_intf
      procedure(fluid_source_compute_vector), nopass, pointer :: fluid_user_f_vector => null()
      procedure(scalar_source_compute_pointwise), nopass, pointer :: scalar_user_f => null()
      procedure(scalar_source_compute_vector), nopass, pointer :: scalar_user_f_vector => null()
+     procedure(implicit_brinkman), nopass, pointer :: user_implicit_brinkman => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
      procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
      !> Routine to set material properties
@@ -166,6 +179,12 @@ contains
   !> User interface initialization
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
+
+	 ! Harry ---------------------------------------
+    if (.not. associated(u%user_implicit_brinkman)) then
+       u%user_implicit_brinkman => dummy_implicit_brinkman
+    end if
+	 ! ---------------------------------------------
 
     if (.not. associated(u%fluid_user_ic)) then
        u%fluid_user_ic => dummy_user_ic
@@ -214,6 +233,7 @@ contains
     if (.not. associated(u%material_properties)) then
        u%material_properties => dummy_user_material_properties
     end if
+
   end subroutine user_intf_init
 
 
@@ -221,6 +241,15 @@ contains
   ! Below is the dummy user interface
   ! when running in pure turboNEKO mode
   !
+
+	 ! Harry ---------------------------------------
+  !> Dummy user (fluid) implicit Brinkman forcing
+  subroutine dummy_implicit_brinkman(chi, t)
+    type(field_t), intent(inout) :: chi
+    real(kind=rp), intent(in) :: t
+    call neko_error('Dummy user implicit Brinkman forcing set')
+  end subroutine dummy_implicit_brinkman
+	 ! ---------------------------------------------
 
   !> Dummy user initial condition
   subroutine dummy_user_ic(u, v, w, p, params)

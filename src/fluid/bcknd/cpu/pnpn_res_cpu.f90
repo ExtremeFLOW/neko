@@ -150,6 +150,10 @@ contains
        c_Xh%h2(i,1,1,1) = rho * (bd / dt)
     end do
     c_Xh%ifh2 = .true.
+    ! Harry -----------------------------------
+    call C%usr%implicit_brinkman(ta1%x, dt)
+    
+    ! -----------------------------------------
 
     call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
     call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
