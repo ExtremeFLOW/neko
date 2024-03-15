@@ -332,11 +332,11 @@ contains
   end subroutine pnpn_prs_res_device_compute
 
   subroutine pnpn_vel_res_device_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
+       p, chi, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
-    type(field_t), intent(inout) :: p, u, v, w
+    type(field_t), intent(inout) :: p, u, v, w, chi
     type(field_t), intent(inout) :: u_res, v_res, w_res
     type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
@@ -350,6 +350,7 @@ contains
 
     call device_cfill(c_Xh%h1_d, mu, n)
     call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
+    call device_add2(c_Xh%h2_d, chi%x_d, n)
     c_Xh%ifh2 = .true.
 
     call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)

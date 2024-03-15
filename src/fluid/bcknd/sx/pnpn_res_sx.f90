@@ -129,11 +129,11 @@ contains
   end subroutine pnpn_prs_res_sx_compute
 
   subroutine pnpn_vel_res_sx_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
+       p,chi, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
-    type(field_t), intent(inout) :: p, u, v, w
+    type(field_t), intent(inout) :: p, u, v, w, chi
     type(field_t), intent(inout) :: u_res, v_res, w_res
     type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
@@ -148,7 +148,7 @@ contains
 
     do i = 1, n
        c_Xh%h1(i,1,1,1) = mu
-       c_Xh%h2(i,1,1,1) = rho * (bd / dt)
+       c_Xh%h2(i,1,1,1) = rho * (bd / dt) + chi%x(i,1,1,1)
     end do
     c_Xh%ifh2 = .true.
 

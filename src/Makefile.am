@@ -254,6 +254,7 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/const_source_term_device.f90\
 	source_terms/source_term_factory.f90\
 	source_terms/brinkman_source_term.f90\
+	source_terms/implicit_user_brinkman.f90\
 	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
 	source_terms/bcknd/device/brinkman_source_term_device.f90\
 	source_terms/brinkman/filters.f90\

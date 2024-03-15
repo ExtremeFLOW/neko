@@ -247,7 +247,7 @@ contains
   subroutine dummy_implicit_brinkman(chi, t)
     type(field_t), intent(inout) :: chi
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user implicit Brinkman forcing set')
+    !chi = 0.0
   end subroutine dummy_implicit_brinkman
 	 ! ---------------------------------------------
 
