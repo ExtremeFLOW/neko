@@ -70,7 +70,11 @@
 !! accelerate a Signed Distance Function.
 module aabb
   use num_types, only: rp
+  use element, only: element_t
+  use point, only: point_t
   use tri, only: tri_t
+  use quad, only: quad_t
+  use tet, only: tet_t
   use hex, only: hex_t
   use utils, only: neko_error
 
@@ -82,10 +86,12 @@ module aabb
   ! Public interface for free functions
   ! ========================================================================== !
 
+  !> @brief Merge two aabbs.
   interface merge
      module procedure merge_aabb
   end interface merge
 
+  !> @brief Intersect two aabbs.
   interface intersection
      module procedure intersection_aabb
   end interface intersection
@@ -149,6 +155,7 @@ contains
   ! ========================================================================== !
 
   !> @brief Construct the aabb of a predefined object.
+  !!
   !! @details This function is used to get the aabb of a predefined object.
   !! Optionally, the user can define the padding of the aabb, which is a
   !! multiple of the diameter of the aabb. This is used to avoid numerical
@@ -157,6 +164,8 @@ contains
   !! Current support:
   !! - Axis Aligned Bounding Box (aabb_t)
   !! - Triangle (tri_t)
+  !! - Quadrilateral (quad_t)
+  !! - Tetrahedron (tet_t)
   !! - Hexahedron (hex_t)
   !!
   !! @param[in] object The object to get the aabb of.
@@ -171,64 +180,54 @@ contains
     type(aabb_t) :: box
 
     select type(object)
-      type is (aabb_t)
-       box = object
       type is (tri_t)
-       box = get_aabb_triangle(object)
+       box = get_aabb_element(object, padding)
       type is (hex_t)
-       box = get_aabb_hexahedron(object)
+       box = get_aabb_element(object, padding)
+      type is (tet_t)
+       box = get_aabb_element(object, padding)
+      type is (quad_t)
+       box = get_aabb_element(object, padding)
 
       class default
        print *, "Error: get_aabb not implemented for this type"
        stop
     end select
 
-    if (present(padding)) then
-       box%box_min = box%box_min - padding * box%diameter
-       box%box_max = box%box_max + padding * box%diameter
-    end if
-
   end function get_aabb
 
-  !> @brief Get the aabb of a triangle.
-  !! @details This function calculates the aabb of a triangle. The padding is a
-  !! multiple of the diameter of the aabb, and is used to avoid numerical issues
-  !! when the triangle itself it axis aligned.
-  !! @param triangle The triangle to get the aabb of.
-  !! @return The aabb of the triangle.
-  function get_aabb_triangle(triangle) result(aabb)
-    type(tri_t), intent(in) :: triangle
-    type(aabb_t) :: aabb
+  !> @brief Get the aabb of an arbitrary element.
+  !!
+  !! @details This function calculates the aabb of an element. The aabb is
+  !! defined by the lower left front corner and the upper right back corner.
+  !! The aabb is calculated by finding the minimum and maximum x, y and z
+  !! coordinate for all points in the arbitrary element type.
+  !!
+  !! @param element The arbitrary element to get the aabb of.
+  !! @return The aabb of the element.
+  function get_aabb_element(object, padding) result(box)
+    class(element_t), intent(in) :: object
+    real(kind=rp), intent(in), optional :: padding
+    type(aabb_t) :: box
 
     real(kind=rp), dimension(3) :: box_min, box_max
+    integer :: i
+    type(point_t), pointer :: pi
 
-    associate(pts => triangle%pts)
-      box_min = min(pts(1)%p%x, pts(2)%p%x, pts(3)%p%x)
-      box_max = max(pts(1)%p%x, pts(2)%p%x, pts(3)%p%x)
-    end associate
+    do i = 1, object%n_points()
+       pi => object%p(i)
+       box_min = min(box_min, pi%x)
+       box_max = max(box_max, pi%x)
+    end do
 
-    call aabb%init(box_min, box_max)
-  end function get_aabb_triangle
+    if (present(padding)) then
+       box_min = box_min - padding * (box_max - box_min)
+       box_max = box_max + padding * (box_max - box_min)
+    end if
 
-  !> @brief Get the aabb of a hexahedron.
-  !! @details This function calculates the aabb of a hexahedron.
-  !! @param hexahedron The hexahedron to get the aabb of.
-  !! @return The aabb of the hexahedron.
-  function get_aabb_hexahedron(hexahedron) result(aabb)
-    type(hex_t), intent(in) :: hexahedron
-    type(aabb_t) :: aabb
+    call box%init(box_min, box_max)
+  end function get_aabb_element
 
-    real(kind=rp), dimension(3) :: box_min, box_max
-
-    associate(pts => hexahedron%pts)
-      box_min = min(pts(1)%p%x, pts(2)%p%x, pts(3)%p%x, pts(4)%p%x, &
-                    pts(5)%p%x, pts(6)%p%x, pts(7)%p%x, pts(8)%p%x)
-      box_max = max(pts(1)%p%x, pts(2)%p%x, pts(3)%p%x, pts(4)%p%x, &
-                    pts(5)%p%x, pts(6)%p%x, pts(7)%p%x, pts(8)%p%x)
-    end associate
-
-    call aabb%init(box_min, box_max)
-  end function get_aabb_hexahedron
 
   ! ========================================================================== !
   ! Initializers
