@@ -456,7 +456,7 @@ contains
                                user)
 
 	! Initialize the implicit user brinkman thingy
-	call this%userbrinkman%init(this%c_Xh, user)
+	call this%userbrinkman%init(this%c_Xh, user%user_implicit_brinkman)
 
   end subroutine fluid_scheme_init_common
 
