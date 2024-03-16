@@ -73,6 +73,10 @@ if test "x$ax_cv_fc_compiler_vendor" = xportland; then
    FCFLAGS="$FCFLAGS  -Mbackslash"
 fi
 
+if test "x$ax_cv_fc_compiler_vendor" = xnvhpc; then
+   FCFLAGS="$FCFLAGS  -Mbackslash"
+fi
+
 # Store build information (date, host, FC)
 AC_SUBST(NEKO_BUILD_INFO,
         ["(build: $(date +%Y-%m-%d) on $host using $ax_cv_fc_compiler_vendor)"], [])
@@ -327,6 +331,7 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
 		    contrib/average_fields_in_time/Makefile\
+		    contrib/calc_lift_from_field/Makefile\
 		    contrib/postprocess_fluid_stats/Makefile\
 		    contrib/average_field_in_space/Makefile\
 		    contrib/map_to_equidistant_1d/Makefile\

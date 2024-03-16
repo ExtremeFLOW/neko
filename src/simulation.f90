@@ -46,6 +46,7 @@ module simulation
   use math, only : col2
   use simcomp_executor, only : neko_simcomps
   use json_utils, only : json_get_or_default
+  use time_step_controller
   implicit none
   private
 
@@ -63,14 +64,25 @@ contains
     integer :: tstep, i
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
+    ! for variable_tsteping
+    integer :: dt_last_change = 0
+    real(kind=rp) :: cfl_avrg = 0_rp
+    real(kind=rp) :: set_cfl
+    type(time_step_controller_t) :: dt_controller
 
     t = 0d0
     tstep = 0
     call neko_log%section('Starting simulation')
     write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%end_time,')'
     call neko_log%message(log_buf)
-    write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
-    call neko_log%message(log_buf)
+    call dt_controller%init(C)
+    if (.not. dt_controller%if_variable_dt) then
+       write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
+       call neko_log%message(log_buf)
+    else
+       write(log_buf,'(A, E15.7)') 'CFL :  ', set_cfl
+       call neko_log%message(log_buf)
+    end if
 
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
@@ -92,13 +104,20 @@ contains
     call neko_log%newline()
 
     call profiler_start
-
+    cfl = C%fluid%compute_cfl(C%dt)
     start_time_org = MPI_WTIME()
+
     do while (t .lt. C%end_time .and. (.not. jobctrl_time_limit()))
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()
+       if (dt_last_change .eq. 0) then
+          cfl_avrg = cfl
+       end if
+       call dt_controller%set_dt(C, cfl, cfl_avrg, dt_last_change, tstep)
+       !calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%dt)
+
        call neko_log%status(t, C%end_time)
        write(log_buf, '(A,I6)') 'Time-step: ', tstep
        call neko_log%message(log_buf)
@@ -106,7 +125,6 @@ contains
 
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%dt
        call neko_log%message(log_buf)
-
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 
        call neko_log%section('Fluid')
@@ -151,7 +169,6 @@ contains
        call neko_log%end()
        call profiler_end_region
     end do
-
     call profiler_stop
 
     call json_get_or_default(C%params, 'case.output_at_end',&
@@ -222,15 +239,12 @@ contains
                       found)
 
     if (found) C%fluid%chkp%mesh2mesh_tol = tol
-
-    C%dtlag(:) = C%dt
-    C%tlag(:) = t
-    do i = 1, size(C%tlag)
-       C%tlag(i) = t - i*C%dtlag(i)
-    end do
-
+    
     chkpf = file_t(trim(restart_file))
     call chkpf%read(C%fluid%chkp)
+    C%dtlag = C%fluid%chkp%dtlag
+    C%tlag = C%fluid%chkp%tlag
+
     !Free the previous mesh, dont need it anymore
     call C%fluid%chkp%previous_mesh%free()
     do i = 1, size(C%dtlag)
@@ -268,4 +282,5 @@ contains
   end subroutine simulation_joblimit_chkp
 
 end module simulation
+
 
