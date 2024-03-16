@@ -87,6 +87,9 @@ contains
     real(kind=rp) :: dt_old, scaling_factor
     character(len=LOG_SIZE) :: log_buf    
     real(kind=rp) :: alpha = 0.5_rp !coefficient of running average
+    real(kind=rp) :: cfl_deviation = 0.2_rp
+    real(kind=rp) :: scaling_factor_max = 1.2_rp ! upper bound for the scaling factor
+    real(kind=rp) :: scaling_factor_min = 0.8_rp ! lower bound for the scaling factor
     integer, intent(in):: tstep
 
     if (this%if_variable_dt .eqv. .true.) then
@@ -97,13 +100,13 @@ contains
           ! Calculate the average of cfl over the desired interval
           cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
 
-          if (abs(cfl_avrg - this%set_cfl) .ge. 0.2*this%set_cfl .and. &
+          if (abs(cfl_avrg - this%set_cfl) .ge. cfl_deviation*this%set_cfl .and. &
              dt_last_change .ge. this%max_update_frequency) then
 
              if (this%set_cfl/cfl .ge. 1) then 
-                scaling_factor = min(1.2_rp, this%set_cfl/cfl) 
+                scaling_factor = min(scaling_factor_max, this%set_cfl/cfl) 
              else
-                scaling_factor = max(0.8_rp, this%set_cfl/cfl) 
+                scaling_factor = max(scaling_factor_min, this%set_cfl/cfl) 
              end if
 
              dt_old = C%dt
