@@ -78,7 +78,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `job_timelimit`      | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
 
 ### Variable time stepping
-Variable time stepping is activated by setting `constant_cfl` and `time_step`, which refer to the target CFL number and the maximum time step limit, respectively. The time stepping is adjusted when the average CFL number (which is evaluated by running-averaging) deviates from the target CFL number by `20%` by default. If you want to customise more about the variable time stepping, you can go to `/path/to/neko/src/common/time_step_controller.f90` to customise the parameters.
+Variable time stepping is activated by setting `constant_cfl` and `time_step`, which refer to the target CFL number and the maximum time step limit, respectively. The time stepping is adjusted when the average CFL number (which is evaluated by running-averaging) deviates from the target CFL number by `20%` by default. If you want to customise more about the variable time stepping, you can go to `/path/to/neko/src/common/time_step_controller.f90` to customise the parameters in `subroutine time_step_controller_set_dt`.
 
 ## Numerics
 Used to define the properties of the numerical discretization.
