@@ -1,31 +1,56 @@
+# Check the formatting of source files
+#
+# This workflow checks the formatting of the source files in the repository. It
+# uses the `findent` tool to format the Fortran source files. This allow us to
+# enforce rather strict formatting rules.
+
 name: Formatting
 
-# Controls when the action will run.
-on: [workflow_call]
-#  pull_request:
-#     branches: [develop,release/*,master]
-#  workflow_dispatch:
+on:
+  # Allow the workflow to be called from other workflows.
+  # This is useful when we want to run the workflow on a specific event.
+  workflow_call:
 
 jobs:
-  formatting:
-      name: "Formatter (findent)"
- #     description: "Check if the code is formatted according to the rules"
-      runs-on: ubuntu-20.04
-      steps:
-        - name: Setup env.
-          run: |
-            sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
-            pip install findent
-        - name: Checkout
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 1
-        - name: Check Format
-          run: |
-            export FINDENT_FLAGS="-i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- -Rr -c3 --openmp=0"
-            find src/ -iname "*.f90" -exec bash -c 'findent < {} > {}.tmp; mv -f {}.tmp {}' \;
-            if [ ! -z "$(git diff --exit-code)" ]; then
-              >&2 echo "Formatting rules violated"
-              git diff --exit-code
-              exit 1
-            fi
+  check-formatting:
+    name: "Formatter (findent)"
+    runs-on: ubuntu-20.04
+    steps:
+      # ---------------------------------------------------------------------- #
+      # Checkout the repository and setup the environment
+      # ---------------------------------------------------------------------- #
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Python cache
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: "**/requirements-formatting.txt"
+
+      - name: Install findent
+        run: |
+          pip install -r .github/workflows/extra/requirements-formatting.txt
+
+      # ---------------------------------------------------------------------- #
+      # Format the source files and check the formatting
+      # ---------------------------------------------------------------------- #
+
+      - name: Format sources
+        env:
+          FINDENT_FLAGS: "-i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- -Rr -c3 --openmp=0"
+        run: |
+          find src/ -iname "*.f90" -type f \
+            -exec bash -c 'findent < {} > {}.tmp; mv -f {}.tmp {}' \;
+
+      - name: Check formatting
+        run: |
+          if [[ $(git diff --exit-code) ]]; then
+            echo "The formatting of the source files is incorrect." >&2
+            git diff >&2
+            exit 1
+          fi
