@@ -558,10 +558,10 @@ contains
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region
 
-      if( tstep .gt. ext_bdf%diffusion_time_order+1 .and. pr_projection_dim .gt. 0) then
+      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
          if (if_variable_dt .and. dt_last_change .eq. 0) then
             call this%proj_prs%clear(n)
-         else if (if_variable_dt .and. dt_last_change .gt. ext_bdf%diffusion_time_order &
+         else if (if_variable_dt .and. dt_last_change .gt. 4 &
                   .or. (.not. if_variable_dt)) then
             call this%proj_prs%project_on(p_res%x, c_Xh, n)
             call this%proj_prs%log_info('Pressure')
@@ -575,8 +575,8 @@ contains
 
       call profiler_end_region
 
-      if( tstep .gt. ext_bdf%diffusion_time_order .and. pr_projection_dim .gt. 0) then
-         if (.not.(if_variable_dt .and. dt_last_change .lt. ext_bdf%diffusion_time_order)) then
+      if( tstep .gt. 4 .and. pr_projection_dim .gt. 0) then
+         if (.not.(if_variable_dt .and. dt_last_change .lt. 4)) then
             call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
                                          this%bclst_dp, gs_Xh, n)
          end if
@@ -609,12 +609,12 @@ contains
 
       call profiler_end_region
 
-      if (tstep .gt. ext_bdf%diffusion_time_order+1 .and. vel_projection_dim .gt. 0) then
+      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
          if (if_variable_dt .and. dt_last_change .eq. 0) then
             call this%proj_u%clear(n)
             call this%proj_v%clear(n)
             call this%proj_w%clear(n)
-         else if (if_variable_dt .and. dt_last_change .gt. ext_bdf%diffusion_time_order &
+         else if (if_variable_dt .and. dt_last_change .gt. 4 &
                   .or. (.not. if_variable_dt)) then
             call this%proj_u%project_on(u_res%x, c_Xh, n)
             call this%proj_v%project_on(v_res%x, c_Xh, n)
@@ -633,8 +633,8 @@ contains
            c_Xh, this%bclst_dw, gs_Xh)
       call profiler_end_region
 
-      if (tstep .gt. ext_bdf%diffusion_time_order .and. vel_projection_dim .gt. 0) then
-         if (.not.(if_variable_dt .and. dt_last_change .lt. ext_bdf%diffusion_time_order)) then
+      if (tstep .gt. 4 .and. vel_projection_dim .gt. 0) then
+         if (.not.(if_variable_dt .and. dt_last_change .lt. 4)) then
             call this%proj_u%project_back(du%x, Ax, c_Xh, &
                                     this%bclst_du, gs_Xh, n)
             call this%proj_v%project_back(dv%x, Ax, c_Xh, &
