@@ -41,8 +41,9 @@ jobs:
       # ---------------------------------------------------------------------- #
 
       - name: Format sources
+        env:
+          FINDENT_FLAGS: "-i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- -Rr -c3 --openmp=0"
         run: |
-          export FINDENT_FLAGS="-i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- -Rr -c3 --openmp=0"
           find src/ -iname "*.f90" -type f \
             -exec bash -c 'findent < {} > {}.tmp; mv -f {}.tmp {}' \;
 
