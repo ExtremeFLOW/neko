@@ -87,6 +87,8 @@ contains
 
     call this%free()
 
+    call this%free()
+
     call json_get(json, "model", name)
 
     call this%init_base(json, case)
