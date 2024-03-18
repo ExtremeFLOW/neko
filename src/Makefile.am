@@ -269,6 +269,7 @@ neko_fortran_SOURCES = \
 	les/les_model_fctry.f90\
 	les/vreman.f90\
 	les/bcknd/cpu/vreman_cpu.f90\
+	wall_models/wall_model.f90\
 	neko.f90
 
 neko_c_SOURCES = comm/comm_wrapper.c\
