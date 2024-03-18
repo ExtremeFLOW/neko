@@ -82,7 +82,7 @@ module hsmg
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
-  use krylov, only : ksp_t, ksp_monitor_t
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
   !$ use omp_lib
   implicit none
@@ -201,10 +201,10 @@ contains
     ! Create a backend specific krylov solver
     if (present(crs_pctype)) then
        call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), trim(crs_pctype), M = this%pc_crs)
+            this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, M = this%pc_crs)
     else
        call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), 'cg', M = this%pc_crs)
+            this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
     end if
 
     call this%bc_crs%init(this%dm_crs)

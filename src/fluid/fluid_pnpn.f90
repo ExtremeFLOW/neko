@@ -58,8 +58,6 @@ module fluid_pnpn
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
      type(field_t) :: p_res, u_res, v_res, w_res
 
-     type(field_series_t) :: ulag, vlag, wlag
-
      type(field_t) :: dp, du, dv, dw
 
      class(ax_t), allocatable :: Ax
@@ -175,10 +173,6 @@ contains
       call this%dw%init(dm_Xh, 'dw')
       call this%dp%init(dm_Xh, 'dp')
 
-      call this%ulag%init(this%u, 2)
-      call this%vlag%init(this%v, 2)
-      call this%wlag%init(this%w, 2)
-
     end associate
 
     ! Initialize velocity surface terms in pressure rhs
@@ -285,7 +279,8 @@ contains
     integer :: i, n
 
     n = this%u%dof%size()
-    ! Make sure that continuity is maintained (important for interpolation)
+    ! Make sure that continuity is maintained (important for interpolation) 
+    ! Do not do this for lagged rhs (derivatives are not necessairly coninous across elements)
     call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%w%x,this%c_Xh%mult,this%u%dof%size())
@@ -295,14 +290,6 @@ contains
        call col2(this%vlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
        call col2(this%wlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
     end do
-
-    call col2(this%abx1%x,this%c_Xh%mult,this%abx1%dof%size())
-    call col2(this%abx2%x,this%c_Xh%mult,this%abx2%dof%size())
-    call col2(this%aby1%x,this%c_Xh%mult,this%aby1%dof%size())
-    call col2(this%aby2%x,this%c_Xh%mult,this%aby2%dof%size())
-    call col2(this%abz1%x,this%c_Xh%mult,this%abz1%dof%size())
-    call col2(this%abz2%x,this%c_Xh%mult,this%abz2%dof%size())
-
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
@@ -346,7 +333,6 @@ contains
     end if
 
 
-
     call this%gs_Xh%op(this%u,GS_OP_ADD)
     call this%gs_Xh%op(this%v,GS_OP_ADD)
     call this%gs_Xh%op(this%w,GS_OP_ADD)
@@ -357,12 +343,6 @@ contains
        call this%gs_Xh%op(this%vlag%lf(i),GS_OP_ADD)
        call this%gs_Xh%op(this%wlag%lf(i),GS_OP_ADD)
     end do
-    call this%gs_Xh%op(this%abx1,GS_OP_ADD)
-    call this%gs_Xh%op(this%abx2,GS_OP_ADD)
-    call this%gs_Xh%op(this%aby1,GS_OP_ADD)
-    call this%gs_Xh%op(this%aby2,GS_OP_ADD)
-    call this%gs_Xh%op(this%abz1,GS_OP_ADD)
-    call this%gs_Xh%op(this%abz2,GS_OP_ADD)
 
     !! If we would decide to only restart from lagged fields instead of asving abx1, aby1 etc.
     !! Observe that one also needs to recompute the focing at the old time steps
@@ -474,10 +454,6 @@ contains
 
     call this%vol_flow%free()
 
-    call this%ulag%free()
-    call this%vlag%free()
-    call this%wlag%free()
-
   end subroutine fluid_pnpn_free
 
   !> Advance fluid simulation in time.
@@ -519,8 +495,6 @@ contains
          makeabf => this%makeabf, makebdf => this%makebdf, &
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
-         ksp_vel_maxiter => this%ksp_vel_maxiter, &
-         ksp_pr_maxiter => this%ksp_pr_maxiter, &
          rho => this%rho, mu => this%mu, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z)
 
@@ -589,8 +563,8 @@ contains
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
       ksp_results(1) = &
-         this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh, &
-                            ksp_pr_maxiter)
+         this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh)
+
       call profiler_end_region
 
       if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
@@ -635,11 +609,11 @@ contains
 
       call profiler_start_region("Velocity solve", 4)
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
-           c_Xh, this%bclst_du, gs_Xh, ksp_vel_maxiter)
+           c_Xh, this%bclst_du, gs_Xh)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
-           c_Xh, this%bclst_dv, gs_Xh, ksp_vel_maxiter)
+           c_Xh, this%bclst_dv, gs_Xh)
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
-           c_Xh, this%bclst_dw, gs_Xh, ksp_vel_maxiter)
+           c_Xh, this%bclst_dw, gs_Xh)
       call profiler_end_region
 
       if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
@@ -663,8 +637,8 @@ contains
               c_Xh, gs_Xh, ext_bdf, rho, mu,&
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
-              this%ksp_vel, this%pc_prs, this%pc_vel, ksp_pr_maxiter, &
-              ksp_vel_maxiter)
+              this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
+              this%ksp_vel%max_iter)
       end if
 
       call fluid_step_info(tstep, t, dt, ksp_results)

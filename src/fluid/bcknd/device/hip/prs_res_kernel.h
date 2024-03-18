@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __FLUID_PRS_RES_KERNEL__
+#define __FLUID_PRS_RES_KERNEL__
+
 template< typename T >
 __global__ void prs_res_part1_kernel(T * __restrict__ ta1,
                                      T * __restrict__ ta2,
@@ -92,3 +95,5 @@ __global__ void prs_res_part3_kernel(T * __restrict__ p_res,
     p_res[i] = p_res[i] - (dtbd * (ta1[i] + ta2[i] + ta3[i]));
   }
 }
+
+#endif // __FLUID_PRS_RES_KERNEL__

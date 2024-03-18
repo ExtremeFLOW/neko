@@ -87,6 +87,8 @@ contains
     logical :: v2_format
     character(len=LOG_SIZE) :: log_buf
 
+    call this%check_exists()
+
     select type(data)
     type is (mesh_t)
        msh => data

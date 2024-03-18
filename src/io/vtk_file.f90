@@ -134,6 +134,8 @@ contains
   subroutine vtk_file_read(this, data)
     class(vtk_file_t) :: this
     class(*), target, intent(inout) :: data
+
+    call neko_error('VTK file read not implemented')
   end subroutine vtk_file_read
 
   !> Write a mesh in legacy VTK format

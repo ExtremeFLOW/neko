@@ -40,7 +40,7 @@ module simulation_component
   use json_module, only : json_file
   use case, only : case_t
   use time_based_controller, only : time_based_controller_t
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_get
   implicit none
   private
 
@@ -52,6 +52,8 @@ module simulation_component
      type(time_based_controller_t) :: compute_controller
      !> Controller for when to do output.
      type(time_based_controller_t) :: output_controller
+     !> The execution order, lowest excutes first.
+     integer :: order
    contains
      !> Constructor for the simulation_component_t (base) class.
      procedure, pass(this) :: init_base => simulation_component_init_base
@@ -117,6 +119,7 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: compute_control, output_control
     real(kind=rp) :: compute_value, output_value
+    integer :: order
 
     this%case => case
     call json_get_or_default(json, "compute_control", compute_control, &
@@ -128,6 +131,17 @@ contains
                              compute_control)
     call json_get_or_default(json, "output_value", output_value, &
                              compute_value)
+
+
+    if (output_control == "global") then
+       call json_get(this%case%params, 'case.fluid.output_control', &
+                     output_control)
+       call json_get(this%case%params, 'case.fluid.output_value', &
+                     output_value)
+    end if
+
+    call json_get(json, "order", order)
+    this%order = order
 
     call this%compute_controller%init(case%end_time, compute_control, &
                                         compute_value)

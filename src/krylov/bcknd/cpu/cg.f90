@@ -63,8 +63,9 @@ module cg
 contains
 
   !> Initialise a standard PCG solver
-  subroutine cg_init(this, n, M, rel_tol, abs_tol)
+  subroutine cg_init(this, n, max_iter, M, rel_tol, abs_tol)
     class(cg_t), intent(inout), target :: this
+    integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
@@ -83,13 +84,13 @@ contains
     end if
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(max_iter)
     end if
 
   end subroutine cg_init
@@ -143,7 +144,7 @@ contains
     if (present(niter)) then
        max_iter = niter
     else
-       max_iter = KSP_MAX_ITER
+       max_iter = this%max_iter
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 

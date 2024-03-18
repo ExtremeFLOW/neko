@@ -1,3 +1,5 @@
+#ifndef __MATH_CONV1_KERNEL_CL__
+#define __MATH_CONV1_KERNEL_CL__
 /*
  Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
@@ -135,3 +137,5 @@ DEFINE_CONV1_KERNEL(7, 256)
 DEFINE_CONV1_KERNEL(8, 256)
 DEFINE_CONV1_KERNEL(9, 256)
 
+
+#endif // __MATH_CONV1_KERNEL_CL__

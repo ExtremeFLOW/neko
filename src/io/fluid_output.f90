@@ -32,12 +32,13 @@
 !
 !> Defines an output for a fluid
 module fluid_output
+  use num_types, only : rp
   use fluid_scheme, only : fluid_scheme_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config
   use device
-  use output
+  use output, only : output_t
   implicit none
 
   !> Fluid output
@@ -53,7 +54,8 @@ module fluid_output
 
 contains
 
-  function fluid_output_init(fluid, scalar, name, path) result(this)
+  function fluid_output_init(precision, fluid, scalar, name, path) result(this)
+    integer, intent(inout) :: precision
     class(fluid_scheme_t), intent(in), target :: fluid
     class(scalar_scheme_t), intent(in), optional, target :: scalar
     character(len=*), intent(in), optional :: name
@@ -71,7 +73,7 @@ contains
        fname = 'field.fld'
     end if
 
-    call output_init(this, fname)
+    call this%init_base(fname, precision)
 
     if (allocated(this%fluid%fields)) then
        deallocate(this%fluid%fields)

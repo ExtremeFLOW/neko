@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2023, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,74 +30,83 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Modular version of the Classic Nek5000 Pn/Pn formulation for scalars
+!> Containts the scalar_pnpn_t type.
+
 module scalar_pnpn
+  use num_types, only: rp
   use scalar_residual_fctry, only : scalar_residual_factory
   use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry
+  use rhs_maker_fctry, only : rhs_maker_bdf_t, rhs_maker_ext_t, &
+                              rhs_maker_ext_fctry, rhs_maker_bdf_fctry
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
+  use neumann, only : neumann_t
   use field, only : field_t
   use bc, only : bc_list_t, bc_list_init, bc_list_free, bc_list_apply_scalar, &
                  bc_list_add
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
   use coefs, only : coef_t
-  use device
+  use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_residual, only :scalar_residual_t
   use ax_product, only : ax_t
-  use field_series
-  use facet_normal
-  use device_math
-  use device_mathops
-  use scalar_aux
-  use time_scheme_controller
-  use projection
-  use math
-  use logger
-  use advection
-  use profiler
+  use field_series, only: field_series_t
+  use facet_normal, only : facet_normal_t
+  use krylov, only : ksp_monitor_t
+  use device_math, only : device_add2s2, device_col2
+  use scalar_aux, only : scalar_step_info
+  use time_scheme_controller, only : time_scheme_controller_t
+  use projection, only : projection_t
+  use math, only : glsc2, col2, add2s2
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use advection, only : advection_t, advection_factory
+  use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only: json_get
   use json_module, only : json_file
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
   private
 
 
   type, public, extends(scalar_scheme_t) :: scalar_pnpn_t
 
+     !> The residual of the transport equation.
      type(field_t) :: s_res
 
-     type(field_series_t) :: slag
-
+     !> Solution increment.
      type(field_t) :: ds
 
-     type(field_t) :: wa1
-     type(field_t) :: ta1
-
-
+     !> Helmholz operator.
      class(ax_t), allocatable :: Ax
 
+     !> Solution projection.
      type(projection_t) :: proj_s
 
-     type(dirichlet_t) :: bc_res   !< Dirichlet condition for scala
+     !> Dirichlet conditions for the residual
+     !! Collects all the Dirichlet condition facets into one bc and applies 0,
+     !! Since the values never change there during the solve.
+     type(dirichlet_t) :: bc_res
+
+     !> A bc list for the bc_res. Contains only that, essentially just to wrap
+     !! the if statement determining whether to apply on the device or CPU.
      type(bc_list_t) :: bclst_ds
 
+     !> Advection operator.
      class(advection_t), allocatable :: adv
 
-     ! Time variables
-     type(field_t) :: abx1
-     type(field_t) :: abx2
+     ! Lag arrays for the RHS.
+     type(field_t) :: abx1, abx2
 
-     !> Residual
+     !> Computes the residual.
      class(scalar_residual_t), allocatable :: res
 
-     !> Contributions to kth order extrapolation scheme
+     !> Contributions to kth order extrapolation scheme.
      class(rhs_maker_ext_t), allocatable :: makeext
 
-     !> Contributions to F from lagged BD terms
+     !> Contributions to the RHS from lagged BDF terms.
      class(rhs_maker_bdf_t), allocatable :: makebdf
 
    contains
@@ -107,6 +116,7 @@ module scalar_pnpn
      procedure, pass(this) :: restart => scalar_pnpn_restart
      !> Destructor.
      procedure, pass(this) :: free => scalar_pnpn_free
+     !> Solve for the current timestep.
      procedure, pass(this) :: step => scalar_pnpn_step
   end type scalar_pnpn_t
 
@@ -161,13 +171,7 @@ contains
 
       call this%abx2%init(dm_Xh, "abx2")
 
-      call this%wa1%init(dm_Xh, 'wa1')
-
-      call this%ta1%init(dm_Xh, 'ta1')
-
       call this%ds%init(dm_Xh, 'ds')
-
-      call this%slag%init(this%s, 2)
 
     end associate
 
@@ -184,11 +188,12 @@ contains
     end if
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
+
     call bc_list_init(this%bclst_ds)
     call bc_list_add(this%bclst_ds, this%bc_res)
 
-    ! @todo not param stuff again, using velocity stuff
-    ! Intialize projection space thingy
+
+    ! Intialize projection space
     if (this%projection_dim .gt. 0) then
        call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
     end if
@@ -206,7 +211,6 @@ contains
        integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
     end if
     call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
-
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
@@ -219,8 +223,6 @@ contains
     n = this%s%dof%size()
 
     call col2(this%s%x, this%c_Xh%mult, n)
-    call col2(this%abx1%x, this%c_Xh%mult, n)
-    call col2(this%abx2%x, this%c_Xh%mult, n)
     call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
     call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -239,10 +241,6 @@ contains
     call this%gs_Xh%op(this%s,GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(1),GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(2),GS_OP_ADD)
-    call this%gs_Xh%op(this%abx1,GS_OP_ADD)
-    call this%gs_Xh%op(this%abx2,GS_OP_ADD)
-
-
 
   end subroutine scalar_pnpn_restart
 
@@ -256,10 +254,6 @@ contains
     call this%proj_s%free()
 
     call this%s_res%free()
-
-    call this%wa1%free()
-
-    call this%ta1%free()
 
     call this%ds%free()
 
@@ -282,9 +276,6 @@ contains
        deallocate(this%makebdf)
     end if
 
-
-    call this%slag%free()
-
   end subroutine scalar_pnpn_free
 
   subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf)
@@ -305,14 +296,11 @@ contains
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, lambda => this%lambda, rho => this%rho, &
          ds => this%ds, &
-         ta1 => this%ta1, &
-         wa1 => this%wa1, &
          s_res =>this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
          projection_dim => this%projection_dim, &
-         ksp_maxiter => this%ksp_maxiter, &
          msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
 
@@ -328,30 +316,40 @@ contains
          call neko_log%message(log_buf)
       end if
 
-      ! Evaluate the source term and scale with the mass matrix.
-      call f_Xh%eval(t)
+      ! Compute the source terms
+      call this%source_term%compute(t, tstep)
 
+      ! Pre-multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_col2(f_Xh%s_d, c_Xh%B_d, n)
+         call device_col2(f_Xh%x_d, c_Xh%B_d, n)
       else
-         call col2(f_Xh%s, c_Xh%B, n)
+         call col2(f_Xh%x, c_Xh%B, n)
       end if
 
+      ! Apply Neumann boundary conditions
+      call bc_list_apply_scalar(this%bclst_neumann, this%f_Xh%x, dm_Xh%size())
+
       ! Add the advection operators to the right-hans-side.
-      call this%adv%compute_scalar(u, v, w, s, f_Xh%s, &
+      call this%adv%compute_scalar(u, v, w, s, f_Xh%x, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
-      call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
-           rho, ext_bdf%advection_coeffs, n)
+      ! At this point the RHS contains the sum of the advection operator,
+      ! Neumann boundary sources and additional source terms, evaluated using
+      ! the scalar field from the previous time-step. Now, this value is used in
+      ! the explicit time scheme to advance these terms in time.
+      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
+           ext_bdf%advection_coeffs, n)
 
-      call makebdf%compute_scalar(ta1, wa1, slag, f_Xh%s, s, c_Xh%B, &
-           rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+      ! Add the RHS contributions coming from the BDF scheme.
+      call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
+           ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
-      !> We assume that no change of boundary conditions
-      !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
-      !> Apply dirichlet
-      call this%bc_apply()
+
+      !> Apply Dirichlet boundary conditions
+      !! We assume that no change of boundary conditions
+      !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
+      call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
@@ -361,8 +359,9 @@ contains
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
-      call bc_list_apply_scalar(this%bclst_ds,&
-           s_res%x, dm_Xh%size())
+      ! Apply a 0-valued Dirichlet boundary conditions on the ds.
+      call bc_list_apply_scalar(this%bclst_ds, s_res%x, dm_Xh%size())
+
       call profiler_end_region
 
       if (tstep .gt. 5 .and. projection_dim .gt. 0) then
@@ -372,7 +371,7 @@ contains
       call this%pc%update()
       call profiler_start_region('Scalar solve', 21)
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
-           c_Xh, this%bclst_ds, gs_Xh, ksp_maxiter)
+           c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
       if (tstep .gt. 5 .and. projection_dim .gt. 0) then
@@ -380,6 +379,7 @@ contains
               this%bclst_ds, gs_Xh, n)
       end if
 
+      ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2s2(s%x_d, ds%x_d, 1.0_rp, n)
       else
