@@ -69,7 +69,7 @@
 !! corner. This is the base data structure for the aabb_Tree, which is used to
 !! accelerate a Signed Distance Function.
 module aabb
-  use num_types, only: rp
+  use num_types, only: dp
   use element, only: element_t
   use point, only: point_t
   use tri, only: tri_t
@@ -105,11 +105,11 @@ module aabb
      private
 
      logical :: initialized = .false.
-     real(kind=rp) :: box_min(3)
-     real(kind=rp) :: box_max(3)
-     real(kind=rp) :: center(3)
-     real(kind=rp) :: diameter
-     real(kind=rp) :: surface_area
+     real(kind=dp) :: box_min(3)
+     real(kind=dp) :: box_max(3)
+     real(kind=dp) :: center(3)
+     real(kind=dp) :: diameter
+     real(kind=dp) :: surface_area
 
    contains
 
@@ -162,7 +162,6 @@ contains
   !! issues when the object itself it axis aligned.
   !!
   !! Current support:
-  !! - Axis Aligned Bounding Box (aabb_t)
   !! - Triangle (tri_t)
   !! - Quadrilateral (quad_t)
   !! - Tetrahedron (tet_t)
@@ -176,7 +175,7 @@ contains
     implicit none
 
     class(*), intent(in) :: object
-    real(kind=rp), intent(in), optional :: padding
+    real(kind=dp), intent(in), optional :: padding
     type(aabb_t) :: box
 
     select type(object)
@@ -207,10 +206,10 @@ contains
   !! @return The aabb of the element.
   function get_aabb_element(object, padding) result(box)
     class(element_t), intent(in) :: object
-    real(kind=rp), intent(in), optional :: padding
+    real(kind=dp), intent(in), optional :: padding
     type(aabb_t) :: box
 
-    real(kind=rp), dimension(3) :: box_min, box_max
+    real(kind=dp), dimension(3) :: box_min, box_max
     integer :: i
     type(point_t), pointer :: pi
 
@@ -238,8 +237,8 @@ contains
   !! @param upper_right_back The upper right back corner of the aabb.
   subroutine aabb_init(this, lower_left_front, upper_right_back)
     class(aabb_t), intent(inout) :: this
-    real(kind=rp), dimension(3), intent(in) :: lower_left_front
-    real(kind=rp), dimension(3), intent(in) :: upper_right_back
+    real(kind=dp), dimension(3), intent(in) :: lower_left_front
+    real(kind=dp), dimension(3), intent(in) :: upper_right_back
 
     this%box_min = lower_left_front
     this%box_max = upper_right_back
@@ -258,7 +257,7 @@ contains
   !> @brief Get the width of the aabb. Also known as the x-axis length.
   pure function aabb_get_width(this) result(width)
     class(aabb_t), intent(in) :: this
-    real(kind=rp) :: width
+    real(kind=dp) :: width
 
     width = this%box_max(1) - this%box_min(1)
   end function aabb_get_width
@@ -266,7 +265,7 @@ contains
   !> @brief Get the depth of the aabb. Also known as the y-axis length.
   pure function aabb_get_depth(this) result(depth)
     class(aabb_t), intent(in) :: this
-    real(kind=rp) :: depth
+    real(kind=dp) :: depth
 
     depth = this%box_max(2) - this%box_min(2)
   end function aabb_get_depth
@@ -274,7 +273,7 @@ contains
   !> @brief Get the height of the aabb. Also known as the z-axis length.
   pure function aabb_get_height(this) result(height)
     class(aabb_t), intent(in) :: this
-    real(kind=rp) :: height
+    real(kind=dp) :: height
 
     height = this%box_max(3) - this%box_min(3)
   end function aabb_get_height
@@ -282,7 +281,7 @@ contains
   !> @brief Get the diameter length of the aabb.
   pure function aabb_get_diameter(this) result(diameter)
     class(aabb_t), intent(in) :: this
-    real(kind=rp) :: diameter
+    real(kind=dp) :: diameter
 
     diameter = this%diameter
   end function aabb_get_diameter
@@ -290,7 +289,7 @@ contains
   !> @brief Get the surface area of the aabb.
   pure function aabb_get_surface_area(this) result(surface_area)
     class(aabb_t), intent(in) :: this
-    real(kind=rp) :: surface_area
+    real(kind=dp) :: surface_area
 
     surface_area = this%surface_area
   end function aabb_get_surface_area
@@ -298,7 +297,7 @@ contains
   !> @brief Get the center of the aabb.
   pure function aabb_get_center(this) result(center)
     class(aabb_t), intent(in) :: this
-    real(kind=rp), dimension(3) :: center
+    real(kind=dp), dimension(3) :: center
 
     center = this%center
   end function aabb_get_center
@@ -306,7 +305,7 @@ contains
   !> @brief Get the diagonal of the aabb.
   pure function aabb_get_diagonal(this) result(diagonal)
     class(aabb_t), intent(in) :: this
-    real(kind=rp), dimension(3) :: diagonal
+    real(kind=dp), dimension(3) :: diagonal
 
     diagonal = this%box_max - this%box_min
   end function aabb_get_diagonal
@@ -350,7 +349,7 @@ contains
   !> @brief Check if this aabb contains a point.
   function aabb_contains_point(this, p) result(is_contained)
     class(aabb_t), intent(in) :: this
-    real(kind=rp), dimension(3), intent(in) :: p
+    real(kind=dp), dimension(3), intent(in) :: p
     logical :: is_contained
 
     ! if (.not. this%initialized) then
@@ -363,8 +362,8 @@ contains
   !> @brief Get the minimum possible distance from the aabb to a point.
   function aabb_min_distance(this, p) result(distance)
     class(aabb_t), intent(in) :: this
-    real(kind=rp), dimension(3), intent(in) :: p
-    real(kind=rp) :: distance
+    real(kind=dp), dimension(3), intent(in) :: p
+    real(kind=dp) :: distance
 
     if (.not. this%initialized) then
        distance = huge(0.0_rp)
@@ -383,7 +382,7 @@ contains
     class(aabb_t), intent(in) :: box2
     type(aabb_t) :: merged
 
-    real(kind=rp), dimension(3) :: box_min, box_max
+    real(kind=dp), dimension(3) :: box_min, box_max
 
     box_min = min(box1%box_min, box2%box_min)
     box_max = max(box1%box_max, box2%box_max)
@@ -397,7 +396,7 @@ contains
     class(aabb_t), intent(in) :: box2
     type(aabb_t) :: intersected
 
-    real(kind=rp), dimension(3) :: box_min, box_max
+    real(kind=dp), dimension(3) :: box_min, box_max
 
     box_min = max(box1%box_min, box2%box_min)
     box_max = min(box1%box_max, box2%box_max)
@@ -412,7 +411,7 @@ contains
   !> @brief Calculate the surface area of the aabb.
   pure function calculate_surface_area(this) result(surface_area)
     class(aabb_t), intent(in) :: this
-    real(kind=rp) :: surface_area
+    real(kind=dp) :: surface_area
 
     surface_area = 2.0 * (&
       & this%get_width() * this%get_height() &
