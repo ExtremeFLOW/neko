@@ -245,6 +245,7 @@ neko_fortran_SOURCES = \
 	simulation_components/simulation_component.f90\
 	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
+	simulation_components/two_runs.f90\
 	simulation_components/lambda2.f90\
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_factory.f90\

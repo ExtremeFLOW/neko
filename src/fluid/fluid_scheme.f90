@@ -141,7 +141,9 @@ module fluid_scheme
   !> Abstract interface to initialize a fluid formulation
   abstract interface
      subroutine fluid_scheme_init_intrf(this, msh, lx, params, user, &
-                                        material_properties)
+                                        material_properties,&
+                                        ! Harry
+                                        i_fluid)
        import fluid_scheme_t
        import json_file
        import mesh_t
@@ -153,6 +155,12 @@ module fluid_scheme
        type(json_file), target, intent(inout) :: params
        type(user_t), intent(in) :: user
        type(material_properties_t), intent(inout) :: material_properties
+    ! Harry
+    ! Maybe you wan't more than one fluids at once,
+    ! in this case we want an index
+    integer, optional :: i_fluid
+    ! -------------------------------------------
+
      end subroutine fluid_scheme_init_intrf
   end interface
 
@@ -171,8 +179,13 @@ module fluid_scheme
        import time_scheme_controller_t
        import rp
        class(fluid_scheme_t), intent(inout) :: this
-       real(kind=rp), intent(inout) :: t
-       integer, intent(inout) :: tstep
+    ! Harry
+    ! this is all Victors fault if something goes wrong
+    !real(kind=rp), intent(inout) :: t
+       !integer, intent(inout) :: tstep
+    real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
+    ! -------------------------------------
        real(kind=rp), intent(in) :: dt
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
      end subroutine fluid_scheme_step_intrf
@@ -454,7 +467,7 @@ contains
 
   !> Initialize all velocity related components of the current scheme
   subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init, scheme, &
-                                   user, material_properties)
+                                   user, material_properties,i_fluid)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
@@ -468,17 +481,33 @@ contains
     real(kind=rp) :: abs_tol
     character(len=:), allocatable :: solver_type, precon_type
     integer :: ksp_vel_maxiter
+    ! Harry
+    ! Maybe you wan't more than one fluids at once,
+    ! in this case we want an index
+    integer, optional :: i_fluid
+    character(len=3) :: i_fluid_str
+    ! -------------------------------------------
 
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
                                   material_properties)
 
+	 if(present(i_fluid)) then
+	 write(i_fluid_str,'(I0.2)') i_fluid
+    call neko_field_registry%add_field(this%dm_Xh, 'u'//i_fluid_str)
+    call neko_field_registry%add_field(this%dm_Xh, 'v'//i_fluid_str)
+    call neko_field_registry%add_field(this%dm_Xh, 'w'//i_fluid_str)
+    this%u => neko_field_registry%get_field('u'//i_fluid_str)
+    this%v => neko_field_registry%get_field('v'//i_fluid_str)
+    this%w => neko_field_registry%get_field('w'//i_fluid_str)
+	 	else
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
     call neko_field_registry%add_field(this%dm_Xh, 'w')
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
+    endif
 
     call json_get(params, 'case.fluid.velocity_solver.type', solver_type)
     call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
@@ -501,8 +530,16 @@ contains
 
   !> Initialize all components of the current scheme
   subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init,&
-                                   scheme, user, material_properties)
+                                   scheme, user, material_properties,&
+                                   ! Harry, multiple fluids
+                                   i_fluid)
     implicit none
+    ! Harry
+    ! Maybe you wan't more than one fluids at once,
+    ! in this case we want an index
+    integer, optional :: i_fluid
+    character(len=3) :: i_fluid_str
+    ! -------------------------------------------
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
@@ -518,7 +555,17 @@ contains
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
                                   material_properties)
-
+	 if(present(i_fluid)) then
+	 write(i_fluid_str,'(I0.2)') i_fluid
+    call neko_field_registry%add_field(this%dm_Xh, 'u'//i_fluid_str)
+    call neko_field_registry%add_field(this%dm_Xh, 'v'//i_fluid_str)
+    call neko_field_registry%add_field(this%dm_Xh, 'w'//i_fluid_str)
+    call neko_field_registry%add_field(this%dm_Xh, 'p'//i_fluid_str)
+    this%u => neko_field_registry%get_field('u'//i_fluid_str)
+    this%v => neko_field_registry%get_field('v'//i_fluid_str)
+    this%w => neko_field_registry%get_field('w'//i_fluid_str)
+    this%p => neko_field_registry%get_field('p'//i_fluid_str)
+	 	else
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
     call neko_field_registry%add_field(this%dm_Xh, 'w')
@@ -527,6 +574,7 @@ contains
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
     this%p => neko_field_registry%get_field('p')
+    endif
 
     !! lag fields
     call this%ulag%init(this%u, 2)

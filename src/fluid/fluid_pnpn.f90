@@ -111,7 +111,7 @@ module fluid_pnpn
 
 contains
 
-  subroutine fluid_pnpn_init(this, msh, lx, params, user, material_properties)
+  subroutine fluid_pnpn_init(this, msh, lx, params, user, material_properties,i_fluid)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
@@ -122,12 +122,17 @@ contains
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
+    ! Harry
+    ! Maybe you wan't more than one fluids at once,
+    ! in this case we want an index
+    integer, optional :: i_fluid
+    ! -------------------------------------------
 
     call this%free()
 
     ! Initialize base class
     call this%scheme_init(msh, lx, params, .true., .true., scheme, user, &
-                          material_properties)
+                          material_properties,i_fluid)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
@@ -463,8 +468,13 @@ contains
   !! @param ext_bdf Time integration logic.
   subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf)
     class(fluid_pnpn_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: t
-    integer, intent(inout) :: tstep
+    ! Harry
+    ! this is all Victors fault if something goes wrong
+    !real(kind=rp), intent(inout) :: t
+    !integer, intent(inout) :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    ! -------------------------------------
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
     ! number of degrees of freedom

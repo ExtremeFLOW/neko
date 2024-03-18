@@ -35,6 +35,7 @@
 module simulation_component_fctry
   use simulation_component, only : simulation_component_t
   use vorticity, only : vorticity_t
+  use two_runs, only : two_runs_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
   use les_simcomp, only : les_simcomp_t
@@ -67,6 +68,8 @@ contains
        allocate(probes_t::simcomp)
     else if (trim(simcomp_type) .eq. "les_model") then
        allocate(les_simcomp_t::simcomp)
+    else if (trim(simcomp_type) .eq. "two_runs") then
+       allocate(two_runs_t::simcomp)
     else
        call neko_log%error("Unknown simulation component type: " &
                            // trim(simcomp_type))
