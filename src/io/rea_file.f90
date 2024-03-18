@@ -88,7 +88,7 @@ contains
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
     logical :: curve_skip = .false.
     character(len=LOG_SIZE) :: log_buf
-    
+
     call this%check_exists()
 
     select type(data)

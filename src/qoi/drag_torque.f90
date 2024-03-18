@@ -99,13 +99,13 @@ contains
     type(field_t), intent(inout) :: p
     real(kind=rp), intent(in) :: visc, center(3)
     real(kind=rp) :: dgtq(3,4)
-    real(kind=rp) :: dragpx = 0.0_rp ! pressure 
+    real(kind=rp) :: dragpx = 0.0_rp ! pressure
     real(kind=rp) :: dragpy = 0.0_rp
     real(kind=rp) :: dragpz = 0.0_rp
     real(kind=rp) :: dragvx = 0.0_rp ! viscous
     real(kind=rp) :: dragvy = 0.0_rp
     real(kind=rp) :: dragvz = 0.0_rp
-    real(kind=rp) :: torqpx = 0.0_rp ! pressure 
+    real(kind=rp) :: torqpx = 0.0_rp ! pressure
     real(kind=rp) :: torqpy = 0.0_rp
     real(kind=rp) :: torqpz = 0.0_rp
     real(kind=rp) :: torqvx = 0.0_rp ! viscous
@@ -121,80 +121,80 @@ contains
 !
 !     Fill up viscous array w/ default
 !
-      dragpx = 0.0
-      dragpy = 0.0
-      dragpz = 0.0
-      dragvx = 0.0
-      dragvy = 0.0
-      dragvz = 0.0
-      do mem  = 1,zone%size
-         ie   = zone%facet_el(mem)%x(2)
-         ifc   = zone%facet_el(mem)%x(1)
-         call drag_torque_facet(dgtq,coef%dof%x,coef%dof%y,coef%dof%z,&
+    dragpx = 0.0
+    dragpy = 0.0
+    dragpz = 0.0
+    dragvx = 0.0
+    dragvy = 0.0
+    dragvz = 0.0
+    do mem  = 1,zone%size
+       ie   = zone%facet_el(mem)%x(2)
+       ifc   = zone%facet_el(mem)%x(1)
+       call drag_torque_facet(dgtq,coef%dof%x,coef%dof%y,coef%dof%z,&
                                 center,&
                                 s11, s22, s33, s12, s13, s23,&
                                 p%x,visc,ifc,ie, coef, coef%Xh)
 
-         dragpx = dragpx + dgtq(1,1)  ! pressure 
-         dragpy = dragpy + dgtq(2,1)
-         dragpz = dragpz + dgtq(3,1)
+       dragpx = dragpx + dgtq(1,1)  ! pressure
+       dragpy = dragpy + dgtq(2,1)
+       dragpz = dragpz + dgtq(3,1)
 
-         dragvx = dragvx + dgtq(1,2)  ! viscous
-         dragvy = dragvy + dgtq(2,2)
-         dragvz = dragvz + dgtq(3,2)
+       dragvx = dragvx + dgtq(1,2)  ! viscous
+       dragvy = dragvy + dgtq(2,2)
+       dragvz = dragvz + dgtq(3,2)
 
-         torqpx = torqpx + dgtq(1,3)  ! pressure 
-         torqpy = torqpy + dgtq(2,3)
-         torqpz = torqpz + dgtq(3,3)
+       torqpx = torqpx + dgtq(1,3)  ! pressure
+       torqpy = torqpy + dgtq(2,3)
+       torqpz = torqpz + dgtq(3,3)
 
-         torqvx = torqvx + dgtq(1,4)  ! viscous
-         torqvy = torqvy + dgtq(2,4)
-         torqvz = torqvz + dgtq(3,4)
-      enddo
+       torqvx = torqvx + dgtq(1,4)  ! viscous
+       torqvy = torqvy + dgtq(2,4)
+       torqvz = torqvz + dgtq(3,4)
+    enddo
 !
 !     Sum contributions from all processors
 !
-      call MPI_Allreduce(MPI_IN_PLACE,dragpx, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,dragpx, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,dragpy, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,dragpy, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,dragpz, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,dragpz, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,dragvx, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,dragvx, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,dragvy, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,dragvy, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,dragvz, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,dragvz, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      !Torque
-      call MPI_Allreduce(MPI_IN_PLACE,torqpx, 1, &
+    !Torque
+    call MPI_Allreduce(MPI_IN_PLACE,torqpx, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,torqpy, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,torqpy, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,torqpz, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,torqpz, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,torqvx, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,torqvx, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,torqvy, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,torqvy, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,torqvz, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE,torqvz, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
-      dgtq(1,1) = dragpx  ! pressure 
-      dgtq(2,1) = dragpy
-      dgtq(3,1) = dragpz
-               
-      dgtq(1,2) = dragvx  ! viscous
-      dgtq(2,2) = dragvy
-      dgtq(3,2) = dragvz
-               
-      dgtq(1,3) = torqpx  ! pressure 
-      dgtq(2,3) = torqpy
-      dgtq(3,3) = torqpz
-               
-      dgtq(1,4) = torqvx  ! viscous
-      dgtq(2,4) = torqvy
-      dgtq(3,4) = torqvz
+    dgtq(1,1) = dragpx  ! pressure
+    dgtq(2,1) = dragpy
+    dgtq(3,1) = dragpz
+
+    dgtq(1,2) = dragvx  ! viscous
+    dgtq(2,2) = dragvy
+    dgtq(3,2) = dragvz
+
+    dgtq(1,3) = torqpx  ! pressure
+    dgtq(2,3) = torqpy
+    dgtq(3,3) = torqpz
+
+    dgtq(1,4) = torqvx  ! viscous
+    dgtq(2,4) = torqvy
+    dgtq(3,4) = torqvz
 
   end subroutine drag_torque_zone
 
@@ -212,7 +212,7 @@ contains
   subroutine drag_torque_facet(dgtq,xm0,ym0,zm0, center,&
                                s11, s22, s33, s12, s13, s23,&
                                pm1,visc,f,e, coef, Xh)
-    type(coef_t), intent(in) :: coef 
+    type(coef_t), intent(in) :: coef
     type(space_t), intent(in) :: Xh
     real(kind=rp), intent(out) :: dgtq(3,4)
     real(kind=rp), intent(in) :: center(3)
@@ -231,11 +231,11 @@ contains
     integer :: pf,l, k, i, j1, j2
     real(kind=rp) ::    n1,n2,n3, j, a, r1, r2, r3, v, dgtq_i(3,4)
     integer :: skpdat(6,6), NX, NY, NZ
-    integer :: js1   
-    integer :: jf1   
+    integer :: js1
+    integer :: jf1
     integer :: jskip1
-    integer :: js2   
-    integer :: jf2   
+    integer :: js2
+    integer :: jf2
     integer :: jskip2
     real(kind=rp) :: s11_, s21_, s31_, s12_, s22_, s32_, s13_, s23_, s33_
 
@@ -296,22 +296,22 @@ contains
     a = 0
     do j2=js2,jf2,jskip2
        do j1=js1,jf1,jskip1
-         i = i+1
-         n1 = coef%nx(i,1,f,e)*coef%area(i,1,f,e)
-         n2 = coef%ny(i,1,f,e)*coef%area(i,1,f,e)
-         n3 = coef%nz(i,1,f,e)*coef%area(i,1,f,e)
-         a  = a +          coef%area(i,1,f,e)
-         v  = visc
-         s11_ = s11(j1,j2,1,e)
-         s12_ = s12(j1,j2,1,e)
-         s22_ = s22(j1,j2,1,e)
-         s13_ = s13(j1,j2,1,e)
-         s23_ = s23(j1,j2,1,e)
-         s33_ = s33(j1,j2,1,e)
-         call drag_torque_pt(dgtq_i,xm0(j1,j2,1,e), ym0(j1,j2,1,e),zm0(j1,j2,1,e), center,&
+          i = i+1
+          n1 = coef%nx(i,1,f,e)*coef%area(i,1,f,e)
+          n2 = coef%ny(i,1,f,e)*coef%area(i,1,f,e)
+          n3 = coef%nz(i,1,f,e)*coef%area(i,1,f,e)
+          a  = a +          coef%area(i,1,f,e)
+          v  = visc
+          s11_ = s11(j1,j2,1,e)
+          s12_ = s12(j1,j2,1,e)
+          s22_ = s22(j1,j2,1,e)
+          s13_ = s13(j1,j2,1,e)
+          s23_ = s23(j1,j2,1,e)
+          s33_ = s33(j1,j2,1,e)
+          call drag_torque_pt(dgtq_i,xm0(j1,j2,1,e), ym0(j1,j2,1,e),zm0(j1,j2,1,e), center,&
                              s11_, s22_, s33_, s12_, s13_, s23_,&
                              pm1(j1,j2,1,e), n1, n2, n3, v)
-         dgtq = dgtq + dgtq_i
+          dgtq = dgtq + dgtq_i
        end do
     end do
   end subroutine drag_torque_facet
@@ -331,20 +331,20 @@ contains
   subroutine drag_torque_pt(dgtq,x,y,z, center, s11, s22, s33, s12, s13, s23,&
                             p,n1, n2, n3,v)
     real(kind=rp), intent(inout) :: dgtq(3,4)
-    real(kind=rp), intent(in) :: x 
+    real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
     real(kind=rp), intent(in) :: z
     real(kind=rp), intent(in) :: p
     real(kind=rp), intent(in) :: v
     real(kind=rp), intent(in) :: n1, n2, n3, center(3)
     real(kind=rp), intent(in) :: s11, s12, s22, s13, s23, s33
-    real(kind=rp) ::  s21, s31, s32, r1, r2, r3 
+    real(kind=rp) ::  s21, s31, s32, r1, r2, r3
     call rzero(dgtq,12)
     s21 = s12
     s32 = s23
     s31 = s13
     !pressure drag
-    dgtq(1,1) = p*n1  
+    dgtq(1,1) = p*n1
     dgtq(2,1) = p*n2
     dgtq(3,1) = p*n3
     ! viscous drag
@@ -355,12 +355,12 @@ contains
     r2 = y-center(2)
     r3 = z-center(3)
     !pressure torque
-    dgtq(1,3) = (r2*dgtq(3,1)-r3*dgtq(2,1)) 
+    dgtq(1,3) = (r2*dgtq(3,1)-r3*dgtq(2,1))
     dgtq(2,3) = (r3*dgtq(1,1)-r1*dgtq(3,1))
     dgtq(3,3) = (r1*dgtq(2,1)-r2*dgtq(1,1))
     !viscous torque
     dgtq(1,4) = (r2*dgtq(3,2)-r3*dgtq(2,2))
-    dgtq(2,4) = (r3*dgtq(1,2)-r1*dgtq(3,2)) 
+    dgtq(2,4) = (r3*dgtq(1,2)-r1*dgtq(3,2))
     dgtq(3,4) = (r1*dgtq(2,2)-r2*dgtq(1,2))
   end subroutine drag_torque_pt
 

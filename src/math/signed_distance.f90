@@ -71,10 +71,10 @@ contains
     end if
 
     select type(object)
-      type is (tri_mesh_t)
+    type is (tri_mesh_t)
        call signed_distance_field_tri_mesh(field_data, object, max_dist)
 
-      class default
+    class default
        call neko_error("signed_distance_field: Object type not supported.")
     end select
 
@@ -110,7 +110,7 @@ contains
 
     if (search_tree%get_size() .ne. mesh%nelv) then
        call neko_error("signed_distance_field_tri_mesh: &
-         & Error building the search tree.")
+       & Error building the search tree.")
     end if
 
     do id = 1, total_size
@@ -310,10 +310,10 @@ contains
     real(kind=rp), intent(out), optional :: weighted_sign
 
     select type(element)
-      type is (tri_t)
+    type is (tri_t)
        call element_distance_triangle(element, p, distance, weighted_sign)
 
-      class default
+    class default
        print *, "Error: Element type not supported."
        stop
     end select

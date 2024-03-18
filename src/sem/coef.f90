@@ -1000,15 +1000,15 @@ contains
     class(coef_t), intent(in) :: this
     integer, intent(in) :: i, j, k, e, facet
     real(kind=rp) :: area
-      
-    select case (facet)               
-      case(1,2)
-        area = this%area(j, k, facet, e)
-      case(3,4)
-        area = this%area(i, k, facet, e)
-      case(5,6)
-        area = this%area(i, j, facet, e)
-      end select
+
+    select case (facet)
+    case(1,2)
+       area = this%area(j, k, facet, e)
+    case(3,4)
+       area = this%area(i, k, facet, e)
+    case(5,6)
+       area = this%area(i, j, facet, e)
+    end select
   end function coef_get_area
 
 

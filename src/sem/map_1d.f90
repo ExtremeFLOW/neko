@@ -15,7 +15,7 @@ module map_1d
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  !> Type that encapsulates a mapping from each gll point in the mesh 
+  !> Type that encapsulates a mapping from each gll point in the mesh
   !! to its corresponding (global) GLL point index in one direction.
   !! @remark Could also be rather easily extended to say polar coordinates as well.
   type, public :: map_1d_t
@@ -24,7 +24,7 @@ module map_1d
      !> Checks which level an element belongs to.
      integer, allocatable :: el_lvl(:)
      !> Checks which level or id in the 1D GLL mapping each point in the dofmap is.
-     integer, allocatable :: pt_lvl(:,:,:,:) 
+     integer, allocatable :: pt_lvl(:,:,:,:)
      !> Number of elements stacked on top of eachother in the specified direction
      integer :: n_el_lvls
      !> Dofmap
@@ -44,7 +44,7 @@ module map_1d
 
 
 contains
-  
+
   subroutine map_1d_init(this, dof, gs, dir, tol)
     class(map_1d_t) :: this
     type(dofmap_t), target, intent(in) :: dof
@@ -61,24 +61,24 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_error('map_1d not yet supported on device')
     end if
-    
+
     this%dir = dir
     this%dof => dof
     this%msh => dof%msh
     nelv = this%msh%nelv
     lx = this%dof%Xh%lx
     n = dof%size()
-  
+
     if (dir .eq. 1) then
-        line => dof%x
+       line => dof%x
     else if (dir .eq. 2) then
-        line => dof%y
+       line => dof%y
     else if(dir .eq. 3) then
-        line => dof%z
+       line => dof%z
     else
-        call neko_error('Invalid dir for geopmetric comm')
+       call neko_error('Invalid dir for geopmetric comm')
     end if
-    
+
     allocate(this%dir_el(nelv))
     allocate(this%el_lvl(nelv))
     allocate(min_vals(lx, lx, lx, nelv))
@@ -111,7 +111,7 @@ contains
     do e = 1, nelv
        el_min = minval(line(:,:,:,e))
        min_vals(:,:,:,e) = el_min
-       ! Check if this element is on the bottom, in this case assign el_lvl = i = 1 
+       ! Check if this element is on the bottom, in this case assign el_lvl = i = 1
        if (relcmp(el_min, glb_min, this%tol)) then
           if(this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
        end if
@@ -120,50 +120,50 @@ contains
     ! When the minumum value has propagated to the highest level this stops.
     ! Only works when the bottom plate of the domain is flat.
     do while (.not. relcmp(glmax(min_vals,n), glb_min, this%tol))
-      i = i + 1
-      do e = 1, nelv
-         !Sets the value at the bottom of each element to glb_max
-         if (this%dir_el(e) .eq. 1) then
-            if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
-               min_vals(lx,:,:,e) = glb_max
-            else
-               min_vals(1,:,:,e) = glb_max
-            end if
-         end if
-         if (this%dir_el(e) .eq. 2) then
-            if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
-               min_vals(:,lx,:,e) = glb_max
-            else
-               min_vals(:,1,:,e) = glb_max
-            end if
-         end if
-         if (this%dir_el(e) .eq. 3) then
-            if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
-               min_vals(:,:,lx,e) = glb_max
-            else
-               min_vals(:,:,1,e) = glb_max
-            end if
-         end if
-      end do
-      if (NEKO_BCKND_DEVICE .eq. 1) &
+       i = i + 1
+       do e = 1, nelv
+          !Sets the value at the bottom of each element to glb_max
+          if (this%dir_el(e) .eq. 1) then
+             if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
+                min_vals(lx,:,:,e) = glb_max
+             else
+                min_vals(1,:,:,e) = glb_max
+             end if
+          end if
+          if (this%dir_el(e) .eq. 2) then
+             if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
+                min_vals(:,lx,:,e) = glb_max
+             else
+                min_vals(:,1,:,e) = glb_max
+             end if
+          end if
+          if (this%dir_el(e) .eq. 3) then
+             if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
+                min_vals(:,:,lx,e) = glb_max
+             else
+                min_vals(:,:,1,e) = glb_max
+             end if
+          end if
+       end do
+       if (NEKO_BCKND_DEVICE .eq. 1) &
          call device_memcpy(min_vals, min_vals_d, n,&
                             HOST_TO_DEVICE, sync=.false.)
-      !Propagates the minumum value along the element boundary.
-      call gs%op(min_vals,n,GS_OP_MIN)
-      if (NEKO_BCKND_DEVICE .eq. 1) &
+       !Propagates the minumum value along the element boundary.
+       call gs%op(min_vals,n,GS_OP_MIN)
+       if (NEKO_BCKND_DEVICE .eq. 1) &
           call device_memcpy(min_vals, min_vals_d, n,&
                              DEVICE_TO_HOST, sync=.true.)
-      !Checks the new minimum value on each element
-      !Assign this value to all points in this element in min_val
-      !If the element has not already been assinged a level, 
-      !and it has obtained the minval, set el_lvl = i
-      do e = 1, nelv
-         el_min = minval(min_vals(:,:,:,e))
-         min_vals(:,:,:,e) = el_min
-         if (relcmp(el_min, glb_min, this%tol)) then
-            if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
-         end if
-      end do
+       !Checks the new minimum value on each element
+       !Assign this value to all points in this element in min_val
+       !If the element has not already been assinged a level,
+       !and it has obtained the minval, set el_lvl = i
+       do e = 1, nelv
+          el_min = minval(min_vals(:,:,:,e))
+          min_vals(:,:,:,e) = el_min
+          if (relcmp(el_min, glb_min, this%tol)) then
+             if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
+          end if
+       end do
     end do
     this%n_el_lvls = glimax(this%el_lvl,nelv)
     write(*,*) 'number of element levels', this%n_el_lvls
@@ -171,28 +171,28 @@ contains
     !and its orientation
     do e = 1, nelv
        do i = 1, lx
-         lvl = lx * (this%el_lvl(e) - 1) + i
-         if (this%dir_el(e) .eq. 1) then
-            if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
-               this%pt_lvl(lx-i+1,:,:,e) = lvl
-            else
-               this%pt_lvl(i,:,:,e) = lvl
-            end if
-         end if
-         if (this%dir_el(e) .eq. 2) then
-            if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
-               this%pt_lvl(:,lx-i+1,:,e) = lvl
-            else
-               this%pt_lvl(:,i,:,e) = lvl
-            end if
-         end if
-         if (this%dir_el(e) .eq. 3) then
-            if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
-               this%pt_lvl(:,:,lx-i+1,e) = lvl
-            else
-               this%pt_lvl(:,:,i,e) = lvl
-            end if
-         end if
+          lvl = lx * (this%el_lvl(e) - 1) + i
+          if (this%dir_el(e) .eq. 1) then
+             if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
+                this%pt_lvl(lx-i+1,:,:,e) = lvl
+             else
+                this%pt_lvl(i,:,:,e) = lvl
+             end if
+          end if
+          if (this%dir_el(e) .eq. 2) then
+             if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
+                this%pt_lvl(:,lx-i+1,:,e) = lvl
+             else
+                this%pt_lvl(:,i,:,e) = lvl
+             end if
+          end if
+          if (this%dir_el(e) .eq. 3) then
+             if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
+                this%pt_lvl(:,:,lx-i+1,e) = lvl
+             else
+                this%pt_lvl(:,:,i,e) = lvl
+             end if
+          end if
        end do
     end do
     call device_deassociate(min_vals)

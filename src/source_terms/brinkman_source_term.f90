@@ -158,11 +158,11 @@ contains
 
        call json_get(object_settings, 'type', object_type)
        select case (object_type)
-         case ('boundary_mesh')
+       case ('boundary_mesh')
           call this%init_boundary_mesh(object_settings)
-         case ('point_zone')
+       case ('point_zone')
           call this%init_point_zone(object_settings)
-         case default
+       case default
           call neko_error('Unknown region type')
        end select
 
@@ -172,9 +172,9 @@ contains
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     select case (filter_type)
-      case ('none')
+    case ('none')
        ! Do nothing
-      case default
+    case default
        call neko_error('Unknown filter type')
     end select
 
@@ -182,7 +182,7 @@ contains
     ! Compute the permeability field
 
     call permeability_field(this%brinkman, this%indicator, &
-      & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
+    & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
 
     ! Copy the permeability field to the device
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -275,20 +275,20 @@ contains
 
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
-      case ('smooth_step')
+    case ('smooth_step')
        call json_get(json, 'distance_transform.value', scalar)
 
        call signed_distance_field(temp_field, boundary_mesh, scalar)
        call smooth_step_field(temp_field, scalar, 0.0_rp)
 
-      case ('step')
+    case ('step')
 
        call json_get(json, 'distance_transform.value', scalar)
 
        call signed_distance_field(temp_field, boundary_mesh, scalar)
        call step_function_field(temp_field, scalar, 1.0_rp, 0.0_rp)
 
-      case default
+    case default
        call neko_error('Unknown distance transform')
     end select
 
@@ -297,9 +297,9 @@ contains
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     select case (filter_type)
-      case ('none')
+    case ('none')
        ! Do nothing
-      case default
+    case default
        call neko_error('Unknown filter type')
     end select
 
@@ -348,9 +348,9 @@ contains
     ! Run filter on the temporary indicator field to smooth it out.
 
     select case (filter_type)
-      case ('none')
+    case ('none')
        ! Do nothing
-      case default
+    case default
        call neko_error('Unknown filter type')
     end select
 

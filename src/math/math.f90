@@ -124,7 +124,7 @@ contains
     real(kind=sp), intent(in) :: x
     real(kind=sp), intent(in) :: y
     real(kind=sp), intent(in), optional :: eps
-    logical :: srelcmp 
+    logical :: srelcmp
     if (present(eps)) then
        srelcmp = abs(x - y) .le. eps*abs(y)
     else
@@ -138,7 +138,7 @@ contains
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
     real(kind=dp), intent(in), optional :: eps
-    logical :: drelcmp 
+    logical :: drelcmp
     if (present(eps)) then
        drelcmp = abs(x - y) .le. eps*abs(y)
     else
@@ -153,7 +153,7 @@ contains
     real(kind=qp), intent(in) :: x
     real(kind=qp), intent(in) :: y
     real(kind=qp), intent(in), optional :: eps
-    logical :: qrelcmp 
+    logical :: qrelcmp
     if (present(eps)) then
        qrelcmp = abs(x - y)/abs(y) .lt. eps
     else
@@ -283,9 +283,9 @@ contains
     call MPI_Allreduce(tmp, glmax, 1, &
          MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
   end function glmax
-   
-  !>Max of an integer vector of length n 
-  function glimax(a, n) 
+
+  !>Max of an integer vector of length n
+  function glimax(a, n)
     integer, intent(in) :: n
     integer, dimension(n) :: a
     integer :: tmp, glimax
@@ -297,7 +297,7 @@ contains
     call MPI_Allreduce(tmp, glimax, 1, &
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
   end function glimax
-  
+
   !>Min of a vector of length n
   function glmin(a, n)
     integer, intent(in) :: n
@@ -312,8 +312,8 @@ contains
          MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
   end function glmin
 
-  !>Min of an integer vector of length n 
-  function glimin(a, n) 
+  !>Min of an integer vector of length n
+  function glimin(a, n)
     integer, intent(in) :: n
     integer, dimension(n) :: a
     integer :: tmp, glimin
@@ -351,7 +351,7 @@ contains
        tmax = max(tmax,vec(i))
     end do
   end function vlmax
-  
+
   !> minimun value of a vector of length @a n
   function vlmin(vec,n) result(tmin)
     integer, intent(in) :: n
@@ -360,7 +360,7 @@ contains
     integer :: i
     tmin = real(99.0e20, rp)
     do i=1,n
-         tmin = min(tmin,vec(i))
+       tmin = min(tmin,vec(i))
     end do
   end function vlmin
 
@@ -870,5 +870,5 @@ contains
        ind(i) = ii
     end do
   end subroutine sort
-  
+
 end module math

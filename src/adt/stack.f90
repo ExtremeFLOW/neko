@@ -230,11 +230,11 @@ contains
   end function stack_size
 
   !> Return true if the stack is empty
-   pure function stack_is_empty(this) result(is_empty)
-      class(stack_t), intent(in) :: this
-      logical :: is_empty
-      is_empty = this%top_ .eq. 0
-   end function stack_is_empty
+  pure function stack_is_empty(this) result(is_empty)
+    class(stack_t), intent(in) :: this
+    logical :: is_empty
+    is_empty = this%top_ .eq. 0
+  end function stack_is_empty
 
   !> Push data onto the stack
   subroutine stack_push(this, data)

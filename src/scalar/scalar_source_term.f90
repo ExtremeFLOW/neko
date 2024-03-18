@@ -124,8 +124,8 @@ contains
               (trim(type) .eq. "user_pointwise")) then
              if (source_subdict%valid_path("start_time") .or. &
                  source_subdict%valid_path("end_time")) then
-                 call neko_warning("The start_time and end_time parameters have&
-                                    & no effect on the scalar user source term")
+                call neko_warning("The start_time and end_time parameters have&
+                & no effect on the scalar user source term")
              end if
 
              call init_user_source(this%source_terms(i)%source_term, &

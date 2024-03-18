@@ -248,14 +248,14 @@ contains
 
     if (this%is_leaf()) then
        valid = &
-         & this%left_node_index .eq. AABB_NULL_NODE .and. &
-         & this%right_node_index .eq. AABB_NULL_NODE .and. &
-         & this%object_index .gt. 0
+       & this%left_node_index .eq. AABB_NULL_NODE .and. &
+       & this%right_node_index .eq. AABB_NULL_NODE .and. &
+       & this%object_index .gt. 0
     else
        valid = &
-         & this%left_node_index .ne. AABB_NULL_NODE .and. &
-         & this%right_node_index .ne. AABB_NULL_NODE .and. &
-         & this%object_index .eq. -1
+       & this%left_node_index .ne. AABB_NULL_NODE .and. &
+       & this%right_node_index .ne. AABB_NULL_NODE .and. &
+       & this%object_index .eq. -1
     end if
 
   end function aabb_node_is_valid
@@ -703,9 +703,9 @@ contains
 
        new_parent_node_cost = 2.0_rp * combined_aabb%get_surface_area()
        minimum_push_down_cost = 2.0_rp * ( &
-         & combined_aabb%get_surface_area() &
-         & - tree_node%aabb%get_surface_area()&
-         & )
+       & combined_aabb%get_surface_area() &
+       & - tree_node%aabb%get_surface_area()&
+       & )
 
        ! use the costs to figure out whether to create a new parent here or
        ! descend
@@ -715,9 +715,9 @@ contains
        else
           new_left_aabb = merge(leaf_node%aabb, left_node%get_aabb())
           cost_left = ( &
-            & new_left_aabb%get_surface_area() &
-            & - left_node%aabb%get_surface_area()&
-            & ) + minimum_push_down_cost
+          & new_left_aabb%get_surface_area() &
+          & - left_node%aabb%get_surface_area()&
+          & ) + minimum_push_down_cost
        end if
 
        if (right_node%is_leaf()) then
@@ -726,9 +726,9 @@ contains
        else
           new_right_aabb = merge(leaf_node%aabb, right_node%aabb)
           cost_right = ( &
-            & new_right_aabb%get_surface_area() &
-            & - right_node%aabb%get_surface_area() &
-            & ) + minimum_push_down_cost
+          & new_right_aabb%get_surface_area() &
+          & - right_node%aabb%get_surface_area() &
+          & ) + minimum_push_down_cost
        end if
 
        ! if the cost of creating a new parent node here is less than descending

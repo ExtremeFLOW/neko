@@ -80,7 +80,7 @@ contains
 
     allocate(this%fields%fields(nfields))
 
-   end subroutine fld_file_output_init
+  end subroutine fld_file_output_init
 
   !> Writes the data.
   !! @param t The time value.
