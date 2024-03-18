@@ -367,10 +367,10 @@ contains
 
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
+      if (tstep .gt. ext_bdf%diffusion_time_order+1 .and. projection_dim .gt. 0) then
          if (if_variable_dt .and. dt_last_change .eq. 0) then
             call this%proj_s%clear(n)
-         else if (if_variable_dt .and. dt_last_change .gt. 5 &
+         else if (if_variable_dt .and. dt_last_change .gt. ext_bdf%diffusion_time_order &
             .or. (.not. if_variable_dt)) then
             call this%proj_s%project_on(s_res%x, c_Xh, n)
          end if
@@ -382,8 +382,8 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
-         if (.not.(if_variable_dt .and. dt_last_change .lt. 5)) then
+      if (tstep .gt. ext_bdf%diffusion_time_order .and. projection_dim .gt. 0) then
+         if (.not.(if_variable_dt .and. dt_last_change .lt. ext_bdf%diffusion_time_order)) then
             call this%proj_s%project_back(ds%x, Ax, c_Xh, &
                   this%bclst_ds, gs_Xh, n)
          end if
