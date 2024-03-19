@@ -41,8 +41,8 @@ module time_step_controller
   type, public :: time_step_controller_t
      !> Components recording time stepping info
      logical :: if_variable_dt
-     real(kind=rp) :: set_cfl = 0.4_rp
-     real(kind=rp) :: max_dt = 99999999_rp
+     real(kind=rp) :: set_cfl
+     real(kind=rp) :: max_dt
      integer :: max_update_frequency
      integer :: dt_last_change
      real(kind=rp) :: alpha !coefficient of running average
@@ -65,8 +65,11 @@ contains
     logical :: found
 
     this%dt_last_change = 0
-    call C%params%get('case.max_timestep', this%max_dt, found)
-    call C%params%get('case.constant_cfl', this%set_cfl, this%if_variable_dt)
+    call C%params%get('case.variable_timestep', this%if_variable_dt, found)
+    call json_get_or_default(C%params, 'case.target_cfl',&
+                                    this%set_cfl, 0.4_rp)
+    call json_get_or_default(C%params, 'case.max_timestep',&
+                                    this%max_dt, 99999999.0_rp)
     call json_get_or_default(C%params, 'case.cfl_max_update_frequency',&
                                     this%max_update_frequency, 0)
     call json_get_or_default(C%params, 'case.cfl_running_avg_coeff',&

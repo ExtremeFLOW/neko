@@ -176,7 +176,8 @@ contains
     !
     ! Time step
     !
-    call json_get(C%params, 'case.timestep', C%dt)
+    call C%params%get('case.variable_timestep', logical_val, found)
+    if (.not. logical_val) call json_get(C%params, 'case.timestep', C%dt)
 
     !
     ! End time

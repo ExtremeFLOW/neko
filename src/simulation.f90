@@ -65,8 +65,7 @@ contains
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
     ! for variable_tsteping
-    real(kind=rp) :: cfl_avrg = 0_rp
-    real(kind=rp) :: set_cfl
+    real(kind=rp) :: cfl_avrg = 0.0_rp
     type(time_step_controller_t) :: dt_controller
 
     t = 0d0
@@ -79,7 +78,8 @@ contains
        write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
        call neko_log%message(log_buf)
     else
-       write(log_buf,'(A, E15.7)') 'CFL :  ', set_cfl
+       C%dt = dt_controller%max_dt ! set up an initial dt to start the simulation 
+       write(log_buf,'(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
        call neko_log%message(log_buf)
     end if
 
