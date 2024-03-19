@@ -32,7 +32,7 @@
 !
 !> Implements the `brinkman_source_term_t` type.
 module brinkman_source_term
-  use num_types, only: rp
+  use num_types, only: rp, dp
   use field, only: field_t
   use field_list, only: field_list_t
   use json_module, only: json_file
@@ -242,7 +242,7 @@ contains
     type(file_t) :: mesh_file
     type(tri_mesh_t) :: boundary_mesh
     real(kind=rp) :: scalar_r
-    real(kind=rp) :: scalar_d
+    real(kind=dp) :: scalar_d
 
     type(field_t) :: temp_field
 
