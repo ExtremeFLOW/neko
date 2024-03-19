@@ -89,7 +89,7 @@ module neko
   use spectral_error_indicator
   use system
   use drag_torque
-  use field_registry, only : neko_field_registry    
+  use field_registry, only : neko_field_registry
   use scratch_registry, only : neko_scratch_registry
   use simcomp_executor, only : neko_simcomps
   use data_streamer
@@ -99,6 +99,7 @@ module neko
   use box_point_zone, only: box_point_zone_t
   use sphere_point_zone, only: sphere_point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
+  use json_utils
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
