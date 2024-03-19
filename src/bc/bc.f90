@@ -287,7 +287,7 @@ contains
     if(trim(bc_key) .eq. 'o' .or. trim(bc_key) .eq. 'on' &
        .or. trim(bc_key) .eq. 'o+dong' .or. trim(bc_key) .eq. 'on+dong') then
        msh_bc_type = 1
-    else if(trim(bc_key) .eq. 'd_p') then
+    else if(trim(bc_key) .eq. 'd_pres') then
        msh_bc_type = 1
     else if(trim(bc_key) .eq. 'w') then
        msh_bc_type = 2
