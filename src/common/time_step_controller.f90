@@ -40,11 +40,11 @@ module time_step_controller
   !> Provides a tool to set time step dt
   type, public :: time_step_controller_t
      !> Components recording time stepping info
-     logical :: if_variable_dt = .false.
-     real(kind=rp) :: set_cfl = 0.0_rp
-     real(kind=rp) :: max_dt = 0.0_rp
-     integer :: max_update_frequency = 1
-     integer :: dt_last_change = 0
+     logical :: if_variable_dt
+     real(kind=rp) :: set_cfl = 0.4_rp
+     real(kind=rp) :: max_dt = 99999999_rp
+     integer :: max_update_frequency
+     integer :: dt_last_change
    contains
      !> Initialize object.
      procedure, pass(this) :: init => time_step_controller_init
@@ -66,7 +66,7 @@ contains
     call C%params%get('case.timestep', this%max_dt, found)
     call C%params%get('case.constant_cfl', this%set_cfl, this%if_variable_dt)
     call json_get_or_default(C%params, 'case.cfl_max_update_frequency',&
-                                    this%max_update_frequency, 1)
+                                    this%max_update_frequency, 0)
 
   end subroutine time_step_controller_init
 
@@ -101,9 +101,11 @@ contains
              this%dt_last_change .ge. this%max_update_frequency) then
 
              if (this%set_cfl/cfl .ge. 1) then 
+                ! increase of time step
                 scaling_factor = min(1.2_rp, this%set_cfl/cfl) 
              else
-                scaling_factor = max(0.8_rp, this%set_cfl/cfl) 
+                ! reduction of time step
+                scaling_factor = max(0.5_rp, this%set_cfl/cfl) 
              end if
 
              dt_old = C%dt
