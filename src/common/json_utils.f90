@@ -32,7 +32,7 @@
 !
 !> Utilities for retrieving parameters from the case files.
 module json_utils
-  use num_types, only : rp
+  use num_types, only : rp, dp, sp
   use json_module, only : json_file, json_value, json_core
   use utils, only : neko_error
   implicit none
@@ -42,8 +42,8 @@ module json_utils
 
   !> Retrieves a parameter by name or throws an error
   interface json_get
-     module procedure json_get_real, json_get_integer, json_get_logical, &
-                     json_get_string, json_get_real_array, &
+     module procedure json_get_real, json_get_double, json_get_integer, &
+                     json_get_logical, json_get_string, json_get_real_array, &
                      json_get_integer_array, json_get_logical_array, &
                      json_get_string_array
   end interface json_get
@@ -51,7 +51,8 @@ module json_utils
   !> Retrieves a parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json
   interface json_get_or_default
-     module procedure json_get_or_default_real, json_get_or_default_integer,&
+     module procedure json_get_or_default_real,json_get_or_default_double, &
+                     json_get_or_default_integer, &
                      json_get_or_default_string, json_get_or_default_logical
   end interface json_get_or_default
 
@@ -64,7 +65,7 @@ contains
   subroutine json_get_real(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
-    real(kind=rp), intent(out) :: value
+    real(kind=sp), intent(out) :: value
     logical :: found
 
     call json%get(name, value, found)
@@ -73,6 +74,23 @@ contains
        call neko_error("Parameter "//name//" missing from the case file")
     end if
   end subroutine json_get_real
+  
+  !> Retrieves a double precision real parameter by name or throws an error
+  !! @param json The json to retrieve the parameter from.
+  !! @param name The full path to the parameter.
+  !! @value value The variable to be populated with the retrieved parameter.
+  subroutine json_get_double(json, name, value)
+   type(json_file), intent(inout) :: json
+   character(len=*), intent(in) :: name
+   real(kind=dp), intent(out) :: value
+   logical :: found
+
+   call json%get(name, value, found)
+
+   if (.not. found) then
+      call neko_error("Parameter "//name//" missing from the case file")
+   end if
+ end subroutine json_get_double
 
   !> Retrieves an integer parameter by name or throws an error
   !! @param json The json to retrieve the parameter from.
@@ -228,8 +246,8 @@ contains
   subroutine json_get_or_default_real(json, name, value, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
-    real(kind=rp), intent(out) :: value
-    real(kind=rp), intent(in) :: default
+    real(kind=sp), intent(out) :: value
+    real(kind=sp), intent(in) :: default
     logical :: found
 
     call json%get(name, value, found)
@@ -239,6 +257,26 @@ contains
        call json%add(name, value)
     end if
   end subroutine json_get_or_default_real
+  
+  !> Retrieves a real parameter by name or assigns a provided default value.
+  !! In the latter case also adds the missing paramter to the json.
+  !! @param json The json to retrieve the parameter from.
+  !! @param name The full path to the parameter.
+  !! @value value The variable to be populated with the retrieved parameter.
+  subroutine json_get_or_default_double(json, name, value, default)
+   type(json_file), intent(inout) :: json
+   character(len=*), intent(in) :: name
+   real(kind=dp), intent(out) :: value
+   real(kind=dp), intent(in) :: default
+   logical :: found
+
+   call json%get(name, value, found)
+
+   if (.not. found) then
+      value = default
+      call json%add(name, value)
+   end if
+ end subroutine json_get_or_default_double
 
   !> Retrieves an integer parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json.
