@@ -367,11 +367,16 @@ contains
 
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
-         if (if_variable_dt .and. dt_last_change .eq. 0) then
-            call this%proj_s%clear(n)
-         else if (if_variable_dt .and. dt_last_change .gt. 4 &
-            .or. (.not. if_variable_dt)) then
+      if (tstep .gt. this%proj_s%activ_step .and. projection_dim .gt. 0) then
+         if (if_variable_dt) then
+            if (dt_last_change .eq. 0) then ! the time step at which dt is changed
+               call this%proj_s%clear(n) 
+            else if (dt_last_change .gt. this%proj_s%activ_step - 1) then
+               ! activate projection some steps after dt is changed
+               ! note that dt_last_change start from 0
+               call this%proj_s%project_on(s_res%x, c_Xh, n)
+            end if
+         else
             call this%proj_s%project_on(s_res%x, c_Xh, n)
          end if
       end if
@@ -382,10 +387,13 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
-      if (tstep .gt. 4 .and. projection_dim .gt. 0) then
-         if (.not.(if_variable_dt .and. dt_last_change .lt. 4)) then
+      if (tstep .gt. this%proj_s%activ_step .and. projection_dim .gt. 0) then
+         if (.not.(if_variable_dt) .or. &
+            (dt_last_change .gt. this%proj_s%activ_step - 1)) then
+
             call this%proj_s%project_back(ds%x, Ax, c_Xh, &
                   this%bclst_ds, gs_Xh, n)
+         
          end if
       end if
 
