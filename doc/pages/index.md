@@ -30,6 +30,8 @@ Technology.
 
 \subpage statistics-guide
 
+\subpage io
+
 \subpage code-style
  
 \subpage dev_patterns

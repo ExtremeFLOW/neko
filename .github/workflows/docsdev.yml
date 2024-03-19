@@ -5,9 +5,11 @@ on:
     # * is a special character in YAML so you have to quote this string
     - cron:  '30 03 * * *'
 #  workflow_dispatch:
-  
+
 jobs:
   build-dev-documentation:
+    # This workflow runs only on the official repository.
+    if: github.repository == 'ExtremeFLOW/neko'
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +30,7 @@ jobs:
         ./regen.sh
         ./configure FC=${FC}
         make html
-    
+
     # Deploy the HTML documentation to GitHub Pages
     - name: GH Pages Deployment
       uses: peaceiris/actions-gh-pages@v3
