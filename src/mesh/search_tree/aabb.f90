@@ -189,8 +189,7 @@ contains
        box = get_aabb_element(object, padding)
 
       class default
-       print *, "Error: get_aabb not implemented for this type"
-       stop
+       call neko_error("get_aabb: Unsupported object type")
     end select
 
   end function get_aabb
