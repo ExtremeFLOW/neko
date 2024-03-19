@@ -62,10 +62,10 @@ contains
   subroutine time_step_controller_init(this, C)
     class(time_step_controller_t), intent(inout) :: this
     type(case_t), intent(inout) :: C
-    logical :: found
 
     this%dt_last_change = 0
-    call C%params%get('case.variable_timestep', this%if_variable_dt, found)
+    call json_get_or_default(C%params, 'case.variable_timestep',&
+                                    this%if_variable_dt, .false.)
     call json_get_or_default(C%params, 'case.target_cfl',&
                                     this%set_cfl, 0.4_rp)
     call json_get_or_default(C%params, 'case.max_timestep',&
