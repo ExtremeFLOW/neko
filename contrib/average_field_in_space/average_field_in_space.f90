@@ -28,9 +28,13 @@ program average_field_in_space
   if ((argc .lt. 4) .or. (argc .gt. 4)) then
      if (pe_rank .eq. 0) then
         write(*,*) 'Usage: ./average_field_in_space mesh.nmsh field.fld dir(x, y, z, xz, xy, yz)  outfield.(fld,csv)' 
+        write(*,*) '----'
         write(*,*) 'Example command for avg in 1 direction: ./average_field_in_space mesh.nmsh fieldblabla.fld x  outfield.fld'
-        write(*,*) 'Computes the spatial average in 2 directions diretly of the field fieldblabla.nek5000 and stores in out.csv'
+        write(*,*) 'Computes spatial average in 1 direction and saves it in outfield.fld'
+        write(*,*) '----'
         write(*,*) 'Example command: ./average_field_in_space mesh.nmsh fieldblabla.fld xy  out.csv'
+        write(*,*) 'Computes the spatial average in 2 directions diretly of the field fieldblabla.nek5000 and stores in out.csv'
+        write(*,*) '----'
         write(*,*) 'In out.csv the firsct col are the coords of the gll points'
         write(*,*) 'In columns 2-n_fields are the averages for all fields in fieldblabla.fld'
         write(*,*) 'If averaging in 2 directions output must be .csv and for 1 direction .fld'
