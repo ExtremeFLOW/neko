@@ -97,6 +97,8 @@ module scalar_scheme
      integer :: ksp_maxiter
      !> Projection space size.
      integer :: projection_dim
+     !< Steps to activate projection for ksp
+     integer :: projection_activ_step   
      !> Preconditioner.
      class(pc_t), allocatable :: pc
      !> Dirichlet conditions.
@@ -325,6 +327,9 @@ contains
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
                             this%projection_dim, 20)
+    call json_get_or_default(params, &
+                            'case.fluid.velocity_solver.projection_hold_steps',&
+                            this%projection_activ_step, 5)
 
 
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)

@@ -195,7 +195,8 @@ contains
 
     ! Intialize projection space
     if (this%projection_dim .gt. 0) then
-       call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
+       call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
+                            this%projection_activ_step)
     end if
 
     ! Add lagged term to checkpoint
