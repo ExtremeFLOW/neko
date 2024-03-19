@@ -241,7 +241,8 @@ contains
 
     type(file_t) :: mesh_file
     type(tri_mesh_t) :: boundary_mesh
-    real(kind=rp) :: scalar
+    real(kind=rp) :: scalar_r
+    real(kind=rp) :: scalar_d
 
     type(field_t) :: temp_field
 
@@ -276,17 +277,18 @@ contains
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
       case ('smooth_step')
-       call json_get(json, 'distance_transform.value', scalar)
+       call json_get(json, 'distance_transform.value', scalar_d)
+       scalar_r = real(scalar_d, kind=rp)
 
-       call signed_distance_field(temp_field, boundary_mesh, scalar)
-       call smooth_step_field(temp_field, scalar, 0.0_rp)
+       call signed_distance_field(temp_field, boundary_mesh, scalar_d)
+       call smooth_step_field(temp_field, scalar_r, 0.0_rp)
 
       case ('step')
 
-       call json_get(json, 'distance_transform.value', scalar)
+       call json_get(json, 'distance_transform.value', scalar_d)
 
-       call signed_distance_field(temp_field, boundary_mesh, scalar)
-       call step_function_field(temp_field, scalar, 1.0_rp, 0.0_rp)
+       call signed_distance_field(temp_field, boundary_mesh, scalar_d)
+       call step_function_field(temp_field, scalar_r, 1.0_rp, 0.0_rp)
 
       case default
        call neko_error('Unknown distance transform')
