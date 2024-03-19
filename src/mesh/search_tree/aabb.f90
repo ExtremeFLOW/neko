@@ -242,7 +242,7 @@ contains
 
     this%box_min = lower_left_front
     this%box_max = upper_right_back
-    this%center = (this%box_min + this%box_max) / 2.0_rp
+    this%center = (this%box_min + this%box_max) / 2.0_dp
     this%diameter = norm2(this%box_max - this%box_min)
 
     this%initialized = .true.
@@ -366,10 +366,10 @@ contains
     real(kind=dp) :: distance
 
     if (.not. this%initialized) then
-       distance = huge(0.0_rp)
+       distance = huge(0.0_dp)
     end if
 
-    distance = this%get_diameter() / 2.0_rp - norm2(this%get_center() - p)
+    distance = this%get_diameter() / 2.0_dp - norm2(this%get_center() - p)
   end function aabb_min_distance
 
   ! ========================================================================== !
