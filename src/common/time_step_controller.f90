@@ -45,6 +45,8 @@ module time_step_controller
      real(kind=rp) :: max_dt = 99999999_rp
      integer :: max_update_frequency
      integer :: dt_last_change
+     real(kind=rp) :: alpha !coefficient of running average
+     real(kind=rp) :: max_dt_increase_factor, min_dt_decrease_factor
    contains
      !> Initialize object.
      procedure, pass(this) :: init => time_step_controller_init
@@ -63,10 +65,16 @@ contains
     logical :: found
 
     this%dt_last_change = 0
-    call C%params%get('case.timestep', this%max_dt, found)
+    call C%params%get('case.max_timestep', this%max_dt, found)
     call C%params%get('case.constant_cfl', this%set_cfl, this%if_variable_dt)
     call json_get_or_default(C%params, 'case.cfl_max_update_frequency',&
                                     this%max_update_frequency, 0)
+    call json_get_or_default(C%params, 'case.cfl_running_avg_coeff',&
+                                    this%alpha, 0.5_rp)
+    call json_get_or_default(C%params, 'case.max_dt_increase_factor',&
+                                    this%max_dt_increase_factor, 1.2_rp)
+    call json_get_or_default(C%params, 'case.min_dt_decrease_factor',&
+                                    this%min_dt_decrease_factor, 0.5_rp)
 
   end subroutine time_step_controller_init
 
@@ -86,7 +94,6 @@ contains
     real(kind=rp), intent(inout) :: cfl_avrg
     real(kind=rp) :: dt_old, scaling_factor
     character(len=LOG_SIZE) :: log_buf    
-    real(kind=rp) :: alpha = 0.5_rp !coefficient of running average
     integer, intent(in):: tstep
 
     if (this%if_variable_dt .eqv. .true.) then
@@ -95,17 +102,17 @@ contains
           C%dt = min(this%set_cfl/cfl*C%dt, this%max_dt)
        else
           ! Calculate the average of cfl over the desired interval
-          cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
+          cfl_avrg = this%alpha * cfl + (1-this%alpha) * cfl_avrg
 
           if (abs(cfl_avrg - this%set_cfl) .ge. 0.2*this%set_cfl .and. &
              this%dt_last_change .ge. this%max_update_frequency) then
 
              if (this%set_cfl/cfl .ge. 1) then 
                 ! increase of time step
-                scaling_factor = min(1.2_rp, this%set_cfl/cfl) 
+                scaling_factor = min(this%max_dt_increase_factor, this%set_cfl/cfl) 
              else
                 ! reduction of time step
-                scaling_factor = max(0.5_rp, this%set_cfl/cfl) 
+                scaling_factor = max(this%min_dt_decrease_factor, this%set_cfl/cfl) 
              end if
 
              dt_old = C%dt
