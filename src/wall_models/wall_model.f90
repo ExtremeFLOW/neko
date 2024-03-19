@@ -42,6 +42,7 @@ module wall_model
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, HOST_TO_DEVICE
+  use vector, only : vector_t
   implicit none
   private
 
@@ -49,6 +50,16 @@ module wall_model
   type, abstract, public :: wall_model_t
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
+     !> The boundary condition mask.
+     integer, pointer :: msk(:) => null()
+     !> The boundary condition facet ids.
+     integer, pointer :: facet(:) => null()
+     !> The x component of the shear stress.
+     real(kind=rp), allocatable :: tau_x(:)
+     !> The y component of the shear stress.
+     real(kind=rp), allocatable :: tau_y(:)
+     !> The z component of the shear stress.
+     real(kind=rp), allocatable :: tau_z(:)
    contains
      !> Constructor for the wall_model_t (base) class.
      procedure, pass(this) :: init_base => wall_model_init_base
@@ -79,11 +90,13 @@ module wall_model
      !! @param dofmap SEM map of degrees of freedom.
      !! @param coef SEM coefficients.
      !! @param json A dictionary with parameters.
-     subroutine wall_model_init(this, dofmap, coef, json)
+     subroutine wall_model_init(this, dofmap, coef, msk, facet, json)
        import wall_model_t, json_file, dofmap_t, coef_t
        class(wall_model_t), intent(inout) :: this
-       type(coef_t), intent(in) :: coef
        type(dofmap_t), intent(in) :: dofmap
+       type(coef_t), intent(in) :: coef
+       integer, intent(in) :: msk(:)
+       integer, intent(in) :: facet(:)
        type(json_file), intent(inout) :: json
      end subroutine wall_model_init
   end interface
@@ -101,12 +114,20 @@ contains
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param nu_name The name of the turbulent viscosity field.
-  subroutine wall_model_init_base(this, dofmap, coef)
+  subroutine wall_model_init_base(this, dofmap, coef, msk, facet)
     class(wall_model_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), target, intent(in) :: coef
+    integer, target, intent(in) :: msk(:)
+    integer, target, intent(in) :: facet(:)
 
     this%coef => coef
+    this%msk => msk
+    this%facet => facet
+
+    allocate(this%tau_x(size(this%msk)))
+    allocate(this%tau_y(size(this%msk)))
+    allocate(this%tau_z(size(this%msk)))
 
   end subroutine wall_model_init_base
 
@@ -115,6 +136,18 @@ contains
     class(wall_model_t), intent(inout) :: this
 
     nullify(this%coef)
+    nullify(this%msk)
+    nullify(this%facet)
+
+    if (allocated(this%tau_x)) then
+      deallocate(this%tau_x)
+    end if
+    if (allocated(this%tau_y)) then
+      deallocate(this%tau_y)
+    end if
+    if (allocated(this%tau_z)) then
+      deallocate(this%tau_z)
+    end if
   end subroutine wall_model_free_base
 
 end module wall_model
