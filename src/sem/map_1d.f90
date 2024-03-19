@@ -9,7 +9,7 @@ module map_1d
   use device
   use comm
   use logger, only: neko_log, LOG_SIZE
-  use utils, only: neko_error
+  use utils, only: neko_error, neko_warning
   use math, only: glmax, glmin, glimax, glimin, relcmp
   use neko_mpi_types
   use, intrinsic :: iso_c_binding
@@ -59,7 +59,9 @@ contains
     call this%free()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error('map_1d not yet supported on device')
+        if (pe_rank .eq. 0) then
+           call neko_warning('map_1d does not copy indices to device, but ok if used on cpu')
+        end if
     end if
     
     this%dir = dir
@@ -166,7 +168,9 @@ contains
       end do
     end do
     this%n_el_lvls = glimax(this%el_lvl,nelv)
-    write(*,*) 'number of element levels', this%n_el_lvls
+    if ( pe_rank .eq. 0) then
+       write(*,*) 'Number of element levels', this%n_el_lvls
+    end if
     !Numbers the points in each element based on the element level
     !and its orientation
     do e = 1, nelv
