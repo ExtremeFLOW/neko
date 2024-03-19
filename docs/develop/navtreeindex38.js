@@ -1,5 +1,6 @@
 var NAVTREEINDEX38 =
 {
+"df/d77/namespacepoint__interpolator.html#ae10ae860d6ec95fb423e1b43ab5244cb":[4,0,175,4],
 "df/d77/namespacepoint__interpolator.html#af81d2b24f9d9cb447b62493589af79dc":[4,0,175,1],
 "df/d77/namespacepoint__interpolator.html#afc54d901f92f4340c294ced1ea3a5246":[4,0,175,3],
 "df/d7e/interfacedevice__math_1_1hip__cfill.html":[5,0,42,4],
@@ -33,7 +34,7 @@ var NAVTREEINDEX38 =
 "df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aa53b59c1c405887a1b3408e21bbb4801":[5,0,156,0,1],
 "df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#acec97723c5e2c32e459b067fd352bf65":[5,0,156,0,0],
 "df/d8f/statistics-guide.html":[0,7],
-"df/d8f/statistics-guide.html#autotoc_md50":[0,7,0],
+"df/d8f/statistics-guide.html#autotoc_md51":[0,7,0],
 "df/d96/opr__lambda2_8cu.html":[6,0,2,12,0,1,0,18],
 "df/d96/opr__lambda2_8cu.html#a2866935c460d99727321a9f4a0c91949":[6,0,2,12,0,1,0,18,0],
 "df/d96/opr__lambda2_8cu.html#a391aacbd26da5922ec80e721035d44cc":[6,0,2,12,0,1,0,18,2],
@@ -248,6 +249,5 @@ var NAVTREEINDEX38 =
 "df/dec/namespacetuple.html#a8457b98dd189ee086551daf3c6ba3660":[4,0,251,20],
 "df/dec/namespacetuple.html#a99e25051bf65920f6081468a855afee7":[4,0,251,22],
 "df/dec/namespacetuple.html#aa39695b0ad1b70618478c0a20557bb56":[4,0,251,14],
-"df/dec/namespacetuple.html#ab123f582cfb7df91298d65a197a70288":[4,0,251,21],
-"df/dec/namespacetuple.html#acda28852fd50fc1126b2f21218ba6178":[4,0,251,18]
+"df/dec/namespacetuple.html#ab123f582cfb7df91298d65a197a70288":[4,0,251,21]
 };

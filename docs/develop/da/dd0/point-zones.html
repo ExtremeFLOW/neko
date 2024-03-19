@@ -96,13 +96,13 @@ $(document).ready(function(){initNavTree('da/dd0/point-zones.html','../../'); in
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_pages_point_zones"></a></p>
-<h1><a class="anchor" id="autotoc_md27"></a>
+<h1><a class="anchor" id="autotoc_md28"></a>
 What are point zones?</h1>
 <p>Point zones are subsections of the computational domain which are selected based on a given geometrical criterion. A point zone is defined by the <code>point_zone_t</code> abstract type. Each <code>point_zone_t</code> object has a unique <code>name</code> attribute, and a <code>mask</code> containing a list of linear indices referring to the GLL points whose coordinates verify the above-mentioned geometrical criterion. Zones can then be used for different purposes, an example being applying a localized source term or probing a particular zone of interest.</p>
-<h1><a class="anchor" id="autotoc_md28"></a>
+<h1><a class="anchor" id="autotoc_md29"></a>
 Predefined geometrical shapes</h1>
 <p>There are three predefined shapes from which to initialize a point zone in the case file: boxes, spheres and cylinders. Each shape is described by its own subtype <code>box_point_zone_t</code>, <code>sphere_point_zone_t</code> and <code>cylinder_point_zone_t</code>, extending the abstract class <code>point_zone_t</code>.</p>
-<h2><a class="anchor" id="autotoc_md29"></a>
+<h2><a class="anchor" id="autotoc_md30"></a>
 Box</h2>
 <p>A box is defined from its <code>x,y</code> and <code>z</code> boundaries.</p>
 <div class="fragment"><div class="line">[</div>
@@ -114,7 +114,7 @@ Box</h2>
 <div class="line">        &quot;z_bounds&quot;: [-1.0, 1.0]</div>
 <div class="line">    }</div>
 <div class="line">]</div>
-</div><!-- fragment --> <h2><a class="anchor" id="autotoc_md30"></a>
+</div><!-- fragment --> <h2><a class="anchor" id="autotoc_md31"></a>
 Sphere</h2>
 <p>A sphere is defined by its center and its radius.</p>
 <div class="fragment"><div class="line">[</div>
@@ -125,7 +125,7 @@ Sphere</h2>
 <div class="line">        &quot;radius&quot;: 0.01</div>
 <div class="line">    },</div>
 <div class="line">]</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md31"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md32"></a>
 Cylinder</h2>
 <p>A cylinder is defined by its end points and its radius.</p>
 <div class="fragment"><div class="line">[</div>
@@ -137,7 +137,7 @@ Cylinder</h2>
 <div class="line">        &quot;radius&quot;: 0.01</div>
 <div class="line">    },</div>
 <div class="line">]</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md32"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md33"></a>
 User-defined geometrical shapes</h1>
 <p>The current version of Neko does not support user-defined shapes from the case file. That said, shapes can be defined manually into new types by extending <code>point_zone_t</code> and implementing the abstract <code>criterion</code> interface.</p>
 <h1><a class="anchor" id="point-zones_using-point-zones"></a>
@@ -164,7 +164,7 @@ Using point zones</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Mon Mar 18 2024 03:34:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Mar 19 2024 03:34:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

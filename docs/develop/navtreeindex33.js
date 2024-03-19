@@ -1,5 +1,6 @@
 var NAVTREEINDEX33 =
 {
+"dd/d8c/namespacetensor.html#aa50503d37312ded5c29134df83216e65":[4,0,237,5],
 "dd/d8c/namespacetensor.html#afb27d9f86d0c3799290bb235cbad97df":[4,0,237,7],
 "dd/d8c/structstructs_1_1array__ptr__t.html":[5,0,180,1],
 "dd/d8c/structstructs_1_1array__ptr__t.html#ac3ea145aab83c38b6741142db9b05bbf":[5,0,180,1,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX33 =
 "dd/dd4/hip_2dudxyz__kernel_8h.html#a2cfa915b570e0c40a7cefc12cfa2b698":[6,0,2,12,0,1,1,5,5],
 "dd/dd4/hip_2dudxyz__kernel_8h.html#a2e6dcd4f2f84fd9753fb5c2f71a49da7":[6,0,2,12,0,1,1,5,20],
 "dd/dd4/hip_2dudxyz__kernel_8h.html#a3e11a80408df26c616ebd9ac3c50da66":[6,0,2,12,0,1,1,5,6],
-"dd/dd4/hip_2dudxyz__kernel_8h.html#a48933f3e6d864c65301c4708fe39e247":[6,0,2,12,0,1,1,5,23],
-"dd/dd4/hip_2dudxyz__kernel_8h.html#a4ac7590f344c09bc72da8e94f388aa3b":[6,0,2,12,0,1,1,5,18]
+"dd/dd4/hip_2dudxyz__kernel_8h.html#a48933f3e6d864c65301c4708fe39e247":[6,0,2,12,0,1,1,5,23]
 };

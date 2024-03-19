@@ -1,5 +1,6 @@
 var NAVTREEINDEX34 =
 {
+"dd/dd4/hip_2dudxyz__kernel_8h.html#a4ac7590f344c09bc72da8e94f388aa3b":[6,0,2,12,0,1,1,5,18],
 "dd/dd4/hip_2dudxyz__kernel_8h.html#a516e79afaff41160487af846f7360b3d":[6,0,2,12,0,1,1,5,12],
 "dd/dd4/hip_2dudxyz__kernel_8h.html#a587d339a9416ada56b39599a9a0fe25a":[6,0,2,12,0,1,1,5,7],
 "dd/dd4/hip_2dudxyz__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7":[6,0,2,12,0,1,1,5,13],
@@ -190,11 +191,11 @@ var NAVTREEINDEX34 =
 "de/d06/accelerators.html":[0,6],
 "de/d06/accelerators.html#accelerators_data-transfer":[0,6,0,0,3],
 "de/d06/accelerators.html#accelerators_offload-work":[0,6,0,1],
-"de/d06/accelerators.html#autotoc_md40":[0,6,0],
-"de/d06/accelerators.html#autotoc_md41":[0,6,0,0],
-"de/d06/accelerators.html#autotoc_md42":[0,6,0,0,0],
-"de/d06/accelerators.html#autotoc_md43":[0,6,0,0,1],
-"de/d06/accelerators.html#autotoc_md44":[0,6,0,0,2],
+"de/d06/accelerators.html#autotoc_md41":[0,6,0],
+"de/d06/accelerators.html#autotoc_md42":[0,6,0,0],
+"de/d06/accelerators.html#autotoc_md43":[0,6,0,0,0],
+"de/d06/accelerators.html#autotoc_md44":[0,6,0,0,1],
+"de/d06/accelerators.html#autotoc_md45":[0,6,0,0,2],
 "de/d0a/mesh_8f90.html":[6,0,2,13,8],
 "de/d0a/mesh_8f90.html#a000e4a4dd37ff5e6b9a914d2b538705f":[6,0,2,13,8,18],
 "de/d0a/mesh_8f90.html#a18664cc50a3043167f74ea0da7291237":[6,0,2,13,8,17],
@@ -248,6 +249,5 @@ var NAVTREEINDEX34 =
 "de/d11/ax__helm_8hip.html#a2866935c460d99727321a9f4a0c91949":[6,0,2,12,0,1,1,0,0],
 "de/d11/ax__helm_8hip.html#a391aacbd26da5922ec80e721035d44cc":[6,0,2,12,0,1,1,0,2],
 "de/d11/ax__helm_8hip.html#a46768594af4a3a3b69bb8b9e72d18a81":[6,0,2,12,0,1,1,0,6],
-"de/d11/ax__helm_8hip.html#a552b47049e2cb53a99b404632f295024":[6,0,2,12,0,1,1,0,4],
-"de/d11/ax__helm_8hip.html#a706645ff08370f0954f66cb96382b9fd":[6,0,2,12,0,1,1,0,1]
+"de/d11/ax__helm_8hip.html#a552b47049e2cb53a99b404632f295024":[6,0,2,12,0,1,1,0,4]
 };

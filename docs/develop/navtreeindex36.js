@@ -1,5 +1,6 @@
 var NAVTREEINDEX36 =
 {
+"de/d5d/hip_2tensor__kernel_8h_source.html":[6,0,2,12,0,1,1,23],
 "de/d62/interfacecuda__intf_1_1cudaSetDevice.html":[5,0,28,21],
 "de/d62/interfacecuda__intf_1_1cudaSetDevice.html#a39016504cf4c496b219ae788f4672b97":[5,0,28,21,0],
 "de/d66/fusedcg__device_8F90.html":[6,0,2,10,0,1,4],
@@ -248,6 +249,5 @@ var NAVTREEINDEX36 =
 "de/de6/stack_8f90.html":[6,0,2,0,1],
 "de/de6/stack_8f90.html#a0185dd8b7f1f5ffd4a0cd1b705b80629":[6,0,2,0,1,18],
 "de/de6/stack_8f90.html#a109a17fab5608b47dc14448997af6388":[6,0,2,0,1,19],
-"de/de6/stack_8f90.html#a12fd93714ed258f7fecc4dd66ba0bf41":[6,0,2,0,1,15],
-"de/de6/stack_8f90.html#a152166c584d6cafc0c1c3a8fb54d1a00":[6,0,2,0,1,41]
+"de/de6/stack_8f90.html#a12fd93714ed258f7fecc4dd66ba0bf41":[6,0,2,0,1,15]
 };

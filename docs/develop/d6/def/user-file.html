@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('d6/def/user-file.html','../../'); init
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_pages_user_file"></a> The user file is a fortran file where the user can implement their own functions to extend the capabilities of the default Neko executable. The user file can be used for setting advanced initial/boundary conditions, source terms, I/O operations, and interactions with the Neko framework.</p>
-<h1><a class="anchor" id="autotoc_md19"></a>
+<h1><a class="anchor" id="autotoc_md20"></a>
 Compiling and running</h1>
 <p>The user file is a regular Fortran <code>.f90</code> file that needs to be compiled with <code>makeneko</code>, located in the <code>bin</code> folder of your neko installation. To compile a user file <code>user.f90</code>, run:</p>
 <div class="fragment"><div class="line">makeneko user.f90</div>
@@ -109,7 +109,7 @@ Compiling and running</h1>
 <div class="fragment"><div class="line">./neko user.case</div>
 </div><!-- fragment --><p>Or in parallel using MPI:</p>
 <div class="fragment"><div class="line">mpirun -n 8 ./neko user.case</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md20"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md21"></a>
 High-level structure</h1>
 <p>The current high-level structure of the user file is shown below.</p>
 <div class="fragment"><div class="line"><span class="keyword">module</span> user</div>
@@ -129,7 +129,7 @@ High-level structure</h1>
 <div class="ttc" id="anamespaceneko_html"><div class="ttname"><a href="../../dd/d62/namespaceneko.html">neko</a></div><div class="ttdoc">Master module.</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/d1f/neko_8f90_source.html#l00034">neko.f90:34</a></div></div>
 </div><!-- fragment --><p>The user file implements the <code>user</code> module. The <code>user</code> modules contains a subroutine named <code>user_setup</code>, which we use to interface the internal procedures defined in <code><a class="el" href="../../d7/d30/user__intf_8f90.html">src/common/user_intf.f90</a></code> with the subroutines that you will implement in your user file. Each user subroutine should be implemented under the <code>contains</code> statement, below <code>user_setup</code>.</p>
 <dl class="section note"><dt>Note</dt><dd>The above code snippet is the most basic code structure for the user file. Compiling it and running it would be equivalent to running the "vanilla" neko executable <code>bin/neko</code> in your local neko installation folder.</dd></dl>
-<h1><a class="anchor" id="autotoc_md21"></a>
+<h1><a class="anchor" id="autotoc_md22"></a>
 Default user functions</h1>
 <p>The following user functions, if defined in the user file, will always be executed, regardless of what is set in the case file:</p>
 <ul>
@@ -261,7 +261,7 @@ Scalar boundary conditions</h2>
 <div class="line"><span class="keyword">end subroutine </span>set_scalar_boundary_conditions</div>
 </div><!-- fragment --><p>This function will be called on all the points on the relevant boundaries. The registering of the above function in <code>user_setup</code> should be done as follows:</p>
 <div class="fragment"><div class="line">u%scalar_user_bc =&gt; set_scalar_boundary_conditions</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md22"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md23"></a>
 Case-specific user functions</h1>
 <p>As explained in the <a class="el" href="../../dd/d33/case-file.html#md_pages_case_file">case file</a> page, certain components of the simulation can be set to be user defined. These components and their associated user functions are:</p>
 <table class="markdownTable">
@@ -469,7 +469,7 @@ Notice the use of the <code>NEKO_BCKND_DEVICE</code> flag, which will be set to 
 <p>We should also add of the following lines in <code>user_setup</code>, registering our user functions <code>set_boussinesq_forcing_term</code> and <code>set_source</code> to be used as the fluid and scalar source terms:</p>
 <div class="fragment"><div class="line">u%fluid_user_f_vector =&gt; set_boussinesq_forcing_term</div>
 <div class="line">u%scalar_user_f_vector =&gt; set_source</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md23"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md24"></a>
 Additional remarks and tips</h1>
 <h2><a class="anchor" id="user-file_tips_running-on-gpus"></a>
 Running on GPUs</h2>
@@ -539,7 +539,7 @@ Registries</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Mon Mar 18 2024 03:34:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Mar 19 2024 03:34:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

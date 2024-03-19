@@ -158,7 +158,19 @@ The case object</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>job_timelimit</code>   </td><td class="markdownTableBodyNone">The maximum wall clock duration of the simulation.   </td><td class="markdownTableBodyNone">String formatted as HH:MM:SS   </td><td class="markdownTableBodyNone">No limit   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md6"></a>
+<h2><a class="anchor" id="autotoc_md6"></a>
+Boundary type numbering in the &lt;tt&gt;output_boundary&lt;/tt&gt; field</h2>
+<p>When the <code>output_boundary</code> setting is set to <code>true</code>, and additional <code>.fld</code> file will be stored in the beginning of the simulation, where the recognized boundaries will be marked with an integer number. This is a good way to debug the simulation setup. The value of the number depends on the type of the boundary as follows:</p>
+<ol type="1">
+<li>A wall boundary, i.e. the <code>w</code> label.</li>
+<li>A Dirichlet boundary, i.e. the <code>v</code> label.</li>
+<li>An outlet boundary, i.e. the <code>o</code> label.</li>
+<li>A symmetry boundary, i.e. the <code>sym</code> label.</li>
+<li>A periodic boundary.</li>
+<li>An wall-normal transpiration boundary, i.e. the <code>on</code> label.</li>
+</ol>
+<p>Note that the boundary conditions can be both prescribed via the labels in the case file or built into the mesh via conversion from a <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code> file. Both types will be picked up and marked in the field produced by <code>output_boundary</code>.</p>
+<h1><a class="anchor" id="autotoc_md7"></a>
 Numerics</h1>
 <p>Used to define the properties of the numerical discretization.</p>
 <table class="markdownTable">
@@ -173,16 +185,16 @@ Numerics</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>dealiased_polynomial order</code>   </td><td class="markdownTableBodyNone">The polynomial order in the higher-order space used in the dealising.   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>3/2(polynomial_order + 1) - 1</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md7"></a>
+<h1><a class="anchor" id="autotoc_md8"></a>
 Fluid</h1>
 <p>The configuration of the fluid solver and the flow problem. Contains multiple subobjects for various parts of the setup.</p>
-<h2><a class="anchor" id="autotoc_md8"></a>
+<h2><a class="anchor" id="autotoc_md9"></a>
 Material properties</h2>
 <p>As per the governing equations, Neko requires the value of the density and dynamic viscosity to define the flow problem. These can be provided as <code>rho</code> and <code>mu</code> in the case file.</p>
 <p>Alternatively, one may opt to provide the Reynolds number, <code>Re</code>, which corresponds to a non-dimensional formulation of the Navier-Stokes equations. This formulation can effectively be obtained by setting \( \rho = 1 \) and \( \mu = 1/Re \). This is exactly what Neko does under the hood, when <code>Re</code> is provided in the case file.</p>
 <p>Note that if both <code>Re</code> and any of the dimensional material properties are provided, the simulation will issue an error.</p>
 <p>As an alternative to providing material properties in the case file, it is possible to do that in a special routine in the user file. This is demonstrated in the <code>rayleigh-benard-cylinder</code> example. Ultimately, both <code>rho</code> and <code>mu</code> have to be set in the subroutine, but it can be based on arbitrary computations and arbitrary parameters read from the case file. Additionally, this allows to change the material properties in time.</p>
-<h2><a class="anchor" id="autotoc_md9"></a>
+<h2><a class="anchor" id="autotoc_md10"></a>
 Inflow boundary conditions</h2>
 <p>The object <code>inflow_condition</code> is used to specify velocity values at a Dirichlet boundary. This does not necessarily have to be an inflow boundary, so the name is not so good, and will most likely be changed along with type changes in the code. Since not all cases have Dirichlet boundaries (note, the special case of a no-slip boundary is treated separately in the configuration), this object is not obligatory. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
 <ol type="1">
@@ -198,7 +210,7 @@ Initial conditions</h2>
 <li><code>uniform</code>, the value is a constant vector, looked up under the <code>value</code> keyword.</li>
 <li><code>blasius</code>, a Blasius profile is prescribed. Its properties are looked up in the <code>case.fluid.blasius</code> object, see below.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md10"></a>
+<h2><a class="anchor" id="autotoc_md11"></a>
 Blasius profile</h2>
 <p>The <code>blasius</code> object is used to specify the Blasius profile that can be used for the initial and inflow condition. The boundary cannot be tilted with respect to the coordinate axes. It requires the following parameters:</p>
 <ol type="1">
@@ -224,7 +236,7 @@ Source terms</h2>
 <li><code>user_vector</code>, the values are set inside the compiled user file, using the non-pointwise user file subroutine. Should be used when running on the GPU.</li>
 <li><code>brinkman</code>, Brinkman permeability forcing inside a pre-defined region.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md11"></a>
+<h3><a class="anchor" id="autotoc_md12"></a>
 Brinkman</h3>
 <p>The Brinkman source term introduces regions of resistance in the fluid domain. The volume force $f_i$ applied in the selected regions are proportional to the fluid velocity component $u_i$.</p>
 <p>$$ f_i(x) = - B(x) u_i(x), \ B(x) = \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)}, $$</p>
@@ -284,7 +296,7 @@ Brinkman</h3>
 <div class="line">      }</div>
 <div class="line">   }</div>
 <div class="line">]</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md12"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md13"></a>
 Boundary types</h2>
 <p>The optional <code>boundary_types</code> keyword can be used to specify boundary conditions. The reason for it being optional, is that some conditions can be specified directly inside the mesh file. In particular, this happens when Nek5000 <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code> files are converted to <code>.nmsh</code>. Periodic boundary conditions are <em>always</em> defined inside the mesh file.</p>
 <p>The value of the keyword is an array of strings, with the following possible values:</p><ul>
@@ -297,7 +309,7 @@ Boundary types</h2>
 <li><code>on+dong</code>, an <code>on</code> boundary using the Dong condition, ensuring that the wall-normal velocity is directed outwards.</li>
 </ul>
 <p>In some cases, only some boundary types have to be provided. For example, when one has periodic boundaries, like in the channel flow example. In this case, to put the specification of the boundary at the right index, preceding boundary types can be marked with an empty string. For example, if boundaries with index 1 and 2 are periodic, and the third one is a wall, we can set. </p><div class="fragment"><div class="line">&quot;boundary_types&quot;: [&quot;&quot;, &quot;&quot;, &quot;w&quot;]</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md13"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md14"></a>
 Linear solver configuration</h1>
 <p>The mandatory <code>velocity_solver</code> and <code>pressure_solver</code> objects are used to configure the solvers for the momentum and pressure-Poisson equation. The following keywords are used, with the corresponding options.</p>
 <ul>
@@ -320,7 +332,7 @@ Linear solver configuration</h1>
 <li><code>max_iterations</code>, maximum number of iterations before giving up.</li>
 <li><code>projection_space_size</code>, size of the vector space used for accelerating the solution procedure. If 0, then the projection space is not used. More important for the pressure equation.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md14"></a>
+<h2><a class="anchor" id="autotoc_md15"></a>
 Flow rate forcing</h2>
 <p>The optional <code>flow_rate_force</code> object can be used to force a particular flow rate through the domain. Useful for channel and pipe flows. The configuration uses the following parameters:</p>
 <ul>
@@ -328,7 +340,7 @@ Flow rate forcing</h2>
 <li><code>value</code>, the desired flow rate.</li>
 <li><code>use_averaged_flow</code>, whether <code>value</code> specifies the domain-averaged (bulk) velocity or the volume flow rate.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md15"></a>
+<h2><a class="anchor" id="autotoc_md16"></a>
 Full parameter table</h2>
 <p>All the parameters are summarized in the table below. This includes all the subobjects discussed above, as well as keyword parameters that can be described concisely directly in the table.</p>
 <table class="markdownTable">
@@ -419,7 +431,7 @@ Scalar</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>source_terms</code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining additional source terms.   </td><td class="markdownTableBodyNone">See list of source terms above   </td><td class="markdownTableBodyNone">-   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md16"></a>
+<h1><a class="anchor" id="autotoc_md17"></a>
 Statistics</h1>
 <p>This object adds the collection of statistics for the fluid fields. For additional details on the workflow, see the corresponding page in the user manual.</p>
 <table class="markdownTable">
@@ -432,11 +444,11 @@ Statistics</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>sampling_interval</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">10   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md17"></a>
+<h1><a class="anchor" id="autotoc_md18"></a>
 Simulation components</h1>
 <p>Simulation components enable the user to perform various additional operations, which are not strictly necessary to run the solver. An example could be computing and output of additional fields, e.g. vorticity.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../d3/d84/simcomps.html#md_pages_simcomps">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md18"></a>
+<h1><a class="anchor" id="autotoc_md19"></a>
 Point zones</h1>
 <p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.</p>
 <p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
@@ -448,7 +460,7 @@ Point zones</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Mon Mar 18 2024 03:34:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Mar 19 2024 03:34:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -1,5 +1,6 @@
 var NAVTREEINDEX35 =
 {
+"de/d11/ax__helm_8hip.html#a706645ff08370f0954f66cb96382b9fd":[6,0,2,12,0,1,1,0,1],
 "de/d11/ax__helm_8hip.html#a8394801dd34a9cab5e07803be5073d8b":[6,0,2,12,0,1,1,0,3],
 "de/d11/ax__helm_8hip.html#a946ea4d3c1efc7593a51a12627001329":[6,0,2,12,0,1,1,0,5],
 "de/d11/ax__helm_8hip.html#ac18ad298df4b5740abfefdc9d9b737b8":[6,0,2,12,0,1,1,0,7],
@@ -248,6 +249,5 @@ var NAVTREEINDEX35 =
 "de/d5b/structre2_1_1re2v1__xyz__t.html#aec572295bc85e0dd0077ade1ada81003":[5,0,147,1,1],
 "de/d5d/hip_2tensor__kernel_8h.html":[6,0,2,12,0,1,1,23],
 "de/d5d/hip_2tensor__kernel_8h.html#a19bd3df4c21148cfe7a7a5b79eb47e32":[6,0,2,12,0,1,1,23,0],
-"de/d5d/hip_2tensor__kernel_8h.html#a1f97732f83d6dc71736a4bf933d7ca95":[6,0,2,12,0,1,1,23,1],
-"de/d5d/hip_2tensor__kernel_8h_source.html":[6,0,2,12,0,1,1,23]
+"de/d5d/hip_2tensor__kernel_8h.html#a1f97732f83d6dc71736a4bf933d7ca95":[6,0,2,12,0,1,1,23,1]
 };
