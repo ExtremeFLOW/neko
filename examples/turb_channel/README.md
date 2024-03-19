@@ -5,3 +5,5 @@ To compute thte spatial and temporal averages of the output fields, mean_fields 
 - average_fields_in_time, averages a fld series in time
 - average_field_in_space, for channelflow we can directly average in xz
 - postprocess_fluid_stats, computes the mean gradients and the reynolds stresses. 
+
+To see the options for each postprocessing script, run it without any command line arguments, for example: ./average_field_in_space
