@@ -185,11 +185,11 @@ contains
                                                  'v', this%bc_labels)
     !Thsi impacts the rhs of the pressure, need to check what is correct to add here
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_u', this%bc_labels)
+                                                 'd_vel_u', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_v', this%bc_labels)
+                                                 'd_vel_v', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_w', this%bc_labels)
+                                                 'd_vel_w', this%bc_labels)
     call this%bc_prs_surface%finalize()
     call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
@@ -226,19 +226,19 @@ contains
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
     call this%bc_field_dirichlet_u%init(this%dm_Xh)
-    call this%bc_field_dirichlet_u%mark_zones_from_list(msh%labeled_zones, 'd_u', &
+    call this%bc_field_dirichlet_u%mark_zones_from_list(msh%labeled_zones, 'd_vel_u', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_u%finalize()
     call this%bc_field_dirichlet_u%set_g(0.0_rp)
 
     call this%bc_field_dirichlet_v%init(this%dm_Xh)
-    call this%bc_field_dirichlet_v%mark_zones_from_list(msh%labeled_zones, 'd_v', &
+    call this%bc_field_dirichlet_v%mark_zones_from_list(msh%labeled_zones, 'd_vel_v', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_v%finalize()
     call this%bc_field_dirichlet_v%set_g(0.0_rp)
 
     call this%bc_field_dirichlet_w%init(this%dm_Xh)
-    call this%bc_field_dirichlet_w%mark_zones_from_list(msh%labeled_zones, 'd_w', &
+    call this%bc_field_dirichlet_w%mark_zones_from_list(msh%labeled_zones, 'd_vel_w', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_w%finalize()
     call this%bc_field_dirichlet_w%set_g(0.0_rp)

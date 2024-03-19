@@ -383,62 +383,35 @@ contains
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
 
-    ! dirichlet for uvw-velocity
-!!$    call this%bc_field_u%init(this%dm_Xh)
-!!$    call this%bc_field_u%mark_zones_from_list(msh%labeled_zones,&
-!!$                        'd_u', this%bc_labels)
-!!$    call this%bc_field_u%finalize()
-!!$    call MPI_Allreduce(this%bc_field_u%msk(0), integer_val, 1, &
-!!$         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-!!$    if (integer_val .gt. 0)  call this%bc_field_u%init_field('d_u')
-!!$
-!!$    ! dirichlet for v-velocity
-!!$    call this%bc_field_v%init(this%dm_Xh)
-!!$    call this%bc_field_v%mark_zones_from_list(msh%labeled_zones,&
-!!$                        'd_v', this%bc_labels)
-!!$    call this%bc_field_v%finalize()
-!!$    call MPI_Allreduce(this%bc_field_v%msk(0), integer_val, 1, &
-!!$         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-!!$    if (integer_val .gt. 0)  call this%bc_field_v%init_field('d_v')
-!!$
-!!$    ! dirichlet for w-velocity
-!!$    call this%bc_field_w%init(this%dm_Xh)
-!!$    call this%bc_field_w%mark_zones_from_list(msh%labeled_zones,&
-!!$                        'd_w', this%bc_labels)
-!!$    call this%bc_field_w%finalize()
-!!$    call MPI_Allreduce(this%bc_field_w%msk(0), integer_val, 1, &
-!!$         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-!!$    if (integer_val .gt. 0)  call this%bc_field_w%init_field('d_w')
-
-    ! dirichlet for u-velocity
+    ! Setup field dirichlet bc for u-velocity
     call this%bc_field_vel%field_dirichlet_u%init(this%dm_Xh)
     call this%bc_field_vel%field_dirichlet_u%mark_zones_from_list(msh%labeled_zones,&
-                        'd_u', this%bc_labels)
+                        'd_vel_u', this%bc_labels)
     call this%bc_field_vel%field_dirichlet_u%finalize()
 
     call MPI_Allreduce(this%bc_field_vel%field_dirichlet_u%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_u%init_field('d_u')
+    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_u%init_field('d_vel_u')
 
-    ! dirichlet for v-velocity
+    ! Setup field dirichlet bc for v-velocity
     call this%bc_field_vel%field_dirichlet_v%init(this%dm_Xh)
     call this%bc_field_vel%field_dirichlet_v%mark_zones_from_list(msh%labeled_zones,&
-                        'd_v', this%bc_labels)
+                        'd_vel_v', this%bc_labels)
     call this%bc_field_vel%field_dirichlet_v%finalize()
 
     call MPI_Allreduce(this%bc_field_vel%field_dirichlet_v%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_v%init_field('d_v')
+    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_v%init_field('d_vel_v')
 
-    ! dirichlet for w-velocity
+    ! Setup field dirichlet bc for w-velocity
     call this%bc_field_vel%field_dirichlet_w%init(this%dm_Xh)
     call this%bc_field_vel%field_dirichlet_w%mark_zones_from_list(msh%labeled_zones,&
-                        'd_w', this%bc_labels)
+                        'd_vel_w', this%bc_labels)
     call this%bc_field_vel%field_dirichlet_w%finalize()
 
     call MPI_Allreduce(this%bc_field_vel%field_dirichlet_w%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_w%init_field('d_w')
+    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_w%init_field('d_vel_w')
 
     ! Add the field bc to velocity bcs
     call bc_list_add(this%bclst_vel, this%bc_field_vel)
@@ -848,16 +821,6 @@ contains
 
     call bc_list_apply_vector(this%bclst_vel,&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
-
-!!$    if (NEKO_BCKND_DEVICE .eq. 1) then
-!!$       call this%bc_field_u%apply_scalar_dev(this%u%x_d, t, tstep)
-!!$       call this%bc_field_v%apply_scalar_dev(this%v%x_d, t, tstep)
-!!$       call this%bc_field_w%apply_scalar_dev(this%w%x_d, t, tstep)
-!!$    else
-!!$       call this%bc_field_u%apply_scalar(this%u%x, this%dm_Xh%size(), t, tstep)
-!!$       call this%bc_field_v%apply_scalar(this%v%x, this%dm_Xh%size(), t, tstep)
-!!$       call this%bc_field_w%apply_scalar(this%w%x, this%dm_Xh%size(), t, tstep)
-!!$    end if
 
   end subroutine fluid_scheme_bc_apply_vel
 
