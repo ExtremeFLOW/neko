@@ -93,6 +93,7 @@ module projection
      !logging variables
      real(kind=rp) :: proj_res
      integer :: proj_m = 0
+     integer :: activ_step ! steps to activate projection
    contains
      procedure, pass(this) :: clear => bcknd_clear
      procedure, pass(this) :: project_on => bcknd_project_on
@@ -104,21 +105,27 @@ module projection
 
 contains
 
-  subroutine projection_init(this, n, L)
+  subroutine projection_init(this, n, L, activ_step)
     class(projection_t), target, intent(inout) :: this
     integer, intent(in) :: n
-    integer, optional, intent(in) :: L
+    integer, optional, intent(in) :: L, activ_step
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
     real(c_rp) :: dummy
 
     call this%free()
-
+    
     if (present(L)) then
        this%L = L
     else
        this%L = 20
+    end if
+
+    if (present(activ_step)) then
+       this%activ_step = activ_step
+    else
+       this%activ_step = 5
     end if
 
     this%m = 0

@@ -99,6 +99,8 @@ module fluid_scheme
      class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
      integer :: vel_projection_dim         !< Size of the projection space for ksp_vel
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
+     integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
+     integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
@@ -275,6 +277,13 @@ contains
     call json_get_or_default(params, &
                             'case.fluid.pressure_solver.projection_space_size',&
                             this%pr_projection_dim, 20)
+    call json_get_or_default(params, &
+                            'case.fluid.velocity_solver.projection_hold_steps',&
+                            this%vel_projection_activ_step, 5)
+    call json_get_or_default(params, &
+                            'case.fluid.pressure_solver.projection_hold_steps',&
+                            this%pr_projection_activ_step, 5)
+    
 
     call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
 
