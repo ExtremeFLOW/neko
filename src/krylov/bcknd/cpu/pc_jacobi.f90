@@ -91,7 +91,7 @@ contains
     call col3(z,r,this%d,n)
   end subroutine jacobi_solve
 
-  !> Update Jacobi preconditioner
+  !> Update Jacobi preconditioner if the geometry G has changed
   subroutine jacobi_update(this)
     class(jacobi_t), intent(inout) :: this
     associate(dof => this%dof, coef => this%coef, gs_h => this%gs_h)
