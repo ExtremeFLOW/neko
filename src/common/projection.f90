@@ -612,9 +612,15 @@ contains
 
     this%m = 0
     this%proj_m = 0
+    
     do i = 1, this%L
-       call rzero(this%xx(1,i),n)
-       call rzero(this%bb(1,i),n)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_rzero(this%xx_d(i), n)
+          call device_rzero(this%xx_d(i), n)
+       else
+          call rzero(this%xx(1,i),n)
+          call rzero(this%bb(1,i),n)
+       end if
     end do
 
   end subroutine bcknd_clear
