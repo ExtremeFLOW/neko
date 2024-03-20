@@ -219,24 +219,26 @@ $(document).ready(function(){initNavTree('dd/d24/cylinder__point__zone_8f90_sour
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordtype">logical</span> :: is_inside</div>
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160; </div>
 <div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(3)</span> :: p</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(3)</span> :: line</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: t</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(3)</span> :: <a class="code" href="../../d3/d06/namespaceprojection.html">projection</a></div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: distance</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160; </div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    p = [x, y, z]</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160; </div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    line = this%p1 - this%p0</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    t = dot_product(p - this%p0, line) / norm2(line)</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160; </div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    <a class="code" href="../../d3/d06/namespaceprojection.html">projection</a> = this%p0 + t * line</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    distance = norm2(<a class="code" href="../../d3/d06/namespaceprojection.html">projection</a> - p)</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160; </div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    is_inside = t &gt;= 0.0_rp .and. t &lt;= 1.0_rp .and. distance &lt;= this%radius</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(3)</span> :: centerline</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(3)</span> :: vec_p</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: t</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(3)</span> :: <a class="code" href="../../d3/d06/namespaceprojection.html">projection</a></div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: distance</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160; </div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    p = [x, y, z]</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160; </div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    centerline = this%p1 - this%p0</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    vec_p = p - this%p0</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    t = dot_product(vec_p, centerline) / dot_product(centerline, centerline)</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160; </div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <a class="code" href="../../d3/d06/namespaceprojection.html">projection</a> = this%p0 + t * centerline</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    distance = norm2(<a class="code" href="../../d3/d06/namespaceprojection.html">projection</a> - p)</div>
 <div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160; </div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d4/ddd/namespacecylinder__point__zone.html#aa323ad3b478fa326066652a6f6c15cae">cylinder_point_zone_criterion</a></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    is_inside = t &gt;= 0.0_rp .and. t &lt;= 1.0_rp .and. distance &lt;= this%radius</div>
 <div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160; </div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d4/ddd/namespacecylinder__point__zone.html">cylinder_point_zone</a></div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d4/ddd/namespacecylinder__point__zone.html#aa323ad3b478fa326066652a6f6c15cae">cylinder_point_zone_criterion</a></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160; </div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d4/ddd/namespacecylinder__point__zone.html">cylinder_point_zone</a></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00044">json_utils.f90:44</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00040">utils.f90:40</a></div></div>
 <div class="ttc" id="anamespacecylinder__point__zone_html"><div class="ttname"><a href="../../d4/ddd/namespacecylinder__point__zone.html">cylinder_point_zone</a></div><div class="ttdoc">Implements a cylinder geometry subset.</div><div class="ttdef"><b>Definition:</b> <a href="../../dd/d24/cylinder__point__zone_8f90_source.html#l00034">cylinder_point_zone.f90:34</a></div></div>
@@ -258,7 +260,7 @@ $(document).ready(function(){initNavTree('dd/d24/cylinder__point__zone_8f90_sour
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../dir_50e88b1e88c285dbd74227451053c4ad.html">point_zones</a></li><li class="navelem"><a class="el" href="../../dd/d24/cylinder__point__zone_8f90.html">cylinder_point_zone.f90</a></li>
-    <li class="footer">Generated on Tue Mar 19 2024 03:34:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Mar 20 2024 03:34:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
