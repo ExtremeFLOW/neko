@@ -66,13 +66,13 @@ module field_dirichlet
      procedure, pass(this) :: apply_scalar_dev => field_dirichlet_apply_scalar_dev
   end type field_dirichlet_t
 
+  !> Abstract interface defining a dirichlet condition on a list of fields.
+  !! @param field_bc_list List of fields that are used to extract values for field_dirichlet.
+  !! @param dirichlet_bc_list List of BCs containing field_dirichlet_t BCs only.
+  !! @param coef Coef object.
+  !! @param t Current time.
+  !! @param tstep Current time step.
   abstract interface
-     !> Abstract interface defining a dirichlet condition on a list of fields.
-     !! @param field_bc_list List of fields that are used to extract values for field_dirichlet.
-     !! @param dirichlet_bc_list List of BCs containing field_dirichlet_t BCs only.
-     !! @param coef Coef object.
-     !! @param t Current time.
-     !! @param tstep Current time step.
      subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list, coef, t, tstep)
        import rp
        import field_list_t
