@@ -43,7 +43,7 @@ to enforce these rules by assigning the following options. The documentation of
 extension provide an integration.
 
 ```sh
-findent -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- -Rr -c3 < input.f90 > formatted.f90
+findent -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- -Rr -c3 --openmp=0 < input.f90 > formatted.f90
 ```
 
 

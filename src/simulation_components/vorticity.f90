@@ -98,14 +98,14 @@ contains
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        if (json%valid_path("output_precision")) then
-           call json_get(json, "output_precision", precision)
-           if (precision == "double") then
-              call vorticity_init_from_attributes(this, filename, dp)
-           else
-              call vorticity_init_from_attributes(this, filename, sp)
-           end if
+          call json_get(json, "output_precision", precision)
+          if (precision == "double") then
+             call vorticity_init_from_attributes(this, filename, dp)
+          else
+             call vorticity_init_from_attributes(this, filename, sp)
+          end if
        else
-           call vorticity_init_from_attributes(this, filename)
+          call vorticity_init_from_attributes(this, filename)
        end if
     else
        call vorticity_init_from_attributes(this)

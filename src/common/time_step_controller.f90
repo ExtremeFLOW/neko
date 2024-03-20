@@ -74,7 +74,7 @@ contains
   !! @param cfl_avrg average Courant number.
   !! @param dt_last_change time step since last dt change.
   !! @param tstep the current time step.
-  !! @Algorithm: 
+  !! @Algorithm:
   !! 1. Set the first time step such that cfl is the set one;
   !! 2. During time-stepping, adjust dt when cfl_avrg is offset by 20%.
   subroutine time_step_controller_set_dt(this, C, cfl, cfl_avrg, dt_last_change, tstep)
@@ -85,7 +85,7 @@ contains
     real(kind=rp), intent(inout) :: cfl_avrg
     integer, intent(inout) :: dt_last_change
     real(kind=rp) :: dt_old, scaling_factor
-    character(len=LOG_SIZE) :: log_buf    
+    character(len=LOG_SIZE) :: log_buf
     real(kind=rp) :: alpha = 0.5_rp !coefficient of running average
     integer, intent(in):: tstep
 
@@ -100,10 +100,10 @@ contains
           if (abs(cfl_avrg - this%set_cfl) .ge. 0.2*this%set_cfl .and. &
              dt_last_change .ge. this%max_update_frequency) then
 
-             if (this%set_cfl/cfl .ge. 1) then 
-                scaling_factor = min(1.2_rp, this%set_cfl/cfl) 
+             if (this%set_cfl/cfl .ge. 1) then
+                scaling_factor = min(1.2_rp, this%set_cfl/cfl)
              else
-                scaling_factor = max(0.8_rp, this%set_cfl/cfl) 
+                scaling_factor = max(0.8_rp, this%set_cfl/cfl)
              end if
 
              dt_old = C%dt

@@ -68,7 +68,7 @@ contains
        allocate(cylinder_point_zone_t::point_zone)
     else
        call neko_error("Unknown source term "//trim(zone_type)//"! Valid &
-         &source terms are 'box', 'sphere', 'cylinder'.")
+       &source terms are 'box', 'sphere', 'cylinder'.")
     end if
 
     call point_zone%init(json, dof%size())

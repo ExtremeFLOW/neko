@@ -496,22 +496,22 @@ contains
     type(MPI_Status) :: status
     real(kind=sp) :: buffer(2*gdim*nelv)
 
-     j = 1
-     do el=1,nelv
-        buffer(j+0) = real(vlmin(x(1,el),lxyz),sp)
-        buffer(j+1) = real(vlmax(x(1,el),lxyz),sp)
-        buffer(j+2) = real(vlmin(y(1,el),lxyz) ,sp)
-        buffer(j+3) = real(vlmax(y(1,el),lxyz),sp)
-        j = j + 4
-        buffer(j+0) = real(vlmin(z(1,el),lxyz) ,sp)
-        buffer(j+1) = real(vlmax(z(1,el),lxyz),sp)
-        j = j + 2
-     enddo
+    j = 1
+    do el=1,nelv
+       buffer(j+0) = real(vlmin(x(1,el),lxyz),sp)
+       buffer(j+1) = real(vlmax(x(1,el),lxyz),sp)
+       buffer(j+2) = real(vlmin(y(1,el),lxyz) ,sp)
+       buffer(j+3) = real(vlmax(y(1,el),lxyz),sp)
+       j = j + 4
+       buffer(j+0) = real(vlmin(z(1,el),lxyz) ,sp)
+       buffer(j+1) = real(vlmax(z(1,el),lxyz),sp)
+       j = j + 2
+    enddo
 
-     ! write out data
-     nout = 2*gdim*nelv
+    ! write out data
+    nout = 2*gdim*nelv
 
-     call MPI_File_write_at_all(fh, byte_offset, buffer, nout, &
+    call MPI_File_write_at_all(fh, byte_offset, buffer, nout, &
             MPI_REAL, status, ierr)
 
   end subroutine fld_file_write_metadata_vector
@@ -526,17 +526,17 @@ contains
     type(MPI_Status) :: status
     real(kind=sp) :: buffer(2*nelv)
 
-     j = 1
-     do el=1,nelv
-        buffer(j+0) = real(vlmin(x(1,el),lxyz),sp)
-        buffer(j+1) = real(vlmax(x(1,el),lxyz),sp)
-        j = j + 2
-     enddo
+    j = 1
+    do el=1,nelv
+       buffer(j+0) = real(vlmin(x(1,el),lxyz),sp)
+       buffer(j+1) = real(vlmax(x(1,el),lxyz),sp)
+       j = j + 2
+    enddo
 
-     ! write out data
-     nout = 2*nelv
+    ! write out data
+    nout = 2*nelv
 
-     call MPI_File_write_at_all(fh, byte_offset, buffer, nout, &
+    call MPI_File_write_at_all(fh, byte_offset, buffer, nout, &
             MPI_REAL, status, ierr)
 
   end subroutine fld_file_write_metadata_scalar

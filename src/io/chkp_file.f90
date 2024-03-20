@@ -375,7 +375,7 @@ contains
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
     type(dofmap_t) :: dof
-   
+
     call this%check_exists()
 
     select type(data)

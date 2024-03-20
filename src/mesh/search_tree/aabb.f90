@@ -169,12 +169,12 @@ contains
     type(aabb_t) :: box
 
     select type(object)
-      type is (aabb_t)
+    type is (aabb_t)
        box = object
-      type is (tri_t)
+    type is (tri_t)
        box = get_aabb_triangle(object)
 
-      class default
+    class default
        print *, "Error: get_aabb not implemented for this type"
        stop
     end select
@@ -392,10 +392,10 @@ contains
     real(kind=rp) :: surface_area
 
     surface_area = 2.0 * (&
-      & this%get_width() * this%get_height() &
-      & + this%get_width() * this%get_depth() &
-      & + this%get_height() * this%get_depth() &
-      &)
+    & this%get_width() * this%get_height() &
+    & + this%get_width() * this%get_depth() &
+    & + this%get_height() * this%get_depth() &
+    &)
   end function calculate_surface_area
 
   ! ========================================================================== !

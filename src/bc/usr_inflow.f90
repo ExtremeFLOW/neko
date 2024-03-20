@@ -289,7 +289,7 @@ contains
               end select
            end do
          end associate
-        
+
          call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE, sync=.true.)

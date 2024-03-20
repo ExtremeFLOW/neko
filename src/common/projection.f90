@@ -248,7 +248,7 @@ contains
        else
           this%m = min(this%m+1,this%L)
        end if
-       
+
        call copy        (this%xx(1,this%m),x,n)   ! Update (X,B)
     end if
 

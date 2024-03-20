@@ -117,9 +117,9 @@ contains
     integer, intent(in) :: tstep
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("Vreman model not implemented on accelarators.")
+       call neko_error("Vreman model not implemented on accelarators.")
     else
-        call vreman_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
+       call vreman_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
                                 this%c)
     end if
 

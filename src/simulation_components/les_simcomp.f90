@@ -49,7 +49,7 @@ module les_simcomp
 
   !> A simulation component that drives the computation of the SGS
   !! viscosity.
-   type, public, extends(simulation_component_t) :: les_simcomp_t
+  type, public, extends(simulation_component_t) :: les_simcomp_t
      !> The LES model.
      class(les_model_t), allocatable :: les_model
    contains
@@ -87,8 +87,8 @@ contains
     call this%free_base()
 
     if (allocated(this%les_model)) then
-      call this%les_model%free()
-      deallocate(this%les_model)
+       call this%les_model%free()
+       deallocate(this%les_model)
     end if
   end subroutine les_simcomp_free
 

@@ -113,9 +113,9 @@ contains
        ! Searches for the location of the min value, each time masking out the
        ! found location prior to the next search.
        do i= 1, n_simcomps
-         loc = minloc(read_order, mask=mask)
-         this%order(i) = loc(1)
-         mask(loc) = .false.
+          loc = minloc(read_order, mask=mask)
+          this%order(i) = loc(1)
+          mask(loc) = .false.
        end do
 
        ! Init in the determined order.

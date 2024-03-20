@@ -171,7 +171,7 @@ contains
        end if
     end select
 
-   if (trim(write_control) .eq. 'simulationtime') then
+    if (trim(write_control) .eq. 'simulationtime') then
        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ', &
              this%controllers(n)%frequency
        call neko_log%message(log_buf)

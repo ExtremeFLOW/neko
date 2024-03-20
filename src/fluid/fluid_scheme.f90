@@ -487,7 +487,7 @@ contains
                   abs_tol)
 
     if (kspv_init) then
-      call json_get_or_default(params, &
+       call json_get_or_default(params, &
                               'case.fluid.velocity_solver.max_iterations', &
                               ksp_vel_maxiter, 800)
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &

@@ -385,7 +385,7 @@ contains
   subroutine mesh_finalize(this)
     class(mesh_t), target, intent(inout) :: this
     integer :: i
-    
+
     call mesh_generate_flags(this)
     call mesh_generate_conn(this)
 
@@ -457,7 +457,7 @@ contains
     if (this%lconn) return
 
     if (.not. this%lgenc) return
- 
+
     !If we generate connectivity, we do that here.
     do el = 1, this%nelv
        ep => this%elements(el)%e
@@ -470,8 +470,8 @@ contains
              !should stack have inout on what we push? would be neat with in
              id = ep%id()
              call this%point_neigh(p_local_idx)%push(id)
-         end do
-         do i = 1, NEKO_HEX_NFCS
+          end do
+          do i = 1, NEKO_HEX_NFCS
              call ep%facet_id(f, i)
              call this%add_face(f)
           end do
