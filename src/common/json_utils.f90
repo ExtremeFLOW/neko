@@ -32,7 +32,7 @@
 !
 !> Utilities for retrieving parameters from the case files.
 module json_utils
-  use num_types, only : rp
+  use num_types, only : rp, dp, sp
   use json_module, only : json_file, json_value, json_core
   use utils, only : neko_error
   implicit none
@@ -42,8 +42,8 @@ module json_utils
 
   !> Retrieves a parameter by name or throws an error
   interface json_get
-     module procedure json_get_real, json_get_integer, json_get_logical, &
-                     json_get_string, json_get_real_array, &
+     module procedure json_get_real, json_get_double, json_get_integer, &
+                     json_get_logical, json_get_string, json_get_real_array, &
                      json_get_integer_array, json_get_logical_array, &
                      json_get_string_array
   end interface json_get
@@ -51,20 +51,21 @@ module json_utils
   !> Retrieves a parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json
   interface json_get_or_default
-     module procedure json_get_or_default_real, json_get_or_default_integer,&
+     module procedure json_get_or_default_real,json_get_or_default_double, &
+                     json_get_or_default_integer, &
                      json_get_or_default_string, json_get_or_default_logical
   end interface json_get_or_default
 
 contains
 
   !> Retrieves a real parameter by name or throws an error
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_real(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
-    real(kind=rp), intent(out) :: value
+    real(kind=sp), intent(out) :: value
     logical :: found
 
     call json%get(name, value, found)
@@ -73,11 +74,28 @@ contains
        call neko_error("Parameter "//name//" missing from the case file")
     end if
   end subroutine json_get_real
+  
+  !> Retrieves a double precision real parameter by name or throws an error
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
+  subroutine json_get_double(json, name, value)
+   type(json_file), intent(inout) :: json
+   character(len=*), intent(in) :: name
+   real(kind=dp), intent(out) :: value
+   logical :: found
+
+   call json%get(name, value, found)
+
+   if (.not. found) then
+      call neko_error("Parameter "//name//" missing from the case file")
+   end if
+ end subroutine json_get_double
 
   !> Retrieves an integer parameter by name or throws an error
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_integer(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -92,9 +110,9 @@ contains
   end subroutine json_get_integer
 
   !> Retrieves a logical parameter by name or throws an error
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_logical(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -109,9 +127,9 @@ contains
   end subroutine json_get_logical
 
   !> Retrieves a string parameter by name or throws an error
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_string(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -126,9 +144,9 @@ contains
   end subroutine json_get_string
 
   !> Retrieves a real array parameter by name or throws an error
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_real_array(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -143,9 +161,9 @@ contains
   end subroutine json_get_real_array
 
   !> Retrieves a integer array parameter by name or throws an error
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_integer_array(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -160,9 +178,9 @@ contains
   end subroutine json_get_integer_array
 
   !> Retrieves a logical array parameter by name or throws an error
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_logical_array(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -177,10 +195,10 @@ contains
   end subroutine json_get_logical_array
 
   !> Retrieves a string array parameter by name or throws an error
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @param value The variable to be populated with the retrieved parameter.
-  !! @param filler The default string to fill empty array items with.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[in] filler The default string to fill empty array items with.
   subroutine json_get_string_array(json, name, value, filler)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -222,14 +240,14 @@ contains
 
   !> Retrieves a real parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json.
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_or_default_real(json, name, value, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
-    real(kind=rp), intent(out) :: value
-    real(kind=rp), intent(in) :: default
+    real(kind=sp), intent(out) :: value
+    real(kind=sp), intent(in) :: default
     logical :: found
 
     call json%get(name, value, found)
@@ -239,12 +257,32 @@ contains
        call json%add(name, value)
     end if
   end subroutine json_get_or_default_real
+  
+  !> Retrieves a real parameter by name or assigns a provided default value.
+  !! In the latter case also adds the missing paramter to the json.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
+  subroutine json_get_or_default_double(json, name, value, default)
+   type(json_file), intent(inout) :: json
+   character(len=*), intent(in) :: name
+   real(kind=dp), intent(out) :: value
+   real(kind=dp), intent(in) :: default
+   logical :: found
+
+   call json%get(name, value, found)
+
+   if (.not. found) then
+      value = default
+      call json%add(name, value)
+   end if
+ end subroutine json_get_or_default_double
 
   !> Retrieves an integer parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json.
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_or_default_integer(json, name, value, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -262,9 +300,9 @@ contains
 
   !> Retrieves a logical parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json.
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_or_default_logical(json, name, value, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -282,9 +320,9 @@ contains
 
   !> Retrieves a string parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json.
-  !! @param json The json to retrieve the parameter from.
-  !! @param name The full path to the parameter.
-  !! @value value The variable to be populated with the retrieved parameter.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter.
   subroutine json_get_or_default_string(json, name, value, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -301,10 +339,10 @@ contains
   end subroutine json_get_or_default_string
 
   !> Extract `i`th item from a JSON array as a separate JSON object.
-  !! @param core JSON core object.
-  !! @param array The JSON object with the array.
-  !! @param i The index of the item to extract.
-  !! @param item JSON object object to be filled with the subdict.
+  !! @param[inout] core JSON core object.
+  !! @param[in] array The JSON object with the array.
+  !! @param[in] i The index of the item to extract.
+  !! @param[inout] item JSON object object to be filled with the subdict.
   subroutine json_extract_item(core, array, i, item)
     type(json_core), intent(inout) :: core
     type(json_value), pointer, intent(in) :: array
