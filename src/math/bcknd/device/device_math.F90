@@ -641,6 +641,15 @@ module device_math
   end interface
 
   interface
+     subroutine opencl_masked_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name='opencl_masked_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine opencl_masked_copy
+  end interface
+
+  interface
      subroutine opencl_cmult(a_d, c, n) &
           bind(c, name='opencl_cmult')
        use, intrinsic :: iso_c_binding
@@ -948,7 +957,7 @@ contains
 #elif HAVE_CUDA
     call cuda_masked_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_OPENCL
-    call neko_error('no OpenCL backend')
+    call opencl_masked_copy(a_d, b_d, mask_d, n, m)
 #else
     call neko_error('no device backend configured')
 #endif
