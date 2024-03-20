@@ -157,7 +157,7 @@ contains
     integer, intent(in) :: tstep
   
     ! 
-    ! Simple example that sets (u,v,w) = (1,0,0) and s = 2 on the inlet/outlet
+    ! Simple example that sets (u,v,w) = (1,0,0) on the inlet/outlet
     ! and p = 2 on the outlet
     !
 
@@ -173,8 +173,6 @@ contains
        call device_cfill(field_bc_list%fields(3)%f%x_d,0d0,field_bc_list%fields(3)%f%dof%size())
        if (allocated(field_bc_list%fields(4)%f%x)) &
        call device_cfill(field_bc_list%fields(4)%f%x_d,2d0,field_bc_list%fields(4)%f%dof%size())
-       if (allocated(field_bc_list%fields(5)%f%x)) &
-       call device_cfill(field_bc_list%fields(5)%f%x_d,2d0,field_bc_list%fields(5)%f%dof%size())
     else
        if (allocated(field_bc_list%fields(1)%f%x)) &
        call cfill(field_bc_list%fields(1)%f%x,1d0,field_bc_list%fields(1)%f%dof%size())
@@ -184,8 +182,6 @@ contains
        call cfill(field_bc_list%fields(3)%f%x,0d0,field_bc_list%fields(3)%f%dof%size())
        if (allocated(field_bc_list%fields(4)%f%x)) &
        call cfill(field_bc_list%fields(4)%f%x,2d0,field_bc_list%fields(4)%f%dof%size())
-       if (allocated(field_bc_list%fields(5)%f%x)) &
-       call cfill(field_bc_list%fields(5)%f%x,2d0,field_bc_list%fields(5)%f%dof%size())
     end if
   end subroutine dirichlet_update
 

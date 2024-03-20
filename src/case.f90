@@ -308,9 +308,12 @@ contains
        allocate(C%dirichlet_bc_field_list%fields(4))
     end if
 
-    C%dirichlet_bc_field_list%fields(1)%f => C%fluid%bc_field_u%field_bc
-    C%dirichlet_bc_field_list%fields(2)%f => C%fluid%bc_field_v%field_bc
-    C%dirichlet_bc_field_list%fields(3)%f => C%fluid%bc_field_w%field_bc
+    C%dirichlet_bc_field_list%fields(1)%f => &
+         C%fluid%bc_field_vel%field_dirichlet_u%field_bc
+    C%dirichlet_bc_field_list%fields(2)%f => &
+         C%fluid%bc_field_vel%field_dirichlet_v%field_bc
+    C%dirichlet_bc_field_list%fields(3)%f => &
+         C%fluid%bc_field_vel%field_dirichlet_w%field_bc
     C%dirichlet_bc_field_list%fields(4)%f => C%fluid%bc_field_prs%field_bc
     if (scalar) C%dirichlet_bc_field_list%fields(5)%f => C%scalar%field_dir_bc%field_bc
 
@@ -322,9 +325,9 @@ contains
        call bc_list_init(C%dirichlet_bc_bc_list, size=4)
     end if
 
-    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_u)
-    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_v)
-    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_w)
+    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_vel%field_dirichlet_u)
+    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_vel%field_dirichlet_v)
+    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_vel%field_dirichlet_w)
     call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_prs)
     if (scalar) call bc_list_add(C%dirichlet_bc_bc_list, C%scalar%field_dir_bc)
 

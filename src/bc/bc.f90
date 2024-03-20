@@ -293,7 +293,11 @@ contains
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'v') then
        msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'd_vel') then
+    else if(trim(bc_key) .eq. 'd_vel_u') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_vel_v') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_vel_w') then
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'sym') then
        msh_bc_type = 2

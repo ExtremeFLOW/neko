@@ -77,6 +77,26 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`      | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
 
+### Boundary type numbering in the `output_boundary` field
+
+When the `output_boundary` setting is set to `true`, and additional `.fld` file
+will be stored in the beginning of the simulation, where the recognized
+boundaries will be marked with an integer number. This is a good way to debug
+the simulation setup. The value of the number depends on the type of the
+boundary as follows:
+
+1. A wall boundary, i.e. the `w` label.
+2. A Dirichlet boundary, i.e. the `v` label.
+3. An outlet boundary, i.e. the `o` label.
+4. A symmetry boundary, i.e. the `sym` label.
+5. A periodic boundary.
+6. An wall-normal transpiration boundary, i.e. the `on` label.
+
+Note that the boundary conditions can be both prescribed via the labels in the
+case file or built into the mesh via conversion from a `.re2` file. Both types
+will be picked up and marked in the field produced by `output_boundary`.
+
+
 ## Numerics
 Used to define the properties of the numerical discretization.
 
@@ -279,13 +299,16 @@ The value of the keyword is an array of strings, with the following possible
 values:
 * `w`, a no-slip wall.
 * `v`, a Dirichlet boundary.
-* `d_vel`, a Dirichlet boundary for more complex velocity profiles. This boundary condition uses a more advanced user interface. 
+* `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a `"/"`), a 
+Dirichlet boundary for more complex velocity profiles. This boundary condition uses a more advanced user interface. 
 * `sym`, a symmetry boundary.
 * `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
    the wall-normal. The wall-parallel velocity is defined by the initial
    condition. 
 * `o`, outlet boundary. 
-* `d_pres`, a boundary for specified non-uniform pressure profiles, similar in essence to `d_vel`. Can be combined with `d_vel` by specifying: `"d_vel/d_pres"`.
+* `d_pres`, a boundary for specified non-uniform pressure profiles, similar in 
+essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other 
+complex Dirichlet coonditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
 * `o+dong`, outlet boundary using the Dong condition. 
 * `on+dong`, an `on` boundary using the Dong condition, ensuring that the
    wall-normal velocity is directed outwards.

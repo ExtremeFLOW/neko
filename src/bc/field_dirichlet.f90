@@ -36,7 +36,7 @@ module field_dirichlet
   use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
   use bc, only: bc_list_t
-  use device
+  use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
   use field_list, only : field_list_t
@@ -67,7 +67,6 @@ module field_dirichlet
   end type field_dirichlet_t
 
   abstract interface
-   
      !> Abstract interface defining a dirichlet condition on a list of fields.
      !! @param field_bc_list List of fields that are used to extract values for field_dirichlet.
      !! @param dirichlet_bc_list List of BCs containing field_dirichlet_t BCs only.
@@ -92,10 +91,12 @@ module field_dirichlet
 contains
      
   !> Initializes this%field_bc.
-  subroutine field_dirichlet_init(this,bc_name)
+  subroutine field_dirichlet_init(this, bc_name)
     class(field_dirichlet_t), intent(inout) :: this
     character(len=*), intent(in) :: bc_name
+
     call this%field_bc%init(this%dof, bc_name)
+
   end subroutine field_dirichlet_init
   
   subroutine field_dirichlet_free(this)
@@ -116,9 +117,11 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+
     if (this%msk(0) .gt. 0) then
        call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
+
   end subroutine field_dirichlet_apply_scalar
   
   !> Apply scalar (device).
@@ -153,8 +156,6 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k, idx(4), facet, tstep_
-    real(kind=rp) :: t_
 
   end subroutine field_dirichlet_apply_vector
 
@@ -162,7 +163,6 @@ contains
   !! @param x x-component of the field onto which to apply the values.
   !! @param y y-component of the field onto which to apply the values.
   !! @param z z-component of the field onto which to apply the values.
-  !! @param n Size of the `x`, `y` and `z` arrays.
   !! @param t Time.
   !! @param tstep Time step.
   subroutine field_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
@@ -172,12 +172,6 @@ contains
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k, idx(4), facet, tstep_
-    integer(c_size_t) :: s
-    real(kind=rp) :: t_
-    real(kind=rp), allocatable :: x(:)
-    real(kind=rp), allocatable :: y(:)
-    real(kind=rp), allocatable :: z(:)
 
    end subroutine field_dirichlet_apply_vector_dev
 

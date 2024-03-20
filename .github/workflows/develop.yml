@@ -16,7 +16,7 @@ jobs:
             sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
             pip install nobvisual==0.2.0 flinter==0.4.0
         - name: Checkout
-          uses: actions/checkout@v3
+          uses: actions/checkout@v4
           with:
             fetch-depth: 1
         - name: Lint
@@ -27,7 +27,7 @@ jobs:
               exit 1
             fi
         - name: Archive linter report
-          uses: actions/upload-artifact@v3
+          uses: actions/upload-artifact@v4
           with:
             name: flint-report
             path: flint.txt
@@ -74,7 +74,7 @@ jobs:
         run: ${{ matrix.setup-env }}
       - name: Cache pFUnit
         id: cache-pfunit
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/pkg/pfunit
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -103,7 +103,7 @@ jobs:
           make -j$(nproc) && make install && cd ../../
       - name: Cache json-fortran
         id: cache-json-fortran
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/pkg/json-fortran
           key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -121,7 +121,7 @@ jobs:
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Build (CPU backend)
@@ -230,7 +230,7 @@ jobs:
         run: ${{ matrix.setup-env }}
       - name: Cache json-fortran
         id: cache-json-fortran
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/pkg/json-fortran
           key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -248,7 +248,7 @@ jobs:
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Build
@@ -269,7 +269,7 @@ jobs:
         precision: [dp]
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-24-1 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/24.1/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/24.1/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
+          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-24-3 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/24.3/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/24.3/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
     env:
       CC: gcc
       FC: ${{ matrix.compiler }}
@@ -285,7 +285,7 @@ jobs:
         run: ${{ matrix.setup-env }}
       - name: Cache json-fortran
         id: cache-json-fortran
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/pkg/json-fortran
           key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -303,7 +303,7 @@ jobs:
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Build (CPU backend)
@@ -318,7 +318,7 @@ jobs:
         run: |
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.1/cuda/
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/cuda/
           make
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
@@ -340,7 +340,7 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.1/cuda/
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/cuda/
           make -j $(nproc)
   ReFrame:
     needs: GNU
@@ -365,7 +365,7 @@ jobs:
           pip install reframe-hpc 
       - name: Cache json-fortran
         id: cache-json-fortran
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/pkg/json-fortran
           key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -386,7 +386,7 @@ jobs:
         run: |
           reframe --detect-host-topology
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Regression tests
