@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -90,6 +90,8 @@ contains
     class(rough_log_law_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+
+    write(*,*) "Computing stress"
 
     this%tau_x = 1.0_rp
     this%tau_y = 1.0_rp

@@ -38,6 +38,7 @@ module wall_model_bc
     use utils, only : neko_error, nonlinear_index
     use coefs, only : coef_t
     use wall_model, only : wall_model_t
+    use rough_log_law, only : rough_log_law_t
     use shear_stress, only : shear_stress_t
     implicit none
     private
@@ -46,7 +47,8 @@ module wall_model_bc
     !! wall model.
     type, public, extends(shear_stress_t) :: wall_model_bc_t
       !> The wall model to compute the stress.
-      class(wall_model_t), pointer :: wall_model => null()
+      !class(rough_log_law_t), pointer :: wall_model => null()
+      type(rough_log_law_t) :: wall_model
      contains
        procedure, pass(this) :: apply_scalar => wall_model_bc_apply_scalar
        procedure, pass(this) :: apply_vector => wall_model_bc_apply_vector

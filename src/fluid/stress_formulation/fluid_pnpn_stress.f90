@@ -54,6 +54,8 @@ module fluid_pnpn_stress
   use json_module, only : json_file
   use shear_stress, only : shear_stress_t
   use material_properties, only : material_properties_t
+  use rough_log_law, only : rough_log_law_t
+  use wall_model_bc, only : wall_model_bc_t
   implicit none
   private
 
@@ -116,6 +118,8 @@ module fluid_pnpn_stress
 
      !> The coupled CG solver for the velocity.
      type(cg_stress_t) :: ksp_stress
+
+     type(wall_model_bc_t) :: wm
 
    contains
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -220,6 +224,14 @@ contains
 
        end if
     end do
+
+    !! PROVISIONAL
+    call this%wm%init(this%dm_Xh)
+    call this%wm%mark_zones_from_list(this%msh%labeled_zones, "w", this%bc_labels)
+    call this%wm%finalize()
+    call this%wm%wall_model%init(this%dm_Xh, this%c_Xh, this%wm%msk, this%wm%facet,&
+         this%params)
+    call this%wm%wall_model%find_points()
 
     ! Create list with just Neumann bcs, 2 from each shear stress bc
     call bc_list_init(this%bclst_neumann, this%n_shear_stress)
@@ -754,6 +766,8 @@ contains
       call this%scratch%relinquish_field(temp_indices)
 
     end associate
+
+    call this%wm%wall_model%compute(t, tstep)
     call profiler_end_region
   end subroutine fluid_pnpn_step
 

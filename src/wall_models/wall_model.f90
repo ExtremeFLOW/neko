@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,10 +39,11 @@ module wall_model
   use field_registry, only : neko_field_registry
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
-  use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, HOST_TO_DEVICE
   use vector, only : vector_t
+  use utils, only : neko_error, nonlinear_index
+
   implicit none
   private
 
@@ -50,6 +51,7 @@ module wall_model
   type, abstract, public :: wall_model_t
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
+     type(dofmap_t), pointer :: dofmap => null()
      !> The boundary condition mask.
      integer, pointer :: msk(:) => null()
      !> The boundary condition facet ids.
@@ -60,6 +62,16 @@ module wall_model
      real(kind=rp), allocatable :: tau_y(:)
      !> The z component of the shear stress.
      real(kind=rp), allocatable :: tau_z(:)
+     !> The r indices of the sampling points
+     integer, allocatable :: ind_r(:)
+     !> The s indices of the sampling points
+     integer, allocatable :: ind_s(:)
+     !> The t indices of the sampling points
+     integer, allocatable :: ind_t(:)
+     !> The element indices of the sampling points
+     integer, allocatable :: ind_e(:)
+     !> The sampling height
+     type(vector_t) :: h
    contains
      !> Constructor for the wall_model_t (base) class.
      procedure, pass(this) :: init_base => wall_model_init_base
@@ -71,6 +83,8 @@ module wall_model
      procedure(wall_model_free), pass(this), deferred :: free
      !> Compute the wall shear stress.
      procedure(wall_model_compute), pass(this), deferred :: compute
+
+     procedure, pass(this) :: find_points => wall_model_find_points
   end type wall_model_t
 
   abstract interface
@@ -122,12 +136,22 @@ contains
     integer, target, intent(in) :: facet(:)
 
     this%coef => coef
+    this%dofmap => coef%dof
     this%msk => msk
     this%facet => facet
 
     allocate(this%tau_x(size(this%msk)))
     allocate(this%tau_y(size(this%msk)))
     allocate(this%tau_z(size(this%msk)))
+
+    allocate(this%ind_r(size(this%msk)))
+    allocate(this%ind_s(size(this%msk)))
+    allocate(this%ind_t(size(this%msk)))
+    allocate(this%ind_e(size(this%msk)))
+
+    call this%h%init(size(this%msk))
+
+    call this%find_points
 
   end subroutine wall_model_init_base
 
@@ -148,6 +172,73 @@ contains
     if (allocated(this%tau_z)) then
       deallocate(this%tau_z)
     end if
+    if (allocated(this%ind_r)) then
+      deallocate(this%ind_r)
+    end if
+
+    call this%h%free()
   end subroutine wall_model_free_base
+
+  subroutine wall_model_find_points(this)
+    class(wall_model_t), intent(inout) :: this
+    integer :: n_nodes, fid, idx(4), i, linear
+    real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, dot
+
+    n_nodes = size(this%msk)
+    write(*,*) "FINDING WM POINTS", n_nodes
+      write(*,*) "FACEID", this%facet(1:4), n_nodes, size(this%facet)
+    do i = 1, n_nodes
+       linear = this%msk(i)
+       fid = this%facet(i)
+       write(*,*) "FID1", fid
+       idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%lx,&
+                             this%coef%Xh%lx)
+       normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
+       ! inward normal
+       normal = -normal
+
+
+       write(*,*) "FID2", fid
+       select case (fid)
+       case(1,2)
+         this%ind_r(i) = idx(1) + 1
+         this%ind_s(i) = idx(2)
+         this%ind_t(i) = idx(3)
+       case(3,4)
+         this%ind_r(i) = idx(1)
+         this%ind_s(i) = idx(2) + 1
+         this%ind_t(i) = idx(3)
+       case(5,6)
+         this%ind_r(i) = idx(1)
+         this%ind_s(i) = idx(2)
+         this%ind_t(i) = idx(3) + 1
+       case default
+         call neko_error("The face index is not correct")
+       end select
+       this%ind_e(i) = idx(4)
+
+       ! Location of the wall node
+       xw = this%dofmap%x(idx(1), idx(2), idx(3), idx(4))
+       yw = this%dofmap%y(idx(1), idx(2), idx(3), idx(4))
+       zw = this%dofmap%z(idx(1), idx(2), idx(3), idx(4))
+
+       ! Location of the sampling point
+       write(*,*) "IND", this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i), fid
+       x = this%dofmap%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+       y = this%dofmap%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+       z = this%dofmap%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+
+
+       ! vector from the sampling point to the wall
+       p(1) = x - xw
+       p(2) = y - yw
+       p(3) = z - zw
+
+       ! project on the normal direction to get h
+       this%h%x(i) = p(1)*normal(1) + p(2)*normal(2) + p(3)*normal(3)
+    end do
+
+    write(*,*) this%h%x
+  end subroutine wall_model_find_points
 
 end module wall_model
