@@ -71,7 +71,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
 | `checkpoint_value`   | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
 | `restart_file`       | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
-| `time_step`          | Time-step size | Positive reals                                  | -             |
+| `timestep`          | Time-step size | Positive reals                                  | -             |
 | `variable_timestep`  | Whether to use variable dt |       `true` or `false`        | `false` |
 | `max_timestep`          | Maximum time-step size when variable time step is activated | Positive reals   | -             |
 | `target_cfl`         | The desired CFL number     |         Positive real          | `0.4`  |
