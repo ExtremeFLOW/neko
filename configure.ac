@@ -161,6 +161,9 @@ AX_ADIOS2
 # Checks for gslib
 AX_GSLIB
 
+# Checks for cpfloat
+AX_CPFLOAT
+
 # Select Working precision of REAL
 if test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
