@@ -118,7 +118,6 @@ contains
   subroutine expand(this)
     class(field_registry_t), intent(inout) :: this
     type(field_t), allocatable :: temp(:)
-    integer :: i
 
     allocate(temp(this%n + this%expansion_size))
     temp(1:this%n) = this%fields(1:this%n)
@@ -137,8 +136,6 @@ contains
     type(dofmap_t), target, intent(in) :: dof
     character(len=*), target, intent(in) :: fld_name
     logical, optional, intent(in) :: ignore_existing
-!    type(h_cptr_t) :: key
-    integer :: i
 
     if (this%field_exists(fld_name)) then
       if (present(ignore_existing) .and. ignore_existing .eqv. .true.) then
