@@ -19,7 +19,7 @@
             "initial_condition": {
                 "type": "uniform",
                 "value": [
-                    100.0,
+                    1.0,
                     0.0,
                     0.0
                 ]
@@ -27,7 +27,7 @@
             "inflow_condition": {
                 "type": "uniform",
                 "value": [
-                    100.0
+                    1.0
                 ]
             },
             "velocity_solver": {
@@ -63,7 +63,21 @@
                             "name": "bunny.stl",
                             "distance_transform": {
                                 "type": "smooth_step",
-                                "value": 10.0
+                                "value": 0.05
+                            },
+                            "mesh_transform": {
+                                "type": "bounding_box",
+                                "llf": [
+                                    0.75,
+                                    0.25,
+                                    0.00
+                                ],
+                                "urb": [
+                                    1.25,
+                                    0.75,
+                                    0.50
+                                ],
+                                "keep_aspect_ratio": true
                             }
                         }
                     ],
