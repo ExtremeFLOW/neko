@@ -130,18 +130,18 @@ contains
   !> Add a field to the registry.
   !! @param dof The map of degrees of freedom.
   !! @param fld_name The name of the field.
-  !! @param throw_if_exists If true, will throw an error if the field is already
-  !! in the registry. If false, will just do nothing. Optional.
-  subroutine add_field(this, dof, fld_name, throw_if_exists)
+  !! @param ignore_existing If true, will do nothing if the field is already in
+  !! the registry. If false, will throw an error. Optional, defaults to false.
+  subroutine add_field(this, dof, fld_name, ignore_existing)
     class(field_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
     character(len=*), target, intent(in) :: fld_name
-    logical, optional, intent(in) :: throw_if_exists
+    logical, optional, intent(in) :: ignore_existing
 !    type(h_cptr_t) :: key
     integer :: i
 
     if (this%field_exists(fld_name)) then
-      if (present(throw_if_exists) .and. throw_if_exists .eqv. .false.) then
+      if (present(ignore_existing) .and. ignore_existing .eqv. .true.) then
          return
       else
          call neko_error("Field with name " // fld_name // &
