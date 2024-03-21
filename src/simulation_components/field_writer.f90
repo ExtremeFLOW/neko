@@ -108,7 +108,6 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     character(len=20) :: fieldi
-    type(fld_file_output_t) :: output
     integer :: i
 
     ! Regsiter fields if they don't exist.
