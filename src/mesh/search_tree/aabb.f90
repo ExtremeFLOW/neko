@@ -105,11 +105,11 @@ module aabb
      private
 
      logical :: initialized = .false.
-     real(kind=dp) :: box_min(3)
-     real(kind=dp) :: box_max(3)
-     real(kind=dp) :: center(3)
-     real(kind=dp) :: diameter
-     real(kind=dp) :: surface_area
+     real(kind=dp) :: box_min(3) = huge(0.0_dp)
+     real(kind=dp) :: box_max(3) = -huge(0.0_dp)
+     real(kind=dp) :: center(3) = 0.0_dp
+     real(kind=dp) :: diameter = huge(0.0_dp)
+     real(kind=dp) :: surface_area = 0.0_dp
 
    contains
 
