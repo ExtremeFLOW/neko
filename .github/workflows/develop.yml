@@ -4,11 +4,26 @@ name: develop
 on:
   pull_request:
      branches: [develop,release/*]
+     types:
+       - opened
+       - synchronize
+       - reopened
+       - ready_for_review
   workflow_dispatch:
   
 jobs:
+  is_draft:
+    name: Check if PR is a draft
+    if: github.event.pull_request.draft == true
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is a draft
+        run: echo "This PR is a draft"
+
   linting:
       name: "Flint"
+      if: github.event.pull_request.draft != true
       runs-on: ubuntu-20.04
       steps:
         - name: Setup env.
@@ -33,6 +48,7 @@ jobs:
             path: flint.txt
             retention-days: 5
   GNU:
+    if: github.event.pull_request.draft != true
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
@@ -203,6 +219,7 @@ jobs:
           make -j $(nproc)
     
   Intel:
+    if: github.event.pull_request.draft != true
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
@@ -258,6 +275,7 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
   NVIDIA:
+    if: github.event.pull_request.draft != true
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
@@ -343,6 +361,7 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/cuda/
           make -j $(nproc)
   ReFrame:
+    if: github.event.pull_request.draft != true
     needs: GNU
     runs-on: ubuntu-20.04
     strategy:
