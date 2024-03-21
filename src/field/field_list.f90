@@ -18,7 +18,7 @@ contains
   !! @param field The field to append.
   subroutine field_list_append(this, field)
     class(field_list_t), intent(inout) :: this
-    class(field_t), intent(inout), target :: field
+    class(field_t), intent(in), target :: field
     type(field_ptr_t), allocatable :: tmp(:)
     integer :: len
 
