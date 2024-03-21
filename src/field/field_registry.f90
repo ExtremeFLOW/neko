@@ -42,22 +42,31 @@ module field_registry
   private
 
   type :: field_registry_t
-     !> list of fields stored
+     !> List of fields stored.
      type(field_t), private, allocatable :: fields(:)
-     !> number of registered fields
+     !> Number of registered fields.
      integer, private :: n
-     !> the size the fields array is increased by upon reallocation
+     !> The size the fields array is increased by upon reallocation.
      integer, private :: expansion_size
    contains
      procedure, private, pass(this) :: expand
+     !> Constructor.
      procedure, pass(this) :: init => field_registry_init
+     !> Destructor.
      procedure, pass(this) :: free => field_registry_free
+     !> Add a field to the registry.
      procedure, pass(this) :: add_field
+     !> Get the number of fields in the registry.
      procedure, pass(this) :: n_fields
+     !> Get pointer to a stored field by index.
      procedure, pass(this) :: get_field_by_index
+     !> Get pointer to a stored field by name.
      procedure, pass(this) :: get_field_by_name
+     !> Get the `expansion_size`
      procedure, pass(this) :: get_expansion_size
+     !> Get total allocated size of `fields`.
      procedure, pass(this) :: get_size
+     !> Check if a field with a given name is already in the registry.
      procedure, pass(this) :: field_exists
      generic :: get_field => get_field_by_index, get_field_by_name
   end type field_registry_t
@@ -66,8 +75,9 @@ module field_registry
   type(field_registry_t), public, target :: neko_field_registry
 
 contains
-  !> Constructor, optionally taking initial registry and expansion
-  !> size as argument
+  !> Constructor
+  !! @param size The allocation size of `fields` on init.
+  !! @param expansion_size The number of entries added to `fields` on expansion.
   subroutine field_registry_init(this, size, expansion_size)
     class(field_registry_t), intent(inout):: this
     integer, optional, intent(in) :: size
@@ -104,11 +114,10 @@ contains
     this%expansion_size = 0
   end subroutine field_registry_free
 
-  !> expand the fields array so as to accomodate more fields
+  !> Expand the fields array so as to accomodate more fields.
   subroutine expand(this)
     class(field_registry_t), intent(inout) :: this
     type(field_t), allocatable :: temp(:)
-    integer :: i
 
     allocate(temp(this%n + this%expansion_size))
     temp(1:this%n) = this%fields(1:this%n)
@@ -117,16 +126,24 @@ contains
 
   end subroutine expand
 
-  subroutine add_field(this, dof, fld_name)
+  !> Add a field to the registry.
+  !! @param dof The map of degrees of freedom.
+  !! @param fld_name The name of the field.
+  !! @param ignore_existing If true, will do nothing if the field is already in
+  !! the registry. If false, will throw an error. Optional, defaults to false.
+  subroutine add_field(this, dof, fld_name, ignore_existing)
     class(field_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
     character(len=*), target, intent(in) :: fld_name
-!    type(h_cptr_t) :: key
-    integer :: i
+    logical, optional, intent(in) :: ignore_existing
 
     if (this%field_exists(fld_name)) then
-       call neko_error("Field with name " // fld_name // &
-            " is already registered")
+      if (present(ignore_existing) .and. ignore_existing .eqv. .true.) then
+         return
+      else
+         call neko_error("Field with name " // fld_name // &
+                         " is already registered")
+      end if
     end if
 
     if (this%n_fields() == size(this%fields)) then
@@ -153,7 +170,7 @@ contains
     n = this%n
   end function n_fields
 
-  !> Get the size of the fields array
+  !> Get the size of the fields array.
   pure function get_size(this) result(n)
     class(field_registry_t), intent(in) :: this
     integer :: n
@@ -161,7 +178,7 @@ contains
     n = size(this%fields)
   end function get_size
 
-  !> Get the expansion size
+  !> Get the expansion size.
   pure function get_expansion_size(this) result(n)
     class(field_registry_t), intent(in) :: this
     integer :: n
@@ -169,7 +186,7 @@ contains
     n = this%expansion_size
   end function get_expansion_size
 
-  !> Get pointer to a stored field by index
+  !> Get pointer to a stored field by index.
   function get_field_by_index(this, i) result(f)
     class(field_registry_t), target, intent(in) :: this
     integer, intent(in) :: i
@@ -184,7 +201,7 @@ contains
     f => this%fields(i)
   end function get_field_by_index
 
-  !> Get pointer to a stored field by field name
+  !> Get pointer to a stored field by field name.
   function get_field_by_name(this, name) result(f)
     class(field_registry_t), target, intent(in) :: this
     character(len=*), intent(in) ::name
@@ -208,7 +225,7 @@ contains
     end if
   end function get_field_by_name
 
-  !> Check if a field with a given name is already in the registry
+  !> Check if a field with a given name is already in the registry.
   function field_exists(this, name) result(found)
     class(field_registry_t), target, intent(in) :: this
     character(len=*), intent(in) ::name

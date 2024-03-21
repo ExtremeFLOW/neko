@@ -164,17 +164,19 @@ contains
     logical :: is_inside
 
     real(kind=rp), dimension(3) :: p
-    real(kind=rp), dimension(3) :: line
+    real(kind=rp), dimension(3) :: centerline
+    real(kind=rp), dimension(3) :: vec_p
     real(kind=rp) :: t
     real(kind=rp), dimension(3) :: projection
     real(kind=rp) :: distance
 
     p = [x, y, z]
 
-    line = this%p1 - this%p0
-    t = dot_product(p - this%p0, line) / norm2(line)
+    centerline = this%p1 - this%p0
+    vec_p = p - this%p0
+    t = dot_product(vec_p, centerline) / dot_product(centerline, centerline)
 
-    projection = this%p0 + t * line
+    projection = this%p0 + t * centerline
     distance = norm2(projection - p)
 
     is_inside = t >= 0.0_rp .and. t <= 1.0_rp .and. distance <= this%radius
