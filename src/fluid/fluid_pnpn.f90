@@ -498,7 +498,7 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          rho => this%rho, mu => this%mu, &
-         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z)
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, chi => this%chi)
 
       ! Get temporary arrays
       call this%scratch%request_field(u_e, temp_indices(1))
@@ -583,11 +583,9 @@ contains
 
       ! Compute velocity.
       call profiler_start_region('Velocity residual', 19)
-      ! Potentially compute the Brinkman penalization term
-      call this%userbrinkman%compute(t)
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
-                           p, this%userbrinkman%chi, &
+                           p, chi, &
                            f_x, f_y, f_z,&
                            c_Xh, msh, Xh, &
                            mu, rho, ext_bdf%diffusion_coeffs(1), &

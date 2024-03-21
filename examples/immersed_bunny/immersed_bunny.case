@@ -44,8 +44,8 @@
                 "absolute_tolerance": 1e-7,
                 "max_iterations": 800
             },
-            "output_control": "nsamples",
-            "output_value": 250,
+            "output_control": "tsteps",
+            "output_value": 10,
             "boundary_types": [
                 "v",
                 "o",
@@ -70,9 +70,10 @@
                     "brinkman": {
                         "limits": [
                             0.0,
-                            1000.0
+                            100000000.0
                         ],
-                        "penalty": 1.0
+                        "penalty": 1.0,
+                        "implicit": true,
                     },
                 }
             ]
