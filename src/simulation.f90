@@ -73,7 +73,7 @@ contains
     call neko_log%section('Starting simulation')
     write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%end_time,')'
     call neko_log%message(log_buf)
-    call dt_controller%init(C)
+    call dt_controller%init(C%params)
     if (.not. dt_controller%if_variable_dt) then
        write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
        call neko_log%message(log_buf)
@@ -113,7 +113,7 @@ contains
        if (dt_controller%dt_last_change .eq. 0) then
           cfl_avrg = cfl
        end if
-       call dt_controller%set_dt(C, cfl, cfl_avrg, tstep)
+       call dt_controller%set_dt(C%dt, cfl, cfl_avrg, tstep)
        !calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%dt)
 
@@ -127,8 +127,7 @@ contains
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 
        call neko_log%section('Fluid')
-       call C%fluid%step(t, tstep, C%dt, C%ext_bdf, &
-                        dt_controller%if_variable_dt, dt_controller%dt_last_change)
+       call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7,A,E15.7)') &
             'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
@@ -139,8 +138,7 @@ contains
        if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')
-          call C%scalar%step(t, tstep, C%dt, C%ext_bdf, &
-                           dt_controller%if_variable_dt, dt_controller%dt_last_change)
+          call C%scalar%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7,A,E15.7)') &
                'Elapsed time (s):', end_time-start_time_org, ' Step time:', &

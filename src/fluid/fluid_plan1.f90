@@ -70,13 +70,12 @@ contains
 
   end subroutine fluid_plan1_free
 
-  subroutine fluid_plan1_step(this, t, tstep, ext_bdf, if_variable_dt, dt_last_change)
+  subroutine fluid_plan1_step(this, t, tstep, ext_bdf, dt_controller)
     class(fluid_plan1_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
-    logical, intent(in) :: if_variable_dt
-    integer, intent(in) :: dt_last_change
+    type(time_step_controller_t), intent(in) :: dt_controller
 
     if (this%freeze) return
 

@@ -32,7 +32,9 @@
 !
 !> Implements type time_step_controller.
 module time_step_controller
-  use case
+  use num_types
+  use logger
+  use json_module, only : json_file
   use json_utils, only : json_get_or_default
   implicit none
   private
@@ -59,40 +61,40 @@ contains
 
   !> Constructor
   !! @param order order of the interpolation
-  subroutine time_step_controller_init(this, C)
+  subroutine time_step_controller_init(this, params)
     class(time_step_controller_t), intent(inout) :: this
-    type(case_t), intent(inout) :: C
+    type(json_file), intent(inout) :: params
 
     this%dt_last_change = 0
-    call json_get_or_default(C%params, 'case.variable_timestep',&
+    call json_get_or_default(params, 'case.variable_timestep',&
                                     this%if_variable_dt, .false.)
-    call json_get_or_default(C%params, 'case.target_cfl',&
+    call json_get_or_default(params, 'case.target_cfl',&
                                     this%set_cfl, 0.4_rp)
-    call json_get_or_default(C%params, 'case.max_timestep',&
+    call json_get_or_default(params, 'case.max_timestep',&
                                     this%max_dt, 99999999.0_rp)
-    call json_get_or_default(C%params, 'case.cfl_max_update_frequency',&
+    call json_get_or_default(params, 'case.cfl_max_update_frequency',&
                                     this%max_update_frequency, 0)
-    call json_get_or_default(C%params, 'case.cfl_running_avg_coeff',&
+    call json_get_or_default(params, 'case.cfl_running_avg_coeff',&
                                     this%alpha, 0.5_rp)
-    call json_get_or_default(C%params, 'case.max_dt_increase_factor',&
+    call json_get_or_default(params, 'case.max_dt_increase_factor',&
                                     this%max_dt_increase_factor, 1.2_rp)
-    call json_get_or_default(C%params, 'case.min_dt_decrease_factor',&
+    call json_get_or_default(params, 'case.min_dt_decrease_factor',&
                                     this%min_dt_decrease_factor, 0.5_rp)
 
   end subroutine time_step_controller_init
 
   !> Set new dt based on cfl if requested
-  !! @param C case type.
+  !! @param dt time step in case_t.
   !! @param cfl courant number of current iteration.
   !! @param cfl_avrg average Courant number.
   !! @param tstep the current time step.
   !! @Algorithm: 
   !! 1. Set the first time step such that cfl is the set one;
   !! 2. During time-stepping, adjust dt when cfl_avrg is offset by 20%.
-  subroutine time_step_controller_set_dt(this, C, cfl, cfl_avrg, tstep)
+  subroutine time_step_controller_set_dt(this, dt, cfl, cfl_avrg, tstep)
     implicit none
     class(time_step_controller_t), intent(inout) :: this
-    type(case_t), intent(inout) :: C
+    real(kind=rp), intent(inout) :: dt
     real(kind=rp), intent(in) :: cfl
     real(kind=rp), intent(inout) :: cfl_avrg
     real(kind=rp) :: dt_old, scaling_factor
@@ -102,7 +104,7 @@ contains
     if (this%if_variable_dt .eqv. .true.) then
        if (tstep .eq. 1) then
           ! set the first dt for desired cfl
-          C%dt = min(this%set_cfl/cfl*C%dt, this%max_dt)
+          dt = min(this%set_cfl/cfl*dt, this%max_dt)
        else
           ! Calculate the average of cfl over the desired interval
           cfl_avrg = this%alpha * cfl + (1-this%alpha) * cfl_avrg
@@ -118,16 +120,16 @@ contains
                 scaling_factor = max(this%min_dt_decrease_factor, this%set_cfl/cfl) 
              end if
 
-             dt_old = C%dt
-             C%dt = scaling_factor * dt_old
-             C%dt = min(C%dt, this%max_dt)
+             dt_old = dt
+             dt = scaling_factor * dt_old
+             dt = min(dt, this%max_dt)
 
              write(log_buf, '(A,E15.7,1x,A,E15.7)') 'Avrg CFL:', cfl_avrg, &
                          'set_cfl:', this%set_cfl
              call neko_log%message(log_buf)
 
              write(log_buf, '(A,E15.7,1x,A,E15.7)') 'old dt:', dt_old, &
-                         'new dt:', C%dt
+                         'new dt:', dt
              call neko_log%message(log_buf)
 
              this%dt_last_change = 0

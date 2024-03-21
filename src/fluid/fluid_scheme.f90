@@ -72,6 +72,7 @@ module fluid_scheme
   use utils, only : neko_warning, neko_error
   use material_properties, only : material_properties_t
   use field_series
+  use time_step_controller
   implicit none
 
   !> Base type of all fluid formulations
@@ -168,17 +169,17 @@ module fluid_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf, if_variable_dt, dt_last_change)
+     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
        import fluid_scheme_t
        import time_scheme_controller_t
+       import time_step_controller_t
        import rp
        class(fluid_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
        real(kind=rp), intent(in) :: dt
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
-       logical, intent(in) :: if_variable_dt
-       integer, intent(in) :: dt_last_change
+       type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine fluid_scheme_step_intrf
   end interface
 

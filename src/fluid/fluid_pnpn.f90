@@ -465,12 +465,13 @@ contains
   !! @param tstep The current interation.
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
-  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, if_variable_dt, dt_last_change)
+  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
     class(fluid_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
     integer :: n
     ! Solver results monitors (pressure + 3 velocity)
@@ -481,9 +482,9 @@ contains
     integer :: temp_indices(3)
     ! Counter
     integer :: i
-    ! time step controller
-    logical, intent(in) :: if_variable_dt
-    integer, intent(in) :: dt_last_change ! 0 at the step where dt changes
+    ! time step controller's component
+    logical :: if_variable_dt
+    integer :: dt_last_change ! 0 at the step where dt changes
 
     if (this%freeze) return
 
@@ -503,7 +504,9 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          rho => this%rho, mu => this%mu, &
-         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z)
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
+         if_variable_dt => dt_controller%if_variable_dt, &
+         dt_last_change => dt_controller%dt_last_change)
 
       ! Get temporary arrays
       call this%scratch%request_field(u_e, temp_indices(1))

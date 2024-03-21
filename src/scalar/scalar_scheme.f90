@@ -65,6 +65,7 @@ module scalar_scheme
   use utils, only : neko_error
   use scalar_source_term, only : scalar_source_term_t
   use field_series
+  use time_step_controller
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -190,17 +191,17 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, if_variable_dt, dt_last_change)
+     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
        import scalar_scheme_t
        import time_scheme_controller_t
+       import time_step_controller_t
        import rp
        class(scalar_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
        real(kind=rp), intent(in) :: dt
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
-       logical, intent(in) :: if_variable_dt
-       integer, intent(in) :: dt_last_change
+       type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine scalar_scheme_step_intrf
   end interface
 

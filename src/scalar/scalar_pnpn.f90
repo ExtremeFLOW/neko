@@ -67,6 +67,7 @@ module scalar_pnpn
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
+  use time_step_controller
   implicit none
   private
 
@@ -279,20 +280,21 @@ contains
 
   end subroutine scalar_pnpn_free
 
-  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf, if_variable_dt, dt_last_change)
+  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
     class(scalar_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_step_controller_t), intent(in) :: dt_controller
     ! Number of degrees of freedom
     integer :: n
     ! Linear solver results monitor
     type(ksp_monitor_t) :: ksp_results(1)
     character(len=LOG_SIZE) :: log_buf
     ! time step controller
-    logical, intent(in) :: if_variable_dt
-    integer, intent(in) :: dt_last_change
+    logical :: if_variable_dt
+    integer :: dt_last_change
 
     n = this%dm_Xh%size()
 
@@ -306,7 +308,9 @@ contains
          slag => this%slag, &
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, &
-         makeext => this%makeext, makebdf => this%makebdf)
+         makeext => this%makeext, makebdf => this%makebdf, &
+         if_variable_dt => dt_controller%if_variable_dt, &
+         dt_last_change => dt_controller%dt_last_change)
 
       if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
          write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
