@@ -33,12 +33,14 @@
 !
 !> Implements `rough_log_law_t`.
 module rough_log_law
+  use field, only: field_t
   use num_types, only : rp
   use json_module, only : json_file
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
+  use field_registry, only : neko_field_registry
   implicit none
   private
 
@@ -46,7 +48,11 @@ module rough_log_law
   type, public, extends(wall_model_t) :: rough_log_law_t
 
     !> The von Karman coefficient.
-    real(kind=rp) :: kappa = 0.41
+    real(kind=rp) :: kappa = 0.41_rp
+    !> The log-law intercept
+    real(kind=rp) :: B = 0.0_rp
+    !> The roughness height
+    real(kind=rp) :: z0 = 0.0_rp
    contains
      !> Constructor.
      procedure, pass(this) :: init => rough_log_law_init
@@ -90,12 +96,28 @@ contains
     class(rough_log_law_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    type(field_t), pointer :: u
+    type(field_t), pointer :: v
+    type(field_t), pointer :: w
+    integer :: i
+    real(kind=rp) :: ui, vi, wi, magu, utau
 
-    write(*,*) "Computing stress"
+    u => neko_field_registry%get_field("u")
+    v => neko_field_registry%get_field("v")
+    w => neko_field_registry%get_field("w")
 
-    this%tau_x = 1.0_rp
-    this%tau_y = 1.0_rp
-    this%tau_z = 1.0_rp
+    do i=1, this%n_nodes
+      ui = u%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+      vi = v%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+      wi = w%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+
+      magu = sqrt(ui**2 + vi**2 + wi**2)
+      utau = (magu - this%B) * this%kappa / log(this%h%x(i) / this%z0)
+      this%tau_x(i) = -utau**2 * ui / magu
+      this%tau_y(i) = -utau**2 * vi / magu
+      this%tau_z(i) = -utau**2 * wi / magu
+    end do
+
   end subroutine rough_log_law_compute
 
 

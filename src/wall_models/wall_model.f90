@@ -52,9 +52,9 @@ module wall_model
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
      type(dofmap_t), pointer :: dofmap => null()
-     !> The boundary condition mask.
+     !> The boundary condition mask. First element, holds the array size!
      integer, pointer :: msk(:) => null()
-     !> The boundary condition facet ids.
+     !> The boundary condition facet ids. First element holds the array size!
      integer, pointer :: facet(:) => null()
      !> The x component of the shear stress.
      real(kind=rp), allocatable :: tau_x(:)
@@ -72,6 +72,8 @@ module wall_model
      integer, allocatable :: ind_e(:)
      !> The sampling height
      type(vector_t) :: h
+     !> Number of nodes in the boundary
+     integer :: n_nodes = 0
    contains
      !> Constructor for the wall_model_t (base) class.
      procedure, pass(this) :: init_base => wall_model_init_base
@@ -140,16 +142,16 @@ contains
     this%msk => msk
     this%facet => facet
 
-    allocate(this%tau_x(size(this%msk)))
-    allocate(this%tau_y(size(this%msk)))
-    allocate(this%tau_z(size(this%msk)))
+    allocate(this%tau_x(this%msk(1)))
+    allocate(this%tau_y(this%msk(1)))
+    allocate(this%tau_z(this%msk(1)))
 
-    allocate(this%ind_r(size(this%msk)))
-    allocate(this%ind_s(size(this%msk)))
-    allocate(this%ind_t(size(this%msk)))
-    allocate(this%ind_e(size(this%msk)))
+    allocate(this%ind_r(this%msk(1)))
+    allocate(this%ind_s(this%msk(1)))
+    allocate(this%ind_t(this%msk(1)))
+    allocate(this%ind_e(this%msk(1)))
 
-    call this%h%init(size(this%msk))
+    call this%h%init(this%msk(1))
 
     call this%find_points
 
@@ -184,34 +186,43 @@ contains
     integer :: n_nodes, fid, idx(4), i, linear
     real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, dot
 
-    n_nodes = size(this%msk)
-    write(*,*) "FINDING WM POINTS", n_nodes
-      write(*,*) "FACEID", this%facet(1:4), n_nodes, size(this%facet)
+    n_nodes = this%msk(1)
+    this%n_nodes = n_nodes
     do i = 1, n_nodes
-       linear = this%msk(i)
-       fid = this%facet(i)
-       write(*,*) "FID1", fid
+       ! Because these arrays in bc.f90 start from 0, we have to add 1 here.
+       linear = this%msk(i + 1)
+       fid = this%facet(i + 1)
        idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%lx,&
                              this%coef%Xh%lx)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
        ! inward normal
        normal = -normal
 
-
-       write(*,*) "FID2", fid
        select case (fid)
-       case(1,2)
+       case(1)
          this%ind_r(i) = idx(1) + 1
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3)
-       case(3,4)
+       case(2)
+         this%ind_r(i) = idx(1) - 1
+         this%ind_s(i) = idx(2)
+         this%ind_t(i) = idx(3)
+       case(3)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2) + 1
          this%ind_t(i) = idx(3)
-       case(5,6)
+       case(4)
+         this%ind_r(i) = idx(1)
+         this%ind_s(i) = idx(2) - 1
+         this%ind_t(i) = idx(3)
+       case(5)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3) + 1
+       case(6)
+         this%ind_r(i) = idx(1)
+         this%ind_s(i) = idx(2)
+         this%ind_t(i) = idx(3) - 1
        case default
          call neko_error("The face index is not correct")
        end select
@@ -223,10 +234,13 @@ contains
        zw = this%dofmap%z(idx(1), idx(2), idx(3), idx(4))
 
        ! Location of the sampling point
-       write(*,*) "IND", this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i), fid
-       x = this%dofmap%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-       y = this%dofmap%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-       z = this%dofmap%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+!       write(*,*) "IND", this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i), fid
+       x = this%dofmap%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
+                         this%ind_e(i))
+       y = this%dofmap%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
+                         this%ind_e(i))
+       z = this%dofmap%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
+                         this%ind_e(i))
 
 
        ! vector from the sampling point to the wall
@@ -238,7 +252,12 @@ contains
        this%h%x(i) = p(1)*normal(1) + p(2)*normal(2) + p(3)*normal(3)
     end do
 
-    write(*,*) this%h%x
+    !write(*,*) this%h%x(1:3), size(this%h%x)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_memcpy(this%h%x, this%h%x_d, size(this%h%x), HOST_TO_DEVICE,&
+                         sync=.false.)
+    end if
   end subroutine wall_model_find_points
 
 end module wall_model
