@@ -1,5 +1,6 @@
 var interfacejson__utils_1_1json__get =
 [
+    [ "json_get_double", "d7/d48/interfacejson__utils_1_1json__get.html#a4d6b9650ef866aac7c42d18140aae544", null ],
     [ "json_get_integer", "d7/d48/interfacejson__utils_1_1json__get.html#a1e207652a2639bf3df4a9ba7099729f9", null ],
     [ "json_get_integer_array", "d7/d48/interfacejson__utils_1_1json__get.html#ad98c1d23801f3cef8242651e2fd9dfad", null ],
     [ "json_get_logical", "d7/d48/interfacejson__utils_1_1json__get.html#a71cd40cd156873070b8e2c68ccc930b9", null ],

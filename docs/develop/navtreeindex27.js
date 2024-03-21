@@ -1,5 +1,11 @@
 var NAVTREEINDEX27 =
 {
+"db/d6e/namespacesx__cfl.html#a712a6dd5584b72cbd3a1be217f5bb773":[4,0,230,6],
+"db/d6e/namespacesx__cfl.html#a73287f73ab848be12af991d037ee2de1":[4,0,230,3],
+"db/d6e/namespacesx__cfl.html#a862bd149320238fca13f98bc758cf169":[4,0,230,0],
+"db/d6e/namespacesx__cfl.html#a89f37d34da07b3bba7757dca94b42d3e":[4,0,230,11],
+"db/d6e/namespacesx__cfl.html#a9a60cde68b801ac7cf7af932cd97965a":[4,0,230,9],
+"db/d6e/namespacesx__cfl.html#aa0537dc2c42de666e09e5a07a7d31fbc":[4,0,230,10],
 "db/d6e/namespacesx__cfl.html#aa4cbf92bf5d73eb2659cb7615bb7c081":[4,0,230,8],
 "db/d6e/namespacesx__cfl.html#aacf9d02dde9488469c06cee16d7d16ec":[4,0,230,7],
 "db/d6e/namespacesx__cfl.html#ab1b9bc2cc48f731ccb372991df19a2a9":[4,0,230,2],
@@ -243,11 +249,5 @@ var NAVTREEINDEX27 =
 "db/dca/structmean__flow__output_1_1mean__flow__output__t.html#a1e7ea3ee5e89cecb107db87af2b1cd0f":[5,0,116,0,6],
 "db/dca/structmean__flow__output_1_1mean__flow__output__t.html#a3ea952ebe54a31ff0412b5406c7f13fa":[5,0,116,0,7],
 "db/dca/structmean__flow__output_1_1mean__flow__output__t.html#a40bbdaa3c46f95ed051b7f02d214ccc3":[5,0,116,0,0],
-"db/dca/structmean__flow__output_1_1mean__flow__output__t.html#a5aca388a63e70266bde4522be8685ac0":[5,0,116,0,1],
-"db/dca/structmean__flow__output_1_1mean__flow__output__t.html#a5ee173886404db3cf794593000a784f7":[5,0,116,0,3],
-"db/dca/structmean__flow__output_1_1mean__flow__output__t.html#a88b6907ea038cd6b1a852c2247cf88e7":[5,0,116,0,4],
-"db/dca/structmean__flow__output_1_1mean__flow__output__t.html#adf461dea61d83b5cc030eec5d76f5730":[5,0,116,0,5],
-"db/dca/structmean__flow__output_1_1mean__flow__output__t.html#aff5a4787e143005922bb45f6d57d4428":[5,0,116,0,2],
-"db/dce/interfaceopencl__intf_1_1clCreateCommandQueue.html":[5,0,128,3],
-"db/dce/interfaceopencl__intf_1_1clCreateCommandQueue.html#a9e62c9db6a330ebab8bd345c27ba5015":[5,0,128,3,0]
+"db/dca/structmean__flow__output_1_1mean__flow__output__t.html#a5aca388a63e70266bde4522be8685ac0":[5,0,116,0,1]
 };

@@ -1,5 +1,6 @@
 var NAVTREEINDEX2 =
 {
+"d0/dc0/namespacebc.html#ad2f682d4c03f5b33164d1e2f10fc41ef":[4,0,10,12],
 "d0/dc0/namespaceopencl__prgm__lib.html":[4,0,158],
 "d0/dc0/namespaceopencl__prgm__lib.html#a01e2563c762605cf8da2fa0730649fc5":[4,0,158,22],
 "d0/dc0/namespaceopencl__prgm__lib.html#a0a51bdd9e0d997dbd19d19e4c586239d":[4,0,158,1],
@@ -248,6 +249,5 @@ var NAVTREEINDEX2 =
 "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html#a3b3e2210b38d6577561a7ff877a43325":[5,0,174,0,14],
 "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html#a3f71ceff0808643e0dd97ed94642fdba":[5,0,174,0,7],
 "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html#a4a648d9b6d2c23e6149567b974dc306a":[5,0,174,0,13],
-"d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html#a4befc1abb603193ffd4c3948db1e18fa":[5,0,174,0,17],
-"d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html#a5021e105153a9bcb6d0fb042bf618815":[5,0,174,0,6]
+"d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html#a4befc1abb603193ffd4c3948db1e18fa":[5,0,174,0,17]
 };

@@ -107,6 +107,9 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:afafd2de60838f5cf562fd4df1c093fbd"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html#afafd2de60838f5cf562fd4df1c093fbd">json_get_or_default_real</a> (json, name, value, default)</td></tr>
 <tr class="memdesc:afafd2de60838f5cf562fd4df1c093fbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a real parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json.  <a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html#afafd2de60838f5cf562fd4df1c093fbd">More...</a><br /></td></tr>
 <tr class="separator:afafd2de60838f5cf562fd4df1c093fbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c2bd2a128d97a09c8b3b56f1d3f61dd"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html#a2c2bd2a128d97a09c8b3b56f1d3f61dd">json_get_or_default_double</a> (json, name, value, default)</td></tr>
+<tr class="memdesc:a2c2bd2a128d97a09c8b3b56f1d3f61dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a real parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json.  <a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html#a2c2bd2a128d97a09c8b3b56f1d3f61dd">More...</a><br /></td></tr>
+<tr class="separator:a2c2bd2a128d97a09c8b3b56f1d3f61dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d6335673fbe4e5559e6c5b9ea678770"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html#a1d6335673fbe4e5559e6c5b9ea678770">json_get_or_default_integer</a> (json, name, value, default)</td></tr>
 <tr class="memdesc:a1d6335673fbe4e5559e6c5b9ea678770"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves an integer parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json.  <a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html#a1d6335673fbe4e5559e6c5b9ea678770">More...</a><br /></td></tr>
 <tr class="separator:a1d6335673fbe4e5559e6c5b9ea678770"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -122,6 +125,66 @@ Private Member Functions</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
+<a id="a2c2bd2a128d97a09c8b3b56f1d3f61dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c2bd2a128d97a09c8b3b56f1d3f61dd">&#9670;&nbsp;</a></span>json_get_or_default_double()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine json_utils::json_get_or_default::json_get_or_default_double </td>
+          <td>(</td>
+          <td class="paramtype">type(json_file), intent(inout)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), intent(out)&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), intent(in)&#160;</td>
+          <td class="paramname"><em>default</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves a real parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00266">266</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+
+</div>
+</div>
 <a id="a1d6335673fbe4e5559e6c5b9ea678770"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1d6335673fbe4e5559e6c5b9ea678770">&#9670;&nbsp;</a></span>json_get_or_default_integer()</h2>
 
@@ -171,13 +234,14 @@ Private Member Functions</h2></td></tr>
 <p>Retrieves an integer parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00248">248</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00286">286</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -230,13 +294,14 @@ Private Member Functions</h2></td></tr>
 <p>Retrieves a logical parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00268">268</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00306">306</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -264,13 +329,13 @@ Private Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(out)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=sp), intent(out)&#160;</td>
           <td class="paramname"><em>value</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=sp), intent(in)&#160;</td>
           <td class="paramname"><em>default</em>&#160;</td>
         </tr>
         <tr>
@@ -289,13 +354,14 @@ Private Member Functions</h2></td></tr>
 <p>Retrieves a real parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00228">228</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00246">246</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -348,13 +414,14 @@ Private Member Functions</h2></td></tr>
 <p>Retrieves a string parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00288">288</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00326">326</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -367,7 +434,7 @@ Private Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/da8/namespacejson__utils.html">json_utils</a></li><li class="navelem"><a class="el" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a></li>
-    <li class="footer">Generated on Wed Mar 20 2024 03:34:28 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Thu Mar 21 2024 03:34:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

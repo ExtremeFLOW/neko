@@ -116,6 +116,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ad0df66cefad23e45b5e872ccc030f8c6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#ad0df66cefad23e45b5e872ccc030f8c6">json_get_real</a> (json, name, value)</td></tr>
 <tr class="memdesc:ad0df66cefad23e45b5e872ccc030f8c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a real parameter by name or throws an error.  <a href="../../d8/da8/namespacejson__utils.html#ad0df66cefad23e45b5e872ccc030f8c6">More...</a><br /></td></tr>
 <tr class="separator:ad0df66cefad23e45b5e872ccc030f8c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa088520fcc25a630ff016d711ca7ae5c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#aa088520fcc25a630ff016d711ca7ae5c">json_get_double</a> (json, name, value)</td></tr>
+<tr class="memdesc:aa088520fcc25a630ff016d711ca7ae5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a double precision real parameter by name or throws an error.  <a href="../../d8/da8/namespacejson__utils.html#aa088520fcc25a630ff016d711ca7ae5c">More...</a><br /></td></tr>
+<tr class="separator:aa088520fcc25a630ff016d711ca7ae5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc0f4193d3552e4d619462768d49b438"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#afc0f4193d3552e4d619462768d49b438">json_get_integer</a> (json, name, value)</td></tr>
 <tr class="memdesc:afc0f4193d3552e4d619462768d49b438"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves an integer parameter by name or throws an error.  <a href="../../d8/da8/namespacejson__utils.html#afc0f4193d3552e4d619462768d49b438">More...</a><br /></td></tr>
 <tr class="separator:afc0f4193d3552e4d619462768d49b438"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,6 +143,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a73918c678535381512ddc98027258e43"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#a73918c678535381512ddc98027258e43">json_get_or_default_real</a> (json, name, value, default)</td></tr>
 <tr class="memdesc:a73918c678535381512ddc98027258e43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a real parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json.  <a href="../../d8/da8/namespacejson__utils.html#a73918c678535381512ddc98027258e43">More...</a><br /></td></tr>
 <tr class="separator:a73918c678535381512ddc98027258e43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8134a58cd915884e3447c1dce5a5314e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#a8134a58cd915884e3447c1dce5a5314e">json_get_or_default_double</a> (json, name, value, default)</td></tr>
+<tr class="memdesc:a8134a58cd915884e3447c1dce5a5314e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a real parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json.  <a href="../../d8/da8/namespacejson__utils.html#a8134a58cd915884e3447c1dce5a5314e">More...</a><br /></td></tr>
+<tr class="separator:a8134a58cd915884e3447c1dce5a5314e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8da34a91e2ff9eb25a7c59a7dc60b262"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#a8da34a91e2ff9eb25a7c59a7dc60b262">json_get_or_default_integer</a> (json, name, value, default)</td></tr>
 <tr class="memdesc:a8da34a91e2ff9eb25a7c59a7dc60b262"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves an integer parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json.  <a href="../../d8/da8/namespacejson__utils.html#a8da34a91e2ff9eb25a7c59a7dc60b262">More...</a><br /></td></tr>
 <tr class="separator:a8da34a91e2ff9eb25a7c59a7dc60b262"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -197,15 +203,15 @@ Functions/Subroutines</h2></td></tr>
 <p>Extract <code>i</code>th item from a JSON array as a separate JSON object. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">core</td><td>JSON core object. </td></tr>
-    <tr><td class="paramname">array</td><td>The JSON object with the array. </td></tr>
-    <tr><td class="paramname">i</td><td>The index of the item to extract. </td></tr>
-    <tr><td class="paramname">item</td><td>JSON object object to be filled with the subdict. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">core</td><td>JSON core object. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">array</td><td>The JSON object with the array. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">i</td><td>The index of the item to extract. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">item</td><td>JSON object object to be filled with the subdict. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00308">308</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00346">346</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -215,6 +221,60 @@ Here is the caller graph for this function:</div>
 <area shape="rect" href="../../d2/d78/namespacesimcomp__executor.html#acee7b1825e87d5b61781fd1c718158b0" title="Constructor." alt="" coords="5,5,219,47"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="aa088520fcc25a630ff016d711ca7ae5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa088520fcc25a630ff016d711ca7ae5c">&#9670;&nbsp;</a></span>json_get_double()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine json_utils::json_get_double </td>
+          <td>(</td>
+          <td class="paramtype">type(json_file), intent(inout)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), intent(out)&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves a double precision real parameter by name or throws an error. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -261,13 +321,14 @@ Here is the caller graph for this function:</div>
 <p>Retrieves an integer parameter by name or throws an error. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -314,13 +375,14 @@ Here is the caller graph for this function:</div>
 <p>Retrieves a integer array parameter by name or throws an error. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00149">149</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -367,13 +429,14 @@ Here is the caller graph for this function:</div>
 <p>Retrieves a logical parameter by name or throws an error. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00098">98</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00116">116</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -420,13 +483,74 @@ Here is the caller graph for this function:</div>
 <p>Retrieves a logical array parameter by name or throws an error. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00166">166</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00184">184</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+
+</div>
+</div>
+<a id="a8134a58cd915884e3447c1dce5a5314e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8134a58cd915884e3447c1dce5a5314e">&#9670;&nbsp;</a></span>json_get_or_default_double()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine json_utils::json_get_or_default_double </td>
+          <td>(</td>
+          <td class="paramtype">type(json_file), intent(inout)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), intent(out)&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), intent(in)&#160;</td>
+          <td class="paramname"><em>default</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves a real parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00266">266</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -479,13 +603,14 @@ Here is the caller graph for this function:</div>
 <p>Retrieves an integer parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00248">248</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00286">286</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -538,13 +663,14 @@ Here is the caller graph for this function:</div>
 <p>Retrieves a logical parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00268">268</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00306">306</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -572,13 +698,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(out)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=sp), intent(out)&#160;</td>
           <td class="paramname"><em>value</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=sp), intent(in)&#160;</td>
           <td class="paramname"><em>default</em>&#160;</td>
         </tr>
         <tr>
@@ -597,13 +723,14 @@ Here is the caller graph for this function:</div>
 <p>Retrieves a real parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00228">228</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00246">246</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -656,13 +783,14 @@ Here is the caller graph for this function:</div>
 <p>Retrieves a string parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00288">288</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00326">326</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -690,7 +818,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(out)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=sp), intent(out)&#160;</td>
           <td class="paramname"><em>value</em>&#160;</td>
         </tr>
         <tr>
@@ -709,13 +837,14 @@ Here is the caller graph for this function:</div>
 <p>Retrieves a real parameter by name or throws an error. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -762,13 +891,14 @@ Here is the caller graph for this function:</div>
 <p>Retrieves a real array parameter by name or throws an error. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00150">150</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -815,13 +945,14 @@ Here is the caller graph for this function:</div>
 <p>Retrieves a string parameter by name or throws an error. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. @value value The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00115">115</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00133">133</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -874,15 +1005,15 @@ Here is the caller graph for this function:</div>
 <p>Retrieves a string array parameter by name or throws an error. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
-    <tr><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
-    <tr><td class="paramname">filler</td><td>The default string to fill empty array items with. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filler</td><td>The default string to fill empty array items with. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00184">184</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00202">202</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -892,7 +1023,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/da8/namespacejson__utils.html">json_utils</a></li>
-    <li class="footer">Generated on Wed Mar 20 2024 03:34:28 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Thu Mar 21 2024 03:34:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

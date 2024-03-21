@@ -1,5 +1,6 @@
 var NAVTREEINDEX9 =
 {
+"d3/ddf/interfaceopencl__intf_1_1clReleaseCommandQueue.html#a8bdcc8e2d4c1d7f4741a4df700e762bd":[5,0,128,16,0],
 "d3/de2/structscalar__residual__device_1_1scalar__residual__device__t.html":[5,0,160,0],
 "d3/de2/structscalar__residual__device_1_1scalar__residual__device__t.html#a0293c712fdf9f6bc66da6e33d7b16774":[5,0,160,0,0],
 "d3/de2/structstats_1_1quantp__t.html":[5,0,176,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX9 =
 "d4/d7a/hip_2check_8h_source.html":[6,0,2,5,1,0],
 "d4/d7a/structrhs__maker_1_1rhs__maker__bdf__t.html":[5,0,151,2],
 "d4/d7a/structrhs__maker_1_1rhs__maker__bdf__t.html#a0285f90d0dc852bab155da514afad93a":[5,0,151,2,1],
-"d4/d7a/structrhs__maker_1_1rhs__maker__bdf__t.html#ada5f00dee4b8c9d2e5e641c1f375e7f8":[5,0,151,2,0],
-"d4/d81/interfacetensor__device_1_1hip__tnsr3d__el__list.html":[5,0,185,0]
+"d4/d7a/structrhs__maker_1_1rhs__maker__bdf__t.html#ada5f00dee4b8c9d2e5e641c1f375e7f8":[5,0,151,2,0]
 };
