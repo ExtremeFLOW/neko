@@ -76,6 +76,9 @@ module aabb
   use quad, only: quad_t
   use tet, only: tet_t
   use hex, only: hex_t
+  use mesh, only: mesh_t
+  use tri_mesh, only: tri_mesh_t
+  use tet_mesh, only: tet_mesh_t
   use utils, only: neko_error
 
   implicit none
@@ -178,6 +181,7 @@ contains
     type(aabb_t) :: box
 
     select type(object)
+
       type is (tri_t)
        box = get_aabb_element(object)
       type is (hex_t)
@@ -186,6 +190,13 @@ contains
        box = get_aabb_element(object)
       type is (quad_t)
        box = get_aabb_element(object)
+
+      type is (mesh_t)
+       box = get_aabb_mesh(object)
+      type is (tri_mesh_t)
+       box = get_aabb_tri_mesh(object)
+      type is (tet_mesh_t)
+       box = get_aabb_tet_mesh(object)
 
       class default
        call neko_error("get_aabb: Unsupported object type")
@@ -235,6 +246,72 @@ contains
 
     call box%init(box_min, box_max)
   end function get_aabb_element
+
+  !> @brief Get the aabb of a mesh.
+  !!
+  !! @details This function calculates the aabb of a mesh. The aabb is
+  !! defined by the lower left front corner and the upper right back corner.
+  !! The aabb is calculated by merging the aabb of all elements in the mesh.
+  !!
+  !! @param object The mesh to get the aabb of.
+  !! @return The aabb of the mesh.
+  function get_aabb_mesh(object) result(box)
+    type(mesh_t), intent(in) :: object
+    type(aabb_t) :: box
+
+    integer :: i
+    type(aabb_t) :: temp_box
+
+    do i = 1, object%nelv
+       temp_box = get_aabb(object%elements(i))
+       box = merge(box, temp_box)
+    end do
+
+  end function get_aabb_mesh
+
+  !> @brief Get the aabb of a triangular mesh.
+  !!
+  !! @details This function calculates the aabb of a mesh. The aabb is
+  !! defined by the lower left front corner and the upper right back corner.
+  !! The aabb is calculated by merging the aabb of all elements in the mesh.
+  !!
+  !! @param object The triangular mesh to get the aabb of.
+  !! @return The aabb of the mesh.
+  function get_aabb_tri_mesh(object) result(box)
+    type(tri_mesh_t), intent(in) :: object
+    type(aabb_t) :: box
+
+    integer :: i
+    type(aabb_t) :: temp_box
+
+    do i = 1, object%nelv
+       temp_box = get_aabb(object%el(i))
+       box = merge(box, temp_box)
+    end do
+
+  end function get_aabb_tri_mesh
+
+  !> @brief Get the aabb of a tetrahedral mesh.
+  !!
+  !! @details This function calculates the aabb of a mesh. The aabb is
+  !! defined by the lower left front corner and the upper right back corner.
+  !! The aabb is calculated by merging the aabb of all elements in the mesh.
+  !!
+  !! @param object The tetrahedral mesh to get the aabb of.
+  !! @return The aabb of the mesh.
+  function get_aabb_tet_mesh(object) result(box)
+    type(tet_mesh_t), intent(in) :: object
+    type(aabb_t) :: box
+
+    integer :: i
+    type(aabb_t) :: temp_box
+
+    do i = 1, object%nelv
+       temp_box = get_aabb(object%el(i))
+       box = merge(box, temp_box)
+    end do
+
+  end function get_aabb_tet_mesh
 
 
   ! ========================================================================== !
