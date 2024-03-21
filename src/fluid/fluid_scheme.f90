@@ -72,8 +72,6 @@ module fluid_scheme
   use utils, only : neko_warning, neko_error
   use material_properties, only : material_properties_t
   use field_series
-  
-  use implicit_user_brinkman, only: implicit_user_brinkman_t
 
   implicit none
 
@@ -90,8 +88,6 @@ module fluid_scheme
      type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
      !> The source term for the momentum equation.
      type(fluid_source_term_t) :: source_term
-     !>  Implicit Brinkman penalization term
-     type(implicit_user_brinkman_t) :: userbrinkman
      !> X-component of the right-hand side.
      type(field_t), pointer :: f_x => null()
      !> Y-component of the right-hand side.
