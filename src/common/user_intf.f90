@@ -45,16 +45,6 @@ module user_intf
   implicit none
   private
 
-  !> Abstract interface for user implicit Brinkman forcing
-  abstract interface
-     subroutine implicit_brinkman(chi, t)
-       import field_t
-       import rp
-       type(field_t), intent(inout) :: chi
-    	 real(kind=rp), intent(in) :: t
-     end subroutine implicit_brinkman
-  end interface
-
   !> Abstract interface for user defined initial conditions
   abstract interface
      subroutine useric(u, v, w, p, params)
@@ -161,7 +151,6 @@ module user_intf
      procedure(fluid_source_compute_vector), nopass, pointer :: fluid_user_f_vector => null()
      procedure(scalar_source_compute_pointwise), nopass, pointer :: scalar_user_f => null()
      procedure(scalar_source_compute_vector), nopass, pointer :: scalar_user_f_vector => null()
-     procedure(implicit_brinkman), nopass, pointer :: user_implicit_brinkman => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
      procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
      !> Routine to set material properties
@@ -171,16 +160,12 @@ module user_intf
   end type user_t
 
   public :: useric, useric_scalar, user_initialize_modules, usermsh, &
-            dummy_user_material_properties, user_material_properties, implicit_brinkman
+            dummy_user_material_properties, user_material_properties
 contains
 
   !> User interface initialization
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
-
-    if (.not. associated(u%user_implicit_brinkman)) then
-       u%user_implicit_brinkman => dummy_implicit_brinkman
-    end if
 
     if (.not. associated(u%fluid_user_ic)) then
        u%fluid_user_ic => dummy_user_ic
@@ -238,12 +223,6 @@ contains
   ! when running in pure turboNEKO mode
   !
 
-  !> Dummy user (fluid) implicit Brinkman forcing
-  subroutine dummy_implicit_brinkman(chi, t)
-    type(field_t), intent(inout) :: chi
-    real(kind=rp), intent(in) :: t
-    chi%x = 0.0
-  end subroutine dummy_implicit_brinkman
 
   !> Dummy user initial condition
   subroutine dummy_user_ic(u, v, w, p, params)
