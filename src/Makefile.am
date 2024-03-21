@@ -18,11 +18,13 @@ neko_fortran_SOURCES = \
 	common/system.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
+	qoi/drag_torque.f90\
 	sem/local_interpolation.f90 \
 	math/math.f90\
 	math/mathops.f90\
 	math/fast3d.f90\
 	sem/space.f90\
+	sem/map_1d.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
 	sem/cpr.f90\
@@ -56,10 +58,13 @@ neko_fortran_SOURCES = \
 	mesh/point_zone.f90\
 	mesh/point_zones/sphere_point_zone.f90\
 	mesh/point_zones/box_point_zone.f90\
+	mesh/point_zones/cylinder_point_zone.f90\
 	mesh/point_zone_factory.f90\
 	mesh/point_zone_registry.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
+	mesh/search_tree/aabb.f90\
+	mesh/aabb_tree.f90\
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	field/field_registry.f90\
@@ -96,6 +101,7 @@ neko_fortran_SOURCES = \
 	math/schwarz.f90\
 	math/vector.f90\
 	math/matrix.f90\
+	math/signed_distance.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -123,6 +129,7 @@ neko_fortran_SOURCES = \
 	common/craypat.F90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
+	bc/neumann.f90\
 	bc/dong_outflow.f90\
 	bc/wall.f90\
 	bc/inflow.f90\
@@ -164,6 +171,7 @@ neko_fortran_SOURCES = \
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
+	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
@@ -189,6 +197,7 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/device/pnpn_res_device.F90\
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
+	common/time_step_controller.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\
@@ -245,6 +254,11 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
 	source_terms/bcknd/device/const_source_term_device.f90\
 	source_terms/source_term_factory.f90\
+	source_terms/brinkman_source_term.f90\
+	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
+	source_terms/bcknd/device/brinkman_source_term_device.f90\
+	source_terms/brinkman/filters.f90\
+	source_terms/bcknd/cpu/filters_cpu.f90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
 	les/vreman.f90\

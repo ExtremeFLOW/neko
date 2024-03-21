@@ -20,7 +20,7 @@ example more interesting later. An additional purpose is to provide a test case
 for scalar source terms.
 
 The advecting velocity is set to 1 in $x$. The source term $\hat f$ is easily
-obtained as $ \rho c_p u \cdot \cos(x) - \lambda \sin(x)$.
+obtained as $\rho c_p u \cdot \cos(x) - \lambda \sin(x)$.
 Here, we set $\rho = c_p =u = 1$, and $\lambda = 0.01$.
 
 

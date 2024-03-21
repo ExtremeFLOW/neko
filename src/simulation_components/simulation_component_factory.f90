@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ module simulation_component_fctry
   use case, only : case_t
   use json_utils, only : json_get
   use logger, only : neko_log
+  use field_writer, only : field_writer_t
   implicit none
   private
 
@@ -67,6 +68,8 @@ contains
        allocate(probes_t::simcomp)
     else if (trim(simcomp_type) .eq. "les_model") then
        allocate(les_simcomp_t::simcomp)
+    else if (trim(simcomp_type) .eq. "field_writer") then
+       allocate(field_writer_t::simcomp)
     else
        call neko_log%error("Unknown simulation component type: " &
                            // trim(simcomp_type))

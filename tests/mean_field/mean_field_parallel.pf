@@ -73,6 +73,7 @@ contains
     
     call msh%add_element(2, p(2), p(5), p(6), p(4), &
          p(8), p(11), p(12), p(9))
+    call msh%generate_conn()
     
   end subroutine test_mean_field_gen_msh
   
@@ -87,6 +88,8 @@ contains
     integer :: ierr
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
 
     call test_mean_field_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
