@@ -71,7 +71,7 @@ contains
     call json_get_or_default(params, 'case.target_cfl',&
                                     this%set_cfl, 0.4_rp)
     call json_get_or_default(params, 'case.max_timestep',&
-                                    this%max_dt, 99999999.0_rp)
+                                    this%max_dt, huge(0.0_rp))
     call json_get_or_default(params, 'case.cfl_max_update_frequency',&
                                     this%max_update_frequency, 0)
     call json_get_or_default(params, 'case.cfl_running_avg_coeff',&
