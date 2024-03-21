@@ -33,7 +33,7 @@ additionally provide the `precision` keyword, which can be set to either
 `single` or `double` to control the precision of the written data.
 
 For example, in the `tgv` example case the `vorticity` component is executed
-once per 50 time steps. The `output_` paramaters are synced to that, and the
+once per 50 time steps. The `output_` parameters are synced to that, and the
 vorticity fields will be added to the main `.fld` file.
 ~~~~~~~~~~~~~~~{.json}
 {
