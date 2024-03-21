@@ -125,9 +125,6 @@ module aabb
      procedure, pass(this), public :: get_center => aabb_get_center
      procedure, pass(this), public :: get_diagonal => aabb_get_diagonal
 
-     ! Unary operations
-     procedure, pass(this), public :: min_distance => aabb_min_distance
-
      ! Comparison operators
      generic :: operator(.lt.) => less
      generic :: operator(.gt.) => greater
@@ -357,19 +354,6 @@ contains
 
     is_contained = all(p .ge. this%box_min) .and. all(p .le. this%box_max)
   end function aabb_contains_point
-
-  !> @brief Get the minimum possible distance from the aabb to a point.
-  function aabb_min_distance(this, p) result(distance)
-    class(aabb_t), intent(in) :: this
-    real(kind=dp), dimension(3), intent(in) :: p
-    real(kind=dp) :: distance
-
-    if (.not. this%initialized) then
-       distance = huge(0.0_dp)
-    end if
-
-    distance = this%get_diameter() / 2.0_dp - norm2(this%get_center() - p)
-  end function aabb_min_distance
 
   ! ========================================================================== !
   ! Binary operations
