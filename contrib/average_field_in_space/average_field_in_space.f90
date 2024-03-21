@@ -33,9 +33,9 @@ program average_field_in_space
         write(*,*) 'Computes spatial average in 1 direction and saves it in outfield.fld'
         write(*,*) '----'
         write(*,*) 'Example command: ./average_field_in_space mesh.nmsh fieldblabla.fld xy  out.csv'
-        write(*,*) 'Computes the spatial average in 2 directions diretly of the field fieldblabla.nek5000 and stores in out.csv'
+        write(*,*) 'Computes the spatial average in 2 directions directly of the field fieldblabla.nek5000 and stores in out.csv'
         write(*,*) '----'
-        write(*,*) 'In out.csv the firsct col are the coords of the gll points'
+        write(*,*) 'In out.csv the first col are the coords of the GLL points'
         write(*,*) 'In columns 2-n_fields are the averages for all fields in fieldblabla.fld'
         write(*,*) 'If averaging in 2 directions output must be .csv and for 1 direction .fld'
      end if
