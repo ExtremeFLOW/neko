@@ -125,6 +125,8 @@ module aabb
      procedure, pass(this), public :: get_center => aabb_get_center
      procedure, pass(this), public :: get_diagonal => aabb_get_diagonal
 
+     procedure, pass(this), public :: add_padding
+
      ! Comparison operators
      generic :: operator(.lt.) => less
      generic :: operator(.gt.) => greater
@@ -177,19 +179,36 @@ contains
 
     select type(object)
       type is (tri_t)
-       box = get_aabb_element(object, padding)
+       box = get_aabb_element(object)
       type is (hex_t)
-       box = get_aabb_element(object, padding)
+       box = get_aabb_element(object)
       type is (tet_t)
-       box = get_aabb_element(object, padding)
+       box = get_aabb_element(object)
       type is (quad_t)
-       box = get_aabb_element(object, padding)
+       box = get_aabb_element(object)
 
       class default
        call neko_error("get_aabb: Unsupported object type")
     end select
 
+    if (present(padding)) then
+       call box%add_padding(padding)
+    end if
+
   end function get_aabb
+
+  !> @brief Add padding to the aabb.
+  !! @details This function adds padding to the aabb. The padding is a multiple
+  !! of the diameter of the aabb. This is used to avoid numerical issues when
+  !! the object itself it axis aligned.
+  !! @param[in] padding The padding of the aabb.
+  subroutine add_padding(this, padding)
+    class(aabb_t), intent(inout) :: this
+    real(kind=dp), intent(in) :: padding
+
+    this%box_min = this%box_min - padding * (this%diameter)
+    this%box_max = this%box_max + padding * (this%diameter)
+  end subroutine add_padding
 
   !> @brief Get the aabb of an arbitrary element.
   !!
@@ -198,11 +217,10 @@ contains
   !! The aabb is calculated by finding the minimum and maximum x, y and z
   !! coordinate for all points in the arbitrary element type.
   !!
-  !! @param element The arbitrary element to get the aabb of.
+  !! @param object The arbitrary element to get the aabb of.
   !! @return The aabb of the element.
-  function get_aabb_element(object, padding) result(box)
+  function get_aabb_element(object) result(box)
     class(element_t), intent(in) :: object
-    real(kind=dp), intent(in), optional :: padding
     type(aabb_t) :: box
 
     real(kind=dp), dimension(3) :: box_min, box_max
@@ -214,11 +232,6 @@ contains
        box_min = min(box_min, pi%x)
        box_max = max(box_max, pi%x)
     end do
-
-    if (present(padding)) then
-       box_min = box_min - padding * (box_max - box_min)
-       box_max = box_max + padding * (box_max - box_min)
-    end if
 
     call box%init(box_min, box_max)
   end function get_aabb_element
