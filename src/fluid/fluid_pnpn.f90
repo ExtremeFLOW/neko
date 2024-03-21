@@ -183,7 +183,7 @@ contains
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'v', this%bc_labels)
-    !Thsi impacts the rhs of the pressure, need to check what is correct to add here
+    !This impacts the rhs of the pressure, need to check what is correct to add here
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'd_vel_u', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
