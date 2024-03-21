@@ -35,12 +35,13 @@ module brinkman_source_term_cpu
   use num_types, only: rp
   use field, only: field_t
   use field_list, only: field_list_t
-  use math, only: subcol3
+  use math, only: subcol3, add2
   use field_registry, only: neko_field_registry
   implicit none
   private
 
   public :: brinkman_source_term_compute_cpu
+  public :: implicit_brinkman_source_term_compute_cpu
 
 contains
 
@@ -65,4 +66,18 @@ contains
 
   end subroutine brinkman_source_term_compute_cpu
 
+  !> Computes the implicit Brinkman source term on the cpu.
+  !! @param chi The Brinkman amplitude.
+  !! @param values The values of the source components.
+  subroutine implicit_brinkman_source_term_compute_cpu(fields, brinkman)
+    type(field_list_t), intent(inout) :: fields
+    type(field_t), intent(inout) :: brinkman
+    integer :: n
+	 
+	 ! perhaps not the most clean.. we associate the field chi with the 4th field
+    n = fields%fields(1)%f%dof%size()
+
+    call add2(fields%fields(4)%f%x, brinkman%x, n)
+
+  end subroutine implicit_brinkman_source_term_compute_cpu
 end module brinkman_source_term_cpu

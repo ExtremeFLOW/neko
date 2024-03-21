@@ -35,12 +35,13 @@ module brinkman_source_term_device
   use num_types, only : rp
   use field, only : field_t
   use field_list, only : field_list_t
-  use device_math, only : device_subcol3
+  use device_math, only : device_subcol3, device_add2
   use field_registry, only : neko_field_registry
   implicit none
   private
 
   public :: brinkman_source_term_compute_device
+  public :: implicit_brinkman_source_term_compute_device
 
 contains
 
@@ -65,4 +66,17 @@ contains
 
   end subroutine brinkman_source_term_compute_device
 
+  !> Computes the Brinkman source term on the device.
+  !! @param fields The right-hand side.
+  !! @param values The values of the source components.
+  subroutine implicit_brinkman_source_term_compute_device(fields, brinkman)
+    type(field_list_t), intent(inout) :: fields
+    type(field_t), intent(in) :: brinkman
+    integer :: n
+
+    n = fields%fields(1)%f%dof%size()
+
+    call device_add2(fields%fields(4)%f%x_d, brinkman%x_d, n)
+
+  end subroutine implicit_brinkman_source_term_compute_device
 end module brinkman_source_term_device

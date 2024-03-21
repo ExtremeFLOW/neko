@@ -66,6 +66,8 @@ module fluid_user_source_term
      real(kind=rp), allocatable :: v(:, :, :, :)
      !> z-component of source term.
      real(kind=rp), allocatable :: w(:, :, :, :)
+     !> implicit Brinkman component of source term.
+     real(kind=rp), allocatable :: chi(:, :, :, :)
 
      !> Device pointer for `u`.
      type(c_ptr) :: u_d = C_NULL_PTR
@@ -73,6 +75,8 @@ module fluid_user_source_term
      type(c_ptr) :: v_d = C_NULL_PTR
      !> Device pointer for `w`.
      type(c_ptr) :: w_d = C_NULL_PTR
+     !> Device pointer for `chi`.
+     type(c_ptr) :: chi_d = C_NULL_PTR
      !> Compute the source term for a single point
      procedure(fluid_source_compute_pointwise), nopass, pointer :: compute_pw_ &
        => null()
@@ -230,10 +234,12 @@ contains
        call device_add2(this%fields%fields(1)%f%x_d, this%u_d, n)
        call device_add2(this%fields%fields(2)%f%x_d, this%v_d, n)
        call device_add2(this%fields%fields(3)%f%x_d, this%w_d, n)
+       call device_add2(this%fields%fields(4)%f%x_d, this%chi_d, n)
     else
        call add2(this%fields%fields(1)%f%x, this%u, n)
        call add2(this%fields%fields(2)%f%x, this%v, n)
        call add2(this%fields%fields(3)%f%x, this%w, n)
+       call add2(this%fields%fields(4)%f%x, this%chi, n)
     end if
 
   end subroutine fluid_user_source_term_compute

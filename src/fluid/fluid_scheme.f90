@@ -72,6 +72,7 @@ module fluid_scheme
   use utils, only : neko_warning, neko_error
   use material_properties, only : material_properties_t
   use field_series
+
   implicit none
 
   !> Base type of all fluid formulations
@@ -93,6 +94,8 @@ module fluid_scheme
      type(field_t), pointer :: f_y => null()
      !> Z-component of the right-hand side.
      type(field_t), pointer :: f_z => null()
+     !> Scalar field asociated with an implicit Brinkman term
+     type(field_t), pointer :: chi => null()
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
@@ -446,9 +449,18 @@ contains
     call this%f_y%init(this%dm_Xh, fld_name="fluid_rhs_y")
     call this%f_z%init(this%dm_Xh, fld_name="fluid_rhs_z")
 
+    ! allocate the chi field for an implicit Brinkman term
+    allocate(this%chi)
+    call this%chi%init(this%dm_Xh, fld_name="fluid_chi")
+
     ! Initialize the source term
     call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
-                               user)
+                               user,this%chi)
+
+	! Initialize the implicit user brinkman term
+	! HARRY
+	! this will probably be taken care of by the source terms
+	! call this%userbrinkman%init(this%c_Xh, user%user_implicit_brinkman)
 
   end subroutine fluid_scheme_init_common
 
@@ -685,6 +697,12 @@ contains
     nullify(this%f_x)
     nullify(this%f_y)
     nullify(this%f_z)
+
+
+    if (associated(this%chi)) then
+       call this%chi%free()
+    end if
+    nullify(this%chi)
 
 
   end subroutine fluid_scheme_free

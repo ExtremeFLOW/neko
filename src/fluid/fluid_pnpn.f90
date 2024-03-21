@@ -473,6 +473,8 @@ contains
     type(ksp_monitor_t) :: ksp_results(4)
     ! Extrapolated velocity for the pressure residual
     type(field_t), pointer :: u_e, v_e, w_e
+    ! Field for implicit Brinkman term
+    ! type(field_t), intent(inout) :: chi_fam
     ! Indices for tracking temporary fields
     integer :: temp_indices(3)
     ! Counter
@@ -496,7 +498,7 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          rho => this%rho, mu => this%mu, &
-         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z)
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, chi => this%chi)
 
       ! Get temporary arrays
       call this%scratch%request_field(u_e, temp_indices(1))
@@ -583,8 +585,8 @@ contains
       call profiler_start_region('Velocity residual', 19)
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
-                           p, &
-                           f_x, f_y, f_z, &
+                           p, chi, &
+                           f_x, f_y, f_z,&
                            c_Xh, msh, Xh, &
                            mu, rho, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
