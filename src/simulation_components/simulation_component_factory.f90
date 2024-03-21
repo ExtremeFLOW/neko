@@ -37,6 +37,7 @@ module simulation_component_fctry
   use vorticity, only : vorticity_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
+  use rounding, only : rounding_t
   use les_simcomp, only : les_simcomp_t
   use json_module, only : json_file
   use case, only : case_t
@@ -67,6 +68,8 @@ contains
        allocate(probes_t::simcomp)
     else if (trim(simcomp_type) .eq. "les_model") then
        allocate(les_simcomp_t::simcomp)
+    else if (trim(simcomp_type) .eq. "rounding") then
+       allocate(rounding_t::simcomp)
     else
        call neko_log%error("Unknown simulation component type: " &
                            // trim(simcomp_type))
