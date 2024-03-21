@@ -67,7 +67,7 @@ module simcomp_executor
   end type simcomp_executor_t
 
   !> Global variable for the simulation component driver.
-  type(simcomp_executor_t), public :: neko_simcomps
+  type(simcomp_executor_t), target, public :: neko_simcomps
 
 contains
 
