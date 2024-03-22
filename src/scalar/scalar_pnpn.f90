@@ -372,19 +372,7 @@ contains
 
       call profiler_end_region
 
-      if (tstep .gt. this%proj_s%activ_step .and. projection_dim .gt. 0) then
-         if (if_variable_dt) then
-            if (dt_last_change .eq. 0) then ! the time step at which dt is changed
-               call this%proj_s%clear(n) 
-            else if (dt_last_change .gt. this%proj_s%activ_step - 1) then
-               ! activate projection some steps after dt is changed
-               ! note that dt_last_change start from 0
-               call this%proj_s%project_on(s_res%x, c_Xh, n)
-            end if
-         else
-            call this%proj_s%project_on(s_res%x, c_Xh, n)
-         end if
-      end if
+      call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc%update()
       call profiler_start_region('Scalar solve', 21)
@@ -392,15 +380,8 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
-      if (tstep .gt. this%proj_s%activ_step .and. projection_dim .gt. 0) then
-         if (.not.(if_variable_dt) .or. &
-            (dt_last_change .gt. this%proj_s%activ_step - 1)) then
-
-            call this%proj_s%project_back(ds%x, Ax, c_Xh, &
-                  this%bclst_ds, gs_Xh, n)
-         
-         end if
-      end if
+      call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
+                                 this%bclst_ds, gs_Xh, n, tstep, dt_controller)
 
       ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then

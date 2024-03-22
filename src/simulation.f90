@@ -78,7 +78,6 @@ contains
        write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
        call neko_log%message(log_buf)
     else
-       C%dt = dt_controller%max_dt ! set up an initial dt to start the simulation 
        write(log_buf,'(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
        call neko_log%message(log_buf)
     end if

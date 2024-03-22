@@ -75,6 +75,8 @@ module projection
   use profiler
   use logger
   use, intrinsic :: iso_c_binding
+  use time_step_controller
+
   implicit none
   private
 
@@ -101,6 +103,8 @@ module projection
      procedure, pass(this) :: log_info => print_proj_info
      procedure, pass(this) :: init => projection_init
      procedure, pass(this) :: free => projection_free
+     procedure, pass(this) :: pre_solving => projection_pre_solving
+     procedure, pass(this) :: post_solving => projection_post_solving
   end type projection_t
 
 contains
@@ -211,6 +215,57 @@ contains
     end if
 
   end subroutine projection_free
+
+  subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, string)
+    class(projection_t), intent(inout) :: this
+    real(kind=rp), intent(inout), dimension(n) :: b
+    integer, intent(in) :: tstep
+    class(coef_t), intent(inout) :: coef
+    integer, intent(inout) :: n
+    type(time_step_controller_t), intent(in) :: dt_controller
+    character(len=*), optional :: string
+
+    if( tstep .gt. this%activ_step .and. this%L .gt. 0) then
+       if (dt_controller%if_variable_dt) then
+          if (dt_controller%dt_last_change .eq. 0) then ! the time step at which dt is changed
+             call this%clear(n) 
+          else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
+             ! activate projection some steps after dt is changed
+             ! note that dt_last_change start from 0
+             call this%project_on(b, coef, n)
+             if (present(string)) then
+                call this%log_info(string)
+             end if
+          end if
+       else
+          call this%project_on(b, coef, n)
+          if (present(string)) then
+             call this%log_info(string)
+          end if
+       end if
+    end if
+
+  end subroutine projection_pre_solving
+
+  subroutine projection_post_solving(this, x, Ax, coef, bclst, gs_h, n, tstep, dt_controller)
+    class(projection_t), intent(inout) :: this
+    integer, intent(inout) :: n
+    class(Ax_t), intent(inout) :: Ax
+    class(coef_t), intent(inout) :: coef
+    class(bc_list_t), intent(inout) :: bclst
+    type(gs_t), intent(inout) :: gs_h
+    real(kind=rp), intent(inout), dimension(n) :: x
+    integer, intent(in) :: tstep
+    type(time_step_controller_t), intent(in) :: dt_controller
+
+    if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
+       if (.not.(dt_controller%if_variable_dt) .or. &
+       (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
+          call this%project_back(x, Ax, coef, bclst, gs_h, n)
+       end if
+    end if
+
+  end subroutine projection_post_solving
 
   subroutine bcknd_project_on(this, b, coef, n)
     class(projection_t), intent(inout) :: this
@@ -607,7 +662,7 @@ contains
 
   subroutine bcknd_clear(this, n)
     class(projection_t) :: this
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     integer :: i
 
     this%m = 0

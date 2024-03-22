@@ -465,6 +465,7 @@ contains
   !! @param tstep The current interation.
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
+  !! @param dt_controller timestep controller
   subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
     class(fluid_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
@@ -565,22 +566,7 @@ contains
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region
 
-      if( tstep .gt. this%proj_prs%activ_step .and. pr_projection_dim .gt. 0) then
-         if (if_variable_dt) then
-            if (dt_last_change .eq. 0) then ! the time step at which dt is changed
-               call this%proj_prs%clear(n) 
-            else if (dt_last_change .gt. this%proj_prs%activ_step - 1) then
-               ! activate projection some steps after dt is changed
-               ! note that dt_last_change start from 0
-               call this%proj_prs%project_on(p_res%x, c_Xh, n)
-               call this%proj_prs%log_info('Pressure')
-            end if
-         else
-            call this%proj_prs%project_on(p_res%x, c_Xh, n)
-            call this%proj_prs%log_info('Pressure')
-         end if
-      end if
-
+      call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, 'Pressure')
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
       ksp_results(1) = &
@@ -588,14 +574,8 @@ contains
 
       call profiler_end_region
 
-      if( tstep .gt. this%proj_prs%activ_step .and. pr_projection_dim .gt. 0) then
-         if (.not.(if_variable_dt) .or. &
-            (dt_last_change .gt. this%proj_prs%activ_step - 1)) then
-
-            call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
-                                         this%bclst_dp, gs_Xh, n)
-         end if
-      end if
+      call this%proj_prs%post_solving(dp%x, Ax, c_Xh, &
+                                 this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2(p%x_d, dp%x_d,n)
@@ -624,25 +604,9 @@ contains
 
       call profiler_end_region
 
-      if (tstep .gt. this%proj_u%activ_step .and. vel_projection_dim .gt. 0) then         
-         if (if_variable_dt) then
-            if (dt_last_change .eq. 0) then ! the time step at which dt is changed
-               call this%proj_u%clear(n)
-               call this%proj_v%clear(n)
-               call this%proj_w%clear(n) 
-            else if (dt_last_change .gt. this%proj_u%activ_step - 1) then
-               ! activate projection some steps after dt is changed
-               ! note that dt_last_change start from 0
-               call this%proj_u%project_on(u_res%x, c_Xh, n)
-               call this%proj_v%project_on(v_res%x, c_Xh, n)
-               call this%proj_w%project_on(w_res%x, c_Xh, n)
-            end if
-         else
-            call this%proj_u%project_on(u_res%x, c_Xh, n)
-            call this%proj_v%project_on(v_res%x, c_Xh, n)
-            call this%proj_w%project_on(w_res%x, c_Xh, n)
-         end if
-      end if
+      call this%proj_u%pre_solving(u_res%x, tstep, c_Xh, n, dt_controller)
+      call this%proj_v%pre_solving(v_res%x, tstep, c_Xh, n, dt_controller)
+      call this%proj_w%pre_solving(w_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc_vel%update()
 
@@ -655,17 +619,12 @@ contains
            c_Xh, this%bclst_dw, gs_Xh)
       call profiler_end_region
 
-      if (tstep .gt. this%proj_u%activ_step .and. vel_projection_dim .gt. 0) then
-         if (.not.(if_variable_dt) .or. &
-            (dt_last_change .gt. this%proj_u%activ_step - 1)) then
-            call this%proj_u%project_back(du%x, Ax, c_Xh, &
-                                    this%bclst_du, gs_Xh, n)
-            call this%proj_v%project_back(dv%x, Ax, c_Xh, &
-                                    this%bclst_dv, gs_Xh, n)
-            call this%proj_w%project_back(dw%x, Ax, c_Xh, &
-                                    this%bclst_dw, gs_Xh, n)
-         end if
-      end if
+      call this%proj_u%post_solving(du%x, Ax, c_Xh, &
+                                 this%bclst_du, gs_Xh, n, tstep, dt_controller)
+      call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
+                                 this%bclst_dv, gs_Xh, n, tstep, dt_controller)
+      call this%proj_w%post_solving(dw%x, Ax, c_Xh, &
+                                 this%bclst_dw, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &

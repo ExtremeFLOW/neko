@@ -179,7 +179,10 @@ contains
     call C%params%get('case.variable_timestep', logical_val, found)
     if (.not. logical_val) then
        call json_get(C%params, 'case.timestep', C%dt)
-   end if
+    else
+       ! randomly set an initial dt to get cfl when dt is variable
+       C%dt = 1.0_rp
+    end if
 
     !
     ! End time

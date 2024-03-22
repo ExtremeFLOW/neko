@@ -200,7 +200,7 @@ math/bcknd/cpu/ax_helm.o : math/bcknd/cpu/ax_helm.f90 math/math.o mesh/mesh.o se
 math/bcknd/sx/ax_helm_sx.o : math/bcknd/sx/ax_helm_sx.f90 math/math.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax.o 
 math/bcknd/xsmm/ax_helm_xsmm.o : math/bcknd/xsmm/ax_helm_xsmm.F90 math/mxm_wrapper.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax.o 
 math/bcknd/device/ax_helm_device.o : math/bcknd/device/ax_helm_device.F90 device/device.o math/bcknd/device/device_math.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax.o 
-common/projection.o : common/projection.f90 common/log.o common/profiler.o common/bcknd/device/device_projection.o math/bcknd/device/device_math.o device/device.o config/neko_config.o gs/gather_scatter.o comm/comm.o bc/bc.o math/ax.o sem/coef.o math/math.o config/num_types.o 
+common/projection.o : common/projection.f90 common/time_step_controller.o common/log.o common/profiler.o common/bcknd/device/device_projection.o math/bcknd/device/device_math.o device/device.o config/neko_config.o gs/gather_scatter.o comm/comm.o bc/bc.o math/ax.o sem/coef.o math/math.o config/num_types.o 
 common/bcknd/device/device_projection.o : common/bcknd/device/device_projection.F90 common/utils.o config/num_types.o 
 comm/parmetis.o : comm/parmetis.F90 mesh/mesh.o field/mesh_field.o config/num_types.o common/utils.o mesh/point.o comm/comm.o 
 comm/redist.o : comm/redist.f90 mesh/element.o mesh/facet_zone.o io/format/nmsh.o mesh/mesh.o comm/comm.o mesh/curve.o adt/stack.o mesh/point.o adt/htable.o comm/mpi_types.o field/mesh_field.o 
