@@ -218,10 +218,10 @@ contains
 
   subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, string)
     class(projection_t), intent(inout) :: this
+    integer, intent(inout) :: n
     real(kind=rp), intent(inout), dimension(n) :: b
     integer, intent(in) :: tstep
     class(coef_t), intent(inout) :: coef
-    integer, intent(inout) :: n
     type(time_step_controller_t), intent(in) :: dt_controller
     character(len=*), optional :: string
 
