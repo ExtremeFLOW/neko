@@ -264,7 +264,7 @@ Additional keywords are available to modify the Brinkman force term.
 | `distance_transform.type`          | How to map from distance field to indicator field.                                            | `step`, `smooth_step`             | -             |
 | `distance_transform.value`         | Values used to define the distance transform, such as cut-off distance for the step function. | Real                              | -             |
 | `filter.type`                      | Type of filtering applied to the indicator field either globally or for the current object.   | `none`                            | `none`        |
-| `mesh_transform.type`              | Apply a transformation to the boundary mesh.                                                  | `boundinx_box`, `none`            | `none`        |
+| `mesh_transform.type`              | Apply a transformation to the boundary mesh.                                                  | `bounding_box`, `none`            | `none`        |
 | `mesh_transform.box_min`           | Lower left front corner of the box to fit inside.                                             | Vector of 3 reals                 | -             |
 | `mesh_transform.box_max`           | Upper right back corner of the box to fit inside.                                             | Vector of 3 reals                 | -             |
 | `mesh_transform.keep_aspect_ratio` | Keep the aspect ratio of the boundary mesh.                                                   | `true` or `false`                 | `true`        |
