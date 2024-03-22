@@ -58,7 +58,7 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 30
+#serial 33
 
 AC_DEFUN([AX_COMPILER_VENDOR], [dnl
     AC_CACHE_CHECK([for _AC_LANG compiler vendor], ax_cv_[]_AC_LANG_ABBREV[]_compiler_vendor, [dnl
@@ -79,6 +79,7 @@ AC_DEFUN([AX_COMPILER_VENDOR], [dnl
 		sdcc:		SDCC,__SDCC
 		sx:		_SX
 		sx-aurora:	__ve__
+                nvhpc:          __NVCOMPILER
 		portland:	__PGI
 		gnu:		__GNUC__
 		sun:		__SUNPRO_C,__SUNPRO_CC,__SUNPRO_F90,__SUNPRO_F95
