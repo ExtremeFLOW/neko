@@ -59,23 +59,23 @@ The three following options are possible.
 This object is mostly used as a high-level container for all the other objects,
 but also defines several parameters that pertain to the simulation as a whole.
 
-| Name                 | Description                                                                                           | Admissible values                               | Default value |
-| -------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------- |
-| `mesh_file`          | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
-| `output_boundary`    | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
-| `output_directory`   | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
-| `output_precision`   | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
-| `load_balancing`     | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
-| `output_partitions`  | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
-| `output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
-| `checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
-| `checkpoint_value`   | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
-| `restart_file`       | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
-| `constant_cfl`       | The desired CFL number                                                                                    | Positive real | - |
-| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps                     | Integer | `1` |
-| `time_step`          | Time-step size if `constant_cfl` is not specified; maximum time-step size if `constant_cfl` is specified.                                             | Positive reals                                  | -             |
-| `end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
-| `job_timelimit`      | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
+| Name                       | Description                                                                                               | Admissible values                               | Default value |
+| -------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------- |
+| `mesh_file`                | The name of the mesh file.                                                                                | Strings ending with `.nmsh`                     | -             |
+| `output_boundary`          | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions.     | `true` or `false`                               | `false`       |
+| `output_directory`         | Folder for redirecting solver output. Note that the folder has to exist!                                  | Path to an existing directory                   | `.`           |
+| `output_precision`         | Whether to output snapshots in single or double precision                                                 | `single` or `double`                            | `single`      |
+| `load_balancing`           | Whether to apply load balancing.                                                                          | `true` or `false`                               | `false`       |
+| `output_partitions`        | Whether to write a `partitions.vtk` file with domain partitioning.                                        | `true` or `false`                               | `false`       |
+| `output_checkpoints`       | Whether to output checkpoints, i.e. restart files.                                                        | `true` or `false`                               | `false`       |
+| `checkpoint_control`       | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files.     | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
+| `checkpoint_value`         | The frequency of sampling in terms of `checkpoint_control`.                                               | Positive real or integer                        | -             |
+| `restart_file`             | checkpoint to use for a restart from previous data                                                        | Strings ending with `.chkp`                     | -             |
+| `constant_cfl`             | The desired CFL number                                                                                    | Positive real                                   | -             |
+| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps                          | Integer                                         | `1`           |
+| `time_step`                | Time-step size if `constant_cfl` is not specified; maximum time-step size if `constant_cfl` is specified. | Positive reals                                  | -             |
+| `end_time`                 | Final time at which the simulation is stopped.                                                            | Positive reals                                  | -             |
+| `job_timelimit`            | The maximum wall clock duration of the simulation.                                                        | String formatted as HH:MM:SS                    | No limit      |
 
 ### Boundary type numbering in the `output_boundary` field
 
@@ -232,6 +232,17 @@ Each object are added to a common indicator field by means of a point-wise max
 operator. This means that the indicator field will be the union of all the
 regions defined by the objects.
 
+To assist correct placement and scaling of objects from external sources, the
+meshes can be transformed using the `mesh_transform` object. The object can be
+used to apply a transformation to the boundary mesh. The following types are
+currently implemented.
+
+1. `none`, no transformation is applied.
+2. `boundinx_box`, the boundary mesh is transformed to fit inside a box defined
+   by `box_min` and `box_max`. The box is defined by two vectors of 3 reals
+   each. The `keep_aspect_ratio` keyword can be used to keep the aspect ratio of
+   the boundary mesh.
+
 After the indicator field is computed, it is filtered using a filter type
 specified in the case file. The filter is used to smooth the indicator field
 before computing the Brinkman force. The following types are currently
@@ -245,14 +256,18 @@ applied to the final indicator field, after all sources have been added.
 
 Additional keywords are available to modify the Brinkman force term.
 
-| Name                       | Description                                                                                   | Admissible values                 | Default value |
-| -------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
-| `brinkman.limits`          | Brinkman factor at free-flow ($\kappa_0$) and solid domain ($\kappa_1$).                      | Vector of 2 reals.                | -             |
-| `brinkman.penalty`         | Penalty parameter $q$ when estimating Brinkman factor.                                        | Real                              | $1.0$         |
-| `objects`                  | Array of JSON objects, defining the objects to be immersed.                                   | Each object must specify a `type` | -             |
-| `distance_transform.type`  | How to map from distance field to indicator field.                                            | `step`, `smooth_step`             | -             |
-| `distance_transform.value` | Values used to define the distance transform, such as cut-off distance for the step function. | Real                              | -             |
-| `filter.type`              | Type of filtering applied to the indicator field either globally or for the current object.   | `none`                            | `none`        |
+| Name                               | Description                                                                                   | Admissible values                 | Default value |
+| ---------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
+| `brinkman.limits`                  | Brinkman factor at free-flow ($\kappa_0$) and solid domain ($\kappa_1$).                      | Vector of 2 reals.                | -             |
+| `brinkman.penalty`                 | Penalty parameter $q$ when estimating Brinkman factor.                                        | Real                              | $1.0$         |
+| `objects`                          | Array of JSON objects, defining the objects to be immersed.                                   | Each object must specify a `type` | -             |
+| `distance_transform.type`          | How to map from distance field to indicator field.                                            | `step`, `smooth_step`             | -             |
+| `distance_transform.value`         | Values used to define the distance transform, such as cut-off distance for the step function. | Real                              | -             |
+| `filter.type`                      | Type of filtering applied to the indicator field either globally or for the current object.   | `none`                            | `none`        |
+| `mesh_transform.type`              | Apply a transformation to the boundary mesh.                                                  | `boundinx_box`, `none`            | `none`        |
+| `mesh_transform.box_min`           | Lower left front corner of the box to fit inside.                                             | Vector of 3 reals                 | -             |
+| `mesh_transform.box_max`           | Upper right back corner of the box to fit inside.                                             | Vector of 3 reals                 | -             |
+| `mesh_transform.keep_aspect_ratio` | Keep the aspect ratio of the boundary mesh.                                                   | `true` or `false`                 | `true`        |
 
 Example of a Brinkman source term where a boundary mesh and a point zone are
 combined to define the resistance in the fluid domain. The indicator field for
