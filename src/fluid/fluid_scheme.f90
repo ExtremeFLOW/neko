@@ -116,9 +116,9 @@ module fluid_scheme
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
      !> Dynamic viscosity
-     real(kind=rp), pointer :: mu
+     real(kind=rp), pointer :: mu => null()
      !> Density
-     real(kind=rp), pointer :: rho
+     real(kind=rp), pointer :: rho => null()
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=20), allocatable :: bc_labels(:)
@@ -152,7 +152,7 @@ module fluid_scheme
        integer, intent(inout) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), intent(in) :: user
-       type(material_properties_t), intent(inout) :: material_properties
+       type(material_properties_t), target, intent(inout) :: material_properties
      end subroutine fluid_scheme_init_intrf
   end interface
 
@@ -170,7 +170,7 @@ module fluid_scheme
        import fluid_scheme_t
        import time_scheme_controller_t
        import rp
-       class(fluid_scheme_t), intent(inout) :: this
+       class(fluid_scheme_t), target, intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
        real(kind=rp), intent(in) :: dt

@@ -117,7 +117,7 @@ contains
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
-    type(material_properties_t), intent(inout) :: material_properties
+    type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: found, logical_val
     integer :: integer_val
@@ -462,7 +462,7 @@ contains
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
   subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf)
-    class(fluid_pnpn_t), intent(inout) :: this
+    class(fluid_pnpn_t), target, intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
