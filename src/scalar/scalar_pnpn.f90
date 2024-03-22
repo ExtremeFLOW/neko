@@ -292,9 +292,6 @@ contains
     ! Linear solver results monitor
     type(ksp_monitor_t) :: ksp_results(1)
     character(len=LOG_SIZE) :: log_buf
-    ! time step controller
-    logical :: if_variable_dt
-    integer :: dt_last_change
 
     n = this%dm_Xh%size()
 
@@ -372,7 +369,9 @@ contains
 
       call profiler_end_region
 
-      call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
+      if (projection_dim .gt. 0) then
+         call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
+      end if
 
       call this%pc%update()
       call profiler_start_region('Scalar solve', 21)
@@ -380,8 +379,10 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
-      call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
+      if (projection_dim .gt. 0) then
+         call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
                                  this%bclst_ds, gs_Xh, n, tstep, dt_controller)
+      end if
 
       ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then

@@ -483,9 +483,6 @@ contains
     integer :: temp_indices(3)
     ! Counter
     integer :: i
-    ! time step controller's component
-    logical :: if_variable_dt
-    integer :: dt_last_change ! 0 at the step where dt changes
 
     if (this%freeze) return
 
@@ -566,7 +563,10 @@ contains
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region
 
-      call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, 'Pressure')
+      if (pr_projection_dim .gt. 0) then
+         call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, 'Pressure')
+      end if
+
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
       ksp_results(1) = &
@@ -574,8 +574,10 @@ contains
 
       call profiler_end_region
 
-      call this%proj_prs%post_solving(dp%x, Ax, c_Xh, &
+      if (pr_projection_dim .gt. 0) then
+         call this%proj_prs%post_solving(dp%x, Ax, c_Xh, &
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+      end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2(p%x_d, dp%x_d,n)
@@ -604,9 +606,11 @@ contains
 
       call profiler_end_region
 
-      call this%proj_u%pre_solving(u_res%x, tstep, c_Xh, n, dt_controller)
-      call this%proj_v%pre_solving(v_res%x, tstep, c_Xh, n, dt_controller)
-      call this%proj_w%pre_solving(w_res%x, tstep, c_Xh, n, dt_controller)
+      if (vel_projection_dim .gt. 0) then
+         call this%proj_u%pre_solving(u_res%x, tstep, c_Xh, n, dt_controller)
+         call this%proj_v%pre_solving(v_res%x, tstep, c_Xh, n, dt_controller)
+         call this%proj_w%pre_solving(w_res%x, tstep, c_Xh, n, dt_controller)
+      end if
 
       call this%pc_vel%update()
 
@@ -618,13 +622,15 @@ contains
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_dw, gs_Xh)
       call profiler_end_region
-
-      call this%proj_u%post_solving(du%x, Ax, c_Xh, &
+      
+      if (vel_projection_dim .gt. 0) then
+         call this%proj_u%post_solving(du%x, Ax, c_Xh, &
                                  this%bclst_du, gs_Xh, n, tstep, dt_controller)
-      call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
+         call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
                                  this%bclst_dv, gs_Xh, n, tstep, dt_controller)
-      call this%proj_w%post_solving(dw%x, Ax, c_Xh, &
+         call this%proj_w%post_solving(dw%x, Ax, c_Xh, &
                                  this%bclst_dw, gs_Xh, n, tstep, dt_controller)
+      end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
