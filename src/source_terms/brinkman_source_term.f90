@@ -241,19 +241,19 @@ contains
     character(len=:), allocatable :: filter_type
     character(len=:), allocatable :: mesh_transform
 
-    real(kind=dp), dimension(:), allocatable :: llf
-    real(kind=dp), dimension(:), allocatable :: urb
-    logical :: keep_aspect_ratio
-    real(kind=dp), dimension(3) :: scaling
-
+    ! Read the options for the boundary mesh
     type(file_t) :: mesh_file
     type(tri_mesh_t) :: boundary_mesh
     real(kind=rp) :: scalar_r
     real(kind=dp) :: scalar_d
 
+    ! Mesh transform options variables
+    real(kind=dp), dimension(:), allocatable :: box_min, box_max
+    logical :: keep_aspect_ratio
+    real(kind=dp), dimension(3) :: scaling
+    real(kind=dp), dimension(3) :: translation
     type(field_t) :: temp_field
-    type(aabb_t) :: mesh_box, tmp_box, target_box
-
+    type(aabb_t) :: mesh_box, target_box
     integer :: idx_p
 
     ! ------------------------------------------------------------------------ !
@@ -283,32 +283,31 @@ contains
       case ('none')
        ! Do nothing
       case ('bounding_box')
-       call json_get(json, 'mesh_transform.llf', llf)
-       call json_get(json, 'mesh_transform.urb', urb)
+       call json_get(json, 'mesh_transform.box_min', box_min)
+       call json_get(json, 'mesh_transform.box_max', box_max)
        call json_get_or_default(json, 'mesh_transform.keep_aspect_ratio', &
                                 keep_aspect_ratio, .true.)
 
-       call target_box%init(llf, urb)
-
-       do idx_p = 1, boundary_mesh%nelv
-          tmp_box = get_aabb(boundary_mesh%el(idx_p))
-          mesh_box = merge(mesh_box, tmp_box)
-       end do
-
-       if (keep_aspect_ratio) then
-          scaling = target_box%get_diagonal() / mesh_box%get_diagonal()
-          scaling = minval(scaling)
-       else
-          scaling = target_box%get_diagonal() / mesh_box%get_diagonal()
+       if (size(box_min) .ne. 3 .or. size(box_max) .ne. 3) then
+          call neko_error('Case file: mesh_transform. &
+            &box_min and box_max must be 3 element arrays of reals')
        end if
 
+       call target_box%init(box_min, box_max)
+
+       mesh_box = get_aabb(boundary_mesh)
+
+       scaling = target_box%get_diagonal() / mesh_box%get_diagonal()
+       if (keep_aspect_ratio) then
+          scaling = minval(scaling)
+       end if
+
+       translation = - scaling * mesh_box%get_min() + target_box%get_min()
+
        do idx_p = 1, boundary_mesh%mpts
-          boundary_mesh%points(idx_p)%x = scaling * &
-            (boundary_mesh%points(idx_p)%x - mesh_box%get_center()) + &
-            target_box%get_center()
+          boundary_mesh%points(idx_p)%x = &
+            scaling * boundary_mesh%points(idx_p)%x + translation
        end do
-
-
 
       case default
        call neko_error('Unknown mesh transform')

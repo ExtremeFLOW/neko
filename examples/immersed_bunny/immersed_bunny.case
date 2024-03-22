@@ -67,12 +67,12 @@
                             },
                             "mesh_transform": {
                                 "type": "bounding_box",
-                                "llf": [
+                                "box_min": [
                                     0.75,
                                     0.25,
                                     0.00
                                 ],
-                                "urb": [
+                                "box_max": [
                                     1.25,
                                     0.75,
                                     0.50
