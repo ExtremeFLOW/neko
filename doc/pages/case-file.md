@@ -238,7 +238,7 @@ used to apply a transformation to the boundary mesh. The following types are
 currently implemented.
 
 1. `none`, no transformation is applied.
-2. `boundinx_box`, the boundary mesh is transformed to fit inside a box defined
+2. `bounding_box`, the boundary mesh is transformed to fit inside a box defined
    by `box_min` and `box_max`. The box is defined by two vectors of 3 reals
    each. The `keep_aspect_ratio` keyword can be used to keep the aspect ratio of
    the boundary mesh.
