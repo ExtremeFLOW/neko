@@ -120,6 +120,8 @@ module aabb
      procedure, pass(this), public :: init => aabb_init
 
      ! Getters
+     procedure, pass(this), public :: get_min => aabb_get_min
+     procedure, pass(this), public :: get_max => aabb_get_max
      procedure, pass(this), public :: get_width => aabb_get_width
      procedure, pass(this), public :: get_height => aabb_get_height
      procedure, pass(this), public :: get_depth => aabb_get_depth
@@ -168,6 +170,9 @@ contains
   !! - Quadrilateral (quad_t)
   !! - Tetrahedron (tet_t)
   !! - Hexahedron (hex_t)
+  !! - Mesh (mesh_t)
+  !! - Triangular mesh (tri_mesh_t)
+  !! - Tetrahedral mesh (tet_mesh_t)
   !!
   !! @param[in] object The object to get the aabb of.
   !! @param[in] padding The padding of the aabb.
@@ -339,6 +344,22 @@ contains
   ! ========================================================================== !
   ! Getters
   ! ========================================================================== !
+
+  !> @brief Get the minimum point of the aabb.
+  pure function aabb_get_min(this) result(min)
+    class(aabb_t), intent(in) :: this
+    real(kind=dp), dimension(3) :: min
+
+    min = this%box_min
+  end function aabb_get_min
+
+  !> @brief Get the maximum point of the aabb.
+  pure function aabb_get_max(this) result(max)
+    class(aabb_t), intent(in) :: this
+    real(kind=dp), dimension(3) :: max
+
+    max = this%box_max
+  end function aabb_get_max
 
   !> @brief Get the width of the aabb. Also known as the x-axis length.
   pure function aabb_get_width(this) result(width)
