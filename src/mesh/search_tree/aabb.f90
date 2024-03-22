@@ -221,9 +221,12 @@ contains
   subroutine add_padding(this, padding)
     class(aabb_t), intent(inout) :: this
     real(kind=dp), intent(in) :: padding
+    real(kind=dp) :: box_min(3), box_max(3)
 
-    this%box_min = this%box_min - padding * (this%diameter)
-    this%box_max = this%box_max + padding * (this%diameter)
+    box_min = this%box_min - padding * (this%diameter)
+    box_max = this%box_max + padding * (this%diameter)
+
+    call this%init(box_min, box_max)
   end subroutine add_padding
 
   !> @brief Get the aabb of an arbitrary element.
@@ -239,9 +242,11 @@ contains
     class(element_t), intent(in) :: object
     type(aabb_t) :: box
 
-    real(kind=dp), dimension(3) :: box_min, box_max
     integer :: i
     type(point_t), pointer :: pi
+    real(kind=dp) :: box_min(3), box_max(3)
+
+    box_min = huge(0.0_dp); box_max = -huge(0.0_dp)
 
     do i = 1, object%n_points()
        pi => object%p(i)
@@ -331,12 +336,12 @@ contains
     real(kind=dp), dimension(3), intent(in) :: lower_left_front
     real(kind=dp), dimension(3), intent(in) :: upper_right_back
 
+    this%initialized = .true.
     this%box_min = lower_left_front
     this%box_max = upper_right_back
     this%center = (this%box_min + this%box_max) / 2.0_dp
     this%diameter = norm2(this%box_max - this%box_min)
 
-    this%initialized = .true.
     this%surface_area = this%calculate_surface_area()
 
   end subroutine aabb_init
