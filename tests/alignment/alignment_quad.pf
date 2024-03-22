@@ -1,0 +1,388 @@
+@test
+subroutine test_alignment_quad_i4
+  use pfunit
+  use num_types, only : i4
+  use alignment, only : alignment_t
+  use alignment_quad, only : alignment_quad_init, alignment_quad_find, &
+       & NEKO_QUAD_NOPERATION
+  implicit none
+  class(alignment_t), allocatable :: quad
+  integer(i4), parameter :: sz = 5
+  integer(i4), dimension(sz, sz) :: fcs
+  integer(i4), dimension(sz, sz, 8) :: fcs_bnd, fcs_int
+  integer(i4) :: il, jl, kl
+  logical :: equal
+
+  ! initialise various operations
+  ! I - identity
+  ! T - transpose
+  ! PX - column permutation
+  ! PY - row permutation
+  ! full face
+  ! I
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(il, jl, 1) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! T
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(jl, il, 2) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PX
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - il, jl, 3) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PXT
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(jl, sz + 1 - il, 4) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PYT
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - jl, il, 5) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PY
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(il, sz +1 - jl, 6) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PXPYT
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - jl, sz + 1 - il, 7) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PXPY
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - il, sz + 1 - jl, 8) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! face interior
+  fcs_int(:, :, :) = fcs_bnd(:, :, :)
+  do jl = 2, 8
+     do il = 1, sz
+        fcs_int(il, 1, jl) = fcs_bnd(il, 1, 1)
+        fcs_int(il, sz, jl) = fcs_bnd(il, sz, 1)
+        fcs_int(1, il, jl) = fcs_bnd(1, il, 1)
+        fcs_int(sz, il, jl) = fcs_bnd(sz, il, 1)
+     end do
+  end do
+
+  ! single operator
+  do il = 0, NEKO_QUAD_NOPERATION
+     call alignment_quad_init(il, quad)
+
+     ! check alignment
+     @assertEqual(quad%algn(), il)
+     ! check identity flag
+     if (il == 0) then
+        @assertTrue(quad%ifid())
+     else
+        @assertFalse(quad%ifid())
+     end if
+
+     ! full face test
+     ! direct
+     fcs(:, :) = fcs_bnd(:, :, 1)
+     call quad%trns_i4(fcs, sz, sz, 1)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1))
+        end do
+     end do
+     ! inverse
+     call quad%trns_inv_i4(fcs, sz, sz, 1)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
+        end do
+     end do
+
+     ! interior face test
+     ! direct
+     fcs(:, :) = fcs_bnd(:, :, 1)
+     call quad%trns_i4(fcs, sz, sz, 2)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1))
+        end do
+     end do
+     ! inverse
+     call quad%trns_inv_i4(fcs, sz, sz, 2)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
+        end do
+     end do
+
+     deallocate(quad)
+  end do
+
+  ! test alignment identification
+  do il = 0, NEKO_QUAD_NOPERATION
+     fcs(:, :) = fcs_bnd(:, :, il + 1)
+     call alignment_quad_find(equal, jl, fcs, fcs_bnd(:, :, 1), sz, sz)
+     @assertEqual(il, jl)
+     @assertTrue(equal)
+  end do
+
+end subroutine test_alignment_quad_i4
+
+@test
+subroutine test_alignment_quad_i8
+  use pfunit
+  use num_types, only : i4, i8
+  use alignment, only : alignment_t
+  use alignment_quad, only : alignment_quad_init
+  implicit none
+  class(alignment_t), allocatable :: quad
+  integer(i4), parameter :: sz = 5
+  integer(i8), dimension(sz, sz) :: fcs
+  integer(i8), dimension(sz, sz, 8) :: fcs_bnd, fcs_int
+  integer(i4) :: il, jl, kl
+
+  ! initialise various operations
+  ! I - identity
+  ! T - transpose
+  ! PX - column permutation
+  ! PY - row permutation
+  ! full face
+  ! I
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(il, jl, 1) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! T
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(jl, il, 2) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PX
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - il, jl, 3) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PXT
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(jl, sz + 1 - il, 4) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PYT
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - jl, il, 5) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PY
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(il, sz +1 - jl, 6) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PXPYT
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - jl, sz + 1 - il, 7) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PXPY
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - il, sz + 1 - jl, 8) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! face interior
+  fcs_int(:, :, :) = fcs_bnd(:, :, :)
+  do jl = 2, 8
+     do il = 1, sz
+        fcs_int(il, 1, jl) = fcs_bnd(il, 1, 1)
+        fcs_int(il, sz, jl) = fcs_bnd(il, sz, 1)
+        fcs_int(1, il, jl) = fcs_bnd(1, il, 1)
+        fcs_int(sz, il, jl) = fcs_bnd(sz, il, 1)
+     end do
+  end do
+
+  ! single operator
+  do il = 0, 7
+     call alignment_quad_init(il, quad)
+
+     ! check alignment
+     @assertEqual(quad%algn(), il)
+
+     ! full face test
+     ! direct
+     fcs(:, :) = fcs_bnd(:, :, 1)
+     call quad%trns_i8(fcs, sz, sz, 1)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1))
+        end do
+     end do
+     ! inverse
+     call quad%trns_inv_i8(fcs, sz, sz, 1)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
+        end do
+     end do
+
+     ! interior face test
+     ! direct
+     fcs(:, :) = fcs_bnd(:, :, 1)
+     call quad%trns_i8(fcs, sz, sz, 2)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1))
+        end do
+     end do
+     ! inverse
+     call quad%trns_inv_i8(fcs, sz, sz, 2)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
+        end do
+     end do
+
+     deallocate(quad)
+  end do
+
+end subroutine test_alignment_quad_i8
+
+@test
+subroutine test_alignment_quad_rp
+  use pfunit
+  use num_types, only : i4, rp
+  use alignment, only : alignment_t
+  use alignment_quad, only : alignment_quad_init
+  implicit none
+  class(alignment_t), allocatable :: quad
+  integer(i4), parameter :: sz = 4
+  real(rp), dimension(sz, sz) :: fcs
+  real(rp), dimension(sz, sz, 8) :: fcs_bnd, fcs_int
+  integer(i4) :: il, jl, kl
+  real(rp), parameter :: tol = 1.0d-14
+
+  ! initialise various operations
+  ! I - identity
+  ! T - transpose
+  ! PX - column permutation
+  ! PY - row permutation
+  ! full face
+  ! I
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(il, jl, 1) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! T
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(jl, il, 2) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PX
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - il, jl, 3) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PXT
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(jl, sz + 1 - il, 4) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PYT
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - jl, il, 5) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PY
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(il, sz +1 - jl, 6) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PXPYT
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - jl, sz + 1 - il, 7) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! PXPY
+  do jl = 1, sz
+     do il = 1, sz
+        fcs_bnd(sz + 1 - il, sz + 1 - jl, 8) = il -1 + (jl - 1)*sz
+     end do
+  end do
+  ! face interior
+  fcs_int(:, :, :) = fcs_bnd(:, :, :)
+  do jl = 2, 8
+     do il = 1, sz
+        fcs_int(il, 1, jl) = fcs_bnd(il, 1, 1)
+        fcs_int(il, sz, jl) = fcs_bnd(il, sz, 1)
+        fcs_int(1, il, jl) = fcs_bnd(1, il, 1)
+        fcs_int(sz, il, jl) = fcs_bnd(sz, il, 1)
+     end do
+  end do
+
+  ! single operator
+  do il = 0, 7
+     call alignment_quad_init(il, quad)
+
+     ! check alignment
+     @assertEqual(quad%algn(), il)
+
+     ! full face test
+     ! direct
+     fcs(:, :) = fcs_bnd(:, :, 1)
+     call quad%trns_rp(fcs, sz, sz, 1)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il + 1), tolerance = tol)
+        end do
+     end do
+     ! inverse
+     call quad%trns_inv_rp(fcs, sz, sz, 1)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance = tol)
+        end do
+     end do
+
+     ! interior face test
+     ! direct
+     fcs(:, :) = fcs_bnd(:, :, 1)
+     call quad%trns_rp(fcs, sz, sz, 2)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il + 1), tolerance = tol)
+        end do
+     end do
+     ! inverse
+     call quad%trns_inv_rp(fcs, sz, sz, 2)
+     do jl = 1, sz
+        do kl = 1, sz
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance = tol)
+        end do
+     end do
+
+     deallocate(quad)
+  end do
+
+end subroutine test_alignment_quad_rp

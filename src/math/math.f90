@@ -870,5 +870,5 @@ contains
        ind(i) = ii
     end do
   end subroutine sort
-  
+
 end module math

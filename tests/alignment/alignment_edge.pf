@@ -1,0 +1,220 @@
+@test
+subroutine test_alignment_edge_i4
+  use pfunit
+  use num_types, only : i4
+  use alignment, only : alignment_t
+  use alignment_edge, only : alignment_edge_init, alignment_edge_find, &
+       & NEKO_EDGE_NOPERATION
+  implicit none
+  class(alignment_t), allocatable :: edge
+  integer(i4), parameter :: sz = 5
+  integer(i4), dimension(sz, 1) :: edg
+  integer(i4), dimension(sz, 2) :: edg_bnd, edg_int
+  integer(i4) :: il, jl
+  logical :: equal
+
+  ! initialise various operations
+  ! I - identity
+  ! P - permutation
+  ! full edge
+  ! I
+  do il = 1, sz
+     edg_bnd(il, 1) = il - 1
+  end do
+  ! P
+  do il = 1, sz
+     edg_bnd(sz + 1 - il, 2) = il - 1
+  end do
+  ! edge interior
+  edg_int(:, :) = edg_bnd(:, :)
+  edg_int(1, 2) = edg_bnd(1, 1)
+  edg_int(sz, 2) = edg_bnd(sz, 1)
+
+  ! single operator
+  do il = 0, NEKO_EDGE_NOPERATION
+     call alignment_edge_init(il, edge)
+
+     ! check alignment
+     @assertEqual(edge%algn(), il)
+     ! check identity flag
+     if (il == 0) then
+        @assertTrue(edge%ifid())
+     else
+        @assertFalse(edge%ifid())
+     end if
+
+     ! full edge test
+     ! direct
+     edg(:, 1) = edg_bnd(:, 1)
+     call edge%trns_i4(edg, sz, 1, 1)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_bnd(jl, il + 1))
+     end do
+     ! inverse
+     call edge%trns_inv_i4(edg, sz, 1, 1)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_bnd(jl, 1))
+     end do
+
+     ! interior edge test
+     ! direct
+     edg(:, 1) = edg_bnd(:, 1)
+     call edge%trns_i4(edg, sz, 1, 2)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_int(jl, il + 1))
+     end do
+     ! inverse
+     call edge%trns_inv_i4(edg, sz, 1, 2)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_bnd(jl, 1))
+     end do
+
+     deallocate(edge)
+  end do
+
+  ! test alignment identification
+  do il = 0, NEKO_EDGE_NOPERATION
+     edg(:, 1) = edg_bnd(:, il + 1)
+     call alignment_edge_find(equal, jl, edg, edg_bnd(:,1:1), sz, 1)
+     @assertEqual(il, jl)
+     @assertTrue(equal)
+  end do
+
+end subroutine test_alignment_edge_i4
+
+@test
+subroutine test_alignment_edge_i8
+  use pfunit
+  use num_types, only : i4, i8
+  use alignment, only : alignment_t
+  use alignment_edge, only : alignment_edge_init
+  implicit none
+  class(alignment_t), allocatable :: edge
+  integer(i4), parameter :: sz = 4
+  integer(i8), dimension(sz, 1) :: edg
+  integer(i8), dimension(sz, 2) :: edg_bnd, edg_int
+  integer(i4) :: il, jl
+
+  ! initialise various operations
+  ! I - identity
+  ! P - permutation
+  ! full edge
+  ! I
+  do il = 1, sz
+     edg_bnd(il, 1) = il - 1
+  end do
+  ! P
+  do il = 1, sz
+     edg_bnd(sz + 1 - il, 2) = il - 1
+  end do
+  ! edge interior
+  edg_int(:, :) = edg_bnd(:, :)
+  edg_int(1, 2) = edg_bnd(1, 1)
+  edg_int(sz, 2) = edg_bnd(sz, 1)
+
+  ! single operator
+  do il = 0, 1
+     call alignment_edge_init(il, edge)
+
+     ! check alignment
+     @assertEqual(edge%algn(), il)
+
+     ! full edge test
+     ! direct
+     edg(:, 1) = edg_bnd(:, 1)
+     call edge%trns_i8(edg, sz, 1, 1)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_bnd(jl, il + 1))
+     end do
+     ! inverse
+     call edge%trns_inv_i8(edg, sz, 1, 1)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_bnd(jl, 1))
+     end do
+
+     ! interior edge test
+     ! direct
+     edg(:, 1) = edg_bnd(:, 1)
+     call edge%trns_i8(edg, sz, 1, 2)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_int(jl, il + 1))
+     end do
+     ! inverse
+     call edge%trns_inv_i8(edg, sz, 1, 2)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_bnd(jl, 1))
+     end do
+
+     deallocate(edge)
+  end do
+
+end subroutine test_alignment_edge_i8
+
+@test
+subroutine test_alignment_edge_rp
+  use pfunit
+  use num_types, only : i4, rp
+  use alignment, only : alignment_t
+  use alignment_edge, only : alignment_edge_init
+  implicit none
+  class(alignment_t), allocatable :: edge
+  integer(i4), parameter :: sz = 4
+  real(rp), dimension(sz, 1) :: edg
+  real(rp), dimension(sz, 2) :: edg_bnd, edg_int
+  integer(i4) :: il, jl
+  real(rp), parameter :: tol = 1.0d-14
+
+  ! initialise various operations
+  ! I - identity
+  ! P - permutation
+  ! full edge
+  ! I
+  do il = 1, sz
+     edg_bnd(il, 1) = il - 1
+  end do
+  ! P
+  do il = 1, sz
+     edg_bnd(sz + 1 - il, 2) = il - 1
+  end do
+  ! edge interior
+  edg_int(:, :) = edg_bnd(:, :)
+  edg_int(1, 2) = edg_bnd(1, 1)
+  edg_int(sz, 2) = edg_bnd(sz, 1)
+
+  ! single operator
+  do il = 0, 1
+     call alignment_edge_init(il, edge)
+
+     ! check alignment
+     @assertEqual(edge%algn(), il)
+
+     ! full edge test
+     ! direct
+     edg(:, 1) = edg_bnd(:, 1)
+     call edge%trns_rp(edg, sz, 1, 1)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_bnd(jl, il + 1), tolerance = tol)
+     end do
+     ! inverse
+     call edge%trns_inv_rp(edg, sz, 1, 1)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_bnd(jl, 1), tolerance = tol)
+     end do
+
+     ! interior edge test
+     ! direct
+     edg(:, 1) = edg_bnd(:, 1)
+     call edge%trns_rp(edg, sz, 1, 2)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_int(jl, il + 1), tolerance = tol)
+     end do
+     ! inverse
+     call edge%trns_inv_rp(edg, sz, 1, 2)
+     do jl = 1, sz
+        @assertEqual(edg(jl, 1), edg_bnd(jl, 1), tolerance = tol)
+     end do
+
+     deallocate(edge)
+  end do
+
+end subroutine test_alignment_edge_rp
