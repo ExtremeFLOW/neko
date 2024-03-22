@@ -97,7 +97,7 @@ $(document).ready(function(){initNavTree('d0/d47/dev_patterns.html','../../'); i
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_pages_dev_patterns"></a> This section aims to summarize the programming conventions in Neko to guide all developers into writing code with good style and facilitate the reuse of the same programming patterns throughout the code base. It is a good idea to check your code against the guidelines here before opening a PR.</p>
 <p>It should be noted that these are note followed universally throughout the code base as of now, but we should at least make all new code as clean as possible.</p>
-<h1><a class="anchor" id="autotoc_md65"></a>
+<h1><a class="anchor" id="autotoc_md66"></a>
 A. Naming</h1>
 <ol type="1">
 <li>Generally all names are lowercase, connected with <code>_</code> when needed. Some exceptions take place, e.g. <code>Re</code> for the Reynolds number and <code>Xh</code> for the function space, but these should be kept to a minimum.</li>
@@ -139,7 +139,7 @@ A. Naming</h1>
 <li>Use <code>free</code> for destructor TBPs.</li>
 <li>The dummy argument, which is <code>pass</code>ed to TBPs should be called <code>this</code>.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md66"></a>
+<h1><a class="anchor" id="autotoc_md67"></a>
 B. Scope</h1>
 <ol type="1">
 <li><p class="startli">Always use <code>only</code> when <code>using</code> something from another module. The <code>neko</code> module is an exception and imports everything.</p>
@@ -151,7 +151,7 @@ B. Scope</h1>
 <p class="startli">We are generally quite permissive in terms of access and rely on the developers' good judgement to not mess with the types in the wrong way. That being said, using <code>private</code> is not discouraged in any way.</p>
 </li>
 </ol>
-<h1><a class="anchor" id="autotoc_md67"></a>
+<h1><a class="anchor" id="autotoc_md68"></a>
 C. Constructors and destructors.</h1>
 <ol type="1">
 <li>If the type has a destructor, the constructor must begin with calling the destructor.</li>
@@ -164,7 +164,7 @@ C. Constructors and destructors.</h1>
 <li>In the type hierarchy, <code>init</code> should be the name of the constructor, which is introduced as a deferred procedure in the base abstract class. Same for <code>free</code> for the destructor.</li>
 <li>All type components should be fully initialized in the constructor, e.g. pointers should be associated, allocatable types allocated, etc. This implies that the constructor interface should be sufficient for the type to fully take care of its own initialization.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md68"></a>
+<h1><a class="anchor" id="autotoc_md69"></a>
 D. Documentation</h1>
 <ol type="1">
 <li>All procedures and interfaces must be documented, with the <em>minimal</em> requirement being a one-liner telling what the procedure does followed by <code>@param</code>s describing all the dummy arguments.</li>
@@ -176,7 +176,7 @@ D. Documentation</h1>
 <p class="startli">The alternative is to put it on the same line as the component, but it only works for short docstrings and cannot be multiline. Since a future component may require a long docstring, and mixing the styles does not look nice, it is better to default to putting the string above.</p>
 </li>
 </ol>
-<h1><a class="anchor" id="autotoc_md69"></a>
+<h1><a class="anchor" id="autotoc_md70"></a>
 E. Design</h1>
 <p>The points here are mostly things to consider rather than strict rules. Hopefully, they can guide towards better implementation.</p>
 <ol type="1">
@@ -203,7 +203,7 @@ E. Design</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Thu Mar 21 2024 03:34:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Mar 22 2024 03:34:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

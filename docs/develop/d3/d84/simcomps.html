@@ -105,21 +105,21 @@ Adding simulation components to the case</h1>
 <p>Each simcomp is defined as a single JSON object at are added to an array of objects called <code>simulation_components</code>, which resides directly under the <code>case</code> object.</p>
 <h1><a class="anchor" id="autotoc_md36"></a>
 Controling execution and file output</h1>
-<p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <code>compute_control</code> and <code>compute_value</code> parameters for the computation and the <code>output_control and</code> and <code>output_value</code> for the output to disk. The parameters for the <code>_control</code> values are the same as for the fluid and checkpointing.</p>
-<p>For example, in the <code>tgv</code> example case the <code>vorticity</code> component is executed once per 50 time steps. </p><div class="fragment"><div class="line">{</div>
+<p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <code>compute_control</code> and <code>compute_value</code> parameters for the computation and the <code>output_control and</code> and <code>output_value</code> for the output to disk. The parameters for the <code>_control</code> values are the same as for the fluid and checkpointing. Additionally, one can set <code>output_control</code> to <code>global</code> and <code>never</code>. The former will sync the <code>output_</code> parameter to that of the fluid. Choosing <code>never</code> will suppress output all together. If no parameters for the <code>output_</code> parameters are provided, they are set to be the same as for <code>compute_</code>.</p>
+<p>For simcomps that compute 3D fields, the output can be either added to the main <code>.fld</code> file, containing velocity and pressure, or saved to a separate file. For the latter, the <code>output_filename</code> keyword should be provided. One can additionally provide the <code>precision</code> keyword, which can be set to either <code>single</code> or <code>double</code> to control the precision of the written data.</p>
+<p>For example, in the <code>tgv</code> example case the <code>vorticity</code> component is executed once per 50 time steps. The <code>output_</code> parameters are synced to that, and the vorticity fields will be added to the main <code>.fld</code> file. </p><div class="fragment"><div class="line">{</div>
 <div class="line">    &quot;type&quot;: &quot;vorticity&quot;,</div>
 <div class="line">    &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">    &quot;compute_value&quot;: 50</div>
 <div class="line">}</div>
-</div><!-- fragment --><p> If no parameters for the <code>output_</code> parameters are provided, they are set to be the same as for <code>compute_</code>.</p>
-<h1><a class="anchor" id="autotoc_md37"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md37"></a>
 List of simulation components</h1>
 <h2><a class="anchor" id="autotoc_md38"></a>
 vorticity</h2>
 <p>Computes the vorticity field an stores in the field registry as <code>omega_x</code>, <code>omega_y</code> and <code>omega_z</code>. Currently produces no output.</p>
 <h2><a class="anchor" id="autotoc_md39"></a>
 lambda2</h2>
-<p>Computes \( \lambda_2 \) for the velocity field and stores it in the normal output files as the first unused field. This means that \( \lambda_2 \) can be found in the temeprature field in then fld files if running without a scalar and s1 if neko is run with one scalar.</p>
+<p>Computes \( \lambda_2 \) for the velocity field and stores it in the normal output files as the first unused field. This means that \( \lambda_2 \) can be found in the temperature field in then fld files if running without a scalar and s1 if neko is run with one scalar.</p>
 <h2><a class="anchor" id="autotoc_md40"></a>
 probes</h2>
 <p>Probes selected solution fields at the points given inside an input file. Example usage: </p><div class="fragment"><div class="line">{</div>
@@ -130,15 +130,25 @@ probes</h2>
 <div class="line">  &quot;output_file&quot;:  &quot;output.csv&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;w&quot;,&quot;s&quot;]</div>
 <div class="line">}</div>
-</div><!-- fragment --><p> This probes the fields 'w', and 's' in the points described by points.csv and outputs into output.csv every 1 time units. </p>
-</div></div><!-- contents -->
+</div><!-- fragment --><p> This probes the fields 'w', and 's' in the points described by points.csv and outputs into output.csv every 1 time units.</p>
+<h2><a class="anchor" id="autotoc_md41"></a>
+field_writer</h2>
+<p>Outputs registered 3D fields to an <code>.fld</code> file. Requires a list of field names in the <code>fields</code> keyword. Primarily to be used for outputting new fields defined in the user file. The fields are added to then <code>neko_field_registry</code> object and are expected to be updated in the user file, or, perhaps, by other simcomps. Since this simcomp does not compute anything <code>compute_</code> configuration is irrelevant. </p><div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;field_writer&quot;,</div>
+<div class="line">  &quot;fields&quot;: [&quot;my_field1&quot;, &quot;my_field2&quot;],</div>
+<div class="line">  &quot;output_filename&quot;: &quot;myfields&quot;,</div>
+<div class="line">  &quot;precision&quot;: &quot;double&quot;,</div>
+<div class="line">  &quot;output_control&quot; : &quot;simulation_time&quot;,</div>
+<div class="line">  &quot;output_value&quot; : 1.0</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Thu Mar 21 2024 03:34:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Mar 22 2024 03:34:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -38,7 +38,8 @@ var index =
       [ "List of simulation components", "d3/d84/simcomps.html#autotoc_md37", [
         [ "vorticity", "d3/d84/simcomps.html#autotoc_md38", null ],
         [ "lambda2", "d3/d84/simcomps.html#autotoc_md39", null ],
-        [ "probes", "d3/d84/simcomps.html#autotoc_md40", null ]
+        [ "probes", "d3/d84/simcomps.html#autotoc_md40", null ],
+        [ "field_writer", "d3/d84/simcomps.html#autotoc_md41", null ]
       ] ]
     ] ],
     [ "Point zones", "da/dd0/point-zones.html", [
@@ -72,18 +73,18 @@ var index =
       ] ]
     ] ],
     [ "Accelerators", "de/d06/accelerators.html", [
-      [ "Device abstraction layer", "de/d06/accelerators.html#autotoc_md41", [
-        [ "Memory management", "de/d06/accelerators.html#autotoc_md42", [
-          [ "Allocation/deallocation", "de/d06/accelerators.html#autotoc_md43", null ],
-          [ "Associate data on host and device", "de/d06/accelerators.html#autotoc_md44", null ],
-          [ "Map a host array to a device", "de/d06/accelerators.html#autotoc_md45", null ],
+      [ "Device abstraction layer", "de/d06/accelerators.html#autotoc_md42", [
+        [ "Memory management", "de/d06/accelerators.html#autotoc_md43", [
+          [ "Allocation/deallocation", "de/d06/accelerators.html#autotoc_md44", null ],
+          [ "Associate data on host and device", "de/d06/accelerators.html#autotoc_md45", null ],
+          [ "Map a host array to a device", "de/d06/accelerators.html#autotoc_md46", null ],
           [ "Data transfer", "de/d06/accelerators.html#accelerators_data-transfer", null ]
         ] ],
         [ "Offload work", "de/d06/accelerators.html#accelerators_offload-work", null ]
       ] ]
     ] ],
     [ "Statistics guide", "df/d8f/statistics-guide.html", [
-      [ "Notes on the statistics calculation in Neko", "df/d8f/statistics-guide.html#autotoc_md51", null ]
+      [ "Notes on the statistics calculation in Neko", "df/d8f/statistics-guide.html#autotoc_md52", null ]
     ] ],
     [ "Input-output", "d7/d7f/io.html", [
       [ "Mesh", "d7/d7f/io.html#autotoc_md25", null ],
@@ -94,21 +95,21 @@ var index =
       [ "Data types", "da/db6/code-style.html#autotoc_md0", null ]
     ] ],
     [ "Programming patterns and conventions", "d0/d47/dev_patterns.html", [
-      [ "A. Naming", "d0/d47/dev_patterns.html#autotoc_md65", null ],
-      [ "B. Scope", "d0/d47/dev_patterns.html#autotoc_md66", null ],
-      [ "C. Constructors and destructors.", "d0/d47/dev_patterns.html#autotoc_md67", null ],
-      [ "D. Documentation", "d0/d47/dev_patterns.html#autotoc_md68", null ],
-      [ "E. Design", "d0/d47/dev_patterns.html#autotoc_md69", null ]
+      [ "A. Naming", "d0/d47/dev_patterns.html#autotoc_md66", null ],
+      [ "B. Scope", "d0/d47/dev_patterns.html#autotoc_md67", null ],
+      [ "C. Constructors and destructors.", "d0/d47/dev_patterns.html#autotoc_md68", null ],
+      [ "D. Documentation", "d0/d47/dev_patterns.html#autotoc_md69", null ],
+      [ "E. Design", "d0/d47/dev_patterns.html#autotoc_md70", null ]
     ] ],
     [ "Testing", "d5/d75/testing.html", [
-      [ "pFUnit", "d5/d75/testing.html#autotoc_md46", null ],
-      [ "Configuring Neko", "d5/d75/testing.html#autotoc_md47", null ],
-      [ "Running the tests", "d5/d75/testing.html#autotoc_md48", null ],
-      [ "Adding a new test", "d5/d75/testing.html#autotoc_md49", null ]
+      [ "pFUnit", "d5/d75/testing.html#autotoc_md47", null ],
+      [ "Configuring Neko", "d5/d75/testing.html#autotoc_md48", null ],
+      [ "Running the tests", "d5/d75/testing.html#autotoc_md49", null ],
+      [ "Adding a new test", "d5/d75/testing.html#autotoc_md50", null ]
     ] ],
     [ "Appendix", "d2/d86/appendix.html", [
       [ "Environmental variable reference", "d2/d86/appendix.html#env-var", [
-        [ "Logging level details", "d2/d86/appendix.html#autotoc_md50", null ]
+        [ "Logging level details", "d2/d86/appendix.html#autotoc_md51", null ]
       ] ]
     ] ]
 ];

@@ -111,16 +111,17 @@ Data Types</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ad603e72149d3486e965abfe97e0ff802"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc4/namespacefield__registry.html#ad603e72149d3486e965abfe97e0ff802">field_registry_init</a> (this, size, expansion_size)</td></tr>
-<tr class="memdesc:ad603e72149d3486e965abfe97e0ff802"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor, optionally taking initial registry and expansion size as argument.  <a href="../../d1/dc4/namespacefield__registry.html#ad603e72149d3486e965abfe97e0ff802">More...</a><br /></td></tr>
+<tr class="memdesc:ad603e72149d3486e965abfe97e0ff802"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../d1/dc4/namespacefield__registry.html#ad603e72149d3486e965abfe97e0ff802">More...</a><br /></td></tr>
 <tr class="separator:ad603e72149d3486e965abfe97e0ff802"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37b2c888042990813baac46ab5acf05c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc4/namespacefield__registry.html#a37b2c888042990813baac46ab5acf05c">field_registry_free</a> (this)</td></tr>
 <tr class="memdesc:a37b2c888042990813baac46ab5acf05c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d1/dc4/namespacefield__registry.html#a37b2c888042990813baac46ab5acf05c">More...</a><br /></td></tr>
 <tr class="separator:a37b2c888042990813baac46ab5acf05c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51dfb77eeff70fd6c757e8017b42dd74"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc4/namespacefield__registry.html#a51dfb77eeff70fd6c757e8017b42dd74">expand</a> (this)</td></tr>
-<tr class="memdesc:a51dfb77eeff70fd6c757e8017b42dd74"><td class="mdescLeft">&#160;</td><td class="mdescRight">expand the fields array so as to accomodate more fields  <a href="../../d1/dc4/namespacefield__registry.html#a51dfb77eeff70fd6c757e8017b42dd74">More...</a><br /></td></tr>
+<tr class="memdesc:a51dfb77eeff70fd6c757e8017b42dd74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expand the fields array so as to accomodate more fields.  <a href="../../d1/dc4/namespacefield__registry.html#a51dfb77eeff70fd6c757e8017b42dd74">More...</a><br /></td></tr>
 <tr class="separator:a51dfb77eeff70fd6c757e8017b42dd74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a10e4570d0cae94f110c9b0eacbb56769"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc4/namespacefield__registry.html#a10e4570d0cae94f110c9b0eacbb56769">add_field</a> (this, dof, fld_name)</td></tr>
-<tr class="separator:a10e4570d0cae94f110c9b0eacbb56769"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9ca5bbdaa677a3db9694136627df9c4"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc4/namespacefield__registry.html#af9ca5bbdaa677a3db9694136627df9c4">add_field</a> (this, dof, fld_name, ignore_existing)</td></tr>
+<tr class="memdesc:af9ca5bbdaa677a3db9694136627df9c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a field to the registry.  <a href="../../d1/dc4/namespacefield__registry.html#af9ca5bbdaa677a3db9694136627df9c4">More...</a><br /></td></tr>
+<tr class="separator:af9ca5bbdaa677a3db9694136627df9c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8048b53df63f576a9703de7f57201918"><td class="memItemLeft" align="right" valign="top">pure integer function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc4/namespacefield__registry.html#a8048b53df63f576a9703de7f57201918">n_fields</a> (this)</td></tr>
 <tr class="memdesc:a8048b53df63f576a9703de7f57201918"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of fields stored in the registry.  <a href="../../d1/dc4/namespacefield__registry.html#a8048b53df63f576a9703de7f57201918">More...</a><br /></td></tr>
 <tr class="separator:a8048b53df63f576a9703de7f57201918"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -149,8 +150,8 @@ Variables</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Defines a registry for storing solution fields. </p>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a10e4570d0cae94f110c9b0eacbb56769"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a10e4570d0cae94f110c9b0eacbb56769">&#9670;&nbsp;</a></span>add_field()</h2>
+<a id="af9ca5bbdaa677a3db9694136627df9c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9ca5bbdaa677a3db9694136627df9c4">&#9670;&nbsp;</a></span>add_field()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -174,7 +175,13 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">character(len=*), intent(in), target&#160;</td>
-          <td class="paramname"><em>fld_name</em>&#160;</td>
+          <td class="paramname"><em>fld_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">logical, intent(in), optional&#160;</td>
+          <td class="paramname"><em>ignore_existing</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -189,7 +196,17 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p>Add a field to the registry. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dof</td><td>The map of degrees of freedom. </td></tr>
+    <tr><td class="paramname">fld_name</td><td>The name of the field. </td></tr>
+    <tr><td class="paramname">ignore_existing</td><td>If true, will do nothing if the field is already in the registry. If false, will throw an error. Optional, defaults to false. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00134">134</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -217,9 +234,9 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>expand the fields array so as to accomodate more fields </p>
+<p>Expand the fields array so as to accomodate more fields. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00108">108</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -259,7 +276,7 @@ Variables</h2></td></tr>
 
 <p>Check if a field with a given name is already in the registry. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00211">211</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00228">228</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -289,7 +306,7 @@ Variables</h2></td></tr>
 
 <p>Destructor. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00104">104</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -333,9 +350,16 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Constructor, optionally taking initial registry and expansion size as argument. </p>
+<p>Constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">size</td><td>The allocation size of <code>fields</code> on init. </td></tr>
+    <tr><td class="paramname">expansion_size</td><td>The number of entries added to <code>fields</code> on expansion. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -365,7 +389,7 @@ Variables</h2></td></tr>
 
 <p>Get the expansion size. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00165">165</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00182">182</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -405,7 +429,7 @@ Variables</h2></td></tr>
 
 <p>Get pointer to a stored field by index. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00173">173</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00190">190</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -454,7 +478,7 @@ Here is the caller graph for this function:</div>
 
 <p>Get pointer to a stored field by field name. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00188">188</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00205">205</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -493,7 +517,7 @@ Here is the caller graph for this function:</div>
 
 <p>Get the size of the fields array. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00157">157</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00174">174</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -523,7 +547,7 @@ Here is the caller graph for this function:</div>
 
 <p>Get the number of fields stored in the registry. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00149">149</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00166">166</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -542,7 +566,7 @@ Here is the caller graph for this function:</div>
 
 <p>Global field registry. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6f/field__registry_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d4/d6f/field__registry_8f90_source.html">field_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -552,7 +576,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d1/dc4/namespacefield__registry.html">field_registry</a></li>
-    <li class="footer">Generated on Thu Mar 21 2024 03:34:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Mar 22 2024 03:34:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

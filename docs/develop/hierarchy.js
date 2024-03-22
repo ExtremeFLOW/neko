@@ -483,6 +483,7 @@ var hierarchy =
     [ "simulation_component::simulation_component_free", "d7/d7f/interfacesimulation__component_1_1simulation__component__free.html", null ],
     [ "simulation_component::simulation_component_init", "d6/deb/interfacesimulation__component_1_1simulation__component__init.html", null ],
     [ "simulation_component::simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", [
+      [ "field_writer::field_writer_t", "de/d1a/structfield__writer_1_1field__writer__t.html", null ],
       [ "lambda2::lambda2_t", "d6/db3/structlambda2_1_1lambda2__t.html", null ],
       [ "les_simcomp::les_simcomp_t", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html", null ],
       [ "probes::probes_t", "d7/dd3/structprobes_1_1probes__t.html", null ],

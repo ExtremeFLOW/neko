@@ -283,6 +283,9 @@ var annotated_dup =
     [ "field_series", "d6/d32/namespacefield__series.html", [
       [ "field_series_t", "d1/d6e/structfield__series_1_1field__series__t.html", "d1/d6e/structfield__series_1_1field__series__t" ]
     ] ],
+    [ "field_writer", "d9/dde/namespacefield__writer.html", [
+      [ "field_writer_t", "de/d1a/structfield__writer_1_1field__writer__t.html", "de/d1a/structfield__writer_1_1field__writer__t" ]
+    ] ],
     [ "file", "da/d16/namespacefile.html", [
       [ "file_t", "d6/dae/structfile_1_1file__t.html", "d6/dae/structfile_1_1file__t" ]
     ] ],

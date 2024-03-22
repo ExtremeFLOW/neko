@@ -184,6 +184,7 @@ var namespaces_dup =
     [ "field_list", "df/d2b/namespacefield__list.html", "df/d2b/namespacefield__list" ],
     [ "field_registry", "d1/dc4/namespacefield__registry.html", "d1/dc4/namespacefield__registry" ],
     [ "field_series", "d6/d32/namespacefield__series.html", "d6/d32/namespacefield__series" ],
+    [ "field_writer", "d9/dde/namespacefield__writer.html", "d9/dde/namespacefield__writer" ],
     [ "file", "da/d16/namespacefile.html", "da/d16/namespacefile" ],
     [ "filters", "d8/d6b/namespacefilters.html", [
       [ "permeability_field", "d8/d6b/namespacefilters.html#aeb6ab3bdc35ace182934e19e924f8781", null ],
