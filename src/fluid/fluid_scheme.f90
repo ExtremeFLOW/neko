@@ -72,6 +72,7 @@ module fluid_scheme
   use utils, only : neko_warning, neko_error
   use material_properties, only : material_properties_t
   use field_series
+  use time_step_controller
   implicit none
 
   !> Base type of all fluid formulations
@@ -99,6 +100,8 @@ module fluid_scheme
      class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
      integer :: vel_projection_dim         !< Size of the projection space for ksp_vel
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
+     integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
+     integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
@@ -166,15 +169,17 @@ module fluid_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf)
+     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
        import fluid_scheme_t
        import time_scheme_controller_t
+       import time_step_controller_t
        import rp
        class(fluid_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
        real(kind=rp), intent(in) :: dt
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
+       type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine fluid_scheme_step_intrf
   end interface
 
@@ -273,6 +278,13 @@ contains
     call json_get_or_default(params, &
                             'case.fluid.pressure_solver.projection_space_size',&
                             this%pr_projection_dim, 20)
+    call json_get_or_default(params, &
+                            'case.fluid.velocity_solver.projection_hold_steps',&
+                            this%vel_projection_activ_step, 5)
+    call json_get_or_default(params, &
+                            'case.fluid.pressure_solver.projection_hold_steps',&
+                            this%pr_projection_activ_step, 5)
+    
 
     call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
 

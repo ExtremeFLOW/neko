@@ -59,23 +59,28 @@ The three following options are possible.
 This object is mostly used as a high-level container for all the other objects,
 but also defines several parameters that pertain to the simulation as a whole.
 
-| Name                       | Description                                                                                               | Admissible values                               | Default value |
-| -------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------- |
-| `mesh_file`                | The name of the mesh file.                                                                                | Strings ending with `.nmsh`                     | -             |
-| `output_boundary`          | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions.     | `true` or `false`                               | `false`       |
-| `output_directory`         | Folder for redirecting solver output. Note that the folder has to exist!                                  | Path to an existing directory                   | `.`           |
-| `output_precision`         | Whether to output snapshots in single or double precision                                                 | `single` or `double`                            | `single`      |
-| `load_balancing`           | Whether to apply load balancing.                                                                          | `true` or `false`                               | `false`       |
-| `output_partitions`        | Whether to write a `partitions.vtk` file with domain partitioning.                                        | `true` or `false`                               | `false`       |
-| `output_checkpoints`       | Whether to output checkpoints, i.e. restart files.                                                        | `true` or `false`                               | `false`       |
-| `checkpoint_control`       | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files.     | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
-| `checkpoint_value`         | The frequency of sampling in terms of `checkpoint_control`.                                               | Positive real or integer                        | -             |
-| `restart_file`             | checkpoint to use for a restart from previous data                                                        | Strings ending with `.chkp`                     | -             |
-| `constant_cfl`             | The desired CFL number                                                                                    | Positive real                                   | -             |
-| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps                          | Integer                                         | `1`           |
-| `time_step`                | Time-step size if `constant_cfl` is not specified; maximum time-step size if `constant_cfl` is specified. | Positive reals                                  | -             |
-| `end_time`                 | Final time at which the simulation is stopped.                                                            | Positive reals                                  | -             |
-| `job_timelimit`            | The maximum wall clock duration of the simulation.                                                        | String formatted as HH:MM:SS                    | No limit      |
+| Name                       | Description                                                                                           | Admissible values                               | Default value |
+| -------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------- |
+| `mesh_file`                | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
+| `output_boundary`          | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
+| `output_directory`         | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
+| `output_precision`         | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
+| `load_balancing`           | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
+| `output_partitions`        | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
+| `output_checkpoints`       | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
+| `checkpoint_control`       | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
+| `checkpoint_value`         | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
+| `restart_file`             | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
+| `timestep`                 | Time-step size                                                                                        | Positive reals                                  | -             |
+| `variable_timestep`        | Whether to use variable dt                                                                            | `true` or `false`                               | `false`       |
+| `max_timestep`             | Maximum time-step size when variable time step is activated                                           | Positive reals                                  | -             |
+| `target_cfl`               | The desired CFL number                                                                                | Positive real                                   | `0.4`         |
+| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps                      | Integer                                         | `0`           |
+| `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old`           | Positive real between `0` and `1`               | `0.5`         |
+| `max_dt_increase_factor`   | The maximum scaling factor to increase time step                                                      | Positive real greater than `1`                  | `1.2`         |
+| `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                                      | Positive real less than `1`                     | `0.5`         |
+| `end_time`                 | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
+| `job_timelimit`            | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
 
 ### Boundary type numbering in the `output_boundary` field
 
@@ -354,6 +359,9 @@ The following keywords are used, with the corresponding options.
 * `projection_space_size`, size of the vector space used for accelerating the
    solution procedure. If 0, then the projection space is not used.
    More important for the pressure equation.
+* `projection_hold_steps`, steps for which the simulation does not use projection after starting
+   or time step changes. E.g. if 5, then the projection space will start to update at the 6th
+   time step and the space will be utilized at the 7th time step.
 
 ### Flow rate forcing
 The optional `flow_rate_force` object can be used to force a particular flow
@@ -394,12 +402,15 @@ that can be described concisely directly in the table.
 | `velocity_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                        | -             |
 | `velocity_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                    | -             |
 | `velocity_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                                      | Positive real                                    | 800           |
-| `velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                 | 0             |
+| `velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                 | 20            |
+| `velocity_solver.projection_hold_steps` | Holding steps of the projection for the momentum equation.                                        | Positive integer                                 | 5             |
 | `pressure_solver.type`                  | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`      | -             |
 | `pressure_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                        | -             |
 | `pressure_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                    | -             |
 | `pressure_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                                      | Positive real                                    | 800           |
-| `pressure_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                 | 0             |
+| `pressure_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                 | 20            |
+| `pressure_solver.projection_hold_steps` | Holding steps of the projection for the momentum equation.                                        | Positive integer                                 | 5             |
+
 | `flow_rate_force.direction`             | Direction of the forced flow.                                                                     | 0, 1, 2                                          | -             |
 | `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                                            | Positive real                                    | -             |
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                | -             |
