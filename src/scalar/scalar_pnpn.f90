@@ -195,10 +195,8 @@ contains
 
 
     ! Intialize projection space
-    if (this%projection_dim .gt. 0) then
-       call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
+    call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
                             this%projection_activ_step)
-    end if
 
     ! Add lagged term to checkpoint
     ! @todo Init chkp object, note, adding 3 slags
@@ -369,9 +367,7 @@ contains
 
       call profiler_end_region
 
-      if (projection_dim .gt. 0) then
-         call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
-      end if
+      call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc%update()
       call profiler_start_region('Scalar solve', 21)
@@ -379,10 +375,8 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
-      if (projection_dim .gt. 0) then
-         call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
+     call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
                                  this%bclst_ds, gs_Xh, n, tstep, dt_controller)
-      end if
 
       ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then
