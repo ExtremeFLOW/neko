@@ -243,19 +243,16 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
     !Intialize projection space thingy
-    if (this%pr_projection_dim .gt. 0) then
-       call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
+    call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
                               this%pr_projection_activ_step)
-    end if
 
-    if (this%vel_projection_dim .gt. 0) then
-       call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
+    call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
                               this%vel_projection_activ_step)
-       call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
+    call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
                               this%vel_projection_activ_step)
-       call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
+    call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
                               this%vel_projection_activ_step)
-    end if
+
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
@@ -483,9 +480,6 @@ contains
     integer :: temp_indices(3)
     ! Counter
     integer :: i
-    ! time step controller's component
-    logical :: if_variable_dt
-    integer :: dt_last_change ! 0 at the step where dt changes
 
     if (this%freeze) return
 
@@ -567,6 +561,7 @@ contains
       call profiler_end_region
 
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, 'Pressure')
+
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
       ksp_results(1) = &
@@ -618,7 +613,7 @@ contains
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_dw, gs_Xh)
       call profiler_end_region
-
+      
       call this%proj_u%post_solving(du%x, Ax, c_Xh, &
                                  this%bclst_du, gs_Xh, n, tstep, dt_controller)
       call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
