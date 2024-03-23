@@ -734,11 +734,13 @@ contains
        call neko_error('No parameters defined')
     end if
 
-    select type(ip => this%bc_inflow)
-    type is(usr_inflow_t)
-       call ip%validate
-    end select
-
+    if (allocated(this%bc_inflow)) then
+       select type(ip => this%bc_inflow)
+       type is(usr_inflow_t)
+          call ip%validate
+       end select
+    end if
+    
     !
     ! Setup checkpoint structure (if everything is fine)
     !
