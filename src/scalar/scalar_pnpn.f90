@@ -195,10 +195,8 @@ contains
 
 
     ! Intialize projection space
-    if (this%projection_dim .gt. 0) then
-       call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
+    call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
                             this%projection_activ_step)
-    end if
 
     ! Add lagged term to checkpoint
     ! @todo Init chkp object, note, adding 3 slags
@@ -292,9 +290,6 @@ contains
     ! Linear solver results monitor
     type(ksp_monitor_t) :: ksp_results(1)
     character(len=LOG_SIZE) :: log_buf
-    ! time step controller
-    logical :: if_variable_dt
-    integer :: dt_last_change
 
     n = this%dm_Xh%size()
 
@@ -380,7 +375,7 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
-      call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
+     call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
                                  this%bclst_ds, gs_Xh, n, tstep, dt_controller)
 
       ! Update the solution
