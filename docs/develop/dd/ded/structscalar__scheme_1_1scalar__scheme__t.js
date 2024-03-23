@@ -27,6 +27,7 @@ var structscalar__scheme_1_1scalar__scheme__t =
     [ "neumann_bcs", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#ad8132b437c041e5581b0b41d75e97c19", null ],
     [ "params", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a28541ba0a3e1166d9e780810f77a8e51", null ],
     [ "pc", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a166adb51fd861d560cb4a9d8788dadfa", null ],
+    [ "projection_activ_step", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a61188175a6d86f982e412070c20623af", null ],
     [ "projection_dim", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#abc0eca030b98a2cee78f5ae183d8aa76", null ],
     [ "rho", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a544f369ba8672656a59489ab0831cb69", null ],
     [ "s", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a4dba49c8c38c10944716140cad07f7dd", null ],

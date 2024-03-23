@@ -37,6 +37,7 @@ var structscalar__pnpn_1_1scalar__pnpn__t =
     [ "params", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a28541ba0a3e1166d9e780810f77a8e51", null ],
     [ "pc", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a166adb51fd861d560cb4a9d8788dadfa", null ],
     [ "proj_s", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#ade870a2be85ce979d086ef6c64fc4ab4", null ],
+    [ "projection_activ_step", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a61188175a6d86f982e412070c20623af", null ],
     [ "projection_dim", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#abc0eca030b98a2cee78f5ae183d8aa76", null ],
     [ "res", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#ac186d89c1edab11c70d990f7339f74fe", null ],
     [ "rho", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a544f369ba8672656a59489ab0831cb69", null ],

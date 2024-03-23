@@ -115,10 +115,14 @@ Modules</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:afa912cf217031bb8243a7e5d50c6f511"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#afa912cf217031bb8243a7e5d50c6f511">projection::projection_init</a> (this, n, L)</td></tr>
-<tr class="separator:afa912cf217031bb8243a7e5d50c6f511"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a023ff9fc7cf5e43567c4414b4a30bdbc"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a023ff9fc7cf5e43567c4414b4a30bdbc">projection::projection_init</a> (this, n, L, activ_step)</td></tr>
+<tr class="separator:a023ff9fc7cf5e43567c4414b4a30bdbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b1f6be35bcc16036da6a95e6e5bd3eb"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a1b1f6be35bcc16036da6a95e6e5bd3eb">projection::projection_free</a> (this)</td></tr>
 <tr class="separator:a1b1f6be35bcc16036da6a95e6e5bd3eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad372047d3171781038c3bff566a5e8e0"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#ad372047d3171781038c3bff566a5e8e0">projection::projection_pre_solving</a> (this, b, tstep, coef, n, dt_controller, string)</td></tr>
+<tr class="separator:ad372047d3171781038c3bff566a5e8e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18300fbf74a8032efc8ca91470868a6b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a18300fbf74a8032efc8ca91470868a6b">projection::projection_post_solving</a> (this, x, Ax, coef, bclst, gs_h, n, tstep, dt_controller)</td></tr>
+<tr class="separator:a18300fbf74a8032efc8ca91470868a6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9388020e6233dbfc903db3a50502bd6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6">projection::bcknd_project_on</a> (this, b, coef, n)</td></tr>
 <tr class="separator:ab9388020e6233dbfc903db3a50502bd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25be6cf95eeacd177d57821fe46a5e18"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18">projection::bcknd_project_back</a> (this, x, Ax, coef, bclst, gs_h, n)</td></tr>
@@ -135,6 +139,8 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:a139006438240384f6fc9d5b4c600648c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbb49138c663064e14453681e00610f1"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">projection::print_proj_info</a> (this, string)</td></tr>
 <tr class="separator:afbb49138c663064e14453681e00610f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d059617b3b6ec1b9a0c4d4e6cf31df9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">projection::bcknd_clear</a> (this, n)</td></tr>
+<tr class="separator:a1d059617b3b6ec1b9a0c4d4e6cf31df9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -142,7 +148,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d6/d51/projection_8f90.html">projection.f90</a></li>
-    <li class="footer">Generated on Fri Mar 22 2024 03:34:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Mar 23 2024 03:34:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

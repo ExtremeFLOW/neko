@@ -104,16 +104,16 @@ $(document).ready(function(){initNavTree('dd/d55/interfacescalar__scheme_1_1scal
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab5ab48152e75b951b25e715ed0e8c642"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html#ab5ab48152e75b951b25e715ed0e8c642">scalar_scheme_step_intrf</a> (this, t, tstep, dt, ext_bdf)</td></tr>
-<tr class="separator:ab5ab48152e75b951b25e715ed0e8c642"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a566e7742a39edb21e2c5760418f67415"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html#a566e7742a39edb21e2c5760418f67415">scalar_scheme_step_intrf</a> (this, t, tstep, dt, ext_bdf, dt_controller)</td></tr>
+<tr class="separator:a566e7742a39edb21e2c5760418f67415"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Abstract interface to compute a time-step. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00191">191</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00194">194</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ab5ab48152e75b951b25e715ed0e8c642"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab5ab48152e75b951b25e715ed0e8c642">&#9670;&nbsp;</a></span>scalar_scheme_step_intrf()</h2>
+<a id="a566e7742a39edb21e2c5760418f67415"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a566e7742a39edb21e2c5760418f67415">&#9670;&nbsp;</a></span>scalar_scheme_step_intrf()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -146,7 +146,13 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller_t</a>), intent(inout)&#160;</td>
-          <td class="paramname"><em>ext_bdf</em>&#160;</td>
+          <td class="paramname"><em>ext_bdf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/dab/structtime__step__controller_1_1time__step__controller__t.html">time_step_controller_t</a>), intent(in)&#160;</td>
+          <td class="paramname"><em>dt_controller</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -156,7 +162,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00191">191</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00194">194</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -169,7 +175,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/de3/namespacescalar__scheme.html">scalar_scheme</a></li><li class="navelem"><a class="el" href="../../dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html">scalar_scheme_step_intrf</a></li>
-    <li class="footer">Generated on Fri Mar 22 2024 03:34:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Mar 23 2024 03:34:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

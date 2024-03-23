@@ -1,11 +1,14 @@
 var NAVTREEINDEX9 =
 {
+"d3/dd9/cuda_2cdtp__kernel_8h.html#afa9cbc42a68a37ff6512f049d907f0a7":[6,0,2,12,0,1,0,2,21],
+"d3/dd9/cuda_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c":[6,0,2,12,0,1,0,2,8],
+"d3/dd9/cuda_2cdtp__kernel_8h_source.html":[6,0,2,12,0,1,0,2],
 "d3/dd9/scalar__residual__fctry_8f90.html":[6,0,2,15,5],
 "d3/dd9/scalar__residual__fctry_8f90.html#a90b130272e53d882fb406662d150edb5":[6,0,2,15,5,0],
 "d3/dd9/scalar__residual__fctry_8f90_source.html":[6,0,2,15,5],
 "d3/dda/namespacetime__step__controller.html":[4,0,249],
-"d3/dda/namespacetime__step__controller.html#a06d2786da8823bf793177315ca517796":[4,0,249,1],
-"d3/dda/namespacetime__step__controller.html#ae4da9d6495b0942a23b439855ac916c9":[4,0,249,2],
+"d3/dda/namespacetime__step__controller.html#a4bf4086f70a833896ee477ca27076a17":[4,0,249,1],
+"d3/dda/namespacetime__step__controller.html#aa8c8ccd67ea0e33fef51eabb39f993c0":[4,0,249,2],
 "d3/ddf/interfaceopencl__intf_1_1clReleaseCommandQueue.html":[5,0,129,16],
 "d3/ddf/interfaceopencl__intf_1_1clReleaseCommandQueue.html#a8bdcc8e2d4c1d7f4741a4df700e762bd":[5,0,129,16,0],
 "d3/de2/structscalar__residual__device_1_1scalar__residual__device__t.html":[5,0,161,0],
@@ -246,8 +249,5 @@ var NAVTREEINDEX9 =
 "d4/d77/tet__mesh_8f90.html#af6e976e971e8f00e78f6990de5badc36":[6,0,2,13,16,8],
 "d4/d77/tet__mesh_8f90_source.html":[6,0,2,13,16],
 "d4/d78/cuda_2sumab__kernel_8h.html":[6,0,2,3,0,1,0,5],
-"d4/d78/cuda_2sumab__kernel_8h.html#aa2f3beb19dabe0f67fc2e813fbc22186":[6,0,2,3,0,1,0,5,0],
-"d4/d78/cuda_2sumab__kernel_8h_source.html":[6,0,2,3,0,1,0,5],
-"d4/d78/interfacegs__device_1_1hip__gather__kernel.html":[5,0,89,1],
-"d4/d78/interfacegs__device_1_1hip__gather__kernel.html#a868a0669e82e14cbb8574fd958c1070b":[5,0,89,1,0]
+"d4/d78/cuda_2sumab__kernel_8h.html#aa2f3beb19dabe0f67fc2e813fbc22186":[6,0,2,3,0,1,0,5,0]
 };

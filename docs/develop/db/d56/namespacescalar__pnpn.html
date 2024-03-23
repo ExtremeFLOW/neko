@@ -117,8 +117,8 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:acbd003dc39aa26721ccb63f6d5fed292"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9cb374a82558fd2a9518313a098672b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#ae9cb374a82558fd2a9518313a098672b">scalar_pnpn_free</a> (this)</td></tr>
 <tr class="separator:ae9cb374a82558fd2a9518313a098672b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46d007d95d86c36b8cdc002e735a1125"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#a46d007d95d86c36b8cdc002e735a1125">scalar_pnpn_step</a> (this, t, tstep, dt, ext_bdf)</td></tr>
-<tr class="separator:a46d007d95d86c36b8cdc002e735a1125"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83babdb0466f81b3b2c001c3ca889e6c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#a83babdb0466f81b3b2c001c3ca889e6c">scalar_pnpn_step</a> (this, t, tstep, dt, ext_bdf, dt_controller)</td></tr>
+<tr class="separator:a83babdb0466f81b3b2c001c3ca889e6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Containts the <a class="el" href="../../d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html">scalar_pnpn_t</a> type. </p>
@@ -147,7 +147,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00247">247</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00249">249</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -219,7 +219,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00131">131</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -284,12 +284,12 @@ Here is the call graph for this function:</div>
 
 <p>I envision the arguments to this func might need to be expanded. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00217">217</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00219">219</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
-<a id="a46d007d95d86c36b8cdc002e735a1125"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a46d007d95d86c36b8cdc002e735a1125">&#9670;&nbsp;</a></span>scalar_pnpn_step()</h2>
+<a id="a83babdb0466f81b3b2c001c3ca889e6c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83babdb0466f81b3b2c001c3ca889e6c">&#9670;&nbsp;</a></span>scalar_pnpn_step()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -325,7 +325,13 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller_t</a>), intent(inout)&#160;</td>
-          <td class="paramname"><em>ext_bdf</em>&#160;</td>
+          <td class="paramname"><em>ext_bdf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/dab/structtime__step__controller_1_1time__step__controller__t.html">time_step_controller_t</a>), intent(in)&#160;</td>
+          <td class="paramname"><em>dt_controller</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -341,7 +347,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Apply Dirichlet boundary conditions We assume that no change of boundary conditions occurs between elements. i.e. we do not apply gsop here like in Nek5000</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00281">281</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00283">283</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -351,7 +357,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d56/namespacescalar__pnpn.html">scalar_pnpn</a></li>
-    <li class="footer">Generated on Fri Mar 22 2024 03:34:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Mar 23 2024 03:34:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

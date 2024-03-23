@@ -177,7 +177,7 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a19bd0cd3aea5cbbd3a1cffaeed8c85bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0dd7f5de84c98c7a5587a21cf7511008"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a0dd7f5de84c98c7a5587a21cf7511008">free</a> =&gt; <a class="el" href="../../d6/d78/namespacefluid__plan1.html#ad3a55241f79e24bfcc96621659920dc0">fluid_plan1_free</a></td></tr>
 <tr class="separator:a0dd7f5de84c98c7a5587a21cf7511008"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88c93ad2409644226e9d55816b8705fa"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a88c93ad2409644226e9d55816b8705fa">step</a> =&gt; <a class="el" href="../../d6/d78/namespacefluid__plan1.html#a30d782acfcebabdcd24a9bd3eaf57f64">fluid_plan1_step</a></td></tr>
+<tr class="memitem:a88c93ad2409644226e9d55816b8705fa"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a88c93ad2409644226e9d55816b8705fa">step</a> =&gt; <a class="el" href="../../d6/d78/namespacefluid__plan1.html#a39de569f2444dddd6ba8efc6c4c3bfaa">fluid_plan1_step</a></td></tr>
 <tr class="separator:a88c93ad2409644226e9d55816b8705fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ea689659976efc8c79fb236008e06e7"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a0ea689659976efc8c79fb236008e06e7">fluid_scheme_init_all</a></td></tr>
 <tr class="separator:a0ea689659976efc8c79fb236008e06e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -275,6 +275,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:abe694e73371e34a2327302731dc51806"><td class="memItemLeft" align="right" valign="top">integer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#abe694e73371e34a2327302731dc51806">pr_projection_dim</a></td></tr>
 <tr class="memdesc:abe694e73371e34a2327302731dc51806"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of the projection space for ksp_pr.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#abe694e73371e34a2327302731dc51806">More...</a><br /></td></tr>
 <tr class="separator:abe694e73371e34a2327302731dc51806"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb81246a51708fcb3ec352fb97048a64"><td class="memItemLeft" align="right" valign="top">integer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aeb81246a51708fcb3ec352fb97048a64">vel_projection_activ_step</a></td></tr>
+<tr class="memdesc:aeb81246a51708fcb3ec352fb97048a64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Steps to activate projection for ksp_vel.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aeb81246a51708fcb3ec352fb97048a64">More...</a><br /></td></tr>
+<tr class="separator:aeb81246a51708fcb3ec352fb97048a64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d6fa4f5cfca4b3bc99a66d93c95a488"><td class="memItemLeft" align="right" valign="top">integer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a7d6fa4f5cfca4b3bc99a66d93c95a488">pr_projection_activ_step</a></td></tr>
+<tr class="memdesc:a7d6fa4f5cfca4b3bc99a66d93c95a488"><td class="mdescLeft">&#160;</td><td class="mdescRight">Steps to activate projection for ksp_pr.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a7d6fa4f5cfca4b3bc99a66d93c95a488">More...</a><br /></td></tr>
+<tr class="separator:a7d6fa4f5cfca4b3bc99a66d93c95a488"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6111bbe254d5c15bcfd17fa83f27cef6"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../dd/d9d/structwall_1_1no__slip__wall__t.html">no_slip_wall_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a6111bbe254d5c15bcfd17fa83f27cef6">bc_wall</a></td></tr>
 <tr class="memdesc:a6111bbe254d5c15bcfd17fa83f27cef6"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-slip wall for velocity.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a6111bbe254d5c15bcfd17fa83f27cef6">More...</a><br /></td></tr>
 <tr class="separator:a6111bbe254d5c15bcfd17fa83f27cef6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -360,7 +366,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00131">131</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00134">134</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -384,7 +390,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00130">130</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00133">133</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -408,7 +414,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00133">133</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00136">136</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -432,7 +438,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00126">126</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00129">129</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -456,7 +462,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00127">127</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00130">130</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -513,7 +519,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00137">137</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00140">140</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -537,7 +543,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00128">128</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00131">131</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -561,7 +567,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00138">138</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00141">141</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -605,7 +611,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00135">135</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -645,7 +651,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00129">129</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -672,7 +678,7 @@ Here is the call graph for this function:</div>
 
 <p>Dong outflow condition. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00108">108</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -698,7 +704,7 @@ Here is the call graph for this function:</div>
 
 <p>Dirichlet inflow for velocity. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00106">106</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -724,7 +730,7 @@ Here is the call graph for this function:</div>
 
 <p>Boundary condition labels (if any) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00124">124</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00127">127</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -750,7 +756,7 @@ Here is the call graph for this function:</div>
 
 <p>Dirichlet pressure condition. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00104">104</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00107">107</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -776,7 +782,7 @@ Here is the call graph for this function:</div>
 
 <p>Symmetry plane for velocity. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00106">106</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -802,7 +808,7 @@ Here is the call graph for this function:</div>
 
 <p>No-slip wall for velocity. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -828,7 +834,7 @@ Here is the call graph for this function:</div>
 
 <p>List of pressure conditions. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00108">108</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00111">111</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -854,7 +860,7 @@ Here is the call graph for this function:</div>
 
 <p>List of velocity conditions. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00107">107</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00110">110</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -880,7 +886,7 @@ Here is the call graph for this function:</div>
 
 <p>Boundary markings. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00112">112</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -906,7 +912,7 @@ Here is the call graph for this function:</div>
 
 <p>Coefficients associated with \( X_h \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -950,7 +956,7 @@ Here is the call graph for this function:</div>
 
 <p>Checkpoint. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00112">112</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00115">115</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -976,7 +982,7 @@ Here is the call graph for this function:</div>
 
 <p>Dofmap associated with \( X_h \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1020,7 +1026,7 @@ Here is the call graph for this function:</div>
 
 <p>X-component of the right-hand side. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1046,7 +1052,7 @@ Here is the call graph for this function:</div>
 
 <p>Y-component of the right-hand side. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1072,7 +1078,7 @@ Here is the call graph for this function:</div>
 
 <p>Z-component of the right-hand side. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1098,7 +1104,7 @@ Here is the call graph for this function:</div>
 
 <p>Is the flow rate forced? </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00116">116</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00119">119</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1124,7 +1130,7 @@ Here is the call graph for this function:</div>
 
 <p>Freeze velocity at initial condition? </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1150,7 +1156,7 @@ Here is the call graph for this function:</div>
 
 <p>Gather-scatter associated with \( X_h \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1194,7 +1200,7 @@ Here is the call graph for this function:</div>
 
 <p>Krylov solver for pressure. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00098">98</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1220,7 +1226,7 @@ Here is the call graph for this function:</div>
 
 <p>Krylov solver for velocity. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1246,7 +1252,7 @@ Here is the call graph for this function:</div>
 
 <p>Mean flow field. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00116">116</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1272,7 +1278,7 @@ Here is the call graph for this function:</div>
 
 <p>Mean squared flow field. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00115">115</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1298,7 +1304,7 @@ Here is the call graph for this function:</div>
 
 <p>Mesh. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00111">111</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1324,7 +1330,7 @@ Here is the call graph for this function:</div>
 
 <p>Dynamic viscosity. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00119">119</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00122">122</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1350,7 +1356,7 @@ Here is the call graph for this function:</div>
 
 <p>Pressure. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1376,7 +1382,7 @@ Here is the call graph for this function:</div>
 
 <p>Parameters. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00110">110</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1402,7 +1408,7 @@ Here is the call graph for this function:</div>
 
 <p>Velocity Preconditioner. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1428,7 +1434,33 @@ Here is the call graph for this function:</div>
 
 <p>Velocity Preconditioner. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00098">98</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+
+</div>
+</div>
+<a id="a7d6fa4f5cfca4b3bc99a66d93c95a488"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d6fa4f5cfca4b3bc99a66d93c95a488">&#9670;&nbsp;</a></span>pr_projection_activ_step</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer fluid_scheme::fluid_scheme_t::pr_projection_activ_step</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Steps to activate projection for ksp_pr. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00104">104</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1454,7 +1486,7 @@ Here is the call graph for this function:</div>
 
 <p>Size of the projection space for ksp_pr. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1480,7 +1512,7 @@ Here is the call graph for this function:</div>
 
 <p>Density. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00121">121</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00124">124</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1506,7 +1538,7 @@ Here is the call graph for this function:</div>
 
 <p>Manager for temporary fields. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00122">122</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00125">125</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1532,7 +1564,7 @@ Here is the call graph for this function:</div>
 
 <p>The source term for the momentum equation. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1558,7 +1590,7 @@ Here is the call graph for this function:</div>
 
 <p>Fluid statistics. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1584,7 +1616,7 @@ Here is the call graph for this function:</div>
 
 <p>x-component of Velocity </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1608,7 +1640,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1634,7 +1666,33 @@ Here is the call graph for this function:</div>
 
 <p>y-component of Velocity </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+
+</div>
+</div>
+<a id="aeb81246a51708fcb3ec352fb97048a64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb81246a51708fcb3ec352fb97048a64">&#9670;&nbsp;</a></span>vel_projection_activ_step</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer fluid_scheme::fluid_scheme_t::vel_projection_activ_step</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Steps to activate projection for ksp_vel. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1660,7 +1718,7 @@ Here is the call graph for this function:</div>
 
 <p>Size of the projection space for ksp_vel. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1684,7 +1742,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1710,7 +1768,7 @@ Here is the call graph for this function:</div>
 
 <p>z-component of Velocity </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1736,7 +1794,7 @@ Here is the call graph for this function:</div>
 
 <p>fluid field (lag) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1762,7 +1820,7 @@ Here is the call graph for this function:</div>
 
 <p>Function space \( X_h \). </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1793,7 +1851,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d78/namespacefluid__plan1.html">fluid_plan1</a></li><li class="navelem"><a class="el" href="../../dc/d90/structfluid__plan1_1_1fluid__plan1__t.html">fluid_plan1_t</a></li>
-    <li class="footer">Generated on Fri Mar 22 2024 03:34:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Mar 23 2024 03:34:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

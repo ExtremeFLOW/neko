@@ -110,18 +110,18 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a06d2786da8823bf793177315ca517796"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dda/namespacetime__step__controller.html#a06d2786da8823bf793177315ca517796">time_step_controller_init</a> (this, C)</td></tr>
-<tr class="memdesc:a06d2786da8823bf793177315ca517796"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../d3/dda/namespacetime__step__controller.html#a06d2786da8823bf793177315ca517796">More...</a><br /></td></tr>
-<tr class="separator:a06d2786da8823bf793177315ca517796"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4da9d6495b0942a23b439855ac916c9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dda/namespacetime__step__controller.html#ae4da9d6495b0942a23b439855ac916c9">time_step_controller_set_dt</a> (this, C, cfl, cfl_avrg, dt_last_change, tstep)</td></tr>
-<tr class="memdesc:ae4da9d6495b0942a23b439855ac916c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set new dt based on cfl if requested.  <a href="../../d3/dda/namespacetime__step__controller.html#ae4da9d6495b0942a23b439855ac916c9">More...</a><br /></td></tr>
-<tr class="separator:ae4da9d6495b0942a23b439855ac916c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4bf4086f70a833896ee477ca27076a17"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dda/namespacetime__step__controller.html#a4bf4086f70a833896ee477ca27076a17">time_step_controller_init</a> (this, params)</td></tr>
+<tr class="memdesc:a4bf4086f70a833896ee477ca27076a17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../d3/dda/namespacetime__step__controller.html#a4bf4086f70a833896ee477ca27076a17">More...</a><br /></td></tr>
+<tr class="separator:a4bf4086f70a833896ee477ca27076a17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8c8ccd67ea0e33fef51eabb39f993c0"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dda/namespacetime__step__controller.html#aa8c8ccd67ea0e33fef51eabb39f993c0">time_step_controller_set_dt</a> (this, dt, cfl, cfl_avrg, tstep)</td></tr>
+<tr class="memdesc:aa8c8ccd67ea0e33fef51eabb39f993c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set new dt based on cfl if requested.  <a href="../../d3/dda/namespacetime__step__controller.html#aa8c8ccd67ea0e33fef51eabb39f993c0">More...</a><br /></td></tr>
+<tr class="separator:aa8c8ccd67ea0e33fef51eabb39f993c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Implements type <a class="el" href="../../d3/dda/namespacetime__step__controller.html" title="Implements type time_step_controller.">time_step_controller</a>. </p>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a06d2786da8823bf793177315ca517796"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a06d2786da8823bf793177315ca517796">&#9670;&nbsp;</a></span>time_step_controller_init()</h2>
+<a id="a4bf4086f70a833896ee477ca27076a17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4bf4086f70a833896ee477ca27076a17">&#9670;&nbsp;</a></span>time_step_controller_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -135,8 +135,8 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), intent(inout)&#160;</td>
-          <td class="paramname"><em>C</em>&#160;</td>
+          <td class="paramtype">type(json_file), intent(inout)&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -154,12 +154,12 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
-<a id="ae4da9d6495b0942a23b439855ac916c9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae4da9d6495b0942a23b439855ac916c9">&#9670;&nbsp;</a></span>time_step_controller_set_dt()</h2>
+<a id="aa8c8ccd67ea0e33fef51eabb39f993c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8c8ccd67ea0e33fef51eabb39f993c0">&#9670;&nbsp;</a></span>time_step_controller_set_dt()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -176,8 +176,8 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), intent(inout)&#160;</td>
-          <td class="paramname"><em>C</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(inout)&#160;</td>
+          <td class="paramname"><em>dt</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -190,12 +190,6 @@ Functions/Subroutines</h2></td></tr>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(inout)&#160;</td>
           <td class="paramname"><em>cfl_avrg</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">integer, intent(inout)&#160;</td>
-          <td class="paramname"><em>dt_last_change</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -219,10 +213,9 @@ Functions/Subroutines</h2></td></tr>
 <p>Set new dt based on cfl if requested. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">C</td><td>case type. </td></tr>
+    <tr><td class="paramname">dt</td><td>time step in case_t. </td></tr>
     <tr><td class="paramname">cfl</td><td>courant number of current iteration. </td></tr>
     <tr><td class="paramname">cfl_avrg</td><td>average Courant number. </td></tr>
-    <tr><td class="paramname">dt_last_change</td><td>time step since last dt change. </td></tr>
     <tr><td class="paramname">tstep</td><td>the current time step. @Algorithm:<ol type="1">
 <li>Set the first time step such that cfl is the set one;</li>
 <li>During time-stepping, adjust dt when cfl_avrg is offset by 20%. </li>
@@ -232,7 +225,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -242,7 +235,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/dda/namespacetime__step__controller.html">time_step_controller</a></li>
-    <li class="footer">Generated on Fri Mar 22 2024 03:34:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Mar 23 2024 03:34:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

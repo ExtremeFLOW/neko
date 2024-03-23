@@ -148,14 +148,24 @@ The case object</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>restart_file</code>   </td><td class="markdownTableBodyNone">checkpoint to use for a restart from previous data   </td><td class="markdownTableBodyNone">Strings ending with <code>.chkp</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>constant_cfl</code>   </td><td class="markdownTableBodyNone">The desired CFL number   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>timestep</code>   </td><td class="markdownTableBodyNone">Time-step size   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>cfl_max_update_frequency</code>   </td><td class="markdownTableBodyNone">The minimum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>1</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>variable_timestep</code>   </td><td class="markdownTableBodyNone">Whether to use variable dt   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>time_step</code>   </td><td class="markdownTableBodyNone">Time-step size if <code>constant_cfl</code> is not specified; maximum time-step size if <code>constant_cfl</code> is specified.   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>max_timestep</code>   </td><td class="markdownTableBodyNone">Maximum time-step size when variable time step is activated   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>target_cfl</code>   </td><td class="markdownTableBodyNone">The desired CFL number   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone"><code>0.4</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>cfl_max_update_frequency</code>   </td><td class="markdownTableBodyNone">The minimum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>cfl_running_avg_coeff</code>   </td><td class="markdownTableBodyNone">The running average coefficient <code>a</code> where <code>cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old</code>   </td><td class="markdownTableBodyNone">Positive real between <code>0</code> and <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>max_dt_increase_factor</code>   </td><td class="markdownTableBodyNone">The maximum scaling factor to increase time step   </td><td class="markdownTableBodyNone">Positive real greater than <code>1</code>   </td><td class="markdownTableBodyNone"><code>1.2</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>min_dt_decrease_factor</code>   </td><td class="markdownTableBodyNone">The minimum scaling factor to decrease time step   </td><td class="markdownTableBodyNone">Positive real less than <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>end_time</code>   </td><td class="markdownTableBodyNone">Final time at which the simulation is stopped.   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>job_timelimit</code>   </td><td class="markdownTableBodyNone">The maximum wall clock duration of the simulation.   </td><td class="markdownTableBodyNone">String formatted as HH:MM:SS   </td><td class="markdownTableBodyNone">No limit   </td></tr>
 </table>
 <h2><a class="anchor" id="autotoc_md6"></a>
@@ -331,6 +341,7 @@ Linear solver configuration</h1>
 <li><code>absolute_tolerance</code>, tolerance criterion for convergence.</li>
 <li><code>max_iterations</code>, maximum number of iterations before giving up.</li>
 <li><code>projection_space_size</code>, size of the vector space used for accelerating the solution procedure. If 0, then the projection space is not used. More important for the pressure equation.</li>
+<li><code>projection_hold_steps</code>, steps for which the simulation does not use projection after starting or time step changes. E.g. if 5, then the projection space will start to update at the 6th time step and the space will be utilized at the 7th time step.</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md15"></a>
 Flow rate forcing</h2>
@@ -385,26 +396,23 @@ Full parameter table</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>velocity_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
+<td class="markdownTableBodyNone"><code>velocity_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">20    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>velocity_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.type</code>   </td><td class="markdownTableBodyNone">Linear solver for the momentum equation.   </td><td class="markdownTableBodyNone"><code>cg</code>, <code>pipecg</code>, <code>bicgstab</code>, <code>cacg</code>, <code>gmres</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.preconditioner</code>   </td><td class="markdownTableBodyNone">Linear solver preconditioner for the momentum equation.   </td><td class="markdownTableBodyNone"><code>ident</code>, <code>hsmg</code>, <code>jacobi</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.absolute_tolerance</code>   </td><td class="markdownTableBodyNone">Linear solver convergence criterion for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>pressure_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>flow_rate_force.direction</code>   </td><td class="markdownTableBodyNone">Direction of the forced flow.   </td><td class="markdownTableBodyNone">0, 1, 2   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>pressure_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">20    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>flow_rate_force.value</code>   </td><td class="markdownTableBodyNone">Bulk velocity or volumetric flow rate.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>flow_rate_force.use_averaged_flow</code>   </td><td class="markdownTableBodyNone">Whether bulk velocity or volumetric flow rate is given by the <code>value</code> parameter.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>freeze</code>   </td><td class="markdownTableBodyNone">Whether to fix the velocity field at initial conditions.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>   </td></tr>
+<td class="markdownTableBodyNone"><code>pressure_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5   </td></tr>
 </table>
+<p>| <code>flow_rate_force.direction</code> | Direction of the forced flow. | 0, 1, 2 | - | | <code>flow_rate_force.value</code> | Bulk velocity or volumetric flow rate. | Positive real | - | | <code>flow_rate_force.use_averaged_flow</code> | Whether bulk velocity or volumetric flow rate is given by the <code>value</code> parameter. | <code>true</code> or <code>false</code> | - | | <code>freeze</code> | Whether to fix the velocity field at initial conditions. | <code>true</code> or <code>false</code> | <code>false</code> |</p>
 <h1><a class="anchor" id="case-file_scalar"></a>
 Scalar</h1>
 <p>The scalar object allows to add a scalar transport equation to the solution. The solution variable is called <code>s</code>, but saved as <code>temperature</code> in the fld files. Some properties of the object are inherited from <code>fluid</code>: the properties of the linear solver, the value of the density, and the output control.</p>
@@ -460,7 +468,7 @@ Point zones</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Fri Mar 22 2024 03:34:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Mar 23 2024 03:34:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

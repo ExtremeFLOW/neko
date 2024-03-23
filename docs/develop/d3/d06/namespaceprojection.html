@@ -109,10 +109,14 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:afa912cf217031bb8243a7e5d50c6f511"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#afa912cf217031bb8243a7e5d50c6f511">projection_init</a> (this, n, L)</td></tr>
-<tr class="separator:afa912cf217031bb8243a7e5d50c6f511"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a023ff9fc7cf5e43567c4414b4a30bdbc"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a023ff9fc7cf5e43567c4414b4a30bdbc">projection_init</a> (this, n, L, activ_step)</td></tr>
+<tr class="separator:a023ff9fc7cf5e43567c4414b4a30bdbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b1f6be35bcc16036da6a95e6e5bd3eb"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a1b1f6be35bcc16036da6a95e6e5bd3eb">projection_free</a> (this)</td></tr>
 <tr class="separator:a1b1f6be35bcc16036da6a95e6e5bd3eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad372047d3171781038c3bff566a5e8e0"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#ad372047d3171781038c3bff566a5e8e0">projection_pre_solving</a> (this, b, tstep, coef, n, dt_controller, string)</td></tr>
+<tr class="separator:ad372047d3171781038c3bff566a5e8e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18300fbf74a8032efc8ca91470868a6b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a18300fbf74a8032efc8ca91470868a6b">projection_post_solving</a> (this, x, Ax, coef, bclst, gs_h, n, tstep, dt_controller)</td></tr>
+<tr class="separator:a18300fbf74a8032efc8ca91470868a6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9388020e6233dbfc903db3a50502bd6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6">bcknd_project_on</a> (this, b, coef, n)</td></tr>
 <tr class="separator:ab9388020e6233dbfc903db3a50502bd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25be6cf95eeacd177d57821fe46a5e18"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18">bcknd_project_back</a> (this, x, Ax, coef, bclst, gs_h, n)</td></tr>
@@ -129,11 +133,51 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:a139006438240384f6fc9d5b4c600648c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbb49138c663064e14453681e00610f1"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">print_proj_info</a> (this, string)</td></tr>
 <tr class="separator:afbb49138c663064e14453681e00610f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d059617b3b6ec1b9a0c4d4e6cf31df9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">bcknd_clear</a> (this, n)</td></tr>
+<tr class="separator:a1d059617b3b6ec1b9a0c4d4e6cf31df9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Project x onto X, the space of old solutions and back again. </p>
 <dl class="section note"><dt>Note</dt><dd>In this code we assume that the matrix project for the pressure Ax does not vary in time. </dd></dl>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a1d059617b3b6ec1b9a0c4d4e6cf31df9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d059617b3b6ec1b9a0c4d4e6cf31df9">&#9670;&nbsp;</a></span>bcknd_clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine projection::bcknd_clear </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../d5/dcf/structprojection_1_1projection__t.html">projection_t</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00663">663</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+
+</div>
+</div>
 <a id="a25be6cf95eeacd177d57821fe46a5e18"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a25be6cf95eeacd177d57821fe46a5e18">&#9670;&nbsp;</a></span>bcknd_project_back()</h2>
 
@@ -198,7 +242,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00221">221</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00284">284</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -270,7 +314,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00207">207</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00270">270</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -343,7 +387,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00477">477</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00540">540</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -402,7 +446,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00269">269</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00332">332</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -480,7 +524,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00398">398</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00461">461</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -539,7 +583,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00326">326</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00389">389</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -604,7 +648,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00565">565</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00628">628</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 
 </div>
 </div>
@@ -642,7 +686,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00584">584</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00647">647</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 
 </div>
 </div>
@@ -670,7 +714,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00166">166</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00178">178</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -683,8 +727,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="afa912cf217031bb8243a7e5d50c6f511"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa912cf217031bb8243a7e5d50c6f511">&#9670;&nbsp;</a></span>projection_init()</h2>
+<a id="a023ff9fc7cf5e43567c4414b4a30bdbc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a023ff9fc7cf5e43567c4414b4a30bdbc">&#9670;&nbsp;</a></span>projection_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -705,7 +749,13 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">integer, intent(in), optional&#160;</td>
-          <td class="paramname"><em>L</em>&#160;</td>
+          <td class="paramname"><em>L</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in), optional&#160;</td>
+          <td class="paramname"><em>activ_step</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -715,12 +765,12 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00106">106</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00112">112</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d3/d06/namespaceprojection_afa912cf217031bb8243a7e5d50c6f511_cgraph.png" border="0" usemap="#ad3/d06/namespaceprojection_afa912cf217031bb8243a7e5d50c6f511_cgraph" alt=""/></div>
-<map name="ad3/d06/namespaceprojection_afa912cf217031bb8243a7e5d50c6f511_cgraph" id="ad3/d06/namespaceprojection_afa912cf217031bb8243a7e5d50c6f511_cgraph">
+<div class="center"><img src="../../d3/d06/namespaceprojection_a023ff9fc7cf5e43567c4414b4a30bdbc_cgraph.png" border="0" usemap="#ad3/d06/namespaceprojection_a023ff9fc7cf5e43567c4414b4a30bdbc_cgraph" alt=""/></div>
+<map name="ad3/d06/namespaceprojection_a023ff9fc7cf5e43567c4414b4a30bdbc_cgraph" id="ad3/d06/namespaceprojection_a023ff9fc7cf5e43567c4414b4a30bdbc_cgraph">
 <area shape="rect" title=" " alt="" coords="5,64,193,91"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="243,5,397,32"/>
 <area shape="rect" href="../../d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title=" " alt="" coords="241,57,399,98"/>
@@ -732,13 +782,161 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
+<a id="a18300fbf74a8032efc8ca91470868a6b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18300fbf74a8032efc8ca91470868a6b">&#9670;&nbsp;</a></span>projection_post_solving()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine projection::projection_post_solving </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../d5/dcf/structprojection_1_1projection__t.html">projection_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(n), intent(inout)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">class(<a class="el" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>Ax</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">class(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">class(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>bclst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>gs_h</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(inout)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
+          <td class="paramname"><em>tstep</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/dab/structtime__step__controller_1_1time__step__controller__t.html">time_step_controller_t</a>), intent(in)&#160;</td>
+          <td class="paramname"><em>dt_controller</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00250">250</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad372047d3171781038c3bff566a5e8e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad372047d3171781038c3bff566a5e8e0">&#9670;&nbsp;</a></span>projection_pre_solving()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine projection::projection_pre_solving </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../d5/dcf/structprojection_1_1projection__t.html">projection_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(n), intent(inout)&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
+          <td class="paramname"><em>tstep</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">class(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(inout)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/dab/structtime__step__controller_1_1time__step__controller__t.html">time_step_controller_t</a>), intent(in)&#160;</td>
+          <td class="paramname"><em>dt_controller</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), optional&#160;</td>
+          <td class="paramname"><em>string</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00219">219</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d06/namespaceprojection.html">projection</a></li>
-    <li class="footer">Generated on Fri Mar 22 2024 03:34:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Mar 23 2024 03:34:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

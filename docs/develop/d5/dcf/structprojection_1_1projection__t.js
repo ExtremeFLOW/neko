@@ -1,10 +1,14 @@
 var structprojection_1_1projection__t =
 [
+    [ "clear", "d5/dcf/structprojection_1_1projection__t.html#a49dbec4d4872f78f79df8fefed55b3e7", null ],
     [ "free", "d5/dcf/structprojection_1_1projection__t.html#a32c6299f1718f60a0b531ac54f5e42a5", null ],
     [ "init", "d5/dcf/structprojection_1_1projection__t.html#af01df56035c9a0f07235670a40155cb3", null ],
     [ "log_info", "d5/dcf/structprojection_1_1projection__t.html#af905e28402da72f810662d1af3433ae9", null ],
+    [ "post_solving", "d5/dcf/structprojection_1_1projection__t.html#aaa05ff59e228a5f158952e4ab64a989c", null ],
+    [ "pre_solving", "d5/dcf/structprojection_1_1projection__t.html#acbd16561bae80c53280f417a37c309e3", null ],
     [ "project_back", "d5/dcf/structprojection_1_1projection__t.html#a22d71a782389167486e2dc11b9cbc76e", null ],
     [ "project_on", "d5/dcf/structprojection_1_1projection__t.html#a74a2d16d88e3fa05152955f409817d15", null ],
+    [ "activ_step", "d5/dcf/structprojection_1_1projection__t.html#aa4399444ff5e7f5932e2f2a138e63f84", null ],
     [ "alpha_d", "d5/dcf/structprojection_1_1projection__t.html#a38d707ee136fa62500838e6c6e8c40ae", null ],
     [ "bb", "d5/dcf/structprojection_1_1projection__t.html#a27a57ed8664194f9dd696e72d43851ab", null ],
     [ "bb_d", "d5/dcf/structprojection_1_1projection__t.html#aeef9e616c8f4989139eb56b859ae2446", null ],
