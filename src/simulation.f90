@@ -56,8 +56,7 @@ contains
 
   !> Main driver to solve a case @a C
   subroutine neko_solve(C)
-    implicit none
-    type(case_t), intent(inout) :: C
+    type(case_t), target, intent(inout) :: C
     real(kind=rp) :: t, cfl
     real(kind=dp) :: start_time_org, start_time, end_time
     character(len=LOG_SIZE) :: log_buf
