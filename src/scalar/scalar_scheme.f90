@@ -66,6 +66,7 @@ module scalar_scheme
   use scalar_source_term, only : scalar_source_term_t
   use math, only : cfill
   use field_series
+  use time_step_controller
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -98,6 +99,8 @@ module scalar_scheme
      integer :: ksp_maxiter
      !> Projection space size.
      integer :: projection_dim
+     !< Steps to activate projection for ksp
+     integer :: projection_activ_step   
      !> Preconditioner.
      class(pc_t), allocatable :: pc
      !> Dirichlet conditions.
@@ -191,15 +194,17 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf)
+     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
        import scalar_scheme_t
        import time_scheme_controller_t
+       import time_step_controller_t
        import rp
        class(scalar_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
        real(kind=rp), intent(in) :: dt
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
+       type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine scalar_scheme_step_intrf
   end interface
 
@@ -314,6 +319,9 @@ contains
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
                             this%projection_dim, 20)
+    call json_get_or_default(params, &
+                            'case.fluid.velocity_solver.projection_hold_steps',&
+                            this%projection_activ_step, 5)
 
 
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)

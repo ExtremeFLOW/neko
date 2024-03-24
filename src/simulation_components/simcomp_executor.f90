@@ -74,7 +74,7 @@ contains
   !> Constructor.
   subroutine simcomp_executor_init(this, case)
     class(simcomp_executor_t), intent(inout) :: this
-    type(case_t), intent(inout) :: case
+    type(case_t), target, intent(inout) :: case
     integer :: n_simcomps, i
     type(json_core) :: core
     type(json_value), pointer :: simcomp_object

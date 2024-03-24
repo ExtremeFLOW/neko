@@ -117,7 +117,7 @@ contains
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
-    type(material_properties_t), intent(inout) :: material_properties
+    type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: found, logical_val
     integer :: integer_val
@@ -243,15 +243,16 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
     !Intialize projection space thingy
-    if (this%pr_projection_dim .gt. 0) then
-       call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim)
-    end if
+    call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
+                              this%pr_projection_activ_step)
 
-    if (this%vel_projection_dim .gt. 0) then
-       call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim)
-       call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim)
-       call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim)
-    end if
+    call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+    call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+    call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
@@ -461,12 +462,14 @@ contains
   !! @param tstep The current interation.
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
-  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf)
-    class(fluid_pnpn_t), intent(inout) :: this
+  !! @param dt_controller timestep controller
+  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+    class(fluid_pnpn_t), target, intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
     integer :: n
     ! Solver results monitors (pressure + 3 velocity)
@@ -496,7 +499,9 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          rho => this%rho, mu => this%mu, &
-         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z)
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
+         if_variable_dt => dt_controller%if_variable_dt, &
+         dt_last_change => dt_controller%dt_last_change)
 
       ! Get temporary arrays
       call this%scratch%request_field(u_e, temp_indices(1))
@@ -555,10 +560,7 @@ contains
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
-         call this%proj_prs%project_on(p_res%x, c_Xh, n)
-         call this%proj_prs%log_info('Pressure')
-      end if
+      call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, 'Pressure')
 
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
@@ -567,10 +569,8 @@ contains
 
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
-         call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
-                                         this%bclst_dp, gs_Xh, n)
-      end if
+      call this%proj_prs%post_solving(dp%x, Ax, c_Xh, &
+                                 this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2(p%x_d, dp%x_d,n)
@@ -599,11 +599,9 @@ contains
 
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
-         call this%proj_u%project_on(u_res%x, c_Xh, n)
-         call this%proj_v%project_on(v_res%x, c_Xh, n)
-         call this%proj_w%project_on(w_res%x, c_Xh, n)
-      end if
+      call this%proj_u%pre_solving(u_res%x, tstep, c_Xh, n, dt_controller)
+      call this%proj_v%pre_solving(v_res%x, tstep, c_Xh, n, dt_controller)
+      call this%proj_w%pre_solving(w_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc_vel%update()
 
@@ -615,15 +613,13 @@ contains
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_dw, gs_Xh)
       call profiler_end_region
-
-      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
-         call this%proj_u%project_back(du%x, Ax, c_Xh, &
-                                  this%bclst_du, gs_Xh, n)
-         call this%proj_v%project_back(dv%x, Ax, c_Xh, &
-                                  this%bclst_dv, gs_Xh, n)
-         call this%proj_w%project_back(dw%x, Ax, c_Xh, &
-                                  this%bclst_dw, gs_Xh, n)
-      end if
+      
+      call this%proj_u%post_solving(du%x, Ax, c_Xh, &
+                                 this%bclst_du, gs_Xh, n, tstep, dt_controller)
+      call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
+                                 this%bclst_dv, gs_Xh, n, tstep, dt_controller)
+      call this%proj_w%post_solving(dw%x, Ax, c_Xh, &
+                                 this%bclst_dw, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &

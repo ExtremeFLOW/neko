@@ -61,7 +61,7 @@ program poisson
   call dir_bc%finalize()
   call bc_list_init(bclst)
   call bc_list_add(bclst,dir_bc)
-  call solver%init(n, abs_tol = tol)
+  call solver%init(n, niter, abs_tol = tol)
 
   allocate(f(n))
 
