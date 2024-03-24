@@ -625,25 +625,6 @@ contains
 
   end subroutine cpu_proj_ortho
 
-  subroutine givens_rotation(a, b, c, s, r)
-    real(kind=rp), intent(inout) :: a, b, c, s, r
-    real(kind=rp) ::  h, d
-
-    if(b .ne. 0.0_rp) then
-       h = hypot(a, b)
-       d = 1.0_rp / h
-       c = abs(a) * d
-       s = sign(d, a) * b
-       r = sign(1.0_rp, a) * h
-    else
-       c = 1.0_rp
-       s = 0.0_rp
-       r = a
-    endif
-
-    return
-  end subroutine givens_rotation
-
   subroutine print_proj_info(this,string)
     class(projection_t) :: this
     character(len=*) :: string
