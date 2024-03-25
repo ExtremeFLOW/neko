@@ -42,6 +42,8 @@ module simcomp_executor
   implicit none
   private
 
+  integer :: NEKO_MAX_USER_SIMCOMPS = 10
+
   !> Singleton type that serves as a driver for the simulation components.
   !! Stores all the components in the case and provides an interface matching
   !! that of a single simcomp, which executes the corresponding routines for
@@ -54,6 +56,8 @@ module simcomp_executor
      !> Index array defining the order of execution, i.e. simcomps(order(1)) is
      !! first to execute, and so on.
      integer, allocatable ::  order(:)
+     !> Number of simcomps
+     integer ::  n_simcomps
    contains
      !> Constructor.
      procedure, pass(this) :: init => simcomp_executor_init
@@ -92,8 +96,10 @@ contains
     if (case%params%valid_path('case.simulation_components')) then
 
        call case%params%info('case.simulation_components', n_children=n_simcomps)
-       allocate(this%simcomps(n_simcomps))
-       allocate(this%order(n_simcomps))
+
+       this%n_simcomps = n_simcomps
+       allocate(this%simcomps(n_simcomps + NEKO_MAX_USER_SIMCOMPS))
+       allocate(this%order(n_simcomps + NEKO_MAX_USER_SIMCOMPS))
        allocate(read_order(n_simcomps))
        allocate(mask(n_simcomps))
        mask = .true.
@@ -140,7 +146,7 @@ contains
     if (allocated(this%order)) deallocate(this%order)
 
     if (allocated(this%simcomps)) then
-       do i=1, size(this%simcomps)
+       do i=1, this%n_simcomps
           call this%simcomps(i)%simcomp%free
        end do
        deallocate(this%simcomps)
@@ -157,7 +163,7 @@ contains
     integer :: i
 
     if (allocated(this%simcomps)) then
-       do i=1, size(this%simcomps)
+       do i=1, this%n_simcomps
           call this%simcomps(this%order(i))%simcomp%compute(t, tstep)
        end do
     end if
@@ -172,7 +178,7 @@ contains
     integer :: i
 
     if (allocated(this%simcomps)) then
-       do i=1, size(this%simcomps)
+       do i=1, this%n_simcomps
           call this%simcomps(this%order(i))%simcomp%restart(t)
        end do
     end if

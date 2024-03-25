@@ -6,6 +6,7 @@
 !
 module user
   use neko
+  use simcomp_test, only : simcomp_test_t
   implicit none
 
   ! Global user variables
@@ -84,6 +85,36 @@ contains
 
     real(kind=rp) dt
     integer tstep
+    integer :: n_simcomps
+    type(json_file) :: comp_subdict
+    type(json_core) :: core
+    type(json_value), pointer :: simcomp_object
+    logical :: found
+
+
+    ! Probably we can put this into some %add function in the simcomp_exector.
+    ! However, it won't know the new simcomp type, so one would have to create
+    ! it here and inside %add there would be an allocate(..., source=...)
+    n_simcomps = neko_simcomps%n_simcomps
+    ! User simcomps always executed last
+    neko_simcomps%order(n_simcomps + 1) = n_simcomps + 1
+    allocate(simcomp_test_t::neko_simcomps%simcomps(n_simcomps + 1)%simcomp)
+    !allocate(neko_simcomps%simcomps(n_simcomps + 1)%simcomp, source=my_simcomp)
+    neko_simcomps%n_simcomps = n_simcomps + 1
+
+    ! Extracting json. I put an array under "user_simcomps", here we just
+    ! assume there is only 1 item there.
+    call params%get_core(core)
+    call params%get('case.user_simcomps', simcomp_object, found)
+    ! Extract the 1st item and create a separate json from it
+    call json_extract_item(core, simcomp_object, 1, comp_subdict)
+    ! Need to add order for the constructor of the simcomp, but the value is
+    ! irrelevant.
+    call comp_subdict%add("order", 1)
+    ! Have to assume the case is the same, because case is not passed to this
+    ! routine, but this is probably very future-proof.
+    call neko_simcomps%simcomps(n_simcomps + 1)%simcomp%init(comp_subdict, &
+       neko_simcomps%simcomps(n_simcomps)%simcomp%case)
 
     ! initialize work arrays for postprocessing
     call w1%init(u%dof, 'work1')
@@ -93,7 +124,7 @@ contains
     call user_calc_quantities(t, tstep, u, v, w, p, coef, params)
 
   end subroutine user_initialize
- 
+
   ! User-defined routine called at the end of every time step
   subroutine user_calc_quantities(t, tstep, u, v, w, p, coef, params)
     real(kind=rp), intent(in) :: t
@@ -116,19 +147,19 @@ contains
 
     ntot = u%dof%size()
 
-!    Option 1:    
+!    Option 1:
 !    sum_e1 = 0._rp
 !    sum_e2 = 0._rp
 !    do i = 1, ntot
 !       vv = u%x(i,1,1,1)**2 + v%x(i,1,1,1)**2 + w%x(i,1,1,1)**2
-!       oo = om1%x(i,1,1,1)**2 + om2%x(i,1,1,1)**2 + om3%x(i,1,1,1)**2 
-!       sum_e1 = sum_e1 + vv*coef%B(i,1,1,1) 
-!       sum_e2 = sum_e2 + oo*coef%B(i,1,1,1) 
+!       oo = om1%x(i,1,1,1)**2 + om2%x(i,1,1,1)**2 + om3%x(i,1,1,1)**2
+!       sum_e1 = sum_e1 + vv*coef%B(i,1,1,1)
+!       sum_e2 = sum_e2 + oo*coef%B(i,1,1,1)
 !    end do
 !    e1 = 0.5 * glsum(sum_e1,1) / coef%volume
 !    e2 = 0.5 * glsum(sum_e2,1) / coef%volume
 
-!    Option 2:    
+!    Option 2:
 !    do i = 1, ntot
 !       w1%x(i,1,1,1) = u%x(i,1,1,1)**2 + v%x(i,1,1,1)**2 + w%x(i,1,1,1)**2
 !       w2%x(i,1,1,1) = om1%x(i,1,1,1)**2 + om2%x(i,1,1,1)**2 + om3%x(i,1,1,1)**2
@@ -148,7 +179,7 @@ contains
        call device_addcol3(w1%x_d, v%x_d, v%x_d, ntot)
        call device_addcol3(w1%x_d, w%x_d, w%x_d, ntot)
        e1 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
-       
+
        call device_col3(w1%x_d, omega_x%x_d, omega_x%x_d, ntot)
        call device_addcol3(w1%x_d, omega_x%x_d, omega_y%x_d, ntot)
        call device_addcol3(w1%x_d, omega_z%x_d, omega_z%x_d, ntot)
@@ -158,17 +189,17 @@ contains
        call addcol3(w1%x, v%x, v%x, ntot)
        call addcol3(w1%x, w%x, w%x, ntot)
        e1 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
-       
+
        call col3(w1%x, omega_x%x, omega_x%x, ntot)
        call addcol3(w1%x, omega_y%x, omega_y%x, ntot)
        call addcol3(w1%x, omega_z%x, omega_z%x, ntot)
        e2 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
     end if
-      
+
     if (pe_rank .eq. 0) &
          &  write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
          &  'POST: t:', t, ' Ekin:', e1, ' enst:', e2
-    
+
   end subroutine user_calc_quantities
 
   ! User-defined finalization routine called at the end of the simulation

@@ -100,6 +100,7 @@ module neko
   use box_point_zone, only: box_point_zone_t
   use sphere_point_zone, only: sphere_point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
+  use json_utils
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
