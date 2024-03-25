@@ -15,7 +15,6 @@ contains
     type(user_t), intent(inout) :: u
     u%scalar_user_ic => set_initial_conditions_for_s
     u%scalar_user_bc => set_scalar_boundary_conditions
-    u%fluid_user_f_vector => set_bousinesq_forcing_term
     u%material_properties => set_material_properties
   end subroutine user_setup
 
@@ -97,26 +96,4 @@ contains
     end if
 
   end subroutine set_initial_conditions_for_s
-
-  subroutine set_bousinesq_forcing_term(f, t)
-    class(fluid_user_source_term_t), intent(inout) :: f
-    real(kind=rp), intent(in) :: t
-    integer :: i
-    type(field_t), pointer :: u, v, w, s
-    real(kind=rp) :: rapr, ta2pr
-    u => neko_field_registry%get_field('u')
-    v => neko_field_registry%get_field('v')
-    w => neko_field_registry%get_field('w')
-    s => neko_field_registry%get_field('s')
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rzero(f%u_d,f%dm%size())
-       call device_rzero(f%v_d,f%dm%size())
-       call device_copy(f%w_d,s%x_d,f%dm%size())
-    else
-       call rzero(f%u,f%dm%size())
-       call rzero(f%v,f%dm%size())
-       call copy(f%w,s%x,f%dm%size())
-    end if
-  end subroutine set_bousinesq_forcing_term
 end module user

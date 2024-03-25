@@ -51,7 +51,7 @@ module neko
   use mxm_wrapper
   use global_interpolation
   use file
-  use field, only : field_t
+  use field, only : field_t, field_ptr_t
   use neko_mpi_types
   use gather_scatter
   use coefs
@@ -83,13 +83,14 @@ module neko
   use fluid_user_source_term
   use scalar_user_source_term
   use vector
+  use matrix
   use tensor
   use simulation_component
   use probes
   use spectral_error_indicator
   use system
   use drag_torque
-  use field_registry, only : neko_field_registry    
+  use field_registry, only : neko_field_registry
   use scratch_registry, only : neko_scratch_registry
   use simcomp_executor, only : neko_simcomps
   use data_streamer

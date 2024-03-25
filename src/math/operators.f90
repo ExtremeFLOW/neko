@@ -48,9 +48,9 @@ module operators
   use coefs, only : coef_t
   use field, only : field_t
   use math, only : glsum, pi, cmult, add2, cadd
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, MPI_MAX, MPI_IN_PLACE
   use device, only : c_ptr, device_get_ptr
   use device_math, only : device_add2, device_cmult
+  use comm
   implicit none
   private
 

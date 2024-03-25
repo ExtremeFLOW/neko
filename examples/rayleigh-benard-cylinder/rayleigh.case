@@ -20,7 +20,10 @@
             "Ra": 1e8,
             "source_terms": [
                 {
-                    "type": "user_vector"
+                    "type": "boussinesq",
+                    "g" : [0, 0, 1],
+                    "reference_value": 0,
+                    "beta": 1
                 }
             ],
             "initial_condition": {
@@ -45,8 +48,8 @@
                 "absolute_tolerance": 1e-4,
                 "max_iterations": 800
             },
-            "output_control": "simulationtime",
-            "output_value": 1,
+            "output_control": "nsamples",
+            "output_value": 10,
             "boundary_types": [
                 "w"
             ]

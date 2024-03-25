@@ -73,6 +73,10 @@ if test "x$ax_cv_fc_compiler_vendor" = xportland; then
    FCFLAGS="$FCFLAGS  -Mbackslash"
 fi
 
+if test "x$ax_cv_fc_compiler_vendor" = xnvhpc; then
+   FCFLAGS="$FCFLAGS  -Mbackslash"
+fi
+
 # Store build information (date, host, FC)
 AC_SUBST(NEKO_BUILD_INFO,
         ["(build: $(date +%Y-%m-%d) on $host using $ax_cv_fc_compiler_vendor)"], [])
