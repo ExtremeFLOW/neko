@@ -105,8 +105,6 @@ module fluid_scheme
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(field_dirichlet_vector_t) :: bc_field_vel   !< Dirichlet pressure condition
-     !type(field_dirichlet_t) :: bc_field_v   !< Dirichlet pressure condition
-     !type(field_dirichlet_t) :: bc_field_w   !< Dirichlet pressure condition
      type(field_dirichlet_t) :: bc_field_prs   !< Dirichlet pressure condition
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
@@ -678,7 +676,13 @@ contains
 
     call this%bc_wall%free()
     call this%bc_sym%free()
+
+    call this%bc_field_prs%field_bc%free()
     call this%bc_field_prs%free()
+
+    call this%bc_field_vel%field_dirichlet_u%field_bc%free()
+    call this%bc_field_vel%field_dirichlet_v%field_bc%free()
+    call this%bc_field_vel%field_dirichlet_w%field_bc%free()
     call this%bc_field_vel%free()
 
     call this%Xh%free()
