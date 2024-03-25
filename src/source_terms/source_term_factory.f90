@@ -35,6 +35,7 @@
 module source_term_fctry
   use source_term, only : source_term_t
   use const_source_term, only : const_source_term_t
+  use boussinesq_source_term, only : boussinesq_source_term_t
   use brinkman_source_term, only: brinkman_source_term_t
   use json_module, only : json_file
   use json_utils, only : json_get
@@ -61,6 +62,8 @@ contains
 
     if (trim(source_type) .eq. "constant") then
        allocate(const_source_term_t::source_term)
+    else if (trim(source_type) .eq. "boussinesq") then
+       allocate(boussinesq_source_term_t::source_term)
     else if (trim(source_type) .eq. "brinkman") then
        allocate(brinkman_source_term_t::source_term)
     else

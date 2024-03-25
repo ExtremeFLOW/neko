@@ -43,6 +43,8 @@ module lambda2
   use operators, only : lambda2op
   use case, only : case_t
   use neko_config
+  use field_writer, only : field_writer_t
+  use device
   implicit none
   private
 
@@ -60,6 +62,9 @@ module lambda2
      !> Work arrays.
      type(field_t) :: temp1
      type(field_t) :: temp2
+
+     !> Output writer.
+     type(field_writer_t) :: writer
 
    contains
      !> Constructor from json.
@@ -80,8 +85,15 @@ contains
     class(lambda2_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target ::case
+    character(len=20) :: fields(1)
+
+    ! Add fields keyword to the json so that the field_writer picks it up.
+    ! Will also add fields to the registry.
+    fields(1) = "lambda2"
+    call json%add("fields", fields)
 
     call this%init_base(json, case)
+    call this%writer%init(json, case)
 
     call lambda2_init_from_attributes(this)
   end subroutine lambda2_init_from_json
@@ -90,17 +102,10 @@ contains
   subroutine lambda2_init_from_attributes(this)
     class(lambda2_t), intent(inout) :: this
 
-    this%u => neko_field_registry%get_field_by_name("u")
-    this%v => neko_field_registry%get_field_by_name("v")
-    this%w => neko_field_registry%get_field_by_name("w")
-
-    if (.not. neko_field_registry%field_exists("lambda2")) then
-       call neko_field_registry%add_field(this%u%dof, "lambda2")
-    end if
-    this%lambda2 => neko_field_registry%get_field_by_name("lambda2")
-    !Store lambda2 in the next free field in the fluid output.
-    !If running without scalar this means the temperature field.
-    call this%case%f_out%fluid%append(this%lambda2)
+    this%u => neko_field_registry%get_field("u")
+    this%v => neko_field_registry%get_field("v")
+    this%w => neko_field_registry%get_field("w")
+    this%lambda2 => neko_field_registry%get_field("lambda2")
   end subroutine lambda2_init_from_attributes
 
   !> Destructor.

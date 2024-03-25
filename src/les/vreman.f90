@@ -94,6 +94,8 @@ contains
     real(kind=rp) :: c
     character(len=*), intent(in) :: nut_name
 
+    call this%free()
+
     call this%init_base(dofmap, coef, nut_name)
     this%c = c
 

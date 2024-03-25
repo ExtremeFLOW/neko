@@ -171,6 +171,7 @@ neko_fortran_SOURCES = \
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
+	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
@@ -252,6 +253,9 @@ neko_fortran_SOURCES = \
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
 	source_terms/bcknd/device/const_source_term_device.f90\
+	source_terms/boussinesq_source_term.f90\
+	source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90\
+	source_terms/bcknd/device/boussinesq_source_term_device.f90\
 	source_terms/source_term_factory.f90\
 	source_terms/brinkman_source_term.f90\
 	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
