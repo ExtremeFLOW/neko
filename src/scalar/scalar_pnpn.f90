@@ -67,6 +67,7 @@ module scalar_pnpn
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
+  use time_step_controller
   implicit none
   private
 
@@ -197,9 +198,8 @@ contains
 
 
     ! Intialize projection space
-    if (this%projection_dim .gt. 0) then
-       call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
-    end if
+    call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
+                            this%projection_activ_step)
 
     ! Add lagged term to checkpoint
     ! @todo Init chkp object, note, adding 3 slags
@@ -281,12 +281,13 @@ contains
 
   end subroutine scalar_pnpn_free
 
-  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf)
+  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
     class(scalar_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_step_controller_t), intent(in) :: dt_controller
     ! Number of degrees of freedom
     integer :: n
     ! Linear solver results monitor
@@ -305,7 +306,9 @@ contains
          slag => this%slag, &
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, &
-         makeext => this%makeext, makebdf => this%makebdf)
+         makeext => this%makeext, makebdf => this%makebdf, &
+         if_variable_dt => dt_controller%if_variable_dt, &
+         dt_last_change => dt_controller%dt_last_change)
 
       if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
          write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
@@ -367,9 +370,7 @@ contains
 
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
-         call this%proj_s%project_on(s_res%x, c_Xh, n)
-      end if
+      call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc%update()
       call profiler_start_region('Scalar solve', 21)
@@ -377,10 +378,8 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
-         call this%proj_s%project_back(ds%x, Ax, c_Xh, &
-              this%bclst_ds, gs_Xh, n)
-      end if
+     call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
+                                 this%bclst_ds, gs_Xh, n, tstep, dt_controller)
 
       ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then

@@ -30,32 +30,40 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the device kernel for the `const_source_term_t` type.
-module const_source_term_device
+!> Implements the cpu kernel for the  `boussinesq_source_term_t` type.
+module boussinesq_source_term_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use device_math, only : device_cadd
+  use field, only : field_t
+  use math, only : add2s2, cadd
   implicit none
   private
 
-  public :: const_source_term_compute_device
+  public :: boussinesq_source_term_compute_cpu
 
 contains
 
-  !> Computes the constant source term on the device.
+  !> Computes the Boussinesq source term on the cpu.
   !! @param fields The right-hand side.
-  !! @param values The values of the source components.
-  subroutine const_source_term_compute_device(fields, values)
+  !! @param s The scalar field
+  !! @param ref_value The reference value of the scalar field.
+  !! @param g The gravity vector.
+  !! @param beta The thermal expansion coefficient.
+  subroutine boussinesq_source_term_compute_cpu(fields, s, ref_value, g, beta)
     type(field_list_t), intent(inout) :: fields
-    real(kind=rp), intent(in) :: values(:)
+    type(field_t), intent(inout) :: s
+    real(kind=rp), intent(in) :: ref_value
+    real(kind=rp), intent(in) :: g(3)
+    real(kind=rp), intent(in) :: beta
     integer :: n_fields, i, n
 
     n_fields = size(fields%fields)
     n = fields%fields(1)%f%dof%size()
 
     do i=1, n_fields
-       call device_cadd(fields%fields(i)%f%x_d, values(i), n)
+       call add2s2(fields%fields(i)%f%x, s%x, g(i)*beta, n)
+       call cadd(fields%fields(i)%f%x, -g(i)*beta*ref_value, n)
     end do
-  end subroutine const_source_term_compute_device
+  end subroutine boussinesq_source_term_compute_cpu
 
-end module const_source_term_device
+end module boussinesq_source_term_cpu

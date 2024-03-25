@@ -229,6 +229,7 @@ contains
     use filters, only: smooth_step_field, step_function_field, permeability_field
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
+    use aabb
     implicit none
 
     class(brinkman_source_term_t), intent(inout) :: this
@@ -238,13 +239,22 @@ contains
     character(len=:), allocatable :: mesh_file_name
     character(len=:), allocatable :: distance_transform
     character(len=:), allocatable :: filter_type
+    character(len=:), allocatable :: mesh_transform
 
+    ! Read the options for the boundary mesh
     type(file_t) :: mesh_file
     type(tri_mesh_t) :: boundary_mesh
     real(kind=rp) :: scalar_r
     real(kind=dp) :: scalar_d
 
+    ! Mesh transform options variables
+    real(kind=dp), dimension(:), allocatable :: box_min, box_max
+    logical :: keep_aspect_ratio
+    real(kind=dp), dimension(3) :: scaling
+    real(kind=dp), dimension(3) :: translation
     type(field_t) :: temp_field
+    type(aabb_t) :: mesh_box, target_box
+    integer :: idx_p
 
     ! ------------------------------------------------------------------------ !
     ! Read the options for the boundary mesh
@@ -263,6 +273,45 @@ contains
     if (boundary_mesh%nelv .eq. 0) then
        call neko_error('No elements in the boundary mesh')
     end if
+
+    ! ------------------------------------------------------------------------ !
+    ! Transform the mesh if specified.
+
+    call json_get_or_default(json, 'mesh_transform.type', mesh_transform, 'none')
+
+    select case (mesh_transform)
+      case ('none')
+       ! Do nothing
+      case ('bounding_box')
+       call json_get(json, 'mesh_transform.box_min', box_min)
+       call json_get(json, 'mesh_transform.box_max', box_max)
+       call json_get_or_default(json, 'mesh_transform.keep_aspect_ratio', &
+                                keep_aspect_ratio, .true.)
+
+       if (size(box_min) .ne. 3 .or. size(box_max) .ne. 3) then
+          call neko_error('Case file: mesh_transform. &
+            &box_min and box_max must be 3 element arrays of reals')
+       end if
+
+       call target_box%init(box_min, box_max)
+
+       mesh_box = get_aabb(boundary_mesh)
+
+       scaling = target_box%get_diagonal() / mesh_box%get_diagonal()
+       if (keep_aspect_ratio) then
+          scaling = minval(scaling)
+       end if
+
+       translation = - scaling * mesh_box%get_min() + target_box%get_min()
+
+       do idx_p = 1, boundary_mesh%mpts
+          boundary_mesh%points(idx_p)%x = &
+            scaling * boundary_mesh%points(idx_p)%x + translation
+       end do
+
+      case default
+       call neko_error('Unknown mesh transform')
+    end select
 
     ! ------------------------------------------------------------------------ !
     ! Compute the permeability field

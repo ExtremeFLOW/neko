@@ -253,7 +253,7 @@ contains
        current_aabb = current_node%get_aabb()
 
        if (current_node%is_leaf()) then
-          if (distance .lt. current_aabb%min_distance(p)) then
+          if (distance .lt. current_node%min_distance(p)) then
              cycle
           end if
 
