@@ -119,6 +119,7 @@ module fluid_pnpn_stress
      !> The coupled CG solver for the velocity.
      type(cg_stress_t) :: ksp_stress
 
+     !> The wall model boundary condition.
      type(wall_model_bc_t) :: wm
 
    contains
@@ -136,7 +137,7 @@ contains
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
-    type(material_properties_t), intent(inout) :: material_properties
+    type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Stress (Pn/Pn)'
     logical :: found, logical_val
     integer :: integer_val
@@ -356,7 +357,7 @@ contains
 
   end subroutine fluid_pnpn_init
 
-  subroutine fluid_pnpn_restart(this,dtlag, tlag)
+  subroutine fluid_pnpn_restart(this, dtlag, tlag)
     class(fluid_pnpn_stress_t), target, intent(inout) :: this
     real(kind=rp) :: dtlag(10), tlag(10)
     type(field_t) :: u_temp, v_temp, w_temp
@@ -562,12 +563,14 @@ contains
   !! @param tstep The current interation.
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
-  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf)
-    class(fluid_pnpn_stress_t), intent(inout) :: this
+  !! @param dt_controller timestep controller
+  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+    class(fluid_pnpn_stress_t), target, intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
     integer :: n
     ! Solver results monitors (pressure + velocity)
@@ -671,10 +674,7 @@ contains
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
-         call this%proj_prs%project_on(p_res%x, c_Xh, n)
-         call this%proj_prs%log_info('Pressure')
-      end if
+      call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, 'Pressure')
 
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
@@ -682,10 +682,8 @@ contains
          this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh)
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
-         call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
-                                         this%bclst_dp, gs_Xh, n)
-      end if
+      call this%proj_prs%post_solving(dp%x, Ax, c_Xh, &
+                                 this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2(p%x_d, dp%x_d,n)
@@ -719,11 +717,9 @@ contains
 
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
-         call this%proj_u%project_on(u_res%x, c_Xh, n)
-         call this%proj_v%project_on(v_res%x, c_Xh, n)
-         call this%proj_w%project_on(w_res%x, c_Xh, n)
-      end if
+      call this%proj_u%pre_solving(u_res%x, tstep, c_Xh, n, dt_controller)
+      call this%proj_v%pre_solving(v_res%x, tstep, c_Xh, n, dt_controller)
+      call this%proj_w%pre_solving(w_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc_vel%update()
 
@@ -736,14 +732,12 @@ contains
 
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
-         call this%proj_u%project_back(du%x, Ax, c_Xh, &
-                                  this%bclst_du, gs_Xh, n)
-         call this%proj_v%project_back(dv%x, Ax, c_Xh, &
-                                  this%bclst_dv, gs_Xh, n)
-         call this%proj_w%project_back(dw%x, Ax, c_Xh, &
-                                  this%bclst_dw, gs_Xh, n)
-      end if
+      call this%proj_u%post_solving(du%x, Ax, c_Xh, &
+                                 this%bclst_du, gs_Xh, n, tstep, dt_controller)
+      call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
+                                 this%bclst_dv, gs_Xh, n, tstep, dt_controller)
+      call this%proj_w%post_solving(dw%x, Ax, c_Xh, &
+                                 this%bclst_dw, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &

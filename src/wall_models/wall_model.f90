@@ -43,6 +43,8 @@ module wall_model
   use device, only : device_memcpy, HOST_TO_DEVICE
   use vector, only : vector_t
   use utils, only : neko_error, nonlinear_index
+  use math, only : glmin, glmax
+  use comm, only : pe_rank
 
   implicit none
   private
@@ -62,6 +64,12 @@ module wall_model
      real(kind=rp), allocatable :: tau_y(:)
      !> The z component of the shear stress.
      real(kind=rp), allocatable :: tau_z(:)
+     !> The x component of the normal.
+     type(vector_t) :: n_x
+     !> The y component of the normal.
+     type(vector_t) :: n_y
+     !> The z component of the normal.
+     type(vector_t) :: n_z
      !> The r indices of the sampling points
      integer, allocatable :: ind_r(:)
      !> The s indices of the sampling points
@@ -74,6 +82,8 @@ module wall_model
      type(vector_t) :: h
      !> Number of nodes in the boundary
      integer :: n_nodes = 0
+     !> Kinematic viscosity value.
+     real(kind=rp) :: nu = 5e-5_rp
    contains
      !> Constructor for the wall_model_t (base) class.
      procedure, pass(this) :: init_base => wall_model_init_base
@@ -137,6 +147,8 @@ contains
     integer, target, intent(in) :: msk(:)
     integer, target, intent(in) :: facet(:)
 
+    call this%free_base
+
     this%coef => coef
     this%dofmap => coef%dof
     this%msk => msk
@@ -152,6 +164,9 @@ contains
     allocate(this%ind_e(this%msk(1)))
 
     call this%h%init(this%msk(1))
+    call this%n_x%init(this%msk(1))
+    call this%n_y%init(this%msk(1))
+    call this%n_z%init(this%msk(1))
 
     call this%find_points
 
@@ -179,12 +194,16 @@ contains
     end if
 
     call this%h%free()
+    call this%n_x%free()
+    call this%n_y%free()
+    call this%n_z%free()
   end subroutine wall_model_free_base
 
   subroutine wall_model_find_points(this)
     class(wall_model_t), intent(inout) :: this
     integer :: n_nodes, fid, idx(4), i, linear
     real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, dot
+    real(kind=rp) :: hmin, hmax
 
     n_nodes = this%msk(1)
     this%n_nodes = n_nodes
@@ -195,6 +214,11 @@ contains
        idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%lx,&
                              this%coef%Xh%lx)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
+
+       this%n_x%x(i) = normal(1)
+       this%n_y%x(i) = normal(2)
+       this%n_z%x(i) = normal(3)
+
        ! inward normal
        normal = -normal
 
@@ -252,10 +276,23 @@ contains
        this%h%x(i) = p(1)*normal(1) + p(2)*normal(2) + p(3)*normal(3)
     end do
 
-    !write(*,*) this%h%x(1:3), size(this%h%x)
+    hmin = glmin(this%h%x, n_nodes)
+    hmax = glmax(this%h%x, n_nodes)
+
+    if (pe_rank .eq. 0) then
+       write(*,*) "h min / max", hmin, hmax
+    end if
+
+
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_memcpy(this%h%x, this%h%x_d, size(this%h%x), HOST_TO_DEVICE,&
+      call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
+                         sync=.false.)
+      call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
+                         sync=.false.)
+      call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
+                         sync=.false.)
+      call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
                          sync=.false.)
     end if
   end subroutine wall_model_find_points

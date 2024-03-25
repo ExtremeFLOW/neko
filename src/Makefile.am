@@ -272,6 +272,7 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/vreman_cpu.f90\
 	wall_models/wall_model.f90\
 	wall_models/rough_log_law.f90\
+	wall_models/spalding.f90\
 	bc/wall_model_bc.f90\
 	neko.f90
 

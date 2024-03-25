@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements `rough_log_law_t`.
-module rough_log_law
+!> Implements `spalding_t`.
+module spalding
   use field, only: field_t
   use num_types, only : rp
   use json_module, only : json_file
@@ -44,23 +44,22 @@ module rough_log_law
   implicit none
   private
 
-  !> Wall model based on the log-law for a rough wall.
-  type, public, extends(wall_model_t) :: rough_log_law_t
-
+  !> Wall model based on Spalding's law of the wall
+  type, public, extends(wall_model_t) :: spalding_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa = 0.41_rp
-     !> The log-law intercept
-     real(kind=rp) :: B = 0.0_rp
-     !> The roughness height
-     real(kind=rp) :: z0 = 0.1_rp
+     !> The log-law intercept.
+     real(kind=rp) :: B = 5.2_rp
    contains
      !> Constructor.
-     procedure, pass(this) :: init => rough_log_law_init
+     procedure, pass(this) :: init => spalding_init
      !> Destructor.
-     procedure, pass(this) :: free => rough_log_law_free
+     procedure, pass(this) :: free => spalding_free
      !> Compute the wall shear stress.
-     procedure, pass(this) :: compute => rough_log_law_compute
-  end type rough_log_law_t
+     procedure, pass(this) :: compute => spalding_compute
+     !> Solve for the friction velocity
+     procedure, private, pass(this) :: solve
+  end type spalding_t
 
 contains
   !> Constructor
@@ -68,8 +67,8 @@ contains
   !! @param coef SEM coefficients.
   !! @param nu_name The name of the turbulent viscosity field.
   !! @param json A dictionary with parameters.
-  subroutine rough_log_law_init(this, dofmap, coef, msk, facet, json)
-    class(rough_log_law_t), intent(inout) :: this
+  subroutine spalding_init(this, dofmap, coef, msk, facet, json)
+    class(spalding_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
@@ -80,27 +79,28 @@ contains
 
     ! Make RTS
     this%kappa = 0.41
+    this%B = 5.2
 
-  end subroutine rough_log_law_init
+  end subroutine spalding_init
 
-  !> Destructor for the rough_log_law_t (base) class.
-  subroutine rough_log_law_free(this)
-    class(rough_log_law_t), intent(inout) :: this
+  !> Destructor for the spalding_t (base) class.
+  subroutine spalding_free(this)
+    class(spalding_t), intent(inout) :: this
 
     call this%free_base()
 
-  end subroutine rough_log_law_free
+  end subroutine spalding_free
 
   !> Compute the wall shear stress.
-  subroutine rough_log_law_compute(this, t, tstep)
-    class(rough_log_law_t), intent(inout) :: this
+  subroutine spalding_compute(this, t, tstep)
+    class(spalding_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), pointer :: u
     type(field_t), pointer :: v
     type(field_t), pointer :: w
     integer :: i
-    real(kind=rp) :: ui, vi, wi, magu, utau, normu
+    real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess
 
     u => neko_field_registry%get_field("u")
     v => neko_field_registry%get_field("v")
@@ -121,8 +121,15 @@ contains
 
       magu = sqrt(ui**2 + vi**2 + wi**2)
 
-      ! Compute the stress
-      utau = (magu - this%B) * this%kappa / log(this%h%x(i) / this%z0)
+      ! Get initial guess for Newton solver
+      if (tstep .eq. 1) then
+         guess = sqrt(magu * this%nu / this%h%x(i))
+      else
+         guess = this%tau_x(i)**2 + this%tau_y(i)**2 + this%tau_z(i)**2
+         guess = sqrt(sqrt(guess))
+      end if
+
+      utau =  this%solve(magu, this%h%x(i), guess)
 
       write(*,*) ui, vi, wi, utau
 
@@ -133,7 +140,50 @@ contains
     end do
 
     write(*,*) this%tau_x(1:3)
-  end subroutine rough_log_law_compute
+  end subroutine spalding_compute
+
+  function solve(this, u,  y, guess) result(utau)
+    class(spalding_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: u
+    real(kind=rp), intent(in) :: y
+    real(kind=rp), intent(in) :: guess
+    real(kind=rp) :: yp, up, kappa, B, utau
+    real(kind=rp) :: error, f, df, old
+    integer :: niter, k
+
+    utau = guess
+    up = u / utau
+    yp = y * utau / this%nu
+    kappa = this%kappa
+    B = this%B
+
+    do k=1, 50
+      niter = k
+      old = utau
+
+      ! Evaluate function and its derivative
+      f = (up + exp(-kappa*B)* &
+          (exp(kappa*up) - 1.0_rp - kappa*up - 0.5_rp*(kappa*up)**2 - &
+           1.0_rp/6*(kappa*up)**3) - yp)
+
+      df = (-y / this%nu - u/utau**2 - kappa*up/utau*exp(-kappa*B) * &
+           (exp(kappa*up) - 1 - kappa*up - 0.5*(kappa*up)**2))
+
+      ! Update solution
+      utau = utau - f / df
+
+      error = abs((old - utau)/old)
+
+      if (error < 1e-3) then
+        exit
+      endif
+
+    enddo
+
+    if (niter .eq. 50) then
+       write(*,*) "Newton not converged", error, f, utau, old
+    end if
+end function solve
 
 
-end module rough_log_law
+end module spalding
