@@ -43,7 +43,6 @@ module tri_mesh
      type(point_t), allocatable :: points(:) !< List of points
      integer :: nelv
      integer :: mpts
-     integer, private :: melv
    contains
      procedure, pass(this) :: init => tri_mesh_init
      procedure, pass(this) :: free => tri_mesh_free
@@ -64,7 +63,7 @@ contains
     allocate(this%points(nelv * NEKO_TRI_NPTS))
 
     this%mpts = 0
-    this%melv = 0
+    this%nelv = 0
 
   end subroutine tri_mesh_init
 
@@ -91,8 +90,8 @@ contains
     this%points(this%mpts + 2) = p2
     this%points(this%mpts + 3) = p3
 
-    this%melv = this%melv + 1
-    call this%el(this%melv)%init(this%melv, &
+    this%nelv = this%nelv + 1
+    call this%el(this%nelv)%init(this%nelv, &
          this%points(this%mpts + 1), &
          this%points(this%mpts + 2), &
          this%points(this%mpts + 3))

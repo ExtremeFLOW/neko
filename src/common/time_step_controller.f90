@@ -32,7 +32,9 @@
 !
 !> Implements type time_step_controller.
 module time_step_controller
-  use case
+  use num_types
+  use logger
+  use json_module, only : json_file
   use json_utils, only : json_get_or_default
   implicit none
   private
@@ -40,10 +42,13 @@ module time_step_controller
   !> Provides a tool to set time step dt
   type, public :: time_step_controller_t
      !> Components recording time stepping info
-     logical :: if_variable_dt = .false.
-     real(kind=rp) :: set_cfl = 0.0_rp
-     real(kind=rp) :: max_dt = 0.0_rp
-     integer :: max_update_frequency = 1
+     logical :: if_variable_dt
+     real(kind=rp) :: set_cfl
+     real(kind=rp) :: max_dt
+     integer :: max_update_frequency
+     integer :: dt_last_change
+     real(kind=rp) :: alpha !coefficient of running average
+     real(kind=rp) :: max_dt_increase_factor, min_dt_decrease_factor
    contains
      !> Initialize object.
      procedure, pass(this) :: init => time_step_controller_init
@@ -56,72 +61,81 @@ contains
 
   !> Constructor
   !! @param order order of the interpolation
-  subroutine time_step_controller_init(this, C)
+  subroutine time_step_controller_init(this, params)
     class(time_step_controller_t), intent(inout) :: this
-    type(case_t), intent(inout) :: C
-    logical :: found
+    type(json_file), intent(inout) :: params
 
-    call C%params%get('case.timestep', this%max_dt, found)
-    call C%params%get('case.constant_cfl', this%set_cfl, this%if_variable_dt)
-    call json_get_or_default(C%params, 'case.cfl_max_update_frequency',&
-                                    this%max_update_frequency, 1)
+    this%dt_last_change = 0
+    call json_get_or_default(params, 'case.variable_timestep',&
+                                    this%if_variable_dt, .false.)
+    call json_get_or_default(params, 'case.target_cfl',&
+                                    this%set_cfl, 0.4_rp)
+    call json_get_or_default(params, 'case.max_timestep',&
+                                    this%max_dt, huge(0.0_rp))
+    call json_get_or_default(params, 'case.cfl_max_update_frequency',&
+                                    this%max_update_frequency, 0)
+    call json_get_or_default(params, 'case.cfl_running_avg_coeff',&
+                                    this%alpha, 0.5_rp)
+    call json_get_or_default(params, 'case.max_dt_increase_factor',&
+                                    this%max_dt_increase_factor, 1.2_rp)
+    call json_get_or_default(params, 'case.min_dt_decrease_factor',&
+                                    this%min_dt_decrease_factor, 0.5_rp)
 
   end subroutine time_step_controller_init
 
   !> Set new dt based on cfl if requested
-  !! @param C case type.
+  !! @param dt time step in case_t.
   !! @param cfl courant number of current iteration.
   !! @param cfl_avrg average Courant number.
-  !! @param dt_last_change time step since last dt change.
   !! @param tstep the current time step.
   !! @Algorithm: 
   !! 1. Set the first time step such that cfl is the set one;
   !! 2. During time-stepping, adjust dt when cfl_avrg is offset by 20%.
-  subroutine time_step_controller_set_dt(this, C, cfl, cfl_avrg, dt_last_change, tstep)
+  subroutine time_step_controller_set_dt(this, dt, cfl, cfl_avrg, tstep)
     implicit none
     class(time_step_controller_t), intent(inout) :: this
-    type(case_t), intent(inout) :: C
+    real(kind=rp), intent(inout) :: dt
     real(kind=rp), intent(in) :: cfl
     real(kind=rp), intent(inout) :: cfl_avrg
-    integer, intent(inout) :: dt_last_change
     real(kind=rp) :: dt_old, scaling_factor
     character(len=LOG_SIZE) :: log_buf    
-    real(kind=rp) :: alpha = 0.5_rp !coefficient of running average
     integer, intent(in):: tstep
 
     if (this%if_variable_dt .eqv. .true.) then
        if (tstep .eq. 1) then
           ! set the first dt for desired cfl
-          C%dt = min(this%set_cfl/cfl*C%dt, this%max_dt)
+          dt = min(this%set_cfl/cfl*dt, this%max_dt)
        else
           ! Calculate the average of cfl over the desired interval
-          cfl_avrg = alpha * cfl + (1-alpha) * cfl_avrg
+          cfl_avrg = this%alpha * cfl + (1-this%alpha) * cfl_avrg
 
           if (abs(cfl_avrg - this%set_cfl) .ge. 0.2*this%set_cfl .and. &
-             dt_last_change .ge. this%max_update_frequency) then
+             this%dt_last_change .ge. this%max_update_frequency) then
 
              if (this%set_cfl/cfl .ge. 1) then 
-                scaling_factor = min(1.2_rp, this%set_cfl/cfl) 
+                ! increase of time step
+                scaling_factor = min(this%max_dt_increase_factor, this%set_cfl/cfl) 
              else
-                scaling_factor = max(0.8_rp, this%set_cfl/cfl) 
+                ! reduction of time step
+                scaling_factor = max(this%min_dt_decrease_factor, this%set_cfl/cfl) 
              end if
 
-             dt_old = C%dt
-             C%dt = scaling_factor * dt_old
-             C%dt = min(C%dt, this%max_dt)
+             dt_old = dt
+             dt = scaling_factor * dt_old
+             dt = min(dt, this%max_dt)
 
              write(log_buf, '(A,E15.7,1x,A,E15.7)') 'Avrg CFL:', cfl_avrg, &
                          'set_cfl:', this%set_cfl
              call neko_log%message(log_buf)
 
              write(log_buf, '(A,E15.7,1x,A,E15.7)') 'old dt:', dt_old, &
-                         'new dt:', C%dt
+                         'new dt:', dt
              call neko_log%message(log_buf)
 
-             dt_last_change = 0
+             this%dt_last_change = 0
 
           else
-             dt_last_change = dt_last_change + 1
+             this%dt_last_change = this%dt_last_change + 1
           end if
        end if
 

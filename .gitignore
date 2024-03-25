@@ -1,3 +1,13 @@
+# Ignore everything which does not have an extension or are a directory
+*
+!*.*
+!*/
+
+# Exceptions to the no-extension rule
+!AUTHORS
+!COPYING
+
+# General list of files to ignore
 *.mod
 *.o
 *.dirstamp
@@ -37,7 +47,11 @@ examples/*/*0.f0*
 *.chkp
 *.lst
 
-# Binaries
+# Ignore temporary files
+*~
+*.swp
+
+# Explicitly ignore binaries to avoid confusion
 neko
 makeneko
 rea2nbin
@@ -47,3 +61,4 @@ average_field_in_space
 average_fields_in_time
 postprocess_fluid_stats
 map_to_equidistant_1d
+calc_lift_from_field

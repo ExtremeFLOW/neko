@@ -75,6 +75,8 @@ module projection
   use profiler
   use logger
   use, intrinsic :: iso_c_binding
+  use time_step_controller
+
   implicit none
   private
 
@@ -93,31 +95,41 @@ module projection
      !logging variables
      real(kind=rp) :: proj_res
      integer :: proj_m = 0
+     integer :: activ_step ! steps to activate projection
    contains
+     procedure, pass(this) :: clear => bcknd_clear
      procedure, pass(this) :: project_on => bcknd_project_on
      procedure, pass(this) :: project_back => bcknd_project_back
      procedure, pass(this) :: log_info => print_proj_info
      procedure, pass(this) :: init => projection_init
      procedure, pass(this) :: free => projection_free
+     procedure, pass(this) :: pre_solving => projection_pre_solving
+     procedure, pass(this) :: post_solving => projection_post_solving
   end type projection_t
 
 contains
 
-  subroutine projection_init(this, n, L)
+  subroutine projection_init(this, n, L, activ_step)
     class(projection_t), target, intent(inout) :: this
     integer, intent(in) :: n
-    integer, optional, intent(in) :: L
+    integer, optional, intent(in) :: L, activ_step
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
     real(c_rp) :: dummy
 
     call this%free()
-
+    
     if (present(L)) then
        this%L = L
     else
        this%L = 20
+    end if
+
+    if (present(activ_step)) then
+       this%activ_step = activ_step
+    else
+       this%activ_step = 5
     end if
 
     this%m = 0
@@ -204,6 +216,57 @@ contains
 
   end subroutine projection_free
 
+  subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, string)
+    class(projection_t), intent(inout) :: this
+    integer, intent(inout) :: n
+    real(kind=rp), intent(inout), dimension(n) :: b
+    integer, intent(in) :: tstep
+    class(coef_t), intent(inout) :: coef
+    type(time_step_controller_t), intent(in) :: dt_controller
+    character(len=*), optional :: string
+
+    if( tstep .gt. this%activ_step .and. this%L .gt. 0) then
+       if (dt_controller%if_variable_dt) then
+          if (dt_controller%dt_last_change .eq. 0) then ! the time step at which dt is changed
+             call this%clear(n) 
+          else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
+             ! activate projection some steps after dt is changed
+             ! note that dt_last_change start from 0
+             call this%project_on(b, coef, n)
+             if (present(string)) then
+                call this%log_info(string)
+             end if
+          end if
+       else
+          call this%project_on(b, coef, n)
+          if (present(string)) then
+             call this%log_info(string)
+          end if
+       end if
+    end if
+
+  end subroutine projection_pre_solving
+
+  subroutine projection_post_solving(this, x, Ax, coef, bclst, gs_h, n, tstep, dt_controller)
+    class(projection_t), intent(inout) :: this
+    integer, intent(inout) :: n
+    class(Ax_t), intent(inout) :: Ax
+    class(coef_t), intent(inout) :: coef
+    class(bc_list_t), intent(inout) :: bclst
+    type(gs_t), intent(inout) :: gs_h
+    real(kind=rp), intent(inout), dimension(n) :: x
+    integer, intent(in) :: tstep
+    type(time_step_controller_t), intent(in) :: dt_controller
+
+    if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
+       if (.not.(dt_controller%if_variable_dt) .or. &
+       (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
+          call this%project_back(x, Ax, coef, bclst, gs_h, n)
+       end if
+    end if
+
+  end subroutine projection_post_solving
+
   subroutine bcknd_project_on(this, b, coef, n)
     class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
@@ -229,7 +292,6 @@ contains
     type(c_ptr) :: x_d
 
     call profiler_start_region('Project back', 17)
-    this%m = min(this%m+1,this%L)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
@@ -244,7 +306,12 @@ contains
 
     else
        if (this%m.gt.0) call add2(x,this%xbar,n)      ! Restore desired solution
-       this%m = min(this%m+1,this%L)
+       if (this%m .eq. this%L) then
+          this%m = 1
+       else
+          this%m = min(this%m+1,this%L)
+       end if
+       
        call copy        (this%xx(1,this%m),x,n)   ! Update (X,B)
     end if
 
@@ -277,7 +344,7 @@ contains
 
       !First round of CGS
       call rzero(alpha, this%m)
-      this%proj_res = glsc3(b,b,coef%mult,n)
+      this%proj_res = sqrt(glsc3(b,b,coef%mult,n)/coef%volume)
       this%proj_m = this%m
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
@@ -336,7 +403,7 @@ contains
 
 
 
-      this%proj_res = device_glsc3(b_d,b_d,coef%mult_d,n)
+      this%proj_res = sqrt(device_glsc3(b_d,b_d,coef%mult_d,n)/coef%volume)
       this%proj_m = this%m
       if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
          call device_proj_on(alpha_d, b_d, xx_d_d, bb_d_d, &
@@ -546,24 +613,6 @@ contains
          call cmult(xx(1,m), scl1, n)
          call cmult(bb(1,m), scl1, n)
 
-         !We want to throw away the oldest information
-         !The below propagates newest information to first vector.
-         !This will make the first vector a scalar
-         !multiple of x.
-         do k = m, 2, -1
-            h = k - 1
-            call givens_rotation(alpha(h), alpha(k), c, s, nrm)
-            alpha(h) = nrm
-            do i = 1, n !Apply rotation to xx and bb
-               scl1 = c*xx(i,h) + s*xx(i,k)
-               xx(i,k) = -s*xx(i,h) + c*xx(i,k)
-               xx(i,h) = scl1
-               scl2 = c*bb(i,h) + s*bb(i,k)
-               bb(i,k) = -s*bb(i,h) + c*bb(i,k)
-               bb(i,h) = scl2
-            end do
-         end do
-
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column
          if(pe_rank .eq. 0) then
@@ -599,14 +648,36 @@ contains
     class(projection_t) :: this
     character(len=*) :: string
     character(len=LOG_SIZE) :: log_buf
-
-    write(log_buf, '(A,A)') 'Projection ', string
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,A)') 'Proj. vec.:','   Orig. residual:'
-    call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
-    call neko_log%message(log_buf)
+    
+    if (this%proj_m .gt. 0) then
+       write(log_buf, '(A,A)') 'Projection ', string
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,A)') 'Proj. vec.:','   Orig. residual:'
+       call neko_log%message(log_buf)
+       write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
+       call neko_log%message(log_buf)
+    end if
 
   end subroutine print_proj_info
+
+  subroutine bcknd_clear(this, n)
+    class(projection_t) :: this
+    integer, intent(in) :: n
+    integer :: i
+
+    this%m = 0
+    this%proj_m = 0
+    
+    do i = 1, this%L
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_rzero(this%xx_d(i), n)
+          call device_rzero(this%xx_d(i), n)
+       else
+          call rzero(this%xx(1,i),n)
+          call rzero(this%bb(1,i),n)
+       end if
+    end do
+
+  end subroutine bcknd_clear
 
 end module projection
