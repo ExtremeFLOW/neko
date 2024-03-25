@@ -70,7 +70,7 @@
 module aabb_tree
   use aabb
   use tri, only: tri_t
-  use num_types, only: rp
+  use num_types, only: rp, dp
 
   implicit none
   private
@@ -104,6 +104,9 @@ module aabb_tree
      procedure, pass(this), public :: get_parent_index => aabb_node_get_parent_index
      procedure, pass(this), public :: get_left_index => aabb_node_get_left_index
      procedure, pass(this), public :: get_right_index => aabb_node_get_right_index
+
+     ! Unary operations
+     procedure, pass(this), public :: min_distance => aabb_node_min_distance
 
      ! Boolean operators
      procedure, pass(this), public :: is_leaf => aabb_node_is_leaf
@@ -228,6 +231,16 @@ contains
 
     right_index = this%right_node_index
   end function aabb_node_get_right_index
+
+  !> @brief Get the minimum possible distance from the aabb to a point.
+  function aabb_node_min_distance(this, p) result(distance)
+    class(aabb_node_t), intent(in) :: this
+    real(kind=dp), dimension(3), intent(in) :: p
+    real(kind=dp) :: distance
+
+    distance = 0.5_rp * this%aabb%get_diameter() &
+      - norm2(this%aabb%get_center() - p)
+  end function aabb_node_min_distance
 
   ! -------------------------------------------------------------------------- !
   ! Boolean operators

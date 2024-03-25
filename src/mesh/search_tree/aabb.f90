@@ -76,6 +76,9 @@ module aabb
   use quad, only: quad_t
   use tet, only: tet_t
   use hex, only: hex_t
+  use mesh, only: mesh_t
+  use tri_mesh, only: tri_mesh_t
+  use tet_mesh, only: tet_mesh_t
   use utils, only: neko_error
 
   implicit none
@@ -105,11 +108,11 @@ module aabb
      private
 
      logical :: initialized = .false.
-     real(kind=dp) :: box_min(3)
-     real(kind=dp) :: box_max(3)
-     real(kind=dp) :: center(3)
-     real(kind=dp) :: diameter
-     real(kind=dp) :: surface_area
+     real(kind=dp) :: box_min(3) = huge(0.0_dp)
+     real(kind=dp) :: box_max(3) = -huge(0.0_dp)
+     real(kind=dp) :: center(3) = 0.0_dp
+     real(kind=dp) :: diameter = huge(0.0_dp)
+     real(kind=dp) :: surface_area = 0.0_dp
 
    contains
 
@@ -117,6 +120,8 @@ module aabb
      procedure, pass(this), public :: init => aabb_init
 
      ! Getters
+     procedure, pass(this), public :: get_min => aabb_get_min
+     procedure, pass(this), public :: get_max => aabb_get_max
      procedure, pass(this), public :: get_width => aabb_get_width
      procedure, pass(this), public :: get_height => aabb_get_height
      procedure, pass(this), public :: get_depth => aabb_get_depth
@@ -125,8 +130,7 @@ module aabb
      procedure, pass(this), public :: get_center => aabb_get_center
      procedure, pass(this), public :: get_diagonal => aabb_get_diagonal
 
-     ! Unary operations
-     procedure, pass(this), public :: min_distance => aabb_min_distance
+     procedure, pass(this), public :: add_padding
 
      ! Comparison operators
      generic :: operator(.lt.) => less
@@ -166,6 +170,9 @@ contains
   !! - Quadrilateral (quad_t)
   !! - Tetrahedron (tet_t)
   !! - Hexahedron (hex_t)
+  !! - Mesh (mesh_t)
+  !! - Triangular mesh (tri_mesh_t)
+  !! - Tetrahedral mesh (tet_mesh_t)
   !!
   !! @param[in] object The object to get the aabb of.
   !! @param[in] padding The padding of the aabb.
@@ -179,20 +186,48 @@ contains
     type(aabb_t) :: box
 
     select type(object)
+
       type is (tri_t)
-       box = get_aabb_element(object, padding)
+       box = get_aabb_element(object)
       type is (hex_t)
-       box = get_aabb_element(object, padding)
+       box = get_aabb_element(object)
       type is (tet_t)
-       box = get_aabb_element(object, padding)
+       box = get_aabb_element(object)
       type is (quad_t)
-       box = get_aabb_element(object, padding)
+       box = get_aabb_element(object)
+
+      type is (mesh_t)
+       box = get_aabb_mesh(object)
+      type is (tri_mesh_t)
+       box = get_aabb_tri_mesh(object)
+      type is (tet_mesh_t)
+       box = get_aabb_tet_mesh(object)
 
       class default
        call neko_error("get_aabb: Unsupported object type")
     end select
 
+    if (present(padding)) then
+       call box%add_padding(padding)
+    end if
+
   end function get_aabb
+
+  !> @brief Add padding to the aabb.
+  !! @details This function adds padding to the aabb. The padding is a multiple
+  !! of the diameter of the aabb. This is used to avoid numerical issues when
+  !! the object itself it axis aligned.
+  !! @param[in] padding The padding of the aabb.
+  subroutine add_padding(this, padding)
+    class(aabb_t), intent(inout) :: this
+    real(kind=dp), intent(in) :: padding
+    real(kind=dp) :: box_min(3), box_max(3)
+
+    box_min = this%box_min - padding * (this%diameter)
+    box_max = this%box_max + padding * (this%diameter)
+
+    call this%init(box_min, box_max)
+  end subroutine add_padding
 
   !> @brief Get the aabb of an arbitrary element.
   !!
@@ -201,16 +236,17 @@ contains
   !! The aabb is calculated by finding the minimum and maximum x, y and z
   !! coordinate for all points in the arbitrary element type.
   !!
-  !! @param element The arbitrary element to get the aabb of.
+  !! @param object The arbitrary element to get the aabb of.
   !! @return The aabb of the element.
-  function get_aabb_element(object, padding) result(box)
+  function get_aabb_element(object) result(box)
     class(element_t), intent(in) :: object
-    real(kind=dp), intent(in), optional :: padding
     type(aabb_t) :: box
 
-    real(kind=dp), dimension(3) :: box_min, box_max
     integer :: i
     type(point_t), pointer :: pi
+    real(kind=dp) :: box_min(3), box_max(3)
+
+    box_min = huge(0.0_dp); box_max = -huge(0.0_dp)
 
     do i = 1, object%n_points()
        pi => object%p(i)
@@ -218,13 +254,74 @@ contains
        box_max = max(box_max, pi%x)
     end do
 
-    if (present(padding)) then
-       box_min = box_min - padding * (box_max - box_min)
-       box_max = box_max + padding * (box_max - box_min)
-    end if
-
     call box%init(box_min, box_max)
   end function get_aabb_element
+
+  !> @brief Get the aabb of a mesh.
+  !!
+  !! @details This function calculates the aabb of a mesh. The aabb is
+  !! defined by the lower left front corner and the upper right back corner.
+  !! The aabb is calculated by merging the aabb of all elements in the mesh.
+  !!
+  !! @param object The mesh to get the aabb of.
+  !! @return The aabb of the mesh.
+  function get_aabb_mesh(object) result(box)
+    type(mesh_t), intent(in) :: object
+    type(aabb_t) :: box
+
+    integer :: i
+    type(aabb_t) :: temp_box
+
+    do i = 1, object%nelv
+       temp_box = get_aabb(object%elements(i))
+       box = merge(box, temp_box)
+    end do
+
+  end function get_aabb_mesh
+
+  !> @brief Get the aabb of a triangular mesh.
+  !!
+  !! @details This function calculates the aabb of a mesh. The aabb is
+  !! defined by the lower left front corner and the upper right back corner.
+  !! The aabb is calculated by merging the aabb of all elements in the mesh.
+  !!
+  !! @param object The triangular mesh to get the aabb of.
+  !! @return The aabb of the mesh.
+  function get_aabb_tri_mesh(object) result(box)
+    type(tri_mesh_t), intent(in) :: object
+    type(aabb_t) :: box
+
+    integer :: i
+    type(aabb_t) :: temp_box
+
+    do i = 1, object%nelv
+       temp_box = get_aabb(object%el(i))
+       box = merge(box, temp_box)
+    end do
+
+  end function get_aabb_tri_mesh
+
+  !> @brief Get the aabb of a tetrahedral mesh.
+  !!
+  !! @details This function calculates the aabb of a mesh. The aabb is
+  !! defined by the lower left front corner and the upper right back corner.
+  !! The aabb is calculated by merging the aabb of all elements in the mesh.
+  !!
+  !! @param object The tetrahedral mesh to get the aabb of.
+  !! @return The aabb of the mesh.
+  function get_aabb_tet_mesh(object) result(box)
+    type(tet_mesh_t), intent(in) :: object
+    type(aabb_t) :: box
+
+    integer :: i
+    type(aabb_t) :: temp_box
+
+    do i = 1, object%nelv
+       temp_box = get_aabb(object%el(i))
+       box = merge(box, temp_box)
+    end do
+
+  end function get_aabb_tet_mesh
 
 
   ! ========================================================================== !
@@ -239,12 +336,12 @@ contains
     real(kind=dp), dimension(3), intent(in) :: lower_left_front
     real(kind=dp), dimension(3), intent(in) :: upper_right_back
 
+    this%initialized = .true.
     this%box_min = lower_left_front
     this%box_max = upper_right_back
     this%center = (this%box_min + this%box_max) / 2.0_dp
     this%diameter = norm2(this%box_max - this%box_min)
 
-    this%initialized = .true.
     this%surface_area = this%calculate_surface_area()
 
   end subroutine aabb_init
@@ -252,6 +349,22 @@ contains
   ! ========================================================================== !
   ! Getters
   ! ========================================================================== !
+
+  !> @brief Get the minimum point of the aabb.
+  pure function aabb_get_min(this) result(min)
+    class(aabb_t), intent(in) :: this
+    real(kind=dp), dimension(3) :: min
+
+    min = this%box_min
+  end function aabb_get_min
+
+  !> @brief Get the maximum point of the aabb.
+  pure function aabb_get_max(this) result(max)
+    class(aabb_t), intent(in) :: this
+    real(kind=dp), dimension(3) :: max
+
+    max = this%box_max
+  end function aabb_get_max
 
   !> @brief Get the width of the aabb. Also known as the x-axis length.
   pure function aabb_get_width(this) result(width)
@@ -357,19 +470,6 @@ contains
 
     is_contained = all(p .ge. this%box_min) .and. all(p .le. this%box_max)
   end function aabb_contains_point
-
-  !> @brief Get the minimum possible distance from the aabb to a point.
-  function aabb_min_distance(this, p) result(distance)
-    class(aabb_t), intent(in) :: this
-    real(kind=dp), dimension(3), intent(in) :: p
-    real(kind=dp) :: distance
-
-    if (.not. this%initialized) then
-       distance = huge(0.0_dp)
-    end if
-
-    distance = this%get_diameter() / 2.0_dp - norm2(this%get_center() - p)
-  end function aabb_min_distance
 
   ! ========================================================================== !
   ! Binary operations
