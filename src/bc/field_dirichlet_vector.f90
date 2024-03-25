@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -48,11 +48,8 @@ module field_dirichlet_vector
   implicit none
   private
   
-  !> User defined dirichlet condition, for which the user can work
-  !! with an entire field.
-  !! Would be neat to add another class that contains all three 
-  !! dirichlet bcs for the velocity, this bc would then implement
-  !! apply_vector.
+  !> Extension of the user defined dirichlet condition `field_dirichlet`
+  ! for the application on a vector field.
   type, public, extends(dirichlet_t) :: field_dirichlet_vector_t
      type(field_dirichlet_t) :: field_dirichlet_u
      type(field_dirichlet_t) :: field_dirichlet_v

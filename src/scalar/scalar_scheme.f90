@@ -400,7 +400,7 @@ contains
     call MPI_Allreduce(this%field_dir_bc%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     if (integer_val .gt. 0) call this%field_dir_bc%init_field('d_s')
-       call bc_list_add(this%bclst_dirichlet, this%field_dir_bc)
+    call bc_list_add(this%bclst_dirichlet, this%field_dir_bc)
 
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&

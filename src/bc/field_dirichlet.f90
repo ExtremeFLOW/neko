@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ module field_dirichlet
   type, public, extends(dirichlet_t) :: field_dirichlet_t
      type(field_t) :: field_bc
    contains
-     !> Initializes this%field_bc.
+     !> Constructor.
      procedure, pass(this) :: init_field => field_dirichlet_init
      !> Apply scalar by performing a masked copy.
      procedure, pass(this) :: apply_scalar => field_dirichlet_apply_scalar
@@ -91,6 +91,7 @@ module field_dirichlet
 contains
      
   !> Initializes this%field_bc.
+  !! @param bc_name Name of this%field_bc
   subroutine field_dirichlet_init(this, bc_name)
     class(field_dirichlet_t), intent(inout) :: this
     character(len=*), intent(in) :: bc_name
@@ -98,12 +99,13 @@ contains
     call this%field_bc%init(this%dof, bc_name)
 
   end subroutine field_dirichlet_init
-  
+
+  !> Destructor. Currently this%field_bc is being freed in `fluid_scheme::free`
   subroutine field_dirichlet_free(this)
     type(field_dirichlet_t), intent(inout) :: this
 
     call this%field_bc%free()
-    
+
   end subroutine field_dirichlet_free
   
   !> Apply scalar by performing a masked copy.
