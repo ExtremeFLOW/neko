@@ -79,7 +79,9 @@ contains
     call neko_error("Fields must be initialized individually!")
 
   end subroutine field_dirichlet_vector_init
-  
+
+  !> Destructor. Currently unused as is, all field_dirichlet attributes
+  !! are freed in `fluid_scheme::free`.
   subroutine field_dirichlet_vector_free(this)
     type(field_dirichlet_vector_t), intent(inout) :: this
 
