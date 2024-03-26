@@ -43,8 +43,8 @@ module probes
   use simulation_component
   use field_registry, only : neko_field_registry
   use dofmap, only: dofmap_t
-  use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_module, only : json_file, json_value, json_core
+  use json_utils, only : json_get, json_extract_item
   use global_interpolation, only: global_interpolation_t
   use tensor, only: trsp
   use comm
@@ -75,7 +75,7 @@ module probes
      integer :: n_local_probes
      !> Fields to be probed
      type(field_list_t) :: sampled_fields
-     character(len=20), allocatable  :: which_fields(:)
+     character(len=20), allocatable :: which_fields(:)
      !> Allocated on rank 0
      integer, allocatable :: n_local_probes_tot_offset(:)
      integer, allocatable :: n_local_probes_tot(:)
@@ -90,13 +90,21 @@ module probes
      procedure, pass(this) :: init => probes_init_from_json
      ! Actual constructor
      procedure, pass(this) :: init_from_attributes => &
-          probes_init_from_attributes
+       probes_init_from_attributes
      !> Destructor
      procedure, pass(this) :: free => probes_free
      !> Setup offset for I/O when using sequential write/read from rank 0
      procedure, pass(this) :: setup_offset => probes_setup_offset
      !> Interpolate each probe from its `r,s,t` coordinates.
      procedure, pass(this) :: compute_ => probes_evaluate_and_write
+
+     ! ----------------------------------------------------------------------- !
+     ! Private methods
+
+     !> Reader for file type points
+     procedure, pass(this) :: read_file
+     !> Reader for point type points
+     procedure, pass(this) :: read_point
 
   end type probes_t
 
@@ -107,38 +115,147 @@ contains
     class(probes_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    real(kind=rp), allocatable :: xyz(:,:)
-    character(len=:), allocatable  :: output_file
-    character(len=:), allocatable  :: points_file
-    integer :: i, n_local_probes, n_global_probes
-    call this%free()
+    character(len=:), allocatable :: output_file
+    character(len=:), allocatable :: input_file
+    integer :: i, n
 
+    ! JSON variables
+    character(len=:), allocatable :: point_type
+    type(json_value), pointer :: json_point_list
+    type(json_file) :: json_point
+    type(json_core) :: core
+    integer :: idx, n_point_children
+
+    ! Initialize the base class
+    call this%free()
     call this%init_base(json, case)
 
     !> Read from case file
     call json%info('fields', n_children=this%n_fields)
     call json_get(json, 'fields', this%which_fields)
-    !> Should be extended to not only csv
-    !! but also be possible to define in userfile for example
-    call json_get(json, 'points_file', points_file)
     call json_get(json, 'output_file', output_file)
 
     allocate(this%sampled_fields%fields(this%n_fields))
     do i = 1, this%n_fields
-       this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
-                                          trim(this%which_fields(i)))
+       this%sampled_fields%fields(i)%f => &
+         neko_field_registry%get_field( trim(this%which_fields(i)))
     end do
-    !> This is distributed as to make it similar to parallel file
-    !! formats latera
-    !! Reads all into rank 0
-    call read_probe_locations(this, this%xyz, this%n_local_probes, &
-         this%n_global_probes, points_file)
+
+    ! Setup the required arrays and initialize variables.
+    this%n_local_probes = 0
+    this%n_global_probes = 0
+
+    ! Read the legacy point specification from the points file.
+    if (json%valid_path('points_file')) then
+
+       ! Todo: We should add a deprecation notice here
+       call json_get(json, 'points_file', input_file)
+
+       ! This is distributed as to make it similar to parallel file
+       ! formats later, Reads all into rank 0
+       call read_probe_locations(this, this%xyz, this%n_local_probes, &
+                                 this%n_global_probes, input_file)
+
+    else if (json%valid_path('points')) then
+
+       ! Go through the points list and construct the probe list
+       call json%get('points', json_point_list)
+       call json%info('points', n_children=n_point_children)
+
+       do idx = 1, n_point_children
+          call json_extract_item(core, json_point_list, idx, json_point)
+
+          call json_get(json_point, 'type', point_type)
+          select case (point_type)
+
+            case ('file')
+             call read_file(this, json_point)
+            case ('point')
+             call read_point(this, json_point)
+
+
+            case default
+             call neko_error('Unknown region type ' // point_type)
+          end select
+
+       end do
+
+    end if
+
+
     call probes_show(this)
     call this%init_from_attributes(case%fluid%dm_Xh, output_file)
-    if(allocated(xyz)) deallocate(xyz)
 
   end subroutine probes_init_from_json
 
+  ! ========================================================================== !
+  ! Readers for different point types
+
+  !> Read a list of points from a csv file.
+  !! @note The points are expected to be in the form of a list of coordinates.
+  !! @param[inout] this The probes object.
+  !! @param[inout] json The json file object.
+  subroutine read_file(this, json)
+    class(probes_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    character(len=:), allocatable :: input_file
+    if (pe_rank .ne. 0) return
+
+    call json_get(json, 'file_name', input_file)
+
+    call read_probe_locations(this, this%xyz, this%n_local_probes, &
+                              this%n_global_probes, input_file)
+
+  end subroutine read_file
+
+  !> Read a list of points from the json file.
+  !! @note The points are expected to be in the form of a list of coordinates.
+  !! @param[inout] this The probes object.
+  !! @param[inout] json The json file object.
+  subroutine read_point(this, json)
+    class(probes_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+
+    real(kind=rp), dimension(:,:), allocatable :: point_list
+    real(kind=rp), dimension(:), allocatable :: rp_list_reader
+
+    integer :: n0, n1
+    logical :: found
+
+    ! Ensure only rank 0 reads the coordinates.
+    if (pe_rank .ne. 0) return
+    call json%get('coordinates', rp_list_reader, found)
+
+    ! Check if the coordinates were found and were valid
+    if (.not. found) then
+       call neko_error('No coordinates found.')
+    end if
+
+    if (mod(size(rp_list_reader), 3) /= 0) then
+       call neko_error('Invalid number of coordinates.')
+    end if
+
+    ! Get the current number of points
+    n0 = size(this%xyz, 2)
+    n1 = size(rp_list_reader) / 3
+
+    if (allocated(this%xyz)) then
+       call move_alloc(this%xyz, point_list)
+    end if
+
+    allocate(this%xyz(3, n0 + n1))
+    if (allocated(point_list)) then
+       this%xyz(:, 1:n0) = point_list
+    end if
+    this%xyz(:, n0+1:n0+n1) = reshape(rp_list_reader, [3, n1])
+
+    this%n_local_probes = n0 + n1
+    this%n_global_probes = n0 + n1
+
+  end subroutine read_point
+
+  ! ========================================================================== !
+  ! General initialization routine
 
   !> Initialize without json things
   !! @param dof Dofmap to probe
@@ -146,7 +263,7 @@ contains
   subroutine probes_init_from_attributes(this, dof, output_file)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
-    character(len=:), allocatable, intent(inout)  :: output_file
+    character(len=:), allocatable, intent(inout) :: output_file
     real(kind=rp), allocatable :: global_output_coords(:,:)
     integer :: i, ierr
     type(matrix_t) :: mat_coords
@@ -178,7 +295,7 @@ contains
     this%fout = file_t(trim(output_file))
 
     select type(ft => this%fout%file_type)
-    type is (csv_file_t)
+      type is (csv_file_t)
        !> Necessary for not-parallel csv format...
        !! offsets and n points per pe
        !! Needed at root for sequential csv i/o
@@ -187,24 +304,24 @@ contains
        call this%setup_offset()
        if (pe_rank .eq. 0) then
           allocate(global_output_coords(3,&
-                      this%n_global_probes))
+                                        this%n_global_probes))
           call this%mat_out%init(this%n_global_probes, this%n_fields)
           allocate(this%global_output_values(this%n_fields,&
-                      this%n_global_probes))
+                                             this%n_global_probes))
           call mat_coords%init(this%n_global_probes,3)
        end if
        call MPI_Gatherv(this%xyz, 3*this%n_local_probes,&
-                           MPI_DOUBLE_PRECISION, global_output_coords,&
-                           3*this%n_local_probes_tot,&
-                           3*this%n_local_probes_tot_offset,&
-                           MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
+                        MPI_DOUBLE_PRECISION, global_output_coords,&
+                        3*this%n_local_probes_tot,&
+                        3*this%n_local_probes_tot_offset,&
+                        MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
        if (pe_rank .eq. 0) then
           call trsp(mat_coords%x, this%n_global_probes,&
-                       global_output_coords, 3)
+                    global_output_coords, 3)
           !! Write the data to the file
           call this%fout%write(mat_coords)
        end if
-    class default
+      class default
        call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
@@ -282,7 +399,7 @@ contains
 
     do i = 1, this%n_local_probes
        write (log_buf, *) pe_rank, "/", this%global_interp%proc_owner(i), "/" ,&
-        this%global_interp%el_owner(i), "/",this%global_interp%error_code(i)
+         this%global_interp%el_owner(i), "/",this%global_interp%error_code(i)
        call neko_log%message(log_buf)
        write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') "rst: ", this%global_interp%rst(:,i)
        call neko_log%message(log_buf)
@@ -301,7 +418,7 @@ contains
                     0, NEKO_COMM, ierr)
 
     call MPI_Exscan(this%n_local_probes, this%n_probes_offset, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+                    MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     call MPI_Gather(this%n_probes_offset, 1, MPI_INTEGER,&
                     this%n_local_probes_tot_offset, 1, MPI_INTEGER,&
                     0, NEKO_COMM, ierr)
@@ -333,7 +450,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, this%n_fields
           call device_memcpy(this%out_values(:,i),this%out_values_d(i),&
-               this%n_local_probes, DEVICE_TO_HOST, sync=.true.)
+                             this%n_local_probes, DEVICE_TO_HOST, sync=.true.)
        end do
     end if
 
@@ -367,7 +484,7 @@ contains
   !! @param points_file A csv file containing probes.
   subroutine read_probe_locations(this, xyz, n_local_probes, n_global_probes, points_file)
     class(probes_t), intent(inout) :: this
-    character(len=:), allocatable  :: points_file
+    character(len=:), allocatable :: points_file
     real(kind=rp), allocatable :: xyz(:,:)
     integer, intent(inout) :: n_local_probes, n_global_probes
 
@@ -378,10 +495,10 @@ contains
     file_in = file_t(trim(points_file))
     !> Reads on rank 0 and distributes the probes across the different ranks
     select type(ft => file_in%file_type)
-    type is (csv_file_t)
+      type is (csv_file_t)
        call read_xyz_from_csv(this, xyz, n_local_probes, n_global_probes, ft)
        this%seq_io = .true.
-    class default
+      class default
        call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
