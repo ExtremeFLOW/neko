@@ -830,7 +830,7 @@ contains
     integer :: i, j, k
     integer :: max_recv, ierr, src, dst, n_recv, neigh_el
     integer :: pt_glb_idx, pt_loc_idx, num_neigh
-    integer, pointer :: neighs(:)
+    integer, contiguous, pointer :: neighs(:)
 
 
     call send_buffer%init(this%mpts * 2)
@@ -899,7 +899,7 @@ contains
     type(htable_i8_t) :: glb_to_loc
     type(MPI_Status) :: status
     type(MPI_Request) :: send_req, recv_req
-    integer, pointer :: p1(:), p2(:), ns_id(:)
+    integer, contiguous, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
     integer(kind=i8) :: C, glb_max, glb_id

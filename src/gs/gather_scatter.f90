@@ -1259,7 +1259,7 @@ contains
   subroutine gs_op_r4(gs, u, n, op, event)
     class(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
-    real(kind=rp), dimension(:,:,:,:), intent(inout) :: u
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
     integer :: op
 
