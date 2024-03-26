@@ -102,10 +102,12 @@ module probes
      ! Private methods
 
      !> Reader for file type points
-     procedure, pass(this) :: read_file
+     procedure, private, pass(this) :: read_file
      !> Reader for point type points
-     procedure, pass(this) :: read_point
+     procedure, private, pass(this) :: read_point
 
+     !> Append a new list of points to the exsiting list.
+     procedure, private, pass(this) :: add_points
   end type probes_t
 
 contains
@@ -173,7 +175,6 @@ contains
             case ('point')
              call read_point(this, json_point)
 
-
             case default
              call neko_error('Unknown region type ' // point_type)
           end select
@@ -181,7 +182,6 @@ contains
        end do
 
     end if
-
 
     call probes_show(this)
     call this%init_from_attributes(case%fluid%dm_Xh, output_file)
@@ -199,13 +199,17 @@ contains
     class(probes_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: input_file
+    real(kind=rp), dimension(:,:), allocatable :: point_list
+
+    integer :: n_local, n_global
+
     if (pe_rank .ne. 0) return
 
     call json_get(json, 'file_name', input_file)
 
-    call read_probe_locations(this, this%xyz, this%n_local_probes, &
-                              this%n_global_probes, input_file)
+    call read_probe_locations(this, point_list, n_local, n_global, input_file)
 
+    call this%add_points(point_list)
   end subroutine read_file
 
   !> Read a list of points from the json file.
@@ -218,8 +222,6 @@ contains
 
     real(kind=rp), dimension(:,:), allocatable :: point_list
     real(kind=rp), dimension(:), allocatable :: rp_list_reader
-
-    integer :: n0, n1
     logical :: found
 
     ! Ensure only rank 0 reads the coordinates.
@@ -235,24 +237,48 @@ contains
        call neko_error('Invalid number of coordinates.')
     end if
 
-    ! Get the current number of points
-    n0 = size(this%xyz, 2)
-    n1 = size(rp_list_reader) / 3
+    ! Allocate list of points and reshape the input array
+    allocate(point_list(3, size(rp_list_reader)/3))
+    point_list = reshape(rp_list_reader, [3, size(rp_list_reader)/3])
 
-    if (allocated(this%xyz)) then
-       call move_alloc(this%xyz, point_list)
-    end if
-
-    allocate(this%xyz(3, n0 + n1))
-    if (allocated(point_list)) then
-       this%xyz(:, 1:n0) = point_list
-    end if
-    this%xyz(:, n0+1:n0+n1) = reshape(rp_list_reader, [3, n1])
-
-    this%n_local_probes = n0 + n1
-    this%n_global_probes = n0 + n1
-
+    call this%add_points(point_list)
   end subroutine read_point
+
+  ! ========================================================================== !
+  ! Supporting routines
+
+  !> Append a new list of points to the exsiting list.
+  !! @param[inout] this The probes object.
+  !! @param[in] new_points The new points to be appended.
+  subroutine add_points(this, new_points)
+    class(probes_t), intent(inout) :: this
+    real(kind=rp), dimension(:,:), intent(in) :: new_points
+
+    real(kind=rp), dimension(:,:), allocatable :: temp
+    integer :: n_old, n_new, n_global
+
+    ! Get the current number of points
+    n_old = this%n_local_probes
+    n_new = size(new_points, 2)
+
+    ! Gather the total number of new points
+    call mpi_allreduce(n_new, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+
+    ! Move current points to a temporary array
+    if (allocated(this%xyz)) then
+       call move_alloc(this%xyz, temp)
+    end if
+
+    ! Allocate the new array and copy the full list of points
+    allocate(this%xyz(3, n_old + n_new))
+    if (allocated(temp)) then
+       this%xyz(:, 1:n_old) = temp
+    end if
+    this%xyz(:, n_old+1:n_old+n_new) = new_points
+
+    this%n_local_probes = this%n_local_probes + n_new
+    this%n_global_probes = this%n_global_probes + n_global
+  end subroutine add_points
 
   ! ========================================================================== !
   ! General initialization routine
@@ -496,7 +522,7 @@ contains
     !> Reads on rank 0 and distributes the probes across the different ranks
     select type(ft => file_in%file_type)
       type is (csv_file_t)
-       call read_xyz_from_csv(this, xyz, n_local_probes, n_global_probes, ft)
+       call read_xyz_from_csv(xyz, n_local_probes, n_global_probes, ft)
        this%seq_io = .true.
       class default
        call neko_error("Invalid data. Expected csv_file_t.")
@@ -512,8 +538,7 @@ contains
   !! @param n_local_probes The number of probes local to this process
   !! @param n_global_probes The number of total probes on all processes
   !! @param f The csv file we read from
-  subroutine read_xyz_from_csv(this, xyz, n_local_probes, n_global_probes, f)
-    class(probes_t), intent(inout) :: this
+  subroutine read_xyz_from_csv(xyz, n_local_probes, n_global_probes, f)
     type(csv_file_t), intent(inout) :: f
     real(kind=rp), allocatable :: xyz(:,:)
     integer, intent(inout) :: n_local_probes, n_global_probes
@@ -525,21 +550,18 @@ contains
 
     ! Update the number of probes
     n_global_probes = n_lines
-    this%n_global_probes = n_lines
 
     ! Initialize the temporal array
     if (pe_rank .eq. 0) then
-       this%n_local_probes = this%n_global_probes
        n_local_probes = n_global_probes
-       allocate(xyz(3,this%n_local_probes))
-       call mat_in%init(this%n_global_probes,3)
-       call mat_in2%init(3,this%n_global_probes)
+       allocate(xyz(3,n_local_probes))
+       call mat_in%init(n_global_probes,3)
+       call mat_in2%init(3,n_global_probes)
        call f%read(mat_in)
-       call trsp(xyz, 3, mat_in%x, this%n_global_probes)
+       call trsp(xyz, 3, mat_in%x, n_global_probes)
     else
        n_local_probes = 0
-       this%n_local_probes = 0
-       allocate(xyz(3,this%n_local_probes))
+       allocate(xyz(3,n_local_probes))
     end if
 
   end subroutine read_xyz_from_csv
