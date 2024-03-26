@@ -315,9 +315,7 @@ contains
     call this%hte%free()
     call distdata_free(this%ddata)
 
-    if (allocated(this%points)) then
-       deallocate(this%points)
-    end if
+
     if (allocated(this%dfrmd_el)) then
        deallocate(this%dfrmd_el)
     end if
@@ -367,6 +365,10 @@ contains
 
     if (allocated(this%neigh_order)) then
        deallocate(this%neigh_order)
+    end if
+
+    if (allocated(this%points)) then
+       deallocate(this%points)
     end if
 
     call this%wall%free()
@@ -1381,7 +1383,7 @@ contains
   subroutine mesh_add_quad(this, el, p1, p2, p3, p4)
     class(mesh_t), target, intent(inout) :: this
     integer, value :: el
-    type(point_t), intent(inout) :: p1, p2, p3, p4
+    type(point_t), target, intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
     integer :: p(4), el_glb_idx, i, p_local_idx
     type(tuple_i4_t) :: e
@@ -1417,7 +1419,7 @@ contains
   subroutine mesh_add_hex(this, el, p1, p2, p3, p4, p5, p6, p7, p8)
     class(mesh_t), target, intent(inout) :: this
     integer, value :: el
-    type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
+    type(point_t), target, intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
     integer :: p(8), el_glb_idx, i, p_local_idx
     type(tuple4_i4_t) :: f
