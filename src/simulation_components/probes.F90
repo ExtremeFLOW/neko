@@ -119,7 +119,7 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: output_file
     character(len=:), allocatable :: input_file
-    integer :: i, n
+    integer :: i
 
     ! JSON variables
     character(len=:), allocatable :: point_type
@@ -461,9 +461,7 @@ contains
     class(probes_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp), allocatable :: tmp(:,:)
-    integer :: i, ierr, lx
-    integer :: size_outfields
+    integer :: i, ierr
 
     !> Check controller to determine if we must write
 
@@ -516,7 +514,6 @@ contains
 
     !> Supporting variables
     type(file_t) :: file_in
-    integer :: ierr, file_unit, n_lines
 
     file_in = file_t(trim(points_file))
     !> Reads on rank 0 and distributes the probes across the different ranks
@@ -543,7 +540,7 @@ contains
     real(kind=rp), allocatable :: xyz(:,:)
     integer, intent(inout) :: n_local_probes, n_global_probes
     type(matrix_t) :: mat_in, mat_in2
-    integer :: ierr, file_unit, n_lines
+    integer :: ierr, n_lines
 
     if (pe_rank .eq. 0) n_lines = f%count_lines()
     call MPI_Bcast(n_lines, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
