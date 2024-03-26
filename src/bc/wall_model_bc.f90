@@ -88,12 +88,26 @@ module wall_model_bc
       real(kind=rp), intent(in), optional :: t
       integer, intent(in), optional :: tstep
       integer :: i, m, k, fid
-      ! Store non-linear index
-      integer :: idx(4)
+      real(kind=rp) :: magtau
 
       call this%wall_model%compute(t, tstep)
 
-      write(*,*) "WM size", size(this%wall_model%tau_x)
+!      write(*,*) this%wall_model%n_nodes, this%msk(0), size(this%wall_model%ind_s), &
+!      size(this%wall_model%ind_t)
+
+      do i=1, this%msk(0)
+        magtau = sqrt(this%wall_model%tau_x(i)**2 + this%wall_model%tau_y(i)**2&
+                      + this%wall_model%tau_z(i)**2)
+!        write(*,*) magtau, this%wall_model%ind_t(i)
+
+        ! Mark sampling nodes with a -1 for debugging
+        this%wall_model%tau_field%x(this%wall_model%ind_r(i), &
+                                    this%wall_model%ind_s(i), &
+                                    this%wall_model%ind_t(i), &
+                                    this%wall_model%ind_e(i)) = -1.0_rp
+        this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
+      end do
+
       call this%shear_stress_t%set_stress(this%wall_model%tau_x, &
                                           this%wall_model%tau_z)
       call this%shear_stress_t%apply_vector(x, y, z, n, t, tstep)

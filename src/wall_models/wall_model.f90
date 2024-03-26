@@ -87,6 +87,8 @@ module wall_model
      integer :: n_nodes = 0
      !> Kinematic viscosity value.
      real(kind=rp) :: nu = 0_rp
+     !> The 3D field with the computed stress magnitude at the boundary.
+     type(field_t), pointer :: tau_field => null()
    contains
      !> Constructor for the wall_model_t (base) class.
      procedure, pass(this) :: init_base => wall_model_init_base
@@ -98,7 +100,7 @@ module wall_model
      procedure(wall_model_free), pass(this), deferred :: free
      !> Compute the wall shear stress.
      procedure(wall_model_compute), pass(this), deferred :: compute
-
+     !> Find the sampling points based on the value of `h_index`.
      procedure, pass(this) :: find_points => wall_model_find_points
   end type wall_model_t
 
@@ -165,6 +167,11 @@ contains
     this%nu = nu
     this%h_index = index
 
+    call neko_field_registry%add_field(this%dofmap, "tau", &
+                                       ignore_existing=.true.)
+
+    this%tau_field => neko_field_registry%get_field("tau")
+
     allocate(this%tau_x(this%msk(1)))
     allocate(this%tau_y(this%msk(1)))
     allocate(this%tau_z(this%msk(1)))
@@ -190,6 +197,7 @@ contains
     nullify(this%coef)
     nullify(this%msk)
     nullify(this%facet)
+    nullify(this%tau_field)
 
     if (allocated(this%tau_x)) then
       deallocate(this%tau_x)

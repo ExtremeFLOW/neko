@@ -664,18 +664,12 @@ contains
 
       ! Apply shear stress Neumann boundary conditions
       do i=1, this%n_shear_stress
-!         call this%shear_stress(i)%neumann1%apply_scalar(this%f_x%x,&
-!                                                         this%dm_Xh%size())
          call this%shear_stress(i)%apply_vector(f_x%x, v%x, f_z%x, this%dm_Xh%size())
       end do
 
-!      do i=1, this%n_shear_stress
-!         call this%shear_stress(i)%neumann1%apply_scalar(this%f_x%x,&
-!                                                         this%dm_Xh%size())
-!         call this%shear_stress(i)%dirichlet%apply_scalar(u%x, this%dm_Xh%size())
-!         call this%shear_stress(i)%dirichlet%apply_scalar(v%x, this%dm_Xh%size())
-!         call this%shear_stress(i)%dirichlet%apply_scalar(w%x, this%dm_Xh%size())
-!      end do
+      if (allocated(this%wm%wall_model)) then
+         call this%wm%apply_vector(f_x%x, v%x, f_z%x, this%dm_Xh%size(), t, tstep)
+      end if
 
       ! Add the advection operators to the right-hand-side.
       call this%adv%compute(u, v, w, &
