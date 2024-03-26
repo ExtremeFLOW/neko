@@ -68,34 +68,37 @@ contains
   !> Constructor
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
-  !! @param nu_name The name of the turbulent viscosity field.
   !! @param json A dictionary with parameters.
-  subroutine spalding_init(this, dofmap, coef, msk, facet, json)
+  subroutine spalding_init(this, dofmap, coef, msk, facet, nu, index, json)
     class(spalding_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
+    real(kind=rp), intent(in) :: nu
+    integer, intent(in) :: index
     type(json_file), intent(inout) :: json
 
-    call this%init_base(dofmap, coef, msk, facet)
+    call this%init_base(dofmap, coef, msk, facet, nu, index)
 
     ! Will parse JSON here eventually
 
   end subroutine spalding_init
 
   subroutine spalding_init_from_components(this, dofmap, coef, msk, facet,&
-                                                kappa, B)
+                                           nu, index, kappa, B)
     class(spalding_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
+    integer, intent(in) :: index
+    real(kind=rp), intent(in) :: nu
     real(kind=rp), intent(in) :: kappa
     real(kind=rp), intent(in) :: B
 
 
-    call this%init_base(dofmap, coef, msk, facet)
+    call this%init_base(dofmap, coef, msk, facet, nu, index)
 
     this%kappa = kappa
     this%B = B

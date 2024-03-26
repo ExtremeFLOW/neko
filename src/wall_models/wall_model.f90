@@ -53,6 +53,7 @@ module wall_model
   type, abstract, public :: wall_model_t
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
+     !> Map of degrees of freedom.
      type(dofmap_t), pointer :: dofmap => null()
      !> The boundary condition mask. First element, holds the array size!
      integer, pointer :: msk(:) => null()
@@ -81,11 +82,11 @@ module wall_model
      !> The sampling height
      type(vector_t) :: h
      !> Sampling index
-     integer :: h_index = 1
+     integer :: h_index = 0
      !> Number of nodes in the boundary
      integer :: n_nodes = 0
      !> Kinematic viscosity value.
-     real(kind=rp) :: nu = 5e-5_rp
+     real(kind=rp) :: nu = 0_rp
    contains
      !> Constructor for the wall_model_t (base) class.
      procedure, pass(this) :: init_base => wall_model_init_base
@@ -118,13 +119,16 @@ module wall_model
      !! @param dofmap SEM map of degrees of freedom.
      !! @param coef SEM coefficients.
      !! @param json A dictionary with parameters.
-     subroutine wall_model_init(this, dofmap, coef, msk, facet, json)
-       import wall_model_t, json_file, dofmap_t, coef_t
+     subroutine wall_model_init(this, dofmap, coef, msk, facet, nu, &
+                                index, json)
+       import wall_model_t, json_file, dofmap_t, coef_t, rp
        class(wall_model_t), intent(inout) :: this
        type(dofmap_t), intent(in) :: dofmap
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: msk(:)
        integer, intent(in) :: facet(:)
+       real(kind=rp), intent(in) :: nu
+       integer, intent(in) :: index
        type(json_file), intent(inout) :: json
      end subroutine wall_model_init
   end interface
@@ -142,12 +146,15 @@ contains
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param nu_name The name of the turbulent viscosity field.
-  subroutine wall_model_init_base(this, dofmap, coef, msk, facet)
+  subroutine wall_model_init_base(this, dofmap, coef, msk, facet, nu, &
+                                  index)
     class(wall_model_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), target, intent(in) :: coef
     integer, target, intent(in) :: msk(:)
     integer, target, intent(in) :: facet(:)
+    real(kind=rp), intent(in) :: nu
+    integer, intent(in) :: index
 
     call this%free_base
 
@@ -155,6 +162,8 @@ contains
     this%dofmap => coef%dof
     this%msk => msk
     this%facet => facet
+    this%nu = nu
+    this%h_index = index
 
     allocate(this%tau_x(this%msk(1)))
     allocate(this%tau_y(this%msk(1)))

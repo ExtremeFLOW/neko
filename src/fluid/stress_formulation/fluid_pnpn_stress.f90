@@ -239,6 +239,7 @@ contains
 
     !! Provisional wall model init from a single json object
     if (params%valid_path('case.fluid.wall_model')) then
+       call json_get(params, "case.fluid.wall_model.index", integer_val)
        call this%wm%init(this%dm_Xh)
        call this%wm%init_shear_stress(this%c_Xh)
        call this%wm%mark_zones_from_list(this%msh%labeled_zones, "wm", this%bc_labels)
@@ -260,7 +261,7 @@ contains
              call json_get(params, "case.fluid.wall_model.B", B)
              call json_get(params, "case.fluid.wall_model.z0", z0)
              call wm%init_from_components(this%dm_Xh, this%c_Xh, this%wm%msk,&
-                                          this%wm%facet, kappa, B, z0)
+                    this%wm%facet, this%mu/this%rho, integer_val, kappa, B, z0)
           end select
        else if(string_val .eq. "spalding") then
           allocate(spalding_t::this%wm%wall_model)
@@ -269,7 +270,7 @@ contains
              call json_get(params, "case.fluid.wall_model.kappa", kappa)
              call json_get(params, "case.fluid.wall_model.B", B)
              call wm%init_from_components(this%dm_Xh, this%c_Xh, this%wm%msk,&
-                                          this%wm%facet, kappa, B)
+                     this%wm%facet,this%mu/this%rho, integer_val, kappa, B)
           end select
        else
           call neko_error("Unknown wall model " // string_val)

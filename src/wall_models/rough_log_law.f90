@@ -70,33 +70,38 @@ contains
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine rough_log_law_init(this, dofmap, coef, msk, facet, json)
+  subroutine rough_log_law_init(this, dofmap, coef, msk, facet, nu, &
+                                index, json)
     class(rough_log_law_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
+    real(kind=rp), intent(in) :: nu
+    integer, intent(in) :: index
     type(json_file), intent(inout) :: json
 
-    call this%init_base(dofmap, coef, msk, facet)
+    call this%init_base(dofmap, coef, msk, facet, nu, index)
 
     ! Will parse JSON here eventually
 
   end subroutine rough_log_law_init
 
   subroutine rough_log_law_init_from_components(this, dofmap, coef, msk, facet,&
-                                                kappa, B, z0)
+                                                nu, index, kappa, B, z0)
     class(rough_log_law_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
+    real(kind=rp), intent(in) :: nu
+    integer, intent(in) :: index
     real(kind=rp), intent(in) :: kappa
     real(kind=rp), intent(in) :: B
     real(kind=rp), intent(in) :: z0
 
 
-    call this%init_base(dofmap, coef, msk, facet)
+    call this%init_base(dofmap, coef, msk, facet, nu, index)
 
     this%kappa = kappa
     this%B = B
