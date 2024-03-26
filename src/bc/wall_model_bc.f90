@@ -92,6 +92,9 @@ module wall_model_bc
       integer :: idx(4)
 
 
+      write(*,*) "WM size", size(this%wall_model%tau_x)
+      call this%shear_stress_t%set_stress(this%wall_model%tau_x, &
+                                          this%wall_model%tau_z)
       call this%shear_stress_t%apply_vector(x, y, z, n, t, tstep)
 
     end subroutine wall_model_bc_apply_vector
@@ -128,7 +131,7 @@ module wall_model_bc
       class(wall_model_bc_t), intent(inout) :: this
       type(coef_t), target, intent(in) :: coef
 
-      call this%shear_stress_t%init_shear_stress(0.0_rp, 0.0_rp, coef)
+      call this%shear_stress_t%init_shear_stress(coef)
 
     end subroutine wall_model_bc_init_wall_model_bc
 

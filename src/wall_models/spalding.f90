@@ -131,7 +131,7 @@ contains
 
       utau =  this%solve(magu, this%h%x(i), guess)
 
-      write(*,*) ui, vi, wi, utau
+      !write(*,*) ui, vi, wi, utau
 
       ! Distribute according to the velocity vector
       this%tau_x(i) = -utau**2 * ui / magu
@@ -139,7 +139,7 @@ contains
       this%tau_z(i) = -utau**2 * wi / magu
     end do
 
-    write(*,*) this%tau_x(1:3)
+    !write(*,*) this%tau_x(1:2)
   end subroutine spalding_compute
 
   function solve(this, u,  y, guess) result(utau)
@@ -149,15 +149,17 @@ contains
     real(kind=rp), intent(in) :: guess
     real(kind=rp) :: yp, up, kappa, B, utau
     real(kind=rp) :: error, f, df, old
-    integer :: niter, k
+    integer :: niter, k, maxiter
 
     utau = guess
-    up = u / utau
-    yp = y * utau / this%nu
     kappa = this%kappa
     B = this%B
 
-    do k=1, 50
+    maxiter = 100
+
+    do k=1, maxiter
+      up = u / utau
+      yp = y * utau / this%nu
       niter = k
       old = utau
 
@@ -180,8 +182,8 @@ contains
 
     enddo
 
-    if (niter .eq. 50) then
-       write(*,*) "Newton not converged", error, f, utau, old
+    if (niter .eq. maxiter) then
+       write(*,*) "Newton not converged", error, f, utau, old, guess
     end if
 end function solve
 

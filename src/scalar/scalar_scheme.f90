@@ -100,7 +100,7 @@ module scalar_scheme
      !> Projection space size.
      integer :: projection_dim
      !< Steps to activate projection for ksp
-     integer :: projection_activ_step   
+     integer :: projection_activ_step
      !> Preconditioner.
      class(pc_t), allocatable :: pc
      !> Dirichlet conditions.
@@ -221,6 +221,7 @@ contains
     character(len=20) :: bc_label
     integer :: i, j, bc_idx
     real(kind=rp) :: dir_value, flux_value
+    real(kind=rp), allocatable :: flux(:)
     logical :: bc_exists
 
     do i = 1, size(bc_labels)
@@ -254,8 +255,13 @@ contains
           call this%neumann_bcs(this%n_neumann_bcs)%init(this%dm_Xh)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) flux_value
-          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value,&
-                                                                 this%c_Xh)
+          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(this%c_Xh)
+          call this%neumann_bcs(i)%finalize()
+          allocate(flux(this%neumann_bcs(i)%msk(0)))
+          ! device..
+          call cfill(flux, flux_value, size(flux))
+          call this%neumann_bcs(i)%finalize_neumann(flux)
+          deallocate(flux)
        end if
 
        !> Check if user bc on this zone
@@ -272,7 +278,6 @@ contains
     ! Create list with just Neumann bcs
     call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
     do i=1, this%n_neumann_bcs
-       call this%neumann_bcs(i)%finalize()
        call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
     end do
 

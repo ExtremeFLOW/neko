@@ -80,6 +80,8 @@ module wall_model
      integer, allocatable :: ind_e(:)
      !> The sampling height
      type(vector_t) :: h
+     !> Sampling index
+     integer :: h_index = 1
      !> Number of nodes in the boundary
      integer :: n_nodes = 0
      !> Kinematic viscosity value.
@@ -224,29 +226,29 @@ contains
 
        select case (fid)
        case(1)
-         this%ind_r(i) = idx(1) + 1
+         this%ind_r(i) = idx(1) + this%h_index
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3)
        case(2)
-         this%ind_r(i) = idx(1) - 1
+         this%ind_r(i) = idx(1) - this%h_index
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3)
        case(3)
          this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2) + 1
+         this%ind_s(i) = idx(2) + this%h_index
          this%ind_t(i) = idx(3)
        case(4)
          this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2) - 1
+         this%ind_s(i) = idx(2) - this%h_index
          this%ind_t(i) = idx(3)
        case(5)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3) + 1
+         this%ind_t(i) = idx(3) + this%h_index
        case(6)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3) - 1
+         this%ind_t(i) = idx(3) - this%h_index
        case default
          call neko_error("The face index is not correct")
        end select

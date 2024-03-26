@@ -243,16 +243,6 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
     !Intialize projection space thingy
-    call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
-                              this%pr_projection_activ_step)
-
-    call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
-    call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
-    call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
-
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
@@ -280,7 +270,7 @@ contains
     integer :: i, n
 
     n = this%u%dof%size()
-    ! Make sure that continuity is maintained (important for interpolation) 
+    ! Make sure that continuity is maintained (important for interpolation)
     ! Do not do this for lagged rhs (derivatives are not necessairly coninous across elements)
     call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
@@ -613,7 +603,7 @@ contains
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_dw, gs_Xh)
       call profiler_end_region
-      
+
       call this%proj_u%post_solving(du%x, Ax, c_Xh, &
                                  this%bclst_du, gs_Xh, n, tstep, dt_controller)
       call this%proj_v%post_solving(dv%x, Ax, c_Xh, &

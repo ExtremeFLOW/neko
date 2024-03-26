@@ -144,8 +144,10 @@ contains
     real(kind=rp) :: real_val
     character(len=20) :: bc_label
     integer :: i
-    ! Hard-coded shear stress component
-    real(kind=rp) :: tau
+    ! Shear stress value, hardcoded to x direction !!
+    real(kind=rp) :: tau_value
+    ! Shear stress arrays
+    real(kind=rp), allocatable :: tau1(:), tau2(:)
 
     call this%free()
 
@@ -213,37 +215,51 @@ contains
        if (bc_label(1:2) .eq. 'sh') then
           this%n_shear_stress = this%n_shear_stress + 1
           call this%shear_stress(this%n_shear_stress)%init(this%dm_Xh)
-          ! todo: PARSE VALUES HERE
-          read(bc_label(4:), *) tau
-          call this%shear_stress(this%n_shear_stress)%init_shear_stress(tau,&
-                                                                        0.0_rp,&
-                                                                        this%c_Xh)
+          ! Read the stress value, set as x direction
+          read(bc_label(4:), *) tau_value
+          call this%shear_stress(this%n_shear_stress)%init_shear_stress(this%c_Xh)
           call this%shear_stress(this%n_shear_stress)%mark_zone(this%msh%labeled_zones(i))
+          call this%shear_stress(this%n_shear_stress)%finalize()
 
-          call this%shear_stress(this%n_shear_stress)%dirichlet%mark_zone(this%msh%labeled_zones(i))
+          allocate(tau1(this%shear_stress(this%n_shear_stress)%msk(0)))
+          allocate(tau2(this%shear_stress(this%n_shear_stress)%msk(0)))
 
+          ! Hardcoded direction, no device..
+          call cfill(tau1, tau_value, size(tau1))
+          call rzero(tau2, size(tau2))
+          call this%shear_stress(this%n_shear_stress)%shear_stress_finalize(tau1, tau2)
 
+          deallocate(tau1)
+          deallocate(tau2)
        end if
     end do
 
     !! PROVISIONAL
     call this%wm%init(this%dm_Xh)
-    call this%wm%mark_zones_from_list(this%msh%labeled_zones, "w", this%bc_labels)
+    call this%wm%init_shear_stress(this%c_Xh)
+    call this%wm%mark_zones_from_list(this%msh%labeled_zones, "wm", this%bc_labels)
     call this%wm%finalize()
+    allocate(tau1(this%wm%msk(0)))
+    allocate(tau2(this%wm%msk(0)))
+    ! no device
+    call rzero(tau1, size(tau1))
+    call rzero(tau2, size(tau2))
+
+    call this%wm%shear_stress_finalize(tau1, tau2)
     call this%wm%wall_model%init(this%dm_Xh, this%c_Xh, this%wm%msk, this%wm%facet,&
          this%params)
+    deallocate(tau1)
+    deallocate(tau2)
     call this%wm%wall_model%find_points()
 
     ! Create list with just Neumann bcs, 2 from each shear stress bc
+    ! Not used right now.
     call bc_list_init(this%bclst_neumann, this%n_shear_stress)
 
-    ! Finalize and populate the Neumann list
+    ! Populate the Neumann list, not used..
     do i=1, this%n_shear_stress
-
-       call this%shear_stress(i)%finalize()
-       call this%shear_stress(i)%dirichlet%finalize()
-
-       call bc_list_add(this%bclst_neumann, this%shear_stress(i))
+       call bc_list_add(this%bclst_neumann, this%shear_stress(i)%neumann1)
+       call bc_list_add(this%bclst_neumann, this%shear_stress(i)%neumann2)
 !       call bc_list_add(this%bclst_vel, this%shear_stress(i)%dirichlet)
     end do
 
@@ -322,19 +338,17 @@ contains
 !      call bc_list_add(this%bclst_vel_res, this%shear_stress(i)%dirichlet)
     end do
 
-
-
-
     !Intialize projection space thingy
-    if (this%pr_projection_dim .gt. 0) then
-       call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim)
-    end if
+    call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
+                              this%pr_projection_activ_step)
 
-    if (this%vel_projection_dim .gt. 0) then
-       call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim)
-       call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim)
-       call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim)
-    end if
+    call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+    call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+    call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)

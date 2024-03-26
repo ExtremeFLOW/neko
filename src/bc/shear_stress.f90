@@ -39,6 +39,8 @@ module shear_stress
     use coefs, only : coef_t
     use dirichlet, only : dirichlet_t
     use neumann, only : neumann_t
+    use math, only : copy
+    use device_math, only : device_copy
     implicit none
     private
 
@@ -49,9 +51,9 @@ module shear_stress
     !! term to the right-hand-side.
     type, public, extends(bc_t) :: shear_stress_t
        !> The stress in the 1st wall-parallel direction.
-       real(kind=rp), private :: tau1_
+       real(kind=rp), allocatable, private :: tau1_(:)
        !> The stress in the 2nd wall-parallel direction.
-       real(kind=rp), private :: tau2_
+       real(kind=rp), allocatable, private :: tau2_(:)
        !> SEM coeffs.
        type(coef_t), pointer :: coef
        !> Dirchlet bc for the wall-normal component.
@@ -69,6 +71,8 @@ module shear_stress
          shear_stress_init_shear_stress
        procedure, pass(this) :: tau1 => shear_stress_tau1
        procedure, pass(this) :: tau2 => shear_stress_tau2
+       procedure, pass(this) :: set_stress => shear_stress_set_stress
+       procedure, pass(this) :: shear_stress_finalize
     end type shear_stress_t
 
   contains
@@ -102,27 +106,35 @@ module shear_stress
       ! Store non-linear index
       integer :: idx(4)
 
-      m = this%msk(0)
-      do i = 1, m
-         k = this%msk(i)
-         fid = this%facet(i)
-         idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
-                               this%coef%Xh%lx)
-         select case(fid)
-         case(1,2)
-            x(k) = x(k) + this%tau1_*this%coef%area(idx(2), idx(3), fid, idx(4))
-            z(k) = z(k) + this%tau2_*this%coef%area(idx(2), idx(3), fid, idx(4))
-            y(k) = 0.0_rp
-         case(3,4)
-            x(k) = x(k) + this%tau1_*this%coef%area(idx(1), idx(3), fid, idx(4))
-            z(k) = z(k) + this%tau2_*this%coef%area(idx(1), idx(3), fid, idx(4))
-            y(k) = 0.0_rp
-         case(5,6)
-            x(k) = x(k) + this%tau1_*this%coef%area(idx(1), idx(2), fid, idx(4))
-            z(k) = z(k) + this%tau2_*this%coef%area(idx(1), idx(2), fid, idx(4))
-            y(k) = 0.0_rp
-         end select
-      end do
+!      write(*,*) "tau1", this%tau1_(1:100)
+
+      call this%neumann1%apply_scalar(x, n, t, tstep)
+      call this%neumann2%apply_scalar(z, n, t, tstep)
+      call this%dirichlet%apply_scalar(y, n, t, tstep)
+
+!      m = this%msk(0)
+!      do i = 1, m
+!         k = this%msk(i)
+!         fid = this%facet(i)
+!         idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
+!                               this%coef%Xh%lx)
+!         select case(fid)
+!         case(1,2)
+!            x(k) = x(k) + this%tau1_(i)*this%coef%area(idx(2), idx(3), fid, idx(4))
+!            z(k) = z(k) + this%tau2_(i)*this%coef%area(idx(2), idx(3), fid, idx(4))
+!            y(k) = 0.0_rp
+!         case(3,4)
+            !x(k) = x(k) + this%tau1_(i)*this%coef%area(idx(1), idx(3), fid, idx(4))
+            !z(k) = z(k) + this%tau2_(i)*this%coef%area(idx(1), idx(3), fid, idx(4))
+!            x(k) = x(k) + this%coef%area(idx(1), idx(3), fid, idx(4))
+!            z(k) = z(k) + this%coef%area(idx(1), idx(3), fid, idx(4))
+!            y(k) = 0.0_rp
+!         case(5,6)
+!            x(k) = x(k) + this%tau1_(i)*this%coef%area(idx(1), idx(2), fid, idx(4))
+!            z(k) = z(k) + this%tau2_(i)*this%coef%area(idx(1), idx(2), fid, idx(4))
+!            y(k) = 0.0_rp
+!         end select
+!      end do
 
     end subroutine shear_stress_apply_vector
 
@@ -156,32 +168,54 @@ module shear_stress
     !> @param tau1 The desired stress in the 1st wall-parallel direction.
     !> @param tau2 The desired stress in the 2nd wall-parallel direction.
     !> @param coef The SEM coefficients.
-    subroutine shear_stress_init_shear_stress(this, tau1, tau2, coef)
+    subroutine shear_stress_init_shear_stress(this, coef)
       class(shear_stress_t), intent(inout) :: this
-      real(kind=rp), intent(in) :: tau1, tau2
       type(coef_t), target, intent(in) :: coef
+
+
+      call this%dirichlet%init(coef%dof)
+      call this%neumann1%init(coef%dof)
+      call this%neumann2%init(coef%dof)
+
+      call this%neumann1%init_neumann(coef)
+      call this%neumann2%init_neumann(coef)
+      call this%dirichlet%set_g(0.0_rp)
+
+      this%coef => coef
+    end subroutine shear_stress_init_shear_stress
+
+    !> Finalize by allocating the stress arrays and marking the facets for
+    !! the bc components.
+    subroutine shear_stress_finalize(this, tau1, tau2)
+      class(shear_stress_t), intent(inout) :: this
+      real(kind=rp), intent(in) :: tau1(this%msk(0))
+      real(kind=rp), intent(in) :: tau2(this%msk(0))
+
+      allocate(this%tau1_(this%msk(0)))
+      allocate(this%tau2_(this%msk(0)))
 
       this%tau1_ = tau1
       this%tau2_ = tau2
-      this%coef => coef
 
-      call this%dirichlet%init(this%coef%dof)
-      call this%neumann1%init(this%coef%dof)
-      call this%neumann2%init(this%coef%dof)
+      call this%neumann1%mark_facets(this%marked_facet)
+      call this%neumann2%mark_facets(this%marked_facet)
+      call this%dirichlet%mark_facets(this%marked_facet)
 
-!      call this%dirichlet%mark_facets(this%marked_facet)
-!      call this%neumann1%mark_facets(this%marked_facet)
-!      call this%neumann2%mark_facets(this%marked_facet)
+      call this%neumann1%finalize()
+      call this%neumann2%finalize()
+      call this%dirichlet%finalize()
 
-      call this%neumann1%init_neumann(tau1, this%coef)
-      call this%neumann2%init_neumann(tau2, this%coef)
-      call this%dirichlet%set_g(0.0_rp)
-    end subroutine shear_stress_init_shear_stress
+      call this%neumann1%finalize_neumann(tau1)
+      call this%neumann2%finalize_neumann(tau2)
+
+       write(*,*) "Stress array size", size(this%tau1_), size(this%tau2_)
+
+    end subroutine shear_stress_finalize
 
     !> Get the stress in the 1st wall-parallel direction.
     pure function shear_stress_tau1(this) result(tau1)
       class(shear_stress_t), intent(in) :: this
-      real(kind=rp) :: tau1
+      real(kind=rp) :: tau1(this%msk(0))
 
       tau1 = this%tau1_
     end function shear_stress_tau1
@@ -189,8 +223,19 @@ module shear_stress
     !> Get the stress in the 2nd wall-parallel direction.
     pure function shear_stress_tau2(this) result(tau2)
       class(shear_stress_t), intent(in) :: this
-      real(kind=rp) :: tau2
+      real(kind=rp) :: tau2(this%msk(0))
 
       tau2 = this%tau2_
     end function shear_stress_tau2
+
+    !> Set the shear stress components.
+    subroutine shear_stress_set_stress(this, tau1, tau2)
+      class(shear_stress_t), intent(inout) :: this
+      real(kind=rp), intent(in) :: tau1(this%msk(0))
+      real(kind=rp), intent(in) :: tau2(this%msk(0))
+
+      call copy(this%tau1_, tau1, this%msk(0))
+      call copy(this%tau2_, tau2, this%msk(0))
+
+    end subroutine shear_stress_set_stress
   end module shear_stress
