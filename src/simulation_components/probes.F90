@@ -157,31 +157,36 @@ contains
        ! formats later, Reads all into rank 0
        call read_probe_locations(this, this%xyz, this%n_local_probes, &
                                  this%n_global_probes, input_file)
-
-    else if (json%valid_path('points')) then
-
-       ! Go through the points list and construct the probe list
-       call json%get('points', json_point_list)
-       call json%info('points', n_children=n_point_children)
-
-       do idx = 1, n_point_children
-          call json_extract_item(core, json_point_list, idx, json_point)
-
-          call json_get(json_point, 'type', point_type)
-          select case (point_type)
-
-            case ('file')
-             call read_file(this, json_point)
-            case ('point')
-             call read_point(this, json_point)
-
-            case default
-             call neko_error('Unknown region type ' // point_type)
-          end select
-
-       end do
-
     end if
+
+    ! Go through the points list and construct the probe list
+    call json%get('points', json_point_list)
+    call json%info('points', n_children=n_point_children)
+
+    do idx = 1, n_point_children
+       call json_extract_item(core, json_point_list, idx, json_point)
+
+       call json_get(json_point, 'type', point_type)
+       select case (point_type)
+
+         case ('file')
+          call read_file(this, json_point)
+         case ('point')
+          call read_point(this, json_point)
+         case ('line')
+          call read_line(this, json_point)
+         case ('plane')
+          call neko_error('Plane probes not implemented yet.')
+         case ('circle')
+          call neko_error('Circle probes not implemented yet.')
+
+         case ('point_zone')
+          call neko_error('Point zone probes not implemented yet.')
+
+         case default
+          call neko_error('Unknown region type ' // point_type)
+       end select
+    end do
 
     call probes_show(this)
     call this%init_from_attributes(case%fluid%dm_Xh, output_file)
@@ -243,6 +248,44 @@ contains
 
     call this%add_points(point_list)
   end subroutine read_point
+
+  !> Construct a list of points from a line.
+  !! @param[inout] this The probes object.
+  !! @param[inout] json The json file object.
+  subroutine read_line(this, json)
+    class(probes_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+
+    real(kind=rp), dimension(:,:), allocatable :: point_list
+    real(kind=rp), dimension(:), allocatable :: start, end
+    real(kind=rp), dimension(3) :: direction
+    real(kind=rp) :: t
+
+    integer :: n_points, i
+
+    ! Ensure only rank 0 reads the coordinates.
+    if (pe_rank .ne. 0) return
+    call json_get(json, "start", start)
+    call json_get(json, "end", end)
+    call json_get(json, "amount", n_points)
+
+    ! If either start or end is not of length 3, error out
+    if (size(start) /= 3 .or. size(end) /= 3) then
+       call neko_error('Invalid start or end coordinates.')
+    end if
+
+    ! Calculate the number of points
+    allocate(point_list(3, n_points))
+
+    ! Calculate the direction vector
+    direction = end - start
+    do i = 1, n_points
+       t = real(i - 1, kind=rp) / real(n_points - 1, kind=rp)
+       point_list(:, i) = start + direction * t
+    end do
+
+    call this%add_points(point_list)
+  end subroutine read_line
 
   ! ========================================================================== !
   ! Supporting routines
