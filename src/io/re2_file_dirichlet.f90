@@ -515,7 +515,7 @@ contains
     type(re2v2_bc_t), allocatable :: re2v2_data_bc(:)
 
     ! Offsets for labeled zones
-    integer :: labeled_zone_total_offset, labeled_zone_offsets(5)
+    integer :: labeled_zone_total_offset, labeled_zone_offsets(6)
     labeled_zone_total_offset = 0
     labeled_zone_offsets = 0
 
@@ -559,6 +559,10 @@ contains
              if (labeled_zone_offsets(5) .eq. 0) call neko_log%message("'on'/'ON' => labeled index 5")
              labeled_zone_offsets(5) = 1
              call msh%mark_labeled_facet(sym_facet, el_idx, 5)
+          case ('SHL', 'shl')
+             if (labeled_zone_offsets(6) .eq. 0) call neko_log%message("'shl'/'SHL' => labeled index 6")
+             labeled_zone_offsets(6) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 6)
           case ('P')
              periodic = .true.
              p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
