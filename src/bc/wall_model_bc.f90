@@ -49,8 +49,8 @@ module wall_model_bc
     type, public, extends(shear_stress_t) :: wall_model_bc_t
       !> The wall model to compute the stress.
       !class(rough_log_law_t), pointer :: wall_model => null()
-!      type(rough_log_law_t) :: wall_model
-       type(spalding_t) :: wall_model
+      !type(rough_log_law_t) :: wall_model
+       class(wall_model_t), allocatable :: wall_model
      contains
        procedure, pass(this) :: apply_scalar => wall_model_bc_apply_scalar
        procedure, pass(this) :: apply_vector => wall_model_bc_apply_vector
@@ -91,6 +91,7 @@ module wall_model_bc
       ! Store non-linear index
       integer :: idx(4)
 
+      call this%wall_model%compute(t, tstep)
 
       write(*,*) "WM size", size(this%wall_model%tau_x)
       call this%shear_stress_t%set_stress(this%wall_model%tau_x, &

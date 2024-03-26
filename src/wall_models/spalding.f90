@@ -51,8 +51,11 @@ module spalding
      !> The log-law intercept.
      real(kind=rp) :: B = 5.2_rp
    contains
-     !> Constructor.
+     !> Constructor from JSON.
      procedure, pass(this) :: init => spalding_init
+     !> Constructor.
+     procedure, pass(this) :: init_from_components => &
+       spalding_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => spalding_free
      !> Compute the wall shear stress.
@@ -77,11 +80,27 @@ contains
 
     call this%init_base(dofmap, coef, msk, facet)
 
-    ! Make RTS
-    this%kappa = 0.41
-    this%B = 5.2
+    ! Will parse JSON here eventually
 
   end subroutine spalding_init
+
+  subroutine spalding_init_from_components(this, dofmap, coef, msk, facet,&
+                                                kappa, B)
+    class(spalding_t), intent(inout) :: this
+    type(dofmap_t), intent(in) :: dofmap
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: msk(:)
+    integer, intent(in) :: facet(:)
+    real(kind=rp), intent(in) :: kappa
+    real(kind=rp), intent(in) :: B
+
+
+    call this%init_base(dofmap, coef, msk, facet)
+
+    this%kappa = kappa
+    this%B = B
+  end subroutine spalding_init_from_components
+
 
   !> Destructor for the spalding_t (base) class.
   subroutine spalding_free(this)

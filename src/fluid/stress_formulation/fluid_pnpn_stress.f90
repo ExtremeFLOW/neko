@@ -55,6 +55,7 @@ module fluid_pnpn_stress
   use shear_stress, only : shear_stress_t
   use material_properties, only : material_properties_t
   use rough_log_law, only : rough_log_law_t
+  use spalding, only : spalding_t
   use wall_model_bc, only : wall_model_bc_t
   implicit none
   private
@@ -141,6 +142,7 @@ contains
     character(len=15), parameter :: scheme = 'Stress (Pn/Pn)'
     logical :: found, logical_val
     integer :: integer_val
+    character(len=:), allocatable :: string_val
     real(kind=rp) :: real_val
     character(len=20) :: bc_label
     integer :: i
@@ -148,6 +150,7 @@ contains
     real(kind=rp) :: tau_value
     ! Shear stress arrays
     real(kind=rp), allocatable :: tau1(:), tau2(:)
+    real(kind=rp) :: kappa, B, z0
 
     call this%free()
 
@@ -234,34 +237,59 @@ contains
        end if
     end do
 
-    !! PROVISIONAL
-    call this%wm%init(this%dm_Xh)
-    call this%wm%init_shear_stress(this%c_Xh)
-    call this%wm%mark_zones_from_list(this%msh%labeled_zones, "wm", this%bc_labels)
-    call this%wm%finalize()
-    allocate(tau1(this%wm%msk(0)))
-    allocate(tau2(this%wm%msk(0)))
-    ! no device
-    call rzero(tau1, size(tau1))
-    call rzero(tau2, size(tau2))
+    !! Provisional wall model init from a single json object
+    if (params%valid_path('case.fluid.wall_model')) then
+       call this%wm%init(this%dm_Xh)
+       call this%wm%init_shear_stress(this%c_Xh)
+       call this%wm%mark_zones_from_list(this%msh%labeled_zones, "wm", this%bc_labels)
+       call this%wm%finalize()
+       allocate(tau1(this%wm%msk(0)))
+       allocate(tau2(this%wm%msk(0)))
+       ! no device
+       call rzero(tau1, size(tau1))
+       call rzero(tau2, size(tau2))
 
-    call this%wm%shear_stress_finalize(tau1, tau2)
-    call this%wm%wall_model%init(this%dm_Xh, this%c_Xh, this%wm%msk, this%wm%facet,&
-         this%params)
-    deallocate(tau1)
-    deallocate(tau2)
-    call this%wm%wall_model%find_points()
+       call this%wm%shear_stress_finalize(tau1, tau2)
+       call json_get(params, "case.fluid.wall_model.model", string_val)
 
-    ! Create list with just Neumann bcs, 2 from each shear stress bc
-    ! Not used right now.
-    call bc_list_init(this%bclst_neumann, this%n_shear_stress)
+       if (string_val .eq. "rough_log_law") then
+          allocate(rough_log_law_t::this%wm%wall_model)
+          select type(wm => this%wm%wall_model)
+          type is (rough_log_law_t)
+             call json_get(params, "case.fluid.wall_model.kappa", kappa)
+             call json_get(params, "case.fluid.wall_model.B", B)
+             call json_get(params, "case.fluid.wall_model.z0", z0)
+             call wm%init_from_components(this%dm_Xh, this%c_Xh, this%wm%msk,&
+                                          this%wm%facet, kappa, B, z0)
+          end select
+       else if(string_val .eq. "spalding") then
+          allocate(spalding_t::this%wm%wall_model)
+          select type(wm => this%wm%wall_model)
+          type is (spalding_t)
+             call json_get(params, "case.fluid.wall_model.kappa", kappa)
+             call json_get(params, "case.fluid.wall_model.B", B)
+             call wm%init_from_components(this%dm_Xh, this%c_Xh, this%wm%msk,&
+                                          this%wm%facet, kappa, B)
+          end select
+       else
+          call neko_error("Unknown wall model " // string_val)
+       end if
 
-    ! Populate the Neumann list, not used..
-    do i=1, this%n_shear_stress
-       call bc_list_add(this%bclst_neumann, this%shear_stress(i)%neumann1)
-       call bc_list_add(this%bclst_neumann, this%shear_stress(i)%neumann2)
-!       call bc_list_add(this%bclst_vel, this%shear_stress(i)%dirichlet)
-    end do
+       deallocate(tau1)
+       deallocate(tau2)
+       call this%wm%wall_model%find_points()
+
+       ! Create list with just Neumann bcs, 2 from each shear stress bc
+       ! Not used right now.
+       call bc_list_init(this%bclst_neumann, this%n_shear_stress)
+
+       ! Populate the Neumann list, not used..
+       do i=1, this%n_shear_stress
+          call bc_list_add(this%bclst_neumann, this%shear_stress(i)%neumann1)
+          call bc_list_add(this%bclst_neumann, this%shear_stress(i)%neumann2)
+  !       call bc_list_add(this%bclst_vel, this%shear_stress(i)%dirichlet)
+       end do
+    end if
 
     ! Initialize velocity surface terms in pressure rhs
     call this%bc_prs_surface%init(this%dm_Xh)
@@ -775,7 +803,6 @@ contains
 
     end associate
 
-    call this%wm%wall_model%compute(t, tstep)
     call profiler_end_region
   end subroutine fluid_pnpn_step
 

@@ -52,10 +52,13 @@ module rough_log_law
      !> The log-law intercept
      real(kind=rp) :: B = 0.0_rp
      !> The roughness height
-     real(kind=rp) :: z0 = 0.1_rp
+     real(kind=rp) :: z0 = 0.0_rp
    contains
-     !> Constructor.
+     !> Constructor from JSON.
      procedure, pass(this) :: init => rough_log_law_init
+     !> Constructor.
+     procedure, pass(this) :: init_from_components => &
+       rough_log_law_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => rough_log_law_free
      !> Compute the wall shear stress.
@@ -66,7 +69,6 @@ contains
   !> Constructor
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
-  !! @param nu_name The name of the turbulent viscosity field.
   !! @param json A dictionary with parameters.
   subroutine rough_log_law_init(this, dofmap, coef, msk, facet, json)
     class(rough_log_law_t), intent(inout) :: this
@@ -78,10 +80,29 @@ contains
 
     call this%init_base(dofmap, coef, msk, facet)
 
-    ! Make RTS
-    this%kappa = 0.41
+    ! Will parse JSON here eventually
 
   end subroutine rough_log_law_init
+
+  subroutine rough_log_law_init_from_components(this, dofmap, coef, msk, facet,&
+                                                kappa, B, z0)
+    class(rough_log_law_t), intent(inout) :: this
+    type(dofmap_t), intent(in) :: dofmap
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: msk(:)
+    integer, intent(in) :: facet(:)
+    real(kind=rp), intent(in) :: kappa
+    real(kind=rp), intent(in) :: B
+    real(kind=rp), intent(in) :: z0
+
+
+    call this%init_base(dofmap, coef, msk, facet)
+
+    this%kappa = kappa
+    this%B = B
+    this%z0 = z0
+
+  end subroutine rough_log_law_init_from_components
 
   !> Destructor for the rough_log_law_t (base) class.
   subroutine rough_log_law_free(this)
