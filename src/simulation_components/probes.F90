@@ -178,7 +178,7 @@ contains
          case ('plane')
           call neko_error('Plane probes not implemented yet.')
          case ('circle')
-          call neko_error('Circle probes not implemented yet.')
+          call read_circle(this, json_point)
 
          case ('point_zone')
           call neko_error('Point zone probes not implemented yet.')
@@ -286,6 +286,86 @@ contains
 
     call this%add_points(point_list)
   end subroutine read_line
+
+  !> Construct a list of points from a circle.
+  !! @details The general structure of the circle is defined by a center point,
+  !! a radius and a normal to the plane it lies on. The circle is then
+  !! discretized into a number of points, based on the `amount` parameter.
+  !! The points are added clockwise starting from a chosen axis, which is
+  !! defined by the `axis` parameter.
+  !! @note The axis must be one of the following: `x`, `y`, or `z`.
+  !! @param[inout] this The probes object.
+  !! @param[inout] json The json file object.
+  subroutine read_circle(this, json)
+    class(probes_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+
+    real(kind=rp), dimension(:,:), allocatable :: point_list
+    real(kind=rp), dimension(:), allocatable :: center, normal
+    real(kind=rp) :: radius
+    real(kind=rp) :: angle
+    integer :: n_points, i
+    character(len=:), allocatable :: axis
+
+    real(kind=rp), dimension(3) :: zero_line, cross_line, temp
+    real(kind=rp) :: pi
+
+    ! Ensure only rank 0 reads the coordinates.
+    if (pe_rank .ne. 0) return
+    call json_get(json, "center", center)
+    call json_get(json, "normal", normal)
+    call json_get(json, "radius", radius)
+    call json_get(json, "amount", n_points)
+    call json_get(json, "axis", axis)
+
+    ! If either center or normal is not of length 3, error out
+    if (size(center) /= 3 .or. size(normal) /= 3) then
+       call neko_error('Invalid center or normal coordinates.')
+    end if
+    if (axis /= 'x' .and. axis /= 'y' .and. axis /= 'z') then
+       call neko_error('Invalid axis.')
+    end if
+    if (radius <= 0) then
+       call neko_error('Invalid radius.')
+    end if
+    if (n_points <= 0) then
+       call neko_error('Invalid number of points.')
+    end if
+
+    ! Normalize the normal vector
+    normal = normal / norm2(normal)
+
+    ! Set the zero line
+    if (axis .eq. 'x') zero_line = [1.0, 0.0, 0.0]
+    if (axis .eq. 'y') zero_line = [0.0, 1.0, 0.0]
+    if (axis .eq. 'z') zero_line = [0.0, 0.0, 1.0]
+
+    if (1.0_rp - dot_product(zero_line, normal) .le. 1e-6) then
+       call neko_error('Invalid axis and normal.')
+    end if
+
+    zero_line = zero_line - dot_product(zero_line, normal) * normal
+    zero_line = zero_line / norm2(zero_line)
+
+    cross_line(1) = zero_line(2) * normal(3) - zero_line(3) * normal(2)
+    cross_line(2) = zero_line(3) * normal(1) - zero_line(1) * normal(3)
+    cross_line(3) = zero_line(1) * normal(2) - zero_line(2) * normal(1)
+
+    ! Calculate the number of points
+    allocate(point_list(3, n_points))
+
+    pi = 4.0_rp * atan(1.0_rp)
+
+    ! Calculate the points
+    do i = 1, n_points
+       angle = 2.0_rp * pi * real(i - 1, kind=rp) / real(n_points, kind=rp)
+       temp = cos(angle) * zero_line + sin(angle) * cross_line
+
+       point_list(:, i) = center + radius * temp
+    end do
+
+    call this%add_points(point_list)
+  end subroutine read_circle
 
   ! ========================================================================== !
   ! Supporting routines
@@ -583,10 +663,9 @@ contains
     real(kind=rp), allocatable :: xyz(:,:)
     integer, intent(inout) :: n_local_probes, n_global_probes
     type(matrix_t) :: mat_in, mat_in2
-    integer :: ierr, n_lines
+    integer :: n_lines
 
-    if (pe_rank .eq. 0) n_lines = f%count_lines()
-    call MPI_Bcast(n_lines, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+    n_lines = f%count_lines()
 
     ! Update the number of probes
     n_global_probes = n_lines
