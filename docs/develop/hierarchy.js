@@ -497,6 +497,7 @@ var hierarchy =
     [ "source_term::source_term_free", "d6/d77/interfacesource__term_1_1source__term__free.html", null ],
     [ "source_term::source_term_init", "d5/d9f/interfacesource__term_1_1source__term__init.html", null ],
     [ "source_term::source_term_t", "d8/d03/structsource__term_1_1source__term__t.html", [
+      [ "boussinesq_source_term::boussinesq_source_term_t", "d1/d30/structboussinesq__source__term_1_1boussinesq__source__term__t.html", null ],
       [ "brinkman_source_term::brinkman_source_term_t", "dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html", null ],
       [ "const_source_term::const_source_term_t", "d9/db9/structconst__source__term_1_1const__source__term__t.html", null ],
       [ "fluid_user_source_term::fluid_user_source_term_t", "d6/def/structfluid__user__source__term_1_1fluid__user__source__term__t.html", null ],

@@ -17,5 +17,6 @@ var structlambda2_1_1lambda2__t =
     [ "temp2", "d6/db3/structlambda2_1_1lambda2__t.html#ad28f4cf3c5c6b99075bd9b5d6914297d", null ],
     [ "u", "d6/db3/structlambda2_1_1lambda2__t.html#a74bac06d3fc9b3a51b7a2372a4d0e248", null ],
     [ "v", "d6/db3/structlambda2_1_1lambda2__t.html#a68451a9041432f8e9ce62893852d9b5c", null ],
-    [ "w", "d6/db3/structlambda2_1_1lambda2__t.html#ad5deac14351ab6b70530471b13629391", null ]
+    [ "w", "d6/db3/structlambda2_1_1lambda2__t.html#ad5deac14351ab6b70530471b13629391", null ],
+    [ "writer", "d6/db3/structlambda2_1_1lambda2__t.html#abbe2f3d5962e0af6913ec19575fc6f79", null ]
 ];

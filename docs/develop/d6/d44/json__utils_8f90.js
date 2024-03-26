@@ -4,6 +4,7 @@ var json__utils_8f90 =
     [ "json_get_or_default", "d0/d70/interfacejson__utils_1_1json__get__or__default.html", "d0/d70/interfacejson__utils_1_1json__get__or__default" ],
     [ "json_extract_item", "d6/d44/json__utils_8f90.html#a404867bed8c9c4d90f419dfa5f7d3a0e", null ],
     [ "json_get_double", "d6/d44/json__utils_8f90.html#aa088520fcc25a630ff016d711ca7ae5c", null ],
+    [ "json_get_double_array", "d6/d44/json__utils_8f90.html#a82a81e3000fb38e87c7d4671e489507e", null ],
     [ "json_get_integer", "d6/d44/json__utils_8f90.html#afc0f4193d3552e4d619462768d49b438", null ],
     [ "json_get_integer_array", "d6/d44/json__utils_8f90.html#afcbd5244293075154e7db070bcbacdeb", null ],
     [ "json_get_logical", "d6/d44/json__utils_8f90.html#a221062190b7eb6d3c1ef705992237297", null ],

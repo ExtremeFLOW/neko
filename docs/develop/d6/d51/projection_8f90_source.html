@@ -719,62 +719,43 @@ $(document).ready(function(){initNavTree('d6/d51/projection_8f90_source.html','.
 <div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160; </div>
 <div class="line"><a name="l00626"></a><span class="lineno">  626</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#a6396f296d86ba145c3b94efba36735e0">cpu_proj_ortho</a></div>
 <div class="line"><a name="l00627"></a><span class="lineno">  627</span>&#160; </div>
-<div class="line"><a name="l00628"></a><span class="lineno"><a class="line" href="../../d3/d06/namespaceprojection.html#a139006438240384f6fc9d5b4c600648c">  628</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#a139006438240384f6fc9d5b4c600648c">givens_rotation</a>(a, b, c, s, r)</div>
-<div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: a, b, c, s, r</div>
-<div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160;<span class="keywordtype">    real</span>(kind=rp) ::  h, d</div>
-<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160; </div>
-<div class="line"><a name="l00632"></a><span class="lineno">  632</span>&#160;    <span class="keywordflow">if</span>(b .ne. 0.0_rp) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160;       h = hypot(a, b)</div>
-<div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;       d = 1.0_rp / h</div>
-<div class="line"><a name="l00635"></a><span class="lineno">  635</span>&#160;       c = abs(a) * d</div>
-<div class="line"><a name="l00636"></a><span class="lineno">  636</span>&#160;       s = sign(d, a) * b</div>
-<div class="line"><a name="l00637"></a><span class="lineno">  637</span>&#160;       r = sign(1.0_rp, a) * h</div>
-<div class="line"><a name="l00638"></a><span class="lineno">  638</span>&#160;    <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00639"></a><span class="lineno">  639</span>&#160;       c = 1.0_rp</div>
-<div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160;       s = 0.0_rp</div>
-<div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;       r = a</div>
-<div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160;<span class="keywordflow">    endif</span></div>
+<div class="line"><a name="l00628"></a><span class="lineno"><a class="line" href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">  628</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">print_proj_info</a>(this,string)</div>
+<div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d5/dcf/structprojection_1_1projection__t.html">projection_t</a>) :: this</div>
+<div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160;    <span class="keywordtype">character(len=*)</span> :: string</div>
+<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf</div>
+<div class="line"><a name="l00632"></a><span class="lineno">  632</span>&#160;    </div>
+<div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160;    <span class="keywordflow">if</span> (this%proj_m .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,A)&#39;</span>) <span class="stringliteral">&#39;Projection &#39;</span>, string</div>
+<div class="line"><a name="l00635"></a><span class="lineno">  635</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
+<div class="line"><a name="l00636"></a><span class="lineno">  636</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,A)&#39;</span>) <span class="stringliteral">&#39;Proj. vec.:&#39;</span>,<span class="stringliteral">&#39;   Orig. residual:&#39;</span></div>
+<div class="line"><a name="l00637"></a><span class="lineno">  637</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
+<div class="line"><a name="l00638"></a><span class="lineno">  638</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(I11,3x, E15.7,5x)&#39;</span>)  this%proj_m, this%proj_res</div>
+<div class="line"><a name="l00639"></a><span class="lineno">  639</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
+<div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160; </div>
+<div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">print_proj_info</a></div>
 <div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160; </div>
-<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;    <span class="keywordflow">return</span></div>
-<div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#a139006438240384f6fc9d5b4c600648c">givens_rotation</a></div>
-<div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160; </div>
-<div class="line"><a name="l00647"></a><span class="lineno"><a class="line" href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">  647</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">print_proj_info</a>(this,string)</div>
-<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d5/dcf/structprojection_1_1projection__t.html">projection_t</a>) :: this</div>
-<div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;    <span class="keywordtype">character(len=*)</span> :: string</div>
-<div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf</div>
+<div class="line"><a name="l00644"></a><span class="lineno"><a class="line" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">  644</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">bcknd_clear</a>(this, n)</div>
+<div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d5/dcf/structprojection_1_1projection__t.html">projection_t</a>) :: this</div>
+<div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160; </div>
+<div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;    this%m = 0</div>
+<div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;    this%proj_m = 0</div>
 <div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;    </div>
-<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;    <span class="keywordflow">if</span> (this%proj_m .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,A)&#39;</span>) <span class="stringliteral">&#39;Projection &#39;</span>, string</div>
-<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
-<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,A)&#39;</span>) <span class="stringliteral">&#39;Proj. vec.:&#39;</span>,<span class="stringliteral">&#39;   Orig. residual:&#39;</span></div>
-<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
-<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(I11,3x, E15.7,5x)&#39;</span>)  this%proj_m, this%proj_res</div>
-<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
-<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160; </div>
-<div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">print_proj_info</a></div>
-<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160; </div>
-<div class="line"><a name="l00663"></a><span class="lineno"><a class="line" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">  663</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">bcknd_clear</a>(this, n)</div>
-<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d5/dcf/structprojection_1_1projection__t.html">projection_t</a>) :: this</div>
-<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160; </div>
-<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;    this%m = 0</div>
-<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;    this%proj_m = 0</div>
-<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;    </div>
-<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;    <span class="keywordflow">do</span> i = 1, this%L</div>
-<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;          <span class="keyword">call </span>device_rzero(this%xx_d(i), n)</div>
-<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;          <span class="keyword">call </span>device_rzero(this%xx_d(i), n)</div>
-<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;       <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;          <span class="keyword">call </span>rzero(this%xx(1,i),n)</div>
-<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160;          <span class="keyword">call </span>rzero(this%bb(1,i),n)</div>
-<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160; </div>
-<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">bcknd_clear</a></div>
-<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160; </div>
-<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d3/d06/namespaceprojection.html">projection</a></div>
+<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;    <span class="keywordflow">do</span> i = 1, this%L</div>
+<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;          <span class="keyword">call </span>device_rzero(this%xx_d(i), n)</div>
+<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;          <span class="keyword">call </span>device_rzero(this%xx_d(i), n)</div>
+<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;       <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;          <span class="keyword">call </span>rzero(this%xx(1,i),n)</div>
+<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;          <span class="keyword">call </span>rzero(this%bb(1,i),n)</div>
+<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160; </div>
+<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">bcknd_clear</a></div>
+<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160; </div>
+<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d3/d06/namespaceprojection.html">projection</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00081">device.F90:81</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00057">device.F90:57</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00051">device.F90:51</a></div></div>
@@ -815,17 +796,16 @@ $(document).ready(function(){initNavTree('d6/d51/projection_8f90_source.html','.
 <div class="ttc" id="anamespaceprojection_html"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html">projection</a></div><div class="ttdoc">Project x onto X, the space of old solutions and back again.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00063">projection.f90:63</a></div></div>
 <div class="ttc" id="anamespaceprojection_html_a023ff9fc7cf5e43567c4414b4a30bdbc"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#a023ff9fc7cf5e43567c4414b4a30bdbc">projection::projection_init</a></div><div class="ttdeci">subroutine projection_init(this, n, L, activ_step)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00112">projection.f90:113</a></div></div>
 <div class="ttc" id="anamespaceprojection_html_a0e69123af0e0009083f2da33c8771fb8"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#a0e69123af0e0009083f2da33c8771fb8">projection::device_project_on</a></div><div class="ttdeci">subroutine device_project_on(this, b, coef, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00389">projection.f90:390</a></div></div>
-<div class="ttc" id="anamespaceprojection_html_a139006438240384f6fc9d5b4c600648c"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#a139006438240384f6fc9d5b4c600648c">projection::givens_rotation</a></div><div class="ttdeci">subroutine givens_rotation(a, b, c, s, r)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00628">projection.f90:629</a></div></div>
 <div class="ttc" id="anamespaceprojection_html_a18300fbf74a8032efc8ca91470868a6b"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#a18300fbf74a8032efc8ca91470868a6b">projection::projection_post_solving</a></div><div class="ttdeci">subroutine projection_post_solving(this, x, Ax, coef, bclst, gs_h, n, tstep, dt_controller)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00250">projection.f90:251</a></div></div>
 <div class="ttc" id="anamespaceprojection_html_a1b1f6be35bcc16036da6a95e6e5bd3eb"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#a1b1f6be35bcc16036da6a95e6e5bd3eb">projection::projection_free</a></div><div class="ttdeci">subroutine projection_free(this)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00178">projection.f90:179</a></div></div>
-<div class="ttc" id="anamespaceprojection_html_a1d059617b3b6ec1b9a0c4d4e6cf31df9"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">projection::bcknd_clear</a></div><div class="ttdeci">subroutine bcknd_clear(this, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00663">projection.f90:664</a></div></div>
+<div class="ttc" id="anamespaceprojection_html_a1d059617b3b6ec1b9a0c4d4e6cf31df9"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">projection::bcknd_clear</a></div><div class="ttdeci">subroutine bcknd_clear(this, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00644">projection.f90:645</a></div></div>
 <div class="ttc" id="anamespaceprojection_html_a25be6cf95eeacd177d57821fe46a5e18"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18">projection::bcknd_project_back</a></div><div class="ttdeci">subroutine bcknd_project_back(this, x, Ax, coef, bclst, gs_h, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00284">projection.f90:285</a></div></div>
 <div class="ttc" id="anamespaceprojection_html_a56c5a9d893225a3cb2d53d147736ea43"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#a56c5a9d893225a3cb2d53d147736ea43">projection::device_proj_ortho</a></div><div class="ttdeci">subroutine device_proj_ortho(this, xx_d, bb_d, w_d, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00461">projection.f90:462</a></div></div>
 <div class="ttc" id="anamespaceprojection_html_a6396f296d86ba145c3b94efba36735e0"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#a6396f296d86ba145c3b94efba36735e0">projection::cpu_proj_ortho</a></div><div class="ttdeci">subroutine cpu_proj_ortho(this, xx, bb, w, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00540">projection.f90:541</a></div></div>
 <div class="ttc" id="anamespaceprojection_html_ab9388020e6233dbfc903db3a50502bd6"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6">projection::bcknd_project_on</a></div><div class="ttdeci">subroutine bcknd_project_on(this, b, coef, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00270">projection.f90:271</a></div></div>
 <div class="ttc" id="anamespaceprojection_html_ac63a40c6adff939561cd8b6b8432d1e4"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#ac63a40c6adff939561cd8b6b8432d1e4">projection::cpu_project_on</a></div><div class="ttdeci">subroutine cpu_project_on(this, b, coef, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00332">projection.f90:333</a></div></div>
 <div class="ttc" id="anamespaceprojection_html_ad372047d3171781038c3bff566a5e8e0"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#ad372047d3171781038c3bff566a5e8e0">projection::projection_pre_solving</a></div><div class="ttdeci">subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, string)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00219">projection.f90:220</a></div></div>
-<div class="ttc" id="anamespaceprojection_html_afbb49138c663064e14453681e00610f1"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">projection::print_proj_info</a></div><div class="ttdeci">subroutine print_proj_info(this, string)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00647">projection.f90:648</a></div></div>
+<div class="ttc" id="anamespaceprojection_html_afbb49138c663064e14453681e00610f1"><div class="ttname"><a href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">projection::print_proj_info</a></div><div class="ttdeci">subroutine print_proj_info(this, string)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d51/projection_8f90_source.html#l00628">projection.f90:629</a></div></div>
 <div class="ttc" id="anamespacetime__step__controller_html"><div class="ttname"><a href="../../d3/dda/namespacetime__step__controller.html">time_step_controller</a></div><div class="ttdoc">Implements type time_step_controller.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/da8/time__step__controller_8f90_source.html#l00034">time_step_controller.f90:34</a></div></div>
 <div class="ttc" id="astructax__product_1_1ax__t_html"><div class="ttname"><a href="../../d3/d2c/structax__product_1_1ax__t.html">ax_product::ax_t</a></div><div class="ttdoc">Base type for a matrix-vector product providing .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dd6/ax_8f90_source.html#l00043">ax.f90:43</a></div></div>
 <div class="ttc" id="astructbc_1_1bc__list__t_html"><div class="ttname"><a href="../../d8/dd8/structbc_1_1bc__list__t.html">bc::bc_list_t</a></div><div class="ttdoc">A list of boundary conditions.</div><div class="ttdef"><b>Definition:</b> <a href="../../df/df6/bc_8f90_source.html#l00099">bc.f90:99</a></div></div>
@@ -839,7 +819,7 @@ $(document).ready(function(){initNavTree('d6/d51/projection_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d6/d51/projection_8f90.html">projection.f90</a></li>
-    <li class="footer">Generated on Mon Mar 25 2024 03:34:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Mar 26 2024 03:34:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

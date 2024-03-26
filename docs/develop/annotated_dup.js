@@ -55,6 +55,9 @@ var annotated_dup =
     [ "blasius", "de/da4/namespaceblasius.html", [
       [ "blasius_t", "d0/dca/structblasius_1_1blasius__t.html", "d0/dca/structblasius_1_1blasius__t" ]
     ] ],
+    [ "boussinesq_source_term", "d0/d10/namespaceboussinesq__source__term.html", [
+      [ "boussinesq_source_term_t", "d1/d30/structboussinesq__source__term_1_1boussinesq__source__term__t.html", "d1/d30/structboussinesq__source__term_1_1boussinesq__source__term__t" ]
+    ] ],
     [ "box_point_zone", "d0/d03/namespacebox__point__zone.html", [
       [ "box_point_zone_t", "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html", "d4/d0c/structbox__point__zone_1_1box__point__zone__t" ]
     ] ],

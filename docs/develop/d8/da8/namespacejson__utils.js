@@ -4,6 +4,7 @@ var namespacejson__utils =
     [ "json_get_or_default", "d0/d70/interfacejson__utils_1_1json__get__or__default.html", "d0/d70/interfacejson__utils_1_1json__get__or__default" ],
     [ "json_extract_item", "d8/da8/namespacejson__utils.html#a404867bed8c9c4d90f419dfa5f7d3a0e", null ],
     [ "json_get_double", "d8/da8/namespacejson__utils.html#aa088520fcc25a630ff016d711ca7ae5c", null ],
+    [ "json_get_double_array", "d8/da8/namespacejson__utils.html#a82a81e3000fb38e87c7d4671e489507e", null ],
     [ "json_get_integer", "d8/da8/namespacejson__utils.html#afc0f4193d3552e4d619462768d49b438", null ],
     [ "json_get_integer_array", "d8/da8/namespacejson__utils.html#afcbd5244293075154e7db070bcbacdeb", null ],
     [ "json_get_logical", "d8/da8/namespacejson__utils.html#a221062190b7eb6d3c1ef705992237297", null ],

@@ -131,6 +131,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a49cc7045db3b5af6399786dab6a3a475"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#a49cc7045db3b5af6399786dab6a3a475">json_get_real_array</a> (json, name, value)</td></tr>
 <tr class="memdesc:a49cc7045db3b5af6399786dab6a3a475"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a real array parameter by name or throws an error.  <a href="../../d8/da8/namespacejson__utils.html#a49cc7045db3b5af6399786dab6a3a475">More...</a><br /></td></tr>
 <tr class="separator:a49cc7045db3b5af6399786dab6a3a475"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82a81e3000fb38e87c7d4671e489507e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#a82a81e3000fb38e87c7d4671e489507e">json_get_double_array</a> (json, name, value)</td></tr>
+<tr class="memdesc:a82a81e3000fb38e87c7d4671e489507e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a real array parameter by name or throws an error.  <a href="../../d8/da8/namespacejson__utils.html#a82a81e3000fb38e87c7d4671e489507e">More...</a><br /></td></tr>
+<tr class="separator:a82a81e3000fb38e87c7d4671e489507e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcbd5244293075154e7db070bcbacdeb"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#afcbd5244293075154e7db070bcbacdeb">json_get_integer_array</a> (json, name, value)</td></tr>
 <tr class="memdesc:afcbd5244293075154e7db070bcbacdeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a integer array parameter by name or throws an error.  <a href="../../d8/da8/namespacejson__utils.html#afcbd5244293075154e7db070bcbacdeb">More...</a><br /></td></tr>
 <tr class="separator:afcbd5244293075154e7db070bcbacdeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -211,7 +214,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00346">346</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00363">363</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -275,6 +278,60 @@ Here is the caller graph for this function:</div>
 </dl>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+
+</div>
+</div>
+<a id="a82a81e3000fb38e87c7d4671e489507e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82a81e3000fb38e87c7d4671e489507e">&#9670;&nbsp;</a></span>json_get_double_array()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine json_utils::json_get_double_array </td>
+          <td>(</td>
+          <td class="paramtype">type(json_file), intent(inout)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), dimension(:), intent(out), allocatable&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves a real array parameter by name or throws an error. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -382,7 +439,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00184">184</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -490,7 +547,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00184">184</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00201">201</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -550,7 +607,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00266">266</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00283">283</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -610,7 +667,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00286">286</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00303">303</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -670,7 +727,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00306">306</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00323">323</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -730,7 +787,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00246">246</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00263">263</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -790,7 +847,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00326">326</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00343">343</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -872,7 +929,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:), intent(out), allocatable&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=sp), dimension(:), intent(out), allocatable&#160;</td>
           <td class="paramname"><em>value</em>&#160;</td>
         </tr>
         <tr>
@@ -1013,7 +1070,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00202">202</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00219">219</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -1023,7 +1080,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/da8/namespacejson__utils.html">json_utils</a></li>
-    <li class="footer">Generated on Mon Mar 25 2024 03:34:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Mar 26 2024 03:34:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

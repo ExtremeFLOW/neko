@@ -12,6 +12,7 @@ var aabb__tree_8f90 =
     [ "aabb_node_is_leaf", "d7/dee/aabb__tree_8f90.html#a85971897efd02ac2ece577ec50f5fe1a", null ],
     [ "aabb_node_is_valid", "d7/dee/aabb__tree_8f90.html#a143f111ba3b039a24a871c6c3453d5b0", null ],
     [ "aabb_node_less", "d7/dee/aabb__tree_8f90.html#ab0c71708b8ade5c9e65aca3598e91a49", null ],
+    [ "aabb_node_min_distance", "d7/dee/aabb__tree_8f90.html#a85bb0588af0fe408b35b3c96390ba533", null ],
     [ "aabb_tree_allocate_node", "d7/dee/aabb__tree_8f90.html#a6c321ee4f3bde1bf34f74e11c6e50621", null ],
     [ "aabb_tree_build_tree", "d7/dee/aabb__tree_8f90.html#a9436c192bfc12ea59cce3fd54e787b9c", null ],
     [ "aabb_tree_deallocate_node", "d7/dee/aabb__tree_8f90.html#a7c1ebfe1ce7d64f5facb3219e607599b", null ],

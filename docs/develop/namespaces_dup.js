@@ -16,6 +16,13 @@ var namespaces_dup =
     [ "bdf_time_scheme", "d4/db4/namespacebdf__time__scheme.html", "d4/db4/namespacebdf__time__scheme" ],
     [ "bicgstab", "dd/d2f/namespacebicgstab.html", "dd/d2f/namespacebicgstab" ],
     [ "blasius", "de/da4/namespaceblasius.html", "de/da4/namespaceblasius" ],
+    [ "boussinesq_source_term", "d0/d10/namespaceboussinesq__source__term.html", "d0/d10/namespaceboussinesq__source__term" ],
+    [ "boussinesq_source_term_cpu", "d3/d4a/namespaceboussinesq__source__term__cpu.html", [
+      [ "boussinesq_source_term_compute_cpu", "d3/d4a/namespaceboussinesq__source__term__cpu.html#a5ce59ca22e2af735737cc2044a472aa5", null ]
+    ] ],
+    [ "boussinesq_source_term_device", "dc/d0b/namespaceboussinesq__source__term__device.html", [
+      [ "boussinesq_source_term_compute_device", "dc/d0b/namespaceboussinesq__source__term__device.html#ab119b3913528cc79e3a5f7a3d2874ac1", null ]
+    ] ],
     [ "box_point_zone", "d0/d03/namespacebox__point__zone.html", "d0/d03/namespacebox__point__zone" ],
     [ "brinkman_source_term", "d0/d7b/namespacebrinkman__source__term.html", "d0/d7b/namespacebrinkman__source__term" ],
     [ "brinkman_source_term_cpu", "d8/d36/namespacebrinkman__source__term__cpu.html", [

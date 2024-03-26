@@ -10,6 +10,7 @@ var structaabb__tree_1_1aabb__node__t =
     [ "is_leaf", "df/d6d/structaabb__tree_1_1aabb__node__t.html#ad87fc355dff4fc4eec18515474100a47", null ],
     [ "is_valid", "df/d6d/structaabb__tree_1_1aabb__node__t.html#a91e1c31cabace19bf305aebe02a12727", null ],
     [ "less", "df/d6d/structaabb__tree_1_1aabb__node__t.html#a1ecb4f2fd837cabca763bc3ff1e4db08", null ],
+    [ "min_distance", "df/d6d/structaabb__tree_1_1aabb__node__t.html#a8cd1a86a54b709f308dc286a01a08d44", null ],
     [ "operator", "df/d6d/structaabb__tree_1_1aabb__node__t.html#a0881a653357e268e3e769d6361b842f3", null ],
     [ "operator", "df/d6d/structaabb__tree_1_1aabb__node__t.html#a4eb1544317ea89b42308c8e111061ace", null ],
     [ "aabb", "df/d6d/structaabb__tree_1_1aabb__node__t.html#ae738ff7a3575f787f2838434c75f43ab", null ],

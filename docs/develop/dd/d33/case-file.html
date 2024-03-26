@@ -242,8 +242,18 @@ Source terms</h2>
 <p>The following types are currently implemented.</p>
 <ol type="1">
 <li><code>constant</code>, constant forcing. Strength defined by the <code>values</code> array with 3 reals corresponding to the 3 components of the forcing.</li>
+<li><p class="startli"><code>boussinesq</code>, a source term introducing boyancy based on the Boussinesq approximation, \( \rho \beta (T - T_{ref} \cdot g) \). Here, \( rho \) is density, \( \beta \) the thermal expansion coefficient, \( g \) the gravity vector, and $T_{ref}$ a reference value of the scalar, typically temperature.</p>
+<p class="startli">Reads the following entries:</p><ul>
+<li><code>scalar_field</code>: The name of the scalar that drives the source term, defaults to "s".</li>
+<li><code>reference_value</code>: The reference value of the scalar.</li>
+<li><code>g</code>: The gravity vector.</li>
+<li><code>beta</code>: The thermal expansion coefficient, defaults to the inverse of <code>ref_value</code>.</li>
+</ul>
+</li>
 <li><code>user_pointwise</code>, the values are set inside the compiled user file, using the pointwise user file subroutine. Only works on CPUs!</li>
 <li><code>user_vector</code>, the values are set inside the compiled user file, using the non-pointwise user file subroutine. Should be used when running on the GPU.</li>
+</ol>
+<ol type="1">
 <li><code>brinkman</code>, Brinkman permeability forcing inside a pre-defined region.</li>
 </ol>
 <h3><a class="anchor" id="autotoc_md12"></a>
@@ -257,6 +267,11 @@ Brinkman</h3>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the indicator function is defined as 1 inside the point zone and 0 outside.</li>
 </ol>
 <p>Each object are added to a common indicator field by means of a point-wise max operator. This means that the indicator field will be the union of all the regions defined by the objects.</p>
+<p>To assist correct placement and scaling of objects from external sources, the meshes can be transformed using the <code>mesh_transform</code> object. The object can be used to apply a transformation to the boundary mesh. The following types are currently implemented.</p>
+<ol type="1">
+<li><code>none</code>, no transformation is applied.</li>
+<li><code>bounding_box</code>, the boundary mesh is transformed to fit inside a box defined by <code>box_min</code> and <code>box_max</code>. The box is defined by two vectors of 3 reals each. The <code>keep_aspect_ratio</code> keyword can be used to keep the aspect ratio of the boundary mesh.</li>
+</ol>
 <p>After the indicator field is computed, it is filtered using a filter type specified in the case file. The filter is used to smooth the indicator field before computing the Brinkman force. The following types are currently implemented.</p>
 <ol type="1">
 <li><code>none</code>, no filtering is applied.</li>
@@ -277,7 +292,15 @@ Brinkman</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>distance_transform.value</code>   </td><td class="markdownTableBodyNone">Values used to define the distance transform, such as cut-off distance for the step function.   </td><td class="markdownTableBodyNone">Real   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>filter.type</code>   </td><td class="markdownTableBodyNone">Type of filtering applied to the indicator field either globally or for the current object.   </td><td class="markdownTableBodyNone"><code>none</code>   </td><td class="markdownTableBodyNone"><code>none</code>   </td></tr>
+<td class="markdownTableBodyNone"><code>filter.type</code>   </td><td class="markdownTableBodyNone">Type of filtering applied to the indicator field either globally or for the current object.   </td><td class="markdownTableBodyNone"><code>none</code>   </td><td class="markdownTableBodyNone"><code>none</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>mesh_transform.type</code>   </td><td class="markdownTableBodyNone">Apply a transformation to the boundary mesh.   </td><td class="markdownTableBodyNone"><code>bounding_box</code>, <code>none</code>   </td><td class="markdownTableBodyNone"><code>none</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>mesh_transform.box_min</code>   </td><td class="markdownTableBodyNone">Lower left front corner of the box to fit inside.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>mesh_transform.box_max</code>   </td><td class="markdownTableBodyNone">Upper right back corner of the box to fit inside.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>mesh_transform.keep_aspect_ratio</code>   </td><td class="markdownTableBodyNone">Keep the aspect ratio of the boundary mesh.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>   </td></tr>
 </table>
 <p>Example of a Brinkman source term where a boundary mesh and a point zone are combined to define the resistance in the fluid domain. The indicator field for the boundary mesh is computed using a step function with a cut-off distance of $0.1$. The indicator field for the point zone is not filtered.</p>
 <div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
@@ -468,7 +491,7 @@ Point zones</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Mon Mar 25 2024 03:34:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Mar 26 2024 03:34:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

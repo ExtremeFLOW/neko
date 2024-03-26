@@ -138,66 +138,65 @@ $(document).ready(function(){initNavTree('da/d4b/tri__mesh_8f90_source.html','..
 <div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a22a0915eb1736afd79a9edd0c2693829">   43</a></span>&#160;     <span class="keywordtype">type</span>(<a class="code" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">allocatable</span> :: points(:)</div>
 <div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html#acd8f6aeaa61d83a0685470cb1aadf0ae">   44</a></span>&#160;     <span class="keywordtype">integer</span> :: nelv</div>
 <div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a49d603c8b2d00ef627a748960de95159">   45</a></span>&#160;     <span class="keywordtype">integer</span> :: mpts</div>
-<div class="line"><a name="l00046"></a><span class="lineno"><a class="line" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a186b43e2321cbb1d2e7fc685228de2ab">   46</a></span>&#160;     <span class="keywordtype">integer</span>, <span class="keywordtype">private</span> :: melv</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;   <span class="keyword">contains</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a03be4d11721049168cdfa2c8a883d6a9">   48</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(this) :: init =&gt; <a class="code" href="../../df/d32/namespacetri__mesh.html#a1d579ea9f7616b48cec853839efb63a2">tri_mesh_init</a></div>
-<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a9abaece056fc44eb2b847053aa6dde48">   49</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; <a class="code" href="../../df/d32/namespacetri__mesh.html#a97536f2ea01bad00d5087d9e5285ae6a">tri_mesh_free</a></div>
-<div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html#aa4dc450136ee533a2a11bbe751e85d4f">   50</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(this) :: add_element =&gt; <a class="code" href="../../df/d32/namespacetri__mesh.html#a68333927b95b8f4895eecde706e7f6a1">tri_mesh_add_element</a></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="keyword">end type </span><a class="code" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html">tri_mesh_t</a></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keyword">contains</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
-<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="../../df/d32/namespacetri__mesh.html#a1d579ea9f7616b48cec853839efb63a2">   56</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a1d579ea9f7616b48cec853839efb63a2">tri_mesh_init</a>(this, nelv)</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html">tri_mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nelv</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keyword">call </span>this%free()</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    this%nelv = nelv</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keyword">allocate</span>(this%el(this%nelv))</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keyword">allocate</span>(this%points(nelv * <a class="code" href="../../df/d69/namespacetri.html#a227fb3d93cb7cc45b02a4b700fcc6f07">neko_tri_npts</a>))</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    this%mpts = 0</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    this%melv = 0</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a1d579ea9f7616b48cec853839efb63a2">tri_mesh_init</a></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
-<div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="../../df/d32/namespacetri__mesh.html#a97536f2ea01bad00d5087d9e5285ae6a">   72</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a97536f2ea01bad00d5087d9e5285ae6a">tri_mesh_free</a>(this)</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html">tri_mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%el)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;       <span class="keyword">deallocate</span>(this%el)</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%points)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;       <span class="keyword">deallocate</span>(this%points)</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a97536f2ea01bad00d5087d9e5285ae6a">tri_mesh_free</a></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno"><a class="line" href="../../df/d32/namespacetri__mesh.html#a68333927b95b8f4895eecde706e7f6a1">   86</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a68333927b95b8f4895eecde706e7f6a1">tri_mesh_add_element</a>(this, p1, p2, p3)</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html">tri_mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(inout)</span> :: p1, p2, p3</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    this%points(this%mpts + 1) = p1</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    this%points(this%mpts + 2) = p2</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    this%points(this%mpts + 3) = p3</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; </div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    this%melv = this%melv + 1</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keyword">call </span>this%el(this%melv)%init(this%melv, &amp;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;         this%points(this%mpts + 1), &amp;</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;         this%points(this%mpts + 2), &amp;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;         this%points(this%mpts + 3))</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    this%mpts = this%mpts + 3</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160; </div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a68333927b95b8f4895eecde706e7f6a1">tri_mesh_add_element</a></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160; </div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="keyword">end module </span><a class="code" href="../../df/d32/namespacetri__mesh.html">tri_mesh</a></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;   <span class="keyword">contains</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a03be4d11721049168cdfa2c8a883d6a9">   47</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(this) :: init =&gt; <a class="code" href="../../df/d32/namespacetri__mesh.html#a1d579ea9f7616b48cec853839efb63a2">tri_mesh_init</a></div>
+<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a9abaece056fc44eb2b847053aa6dde48">   48</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; <a class="code" href="../../df/d32/namespacetri__mesh.html#a97536f2ea01bad00d5087d9e5285ae6a">tri_mesh_free</a></div>
+<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html#aa4dc450136ee533a2a11bbe751e85d4f">   49</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(this) :: add_element =&gt; <a class="code" href="../../df/d32/namespacetri__mesh.html#a68333927b95b8f4895eecde706e7f6a1">tri_mesh_add_element</a></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="keyword">end type </span><a class="code" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html">tri_mesh_t</a></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">contains</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
+<div class="line"><a name="l00055"></a><span class="lineno"><a class="line" href="../../df/d32/namespacetri__mesh.html#a1d579ea9f7616b48cec853839efb63a2">   55</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a1d579ea9f7616b48cec853839efb63a2">tri_mesh_init</a>(this, nelv)</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html">tri_mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nelv</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keyword">call </span>this%free()</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    this%nelv = nelv</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keyword">allocate</span>(this%el(this%nelv))</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keyword">allocate</span>(this%points(nelv * <a class="code" href="../../df/d69/namespacetri.html#a227fb3d93cb7cc45b02a4b700fcc6f07">neko_tri_npts</a>))</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    this%mpts = 0</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    this%nelv = 0</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a1d579ea9f7616b48cec853839efb63a2">tri_mesh_init</a></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
+<div class="line"><a name="l00071"></a><span class="lineno"><a class="line" href="../../df/d32/namespacetri__mesh.html#a97536f2ea01bad00d5087d9e5285ae6a">   71</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a97536f2ea01bad00d5087d9e5285ae6a">tri_mesh_free</a>(this)</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html">tri_mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%el)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;       <span class="keyword">deallocate</span>(this%el)</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%points)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;       <span class="keyword">deallocate</span>(this%points)</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a97536f2ea01bad00d5087d9e5285ae6a">tri_mesh_free</a></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
+<div class="line"><a name="l00085"></a><span class="lineno"><a class="line" href="../../df/d32/namespacetri__mesh.html#a68333927b95b8f4895eecde706e7f6a1">   85</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a68333927b95b8f4895eecde706e7f6a1">tri_mesh_add_element</a>(this, p1, p2, p3)</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d2/dd7/structtri__mesh_1_1tri__mesh__t.html">tri_mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(inout)</span> :: p1, p2, p3</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    this%points(this%mpts + 1) = p1</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    this%points(this%mpts + 2) = p2</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    this%points(this%mpts + 3) = p3</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    this%nelv = this%nelv + 1</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keyword">call </span>this%el(this%nelv)%init(this%nelv, &amp;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;         this%points(this%mpts + 1), &amp;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;         this%points(this%mpts + 2), &amp;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;         this%points(this%mpts + 3))</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    this%mpts = this%mpts + 3</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../df/d32/namespacetri__mesh.html#a68333927b95b8f4895eecde706e7f6a1">tri_mesh_add_element</a></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160; </div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="keyword">end module </span><a class="code" href="../../df/d32/namespacetri__mesh.html">tri_mesh</a></div>
 <div class="ttc" id="anamespacepoint_html"><div class="ttname"><a href="../../d8/dbc/namespacepoint.html">point</a></div><div class="ttdoc">Implements a point.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/dc5/point_8f90_source.html#l00035">point.f90:35</a></div></div>
 <div class="ttc" id="anamespacetri__mesh_html"><div class="ttname"><a href="../../df/d32/namespacetri__mesh.html">tri_mesh</a></div><div class="ttdoc">Defines a triangular surface mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d4b/tri__mesh_8f90_source.html#l00035">tri_mesh.f90:35</a></div></div>
-<div class="ttc" id="anamespacetri__mesh_html_a1d579ea9f7616b48cec853839efb63a2"><div class="ttname"><a href="../../df/d32/namespacetri__mesh.html#a1d579ea9f7616b48cec853839efb63a2">tri_mesh::tri_mesh_init</a></div><div class="ttdeci">subroutine tri_mesh_init(this, nelv)</div><div class="ttdoc">Initialise a triangular surface mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d4b/tri__mesh_8f90_source.html#l00056">tri_mesh.f90:57</a></div></div>
-<div class="ttc" id="anamespacetri__mesh_html_a68333927b95b8f4895eecde706e7f6a1"><div class="ttname"><a href="../../df/d32/namespacetri__mesh.html#a68333927b95b8f4895eecde706e7f6a1">tri_mesh::tri_mesh_add_element</a></div><div class="ttdeci">subroutine tri_mesh_add_element(this, p1, p2, p3)</div><div class="ttdoc">Add an element to a mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d4b/tri__mesh_8f90_source.html#l00086">tri_mesh.f90:87</a></div></div>
-<div class="ttc" id="anamespacetri__mesh_html_a97536f2ea01bad00d5087d9e5285ae6a"><div class="ttname"><a href="../../df/d32/namespacetri__mesh.html#a97536f2ea01bad00d5087d9e5285ae6a">tri_mesh::tri_mesh_free</a></div><div class="ttdeci">subroutine tri_mesh_free(this)</div><div class="ttdoc">Deallocate a triangular surface mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d4b/tri__mesh_8f90_source.html#l00072">tri_mesh.f90:73</a></div></div>
+<div class="ttc" id="anamespacetri__mesh_html_a1d579ea9f7616b48cec853839efb63a2"><div class="ttname"><a href="../../df/d32/namespacetri__mesh.html#a1d579ea9f7616b48cec853839efb63a2">tri_mesh::tri_mesh_init</a></div><div class="ttdeci">subroutine tri_mesh_init(this, nelv)</div><div class="ttdoc">Initialise a triangular surface mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d4b/tri__mesh_8f90_source.html#l00055">tri_mesh.f90:56</a></div></div>
+<div class="ttc" id="anamespacetri__mesh_html_a68333927b95b8f4895eecde706e7f6a1"><div class="ttname"><a href="../../df/d32/namespacetri__mesh.html#a68333927b95b8f4895eecde706e7f6a1">tri_mesh::tri_mesh_add_element</a></div><div class="ttdeci">subroutine tri_mesh_add_element(this, p1, p2, p3)</div><div class="ttdoc">Add an element to a mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d4b/tri__mesh_8f90_source.html#l00085">tri_mesh.f90:86</a></div></div>
+<div class="ttc" id="anamespacetri__mesh_html_a97536f2ea01bad00d5087d9e5285ae6a"><div class="ttname"><a href="../../df/d32/namespacetri__mesh.html#a97536f2ea01bad00d5087d9e5285ae6a">tri_mesh::tri_mesh_free</a></div><div class="ttdeci">subroutine tri_mesh_free(this)</div><div class="ttdoc">Deallocate a triangular surface mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d4b/tri__mesh_8f90_source.html#l00071">tri_mesh.f90:72</a></div></div>
 <div class="ttc" id="anamespacetri_html"><div class="ttname"><a href="../../df/d69/namespacetri.html">tri</a></div><div class="ttdoc">Defines a triangular element.</div><div class="ttdef"><b>Definition:</b> <a href="../../d7/d6a/tri_8f90_source.html#l00034">tri.f90:34</a></div></div>
 <div class="ttc" id="anamespacetri_html_a227fb3d93cb7cc45b02a4b700fcc6f07"><div class="ttname"><a href="../../df/d69/namespacetri.html#a227fb3d93cb7cc45b02a4b700fcc6f07">tri::neko_tri_npts</a></div><div class="ttdeci">integer, parameter, public neko_tri_npts</div><div class="ttdoc">Number of points.</div><div class="ttdef"><b>Definition:</b> <a href="../../d7/d6a/tri_8f90_source.html#l00042">tri.f90:42</a></div></div>
 <div class="ttc" id="astructpoint_1_1point__t_html"><div class="ttname"><a href="../../db/d6f/structpoint_1_1point__t.html">point::point_t</a></div><div class="ttdoc">A point in  with coordinates .</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/dc5/point_8f90_source.html#l00043">point.f90:43</a></div></div>
@@ -209,7 +208,7 @@ $(document).ready(function(){initNavTree('da/d4b/tri__mesh_8f90_source.html','..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../da/d4b/tri__mesh_8f90.html">tri_mesh.f90</a></li>
-    <li class="footer">Generated on Mon Mar 25 2024 03:34:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Mar 26 2024 03:34:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

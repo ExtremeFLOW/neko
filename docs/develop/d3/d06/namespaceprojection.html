@@ -129,8 +129,6 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:a56c5a9d893225a3cb2d53d147736ea43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6396f296d86ba145c3b94efba36735e0"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a6396f296d86ba145c3b94efba36735e0">cpu_proj_ortho</a> (this, xx, bb, w, n)</td></tr>
 <tr class="separator:a6396f296d86ba145c3b94efba36735e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a139006438240384f6fc9d5b4c600648c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a139006438240384f6fc9d5b4c600648c">givens_rotation</a> (a, b, c, s, r)</td></tr>
-<tr class="separator:a139006438240384f6fc9d5b4c600648c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbb49138c663064e14453681e00610f1"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#afbb49138c663064e14453681e00610f1">print_proj_info</a> (this, string)</td></tr>
 <tr class="separator:afbb49138c663064e14453681e00610f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d059617b3b6ec1b9a0c4d4e6cf31df9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">bcknd_clear</a> (this, n)</td></tr>
@@ -174,7 +172,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00663">663</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00644">644</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 
 </div>
 </div>
@@ -596,62 +594,6 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="a139006438240384f6fc9d5b4c600648c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a139006438240384f6fc9d5b4c600648c">&#9670;&nbsp;</a></span>givens_rotation()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">subroutine projection::givens_rotation </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(inout)&#160;</td>
-          <td class="paramname"><em>a</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(inout)&#160;</td>
-          <td class="paramname"><em>b</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(inout)&#160;</td>
-          <td class="paramname"><em>c</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(inout)&#160;</td>
-          <td class="paramname"><em>s</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(inout)&#160;</td>
-          <td class="paramname"><em>r</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00628">628</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
-
-</div>
-</div>
 <a id="afbb49138c663064e14453681e00610f1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afbb49138c663064e14453681e00610f1">&#9670;&nbsp;</a></span>print_proj_info()</h2>
 
@@ -686,7 +628,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00647">647</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d51/projection_8f90_source.html#l00628">628</a> of file <a class="el" href="../../d6/d51/projection_8f90_source.html">projection.f90</a>.</p>
 
 </div>
 </div>
@@ -936,7 +878,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d06/namespaceprojection.html">projection</a></li>
-    <li class="footer">Generated on Mon Mar 25 2024 03:34:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Mar 26 2024 03:34:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

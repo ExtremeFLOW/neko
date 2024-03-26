@@ -1,6 +1,10 @@
 <map id="aabb::get_aabb" name="aabb::get_aabb">
-<area shape="rect" id="node1" title="Construct the aabb of a predefined object." alt="" coords="213,78,336,105"/>
-<area shape="rect" id="node2" href="$de/dbe/namespaceaabb__tree.html#a9436c192bfc12ea59cce3fd54e787b9c" title="Builds the tree." alt="" coords="5,5,165,47"/>
-<area shape="rect" id="node3" href="$de/dbe/namespaceaabb__tree.html#a4712a2a8811238d8662927d80039af0d" title="Inserts an object into the tree." alt="" coords="5,71,165,112"/>
-<area shape="rect" id="node4" href="$de/dbe/namespaceaabb__tree.html#a91bbc6b82fa750c901f9aee8627ab9c0" title="Queries the tree for overlapping objects." alt="" coords="5,136,165,177"/>
+<area shape="rect" id="node1" title="Construct the aabb of a predefined object." alt="" coords="244,227,367,254"/>
+<area shape="rect" id="node2" href="$de/dbe/namespaceaabb__tree.html#a9436c192bfc12ea59cce3fd54e787b9c" title="Builds the tree." alt="" coords="21,5,181,47"/>
+<area shape="rect" id="node3" href="$de/dbe/namespaceaabb__tree.html#a4712a2a8811238d8662927d80039af0d" title="Inserts an object into the tree." alt="" coords="21,71,181,112"/>
+<area shape="rect" id="node4" href="$de/dbe/namespaceaabb__tree.html#a91bbc6b82fa750c901f9aee8627ab9c0" title="Queries the tree for overlapping objects." alt="" coords="21,136,181,177"/>
+<area shape="rect" id="node5" href="$d5/de2/namespaceaabb.html#a7b35ee1d1158d03311f46930ee69b2de" title="Get the aabb of a mesh." alt="" coords="18,202,183,229"/>
+<area shape="rect" id="node6" href="$d5/de2/namespaceaabb.html#abd0ecde4cac4aba5d3646a3319cb32e6" title="Get the aabb of a tetrahedral mesh." alt="" coords="5,253,196,279"/>
+<area shape="rect" id="node7" href="$d5/de2/namespaceaabb.html#a6a76082373d4b84a0fb3f820a3203954" title="Get the aabb of a triangular mesh." alt="" coords="7,303,194,330"/>
+<area shape="rect" id="node8" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="15,355,187,396"/>
 </map>

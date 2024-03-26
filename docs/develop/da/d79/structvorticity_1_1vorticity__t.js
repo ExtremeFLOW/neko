@@ -14,11 +14,11 @@ var structvorticity_1_1vorticity__t =
     [ "omega_y", "da/d79/structvorticity_1_1vorticity__t.html#a66d77b17ae3deb5c92cd896a3b37d282", null ],
     [ "omega_z", "da/d79/structvorticity_1_1vorticity__t.html#a9157b2a3f5504f7bc881ec068390fcb1", null ],
     [ "order", "da/d79/structvorticity_1_1vorticity__t.html#a94c0ad573141501bb354fd8c3f93a830", null ],
-    [ "output", "da/d79/structvorticity_1_1vorticity__t.html#a756dd4a820d87ed4ab8301bd1b7cb7c8", null ],
     [ "output_controller", "da/d79/structvorticity_1_1vorticity__t.html#acc0e9937091f7dbbb6bc1e1c8b0b2c9f", null ],
     [ "temp1", "da/d79/structvorticity_1_1vorticity__t.html#a8047818352c84ce964c279bb6fe451d3", null ],
     [ "temp2", "da/d79/structvorticity_1_1vorticity__t.html#acd8ca83d8b5da1322aff1a7c9ecbbbb8", null ],
     [ "u", "da/d79/structvorticity_1_1vorticity__t.html#af067317f5f38f59949729b5fc95b44fb", null ],
     [ "v", "da/d79/structvorticity_1_1vorticity__t.html#a013c5d78b052103f02189dc9185df3f4", null ],
-    [ "w", "da/d79/structvorticity_1_1vorticity__t.html#a00e8518a42834eeda7d100d638d5e03e", null ]
+    [ "w", "da/d79/structvorticity_1_1vorticity__t.html#a00e8518a42834eeda7d100d638d5e03e", null ],
+    [ "writer", "da/d79/structvorticity_1_1vorticity__t.html#a0ba834744b88888842db056a4864a8ff", null ]
 ];
