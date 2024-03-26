@@ -119,7 +119,7 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: output_file
     character(len=:), allocatable :: input_file
-    integer :: i
+    integer :: i, ierr
 
     ! JSON variables
     character(len=:), allocatable :: point_type
@@ -187,6 +187,9 @@ contains
           call neko_error('Unknown region type ' // point_type)
        end select
     end do
+
+    call mpi_allreduce(this%n_local_probes, this%n_global_probes, 1, &
+                       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
     call this%init_from_attributes(case%fluid%dm_Xh, output_file)
@@ -384,9 +387,6 @@ contains
     n_old = this%n_local_probes
     n_new = size(new_points, 2)
 
-    ! Gather the total number of new points
-    call mpi_allreduce(n_new, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
-
     ! Move current points to a temporary array
     if (allocated(this%xyz)) then
        call move_alloc(this%xyz, temp)
@@ -400,7 +400,6 @@ contains
     this%xyz(:, n_old+1:n_old+n_new) = new_points
 
     this%n_local_probes = this%n_local_probes + n_new
-    this%n_global_probes = this%n_global_probes + n_global
   end subroutine add_points
 
   ! ========================================================================== !
