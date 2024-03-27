@@ -54,7 +54,7 @@ module scalar_scheme
   use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
                  bc_list_apply_scalar, bc_list_add
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE
