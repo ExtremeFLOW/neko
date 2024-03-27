@@ -35,7 +35,7 @@ module field_dirichlet_vector
   use num_types, only: rp
   use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
-  use bc, only: bc_list_t
+  use bc, only: bc_list_t, bc_t
   use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
@@ -50,7 +50,7 @@ module field_dirichlet_vector
   
   !> Extension of the user defined dirichlet condition `field_dirichlet`
   ! for the application on a vector field.
-  type, public, extends(dirichlet_t) :: field_dirichlet_vector_t
+  type, public, extends(bc_t) :: field_dirichlet_vector_t
      type(field_dirichlet_t) :: field_dirichlet_u
      type(field_dirichlet_t) :: field_dirichlet_v
      type(field_dirichlet_t) :: field_dirichlet_w

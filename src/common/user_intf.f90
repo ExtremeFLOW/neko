@@ -41,7 +41,7 @@ module user_intf
   use mesh
   use usr_inflow
   use usr_scalar
-  use field_dirichlet
+  use field_dirichlet, only: field_dirichlet_update
   use num_types
   use json_module, only : json_file
   use utils, only : neko_error,  neko_warning
@@ -338,12 +338,13 @@ contains
   end subroutine dummy_user_final_no_modules
 
   subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc_list, &
-       coef, t, tstep)
+       coef, t, tstep, which_solver)
     type(field_list_t), intent(inout) :: dirichlet_field_list
     type(bc_list_t), intent(inout) :: dirichlet_bc_list
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    character(len=6), intent(in) :: which_solver
   end subroutine dirichlet_do_nothing
   
   subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&

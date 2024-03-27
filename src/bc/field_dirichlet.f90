@@ -35,7 +35,7 @@ module field_dirichlet
   use num_types, only: rp
   use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
-  use bc, only: bc_list_t
+  use bc, only: bc_list_t, bc_t
   use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
@@ -51,7 +51,7 @@ module field_dirichlet
   !! Would be neat to add another class that contains all three 
   !! dirichlet bcs for the velocity, this bc would then implement
   !! apply_vector.
-  type, public, extends(dirichlet_t) :: field_dirichlet_t
+  type, public, extends(bc_t) :: field_dirichlet_t
      type(field_t) :: field_bc
    contains
      !> Constructor.
@@ -72,8 +72,9 @@ module field_dirichlet
   !! @param coef Coef object.
   !! @param t Current time.
   !! @param tstep Current time step.
+  !! @param which_solver Indicates wether the fields provided come from "fluid" or "scalar".
   abstract interface
-     subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list, coef, t, tstep)
+     subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list, coef, t, tstep, which_solver)
        import rp
        import field_list_t
        import bc_list_t
@@ -83,6 +84,7 @@ module field_dirichlet
        type(coef_t), intent(inout) :: coef
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
+       character(len=*), intent(in) :: which_solver
      end subroutine field_dirichlet_update
   end interface
 
