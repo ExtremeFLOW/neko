@@ -55,7 +55,7 @@ module fluid_scheme
   use dong_outflow, only : dong_outflow_t
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
-  use field_dirichlet, only : field_dirichlet_t
+  use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
   use field_dirichlet_vector, only: field_dirichlet_vector_t
   use krylov_fctry
   use precon_fctry
@@ -107,8 +107,15 @@ module fluid_scheme
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
-     type(field_dirichlet_vector_t) :: bc_field_vel   !< Dirichlet pressure condition
-     type(field_dirichlet_t) :: bc_field_prs   !< Dirichlet pressure condition
+
+     ! Attributes for field dirichlet BCs
+     type(field_dirichlet_vector_t) :: bc_field_vel   !< Field Dirichlet velocity condition
+     type(field_dirichlet_t) :: bc_field_prs   !< Field Dirichlet pressure condition
+     procedure(field_dirichlet_update), nopass, pointer :: dirichlet_update_ &
+          => null() !< Pointer to user_dirichlet_update to be called in fluid_scheme_step
+     type(bc_list_t) :: field_dirichlet_bcs       !< List of BC objects to pass to user_dirichlet_update
+     type(field_list_t) :: field_dirichlet_fields !< List of fields to pass to user_dirichlet_update
+
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
@@ -129,7 +136,7 @@ module fluid_scheme
      real(kind=rp), pointer :: rho => null()
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
-     character(len=20), allocatable :: bc_labels(:)
+     character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -198,7 +205,6 @@ module fluid_scheme
 
      end subroutine fluid_scheme_restart_intrf
   end interface
-
 
 contains
 
@@ -393,7 +399,7 @@ contains
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
 
-    ! Setup field dirichlet bc for u-velocity
+    ! Setup field dirichlet bc for v-velocity
     call this%bc_field_vel%field_dirichlet_u%init(this%dm_Xh)
     call this%bc_field_vel%field_dirichlet_u%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_u', this%bc_labels)
@@ -423,8 +429,43 @@ contains
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_w%init_field('d_vel_w')
 
+    ! Setup our global field dirichlet bc
+    call this%bc_field_vel%init(this%dm_Xh)
+    call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
+                        'd_vel_u', this%bc_labels)
+    call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
+                        'd_vel_v', this%bc_labels)
+    call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
+                        'd_vel_w', this%bc_labels)
+    call this%bc_field_vel%finalize()
+
     ! Add the field bc to velocity bcs
     call bc_list_add(this%bclst_vel, this%bc_field_vel)
+
+    !
+    ! Associate our field dirichlet update to the user one.
+    !
+    this%dirichlet_update_ => user%user_dirichlet_update
+
+    !
+    ! Initialize field list and bc list for user_dirichlet_update
+    !
+    allocate(this%field_dirichlet_fields%fields(4))
+
+    this%field_dirichlet_fields%fields(1)%f => &
+         this%bc_field_vel%field_dirichlet_u%field_bc
+    this%field_dirichlet_fields%fields(2)%f => &
+         this%bc_field_vel%field_dirichlet_v%field_bc
+    this%field_dirichlet_fields%fields(3)%f => &
+         this%bc_field_vel%field_dirichlet_w%field_bc
+    this%field_dirichlet_fields%fields(4)%f => &
+         this%bc_field_prs%field_bc
+
+    call bc_list_init(this%field_dirichlet_bcs, size=4)
+    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_u)
+    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_v)
+    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_w)
+    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_prs)
 
     !
     ! Check if we need to output boundaries
@@ -689,13 +730,21 @@ contains
     call this%bc_wall%free()
     call this%bc_sym%free()
 
+    !
+    ! Free everything related to field_dirichlet BCs
+    !
     call this%bc_field_prs%field_bc%free()
     call this%bc_field_prs%free()
-
     call this%bc_field_vel%field_dirichlet_u%field_bc%free()
     call this%bc_field_vel%field_dirichlet_v%field_bc%free()
     call this%bc_field_vel%field_dirichlet_w%field_bc%free()
     call this%bc_field_vel%free()
+
+    call this%field_dirichlet_fields%free()
+    call bc_list_free(this%field_dirichlet_bcs)
+    if (associated(this%dirichlet_update_)) then
+       this%dirichlet_update_ => null()
+    end if
 
     call this%Xh%free()
 

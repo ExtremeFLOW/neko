@@ -35,7 +35,6 @@ module case
   use num_types
   use fluid_fctry
   use fluid_output
-  use bc, only: bc_list_t, bc_list_init, bc_list_add
   use chkp_output
   use mean_sqr_flow_output
   use mean_flow_output
@@ -82,8 +81,6 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar 
-     type(field_list_t) :: dirichlet_bc_field_list
-     type(bc_list_t) :: dirichlet_bc_bc_list
      type(material_properties_t):: material_properties
   end type case_t
 
@@ -302,40 +299,6 @@ contains
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
     end select
-
-
-    !
-    ! Add dirichlet BCs to the case object
-    !
-    ! First add the list of fields
-    if (scalar) then
-       allocate(C%dirichlet_bc_field_list%fields(5))
-    else
-       allocate(C%dirichlet_bc_field_list%fields(4))
-    end if
-
-    C%dirichlet_bc_field_list%fields(1)%f => &
-         C%fluid%bc_field_vel%field_dirichlet_u%field_bc
-    C%dirichlet_bc_field_list%fields(2)%f => &
-         C%fluid%bc_field_vel%field_dirichlet_v%field_bc
-    C%dirichlet_bc_field_list%fields(3)%f => &
-         C%fluid%bc_field_vel%field_dirichlet_w%field_bc
-    C%dirichlet_bc_field_list%fields(4)%f => C%fluid%bc_field_prs%field_bc
-    if (scalar) C%dirichlet_bc_field_list%fields(5)%f => C%scalar%field_dir_bc%field_bc
-
-    ! And then add the list of BCs (pass it down to the user so they can access
-    ! the bc mask)
-    if (scalar) then
-       call bc_list_init(C%dirichlet_bc_bc_list, size=5)
-    else
-       call bc_list_init(C%dirichlet_bc_bc_list, size=4)
-    end if
-
-    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_vel%field_dirichlet_u)
-    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_vel%field_dirichlet_v)
-    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_vel%field_dirichlet_w)
-    call bc_list_add(C%dirichlet_bc_bc_list, C%fluid%bc_field_prs)
-    if (scalar) call bc_list_add(C%dirichlet_bc_bc_list, C%scalar%field_dir_bc)
 
     !
     ! Validate that the case is properly setup for time-stepping
