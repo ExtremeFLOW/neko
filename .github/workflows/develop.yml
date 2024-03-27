@@ -236,7 +236,6 @@ jobs:
             source /opt/intel/oneapi/setvars.sh
             sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
             export PATH=/opt/intel/oneapi/compiler/2024.1/bin:${PATH}
-            ls /opt/intel/oneapi/compiler/latest
             printenv >> $GITHUB_ENV
     env:
       CC: icc
