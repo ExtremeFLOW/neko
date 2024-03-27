@@ -42,11 +42,20 @@ module simulation_component_fctry
   use case, only : case_t
   use json_utils, only : json_get
   use logger, only : neko_log
+  use utils, only : concat_string_array
   use field_writer, only : field_writer_t
   implicit none
   private
 
   public :: simulation_component_factory
+
+  ! List of all possible types created by the factory routine
+  character(len=20) :: KNOWN_TYPES(5) = [character(len=20) :: &
+     "vorticity", &
+     "lambda2", &
+     "probes", &
+     "les_model", &
+     "field_writer"]
 
 contains
 
@@ -57,7 +66,9 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: simcomp_type
+    character(len=:), allocatable :: type_string
 
+    type_string =  concat_string_array(KNOWN_TYPES)
     call json_get(json, "type", simcomp_type)
 
     if (trim(simcomp_type) .eq. "vorticity") then
@@ -72,7 +83,8 @@ contains
        allocate(field_writer_t::simcomp)
     else
        call neko_log%error("Unknown simulation component type: " &
-                           // trim(simcomp_type))
+                           // trim(simcomp_type) // ".  Known types are: " &
+                           // type_string)
        stop
     end if
 
@@ -80,5 +92,6 @@ contains
     call simcomp%init(json, case)
 
   end subroutine simulation_component_factory
+
 
 end module simulation_component_fctry
