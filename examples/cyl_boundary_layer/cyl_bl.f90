@@ -149,21 +149,38 @@ contains
   end subroutine user_ic
 
   !Initial example of using user specified dirichlet bcs
-  subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep)
+  subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)
     type(field_list_t), intent(inout) :: field_bc_list
     type(bc_list_t), intent(inout) :: bc_bc_list
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-  
+    character(len=*), intent(in) :: which_solver
+
     ! 
     ! Simple example that sets (u,v,w) = (1,0,0) on the inlet/outlet
     ! and p = 2 on the outlet
     !
 
     ! Only do this at the first time step since our BCs are constants.
-    if (tstep .ne. 1) return
+    !if (tstep .ne. 1) return
 
+    if (trim(which_solver) .eq. "fluid") then
+
+       print *, "BC FLUID ------------"
+       call update_fluid(field_bc_list)
+
+    else if (trim(which_solver) .eq. "scalar") then
+       print *, "BC SCALAR ------------" 
+       call update_scalar(field_bc_list)
+
+    end if
+
+  end subroutine dirichlet_update
+
+  subroutine update_fluid(field_bc_list) 
+    type(field_list_t), intent(inout) :: field_bc_list
+  
     if (NEKO_BCKND_DEVICE .eq. 1) then
        if (allocated(field_bc_list%fields(1)%f%x)) &
        call device_cfill(field_bc_list%fields(1)%f%x_d,1d0,field_bc_list%fields(1)%f%dof%size())
@@ -183,6 +200,21 @@ contains
        if (allocated(field_bc_list%fields(4)%f%x)) &
        call cfill(field_bc_list%fields(4)%f%x,2d0,field_bc_list%fields(4)%f%dof%size())
     end if
-  end subroutine dirichlet_update
+
+  end subroutine update_fluid
+
+  subroutine update_scalar(field_bc_list) 
+    type(field_list_t), intent(inout) :: field_bc_list
+  
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (allocated(field_bc_list%fields(1)%f%x)) &
+       call device_cfill(field_bc_list%fields(1)%f%x_d,3d0,field_bc_list%fields(1)%f%dof%size())
+    else
+       if (allocated(field_bc_list%fields(1)%f%x)) &
+       call cfill(field_bc_list%fields(1)%f%x,3d0,field_bc_list%fields(1)%f%dof%size())
+    end if
+
+  end subroutine update_scalar
+
 
 end module user

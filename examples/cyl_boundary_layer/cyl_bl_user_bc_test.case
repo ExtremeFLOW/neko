@@ -40,8 +40,16 @@
             "absolute_tolerance": 1e-5,
             "max_iterations": 800
         },
-        "boundary_types": ["d_vel_u/d_vel_v/d_vel_w", "d_vel_u/d_vel_v/d_vel_w/d_pres", "sym", "w", "on", "on", "w"],
-        "output_control": "nsample",
+        "boundary_types": [
+            "d_vel_u/d_vel_v/d_vel_w", 
+            "d_vel_u/d_vel_v/d_vel_w/d_pres",
+ 	    "sym",
+            "w",
+            "on", 
+            "on", 
+            "w"
+        ],
+        "output_control": "nsamples",
         "output_value": 400
     },
     "scalar": {
