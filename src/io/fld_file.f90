@@ -112,27 +112,27 @@ contains
 
     select type(data)
     type is (fld_file_data_t)
-       if (data%x%n .gt. 0) x%x => data%x%x
-       if (data%y%n .gt. 0) y%x => data%y%x
-       if (data%z%n .gt. 0) z%x => data%z%x
+       if (data%x%n .gt. 0) x%ptr => data%x%x
+       if (data%y%n .gt. 0) y%ptr => data%y%x
+       if (data%z%n .gt. 0) z%ptr => data%z%x
        if (data%u%n .gt. 0) then
-          u%x => data%u%x
+          u%ptr => data%u%x
           write_velocity = .true.
        end if
-       if (data%v%n .gt. 0) v%x => data%v%x
-       if (data%w%n .gt. 0) w%x => data%w%x
+       if (data%v%n .gt. 0) v%ptr => data%v%x
+       if (data%w%n .gt. 0) w%ptr => data%w%x
        if (data%p%n .gt. 0) then
-          p%x => data%p%x
+          p%ptr => data%p%x
           write_pressure = .true.
        end if
        if (data%t%n .gt. 0) then
           write_temperature = .true.
-          tem%x => data%t%x
+          tem%ptr => data%t%x
        end if
        n_scalar_fields = data%n_scalars
        allocate(scalar_fields(n_scalar_fields))
        do i = 1, n_scalar_fields
-          scalar_fields(i)%x => data%s(i)%x
+          scalar_fields(i)%ptr => data%s(i)%x
        end do
        nelv = data%nelv
        lx = data%lx
@@ -147,43 +147,43 @@ contains
           idx(i) = data%idx(i)
        end do
     type is (field_t)
-       p%x => data%x(:,1,1,1)
+       p%ptr => data%x(:,1,1,1)
        dof => data%dof
        write_pressure = .true.
        write_velocity = .false.
     type is (field_list_t)
-       select case (size(data%fields))
+       select case (data%size())
        case (1)
-          p%x => data%fields(1)%f%x(:,1,1,1)
+          p%ptr => data%items(1)%ptr%x(:,1,1,1)
           write_pressure = .true.
           write_velocity = .false.
        case (2)
-          p%x => data%fields(1)%f%x(:,1,1,1)
-          tem%x => data%fields(2)%f%x(:,1,1,1)
+          p%ptr => data%items(1)%ptr%x(:,1,1,1)
+          tem%ptr => data%items(2)%ptr%x(:,1,1,1)
           write_pressure = .true.
           write_temperature = .true.
        case (3)
-          u%x => data%fields(1)%f%x(:,1,1,1)
-          v%x => data%fields(2)%f%x(:,1,1,1)
-          w%x => data%fields(3)%f%x(:,1,1,1)
+          u%ptr => data%items(1)%ptr%x(:,1,1,1)
+          v%ptr => data%items(2)%ptr%x(:,1,1,1)
+          w%ptr => data%items(3)%ptr%x(:,1,1,1)
           write_velocity = .true.
        case (4)
-          p%x => data%fields(1)%f%x(:,1,1,1)
-          u%x => data%fields(2)%f%x(:,1,1,1)
-          v%x => data%fields(3)%f%x(:,1,1,1)
-          w%x => data%fields(4)%f%x(:,1,1,1)
+          p%ptr => data%items(1)%ptr%x(:,1,1,1)
+          u%ptr => data%items(2)%ptr%x(:,1,1,1)
+          v%ptr => data%items(3)%ptr%x(:,1,1,1)
+          w%ptr => data%items(4)%ptr%x(:,1,1,1)
           write_pressure = .true.
           write_velocity = .true.
        case (5:99)
-          p%x => data%fields(1)%f%x(:,1,1,1)
-          u%x => data%fields(2)%f%x(:,1,1,1)
-          v%x => data%fields(3)%f%x(:,1,1,1)
-          w%x => data%fields(4)%f%x(:,1,1,1)
-          tem%x => data%fields(5)%f%x(:,1,1,1)
-          n_scalar_fields = size(data%fields) - 5
+          p%ptr => data%items(1)%ptr%x(:,1,1,1)
+          u%ptr => data%items(2)%ptr%x(:,1,1,1)
+          v%ptr => data%items(3)%ptr%x(:,1,1,1)
+          w%ptr => data%items(4)%ptr%x(:,1,1,1)
+          tem%ptr => data%items(5)%ptr%x(:,1,1,1)
+          n_scalar_fields = data%size() - 5
           allocate(scalar_fields(n_scalar_fields))
           do i = 1,n_scalar_fields
-             scalar_fields(i)%x => data%fields(i+5)%f%x(:,1,1,1)
+             scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
           end do
           write_pressure = .true.
           write_velocity = .true.
@@ -191,21 +191,21 @@ contains
        case default
           call neko_error('This many fields not supported yet, fld_file')
        end select
-       dof => data%fields(1)%f%dof
+       dof => data%items(1)%ptr%dof
 
     type is (mean_flow_t)
-       u%x => data%u%mf%x(:,1,1,1)
-       v%x => data%v%mf%x(:,1,1,1)
-       w%x => data%w%mf%x(:,1,1,1)
-       p%x => data%p%mf%x(:,1,1,1)
+       u%ptr => data%u%mf%x(:,1,1,1)
+       v%ptr => data%v%mf%x(:,1,1,1)
+       w%ptr => data%w%mf%x(:,1,1,1)
+       p%ptr => data%p%mf%x(:,1,1,1)
        dof => data%u%mf%dof
        write_pressure = .true.
        write_velocity = .true.
     type is (mean_sqr_flow_t)
-       u%x => data%uu%mf%x(:,1,1,1)
-       v%x => data%vv%mf%x(:,1,1,1)
-       w%x => data%ww%mf%x(:,1,1,1)
-       p%x => data%pp%mf%x(:,1,1,1)
+       u%ptr => data%uu%mf%x(:,1,1,1)
+       v%ptr => data%vv%mf%x(:,1,1,1)
+       w%ptr => data%ww%mf%x(:,1,1,1)
+       p%ptr => data%pp%mf%x(:,1,1,1)
        dof => data%pp%mf%dof
        write_pressure = .true.
        write_velocity = .true.
@@ -214,9 +214,9 @@ contains
     end select
     ! Fix things for pointers that do not exist in all data types...
     if (associated(dof)) then
-       x%x => dof%x(:,1,1,1)
-       y%x => dof%y(:,1,1,1)
-       z%x => dof%z(:,1,1,1)
+       x%ptr => dof%x(:,1,1,1)
+       y%ptr => dof%y(:,1,1,1)
+       z%ptr => dof%z(:,1,1,1)
        msh => dof%msh
        Xh => dof%Xh
     end if
@@ -324,7 +324,7 @@ contains
             (int(gdim*lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
 
-       call fld_file_write_vector_field(this, fh, byte_offset, x%x, y%x, z%x, n,  gdim, lxyz, nelv)
+       call fld_file_write_vector_field(this, fh, byte_offset, x%ptr, y%ptr, z%ptr, n,  gdim, lxyz, nelv)
        mpi_offset = mpi_offset + int(glb_nelv, i8) * &
             (int(gdim *lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
@@ -334,7 +334,7 @@ contains
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int(gdim * (lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
-       call fld_file_write_vector_field(this, fh, byte_offset, u%x, v%x, w%x, n, gdim, lxyz, nelv)
+       call fld_file_write_vector_field(this, fh, byte_offset, u%ptr, v%ptr, w%ptr, n, gdim, lxyz, nelv)
 
        mpi_offset = mpi_offset + int(glb_nelv, i8) * &
             (int(gdim * (lxyz), i8) * &
@@ -346,7 +346,7 @@ contains
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
-       call fld_file_write_field(this, fh, byte_offset, p%x, n)
+       call fld_file_write_field(this, fh, byte_offset, p%ptr, n)
        mpi_offset = mpi_offset + int(glb_nelv, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
@@ -356,7 +356,7 @@ contains
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
-       call fld_file_write_field(this, fh, byte_offset, tem%x, n)
+       call fld_file_write_field(this, fh, byte_offset, tem%ptr, n)
        mpi_offset = mpi_offset + int(glb_nelv, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
@@ -374,7 +374,7 @@ contains
        byte_offset = int(mpi_offset,i8) + int(offset_el, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
-       call fld_file_write_field(this, fh, byte_offset, scalar_fields(i)%x, n)
+       call fld_file_write_field(this, fh, byte_offset, scalar_fields(i)%ptr, n)
        mpi_offset = int(mpi_offset,i8) + int(glb_nelv, i8) * &
             (int(lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
@@ -389,7 +389,7 @@ contains
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8) * &
                      int(gdim, i8)
-       call fld_file_write_metadata_vector(this, fh, byte_offset, x%x, y%x, z%x, gdim, lxyz, nelv)
+       call fld_file_write_metadata_vector(this, fh, byte_offset, x%ptr, y%ptr, z%ptr, gdim, lxyz, nelv)
        mpi_offset = int(mpi_offset,i8) + &
                      int(glb_nelv, i8) * &
                      int(2, i8) * &
@@ -403,7 +403,7 @@ contains
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8) * &
                      int(gdim, i8)
-       call fld_file_write_metadata_vector(this, fh, byte_offset, u%x, v%x, w%x, gdim, lxyz, nelv)
+       call fld_file_write_metadata_vector(this, fh, byte_offset, u%ptr, v%ptr, w%ptr, gdim, lxyz, nelv)
        mpi_offset = int(mpi_offset,i8) + &
                      int(glb_nelv, i8) * &
                      int(2, i8) * &
@@ -417,7 +417,7 @@ contains
                      int(offset_el, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8)
-       call fld_file_write_metadata_scalar(this, fh, byte_offset, p%x, lxyz, nelv)
+       call fld_file_write_metadata_scalar(this, fh, byte_offset, p%ptr, lxyz, nelv)
        mpi_offset = int(mpi_offset,i8) + &
                      int(glb_nelv, i8) * &
                      int(2, i8) * &
@@ -430,7 +430,7 @@ contains
                      int(offset_el, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8)
-       call fld_file_write_metadata_scalar(this, fh, byte_offset, tem%x, lxyz, nelv)
+       call fld_file_write_metadata_scalar(this, fh, byte_offset, tem%ptr, lxyz, nelv)
        mpi_offset = int(mpi_offset,i8) + &
                      int(glb_nelv, i8) * &
                      int(2, i8) * &
@@ -455,7 +455,7 @@ contains
                      int(offset_el, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8)
-       call fld_file_write_metadata_scalar(this, fh, byte_offset, scalar_fields(i)%x, lxyz, nelv)
+       call fld_file_write_metadata_scalar(this, fh, byte_offset, scalar_fields(i)%ptr, lxyz, nelv)
        mpi_offset = int(mpi_offset,i8) + &
                      int(glb_nelv, i8) * &
                      int(2, i8) * &

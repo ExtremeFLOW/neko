@@ -78,27 +78,27 @@ contains
     type(vector_ptr_t), intent(inout) :: ptr_list(n)
     i = 1
     if(this%u%n .gt. 0) then
-       ptr_list(i)%v => this%u
+       ptr_list(i)%ptr => this%u
        i = i + 1
     end if
     if(this%v%n .gt. 0) then
-       ptr_list(i)%v => this%v
+       ptr_list(i)%ptr => this%v
        i = i + 1
     end if
     if(this%w%n .gt. 0) then
-       ptr_list(i)%v => this%w
+       ptr_list(i)%ptr => this%w
        i = i + 1
     end if
     if(this%p%n .gt. 0) then
-       ptr_list(i)%v => this%p
+       ptr_list(i)%ptr => this%p
        i = i + 1
     end if
     if(this%t%n .gt. 0) then
-       ptr_list(i)%v => this%t
+       ptr_list(i)%ptr => this%t
        i = i + 1
     end if
     do j = 1, this%n_scalars
-       ptr_list(i)%v => this%s(j)
+       ptr_list(i)%ptr => this%s(j)
        i = i +1
     end do
 

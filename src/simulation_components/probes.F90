@@ -123,10 +123,11 @@ contains
     call json_get(json, 'points_file', points_file)
     call json_get(json, 'output_file', output_file)
 
-    allocate(this%sampled_fields%fields(this%n_fields))
+    call this%sampled_fields%init(this%n_fields)
     do i = 1, this%n_fields
-       this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
-                                          trim(this%which_fields(i)))
+
+       call this%sampled_fields%set(i, neko_field_registry%get_field(&
+                                    trim(this%which_fields(i))))
     end do
     !> This is distributed as to make it similar to parallel file
     !! formats latera
@@ -226,9 +227,7 @@ contains
        deallocate(this%out_vals_trsp)
     end if
 
-    if (allocated(this%sampled_fields%fields)) then
-       deallocate(this%sampled_fields%fields)
-    end if
+    call this%sampled_fields%free()
 
     if (allocated(this%n_local_probes_tot)) then
        deallocate(this%n_local_probes_tot)
@@ -327,7 +326,7 @@ contains
 
     do i = 1,this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
-                                        this%sampled_fields%fields(i)%f%x)
+                                        this%sampled_fields%items(i)%ptr%x)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
