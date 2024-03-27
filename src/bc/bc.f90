@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ module bc
   use device
   use dofmap, only : dofmap_t
   use space, only : space_t
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
@@ -280,7 +280,7 @@ contains
     class(facet_zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
     character(len=100), allocatable :: split_key(:)
-    character(len=20) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
+    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     integer :: i, j, k, l, msh_bc_type
 
     msh_bc_type = 0

@@ -51,7 +51,10 @@ module mesh
   implicit none
   private
 
-  integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20 !< Max num. zone labels
+  !> Max num. zone labels
+  integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20
+  !> Max length of a zone label
+  integer, public, parameter :: NEKO_MSH_MAX_ZLBL_LEN = 40
 
   type, private :: mesh_element_t
      class(element_t), allocatable :: e
