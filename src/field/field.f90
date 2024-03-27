@@ -76,7 +76,7 @@ module field
 
   !> field_ptr_t, To easily obtain a pointer to a field
   type, public ::  field_ptr_t
-     type(field_t), pointer :: f => null()
+     type(field_t), pointer :: ptr => null()
   end type field_ptr_t
 
 contains

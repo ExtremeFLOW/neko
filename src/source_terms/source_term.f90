@@ -128,13 +128,14 @@ contains
     this%coef => coef
     this%start_time = start_time
     this%end_time = end_time
-    n_fields = size(fields%fields)
-    allocate(this%fields%fields(n_fields))
+    n_fields = fields%size()
+
+    call this%fields%init(n_fields)
 
     ! A lot of attribute nesting here due to Fortran needing wrapper types
     ! but this is just pointer assignement for the fields.
     do i=1, n_fields
-       this%fields%fields(i)%f => fields%fields(i)%f
+       call this%fields%set(i, fields%get(i))
     end do
   end subroutine source_term_init_base
 

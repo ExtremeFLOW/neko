@@ -57,12 +57,12 @@ contains
     real(kind=rp), intent(in) :: beta
     integer :: n_fields, i, n
 
-    n_fields = size(fields%fields)
-    n = fields%fields(1)%f%dof%size()
+    n_fields = fields%size()
+    n = fields%items(1)%ptr%dof%size()
 
     do i=1, n_fields
-       call add2s2(fields%fields(i)%f%x, s%x, g(i)*beta, n)
-       call cadd(fields%fields(i)%f%x, -g(i)*beta*ref_value, n)
+       call add2s2(fields%items(i)%ptr%x, s%x, g(i)*beta, n)
+       call cadd(fields%items(i)%ptr%x, -g(i)*beta*ref_value, n)
     end do
   end subroutine boussinesq_source_term_compute_cpu
 

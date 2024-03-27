@@ -227,49 +227,49 @@ contains
     call this%e13%init(this%stats_work, 'e13')
     call this%e23%init(this%stats_work, 'e23')
 
-    allocate(this%stat_fields%fields(this%n_stats))
+    allocate(this%stat_fields%items(this%n_stats))
 
-    this%stat_fields%fields(1)%f => this%pp%mf
-    this%stat_fields%fields(2)%f => this%uu%mf
-    this%stat_fields%fields(3)%f => this%vv%mf
-    this%stat_fields%fields(4)%f => this%ww%mf
-    this%stat_fields%fields(5)%f => this%uv%mf
-    this%stat_fields%fields(6)%f => this%uw%mf
-    this%stat_fields%fields(7)%f => this%vw%mf
-    this%stat_fields%fields(8)%f => this%uuu%mf !< <uuu>
-    this%stat_fields%fields(9)%f => this%vvv%mf !< <vvv>
-    this%stat_fields%fields(10)%f => this%www%mf !< <www>
-    this%stat_fields%fields(11)%f => this%uuv%mf !< <uuv>
-    this%stat_fields%fields(12)%f => this%uuw%mf !< <uuw>
-    this%stat_fields%fields(13)%f => this%uvv%mf !< <uvv>
-    this%stat_fields%fields(14)%f => this%uvw%mf !< <uvv>
-    this%stat_fields%fields(15)%f => this%vvw%mf !< <vvw>
-    this%stat_fields%fields(16)%f => this%uww%mf !< <uww>
-    this%stat_fields%fields(17)%f => this%vww%mf !< <vww>
-    this%stat_fields%fields(18)%f => this%uuuu%mf !< <uuuu>
-    this%stat_fields%fields(19)%f => this%vvvv%mf !< <vvvv>
-    this%stat_fields%fields(20)%f => this%wwww%mf !< <wwww>
-    this%stat_fields%fields(21)%f => this%ppp%mf
-    this%stat_fields%fields(22)%f => this%pppp%mf
-    this%stat_fields%fields(23)%f => this%pu%mf
-    this%stat_fields%fields(24)%f => this%pv%mf
-    this%stat_fields%fields(25)%f => this%pw%mf
+    this%stat_fields%items(1)%ptr => this%pp%mf
+    this%stat_fields%items(2)%ptr => this%uu%mf
+    this%stat_fields%items(3)%ptr => this%vv%mf
+    this%stat_fields%items(4)%ptr => this%ww%mf
+    this%stat_fields%items(5)%ptr => this%uv%mf
+    this%stat_fields%items(6)%ptr => this%uw%mf
+    this%stat_fields%items(7)%ptr => this%vw%mf
+    this%stat_fields%items(8)%ptr => this%uuu%mf !< <uuu>
+    this%stat_fields%items(9)%ptr => this%vvv%mf !< <vvv>
+    this%stat_fields%items(10)%ptr => this%www%mf !< <www>
+    this%stat_fields%items(11)%ptr => this%uuv%mf !< <uuv>
+    this%stat_fields%items(12)%ptr => this%uuw%mf !< <uuw>
+    this%stat_fields%items(13)%ptr => this%uvv%mf !< <uvv>
+    this%stat_fields%items(14)%ptr => this%uvw%mf !< <uvv>
+    this%stat_fields%items(15)%ptr => this%vvw%mf !< <vvw>
+    this%stat_fields%items(16)%ptr => this%uww%mf !< <uww>
+    this%stat_fields%items(17)%ptr => this%vww%mf !< <vww>
+    this%stat_fields%items(18)%ptr => this%uuuu%mf !< <uuuu>
+    this%stat_fields%items(19)%ptr => this%vvvv%mf !< <vvvv>
+    this%stat_fields%items(20)%ptr => this%wwww%mf !< <wwww>
+    this%stat_fields%items(21)%ptr => this%ppp%mf
+    this%stat_fields%items(22)%ptr => this%pppp%mf
+    this%stat_fields%items(23)%ptr => this%pu%mf
+    this%stat_fields%items(24)%ptr => this%pv%mf
+    this%stat_fields%items(25)%ptr => this%pw%mf
 
-    this%stat_fields%fields(26)%f => this%pdudx%mf
-    this%stat_fields%fields(27)%f => this%pdudy%mf
-    this%stat_fields%fields(28)%f => this%pdudz%mf
-    this%stat_fields%fields(29)%f => this%pdvdx%mf
-    this%stat_fields%fields(30)%f => this%pdvdy%mf
-    this%stat_fields%fields(31)%f => this%pdvdz%mf
-    this%stat_fields%fields(32)%f => this%pdwdx%mf
-    this%stat_fields%fields(33)%f => this%pdwdy%mf
-    this%stat_fields%fields(34)%f => this%pdwdz%mf
-    this%stat_fields%fields(35)%f => this%e11%mf
-    this%stat_fields%fields(36)%f => this%e22%mf
-    this%stat_fields%fields(37)%f => this%e33%mf
-    this%stat_fields%fields(38)%f => this%e12%mf
-    this%stat_fields%fields(39)%f => this%e13%mf
-    this%stat_fields%fields(40)%f => this%e23%mf
+    this%stat_fields%items(26)%ptr => this%pdudx%mf
+    this%stat_fields%items(27)%ptr => this%pdudy%mf
+    this%stat_fields%items(28)%ptr => this%pdudz%mf
+    this%stat_fields%items(29)%ptr => this%pdvdx%mf
+    this%stat_fields%items(30)%ptr => this%pdvdy%mf
+    this%stat_fields%items(31)%ptr => this%pdvdz%mf
+    this%stat_fields%items(32)%ptr => this%pdwdx%mf
+    this%stat_fields%items(33)%ptr => this%pdwdy%mf
+    this%stat_fields%items(34)%ptr => this%pdwdz%mf
+    this%stat_fields%items(35)%ptr => this%e11%mf
+    this%stat_fields%items(36)%ptr => this%e22%mf
+    this%stat_fields%items(37)%ptr => this%e33%mf
+    this%stat_fields%items(38)%ptr => this%e12%mf
+    this%stat_fields%items(39)%ptr => this%e13%mf
+    this%stat_fields%items(40)%ptr => this%e23%mf
 
 
   end subroutine fluid_stats_init
@@ -648,35 +648,35 @@ contains
     integer :: n
 
     if (present(mean)) then
-       n = mean%fields(1)%f%dof%size()
-       call copy(mean%fields(1)%f%x,this%u_mean%x,n)
-       call copy(mean%fields(2)%f%x,this%v_mean%x,n)
-       call copy(mean%fields(3)%f%x,this%w_mean%x,n)
-       call copy(mean%fields(4)%f%x,this%p_mean%x,n)
+       n = mean%items(1)%ptr%dof%size()
+       call copy(mean%items(1)%ptr%x,this%u_mean%x,n)
+       call copy(mean%items(2)%ptr%x,this%v_mean%x,n)
+       call copy(mean%items(3)%ptr%x,this%w_mean%x,n)
+       call copy(mean%items(4)%ptr%x,this%p_mean%x,n)
     end if
 
     if (present(reynolds)) then
-       n = reynolds%fields(1)%f%dof%size()
-       call copy(reynolds%fields(1)%f%x,this%pp%mf%x,n)
-       call subcol3(reynolds%fields(1)%f%x,this%p_mean%x,this%p_mean%x,n)
+       n = reynolds%items(1)%ptr%dof%size()
+       call copy(reynolds%items(1)%ptr%x,this%pp%mf%x,n)
+       call subcol3(reynolds%items(1)%ptr%x,this%p_mean%x,this%p_mean%x,n)
 
-       call copy(reynolds%fields(2)%f%x,this%uu%mf%x,n)
-       call subcol3(reynolds%fields(2)%f%x,this%u_mean%x,this%u_mean%x,n)
+       call copy(reynolds%items(2)%ptr%x,this%uu%mf%x,n)
+       call subcol3(reynolds%items(2)%ptr%x,this%u_mean%x,this%u_mean%x,n)
 
-       call copy(reynolds%fields(3)%f%x,this%vv%mf%x,n)
-       call subcol3(reynolds%fields(3)%f%x,this%v_mean%x,this%v_mean%x,n)
+       call copy(reynolds%items(3)%ptr%x,this%vv%mf%x,n)
+       call subcol3(reynolds%items(3)%ptr%x,this%v_mean%x,this%v_mean%x,n)
 
-       call copy(reynolds%fields(4)%f%x,this%ww%mf%x,n)
-       call subcol3(reynolds%fields(4)%f%x,this%w_mean%x,this%w_mean%x,n)
+       call copy(reynolds%items(4)%ptr%x,this%ww%mf%x,n)
+       call subcol3(reynolds%items(4)%ptr%x,this%w_mean%x,this%w_mean%x,n)
 
-       call copy(reynolds%fields(5)%f%x,this%uv%mf%x,n)
-       call subcol3(reynolds%fields(5)%f%x,this%u_mean%x,this%v_mean%x,n)
+       call copy(reynolds%items(5)%ptr%x,this%uv%mf%x,n)
+       call subcol3(reynolds%items(5)%ptr%x,this%u_mean%x,this%v_mean%x,n)
 
-       call copy(reynolds%fields(6)%f%x,this%uw%mf%x,n)
-       call subcol3(reynolds%fields(6)%f%x,this%u_mean%x,this%w_mean%x,n)
+       call copy(reynolds%items(6)%ptr%x,this%uw%mf%x,n)
+       call subcol3(reynolds%items(6)%ptr%x,this%u_mean%x,this%w_mean%x,n)
 
-       call copy(reynolds%fields(7)%f%x,this%vw%mf%x,n)
-       call subcol3(reynolds%fields(7)%f%x,this%v_mean%x,this%w_mean%x,n)
+       call copy(reynolds%items(7)%ptr%x,this%vw%mf%x,n)
+       call subcol3(reynolds%items(7)%ptr%x,this%v_mean%x,this%w_mean%x,n)
     end if
     if (present(pressure_skewness)) then
 
@@ -695,7 +695,7 @@ contains
 
     if (present(mean_vel_grad)) then
        !Compute gradient of mean flow
-       n = mean_vel_grad%fields(1)%f%dof%size()
+       n = mean_vel_grad%items(1)%ptr%dof%size()
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(this%u_mean%x, this%u_mean%x_d, n, &
                              HOST_TO_DEVICE, sync=.false.)
@@ -728,20 +728,20 @@ contains
           call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &
                              DEVICE_TO_HOST, sync=.true.)
        else
-          call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u_mean%x,this%coef)
-          call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v_mean%x,this%coef)
-          call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x,this%w_mean%x,this%coef)
+          call opgrad(this%dudx%x,this%dudy%x, this%dudz%x, this%u_mean%x,this%coef)
+          call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x, this%v_mean%x,this%coef)
+          call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x, this%w_mean%x,this%coef)
        end if
        call invers2(this%stats_work%x, this%coef%B,n)
-       call col3(mean_vel_grad%fields(1)%f%x, this%dudx%x,this%stats_work%x, n)
-       call col3(mean_vel_grad%fields(2)%f%x, this%dudy%x,this%stats_work%x, n)
-       call col3(mean_vel_grad%fields(3)%f%x, this%dudz%x,this%stats_work%x, n)
-       call col3(mean_vel_grad%fields(4)%f%x, this%dvdx%x,this%stats_work%x, n)
-       call col3(mean_vel_grad%fields(5)%f%x, this%dvdy%x,this%stats_work%x, n)
-       call col3(mean_vel_grad%fields(6)%f%x, this%dvdz%x,this%stats_work%x, n)
-       call col3(mean_vel_grad%fields(7)%f%x, this%dwdx%x,this%stats_work%x, n)
-       call col3(mean_vel_grad%fields(8)%f%x, this%dwdy%x,this%stats_work%x, n)
-       call col3(mean_vel_grad%fields(9)%f%x, this%dwdz%x,this%stats_work%x, n)
+       call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(2)%ptr%x, this%dudy%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(3)%ptr%x, this%dudz%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(4)%ptr%x, this%dvdx%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(5)%ptr%x, this%dvdy%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(6)%ptr%x, this%dvdz%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(7)%ptr%x, this%dwdx%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(8)%ptr%x, this%dwdy%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(9)%ptr%x, this%dwdz%x, this%stats_work%x, n)
 
     end if
 

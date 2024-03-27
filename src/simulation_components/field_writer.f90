@@ -125,8 +125,7 @@ contains
        end if
        do i=1, size(fields)
           fieldi = trim(fields(i))
-          this%output%fields%fields(i)%f => &
-            neko_field_registry%get_field(fieldi)
+          call this%output%fields%set(i, neko_field_registry%get_field(fieldi))
        end do
 
        call this%case%s%add(this%output, &

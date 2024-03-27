@@ -53,15 +53,15 @@ contains
     type(field_t), pointer :: u, v, w
     integer :: n
 
-    n = fields%fields(1)%f%dof%size()
+    n = fields%items(1)%ptr%dof%size()
 
     u => neko_field_registry%get_field('u')
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
 
-    call subcol3(fields%fields(1)%f%x, u%x, brinkman%x, n)
-    call subcol3(fields%fields(2)%f%x, v%x, brinkman%x, n)
-    call subcol3(fields%fields(3)%f%x, w%x, brinkman%x, n)
+    call subcol3(fields%items(1)%ptr%x, u%x, brinkman%x, n)
+    call subcol3(fields%items(2)%ptr%x, v%x, brinkman%x, n)
+    call subcol3(fields%items(3)%ptr%x, w%x, brinkman%x, n)
 
   end subroutine brinkman_source_term_compute_cpu
 
