@@ -344,7 +344,7 @@ contains
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    character(len=6), intent(in) :: which_solver
+    character(len=*), intent(in) :: which_solver
   end subroutine dirichlet_do_nothing
   
   subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
