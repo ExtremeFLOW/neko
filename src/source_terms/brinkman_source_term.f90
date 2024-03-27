@@ -36,7 +36,7 @@ module brinkman_source_term
   use field, only: field_t
   use field_list, only: field_list_t
   use json_module, only: json_file
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get, json_get_or_default, json_extract_item
   use field_registry, only: neko_field_registry
   use source_term, only: source_term_t
   use coefs, only: coef_t
@@ -102,16 +102,11 @@ contains
 
     type(json_value), pointer :: json_object_list
     type(json_core) :: core
-    type(json_value), pointer :: json_object_pointer
-    character(len=:), allocatable :: json_buffer
 
     character(len=:), allocatable :: object_type
     type(json_file) :: object_settings
     integer :: n_regions
     integer :: i
-    logical :: found
-
-
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -146,24 +141,24 @@ contains
     ! Select which constructor should be called
 
     call json%get('objects', json_object_list)
-    n_regions = core%count(json_object_list)
+    call json%info('objects', n_children=n_regions)
+    call json%get_core(core)
 
     do i=1, n_regions
+       call json_extract_item(core, json_object_list, i, object_settings)
+       call json_get_or_default(object_settings, 'type', object_type, 'none')
 
-       ! Create a new json containing just the subdict for this object.
-       call core%get_child(json_object_list, i, json_object_pointer)
-       call core%print_to_string(json_object_pointer, json_buffer)
-       call object_settings%load_from_string(json_buffer)
-
-
-       call json_get(object_settings, 'type', object_type)
        select case (object_type)
          case ('boundary_mesh')
           call this%init_boundary_mesh(object_settings)
          case ('point_zone')
           call this%init_point_zone(object_settings)
+
+         case ('none')
+          call object_settings%print()
+          call neko_error('Brinkman source term objects require a region type')
          case default
-          call neko_error('Unknown region type')
+          call neko_error('Brinkman source term unknown region type')
        end select
 
     end do
@@ -175,7 +170,7 @@ contains
       case ('none')
        ! Do nothing
       case default
-       call neko_error('Unknown filter type')
+       call neko_error('Brinkman source term unknown filter type')
     end select
 
     ! ------------------------------------------------------------------------ !
