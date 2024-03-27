@@ -105,6 +105,10 @@ module probes
      procedure, private, pass(this) :: read_file
      !> Reader for point type points
      procedure, private, pass(this) :: read_point
+     !> Reader for line type points
+     procedure, private, pass(this) :: read_line
+     !> Reader for circle type points
+     procedure, private, pass(this) :: read_circle
 
      !> Append a new list of points to the exsiting list.
      procedure, private, pass(this) :: add_points
@@ -166,23 +170,26 @@ contains
     do idx = 1, n_point_children
        call json_extract_item(core, json_point_list, idx, json_point)
 
-       call json_get(json_point, 'type', point_type)
+       call json_get_or_default(json_point, 'type', point_type, 'none')
        select case (point_type)
 
          case ('file')
-          call read_file(this, json_point)
+          call this%read_file(json_point)
          case ('point')
-          call read_point(this, json_point)
+          call this%read_point(json_point)
          case ('line')
-          call read_line(this, json_point)
+          call this%read_line(json_point)
          case ('plane')
           call neko_error('Plane probes not implemented yet.')
          case ('circle')
-          call read_circle(this, json_point)
+          call this%read_circle(json_point)
 
          case ('point_zone')
           call neko_error('Point zone probes not implemented yet.')
 
+         case ('none')
+          call json_point%print()
+          call neko_error('No point type specified.')
          case default
           call neko_error('Unknown region type ' // point_type)
        end select
