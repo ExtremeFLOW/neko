@@ -318,9 +318,7 @@ contains
     call this%hte%free()
     call distdata_free(this%ddata)
 
-    if (allocated(this%points)) then
-       deallocate(this%points)
-    end if
+
     if (allocated(this%dfrmd_el)) then
        deallocate(this%dfrmd_el)
     end if
@@ -370,6 +368,10 @@ contains
 
     if (allocated(this%neigh_order)) then
        deallocate(this%neigh_order)
+    end if
+
+    if (allocated(this%points)) then
+       deallocate(this%points)
     end if
 
     call this%wall%free()
@@ -833,7 +835,7 @@ contains
     integer :: i, j, k
     integer :: max_recv, ierr, src, dst, n_recv, neigh_el
     integer :: pt_glb_idx, pt_loc_idx, num_neigh
-    integer, pointer :: neighs(:)
+    integer, contiguous, pointer :: neighs(:)
 
 
     call send_buffer%init(this%mpts * 2)
@@ -902,7 +904,7 @@ contains
     type(htable_i8_t) :: glb_to_loc
     type(MPI_Status) :: status
     type(MPI_Request) :: send_req, recv_req
-    integer, pointer :: p1(:), p2(:), ns_id(:)
+    integer, contiguous, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
     integer(kind=i8) :: C, glb_max, glb_id
@@ -1384,7 +1386,7 @@ contains
   subroutine mesh_add_quad(this, el, p1, p2, p3, p4)
     class(mesh_t), target, intent(inout) :: this
     integer, value :: el
-    type(point_t), intent(inout) :: p1, p2, p3, p4
+    type(point_t), target, intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
     integer :: p(4), el_glb_idx, i, p_local_idx
     type(tuple_i4_t) :: e
@@ -1420,7 +1422,7 @@ contains
   subroutine mesh_add_hex(this, el, p1, p2, p3, p4, p5, p6, p7, p8)
     class(mesh_t), target, intent(inout) :: this
     integer, value :: el
-    type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
+    type(point_t), target, intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
     integer :: p(8), el_glb_idx, i, p_local_idx
     type(tuple4_i4_t) :: f
