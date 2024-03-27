@@ -900,7 +900,7 @@ $(document).ready(function(){initNavTree('de/d0a/mesh_8f90_source.html','../../'
 <div class="line"><a name="l00830"></a><span class="lineno">  830</span>&#160;    <span class="keywordtype">integer</span> :: i, j, k</div>
 <div class="line"><a name="l00831"></a><span class="lineno">  831</span>&#160;    <span class="keywordtype">integer</span> :: max_recv, ierr, src, dst, n_recv, neigh_el</div>
 <div class="line"><a name="l00832"></a><span class="lineno">  832</span>&#160;    <span class="keywordtype">integer</span> :: pt_glb_idx, pt_loc_idx, num_neigh</div>
-<div class="line"><a name="l00833"></a><span class="lineno">  833</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: neighs(:)</div>
+<div class="line"><a name="l00833"></a><span class="lineno">  833</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">contiguous</span>, <span class="keywordtype">pointer</span> :: neighs(:)</div>
 <div class="line"><a name="l00834"></a><span class="lineno">  834</span>&#160; </div>
 <div class="line"><a name="l00835"></a><span class="lineno">  835</span>&#160; </div>
 <div class="line"><a name="l00836"></a><span class="lineno">  836</span>&#160;    <span class="keyword">call </span>send_buffer%init(this%mpts * 2)</div>
@@ -966,7 +966,7 @@ $(document).ready(function(){initNavTree('de/d0a/mesh_8f90_source.html','../../'
 <div class="line"><a name="l00899"></a><span class="lineno">  899</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../df/da3/structhtable_1_1htable__i8__t.html">htable_i8_t</a>) :: glb_to_loc</div>
 <div class="line"><a name="l00900"></a><span class="lineno">  900</span>&#160;    <span class="keywordtype">type</span>(mpi_status) :: status</div>
 <div class="line"><a name="l00901"></a><span class="lineno">  901</span>&#160;    <span class="keywordtype">type</span>(mpi_request) :: send_req, recv_req</div>
-<div class="line"><a name="l00902"></a><span class="lineno">  902</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: p1(:), p2(:), ns_id(:)</div>
+<div class="line"><a name="l00902"></a><span class="lineno">  902</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">contiguous</span>, <span class="keywordtype">pointer</span> :: p1(:), p2(:), ns_id(:)</div>
 <div class="line"><a name="l00903"></a><span class="lineno">  903</span>&#160;    <span class="keywordtype">integer</span> :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc</div>
 <div class="line"><a name="l00904"></a><span class="lineno">  904</span>&#160;    <span class="keywordtype">integer</span> :: k, l , shared_offset, glb_nshared, n_glb_id</div>
 <div class="line"><a name="l00905"></a><span class="lineno">  905</span>&#160;    <span class="keywordtype">integer(kind=i8)</span> :: C, glb_max, glb_id</div>
@@ -2113,7 +2113,7 @@ $(document).ready(function(){initNavTree('de/d0a/mesh_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../de/d0a/mesh_8f90.html">mesh.f90</a></li>
-    <li class="footer">Generated on Tue Mar 26 2024 03:34:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Mar 27 2024 03:34:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

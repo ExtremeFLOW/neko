@@ -135,7 +135,7 @@ $(document).ready(function(){initNavTree('d7/da8/map__1d_8f90_source.html','../.
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: dir</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: tol</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">integer</span> :: nelv, lx, n, i, e, lvl</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">pointer</span> :: line(:,:,:,:)</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">contiguous</span>, <span class="keywordtype">pointer</span> :: line(:,:,:,:)</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">allocatable</span> :: min_vals(:,:,:,:)</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">type</span>(c_ptr) :: min_vals_d = c_null_ptr</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: el_dim(3,3), glb_min, glb_max, el_min</div>
@@ -343,7 +343,7 @@ $(document).ready(function(){initNavTree('d7/da8/map__1d_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_03fb5b14824697692326bbb959ec235e.html">sem</a></li><li class="navelem"><a class="el" href="../../d7/da8/map__1d_8f90.html">map_1d.f90</a></li>
-    <li class="footer">Generated on Tue Mar 26 2024 03:34:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Mar 27 2024 03:34:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

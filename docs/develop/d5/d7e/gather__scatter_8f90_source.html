@@ -1341,7 +1341,7 @@ $(document).ready(function(){initNavTree('d5/d7e/gather__scatter_8f90_source.htm
 <div class="line"><a name="l01259"></a><span class="lineno"><a class="line" href="../../d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23"> 1259</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23">gs_op_r4</a>(gs, u, n, op, event)</div>
 <div class="line"><a name="l01260"></a><span class="lineno"> 1260</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), <span class="keywordtype">intent(inout)</span> :: gs</div>
 <div class="line"><a name="l01261"></a><span class="lineno"> 1261</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a name="l01262"></a><span class="lineno"> 1262</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(:,:,:,:)</span>, <span class="keywordtype">intent(inout)</span> :: u</div>
+<div class="line"><a name="l01262"></a><span class="lineno"> 1262</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">contiguous</span>, <span class="keywordtype">dimension(:,:,:,:)</span>, <span class="keywordtype">intent(inout)</span> :: u</div>
 <div class="line"><a name="l01263"></a><span class="lineno"> 1263</span>&#160;    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">optional</span>, <span class="keywordtype">intent(inout)</span> :: event</div>
 <div class="line"><a name="l01264"></a><span class="lineno"> 1264</span>&#160;    <span class="keywordtype">integer</span> :: op</div>
 <div class="line"><a name="l01265"></a><span class="lineno"> 1265</span>&#160; </div>
@@ -1495,7 +1495,7 @@ $(document).ready(function(){initNavTree('d5/d7e/gather__scatter_8f90_source.htm
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../d5/d7e/gather__scatter_8f90.html">gather_scatter.f90</a></li>
-    <li class="footer">Generated on Tue Mar 26 2024 03:34:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Mar 27 2024 03:34:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
