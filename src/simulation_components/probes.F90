@@ -38,7 +38,7 @@ module probes
   use num_types, only: rp
   use matrix, only: matrix_t
   use logger, only: neko_log, LOG_SIZE
-  use utils, only: neko_error
+  use utils, only: neko_error, nonlinear_index
   use field_list, only: field_list_t
   use simulation_component
   use field_registry, only : neko_field_registry
@@ -47,6 +47,8 @@ module probes
   use json_utils, only : json_get, json_extract_item
   use global_interpolation, only: global_interpolation_t
   use tensor, only: trsp
+  use point_zone, only: point_zone_t
+  use point_zone_registry, only: neko_point_zone_registry
   use comm
   use device
   use file
@@ -109,6 +111,8 @@ module probes
      procedure, private, pass(this) :: read_line
      !> Reader for circle type points
      procedure, private, pass(this) :: read_circle
+     !> Reader for point zone type points
+     procedure, private, pass(this) :: read_point_zone
 
      !> Append a new list of points to the exsiting list.
      procedure, private, pass(this) :: add_points
@@ -185,7 +189,7 @@ contains
           call this%read_circle(json_point)
 
          case ('point_zone')
-          call neko_error('Point zone probes not implemented yet.')
+          call this%read_point_zone(json_point, case%fluid%dm_Xh)
 
          case ('none')
           call json_point%print()
@@ -376,6 +380,46 @@ contains
 
     call this%add_points(point_list)
   end subroutine read_circle
+
+  !> Construct a list of points from a point zone.
+  !! @details The GLL points are read from the point zone and added to the
+  !! probe list.
+  !! @param[inout] this The probes object.
+  !! @param[inout] json The json file object.
+  subroutine read_point_zone(this, json, dof)
+    class(probes_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    type(dofmap_t), intent(in) :: dof
+
+    real(kind=rp), dimension(:,:), allocatable :: point_list
+    character(len=:), allocatable :: point_zone_name
+    class(point_zone_t), pointer :: zone
+    integer :: i, idx, lx, nlindex(4)
+    real(kind=rp) :: x, y, z
+
+    ! Ensure only rank 0 reads the coordinates.
+    if (pe_rank .ne. 0) return
+
+    call json_get(json, "name", point_zone_name)
+    zone => neko_point_zone_registry%get_point_zone(point_zone_name)
+
+    ! Allocate list of points and reshape the input array
+    allocate(point_list(3, zone%size))
+
+    lx = dof%Xh%lx
+    do i = 1, zone%size
+       idx = zone%mask(i)
+
+       nlindex = nonlinear_index(idx, lx, lx, lx)
+       x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+       y = dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+       z = dof%z(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+
+       point_list(:, i) = [x, y, z]
+    end do
+
+    call this%add_points(point_list)
+  end subroutine read_point_zone
 
   ! ========================================================================== !
   ! Supporting routines
