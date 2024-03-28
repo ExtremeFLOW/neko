@@ -1,7 +1,7 @@
 #ifndef __MATH_MATH_KERNEL_CL__
 #define __MATH_MATH_KERNEL_CL__
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,23 @@
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 */
+
+/**
+ * Device kernel for masked copy
+ */
+__kernel void masked_copy_kernel(__global real * __restrict__ a,
+                                 __global real * __restrict__ b,
+                                 __global int * __restrict__ mask,
+                                 const int n,
+                                 const int m) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[mask[i+1]-1] = b[mask[i+1]-1];
+  }  
+}
 
 /**
  * Device kernel for cmult

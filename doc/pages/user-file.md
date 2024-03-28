@@ -288,7 +288,6 @@ registering of the above function in `user_setup` should be done as follows:
 u%scalar_user_bc => set_scalar_boundary_conditions
 ```
 
-
 ## Case-specific user functions
 
 As explained in the [case file](case-file.md) page, certain components of the
@@ -303,6 +302,7 @@ user functions are:
 | Scalar boundary conditions      | [scalar_user_bc](#user-file_scalar-bc)                     | (user function is always called) |
 | Fluid source term               | [fluid_user_f_vector or fluid_user_f](#user-file_user-f)   | `case.fluid.source_terms`        |
 | Scalar source term              | [scalar_user_f_vector or scalar_user_f](#user-file_user-f) | `case.scalar.source_terms`       |
+| Fluid and Scalar boundary conditions | [field_dirichlet_update](#user-file_field-dirichlet-update) | `case.fluid.boundary_types` and/or `case.scalar.boundary_types`       |
 
 Note that `scalar_user_bc` is included for completeness but is technically not case-specific.
 
@@ -602,6 +602,135 @@ and scalar source terms:
 u%fluid_user_f_vector => set_boussinesq_forcing_term
 u%scalar_user_f_vector => set_source
 ```
+
+### Complex fluid and/or scalar boundary conditions {#user-file_field-dirichlet-update}
+
+This user function can be used to specify dirichlet boundary values for velocity
+components `u,v,w`, the pressure, and/or the scalar. This type of boundary 
+condition allows for the use of time-dependent velocity profiles (currently
+not possible with a standard `user_inflow`) or non-uniform pressure profiles
+to e.g. impose an outlet pressure computed from another simulation.
+
+The selection of such boundary conditions is done in the `case.fluid.boundary_types`
+array for the velocities and pressure, and in the `case.scalar.boundary_types` 
+array for the scalar. This type of boundary condition offers the possibility to
+only apply a Dirichlet condition on selected fields, leaving the others untouched. 
+The [case file](#case-file_boundary-types) outlines which keywords can be used for such purpose:
+* `d_vel_u` for the `u` component of the velocity field
+* `d_vel_v` for the `v` component of the velocity field
+* `d_vel_w` for the `w` component of the velocity field
+* `d_pres` for the pressure field
+* `d_s` for the scalar field (cannot be combined with the above)
+
+The separator `"/"` can be used to combine the keywords related to `u,v,w` and `p`.
+For example, if one wants to apply `u,v` and `p` values on a given boundary, one
+should use `"d_vel_u/d_vel_v/d_pres"`. An example of case file from the 
+[cyl-boundary-layer example](https://github.com/ExtremeFLOW/neko/blob/develop/examples/cyl_boundary_layer/cyl_bl_user_bc_test.case) is shown below.
+
+```.json
+
+"case": {
+    "fluid": {
+        "boundary_types": [
+          "d_vel_u/d_vel_v/d_vel_w", 
+          "d_vel_u/d_vel_v/d_vel_w/d_pres",
+ 	      "sym",
+          "w",
+          "on", 
+          "on", 
+          "w"
+        ]
+    }
+    "scalar": {
+        "boundary_types": [
+          "d_s",
+          "d_s",
+          "",
+          "",
+          "",
+          ""
+        ]
+    }
+}
+```
+
+In this example, we indicate in `case.fluid.boundary_types` that we would like
+to specify a velocity profile with all three components `u,v,w` on the boundary 
+number 1 (in this case, the inlet boundary). On boundary number 2 (the outlet 
+boundary), we also indicate the three velocity components, with the addition 
+of the pressure. In `case.scalar.boundary_types`, we indicate the same for the
+scalar on boundaries 1 and 2 (inlet and outlet).
+
+@attention Do not confuse the `d_s` and `d=x` boundary conditions for the scalar!
+The latter is to be used to specify a constant value `x` along the relevant boundary.
+
+The usage of the keywords mentioned above will enable the user function
+`field_dirichlet_update`. The prefix "field" refers to the fact that 
+this user function passes down entire fields for the user. The fields
+that are passed down are tied to the `boundary_types` keywords from
+the case file. This function is then called internally, one time in the `fluid` 
+solver and one time in the `scalar` solver (if enabled). From the fields
+that were passed down and modified by the user, the values on the boundaries
+will be copied onto the solution fields. 
+
+An example illustrating the above is shown below, which is taken from the 
+[cyl_boundary_layer example](https://github.com/ExtremeFLOW/neko/blob/feature/field_bcs/examples/cyl_boundary_layer/cyl_bl.f90)
+
+```.f90
+  !Initial example of using user specified dirichlet bcs
+  subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)
+    type(field_list_t), intent(inout) :: field_bc_list
+    type(bc_list_t), intent(inout) :: bc_bc_list
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    character(len=*), intent(in) :: which_solver
+
+    ! Only do this at the first time step since our BCs are constants.
+    if (tstep .ne. 1) return
+
+    ! Check that we are being called by `fluid`
+    if (trim(which_solver) .eq. "fluid") then
+
+    associate(u => field_bc_list%fields(1)%f, &
+              v => field_bc_list%fields(2)%f, &
+              w => field_bc_list%fields(3)%f, &
+              p => field_bc_list%fields(4)%f)
+
+      !
+      ! Perform operations on u%x, v%x, w%x and p%x here
+      ! Note that we are checking if fields are allocated. If the 
+      ! boundary type only contains e.g. "d_vel_u/d_pres", the fields
+      ! v%x and w%x will not be allocated.
+      !
+      ! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)
+      ! and nonsensical pressure outlet of p = 2
+      !
+      if (allocated(u%x)) u = 1.0_rp
+      if (allocated(v%x)) v = 0.0_rp
+      if (allocated(w%x)) w = 0.0_rp
+      if (allocated(p%x)) p = 2.0_rp
+
+    end associate
+
+    ! Check that we are being called by `scalar`
+    else if (trim(which_solver) .eq. "scalar") then
+      
+      associate( s => field_bc_list%fields(1)%f )
+      
+      if (allocated(s%x)) s = 2.0_rp
+      
+      end associate
+      
+    end if
+
+  end subroutine dirichlet_update
+```
+
+@note Notice the use of the `NEKO_BCKND_DEVICE` flag, which will be set to 1 if
+running on GPUs, and the calls to `device_memcpy` to transfer data between the
+host and the device. See [Running on GPUs](#user-file_tips_running-on-gpus) for
+more information on how this works.
 
 ## Additional remarks and tips
 

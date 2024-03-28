@@ -80,7 +80,7 @@ module case
      type(stats_t) :: q
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
-     type(scalar_pnpn_t), allocatable :: scalar
+     type(scalar_pnpn_t), allocatable :: scalar 
      type(material_properties_t):: material_properties
   end type case_t
 
@@ -299,7 +299,6 @@ contains
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
     end select
-
 
     !
     ! Validate that the case is properly setup for time-stepping

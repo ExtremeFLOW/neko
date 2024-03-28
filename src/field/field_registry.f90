@@ -210,6 +210,7 @@ contains
     integer :: i
 
     found = .false.
+   
     do i=1, this%n_fields()
        if (this%fields(i)%name == name) then
           f => this%fields(i)
