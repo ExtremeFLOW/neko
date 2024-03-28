@@ -149,6 +149,8 @@ contains
   end subroutine user_ic
 
   !Initial example of using user specified dirichlet bcs
+  ! Note: This subroutine will be called two times, once in the fluid solver, and once 
+  ! in the scalar solver (if enabled). 
   subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)
     type(field_list_t), intent(inout) :: field_bc_list
     type(bc_list_t), intent(inout) :: bc_bc_list
@@ -163,15 +165,15 @@ contains
     !
 
     ! Only do this at the first time step since our BCs are constants.
-    !if (tstep .ne. 1) return
+    if (tstep .ne. 1) return
 
+    ! Update (u,v,w,p) or s depending on which solver is calling the function
     if (trim(which_solver) .eq. "fluid") then
 
-       print *, "BC FLUID ------------"
        call update_fluid(field_bc_list)
 
     else if (trim(which_solver) .eq. "scalar") then
-       print *, "BC SCALAR ------------" 
+       
        call update_scalar(field_bc_list)
 
     end if

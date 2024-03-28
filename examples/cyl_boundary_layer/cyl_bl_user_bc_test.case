@@ -49,8 +49,8 @@
             "on", 
             "w"
         ],
-        "output_control": "nsamples",
-        "output_value": 400
+        "output_control": "tsteps",
+        "output_value": 1
     },
     "scalar": {
 	    "enabled": true,
