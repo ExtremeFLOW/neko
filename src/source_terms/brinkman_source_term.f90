@@ -222,7 +222,6 @@ contains
 
 	if(this%if_implicit) then
    ! this is implicit
-   print *, "YOFAM"
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call implicit_brinkman_source_term_compute_device(this%fields, this%brinkman)
     else

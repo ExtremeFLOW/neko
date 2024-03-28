@@ -57,6 +57,8 @@ module scalar_source_term
      class(source_term_wrapper_t), allocatable :: source_terms(:)
      !> The right-hand side.
      type(field_t), pointer :: f => null()
+     !> The implicit Brinkman term
+     type(field_t), pointer :: chi => null()
    contains
      !> Constructor.
      procedure, pass(this) :: init => scalar_source_term_init
@@ -72,10 +74,11 @@ module scalar_source_term
 contains
 
   !> Constructor.
-  subroutine scalar_source_term_init(this, json, f, coef, user)
+  subroutine scalar_source_term_init(this, json, f, coef, user, chi)
     class(scalar_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_t), pointer, intent(in) :: f
+    type(field_t), pointer, intent(in) :: chi
     type(coef_t), intent(inout) :: coef
     type(user_t), intent(in) :: user
 
@@ -98,12 +101,15 @@ contains
     call this%free()
 
     this%f => f
+    this%chi => chi
 
 
     if (json%valid_path('case.scalar.source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
-       allocate(rhs_fields%fields(1))
+       allocate(rhs_fields%fields(2))
        rhs_fields%fields(1)%f => f
+       ! and the implicit Brinkman as the second field
+       rhs_fields%fields(2)%f => chi
 
        call json%get_core(core)
        call json%get('case.scalar.source_terms', source_object, found)
@@ -170,6 +176,7 @@ contains
     integer :: i
 
     nullify(this%f)
+    nullify(this%chi)
 
     if (allocated(this%source_terms)) then
        do i=1, size(this%source_terms)
@@ -190,6 +197,7 @@ contains
     integer :: i, n
 
     this%f = 0.0_rp
+    this%chi = 0.0_rp
 
     ! Add contribution from all source terms.
     if (allocated(this%source_terms)) then
