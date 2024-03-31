@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ module gmres_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
   use device_identity, only : device_ident_t
-  use math, only : rone, rzero
+  use math, only : rone, rzero, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, &
                           device_add2s2, device_add2s1, device_rone, &
                           device_cmult2, device_add2s2_many, device_glsc3_many,&
@@ -368,7 +368,7 @@ contains
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
-         if (gam(1) .eq. 0) return
+         if (abscmp(gam(1), 0.0_rp)) return
 
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)
@@ -409,7 +409,7 @@ contains
             end do
 
             rnorm = 0.0_rp
-            if(alpha .eq. 0.0_rp) then
+            if(abscmp(alpha, 0.0_rp)) then
                conv = .true.
                exit
             end if
