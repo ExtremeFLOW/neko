@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Subroutines to add advection terms to the RHS of a transport equation.
+!> Contains the factory routine for `advection_t` children.
 module advection_fctry
   use num_types, only : rp
   use advection, only : advection_t, adv_no_dealias_t, adv_dealias_t
