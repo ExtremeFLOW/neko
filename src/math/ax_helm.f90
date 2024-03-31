@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,42 +30,41 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_fctry
-  use neko_config
-  use ax_helm_device, only : ax_helm_device_t
-  use ax_helm_xsmm, only : ax_helm_xsmm_t
-  use ax_helm_sx, only : ax_helm_sx_t
-  use ax_helm, only : ax_helm_t
-  use ax_helm_cpu, only : ax_helm_cpu_t
+module ax_helm
   use ax_product, only : ax_t
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use math, only : addcol4
+  use field_list
   implicit none
   private
 
-  public :: ax_helm_factory
+  !> Matrix-vector product for a Helmholtz problem.
+  type, public, abstract, extends(ax_t) :: ax_helm_t
+     real(kind=rp), allocatable :: h1(:,:,:,:) !< Stiffness scaling
+     real(kind=rp), allocatable :: h2(:,:,:,:) !< Mass scaling
+   contains
+     !> Compute the product for a list of fields.
+     procedure, pass(this) :: compute_list => ax_helm_compute_list
+  end type ax_helm_t
 
 contains
 
-  !> Factory routine for the a Helmholtz problem matrix-vector product.
-  !! The selection is based on the compute backend.
-  !! @param Ax The matrix-vector product type to be allocated.
-  subroutine ax_helm_factory(Ax)
-    class(ax_t), allocatable, intent(inout) :: Ax
+   subroutine ax_helm_compute_list(this, result, x_list, coef, msh, Xh)
+    class(ax_helm_t), intent(out) :: this
+    type(field_list_t), intent(inout) :: result
+    type(field_list_t), intent(inout) :: x_list
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    integer :: i
 
-    if (allocated(Ax)) then
-       deallocate(Ax)
-    end if
+    do i = 1, x_list%size()
+       call this%compute(result%items(i)%ptr%x, x_list%items(i)%ptr%x, &
+                         coef, msh, Xh)
+    end do
 
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(ax_helm_sx_t::Ax)
-    else if (NEKO_BCKND_XSMM .eq. 1) then
-       allocate(ax_helm_xsmm_t::Ax)
-    else if (NEKO_BCKND_DEVICE .eq. 1)then
-       allocate(ax_helm_device_t::Ax)
-    else
-       allocate(ax_helm_cpu_t::Ax)
-    end if
-
-  end subroutine ax_helm_factory
-
-
-end module ax_helm_fctry
+   end subroutine ax_helm_compute_list
+end module ax_helm
