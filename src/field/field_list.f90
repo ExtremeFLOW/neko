@@ -55,7 +55,7 @@ contains
     class(field_list_t), intent(inout) :: this
     type(field_t), pointer :: f
     integer :: i
-    f = this%items(i)%ptr
+    f => this%items(i)%ptr
   end function field_list_get
 
   !> Append a field to the list.
