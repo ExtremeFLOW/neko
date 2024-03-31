@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm
-  use ax_product, only : ax_t
+module ax_helm_cpu
+  use ax_helm, only : ax_helm_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -41,13 +41,29 @@ module ax_helm
   private
 
   !> CPU matrix-vector product for a Helmholtz problem.
-  type, public, extends(ax_t) :: ax_helm_t
+  type, public, extends(ax_helm_t) :: ax_helm_cpu_t
    contains
      !> Compute the product.
      procedure, nopass :: compute => ax_helm_compute
-  end type ax_helm_t
+  end type ax_helm_cpu_t
 
 contains
+
+ !  subroutine ax_helm_compute_list(this, result, x_list, coef, msh, Xh)
+ !   class(ax_helm_t), intent(out) :: this
+ !   type(field_list_t), intent(inout) :: result
+ !   type(field_list_t), intent(inout) :: x_list
+ !   type(mesh_t), intent(inout) :: msh
+ !   type(space_t), intent(inout) :: Xh
+ !   type(coef_t), intent(inout) :: coef
+ !   integer :: i
+
+!    do i = 1, size(x_list%fields)
+!       call this%compute(result%fields(i)%f%x, x_list%fields(i)%f%x, &
+!                         coef, msh, Xh)
+!    end do
+
+!   end subroutine ax_helm_compute_list
 
   !> Compute the product.
   !! @param w Vector of size @a (lx,ly,lz,nelv).
@@ -1917,4 +1933,4 @@ contains
     end do
   end subroutine ax_helm_lx2
 
-end module ax_helm
+end module ax_helm_cpu
