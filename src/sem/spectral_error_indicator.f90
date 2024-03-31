@@ -671,14 +671,14 @@ contains
   !! @param ww field to add to the list
   subroutine list_init3(list, uu, vv, ww)
     type(field_list_t), intent(inout) :: list
-    type(field_t) , target:: uu
-    type(field_t) , target:: vv
-    type(field_t) , target:: ww
+    type(field_t), target:: uu
+    type(field_t), target:: vv
+    type(field_t), target:: ww
     !> Initialize field lists
     call list%init(3)
-    call list%set(1, uu)
-    call list%set(2, vv)
-    call list%set(3, ww)
+    call list%set_to_field(1, uu)
+    call list%set_to_field(2, vv)
+    call list%set_to_field(3, ww)
   end subroutine list_init3
 
 
