@@ -1,6 +1,7 @@
 module field_list
   use field, only : field_ptr_t, field_t
   use iso_c_binding, only : c_ptr
+  use num_types, only : rp
   implicit none
   private
 
@@ -24,6 +25,9 @@ module field_list
 
      !> Get device pointer for a given index
      procedure, pass(this) :: x_d => field_list_x_d
+
+     !> Get raw field data for a given index
+     procedure, pass(this) :: x => field_list_x
 
      !> Get number of items in the list.
      procedure, pass(this) :: size => field_list_size
@@ -95,10 +99,19 @@ contains
   !! @param i The index of the item.
   function field_list_x_d(this, i) result(ptr)
     class(field_list_t), intent(inout) :: this
-    type(c_ptr), pointer :: ptr
+    type(c_ptr) :: ptr
     integer :: i
     ptr = this%items(i)%ptr%x_d
   end function field_list_x_d
+
+  !> Get raw field data for a given index
+  !! @param i The index of the item.
+  function field_list_x(this, i) result(x)
+    class(field_list_t), target, intent(inout) :: this
+    real(kind=rp), pointer :: x(:,:,:,:)
+    integer :: i
+    x => this%items(i)%ptr%x
+  end function field_list_x
 
   !> Point item at a given index.
   !! @param i The index of the item.
@@ -117,7 +130,7 @@ contains
   subroutine field_list_set_to_field_ptr(this, i, ptr)
     class(field_list_t), intent(inout) :: this
     integer, intent(in) :: i
-    type(field_ptr_t), intent(in) :: ptr
+    type(field_ptr_t), target, intent(in) :: ptr
 
     this%items(i)%ptr => ptr%ptr
   end subroutine field_list_set_to_field_ptr
