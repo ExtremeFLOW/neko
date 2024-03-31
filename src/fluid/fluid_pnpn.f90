@@ -51,6 +51,7 @@ module fluid_pnpn
   use json_utils, only : json_get
   use json_module, only : json_file
   use material_properties, only : material_properties_t
+  use ax_product, only : ax_t
   implicit none
   private
 
@@ -280,7 +281,7 @@ contains
     integer :: i, n
 
     n = this%u%dof%size()
-    ! Make sure that continuity is maintained (important for interpolation) 
+    ! Make sure that continuity is maintained (important for interpolation)
     ! Do not do this for lagged rhs (derivatives are not necessairly coninous across elements)
     call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
@@ -613,7 +614,7 @@ contains
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_dw, gs_Xh)
       call profiler_end_region
-      
+
       call this%proj_u%post_solving(du%x, Ax, c_Xh, &
                                  this%bclst_du, gs_Xh, n, tstep, dt_controller)
       call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
