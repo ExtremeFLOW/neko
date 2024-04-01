@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ module cacg
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply, bc_list_apply_scalar
-  use math, only : glsc3, rzero, copy, x_update
+  use math, only : glsc3, rzero, copy, x_update, abscmp
   use utils, only : neko_warning
   use comm
   use mxm_wrapper
@@ -164,7 +164,7 @@ contains
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       iter = 0
-      if(rnorm .eq. 0.0_rp) return
+      if(abscmp(rnorm, 0.0_rp)) return
       do while (iter < max_iter)
 
          call copy(PR,p, n)
