@@ -36,6 +36,7 @@ module bc
   use num_types
   use device
   use dofmap, only : dofmap_t
+  use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
   use facet_zone, only : facet_zone_t
@@ -54,6 +55,8 @@ module bc
      integer, allocatable :: facet(:)
      !> Map of degrees of freedom
      type(dofmap_t), pointer :: dof
+     !> SEM coefficients
+     type(coef_t), pointer :: coef
      !> The mesh
      type(mesh_t), pointer :: msh
      !> The function space
@@ -185,15 +188,16 @@ contains
 
   !> Constructor
   !! @param dof Map of degrees of freedom.
-  subroutine bc_init(this, dof)
+  subroutine bc_init(this, coef)
     class(bc_t), intent(inout) :: this
-    type(dofmap_t), target, intent(in) :: dof
+    type(coef_t), target, intent(in) :: coef
 
     call bc_free(this)
 
-    this%dof => dof
-    this%Xh => dof%Xh
-    this%msh => dof%msh
+    this%dof => coef%dof
+    this%coef => coef
+    this%Xh => this%dof%Xh
+    this%msh => this%dof%msh
 
     call this%marked_facet%init()
 
