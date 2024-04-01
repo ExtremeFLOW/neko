@@ -284,7 +284,7 @@ contains
     call json_get_or_default(params, &
                             'case.fluid.pressure_solver.projection_hold_steps',&
                             this%pr_projection_activ_step, 5)
-    
+
 
     call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
 
@@ -578,8 +578,7 @@ contains
     call json_get_or_default(params, 'case.fluid.outflow_condition.velocity_scale',&
                              dong_uchar, 1.0_rp)
 
-    call this%bc_dong%set_vars(this%c_Xh, this%u, this%v, this%w,&
-         dong_uchar, dong_delta)
+    call this%bc_dong%set_vars(this%c_Xh, dong_uchar, dong_delta)
 
     call bc_list_add(this%bclst_prs, this%bc_dong)
 
@@ -740,7 +739,7 @@ contains
           call ip%validate
        end select
     end if
-    
+
     !
     ! Setup checkpoint structure (if everything is fine)
     !
