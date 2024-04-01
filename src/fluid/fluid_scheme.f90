@@ -578,8 +578,7 @@ contains
     call json_get_or_default(params, 'case.fluid.outflow_condition.velocity_scale',&
                              dong_uchar, 1.0_rp)
 
-    call this%bc_dong%set_vars(this%u, this%v, this%w,&
-         dong_uchar, dong_delta)
+    call this%bc_dong%set_vars(dong_uchar, dong_delta)
 
     call bc_list_add(this%bclst_prs, this%bc_dong)
 
