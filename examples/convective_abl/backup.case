@@ -1,0 +1,56 @@
+{
+"version": 1.0,
+"case": {
+    "mesh_file": "box.nmsh",
+    "output_at_end": true,
+    "output_boundary": true,
+    "output_checkpoints": true,
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 10,
+    "end_time": 10,
+    "timestep": 0.02,
+    "numerics": {
+        "time_order": 2,
+        "polynomial_order": 5,
+        "dealias": true
+    },
+    "fluid": {
+        "scheme": "pnpn_stress",
+        "rho": 1,
+        "mu": 1.00000e-10,
+        "initial_condition": {
+            "type": "user"
+        },
+        "inflow_condition": {
+            "type": "uniform",
+            "value": [10.0, 0.0, 0.0]
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "absolute_tolerance": 1e-7,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "absolute_tolerance": 1e-4,
+            "max_iterations": 800
+        },
+        "boundary_types": ["", "", "sh=-0.3025", "v"],
+        "output_control": "simulationtime",
+        "output_value": 0.1 
+    },
+    "simulation_components": 
+    [
+      {
+        "type": "les_model",
+        "model": "vreman",
+        "nut_field": "nut",
+        "output_control": "global",
+        "output_filename": "les"
+
+      }
+    ]
+}
+}

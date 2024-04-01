@@ -1,0 +1,69 @@
+{
+"version": 1.0,
+"case": {
+    "mesh_file": "box.nmsh",
+    "output_at_end": true,
+    "output_checkpoints": false,
+    "end_time": 10,
+    "timestep": 0.010,
+    "numerics": {
+        "time_order": 2,
+        "polynomial_order": 5,
+        "dealias": true
+    },
+    "fluid": {
+        "scheme": "pnpn_stress",
+        "rho": 1,
+        "mu": 1.00000e-5,
+        "initial_condition": {
+            "type": "uniform",
+            "value": [0.0, 0.0, 0.0]
+        },
+        "inflow_condition": {
+            "type": "uniform",
+            "value": [0.0, 0.0, 0.0]
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "absolute_tolerance": 1e-7,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "absolute_tolerance": 1e-4,
+            "max_iterations": 800
+        },
+        "source_terms": [
+           {
+             "type": "user_vector"
+            }
+        ],
+        "boundary_types": ["", "", "w", "v"],
+        "output_control": "nsamples",
+        "output_value": 10
+    },
+    "scalar": {
+      "enabled": true,
+      "lambda": 0.01,
+      "cp": 1,
+      "initial_condition": {
+        "type": "user"
+      },
+      "boundary_types": [
+          "", "", "n=2", "d=310.811"
+      ]
+    },
+    "simulation_components": 
+    [
+      {
+        "type": "les_model",
+        "model": "vreman",
+        "nut_field": "nut",
+        "output_control": "global",
+        "output_filename": "les",
+      }
+    ]
+}
+}
