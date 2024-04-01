@@ -74,7 +74,6 @@ contains
   subroutine dong_outflow_set_vars(this, c_Xh, uinf, delta)
     class(dong_outflow_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: c_Xh
-    class(dong_outflow_t), intent(inout) :: this
     real(kind=rp), intent(in) :: uinf
     real(kind=rp), optional, intent(in) :: delta
     real(kind=rp), allocatable :: temp_x(:)
