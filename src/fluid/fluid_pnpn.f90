@@ -176,21 +176,19 @@ contains
     end associate
 
     ! Initialize velocity surface terms in pressure rhs
-    call this%bc_prs_surface%init(this%dm_Xh)
+    call this%bc_prs_surface%init(this%c_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'v', this%bc_labels)
     call this%bc_prs_surface%finalize()
-    call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
-    call this%bc_sym_surface%init(this%dm_Xh)
+    call this%bc_sym_surface%init(this%c_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'sym', this%bc_labels)
     call this%bc_sym_surface%finalize()
-    call this%bc_sym_surface%set_coef(this%c_Xh)
     ! Initialize dirichlet bcs for velocity residual
-    call this%bc_vel_res_non_normal%init(this%dm_Xh)
+    call this%bc_vel_res_non_normal%init(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
                                                          'on', this%bc_labels)
@@ -198,9 +196,9 @@ contains
                                                          'on+dong', &
                                                          this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
-    call this%bc_vel_res_non_normal%init_msk(this%c_Xh)
+    call this%bc_vel_res_non_normal%init_msk()
 
-    call this%bc_dp%init(this%dm_Xh)
+    call this%bc_dp%init(this%c_Xh)
     call this%bc_dp%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
                                          this%bc_labels)
     call this%bc_dp%mark_zones_from_list(msh%labeled_zones, &
@@ -212,7 +210,7 @@ contains
     !Add 0 prs bcs
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
-    call this%bc_vel_res%init(this%dm_Xh)
+    call this%bc_vel_res%init(this%c_Xh)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
@@ -280,7 +278,7 @@ contains
     integer :: i, n
 
     n = this%u%dof%size()
-    ! Make sure that continuity is maintained (important for interpolation) 
+    ! Make sure that continuity is maintained (important for interpolation)
     ! Do not do this for lagged rhs (derivatives are not necessairly coninous across elements)
     call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
@@ -613,7 +611,7 @@ contains
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_dw, gs_Xh)
       call profiler_end_region
-      
+
       call this%proj_u%post_solving(du%x, Ax, c_Xh, &
                                  this%bclst_du, gs_Xh, n, tstep, dt_controller)
       call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
