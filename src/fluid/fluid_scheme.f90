@@ -524,7 +524,7 @@ contains
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
-    real(kind=rp) :: real_val, dong_delta, dong_uchar
+    real(kind=rp) :: real_val
     character(len=:), allocatable :: string_val1, string_val2
     integer :: integer_val
 
@@ -573,12 +573,8 @@ contains
                         'on+dong', this%bc_labels)
     call this%bc_dong%finalize()
 
-    call json_get_or_default(params, 'case.fluid.outflow_condition.delta',&
-                             dong_delta, 0.01_rp)
-    call json_get_or_default(params, 'case.fluid.outflow_condition.velocity_scale',&
-                             dong_uchar, 1.0_rp)
 
-    call this%bc_dong%set_vars(dong_uchar, dong_delta)
+    call this%bc_dong%init(this%c_Xh, params)
 
     call bc_list_add(this%bclst_prs, this%bc_dong)
 
