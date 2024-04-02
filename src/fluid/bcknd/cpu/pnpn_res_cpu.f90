@@ -147,7 +147,7 @@ contains
 
     do i = 1, n
        c_Xh%h1(i,1,1,1) = mu
-       c_Xh%h2(i,1,1,1) = rho * (bd / dt) + chi%x(i,1,1,1)
+       c_Xh%h2(i,1,1,1) = rho * (bd / dt) + rho * chi%x(i,1,1,1)
     end do
     c_Xh%ifh2 = .true.
 

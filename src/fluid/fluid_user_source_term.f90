@@ -172,15 +172,19 @@ contains
              this%dm%msh%nelv))
     allocate(this%w(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
              this%dm%msh%nelv))
+    allocate(this%chi(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
+             this%dm%msh%nelv))
 
     this%u = 0d0
     this%v = 0d0
     this%w = 0d0
+    this%chi = 0d0
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%u, this%u_d, this%dm%size())
        call device_map(this%v, this%v_d, this%dm%size())
        call device_map(this%w, this%w_d, this%dm%size())
+       call device_map(this%chi, this%chi_d, this%dm%size())
     end if
 
 
@@ -206,10 +210,12 @@ contains
     if (allocated(this%u)) deallocate(this%u)
     if (allocated(this%v)) deallocate(this%v)
     if (allocated(this%w)) deallocate(this%w)
+    if (allocated(this%chi)) deallocate(this%chi)
 
     if (c_associated(this%u_d)) call device_free(this%u_d)
     if (c_associated(this%v_d)) call device_free(this%v_d)
     if (c_associated(this%w_d)) call device_free(this%w_d)
+    if (c_associated(this%chi_d)) call device_free(this%chi_d)
 
     nullify(this%compute_vector_)
     nullify(this%compute_pw_)

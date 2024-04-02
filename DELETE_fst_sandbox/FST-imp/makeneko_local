@@ -1,0 +1,44 @@
+#!/bin/sh -e
+
+prefix=/scratch/baconnet/neko
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir_pkg=${prefix}/include/neko
+include_FST=.
+files_to_compile="global_params.f90 sphere.f90 spectrum.f90 spec.f90 turbu.f90 FST.f90"
+FC=mpif90
+FCFLAGS='-g -O2'
+
+printf "\n%s\n" 'N E K O build tool, Version 0.4.99'
+printf "%s\n" '(build: 2022-12-21 on x86_64-pc-linux-gnu using gnu)'
+
+
+if [ -z "$1" ]
+  then
+      echo "No user file provided"
+      exit 1
+fi
+printf '\n%s' "Building user NEKO ..."
+rm -f usr_driver.f90
+cat >> usr_driver.f90 << _ACEOF
+program usrneko
+  use neko
+  use user
+  type(case_t) :: C
+  
+  call user_setup(C%usr)
+  call neko_init(C)
+  call neko_solve(C)
+  call neko_finalize(C)
+
+
+end program usrneko
+_ACEOF
+
+$FC $FCFLAGS $files_to_compile -I$includedir_pkg \
+    -L$libdir $1 usr_driver.f90 \
+    -lneko   -llapack -lblas    -o neko
+
+rm -f usr_driver.f90
+
+printf "%s\n" ' done!'

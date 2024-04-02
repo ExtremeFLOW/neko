@@ -350,7 +350,7 @@ contains
 
     call device_cfill(c_Xh%h1_d, mu, n)
     call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
-    call device_add2(c_Xh%h2_d, chi%x_d, n)
+    call device_add2s2(c_Xh%h2_d, chi%x_d, rho , n)
     c_Xh%ifh2 = .true.
 
     call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
