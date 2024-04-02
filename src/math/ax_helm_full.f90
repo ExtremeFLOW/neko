@@ -49,21 +49,22 @@ module ax_helm
   end type ax_helm_t
 
 contains
-  subroutine ax_helm_compute3(this, au, av, aw, u, v, w, coef, msh, Xh)
+  subroutine ax_helm_compute3(this, ax1, ax2, ax3, x1, x2, x3, coef, msh, Xh)
+    implicit none
     class(ax_helm_t), intent(in) :: this
     type(space_t), intent(inout) :: Xh
     type(mesh_t), intent(inout) :: msh
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: au(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: ax1(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: ax2(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: ax3(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: x1(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: x2(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: x3(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    call this%compute(au, u, coef, msh, Xh)
-    call this%compute(av, v, coef, msh, Xh)
-    call this%compute(aw, w, coef, msh, Xh)
+    call this%compute(ax1, x1, coef, msh, Xh)
+    call this%compute(ax2, x2, coef, msh, Xh)
+    call this%compute(ax3, x3, coef, msh, Xh)
   end subroutine ax_helm_compute3
 
 end module ax_helm

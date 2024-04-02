@@ -37,6 +37,7 @@ module ax_helm_fctry
   use ax_helm_sx, only : ax_helm_sx_t
   use ax_helm, only : ax_helm_t
   use ax_helm_cpu, only : ax_helm_cpu_t
+  use ax_helm_full_cpu, only : ax_helm_full_cpu_t
   use ax_product, only : ax_t
   implicit none
   private

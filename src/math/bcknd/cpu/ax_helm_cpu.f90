@@ -49,22 +49,6 @@ module ax_helm_cpu
 
 contains
 
- !  subroutine ax_helm_compute_list(this, result, x_list, coef, msh, Xh)
- !   class(ax_helm_t), intent(out) :: this
- !   type(field_list_t), intent(inout) :: result
- !   type(field_list_t), intent(inout) :: x_list
- !   type(mesh_t), intent(inout) :: msh
- !   type(space_t), intent(inout) :: Xh
- !   type(coef_t), intent(inout) :: coef
- !   integer :: i
-
-!    do i = 1, size(x_list%fields)
-!       call this%compute(result%fields(i)%f%x, x_list%fields(i)%f%x, &
-!                         coef, msh, Xh)
-!    end do
-
-!   end subroutine ax_helm_compute_list
-
   !> Compute the product.
   !! @param w Vector of size @a (lx,ly,lz,nelv).
   !! @param u Vector of size @a (lx,ly,lz,nelv).
