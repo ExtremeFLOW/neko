@@ -48,6 +48,8 @@ module inflow
      procedure, pass(this) :: apply_scalar_dev => inflow_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => inflow_apply_vector_dev
      procedure, pass(this) :: set_inflow => inflow_set_vector
+     !> Destructor.
+     procedure, pass(this) :: free => inflow_free
   end type inflow_t
 
 contains
@@ -109,6 +111,14 @@ contains
     real(kind=rp), dimension(3), intent(inout) :: x
     this%x = x
   end subroutine inflow_set_vector
+
+  !> Destructor
+  subroutine inflow_free(this)
+    class(inflow_t), target, intent(inout) :: this
+
+    call this%dirichlet_t%free_base()
+
+  end subroutine inflow_free
 
 
 end module inflow

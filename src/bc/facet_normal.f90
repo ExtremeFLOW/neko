@@ -49,6 +49,8 @@ module facet_normal
      procedure, pass(this) :: apply_vector => facet_normal_apply_vector
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
      procedure, pass(this) :: apply_surfvec_dev => facet_normal_apply_surfvec_dev
+     !> Destructor.
+     procedure, pass(this) :: free => facet_normal_free
   end type facet_normal_t
 
 contains
@@ -137,5 +139,13 @@ contains
     end associate
 
   end subroutine facet_normal_apply_surfvec_dev
+
+  !> Destructor
+  subroutine facet_normal_free(this)
+    class(facet_normal_t), target, intent(inout) :: this
+
+    call this%dirichlet_t%free_base()
+
+  end subroutine facet_normal_free
 
 end module facet_normal

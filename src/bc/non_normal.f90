@@ -50,6 +50,8 @@ module non_normal
   type, public, extends(symmetry_t) :: non_normal_t
    contains
      procedure, pass(this) :: init_msk => non_normal_init_msk
+     !> Destructor.
+     procedure, pass(this) :: free => non_normal_free
   end type non_normal_t
 
 contains
@@ -134,13 +136,10 @@ contains
     call this%bc_z%set_g(0.0_rp)
   end subroutine non_normal_init_msk
 
-
+  !> Destructor
   subroutine non_normal_free(this)
-    type(non_normal_t), intent(inout) :: this
+    class(non_normal_t), target, intent(inout) :: this
 
-    call this%bc_x%free()
-    call this%bc_y%free()
-    call this%bc_z%free()
-
+    call this%symmetry_t%free()
   end subroutine non_normal_free
 end module non_normal

@@ -56,6 +56,8 @@ module usr_inflow
      procedure, pass(this) :: set_eval => usr_inflow_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_inflow_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_inflow_apply_scalar_dev
+     !> Destructor.
+     procedure, pass(this) :: free => usr_inflow_free
   end type usr_inflow_t
 
   abstract interface
@@ -102,7 +104,9 @@ module usr_inflow
 contains
 
   subroutine usr_inflow_free(this)
-    type(usr_inflow_t), intent(inout) :: this
+    class(usr_inflow_t), target, intent(inout) :: this
+
+    call this%inflow_t%free()
 
     if (c_associated(this%usr_x_d)) then
        call device_free(this%usr_x_d)
@@ -289,7 +293,7 @@ contains
               end select
            end do
          end associate
-        
+
          call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE, sync=.true.)

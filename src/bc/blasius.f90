@@ -59,13 +59,16 @@ module blasius
      procedure, pass(this) :: apply_vector_dev => blasius_apply_vector_dev
      procedure, pass(this) :: set_params => blasius_set_params
      procedure, pass(this) :: set_coef => blasius_set_coef
+     !> Destructor.
+     procedure, pass(this) :: free => blasius_free
   end type blasius_t
 
 contains
 
   subroutine blasius_free(this)
-    type(blasius_t), intent(inout) :: this
+    class(blasius_t), target, intent(inout) :: this
 
+    call this%inflow_t%free()
     nullify(this%bla)
 
     if (c_associated(this%blax_d)) then

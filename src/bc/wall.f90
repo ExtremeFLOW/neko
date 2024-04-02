@@ -46,6 +46,8 @@ module wall
      procedure, pass(this) :: apply_vector => no_slip_wall_apply_vector
      procedure, pass(this) :: apply_scalar_dev => no_slip_wall_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => no_slip_wall_apply_vector_dev
+     !> Destructor.
+     procedure, pass(this) :: free => no_slip_wall_free
   end type no_slip_wall_t
 
 contains
@@ -116,5 +118,13 @@ contains
                                           size(this%msk))
 
   end subroutine no_slip_wall_apply_vector_dev
+
+  !> Destructor
+  subroutine no_slip_wall_free(this)
+    class(no_slip_wall_t), target, intent(inout) :: this
+
+    call this%dirichlet_t%free()
+
+  end subroutine no_slip_wall_free
 
 end module wall

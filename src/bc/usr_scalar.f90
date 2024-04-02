@@ -54,6 +54,8 @@ module usr_scalar
      procedure, pass(this) :: set_eval => usr_scalar_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_scalar_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_scalar_apply_scalar_dev
+     !> Destructor.
+     procedure, pass(this) :: free => usr_scalar_free
   end type usr_scalar_t
 
   abstract interface
@@ -98,14 +100,16 @@ module usr_scalar
 
 contains
 
-  subroutine usr_inflow_free(this)
-    type(usr_scalar_t), intent(inout) :: this
+  subroutine usr_scalar_free(this)
+    class(usr_scalar_t), target, intent(inout) :: this
+
+    call this%dirichlet_t%free
 
     if (c_associated(this%usr_x_d)) then
        call device_free(this%usr_x_d)
     end if
 
-  end subroutine usr_inflow_free
+  end subroutine usr_scalar_free
 
   !> Scalar apply
   !! Just imitating inflow for now, but we should look this over
@@ -254,7 +258,7 @@ contains
                     t_, tstep_)
             end select
          end do
-        
+
          call device_memcpy(x, this%usr_x_d, m, HOST_TO_DEVICE, sync=.true.)
 
          deallocate(x)
