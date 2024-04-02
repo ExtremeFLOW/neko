@@ -299,7 +299,8 @@ contains
 
     n = this%u%dof%size()
     ! Make sure that continuity is maintained (important for interpolation)
-    ! Do not do this for lagged rhs (derivatives are not necessairly coninous across elements)
+    ! Do not do this for lagged rhs 
+    ! (derivatives are not necessairly coninous across elements)
     call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%w%x,this%c_Xh%mult,this%u%dof%size())
