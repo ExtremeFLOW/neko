@@ -325,7 +325,7 @@ contains
 
     call bc_list_init(this%bclst_vel)
 
-    call this%bc_sym%init(this%c_Xh)
+    call this%bc_sym%init_base(this%c_Xh)
     call this%bc_sym%mark_zone(msh%sympln)
     call this%bc_sym%mark_zones_from_list(msh%labeled_zones,&
                         'sym', this%bc_labels)
@@ -348,7 +348,7 @@ contains
           call neko_error('Invalid inflow condition '//string_val1)
        end if
 
-       call this%bc_inflow%init(this%c_Xh)
+       call this%bc_inflow%init_base(this%c_Xh)
        call this%bc_inflow%mark_zone(msh%inlet)
        call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
                         'v', this%bc_labels)
@@ -380,7 +380,7 @@ contains
        end if
     end if
 
-    call this%bc_wall%init(this%c_Xh)
+    call this%bc_wall%init_base(this%c_Xh)
     call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%mark_zones_from_list(msh%labeled_zones,&
                         'w', this%bc_labels)
@@ -393,7 +393,7 @@ contains
        call this%bdry%init(this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'w', this%bc_labels)
@@ -402,7 +402,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%inlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'v', this%bc_labels)
@@ -412,7 +412,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%outlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'o', this%bc_labels)
@@ -421,7 +421,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%sympln)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'sym', this%bc_labels)
@@ -430,14 +430,14 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
        call bdry_mask%set_g(5.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%outlet_normal)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'on', this%bc_labels)
@@ -550,7 +550,7 @@ contains
     ! Setup pressure boundary conditions
     !
     call bc_list_init(this%bclst_prs)
-    call this%bc_prs%init(this%c_Xh)
+    call this%bc_prs%init_base(this%c_Xh)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
                         'o', this%bc_labels)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
@@ -566,7 +566,7 @@ contains
     call this%bc_prs%finalize()
     call this%bc_prs%set_g(0.0_rp)
     call bc_list_add(this%bclst_prs, this%bc_prs)
-    call this%bc_dong%init(this%c_Xh)
+    call this%bc_dong%init_base(this%c_Xh)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
                         'o+dong', this%bc_labels)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&

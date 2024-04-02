@@ -58,6 +58,8 @@ module symmetry
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
      procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
+     !> Destructor.
+     procedure, pass(this) :: free => symmetry_free
   end type symmetry_t
 
 contains
@@ -74,9 +76,9 @@ contains
 
     call symmetry_free(this)
 
-    call this%bc_x%init(this%coef)
-    call this%bc_y%init(this%coef)
-    call this%bc_z%init(this%coef)
+    call this%bc_x%init_base(this%coef)
+    call this%bc_y%init_base(this%coef)
+    call this%bc_z%init_base(this%coef)
 
     associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
@@ -140,15 +142,6 @@ contains
 
   end subroutine symmetry_init_msk
 
-  subroutine symmetry_free(this)
-    type(symmetry_t), intent(inout) :: this
-
-    call this%bc_x%free()
-    call this%bc_y%free()
-    call this%bc_z%free()
-
-  end subroutine symmetry_free
-
   !> No-op scalar apply
   subroutine symmetry_apply_scalar(this, x, n, t, tstep)
     class(symmetry_t), intent(inout) :: this
@@ -200,4 +193,14 @@ contains
 
   end subroutine symmetry_apply_vector_dev
 
+  !> Destructor
+  subroutine symmetry_free(this)
+    class(symmetry_t), target, intent(inout) :: this
+
+    call this%free_base()
+    call this%bc_x%free()
+    call this%bc_y%free()
+    call this%bc_z%free()
+
+  end subroutine symmetry_free
 end module symmetry

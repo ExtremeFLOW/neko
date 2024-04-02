@@ -49,6 +49,8 @@ module dirichlet
      procedure, pass(this) :: apply_scalar_dev => dirichlet_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => dirichlet_apply_vector_dev
      procedure, pass(this) :: set_g => dirichlet_set_g
+     !> Destructor.
+     procedure, pass(this) :: free => dirichlet_free
   end type dirichlet_t
 
 contains
@@ -128,5 +130,13 @@ contains
     this%g = g
 
   end subroutine dirichlet_set_g
+
+  !> Destructor
+  subroutine dirichlet_free(this)
+    class(dirichlet_t), target, intent(inout) :: this
+
+    call this%free_base
+
+  end subroutine dirichlet_free
 
 end module dirichlet

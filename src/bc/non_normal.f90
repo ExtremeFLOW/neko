@@ -66,9 +66,9 @@ contains
 
     call non_normal_free(this)
 
-    call this%bc_x%init(this%coef)
-    call this%bc_y%init(this%coef)
-    call this%bc_z%init(this%coef)
+    call this%bc_x%init_base(this%coef)
+    call this%bc_y%init_base(this%coef)
+    call this%bc_z%init_base(this%coef)
 
     associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)

@@ -44,7 +44,6 @@ module facet_normal
 
   !> Dirichlet condition in facet normal direction
   type, public, extends(dirichlet_t) :: facet_normal_t
-     type(coef_t), pointer :: c => null()
    contains
      procedure, pass(this) :: apply_scalar => facet_normal_apply_scalar
      procedure, pass(this) :: apply_vector => facet_normal_apply_vector

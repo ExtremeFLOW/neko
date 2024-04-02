@@ -176,19 +176,19 @@ contains
     end associate
 
     ! Initialize velocity surface terms in pressure rhs
-    call this%bc_prs_surface%init(this%c_Xh)
+    call this%bc_prs_surface%init_base(this%c_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'v', this%bc_labels)
     call this%bc_prs_surface%finalize()
     ! Initialize symmetry surface terms in pressure rhs
-    call this%bc_sym_surface%init(this%c_Xh)
+    call this%bc_sym_surface%init_base(this%c_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'sym', this%bc_labels)
     call this%bc_sym_surface%finalize()
     ! Initialize dirichlet bcs for velocity residual
-    call this%bc_vel_res_non_normal%init(this%c_Xh)
+    call this%bc_vel_res_non_normal%init_base(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
                                                          'on', this%bc_labels)
@@ -198,7 +198,7 @@ contains
     call this%bc_vel_res_non_normal%finalize()
     call this%bc_vel_res_non_normal%init_msk()
 
-    call this%bc_dp%init(this%c_Xh)
+    call this%bc_dp%init_base(this%c_Xh)
     call this%bc_dp%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
                                          this%bc_labels)
     call this%bc_dp%mark_zones_from_list(msh%labeled_zones, &
@@ -210,7 +210,7 @@ contains
     !Add 0 prs bcs
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
-    call this%bc_vel_res%init(this%c_Xh)
+    call this%bc_vel_res%init_base(this%c_Xh)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &

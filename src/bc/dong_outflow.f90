@@ -67,6 +67,8 @@ module dong_outflow
      procedure, pass(this) :: apply_scalar_dev => dong_outflow_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => dong_outflow_apply_vector_dev
      procedure, pass(this) :: set_vars => dong_outflow_set_vars
+     !> Destructor.
+     procedure, pass(this) :: free => dong_outflow_free
   end type dong_outflow_t
 
 contains
@@ -190,5 +192,13 @@ contains
     !                                   this%g, size(this%msk))
 
   end subroutine dong_outflow_apply_vector_dev
+
+  !> Destructor
+  subroutine dong_outflow_free(this)
+    class(dong_outflow_t), target, intent(inout) :: this
+
+    call this%dirichlet_t%free
+
+  end subroutine dong_outflow_free
 
 end module dong_outflow
