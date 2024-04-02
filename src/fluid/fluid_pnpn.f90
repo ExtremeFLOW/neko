@@ -68,7 +68,8 @@ module fluid_pnpn
   use neko_config, only : NEKO_BCKND_DEVICE
   use math, only : col2, add2
   use mathops, only : opadd2cm, opcolv
-  use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free
+  use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
+                bc_list_apply_scalar, bc_list_apply_vector
   implicit none
   private
 
@@ -299,7 +300,7 @@ contains
 
     n = this%u%dof%size()
     ! Make sure that continuity is maintained (important for interpolation)
-    ! Do not do this for lagged rhs 
+    ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
     call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
