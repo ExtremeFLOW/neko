@@ -51,10 +51,10 @@ contains
     integer :: n_fields, i, n
 
     n_fields = fields%size()
-    n = fields%items(1)%ptr%dof%size()
+    n = fields%item_size(1)
 
     do i=1, n_fields
-       call cadd(fields%items(i)%ptr%x, values(i), n)
+       call cadd(fields%x(i), values(i), n)
     end do
   end subroutine const_source_term_compute_cpu
 

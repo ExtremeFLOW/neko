@@ -53,7 +53,7 @@ contains
     integer :: n
     type(field_t), pointer :: u, v, w
 
-    n = fields%items(1)%ptr%dof%size()
+    n = fields%item_size(1)
 
     u => neko_field_registry%get_field('u')
     v => neko_field_registry%get_field('v')

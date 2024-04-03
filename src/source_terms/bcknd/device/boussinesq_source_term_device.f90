@@ -59,7 +59,7 @@ contains
     integer :: n_fields, i, n
 
     n_fields = fields%size()
-    n = fields%items(1)%ptr%dof%size()
+    n = fields%item_size(1)
 
     do i=1, n_fields
        call device_add2s2(fields%x_d(i), s%x_d, g(i)*beta, n)

@@ -160,7 +160,7 @@ contains
     call this%free()
     call this%init_base(fields, coef, 0.0_rp, huge(0.0_rp))
 
-    this%dm => fields%items(1)%ptr%dof
+    this%dm => fields%dof(1)
 
     allocate(this%u(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
              this%dm%msh%nelv))
@@ -224,16 +224,16 @@ contains
     integer :: n
 
     call this%compute_vector_(this, t)
-    n = this%fields%items(1)%ptr%dof%size()
+    n = this%fields%item_size(1)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(this%fields%x_d(1), this%u_d, n)
        call device_add2(this%fields%x_d(2), this%v_d, n)
        call device_add2(this%fields%x_d(3), this%w_d, n)
     else
-       call add2(this%fields%items(1)%ptr%x, this%u, n)
-       call add2(this%fields%items(2)%ptr%x, this%v, n)
-       call add2(this%fields%items(3)%ptr%x, this%w, n)
+       call add2(this%fields%x(1), this%u, n)
+       call add2(this%fields%x(2), this%v, n)
+       call add2(this%fields%x(3), this%w, n)
     end if
 
   end subroutine fluid_user_source_term_compute

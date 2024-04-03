@@ -2,6 +2,9 @@ module field_list
   use field, only : field_ptr_t, field_t
   use iso_c_binding, only : c_ptr
   use num_types, only : rp
+  use space, only : space_t
+  use dofmap, only : dofmap_t
+  use mesh, only : mesh_t
   implicit none
   private
 
@@ -25,15 +28,20 @@ module field_list
 
      !> Get device pointer for a given index
      procedure, pass(this) :: x_d => field_list_x_d
-
      !> Get raw field data for a given index
      procedure, pass(this) :: x => field_list_x
-
      !> Get number of items in the list.
      procedure, pass(this) :: size => field_list_size
-
      !> Get the size of dofmap for an item in the list.
      procedure, pass(this) :: item_size => field_list_item_size
+     !> Get the dofmap for an item in the list.
+     procedure, pass(this) :: dof => field_list_dof
+     !> Get the space for an item in the list.
+     procedure, pass(this) :: Xh => field_list_space
+     !> Get the mesh for an item in the list.
+     procedure, pass(this) :: msh => field_list_msh
+     !> Check wether the dofmap is internal for an item in the list.
+     procedure, pass(this) :: internal_dofmap => field_list_internal_dofmap
   end type field_list_t
 
 contains
@@ -101,7 +109,7 @@ contains
   !> Get device pointer for a given index
   !! @param i The index of the item.
   function field_list_x_d(this, i) result(ptr)
-    class(field_list_t), intent(inout) :: this
+    class(field_list_t), intent(in) :: this
     integer, intent(in) :: i
     type(c_ptr) :: ptr
 
@@ -121,7 +129,7 @@ contains
   !> Get the size of the dofmap for item `i`.
   !! @param i The index of the item.
   function field_list_item_size(this, i) result(size)
-    class(field_list_t), target, intent(inout) :: this
+    class(field_list_t), target, intent(in) :: this
     integer, intent(in) :: i
     integer :: size
 
@@ -162,6 +170,45 @@ contains
     this%items(i)%ptr => fld
   end subroutine field_list_assign_to_field
 
+  !> Get the the dofmap for item `i`.
+  !! @param i The index of the item.
+  function field_list_dof(this, i) result(result)
+    class(field_list_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    type(dofmap_t), pointer :: result
+
+    result => this%items(i)%ptr%dof
+  end function field_list_dof
+
+  !> Get the the space for item `i`.
+  !! @param i The index of the item.
+  function field_list_space(this, i) result(result)
+    class(field_list_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    type(space_t), pointer :: result
+
+    result => this%items(i)%ptr%Xh
+  end function field_list_space
+
+  !> Get the the mesh for item `i`.
+  !! @param i The index of the item.
+  function field_list_msh(this, i) result(result)
+    class(field_list_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    type(mesh_t), pointer :: result
+
+    result => this%items(i)%ptr%msh
+  end function field_list_msh
+
+  !> Whether the dofmap is internal for item `i`.
+  !! @param i The index of the item.
+  function field_list_internal_dofmap(this, i) result(result)
+    class(field_list_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    logical :: result
+
+    result = this%items(i)%ptr%internal_dofmap
+  end function field_list_internal_dofmap
 
 
 end module field_list

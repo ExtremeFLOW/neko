@@ -124,13 +124,13 @@ program postprocess_fluid_stats
   call copy(avg_flow%w%mf%x,mean_data%w%x,n)
   call copy(avg_flow%p%mf%x,mean_data%p%x,n)
 
-  call copy(fld_stats%stat_fields%items(1)%ptr%x, stats_data%p%x,n)
-  call copy(fld_stats%stat_fields%items(2)%ptr%x, stats_data%u%x,n)
-  call copy(fld_stats%stat_fields%items(3)%ptr%x, stats_data%v%x,n)
-  call copy(fld_stats%stat_fields%items(4)%ptr%x, stats_data%w%x,n)
-  call copy(fld_stats%stat_fields%items(5)%ptr%x, stats_data%t%x,n)
+  call copy(fld_stats%stat_fields%x(1), stats_data%p%x,n)
+  call copy(fld_stats%stat_fields%x(2), stats_data%u%x,n)
+  call copy(fld_stats%stat_fields%x(3), stats_data%v%x,n)
+  call copy(fld_stats%stat_fields%x(4), stats_data%w%x,n)
+  call copy(fld_stats%stat_fields%x(5), stats_data%t%x,n)
   do i = 6, fld_stats%stat_fields%size()
-     call copy(fld_stats%stat_fields%items(i)%ptr%x, stats_data%s(i-5)%x,n)
+     call copy(fld_stats%stat_fields%x(i), stats_data%s(i-5)%x,n)
   end do
 
   call reynolds%init(7)
