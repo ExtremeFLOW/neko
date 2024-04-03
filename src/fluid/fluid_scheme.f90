@@ -465,7 +465,6 @@ contains
     call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_u)
     call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_v)
     call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_w)
-    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_prs)
 
     !
     ! Check if we need to output boundaries
@@ -651,6 +650,7 @@ contains
 
     if (integer_val .gt. 0)  call this%bc_field_prs%init_field('d_pres')
     call bc_list_add(this%bclst_prs, this%bc_field_prs)
+    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_prs)
 
     if (msh%outlet%size .gt. 0) then
        call this%bc_prs%mark_zone(msh%outlet)
