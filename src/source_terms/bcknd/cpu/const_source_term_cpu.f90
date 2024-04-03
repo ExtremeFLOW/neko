@@ -54,7 +54,7 @@ contains
     n = fields%item_size(1)
 
     do i=1, n_fields
-       call cadd(fields%x(i), values(i), n)
+       call cadd(fields%items(i)%ptr%x, values(i), n)
     end do
   end subroutine const_source_term_compute_cpu
 

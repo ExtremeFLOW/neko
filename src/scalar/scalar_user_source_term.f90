@@ -205,7 +205,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(this%fields%x_d(1), this%s_d, n)
     else
-       call add2(this%fields%x(1), this%s, n)
+       call add2(this%fields%items(1)%ptr%x, this%s, n)
     end if
 
   end subroutine scalar_user_source_term_compute

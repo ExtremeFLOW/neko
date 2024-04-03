@@ -649,34 +649,34 @@ contains
 
     if (present(mean)) then
        n = mean%item_size(1)
-       call copy(mean%x(1), this%u_mean%x, n)
-       call copy(mean%x(2), this%v_mean%x, n)
-       call copy(mean%x(3), this%w_mean%x, n)
-       call copy(mean%x(4), this%p_mean%x, n)
+       call copy(mean%items(1)%ptr%x, this%u_mean%x, n)
+       call copy(mean%items(2)%ptr%x, this%v_mean%x, n)
+       call copy(mean%items(3)%ptr%x, this%w_mean%x, n)
+       call copy(mean%items(4)%ptr%x, this%p_mean%x, n)
     end if
 
     if (present(reynolds)) then
        n = reynolds%item_size(1)
-       call copy(reynolds%x(1), this%pp%mf%x, n)
-       call subcol3(reynolds%x(1), this%p_mean%x, this%p_mean%x, n)
+       call copy(reynolds%items(1)%ptr%x, this%pp%mf%x, n)
+       call subcol3(reynolds%items(1)%ptr%x, this%p_mean%x, this%p_mean%x, n)
 
-       call copy(reynolds%x(2), this%uu%mf%x, n)
-       call subcol3(reynolds%x(2), this%u_mean%x, this%u_mean%x, n)
+       call copy(reynolds%items(2)%ptr%x, this%uu%mf%x, n)
+       call subcol3(reynolds%items(2)%ptr%x, this%u_mean%x, this%u_mean%x, n)
 
-       call copy(reynolds%x(3), this%vv%mf%x, n)
-       call subcol3(reynolds%x(3),this%v_mean%x,this%v_mean%x,n)
+       call copy(reynolds%items(3)%ptr%x, this%vv%mf%x, n)
+       call subcol3(reynolds%items(3)%ptr%x, this%v_mean%x,this%v_mean%x,n)
 
-       call copy(reynolds%x(4), this%ww%mf%x, n)
-       call subcol3(reynolds%x(4), this%w_mean%x,this%w_mean%x,n)
+       call copy(reynolds%items(4)%ptr%x, this%ww%mf%x, n)
+       call subcol3(reynolds%items(4)%ptr%x, this%w_mean%x,this%w_mean%x,n)
 
-       call copy(reynolds%x(5), this%uv%mf%x, n)
-       call subcol3(reynolds%x(5), this%u_mean%x, this%v_mean%x, n)
+       call copy(reynolds%items(5)%ptr%x, this%uv%mf%x, n)
+       call subcol3(reynolds%items(5)%ptr%x, this%u_mean%x, this%v_mean%x, n)
 
-       call copy(reynolds%x(6), this%uw%mf%x, n)
-       call subcol3(reynolds%x(6), this%u_mean%x, this%w_mean%x, n)
+       call copy(reynolds%items(6)%ptr%x, this%uw%mf%x, n)
+       call subcol3(reynolds%items(6)%ptr%x, this%u_mean%x, this%w_mean%x, n)
 
-       call copy(reynolds%x(7), this%vw%mf%x, n)
-       call subcol3(reynolds%x(7), this%v_mean%x, this%w_mean%x, n)
+       call copy(reynolds%items(7)%ptr%x, this%vw%mf%x, n)
+       call subcol3(reynolds%items(7)%ptr%x, this%v_mean%x, this%w_mean%x, n)
     end if
     if (present(pressure_skewness)) then
 
@@ -733,15 +733,15 @@ contains
           call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x, this%w_mean%x,this%coef)
        end if
        call invers2(this%stats_work%x, this%coef%B,n)
-       call col3(mean_vel_grad%x(1), this%dudx%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%x(2), this%dudy%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%x(3), this%dudz%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%x(4), this%dvdx%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%x(5), this%dvdy%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%x(6), this%dvdz%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%x(7), this%dwdx%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%x(8), this%dwdy%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%x(9), this%dwdz%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(2)%ptr%x, this%dudy%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(3)%ptr%x, this%dudz%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(4)%ptr%x, this%dvdx%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(5)%ptr%x, this%dvdy%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(6)%ptr%x, this%dvdz%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(7)%ptr%x, this%dwdx%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(8)%ptr%x, this%dwdy%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(9)%ptr%x, this%dwdz%x, this%stats_work%x, n)
 
     end if
 

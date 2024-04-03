@@ -326,7 +326,7 @@ contains
 
     do i = 1,this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
-                                        this%sampled_fields%x(i))
+                                        this%sampled_fields%items(i)%ptr%x)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
