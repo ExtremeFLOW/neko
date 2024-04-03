@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ module cg_device
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
+  use math, only : abscmp
   use device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
                           device_add2s2, device_add2s1
@@ -187,7 +188,7 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(rnorm .eq. zero) return
+    if(abscmp(rnorm, zero)) return
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
        rtz2 = rtz1

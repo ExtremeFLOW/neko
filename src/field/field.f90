@@ -62,8 +62,10 @@ module field
      procedure, private, pass(this) :: assign_field => field_assign_field
      procedure, private, pass(this) :: assign_scalar => field_assign_scalar
      procedure, private, pass(this) :: add_field => field_add_field
-     procedure, private, pass(this) :: add_Scalar => field_add_scalar
+     procedure, private, pass(this) :: add_scalar => field_add_scalar
      procedure, pass(this) :: free => field_free
+     !> Return the size of the field.
+     procedure, pass(this) :: size => field_size
      !> Initialise a field
      generic :: init => init_external_dof, init_internal_dof
      !> Assignemnt to current field
@@ -204,13 +206,13 @@ contains
        allocate(this%x(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(this%x, this%x_d, this%dof%size())
+          call device_map(this%x, this%x_d, this%size())
        end if
 
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(this%x_d, g%x_d, this%dof%size())
+       call device_copy(this%x_d, g%x_d, this%size())
     else
        call copy(this%x, g%x, this%dof%size())
     end if
@@ -224,7 +226,7 @@ contains
     integer :: i, j, k, l
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(this%x_d, a, this%dof%size())
+       call device_cfill(this%x_d, a, this%size())
     else
        do i = 1, this%msh%nelv
           do l = 1, this%Xh%lz
@@ -247,9 +249,9 @@ contains
     type(field_t), intent(in) :: g
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add2(this%x_d, g%x_d, this%dof%size())
+       call device_add2(this%x_d, g%x_d, this%size())
     else
-       call add2(this%x, g%x, this%dof%size())
+       call add2(this%x, g%x, this%size())
     end if
 
   end subroutine field_add_field
@@ -262,12 +264,20 @@ contains
     real(kind=rp), intent(in) :: a
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd(this%x_d, a, this%dof%size())
+       call device_cadd(this%x_d, a, this%size())
     else
-       call cadd(this%x, a, this%dof%size())
+       call cadd(this%x, a, this%size())
     end if
 
   end subroutine field_add_scalar
+
+  !> Return the size of the field based on the underlying dofmap.
+  pure function field_size(this) result(size)
+    class(field_t), intent(in) :: this
+    integer :: size
+
+    size = this%dof%size()
+  end function field_size
 
 end module field
 
