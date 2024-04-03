@@ -102,6 +102,10 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+
+    call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
+&Use field_dirichlet instead!")
+
   end subroutine field_dirichlet_vector_apply_scalar
   
   !> Apply scalar (device).
@@ -113,6 +117,10 @@ contains
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+
+    call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
+&Use field_dirichlet instead!")
+
   end subroutine field_dirichlet_vector_apply_scalar_dev
 
   !> (No-op) Apply vector.

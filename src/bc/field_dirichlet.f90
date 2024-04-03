@@ -43,6 +43,7 @@ module field_dirichlet
   use math, only: masked_copy
   use device_math, only: device_masked_copy
   use dofmap, only : dofmap_t
+  use utils, only: neko_error
   implicit none
   private
   
@@ -161,6 +162,9 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
+    call neko_error("field_dirichlet cannot apply vector BCs.&
+&Use field_dirichlet_vector instead!")
+
   end subroutine field_dirichlet_apply_vector
 
   !> (No-op) Apply vector (device).
@@ -177,6 +181,9 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
-   end subroutine field_dirichlet_apply_vector_dev
+    call neko_error("field_dirichlet cannot apply vector BCs.&
+&Use field_dirichlet_vector instead!")
+
+  end subroutine field_dirichlet_apply_vector_dev
 
 end module field_dirichlet
