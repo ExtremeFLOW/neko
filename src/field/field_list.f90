@@ -31,6 +31,9 @@ module field_list
 
      !> Get number of items in the list.
      procedure, pass(this) :: size => field_list_size
+
+     !> Get the size of dofmap for an item in the list.
+     procedure, pass(this) :: item_size => field_list_item_size
   end type field_list_t
 
 contains
@@ -99,8 +102,9 @@ contains
   !! @param i The index of the item.
   function field_list_x_d(this, i) result(ptr)
     class(field_list_t), intent(inout) :: this
+    integer, intent(in) :: i
     type(c_ptr) :: ptr
-    integer :: i
+
     ptr = this%items(i)%ptr%x_d
   end function field_list_x_d
 
@@ -109,9 +113,21 @@ contains
   function field_list_x(this, i) result(x)
     class(field_list_t), target, intent(inout) :: this
     real(kind=rp), pointer :: x(:,:,:,:)
-    integer :: i
+    integer, intent(in) :: i
+
     x => this%items(i)%ptr%x
   end function field_list_x
+
+  !> Get the size of the dofmap for item `i`.
+  !! @param i The index of the item.
+  function field_list_item_size(this, i) result(size)
+    class(field_list_t), target, intent(inout) :: this
+    integer, intent(in) :: i
+    integer :: size
+
+    size = this%items(i)%ptr%size()
+
+  end function field_list_item_size
 
   !> Point item at a given index.
   !! @param i The index of the item.
