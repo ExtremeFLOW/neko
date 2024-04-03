@@ -126,7 +126,7 @@ contains
     call this%sampled_fields%init(this%n_fields)
     do i = 1, this%n_fields
 
-       call this%sampled_fields%set(i, neko_field_registry%get_field(&
+       call this%sampled_fields%assign(i, neko_field_registry%get_field(&
                                     trim(this%which_fields(i))))
     end do
     !> This is distributed as to make it similar to parallel file

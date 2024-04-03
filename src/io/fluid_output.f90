@@ -81,13 +81,13 @@ contains
        call this%fluid%init(4)
     end if
 
-    call this%fluid%set(1, fluid%p)
-    call this%fluid%set(2, fluid%u)
-    call this%fluid%set(3, fluid%v)
-    call this%fluid%set(4, fluid%w)
+    call this%fluid%assign(1, fluid%p)
+    call this%fluid%assign(2, fluid%u)
+    call this%fluid%assign(3, fluid%v)
+    call this%fluid%assign(4, fluid%w)
 
     if (present(scalar)) then
-       call this%fluid%set(5, scalar%s)
+       call this%fluid%assign(5, scalar%s)
     end if
 
   end function fluid_output_init

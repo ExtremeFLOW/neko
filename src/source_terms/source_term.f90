@@ -135,7 +135,7 @@ contains
     ! A lot of attribute nesting here due to Fortran needing wrapper types
     ! but this is just pointer assignement for the fields.
     do i=1, n_fields
-       call this%fields%set(i, fields%get(i))
+       call this%fields%assign(i, fields%get(i))
     end do
   end subroutine source_term_init_base
 

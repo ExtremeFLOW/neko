@@ -676,9 +676,9 @@ contains
     type(field_t), target:: ww
     !> Initialize field lists
     call list%init(3)
-    call list%set_to_field(1, uu)
-    call list%set_to_field(2, vv)
-    call list%set_to_field(3, ww)
+    call list%assign_to_field(1, uu)
+    call list%assign_to_field(2, vv)
+    call list%assign_to_field(3, ww)
   end subroutine list_init3
 
 

@@ -103,7 +103,7 @@ contains
     if (json%valid_path('case.scalar.source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
        call rhs_fields%init(1)
-       call rhs_fields%set(1, f)
+       call rhs_fields%assign(1, f)
 
        call json%get_core(core)
        call json%get('case.scalar.source_terms', source_object, found)

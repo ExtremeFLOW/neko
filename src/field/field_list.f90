@@ -18,10 +18,10 @@ module field_list
      !> Get an item pointer by array index
      procedure, pass(this) :: get => field_list_get
      !> Point item at given index.
-     generic :: set => set_to_ptr, set_to_field_ptr
-     procedure, pass(this) :: set_to_ptr => field_list_set_to_ptr
-     procedure, pass(this) :: set_to_field_ptr => field_list_set_to_field_ptr
-     procedure, pass(this) :: set_to_field => field_list_set_to_field
+     generic :: assign => assign_to_ptr, assign_to_field_ptr
+     procedure, pass(this) :: assign_to_ptr => field_list_assign_to_ptr
+     procedure, pass(this) :: assign_to_field_ptr => field_list_assign_to_field_ptr
+     procedure, pass(this) :: assign_to_field => field_list_assign_to_field
 
      !> Get device pointer for a given index
      procedure, pass(this) :: x_d => field_list_x_d
@@ -132,35 +132,35 @@ contains
   !> Point item at a given index.
   !! @param i The index of the item.
   !! @param ptr A field pointer to point the item to.
-  subroutine field_list_set_to_ptr(this, i, ptr)
+  subroutine field_list_assign_to_ptr(this, i, ptr)
     class(field_list_t), intent(inout) :: this
     integer, intent(in) :: i
     type(field_t), pointer, intent(in) :: ptr
 
     this%items(i)%ptr => ptr
-  end subroutine field_list_set_to_ptr
+  end subroutine field_list_assign_to_ptr
 
   !> Point item at a given index.
   !! @param i The index of the item.
   !! @param ptr An encapsulated field pointer to point the item to.
-  subroutine field_list_set_to_field_ptr(this, i, ptr)
+  subroutine field_list_assign_to_field_ptr(this, i, ptr)
     class(field_list_t), intent(inout) :: this
     integer, intent(in) :: i
     type(field_ptr_t), target, intent(in) :: ptr
 
     this%items(i)%ptr => ptr%ptr
-  end subroutine field_list_set_to_field_ptr
+  end subroutine field_list_assign_to_field_ptr
 
   !> Point item at a given index.
   !! @param i The index of the item.
   !! @param field A field to point the item to.
-  subroutine field_list_set_to_field(this, i, fld)
+  subroutine field_list_assign_to_field(this, i, fld)
     class(field_list_t), intent(inout) :: this
     integer, intent(in) :: i
     type(field_t), target, intent(in) :: fld
 
     this%items(i)%ptr => fld
-  end subroutine field_list_set_to_field
+  end subroutine field_list_assign_to_field
 
 
 
