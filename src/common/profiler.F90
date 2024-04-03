@@ -37,6 +37,7 @@ module profiler
   use nvtx
   use roctx
   use craypat
+  use neko_profiler, only: init_profiler, free_profiler, start_region, end_region
   implicit none
   private
 
@@ -56,6 +57,10 @@ contains
        call craypat_record_start
 #endif
     end if
+
+    if (NEKO_ENABLE_PROFILING) then
+       call init_profiler()
+    end if
   end subroutine profiler_start
 
   !> Stop profiling
@@ -68,6 +73,10 @@ contains
 #ifdef CRAYPAT
        call craypat_record_stop
 #endif
+    end if
+
+    if (NEKO_ENABLE_PROFILING) then
+       call free_profiler()
     end if
   end subroutine profiler_stop
 
@@ -88,10 +97,16 @@ contains
     !   call craypat_region_begin(name)
 #endif
 
+    if (NEKO_ENABLE_PROFILING) then
+       call start_region(name, region_id)
+    end if
   end subroutine profiler_start_region
 
-  !> End the most recently started profiler region
-  subroutine profiler_end_region
+  !> End the most recently started profiler region or the one with the given
+  !! name
+  subroutine profiler_end_region(name, region_id)
+    character(kind=c_char,len=*), optional :: name
+    integer, optional :: region_id
 
 #ifdef HAVE_NVTX
     call nvtxRangePop
@@ -101,6 +116,9 @@ contains
     !   call craypat_region_end
 #endif
 
+    if (NEKO_ENABLE_PROFILING) then
+       call end_region(name, region_id)
+    end if
   end subroutine profiler_end_region
 
 end module profiler

@@ -47,4 +47,6 @@ module neko_config
 
   integer, parameter :: NEKO_BLK_SIZE = @blk_size@
 
+  logical, parameter :: NEKO_ENABLE_PROFILING = @enable_profiling@
+
 end module neko_config
