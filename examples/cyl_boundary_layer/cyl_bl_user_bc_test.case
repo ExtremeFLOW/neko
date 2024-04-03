@@ -43,14 +43,14 @@
         "boundary_types": [
             "d_vel_u/d_vel_v/d_vel_w", 
             "d_vel_u/d_vel_v/d_vel_w/d_pres",
- 	    "sym",
+            "sym",
             "w",
             "on", 
             "on", 
             "w"
         ],
-        "output_control": "tsteps",
-        "output_value": 1
+        "output_control": "nsamples",
+        "output_value": 20
     },
     "scalar": {
 	    "enabled": true,
