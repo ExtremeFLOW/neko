@@ -399,7 +399,7 @@ contains
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
 
-    ! Setup field dirichlet bc for v-velocity
+    ! Setup field dirichlet bc for u-velocity
     call this%bc_field_vel%field_dirichlet_u%init(this%dm_Xh)
     call this%bc_field_vel%field_dirichlet_u%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_u', this%bc_labels)
