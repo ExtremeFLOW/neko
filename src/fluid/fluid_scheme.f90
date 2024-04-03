@@ -610,7 +610,6 @@ contains
     real(kind=rp), allocatable :: real_vec(:)
     integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
-    !integer :: integer_val
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
                                   material_properties)

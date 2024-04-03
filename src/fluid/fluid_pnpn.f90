@@ -659,11 +659,11 @@ contains
          call this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)
          call this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)
          call this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)
-    else 
-       call this%bc_field_dirichlet_u%apply_scalar(u_res%x, this%dm_Xh%size(), t, tstep)
-       call this%bc_field_dirichlet_v%apply_scalar(v_res%x, this%dm_Xh%size(), t, tstep)
-       call this%bc_field_dirichlet_w%apply_scalar(w_res%x, this%dm_Xh%size(), t, tstep)
-    end if
+      else 
+         call this%bc_field_dirichlet_u%apply_scalar(u_res%x, this%dm_Xh%size(), t, tstep)
+         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, this%dm_Xh%size(), t, tstep)
+         call this%bc_field_dirichlet_w%apply_scalar(w_res%x, this%dm_Xh%size(), t, tstep)
+      end if
 
       call profiler_end_region
 
