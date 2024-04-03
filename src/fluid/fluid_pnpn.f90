@@ -50,7 +50,7 @@ module fluid_pnpn
   use projection, only : projection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
   use logger, only : neko_log
-  use advection, only : advection_t, advection_factory
+  use advection, only : advection_t
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only : json_get
   use json_module, only : json_file
