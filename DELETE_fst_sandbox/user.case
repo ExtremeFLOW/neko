@@ -6,7 +6,7 @@
     "output_directory": "results",
     "output_boundary": false,
     "end_time": 1e-2,
-    "timestep": 1e-4,
+    "timestep": 1e-5,
     "output_checkpoints": false,
     "numerics": {
         "time_order": 3,
@@ -14,7 +14,7 @@
         "dealias": true
     },
     "fluid": {
-        "boundary_types": ["v", "o", "sym", "sym"],
+        "boundary_types": ["v", "o", "w", "w"],
         "scheme": "pnpn",
         "rho": 1.2,
         "mu": 0.00002,

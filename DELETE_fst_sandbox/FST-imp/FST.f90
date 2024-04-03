@@ -236,22 +236,17 @@ contains
 
 
        ! ok now we split between implicit and explicit parts
-       !fu = fringe(x,FST_obj) * (FST_obj%uinf + rand_vec(1) - u)
-       !fv = fringe(x,FST_obj) * (rand_vec(2) - v)
-       !fw = fringe(x,FST_obj) * (rand_vec(3) - w)
+       ! THIS IS EXPLICIT
+       fu = fringe(x,y,FST_obj) * (FST_obj%uinf + rand_vec(1) - u)
+       fv = fringe(x,y,FST_obj) * (rand_vec(2) - v)
+       fw = fringe(x,y,FST_obj) * (rand_vec(3) - w)
+       chi = 0.0
 
-       !fu = fringe(x,FST_obj) * (FST_obj%uinf + rand_vec(1))
-       !fu = fringe(x,FST_obj) * (6.0 + rand_vec(1))
-       !fv = fringe(x,FST_obj) * (rand_vec(2) )
-       !fw = fringe(x,FST_obj) * (rand_vec(3) )
-
-       fu = fringe(x,FST_obj) * (6.0 )
-       fv = 0.0
-       fw = 0.0
-       chi = fringe(x,FST_obj) 
-
-!       write (*,'(4(E25.15, " "))') x, fu, fv, fw
-!       write (*,'(A, 4(E24.15, " "))') "---", fringe(x, FST_obj), rand_vec
+		 ! THIS IS IMPLICIT
+       fu = fringe(x,y,FST_obj) * (FST_obj%uinf + rand_vec(1))
+       fv = fringe(x,y,FST_obj) * (rand_vec(2) )
+       fw = fringe(x,y,FST_obj) * (rand_vec(3) )
+       chi = fringe(x,y,FST_obj) 
 
     else
        fu = 0.0_rp
@@ -263,10 +258,10 @@ contains
   end subroutine FST_forcing_local
 
   ! Fringe function as defined in original FST.
-  function fringe(x, f) result(y)
+  function fringe(x,yloc, f) result(y)
     real(kind=rp), intent(in) :: x
     type(FST_t) :: f
-    real(kind=rp) :: y, S
+    real(kind=rp) :: y, S, yloc
 
     if(x.le.f%xstart) then
        S=0
@@ -276,6 +271,10 @@ contains
        S=1
     else
        S=1/(1+exp(1/(x-f%xend)+1/(x-f%xstart)))
+    endif
+
+    if(abs(yloc).gt.0.1) then
+    	S = 0.0
     endif
 
     y = f%fringe_max * (S*(x-f%xstart)/(f%delta_rise)-S*((x-f%xend)/f%delta_fall+1))

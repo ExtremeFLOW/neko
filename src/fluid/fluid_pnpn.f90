@@ -510,6 +510,7 @@ contains
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
 
+
       ! Pre-multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_x%x_d, f_y%x_d, f_z%x_d, c_Xh%B_d, msh%gdim, n)
@@ -549,7 +550,7 @@ contains
       ! Compute pressure.
       call profiler_start_region('Pressure residual', 18)
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
-                           f_x, f_y, f_z, c_Xh, gs_Xh, this%bc_prs_surface, &
+                           f_x, f_y, f_z,chi, c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
                            dt, mu, rho)
 

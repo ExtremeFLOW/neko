@@ -56,7 +56,7 @@ module pnpn_residual
   end type pnpn_vel_res_t
 
   abstract interface
-     subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_xh,&
+     subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z,chi, c_xh,&
           gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
        import field_t
        import Ax_t
@@ -68,7 +68,7 @@ module pnpn_residual
        type(field_t), intent(inout) :: u_e, v_e, w_e !< time-extrapolated velocity
        type(field_t), intent(inout) :: p_res
        !> Momentum source terms
-       type(field_t), intent(inout) :: f_x, f_y, f_z
+       type(field_t), intent(inout) :: f_x, f_y, f_z, chi
        type(coef_t), intent(inout) :: c_Xh
        type(gs_t), intent(inout) :: gs_Xh
        type(facet_normal_t), intent(inout) :: bc_prs_surface

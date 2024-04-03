@@ -27,11 +27,11 @@ module pnpn_res_sx
 contains
 
   subroutine pnpn_prs_res_sx_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_x, &
-       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface,bc_sym_surface, Ax, bd, dt, mu, rho)
+       f_y, f_z, chi, c_Xh, gs_Xh, bc_prs_surface,bc_sym_surface, Ax, bd, dt, mu, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(inout) :: f_x, f_y, f_z, chi
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(inout) :: bc_prs_surface
@@ -66,6 +66,9 @@ contains
 
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+
+    ! HARRY
+    ! this is incomplete
 
     do i = 1, n
        wa1%x(i,1,1,1) = (wa1%x(i,1,1,1) * mu / rho) * c_Xh%B(i,1,1,1)
