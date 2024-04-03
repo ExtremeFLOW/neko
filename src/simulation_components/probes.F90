@@ -361,9 +361,9 @@ contains
     zero_line = zero_line - dot_product(zero_line, normal) * normal
     zero_line = zero_line / norm2(zero_line)
 
-    cross_line(1) = zero_line(2) * normal(3) - zero_line(3) * normal(2)
-    cross_line(2) = zero_line(3) * normal(1) - zero_line(1) * normal(3)
-    cross_line(3) = zero_line(1) * normal(2) - zero_line(2) * normal(1)
+    cross_line(1) = normal(2) * zero_line(3) - normal(3) * zero_line(2)
+    cross_line(2) = normal(3) * zero_line(1) - normal(1) * zero_line(3)
+    cross_line(3) = normal(1) * zero_line(2) - normal(2) * zero_line(1)
 
     ! Calculate the number of points
     allocate(point_list(3, n_points))
