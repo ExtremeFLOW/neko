@@ -726,6 +726,12 @@ contain and how to use them: [field_t type](https://neko.cfd/docs/d3/d5f/structf
 [bc_t type](https://neko.cfd/docs/d6/db3/structbc_1_1bc__t.html),
 [coef_t type](https://neko.cfd/docs/d0/dea/structcoefs_1_1coef__t.html). 
 
+The user function should be registered in `user_setup` with the following line:
+
+```.f90
+u%user_dirichlet_update => dirichlet_update
+```
+
 A very simple example illustrating the above is shown below, which is taken from the 
 [cyl_boundary_layer example](https://github.com/ExtremeFLOW/neko/blob/feature/field_bcs/examples/cyl_boundary_layer/cyl_bl.f90)
 
@@ -733,7 +739,7 @@ A very simple example illustrating the above is shown below, which is taken from
   ! Initial example of using user specified dirichlet bcs
   ! Note: This subroutine will be called two times, once in the fluid solver, and once
   ! in the scalar solver (if enabled).
-  ! We apply u = (1,0,0) at the inlet/outlet, p = -1 at the outlet, and s = 2
+  ! We apply u = (1,0,0) at the inlet/outlet, p = -1 at the outlet, and s(y,z) = sin(y)*sin(z)
   ! at the inlet/outlet.
   subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)
     type(field_list_t), intent(inout) :: field_bc_list
@@ -780,9 +786,16 @@ A very simple example illustrating the above is shown below, which is taken from
          ! Note that we are checking if the field is allocated, in
          ! case the boundary is empty.
          !
-         ! Here we are applying very simple uniform boundary s = 2
-         !
-         if (allocated(s%x)) s = 2.0_rp
+         if (allocated(s%x)) then
+
+            do i = 1, s_bc%msk(0)
+               y = s_bc%dof%y(s_bc%msk(i), 1, 1, 1)
+               z = s_bc%dof%z(s_bc%msk(i), 1, 1, 1)
+               s%x(s_bc%msk(i), 1, 1, 1) = sin(y)*sin(z)
+            end do
+
+         end if
+       end associate
 
        end associate
 
@@ -791,30 +804,19 @@ A very simple example illustrating the above is shown below, which is taken from
   end subroutine dirichlet_update
 ```
 
-@note This example is applying constant dirichlet values at the selected
-boundaries, which perhaps is a bit of overkill for our user function. However,
-it gives a good understanding of how such a user function should be used. It can
-also be used as a template to build upon.
+This example is applying constant dirichlet values at the selected
+boundaries for the velocity components and presure. The scalar is applied a 
+function `s(y,z) = sin(y)*sin(z)` to demonstrate the usage of boundary masks. 
 
-At one point, one will certainly want to access points that are on the 
-boundaries, their coordinates, etc. For this, we use the boundary
-mask arrays, that contain the linear indices of the GLL points located on the
-boundary faces. Looking back at the above example, let's modify the pressure 
-condition code block to apply a nonsensical sinusoidal outlet pressure profile:
+@attention The notation `u = 1.0_rp` is only possible because of the overloading of the 
+assignement operator `=` in `field_t`. In general, a field's array should be 
+accessed and modified with `u%x`. 
 
-```.f90
-! Here p points to field_bc_list%fields(4)%f and p_bc points to 
-! bc_bc_list%bc(4)%bcp). y,z, are reals of kind=rp and i is an integer
-if (allocated(p%x)) then
-
-  do i = 1, p_bc%msk(0)
-    y = p_bc%dof%y(p_bc%mask(i), 1, 1, 1)
-    z = p_bc%dof%z(p_bc%mask(i), 1, 1, 1)
-    p = sin(y)*sin(z)
-  end do
-           
-end if
-```
+Note that we are only applying our boundary values at the first timestep,
+which is done simply with the line `if (tstep .ne. 1) return`. This is a trick
+that can be used for time independent boundary profiles that require 
+some kind of time consuming operation like interpolation or reading from a file,
+which would add overhead if executed at every time step.
 
 Observe that we always check if the fields are allocated before manipulating
 them. This is to prevent accidental memory access if only part of the velocity
@@ -822,11 +824,13 @@ components or pressure are given in `case.fluid.boundary_types`. Fields in the
 lists are only allocated if they are present in the case file.For
 example, if we removed the `d_pres` condition in the JSON case file code snippet
 above, the pressure field for our boundary condition would not be allocated (
-in the example above, `allocated(p%x)` would never be `true`).
-
-@note `"boundary_types": ["d_vel_u", "d_vel_v"]` will allocate the two first 
+in the example above, `allocated(p%x)` would never be `true`). `"boundary_types": ["d_vel_u", "d_vel_v"]` will allocate the two first 
 fields in `field_bc_list`, which is the same behaviour as
 `"boundary_types": ["d_vel_u/d_vel_v", ""]`.
+
+@attention All the rules for [Running on GPUs](#user-file_tips_running-on-gpus)
+apply when working on field arrays. Use `device_memcpy` to make sure the device 
+arrays are also updated.
 
 ## Additional remarks and tips
 
