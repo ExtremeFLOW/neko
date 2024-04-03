@@ -151,7 +151,7 @@ contains
                           material_properties)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, "simple")
 
     ! Setup backend dependent scalar residual routines
     call scalar_residual_factory(this%res)

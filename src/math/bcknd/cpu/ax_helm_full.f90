@@ -37,6 +37,7 @@ module ax_helm_full_cpu
   use space, only : space_t
   use mesh, only : mesh_t
   use math, only : addcol4
+  use utils, only : neko_error
   implicit none
   private
 
@@ -63,6 +64,9 @@ contains
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+
+    call neko_error("The full Helmholtz operators cannot be applied to a &
+                   & field")
   end subroutine ax_helm_full_compute
 
   subroutine ax_helm_full_compute3(this, au, av, aw, u, v, w, coef, msh, Xh)

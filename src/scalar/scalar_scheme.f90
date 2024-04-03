@@ -99,7 +99,7 @@ module scalar_scheme
      !> Projection space size.
      integer :: projection_dim
      !< Steps to activate projection for ksp
-     integer :: projection_activ_step   
+     integer :: projection_activ_step
      !> Preconditioner.
      class(pc_t), allocatable :: pc
      !> Dirichlet conditions.
@@ -522,13 +522,13 @@ contains
     type is(hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
+             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, "simple", &
                   bclst, trim(pctype(6:)))
           else
              call neko_error('Unknown coarse grid solver')
           end if
        else
-          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, "simple", bclst)
        end if
     end select
 

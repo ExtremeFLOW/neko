@@ -148,7 +148,7 @@ contains
                           material_properties)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, "simple")
 
     ! Setup backend dependent prs residual routines
     call pnpn_prs_res_factory(this%prs_res)

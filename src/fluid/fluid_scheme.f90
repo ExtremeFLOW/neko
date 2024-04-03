@@ -284,7 +284,7 @@ contains
     call json_get_or_default(params, &
                             'case.fluid.pressure_solver.projection_hold_steps',&
                             this%pr_projection_activ_step, 5)
-    
+
 
     call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
 
@@ -478,7 +478,7 @@ contains
     character(len=*), intent(in) :: scheme
     ! Variables for extracting json
     real(kind=rp) :: abs_tol
-    character(len=:), allocatable :: solver_type, precon_type
+    character(len=:), allocatable :: solver_type, precon_type, ax_type
     integer :: ksp_vel_maxiter
 
 
@@ -499,13 +499,15 @@ contains
                   abs_tol)
 
     if (kspv_init) then
-      call json_get_or_default(params, &
-                              'case.fluid.velocity_solver.max_iterations', &
-                              ksp_vel_maxiter, 800)
+       call json_get_or_default(params, &
+                               'case.fluid.velocity_solver.max_iterations', &
+                               ksp_vel_maxiter, 800)
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             solver_type, ksp_vel_maxiter, abs_tol)
-       call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, precon_type)
+       call json_get_or_default(params, 'case.fluid.stress_formulation', &
+                                ax_type, "simple")
+       call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, this%c_Xh, &
+            this%dm_Xh, this%gs_Xh, ax_type, this%bclst_vel, precon_type)
     end if
 
     call neko_log%end_section()
@@ -525,7 +527,7 @@ contains
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: real_val, dong_delta, dong_uchar
-    character(len=:), allocatable :: string_val1, string_val2
+    character(len=:), allocatable :: string_val1, string_val2, ax_type
     integer :: integer_val
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
@@ -596,8 +598,10 @@ contains
 
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val)
-       call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, string_val2)
+       call json_get_or_default(params, 'case.fluid.stress_formulation', &
+                                ax_type, "simple")
+       call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, this%c_Xh, &
+            this%dm_Xh, this%gs_Xh, ax_type, this%bclst_vel, string_val2)
     end if
 
     if (kspp_init) then
@@ -612,8 +616,8 @@ contains
 
        call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
             string_val1, integer_val, real_val)
-       call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, string_val2)
+       call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, this%c_Xh, &
+            this%dm_Xh, this%gs_Xh, ax_type, this%bclst_prs, string_val2)
     end if
 
 
@@ -740,7 +744,7 @@ contains
           call ip%validate
        end select
     end if
-    
+
     !
     ! Setup checkpoint structure (if everything is fine)
     !
@@ -799,12 +803,14 @@ contains
   end subroutine fluid_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  subroutine fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype)
+  subroutine fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, axtype, &
+                                         bclst, pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(inout) :: coef
     type(dofmap_t), target, intent(inout) :: dof
     type(gs_t), target, intent(inout) :: gs
+    character(len=*), intent(in) :: axtype
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
 
@@ -820,13 +826,13 @@ contains
     type is(hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
+             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, axtype,&
                   bclst, trim(pctype(6:)))
           else
              call neko_error('Unknown coarse grid solver')
           end if
        else
-          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, axtype, bclst)
        end if
     end select
 

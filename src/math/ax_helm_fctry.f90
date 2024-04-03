@@ -49,21 +49,26 @@ contains
   !> Factory routine for the a Helmholtz problem matrix-vector product.
   !! The selection is based on the compute backend.
   !! @param Ax The matrix-vector product type to be allocated.
-  subroutine ax_helm_factory(Ax)
+  subroutine ax_helm_factory(Ax, formulation)
     class(ax_t), allocatable, intent(inout) :: Ax
+    character(len=*), intent(in) :: formulation
 
     if (allocated(Ax)) then
        deallocate(Ax)
     end if
 
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(ax_helm_sx_t::Ax)
-    else if (NEKO_BCKND_XSMM .eq. 1) then
-       allocate(ax_helm_xsmm_t::Ax)
-    else if (NEKO_BCKND_DEVICE .eq. 1)then
-       allocate(ax_helm_device_t::Ax)
+    if (trim(formulation) .eq. "full") then
+      allocate(ax_helm_full_cpu_t::Ax)
     else
-       allocate(ax_helm_cpu_t::Ax)
+       if (NEKO_BCKND_SX .eq. 1) then
+          allocate(ax_helm_sx_t::Ax)
+       else if (NEKO_BCKND_XSMM .eq. 1) then
+          allocate(ax_helm_xsmm_t::Ax)
+       else if (NEKO_BCKND_DEVICE .eq. 1)then
+          allocate(ax_helm_device_t::Ax)
+       else
+          allocate(ax_helm_cpu_t::Ax)
+       end if
     end if
 
   end subroutine ax_helm_factory

@@ -134,13 +134,15 @@ module hsmg
 contains
 
   !> @note I do not think we actually use the same grids as they do in the original!
-  subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst, crs_pctype)
+  subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, stress_formulation, &
+                       bclst, crs_pctype)
     class(hsmg_t), intent(inout), target :: this
     type(mesh_t), intent(inout), target :: msh
     type(space_t), intent(inout), target :: Xh
     type(coef_t), intent(inout), target :: coef
     type(dofmap_t), intent(inout), target :: dof
     type(gs_t), intent(inout), target :: gs_h
+    character(len=*), intent(in) :: stress_formulation
     type(bc_list_t), intent(inout), target :: bclst
     character(len=*), optional :: crs_pctype
     integer :: n, i
@@ -183,7 +185,7 @@ contains
     call this%c_mg%init(this%gs_mg)
 
     ! Create backend specific Ax operator
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, stress_formulation)
 
 
     ! Create a backend specific preconditioner
