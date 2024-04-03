@@ -40,11 +40,11 @@ module cg_sx
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, add2s1
+  use math, only : glsc3, add2s1, abscmp
   implicit none
   private
 
-  !> Standard preconditioned conjugate gradient method
+  !> Standard preconditioned conjugate gradient method (SX version)
   type, public, extends(ksp_t) :: sx_cg_t
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: r(:)
@@ -153,7 +153,7 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(rnorm .eq. zero) return
+    if(abscmp(rnorm, zero)) return
 
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)

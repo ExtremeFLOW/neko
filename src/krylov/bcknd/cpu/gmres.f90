@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ module gmres
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, rzero, rone, copy, sub2, cmult2
+  use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp
   use comm
   implicit none
   private
@@ -214,7 +214,7 @@ contains
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
-         if (gam(1) .eq. 0) return
+         if (abscmp(gam(1), 0.0_rp)) return
 
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)
@@ -292,7 +292,7 @@ contains
             end do
 
             rnorm = 0.0_rp
-            if(alpha .eq. 0.0_rp) then
+            if(abscmp(alpha, 0.0_rp)) then
                conv = .true.
                exit
             end if
