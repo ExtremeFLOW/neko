@@ -38,6 +38,9 @@ module rhs_maker_fctry
   use rhs_maker_device
   use neko_config
   implicit none
+  private
+
+  public :: rhs_maker_sumab_fctry, rhs_maker_ext_fctry, rhs_maker_bdf_fctry
 
 contains
 

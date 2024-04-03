@@ -36,8 +36,8 @@ module scalar_pnpn
   use num_types, only: rp
   use scalar_residual_fctry, only : scalar_residual_factory
   use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_bdf_t, rhs_maker_ext_t, &
-                              rhs_maker_ext_fctry, rhs_maker_bdf_fctry
+  use rhs_maker_fctry, only : rhs_maker_ext_fctry, rhs_maker_bdf_fctry
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t

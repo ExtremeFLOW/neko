@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,12 +40,12 @@ module gmres_sx
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, rzero, rone, copy, cmult2, col2, col3, add2s2
+  use math, only : glsc3, rzero, rone, copy, cmult2, col2, col3, add2s2, abscmp
   use comm
   implicit none
   private
 
-  !> Standard preconditioned conjugate gradient method
+  !> Standard preconditioned generalized minimal residual method (SX version)
   type, public, extends(ksp_t) :: sx_gmres_t
      integer :: lgmres
      real(kind=rp), allocatable :: w(:)
@@ -233,7 +233,7 @@ contains
           ksp_results%res_start = div0
        endif
 
-       if ( this%gam(1) .eq. 0) return
+       if (abscmp(this%gam(1), 0.0_rp)) return
 
        rnorm = 0.0_rp
        temp = one / this%gam(1)
@@ -278,7 +278,7 @@ contains
 
           alpha = sqrt(glsc3(this%w, this%w, coef%mult, n))
           rnorm = 0.0_rp
-          if(alpha .eq. 0.0_rp) then
+          if(abscmp(alpha, 0.0_rp)) then
              conv = .true.
              exit
           end if
