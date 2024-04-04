@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,11 @@ module bc
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use space, only : space_t
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
-  use utils, only : linear_index
+  use utils, only : neko_error, linear_index, split_string
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
@@ -293,33 +293,47 @@ contains
     class(bc_t), intent(inout) :: this
     class(facet_zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
-    character(len=20) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
-    integer :: i, j, k, msh_bc_type
+    character(len=100), allocatable :: split_key(:)
+    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
+    integer :: i, j, k, l, msh_bc_type
 
     msh_bc_type = 0
     if(trim(bc_key) .eq. 'o' .or. trim(bc_key) .eq. 'on' &
        .or. trim(bc_key) .eq. 'o+dong' .or. trim(bc_key) .eq. 'on+dong') then
        msh_bc_type = 1
+    else if(trim(bc_key) .eq. 'd_pres') then
+       msh_bc_type = 1
     else if(trim(bc_key) .eq. 'w') then
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'v') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_vel_u') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_vel_v') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_vel_w') then
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'sym') then
        msh_bc_type = 2
     end if
 
     do i = 1, NEKO_MSH_MAX_ZLBLS
-       if (trim(bc_key) .eq. trim(bc_labels(i))) then
-          call bc_mark_zone(this, bc_zones(i))
-          ! Loop across all faces in the mesh
-          do j = 1,this%msh%nelv
-             do k = 1, 2 * this%msh%gdim
-                if (this%msh%facet_type(k,j) .eq. -i) then
-                   this%msh%facet_type(k,j) = msh_bc_type
-                end if
+       !Check if several bcs are defined for this zone
+       !bcs are seperated by /, but we could use something else
+       split_key = split_string(trim(bc_labels(i)),'/')
+       do l = 1, size(split_key)
+          if (trim(split_key(l)) .eq. trim(bc_key)) then
+             call bc_mark_zone(this, bc_zones(i))
+             ! Loop across all faces in the mesh
+             do j = 1,this%msh%nelv
+                do k = 1, 2 * this%msh%gdim
+                   if (this%msh%facet_type(k,j) .eq. -i) then
+                      this%msh%facet_type(k,j) = msh_bc_type
+                   end if
+                end do
              end do
-          end do
-       end if
+          end if
+       end do
     end do
   end subroutine bc_mark_zones_from_list
 
