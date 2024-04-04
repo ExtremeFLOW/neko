@@ -50,11 +50,12 @@ module fluid_pnpn
   use projection, only : projection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
   use logger, only : neko_log
-  use advection, only : advection_t, advection_factory
+  use advection, only : advection_t
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only : json_get
   use json_module, only : json_file
   use material_properties, only : material_properties_t
+  use advection_fctry, only : advection_factory
   use ax_product, only : ax_t
   use field, only : field_t
   use dirichlet, only : dirichlet_t
@@ -308,15 +309,7 @@ contains
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
-    call json_get(params, 'case.numerics.dealias', logical_val)
-    call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
-                    found)
-    if (.not. found) then
-       call json_get(params, 'case.numerics.polynomial_order', integer_val)
-       integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
-    end if
-    ! an extra +1 below to go from poly order to space size
-    call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
+    call advection_factory(this%adv, params, this%c_Xh)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
