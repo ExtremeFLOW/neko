@@ -90,7 +90,10 @@ module fluid_pnpn
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
      type(dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_dp   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_w   !< Dirichlet condition vel. res.
      type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
@@ -196,21 +199,27 @@ contains
     end associate
 
     ! Initialize velocity surface terms in pressure rhs
-    call this%bc_prs_surface%init(this%dm_Xh)
+    call this%bc_prs_surface%init(this%c_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'v', this%bc_labels)
+    !This impacts the rhs of the pressure, need to check what is correct to add here
+    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
+                                                 'd_vel_u', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
+                                                 'd_vel_v', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
+                                                 'd_vel_w', this%bc_labels)
     call this%bc_prs_surface%finalize()
-    call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
-    call this%bc_sym_surface%init(this%dm_Xh)
+    call this%bc_sym_surface%init(this%c_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'sym', this%bc_labels)
+    ! Same here, should du, dv, dw be marked here?
     call this%bc_sym_surface%finalize()
-    call this%bc_sym_surface%set_coef(this%c_Xh)
     ! Initialize dirichlet bcs for velocity residual
-    call this%bc_vel_res_non_normal%init(this%dm_Xh)
+    call this%bc_vel_res_non_normal%init(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
                                                          'on', this%bc_labels)
@@ -218,21 +227,41 @@ contains
                                                          'on+dong', &
                                                          this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
-    call this%bc_vel_res_non_normal%init_msk(this%c_Xh)
+    call this%bc_vel_res_non_normal%init_msk()
 
-    call this%bc_dp%init(this%dm_Xh)
-    call this%bc_dp%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
+    call this%bc_field_dirichlet_p%init(this%c_Xh)
+    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
                                          this%bc_labels)
-    call this%bc_dp%mark_zones_from_list(msh%labeled_zones, &
+    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
                                          'o+dong', this%bc_labels)
-    call this%bc_dp%finalize()
-    call this%bc_dp%set_g(0.0_rp)
+    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'd_pres', &
+                                         this%bc_labels)
+    call this%bc_field_dirichlet_p%finalize()
+    call this%bc_field_dirichlet_p%set_g(0.0_rp)
     call bc_list_init(this%bclst_dp)
-    call bc_list_add(this%bclst_dp, this%bc_dp)
+    call bc_list_add(this%bclst_dp, this%bc_field_dirichlet_p)
     !Add 0 prs bcs
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
-    call this%bc_vel_res%init(this%dm_Xh)
+    call this%bc_field_dirichlet_u%init(this%c_Xh)
+    call this%bc_field_dirichlet_u%mark_zones_from_list(msh%labeled_zones, 'd_vel_u', &
+                                         this%bc_labels)
+    call this%bc_field_dirichlet_u%finalize()
+    call this%bc_field_dirichlet_u%set_g(0.0_rp)
+
+    call this%bc_field_dirichlet_v%init(this%c_Xh)
+    call this%bc_field_dirichlet_v%mark_zones_from_list(msh%labeled_zones, 'd_vel_v', &
+                                         this%bc_labels)
+    call this%bc_field_dirichlet_v%finalize()
+    call this%bc_field_dirichlet_v%set_g(0.0_rp)
+
+    call this%bc_field_dirichlet_w%init(this%c_Xh)
+    call this%bc_field_dirichlet_w%mark_zones_from_list(msh%labeled_zones, 'd_vel_w', &
+                                         this%bc_labels)
+    call this%bc_field_dirichlet_w%finalize()
+    call this%bc_field_dirichlet_w%set_g(0.0_rp)
+
+    call this%bc_vel_res%init(this%c_Xh)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
@@ -251,16 +280,19 @@ contains
     call bc_list_add(this%bclst_du,this%bc_sym%bc_x)
     call bc_list_add(this%bclst_du,this%bc_vel_res_non_normal%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res)
+    call bc_list_add(this%bclst_du, this%bc_field_dirichlet_u)
 
     call bc_list_init(this%bclst_dv)
     call bc_list_add(this%bclst_dv,this%bc_sym%bc_y)
     call bc_list_add(this%bclst_dv,this%bc_vel_res_non_normal%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res)
+    call bc_list_add(this%bclst_dv, this%bc_field_dirichlet_v)
 
     call bc_list_init(this%bclst_dw)
     call bc_list_add(this%bclst_dw,this%bc_sym%bc_z)
     call bc_list_add(this%bclst_dw,this%bc_vel_res_non_normal%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
+    call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
 
     !Intialize projection space thingy
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
@@ -559,6 +591,9 @@ contains
       !> We assume that no change of boundary conditions
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply dirichlet
+      call this%dirichlet_update_(this%field_dirichlet_fields, &
+           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "fluid")
+
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
 
@@ -609,6 +644,17 @@ contains
       call bc_list_apply_vector(this%bclst_vel_res,&
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
                                 t, tstep)
+
+      !We should implement a bc that takes three field_bcs and implements vector_apply
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)
+         call this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)
+         call this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)
+      else
+         call this%bc_field_dirichlet_u%apply_scalar(u_res%x, this%dm_Xh%size(), t, tstep)
+         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, this%dm_Xh%size(), t, tstep)
+         call this%bc_field_dirichlet_w%apply_scalar(w_res%x, this%dm_Xh%size(), t, tstep)
+      end if
 
       call profiler_end_region
 
