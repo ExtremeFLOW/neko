@@ -32,25 +32,44 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
-  use pnpn_res_fctry
-  use ax_helm_fctry
-  use rhs_maker_fctry
-  use fluid_volflow
-  use fluid_scheme
-  use field_series
-  use facet_normal
-  use device_math
-  use device_mathops
-  use fluid_aux
-  use time_scheme_controller
-  use projection
-  use device
-  use logger
-  use advection
-  use profiler
+  use num_types, only : rp
+  use krylov, only : ksp_monitor_t
+  use pnpn_res_fctry, only : pnpn_prs_res_factory, pnpn_vel_res_factory
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
+  use ax_helm_fctry, only : ax_helm_factory
+  use rhs_maker_fctry, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
+                              rhs_maker_ext_fctry
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
+  use fluid_volflow, only : fluid_volflow_t
+  use fluid_scheme, only : fluid_scheme_t
+  use field_series, only : field_series_t
+  use device_math, only : device_add2, device_col2
+  use device_mathops, only : device_opcolv, device_opadd2cm
+  use fluid_aux, only : fluid_step_info
+  use time_scheme_controller, only : time_scheme_controller_t
+  use projection, only : projection_t
+  use device, only : device_memcpy, HOST_TO_DEVICE
+  use logger, only : neko_log
+  use advection, only : advection_t, advection_factory
+  use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only : json_get
   use json_module, only : json_file
   use material_properties, only : material_properties_t
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use dirichlet, only : dirichlet_t
+  use facet_normal, only : facet_normal_t
+  use non_normal, only : non_normal_t
+  use mesh, only : mesh_t
+  use user_intf, only : user_t
+  use coefs, only : coef_t
+  use time_step_controller, only : time_step_controller_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use math, only : col2, add2
+  use mathops, only : opadd2cm, opcolv
+  use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
+                bc_list_apply_scalar, bc_list_apply_vector
   implicit none
   private
 
@@ -279,7 +298,8 @@ contains
 
     n = this%u%dof%size()
     ! Make sure that continuity is maintained (important for interpolation)
-    ! Do not do this for lagged rhs (derivatives are not necessairly coninous across elements)
+    ! Do not do this for lagged rhs
+    ! (derivatives are not necessairly coninous across elements)
     call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%w%x,this%c_Xh%mult,this%u%dof%size())
