@@ -37,7 +37,6 @@ module symmetry
   use num_types
   use dirichlet
   use bc
-  use coefs
   use math
   use utils
   use stack
