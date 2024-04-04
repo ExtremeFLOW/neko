@@ -228,7 +228,7 @@ contains
     call this%bc_vel_res_non_normal%finalize()
     call this%bc_vel_res_non_normal%init_msk()
 
-    call this%bc_field_dirichlet_p%init(this%dm_Xh)
+    call this%bc_field_dirichlet_p%init(this%c_Xh)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
@@ -242,25 +242,25 @@ contains
     !Add 0 prs bcs
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
-    call this%bc_field_dirichlet_u%init(this%dm_Xh)
+    call this%bc_field_dirichlet_u%init(this%c_Xh)
     call this%bc_field_dirichlet_u%mark_zones_from_list(msh%labeled_zones, 'd_vel_u', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_u%finalize()
     call this%bc_field_dirichlet_u%set_g(0.0_rp)
 
-    call this%bc_field_dirichlet_v%init(this%dm_Xh)
+    call this%bc_field_dirichlet_v%init(this%c_Xh)
     call this%bc_field_dirichlet_v%mark_zones_from_list(msh%labeled_zones, 'd_vel_v', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_v%finalize()
     call this%bc_field_dirichlet_v%set_g(0.0_rp)
 
-    call this%bc_field_dirichlet_w%init(this%dm_Xh)
+    call this%bc_field_dirichlet_w%init(this%c_Xh)
     call this%bc_field_dirichlet_w%mark_zones_from_list(msh%labeled_zones, 'd_vel_w', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_w%finalize()
     call this%bc_field_dirichlet_w%set_g(0.0_rp)
 
-    call this%bc_vel_res%init(this%dm_Xh)
+    call this%bc_vel_res%init(this%c_Xh)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &

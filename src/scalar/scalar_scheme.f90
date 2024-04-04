@@ -409,7 +409,7 @@ contains
                                                      this%user_bc)
 
     ! Add field dirichlet BCs
-    call this%field_dir_bc%init(this%dm_Xh)
+    call this%field_dir_bc%init(this%c_Xh)
     call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
          'd_s', this%bc_labels)
     call this%field_dir_bc%finalize()

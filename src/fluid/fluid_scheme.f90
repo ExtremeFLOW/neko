@@ -400,7 +400,7 @@ contains
     call bc_list_add(this%bclst_vel, this%bc_wall)
 
     ! Setup field dirichlet bc for u-velocity
-    call this%bc_field_vel%field_dirichlet_u%init(this%dm_Xh)
+    call this%bc_field_vel%field_dirichlet_u%init(this%c_Xh)
     call this%bc_field_vel%field_dirichlet_u%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_u', this%bc_labels)
     call this%bc_field_vel%field_dirichlet_u%finalize()
@@ -410,7 +410,7 @@ contains
     if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_u%init_field('d_vel_u')
 
     ! Setup field dirichlet bc for v-velocity
-    call this%bc_field_vel%field_dirichlet_v%init(this%dm_Xh)
+    call this%bc_field_vel%field_dirichlet_v%init(this%c_Xh)
     call this%bc_field_vel%field_dirichlet_v%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_v', this%bc_labels)
     call this%bc_field_vel%field_dirichlet_v%finalize()
@@ -420,7 +420,7 @@ contains
     if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_v%init_field('d_vel_v')
 
     ! Setup field dirichlet bc for w-velocity
-    call this%bc_field_vel%field_dirichlet_w%init(this%dm_Xh)
+    call this%bc_field_vel%field_dirichlet_w%init(this%c_Xh)
     call this%bc_field_vel%field_dirichlet_w%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_w', this%bc_labels)
     call this%bc_field_vel%field_dirichlet_w%finalize()
@@ -430,7 +430,7 @@ contains
     if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_w%init_field('d_vel_w')
 
     ! Setup our global field dirichlet bc
-    call this%bc_field_vel%init(this%dm_Xh)
+    call this%bc_field_vel%init(this%c_Xh)
     call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_u', this%bc_labels)
     call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
@@ -640,7 +640,7 @@ contains
                         'on', this%bc_labels)
 
     ! Field dirichlet pressure bc
-    call this%bc_field_prs%init(this%dm_Xh)
+    call this%bc_field_prs%init(this%c_Xh)
     call this%bc_field_prs%mark_zones_from_list(msh%labeled_zones,&
                         'd_pres', this%bc_labels)
     call this%bc_field_prs%finalize()
