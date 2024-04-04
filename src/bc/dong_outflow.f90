@@ -70,7 +70,7 @@ module dong_outflow
   end type dong_outflow_t
 
 contains
-  subroutine dong_outflow_set_vars(this, c_Xh, uinf, delta)
+  subroutine dong_outflow_set_vars(this, uinf, delta)
     class(dong_outflow_t), intent(inout) :: this
     real(kind=rp), intent(in) :: uinf
     real(kind=rp), optional, intent(in) :: delta
