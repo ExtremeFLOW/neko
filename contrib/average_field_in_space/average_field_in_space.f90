@@ -161,7 +161,7 @@ program average_field_in_space
         do j = 2, field_data%size()+1
            do i = 1, n
               avg_matrix%x(map_1d%pt_lvl(i,1,1,1),j) = &
-              avg_matrix%x(map_1d%pt_lvl(i,1,1,1),j) + fields(j-1)%v%x(i)*coef%B(i,1,1,1) &
+              avg_matrix%x(map_1d%pt_lvl(i,1,1,1),j) + fields(j-1)%ptr%x(i)*coef%B(i,1,1,1) &
               /volume_per_gll_lvl%x(map_1d%pt_lvl(i,1,1,1))
            end do
         end do 
