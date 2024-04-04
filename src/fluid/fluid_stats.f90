@@ -229,47 +229,47 @@ contains
 
     allocate(this%stat_fields%items(this%n_stats))
 
-    call this%stat_fields%assign(1, this%pp%mf)
-    call this%stat_fields%assign(2, this%uu%mf)
-    call this%stat_fields%assign(3, this%vv%mf)
-    call this%stat_fields%assign(4, this%ww%mf)
-    call this%stat_fields%assign(5, this%uv%mf)
-    call this%stat_fields%assign(6, this%uw%mf)
-    call this%stat_fields%assign(7, this%vw%mf)
-    call this%stat_fields%assign(8, this%uuu%mf) !< <uuu>
-    call this%stat_fields%assign(9, this%vvv%mf) !< <vvv>
-    call this%stat_fields%assign(10, this%www%mf) !< <www>
-    call this%stat_fields%assign(11, this%uuv%mf) !< <uuv>
-    call this%stat_fields%assign(12, this%uuw%mf) !< <uuw>
-    call this%stat_fields%assign(13, this%uvv%mf) !< <uvv>
-    call this%stat_fields%assign(14, this%uvw%mf) !< <uvv>
-    call this%stat_fields%assign(15, this%vvw%mf) !< <vvw>
-    call this%stat_fields%assign(16, this%uww%mf) !< <uww>
-    call this%stat_fields%assign(17, this%vww%mf) !< <vww>
-    call this%stat_fields%assign(18, this%uuuu%mf) !< <uuuu>
-    call this%stat_fields%assign(19, this%vvvv%mf) !< <vvvv>
-    call this%stat_fields%assign(20, this%wwww%mf) !< <wwww>
-    call this%stat_fields%assign(21, this%ppp%mf)
-    call this%stat_fields%assign(22, this%pppp%mf)
-    call this%stat_fields%assign(23, this%pu%mf)
-    call this%stat_fields%assign(24, this%pv%mf)
-    call this%stat_fields%assign(25, this%pw%mf)
+    call this%stat_fields%assign_to_field(1, this%pp%mf)
+    call this%stat_fields%assign_to_field(2, this%uu%mf)
+    call this%stat_fields%assign_to_field(3, this%vv%mf)
+    call this%stat_fields%assign_to_field(4, this%ww%mf)
+    call this%stat_fields%assign_to_field(5, this%uv%mf)
+    call this%stat_fields%assign_to_field(6, this%uw%mf)
+    call this%stat_fields%assign_to_field(7, this%vw%mf)
+    call this%stat_fields%assign_to_field(8, this%uuu%mf) !< <uuu>
+    call this%stat_fields%assign_to_field(9, this%vvv%mf) !< <vvv>
+    call this%stat_fields%assign_to_field(10, this%www%mf) !< <www>
+    call this%stat_fields%assign_to_field(11, this%uuv%mf) !< <uuv>
+    call this%stat_fields%assign_to_field(12, this%uuw%mf) !< <uuw>
+    call this%stat_fields%assign_to_field(13, this%uvv%mf) !< <uvv>
+    call this%stat_fields%assign_to_field(14, this%uvw%mf) !< <uvv>
+    call this%stat_fields%assign_to_field(15, this%vvw%mf) !< <vvw>
+    call this%stat_fields%assign_to_field(16, this%uww%mf) !< <uww>
+    call this%stat_fields%assign_to_field(17, this%vww%mf) !< <vww>
+    call this%stat_fields%assign_to_field(18, this%uuuu%mf) !< <uuuu>
+    call this%stat_fields%assign_to_field(19, this%vvvv%mf) !< <vvvv>
+    call this%stat_fields%assign_to_field(20, this%wwww%mf) !< <wwww>
+    call this%stat_fields%assign_to_field(21, this%ppp%mf)
+    call this%stat_fields%assign_to_field(22, this%pppp%mf)
+    call this%stat_fields%assign_to_field(23, this%pu%mf)
+    call this%stat_fields%assign_to_field(24, this%pv%mf)
+    call this%stat_fields%assign_to_field(25, this%pw%mf)
 
-    call this%stat_fields%assign(26, this%pdudx%mf)
-    call this%stat_fields%assign(27, this%pdudy%mf)
-    call this%stat_fields%assign(28, this%pdudz%mf)
-    call this%stat_fields%assign(29, this%pdvdx%mf)
-    call this%stat_fields%assign(30, this%pdvdy%mf)
-    call this%stat_fields%assign(31, this%pdvdz%mf)
-    call this%stat_fields%assign(32, this%pdwdx%mf)
-    call this%stat_fields%assign(33, this%pdwdy%mf)
-    call this%stat_fields%assign(34, this%pdwdz%mf)
-    call this%stat_fields%assign(35, this%e11%mf)
-    call this%stat_fields%assign(36, this%e22%mf)
-    call this%stat_fields%assign(37, this%e33%mf)
-    call this%stat_fields%assign(38, this%e12%mf)
-    call this%stat_fields%assign(39, this%e13%mf)
-    call this%stat_fields%assign(40, this%e23%mf)
+    call this%stat_fields%assign_to_field(26, this%pdudx%mf)
+    call this%stat_fields%assign_to_field(27, this%pdudy%mf)
+    call this%stat_fields%assign_to_field(28, this%pdudz%mf)
+    call this%stat_fields%assign_to_field(29, this%pdvdx%mf)
+    call this%stat_fields%assign_to_field(30, this%pdvdy%mf)
+    call this%stat_fields%assign_to_field(31, this%pdvdz%mf)
+    call this%stat_fields%assign_to_field(32, this%pdwdx%mf)
+    call this%stat_fields%assign_to_field(33, this%pdwdy%mf)
+    call this%stat_fields%assign_to_field(34, this%pdwdz%mf)
+    call this%stat_fields%assign_to_field(35, this%e11%mf)
+    call this%stat_fields%assign_to_field(36, this%e22%mf)
+    call this%stat_fields%assign_to_field(37, this%e33%mf)
+    call this%stat_fields%assign_to_field(38, this%e12%mf)
+    call this%stat_fields%assign_to_field(39, this%e13%mf)
+    call this%stat_fields%assign_to_field(40, this%e23%mf)
 
 
   end subroutine fluid_stats_init
