@@ -56,7 +56,6 @@ module dong_outflow
      type(field_t), pointer :: u
      type(field_t), pointer :: v
      type(field_t), pointer :: w
-     type(coef_t), pointer :: c_Xh
      real(kind=rp) :: delta
      real(kind=rp) :: uinf
      type(c_ptr) :: normal_x_d
@@ -73,7 +72,6 @@ module dong_outflow
 contains
   subroutine dong_outflow_set_vars(this, c_Xh, uinf, delta)
     class(dong_outflow_t), intent(inout) :: this
-    type(coef_t), target, intent(in) :: c_Xh
     real(kind=rp), intent(in) :: uinf
     real(kind=rp), optional, intent(in) :: delta
     real(kind=rp), allocatable :: temp_x(:)
@@ -90,11 +88,9 @@ contains
        this%delta = 0.01_rp
     end if
     this%uinf = uinf
-    this%c_Xh=> c_Xh
     this%u => neko_field_registry%get_field("u")
     this%v => neko_field_registry%get_field("v")
     this%w => neko_field_registry%get_field("w")
-
     if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
        call device_alloc(this%normal_x_d,c_sizeof(dummy)*this%msk(0))
        call device_alloc(this%normal_y_d,c_sizeof(dummy)*this%msk(0))
@@ -108,7 +104,7 @@ contains
           facet = this%facet(i)
           idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
           normal_xyz = &
-                 this%c_Xh%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
+                 this%coef%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
             temp_x(i) = normal_xyz(1)
             temp_y(i) = normal_xyz(2)
             temp_z(i) = normal_xyz(3)
@@ -142,7 +138,7 @@ contains
        uy = this%v%x(k,1,1,1)
        uz = this%w%x(k,1,1,1)
        idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
-       normal_xyz = this%c_Xh%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
+       normal_xyz = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
        vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)
        S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
 

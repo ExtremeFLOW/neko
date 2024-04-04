@@ -36,8 +36,8 @@ module scalar_pnpn
   use num_types, only: rp
   use scalar_residual_fctry, only : scalar_residual_factory
   use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_bdf_t, rhs_maker_ext_t, &
-                              rhs_maker_ext_fctry, rhs_maker_bdf_fctry
+  use rhs_maker_fctry, only : rhs_maker_ext_fctry, rhs_maker_bdf_fctry
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -178,7 +178,7 @@ contains
 
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
-    call this%bc_res%init(this%dm_Xh)
+    call this%bc_res%init(this%c_Xh)
     do i = 1, this%n_dir_bcs
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
     end do
@@ -187,6 +187,9 @@ contains
     if (this%user_bc%msk(0) .gt. 0) then
        call this%bc_res%mark_facets(this%user_bc%marked_facet)
     end if
+
+    call this%bc_res%mark_zones_from_list(msh%labeled_zones, 'd_s', &
+                                         this%bc_labels)
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
 
@@ -352,6 +355,8 @@ contains
       !> Apply Dirichlet boundary conditions
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
+      call this%dirichlet_update_(this%field_dirichlet_fields, &
+           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 
       ! Compute scalar residual.

@@ -138,6 +138,45 @@ to be set in the subroutine, but it can be based on arbitrary computations and
 arbitrary parameters read from the case file. Additionally, this allows to
 change the material properties in time.
 
+### Boundary types {#case-file_boundary-types}
+The optional `boundary_types` keyword can be used to specify boundary conditions.
+The reason for it being optional, is that some conditions can be specified
+directly inside the mesh file.
+In particular, this happens when Nek5000 `.re2` files are converted to `.nmsh`.
+Periodic boundary conditions are *always* defined inside the mesh file.
+
+The value of the keyword is an array of strings, with the following possible
+values:
+
+* Standard boundary conditions 
+  * `w`, a no-slip wall.
+  * `v`, a velocity Dirichlet boundary.
+  * `sym`, a symmetry boundary.
+  * `o`, outlet boundary. 
+  * `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
+   the wall-normal. The wall-parallel velocity is defined by the initial
+   condition. 
+
+* Advanced boundary conditions
+  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a `"/"`), a 
+  Dirichlet boundary for more complex velocity profiles. This boundary condition uses a 
+  [more advanced user interface](#user-file_field-dirichlet-update). 
+  * `d_pres`, a boundary for specified non-uniform pressure profiles, similar in 
+  essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other 
+  complex Dirichlet coonditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
+  * `o+dong`, outlet boundary using the Dong condition. 
+  * `on+dong`, an `on` boundary using the Dong condition, ensuring that the
+   wall-normal velocity is directed outwards.
+
+In some cases, only some boundary types have to be provided.
+For example, when one has periodic boundaries, like in the channel flow example.
+In this case, to put the specification of the boundary at the right index,
+preceding boundary types can be marked with an empty string.
+For example, if boundaries with index 1 and 2 are periodic, and the third one is
+a wall, we can set.
+```
+"boundary_types": ["", "", "w"]
+```
 
 ### Inflow boundary conditions
 The object `inflow_condition` is used to specify velocity values at a Dirichlet
@@ -321,35 +360,6 @@ $0.1$. The indicator field for the point zone is not filtered.
 ]
 ~~~~~~~~~~~~~~~
 
-### Boundary types
-The optional `boundary_types` keyword can be used to specify boundary conditions.
-The reason for it being optional, is that some conditions can be specified
-directly inside the mesh file.
-In particular, this happens when Nek5000 `.re2` files are converted to `.nmsh`.
-Periodic boundary conditions are *always* defined inside the mesh file.
-
-The value of the keyword is an array of strings, with the following possible
-values:
-* `w`, a no-slip wall.
-* `v`, a Dirichlet boundary.
-* `sym`, a symmetry boundary.
-* `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
-   the wall-normal. The wall-parallel velocity is defined by the initial
-   condition.
-* `o`, outlet boundary.
-* `o+dong`, outlet boundary using the Dong condition.
-* `on+dong`, an `on` boundary using the Dong condition, ensuring that the
-   wall-normal velocity is directed outwards.
-
-In some cases, only some boundary types have to be provided.
-For example, when one has periodic boundaries, like in the channel flow example.
-In this case, to put the specification of the boundary at the right index,
-preceding boundary types can be marked with an empty string.
-For example, if boundaries with index 1 and 2 are periodic, and the third one is
-a wall, we can set.
-```
-"boundary_types": ["", "", "w"]
-```
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
