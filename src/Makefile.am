@@ -59,7 +59,7 @@ neko_fortran_SOURCES = \
 	mesh/point_zones/sphere_point_zone.f90\
 	mesh/point_zones/box_point_zone.f90\
 	mesh/point_zones/cylinder_point_zone.f90\
-	mesh/point_zone_factory.f90\
+	mesh/point_zone_fctry.f90\
 	mesh/point_zone_registry.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
@@ -251,7 +251,7 @@ neko_fortran_SOURCES = \
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
 	simulation_components/les_simcomp.f90\
-	simulation_components/simulation_component_factory.f90\
+	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
@@ -259,7 +259,7 @@ neko_fortran_SOURCES = \
 	source_terms/boussinesq_source_term.f90\
 	source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90\
 	source_terms/bcknd/device/boussinesq_source_term_device.f90\
-	source_terms/source_term_factory.f90\
+	source_terms/source_term_fctry.f90\
 	source_terms/brinkman_source_term.f90\
 	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
 	source_terms/bcknd/device/brinkman_source_term_device.f90\
