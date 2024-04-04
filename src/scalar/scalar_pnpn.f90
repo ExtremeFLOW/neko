@@ -60,7 +60,8 @@ module scalar_pnpn
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use advection, only : advection_t, advection_factory
+  use advection, only : advection_t
+  use advection_fctry, only : advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only: json_get
   use json_module, only : json_file
@@ -178,7 +179,7 @@ contains
 
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
-    call this%bc_res%init(this%dm_Xh)
+    call this%bc_res%init(this%c_Xh)
     do i = 1, this%n_dir_bcs
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
     end do
@@ -187,6 +188,9 @@ contains
     if (this%user_bc%msk(0) .gt. 0) then
        call this%bc_res%mark_facets(this%user_bc%marked_facet)
     end if
+
+    call this%bc_res%mark_zones_from_list(msh%labeled_zones, 'd_s', &
+                                         this%bc_labels)
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
 
@@ -202,15 +206,7 @@ contains
     ! @todo Init chkp object, note, adding 3 slags
     ! call this%chkp%add_lag(this%slag, this%slag, this%slag)
 
-    ! Uses sthe same parameter as the fluid to set dealiasing
-    call json_get(params, 'case.numerics.dealias', logical_val)
-    call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
-                    found)
-    if (.not. found) then
-       call json_get(params, 'case.numerics.polynomial_order', integer_val)
-       integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
-    end if
-    call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
+    call advection_factory(this%adv, params, this%c_Xh)
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
@@ -352,6 +348,8 @@ contains
       !> Apply Dirichlet boundary conditions
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
+      call this%dirichlet_update_(this%field_dirichlet_fields, &
+           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 
       ! Compute scalar residual.

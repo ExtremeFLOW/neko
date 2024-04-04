@@ -37,11 +37,11 @@ module symmetry
   use num_types
   use dirichlet
   use bc
-  use coefs
   use math
   use utils
   use stack
   use tuple
+  use coefs, only : coef_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -62,9 +62,8 @@ module symmetry
 contains
 
   !> Initialize symmetry mask for each axis
-  subroutine symmetry_init_msk(this, c)
+  subroutine symmetry_init_msk(this)
     class(symmetry_t), intent(inout) :: this
-    type(coef_t), intent(in) :: c
     integer :: i, m, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
@@ -74,11 +73,12 @@ contains
 
     call symmetry_free(this)
 
-    call this%bc_x%init(c%dof)
-    call this%bc_y%init(c%dof)
-    call this%bc_z%init(c%dof)
+    call this%bc_x%init(this%coef)
+    call this%bc_y%init(this%coef)
+    call this%bc_z%init(this%coef)
 
-    associate(nx => c%nx, ny => c%ny, nz => c%nz)
+    associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+              nz => this%coef%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
          bc_facet = bfp(i)

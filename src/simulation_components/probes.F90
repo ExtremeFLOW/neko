@@ -148,6 +148,7 @@ contains
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout)  :: output_file
+    character(len=1024) :: header_line
     real(kind=rp), allocatable :: global_output_coords(:,:)
     integer :: i, ierr
     type(matrix_t) :: mat_coords
@@ -180,6 +181,14 @@ contains
 
     select type(ft => this%fout%file_type)
     type is (csv_file_t)
+
+       ! Build the header
+       write(header_line, '(I0,A,I0)') this%n_global_probes, ",", this%n_fields
+       do i = 1, this%n_fields
+          header_line = trim(header_line) // "," // trim(this%which_fields(i))
+       end do
+       call this%fout%set_header(header_line)
+
        !> Necessary for not-parallel csv format...
        !! offsets and n points per pe
        !! Needed at root for sequential csv i/o
