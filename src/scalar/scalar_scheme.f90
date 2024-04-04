@@ -102,7 +102,7 @@ module scalar_scheme
      !> Projection space size.
      integer :: projection_dim
      !< Steps to activate projection for ksp
-     integer :: projection_activ_step   
+     integer :: projection_activ_step
      !> Preconditioner.
      class(pc_t), allocatable :: pc
      !> Dirichlet conditions.
@@ -251,7 +251,7 @@ contains
 !             call this%dir_bcs(j)%mark_zone(zones(i))
 !          else
           this%n_dir_bcs = this%n_dir_bcs + 1
-          call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
+          call this%dir_bcs(this%n_dir_bcs)%init(this%c_Xh)
           call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) dir_value
           call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
@@ -260,11 +260,10 @@ contains
 
        if (bc_label(1:2) .eq. 'n=') then
           this%n_neumann_bcs = this%n_neumann_bcs + 1
-          call this%neumann_bcs(this%n_neumann_bcs)%init(this%dm_Xh)
+          call this%neumann_bcs(this%n_neumann_bcs)%init(this%c_Xh)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) flux_value
-          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value,&
-                                                                 this%c_Xh)
+          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value)
        end if
 
        !> Check if user bc on this zone
@@ -372,7 +371,7 @@ contains
     ! Setup scalar boundary conditions
     !
     call bc_list_init(this%bclst_dirichlet)
-    call this%user_bc%init(this%dm_Xh)
+    call this%user_bc%init(this%c_Xh)
 
     ! Read boundary types from the case file
     allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
@@ -410,7 +409,7 @@ contains
                                                      this%user_bc)
 
     ! Add field dirichlet BCs
-    call this%field_dir_bc%init(this%dm_Xh)
+    call this%field_dir_bc%init(this%c_Xh)
     call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
          'd_s', this%bc_labels)
     call this%field_dir_bc%finalize()
