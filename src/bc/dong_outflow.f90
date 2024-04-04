@@ -42,6 +42,7 @@ module dong_outflow
   use coefs
   use utils
   use device_dong_outflow
+  use field_registry, only : neko_field_registry
   use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof
   implicit none
   private
@@ -69,9 +70,8 @@ module dong_outflow
   end type dong_outflow_t
 
 contains
-  subroutine dong_outflow_set_vars(this, u, v, w, uinf, delta)
+  subroutine dong_outflow_set_vars(this, uinf, delta)
     class(dong_outflow_t), intent(inout) :: this
-    type(field_t), target, intent(in) :: u, v, w
     real(kind=rp), intent(in) :: uinf
     real(kind=rp), optional, intent(in) :: delta
     real(kind=rp), allocatable :: temp_x(:)
@@ -88,9 +88,9 @@ contains
        this%delta = 0.01_rp
     end if
     this%uinf = uinf
-    this%u => u
-    this%v => v
-    this%w => w
+    this%u => neko_field_registry%get_field("u")
+    this%v => neko_field_registry%get_field("v")
+    this%w => neko_field_registry%get_field("w")
     if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
        call device_alloc(this%normal_x_d,c_sizeof(dummy)*this%msk(0))
        call device_alloc(this%normal_y_d,c_sizeof(dummy)*this%msk(0))
