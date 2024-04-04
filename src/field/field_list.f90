@@ -26,8 +26,10 @@ module field_list
      procedure, pass(this) :: assign_to_field_ptr => field_list_assign_to_field_ptr
      procedure, pass(this) :: assign_to_field => field_list_assign_to_field
 
-     !> Get device pointer for a given index
+     !> Get device pointer for a given index.
      procedure, pass(this) :: x_d => field_list_x_d
+     !> Get pointer to the raw data array for a given index.
+     procedure, pass(this) :: x => field_list_x
      !> Get number of items in the list.
      procedure, pass(this) :: size => field_list_size
      !> Get the size of dofmap for an item in the list.
@@ -113,6 +115,13 @@ contains
 
     ptr = this%items(i)%ptr%x_d
   end function field_list_x_d
+
+  function field_list_x(this, i) result(x)
+    class(field_list_t), target, intent(in) :: this
+    real(kind=rp), pointer :: x(:,:,:,:)
+    integer, intent(in) :: i
+    x => this%items(i)%ptr%x
+  end function field_list_x
 
   !> Get the size of the dofmap for item `i`.
   !! @param i The index of the item.
