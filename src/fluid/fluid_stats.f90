@@ -649,8 +649,7 @@ contains
 
     if (present(mean)) then
        n = mean%item_size(1)
-       !call copy(mean%items(1)%ptr%x, this%u_mean%x, n)
-       call copy(mean%x(1), this%u_mean%x, n)
+       call copy(mean%items(1)%ptr%x, this%u_mean%x, n)
        call copy(mean%items(2)%ptr%x, this%v_mean%x, n)
        call copy(mean%items(3)%ptr%x, this%w_mean%x, n)
        call copy(mean%items(4)%ptr%x, this%p_mean%x, n)
