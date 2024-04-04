@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -53,6 +53,34 @@ void opencl_copy(void *a, void *b, int *n) {
   CL_CHECK(clEnqueueCopyBuffer((cl_command_queue) glb_cmd_queue,
                                b, a, 0, 0, (*n) * sizeof(real),
                                0, NULL, NULL));
+}
+
+/** Fortran wrapper for masked copy
+ * Copy a vector \f$ a = b \f$
+ */
+void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+  
+  cl_kernel kernel = clCreateKernel(math_program, "masked_copy_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+  
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));  
+
 }
 
 /** Fortran wrapper for rzero

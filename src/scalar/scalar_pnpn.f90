@@ -187,6 +187,9 @@ contains
     if (this%user_bc%msk(0) .gt. 0) then
        call this%bc_res%mark_facets(this%user_bc%marked_facet)
     end if
+
+    call this%bc_res%mark_zones_from_list(msh%labeled_zones, 'd_s', &
+                                         this%bc_labels)
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
 
@@ -352,6 +355,8 @@ contains
       !> Apply Dirichlet boundary conditions
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
+      call this%dirichlet_update_(this%field_dirichlet_fields, &
+           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 
       ! Compute scalar residual.
