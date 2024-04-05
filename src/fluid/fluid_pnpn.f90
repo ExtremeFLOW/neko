@@ -66,7 +66,7 @@ module fluid_pnpn
   use coefs, only : coef_t
   use time_step_controller, only : time_step_controller_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
   use math, only : col2, add2
   use mathops, only : opadd2cm, opcolv
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
