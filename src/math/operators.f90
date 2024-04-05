@@ -36,9 +36,9 @@ module operators
                           NEKO_DEVICE_MPI
   use num_types, only : rp
   use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, opr_cpu_conv1,&
-                      opr_cpu_cdtp, opr_cpu_dudxyz
+                      opr_cpu_cdtp, opr_cpu_dudxyz, opr_cpu_lambda2
   use opr_sx, only : opr_sx_cfl, opr_sx_curl, opr_sx_dudxyz, opr_sx_opgrad, &
-                     opr_sx_cdtp, opr_sx_conv1
+                     opr_sx_cdtp, opr_sx_conv1, opr_sx_lambda2
   use opr_xsmm, only : opr_xsmm_cdtp, opr_xsmm_conv1, opr_xsmm_curl, &
                        opr_xsmm_dudxyz, opr_xsmm_opgrad
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
@@ -47,7 +47,7 @@ module operators
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
-  use math, only : glsum, pi, cmult, add2, cadd
+  use math, only : glsum, cmult, add2, cadd
   use device, only : c_ptr, device_get_ptr
   use device_math, only : device_add2, device_cmult
   use comm
@@ -375,82 +375,13 @@ contains
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: lambda2
     type(field_t), intent(in) :: u, v, w
-    real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
-    integer :: e, i
-    real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
-    real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
-    real(kind=rp) :: a11, a22, a33, a12, a13, a23
-    real(kind=rp) :: msk1, msk2, msk3
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (NEKO_BCKND_SX .eq. 1) then
+       call opr_sx_lambda2(lambda2, u, v, w, coef)
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_lambda2(lambda2, u, v, w, coef)
     else
-       !$omp parallel do if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))&
-       !$omp& private(e, i, s11,s22, s33, s12, s13, s23), &
-       !$omp& private(o12, o13, o23, a11, a12, a13, a22, a23, a33), &
-       !$omp& private(B, C, D, q, r, theta, eigen, msk1, msk2, msk3, l2, grad)
-       do e = 1, coef%msh%nelv
-          call opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
-                              u%x(1,1,1,e),coef,e,e)
-          call opgrad(grad(1,2,1), grad(1,2,2), grad(1,2,3), &
-                              v%x(1,1,1,e),coef,e,e)
-          call opgrad(grad(1,3,1), grad(1,3,2), grad(1,3,3), &
-                              w%x(1,1,1,e),coef,e,e)
-
-          do i = 1, coef%Xh%lxyz
-             s11 = grad(i,1,1)
-             s22 = grad(i,2,2)
-             s33 = grad(i,3,3)
-
-
-             s12 = 0.5*(grad(i,1,2) + grad(i,2,1))
-             s13 = 0.5*(grad(i,1,3) + grad(i,3,1))
-             s23 = 0.5*(grad(i,2,3) + grad(i,3,2))
-
-             o12 = 0.5*(grad(i,1,2) - grad(i,2,1))
-             o13 = 0.5*(grad(i,1,3) - grad(i,3,1))
-             o23 = 0.5*(grad(i,2,3) - grad(i,3,2))
-
-             a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13
-             a12 = s11 * s12  +  s12 * s22  +  s13 * s23 - o13 * o23
-             a13 = s11 * s13  +  s12 * s23  +  s13 * s33 + o12 * o23
-
-             a22 = s12*s12 + s22*s22 + s23*s23 - o12*o12 - o23*o23
-             a23 = s12 * s13 + s22 * s23 + s23 * s33 - o12 * o13
-             a33 = s13*s13 + s23*s23 + s33*s33 - o13*o13 - o23*o23
-
-
-             B = -(a11 + a22 + a33)
-             C = -(a12*a12 + a13*a13 + a23*a23 &
-                  - a11 * a22 - a11 * a33 - a22 * a33)
-             D = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 &
-                  - a22 * a13*a13 - a33 * a12*a12  +  a11 * a22 * a33)
-
-
-             q = (3.0 * C - B*B) / 9.0
-             r = (9.0 * C * B - 27.0 * D - 2.0 * B*B*B) / 54.0
-             theta = acos( r / sqrt(-q*q*q) )
-
-             eigen(1) = 2.0 * sqrt(-q) * cos(theta / 3.0) - B / 3.0
-             eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - B / 3.0
-             eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - B / 3.0
-
-             msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &
-                          .and. eigen(1) .le. eigen(3) .or.  eigen(3) &
-                          .le. eigen(1) .and. eigen(1) .le. eigen(2) )
-             msk2 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(2) &
-                          .and. eigen(2) .le. eigen(3) .or. eigen(3) &
-                          .le. eigen(2) .and. eigen(2) .le. eigen(1))
-             msk3 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(3) &
-                          .and. eigen(3) .le. eigen(2) .or. eigen(2) &
-                          .le. eigen(3) .and. eigen(3) .le. eigen(1))
-
-             l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)
-
-             lambda2%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)
-          end do
-       end do
-       !$omp end parallel do
+       call opr_cpu_lambda2(lambda2, u, v, w, coef)
     end if
 
   end subroutine lambda2op

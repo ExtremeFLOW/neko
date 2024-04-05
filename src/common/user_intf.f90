@@ -33,12 +33,15 @@
 !> Interfaces for user interaction with NEKO
 module user_intf
   use field
+  use field_list, only : field_list_t
   use fluid_user_source_term
   use scalar_user_source_term
   use coefs
+  use bc, only: bc_list_t
   use mesh
   use usr_inflow
   use usr_scalar
+  use field_dirichlet, only: field_dirichlet_update
   use num_types
   use json_module, only : json_file
   use utils, only : neko_error,  neko_warning
@@ -152,6 +155,7 @@ module user_intf
      procedure(scalar_source_compute_pointwise), nopass, pointer :: scalar_user_f => null()
      procedure(scalar_source_compute_vector), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
+     procedure(field_dirichlet_update), nopass, pointer :: user_dirichlet_update => null()
      procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
      !> Routine to set material properties
      procedure(user_material_properties), nopass, pointer :: material_properties => null()
@@ -195,6 +199,10 @@ contains
        u%scalar_user_bc => dummy_scalar_user_bc
     end if
 
+    if (.not. associated(u%user_dirichlet_update)) then
+       u%user_dirichlet_update => dirichlet_do_nothing
+    end if
+    
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
     end if
@@ -329,6 +337,16 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
+  subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc_list, &
+       coef, t, tstep, which_solver)
+    type(field_list_t), intent(inout) :: dirichlet_field_list
+    type(bc_list_t), intent(inout) :: dirichlet_bc_list
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    character(len=*), intent(in) :: which_solver
+  end subroutine dirichlet_do_nothing
+  
   subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
                                             params)
     real(kind=rp), intent(in) :: t

@@ -97,11 +97,11 @@ contains
     !$omp end parallel
   end subroutine jacobi_solve
 
-  !> Update Jacobi preconditioner
+  !> Update Jacobi preconditioner if the geometry G has changed
   subroutine jacobi_update(this)
     class(jacobi_t), intent(inout) :: this
     integer :: i
-    associate(dof => this%dof, coef => this%coef, gs_h => this%gs_h)      
+    associate(dof => this%dof, coef => this%coef, gs_h => this%gs_h)
 
       !$omp parallel private(i)
 
@@ -110,7 +110,7 @@ contains
          this%d(i,1,1,1) = 0.0_rp
       end do
       !$omp end do
-      
+
       select case(dof%Xh%lx)
       case (14)
          call jacobi_update_lx14(this%d, dof%Xh%dxt, dof%Xh%dyt, dof%Xh%dzt, &
@@ -182,6 +182,7 @@ contains
          end do
          !$omp end do
       end if
+
       call gs_h%op(this%d, dof%size(), GS_OP_ADD)
       !$omp do
       do i = 1, dof%size()
@@ -209,6 +210,7 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
       
+
     !$omp do
     do e = 1,n
        do l = 1,lx
@@ -295,8 +297,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
-    
+          
     !$omp do
     do e = 1,n
        do l = 1,lx
