@@ -42,7 +42,7 @@ module flow_ic
   use field, only : field_t
   use utils, only : neko_error
   use coefs, only : coef_t
-  use math, only : col2
+  use math, only : col2, cfill
   use user_intf, only : useric
   use json_module, only : json_file
   use json_utils, only: json_get
