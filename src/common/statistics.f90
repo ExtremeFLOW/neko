@@ -32,9 +32,9 @@
 !
 !> Defines a container for all statistics
 module stats
-  use num_types
-  use stats_quant
-  use logger
+  use num_types, only : rp, dp
+  use stats_quant, only : stats_quant_t
+  use logger, only : LOG_SIZE, neko_log
   use comm
   implicit none
 

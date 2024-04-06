@@ -32,17 +32,19 @@
 !
 !> Interfaces for user interaction with NEKO
 module user_intf
-  use field
+  use field, only : field_t
   use field_list, only : field_list_t
-  use fluid_user_source_term
-  use scalar_user_source_term
-  use coefs
+  use fluid_user_source_term, only : fluid_user_source_term_t, &
+    fluid_source_compute_pointwise, fluid_source_compute_vector
+  use scalar_user_source_term, only : scalar_user_source_term_t, &
+    scalar_source_compute_pointwise, scalar_source_compute_vector
+  use coefs, only : coef_t
   use bc, only: bc_list_t
-  use mesh
-  use usr_inflow
-  use usr_scalar
+  use mesh, only : mesh_t
+  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
+  use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use field_dirichlet, only: field_dirichlet_update
-  use num_types
+  use num_types, only : rp
   use json_module, only : json_file
   use utils, only : neko_error,  neko_warning
   implicit none
@@ -202,7 +204,7 @@ contains
     if (.not. associated(u%user_dirichlet_update)) then
        u%user_dirichlet_update => dirichlet_do_nothing
     end if
-    
+
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
     end if
@@ -346,7 +348,7 @@ contains
     integer, intent(in) :: tstep
     character(len=*), intent(in) :: which_solver
   end subroutine dirichlet_do_nothing
-  
+
   subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
                                             params)
     real(kind=rp), intent(in) :: t

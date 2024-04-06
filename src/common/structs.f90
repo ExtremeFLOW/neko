@@ -1,6 +1,6 @@
 !> Defines structs that are used... Dont know if we should keep it though.
 module structs
-  use num_types
+  use num_types, only : rp, dp
   implicit none
   private
 

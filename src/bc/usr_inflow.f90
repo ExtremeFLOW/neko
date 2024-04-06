@@ -32,12 +32,12 @@
 !
 !> Defines inflow dirichlet conditions
 module usr_inflow
-  use num_types
-  use coefs
-  use inflow
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use inflow, only : inflow_t
   use device
   use device_inhom_dirichlet
-  use utils
+  use utils, only : neko_error
   implicit none
   private
 
@@ -289,7 +289,7 @@ contains
               end select
            end do
          end associate
-        
+
          call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE, sync=.true.)
