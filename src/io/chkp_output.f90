@@ -36,6 +36,7 @@ module chkp_output
   use output
   use num_types, only : rp
   implicit none
+  private
 
   type, public, extends(output_t) :: chkp_output_t
      type(chkp_t), pointer :: chkp

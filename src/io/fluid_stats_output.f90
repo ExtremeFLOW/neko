@@ -32,11 +32,11 @@
 !
 !> Defines an output for a mean flow field
 module fluid_stats_output
-  use fluid_stats
-  use neko_config
-  use num_types
+  use fluid_stats, only : fluid_stats_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
   use device
-  use output
+  use output, only : output_t
   implicit none
   private
 

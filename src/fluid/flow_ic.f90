@@ -32,15 +32,17 @@
 !
 !> Initial flow condition
 module flow_ic
-  use gather_scatter
-  use neko_config
-  use flow_profile
+  use num_types, only : rp
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
+                           blasius_quadratic, blasius_quartic, blasius_sin
   use device_math
   use device
-  use field
-  use utils
-  use coefs
-  use math
+  use field, only : field_t
+  use utils, only : neko_error
+  use coefs, only : coef_t
+  use math, only : col2
   use user_intf, only : useric
   use json_module, only : json_file
   use json_utils, only: json_get

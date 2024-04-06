@@ -37,6 +37,7 @@ module stats
   use logger, only : LOG_SIZE, neko_log
   use comm
   implicit none
+  private
 
   !> Pointer to an arbitrary quantitiy
   type, private :: quantp_t
@@ -44,7 +45,7 @@ module stats
   end type quantp_t
 
   !> Statistics backend
-  type :: stats_t
+  type, public :: stats_t
      type(quantp_t), allocatable :: quant_list(:)
      integer :: n
      integer :: size

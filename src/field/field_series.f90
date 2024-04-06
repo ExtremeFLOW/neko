@@ -32,8 +32,8 @@
 !
 !> Stores a series fields
 module field_series
-  use num_types
-  use field
+  use num_types, only : rp
+  use field, only : field_t
   implicit none
   private
 
