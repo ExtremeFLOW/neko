@@ -18,7 +18,7 @@ program postprocess_fluid_stats
   type(gs_t) :: gs_h
   type(field_t), pointer :: u, v, w, p
   type(field_t), target :: pp, uu, vv, ww, uv, uw, vw, tmp1, tmp2
-  type(field_list_t) :: reynolds, mean_vel_grad
+  type(field_list_t) :: reynolds, mean_vel_grad, dissipation_tensor
   integer :: argc, i, n, lx
   
   argc = command_argument_count()
@@ -188,6 +188,21 @@ program postprocess_fluid_stats
   call output_file%write(mean_vel_grad, stats_data%time)
   if (pe_rank .eq. 0) write(*,*) 'Done'
   
+  allocate(dissipation_tensor%fields(6))
+  dissipation_tensor%fields(1)%f => pp
+  dissipation_tensor%fields(2)%f => uu
+  dissipation_tensor%fields(3)%f => vv
+  dissipation_tensor%fields(4)%f => ww
+  dissipation_tensor%fields(5)%f => uv
+  dissipation_tensor%fields(6)%f => uw
+
+  call fld_stats%post_process(dissipation_tensor=dissipation_tensor)
+
+  if (pe_rank .eq. 0) write(*,*) 'Writing dissipation_tensor into dissipation_tensor'
+  output_file = file_t('dissipation_tensor.fld')
+  call output_file%write(dissipation_tensor, stats_data%time)
+  if (pe_rank .eq. 0) write(*,*) 'Done'
+
   call neko_finalize
 
 end program postprocess_fluid_stats
