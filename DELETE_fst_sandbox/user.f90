@@ -67,8 +67,8 @@ contains
     ! ========== FST ============
     !
     ! Initialize all FST parameters
-    call FST_obj%init(params, -0.185_rp, -0.165_rp, bpz%xmin, bpz%xmax,&
-         10000.0_rp, 0.002_rp, 0.002_rp)
+    call FST_obj%init(params, -0.05_rp, 0.05_rp, bpz%xmin, bpz%xmax,&
+         100000.0_rp, 0.002_rp, 0.002_rp)
 
     ! Generate FST (mostly files for postprocessing)
     call FST_obj%generate(u)

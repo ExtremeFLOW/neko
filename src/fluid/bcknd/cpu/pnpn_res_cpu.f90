@@ -71,13 +71,13 @@ contains
     do i = 1, n
        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho &
             - ((wa1%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1)) & 
-            - chi%x(i,1,1,1) * u_e%x(i,1,1,1)  * c_Xh%B(i,1,1,1)/rho
+            - chi%x(i,1,1,1) * u_e%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho &
             - ((wa2%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1)) &
-            - chi%x(i,1,1,1) * v_e%x(i,1,1,1)  * c_Xh%B(i,1,1,1)/rho
+            - chi%x(i,1,1,1) * v_e%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho &
             - ((wa3%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1)) &
-            - chi%x(i,1,1,1) * w_e%x(i,1,1,1)  * c_Xh%B(i,1,1,1)/rho
+            - chi%x(i,1,1,1) * w_e%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
     end do
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -166,9 +166,9 @@ contains
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
     do i = 1, n
-       u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1)
-       v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
-       w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1)
+       u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1)/rho + f_x%x(i,1,1,1)
+       v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1)/rho + f_y%x(i,1,1,1)
+       w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1)/rho + f_z%x(i,1,1,1)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)

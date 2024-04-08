@@ -6,7 +6,7 @@
     "output_directory": "results",
     "output_boundary": false,
     "end_time": 1e-2,
-    "timestep": 1e-5,
+    "timestep": 1e-4,
     "output_checkpoints": false,
     "numerics": {
         "time_order": 3,
@@ -14,9 +14,9 @@
         "dealias": true
     },
     "fluid": {
-        "boundary_types": ["v", "o", "w", "w"],
+        "boundary_types": ["v", "o", "sym", "sym"],
         "scheme": "pnpn",
-        "rho": 1.2,
+        "rho": 12,
         "mu": 0.00002,
         "source_terms":
         [
@@ -47,14 +47,14 @@
             "max_iterations": 800
         },
         "output_control": "tsteps",
-        "output_value": 10,
+        "output_value": 1,
     },
      "point_zones":
      [
         {
             "name": "fstbox",
             "geometry": "box",
-            "x_bounds": [-0.188, 0.163],
+            "x_bounds": [-0.10, 0.10],
             "y_bounds": [-0.01, 0.01],
             "z_bounds": [-99.0, 99.0]
         }

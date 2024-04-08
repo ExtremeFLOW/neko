@@ -67,13 +67,13 @@ contains
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
-    ! HARRY
-    ! this is incomplete
-
     do i = 1, n
-       wa1%x(i,1,1,1) = (wa1%x(i,1,1,1) * mu / rho) * c_Xh%B(i,1,1,1)
-       wa2%x(i,1,1,1) = (wa2%x(i,1,1,1) * mu / rho) * c_Xh%B(i,1,1,1)
-       wa3%x(i,1,1,1) = (wa3%x(i,1,1,1) * mu / rho) * c_Xh%B(i,1,1,1)
+       wa1%x(i,1,1,1) = (wa1%x(i,1,1,1) * mu / rho) * c_Xh%B(i,1,1,1) &
+          +chi%x(i,1,1,1) * u_e%x(i,1,1,1) * c_Xh%B(i,1,1,1)
+       wa2%x(i,1,1,1) = (wa2%x(i,1,1,1) * mu / rho) * c_Xh%B(i,1,1,1) &
+          +chi%x(i,1,1,1) * v_e%x(i,1,1,1) * c_Xh%B(i,1,1,1)
+       wa3%x(i,1,1,1) = (wa3%x(i,1,1,1) * mu / rho) * c_Xh%B(i,1,1,1) &
+          +chi%x(i,1,1,1) * w_e%x(i,1,1,1) * c_Xh%B(i,1,1,1)
     end do
 
     do i = 1, n

@@ -237,10 +237,10 @@ contains
 
        ! ok now we split between implicit and explicit parts
        ! THIS IS EXPLICIT
-       fu = fringe(x,y,FST_obj) * (FST_obj%uinf + rand_vec(1) - u)
-       fv = fringe(x,y,FST_obj) * (rand_vec(2) - v)
-       fw = fringe(x,y,FST_obj) * (rand_vec(3) - w)
-       chi = 0.0
+       !fu = fringe(x,y,FST_obj) * (FST_obj%uinf + rand_vec(1) - u)
+       !fv = fringe(x,y,FST_obj) * (rand_vec(2) - v)
+       !fw = fringe(x,y,FST_obj) * (rand_vec(3) - w)
+       !chi = 0.0
 
 		 ! THIS IS IMPLICIT
        fu = fringe(x,y,FST_obj) * (FST_obj%uinf + rand_vec(1))
@@ -261,23 +261,28 @@ contains
   function fringe(x,yloc, f) result(y)
     real(kind=rp), intent(in) :: x
     type(FST_t) :: f
-    real(kind=rp) :: y, S, yloc
+    real(kind=rp) :: y, S_s, S_e, x_s, x_e, yloc
 
-    if(x.le.f%xstart) then
-       S=0
-    else if (x.ge.f%xmax) then
-       S=0
-    else if (x.ge.f%xend) then
-       S=1
+	 ! Victor victor victor...
+	 x_s = (x-f%xstart)/f%delta_rise
+	 x_e = (x-f%xend)/f%delta_fall + 1.0
+    if(x_s.le.0) then
+       S_s=0
+    else if (x_s.ge.1) then
+       S_s=1
     else
-       S=1/(1+exp(1/(x-f%xend)+1/(x-f%xstart)))
+       S_s=1/(1+exp(1/(x_s-1)+1/(x_s)))
     endif
 
-    if(abs(yloc).gt.0.1) then
-    	S = 0.0
+    if(x_e.le.0) then
+       S_e=0
+    else if (x_e.ge.1) then
+       S_e=1
+    else
+       S_e=1/(1+exp(1/(x_e-1)+1/(x_e)))
     endif
 
-    y = f%fringe_max * (S*(x-f%xstart)/(f%delta_rise)-S*((x-f%xend)/f%delta_fall+1))
+    y = f%fringe_max * (S_s - S_e)
 
   end function fringe
 
