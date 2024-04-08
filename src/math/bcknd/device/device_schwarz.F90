@@ -98,16 +98,16 @@ module device_schwarz
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx, nelv, stream) &
+     subroutine opencl_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx, nelv) &
           bind(c, name='opencl_schwarz_extrude')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       type(c_ptr), value :: arr1_d, arr2_d, stream
+       type(c_ptr), value :: arr1_d, arr2_d
        integer(c_int) :: l1, l2, nx, nelv
        real(c_rp) :: f1, f2
      end subroutine opencl_schwarz_extrude
-     subroutine opencl_schwarz_toext3d(a_d,b_d,nx, nelv, stream) &
+     subroutine opencl_schwarz_toext3d(a_d,b_d,nx, nelv) &
           bind(c, name='opencl_schwarz_toext3d')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -115,7 +115,7 @@ module device_schwarz
        type(c_ptr), value :: a_d, b_d, stream
        integer(c_int) :: nx, nelv
      end subroutine opencl_schwarz_toext3d
-     subroutine opencl_schwarz_toreg3d(b_d,a_d,nx, nelv, stream) &
+     subroutine opencl_schwarz_toreg3d(b_d,a_d,nx, nelv) &
           bind(c, name='opencl_schwarz_toreg3d')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -143,7 +143,7 @@ contains
 #elif HAVE_CUDA
     call cuda_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,nelv, stream)
 #elif HAVE_OPENCL
-    call opencl_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,nelv, stream)
+    call opencl_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,nelv)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -162,7 +162,7 @@ contains
 #elif HAVE_CUDA
     call cuda_schwarz_toext3d(a_d,b_d,nx,nelv, stream)
 #elif HAVE_OPENCL
-    call opencl_schwarz_toext3d(a_d,b_d,nx,nelv, stream)
+    call opencl_schwarz_toext3d(a_d,b_d,nx,nelv)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -180,7 +180,7 @@ contains
 #elif HAVE_CUDA
     call cuda_schwarz_toreg3d(b_d,a_d,nx,nelv, stream)
 #elif HAVE_OPENCL
-    call opencl_schwarz_toreg3d(b_d,a_d,nx,nelv, stream)
+    call opencl_schwarz_toreg3d(b_d,a_d,nx,nelv)
 #else
     call neko_error('No device backend configured')
 #endif

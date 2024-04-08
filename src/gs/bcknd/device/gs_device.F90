@@ -161,10 +161,8 @@ contains
 
     this%shared_on_host = .true.
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
     call device_event_create(this%gather_event, 2)
     call device_event_create(this%scatter_event, 2)
-#endif
 
     this%gs_stream = glb_cmd_queue
 
@@ -213,7 +211,6 @@ contains
     this%nlocal = 0
     this%nshared = 0
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
     if (c_associated(this%gather_event)) then
        call device_event_destroy(this%gather_event)
     end if
@@ -221,7 +218,6 @@ contains
     if (c_associated(this%scatter_event)) then
        call device_event_destroy(this%scatter_event)
     end if
-#endif
 
     if (c_associated(this%gs_stream)) then
        this%gs_stream = C_NULL_PTR
@@ -419,7 +415,6 @@ contains
          call neko_error('No device backend configured')
 #endif
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
          if (c_associated(event)) then
             call device_event_record(event, strm)
          else

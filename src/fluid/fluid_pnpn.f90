@@ -337,6 +337,7 @@ contains
        call col2(this%wlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
     end do
 
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
             ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag,&
@@ -389,6 +390,7 @@ contains
        call this%gs_Xh%op(this%vlag%lf(i),GS_OP_ADD)
        call this%gs_Xh%op(this%wlag%lf(i),GS_OP_ADD)
     end do
+
 
     !! If we would decide to only restart from lagged fields instead of asving abx1, aby1 etc.
     !! Observe that one also needs to recompute the focing at the old time steps
@@ -703,6 +705,7 @@ contains
     end associate
     call profiler_end_region
   end subroutine fluid_pnpn_step
+
 
 
 end module fluid_pnpn

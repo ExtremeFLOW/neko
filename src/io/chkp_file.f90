@@ -188,6 +188,7 @@ contains
     ! Dump mandatory checkpoint data
     !
 
+
     byte_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
     byte_offset = byte_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)

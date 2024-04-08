@@ -237,7 +237,6 @@ contains
     call this%gs_Xh%op(this%s,GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(1),GS_OP_ADD)
     call this%gs_Xh%op(this%slag%lf(2),GS_OP_ADD)
-
   end subroutine scalar_pnpn_restart
 
   subroutine scalar_pnpn_free(this)
@@ -388,6 +387,5 @@ contains
     end associate
     call profiler_end_region
   end subroutine scalar_pnpn_step
-
 
 end module scalar_pnpn
