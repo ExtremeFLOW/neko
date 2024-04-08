@@ -794,6 +794,16 @@ contains
              call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x,this%w_mean%x,this%coef)
           end if
        end if
+       call invers2(this%stats_work%x, this%coef%B,n)
+       call col2(this%dudx%x,this%stats_work%x, n)
+       call col2(this%dudy%x,this%stats_work%x, n)
+       call col2(this%dudz%x,this%stats_work%x, n)
+       call col2(this%dvdx%x,this%stats_work%x, n)
+       call col2(this%dvdy%x,this%stats_work%x, n)
+       call col2(this%dvdz%x,this%stats_work%x, n)
+       call col2(this%dwdx%x,this%stats_work%x, n)
+       call col2(this%dwdy%x,this%stats_work%x, n)
+       call col2(this%dwdz%x,this%stats_work%x, n)
 
        ! do subtraction of epsilon_ij = e_ij - <mean_vel_grad><mean_vel_grad>
        call copy(dissipation_tensor%fields(1)%f%x,this%e11%mf%x,n)
