@@ -754,6 +754,77 @@ contains
     end if
 
     if (present(dissipation_tensor)) then
+       ! if mean_vel_grad is not evaluated, then evaluate it.
+       if (.not. present(mean_vel_grad)) then
+          n = dissipation_tensor%fields(1)%f%dof%size()
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_memcpy(this%u_mean%x, this%u_mean%x_d, n, &
+                             HOST_TO_DEVICE, sync=.false.)
+             call device_memcpy(this%v_mean%x, this%v_mean%x_d, n, &
+                             HOST_TO_DEVICE, sync=.false.)
+             call device_memcpy(this%w_mean%x, this%w_mean%x_d, n, &
+                             HOST_TO_DEVICE, sync=.false.)
+             call opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &
+                      this%u_mean%x, this%coef)
+             call opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &
+                      this%v_mean%x, this%coef)
+             call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &
+                      this%w_mean%x, this%coef)
+             call device_memcpy(this%dudx%x, this%dudx%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+             call device_memcpy(this%dvdx%x, this%dvdx%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+             call device_memcpy(this%dwdx%x, this%dwdx%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+             call device_memcpy(this%dudy%x, this%dudy%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+             call device_memcpy(this%dvdy%x, this%dvdy%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+             call device_memcpy(this%dwdy%x, this%dwdy%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+             call device_memcpy(this%dudz%x, this%dudz%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+             call device_memcpy(this%dvdz%x, this%dvdz%x_d, n, &
+                             DEVICE_TO_HOST, sync=.false.)
+             call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &
+                             DEVICE_TO_HOST, sync=.true.)
+          else
+             call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u_mean%x,this%coef)
+             call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v_mean%x,this%coef)
+             call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x,this%w_mean%x,this%coef)
+          end if
+       end if
+
+       ! do subtraction of epsilon_ij = e_ij - <mean_vel_grad><mean_vel_grad>
+       call copy(dissipation_tensor%fields(1)%f%x,this%e11%mf%x,n)
+       call subcol3(dissipation_tensor%fields(1)%f%x,this%dudx%x,this%dudx%x,n)
+       call subcol3(dissipation_tensor%fields(1)%f%x,this%dudy%x,this%dudy%x,n)
+       call subcol3(dissipation_tensor%fields(1)%f%x,this%dudz%x,this%dudz%x,n)
+
+       call copy(dissipation_tensor%fields(2)%f%x,this%e22%mf%x,n)
+       call subcol3(dissipation_tensor%fields(2)%f%x,this%dvdx%x,this%dvdx%x,n)
+       call subcol3(dissipation_tensor%fields(2)%f%x,this%dvdy%x,this%dvdy%x,n)
+       call subcol3(dissipation_tensor%fields(2)%f%x,this%dvdz%x,this%dvdz%x,n)
+       
+       call copy(dissipation_tensor%fields(3)%f%x,this%e33%mf%x,n)
+       call subcol3(dissipation_tensor%fields(3)%f%x,this%dwdx%x,this%dwdx%x,n)
+       call subcol3(dissipation_tensor%fields(3)%f%x,this%dwdy%x,this%dwdy%x,n)
+       call subcol3(dissipation_tensor%fields(3)%f%x,this%dwdz%x,this%dwdz%x,n)
+
+       call copy(dissipation_tensor%fields(4)%f%x,this%e12%mf%x,n)
+       call subcol3(dissipation_tensor%fields(4)%f%x,this%dudx%x,this%dvdx%x,n)
+       call subcol3(dissipation_tensor%fields(4)%f%x,this%dudy%x,this%dvdy%x,n)
+       call subcol3(dissipation_tensor%fields(4)%f%x,this%dudz%x,this%dvdz%x,n)
+
+       call copy(dissipation_tensor%fields(5)%f%x,this%e13%mf%x,n)
+       call subcol3(dissipation_tensor%fields(5)%f%x,this%dudx%x,this%dwdx%x,n)
+       call subcol3(dissipation_tensor%fields(5)%f%x,this%dudy%x,this%dwdy%x,n)
+       call subcol3(dissipation_tensor%fields(5)%f%x,this%dudz%x,this%dwdz%x,n)
+
+       call copy(dissipation_tensor%fields(6)%f%x,this%e23%mf%x,n)
+       call subcol3(dissipation_tensor%fields(6)%f%x,this%dvdx%x,this%dwdx%x,n)
+       call subcol3(dissipation_tensor%fields(6)%f%x,this%dvdy%x,this%dwdy%x,n)
+       call subcol3(dissipation_tensor%fields(6)%f%x,this%dvdz%x,this%dwdz%x,n)
 
     end if
 
