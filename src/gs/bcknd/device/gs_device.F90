@@ -348,9 +348,7 @@ contains
          call neko_error('No device backend configured')
 #endif
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
          call device_event_record(this%gather_event, strm)
-#endif
 
          if (this%shared_on_host) then
             if (this%nshared .eq. m) then
@@ -420,7 +418,6 @@ contains
          else
             call device_sync(strm)
          end if
-#endif
 
        end associate
     end if
