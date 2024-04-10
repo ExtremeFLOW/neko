@@ -410,26 +410,6 @@ contains
       call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u%x,this%coef)
       call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v%x,this%coef)
       call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x,this%w%x,this%coef)
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_memcpy(this%dudx%x, this%dudx%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(this%dudy%x, this%dudy%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(this%dudz%x, this%dudz%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(this%dvdx%x, this%dvdx%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(this%dvdy%x, this%dvdy%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(this%dvdz%x, this%dvdz%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(this%dwdx%x, this%dwdx%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(this%dwdy%x, this%dwdy%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &
-                             DEVICE_TO_HOST, sync=.true.)
-      end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_col3(stats_work%x_d,this%dudx%x_d, this%p%x_d,n)

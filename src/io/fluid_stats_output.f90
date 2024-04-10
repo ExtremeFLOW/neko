@@ -43,6 +43,7 @@ module fluid_stats_output
   type, public, extends(output_t) :: fluid_stats_output_t
      type(fluid_stats_t), pointer :: stats
      real(kind=rp) :: T_begin
+     integer :: count
    contains
      procedure, pass(this) :: sample => fluid_stats_output_sample
   end type fluid_stats_output_t
@@ -74,6 +75,7 @@ contains
     call this%init_base(fname)
     this%stats => stats
     this%T_begin = T_begin
+    this%count = 0
   end function fluid_stats_output_init
 
   !> Sample a mean flow field at time @a t
@@ -83,16 +85,21 @@ contains
     integer :: i
     associate (out_fields => this%stats%stat_fields%fields)
       if (t .ge. this%T_begin) then
-         call this%stats%make_strong_grad()
-         if ( NEKO_BCKND_DEVICE .eq. 1) then
-            do i = 1, size(out_fields)
-               call device_memcpy(out_fields(i)%f%x, out_fields(i)%f%x_d,&
-                  out_fields(i)%f%dof%size(), DEVICE_TO_HOST, &
-                  sync=(i .eq. size(out_fields))) ! Sync on last field
-            end do
+         if (this%count .eq. 0) then
+            call this%stats%reset()
+         else
+            call this%stats%make_strong_grad()
+            if ( NEKO_BCKND_DEVICE .eq. 1) then
+               do i = 1, size(out_fields)
+                  call device_memcpy(out_fields(i)%f%x, out_fields(i)%f%x_d,&
+                     out_fields(i)%f%dof%size(), DEVICE_TO_HOST, &
+                     sync=(i .eq. size(out_fields))) ! Sync on last field
+               end do
+            end if
+            call this%file_%write(this%stats%stat_fields, t)
+            call this%stats%reset()
          end if
-         call this%file_%write(this%stats%stat_fields, t)
-         call this%stats%reset()
+         this%count = this%count + 1
       end if
     end associate
   end subroutine fluid_stats_output_sample
