@@ -1,4 +1,0 @@
-filetemplate:         forcing%01d.f%05d
-firsttimestep:     0
-numtimesteps:    53
-type: binary

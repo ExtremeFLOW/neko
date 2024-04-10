@@ -473,8 +473,6 @@ contains
     type(ksp_monitor_t) :: ksp_results(4)
     ! Extrapolated velocity for the pressure residual
     type(field_t), pointer :: u_e, v_e, w_e
-    ! Field for implicit Brinkman term
-    ! type(field_t), intent(inout) :: chi_fam
     ! Indices for tracking temporary fields
     integer :: temp_indices(3)
     ! Counter
