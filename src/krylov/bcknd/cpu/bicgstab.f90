@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ module bicgstab
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
   use math, only : glsc3, rzero, copy, NEKO_EPS, add2s2, x_update, &
-                   p_update
+                   p_update, abscmp
   use utils, only : neko_error
   implicit none
   private
@@ -175,7 +175,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(rnorm .eq. 0.0_rp) return
+      if(abscmp(rnorm, 0.0_rp)) return
       do iter = 1, max_iter
 
          rho_1 = glsc3(r, coef%mult, f ,n)

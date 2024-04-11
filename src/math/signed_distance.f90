@@ -32,15 +32,13 @@
 !
 !> @brief Module containing Signed Distance Functions.
 module signed_distance
-  use num_types, only: rp
+  use num_types, only: dp, rp
   use field, only: field_t
   use tri, only: tri_t
   use tri_mesh, only: tri_mesh_t
   use aabb_tree, only: aabb_tree_t
 
   implicit none
-  private
-  public :: signed_distance_field
 
 contains
 
@@ -55,19 +53,19 @@ contains
   !! @param[in] object Object
   !! @param[in,optional] max_distance Maximum distance outside the mesh
   subroutine signed_distance_field(field_data, object, max_distance)
-    USE utils, ONLY: neko_error
+    use utils, only: neko_error
     implicit none
 
     type(field_t), intent(inout) :: field_data
     class(*), intent(in) :: object
-    real(kind=rp), intent(in), optional :: max_distance
+    real(kind=dp), intent(in), optional :: max_distance
 
-    real(kind=rp) :: max_dist
+    real(kind=dp) :: max_dist
 
     if (present(max_distance)) then
        max_dist = max_distance
     else
-       max_dist = huge(0.0_rp)
+       max_dist = huge(0.0_dp)
     end if
 
     select type(object)
@@ -92,17 +90,20 @@ contains
   !! @param[in] max_distance Maximum distance outside the mesh
   subroutine signed_distance_field_tri_mesh(field_data, mesh, max_distance)
     use utils, only: neko_error
+    implicit none
+
     type(field_t), intent(inout) :: field_data
     type(tri_mesh_t), intent(in) :: mesh
-    real(kind=rp), intent(in) :: max_distance
+    real(kind=dp), intent(in) :: max_distance
 
     integer :: total_size
     integer :: id
     type(aabb_tree_t) :: search_tree
-    real(kind=rp), dimension(3) :: p
+    real(kind=dp), dimension(3) :: p
+    real(kind=dp) :: distance
 
     ! Zero the field
-    field_data%x = 0.0_rp
+    field_data%x = 0.0_dp
     total_size = field_data%dof%size()
 
     call search_tree%init(mesh%nelv)
@@ -118,8 +119,9 @@ contains
        p(2) = field_data%dof%y(id, 1, 1, 1)
        p(3) = field_data%dof%z(id, 1, 1, 1)
 
-       field_data%x(id, 1, 1, 1) = tri_mesh_aabb_tree(search_tree, &
-                                                      mesh%el, p, max_distance)
+       distance = tri_mesh_aabb_tree(search_tree, mesh%el, p, max_distance)
+
+       field_data%x(id, 1, 1, 1) = real(distance, kind=rp)
     end do
 
   end subroutine signed_distance_field_tri_mesh
@@ -137,21 +139,21 @@ contains
   function tri_mesh_brute_force(mesh, p, max_distance) result(distance)
     use tri, only: tri_t
     use point, only: point_t
-    use num_types, only: rp
+    use num_types, only: dp
 
     implicit none
 
     type(tri_mesh_t), intent(in) :: mesh
-    real(kind=rp), intent(in) :: p(3)
-    real(kind=rp), intent(in) :: max_distance
+    real(kind=dp), intent(in) :: p(3)
+    real(kind=dp), intent(in) :: max_distance
 
     integer :: id
-    real(kind=rp) :: distance, weighted_sign
-    real(kind=rp) :: cd, cs
-    real(kind=rp) :: tol = 1e-6_rp
+    real(kind=dp) :: distance, weighted_sign
+    real(kind=dp) :: cd, cs
+    real(kind=dp) :: tol = 1e-6_dp
 
-    distance = 1e10_rp
-    weighted_sign = 0.0_rp
+    distance = 1e10_dp
+    weighted_sign = 0.0_dp
 
     do id = 1, mesh%nelv
        call element_distance(mesh%el(id), p, cd, cs)
@@ -191,13 +193,13 @@ contains
 
     class(aabb_tree_t), intent(in) :: tree
     class(tri_t), dimension(:), intent(in) :: object_list
-    real(kind=rp), dimension(3), intent(in) :: p
-    real(kind=rp), intent(in) :: max_distance
+    real(kind=dp), dimension(3), intent(in) :: p
+    real(kind=dp), intent(in) :: max_distance
 
-    real(kind=rp) :: distance
-    real(kind=rp) :: weighted_sign
+    real(kind=dp) :: distance
+    real(kind=dp) :: weighted_sign
 
-    real(kind=rp), parameter :: tol = 1.0e-6_rp
+    real(kind=dp), parameter :: tol = 1.0e-6_dp
 
     type(stack_i4_t) :: simple_stack
     integer :: current_index
@@ -205,8 +207,8 @@ contains
     type(aabb_node_t) :: current_node
     type(aabb_t) :: current_aabb
     integer :: current_object_index
-    real(kind=rp) :: current_distance
-    real(kind=rp) :: current_sign
+    real(kind=dp) :: current_distance
+    real(kind=dp) :: current_sign
 
     type(aabb_node_t) :: left_node
     type(aabb_node_t) :: right_node
@@ -215,7 +217,7 @@ contains
     type(aabb_t) :: search_box
 
     integer :: root_index, left_index, right_index
-    real(kind=rp) :: random_value
+    real(kind=dp) :: random_value
 
     ! Initialize the stack and the search box
     call simple_stack%init(size(object_list) * 2)
@@ -228,7 +230,7 @@ contains
 
     if (.not. root_box%overlaps(search_box)) then
        distance = max_distance
-       weighted_sign = 1.0_rp
+       weighted_sign = 1.0_dp
        return
     end if
 
@@ -251,7 +253,7 @@ contains
        current_aabb = current_node%get_aabb()
 
        if (current_node%is_leaf()) then
-          if (distance .lt. current_aabb%min_distance(p)) then
+          if (distance .lt. current_node%min_distance(p)) then
              cycle
           end if
 
@@ -305,9 +307,9 @@ contains
   !> @brief Main interface for the signed distance function for an element.
   subroutine element_distance(element, p, distance, weighted_sign)
     class(*), intent(in) :: element
-    real(kind=rp), dimension(3), intent(in) :: p
-    real(kind=rp), intent(out) :: distance
-    real(kind=rp), intent(out), optional :: weighted_sign
+    real(kind=dp), dimension(3), intent(in) :: p
+    real(kind=dp), intent(out) :: distance
+    real(kind=dp), intent(out), optional :: weighted_sign
 
     select type(element)
       type is (tri_t)
@@ -341,22 +343,22 @@ contains
   !! @return[optional] Weighted sign
   subroutine element_distance_triangle(triangle, p, distance, weighted_sign)
     type(tri_t), intent(in) :: triangle
-    real(kind=rp), dimension(3), intent(in) :: p
+    real(kind=dp), dimension(3), intent(in) :: p
 
-    real(kind=rp), intent(out) :: distance
-    real(kind=rp), intent(out), optional :: weighted_sign
+    real(kind=dp), intent(out) :: distance
+    real(kind=dp), intent(out), optional :: weighted_sign
 
-    real(kind=rp), dimension(3) :: v1, v2, v3
-    real(kind=rp), dimension(3) :: normal
-    real(kind=rp) :: normal_length
-    real(kind=rp) :: b1, b2, b3
+    real(kind=dp), dimension(3) :: v1, v2, v3
+    real(kind=dp), dimension(3) :: normal
+    real(kind=dp) :: normal_length
+    real(kind=dp) :: b1, b2, b3
 
-    real(kind=rp), dimension(3) :: projection
-    real(kind=rp), dimension(3) :: edge
-    real(kind=rp) :: tol = 1e-10_rp
+    real(kind=dp), dimension(3) :: projection
+    real(kind=dp), dimension(3) :: edge
+    real(kind=dp) :: tol = 1e-10_dp
 
-    real(kind=rp) :: face_distance
-    real(kind=rp) :: t
+    real(kind=dp) :: face_distance
+    real(kind=dp) :: t
 
     ! Get vertices and the normal vector
     v1 = triangle%pts(1)%p%x
@@ -367,8 +369,8 @@ contains
     normal_length = norm2(normal)
 
     if (normal_length .lt. tol) then
-       distance = huge(1.0_rp)
-       weighted_sign = 0.0_rp
+       distance = huge(1.0_dp)
+       weighted_sign = 0.0_dp
        return
     end if
     normal = normal / normal_length
@@ -385,19 +387,19 @@ contains
     if (b1 .le. tol) then
        edge = v2 - v1
        t = dot_product(p - v1, edge) / norm2(edge)
-       t = max(0.0_rp, min(1.0_rp, t))
+       t = max(0.0_dp, min(1.0_dp, t))
 
        projection = v1 + t * edge
     else if (b2 .le. tol) then
        edge = v3 - v2
        t = dot_product(p - v2, edge) / norm2(edge)
-       t = max(0.0_rp, min(1.0_rp, t))
+       t = max(0.0_dp, min(1.0_dp, t))
 
        projection = v2 + t * edge
     else if (b3 .le. tol) then
        edge = v1 - v3
        t = dot_product(p - v3, edge) / norm2(edge)
-       t = max(0.0_rp, min(1.0_rp, t))
+       t = max(0.0_dp, min(1.0_dp, t))
 
        projection = v3 + t * edge
     end if
@@ -416,12 +418,9 @@ contains
   !> @param[in] b Second vector
   !> @return Cross product \f$ a \times b \f$
   pure function cross(a, b) result(c)
-    use num_types, only: rp
-    implicit none
-
-    real(kind=rp), dimension(3), intent(in) :: a
-    real(kind=rp), dimension(3), intent(in) :: b
-    real(kind=rp), dimension(3) :: c
+    real(kind=dp), dimension(3), intent(in) :: a
+    real(kind=dp), dimension(3), intent(in) :: b
+    real(kind=dp), dimension(3) :: c
 
     c(1) = a(2) * b(3) - a(3) * b(2)
     c(2) = a(3) * b(1) - a(1) * b(3)

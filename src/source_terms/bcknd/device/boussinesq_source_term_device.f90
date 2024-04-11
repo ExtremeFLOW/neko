@@ -30,52 +30,41 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!
-!> Defines a factory subroutine for simulation components.
-module simulation_component_fctry
-  use simulation_component, only : simulation_component_t
-  use vorticity, only : vorticity_t
-  use lambda2, only : lambda2_t
-  use probes, only : probes_t
-  use les_simcomp, only : les_simcomp_t
-  use json_module, only : json_file
-  use case, only : case_t
-  use json_utils, only : json_get
-  use logger, only : neko_log
+!> Implements the device kernel for the `boussinesq_source_term_t` type.
+module boussinesq_source_term_device
+  use num_types, only : rp
+  use field_list, only : field_list_t
+  use field, only : field_t
+  use device_math, only : device_add2s2, device_cadd
   implicit none
   private
 
-  public :: simulation_component_factory
+  public :: boussinesq_source_term_compute_device
 
 contains
 
-  !> Simulation component factory. Both constructs and initializes the object.
-  !! @param json JSON object initializing the simulation component.
-  subroutine simulation_component_factory(simcomp, json, case)
-    class(simulation_component_t), allocatable, intent(inout) :: simcomp
-    type(json_file), intent(inout) :: json
-    class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: simcomp_type
+  !> Computes the Boussinesq source term on the device.
+  !! @param fields The right-hand side.
+  !! @param s The scalar field
+  !! @param ref_value The reference value of the scalar field.
+  !! @param g The gravity vector.
+  !! @param beta The thermal expansion coefficient.
+  subroutine boussinesq_source_term_compute_device(fields, s, ref_value, g,&
+                                                   beta)
+    type(field_list_t), intent(inout) :: fields
+    type(field_t), intent(inout) :: s
+    real(kind=rp), intent(in) :: ref_value
+    real(kind=rp), intent(in) :: g(3)
+    real(kind=rp), intent(in) :: beta
+    integer :: n_fields, i, n
 
-    call json_get(json, "type", simcomp_type)
+    n_fields = size(fields%fields)
+    n = fields%fields(1)%f%dof%size()
 
-    if (trim(simcomp_type) .eq. "vorticity") then
-       allocate(vorticity_t::simcomp)
-    else if (trim(simcomp_type) .eq. "lambda2") then
-       allocate(lambda2_t::simcomp)
-    else if (trim(simcomp_type) .eq. "probes") then
-       allocate(probes_t::simcomp)
-    else if (trim(simcomp_type) .eq. "les_model") then
-       allocate(les_simcomp_t::simcomp)
-    else
-       call neko_log%error("Unknown simulation component type: " &
-                           // trim(simcomp_type))
-       stop
-    end if
+    do i=1, n_fields
+       call device_add2s2(fields%fields(i)%f%x_d, s%x_d, g(i)*beta, n)
+       call device_cadd(fields%fields(i)%f%x_d, -g(i)*beta*ref_value, n)
+    end do
+  end subroutine boussinesq_source_term_compute_device
 
-    ! Initialize
-    call simcomp%init(json, case)
-
-  end subroutine simulation_component_factory
-
-end module simulation_component_fctry
+end module boussinesq_source_term_device

@@ -110,7 +110,7 @@ contains
 
     ! Parameters used to setup the GLL space.
     integer :: order
-    type(space_t) :: Xh
+    type(space_t), target :: Xh
     type(dofmap_t) :: dof
 
 

@@ -30,32 +30,49 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the device kernel for the `const_source_term_t` type.
-module const_source_term_device
-  use num_types, only : rp
+!
+!> Defines a factory subroutine for source terms.
+module source_term_fctry
+  use source_term, only : source_term_t
+  use const_source_term, only : const_source_term_t
+  use boussinesq_source_term, only : boussinesq_source_term_t
+  use brinkman_source_term, only: brinkman_source_term_t
+  use json_module, only : json_file
+  use json_utils, only : json_get
   use field_list, only : field_list_t
-  use device_math, only : device_cadd
+  use utils, only : neko_error
+  use coefs, only : coef_t
   implicit none
   private
 
-  public :: const_source_term_compute_device
+  public :: source_term_factory
 
 contains
 
-  !> Computes the constant source term on the device.
-  !! @param fields The right-hand side.
-  !! @param values The values of the source components.
-  subroutine const_source_term_compute_device(fields, values)
+  !> Source term factory. Both constructs and initializes the object.
+  !! @param json JSON object initializing the source term.
+  subroutine source_term_factory(source_term, json, fields, coef)
+    class(source_term_t), allocatable, intent(inout) :: source_term
+    type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout) :: fields
-    real(kind=rp), intent(in) :: values(:)
-    integer :: n_fields, i, n
+    type(coef_t), intent(inout) :: coef
+    character(len=:), allocatable :: source_type
 
-    n_fields = size(fields%fields)
-    n = fields%fields(1)%f%dof%size()
+    call json_get(json, "type", source_type)
 
-    do i=1, n_fields
-       call device_cadd(fields%fields(i)%f%x_d, values(i), n)
-    end do
-  end subroutine const_source_term_compute_device
+    if (trim(source_type) .eq. "constant") then
+       allocate(const_source_term_t::source_term)
+    else if (trim(source_type) .eq. "boussinesq") then
+       allocate(boussinesq_source_term_t::source_term)
+    else if (trim(source_type) .eq. "brinkman") then
+       allocate(brinkman_source_term_t::source_term)
+    else
+       call neko_error('Unknown source term '//trim(source_type))
+    end if
 
-end module const_source_term_device
+    ! Initialize
+    call source_term%init(json, fields, coef)
+
+  end subroutine source_term_factory
+
+end module source_term_fctry
