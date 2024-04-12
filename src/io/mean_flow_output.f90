@@ -42,6 +42,7 @@ module mean_flow_output
   type, public, extends(output_t) :: mean_flow_output_t
      type(mean_flow_t), pointer :: mf
      real(kind=rp) :: T_begin
+     integer :: count
    contains
      procedure, pass(this) :: sample => mean_flow_output_sample
   end type mean_flow_output_t
@@ -73,6 +74,7 @@ contains
     call this%init_base(fname)
     this%mf => mf
     this%T_begin = T_begin
+    this%count = 0
   end function mean_flow_output_init
 
   !> Sample a mean flow field at time @a t
@@ -81,16 +83,21 @@ contains
     real(kind=rp), intent(in) :: t
 
     if (t .ge. this%T_begin) then
-       call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(this%mf%u%mf%x, this%mf%u%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(this%mf%v%mf%x, this%mf%v%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.true.)
-       call this%file_%write(this%mf, t)
-       call this%mf%reset()
+       if (this%count .eq. 0) then
+          call this%mf%reset()
+       else
+          call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, this%mf%p%mf%dof%size(), &
+                              DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%mf%u%mf%x, this%mf%u%mf%x_d, this%mf%p%mf%dof%size(), &
+                              DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%mf%v%mf%x, this%mf%v%mf%x_d, this%mf%p%mf%dof%size(), &
+                              DEVICE_TO_HOST, sync=.false.)
+          call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), &
+                              DEVICE_TO_HOST, sync=.true.)
+          call this%file_%write(this%mf, t)
+          call this%mf%reset()
+       end if
+       this%count = this%count + 1
     end if
 
   end subroutine mean_flow_output_sample
