@@ -27,7 +27,7 @@ jobs:
               exit 1
             fi
         - name: Archive linter report
-          uses: actions/upload-artifact@v3
+          uses: actions/upload-artifact@v4
           with:
             name: flint-report
             path: flint.txt
@@ -145,7 +145,7 @@ jobs:
           echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
           sudo apt-get update && sudo apt-get install -y rocm-dev
           ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.0.0/
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.0.0
           make -j$(nproc)
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
@@ -218,7 +218,7 @@ jobs:
             wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list && sudo apt-get update -y && sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
             source /opt/intel/oneapi/setvars.sh
             sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
-            export PATH=/opt/intel/oneapi/compiler/2024.0/bin:${PATH}
+            export PATH=/opt/intel/oneapi/compiler/2024.1/bin:${PATH}
             printenv >> $GITHUB_ENV
     env:
       CC: icc
@@ -269,7 +269,7 @@ jobs:
         precision: [dp]
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-24-1 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/24.3/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/24.3/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
+          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-24-3 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/24.3/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/24.3/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
     env:
       CC: gcc
       FC: ${{ matrix.compiler }}
