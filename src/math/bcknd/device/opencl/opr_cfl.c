@@ -39,6 +39,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>

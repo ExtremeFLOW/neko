@@ -143,7 +143,7 @@ contains
 #elif HAVE_CUDA
     call cuda_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,nelv, stream)
 #elif HAVE_OPENCL
-    call opencl_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,nelv)
+    call opencl_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,nelv, stream)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -162,7 +162,7 @@ contains
 #elif HAVE_CUDA
     call cuda_schwarz_toext3d(a_d,b_d,nx,nelv, stream)
 #elif HAVE_OPENCL
-    call opencl_schwarz_toext3d(a_d,b_d,nx,nelv)
+    call opencl_schwarz_toext3d(a_d,b_d,nx,nelv, stream)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -180,7 +180,7 @@ contains
 #elif HAVE_CUDA
     call cuda_schwarz_toreg3d(b_d,a_d,nx,nelv, stream)
 #elif HAVE_OPENCL
-    call opencl_schwarz_toreg3d(b_d,a_d,nx,nelv)
+    call opencl_schwarz_toreg3d(b_d,a_d,nx,nelv, stream)
 #else
     call neko_error('No device backend configured')
 #endif

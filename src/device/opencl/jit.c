@@ -39,6 +39,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <device/device_config.h>
 #include <device/opencl/check.h>
 
