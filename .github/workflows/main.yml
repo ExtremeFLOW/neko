@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   
 jobs:
-  linting:x
+  linting:
       name: "Flint"
       runs-on: ubuntu-20.04
       steps:
