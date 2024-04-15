@@ -84,7 +84,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `end_time`                 | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`            | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
 
-### Boundary type numbering in the `output_boundary` field
+<h3> Boundary type numbering in the `output_boundary` field </h3>
 
 When the `output_boundary` setting is set to `true`, and additional `.fld` file
 will be stored in the beginning of the simulation, where the recognized
