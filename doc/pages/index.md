@@ -18,11 +18,11 @@ structure and numerical methods are adopted.
 
 \subpage case-file
 
+\subpage user-file
+
 \subpage simcomps
 
 \subpage point-zones
-
-\subpage user-file
 
 \subpage statistics-guide
 
@@ -30,14 +30,16 @@ structure and numerical methods are adopted.
 
 # Developer Guides
 
+\subpage dev_patterns
+
 \subpage contributing
+
+\subpage code-style
+
+\subpage testing
 
 \subpage accelerators
 
-\subpage code-style
- 
-\subpage dev_patterns
-
-\subpage testing
+# Appendix
 
 \subpage appendix
