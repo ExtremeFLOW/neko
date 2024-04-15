@@ -468,8 +468,6 @@ contains
     integer :: i, ierr
     type(matrix_t) :: mat_coords
 
-
-
     !> Init interpolator
     call this%global_interp%init(dof)
 
@@ -488,8 +486,6 @@ contains
                           this%n_local_probes)
        end do
     end if
-
-
 
     !> Initialize the output file
     this%fout = file_t(trim(output_file))
