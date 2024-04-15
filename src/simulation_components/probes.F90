@@ -642,8 +642,6 @@ contains
     integer :: i, ierr
 
     !> Check controller to determine if we must write
-
-
     do i = 1,this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
                                         this%sampled_fields%fields(i)%f%x)
