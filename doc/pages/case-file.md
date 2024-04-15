@@ -178,7 +178,7 @@ a wall, we can set.
 "boundary_types": ["", "", "w"]
 ```
 
-### Inflow boundary conditions
+### Inflow boundary conditions {#case-file_fluid-if}
 The object `inflow_condition` is used to specify velocity values at a Dirichlet
 boundary.
 This does not necessarily have to be an inflow boundary, so the name is not so
