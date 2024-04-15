@@ -1,5 +1,7 @@
 # Testing {#testing}
 
+\tableofcontents
+
 ## pFUnit
 Neko uses the software pFUnit for unit testing.
 To install the software you can use the following commands, in which you should just set the desired installation path

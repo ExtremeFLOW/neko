@@ -1,5 +1,7 @@
 # Appendix {#appendix}
 
+\tableofcontents
+
 ## Environmental variable reference {#env-var}
 
 Name                    | Description                                                   | Default value

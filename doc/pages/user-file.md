@@ -1,5 +1,7 @@
 # User File {#user-file}
 
+\tableofcontents
+
 The user file is a fortran file where the user can implement their own functions
 to extend the capabilities of the default Neko executable. The user file can be
 used for setting advanced initial/boundary conditions, source terms, I/O

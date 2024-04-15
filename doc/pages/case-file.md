@@ -1,5 +1,7 @@
 # Case File {#case-file}
 
+\tableofcontents
+
 The case file defines all the parameters of a simulation.
 The format of the file is JSON, making it easy to read and write case files
 using the majority of the popular programming languages.
