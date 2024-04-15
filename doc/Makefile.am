@@ -21,6 +21,7 @@ EXTRA_DIST = pages/code-style.md\
 	     pages/user-file.md\
 	     pages/case-file.md\
 	     pages/statistics.md\
+	     pages/contributing.md\
              pages/simcomps.md\
              pages/point-zones.md\
              pages/testing.md\
