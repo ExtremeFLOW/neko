@@ -1,4 +1,7 @@
 # Contributing to Neko 
+
+\tableofcontents
+
 Please read the following guide before contributing new code or a bug fix to Neko.
 
 All contributions to Neko must be made under the 3-Clause BSD license. Please refer to the `COPYING` file.
