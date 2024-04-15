@@ -138,8 +138,47 @@ to be set in the subroutine, but it can be based on arbitrary computations and
 arbitrary parameters read from the case file. Additionally, this allows to
 change the material properties in time.
 
+### Boundary types {#case-file_boundary-types}
+The optional `boundary_types` keyword can be used to specify boundary conditions.
+The reason for it being optional, is that some conditions can be specified
+directly inside the mesh file.
+In particular, this happens when Nek5000 `.re2` files are converted to `.nmsh`.
+Periodic boundary conditions are *always* defined inside the mesh file.
 
-### Inflow boundary conditions
+The value of the keyword is an array of strings, with the following possible
+values:
+
+* Standard boundary conditions 
+  * `w`, a no-slip wall.
+  * `v`, a velocity Dirichlet boundary.
+  * `sym`, a symmetry boundary.
+  * `o`, outlet boundary. 
+  * `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
+   the wall-normal. The wall-parallel velocity is defined by the initial
+   condition. 
+
+* Advanced boundary conditions
+  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a `"/"`), a 
+  Dirichlet boundary for more complex velocity profiles. This boundary condition uses a 
+  [more advanced user interface](#user-file_field-dirichlet-update). 
+  * `d_pres`, a boundary for specified non-uniform pressure profiles, similar in 
+  essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other 
+  complex Dirichlet coonditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
+  * `o+dong`, outlet boundary using the Dong condition. 
+  * `on+dong`, an `on` boundary using the Dong condition, ensuring that the
+   wall-normal velocity is directed outwards.
+
+In some cases, only some boundary types have to be provided.
+For example, when one has periodic boundaries, like in the channel flow example.
+In this case, to put the specification of the boundary at the right index,
+preceding boundary types can be marked with an empty string.
+For example, if boundaries with index 1 and 2 are periodic, and the third one is
+a wall, we can set.
+```
+"boundary_types": ["", "", "w"]
+```
+
+### Inflow boundary conditions {#case-file_fluid-if}
 The object `inflow_condition` is used to specify velocity values at a Dirichlet
 boundary.
 This does not necessarily have to be an inflow boundary, so the name is not so
@@ -223,18 +262,18 @@ The following types are currently implemented.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
-The volume force $f_i$ applied in the selected regions are proportional to the
-fluid velocity component $u_i$.
+The volume force \f$ f_i \f$ applied in the selected regions are proportional to the
+fluid velocity component \f$ u_i \f$.
 
-$$
-   f_i(x) = - B(x) u_i(x), \\
-   B(x) = \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)},
-$$
+\f{eqnarray*}{
+   f_i(x) &=& - B(x) u_i(x), \\
+   B(x) &=& \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)},
+ \f}
 
-where, $x$ is the current location in the domain, $\xi: x \mapsto [0,1]$
-represent an indicator function for the resistance where $\xi(x) = 0$ is a free
-flow. $\kappa_i$ describes the limits for the force application at $\xi(x)=0$
-and $\xi(x)=1$. A penalty parameter $q$ help us to reduce numerical problems.
+where, \f$ x \f$ is the current location in the domain, \f$ \xi: x \mapsto [0,1] \f$
+represent an indicator function for the resistance where \f$ \xi(x) = 0 \f$ is a free
+flow. \f$ \kappa_i \f$ describes the limits for the force application at \f$ \xi(x)=0 \f$
+and \f$ \xi(x)=1 \f$. A penalty parameter \f$ q \f$ help us to reduce numerical problems.
 
 The indicator function will be defined based on the object type. The following
 types are currently implemented.
@@ -276,8 +315,8 @@ Additional keywords are available to modify the Brinkman force term.
 
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
 | ---------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
-| `brinkman.limits`                  | Brinkman factor at free-flow ($\kappa_0$) and solid domain ($\kappa_1$).                      | Vector of 2 reals.                | -             |
-| `brinkman.penalty`                 | Penalty parameter $q$ when estimating Brinkman factor.                                        | Real                              | $1.0$         |
+| `brinkman.limits`                  | Brinkman factor at free-flow (\f$ \kappa_0 \f$) and solid domain (\f$ \kappa_1 \f$).          | Vector of 2 reals.                | -             |
+| `brinkman.penalty`                 | Penalty parameter \f$ q \f$ when estimating Brinkman factor.                                        | Real                              | \f$ 1.0 \f$         |
 | `objects`                          | Array of JSON objects, defining the objects to be immersed.                                   | Each object must specify a `type` | -             |
 | `distance_transform.type`          | How to map from distance field to indicator field.                                            | `step`, `smooth_step`             | -             |
 | `distance_transform.value`         | Values used to define the distance transform, such as cut-off distance for the step function. | Real                              | -             |
@@ -290,7 +329,7 @@ Additional keywords are available to modify the Brinkman force term.
 Example of a Brinkman source term where a boundary mesh and a point zone are
 combined to define the resistance in the fluid domain. The indicator field for
 the boundary mesh is computed using a step function with a cut-off distance of
-$0.1$. The indicator field for the point zone is not filtered.
+\f$ 0.1 \f$. The indicator field for the point zone is not filtered.
 
 ~~~~~~~~~~~~~~~{.json}
 "source_terms": [
@@ -321,35 +360,6 @@ $0.1$. The indicator field for the point zone is not filtered.
 ]
 ~~~~~~~~~~~~~~~
 
-### Boundary types
-The optional `boundary_types` keyword can be used to specify boundary conditions.
-The reason for it being optional, is that some conditions can be specified
-directly inside the mesh file.
-In particular, this happens when Nek5000 `.re2` files are converted to `.nmsh`.
-Periodic boundary conditions are *always* defined inside the mesh file.
-
-The value of the keyword is an array of strings, with the following possible
-values:
-* `w`, a no-slip wall.
-* `v`, a Dirichlet boundary.
-* `sym`, a symmetry boundary.
-* `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
-   the wall-normal. The wall-parallel velocity is defined by the initial
-   condition.
-* `o`, outlet boundary.
-* `o+dong`, outlet boundary using the Dong condition.
-* `on+dong`, an `on` boundary using the Dong condition, ensuring that the
-   wall-normal velocity is directed outwards.
-
-In some cases, only some boundary types have to be provided.
-For example, when one has periodic boundaries, like in the channel flow example.
-In this case, to put the specification of the boundary at the right index,
-preceding boundary types can be marked with an empty string.
-For example, if boundaries with index 1 and 2 are periodic, and the third one is
-a wall, we can set.
-```
-"boundary_types": ["", "", "w"]
-```
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to

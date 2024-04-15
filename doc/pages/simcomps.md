@@ -56,7 +56,8 @@ vorticity fields will be added to the main `.fld` file.
  and s1 if neko is run with one scalar.
 
  ### probes
- Probes selected solution fields at the points given inside an input file. Example usage:
+ Probes selected solution fields at the points given inside an input file.
+ Example usage:
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "probes",
@@ -67,7 +68,26 @@ vorticity fields will be added to the main `.fld` file.
    "fields": ["w","s"]
  }
  ~~~~~~~~~~~~~~~
-This probes the fields 'w', and 's' in the points described by points.csv and outputs into output.csv every 1 time units.
+This probes the fields 'w', and 's' in the points described by points.csv and
+outputs into output.csv every 1 time units.
+
+The probed information will be saved in the output file in the following format:
+
+~~~~~~~~~~~~~~~{.csv}
+N_p, N_f, fields[0], fields[1], ..., fields[N_f-1]
+p_0_x, p_0_y, p_0_z
+p_1_x, p_1_y, p_1_z
+...
+p_N_p_x, p_N_p_y, p_N_p_z
+time_0, p_0_field_0, p_0_field_1, ..., p_0_field_N_f-1
+time_0, p_1_field_0, p_1_field_1, ..., p_1_field_N_f-1
+...
+time_0, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
+time_1, p_0_field_0, p_0_field_1, ..., p_0_field_N_f-1
+time_1, p_1_field_0, p_1_field_1, ..., p_1_field_N_f-1
+...
+time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
+~~~~~~~~~~~~~~~
 
  ### field_writer
  Outputs registered 3D fields to an `.fld` file. Requires a list of field names
