@@ -16,19 +16,19 @@ developer guides are intended for developers of the code. The appendix contains
 additional information that is not directly related to the usage of the code.
 
 - \subpage user-guide
-  - [Installation](installation.md)
-  - [Case File](case-file.md)
-  - [User File](user-file.md)
-  - [Simulation Components](simcomps.md)
-  - [Point Zones](point-zones.md)
-  - [Statistics Guide](statistics-guide.md)
-  - [Input/Output](io.md)
+  - [Installation](#installation)
+  - [Case File](#case-file)
+  - [User File](#user-file)
+  - [Simulation Components](#simcomps)
+  - [Point Zones](#point-zones)
+  - [Statistics Guide](#statistics-guide)
+  - [Input/Output](#io)
 - \subpage developer-guide
-  - [Contributing](contributing.md)
-  - [Development Patterns](dev_patterns.md)
-  - [Code Style](code-style.md)
-  - [Testing](testing.md)
-  - [Accelerators](accelerators.md)
+  - [Contributing](#contributing)
+  - [Development Patterns](#dev_patterns)
+  - [Code Style](#code-style)
+  - [Testing](#testing)
+  - [Accelerators](#accelerators)
 - \subpage appendices
-  - [Governing Equations](governing-equations.md)
-  - [Publications](publications.md)
+  - [Governing Equations](#governing-equations)
+  - [Publications](#publications)
