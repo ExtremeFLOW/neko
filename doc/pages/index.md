@@ -32,4 +32,3 @@ additional information that is not directly related to the usage of the code.
 - \subpage appendices
   - [Governing Equations](governing-equations.md)
   - [Publications](publications.md)
-  - [License](license.md)
