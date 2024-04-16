@@ -5,7 +5,7 @@
 The appendices contain a few extra pages that are not directly related to the usage
 of the code. But can be useful for users and developers alike.
 
-- [Environmental variable reference](#env-var)
+- [Environmental variable reference](@ref env-var)
 - \subpage governing-equations
 - \subpage publications
 
