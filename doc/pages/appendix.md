@@ -7,7 +7,7 @@ of the code. But can be useful for users and developers alike.
 
 - [Environmental variable reference](#env-var)
 - \subpage governing-equations
-- \subpage publication-list
+- \subpage publications
 
 ## Environmental variable reference {#env-var}
 
