@@ -1,14 +1,21 @@
-# Appendix {#appendix}
+# Appendices {#appendices}
 
 \tableofcontents
 
+The appendices contain a few extra pages that are not directly related to the usage
+of the code. But can be useful for users and developers alike.
+
+- [Environmental variable reference](#env-var)
+- \subpage governing-equations
+- \subpage publication-list
+
 ## Environmental variable reference {#env-var}
 
-Name                    | Description                                                   | Default value
-----                    | -----------                                                   | -------------
-`NEKO_AUTOTUNE`         | Force Ax auto-tuning strategy (``'1D'``,``'KSTEP'``)          | Unset
-`NEKO_LOG_LEVEL`        | Log verbosity level (integer > 0, default: 1)                 | Unset
-`NEKO_GS_STRTGY`        | Gather-scatter device MPI sync. strategy (0 < integer < 5 )   | Unset
+| Name             | Description                                                 | Default value |
+| ---------------- | ----------------------------------------------------------- | ------------- |
+| `NEKO_AUTOTUNE`  | Force Ax auto-tuning strategy (``'1D'``,``'KSTEP'``)        | Unset         |
+| `NEKO_LOG_LEVEL` | Log verbosity level (integer > 0, default: 1)               | Unset         |
+| `NEKO_GS_STRTGY` | Gather-scatter device MPI sync. strategy (0 < integer < 5 ) | Unset         |
 
 ### Logging level details
 
