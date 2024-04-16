@@ -125,7 +125,7 @@ contains
     type(coef_t), intent(inout), target :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
-    integer :: n_fields, i 
+    integer :: n_fields, i
 
     this%coef => coef
     this%start_time = start_time
