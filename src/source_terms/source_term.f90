@@ -44,8 +44,9 @@ module source_term
   type, abstract, public:: source_term_t
      !> The fields to be updated with the source term values
      type(field_list_t) :: fields
-     !> note that the 4th field in fields is associated with \chi, 
-     ! > an implicit Brinkman term of the form f = \chi * u^(n+1)
+     ! note that the 4th field in fields is associated with \chi, 
+     ! an implicit Brinkman term of the form f = \chi * u^(n+1)
+     !> Coefficients for the SEM.
      type(coef_t), pointer :: coef => null()
      !> Start time for adding the source term.
      real(kind=rp) :: start_time = 0.0_rp
