@@ -44,8 +44,8 @@ module brinkman_source_term
   use utils, only: neko_error
   use brinkman_source_term_cpu, only: brinkman_source_term_compute_cpu
   use brinkman_source_term_device, only: brinkman_source_term_compute_device
-  use brinkman_source_term_cpu, only: implicit_brinkman_source_term_compute_cpu, brinkman_source_term_compute_cpu
-  use brinkman_source_term_device, only: brinkman_source_term_compute_device,  implicit_brinkman_source_term_compute_device
+  use brinkman_source_term_cpu, only: implicit_brinkman_source_term_compute_cpu
+  use brinkman_source_term_device, only: implicit_brinkman_source_term_compute_device
   implicit none
   private
 
@@ -60,7 +60,7 @@ module brinkman_source_term
      !> Brinkman permeability field.
      type(field_t), pointer :: brinkman => null()
      ! > Flag for implicit vs explicit
-     logical ::if_implicit
+     logical :: is_implicit
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => brinkman_source_term_init_from_json
@@ -123,7 +123,7 @@ contains
 
     ! Read implicit vs explicit formulation
     call json_get(json, 'brinkman.implicit', brinkman_implicit)
-    this%if_implicit = brinkman_implicit
+    this%is_implicit = brinkman_implicit
 
     if (size(brinkman_limits) .ne. 2) then
        call neko_error('brinkman_limits must be a 2 element array of reals')
