@@ -475,8 +475,8 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 ## Statistics
 
 This object adds the collection of statistics for the fluid fields. For
-additional details on the workflow, see the corresponding page in the user
-manual.
+additional details on the workflow, see the 
+[corresponding page](@ref statistics-guide) in the user manual.
 
 | Name                | Description                                                          | Admissible values | Default value |
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
