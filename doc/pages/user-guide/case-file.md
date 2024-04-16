@@ -1,5 +1,7 @@
 # Case File {#case-file}
 
+\tableofcontents
+
 The case file defines all the parameters of a simulation.
 The format of the file is JSON, making it easy to read and write case files
 using the majority of the popular programming languages.
@@ -82,7 +84,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `end_time`                 | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`            | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
 
-### Boundary type numbering in the `output_boundary` field
+<h3> Boundary type numbering in the `output_boundary` field </h3>
 
 When the `output_boundary` setting is set to `true`, and additional `.fld` file
 will be stored in the beginning of the simulation, where the recognized
@@ -433,7 +435,6 @@ that can be described concisely directly in the table.
 | `pressure_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                                      | Positive real                                    | 800           |
 | `pressure_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                 | 20            |
 | `pressure_solver.projection_hold_steps` | Holding steps of the projection for the momentum equation.                                        | Positive integer                                 | 5             |
-
 | `flow_rate_force.direction`             | Direction of the forced flow.                                                                     | 0, 1, 2                                          | -             |
 | `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                                            | Positive real                                    | -             |
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                | -             |
@@ -475,8 +476,8 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 ## Statistics
 
 This object adds the collection of statistics for the fluid fields. For
-additional details on the workflow, see the corresponding page in the user
-manual.
+additional details on the workflow, see the 
+[corresponding page](@ref statistics-guide) in the user manual.
 
 | Name                | Description                                                          | Admissible values | Default value |
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |

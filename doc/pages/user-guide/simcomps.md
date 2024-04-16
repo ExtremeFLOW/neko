@@ -1,4 +1,7 @@
 # Simulation components {#simcomps}
+
+\tableofcontents
+
 ## What are simulation components?
 Simulation components, or simcomps fo short,  incapsulate additional
 functionality that may be useful for certain cases but not necessary to run the
