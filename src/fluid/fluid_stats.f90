@@ -757,9 +757,9 @@ contains
        ! suppose  mean vel grad has been evaluated
        ! do subtraction of epsilon_ij = e_ij - <mean_vel_grad><mean_vel_grad>
        call copy(dissipation_tensor%fields(1)%f%x,this%e11%mf%x,n)
-      !  call subcol3(dissipation_tensor%fields(1)%f%x,this%dudx%x,this%dudx%x,n)
-      !  call subcol3(dissipation_tensor%fields(1)%f%x,this%dudy%x,this%dudy%x,n)
-      !  call subcol3(dissipation_tensor%fields(1)%f%x,this%dudz%x,this%dudz%x,n)
+       call subcol3(dissipation_tensor%fields(1)%f%x,this%dudx%x,this%dudx%x,n)
+       call subcol3(dissipation_tensor%fields(1)%f%x,this%dudy%x,this%dudy%x,n)
+       call subcol3(dissipation_tensor%fields(1)%f%x,this%dudz%x,this%dudz%x,n)
 
        call copy(dissipation_tensor%fields(2)%f%x,this%e22%mf%x,n)
        call subcol3(dissipation_tensor%fields(2)%f%x,this%dvdx%x,this%dvdx%x,n)
