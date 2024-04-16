@@ -245,7 +245,7 @@ contains
 
     ! Ensure only rank 0 reads the coordinates.
     if (pe_rank .ne. 0) return
-    call json%get('coordinates', rp_list_reader, found)
+    call json_get(json, 'coordinates', rp_list_reader)
 
     ! Check if the coordinates were found and were valid
     if (.not. found) then
