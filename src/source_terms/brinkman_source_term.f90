@@ -123,7 +123,7 @@ contains
 
     ! Read implicit vs explicit formulation
     call json_get(json, 'brinkman.implicit', brinkman_implicit)
-    this%if_implicit = brinkman_implicit
+    this%is_implicit = brinkman_implicit
 
     if (size(brinkman_limits) .ne. 2) then
        call neko_error('brinkman_limits must be a 2 element array of reals')
