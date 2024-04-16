@@ -62,6 +62,7 @@ module pnpn_res_device
   interface
      subroutine pnpn_prs_res_part1_hip(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
+          u_e_d, v_e_d, w_e_d, chi_d, &
           B_d, h1_d, mu, rho, n) &
           bind(c, name='pnpn_prs_res_part1_hip')
        use, intrinsic :: iso_c_binding
@@ -70,6 +71,8 @@ module pnpn_res_device
        type(c_ptr), value :: ta1_d, ta2_d, ta3_d
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       type(c_ptr), value :: u_e_d, v_e_d, w_e_d
+       type(c_ptr), value :: chi_d
        type(c_ptr), value :: B_d, h1_d
        real(c_rp) :: mu, rho
        integer(c_int) :: n
@@ -100,13 +103,15 @@ module pnpn_res_device
 
   interface
      subroutine pnpn_vel_res_update_hip(u_res_d, v_res_d, w_res_d, &
-          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
+          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, rho, n) &
           bind(c, name='pnpn_vel_res_update_hip')
        use, intrinsic :: iso_c_binding
+       import c_rp
        implicit none
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
        type(c_ptr), value :: ta1_d, ta2_d, ta3_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       real(c_rp) :: rho
        integer(c_int) :: n
      end subroutine pnpn_vel_res_update_hip
   end interface
