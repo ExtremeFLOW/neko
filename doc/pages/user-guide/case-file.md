@@ -433,7 +433,6 @@ that can be described concisely directly in the table.
 | `pressure_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                                      | Positive real                                    | 800           |
 | `pressure_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                 | 20            |
 | `pressure_solver.projection_hold_steps` | Holding steps of the projection for the momentum equation.                                        | Positive integer                                 | 5             |
-
 | `flow_rate_force.direction`             | Direction of the forced flow.                                                                     | 0, 1, 2                                          | -             |
 | `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                                            | Positive real                                    | -             |
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                | -             |
