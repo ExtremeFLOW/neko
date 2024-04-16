@@ -133,7 +133,6 @@ contains
     n_fields = size(fields%fields)
     allocate(this%fields%fields(n_fields))
 
-
     ! A lot of attribute nesting here due to Fortran needing wrapper types
     ! but this is just pointer assignement for the fields.
     do i=1, n_fields
