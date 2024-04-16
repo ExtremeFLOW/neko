@@ -215,7 +215,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-	if(this%if_implicit) then
+	if(this%is_implicit) then
    ! this is implicit
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call implicit_brinkman_source_term_compute_device(this%fields, this%brinkman)
