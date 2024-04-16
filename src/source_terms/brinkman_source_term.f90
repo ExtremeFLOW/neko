@@ -60,7 +60,7 @@ module brinkman_source_term
      !> Brinkman permeability field.
      type(field_t), pointer :: brinkman => null()
      ! > Flag for implicit vs explicit
-     logical ::if_implicit
+     logical :: is_implicit
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => brinkman_source_term_init_from_json
