@@ -91,7 +91,7 @@ extern "C" {
   
   void pnpn_vel_res_update_hip(void *u_res, void *v_res, void *w_res,
                                void *ta1, void *ta2, void *ta3,
-                               void *f_u, void *f_v, void *f_w, *rho, int *n) {
+                               void *f_u, void *f_v, void *f_w, real *rho, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
