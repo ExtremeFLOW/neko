@@ -44,8 +44,8 @@ module brinkman_source_term
   use utils, only: neko_error
   use brinkman_source_term_cpu, only: brinkman_source_term_compute_cpu
   use brinkman_source_term_device, only: brinkman_source_term_compute_device
-  use brinkman_source_term_cpu, only: implicit_brinkman_source_term_compute_cpu, brinkman_source_term_compute_cpu
-  use brinkman_source_term_device, only: brinkman_source_term_compute_device,  implicit_brinkman_source_term_compute_device
+  use brinkman_source_term_cpu, only: implicit_brinkman_source_term_compute_cpu
+  use brinkman_source_term_device, only: implicit_brinkman_source_term_compute_device
   implicit none
   private
 
