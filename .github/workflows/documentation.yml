@@ -33,7 +33,7 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./doc/release/html/
+        publish_dir: ./doc/html/
         allow_empty_commit: false
         force_orphan: false
         publish_branch: gh-pages
