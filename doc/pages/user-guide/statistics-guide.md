@@ -1,4 +1,3 @@
-
 # Statistics guide {#statistics-guide}
 
 Under development, updated incrementally
