@@ -43,6 +43,7 @@ extern "C" {
   void pnpn_prs_res_part1_cuda(void *ta1, void *ta2, void *ta3, 
 			       void *wa1, void *wa2, void *wa3,
 			       void *f_u, void *f_v, void *f_w,
+			       void *u_e, void *v_e, void *w_e, void *chi,
 			       void *B, void *h1, real *mu,
 			       real *rho, int *n) {
 
@@ -55,7 +56,9 @@ extern "C" {
                                       (real *) ta3, (real *) wa1,
                                       (real *) wa2, (real *) wa3,
                                       (real *) f_u, (real *) f_v,
-                                      (real *) f_w, (real *) B,
+                                      (real *) f_w, (real *) u_e,
+                                      (real *) v_e, (real *) w_e,
+                                      (real *) chi, (real *) B,
                                       (real *) h1, *mu, *rho, *n);
     CUDA_CHECK(cudaGetLastError());
   }
@@ -91,7 +94,7 @@ extern "C" {
   
   void pnpn_vel_res_update_cuda(void *u_res, void *v_res, void *w_res,
 				void *ta1, void *ta2, void *ta3,
-				void *f_u, void *f_v, void *f_w, int *n) {
+				void *f_u, void *f_v, void *f_w, real *rho, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -102,7 +105,7 @@ extern "C" {
                                       (real *) w_res, (real *) ta1,
                                       (real *) ta2, (real *) ta3,
                                       (real *) f_u, (real *) f_v,
-                                      (real *) f_w, *n);
+                                      (real *) f_w, *rho, *n);
     CUDA_CHECK(cudaGetLastError());
   }
     

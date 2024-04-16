@@ -45,15 +45,16 @@ __global__ void vel_res_update_kernel(T * __restrict__ u_res,
                                       const T * __restrict__ f_u,
                                       const T * __restrict__ f_v,
                                       const T * __restrict__ f_w,
+                                      const T rho,
                                       const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n; i += str) {
-    u_res[i] = (-u_res[i]) - ta1[i] + f_u[i];
-    v_res[i] = (-v_res[i]) - ta2[i] + f_v[i];
-    w_res[i] = (-w_res[i]) - ta3[i] + f_w[i];
+    u_res[i] = (-u_res[i]) - ta1[i] / rho + f_u[i];
+    v_res[i] = (-v_res[i]) - ta2[i] / rho + f_v[i];
+    w_res[i] = (-w_res[i]) - ta3[i] / rho + f_w[i];
   }
 
 }

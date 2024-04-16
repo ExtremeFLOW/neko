@@ -544,7 +544,7 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          rho => this%rho, mu => this%mu, &
-         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, chi => this%chi,
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, chi => this%chi, &
          if_variable_dt => dt_controller%if_variable_dt, &
          dt_last_change => dt_controller%dt_last_change)
 
