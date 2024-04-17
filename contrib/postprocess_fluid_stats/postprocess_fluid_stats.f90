@@ -48,6 +48,14 @@ program postprocess_fluid_stats
         write(*,*) 's2=dwdx'
         write(*,*) 's2=dwdy'
         write(*,*) 's2=dwdz'
+        write(*,*) 'In dissipation_tensor:'
+        write(*,*) 'further postprocessing with viscosity is needed'
+        write(*,*) 'pressure=du/dx_i*du/dx_i'
+        write(*,*) 'x-velocity=dv/dx_i*dv/dx_i'
+        write(*,*) 'y-velocity=dw/dx_i*dw/dx_i'
+        write(*,*) 'z-velocity=du/dx_i*dv/dx_i'
+        write(*,*) 'temperature=du/dx_i*dw/dx_i'
+        write(*,*) 's1=dv/dx_i*dw/dx_i'
      end if
      stop
   end if
