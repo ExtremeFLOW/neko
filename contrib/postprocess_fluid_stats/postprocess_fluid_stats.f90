@@ -18,6 +18,7 @@ program postprocess_fluid_stats
   type(gs_t) :: gs_h
   type(field_t), pointer :: u, v, w, p
   type(field_t), target :: pp, uu, vv, ww, uv, uw, vw, tmp1, tmp2
+  type(field_t), target :: e11, e22, e33, e12, e13, e23
   type(field_list_t) :: reynolds, mean_vel_grad, dissipation_tensor
   integer :: argc, i, n, lx
   
@@ -145,6 +146,13 @@ program postprocess_fluid_stats
   call tmp1%init(dof) 
   call tmp2%init(dof)
 
+  call e11%init(dof)
+  call e22%init(dof)
+  call e33%init(dof)
+  call e12%init(dof)
+  call e13%init(dof)
+  call e23%init(dof)
+
   reynolds%fields(1)%f => pp
   reynolds%fields(2)%f => uu
   reynolds%fields(3)%f => vv
@@ -160,6 +168,7 @@ program postprocess_fluid_stats
   if (pe_rank .eq. 0) write(*,*) 'Done'
 
   allocate(mean_vel_grad%fields(9))
+  allocate(dissipation_tensor%fields(6))
   mean_vel_grad%fields(1)%f => pp
   mean_vel_grad%fields(2)%f => uu
   mean_vel_grad%fields(3)%f => vv
@@ -170,7 +179,14 @@ program postprocess_fluid_stats
   mean_vel_grad%fields(8)%f => tmp1
   mean_vel_grad%fields(9)%f => tmp2
 
-  call fld_stats%post_process(mean_vel_grad=mean_vel_grad)
+  dissipation_tensor%fields(1)%f => e11
+  dissipation_tensor%fields(2)%f => e22
+  dissipation_tensor%fields(3)%f => e33
+  dissipation_tensor%fields(4)%f => e12
+  dissipation_tensor%fields(5)%f => e13
+  dissipation_tensor%fields(6)%f => e23
+
+  call fld_stats%post_process(mean_vel_grad=mean_vel_grad, dissipation_tensor=dissipation_tensor)
   !Fix order of gradients
   mean_vel_grad%fields(2)%f => pp
   mean_vel_grad%fields(3)%f => uu
@@ -187,16 +203,6 @@ program postprocess_fluid_stats
   output_file = file_t('mean_vel_grad.fld')
   call output_file%write(mean_vel_grad, stats_data%time)
   if (pe_rank .eq. 0) write(*,*) 'Done'
-  
-  allocate(dissipation_tensor%fields(6))
-  dissipation_tensor%fields(1)%f => pp
-  dissipation_tensor%fields(2)%f => uu
-  dissipation_tensor%fields(3)%f => vv
-  dissipation_tensor%fields(4)%f => ww
-  dissipation_tensor%fields(5)%f => uv
-  dissipation_tensor%fields(6)%f => uw
-
-  call fld_stats%post_process(dissipation_tensor=dissipation_tensor)
 
   if (pe_rank .eq. 0) write(*,*) 'Writing dissipation_tensor into dissipation_tensor'
   output_file = file_t('dissipation_tensor.fld')
