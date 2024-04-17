@@ -89,8 +89,8 @@ contains
 
     call json_get_or_default(json, 'case.fluid.outflow_condition.delta', &
                              this%delta, 0.01_rp)
-    call json_get(json, 'case.fluid.outflow_condition.velocity_scale', &
-                  this%uinf)
+    call json_get_or_default(json, 'case.fluid.outflow_condition.velocity_scale', &
+                             this%uinf, 1.0_rp)
 
     this%u => neko_field_registry%get_field("u")
     this%v => neko_field_registry%get_field("v")
