@@ -33,7 +33,7 @@
 !> Defines a dirichlet boundary condition
 module dirichlet
   use device_dirichlet
-  use num_types
+  use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none

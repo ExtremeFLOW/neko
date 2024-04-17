@@ -106,7 +106,7 @@ module fluid_scheme
      integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
-     class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+     class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: bc_field_vel   !< Field Dirichlet velocity condition
@@ -331,8 +331,8 @@ contains
     !
     if (params%valid_path('case.fluid.boundary_types')) then
        call json_get(params, &
-                                  'case.fluid.boundary_types', &
-                                  this%bc_labels)
+                     'case.fluid.boundary_types', &
+                     this%bc_labels)
     end if
 
     call bc_list_init(this%bclst_vel)
@@ -369,26 +369,23 @@ contains
 
        if (trim(string_val1) .eq. "uniform") then
           call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
-          call this%bc_inflow%set_inflow(real_vec)
+          select type(bc_if => this%bc_inflow)
+          type is(inflow_t)
+             call bc_if%set_inflow(real_vec)
+          end select
        else if (trim(string_val1) .eq. "blasius") then
           select type(bc_if => this%bc_inflow)
           type is(blasius_t)
-             call bc_if%set_coef(this%C_Xh)
              call json_get(params, 'case.fluid.blasius.delta', real_val)
              call json_get(params, 'case.fluid.blasius.approximation',&
                            string_val2)
              call json_get(params, 'case.fluid.blasius.freestream_velocity',&
                            real_vec)
 
-             call bc_if%set_inflow(real_vec)
-             call bc_if%set_params(real_val, string_val2)
+             call bc_if%set_params(real_vec, real_val, string_val2)
 
           end select
        else if (trim(string_val1) .eq. "user") then
-          select type(bc_if => this%bc_inflow)
-          type is(usr_inflow_t)
-             call bc_if%set_coef(this%C_Xh)
-          end select
        end if
     end if
 

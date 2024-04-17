@@ -54,7 +54,7 @@ module dong_outflow
   !! "A Convective-like Energy-Stable Open Boundary Condition for
   !! Simulations of Incompressible Flows"
   !! by S. Dong
-  type, public, extends(dirichlet_t) :: dong_outflow_t
+  type, public, extends(bc_t) :: dong_outflow_t
      type(field_t), pointer :: u
      type(field_t), pointer :: v
      type(field_t), pointer :: w
@@ -199,7 +199,7 @@ contains
   subroutine dong_outflow_free(this)
     class(dong_outflow_t), target, intent(inout) :: this
 
-    call this%dirichlet_t%free
+    call this%free_base
 
   end subroutine dong_outflow_free
 

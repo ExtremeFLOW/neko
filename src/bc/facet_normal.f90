@@ -36,17 +36,19 @@ module facet_normal
   use num_types
   use math
   use coefs, only : coef_t
-  use dirichlet, only : dirichlet_t
+  use bc, only : bc_t
   use utils
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
   !> Dirichlet condition in facet normal direction
-  type, public, extends(dirichlet_t) :: facet_normal_t
+  type, public, extends(bc_t) :: facet_normal_t
    contains
      procedure, pass(this) :: apply_scalar => facet_normal_apply_scalar
+     procedure, pass(this) :: apply_scalar_dev => facet_normal_apply_scalar_dev
      procedure, pass(this) :: apply_vector => facet_normal_apply_vector
+     procedure, pass(this) :: apply_vector_dev => facet_normal_apply_vector_dev
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
      procedure, pass(this) :: apply_surfvec_dev => facet_normal_apply_surfvec_dev
      !> Destructor.
@@ -63,6 +65,26 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
   end subroutine facet_normal_apply_scalar
+
+  !> No-op scalar apply on device
+  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep)
+    class(facet_normal_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+
+  end subroutine facet_normal_apply_scalar_dev
+
+  !> No-op vector apply on device
+  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+    class(facet_normal_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+    type(c_ptr) :: y_d
+    type(c_ptr) :: z_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+
+  end subroutine facet_normal_apply_vector_dev
 
   !> No-op vector apply
   subroutine facet_normal_apply_vector(this, x, y, z, n, t, tstep)
@@ -144,7 +166,7 @@ contains
   subroutine facet_normal_free(this)
     class(facet_normal_t), target, intent(inout) :: this
 
-    call this%dirichlet_t%free_base()
+    call this%free_base()
 
   end subroutine facet_normal_free
 

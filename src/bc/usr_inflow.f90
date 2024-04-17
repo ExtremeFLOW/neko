@@ -38,11 +38,12 @@ module usr_inflow
   use device
   use device_inhom_dirichlet
   use utils
+  use bc, only : bc_t
   implicit none
   private
 
   !> User defined dirichlet condition for inlet (vector valued)
-  type, public, extends(inflow_t) :: usr_inflow_t
+  type, public, extends(bc_t) :: usr_inflow_t
      type(coef_t), pointer :: c => null()
      procedure(usr_inflow_eval), nopass, pointer :: eval => null()
      type(c_ptr), private :: usr_x_d = C_NULL_PTR
@@ -106,7 +107,7 @@ contains
   subroutine usr_inflow_free(this)
     class(usr_inflow_t), target, intent(inout) :: this
 
-    call this%inflow_t%free()
+    call this%free_base()
 
     if (c_associated(this%usr_x_d)) then
        call device_free(this%usr_x_d)

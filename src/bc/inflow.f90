@@ -33,14 +33,14 @@
 !> Defines inflow dirichlet conditions
 module inflow
   use device_inflow
-  use num_types
-  use dirichlet, only : dirichlet_t
+  use num_types, only : rp
+  use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
   implicit none
   private
 
   !> Dirichlet condition for inlet (vector valued)
-  type, public, extends(dirichlet_t) :: inflow_t
+  type, public, extends(bc_t) :: inflow_t
      real(kind=rp), dimension(3) :: x = (/0d0, 0d0, 0d0 /)
    contains
      procedure, pass(this) :: apply_scalar => inflow_apply_scalar
@@ -116,7 +116,7 @@ contains
   subroutine inflow_free(this)
     class(inflow_t), target, intent(inout) :: this
 
-    call this%dirichlet_t%free_base()
+    call this%free_base()
 
   end subroutine inflow_free
 

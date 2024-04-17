@@ -404,7 +404,6 @@ contains
     call this%user_bc%mark_zone(msh%outlet_normal)
     call this%user_bc%mark_zone(msh%sympln)
     call this%user_bc%finalize()
-    call this%user_bc%set_coef(this%c_Xh)
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
                                                      this%user_bc)
 
