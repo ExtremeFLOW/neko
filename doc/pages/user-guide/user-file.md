@@ -844,7 +844,7 @@ has some device math functions implemented that operate directly on device
 arrays. If you can decompose whatever operations you are performing in a user
 function into a set of instructions from the `math` module (e.g. `cadd`,
 `cfill`, `sub2`, ...), you may use the corresponding `device_math` functions to
-[offload work to the GPU](#accelerators_offload-work). See the 
+[offload work to the GPU](@ref accelerators_offload-work). See the 
 [fluid forcing code snippet](@ref user-file_user-f) for a simple example. For 
 more advanced examples, see the 
 [rayleigh-benard example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard/rayleigh.f90#L96-119)
@@ -915,7 +915,7 @@ of the `device_memcpy` calls, we note the following:
 - We specify the direction of the data movement with the flag `HOST_TO_DEVICE`.
   Other flags can also be used to move data from device to host
   (`DEVICE_TO_HOST`) or device to device (`DEVICE_TO_DEVICE`). See the
-  [accelerators page](#accelerators_data-transfer) for more details on this.
+  [accelerators page](@ref accelerators_data-transfer) for more details on this.
 - The `sync` argument is a non-optional argument which dictates wether or not to
   perform the data transfer synchronously.
 
