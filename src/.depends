@@ -126,7 +126,6 @@ common/global_interpolation.o : common/global_interpolation.F90 comm/mpi_types.o
 common/profiler.o : common/profiler.F90 common/craypat.o device/hip/roctx.o device/cuda/nvtx.o device/device.o config/neko_config.o 
 common/craypat.o : common/craypat.F90 common/utils.o adt/stack.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/facet_zone.o mesh/mesh.o sem/space.o sem/coef.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
-bc/bc_fctry.o : bc/bc_fctry.f90 common/log.o common/json_utils.o bc/bc.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o bc/bcknd/device/device_dirichlet.o 
 bc/neumann.o : bc/neumann.f90 sem/coef.o common/utils.o bc/bc.o config/num_types.o 
 bc/dong_outflow.o : bc/dong_outflow.f90 common/json_utils.o field/field_registry.o bc/bcknd/device/device_dong_outflow.o common/utils.o sem/coef.o sem/dofmap.o field/field.o bc/bc.o config/num_types.o device/device.o bc/dirichlet.o config/neko_config.o 
