@@ -178,7 +178,7 @@ a wall, we can set.
 "boundary_types": ["", "", "w"]
 ```
 
-### Inflow boundary conditions
+### Inflow boundary conditions {#case-file_fluid-if}
 The object `inflow_condition` is used to specify velocity values at a Dirichlet
 boundary.
 This does not necessarily have to be an inflow boundary, so the name is not so
@@ -262,18 +262,18 @@ The following types are currently implemented.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
-The volume force $f_i$ applied in the selected regions are proportional to the
-fluid velocity component $u_i$.
+The volume force \f$ f_i \f$ applied in the selected regions are proportional to the
+fluid velocity component \f$ u_i \f$.
 
-$$
-   f_i(x) = - B(x) u_i(x), \\
-   B(x) = \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)},
-$$
+\f{eqnarray*}{
+   f_i(x) &=& - B(x) u_i(x), \\
+   B(x) &=& \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)},
+ \f}
 
-where, $x$ is the current location in the domain, $\xi: x \mapsto [0,1]$
-represent an indicator function for the resistance where $\xi(x) = 0$ is a free
-flow. $\kappa_i$ describes the limits for the force application at $\xi(x)=0$
-and $\xi(x)=1$. A penalty parameter $q$ help us to reduce numerical problems.
+where, \f$ x \f$ is the current location in the domain, \f$ \xi: x \mapsto [0,1] \f$
+represent an indicator function for the resistance where \f$ \xi(x) = 0 \f$ is a free
+flow. \f$ \kappa_i \f$ describes the limits for the force application at \f$ \xi(x)=0 \f$
+and \f$ \xi(x)=1 \f$. A penalty parameter \f$ q \f$ help us to reduce numerical problems.
 
 The indicator function will be defined based on the object type. The following
 types are currently implemented.
@@ -315,8 +315,8 @@ Additional keywords are available to modify the Brinkman force term.
 
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
 | ---------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
-| `brinkman.limits`                  | Brinkman factor at free-flow ($\kappa_0$) and solid domain ($\kappa_1$).                      | Vector of 2 reals.                | -             |
-| `brinkman.penalty`                 | Penalty parameter $q$ when estimating Brinkman factor.                                        | Real                              | $1.0$         |
+| `brinkman.limits`                  | Brinkman factor at free-flow (\f$ \kappa_0 \f$) and solid domain (\f$ \kappa_1 \f$).          | Vector of 2 reals.                | -             |
+| `brinkman.penalty`                 | Penalty parameter \f$ q \f$ when estimating Brinkman factor.                                        | Real                              | \f$ 1.0 \f$         |
 | `objects`                          | Array of JSON objects, defining the objects to be immersed.                                   | Each object must specify a `type` | -             |
 | `distance_transform.type`          | How to map from distance field to indicator field.                                            | `step`, `smooth_step`             | -             |
 | `distance_transform.value`         | Values used to define the distance transform, such as cut-off distance for the step function. | Real                              | -             |
@@ -329,7 +329,7 @@ Additional keywords are available to modify the Brinkman force term.
 Example of a Brinkman source term where a boundary mesh and a point zone are
 combined to define the resistance in the fluid domain. The indicator field for
 the boundary mesh is computed using a step function with a cut-off distance of
-$0.1$. The indicator field for the point zone is not filtered.
+\f$ 0.1 \f$. The indicator field for the point zone is not filtered.
 
 ~~~~~~~~~~~~~~~{.json}
 "source_terms": [
