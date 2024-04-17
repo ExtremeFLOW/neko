@@ -166,9 +166,9 @@ contains
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
     do i = 1, n
-       u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) / rho + f_x%x(i,1,1,1)
-       v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) / rho + f_y%x(i,1,1,1)
-       w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) / rho + f_z%x(i,1,1,1)
+       u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1)
+       v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
+       w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)

@@ -91,7 +91,7 @@ extern "C" {
   
   void pnpn_vel_res_update_hip(void *u_res, void *v_res, void *w_res,
                                void *ta1, void *ta2, void *ta3,
-                               void *f_u, void *f_v, void *f_w, real *rho, int *n) {
+                               void *f_u, void *f_v, void *f_w, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -100,7 +100,7 @@ extern "C" {
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) u_res, (real *) v_res, (real *) w_res,
                        (real *) ta1, (real *) ta2, (real *) ta3,
-                       (real *) f_u, (real *) f_v, (real *) f_w, *rho, *n);
+                       (real *) f_u, (real *) f_v, (real *) f_w, *n);
     HIP_CHECK(hipGetLastError());
   }
     

@@ -103,7 +103,7 @@ module pnpn_res_device
 
   interface
      subroutine pnpn_vel_res_update_hip(u_res_d, v_res_d, w_res_d, &
-          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, rho, n) &
+          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
           bind(c, name='pnpn_vel_res_update_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -111,7 +111,6 @@ module pnpn_res_device
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
        type(c_ptr), value :: ta1_d, ta2_d, ta3_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
-       real(c_rp) :: rho
        integer(c_int) :: n
      end subroutine pnpn_vel_res_update_hip
   end interface
@@ -160,7 +159,7 @@ module pnpn_res_device
 
   interface
      subroutine pnpn_vel_res_update_cuda(u_res_d, v_res_d, w_res_d, &
-          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, rho, n) &
+          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
           bind(c, name='pnpn_vel_res_update_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -168,7 +167,6 @@ module pnpn_res_device
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
        type(c_ptr), value :: ta1_d, ta2_d, ta3_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
-       real(c_rp) :: rho
        integer(c_int) :: n
      end subroutine pnpn_vel_res_update_cuda
   end interface
@@ -375,13 +373,13 @@ contains
 
 #ifdef HAVE_HIP
     call pnpn_vel_res_update_hip(u_res%x_d, v_res%x_d, w_res%x_d, &
-         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, rho, n)
+         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #elif HAVE_CUDA
     call pnpn_vel_res_update_cuda(u_res%x_d, v_res%x_d, w_res%x_d, &
-         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, rho, n)
+         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #elif HAVE_OPENCL
     call pnpn_vel_res_update_opencl(u_res%x_d, v_res%x_d, w_res%x_d, &
-         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, rho, n)
+         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
