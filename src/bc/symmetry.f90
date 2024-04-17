@@ -52,7 +52,7 @@ module symmetry
      type(dirichlet_t) :: bc_y
      type(dirichlet_t) :: bc_z
    contains
-     procedure, pass(this) :: init_msk => symmetry_init_msk
+     procedure, pass(this) :: init => symmetry_init
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
      procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
@@ -64,8 +64,9 @@ module symmetry
 contains
 
   !> Initialize symmetry mask for each axis
-  subroutine symmetry_init_msk(this)
+  subroutine symmetry_init(this, coef)
     class(symmetry_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
     integer :: i, m, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
@@ -73,8 +74,9 @@ contains
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
-    call symmetry_free(this)
+    call this%free()
 
+    call this%init_base(coef)
     call this%bc_x%init_base(this%coef)
     call this%bc_y%init_base(this%coef)
     call this%bc_z%init_base(this%coef)
@@ -139,7 +141,7 @@ contains
     call this%bc_z%finalize()
     call this%bc_z%set_g(0.0_rp)
 
-  end subroutine symmetry_init_msk
+  end subroutine symmetry_init
 
   !> No-op scalar apply
   subroutine symmetry_apply_scalar(this, x, n, t, tstep)

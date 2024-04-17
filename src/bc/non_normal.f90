@@ -49,16 +49,18 @@ module non_normal
   !> Dirichlet condition in non normal direction of a plane
   type, public, extends(symmetry_t) :: non_normal_t
    contains
-     procedure, pass(this) :: init_msk => non_normal_init_msk
+     !> Constructor.
+     procedure, pass(this) :: init => non_normal_init
      !> Destructor.
      procedure, pass(this) :: free => non_normal_free
   end type non_normal_t
 
 contains
 
-  !> Initialize symmetry mask for each axis
-  subroutine non_normal_init_msk(this)
+  !> Constructor.
+  subroutine non_normal_init(this, coef)
     class(non_normal_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
     integer :: i, j, k, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
@@ -66,8 +68,9 @@ contains
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
-    call non_normal_free(this)
+    call this%free()
 
+    call this%init_base(coef)
     call this%bc_x%init_base(this%coef)
     call this%bc_y%init_base(this%coef)
     call this%bc_z%init_base(this%coef)
@@ -134,7 +137,7 @@ contains
     call this%bc_y%set_g(0.0_rp)
     call this%bc_z%finalize()
     call this%bc_z%set_g(0.0_rp)
-  end subroutine non_normal_init_msk
+  end subroutine non_normal_init
 
   !> Destructor
   subroutine non_normal_free(this)

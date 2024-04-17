@@ -342,7 +342,7 @@ contains
     call this%bc_sym%mark_zones_from_list(msh%labeled_zones,&
                         'sym', this%bc_labels)
     call this%bc_sym%finalize()
-    call this%bc_sym%init_msk()
+    call this%bc_sym%init(this%c_Xh)
     call bc_list_add(this%bclst_vel, this%bc_sym)
 
     !
