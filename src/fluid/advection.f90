@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,12 @@
 !
 !> Subroutines to add advection terms to the RHS of a transport equation.
 module advection
-  use num_types
+  use num_types, only : rp
   use math
   use utils
-  use space
-  use field
-  use coefs
+  use space, only : space_t, GL
+  use field, only : field_t
+  use coefs, only : coef_t
   use device_math
   use neko_config
   use operators
@@ -54,6 +54,7 @@ module advection
    contains
      procedure(compute_adv), pass(this), deferred :: compute
      procedure(compute_scalar_adv), pass(this), deferred :: compute_scalar
+     procedure(advection_free), pass(this), deferred :: free
   end type advection_t
 
   !> Type encapsulating advection routines with no dealiasing applied
@@ -61,6 +62,10 @@ module advection
      real(kind=rp), allocatable :: temp(:)
      type(c_ptr) :: temp_d = C_NULL_PTR
    contains
+     !> Constructor
+     procedure, pass(this) :: init => init_no_dealias
+     !> Destructor
+     procedure, pass(this) :: free => free_no_dealias
      !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
      !! the RHS
      procedure, pass(this) :: compute => compute_advection_no_dealias
@@ -112,6 +117,8 @@ module advection
      procedure, pass(this) :: compute_scalar => compute_scalar_advection_dealias
      !> Constructor
      procedure, pass(this) :: init => init_dealias
+     !> Destructor
+     procedure, pass(this) :: free => free_dealias
   end type adv_dealias_t
 
   abstract interface
@@ -168,63 +175,21 @@ module advection
      end subroutine compute_scalar_adv
   end interface
 
-  public :: advection_factory
+  abstract interface
+     !> Destructor
+     subroutine advection_free(this)
+       import :: advection_t
+       class(advection_t), intent(inout) :: this
+     end subroutine advection_free
+  end interface
 
 contains
 
-  !> A factory for \ref advection_t decendants.
-  !! @param this Polymorphic object of class \ref advection_t.
-  !! @param coeff The coefficients of the (space, mesh) pair.
-  !! @param delias Whether to dealias or not.
-  !! @param lxd The polynomial order of the space used in the dealiasing.
-  !! Defaults to 3/2 of `coeff%Xh%lx`.
-  !! @note The factory both allocates and initializes `this`.
-  subroutine advection_factory(this, coef, dealias, lxd)
-    implicit none
-    class(advection_t), allocatable, intent(inout) :: this
-    type(coef_t), target :: coef
-    logical, intent(in) :: dealias
-    integer, intent(in) :: lxd
-
-    ! Free allocatables if necessary
-    if (allocated(this)) then
-       select type(adv => this)
-       type is(adv_no_dealias_t)
-          if (allocated(adv%temp)) then
-             deallocate(adv%temp)
-          end if
-          if (c_associated(adv%temp_d)) then
-             call device_free(adv%temp_d)
-          end if
-       end select
-       deallocate(this)
-    end if
-
-    if (dealias) then
-       allocate(adv_dealias_t::this)
-    else
-       allocate(adv_no_dealias_t::this)
-    end if
-
-    select type(adv => this)
-    type is(adv_dealias_t)
-       if (lxd .gt. 0) then
-          call init_dealias(adv, lxd, coef)
-       else
-          call init_dealias(adv, coef%Xh%lx * 3/2,  coef)
-       end if
-    type is(adv_no_dealias_t)
-       call init_no_dealias(adv, coef)
-    end select
-
-  end subroutine advection_factory
-
   !> Constructor
-  !! @param coeff The coefficients of the (space, mesh) pair.
+  !! @param coef The coefficients of the (space, mesh) pair.
   subroutine init_no_dealias(this, coef)
-    implicit none
-    class(adv_no_dealias_t) :: this
-    type(coef_t) :: coef
+    class(adv_no_dealias_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
 
     allocate(this%temp(coef%dof%size()))
 
@@ -234,11 +199,22 @@ contains
 
   end subroutine init_no_dealias
 
+  !> Destructor
+  subroutine free_no_dealias(this)
+    class(adv_no_dealias_t), intent(inout) :: this
+
+    if (allocated(this%temp)) then
+       deallocate(this%temp)
+    end if
+    if (c_associated(this%temp_d)) then
+       call device_free(this%temp_d)
+    end if
+  end subroutine free_no_dealias
+
   !> Constructor
   !! @param lxd The polynomial order of the space used in the dealiasing.
-  !! @param coeff The coefficients of the (space, mesh) pair.
+  !! @param coef The coefficients of the (space, mesh) pair.
   subroutine init_dealias(this, lxd, coef)
-    implicit none
     class(adv_dealias_t), target, intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), intent(inout), target :: coef
@@ -289,6 +265,12 @@ contains
 
   end subroutine init_dealias
 
+  !> Destructor
+  subroutine free_dealias(this)
+    class(adv_dealias_t), intent(inout) :: this
+  end subroutine free_dealias
+
+
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
   !! the RHS.
   !! @param vx The x component of velocity.
@@ -301,7 +283,6 @@ contains
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
   subroutine compute_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
-    implicit none
     class(adv_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
@@ -418,7 +399,6 @@ contains
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
   subroutine compute_advection_no_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
-    implicit none
     class(adv_no_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
@@ -470,7 +450,6 @@ contains
   !! @param n Typically the size of the mesh.
   subroutine compute_scalar_advection_no_dealias(this, vx, vy, vz, s, fs, Xh, &
                                                coef, n)
-    implicit none
     class(adv_no_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
@@ -514,7 +493,6 @@ contains
   !! @param n Typically the size of the mesh.
   subroutine compute_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
                                             coef, n)
-    implicit none
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s

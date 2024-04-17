@@ -50,7 +50,6 @@ module facet_normal
      procedure, pass(this) :: apply_vector => facet_normal_apply_vector
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
      procedure, pass(this) :: apply_surfvec_dev => facet_normal_apply_surfvec_dev
-     procedure, pass(this) :: set_coef => facet_normal_set_coef
   end type facet_normal_t
 
 contains
@@ -89,10 +88,7 @@ contains
     integer, intent(in), optional :: tstep
     integer :: i, m, k, idx(4), facet
 
-    if (.not. associated(this%c)) then
-       call neko_error('No coefficients assigned')
-    end if
-    associate(c => this%c)
+    associate(c => this%coef)
       m = this%msk(0)
       do i = 1, m
          k = this%msk(i)
@@ -126,13 +122,6 @@ contains
 
   end subroutine facet_normal_apply_surfvec
 
-  !> Assign coefficients (facet normals etc)
-  subroutine facet_normal_set_coef(this, c)
-    class(facet_normal_t), intent(inout) :: this
-    type(coef_t), target, intent(inout) :: c
-    this%c => c
-  end subroutine facet_normal_set_coef
-
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
                                             u_d, v_d, w_d, t, tstep)
@@ -141,10 +130,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
-    if (.not. associated(this%c)) then
-       call neko_error('No coefficients assigned')
-    end if
-    associate(c => this%c)
+    associate(c => this%coef)
       call device_facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
                                              x_d, y_d, z_d, u_d, v_d, w_d, &
                                              c%nx_d, c%ny_d, c%nz_d, c%area_d, &

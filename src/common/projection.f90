@@ -75,6 +75,8 @@ module projection
   use profiler
   use logger
   use, intrinsic :: iso_c_binding
+  use time_step_controller
+
   implicit none
   private
 
@@ -93,31 +95,41 @@ module projection
      !logging variables
      real(kind=rp) :: proj_res
      integer :: proj_m = 0
+     integer :: activ_step ! steps to activate projection
    contains
+     procedure, pass(this) :: clear => bcknd_clear
      procedure, pass(this) :: project_on => bcknd_project_on
      procedure, pass(this) :: project_back => bcknd_project_back
      procedure, pass(this) :: log_info => print_proj_info
      procedure, pass(this) :: init => projection_init
      procedure, pass(this) :: free => projection_free
+     procedure, pass(this) :: pre_solving => projection_pre_solving
+     procedure, pass(this) :: post_solving => projection_post_solving
   end type projection_t
 
 contains
 
-  subroutine projection_init(this, n, L)
+  subroutine projection_init(this, n, L, activ_step)
     class(projection_t), target, intent(inout) :: this
     integer, intent(in) :: n
-    integer, optional, intent(in) :: L
+    integer, optional, intent(in) :: L, activ_step
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
     real(c_rp) :: dummy
 
     call this%free()
-
+    
     if (present(L)) then
        this%L = L
     else
        this%L = 20
+    end if
+
+    if (present(activ_step)) then
+       this%activ_step = activ_step
+    else
+       this%activ_step = 5
     end if
 
     this%m = 0
@@ -203,6 +215,57 @@ contains
     end if
 
   end subroutine projection_free
+
+  subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, string)
+    class(projection_t), intent(inout) :: this
+    integer, intent(inout) :: n
+    real(kind=rp), intent(inout), dimension(n) :: b
+    integer, intent(in) :: tstep
+    class(coef_t), intent(inout) :: coef
+    type(time_step_controller_t), intent(in) :: dt_controller
+    character(len=*), optional :: string
+
+    if( tstep .gt. this%activ_step .and. this%L .gt. 0) then
+       if (dt_controller%if_variable_dt) then
+          if (dt_controller%dt_last_change .eq. 0) then ! the time step at which dt is changed
+             call this%clear(n) 
+          else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
+             ! activate projection some steps after dt is changed
+             ! note that dt_last_change start from 0
+             call this%project_on(b, coef, n)
+             if (present(string)) then
+                call this%log_info(string)
+             end if
+          end if
+       else
+          call this%project_on(b, coef, n)
+          if (present(string)) then
+             call this%log_info(string)
+          end if
+       end if
+    end if
+
+  end subroutine projection_pre_solving
+
+  subroutine projection_post_solving(this, x, Ax, coef, bclst, gs_h, n, tstep, dt_controller)
+    class(projection_t), intent(inout) :: this
+    integer, intent(inout) :: n
+    class(Ax_t), intent(inout) :: Ax
+    class(coef_t), intent(inout) :: coef
+    class(bc_list_t), intent(inout) :: bclst
+    type(gs_t), intent(inout) :: gs_h
+    real(kind=rp), intent(inout), dimension(n) :: x
+    integer, intent(in) :: tstep
+    type(time_step_controller_t), intent(in) :: dt_controller
+
+    if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
+       if (.not.(dt_controller%if_variable_dt) .or. &
+       (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
+          call this%project_back(x, Ax, coef, bclst, gs_h, n)
+       end if
+    end if
+
+  end subroutine projection_post_solving
 
   subroutine bcknd_project_on(this, b, coef, n)
     class(projection_t), intent(inout) :: this
@@ -562,37 +625,40 @@ contains
 
   end subroutine cpu_proj_ortho
 
-  subroutine givens_rotation(a, b, c, s, r)
-    real(kind=rp), intent(inout) :: a, b, c, s, r
-    real(kind=rp) ::  h, d
-
-    if(b .ne. 0.0_rp) then
-       h = hypot(a, b)
-       d = 1.0_rp / h
-       c = abs(a) * d
-       s = sign(d, a) * b
-       r = sign(1.0_rp, a) * h
-    else
-       c = 1.0_rp
-       s = 0.0_rp
-       r = a
-    endif
-
-    return
-  end subroutine givens_rotation
-
   subroutine print_proj_info(this,string)
     class(projection_t) :: this
     character(len=*) :: string
     character(len=LOG_SIZE) :: log_buf
-
-    write(log_buf, '(A,A)') 'Projection ', string
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,A)') 'Proj. vec.:','   Orig. residual:'
-    call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
-    call neko_log%message(log_buf)
+    
+    if (this%proj_m .gt. 0) then
+       write(log_buf, '(A,A)') 'Projection ', string
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,A)') 'Proj. vec.:','   Orig. residual:'
+       call neko_log%message(log_buf)
+       write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
+       call neko_log%message(log_buf)
+    end if
 
   end subroutine print_proj_info
+
+  subroutine bcknd_clear(this, n)
+    class(projection_t) :: this
+    integer, intent(in) :: n
+    integer :: i
+
+    this%m = 0
+    this%proj_m = 0
+    
+    do i = 1, this%L
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_rzero(this%xx_d(i), n)
+          call device_rzero(this%xx_d(i), n)
+       else
+          call rzero(this%xx(1,i),n)
+          call rzero(this%bb(1,i),n)
+       end if
+    end do
+
+  end subroutine bcknd_clear
 
 end module projection

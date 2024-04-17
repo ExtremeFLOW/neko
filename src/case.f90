@@ -80,7 +80,7 @@ module case
      type(stats_t) :: q
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
-     type(scalar_pnpn_t), allocatable :: scalar
+     type(scalar_pnpn_t), allocatable :: scalar 
      type(material_properties_t):: material_properties
   end type case_t
 
@@ -176,7 +176,13 @@ contains
     !
     ! Time step
     !
-    call json_get(C%params, 'case.timestep', C%dt)
+    call C%params%get('case.variable_timestep', logical_val, found)
+    if (.not. logical_val) then
+       call json_get(C%params, 'case.timestep', C%dt)
+    else
+       ! randomly set an initial dt to get cfl when dt is variable
+       C%dt = 1.0_rp
+    end if
 
     !
     ! End time
@@ -293,7 +299,6 @@ contains
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
     end select
-
 
     !
     ! Validate that the case is properly setup for time-stepping

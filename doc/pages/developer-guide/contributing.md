@@ -1,4 +1,7 @@
-# Contributing to Neko 
+# Contributing to Neko {#contributing} 
+
+\tableofcontents
+
 Please read the following guide before contributing new code or a bug fix to Neko.
 
 All contributions to Neko must be made under the 3-Clause BSD license. Please refer to the `COPYING` file.
@@ -51,7 +54,7 @@ This section contains information on how to add new source files to the build sy
 
 Neko uses Autotools for building all sources. You will need to have at least `autoconf` and `automake` installed for development work. It is also highly recommended to have `makedepf90` installed to avoid error-prone manual dependency tracking.
 
-The following steps describe how to add a new Fortran file to Neko`s build system
+The following steps describe how to add a new Fortran file to Neko's build system
 1. Place the file in an appropriate subdirectory under `src/`. Either create a new subdirectory or place the file in `common` if none of the existing directories is a good match. Avoid placing the file directly under `src`
 2. Add the file to the `neko_fortran_SOURCES` list in `src/Makefile.am`, following the pattern of `<subdir under src>/newfile.f90`.
 3. Ensure correct dependency tracking

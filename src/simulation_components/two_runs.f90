@@ -49,6 +49,7 @@ module two_runs
   use mpi_f08, only : MPI_WTIME
   use material_properties, only : material_properties_t
   use utils, only : neko_error
+  use time_step_controller
   implicit none
   private
 
@@ -67,6 +68,8 @@ module two_runs
 
      !> Output writer.
      type(fld_file_output_t), private :: output
+
+     type(time_step_controller_t) :: dt_controller_pert
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -95,10 +98,9 @@ contains
     logical :: dealias
     integer :: p_order, dealias_order
 
+    ! base for simulation component
     call this%init_base(json, case)
-
-    call set_material_properties(this%case%material_properties, json)
-
+    ! initial condition
     call json_get(json, 'initial_condition.type', ic_type)
 
     ! Uses global case parameter for dealiasing.
@@ -108,6 +110,8 @@ contains
                              'case.numerics.dealiased_polynomial_order',&
                              dealias_order,&
                              int(3.0_rp / 2.0_rp * (p_order + 1)))
+    ! Todo
+    ! they should all have potentially their own numerics...
 
     ! Handle output options and call the other constructor.
     if (json%valid_path("output_filename")) then
@@ -129,6 +133,11 @@ contains
        call two_runs_init_from_attributes(this, json, ic_type, dealias,&
                                         dealias_order)
     end if
+
+
+    ! do something with our timestep controller
+    ! for now we copy them?
+    call this%dt_controller_pert%init(case%params)
   end subroutine two_runs_init_from_json
 
   !> The second constructor.
@@ -166,13 +175,6 @@ contains
        call this%case%s%add(this%output, this%output_controller%control_value, &
                             this%output_controller%control_mode)
 
-!    fluid_pnpn_init(this, msh, lx, params, user, material_properties)
-!    call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
-
-!    call this%scheme%init(this%case%msh, this%case%fluid%c_Xh, &
-!                          this%case%fluid%gs_Xh, json, this%case%usr, &
-!                          this%case%material_properties, dealias, dealias_order)
-!
 ! HARRY
 ! do I need all of this, or can I just initialize?
 !    ! Set lag arrays
@@ -217,21 +219,27 @@ contains
   !! @param tstep The current time-step.
   subroutine two_runs_compute(this, t, tstep)
     class(two_runs_t), intent(inout) :: this
-    ! Harry
-    ! this is something to talk about regarding in vs inout of t,
-    ! is my problem
-    !real(kind=rp), intent(inout) :: t
-    !integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     ! -------------------------------------
     real(kind=dp) :: start_time, end_time
     character(len=LOG_SIZE) :: log_buf
+    ! Tim,
+    ! it looks to me that fluid has t and tstep intent inout
+    ! and simcomps intent in, implying simcomps shouldn't change 
+    ! the underlying time and timstep?
+    !
+    ! I guess we may need to change the time for our work...
+    ! so we should introduce a pseudo time?
+    real(kind=rp) :: p_t
+    integer :: p_tstep
 
+	 p_t = t
+	 p_tstep = tstep
 
     start_time = MPI_WTIME()
     call neko_log%section('Scalar simcomp')
-    call this%scheme%step(t, tstep, this%case%dt, this%case%ext_bdf)
+    call this%scheme%step(p_t, p_tstep, this%case%dt, this%case%ext_bdf,this%dt_controller_pert)
     !call this%scheme%compute(t, tstep, this%case%dt, this%case%ext_bdf)
     end_time = MPI_WTIME()
     write(log_buf, '(A,E15.7)') 'Step time:', end_time-start_time

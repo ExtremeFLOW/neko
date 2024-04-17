@@ -36,8 +36,8 @@ module scalar_pnpn
   use num_types, only: rp
   use scalar_residual_fctry, only : scalar_residual_factory
   use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_bdf_t, rhs_maker_ext_t, &
-                              rhs_maker_ext_fctry, rhs_maker_bdf_fctry
+  use rhs_maker_fctry, only : rhs_maker_ext_fctry, rhs_maker_bdf_fctry
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -60,13 +60,15 @@ module scalar_pnpn
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use advection, only : advection_t, advection_factory
+  use advection, only : advection_t
+  use advection_fctry, only : advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only: json_get
   use json_module, only : json_file
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
+  use time_step_controller
   implicit none
   private
 
@@ -177,7 +179,7 @@ contains
 
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
-    call this%bc_res%init(this%dm_Xh)
+    call this%bc_res%init(this%c_Xh)
     do i = 1, this%n_dir_bcs
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
     end do
@@ -186,6 +188,9 @@ contains
     if (this%user_bc%msk(0) .gt. 0) then
        call this%bc_res%mark_facets(this%user_bc%marked_facet)
     end if
+
+    call this%bc_res%mark_zones_from_list(msh%labeled_zones, 'd_s', &
+                                         this%bc_labels)
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
 
@@ -194,23 +199,14 @@ contains
 
 
     ! Intialize projection space
-    if (this%projection_dim .gt. 0) then
-       call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
-    end if
+    call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
+                            this%projection_activ_step)
 
     ! Add lagged term to checkpoint
     ! @todo Init chkp object, note, adding 3 slags
     ! call this%chkp%add_lag(this%slag, this%slag, this%slag)
 
-    ! Uses sthe same parameter as the fluid to set dealiasing
-    call json_get(params, 'case.numerics.dealias', logical_val)
-    call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
-                    found)
-    if (.not. found) then
-       call json_get(params, 'case.numerics.polynomial_order', integer_val)
-       integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
-    end if
-    call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
+    call advection_factory(this%adv, params, this%c_Xh)
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
@@ -278,12 +274,13 @@ contains
 
   end subroutine scalar_pnpn_free
 
-  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf)
+  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
     class(scalar_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_step_controller_t), intent(in) :: dt_controller
     ! Number of degrees of freedom
     integer :: n
     ! Linear solver results monitor
@@ -302,7 +299,9 @@ contains
          slag => this%slag, &
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, &
-         makeext => this%makeext, makebdf => this%makebdf)
+         makeext => this%makeext, makebdf => this%makebdf, &
+         if_variable_dt => dt_controller%if_variable_dt, &
+         dt_last_change => dt_controller%dt_last_change)
 
       if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
          write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
@@ -349,6 +348,8 @@ contains
       !> Apply Dirichlet boundary conditions
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
+      call this%dirichlet_update_(this%field_dirichlet_fields, &
+           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 
       ! Compute scalar residual.
@@ -364,9 +365,7 @@ contains
 
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
-         call this%proj_s%project_on(s_res%x, c_Xh, n)
-      end if
+      call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc%update()
       call profiler_start_region('Scalar solve', 21)
@@ -374,10 +373,8 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. projection_dim .gt. 0) then
-         call this%proj_s%project_back(ds%x, Ax, c_Xh, &
-              this%bclst_ds, gs_Xh, n)
-      end if
+     call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
+                                 this%bclst_ds, gs_Xh, n, tstep, dt_controller)
 
       ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then

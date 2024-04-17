@@ -31,54 +31,48 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Defines a factory subroutine for simulation components.
-module simulation_component_fctry
-  use simulation_component, only : simulation_component_t
-  use vorticity, only : vorticity_t
-  use two_runs, only : two_runs_t
-  use lambda2, only : lambda2_t
-  use probes, only : probes_t
-  use les_simcomp, only : les_simcomp_t
+!> Defines a factory subroutine for source terms.
+module source_term_fctry
+  use source_term, only : source_term_t
+  use const_source_term, only : const_source_term_t
+  use boussinesq_source_term, only : boussinesq_source_term_t
+  use brinkman_source_term, only: brinkman_source_term_t
   use json_module, only : json_file
-  use case, only : case_t
   use json_utils, only : json_get
-  use logger, only : neko_log
+  use field_list, only : field_list_t
+  use utils, only : neko_error
+  use coefs, only : coef_t
   implicit none
   private
 
-  public :: simulation_component_factory
+  public :: source_term_factory
 
 contains
 
-  !> Simulation component factory. Both constructs and initializes the object.
-  !! @param json JSON object initializing the simulation component.
-  subroutine simulation_component_factory(simcomp, json, case)
-    class(simulation_component_t), allocatable, intent(inout) :: simcomp
+  !> Source term factory. Both constructs and initializes the object.
+  !! @param json JSON object initializing the source term.
+  subroutine source_term_factory(source_term, json, fields, coef)
+    class(source_term_t), allocatable, intent(inout) :: source_term
     type(json_file), intent(inout) :: json
-    class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: simcomp_type
+    type(field_list_t), intent(inout) :: fields
+    type(coef_t), intent(inout) :: coef
+    character(len=:), allocatable :: source_type
 
-    call json_get(json, "type", simcomp_type)
+    call json_get(json, "type", source_type)
 
-    if (trim(simcomp_type) .eq. "vorticity") then
-       allocate(vorticity_t::simcomp)
-    else if (trim(simcomp_type) .eq. "lambda2") then
-       allocate(lambda2_t::simcomp)
-    else if (trim(simcomp_type) .eq. "probes") then
-       allocate(probes_t::simcomp)
-    else if (trim(simcomp_type) .eq. "les_model") then
-       allocate(les_simcomp_t::simcomp)
-    else if (trim(simcomp_type) .eq. "two_runs") then
-       allocate(two_runs_t::simcomp)
+    if (trim(source_type) .eq. "constant") then
+       allocate(const_source_term_t::source_term)
+    else if (trim(source_type) .eq. "boussinesq") then
+       allocate(boussinesq_source_term_t::source_term)
+    else if (trim(source_type) .eq. "brinkman") then
+       allocate(brinkman_source_term_t::source_term)
     else
-       call neko_log%error("Unknown simulation component type: " &
-                           // trim(simcomp_type))
-       stop
+       call neko_error('Unknown source term '//trim(source_type))
     end if
 
     ! Initialize
-    call simcomp%init(json, case)
+    call source_term%init(json, fields, coef)
 
-  end subroutine simulation_component_factory
+  end subroutine source_term_factory
 
-end module simulation_component_fctry
+end module source_term_fctry

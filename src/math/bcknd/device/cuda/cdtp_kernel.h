@@ -126,7 +126,6 @@ __global__ void __launch_bounds__(LX*LX,3)
   T rtar[LX];
   T rtas[LX];
   T rtat[LX];
-  T rjac[LX];
 
   const int e = blockIdx.x;
   const int j = threadIdx.y;

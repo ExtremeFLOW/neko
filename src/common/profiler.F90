@@ -38,6 +38,10 @@ module profiler
   use roctx
   use craypat
   implicit none
+  private
+
+  public :: profiler_start, profiler_start_region, profiler_end_region, &
+            profiler_stop
 
 contains
 
