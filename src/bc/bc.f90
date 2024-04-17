@@ -222,6 +222,7 @@ contains
     nullify(this%Xh)
     nullify(this%msh)
     nullify(this%dof)
+    nullify(this%coef)
 
     if (allocated(this%msk)) then
        deallocate(this%msk)
