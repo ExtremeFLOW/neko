@@ -76,6 +76,8 @@ module fluid_scheme
   use material_properties, only : material_properties_t
   use field_series
   use time_step_controller
+  use flow_ic
+  use file
   implicit none
 
   !> Base type of all fluid formulations
@@ -85,6 +87,11 @@ module fluid_scheme
      type(field_t), pointer :: w => null() !< z-component of Velocity
      type(field_t), pointer :: p => null() !< Pressure
      type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
+     type(field_t), pointer :: u_b => null() !< x-component of baseflow velocity
+     type(field_t), pointer :: v_b => null() !< y-component of baseflow Velocity
+     type(field_t), pointer :: w_b => null() !< z-component of baseflow Velocity
+     type(field_t), pointer :: p_b => null() !< I don't think we'll need this HARRY
+     ! I can't remember if we'll need a baseflow for the passive scalar
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
@@ -130,6 +137,7 @@ module fluid_scheme
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
+     logical :: if_pert = .false.              !< If a baseflow should be considered
      !> Dynamic viscosity
      real(kind=rp), pointer :: mu => null()
      !> Density
@@ -299,6 +307,10 @@ contains
 
 
     call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
+
+    call json_get_or_default(params, 'case.perturbation.if_pert', this%if_pert, .false.)
+    write(log_buf, '(A, L1)') 'Perturbation Solve: ',  this%if_pert
+    call neko_log%message(log_buf)
 
     if (params%valid_path("case.fluid.flow_rate_force")) then
        this%forced_flow_rate = .true.
@@ -610,6 +622,8 @@ contains
     real(kind=rp), allocatable :: real_vec(:)
     integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
+    type(file_t) :: field_file, mesh_file, out_file
+    type(fld_file_data_t) :: field_data
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
                                   material_properties)
@@ -628,7 +642,66 @@ contains
     call this%vlag%init(this%v, 2)
     call this%wlag%init(this%w, 2)
 
+	 ! Tim,
+	 ! I'm only allocating if we require a baseflow,
+	 ! but I guess later on down the line if that flag changes
+	 ! we should include a "if allocated" or something to that effect?
+	 !
+	 ! Also, the thinking here is that in Nek5000 there were many 
+	 ! perturbation arrays and a single baseflow, as this is more likely 
+	 ! used for finding Lyapunov exponents etc
+	 ! so I think we're safe with using the registry for a single baseflow
+	 ! and then if you look at the branch feature/two_runs I was aiming 
+	 ! to have multiple 'u01', 'u02' etc
+	 ! I need to talk to Martin because I bet this is smarter with field lists
+	 ! Harry
+	 if(this%if_pert) then
+    call neko_field_registry%add_field(this%dm_Xh, 'ub')
+    call neko_field_registry%add_field(this%dm_Xh, 'vb')
+    call neko_field_registry%add_field(this%dm_Xh, 'wb')
+    call neko_field_registry%add_field(this%dm_Xh, 'pb')
+    this%u_b => neko_field_registry%get_field('ub')
+    this%v_b => neko_field_registry%get_field('vb')
+    this%w_b => neko_field_registry%get_field('wb')
+    this%p_b => neko_field_registry%get_field('pb')
+    !
+    !-------------------------------------------------------------------------------
+    ! Tim,
+    ! this would also be a place where we would need to do something json equivelent 
+    ! to the initial condition where we can prescribe a baseflow
+    call json_get(params, 'case.perturbation.baseflow.type',&
+                  string_val1)
+    ! TODO
+    ! A baseflow setter needs to be written,
+    ! capable of: 
+    !   - loading a baseflow from a file
+    !   - Prescribing one from the user
+    if (trim(string_val1) .eq. 'load_file') then
+    	    call json_get(params, 'case.perturbation.baseflow.filename',&
+                  string_val2)
+          
+          ! assume they're on the same mesh
+          field_file = file_t(trim(string_val2), precision = dp)
+          call field_data%init
+          call field_file%read(field_data)
+          call copy(this%u_b%x,field_data%u%x,this%u_b%dof%size())
+          call copy(this%v_b%x,field_data%v%x,this%u_b%dof%size())
+          call copy(this%w_b%x,field_data%w%x,this%u_b%dof%size())
 
+
+          call file_free(out_file)
+          call file_free(field_file)
+    endif
+    if (trim(string_val1) .eq. 'user') then
+    	! Tim,
+    	! I'm worried that because we're inside scheme, and not case,
+    	! we maybe can't do user defined??
+    endif
+
+
+    endif
+    ! I'm going to 
+    !-------------------------------------------------------------------------------
     !
     ! Setup pressure boundary conditions
     !

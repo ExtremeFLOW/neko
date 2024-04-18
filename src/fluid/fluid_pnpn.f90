@@ -533,6 +533,7 @@ contains
     call profiler_start_region('Fluid', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
+         u_b => this%u_b, v_b => this%v_b, w_b => this%w_b, &
          u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax => this%Ax, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
@@ -566,9 +567,15 @@ contains
       end if
 
       ! Add the advection operators to the right-hand-side.
+      if (.not. this%if_pert) then
       call this%adv%compute(u, v, w, &
                             f_x%x, f_y%x, f_z%x, &
                             Xh, this%c_Xh, dm_Xh%size())
+      else
+      call this%adv%compute_vector(u, v, w, u_b, v_b, w_b, &
+                            f_x%x, f_y%x, f_z%x, &
+                            Xh, this%c_Xh, dm_Xh%size())
+      endif
 
       ! At this point the RHS contains the sum of the advection operator and
       ! additional source terms, evaluated using the velocity field from the
