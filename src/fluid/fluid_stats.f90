@@ -754,45 +754,39 @@ contains
     end if
 
     if (present(dissipation_tensor)) then
+       n = dissipation_tensor%fields(1)%f%dof%size()
        ! suppose  mean vel grad has been evaluated
        ! do subtraction of epsilon_ij = e_ij - <mean_vel_grad><mean_vel_grad>
        call copy(dissipation_tensor%fields(1)%f%x,this%e11%mf%x,n)
-       call subcol3(dissipation_tensor%fields(1)%f%x,this%dudx%x,this%dudx%x,n)
-       call subcol3(dissipation_tensor%fields(1)%f%x,this%dudy%x,this%dudy%x,n)
-       call subcol3(dissipation_tensor%fields(1)%f%x,this%dudz%x,this%dudz%x,n)
+       call subcol3(dissipation_tensor%fields(1)%f%x,mean_vel_grad%fields(1)%f%x,mean_vel_grad%fields(1)%f%x,n)
+       call subcol3(dissipation_tensor%fields(1)%f%x,mean_vel_grad%fields(2)%f%x,mean_vel_grad%fields(2)%f%x,n)
+       call subcol3(dissipation_tensor%fields(1)%f%x,mean_vel_grad%fields(3)%f%x,mean_vel_grad%fields(3)%f%x,n)
 
        call copy(dissipation_tensor%fields(2)%f%x,this%e22%mf%x,n)
-       call subcol3(dissipation_tensor%fields(2)%f%x,this%dvdx%x,this%dvdx%x,n)
-       call subcol3(dissipation_tensor%fields(2)%f%x,this%dvdy%x,this%dvdy%x,n)
-       call subcol3(dissipation_tensor%fields(2)%f%x,this%dvdz%x,this%dvdz%x,n)
+       call subcol3(dissipation_tensor%fields(2)%f%x,mean_vel_grad%fields(4)%f%x,mean_vel_grad%fields(4)%f%x,n)
+       call subcol3(dissipation_tensor%fields(2)%f%x,mean_vel_grad%fields(5)%f%x,mean_vel_grad%fields(5)%f%x,n)
+       call subcol3(dissipation_tensor%fields(2)%f%x,mean_vel_grad%fields(6)%f%x,mean_vel_grad%fields(6)%f%x,n)
        
        call copy(dissipation_tensor%fields(3)%f%x,this%e33%mf%x,n)
-       call subcol3(dissipation_tensor%fields(3)%f%x,this%dwdx%x,this%dwdx%x,n)
-       call subcol3(dissipation_tensor%fields(3)%f%x,this%dwdy%x,this%dwdy%x,n)
-       call subcol3(dissipation_tensor%fields(3)%f%x,this%dwdz%x,this%dwdz%x,n)
+       call subcol3(dissipation_tensor%fields(3)%f%x,mean_vel_grad%fields(7)%f%x,mean_vel_grad%fields(7)%f%x,n)
+       call subcol3(dissipation_tensor%fields(3)%f%x,mean_vel_grad%fields(8)%f%x,mean_vel_grad%fields(8)%f%x,n)
+       call subcol3(dissipation_tensor%fields(3)%f%x,mean_vel_grad%fields(9)%f%x,mean_vel_grad%fields(9)%f%x,n)
 
        call copy(dissipation_tensor%fields(4)%f%x,this%e12%mf%x,n)
-       call subcol3(dissipation_tensor%fields(4)%f%x,this%dudx%x,this%dvdx%x,n)
-       call subcol3(dissipation_tensor%fields(4)%f%x,this%dudy%x,this%dvdy%x,n)
-       call subcol3(dissipation_tensor%fields(4)%f%x,this%dudz%x,this%dvdz%x,n)
+       call subcol3(dissipation_tensor%fields(4)%f%x,mean_vel_grad%fields(1)%f%x,mean_vel_grad%fields(4)%f%x,n)
+       call subcol3(dissipation_tensor%fields(4)%f%x,mean_vel_grad%fields(2)%f%x,mean_vel_grad%fields(5)%f%x,n)
+       call subcol3(dissipation_tensor%fields(4)%f%x,mean_vel_grad%fields(3)%f%x,mean_vel_grad%fields(6)%f%x,n)
 
        call copy(dissipation_tensor%fields(5)%f%x,this%e13%mf%x,n)
-       call subcol3(dissipation_tensor%fields(5)%f%x,this%dudx%x,this%dwdx%x,n)
-       call subcol3(dissipation_tensor%fields(5)%f%x,this%dudy%x,this%dwdy%x,n)
-       call subcol3(dissipation_tensor%fields(5)%f%x,this%dudz%x,this%dwdz%x,n)
+       call subcol3(dissipation_tensor%fields(5)%f%x,mean_vel_grad%fields(1)%f%x,mean_vel_grad%fields(7)%f%x,n)
+       call subcol3(dissipation_tensor%fields(5)%f%x,mean_vel_grad%fields(2)%f%x,mean_vel_grad%fields(8)%f%x,n)
+       call subcol3(dissipation_tensor%fields(5)%f%x,mean_vel_grad%fields(3)%f%x,mean_vel_grad%fields(9)%f%x,n)
 
        call copy(dissipation_tensor%fields(6)%f%x,this%e23%mf%x,n)
-       call subcol3(dissipation_tensor%fields(6)%f%x,this%dvdx%x,this%dwdx%x,n)
-       call subcol3(dissipation_tensor%fields(6)%f%x,this%dvdy%x,this%dwdy%x,n)
-       call subcol3(dissipation_tensor%fields(6)%f%x,this%dvdz%x,this%dwdz%x,n)
+       call subcol3(dissipation_tensor%fields(6)%f%x,mean_vel_grad%fields(4)%f%x,mean_vel_grad%fields(7)%f%x,n)
+       call subcol3(dissipation_tensor%fields(6)%f%x,mean_vel_grad%fields(5)%f%x,mean_vel_grad%fields(8)%f%x,n)
+       call subcol3(dissipation_tensor%fields(6)%f%x,mean_vel_grad%fields(6)%f%x,mean_vel_grad%fields(9)%f%x,n)
 
-       call invers2(this%stats_work%x, this%coef%B,n)
-       call col2(dissipation_tensor%fields(1)%f%x,this%stats_work%x, n)
-       call col2(dissipation_tensor%fields(2)%f%x,this%stats_work%x, n)
-       call col2(dissipation_tensor%fields(3)%f%x,this%stats_work%x, n)
-       call col2(dissipation_tensor%fields(4)%f%x,this%stats_work%x, n)
-       call col2(dissipation_tensor%fields(5)%f%x,this%stats_work%x, n)
-       call col2(dissipation_tensor%fields(6)%f%x,this%stats_work%x, n)
     end if
 
   end subroutine fluid_stats_post_process
