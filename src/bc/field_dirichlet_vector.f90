@@ -45,6 +45,7 @@ module field_dirichlet_vector
   use dofmap, only : dofmap_t
   use field_dirichlet, only: field_dirichlet_t
   use utils, only: neko_error
+  use json_module, only : json_file
   implicit none
   private
 
@@ -56,7 +57,9 @@ module field_dirichlet_vector
      type(field_dirichlet_t) :: field_dirichlet_w
    contains
      !> Initializes this%field_bc.
-     procedure, pass(this) :: init_field => field_dirichlet_vector_init
+     procedure, pass(this) :: init_field => field_dirichlet_vector_init_field
+     !> Constructor
+     procedure, pass(this) :: init => field_dirichlet_vector_init
      !> Destructor
      procedure, pass(this) :: free => field_dirichlet_vector_free
      !> Apply scalar by performing a masked copy.
@@ -73,14 +76,25 @@ module field_dirichlet_vector
 
 contains
 
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine field_dirichlet_vector_init(this, coef, json)
+    class(field_dirichlet_vector_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine field_dirichlet_vector_init
+
   !> Initializes this%field_bc.
-  subroutine field_dirichlet_vector_init(this, bc_name)
+  subroutine field_dirichlet_vector_init_field(this, bc_name)
     class(field_dirichlet_vector_t), intent(inout) :: this
     character(len=*), intent(in) :: bc_name
 
     call neko_error("Fields must be initialized individually!")
 
-  end subroutine field_dirichlet_vector_init
+  end subroutine field_dirichlet_vector_init_field
 
   !> Destructor. Currently unused as is, all field_dirichlet attributes
   !! are freed in `fluid_scheme::free`.

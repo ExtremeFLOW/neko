@@ -41,6 +41,7 @@ module blasius
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   use bc, only : bc_t
+  use json_module, only : json_file
   implicit none
   private
 
@@ -58,11 +59,24 @@ module blasius
      procedure, pass(this) :: apply_scalar_dev => blasius_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => blasius_apply_vector_dev
      procedure, pass(this) :: set_params => blasius_set_params
+     !> Constructor
+     procedure, pass(this) :: init => blasius_init
      !> Destructor.
      procedure, pass(this) :: free => blasius_free
   end type blasius_t
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine blasius_init(this, coef, json)
+    class(blasius_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine blasius_init
 
   subroutine blasius_free(this)
     class(blasius_t), target, intent(inout) :: this

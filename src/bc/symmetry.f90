@@ -42,6 +42,7 @@ module symmetry
   use stack
   use tuple
   use coefs, only : coef_t
+  use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -52,21 +53,24 @@ module symmetry
      type(dirichlet_t) :: bc_y
      type(dirichlet_t) :: bc_z
    contains
-     procedure, pass(this) :: init => symmetry_init
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
      procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
+     !> Constructor
+     procedure, pass(this) :: init => symmetry_init
      !> Destructor.
      procedure, pass(this) :: free => symmetry_free
   end type symmetry_t
 
 contains
-
-  !> Initialize symmetry mask for each axis
-  subroutine symmetry_init(this, coef)
-    class(symmetry_t), intent(inout) :: this
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine symmetry_init(this, coef, json)
+    class(symmetry_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
     integer :: i, m, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
@@ -140,7 +144,6 @@ contains
     call this%bc_y%set_g(0.0_rp)
     call this%bc_z%finalize()
     call this%bc_z%set_g(0.0_rp)
-
   end subroutine symmetry_init
 
   !> No-op scalar apply

@@ -44,6 +44,7 @@ module bc
   use tuple, only : tuple_i4_t
   use utils, only : neko_error, linear_index, split_string
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use json_module, only : json_file
   implicit none
   private
 
@@ -91,8 +92,10 @@ module bc
      procedure(bc_apply_scalar_dev), pass(this), deferred :: apply_scalar_dev
      !> Device version of \ref apply_vector
      procedure(bc_apply_vector_dev), pass(this), deferred :: apply_vector_dev
-     !> Destructor
+     !> Deferred destructor
      procedure(bc_destructor), pass(this), deferred :: free
+     !> Deferred constructor
+     procedure(bc_constructor), pass(this), deferred :: init
   end type bc_t
 
   !> Pointer to boundary condtiion
@@ -153,6 +156,16 @@ module bc
        import :: bc_t
        class(bc_t), intent(inout), target :: this
      end subroutine bc_destructor
+  end interface
+
+  abstract interface
+     !> Constructor
+     subroutine bc_constructor(this, coef, json)
+       import :: bc_t, coef_t, json_file
+       class(bc_t), intent(inout), target :: this
+       type(coef_t), intent(in) :: coef
+       type(json_file), intent(inout) ::json
+     end subroutine bc_constructor
   end interface
 
   abstract interface

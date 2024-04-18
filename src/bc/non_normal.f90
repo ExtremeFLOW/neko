@@ -42,6 +42,7 @@ module non_normal
   use math
   use utils
   use stack
+  use json_module, only : json_file
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -57,10 +58,13 @@ module non_normal
 
 contains
 
-  !> Constructor.
-  subroutine non_normal_init(this, coef)
-    class(non_normal_t), intent(inout) :: this
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine non_normal_init(this, coef, json)
+    class(non_normal_t), target, intent(inout) :: this
     type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
     integer :: i, j, k, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz

@@ -44,6 +44,7 @@ module field_dirichlet
   use device_math, only: device_masked_copy
   use dofmap, only : dofmap_t
   use utils, only: neko_error
+  use json_module, only : json_file
   implicit none
   private
 
@@ -55,8 +56,8 @@ module field_dirichlet
   type, public, extends(bc_t) :: field_dirichlet_t
      type(field_t) :: field_bc
    contains
-     !> Constructor.
-     procedure, pass(this) :: init_field => field_dirichlet_init
+     !> Constructor for the field.
+     procedure, pass(this) :: init_field => field_dirichlet_init_field
      !> Apply scalar by performing a masked copy.
      procedure, pass(this) :: apply_scalar => field_dirichlet_apply_scalar
      !> (No-op) Apply vector.
@@ -65,7 +66,9 @@ module field_dirichlet
      procedure, pass(this) :: apply_vector_dev => field_dirichlet_apply_vector_dev
      !> Apply scalar (device).
      procedure, pass(this) :: apply_scalar_dev => field_dirichlet_apply_scalar_dev
-     !> Destructor
+     !> Constructor.
+     procedure, pass(this) :: init => field_dirichlet_init
+     !> Destructor.
      procedure, pass(this) :: free => field_dirichlet_free
 
   end type field_dirichlet_t
@@ -95,16 +98,26 @@ module field_dirichlet
   public :: field_dirichlet_update
 
 contains
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine field_dirichlet_init(this, coef, json)
+    class(field_dirichlet_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine field_dirichlet_init
 
   !> Initializes this%field_bc.
   !! @param bc_name Name of this%field_bc
-  subroutine field_dirichlet_init(this, bc_name)
+  subroutine field_dirichlet_init_field(this, bc_name)
     class(field_dirichlet_t), intent(inout) :: this
     character(len=*), intent(in) :: bc_name
 
     call this%field_bc%init(this%dof, bc_name)
 
-  end subroutine field_dirichlet_init
+  end subroutine field_dirichlet_init_field
 
   !> Destructor. Currently this%field_bc is being freed in `fluid_scheme::free`
   subroutine field_dirichlet_free(this)

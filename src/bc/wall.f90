@@ -36,6 +36,8 @@ module wall
   use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
+  use coefs, only : coef_t
+  use json_module, only : json_file
   implicit none
   private
 
@@ -46,11 +48,24 @@ module wall
      procedure, pass(this) :: apply_vector => no_slip_wall_apply_vector
      procedure, pass(this) :: apply_scalar_dev => no_slip_wall_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => no_slip_wall_apply_vector_dev
+     !> Constructor
+     procedure, pass(this) :: init => no_slip_wall_init
      !> Destructor.
      procedure, pass(this) :: free => no_slip_wall_free
   end type no_slip_wall_t
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine no_slip_wall_init(this, coef, json)
+    class(no_slip_wall_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine no_slip_wall_init
 
   !> Boundary condition apply for a no-slip wall condition
   !! to a vector @a x

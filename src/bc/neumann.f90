@@ -37,6 +37,7 @@ module neumann
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
+  use json_module, only : json_file
   implicit none
   private
 
@@ -53,11 +54,24 @@ module neumann
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
      procedure, pass(this) :: init_neumann => neumann_init_neumann
      procedure, pass(this) :: flux => neumann_flux
+     !> Constructor
+     procedure, pass(this) :: init => neumann_init
      !> Destructor.
      procedure, pass(this) :: free => neumann_free
   end type neumann_t
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine neumann_init(this, coef, json)
+    class(neumann_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine neumann_init
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x

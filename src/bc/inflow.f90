@@ -36,6 +36,8 @@ module inflow
   use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
+  use coefs, only : coef_t
+  use json_module, only : json_file
   implicit none
   private
 
@@ -48,11 +50,24 @@ module inflow
      procedure, pass(this) :: apply_scalar_dev => inflow_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => inflow_apply_vector_dev
      procedure, pass(this) :: set_inflow => inflow_set_vector
+     !> Constructor
+     procedure, pass(this) :: init => inflow_init
      !> Destructor.
      procedure, pass(this) :: free => inflow_free
   end type inflow_t
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine inflow_init(this, coef, json)
+    class(inflow_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine inflow_init
 
   !> No-op scalar apply
   subroutine inflow_apply_scalar(this, x, n, t, tstep)

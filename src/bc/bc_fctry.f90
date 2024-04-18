@@ -45,23 +45,11 @@ module bc_fctry
 contains
 
   !> Boudnary condition factory. Both constructs and initializes the object.
-  !! @param json JSON object initializing the simulation component.
+  !! @param json JSON object for initializing the bc.
   subroutine bc_factory(bc, json)
     class(bc_t), allocatable, intent(inout) :: bc
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: bc_type
-
-    call json_get(json, "type", bc_type)
-
-    if (trim(bc_type) .eq. "vorticity") then
-    else
-       call neko_log%error("Unknown boundary condition type: " &
-                           // trim(bc_type))
-       stop
-    end if
-
-    ! Initialize
-!    call bc%init(json)
 
   end subroutine bc_factory
 

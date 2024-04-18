@@ -35,6 +35,8 @@ module dirichlet
   use device_dirichlet
   use num_types, only : rp
   use bc, only : bc_t
+  use coefs, only : coef_t
+  use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -49,11 +51,24 @@ module dirichlet
      procedure, pass(this) :: apply_scalar_dev => dirichlet_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => dirichlet_apply_vector_dev
      procedure, pass(this) :: set_g => dirichlet_set_g
+     !> Constructor
+     procedure, pass(this) :: init => dirichlet_init
      !> Destructor.
      procedure, pass(this) :: free => dirichlet_free
   end type dirichlet_t
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine dirichlet_init(this, coef, json)
+    class(dirichlet_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine dirichlet_init
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x

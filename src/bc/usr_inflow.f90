@@ -33,12 +33,13 @@
 !> Defines inflow dirichlet conditions
 module usr_inflow
   use num_types
-  use coefs
+  use coefs, only : coef_t
   use inflow
   use device
   use device_inhom_dirichlet
   use utils
   use bc, only : bc_t
+  use json_module, only : json_file
   implicit none
   private
 
@@ -57,6 +58,8 @@ module usr_inflow
      procedure, pass(this) :: set_eval => usr_inflow_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_inflow_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_inflow_apply_scalar_dev
+     !> Constructor
+     procedure, pass(this) :: init => usr_inflow_init
      !> Destructor.
      procedure, pass(this) :: free => usr_inflow_free
   end type usr_inflow_t
@@ -103,6 +106,17 @@ module usr_inflow
   public :: usr_inflow_eval
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine usr_inflow_init(this, coef, json)
+    class(usr_inflow_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine usr_inflow_init
 
   subroutine usr_inflow_free(this)
     class(usr_inflow_t), target, intent(inout) :: this

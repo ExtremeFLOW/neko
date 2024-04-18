@@ -38,6 +38,7 @@ module usr_scalar
   use device
   use device_inhom_dirichlet
   use utils, only : neko_error, nonlinear_index, neko_warning
+  use json_module, only : json_file
   implicit none
   private
 
@@ -52,6 +53,8 @@ module usr_scalar
      procedure, pass(this) :: set_eval => usr_scalar_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_scalar_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_scalar_apply_scalar_dev
+     !> Constructor
+     procedure, pass(this) :: init => usr_scalar_init
      !> Destructor.
      procedure, pass(this) :: free => usr_scalar_free
   end type usr_scalar_t
@@ -97,6 +100,17 @@ module usr_scalar
   public :: usr_scalar_bc_eval
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine usr_scalar_init(this, coef, json)
+    class(usr_scalar_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine usr_scalar_init
 
   subroutine usr_scalar_free(this)
     class(usr_scalar_t), target, intent(inout) :: this

@@ -227,7 +227,7 @@ contains
                                                          'on+dong', &
                                                          this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
-    call this%bc_vel_res_non_normal%init(this%c_Xh)
+    call this%bc_vel_res_non_normal%init(this%c_Xh, params)
 
     call this%bc_field_dirichlet_p%init_base(this%c_Xh)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
