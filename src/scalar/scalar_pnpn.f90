@@ -189,8 +189,7 @@ contains
        call this%bc_res%mark_facets(this%user_bc%marked_facet)
     end if
 
-    call this%bc_res%mark_zones_from_list(msh%labeled_zones, 'd_s', &
-                                         this%bc_labels)
+    call this%bc_res%mark_zones_from_list('d_s', this%bc_labels)
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
 

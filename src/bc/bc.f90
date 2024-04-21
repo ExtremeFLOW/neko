@@ -297,15 +297,14 @@ contains
     end do
   end subroutine bc_mark_zone
 
-  !> Mark all facets from a list of zones, also marks type of bc in the mesh.
+  !> Mark all facets from the list of zones in th mesh.
+  !! Also marks type of bc in the mesh.
   !! The facet_type in mesh is because of the fdm from Nek5000...
   !! That is a hack that should be removed at some point...
-  !! @param bc_zone Array of boundary zones.
   !! @param bc_key Boundary condition label, e.g. 'w' for wall.
   !! @param bc_label List of boundary condition labels.
-  subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels)
+  subroutine bc_mark_zones_from_list(this, bc_key, bc_labels)
     class(bc_t), intent(inout) :: this
-    class(facet_zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
     character(len=100), allocatable :: split_key(:)
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
@@ -337,7 +336,7 @@ contains
        split_key = split_string(trim(bc_labels(i)),'/')
        do l = 1, size(split_key)
           if (trim(split_key(l)) .eq. trim(bc_key)) then
-             call bc_mark_zone(this, bc_zones(i))
+             call bc_mark_zone(this, this%msh%labeled_zones(i))
              ! Loop across all faces in the mesh
              do j = 1,this%msh%nelv
                 do k = 1, 2 * this%msh%gdim

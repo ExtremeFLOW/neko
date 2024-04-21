@@ -409,8 +409,7 @@ contains
 
     ! Add field dirichlet BCs
     call this%field_dir_bc%init_base(this%c_Xh)
-    call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
-         'd_s', this%bc_labels)
+    call this%field_dir_bc%mark_zones_from_list('d_s', this%bc_labels)
     call this%field_dir_bc%finalize()
     call MPI_Allreduce(this%field_dir_bc%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
