@@ -39,7 +39,7 @@ module cg
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use comm
   implicit none
@@ -177,7 +177,7 @@ contains
 
          call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
-         call bc_list_apply(blst, w, n)
+         call blst%apply(w, n)
 
          pap = glsc3(w, coef%mult, p(1,p_cur), n)
 

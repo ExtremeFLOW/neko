@@ -39,7 +39,7 @@ module gmres_sx
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, cmult2, col2, col3, add2s2, abscmp
   use comm
   implicit none
@@ -223,7 +223,7 @@ contains
           call copy  (this%r,f,n)
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_h%op(this%w, n, GS_OP_ADD)
-          call bc_list_apply(blst, this%w, n)
+          call blst%apply(this%w, n)
           call add2s2(this%r,this%w,-one,n)
           call col2(this%r,this%ml,n)
        endif
@@ -247,7 +247,7 @@ contains
 
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_h%op(this%w, n, GS_OP_ADD)
-          call bc_list_apply(blst, this%w, n)
+          call blst%apply(this%w, n)
           call col2(this%w, this%ml, n)
 
           do i = 1, j

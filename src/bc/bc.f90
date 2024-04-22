@@ -98,19 +98,10 @@ module bc
      procedure(bc_constructor), pass(this), deferred :: init
   end type bc_t
 
-  !> Pointer to boundary condtiion
-  type, private :: bcp_t
-     class(bc_t), pointer :: bcp
-  end type bcp_t
-
-  !> A list of boundary conditions
-  type, public :: bc_list_t
-     type(bcp_t), allocatable :: bc(:)
-     !> Number of items.
-     integer :: n
-     !> Capacity.
-     integer :: size
-  end type bc_list_t
+  !> Pointer to a @ref `bc_t`.
+  type, public :: bc_ptr_t
+     class(bc_t), pointer :: ptr
+  end type bc_ptr_t
 
   abstract interface
      !> Apply the boundary condition to a scalar field
@@ -199,13 +190,6 @@ module bc
        integer, intent(in), optional :: tstep
      end subroutine bc_apply_vector_dev
   end interface
-
-  interface bc_list_apply
-     module procedure bc_list_apply_scalar, bc_list_apply_vector
-  end interface bc_list_apply
-
-  public :: bc_list_init, bc_list_free, bc_list_add, &
-  bc_list_apply_scalar, bc_list_apply_vector, bc_list_apply
 
 contains
 
@@ -451,187 +435,5 @@ contains
     end if
 
   end subroutine bc_finalize
-
-  !> Constructor for a list of boundary conditions
-  !! @param size The size of the list to allocate.
-  subroutine bc_list_init(bclst, size)
-    type(bc_list_t), intent(inout), target :: bclst
-    integer, optional :: size
-    integer :: n, i
-
-    call bc_list_free(bclst)
-
-    if (present(size)) then
-       n = size
-    else
-       n = 1
-    end if
-
-    allocate(bclst%bc(n))
-
-    do i = 1, n
-       bclst%bc(i)%bcp => null()
-    end do
-
-    bclst%n = 0
-    bclst%size = n
-
-  end subroutine bc_list_init
-
-  !> Destructor for a list of boundary conditions
-  !! @note This will only nullify all pointers, not deallocate any
-  !! conditions pointed to by the list
-  subroutine bc_list_free(bclst)
-    type(bc_list_t), intent(inout) :: bclst
-
-    if (allocated(bclst%bc)) then
-       deallocate(bclst%bc)
-    end if
-
-    bclst%n = 0
-    bclst%size = 0
-
-  end subroutine bc_list_free
-
-  !> Add a condition to a list of boundary conditions
-  !! @param bc The boundary condition to add.
-  subroutine bc_list_add(bclst, bc)
-    type(bc_list_t), intent(inout) :: bclst
-    class(bc_t), intent(inout), target :: bc
-    type(bcp_t), allocatable :: tmp(:)
-
-    !> Do not add if bc is empty
-    if(bc%marked_facet%size() .eq. 0) return
-
-    if (bclst%n .ge. bclst%size) then
-       bclst%size = bclst%size * 2
-       allocate(tmp(bclst%size))
-       tmp(1:bclst%n) = bclst%bc
-       call move_alloc(tmp, bclst%bc)
-    end if
-
-    bclst%n = bclst%n + 1
-    bclst%bc(bclst%n)%bcp => bc
-
-  end subroutine bc_list_add
-
-  !> Apply a list of boundary conditions to a scalar field
-  !! @param x The field to apply the boundary conditions to.
-  !! @param n The size of x.
-  !! @param t Current time.
-  !! @param tstep Current time-step.
-  subroutine bc_list_apply_scalar(bclst, x, n, t, tstep)
-    type(bc_list_t), intent(inout) :: bclst
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
-    type(c_ptr) :: x_d
-    integer :: i
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       x_d = device_get_ptr(x)
-       if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t, tstep=tstep)
-          end do
-       else if (present(t)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t)
-          end do
-       else if (present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, tstep=tstep)
-          end do
-       else
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d)
-          end do
-       end if
-    else
-       if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n, t, tstep)
-          end do
-       else if (present(t)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n, t=t)
-          end do
-       else if (present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n, tstep=tstep)
-          end do
-       else
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n)
-          end do
-       end if
-    end if
-
-  end subroutine bc_list_apply_scalar
-
-  !> Apply a list of boundary conditions to a vector field.
-  !! @param x The x comp of the field for which to apply the bcs.
-  !! @param y The y comp of the field for which to apply the bcs.
-  !! @param z The z comp of the field for which to apply the bcs.
-  !! @param n The size of x, y, z.
-  !! @param t Current time.
-  !! @param tstep Current time-step.
-  subroutine bc_list_apply_vector(bclst, x, y, z, n, t, tstep)
-    type(bc_list_t), intent(inout) :: bclst
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
-    integer :: i
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       x_d = device_get_ptr(x)
-       y_d = device_get_ptr(y)
-       z_d = device_get_ptr(z)
-       if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t, tstep)
-          end do
-       else if (present(t)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t=t)
-          end do
-       else if (present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
-          end do
-       else
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d)
-          end do
-       end if
-    else
-       if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t, tstep)
-          end do
-       else if (present(t)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t=t)
-          end do
-       else if (present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, tstep=tstep)
-          end do
-       else
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n)
-          end do
-       end if
-    end if
-
-  end subroutine bc_list_apply_vector
-
 
 end module bc

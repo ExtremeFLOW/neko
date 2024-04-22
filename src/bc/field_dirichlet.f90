@@ -35,7 +35,8 @@ module field_dirichlet
   use num_types, only: rp
   use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
-  use bc, only: bc_list_t, bc_t
+  use bc, only: bc_t
+  use bc_list, only : bc_list_t
   use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t

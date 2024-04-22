@@ -129,6 +129,7 @@ neko_fortran_SOURCES = \
 	common/profiler.F90\
 	common/craypat.F90\
 	bc/bc.f90\
+	bc/bc_list.f90\
 	bc/bc_fctry.f90\
 	bc/dirichlet.f90\
 	bc/neumann.f90\

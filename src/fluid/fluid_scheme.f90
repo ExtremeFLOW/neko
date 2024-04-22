@@ -76,6 +76,7 @@ module fluid_scheme
   use material_properties, only : material_properties_t
   use field_series
   use time_step_controller
+  use bc_list, only : bc_list_t
   implicit none
 
   !> Base type of all fluid formulations
@@ -335,14 +336,14 @@ contains
                      this%bc_labels)
     end if
 
-    call bc_list_init(this%bclst_vel)
+    call this%bclst_vel%init()
 
     call this%bc_sym%init_base(this%c_Xh)
     call this%bc_sym%mark_zone(msh%sympln)
     call this%bc_sym%mark_zones_from_list('sym', this%bc_labels)
     call this%bc_sym%finalize()
     call this%bc_sym%init(this%c_Xh, params)
-    call bc_list_add(this%bclst_vel, this%bc_sym)
+    call this%bclst_vel%append(this%bc_sym)
 
     !
     ! Inflow
@@ -364,7 +365,7 @@ contains
        call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
                         'v', this%bc_labels)
        call this%bc_inflow%finalize()
-       call bc_list_add(this%bclst_vel, this%bc_inflow)
+       call this%bclst_vel%append(this%bc_inflow)
 
        if (trim(string_val1) .eq. "uniform") then
           call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
@@ -388,11 +389,11 @@ contains
        end if
     end if
 
-    call this%bc_wall%init_base(this%c_Xh)
+    call this%bc_wall%init(this%c_Xh, params)
     call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%mark_zones_from_list('w', this%bc_labels)
     call this%bc_wall%finalize()
-    call bc_list_add(this%bclst_vel, this%bc_wall)
+    call this%bclst_vel%append(this%bc_wall)
 
     ! Setup field dirichlet bc for u-velocity
     call this%bc_field_vel%field_dirichlet_u%init_base(this%c_Xh)
@@ -432,7 +433,7 @@ contains
     call this%bc_field_vel%finalize()
 
     ! Add the field bc to velocity bcs
-    call bc_list_add(this%bclst_vel, this%bc_field_vel)
+    call this%bclst_vel%append(this%bc_field_vel)
 
     !
     ! Associate our field dirichlet update to the user one.
@@ -453,10 +454,10 @@ contains
     this%field_dirichlet_fields%fields(4)%f => &
          this%bc_field_prs%field_bc
 
-    call bc_list_init(this%field_dirichlet_bcs, size=4)
-    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_u)
-    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_v)
-    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_w)
+    call this%field_dirichlet_bcs%init(size=4)
+    call this%field_dirichlet_bcs%append(this%bc_field_vel%field_dirichlet_u)
+    call this%field_dirichlet_bcs%append(this%bc_field_vel%field_dirichlet_v)
+    call this%field_dirichlet_bcs%append(this%bc_field_vel%field_dirichlet_w)
 
     !
     ! Check if we need to output boundaries
@@ -619,7 +620,7 @@ contains
     !
     ! Setup pressure boundary conditions
     !
-    call bc_list_init(this%bclst_prs)
+    call this%bclst_prs%init()
     call this%bc_prs%init_base(this%c_Xh)
     call this%bc_prs%mark_zones_from_list('o', this%bc_labels)
     call this%bc_prs%mark_zones_from_list('on', this%bc_labels)
@@ -632,8 +633,8 @@ contains
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     if (integer_val .gt. 0)  call this%bc_field_prs%init_field('d_pres')
-    call bc_list_add(this%bclst_prs, this%bc_field_prs)
-    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_prs)
+    call this%bclst_prs%append(this%bc_field_prs)
+    call this%field_dirichlet_bcs%append(this%bc_field_prs)
 
     if (msh%outlet%size .gt. 0) then
        call this%bc_prs%mark_zone(msh%outlet)
@@ -644,7 +645,7 @@ contains
 
     call this%bc_prs%finalize()
     call this%bc_prs%set_g(0.0_rp)
-    call bc_list_add(this%bclst_prs, this%bc_prs)
+    call this%bclst_prs%append(this%bc_prs)
     call this%bc_dong%init_base(this%c_Xh)
     call this%bc_dong%mark_zones_from_list('o+dong', this%bc_labels)
     call this%bc_dong%mark_zones_from_list('on+dong', this%bc_labels)
@@ -653,7 +654,7 @@ contains
 
     call this%bc_dong%init(this%c_Xh, params)
 
-    call bc_list_add(this%bclst_prs, this%bc_dong)
+    call this%bclst_prs%append(this%bc_dong)
 
 
     if (kspv_init) then
@@ -717,7 +718,7 @@ contains
     call this%bc_field_vel%free()
 
     call this%field_dirichlet_fields%free()
-    call bc_list_free(this%field_dirichlet_bcs)
+    call this%field_dirichlet_bcs%free()
     if (associated(this%dirichlet_update_)) then
        this%dirichlet_update_ => null()
     end if
@@ -754,7 +755,7 @@ contains
 
     call this%c_Xh%free()
 
-    call bc_list_free(this%bclst_vel)
+    call this%bclst_vel%free()
 
     call this%scratch%free()
 
@@ -862,7 +863,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call bc_list_apply_vector(this%bclst_vel,&
+    call this%bclst_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
 
   end subroutine fluid_scheme_bc_apply_vel
@@ -874,8 +875,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
-                              this%p%dof%size(), t, tstep)
+    call this%bclst_prs%apply_scalar(this%p%x, this%p%dof%size(), t, tstep)
 
   end subroutine fluid_scheme_bc_apply_prs
 

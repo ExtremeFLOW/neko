@@ -39,7 +39,7 @@ module cacg
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply, bc_list_apply_scalar
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, x_update, abscmp
   use utils, only : neko_warning
   use comm
@@ -175,7 +175,7 @@ contains
             if (mod(i,2) .eq. 0) then
                call Ax%compute(PR(1,i), PR(1,i-1), coef, x%msh, x%Xh)
                call gs_h%gs_op_vector(PR(1,i), n, GS_OP_ADD)
-               call bc_list_apply_scalar(blst, PR(1,i), n)
+               call blst%apply_scalar(PR(1,i), n)
             else
                call this%M%solve(PR(1,i), PR(1,i-1), n)
             end if
@@ -187,7 +187,7 @@ contains
             else
                call Ax%compute(PR(1,i+1), PR(1,i), coef, x%msh, x%Xh)
                call gs_h%gs_op_vector(PR(1,i+1), n, GS_OP_ADD)
-               call bc_list_apply_scalar(blst, PR(1,1+i), n)
+               call blst%apply_scalar(PR(1,1+i), n)
             end if
          end do
 

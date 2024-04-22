@@ -39,7 +39,7 @@ module fusedcg_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3
   use device
@@ -359,7 +359,7 @@ contains
          call Ax%compute(w, p(1, p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
-         call bc_list_apply(blst, w, n)
+         call blst%apply(w, n)
 
          pap = device_glsc3(w_d, coef%mult_d, this%p_d(p_cur), n)
 

@@ -39,7 +39,7 @@ module gmres_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use device_identity, only : device_ident_t
   use math, only : rone, rzero, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, &
@@ -359,7 +359,7 @@ contains
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
             call device_event_sync(this%gs_event)
-            call bc_list_apply(blst, w, n)
+            call blst%apply(w, n)
             call device_sub2(r_d, w_d, n)
          end if
 
@@ -381,7 +381,7 @@ contains
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
             call device_event_sync(this%gs_event)
-            call bc_list_apply(blst, w, n)
+            call blst%apply(w, n)
 
             if (NEKO_BCKND_OPENCL .eq. 1) then
                do i = 1, j

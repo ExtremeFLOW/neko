@@ -76,6 +76,7 @@ module projection
   use logger
   use, intrinsic :: iso_c_binding
   use time_step_controller
+  use bc_list, only : bc_list_t
 
   implicit none
   private
@@ -119,7 +120,7 @@ contains
     real(c_rp) :: dummy
 
     call this%free()
-    
+
     if (present(L)) then
        this%L = L
     else
@@ -228,7 +229,7 @@ contains
     if( tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if (dt_controller%if_variable_dt) then
           if (dt_controller%dt_last_change .eq. 0) then ! the time step at which dt is changed
-             call this%clear(n) 
+             call this%clear(n)
           else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
              ! activate projection some steps after dt is changed
              ! note that dt_last_change start from 0
@@ -311,13 +312,13 @@ contains
        else
           this%m = min(this%m+1,this%L)
        end if
-       
+
        call copy        (this%xx(1,this%m),x,n)   ! Update (X,B)
     end if
 
     call Ax%compute(this%bb(1,this%m), x, coef, coef%msh, coef%Xh)
     call gs_h%gs_op_vector(this%bb(1,this%m), n, GS_OP_ADD)
-    call bc_list_apply_scalar(bclst, this%bb(1,this%m), n)
+    call bclst%apply_scalar(this%bb(1, this%m), n)
 
     if (NEKO_BCKND_DEVICE .eq. 1)  then
        call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
@@ -629,7 +630,7 @@ contains
     class(projection_t) :: this
     character(len=*) :: string
     character(len=LOG_SIZE) :: log_buf
-    
+
     if (this%proj_m .gt. 0) then
        write(log_buf, '(A,A)') 'Projection ', string
        call neko_log%message(log_buf)
@@ -648,7 +649,7 @@ contains
 
     this%m = 0
     this%proj_m = 0
-    
+
     do i = 1, this%L
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_rzero(this%xx_d(i), n)

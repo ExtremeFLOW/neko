@@ -37,7 +37,7 @@ module user_intf
   use fluid_user_source_term
   use scalar_user_source_term
   use coefs
-  use bc, only: bc_list_t
+  use bc_list, only: bc_list_t
   use mesh
   use usr_inflow
   use usr_scalar
@@ -202,7 +202,7 @@ contains
     if (.not. associated(u%user_dirichlet_update)) then
        u%user_dirichlet_update => dirichlet_do_nothing
     end if
-    
+
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
     end if
@@ -346,7 +346,7 @@ contains
     integer, intent(in) :: tstep
     character(len=*), intent(in) :: which_solver
   end subroutine dirichlet_do_nothing
-  
+
   subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
                                             params)
     real(kind=rp), intent(in) :: t

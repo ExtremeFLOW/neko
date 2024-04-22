@@ -39,7 +39,7 @@ module pipecg
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use comm
   implicit none
@@ -186,7 +186,7 @@ contains
       call this%M%solve(u(1,u_prev), r, n)
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
 
       rtr = glsc3(r, coef%mult, r, n)
       rnorm = sqrt(rtr)*norm_fac
@@ -215,7 +215,7 @@ contains
          call this%M%solve(mi, w, n)
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
          call gs_h%op(ni, n, GS_OP_ADD)
-         call bc_list_apply(blst, ni, n)
+         call blst%apply(ni, n)
 
          call MPI_Wait(request, status, ierr)
          gamma2 = gamma1

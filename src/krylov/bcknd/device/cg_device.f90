@@ -39,7 +39,7 @@ module cg_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : abscmp
   use device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
@@ -200,7 +200,7 @@ contains
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_h%op(this%w, n, GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
-       call bc_list_apply(blst, this%w, n)
+       call blst%apply(this%w, n)
 
        pap = device_glsc3(this%w_d, coef%mult_d, this%p_d, n)
 

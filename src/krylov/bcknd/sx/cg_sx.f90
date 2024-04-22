@@ -39,7 +39,7 @@ module cg_sx
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, add2s1, abscmp
   implicit none
   private
@@ -166,7 +166,7 @@ contains
 
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_h%op(this%w, n, GS_OP_ADD)
-       call bc_list_apply(blst, this%w, n)
+       call blst%apply(this%w, n)
 
        pap = glsc3(this%w, coef%mult, this%p, n)
 
