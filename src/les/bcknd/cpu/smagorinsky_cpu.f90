@@ -109,9 +109,8 @@ contains
           s13 = 0.5_rp * (a13%x(i,1,1,e) + a13%x(i,1,1,e))
           s23 = 0.5_rp * (a23%x(i,1,1,e) + a23%x(i,1,1,e))
 
-          s_abs = s11*s11 + s22*s22 + s33*s33 + &
-                  s12*s12 + s13*s13 + s23*s23
-          s_abs = sqrt(2*s_abs)
+          s_abs = sqrt(2 * (s11*s11 + s22*s22 + s33*s33) + &
+                  4 * (s12*s12 + s13*s13 + s23*s23))
 
           nut%x(i,1,1,e) = c_s**2 * delta%x(i,1,1,e)**2 * s_abs
        end do
