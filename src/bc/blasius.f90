@@ -42,6 +42,7 @@ module blasius
   use, intrinsic :: iso_c_binding
   use bc, only : bc_t
   use json_module, only : json_file
+  use json_utils, only : json_get
   implicit none
   private
 
@@ -73,9 +74,36 @@ contains
   subroutine blasius_init(this, coef, json)
     class(blasius_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
-    type(json_file), intent(inout) ::json
+    type(json_file), intent(inout) :: json
+    real(kind=rp) :: delta
+    real(kind=rp), allocatable :: uinf(:)
+    character(len=:), allocatable :: approximation
 
     call this%init_base(coef)
+
+    call json_get(json, 'case.fluid.blasius.delta', delta)
+    call json_get(json, 'case.fluid.blasius.approximation', approximation)
+    call json_get(json, 'case.fluid.blasius.freestream_velocity', uinf)
+
+    this%delta = delta
+    this%uinf = uinf
+
+    select case(trim(approximation))
+    case('linear')
+       this%bla => blasius_linear
+    case('quadratic')
+       this%bla => blasius_quadratic
+    case('cubic')
+       this%bla => blasius_cubic
+    case('quartic')
+       this%bla => blasius_quartic
+    case('sin')
+       this%bla => blasius_sin
+    case default
+       call neko_error('Invalid Blasius approximation')
+    end select
+
+
   end subroutine blasius_init
 
   subroutine blasius_free(this)

@@ -199,75 +199,66 @@ contains
     end associate
 
     ! Initialize velocity surface terms in pressure rhs
-    call this%bc_prs_surface%init_base(this%c_Xh)
+    call this%bc_prs_surface%init(this%c_Xh, params)
     call this%bc_prs_surface%mark_zone(msh%inlet)
-    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'v', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list('v', this%bc_labels)
     !This impacts the rhs of the pressure, need to check what is correct to add here
-    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel_u', this%bc_labels)
-    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel_v', this%bc_labels)
-    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel_w', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list('d_vel_u', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list('d_vel_v', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list('d_vel_w', this%bc_labels)
     call this%bc_prs_surface%finalize()
     ! Initialize symmetry surface terms in pressure rhs
-    call this%bc_sym_surface%init_base(this%c_Xh)
+    call this%bc_sym_surface%init(this%c_Xh, params)
     call this%bc_sym_surface%mark_zone(msh%sympln)
-    call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'sym', this%bc_labels)
+    call this%bc_sym_surface%mark_zones_from_list('sym', this%bc_labels)
     ! Same here, should du, dv, dw be marked here?
     call this%bc_sym_surface%finalize()
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_res_non_normal%init_base(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
-    call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                                                         'on', this%bc_labels)
-    call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                                                         'on+dong', &
+    call this%bc_vel_res_non_normal%mark_zones_from_list('on', this%bc_labels)
+    call this%bc_vel_res_non_normal%mark_zones_from_list('on+dong', &
                                                          this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
     call this%bc_vel_res_non_normal%init(this%c_Xh, params)
 
-    call this%bc_field_dirichlet_p%init_base(this%c_Xh)
-    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
+    call this%bc_field_dirichlet_p%init(this%c_Xh, params)
+    call this%bc_field_dirichlet_p%mark_zones_from_list('on+dong', &
                                          this%bc_labels)
-    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
-                                         'o+dong', this%bc_labels)
-    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'd_pres', &
+    call this%bc_field_dirichlet_p%mark_zones_from_list('o+dong', &
+                                         this%bc_labels)
+    call this%bc_field_dirichlet_p%mark_zones_from_list('d_pres', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_p%finalize()
     call this%bc_field_dirichlet_p%set_g(0.0_rp)
     call this%bclst_dp%init()
     call this%bclst_dp%append(this%bc_field_dirichlet_p)
     !Add 0 prs bcs
-    call bc_list_add(this%bclst_dp, this%bc_prs)
+    call this%bclst_dp%append(this%bc_prs)
 
-    call this%bc_field_dirichlet_u%init_base(this%c_Xh)
-    call this%bc_field_dirichlet_u%mark_zones_from_list(msh%labeled_zones, 'd_vel_u', &
+    call this%bc_field_dirichlet_u%init(this%c_Xh, params)
+    call this%bc_field_dirichlet_u%mark_zones_from_list('d_vel_u', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_u%finalize()
     call this%bc_field_dirichlet_u%set_g(0.0_rp)
 
-    call this%bc_field_dirichlet_v%init_base(this%c_Xh)
-    call this%bc_field_dirichlet_v%mark_zones_from_list(msh%labeled_zones, 'd_vel_v', &
+    call this%bc_field_dirichlet_v%init(this%c_Xh, params)
+    call this%bc_field_dirichlet_v%mark_zones_from_list('d_vel_v', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_v%finalize()
     call this%bc_field_dirichlet_v%set_g(0.0_rp)
 
-    call this%bc_field_dirichlet_w%init_base(this%c_Xh)
-    call this%bc_field_dirichlet_w%mark_zones_from_list(msh%labeled_zones, 'd_vel_w', &
+    call this%bc_field_dirichlet_w%init(this%c_Xh, params)
+    call this%bc_field_dirichlet_w%mark_zones_from_list('d_vel_w', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_w%finalize()
     call this%bc_field_dirichlet_w%set_g(0.0_rp)
 
-    call this%bc_vel_res%init_base(this%c_Xh)
+    call this%bc_vel_res%init(this%c_Xh, params)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
-    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
-                                              'v', this%bc_labels)
-    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
-                                              'w', this%bc_labels)
+    call this%bc_vel_res%mark_zones_from_list('v', this%bc_labels)
+    call this%bc_vel_res%mark_zones_from_list('w', this%bc_labels)
     call this%bc_vel_res%finalize()
     call this%bclst_vel_res%init()
     call this%bclst_vel_res%append(this%bc_vel_res)

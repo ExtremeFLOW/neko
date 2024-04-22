@@ -338,6 +338,7 @@ contains
 
     call this%bclst_vel%init()
 
+    ! Broken atm?
     call this%bc_sym%init_base(this%c_Xh)
     call this%bc_sym%mark_zone(msh%sympln)
     call this%bc_sym%mark_zones_from_list('sym', this%bc_labels)
@@ -360,33 +361,11 @@ contains
           call neko_error('Invalid inflow condition '//string_val1)
        end if
 
-       call this%bc_inflow%init_base(this%c_Xh)
+       call this%bc_inflow%init(this%c_Xh, params)
        call this%bc_inflow%mark_zone(msh%inlet)
-       call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
-                        'v', this%bc_labels)
+       call this%bc_inflow%mark_zones_from_list('v', this%bc_labels)
        call this%bc_inflow%finalize()
        call this%bclst_vel%append(this%bc_inflow)
-
-       if (trim(string_val1) .eq. "uniform") then
-          call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
-          select type(bc_if => this%bc_inflow)
-          type is(inflow_t)
-             call bc_if%set_inflow(real_vec)
-          end select
-       else if (trim(string_val1) .eq. "blasius") then
-          select type(bc_if => this%bc_inflow)
-          type is(blasius_t)
-             call json_get(params, 'case.fluid.blasius.delta', real_val)
-             call json_get(params, 'case.fluid.blasius.approximation',&
-                           string_val2)
-             call json_get(params, 'case.fluid.blasius.freestream_velocity',&
-                           real_vec)
-
-             call bc_if%set_params(real_vec, real_val, string_val2)
-
-          end select
-       else if (trim(string_val1) .eq. "user") then
-       end if
     end if
 
     call this%bc_wall%init(this%c_Xh, params)

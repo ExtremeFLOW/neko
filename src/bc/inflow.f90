@@ -38,6 +38,7 @@ module inflow
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
   use coefs, only : coef_t
   use json_module, only : json_file
+  use json_utils, only : json_get
   implicit none
   private
 
@@ -49,7 +50,6 @@ module inflow
      procedure, pass(this) :: apply_vector => inflow_apply_vector
      procedure, pass(this) :: apply_scalar_dev => inflow_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => inflow_apply_vector_dev
-     procedure, pass(this) :: set_inflow => inflow_set_vector
      !> Constructor
      procedure, pass(this) :: init => inflow_init
      !> Destructor.
@@ -65,8 +65,11 @@ contains
     class(inflow_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
+    real(kind=rp), allocatable :: x(:)
 
     call this%init_base(coef)
+    call json_get(json, 'case.fluid.inflow_condition.value', x)
+    this%x = x
   end subroutine inflow_init
 
   !> No-op scalar apply
@@ -119,13 +122,6 @@ contains
                                     c_loc(this%x), this%msk(0))
 
   end subroutine inflow_apply_vector_dev
-
-  !> Set inflow vector
-  subroutine inflow_set_vector(this, x)
-    class(inflow_t), intent(inout) :: this
-    real(kind=rp), dimension(3), intent(inout) :: x
-    this%x = x
-  end subroutine inflow_set_vector
 
   !> Destructor
   subroutine inflow_free(this)

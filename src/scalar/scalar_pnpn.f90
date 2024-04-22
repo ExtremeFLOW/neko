@@ -179,7 +179,7 @@ contains
 
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
-    call this%bc_res%init_base(this%c_Xh)
+    call this%bc_res%init(this%c_Xh, params)
     do i = 1, this%n_dir_bcs
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
     end do
@@ -191,7 +191,6 @@ contains
 
     call this%bc_res%mark_zones_from_list('d_s', this%bc_labels)
     call this%bc_res%finalize()
-    call this%bc_res%set_g(0.0_rp)
 
     call this%bclst_ds%init()
     call this%bclst_ds%append(this%bc_res)
