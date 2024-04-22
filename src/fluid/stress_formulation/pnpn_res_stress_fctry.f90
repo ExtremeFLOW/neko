@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2023, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,8 @@ module pnpn_res_stress_fctry
   use utils
   use pnpn_residual_stress, only : pnpn_prs_res_stress_t, pnpn_vel_res_stress_t
   use pnpn_res_stress_cpu, only : pnpn_prs_res_stress_cpu_t, pnpn_vel_res_stress_cpu_t
+  use pnpn_res_stress_device, only : pnpn_prs_res_stress_device_t, &
+                                     pnpn_vel_res_stress_device_t
 
   implicit none
   private
@@ -55,11 +57,11 @@ contains
 
 !    if (NEKO_BCKND_SX .eq. 1) then
 !       allocate(pnpn_prs_res_sx_t::prs_res)
-!    else if (NEKO_BCKND_DEVICE .eq. 1) then
-!       allocate(pnpn_prs_res_device_t::prs_res)
-!    else
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       allocate(pnpn_prs_res_stress_device_t::prs_res)
+    else       
        allocate(pnpn_prs_res_stress_cpu_t::prs_res)
-!    end if
+    end if
 
   end subroutine pnpn_prs_res_stress_factory
 
@@ -72,11 +74,11 @@ contains
 
 !    if (NEKO_BCKND_SX .eq. 1) then
 !       allocate(pnpn_vel_res_sx_t::vel_res)
-!    else if (NEKO_BCKND_DEVICE .eq. 1) then
-!       allocate(pnpn_vel_res_device_t::vel_res)
-!    else
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       allocate(pnpn_vel_res_stress_device_t::vel_res)
+    else
        allocate(pnpn_vel_res_stress_cpu_t::vel_res)
-!    end if
+    end if
 
 
   end subroutine pnpn_vel_res_stress_factory
