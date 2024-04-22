@@ -84,6 +84,7 @@ module hsmg
   use mesh, only : mesh_t
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
+  use zero_dirichlet, only : zero_dirichlet_t
   use bc_list, only : bc_list_t
   !$ use omp_lib
   implicit none
@@ -108,7 +109,7 @@ module hsmg
      type(space_t) :: Xh_crs, Xh_mg !< spaces for lower levels
      type(dofmap_t) :: dm_crs, dm_mg
      type(coef_t) :: c_crs, c_mg
-     type(dirichlet_t) :: bc_crs, bc_mg, bc_reg
+     type(zero_dirichlet_t) :: bc_crs, bc_mg, bc_reg
      type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
@@ -219,8 +220,6 @@ contains
        end do
     end if
     call this%bc_reg%finalize()
-    call this%bc_reg%set_g(real(0d0,rp))
-    call this%bc_crs%set_g(real(0d0,rp))
     call this%bc_crs%finalize()
     call this%bc_mg%finalize()
 

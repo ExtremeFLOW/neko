@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines wall boundary conditions
-module wall
+!> Defines a zero-valued Dirichlet boundary condition.
+module zero_dirichlet
   use device_wall
   use num_types, only : rp
   use bc, only : bc_t
@@ -41,18 +41,20 @@ module wall
   implicit none
   private
 
-  !> No-slip Wall boundary condition
-  type, public, extends(bc_t) :: no_slip_wall_t
+  !> Zero-valued Dirichlet boundary condition.
+  !! Used for no-slip walls, but also for various auxillary conditions,
+  !! such as for residuals.
+  type, public, extends(bc_t) :: zero_dirichlet_t
    contains
      procedure, pass(this) :: apply_scalar => no_slip_wall_apply_scalar
      procedure, pass(this) :: apply_vector => no_slip_wall_apply_vector
      procedure, pass(this) :: apply_scalar_dev => no_slip_wall_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => no_slip_wall_apply_vector_dev
-     !> Constructor
+     !> Constructor.
      procedure, pass(this) :: init => no_slip_wall_init
      !> Destructor.
      procedure, pass(this) :: free => no_slip_wall_free
-  end type no_slip_wall_t
+  end type zero_dirichlet_t
 
 contains
 
@@ -60,7 +62,7 @@ contains
   !! @param[in] coef The SEM coefficients.
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine no_slip_wall_init(this, coef, json)
-    class(no_slip_wall_t), intent(inout), target :: this
+    class(zero_dirichlet_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
 
@@ -70,7 +72,7 @@ contains
   !> Boundary condition apply for a no-slip wall condition
   !! to a vector @a x
   subroutine no_slip_wall_apply_scalar(this, x, n, t, tstep)
-    class(no_slip_wall_t), intent(inout) :: this
+    class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
@@ -88,7 +90,7 @@ contains
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z
   subroutine no_slip_wall_apply_vector(this, x, y, z, n, t, tstep)
-    class(no_slip_wall_t), intent(inout) :: this
+    class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
@@ -110,7 +112,7 @@ contains
   !> Boundary condition apply for a no-slip wall condition
   !! to a vector @a x (device version)
   subroutine no_slip_wall_apply_scalar_dev(this, x_d, t, tstep)
-    class(no_slip_wall_t), intent(inout), target :: this
+    class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
@@ -122,7 +124,7 @@ contains
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine no_slip_wall_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
-    class(no_slip_wall_t), intent(inout), target :: this
+    class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
@@ -136,10 +138,10 @@ contains
 
   !> Destructor
   subroutine no_slip_wall_free(this)
-    class(no_slip_wall_t), target, intent(inout) :: this
+    class(zero_dirichlet_t), target, intent(inout) :: this
 
     call this%free_base()
 
   end subroutine no_slip_wall_free
 
-end module wall
+end module zero_dirichlet

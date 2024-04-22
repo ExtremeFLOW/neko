@@ -134,7 +134,7 @@ neko_fortran_SOURCES = \
 	bc/dirichlet.f90\
 	bc/neumann.f90\
 	bc/dong_outflow.f90\
-	bc/wall.f90\
+	bc/zero_dirichlet.f90\
 	bc/inflow.f90\
 	bc/field_dirichlet.f90\
 	bc/field_dirichlet_vector.f90\

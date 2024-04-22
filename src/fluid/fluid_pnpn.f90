@@ -70,7 +70,7 @@ module fluid_pnpn
   use math, only : col2, add2
   use mathops, only : opadd2cm, opcolv
   use bc_list, only: bc_list_t
-                bc_list_apply_scalar, bc_list_apply_vector
+  use zero_dirichlet, only : zero_dirichlet_t
   implicit none
   private
 
@@ -89,7 +89,7 @@ module fluid_pnpn
 
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
-     type(dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
+     type(zero_dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
      type(dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
      type(dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
      type(dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.

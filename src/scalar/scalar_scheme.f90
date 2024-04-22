@@ -114,7 +114,7 @@ module scalar_scheme
           => null()
      !> List of BC objects to pass to user_dirichlet_update
      type(bc_list_t) :: field_dirichlet_bcs
-     !< List of fields to pass to user_dirichlet_update
+     !> List of fields to pass to user_dirichlet_update
      type(field_list_t) :: field_dirichlet_fields
      !> Neumann conditions.
      type(neumann_t) :: neumann_bcs(NEKO_MSH_MAX_ZLBLS)

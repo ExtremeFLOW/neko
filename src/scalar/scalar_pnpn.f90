@@ -67,6 +67,7 @@ module scalar_pnpn
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
+  use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller
   implicit none
   private
@@ -89,7 +90,7 @@ module scalar_pnpn
      !> Dirichlet conditions for the residual
      !! Collects all the Dirichlet condition facets into one bc and applies 0,
      !! Since the values never change there during the solve.
-     type(dirichlet_t) :: bc_res
+     type(zero_dirichlet_t) :: bc_res
 
      !> A bc list for the bc_res. Contains only that, essentially just to wrap
      !! the if statement determining whether to apply on the device or CPU.

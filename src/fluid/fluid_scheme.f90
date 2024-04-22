@@ -47,7 +47,7 @@ module fluid_scheme
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t
   use coefs
-  use wall, only : no_slip_wall_t
+  use zero_dirichlet, only : zero_dirichlet_t
   use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use blasius, only : blasius_t
@@ -106,7 +106,7 @@ module fluid_scheme
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
      integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
-     type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
+     type(zero_dirichlet_t) :: bc_wall           !< No-slip wall for velocity
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
 
      ! Attributes for field dirichlet BCs
