@@ -55,9 +55,8 @@ module non_normal
 contains
 
   !> Initialize symmetry mask for each axis
-  subroutine non_normal_init_msk(this, c)
+  subroutine non_normal_init_msk(this)
     class(non_normal_t), intent(inout) :: this
-    type(coef_t), intent(in) :: c
     integer :: i, j, k, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
@@ -67,11 +66,12 @@ contains
 
     call non_normal_free(this)
 
-    call this%bc_x%init(c%dof)
-    call this%bc_y%init(c%dof)
-    call this%bc_z%init(c%dof)
+    call this%bc_x%init(this%coef)
+    call this%bc_y%init(this%coef)
+    call this%bc_z%init(this%coef)
 
-    associate(nx => c%nx, ny => c%ny, nz => c%nz)
+    associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+              nz => this%coef%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
          bc_facet = bfp(i)

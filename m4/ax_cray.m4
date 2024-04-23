@@ -146,7 +146,7 @@ AC_DEFUN([AX_CRAY_ZOLTAN],[
 
 AC_DEFUN([AX_CRAY_LIBSCI],[
 	AC_MSG_CHECKING([Cray Scientific Libraries])
-	if test "${CRAY_LIBSCI_VERSION}"; then
+	if (test "${CRAY_LIBSCI_VERSION}" || test "${CRAY_PE_LIBSCI_VERSION}"); then
 	   AC_MSG_RESULT([yes])
 	   have_cray_libsci="yes"
 	else

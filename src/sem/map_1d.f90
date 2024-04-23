@@ -52,7 +52,7 @@ contains
     integer, intent(in) :: dir
     real(kind=rp), intent(in) :: tol
     integer :: nelv, lx, n, i, e, lvl
-    real(kind=rp), pointer :: line(:,:,:,:)
+    real(kind=rp), contiguous, pointer :: line(:,:,:,:)
     real(kind=rp), allocatable :: min_vals(:,:,:,:)
     type(c_ptr) :: min_vals_d = c_null_ptr
     real(kind=rp) :: el_dim(3,3), glb_min, glb_max, el_min
