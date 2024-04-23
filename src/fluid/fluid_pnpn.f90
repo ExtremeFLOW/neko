@@ -90,10 +90,10 @@ module fluid_pnpn
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
      type(zero_dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_w   !< Dirichlet condition vel. res.
+     type(zero_dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
+     type(zero_dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
+     type(zero_dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
+     type(zero_dirichlet_t) :: bc_field_dirichlet_w   !< Dirichlet condition vel. res.
      type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
@@ -230,7 +230,6 @@ contains
     call this%bc_field_dirichlet_p%mark_zones_from_list('d_pres', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_p%finalize()
-    call this%bc_field_dirichlet_p%set_g(0.0_rp)
     call this%bclst_dp%init()
     call this%bclst_dp%append(this%bc_field_dirichlet_p)
     !Add 0 prs bcs
@@ -240,19 +239,16 @@ contains
     call this%bc_field_dirichlet_u%mark_zones_from_list('d_vel_u', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_u%finalize()
-    call this%bc_field_dirichlet_u%set_g(0.0_rp)
 
     call this%bc_field_dirichlet_v%init(this%c_Xh, params)
     call this%bc_field_dirichlet_v%mark_zones_from_list('d_vel_v', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_v%finalize()
-    call this%bc_field_dirichlet_v%set_g(0.0_rp)
 
     call this%bc_field_dirichlet_w%init(this%c_Xh, params)
     call this%bc_field_dirichlet_w%mark_zones_from_list('d_vel_w', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_w%finalize()
-    call this%bc_field_dirichlet_w%set_g(0.0_rp)
 
     call this%bc_vel_res%init(this%c_Xh, params)
     call this%bc_vel_res%mark_zone(msh%inlet)
