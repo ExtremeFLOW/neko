@@ -75,9 +75,9 @@ contains
     call this%free()
 
     call this%init_base(coef)
-    call this%bc_x%init_base(this%coef)
-    call this%bc_y%init_base(this%coef)
-    call this%bc_z%init_base(this%coef)
+    call this%bc_x%init(this%coef, json)
+    call this%bc_y%init(this%coef, json)
+    call this%bc_z%init(this%coef, json)
 
     associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
