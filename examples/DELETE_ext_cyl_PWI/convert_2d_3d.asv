@@ -1,0 +1,9 @@
+clear all
+clc
+
+addpath('/scratch/nobis/FromHome/SHS_extra/SHSpost')
+%[data_3D,lr1,elmap,time,istep,fields,emode,wdsz,etag,header,status] = readnek(   'field0.f00000');
+[data_2D,lr1,elmap,time,istep,fields,emode,wdsz,etag,header,status] = readnek('baseflow0.f00000');
+
+#std 4  6  6  6       1472       1472  0.0000000000000E+00         0      1      1 XUP
+#std 8  6  6  1       1472       1472  0.8834199999993E+03     88342      0      1 UP          0.0000000E+00 F T 
