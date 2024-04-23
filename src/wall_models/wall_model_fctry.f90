@@ -34,7 +34,6 @@
 module les_model_fctry
   use les_model, only : les_model_t
   use vreman, only : vreman_t
-  use smagorinsky, only : smagorinsky_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use json_module, only : json_file
@@ -64,10 +63,6 @@ contains
     if (trim(name) .eq. 'vreman') then
        allocate(vreman_t::les_model)
     end if
-    
-    if (trim(name) .eq. 'smagorinsky') then
-      allocate(smagorinsky_t::les_model)
-   end if
 
     call les_model%init(dofmap, coef, json)
 
