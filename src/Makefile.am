@@ -232,7 +232,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/device/device_mathops.F90\
 	bc/bcknd/device/device_dirichlet.F90\
 	bc/bcknd/device/device_inflow.F90\
-	bc/bcknd/device/device_wall.F90\
+	bc/bcknd/device/device_zero_dirichlet.F90\
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
@@ -309,7 +309,7 @@ libneko_a_SOURCES += \
 	gs/bcknd/device/hip/gs.hip\
 	bc/bcknd/device/hip/dirichlet.hip\
 	bc/bcknd/device/hip/inflow.hip\
-	bc/bcknd/device/hip/no_slip_wall.hip\
+	bc/bcknd/device/hip/zero_dirichlet_wall.hip\
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
@@ -343,7 +343,7 @@ libneko_a_SOURCES += \
 	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
-	bc/bcknd/device/cuda/no_slip_wall.cu\
+	bc/bcknd/device/cuda/zero_dirichlet_wall.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
@@ -375,7 +375,7 @@ libneko_a_SOURCES += \
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
-	bc/bcknd/device/opencl/no_slip_wall.c\
+	bc/bcknd/device/opencl/zero_dirichlet.c\
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
@@ -461,7 +461,7 @@ endif
 EXTRA_DIST = \
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
-	bc/bcknd/device/cuda/no_slip_wall_kernel.h\
+	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
@@ -489,7 +489,7 @@ EXTRA_DIST = \
 	sem/bcknd/device/cuda/coef_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
-	bc/bcknd/device/hip/no_slip_wall_kernel.h\
+	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
 	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
@@ -523,7 +523,7 @@ EXTRA_DIST = \
 	sem/bcknd/device/hip/coef_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
-	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
+	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\

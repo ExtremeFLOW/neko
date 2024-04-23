@@ -32,7 +32,7 @@
 !
 !> Defines a zero-valued Dirichlet boundary condition.
 module zero_dirichlet
-  use device_wall
+  use device_zero_dirichlet
   use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
@@ -46,14 +46,16 @@ module zero_dirichlet
   !! such as for residuals.
   type, public, extends(bc_t) :: zero_dirichlet_t
    contains
-     procedure, pass(this) :: apply_scalar => no_slip_wall_apply_scalar
-     procedure, pass(this) :: apply_vector => no_slip_wall_apply_vector
-     procedure, pass(this) :: apply_scalar_dev => no_slip_wall_apply_scalar_dev
-     procedure, pass(this) :: apply_vector_dev => no_slip_wall_apply_vector_dev
+     procedure, pass(this) :: apply_scalar => zero_dirichlet_apply_scalar
+     procedure, pass(this) :: apply_vector => zero_dirichlet_apply_vector
+     procedure, pass(this) :: apply_scalar_dev => zero_dirichlet_apply_scalar_dev
+     procedure, pass(this) :: apply_vector_dev => zero_dirichlet_apply_vector_dev
      !> Constructor.
-     procedure, pass(this) :: init => no_slip_wall_init
+     procedure, pass(this) :: init => zero_dirichlet_init
      !> Destructor.
-     procedure, pass(this) :: free => no_slip_wall_free
+     procedure, pass(this) :: free => zero_dirichlet_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => zero_dirichlet_finalize
   end type zero_dirichlet_t
 
 contains
@@ -61,17 +63,17 @@ contains
   !> Constructor
   !! @param[in] coef The SEM coefficients.
   !! @param[inout] json The JSON object configuring the boundary condition.
-  subroutine no_slip_wall_init(this, coef, json)
+  subroutine zero_dirichlet_init(this, coef, json)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
 
     call this%init_base(coef)
-  end subroutine no_slip_wall_init
+  end subroutine zero_dirichlet_init
 
   !> Boundary condition apply for a no-slip wall condition
   !! to a vector @a x
-  subroutine no_slip_wall_apply_scalar(this, x, n, t, tstep)
+  subroutine zero_dirichlet_apply_scalar(this, x, n, t, tstep)
     class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -85,11 +87,11 @@ contains
        x(k) = 0d0
     end do
 
-  end subroutine no_slip_wall_apply_scalar
+  end subroutine zero_dirichlet_apply_scalar
 
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z
-  subroutine no_slip_wall_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine zero_dirichlet_apply_vector(this, x, y, z, n, t, tstep)
     class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -107,23 +109,23 @@ contains
        z(k) = 0d0
     end do
 
-  end subroutine no_slip_wall_apply_vector
+  end subroutine zero_dirichlet_apply_vector
 
   !> Boundary condition apply for a no-slip wall condition
   !! to a vector @a x (device version)
-  subroutine no_slip_wall_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, t, tstep)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
-    call device_no_slip_wall_apply_scalar(this%msk_d, x_d, size(this%msk))
+    call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, size(this%msk))
 
-  end subroutine no_slip_wall_apply_scalar_dev
+  end subroutine zero_dirichlet_apply_scalar_dev
 
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine no_slip_wall_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine zero_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -131,17 +133,24 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
-    call device_no_slip_wall_apply_vector(this%msk_d, x_d, y_d, z_d, &
+    call device_zero_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
                                           size(this%msk))
 
-  end subroutine no_slip_wall_apply_vector_dev
+  end subroutine zero_dirichlet_apply_vector_dev
 
   !> Destructor
-  subroutine no_slip_wall_free(this)
+  subroutine zero_dirichlet_free(this)
     class(zero_dirichlet_t), target, intent(inout) :: this
 
     call this%free_base()
 
-  end subroutine no_slip_wall_free
+  end subroutine zero_dirichlet_free
+
+  !> Finalize
+  subroutine zero_dirichlet_finalize(this)
+    class(zero_dirichlet_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine zero_dirichlet_finalize
 
 end module zero_dirichlet

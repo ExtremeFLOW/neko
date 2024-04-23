@@ -32,17 +32,17 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_NO_SLIP_WALL_KERNEL__
-#define __BC_NO_SLIP_WALL_KERNEL__
+#ifndef __BC_ZERO_DIRICHLET_KERNEL__
+#define __BC_ZERO_DIRICHLET_KERNEL__
 
 /**
  * Device kernel for scalar apply for a no-slip wall conditon
  */
 template< typename T >
-__global__ void no_slip_wall_apply_scalar_kernel(const int * __restrict__ msk,
-                                                 T * __restrict__ x,
-                                                 const int m) {
-  
+__global__ void zero_dirichlet_apply_scalar_kernel(const int * __restrict__ msk,
+                                                   T * __restrict__ x,
+                                                   const int m) {
+
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
@@ -56,12 +56,12 @@ __global__ void no_slip_wall_apply_scalar_kernel(const int * __restrict__ msk,
  * Device kernel for vector apply for a no-slip wall conditon
  */
 template< typename T >
-__global__ void no_slip_wall_apply_vector_kernel(const int * __restrict__ msk,
-                                                 T * __restrict__ x,
-                                                 T * __restrict__ y,
-                                                 T * __restrict__ z,
-                                                 const int m) {
-  
+__global__ void zero_dirichlet_apply_vector_kernel(const int * __restrict__ msk,
+                                                   T * __restrict__ x,
+                                                   T * __restrict__ y,
+                                                   T * __restrict__ z,
+                                                   const int m) {
+
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
@@ -73,4 +73,4 @@ __global__ void no_slip_wall_apply_vector_kernel(const int * __restrict__ msk,
   }
 }
 
-#endif // __BC_NO_SLIP_WALL_KERNEL__
+#endif // __BC_ZERO_DIRICHLET_KERNEL__

@@ -32,37 +32,37 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "no_slip_wall_kernel.h"
+#include "zero_dirichlet_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 
 extern "C" {
 
-  /** 
+  /**
    * Fortran wrapper for device no-slip wall apply vector
    */
-  void cuda_no_slip_wall_apply_scalar(void *msk, void *x, int *m) {
+  void cuda_zero_dirichlet_apply_scalar(void *msk, void *x, int *m) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    no_slip_wall_apply_scalar_kernel<real>
+    zero_dirichlet_apply_scalar_kernel<real>
       <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
                                                             (real *) x,
                                                             *m);
     CUDA_CHECK(cudaGetLastError());
   }
-  
-  /** 
+
+  /**
    * Fortran wrapper for device no-slip wall apply vector
    */
-  void cuda_no_slip_wall_apply_vector(void *msk, void *x, void *y,
+  void cuda_zero_dirichlet_apply_vector(void *msk, void *x, void *y,
                                      void *z, int *m) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    no_slip_wall_apply_vector_kernel<real>
+    zero_dirichlet_apply_vector_kernel<real>
       <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
                                                             (real *) x,
                                                             (real *) y,
@@ -70,5 +70,5 @@ extern "C" {
                                                             *m);
     CUDA_CHECK(cudaGetLastError());
   }
- 
+
 }
