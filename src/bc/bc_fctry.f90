@@ -37,6 +37,11 @@ module bc_fctry
   use json_module, only : json_file
   use json_utils, only : json_get
   use logger, only : neko_log
+  use dirichlet, only : dirichlet_t
+  use neumann, only : neumann_t
+  use coefs, only : coef_t
+  use facet_zone, only : facet_zone_t
+  use mesh, only : NEKO_MSH_MAX_ZLBLS
   implicit none
   private
 
@@ -44,12 +49,31 @@ module bc_fctry
 
 contains
 
-  !> Boudnary condition factory. Both constructs and initializes the object.
-  !! @param json JSON object for initializing the bc.
-  subroutine bc_factory(bc, json)
-    class(bc_t), allocatable, intent(inout) :: bc
+  !> Boundary condition factory. Both constructs and initializes the object.
+  !! Will mark a mesh zone for the bc and finalize.
+  !! @param[in] coef SEM coefficients.
+  !! @param[inout] json JSON object for initializing the bc.
+  subroutine bc_factory(object, json, coef, zones)
+    !class(bc_t), allocatable, intent(inout) :: object
+    class(bc_t), pointer, intent(inout) :: object
     type(json_file), intent(inout) :: json
-    character(len=:), allocatable :: bc_type
+    type(coef_t), intent(in) :: coef
+    type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
+    character(len=:), allocatable :: type
+    integer :: zone_index
+
+    call json_get(json, "zone_index", zone_index)
+    call json_get(json, "type", type)
+
+    if (trim(type) .eq. "dirichlet") then
+       allocate(dirichlet_t::object)
+    else if (trim(type) .eq. "neumann") then
+       allocate(neumann_t::object)
+    end if
+
+    call object%init(coef, json)
+    call object%mark_zone(zones(zone_index))
+    call object%finalize()
 
   end subroutine bc_factory
 
