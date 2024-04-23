@@ -272,6 +272,7 @@ neko_fortran_SOURCES = \
 	simulation_components/derivative.f90\
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
+	simulation_components/poweriterations.f90\
 	source_terms/source_term.f90\
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\

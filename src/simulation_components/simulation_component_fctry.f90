@@ -37,6 +37,7 @@ module simulation_component_fctry
   use vorticity, only : vorticity_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
+  use power_iterations, only : power_iterations_t
   use les_simcomp, only : les_simcomp_t
   use json_module, only : json_file
   use case, only : case_t
@@ -52,11 +53,11 @@ module simulation_component_fctry
 
   ! List of all possible types created by the factory routine
   character(len=20) :: KNOWN_TYPES(5) = [character(len=20) :: &
-     "vorticity", &
-     "lambda2", &
-     "probes", &
-     "les_model", &
-     "field_writer"]
+                                         "vorticity", &
+                                         "lambda2", &
+                                         "probes", &
+                                         "les_model", &
+                                         "field_writer"]
 
 contains
 
@@ -76,24 +77,20 @@ contains
     call json_get_or_default(json, "is_user", is_user, .false.)
     if (is_user) return
 
-    call json_get(json, "type", type_name)
-
-    if (trim(type_name) .eq. "vorticity") then
-       allocate(vorticity_t::object)
-    else if (trim(type_name) .eq. "lambda2") then
-       allocate(lambda2_t::object)
-    else if (trim(type_name) .eq. "probes") then
-       allocate(probes_t::object)
-    else if (trim(type_name) .eq. "les_model") then
-       allocate(les_simcomp_t::object)
-    else if (trim(type_name) .eq. "field_writer") then
-       allocate(field_writer_t::object)
-    else if (trim(type_name) .eq. "weak_grad") then
-       allocate(weak_grad_t::object)
-    else if (trim(type_name) .eq. "derivative") then
-       allocate(derivative_t::object)
+    if (trim(simcomp_type) .eq. "vorticity") then
+       allocate(vorticity_t::simcomp)
+    else if (trim(simcomp_type) .eq. "lambda2") then
+       allocate(lambda2_t::simcomp)
+    else if (trim(simcomp_type) .eq. "probes") then
+       allocate(probes_t::simcomp)
+    else if (trim(simcomp_type) .eq. "les_model") then
+       allocate(les_simcomp_t::simcomp)
+    else if (trim(simcomp_type) .eq. "field_writer") then
+       allocate(field_writer_t::simcomp)
+    else if (trim(simcomp_type) .eq. "poweriterations") then
+       allocate(power_iterations_t::simcomp)
     else
-       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+       type_string = concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
                                           .true.)
        call neko_error("Unknown simulation component type: " &
                        // trim(type_name) // ".  Known types are: " &
