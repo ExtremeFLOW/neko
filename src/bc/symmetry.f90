@@ -43,15 +43,16 @@ module symmetry
   use tuple
   use coefs, only : coef_t
   use json_module, only : json_file
+  use zero_dirichlet, only : zero_dirichlet_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
   !> Mixed Dirichlet-Neumann symmetry plane condition
   type, public, extends(bc_t) :: symmetry_t
-     type(dirichlet_t) :: bc_x
-     type(dirichlet_t) :: bc_y
-     type(dirichlet_t) :: bc_z
+     type(zero_dirichlet_t) :: bc_x
+     type(zero_dirichlet_t) :: bc_y
+     type(zero_dirichlet_t) :: bc_z
    contains
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
@@ -81,9 +82,9 @@ contains
     call this%free()
 
     call this%init_base(coef)
-    call this%bc_x%init_base(this%coef)
-    call this%bc_y%init_base(this%coef)
-    call this%bc_z%init_base(this%coef)
+    call this%bc_x%init(this%coef, json)
+    call this%bc_y%init(this%coef, json)
+    call this%bc_z%init(this%coef, json)
 
     associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
@@ -139,11 +140,8 @@ contains
       end do
     end associate
     call this%bc_x%finalize()
-    call this%bc_x%set_g(0.0_rp)
     call this%bc_y%finalize()
-    call this%bc_y%set_g(0.0_rp)
     call this%bc_z%finalize()
-    call this%bc_z%set_g(0.0_rp)
   end subroutine symmetry_init
 
   !> No-op scalar apply

@@ -136,11 +136,8 @@ contains
       end do
     end associate
     call this%bc_x%finalize()
-    call this%bc_x%set_g(0.0_rp)
     call this%bc_y%finalize()
-    call this%bc_y%set_g(0.0_rp)
     call this%bc_z%finalize()
-    call this%bc_z%set_g(0.0_rp)
   end subroutine non_normal_init
 
   !> Destructor
