@@ -63,11 +63,9 @@ module bc_list
      procedure, pass(this) :: apply_vector => bc_list_apply_vector
      !> Return the number of items in the list.
      procedure, pass(this) :: size => bc_list_size
+     !> Return wether a given item is a strong bc
+     procedure, pass(this) :: strong => bc_list_strong
   end type bc_list_t
-
-  interface bc_list_apply
-     module procedure bc_list_apply_scalar, bc_list_apply_vector
-  end interface bc_list_apply
 
 contains
 
@@ -204,9 +202,9 @@ contains
   subroutine bc_list_apply_vector(this, x, y, z, n, t, tstep)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     type(c_ptr) :: x_d
@@ -264,6 +262,15 @@ contains
 
     size = this%size_
   end function bc_list_size
+
+  !> Return the number of items in the list.
+  pure function bc_list_strong(this, i) result(strong)
+    class(bc_list_t), intent(in), target :: this
+    integer, intent(in) :: i
+    logical :: strong
+
+    strong = this%items(i)%ptr%strong
+  end function bc_list_strong
 
 
 end module bc_list
