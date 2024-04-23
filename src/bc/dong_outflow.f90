@@ -72,6 +72,8 @@ module dong_outflow
      procedure, pass(this) :: init => dong_outflow_init
      !> Destructor.
      procedure, pass(this) :: free => dong_outflow_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => dong_outflow_finalize
   end type dong_outflow_t
 
 contains
@@ -207,5 +209,12 @@ contains
     call this%free_base
 
   end subroutine dong_outflow_free
+
+  !> Finalize
+  subroutine dong_outflow_finalize(this)
+    class(dong_outflow_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine dong_outflow_finalize
 
 end module dong_outflow

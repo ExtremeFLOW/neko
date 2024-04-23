@@ -71,6 +71,8 @@ module field_dirichlet
      procedure, pass(this) :: init => field_dirichlet_init
      !> Destructor.
      procedure, pass(this) :: free => field_dirichlet_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => field_dirichlet_finalize
 
   end type field_dirichlet_t
 
@@ -204,4 +206,10 @@ contains
 
   end subroutine field_dirichlet_apply_vector_dev
 
+  !> Finalize
+  subroutine field_dirichlet_finalize(this)
+    class(field_dirichlet_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine field_dirichlet_finalize
 end module field_dirichlet

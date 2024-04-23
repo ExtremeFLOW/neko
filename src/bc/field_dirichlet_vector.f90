@@ -63,6 +63,8 @@ module field_dirichlet_vector
      procedure, pass(this) :: init => field_dirichlet_vector_init
      !> Destructor
      procedure, pass(this) :: free => field_dirichlet_vector_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => field_dirichlet_vector_finalize
      !> Apply scalar by performing a masked copy.
      procedure, pass(this) :: apply_scalar => field_dirichlet_vector_apply_scalar
      !> (No-op) Apply vector.
@@ -183,5 +185,12 @@ contains
     call this%field_dirichlet_w%apply_scalar_dev(z_d, t, tstep)
 
    end subroutine field_dirichlet_vector_apply_vector_dev
+
+  !> Finalize
+  subroutine field_dirichlet_vector_finalize(this)
+    class(field_dirichlet_vector_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine field_dirichlet_vector_finalize
 
 end module field_dirichlet_vector

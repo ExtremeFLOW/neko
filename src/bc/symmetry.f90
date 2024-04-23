@@ -48,7 +48,8 @@ module symmetry
   implicit none
   private
 
-  !> Mixed Dirichlet-Neumann symmetry plane condition
+  !> Mixed Dirichlet-Neumann symmetry plane condition.
+  !! @warning Only works for axis-aligned plane boundaries.
   type, public, extends(bc_t) :: symmetry_t
      type(zero_dirichlet_t) :: bc_x
      type(zero_dirichlet_t) :: bc_y
@@ -62,6 +63,10 @@ module symmetry
      procedure, pass(this) :: init => symmetry_init
      !> Destructor.
      procedure, pass(this) :: free => symmetry_free
+     !> Get the axis coressponding to the direction of the normal.
+     procedure, pass(this) :: get_normal_axis => symmetry_get_normal_axis
+     !> Finalize.
+     procedure, pass(this) :: finalize => symmetry_finalize
   end type symmetry_t
 
 contains
@@ -72,12 +77,6 @@ contains
     class(symmetry_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
-    integer :: i, m, j, l
-    type(tuple_i4_t), pointer :: bfp(:)
-    real(kind=rp) :: sx,sy,sz
-    real(kind=rp), parameter :: TOL = 1d-3
-    type(tuple_i4_t) :: bc_facet
-    integer :: facet, el
 
     call this%free()
 
@@ -86,6 +85,22 @@ contains
     call this%bc_y%init(this%coef, json)
     call this%bc_z%init(this%coef, json)
 
+  end subroutine symmetry_init
+
+  !> Finalize.
+  !! Marks the appropriate faces for application of a homogeneous Dirchlet
+  !! condition based on the direction of the axis normal.
+  subroutine symmetry_finalize(this)
+    class(symmetry_t), target, intent(inout) :: this
+    integer :: i, m, j, l
+    type(tuple_i4_t), pointer :: bfp(:)
+    real(kind=rp) :: sx,sy,sz
+    real(kind=rp), parameter :: TOL = 1d-3
+    type(tuple_i4_t) :: bc_facet
+    integer :: facet, el
+
+    call this%finalize_base()
+
     associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
       bfp => this%marked_facet%array()
@@ -93,38 +108,7 @@ contains
          bc_facet = bfp(i)
          facet = bc_facet%x(1)
          el = bc_facet%x(2)
-         sx = 0d0
-         sy = 0d0
-         sz = 0d0
-         select case (facet)
-         case(1,2)
-            do l = 2, c%Xh%lx - 1
-               do j = 2, c%Xh%lx -1
-                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
-               end do
-            end do
-         case(3,4)
-            do l = 2, c%Xh%lx - 1
-               do j = 2, c%Xh%lx - 1
-                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
-               end do
-            end do
-         case(5,6)
-            do l = 2, c%Xh%lx - 1
-               do j = 2, c%Xh%lx - 1
-                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
-               end do
-            end do
-         end select
-         sx = sx / (c%Xh%lx - 2)**2
-         sy = sy / (c%Xh%lx - 2)**2
-         sz = sz / (c%Xh%lx - 2)**2
+         call this%get_normal_axis(sx, sy, sz, facet, el)
 
          if (sx .lt. TOL) then
             call this%bc_x%mark_facet(facet, el)
@@ -142,7 +126,54 @@ contains
     call this%bc_x%finalize()
     call this%bc_y%finalize()
     call this%bc_z%finalize()
-  end subroutine symmetry_init
+  end subroutine symmetry_finalize
+
+  subroutine symmetry_get_normal_axis(this, sx, sy, sz, facet, el)
+    class(symmetry_t), target, intent(inout) :: this
+    real(kind=rp), intent(out) :: sx, sy, sz
+    integer, intent(in) :: facet
+    integer, intent(in) :: el
+    integer :: i, m, j, l
+    type(tuple_i4_t), pointer :: bfp(:)
+    real(kind=rp), parameter :: TOL = 1d-3
+    type(tuple_i4_t) :: bc_facet
+
+    associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+              nz => this%coef%nz)
+      sx = 0d0
+      sy = 0d0
+      sz = 0d0
+      select case (facet)
+      case(1,2)
+         do l = 2, c%Xh%lx - 1
+            do j = 2, c%Xh%lx -1
+               sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
+               sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
+               sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
+            end do
+         end do
+      case(3,4)
+         do l = 2, c%Xh%lx - 1
+            do j = 2, c%Xh%lx - 1
+               sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
+               sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
+               sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
+            end do
+         end do
+      case(5,6)
+         do l = 2, c%Xh%lx - 1
+            do j = 2, c%Xh%lx - 1
+               sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
+               sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
+               sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
+            end do
+         end do
+      end select
+      sx = sx / (c%Xh%lx - 2)**2
+      sy = sy / (c%Xh%lx - 2)**2
+      sz = sz / (c%Xh%lx - 2)**2
+   end associate
+  end subroutine symmetry_get_normal_axis
 
   !> No-op scalar apply
   subroutine symmetry_apply_scalar(this, x, n, t, tstep)
@@ -164,9 +195,9 @@ contains
     integer, intent(in), optional :: tstep
     integer :: i, m, k
 
-    call this%bc_x%apply_scalar(x,n)
-    call this%bc_y%apply_scalar(y,n)
-    call this%bc_z%apply_scalar(z,n)
+    call this%bc_x%apply_scalar(x, n)
+    call this%bc_y%apply_scalar(y, n)
+    call this%bc_z%apply_scalar(z, n)
 
   end subroutine symmetry_apply_vector
 

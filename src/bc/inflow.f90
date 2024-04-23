@@ -54,6 +54,8 @@ module inflow
      procedure, pass(this) :: init => inflow_init
      !> Destructor.
      procedure, pass(this) :: free => inflow_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => inflow_finalize
   end type inflow_t
 
 contains
@@ -128,8 +130,14 @@ contains
     class(inflow_t), target, intent(inout) :: this
 
     call this%free_base()
-
   end subroutine inflow_free
+
+  !> Finalize
+  subroutine inflow_finalize(this)
+    class(inflow_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine inflow_finalize
 
 
 end module inflow

@@ -59,6 +59,8 @@ module neumann
      procedure, pass(this) :: init => neumann_init
      !> Destructor.
      procedure, pass(this) :: free => neumann_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => neumann_finalize
   end type neumann_t
 
 contains
@@ -175,5 +177,12 @@ contains
     call this%free_base
 
   end subroutine neumann_free
+
+  !> Finalize
+  subroutine neumann_finalize(this)
+    class(neumann_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine neumann_finalize
 
 end module neumann

@@ -57,6 +57,8 @@ module usr_scalar
      procedure, pass(this) :: init => usr_scalar_init
      !> Destructor.
      procedure, pass(this) :: free => usr_scalar_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => usr_scalar_finalize
   end type usr_scalar_t
 
   abstract interface
@@ -339,5 +341,12 @@ contains
     end if
 
   end subroutine usr_scalar_validate
+
+  !> Finalize
+  subroutine usr_scalar_finalize(this)
+    class(usr_scalar_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine usr_scalar_finalize
 
 end module usr_scalar

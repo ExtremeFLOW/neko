@@ -64,6 +64,8 @@ module blasius
      procedure, pass(this) :: init => blasius_init
      !> Destructor.
      procedure, pass(this) :: free => blasius_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => blasius_finalize
   end type blasius_t
 
 contains
@@ -279,4 +281,10 @@ contains
     end select
   end subroutine blasius_set_params
 
+  !> Finalize
+  subroutine blasius_finalize(this)
+    class(blasius_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine blasius_finalize
 end module blasius

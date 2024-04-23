@@ -59,6 +59,8 @@ module dirichlet
         dirichlet_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => dirichlet_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => dirichlet_finalize
   end type dirichlet_t
 
 contains
@@ -173,5 +175,12 @@ contains
     call this%free_base
 
   end subroutine dirichlet_free
+
+  !> Finalize
+  subroutine dirichlet_finalize(this)
+    class(dirichlet_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine dirichlet_finalize
 
 end module dirichlet

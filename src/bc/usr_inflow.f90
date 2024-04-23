@@ -62,6 +62,8 @@ module usr_inflow
      procedure, pass(this) :: init => usr_inflow_init
      !> Destructor.
      procedure, pass(this) :: free => usr_inflow_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => usr_inflow_finalize
   end type usr_inflow_t
 
   abstract interface
@@ -360,4 +362,10 @@ contains
 
   end subroutine usr_inflow_validate
 
+  !> Finalize
+  subroutine usr_inflow_finalize(this)
+    class(usr_inflow_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine usr_inflow_finalize
 end module usr_inflow

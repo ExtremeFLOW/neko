@@ -181,7 +181,7 @@ contains
     ! todo: look that this works
     call this%bc_res%init(this%c_Xh, params)
     do i = 1, this%n_dir_bcs
-       call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
+       call this%bc_res%mark_facets(this%bclst_dirichlet%items(i)%ptr%marked_facet)
     end do
 
     ! Check for user bcs
@@ -314,8 +314,8 @@ contains
          call col2(f_Xh%x, c_Xh%B, n)
       end if
 
-      ! Apply Neumann boundary conditions
-      call this%bclst_neumann%apply_scalar(this%f_Xh%x, dm_Xh%size())
+      ! Apply weak boundary conditions, that contribute to the source terms.
+      call this%bclst_neumann%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, tstep)
 
       ! Add the advection operators to the right-hans-side.
       call this%adv%compute_scalar(u, v, w, s, f_Xh%x, &
@@ -334,7 +334,7 @@ contains
 
       call slag%update()
 
-      !> Apply Dirichlet boundary conditions
+      !> Apply strong boundary conditions.
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
       call this%dirichlet_update_(this%field_dirichlet_fields, &

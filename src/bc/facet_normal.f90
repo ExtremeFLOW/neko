@@ -56,6 +56,8 @@ module facet_normal
      procedure, pass(this) :: init => facet_normal_init
      !> Destructor.
      procedure, pass(this) :: free => facet_normal_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => facet_normal_finalize
   end type facet_normal_t
 
 contains
@@ -183,5 +185,12 @@ contains
     call this%free_base()
 
   end subroutine facet_normal_free
+
+  !> Finalize
+  subroutine facet_normal_finalize(this)
+    class(facet_normal_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine facet_normal_finalize
 
 end module facet_normal

@@ -87,7 +87,7 @@ module bc
      procedure, pass(this) :: mark_zone => bc_mark_zone
      !> Finalize the construction of the bc by populting the msk and facet
      !! arrays
-     procedure, pass(this) :: finalize => bc_finalize
+     procedure, pass(this) :: finalize_base => bc_finalize_base
 
      !> Apply the boundary condition to a scalar field. Dispatches to the CPU
      !! or the device version.
@@ -107,6 +107,8 @@ module bc
      procedure(bc_destructor), pass(this), deferred :: free
      !> Deferred constructor.
      procedure(bc_constructor), pass(this), deferred :: init
+     !> Deferred finalizer.
+     procedure(bc_finalize), pass(this), deferred :: finalize
   end type bc_t
 
   !> Pointer to a @ref `bc_t`.
@@ -158,6 +160,14 @@ module bc
        import :: bc_t
        class(bc_t), intent(inout), target :: this
      end subroutine bc_destructor
+  end interface
+
+  abstract interface
+     !> Finalize by building the mask and facet arrays.
+     subroutine bc_finalize(this)
+       import :: bc_t
+       class(bc_t), intent(inout), target :: this
+     end subroutine bc_finalize
   end interface
 
   abstract interface
@@ -425,7 +435,7 @@ contains
   !> Finalize the construction of the bc by populting the `msk` and `facet`
   !! arrays.
   !! @details This will linearize the marked facet's indicies in the msk array.
-  subroutine bc_finalize(this)
+  subroutine bc_finalize_base(this)
     class(bc_t), target, intent(inout) :: this
     type(tuple_i4_t), pointer :: bfp(:)
     type(tuple_i4_t) :: bc_facet
@@ -521,6 +531,6 @@ contains
                           HOST_TO_DEVICE, sync=.false.)
     end if
 
-  end subroutine bc_finalize
+  end subroutine bc_finalize_base
 
 end module bc

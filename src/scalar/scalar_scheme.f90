@@ -60,8 +60,8 @@ module scalar_scheme
   use logger, only : neko_log, LOG_SIZE
   use field_registry, only : neko_field_registry
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
-  use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_module, only : json_file, json_core, json_value
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use utils, only : neko_error
@@ -69,6 +69,7 @@ module scalar_scheme
   use scalar_source_term, only : scalar_source_term_t
   use field_series
   use time_step_controller
+  use bc_fctry, only : bc_factory
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -223,18 +224,45 @@ contains
   !! @param zones List of zones
   !! @param bc_labels List of user specified bcs from the parameter file
   !! currently dirichlet 'd=X' and 'user' supported
-  subroutine scalar_scheme_add_bcs(this, zones, bc_labels)
+  subroutine scalar_scheme_add_bcs(this, zones, bc_labels, params)
     class(scalar_scheme_t), intent(inout) :: this
     type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
     character(len=NEKO_MSH_MAX_ZLBL_LEN), intent(in) :: bc_labels(:)
+    type(json_file), intent(inout) :: params
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_label
-    integer :: i, j, bc_idx
+    integer :: i, j, bc_idx, n_bcs
     real(kind=rp) :: dir_value, flux_value
     logical :: bc_exists
+    type(json_core) :: core
+    type(json_value), pointer :: bc_object
+    type(json_file) :: bc_subdict
+    logical :: found
+
+
+
+    call this%bclst_dirichlet%init(2)
+    if (params%valid_path('case.scalar.boundary_conditions')) then
+       call params%info('case.scalar.boundary_conditions', n_children=n_bcs)
+       call params%get_core(core)
+       call params%get('case.scalar.boundary_conditions', bc_object, found)
+
+       do i=1, n_bcs
+          ! Create a new json containing just the subdict for this bc
+          call json_extract_item(core, bc_object, i, bc_subdict)
+
+          call bc_factory(this%bclst_dirichlet%items(i)%ptr, bc_subdict, &
+                          this%c_Xh, zones)
+
+          if (this%bclst_dirichlet%strong(i)) then
+             this%n_dir_bcs = this%n_dir_bcs + 1
+          end if
+       end do
+    end if
+
 
     do i = 1, size(bc_labels)
        bc_label = trim(bc_labels(i))
-       if (bc_label(1:2) .eq. 'd=') then
+!       if (bc_label(1:2) .eq. 'd=') then
 ! The idea of this commented piece of code is to merge bcs with the same
 ! Dirichlet value into 1 so that one has less kernel launches. Currently
 ! segfaults, needs investigation.
@@ -250,21 +278,21 @@ contains
 !          if (bc_exists) then
 !             call this%dir_bcs(j)%mark_zone(zones(i))
 !          else
-          this%n_dir_bcs = this%n_dir_bcs + 1
-          call this%dir_bcs(this%n_dir_bcs)%init_base(this%c_Xh)
-          call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
-          read(bc_label(3:), *) dir_value
-          call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
+!          this%n_dir_bcs = this%n_dir_bcs + 1
+!          call this%dir_bcs(this%n_dir_bcs)%init_base(this%c_Xh)
+!          call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
+!          read(bc_label(3:), *) dir_value
+!          call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
 !          end if
-       end if
+!       end if
 
-       if (bc_label(1:2) .eq. 'n=') then
-          this%n_neumann_bcs = this%n_neumann_bcs + 1
-          call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
-          call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
-          read(bc_label(3:), *) flux_value
-          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value)
-       end if
+!       if (bc_label(1:2) .eq. 'n=') then
+!          this%n_neumann_bcs = this%n_neumann_bcs + 1
+!          call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
+!          call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
+!          read(bc_label(3:), *) flux_value
+!          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value)
+!       end if
 
        !> Check if user bc on this zone
        if (bc_label(1:4) .eq. 'user') then
@@ -273,17 +301,17 @@ contains
 
     end do
 
-    do i = 1, this%n_dir_bcs
-       call this%dir_bcs(i)%finalize()
-       call this%bclst_dirichlet%append(this%dir_bcs(i))
-    end do
+!    do i = 1, this%n_dir_bcs
+!       call this%dir_bcs(i)%finalize()
+!       call this%bclst_dirichlet%append(this%dir_bcs(i))
+!    end do
 
     ! Create list with just Neumann bcs
-    call this%bclst_neumann%init(this%n_neumann_bcs)
-    do i=1, this%n_neumann_bcs
-       call this%neumann_bcs(i)%finalize()
-       call this%bclst_neumann%append(this%neumann_bcs(i))
-    end do
+!    call this%bclst_neumann%init(this%n_neumann_bcs)
+!    do i=1, this%n_neumann_bcs
+!       call this%neumann_bcs(i)%finalize()
+!       call this%bclst_neumann%append(this%neumann_bcs(i))
+!    end do
 
   end subroutine scalar_scheme_add_bcs
 
@@ -371,7 +399,7 @@ contains
     ! Setup scalar boundary conditions
     !
     call this%bclst_dirichlet%init()
-    call this%user_bc%init_base(this%c_Xh)
+    call this%user_bc%init(this%c_Xh, params)
 
     ! Read boundary types from the case file
     allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
@@ -395,7 +423,7 @@ contains
     ! Initialize the source term
     call this%source_term%init(params, this%f_Xh, this%c_Xh, user)
 
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
+    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels, params)
 
     ! Mark BC zones
     call this%user_bc%mark_zone(msh%wall)
@@ -408,7 +436,7 @@ contains
                                                      this%user_bc)
 
     ! Add field dirichlet BCs
-    call this%field_dir_bc%init_base(this%c_Xh)
+    call this%field_dir_bc%init(this%c_Xh, params)
     call this%field_dir_bc%mark_zones_from_list('d_s', this%bc_labels)
     call this%field_dir_bc%finalize()
     call MPI_Allreduce(this%field_dir_bc%msk(0), integer_val, 1, &
