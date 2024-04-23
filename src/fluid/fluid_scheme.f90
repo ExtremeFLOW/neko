@@ -117,7 +117,7 @@ module fluid_scheme
      type(bc_list_t) :: field_dirichlet_bcs       !< List of BC objects to pass to user_dirichlet_update
      type(field_list_t) :: field_dirichlet_fields !< List of fields to pass to user_dirichlet_update
 
-     type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
+     type(zero_dirichlet_t) :: bc_prs          !< Dirichlet pressure condition
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
@@ -448,50 +448,44 @@ contains
        call this%bdry%init(this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
 
-       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%init_from_components(this%c_Xh, 1.0_rp)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list('w', this%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(1.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%init_from_components(this%c_Xh, 2.0_rp)
        call bdry_mask%mark_zone(msh%inlet)
        call bdry_mask%mark_zones_from_list('v', this%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(2.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%init_from_components(this%c_Xh, 3.0_rp)
        call bdry_mask%mark_zone(msh%outlet)
        call bdry_mask%mark_zones_from_list('o', this%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(3.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%init_from_components(this%c_Xh, 4.0_rp)
        call bdry_mask%mark_zone(msh%sympln)
        call bdry_mask%mark_zones_from_list('sym', this%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(4.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%init_from_components(this%c_Xh, 5.0_rp)
        call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(5.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%init_from_components(this%c_Xh, 6.0_rp)
        call bdry_mask%mark_zone(msh%outlet_normal)
        call bdry_mask%mark_zones_from_list('on', this%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(6.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
@@ -600,7 +594,7 @@ contains
     ! Setup pressure boundary conditions
     !
     call this%bclst_prs%init()
-    call this%bc_prs%init_base(this%c_Xh)
+    call this%bc_prs%init(this%c_Xh, params)
     call this%bc_prs%mark_zones_from_list('o', this%bc_labels)
     call this%bc_prs%mark_zones_from_list('on', this%bc_labels)
 
@@ -623,7 +617,6 @@ contains
     end if
 
     call this%bc_prs%finalize()
-    call this%bc_prs%set_g(0.0_rp)
     call this%bclst_prs%append(this%bc_prs)
     call this%bc_dong%init_base(this%c_Xh)
     call this%bc_dong%mark_zones_from_list('o+dong', this%bc_labels)
