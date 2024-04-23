@@ -88,17 +88,24 @@ module bc
      !> Finalize the construction of the bc by populting the msk and facet
      !! arrays
      procedure, pass(this) :: finalize => bc_finalize
-     !> Apply the boundary condition to a scalar field
+
+     !> Apply the boundary condition to a scalar field. Dispatches to the CPU
+     !! or the device version.
+     procedure, pass(this) :: apply_scalar_generic => bc_apply_scalar_generic
+     !> Apply the boundary condition to a vector field. Dispatches to the CPU
+     !! or the device version.
+     procedure, pass(this) :: apply_vector_generic => bc_apply_vector_generic
+     !> Apply the boundary condition to a scalar field on the CPU.
      procedure(bc_apply_scalar), pass(this), deferred :: apply_scalar
-     !> Apply the boundary condition to a vector field
+     !> Apply the boundary condition to a vector field on the CPU.
      procedure(bc_apply_vector), pass(this), deferred :: apply_vector
-     !> Device version of \ref apply_scalar
+     !> Device version of \ref apply_scalar on the device.
      procedure(bc_apply_scalar_dev), pass(this), deferred :: apply_scalar_dev
-     !> Device version of \ref apply_vector
+     !> Device version of \ref apply_vector on the device.
      procedure(bc_apply_vector_dev), pass(this), deferred :: apply_vector_dev
-     !> Deferred destructor
+     !> Deferred destructor.
      procedure(bc_destructor), pass(this), deferred :: free
-     !> Deferred constructor
+     !> Deferred constructor.
      procedure(bc_constructor), pass(this), deferred :: init
   end type bc_t
 
@@ -244,6 +251,82 @@ contains
     end if
 
   end subroutine bc_free_base
+
+  subroutine bc_apply_vector_generic(this, x, y, z, n, t, tstep)
+    class(bc_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    type(c_ptr) :: x_d
+    type(c_ptr) :: y_d
+    type(c_ptr) :: z_d
+    integer :: i
+
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       x_d = device_get_ptr(x)
+       y_d = device_get_ptr(y)
+       z_d = device_get_ptr(z)
+       if (present(t) .and. present(tstep)) then
+          call this%apply_vector_dev(x_d, y_d, z_d, t=t, tstep=tstep)
+       else if (present(t)) then
+          call this%apply_vector_dev(x_d, y_d, z_d, t=t)
+       else if (present(tstep)) then
+          call this%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
+       else
+          call this%apply_vector_dev(x_d, y_d, z_d)
+       end if
+    else
+       if (present(t) .and. present(tstep)) then
+          call this%apply_vector(x, y, z, n, t=t, tstep=tstep)
+       else if (present(t)) then
+          call this%apply_vector(x, y, z, n, t=t)
+       else if (present(tstep)) then
+          call this%apply_vector(x, y, z, n, tstep=tstep)
+       else
+          call this%apply_vector(x, y, z, n)
+       end if
+    end if
+
+  end subroutine bc_apply_vector_generic
+
+  subroutine bc_apply_scalar_generic(this, x, n, t, tstep)
+    class(bc_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    type(c_ptr) :: x_d
+    integer :: i
+
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       x_d = device_get_ptr(x)
+       if (present(t) .and. present(tstep)) then
+          call this%apply_scalar_dev(x_d, t=t, tstep=tstep)
+       else if (present(t)) then
+          call this%apply_scalar_dev(x_d, t=t)
+       else if (present(tstep)) then
+          call this%apply_scalar_dev(x_d, tstep=tstep)
+       else
+          call this%apply_scalar_dev(x_d)
+       end if
+    else
+       if (present(t) .and. present(tstep)) then
+          call this%apply_scalar(x, n, t=t, tstep=tstep)
+       else if (present(t)) then
+          call this%apply_scalar(x, n, t=t)
+       else if (present(tstep)) then
+          call this%apply_scalar(x, n, tstep=tstep)
+       else
+          call this%apply_scalar(x, n)
+       end if
+    end if
+
+  end subroutine bc_apply_scalar_generic
 
   !> Mark @a facet on element @a el as part of the boundary condition
   !! @param facet The index of the facet.
