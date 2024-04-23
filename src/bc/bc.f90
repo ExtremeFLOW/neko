@@ -68,6 +68,10 @@ module bc
      type(c_ptr) :: msk_d = C_NULL_PTR
      !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
+     !> Wether the bc is strongly enforced. Essentially valid for all Dirichlet
+     !! types of bcs. These need to be masked out for solvers etc, so that
+     !! values are not affected.
+     logical :: strong = .true.
    contains
      !> Constructor
      procedure, pass(this) :: init_base => bc_init_base
