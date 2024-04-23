@@ -38,6 +38,7 @@ module neumann
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
   use json_module, only : json_file
+  use json_utils, only : json_get
   implicit none
   private
 
@@ -68,9 +69,14 @@ contains
   subroutine neumann_init(this, coef, json)
     class(neumann_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
-    type(json_file), intent(inout) ::json
+    type(json_file), intent(inout) :: json
+    real(kind=rp) :: flux
 
     call this%init_base(coef)
+    this%strong = .false.
+
+    call json_get(json, "value", flux)
+    this%flux_ = flux
   end subroutine neumann_init
 
   !> Boundary condition apply for a generic Neumann condition
