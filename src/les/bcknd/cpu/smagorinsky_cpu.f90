@@ -38,7 +38,7 @@ module smagorinsky_cpu
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
-  use operators, only : dudxyz
+  use operators, only : strain_rate
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use math, only : col2
@@ -63,54 +63,35 @@ contains
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c_s
-    ! velocity gradient fields
-    type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
-    ! rate-of-strain tensor
-    real(kind=rp) :: s11, s22, s33, s12, s13, s23
+    ! double of the strain rate tensor
+    type(field_t), pointer :: s11_2, s22_2, s33_2, s12_2, s13_2, s23_2
     real(kind=rp) :: s_abs
-    integer :: temp_indices(9)
+    integer :: temp_indices(6)
     integer :: e, i
     
     u => neko_field_registry%get_field_by_name("u")
     v => neko_field_registry%get_field_by_name("v")
     w => neko_field_registry%get_field_by_name("u")
 
-    call neko_scratch_registry%request_field(a11, temp_indices(1))
-    call neko_scratch_registry%request_field(a12, temp_indices(2))
-    call neko_scratch_registry%request_field(a13, temp_indices(3))
-    call neko_scratch_registry%request_field(a21, temp_indices(4))
-    call neko_scratch_registry%request_field(a22, temp_indices(5))
-    call neko_scratch_registry%request_field(a23, temp_indices(6))
-    call neko_scratch_registry%request_field(a31, temp_indices(7))
-    call neko_scratch_registry%request_field(a32, temp_indices(8))
-    call neko_scratch_registry%request_field(a33, temp_indices(9))
+    call neko_scratch_registry%request_field(s11_2, temp_indices(1))
+    call neko_scratch_registry%request_field(s22_2, temp_indices(2))
+    call neko_scratch_registry%request_field(s33_2, temp_indices(3))
+    call neko_scratch_registry%request_field(s12_2, temp_indices(4))
+    call neko_scratch_registry%request_field(s13_2, temp_indices(5))
+    call neko_scratch_registry%request_field(s23_2, temp_indices(6))
 
-    ! Compute the derivatives of the velocity (the alpha tensor)
-    call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-
-    call dudxyz (a21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-
-    call dudxyz (a31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-
+    ! Compute the strain rate tensor
+    call strain_rate(s11_2%x, s22_2%x, s33_2%x, s12_2%x, s13_2%x, s23_2%x, u, v, w, coef)
+    
     do e=1, coef%msh%nelv
        do i=1, coef%Xh%lxyz
-          ! alpha_ij alpha_ij
-          s11 = 0.5_rp * (a11%x(i,1,1,e) + a11%x(i,1,1,e))
-          s22 = 0.5_rp * (a22%x(i,1,1,e) + a22%x(i,1,1,e))
-          s33 = 0.5_rp * (a33%x(i,1,1,e) + a33%x(i,1,1,e))
-          s12 = 0.5_rp * (a12%x(i,1,1,e) + a12%x(i,1,1,e))
-          s13 = 0.5_rp * (a13%x(i,1,1,e) + a13%x(i,1,1,e))
-          s23 = 0.5_rp * (a23%x(i,1,1,e) + a23%x(i,1,1,e))
-
-          s_abs = sqrt(2 * (s11*s11 + s22*s22 + s33*s33) + &
-                  4 * (s12*s12 + s13*s13 + s23*s23))
+          s_abs = sqrt(0.5_rp * (s11_2%x(i,1,1,e)*s11_2%x(i,1,1,e) + &
+                                 s22_2%x(i,1,1,e)*s22_2%x(i,1,1,e) + &
+                                 s33_2%x(i,1,1,e)*s33_2%x(i,1,1,e)) + &
+                                (s12_2%x(i,1,1,e)*s12_2%x(i,1,1,e) + &
+                                 s13_2%x(i,1,1,e)*s13_2%x(i,1,1,e) + &
+                                 s23_2%x(i,1,1,e)*s23_2%x(i,1,1,e)))
 
           nut%x(i,1,1,e) = c_s**2 * delta%x(i,1,1,e)**2 * s_abs
        end do
