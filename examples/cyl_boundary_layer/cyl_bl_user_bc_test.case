@@ -1,0 +1,72 @@
+{
+"version": 1.0,
+"case": {
+    "mesh_file": "cyl.nmsh",
+    "output_at_end": false,
+    "output_boundary": true,
+    "output_checkpoints": false,
+    "end_time": 100,
+    "output_directory": "results_dirichlet_bcs",
+    "timestep": 8e-4,
+    "numerics": {
+        "time_order": 3,
+        "polynomial_order": 5,
+        "dealias": true
+    },
+    "fluid": {
+        "scheme": "pnpn",
+        "Re": 500,
+        "source_term": {
+            "type": "noforce"
+        },
+        "initial_condition": {
+            "type": "uniform",
+            "value": [1.0, 0.0, 0.0]
+        },
+        "inflow_condition": {
+            "type": "user",
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "projection_space_size": 3,
+            "absolute_tolerance": 1e-8,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "projection_space_size": 10,
+            "absolute_tolerance": 1e-5,
+            "max_iterations": 800
+        },
+        "boundary_types": [
+            "d_vel_u/d_vel_v/d_vel_w", 
+            "d_vel_u/d_vel_v/d_vel_w/d_pres",
+            "sym",
+            "w",
+            "on", 
+            "on", 
+            "w"
+        ],
+        "output_control": "nsamples",
+        "output_value": 20
+    },
+    "scalar": {
+	    "enabled": true,
+            "Pe": 0.71,
+            "boundary_types": [
+                "d_s",
+                "d_s",
+                "",
+                "",
+                "",
+                ""
+            ],
+            "initial_condition": {
+                "type": "uniform",
+		"value": 0.0
+            }
+    }
+}
+}

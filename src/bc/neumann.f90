@@ -47,8 +47,6 @@ module neumann
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
      real(kind=rp), allocatable, private :: flux_(:)
-     !> SEM coeffs.
-     type(coef_t), pointer :: coef
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
      procedure, pass(this) :: apply_vector => neumann_apply_vector
@@ -134,12 +132,9 @@ contains
 
   !> Constructor
   !> @param flux The desired flux.
-  !> @param coef The SEM coefficients.
-  subroutine neumann_init_neumann(this, coef)
+  subroutine neumann_init_neumann(this)
     class(neumann_t), intent(inout) :: this
-    type(coef_t), target, intent(in) :: coef
 
-    this%coef => coef
   end subroutine neumann_init_neumann
 
   !> Get the flux.

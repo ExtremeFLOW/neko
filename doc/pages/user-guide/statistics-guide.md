@@ -1,5 +1,6 @@
-
 # Statistics guide {#statistics-guide}
+
+\tableofcontents
 
 Under development, updated incrementally
 ## Notes on the statistics calculation in Neko
