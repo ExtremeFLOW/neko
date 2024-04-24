@@ -426,8 +426,8 @@ contains
     !
     ! Initialize field list and bc list for user_dirichlet_update
     !
-    allocate(this%field_dirichlet_fields%fields(1))
-    this%field_dirichlet_fields%fields(1)%f => &
+    allocate(this%field_dirichlet_fields%items(1))
+    this%field_dirichlet_fields%items(1)%ptr => &
          this%field_dir_bc%field_bc
 
     call bc_list_init(this%field_dirichlet_bcs, size=1)

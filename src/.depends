@@ -67,7 +67,7 @@ mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 
 field/scratch_registry.o : field/scratch_registry.f90 sem/dofmap.o field/field.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 
-field/field_list.o : field/field_list.f90 field/field.o 
+field/field_list.o : field/field_list.f90 mesh/mesh.o sem/dofmap.o sem/space.o config/num_types.o field/field.o 
 field/field_series.o : field/field_series.f90 field/field.o config/num_types.o 
 field/mesh_field.o : field/mesh_field.f90 mesh/mesh.o 
 field/mean_field.o : field/mean_field.f90 math/bcknd/device/device_math.o math/math.o field/field.o config/num_types.o common/stats_quant.o config/neko_config.o 

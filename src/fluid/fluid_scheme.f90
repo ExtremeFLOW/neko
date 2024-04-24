@@ -447,15 +447,15 @@ contains
     !
     ! Initialize field list and bc list for user_dirichlet_update
     !
-    allocate(this%field_dirichlet_fields%fields(4))
+    allocate(this%field_dirichlet_fields%items(4))
 
-    this%field_dirichlet_fields%fields(1)%f => &
+    this%field_dirichlet_fields%items(1)%ptr => &
          this%bc_field_vel%field_dirichlet_u%field_bc
-    this%field_dirichlet_fields%fields(2)%f => &
+    this%field_dirichlet_fields%items(2)%ptr => &
          this%bc_field_vel%field_dirichlet_v%field_bc
-    this%field_dirichlet_fields%fields(3)%f => &
+    this%field_dirichlet_fields%items(3)%ptr => &
          this%bc_field_vel%field_dirichlet_w%field_bc
-    this%field_dirichlet_fields%fields(4)%f => &
+    this%field_dirichlet_fields%items(4)%ptr => &
          this%bc_field_prs%field_bc
 
     call bc_list_init(this%field_dirichlet_bcs, size=4)
