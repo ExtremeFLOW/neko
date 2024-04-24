@@ -45,7 +45,7 @@ module bc_list
   type, public :: bc_list_t
      type(bc_ptr_t), allocatable :: items(:)
      !> Number of items.
-     integer, private :: size_
+     integer :: size_
      !> Capacity.
      integer :: capacity
    contains
@@ -142,54 +142,80 @@ contains
   !! @param n The size of x.
   !! @param t Current time.
   !! @param tstep Current time-step.
-  subroutine bc_list_apply_scalar(this, x, n, t, tstep)
+  subroutine bc_list_apply_scalar(this, x, n, t, tstep, strong)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     type(c_ptr) :: x_d
     integer :: i
+    logical :: execute(this%size())
+
+    execute = .true.
+    if (present(strong)) then
+       do i=1, this%size()
+         if (.not. (this%strong(i) .eqv. strong)) then
+            execute(i) = .false.
+         end if
+       end do
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_scalar_dev(x_d, t=t, tstep=tstep)
+             if (execute(i)) then
+                   call this%items(i)%ptr%apply_scalar_dev(x_d, t=t, tstep=tstep)
+             end if
           end do
        else if (present(t)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_scalar_dev(x_d, t=t)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_scalar_dev(x_d, t=t)
+             end if
           end do
        else if (present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_scalar_dev(x_d, tstep=tstep)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_scalar_dev(x_d, tstep=tstep)
+             end if
           end do
        else
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_scalar_dev(x_d)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_scalar_dev(x_d)
+             end if
           end do
        end if
     else
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_scalar(x, n, t, tstep)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_scalar(x, n, t, tstep)
+             end if
           end do
        else if (present(t)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_scalar(x, n, t=t)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_scalar(x, n, t=t)
+             end if
           end do
        else if (present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_scalar(x, n, tstep=tstep)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_scalar(x, n, tstep=tstep)
+             end if
           end do
        else
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_scalar(x, n)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_scalar(x, n)
+             end if
           end do
        end if
     end if
-
   end subroutine bc_list_apply_scalar
 
   !> Apply a list of boundary conditions to a vector field.
