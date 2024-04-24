@@ -37,7 +37,7 @@ module usr_inflow
   use inflow, only : inflow_t
   use device
   use device_inhom_dirichlet
-  use utils, only : neko_error
+  use utils, only : neko_error, nonlinear_index, neko_warning
   use bc, only : bc_t
   implicit none
   private
