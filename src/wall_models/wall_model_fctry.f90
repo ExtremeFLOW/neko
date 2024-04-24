@@ -31,8 +31,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module les_model_fctry
-  use les_model, only : les_model_t
+module wall_model_fctry
+  use wall_model_bc, only : wall_model_bc_t
   use vreman, only : vreman_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
@@ -40,32 +40,26 @@ module les_model_fctry
   implicit none
   private
 
-  public :: les_model_factory
+  public :: wall_model_factory
 
 contains
-  !> LES model factory. Both constructs and initializes the object.
-  !! @param les_model The object to be allocated.
+
+  !! CURRENTLY NOT USED !!
+
+
+  !> Wall model factory. Both constructs and initializes the object.
+  !! @param wall_model The object to be allocated.
   !! @param name The name of the LES model.
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine les_model_factory(les_model, name, dofmap, coef, json)
-    class(les_model_t), allocatable, target, intent(inout) :: les_model
+  subroutine wall_model_factory(wall_model, name, dofmap, coef, json)
+    class(wall_model_bc_t), allocatable, target, intent(inout) :: wall_model
     character(len=*), intent(in) :: name
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
 
-    if (allocated(les_model)) then
-       deallocate(les_model)
-    end if
+  end subroutine wall_model_factory
 
-    if (trim(name) .eq. 'vreman') then
-       allocate(vreman_t::les_model)
-    end if
-
-    call les_model%init(dofmap, coef, json)
-
-  end subroutine les_model_factory
-
-end module les_model_fctry
+end module wall_model_fctry

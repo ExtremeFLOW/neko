@@ -71,6 +71,7 @@ module shear_stress
        procedure, pass(this) :: tau2 => shear_stress_tau2
        procedure, pass(this) :: set_stress => shear_stress_set_stress
        procedure, pass(this) :: shear_stress_finalize
+       procedure, pass(this) :: free => shear_stress_free
     end type shear_stress_t
 
   contains
@@ -171,9 +172,9 @@ module shear_stress
       type(coef_t), target, intent(in) :: coef
 
 
-      call this%dirichlet%init(coef)
-      call this%neumann1%init(coef)
-      call this%neumann2%init(coef)
+      call this%dirichlet%init_base(coef)
+      call this%neumann1%init_base(coef)
+      call this%neumann2%init_base(coef)
 
       call this%neumann1%init_neumann()
       call this%neumann2%init_neumann()
@@ -236,4 +237,14 @@ module shear_stress
       call copy(this%tau2_, tau2, this%msk(0))
 
     end subroutine shear_stress_set_stress
+
+    !> Destructor.
+    subroutine shear_stress_free(this)
+      class(shear_stress_t), target, intent(inout) :: this
+      call this%free_base
+      call this%dirichlet%free
+      call this%neumann1%free
+      call this%neumann2%free
+
+    end subroutine shear_stress_free
   end module shear_stress

@@ -139,6 +139,14 @@ contains
 
   end subroutine neumann_init_neumann
 
+  !> Destructor
+  subroutine neumann_free(this)
+    class(neumann_t), target, intent(inout) :: this
+
+    call this%free_base()
+
+  end subroutine neumann_free
+
   !> Get the flux.
   pure function neumann_flux(this) result(flux)
     class(neumann_t), intent(in) :: this

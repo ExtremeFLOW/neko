@@ -114,8 +114,8 @@ contains
        else
            call this%output%init(sp, filename, 2)
        end if
-       this%output%fields%fields(1)%f => this%les_model%nut
-       this%output%fields%fields(2)%f => this%les_model%delta
+       this%output%fields%items(1)%ptr => this%les_model%nut
+       this%output%fields%items(2)%ptr => this%les_model%delta
        call this%case%s%add(this%output, this%output_controller%control_value, &
                             this%output_controller%control_mode)
     else
