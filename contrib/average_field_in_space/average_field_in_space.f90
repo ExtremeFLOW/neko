@@ -3,7 +3,7 @@
 program average_field_in_space
   use neko
   implicit none
-  
+
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname, field_fname, hom_dir, output_fname
   type(file_t) :: field_file, output_file, mesh_file
   real(kind=rp) :: start_time, el_h, el_dim(3,3), domain_height
@@ -22,12 +22,12 @@ program average_field_in_space
   integer :: argc, i, n, lx, j, e, n_levels, dir, ierr, n_1d, tstep
   logical :: avg_to_1d = .false.
   real(kind=rp) :: coord
-  
+
   argc = command_argument_count()
 
   if ((argc .lt. 4) .or. (argc .gt. 4)) then
      if (pe_rank .eq. 0) then
-        write(*,*) 'Usage: ./average_field_in_space mesh.nmsh field.fld dir(x, y, z, xz, xy, yz)  outfield.(fld,csv)' 
+        write(*,*) 'Usage: ./average_field_in_space mesh.nmsh field.fld dir(x, y, z, xz, xy, yz)  outfield.(fld,csv)'
         write(*,*) '----'
         write(*,*) 'Example command for avg in 1 direction: ./average_field_in_space mesh.nmsh fieldblabla.fld x  outfield.fld'
         write(*,*) 'Computes spatial average in 1 direction and saves it in outfield.fld'
@@ -41,29 +41,29 @@ program average_field_in_space
      end if
      stop
   end if
-  
-  call neko_init 
 
-  call get_command_argument(1, inputchar) 
+  call neko_init
+
+  call get_command_argument(1, inputchar)
   read(inputchar, *) mesh_fname
   mesh_file = file_t(trim(mesh_fname))
-  call get_command_argument(2, inputchar) 
+  call get_command_argument(2, inputchar)
   read(inputchar, *) field_fname
   field_file = file_t(trim(field_fname))
-  call get_command_argument(3, inputchar) 
+  call get_command_argument(3, inputchar)
   read(inputchar, *) hom_dir
-  call get_command_argument(4, inputchar) 
+  call get_command_argument(4, inputchar)
   read(inputchar, *) output_fname
-  
+
   call mesh_file%read(msh)
-   
+
   call field_data%init(msh%nelv,msh%offset_el)
   call field_file%read(field_data)
-  
+
   lx = field_data%lx
   !To make sure any deformation made in the user file is passed onto here as well
   do i = 1,msh%nelv
-     msh%elements(i)%e%pts(1)%p%x(1) = field_data%x%x(linear_index(1,1,1,i,lx,lx,lx))  
+     msh%elements(i)%e%pts(1)%p%x(1) = field_data%x%x(linear_index(1,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(2)%p%x(1) = field_data%x%x(linear_index(lx,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(3)%p%x(1) = field_data%x%x(linear_index(1,lx,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(4)%p%x(1) = field_data%x%x(linear_index(lx,lx,1,i,lx,lx,lx))
@@ -72,7 +72,7 @@ program average_field_in_space
      msh%elements(i)%e%pts(7)%p%x(1) = field_data%x%x(linear_index(1,lx,lx,i,lx,lx,lx))
      msh%elements(i)%e%pts(8)%p%x(1) = field_data%x%x(linear_index(lx,lx,lx,i,lx,lx,lx))
 
-     msh%elements(i)%e%pts(1)%p%x(2) = field_data%y%x(linear_index(1,1,1,i,lx,lx,lx))  
+     msh%elements(i)%e%pts(1)%p%x(2) = field_data%y%x(linear_index(1,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(2)%p%x(2) = field_data%y%x(linear_index(lx,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(3)%p%x(2) = field_data%y%x(linear_index(1,lx,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(4)%p%x(2) = field_data%y%x(linear_index(lx,lx,1,i,lx,lx,lx))
@@ -81,7 +81,7 @@ program average_field_in_space
      msh%elements(i)%e%pts(7)%p%x(2) = field_data%y%x(linear_index(1,lx,lx,i,lx,lx,lx))
      msh%elements(i)%e%pts(8)%p%x(2) = field_data%y%x(linear_index(lx,lx,lx,i,lx,lx,lx))
 
-     msh%elements(i)%e%pts(1)%p%x(3) = field_data%z%x(linear_index(1,1,1,i,lx,lx,lx))  
+     msh%elements(i)%e%pts(1)%p%x(3) = field_data%z%x(linear_index(1,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(2)%p%x(3) = field_data%z%x(linear_index(lx,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(3)%p%x(3) = field_data%z%x(linear_index(1,lx,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(4)%p%x(3) = field_data%z%x(linear_index(lx,lx,1,i,lx,lx,lx))
@@ -124,7 +124,7 @@ program average_field_in_space
   else if (trim(hom_dir) .eq. 'xy') then
      dir = 3
      avg_to_1d = .true.
-  else 
+  else
      call neko_error('homogenous direction not supported')
   end if
   call map_1d%init(dof, gs_h,  dir, 1e-7_rp)
@@ -161,7 +161,7 @@ program average_field_in_space
         do j = 2, field_data%size()+1
            do i = 1, n
               avg_matrix%x(map_1d%pt_lvl(i,1,1,1),j) = &
-              avg_matrix%x(map_1d%pt_lvl(i,1,1,1),j) + fields(j-1)%v%x(i)*coef%B(i,1,1,1) &
+              avg_matrix%x(map_1d%pt_lvl(i,1,1,1),j) + fields(j-1)%ptr%x(i)*coef%B(i,1,1,1) &
               /volume_per_gll_lvl%x(map_1d%pt_lvl(i,1,1,1))
            end do
         end do 
@@ -194,14 +194,14 @@ program average_field_in_space
 
 
         do i = 1, field_data%size()
-           call copy(old_u%x,fields(i)%v%x,n)
+           call copy(old_u%x,fields(i)%ptr%x,n)
            call perform_local_summation(u,old_u, el_heights, domain_height, &
                 map_1d%dir_el, coef, msh%nelv, lx)
            call copy(old_u%x,u%x,n)
            call copy(avg_u%x,u%x,n)
            call perform_global_summation(u, avg_u, old_u, n_levels, &
                 map_1d%dir_el,gs_h, coef%mult, msh%nelv, lx)
-           call copy(fields(i)%v%x,u%x,n)
+           call copy(fields(i)%ptr%x,u%x,n)
         end do 
 
         call output_file%write(field_data,field_data%time)
@@ -227,7 +227,7 @@ subroutine perform_global_summation(u, avg_u, old_u, n_levels, hom_dir_el, gs_h,
   n = u%dof%size()
 
   do i = 1, n_levels-1
-     !compute average 
+     !compute average
      if (NEKO_BCKND_DEVICE .eq. 1) &
           call device_memcpy(u%x, u%x_d, n, &
                              HOST_TO_DEVICE, sync=.false.)

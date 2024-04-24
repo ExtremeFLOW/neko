@@ -12,7 +12,7 @@ module structs
 
   !> Pointer to array
   type, public :: array_ptr_t
-     real(kind=rp), pointer :: x(:)
+     real(kind=rp), pointer :: ptr(:)
   end type array_ptr_t
 end module structs
 
