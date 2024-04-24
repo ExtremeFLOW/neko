@@ -52,6 +52,9 @@ module power_iterations
   !> A simulation component that computes the power_iterations field.
   !! Added to the field registry as `omega_x`, `omega_y``, and `omega_z`.
   type, public, extends(simulation_component_t) :: power_iterations_t
+     !> Neko case file
+     class(case_t), pointer :: neko_case
+
      !> X velocity component.
      type(field_t), pointer :: u
      !> Y velocity component.
@@ -66,9 +69,9 @@ module power_iterations
      !> Z power_iterations component.
      type(field_t), pointer :: w_old
 
-     type(field_t), pointer :: lambda
-     type(field_t), pointer :: lambda_old
-     type(field_t), pointer :: lambda_diff
+     real(kind=rp) :: lambda
+     real(kind=rp) :: lambda_old
+     real(kind=rp) :: lambda_diff
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -89,6 +92,8 @@ contains
     class(power_iterations_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
+
+    this%neko_case => case
 
     ! Add new fields needed by the simulation here
     call neko_field_registry%add_field(case%fluid%dm_Xh, "u_old",&
@@ -146,21 +151,27 @@ contains
     integer, intent(in) :: tstep
 
     integer :: n
-    real(kind=rp), dimension(:), allocatable :: norm
+    real(kind=rp) :: norm
+    real(kind=rp), dimension(:), allocatable :: tmp
+    real(kind=rp), dimension(:,:,:,:), pointer :: wt
+    real(kind=rp) :: volvm1
+    real(kind=rp) :: cnht_sv
+    real(kind=rp) :: f1
 
     n = this%u%size()
-    allocate(norm(n))
+    allocate(tmp(n))
 
     associate (u => this%u%x, v => this%v%x, w => this%w%x, &
                u_old => this%u_old%x, v_old => this%v_old%x, w_old => this%w_old%x, &
-               lambda => this%lambda%x, lambda_old => this%lambda_old%x, &
-               lambda_diff => this%lambda_diff%x &
+
                )
+
+
 
       ! Calculate the new lambda value
       ! lambda = U_n^T * U_old
       ! U_old = U_{n-1} / ||U_{n-1}||
-      call copy(lambda_old, lambda, n)
+      lambda_old = lambda
       call vdot3(lambda, u, v, w, u_old, v_old, w_old, n)
       call sub3(lambda_diff, lambda, lambda_old, n)
 
@@ -169,15 +180,50 @@ contains
       call copy(v_old, v, n)
       call copy(w_old, w, n)
 
-      call vdot3(norm, u_old, v_old, w_old, u_old, v_old, w_old, n)
+      ! Normalize the temporary pertubation fields.
+
+      ! Compute the norm of the pertubation fields.
+      !
+      ! Nek5000 uses the following norm:
+      ! do il=1,ntotv
+      ! sum = sum + wt(il)*f1*( b1(il)*x1(il) + b2(il)*x2(il) + b3(il)*x3(il) )
+      !  end do
+      !
+      ! Where:
+      !       Harrison Nobis: Harrison Nobis said:
+      ! Harrison Nobis: a bit of Nek5000 notation:
+      ! if you want to take an integral of any scalar field in the domain, it's the pointwise product of the field and the mass matrix, then summed across the entire domain
+      ! so often people will use: glsc2(field1, bm1, n)
+
+      ! Harrison Nobis: in this case they're doing the sum locally on each processor, and then the last line glsum() does a global sum across all processors
+
+      ! Harrison Nobis: so by Neko notation, you would want to have:
+      ! uucoef%X_h%B + vvcoef%X_h%B + wwcoef%X_h%B
+
+      ! Harrison Nobis: I could be wrong with where B lives, but that's should be the mass matrix
+
+      ! Harrison Nobis: and then sum them everywhere
+
+      ! Normalize the pertubation fields.
+      wt => this%case%fluid%c_Xh%B ! Mass matrix
+      volvm1=this%case%fluid%c_Xh%volume
+
+      ! https://github.com/KTH-Nek5000/KTH_Toolbox/blob/b2b7a97b4ba1a56a75dcbd2c1703a595cda9a850/utility/cnht/cnht_tools.f#L51C1-L54C40
+      cnht_sv = 0.5
+
+      f1=cnht_sv/volvm1
+      call vdot3(tmp, u_old, v_old, w_old, u_old, v_old, w_old, n)
+
+      norm = f1 * glsc2(tmp, wt, n)
       norm = sqrt(norm)
+
       call invcol2(u_old, norm, n)
       call invcol2(v_old, norm, n)
       call invcol2(w_old, norm, n)
 
     end associate
 
-    deallocate(norm)
+    deallocate(tmp)
   end subroutine power_iterations_compute
 
 end module power_iterations
