@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines inflow dirichlet conditions
+!> Defines user dirichlet condition for a scalar field.
 module field_dirichlet
   use num_types, only: rp
   use coefs, only: coef_t
