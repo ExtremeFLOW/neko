@@ -358,9 +358,9 @@ contains
        call device_cmult(s13_d, 0.5_rp, nelv*lxyz)
        call device_cmult(s23_d, 0.5_rp, nelv*lxyz)
     else
-       call cmult(s12_d, 0.5_rp, nelv*lxyz)
-       call cmult(s13_d, 0.5_rp, nelv*lxyz)
-       call cmult(s23_d, 0.5_rp, nelv*lxyz)
+       call cmult(s12, 0.5_rp, nelv*lxyz)
+       call cmult(s13, 0.5_rp, nelv*lxyz)
+       call cmult(s23, 0.5_rp, nelv*lxyz)
     endif
 
   end subroutine strain_rate
