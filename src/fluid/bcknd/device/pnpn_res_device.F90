@@ -294,11 +294,11 @@ contains
     call Ax%compute(p_res%x,p%x,c_Xh,p%msh,p%Xh)
 
 #ifdef HAVE_HIP
-    call pnpn_prs_res_part2_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
+    call pnpn_prs_res_part2_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #elif HAVE_CUDA
-    call pnpn_prs_res_part2_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
+    call pnpn_prs_res_part2_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #elif HAVE_OPENCL
-    call pnpn_prs_res_part2_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
+    call pnpn_prs_res_part2_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #endif
 
     !
@@ -311,11 +311,11 @@ contains
     call bc_sym_surface%apply_surfvec_dev(wa1%x_d, wa2%x_d, wa3%x_d, ta1%x_d, ta2%x_d, ta3%x_d)
 
 #ifdef HAVE_HIP
-    call pnpn_prs_res_part3_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n);
+    call pnpn_prs_res_part3_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_CUDA
-    call pnpn_prs_res_part3_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n);
+    call pnpn_prs_res_part3_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_OPENCL
-    call pnpn_prs_res_part3_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n);
+    call pnpn_prs_res_part3_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #endif
     !
     dtbd = bd / dt
@@ -328,11 +328,11 @@ contains
          u%x_d, v%x_d, w%x_d)
 
 #ifdef HAVE_HIP
-    call pnpn_prs_res_part3_hip(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n);
+    call pnpn_prs_res_part3_hip(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n)
 #elif HAVE_CUDA
-    call pnpn_prs_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n);
+    call pnpn_prs_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n)
 #elif HAVE_OPENCL
-    call pnpn_prs_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n);
+    call pnpn_prs_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n)
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)

@@ -11,20 +11,27 @@ doxygen.stamp: Doxyfile $(INPUT)
 CLEANFILES = doxygen.stamp
 
 clean-local:
-	rm -fr html 
+	rm -fr html
 
 html-local: doxygen.stamp
 
-EXTRA_DIST = pages/code-style.md\
-	     pages/publication-list.md\
-	     pages/accelerators.md\
-	     pages/user-file.md\
-	     pages/case-file.md\
-	     pages/statistics.md\
-             pages/simcomps.md\
-             pages/point-zones.md\
-             pages/testing.md\
-             pages/appendix.md\
-             pages/installation.md\
-             pages/dev_patterns.md\
-	     pages/index.md
+EXTRA_DIST = pages/appendices/governing-equations.md \
+			pages/appendices/publications.md \
+			pages/developer-guide \
+			pages/developer-guide/accelerators.md \
+			pages/developer-guide/code-style.md \
+			pages/developer-guide/contributing.md \
+			pages/developer-guide/dev_patterns.md \
+			pages/developer-guide/testing.md \
+			pages/user-guide \
+			pages/user-guide/case-file.md \
+			pages/user-guide/installation.md \
+			pages/user-guide/io.md \
+			pages/user-guide/point-zones.md \
+			pages/user-guide/simcomps.md \
+			pages/user-guide/statistics-guide.md \
+			pages/user-guide/user-file.md \
+			pages/appendices.md \
+			pages/developer-guide.md \
+			pages/index.md \
+			pages/user-guide.md

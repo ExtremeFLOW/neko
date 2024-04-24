@@ -3,7 +3,6 @@
 ## About
 Neko is a portable framework for high-order spectral element flow simulations. Written in modern Fortran, Neko adopts an object-oriented approach, allowing multi-tier abstractions of the solver stack and facilitating various hardware backends ranging from general-purpose processors, CUDA and HIP enabled accelerators to SX-Aurora vector processors. Neko has its roots in the spectral element code Nek5000 from UChicago/ANL, from where many of the namings, code structure and numerical methods are adopted.
 
-Neko is currently maintained and developed at KTH Royal Institute of Technology.
 
 ## Cloning the project
 
@@ -39,7 +38,7 @@ make check
 ```
 
 ## Documentation
-Documentation for Neko is available at https://neko.cfd/docs.
+Documentation for Neko is available at https://neko.cfd.
 
 To generate the documentation, you need to have both doxygen and dot (part of the Graphviz package) installed (they will be picked up by configure). Once installed, you should be able to generate the documentation with
 ```bash
