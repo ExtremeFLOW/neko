@@ -338,12 +338,10 @@ contains
 
     call this%bclst_vel%init()
 
-    ! Broken atm?
-    call this%bc_sym%init_base(this%c_Xh)
+    call this%bc_sym%init(this%c_Xh, params)
     call this%bc_sym%mark_zone(msh%sympln)
     call this%bc_sym%mark_zones_from_list('sym', this%bc_labels)
     call this%bc_sym%finalize()
-    call this%bc_sym%init(this%c_Xh, params)
     call this%bclst_vel%append(this%bc_sym)
 
     !
