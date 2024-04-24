@@ -56,7 +56,7 @@ module operators
 
   public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
             lambda2op, strain_rate
-  
+
 contains
 
   !> Compute derivative of a scalar field along a single direction.
@@ -286,7 +286,7 @@ contains
 
   end function cfl
 
-  !> Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i
+  !> Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i
   !! @param s11 Will hold the 1,1 component of the strain rate tensor.
   !! @param s22 Will hold the 2,2 component of the strain rate tensor.
   !! @param s33 Will hold the 3,3 component of the strain rate tensor.
@@ -354,13 +354,13 @@ contains
     call dudxyz (s33, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult(s11_d, 2.0_rp, nelv*lxyz)
-       call device_cmult(s22_d, 2.0_rp, nelv*lxyz)
-       call device_cmult(s33_d, 2.0_rp, nelv*lxyz)
+       call device_cmult(s12_d, 0.5_rp, nelv*lxyz)
+       call device_cmult(s13_d, 0.5_rp, nelv*lxyz)
+       call device_cmult(s23_d, 0.5_rp, nelv*lxyz)
     else
-       call cmult(s11, 2.0_rp, nelv*lxyz)
-       call cmult(s22, 2.0_rp, nelv*lxyz)
-       call cmult(s33, 2.0_rp, nelv*lxyz)
+       call cmult(s12, 0.5_rp, nelv*lxyz)
+       call cmult(s13, 0.5_rp, nelv*lxyz)
+       call cmult(s23, 0.5_rp, nelv*lxyz)
     endif
 
   end subroutine strain_rate

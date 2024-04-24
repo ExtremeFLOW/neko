@@ -255,7 +255,7 @@ contains
 !             call this%dir_bcs(j)%mark_zone(zones(i))
 !          else
           this%n_dir_bcs = this%n_dir_bcs + 1
-          call this%dir_bcs(this%n_dir_bcs)%init(this%c_Xh)
+          call this%dir_bcs(this%n_dir_bcs)%init_base(this%c_Xh)
           call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) dir_value
           call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
@@ -264,7 +264,7 @@ contains
 
        if (bc_label(1:2) .eq. 'n=') then
           this%n_neumann_bcs = this%n_neumann_bcs + 1
-          call this%neumann_bcs(this%n_neumann_bcs)%init(this%c_Xh)
+          call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) flux_value
 
@@ -388,7 +388,7 @@ contains
     ! Setup scalar boundary conditions
     !
     call bc_list_init(this%bclst_dirichlet)
-    call this%user_bc%init(this%c_Xh)
+    call this%user_bc%init_base(this%c_Xh)
 
     ! Read boundary types from the case file
     allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
@@ -419,12 +419,11 @@ contains
     call this%user_bc%mark_zone(msh%outlet_normal)
     call this%user_bc%mark_zone(msh%sympln)
     call this%user_bc%finalize()
-    call this%user_bc%set_coef(this%c_Xh)
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
                                                      this%user_bc)
 
     ! Add field dirichlet BCs
-    call this%field_dir_bc%init(this%c_Xh)
+    call this%field_dir_bc%init_base(this%c_Xh)
     call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
          'd_s', this%bc_labels)
     call this%field_dir_bc%finalize()
@@ -442,8 +441,8 @@ contains
     !
     ! Initialize field list and bc list for user_dirichlet_update
     !
-    allocate(this%field_dirichlet_fields%fields(1))
-    this%field_dirichlet_fields%fields(1)%f => &
+    allocate(this%field_dirichlet_fields%items(1))
+    this%field_dirichlet_fields%items(1)%ptr => &
          this%field_dir_bc%field_bc
 
     call bc_list_init(this%field_dirichlet_bcs, size=1)

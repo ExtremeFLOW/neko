@@ -55,6 +55,8 @@ module neumann
      procedure, pass(this) :: init_neumann => neumann_init_neumann
      procedure, pass(this) :: finalize_neumann => neumann_finalize_neumann
      procedure, pass(this) :: flux => neumann_flux
+     !> Destructor.
+     procedure, pass(this) :: free => neumann_free
   end type neumann_t
 
 contains

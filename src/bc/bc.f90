@@ -69,9 +69,9 @@ module bc
      type(c_ptr) :: facet_d = C_NULL_PTR
    contains
      !> Constructor
-     procedure, pass(this) :: init => bc_init
+     procedure, pass(this) :: init_base => bc_init_base
      !> Destructor
-     procedure, pass(this) :: free => bc_free
+     procedure, pass(this) :: free_base => bc_free_base
      !> Mark a facet on an element as part of the boundary condition
      procedure, pass(this) :: mark_facet => bc_mark_facet
      !> Mark all facets from a (facet, element) tuple list
@@ -91,6 +91,8 @@ module bc
      procedure(bc_apply_scalar_dev), pass(this), deferred :: apply_scalar_dev
      !> Device version of \ref apply_vector
      procedure(bc_apply_vector_dev), pass(this), deferred :: apply_vector_dev
+     !> Destructor
+     procedure(bc_destructor), pass(this), deferred :: free
   end type bc_t
 
   !> Pointer to boundary condtiion
@@ -146,6 +148,14 @@ module bc
   end interface
 
   abstract interface
+     !> Destructor
+     subroutine bc_destructor(this)
+       import :: bc_t
+       class(bc_t), intent(inout), target :: this
+     end subroutine bc_destructor
+  end interface
+
+  abstract interface
      !> Apply the boundary condition to a scalar field on the device
      !! @param x_d Device pointer to the field.
      subroutine bc_apply_scalar_dev(this, x_d, t, tstep)
@@ -188,11 +198,11 @@ contains
 
   !> Constructor
   !! @param dof Map of degrees of freedom.
-  subroutine bc_init(this, coef)
+  subroutine bc_init_base(this, coef)
     class(bc_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
 
-    call bc_free(this)
+    call this%free_base
 
     this%dof => coef%dof
     this%coef => coef
@@ -201,10 +211,10 @@ contains
 
     call this%marked_facet%init()
 
-  end subroutine bc_init
+  end subroutine bc_init_base
 
-  !> Destructor
-  subroutine bc_free(this)
+  !> Destructor for the base type, `bc_t`.
+  subroutine bc_free_base(this)
     class(bc_t), intent(inout) :: this
 
     call this%marked_facet%free()
@@ -212,6 +222,7 @@ contains
     nullify(this%Xh)
     nullify(this%msh)
     nullify(this%dof)
+    nullify(this%coef)
 
     if (allocated(this%msk)) then
        deallocate(this%msk)
@@ -231,7 +242,7 @@ contains
        this%facet_d = C_NULL_PTR
     end if
 
-  end subroutine bc_free
+  end subroutine bc_free_base
 
   !> Mark @a facet on element @a el as part of the boundary condition
   !! @param facet The index of the facet.

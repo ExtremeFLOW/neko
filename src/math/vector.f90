@@ -56,7 +56,7 @@ module vector
   end type vector_t
 
   type, public :: vector_ptr_t
-     type(vector_t), pointer :: v
+     type(vector_t), pointer :: ptr
   end type vector_ptr_t
 
 contains
