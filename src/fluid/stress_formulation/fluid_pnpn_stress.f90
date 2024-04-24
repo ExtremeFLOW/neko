@@ -36,6 +36,7 @@ module fluid_pnpn_stress
   use pnpn_res_fctry
   use ax_helm_fctry
   use rhs_maker_fctry
+  use rhs_maker
   use fluid_volflow
   use fluid_scheme
   use field_series
@@ -48,6 +49,7 @@ module fluid_pnpn_stress
   use device
   use logger
   use advection
+  use advection_fctry
   use profiler
   use cg_stress
   use json_utils, only : json_get
@@ -217,7 +219,7 @@ contains
        bc_label = trim(this%bc_labels(i))
        if (bc_label(1:2) .eq. 'sh') then
           this%n_shear_stress = this%n_shear_stress + 1
-          call this%shear_stress(this%n_shear_stress)%init(this%dm_Xh)
+          call this%shear_stress(this%n_shear_stress)%init(this%c_Xh)
           ! Read the stress value, set as x direction
           read(bc_label(4:), *) tau_value
           call this%shear_stress(this%n_shear_stress)%init_shear_stress(this%c_Xh)
@@ -240,7 +242,7 @@ contains
     !! Provisional wall model init from a single json object
     if (params%valid_path('case.fluid.wall_model')) then
        call json_get(params, "case.fluid.wall_model.index", integer_val)
-       call this%wm%init(this%dm_Xh)
+       call this%wm%init(this%c_Xh)
        call this%wm%init_shear_stress(this%c_Xh)
        call this%wm%mark_zones_from_list(this%msh%labeled_zones, "wm", this%bc_labels)
        call this%wm%finalize()
@@ -293,21 +295,20 @@ contains
     end if
 
     ! Initialize velocity surface terms in pressure rhs
-    call this%bc_prs_surface%init(this%dm_Xh)
+    call this%bc_prs_surface%init(this%c_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'v', this%bc_labels)
     call this%bc_prs_surface%finalize()
-    call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
-    call this%bc_sym_surface%init(this%dm_Xh)
+    call this%bc_sym_surface%init(this%c_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'sym', this%bc_labels)
     call this%bc_sym_surface%finalize()
-    call this%bc_sym_surface%set_coef(this%c_Xh)
+
     ! Initialize dirichlet bcs for velocity residual
-    call this%bc_vel_res_non_normal%init(this%dm_Xh)
+    call this%bc_vel_res_non_normal%init(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
                                                          'on', this%bc_labels)
@@ -315,9 +316,9 @@ contains
                                                          'on+dong', &
                                                          this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
-    call this%bc_vel_res_non_normal%init_msk(this%c_Xh)
+    call this%bc_vel_res_non_normal%init_msk()
 
-    call this%bc_dp%init(this%dm_Xh)
+    call this%bc_dp%init(this%c_Xh)
     call this%bc_dp%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
                                          this%bc_labels)
     call this%bc_dp%mark_zones_from_list(msh%labeled_zones, &
@@ -329,7 +330,7 @@ contains
     !Add 0 prs bcs
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
-    call this%bc_vel_res%init(this%dm_Xh)
+    call this%bc_vel_res%init(this%c_Xh)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
@@ -382,15 +383,7 @@ contains
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
-    call json_get(params, 'case.numerics.dealias', logical_val)
-    call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
-                    found)
-    if (.not. found) then
-       call json_get(params, 'case.numerics.polynomial_order', integer_val)
-       integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
-    end if
-    ! an extra +1 below to go from poly order to space size
-    call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
+    call advection_factory(this%adv, params, this%c_Xh)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)

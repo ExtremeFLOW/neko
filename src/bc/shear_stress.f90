@@ -54,8 +54,6 @@ module shear_stress
        real(kind=rp), allocatable, private :: tau1_(:)
        !> The stress in the 2nd wall-parallel direction.
        real(kind=rp), allocatable, private :: tau2_(:)
-       !> SEM coeffs.
-       type(coef_t), pointer :: coef
        !> Dirchlet bc for the wall-normal component.
        type(dirichlet_t) :: dirichlet
        !> Neumann condition for the 1st wall-parallel direction.
@@ -173,12 +171,12 @@ module shear_stress
       type(coef_t), target, intent(in) :: coef
 
 
-      call this%dirichlet%init(coef%dof)
-      call this%neumann1%init(coef%dof)
-      call this%neumann2%init(coef%dof)
+      call this%dirichlet%init(coef)
+      call this%neumann1%init(coef)
+      call this%neumann2%init(coef)
 
-      call this%neumann1%init_neumann(coef)
-      call this%neumann2%init_neumann(coef)
+      call this%neumann1%init_neumann()
+      call this%neumann2%init_neumann()
       call this%dirichlet%set_g(0.0_rp)
 
       this%coef => coef

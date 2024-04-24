@@ -42,7 +42,7 @@ module const_source_term_device
 
 contains
 
-  !> Computs the constant source term on the device.
+  !> Computes the constant source term on the device.
   !! @param fields The right-hand side.
   !! @param values The values of the source components.
   subroutine const_source_term_compute_device(fields, values)

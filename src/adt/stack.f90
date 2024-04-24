@@ -446,7 +446,7 @@ contains
   !> Return a pointer to the internal integer array
   function stack_i4_data(this) result(data)
     class(stack_i4_t), target, intent(inout) :: this
-    integer, pointer :: data(:)
+    integer, contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (integer)
@@ -473,7 +473,7 @@ contains
   !> Return a pointer to the internal integer*8 array
   function stack_i8_data(this) result(data)
     class(stack_i8_t), target, intent(inout) :: this
-    integer(kind=i8), pointer :: data(:)
+    integer(kind=i8), contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (integer(i8))
@@ -500,7 +500,7 @@ contains
   !> Return a pointer to the internal double precision array
   function stack_r8_data(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
-    real(kind=dp), pointer :: data(:)
+    real(kind=dp), contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (double precision)
@@ -527,7 +527,7 @@ contains
   !> Return a pointer to the interal 2-tuple array
   function stack_i4t2_data(this) result(data)
     class(stack_i4t2_t), target, intent(inout) :: this
-    type(tuple_i4_t), pointer :: data(:)
+    type(tuple_i4_t), contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (tuple_i4_t)
@@ -554,7 +554,7 @@ contains
   !> Return a pointer to the internal 4-tuple array
   function stack_i4t4_data(this) result(data)
     class(stack_i4t4_t), target, intent(inout) :: this
-    type(tuple4_i4_t), pointer :: data(:)
+    type(tuple4_i4_t), contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (tuple4_i4_t)
@@ -581,7 +581,7 @@ contains
   !> Return a pointer to the internal 2-tuple array
   function stack_i4r8t2_data(this) result(data)
     class(stack_i4r8t2_t), target, intent(inout) :: this
-    type(tuple_i4r8_t), pointer :: data(:)
+    type(tuple_i4r8_t), contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (tuple_i4r8_t)
@@ -608,7 +608,7 @@ contains
   !> Return a pointer to the internal 2-tuple array
   function stack_2i4r8t3_data(this) result(data)
     class(stack_2i4r8t3_t), target, intent(inout) :: this
-    type(tuple_2i4r8_t), pointer :: data(:)
+    type(tuple_2i4r8_t), contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (tuple_2i4r8_t)
@@ -635,7 +635,7 @@ contains
   !> Return a pointer to the internal curve element array
   function stack_curve_element_data(this) result(data)
     class(stack_curve_t), target, intent(inout) :: this
-    type(struct_curve_t), pointer :: data(:)
+    type(struct_curve_t), contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (struct_curve_t)
@@ -662,7 +662,7 @@ contains
   !> Return a pointer to the internal Neko quad array
   function stack_nq_data(this) result(data)
     class(stack_nq_t), target, intent(inout) :: this
-    type(nmsh_quad_t), pointer :: data(:)
+    type(nmsh_quad_t), contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (nmsh_quad_t)
@@ -689,7 +689,7 @@ contains
   !> Return a pointer to the internal Neko quad array
   function stack_nh_data(this) result(data)
     class(stack_nh_t), target, intent(inout) :: this
-    type(nmsh_hex_t), pointer :: data(:)
+    type(nmsh_hex_t), contiguous, pointer :: data(:)
 
     select type (sdp => this%data)
     type is (nmsh_hex_t)
@@ -716,7 +716,7 @@ contains
   !> Return a pointer to the internal Neko zone array
   function stack_nz_data(this) result(data)
     class(stack_nz_t), target, intent(inout) :: this
-    type(nmsh_zone_t), pointer :: data(:)
+    type(nmsh_zone_t), contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (nmsh_zone_t)
@@ -770,7 +770,7 @@ contains
   !> Return a pointer to the internal point array
   function stack_pt_data(this) result(data)
     class(stack_pt_t), target, intent(inout) :: this
-    type(point_t), pointer :: data(:)
+    type(point_t), contiguous, pointer :: data(:)
 
     select type (sdp=>this%data)
     type is (point_t)

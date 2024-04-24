@@ -5,6 +5,9 @@ module fluid_aux
   use krylov, only : ksp_monitor_t
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
   implicit none
+  private
+
+  public :: fluid_step_info, fluid_step_info_stress
 
 contains
 
