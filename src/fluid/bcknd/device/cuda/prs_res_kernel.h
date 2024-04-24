@@ -61,9 +61,12 @@ __global__ void prs_res_part1_kernel(T * __restrict__ ta1,
   
   for (int i = idx; i < n; i += str) {
     h1[i] = inv_rho;
-    ta1[i] = (f_u[i] / rho) - ((wa1[i] * (mu / rho)) * B[i]) - chi[i] * u_e[i] * B[i];
-    ta2[i] = (f_v[i] / rho) - ((wa2[i] * (mu / rho)) * B[i]) - chi[i] * v_e[i] * B[i];
-    ta3[i] = (f_w[i] / rho) - ((wa3[i] * (mu / rho)) * B[i]) - chi[i] * w_e[i] * B[i];
+    ta1[i] = (f_u[i] / rho) - ((wa1[i] * (mu / rho)) * B[i]);
+    ta2[i] = (f_v[i] / rho) - ((wa2[i] * (mu / rho)) * B[i]);
+    ta3[i] = (f_w[i] / rho) - ((wa3[i] * (mu / rho)) * B[i]);
+    // ta1[i] = (f_u[i] / rho) - ((wa1[i] * (mu / rho)) * B[i]) - chi[i] * u_e[i] * B[i];
+    // ta2[i] = (f_v[i] / rho) - ((wa2[i] * (mu / rho)) * B[i]) - chi[i] * v_e[i] * B[i];
+    // ta3[i] = (f_w[i] / rho) - ((wa3[i] * (mu / rho)) * B[i]) - chi[i] * w_e[i] * B[i];
   }
 
 }
