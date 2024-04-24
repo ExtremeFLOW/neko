@@ -46,7 +46,9 @@ module blasius
   implicit none
   private
 
-  !> Blasius profile for inlet (vector valued)
+  !> Blasius profile for inlet (vector valued).
+  !! @warning Works only with axis-aligned sugar-cube elements and assumes
+  !! the boundary is alinged with zOy.
   type, public, extends(bc_t) :: blasius_t
      real(kind=rp), dimension(3) :: uinf = (/0d0, 0d0, 0d0 /)
      real(kind=rp) :: delta
