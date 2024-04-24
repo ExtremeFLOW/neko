@@ -205,6 +205,7 @@ neko_fortran_SOURCES = \
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/ax_helm.f90\
+	math/ax_helm_full.f90\
 	math/bcknd/cpu/ax_helm_cpu.f90\
 	math/bcknd/cpu/ax_helm_full_cpu.f90\
 	math/bcknd/sx/ax_helm_sx.f90\

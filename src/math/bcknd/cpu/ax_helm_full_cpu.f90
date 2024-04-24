@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module ax_helm_full_cpu
-  use ax_helm, only : ax_helm_t
+  use ax_helm_full, only : ax_helm_full_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -42,32 +42,14 @@ module ax_helm_full_cpu
   private
 
   !> CPU matrix-vector product for a Helmholtz problem with full stress tensor.
-  type, public, extends(ax_helm_t) :: ax_helm_full_cpu_t
+  type, public, extends(ax_helm_full_t) :: ax_helm_full_cpu_t
    contains
      !> Compute the product.
-     procedure, nopass :: compute => ax_helm_full_compute
      procedure, pass(this) :: compute3 => ax_helm_full_compute3
   end type ax_helm_full_cpu_t
 
 contains
 
-  !> Compute the product for a single vector. Not implemented for the full
-  !! stress formulation.
-  !! @param w Vector of size @a (lx,ly,lz,nelv).
-  !! @param u Vector of size @a (lx,ly,lz,nelv).
-  !! @param coef Coefficients.
-  !! @param msh Mesh.
-  !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_full_compute(w, u, coef, msh, Xh)
-    type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-
-    call neko_error("The full Helmholtz operators cannot be applied to a &
-                   & field")
-  end subroutine ax_helm_full_compute
 
   subroutine ax_helm_full_compute3(this, au, av, aw, u, v, w, coef, msh, Xh)
     class(ax_helm_full_cpu_t), intent(in) :: this

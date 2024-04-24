@@ -37,7 +37,6 @@ module ax_helm
   use space, only : space_t
   use mesh, only : mesh_t
   use math, only : addcol4
-  use field_list
   implicit none
   private
 

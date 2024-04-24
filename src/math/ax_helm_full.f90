@@ -30,41 +30,42 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm
+module ax_helm_full
   use ax_product, only : ax_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t
   use math, only : addcol4
-  use field_list
+  use utils, only : neko_error
   implicit none
   private
 
   !> Matrix-vector product for a Helmholtz problem.
-  type, public, abstract, extends(ax_t) :: ax_helm_t
+  type, public, abstract, extends(ax_t) :: ax_helm_full_t
    contains
      !> Compute the product for 3 fields.
-     procedure, pass(this) :: compute3 => ax_helm_compute3
-  end type ax_helm_t
+     procedure, nopass :: compute => ax_helm_full_compute
+  end type ax_helm_full_t
 
 contains
-  subroutine ax_helm_compute3(this, ax1, ax2, ax3, x1, x2, x3, coef, msh, Xh)
-    implicit none
-    class(ax_helm_t), intent(in) :: this
-    type(space_t), intent(inout) :: Xh
+
+  !> Compute the product for a single vector. Not implemented for the full
+  !! stress formulation.
+  !! @param w Vector of size @a (lx,ly,lz,nelv).
+  !! @param u Vector of size @a (lx,ly,lz,nelv).
+  !! @param coef Coefficients.
+  !! @param msh Mesh.
+  !! @param Xh Function space \f$ X_h \f$.
+  subroutine ax_helm_full_compute(w, u, coef, msh, Xh)
     type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: ax1(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: ax2(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: ax3(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: x1(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: x2(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: x3(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    call this%compute(ax1, x1, coef, msh, Xh)
-    call this%compute(ax2, x2, coef, msh, Xh)
-    call this%compute(ax3, x3, coef, msh, Xh)
-  end subroutine ax_helm_compute3
+    call neko_error("The full Helmholtz operators cannot be applied to a &
+                   & field")
+  end subroutine ax_helm_full_compute
 
-end module ax_helm
+end module ax_helm_full
