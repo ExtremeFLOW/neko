@@ -47,7 +47,7 @@ module field_dirichlet_vector
   use utils, only: neko_error
   implicit none
   private
-  
+
   !> Extension of the user defined dirichlet condition `field_dirichlet`
   ! for the application on a vector field.
   type, public, extends(bc_t) :: field_dirichlet_vector_t
@@ -57,6 +57,8 @@ module field_dirichlet_vector
    contains
      !> Initializes this%field_bc.
      procedure, pass(this) :: init_field => field_dirichlet_vector_init
+     !> Destructor
+     procedure, pass(this) :: free => field_dirichlet_vector_free
      !> Apply scalar by performing a masked copy.
      procedure, pass(this) :: apply_scalar => field_dirichlet_vector_apply_scalar
      !> (No-op) Apply vector.
@@ -70,7 +72,7 @@ module field_dirichlet_vector
   end type field_dirichlet_vector_t
 
 contains
-     
+
   !> Initializes this%field_bc.
   subroutine field_dirichlet_vector_init(this, bc_name)
     class(field_dirichlet_vector_t), intent(inout) :: this
@@ -83,14 +85,14 @@ contains
   !> Destructor. Currently unused as is, all field_dirichlet attributes
   !! are freed in `fluid_scheme::free`.
   subroutine field_dirichlet_vector_free(this)
-    type(field_dirichlet_vector_t), intent(inout) :: this
+    class(field_dirichlet_vector_t), target, intent(inout) :: this
 
     call this%field_dirichlet_u%free()
     call this%field_dirichlet_v%free()
     call this%field_dirichlet_w%free()
-    
+
   end subroutine field_dirichlet_vector_free
-  
+
   !> Apply scalar by performing a masked copy.
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
   !! @param n Size of the array `x`.
@@ -107,7 +109,7 @@ contains
 &Use field_dirichlet instead!")
 
   end subroutine field_dirichlet_vector_apply_scalar
-  
+
   !> Apply scalar (device).
   !! @param x_d Device pointer to the field onto which to copy the values.
   !! @param t Time.
