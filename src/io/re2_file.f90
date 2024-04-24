@@ -32,12 +32,12 @@
 !
 !> NEKTON mesh data in re2 format
 !! @details This module is used to read/write binary NEKTION mesh data
-module re2_file
-  use generic_file
-  use num_types
+module re2_file_dirichlet
+  use generic_file, only: generic_file_t
+  use num_types, only: rp
   use utils
-  use mesh
-  use point
+  use mesh, only: mesh_t
+  use point, only: point_t
   use comm
   use mpi_f08
   use neko_mpi_types
@@ -46,29 +46,28 @@ module re2_file
   use map
   use map_file
   use htable
-  use logger
+  use logger, only: neko_log, LOG_SIZE
   implicit none
   private
-
+  
 
   !> Interface for NEKTON re2 files
-  type, public, extends(generic_file_t) :: re2_file_t
+  type, public, extends(generic_file_t) :: re2_file_dirichlet_t
    contains
-     procedure :: read => re2_file_read
-     procedure :: write => re2_file_write
-  end type re2_file_t
+     procedure :: read => re2_file_dirichlet_read
+     procedure :: write => re2_file_dirichlet_write
+  end type re2_file_dirichlet_t
 
 contains
 
   !> Load a binary NEKTON mesh from a re2 file
-  subroutine re2_file_read(this, data)
-    class(re2_file_t) :: this
+  subroutine re2_file_dirichlet_read(this, data)
+    class(re2_file_dirichlet_t) :: this
     class(*), target, intent(inout) :: data
     type(mesh_t), pointer :: msh
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
-    character(len=80) :: hdr_full
-    integer :: nel, ndim, nelv, ierr, nBCre2
+    integer :: nel, ndim, nelv, ierr
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
@@ -86,9 +85,7 @@ contains
     integer :: re2_data_bc_size
     logical :: v2_format
     character(len=LOG_SIZE) :: log_buf
-
-    call this%check_exists()
-
+    
     select type(data)
     type is (mesh_t)
        msh => data
@@ -99,21 +96,9 @@ contains
     v2_format = .false.
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     call neko_log%message('Reading binary NEKTON file ' // this%fname)
-
-    read(9,'(a80)') hdr_full
-    read(hdr_full, '(a5)') hdr_ver
-
-    if (hdr_ver .eq. '#v004') then
-       read(hdr_full, '(a5,i16,i3,i16,i4,a36)') hdr_ver, nel, ndim, nelv, nBCre2, hdr_str
+    read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
+    if (hdr_ver .eq. '#v002' .or. hdr_ver .eq. '#v003') then
        v2_format = .true.
-    else if (hdr_ver .eq. '#v002' .or. hdr_ver .eq. '#v003') then
-       read(hdr_full, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-       v2_format = .true.
-    else if (hdr_ver .eq. '#v001') then
-       read(hdr_full, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-    end if
-
-    if (v2_format) then
        call MPI_Type_size(MPI_RE2V2_DATA_XY, re2_data_xy_size, ierr)
        call MPI_Type_size(MPI_RE2V2_DATA_XYZ, re2_data_xyz_size, ierr)
        call MPI_Type_size(MPI_RE2V2_DATA_CV, re2_data_cv_size, ierr)
@@ -122,7 +107,7 @@ contains
        call MPI_Type_size(MPI_RE2V1_DATA_XY, re2_data_xy_size, ierr)
        call MPI_Type_size(MPI_RE2V1_DATA_XYZ, re2_data_xyz_size, ierr)
        call MPI_Type_size(MPI_RE2V1_DATA_CV, re2_data_cv_size, ierr)
-       call MPI_Type_size(MPI_RE2V1_DATA_BC, re2_data_bc_size, ierr)
+       call MPI_Type_size(MPI_RE2V1_DATA_BC, re2_data_bc_size, ierr)    
     end if
 
     write(log_buf,1) ndim, nelv
@@ -143,7 +128,7 @@ contains
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
-
+    
     if (ierr .ne. 0) then
        call neko_log%error("Can't open binary NEKTON file ")
     end if
@@ -157,15 +142,15 @@ contains
 
     call MPI_File_read_at_all(fh, mpi_offset, test, 1, MPI_REAL, status, ierr)
     mpi_offset = mpi_offset + MPI_REAL_SIZE
-
+    
     if (abs(RE2_ENDIAN_TEST - test) .gt. 1e-4) then
        call neko_error('Invalid endian of re2 file, byte swap not implemented yet')
     end if
 
-    call re2_file_read_points(msh, ndim, nel, dist, fh, &
+    call re2_file_dirichlet_read_points(msh, ndim, nel, dist, fh, &
          mpi_offset, re2_data_xy_size, re2_data_xyz_size, v2_format)
-
-
+    
+          
     ! Set offset to start of curved side data
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE + MPI_REAL_SIZE
     if (ndim .eq. 2) then
@@ -180,22 +165,22 @@ contains
        call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
        ncurv = int(t2)
        mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
-       call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
+       call re2_file_dirichlet_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
        mpi_offset = mpi_offset + int(ncurv,i8) * int(re2_data_cv_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
        nbcs = int(t2)
        mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
 
-       call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
-    else
+       call re2_file_dirichlet_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+    else 
        call MPI_File_read_at_all(fh, mpi_offset, ncurv, 1, MPI_INTEGER, status, ierr)
        mpi_offset = mpi_offset + MPI_INTEGER_SIZE
-       call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
+       call re2_file_dirichlet_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
        mpi_offset = mpi_offset + int(ncurv,i8) * int(re2_data_cv_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, nbcs, 1, MPI_INTEGER, status, ierr)
        mpi_offset = mpi_offset + MPI_INTEGER_SIZE
 
-       call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+       call re2_file_dirichlet_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
 
     end if
 
@@ -205,11 +190,11 @@ contains
 
     call neko_log%message('Done')
 
+    
+  end subroutine re2_file_dirichlet_read
 
-  end subroutine re2_file_read
-
-  subroutine re2_file_write(this, data, t)
-    class(re2_file_t), intent(inout) :: this
+  subroutine re2_file_dirichlet_write(this, data, t)
+    class(re2_file_dirichlet_t), intent(inout) :: this
     class(*), target, intent(in) :: data
     real(kind=rp), intent(in), optional :: t
     type(re2v1_xy_t), allocatable :: re2_data_xy(:)
@@ -219,13 +204,13 @@ contains
     character(len=54), parameter :: RE2_HDR_STR = 'RE2 exported by NEKO'
     integer :: i, j, ierr, nelgv
     type(MPI_Status) :: status
-    type(MPI_File) :: fh
+    type(MPI_File) :: fh    
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
     character(len=LOG_SIZE) :: log_buf
-
+    
     select type(data)
     type is (mesh_t)
        msh => data
@@ -245,7 +230,7 @@ contains
 
     if (pe_rank .eq. 0) then
        open(unit=9,file=trim(this%fname), status='new', iostat=ierr)
-       write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
+              write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
             nelgv, RE2_HDR_STR
        close(9)
     end if
@@ -254,7 +239,7 @@ contains
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
-
+    
     call MPI_File_write_at(fh, mpi_offset, RE2_ENDIAN_TEST, 1, &
          MPI_REAL, status, ierr)
     mpi_offset = mpi_offset + MPI_REAL_SIZE
@@ -278,7 +263,7 @@ contains
        allocate(re2_data_xyz(msh%nelv))
        do i = 1, msh%nelv
           re2_data_xyz(i)%rgroup = 1.0 ! Not used
-          do j = 1, 8
+          do j = 1, 8 
              re2_data_xyz(i)%x(j) = real(msh%elements(i)%e%pts(j)%p%x(1))
              re2_data_xyz(i)%y(j) = real(msh%elements(i)%e%pts(j)%p%x(2))
              re2_data_xyz(i)%z(j) = real(msh%elements(i)%e%pts(j)%p%x(3))
@@ -287,20 +272,20 @@ contains
        mpi_offset = mpi_offset + element_offset * re2_data_xyz_size
        call MPI_File_write_at(fh, mpi_offset, &
             re2_data_xyz, msh%nelv, MPI_RE2V1_DATA_XYZ, status, ierr)
-
+       
        deallocate(re2_data_xyz)
     else
        call neko_error("Invalid dimension of mesh")
     end if
-
+        
     call MPI_FILE_close(fh, ierr)
     call neko_log%message('Done')
 
     !> @todo Add support for curved side data
+    
+  end subroutine re2_file_dirichlet_write
 
-  end subroutine re2_file_write
-
-  subroutine re2_file_read_points(msh, ndim, nel, dist, fh, &
+  subroutine re2_file_dirichlet_read_points(msh, ndim, nel, dist, fh, &
        mpi_offset, re2_data_xy_size, re2_data_xyz_size, v2_format)
     type(mesh_t), intent(inout) :: msh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
@@ -322,23 +307,23 @@ contains
     integer :: pt_idx, nelv
     integer :: i, j, ierr
 
-
+    
     nelv = dist%num_local()
     element_offset = dist%start_idx()
 
     call htp%init(2*nel, ndim)
     pt_idx = 0
     if (ndim .eq. 2) then
-       mpi_offset = mpi_offset + element_offset * re2_data_xy_size
+       mpi_offset = mpi_offset + element_offset * re2_data_xy_size          
        if (.not. v2_format) then
           allocate(re2v1_data_xy(nelv))
           call MPI_File_read_at_all(fh, mpi_offset, &
                re2v1_data_xy, nelv, MPI_RE2V1_DATA_XY, status, ierr)
           do i = 1, nelv
-             do j = 1, 4
+             do j = 1, 4             
                 p(j) = point_t(real(re2v1_data_xy(i)%x(j),dp), &
                      real(re2v1_data_xy(i)%y(j),dp), 0.0d0)
-                call re2_file_add_point(htp, p(j), pt_idx)
+                call re2_file_dirichlet_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 10) then
                 if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
@@ -352,10 +337,10 @@ contains
           call MPI_File_read_at_all(fh, mpi_offset, &
                re2v2_data_xy, nelv, MPI_RE2V2_DATA_XY, status, ierr)
           do i = 1, nelv
-             do j = 1, 4
+             do j = 1, 4             
                 p(j) = point_t(re2v2_data_xy(i)%x(j), &
                      re2v2_data_xy(i)%y(j), 0.0d0)
-                call re2_file_add_point(htp, p(j), pt_idx)
+                call re2_file_dirichlet_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 10) then
                 if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
@@ -372,18 +357,18 @@ contains
           call MPI_File_read_at_all(fh, mpi_offset, &
                re2v1_data_xyz, nelv, MPI_RE2V1_DATA_XYZ, status, ierr)
           do i = 1, nelv
-             do j = 1, 8
+             do j = 1, 8             
                 p(j) = point_t(real(re2v1_data_xyz(i)%x(j),dp), &
                      real(re2v1_data_xyz(i)%y(j),dp),&
                      real(re2v1_data_xyz(i)%z(j),dp))
-                call re2_file_add_point(htp, p(j), pt_idx)
+                call re2_file_dirichlet_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 100) then
                 if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
              call msh%add_element(i, &
-                  p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
+                  p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))          
           end do
           deallocate(re2v1_data_xyz)
        else
@@ -391,27 +376,27 @@ contains
           call MPI_File_read_at_all(fh, mpi_offset, &
                re2v2_data_xyz, nelv, MPI_RE2V2_DATA_XYZ, status, ierr)
           do i = 1, nelv
-             do j = 1, 8
+             do j = 1, 8             
                 p(j) = point_t(re2v2_data_xyz(i)%x(j), &
                      re2v2_data_xyz(i)%y(j),&
                      re2v2_data_xyz(i)%z(j))
-                call re2_file_add_point(htp, p(j), pt_idx)
+                call re2_file_dirichlet_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 100) then
                 if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
              call msh%add_element(i, &
-                  p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
+                  p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))          
           end do
           deallocate(re2v2_data_xyz)
        end if
     end if
 
     call htp%free()
-  end subroutine re2_file_read_points
+  end subroutine re2_file_dirichlet_read_points
 
-  subroutine re2_file_read_curve(msh, ncurve, dist, fh, mpi_offset, v2_format)
+  subroutine re2_file_dirichlet_read_curve(msh, ncurve, dist, fh, mpi_offset, v2_format)
     type(mesh_t), intent(inout) :: msh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     integer, intent(inout) :: ncurve
@@ -421,13 +406,13 @@ contains
     type(MPI_Status) :: status
     integer :: i, j, l, ierr, el_idx, id
     type(re2v1_curve_t), allocatable :: re2v1_data_curve(:)
-    type(re2v2_curve_t), allocatable :: re2v2_data_curve(:)
+    type(re2v2_curve_t), allocatable :: re2v2_data_curve(:)    
     real(kind=dp), allocatable :: curve_data(:,:,:)
     integer, allocatable :: curve_type(:,:)
     logical, allocatable :: curve_element(:)
     character(len=1) :: chtemp
     logical :: curve_skip = .false.
-
+ 
     allocate(curve_data(5,12,msh%nelv))
     allocate(curve_element(msh%nelv))
     allocate(curve_type(12,msh%nelv))
@@ -440,7 +425,7 @@ contains
           end do
        end do
     end do
-    write(*,*) 'reading curved data'
+    write(*,*) 'Reading curved data'
     if (.not. v2_format) then
        allocate(re2v1_data_curve(ncurve))
        call MPI_File_read_at_all(fh, mpi_offset, re2v1_data_curve, ncurve, &
@@ -456,39 +441,39 @@ contains
           el_idx = re2v2_data_curve(i)%elem - dist%start_idx()
           id = re2v2_data_curve(i)%zone
           chtemp = re2v2_data_curve(i)%type
-          do j = 1, 5
+          do j = 1, 5 
              curve_data(j,id, el_idx) = re2v2_data_curve(i)%point(j)
           enddo
-       else
+       else 
           el_idx = re2v1_data_curve(i)%elem - dist%start_idx()
           id = re2v1_data_curve(i)%zone
           chtemp = re2v1_data_curve(i)%type
-          do j = 1, 5
-             curve_data(j,id, el_idx) = real(re2v1_data_curve(i)%point(j),dp)
+          do j = 1, 5 
+             curve_data(j,id, el_idx) = real(re2v1_data_curve(i)%point(j),dp) 
           enddo
        end if
-
-       curve_element(el_idx) = .true.
+       
+       curve_element(el_idx) = .true. 
        !This might need to be extended
        select case(trim(chtemp))
        case ('s')
-          curve_type(id,el_idx) = 1
-          call neko_log%warning('curve type s not supported, treating mesh as non-curved')
-          curve_skip = .true.
-          exit
+         curve_type(id,el_idx) = 1
+         call neko_log%warning('curve type s not supported, treating mesh as non-curved')
+         curve_skip = .true.
+         exit
        case ('e')
-          curve_type(id,el_idx) = 2
-          call neko_log%warning('curve type e not supported, treating mesh as non-curved')
-          curve_skip = .true.
-          exit
+         curve_type(id,el_idx) = 2
+         call neko_log%warning('curve type e not supported, treating mesh as non-curved')
+         curve_skip = .true.
+         exit
        case ('C')
-          curve_type(id,el_idx) = 3
+         curve_type(id,el_idx) = 3
        case ('m')
-          curve_type(id,el_idx) = 4
+         curve_type(id,el_idx) = 4
        case default
           write(*,*) chtemp, 'curve type not supported yet, treating mesh as non-curved',id, el_idx
 
-          curve_skip = .true.
+         curve_skip = .true.
        end select
     end do
 
@@ -503,16 +488,16 @@ contains
              call msh%mark_curve_element(el_idx, &
                   curve_data(1,1,el_idx), curve_type(1,el_idx))
           end if
-       end do
-    end if
+       end do 
+     end if
 
     deallocate(curve_data)
     deallocate(curve_element)
     deallocate(curve_type)
-  end subroutine re2_file_read_curve
+  end subroutine re2_file_dirichlet_read_curve
 
 
-  subroutine re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+  subroutine re2_file_dirichlet_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
     type(mesh_t), intent(inout) :: msh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     integer, intent(inout) :: nbcs
@@ -529,6 +514,12 @@ contains
     type(re2v1_bc_t), allocatable :: re2v1_data_bc(:)
     type(re2v2_bc_t), allocatable :: re2v2_data_bc(:)
 
+    ! Offsets for labeled zones
+    integer :: labeled_zone_total_offset, labeled_zone_offsets(6)
+    labeled_zone_total_offset = 0
+    labeled_zone_offsets = 0
+
+    call neko_log%message("Reading boundary conditions")
     if (.not. v2_format) then
        allocate(re2v1_data_bc(nbcs))
        call MPI_File_read_at_all(fh, mpi_offset, re2v1_data_bc, nbcs, &
@@ -540,7 +531,7 @@ contains
     end if
 
     periodic = .false.
-
+    
     !> @todo Use element offset in parallel
     if (v2_format) then ! V2 format
        do i = 1, nbcs
@@ -549,15 +540,29 @@ contains
 
           select case(trim(re2v2_data_bc(i)%type))
           case ('W')
-             call msh%mark_wall_facet(sym_facet, el_idx)
+             if (labeled_zone_offsets(1) .eq. 0) call neko_log%message("'W'     => labeled index 1")
+             labeled_zone_offsets(1) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 1)
           case ('v', 'V')
-             call msh%mark_inlet_facet(sym_facet, el_idx)
+             if (labeled_zone_offsets(2) .eq. 0) call neko_log%message("'v'/'V' => labeled index 2")
+             labeled_zone_offsets(2) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 2)
           case ('O', 'o')
-             call msh%mark_outlet_facet(sym_facet, el_idx)
-          case ('ON', 'on')
-             call msh%mark_outlet_normal_facet(sym_facet, el_idx)
+             if (labeled_zone_offsets(3) .eq. 0) call neko_log%message("'o'/'O' => labeled index 3")
+             labeled_zone_offsets(3) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 3)
           case ('SYM')
-             call msh%mark_sympln_facet(sym_facet, el_idx)
+             if (labeled_zone_offsets(4) .eq. 0) call neko_log%message("'SYM'   => labeled index 4")
+             labeled_zone_offsets(4) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 4)
+          case ('ON', 'on')
+             if (labeled_zone_offsets(5) .eq. 0) call neko_log%message("'on'/'ON' => labeled index 5")
+             labeled_zone_offsets(5) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 5)
+          case ('SHL', 'shl')
+             if (labeled_zone_offsets(6) .eq. 0) call neko_log%message("'shl'/'SHL' => labeled index 6")
+             labeled_zone_offsets(6) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 6)
           case ('P')
              periodic = .true.
              p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
@@ -565,18 +570,31 @@ contains
              call msh%get_facet_ids(sym_facet, el_idx, pids)
              call msh%mark_periodic_facet(sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
-          case ('MSH', 'msh', 'EXO', 'exo')
+
+          case ('MSH', 'msh')
+
+             labeled_zone_total_offset = sum(labeled_zone_offsets)
              label = int(re2v2_data_bc(i)%bc_data(5))
+
+             ! If there are any internal BCs converted to labeled zones, they
+             ! will be in [1,6] so the user labeled zones will start from there
+             if (labeled_zone_total_offset .ne. 0) then
+                write (log_buf, "(A,I2,A,I3)") "Labeled zone ", label, &
+                     " is now ", label + 6
+                label = label + 6
+                call neko_log%message(log_buf)
+             end if
+
              if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
                 call neko_error('Invalid label id (valid range [1,...,20])')
              end if
              call msh%mark_labeled_facet(sym_facet, el_idx, label)
           case default
-             write (*,*) re2v2_data_bc(i)%type, 'bc type not supported yet'
+              write (*,*) re2v2_data_bc(i)%type, 'bc type not supported yet'
              write (*,*) re2v2_data_bc(i)%bc_data
           end select
        end do
-
+    
        !
        ! Fix periodic condition for shared nodes
        !
@@ -590,26 +608,42 @@ contains
                    p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
                    p_facet = facet_map(int(re2v2_data_bc(i)%bc_data(2)))
                    call msh%create_periodic_ids(sym_facet, el_idx, &
-                        p_facet, p_el_idx)
+                        p_facet, p_el_idx) 
                 end select
              end do
           end do
        end if
        deallocate(re2v2_data_bc)
-
+          
     else ! V! format
        do i = 1, nbcs
           el_idx = re2v1_data_bc(i)%elem - dist%start_idx()
           sym_facet = facet_map(re2v1_data_bc(i)%face)
           select case(trim(re2v1_data_bc(i)%type))
           case ('W')
-             call msh%mark_wall_facet(sym_facet, el_idx)
+             if (labeled_zone_offsets(1) .eq. 0) call neko_log%message("'W'     => labeled index 1")
+             labeled_zone_offsets(1) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 1)
           case ('v', 'V')
-             call msh%mark_inlet_facet(sym_facet, el_idx)
+             if (labeled_zone_offsets(2) .eq. 0) call neko_log%message("'v'/'V' => labeled index 2")
+             labeled_zone_offsets(2) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 2)
           case ('O', 'o')
-             call msh%mark_outlet_facet(sym_facet, el_idx)
+             if (labeled_zone_offsets(3) .eq. 0) call neko_log%message("'o'/'O' => labeled index 3")
+             labeled_zone_offsets(3) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 3)
           case ('SYM')
-             call msh%mark_sympln_facet(sym_facet, el_idx)
+             if (labeled_zone_offsets(4) .eq. 0) call neko_log%message("'SYM'   => labeled index 4")
+             labeled_zone_offsets(4) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 4)
+          case ('ON', 'on')
+             if (labeled_zone_offsets(5) .eq. 0) call neko_log%message("'on'/'ON' => labeled index 5")
+             labeled_zone_offsets(5) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 5)
+          case ('SHL', 'shl')
+             if (labeled_zone_offsets(6) .eq. 0) call neko_log%message("'shl'/'SHL' => labeled index 6")
+             labeled_zone_offsets(6) = 1
+             call msh%mark_labeled_facet(sym_facet, el_idx, 6)
           case ('P')
              periodic = .true.
              p_el_idx = int(re2v1_data_bc(i)%bc_data(1))
@@ -617,16 +651,29 @@ contains
              call msh%get_facet_ids(sym_facet, el_idx, pids)
              call msh%mark_periodic_facet(sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
+
           case ('MSH', 'msh')
+
+             labeled_zone_total_offset = sum(labeled_zone_offsets)
              label = int(re2v1_data_bc(i)%bc_data(5))
+
+             ! Take the offset into account and add it if necessary
+             ! e.g. if my label is 1 and i have 'v', 'w'
+             if (label .le. labeled_zone_total_offset) &
+                  label = label + labeled_zone_total_offset
+
+             if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
+                call neko_error('Invalid label id (valid range [1,...,20])')
+             end if
              call msh%mark_labeled_facet(sym_facet, el_idx, label)
+
           case default
-             write (*,*) re2v1_data_bc(i)%type, 'bc type not supported yet'
+              write (*,*) re2v1_data_bc(i)%type, 'bc type not supported yet'
              write (*,*) re2v1_data_bc(i)%bc_data
 
           end select
        end do
-
+       
        !
        ! Fix periodic condition for shared nodes
        !
@@ -640,24 +687,24 @@ contains
                    p_el_idx = int(re2v1_data_bc(i)%bc_data(1))
                    p_facet = facet_map(int(re2v1_data_bc(i)%bc_data(2)))
                    call msh%create_periodic_ids(sym_facet, el_idx, &
-                        p_facet, p_el_idx)
+                        p_facet, p_el_idx) 
                 end select
              end do
           end do
        end if
-
+          
        deallocate(re2v1_data_bc)
     end if
+    
+  end subroutine re2_file_dirichlet_read_bcs
 
-  end subroutine re2_file_read_bcs
 
-
-  subroutine re2_file_add_point(htp, p, idx)
+  subroutine re2_file_dirichlet_add_point(htp, p, idx)
     type(htable_pt_t), intent(inout) :: htp
     type(point_t), intent(inout) :: p
     integer, intent(inout) :: idx
     integer :: tmp
-
+    
     if (htp%get(p, tmp) .gt. 0) then
        idx = idx + 1
        call htp%set(p, idx)
@@ -665,7 +712,7 @@ contains
     else
        call p%set_id(tmp)
     end if
-
-  end subroutine re2_file_add_point
-
-end module re2_file
+    
+  end subroutine re2_file_dirichlet_add_point
+  
+end module re2_file_dirichlet

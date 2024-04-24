@@ -94,8 +94,8 @@ boundary as follows:
 2. A Dirichlet boundary, i.e. the `v` label.
 3. An outlet boundary, i.e. the `o` label.
 4. A symmetry boundary, i.e. the `sym` label.
-5. A periodic boundary.
-6. An wall-normal transpiration boundary, i.e. the `on` label.
+5. An wall-normal transpiration boundary, i.e. the `on` label.
+6. A periodic boundary.
 
 Note that the boundary conditions can be both prescribed via the labels in the
 case file or built into the mesh via conversion from a `.re2` file. Both types
