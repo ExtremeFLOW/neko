@@ -44,7 +44,8 @@ module power_iterations
   use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
-  use math, only: add3, copy
+  use math
+  use comm, only: pe_rank
   implicit none
   private
 
@@ -59,15 +60,15 @@ module power_iterations
      type(field_t), pointer :: w
 
      !> X power_iterations component.
-     type(field_t), pointer :: u_b
+     type(field_t), pointer :: u_old
      !> Y power_iterations component.
-     type(field_t), pointer :: v_b
+     type(field_t), pointer :: v_old
      !> Z power_iterations component.
-     type(field_t), pointer :: w_b
+     type(field_t), pointer :: w_old
 
-     type(field_t), pointer :: u_full
-     type(field_t), pointer :: v_full
-     type(field_t), pointer :: w_full
+     type(field_t), pointer :: lambda
+     type(field_t), pointer :: lambda_old
+     type(field_t), pointer :: lambda_diff
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -88,23 +89,19 @@ contains
     class(power_iterations_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: filename
-    character(len=:), allocatable :: precision
-    character(len=20) :: fields(3)
 
-
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "ub",&
+    ! Add new fields needed by the simulation here
+    call neko_field_registry%add_field(case%fluid%dm_Xh, "u_old",&
                                        ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "vb",&
+    call neko_field_registry%add_field(case%fluid%dm_Xh, "v_old",&
                                        ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "wb",&
+    call neko_field_registry%add_field(case%fluid%dm_Xh, "w_old",&
                                        ignore_existing=.true.)
-
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "u_full",&
+    call neko_field_registry%add_field(case%fluid%dm_Xh, "lambda",&
                                        ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "v_full",&
+    call neko_field_registry%add_field(case%fluid%dm_Xh, "lambda_old",&
                                        ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "w_full",&
+    call neko_field_registry%add_field(case%fluid%dm_Xh, "lambda_diff",&
                                        ignore_existing=.true.)
 
     call power_iterations_init_from_attributes(this)
@@ -114,17 +111,23 @@ contains
   subroutine power_iterations_init_from_attributes(this)
     class(power_iterations_t), intent(inout) :: this
 
+
     this%u => neko_field_registry%get_field("u")
     this%v => neko_field_registry%get_field("v")
     this%w => neko_field_registry%get_field("w")
 
-    this%u_b => neko_field_registry%get_field("ub")
-    this%v_b => neko_field_registry%get_field("vb")
-    this%w_b => neko_field_registry%get_field("wb")
+    this%u_old => neko_field_registry%get_field("u_old")
+    this%v_old => neko_field_registry%get_field("v_old")
+    this%w_old => neko_field_registry%get_field("w_old")
 
-    this%u_full => neko_field_registry%get_field("u_full")
-    this%v_full => neko_field_registry%get_field("v_full")
-    this%w_full => neko_field_registry%get_field("w_full")
+    this%lambda => neko_field_registry%get_field("lambda")
+    this%lambda_old => neko_field_registry%get_field("lambda_old")
+    this%lambda_diff => neko_field_registry%get_field("lambda_diff")
+
+
+    call copy(this%u_old%x, this%u%x, this%u%size())
+    call copy(this%v_old%x, this%v%x, this%v%size())
+    call copy(this%w_old%x, this%w%x, this%w%size())
 
   end subroutine power_iterations_init_from_attributes
 
@@ -143,13 +146,38 @@ contains
     integer, intent(in) :: tstep
 
     integer :: n
+    real(kind=rp), dimension(:), allocatable :: norm
 
-    n = this%u%dof%size()
+    n = this%u%size()
+    allocate(norm(n))
 
-    call add3(this%u_full%x, this%u_b%x, this%u%x, n)
-    call add3(this%v_full%x, this%v_b%x, this%v%x, n)
-    call add3(this%w_full%x, this%w_b%x, this%w%x, n)
+    associate (u => this%u%x, v => this%v%x, w => this%w%x, &
+               u_old => this%u_old%x, v_old => this%v_old%x, w_old => this%w_old%x, &
+               lambda => this%lambda%x, lambda_old => this%lambda_old%x, &
+               lambda_diff => this%lambda_diff%x &
+               )
 
+      ! Calculate the new lambda value
+      ! lambda = U_n^T * U_old
+      ! U_old = U_{n-1} / ||U_{n-1}||
+      call copy(lambda_old, lambda, n)
+      call vdot3(lambda, u, v, w, u_old, v_old, w_old, n)
+      call sub3(lambda_diff, lambda, lambda_old, n)
+
+      ! Normalize the new power_iterations field
+      call copy(u_old, u, n)
+      call copy(v_old, v, n)
+      call copy(w_old, w, n)
+
+      call vdot3(norm, u_old, v_old, w_old, u_old, v_old, w_old, n)
+      norm = sqrt(norm)
+      call invcol2(u_old, norm, n)
+      call invcol2(v_old, norm, n)
+      call invcol2(w_old, norm, n)
+
+    end associate
+
+    deallocate(norm)
   end subroutine power_iterations_compute
 
 end module power_iterations
