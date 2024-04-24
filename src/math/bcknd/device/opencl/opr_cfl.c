@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
