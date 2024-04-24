@@ -65,33 +65,33 @@ contains
     real(kind=rp), intent(in) :: c_s
     type(field_t), pointer :: u, v, w
     ! double of the strain rate tensor
-    type(field_t), pointer :: s11_2, s22_2, s33_2, s12_2, s13_2, s23_2
+    type(field_t), pointer :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: s_abs
     integer :: temp_indices(6)
     integer :: e, i
-    
+
     u => neko_field_registry%get_field_by_name("u")
     v => neko_field_registry%get_field_by_name("v")
     w => neko_field_registry%get_field_by_name("u")
 
-    call neko_scratch_registry%request_field(s11_2, temp_indices(1))
-    call neko_scratch_registry%request_field(s22_2, temp_indices(2))
-    call neko_scratch_registry%request_field(s33_2, temp_indices(3))
-    call neko_scratch_registry%request_field(s12_2, temp_indices(4))
-    call neko_scratch_registry%request_field(s13_2, temp_indices(5))
-    call neko_scratch_registry%request_field(s23_2, temp_indices(6))
+    call neko_scratch_registry%request_field(s11, temp_indices(1))
+    call neko_scratch_registry%request_field(s22, temp_indices(2))
+    call neko_scratch_registry%request_field(s33, temp_indices(3))
+    call neko_scratch_registry%request_field(s12, temp_indices(4))
+    call neko_scratch_registry%request_field(s13, temp_indices(5))
+    call neko_scratch_registry%request_field(s23, temp_indices(6))
 
     ! Compute the strain rate tensor
-    call strain_rate(s11_2%x, s22_2%x, s33_2%x, s12_2%x, s13_2%x, s23_2%x, u, v, w, coef)
-    
+    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
+
     do e=1, coef%msh%nelv
        do i=1, coef%Xh%lxyz
-          s_abs = sqrt(0.5_rp * (s11_2%x(i,1,1,e)*s11_2%x(i,1,1,e) + &
-                                 s22_2%x(i,1,1,e)*s22_2%x(i,1,1,e) + &
-                                 s33_2%x(i,1,1,e)*s33_2%x(i,1,1,e)) + &
-                                (s12_2%x(i,1,1,e)*s12_2%x(i,1,1,e) + &
-                                 s13_2%x(i,1,1,e)*s13_2%x(i,1,1,e) + &
-                                 s23_2%x(i,1,1,e)*s23_2%x(i,1,1,e)))
+          s_abs = sqrt(0.5_rp * (s11%x(i,1,1,e)*s11%x(i,1,1,e) + &
+                                 s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
+                                 s33%x(i,1,1,e)*s33%x(i,1,1,e)) + &
+                                (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
+                                 s13%x(i,1,1,e)*s13%x(i,1,1,e) + &
+                                 s23%x(i,1,1,e)*s23%x(i,1,1,e)))
 
           nut%x(i,1,1,e) = c_s**2 * delta%x(i,1,1,e)**2 * s_abs
        end do
