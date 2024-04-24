@@ -214,13 +214,12 @@ contains
     ! Same here, should du, dv, dw be marked here?
     call this%bc_sym_surface%finalize()
     ! Initialize dirichlet bcs for velocity residual
-    call this%bc_vel_res_non_normal%init_base(this%c_Xh)
+    call this%bc_vel_res_non_normal%init(this%c_Xh, params)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list('on', this%bc_labels)
     call this%bc_vel_res_non_normal%mark_zones_from_list('on+dong', &
                                                          this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
-    call this%bc_vel_res_non_normal%init(this%c_Xh, params)
 
     call this%bc_field_dirichlet_p%init(this%c_Xh, params)
     call this%bc_field_dirichlet_p%mark_zones_from_list('on+dong', &
