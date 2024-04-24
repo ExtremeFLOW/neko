@@ -209,9 +209,9 @@ contains
             this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
     end if
 
-    call this%bc_crs%init(this%dm_crs)
-    call this%bc_mg%init(this%dm_mg)
-    call this%bc_reg%init(dof)
+    call this%bc_crs%init_base(this%c_crs)
+    call this%bc_mg%init_base(this%c_mg)
+    call this%bc_reg%init_base(coef)
     if (bclst%n .gt. 0) then
        do i = 1, bclst%n
           call this%bc_reg%mark_facets(bclst%bc(i)%bcp%marked_facet)

@@ -58,7 +58,7 @@ contains
     integer :: n_fields, i, n
 
     n_fields = fields%size()
-    n = fields%items(1)%ptr%dof%size()
+    n = fields%item_size(1)
 
     do i=1, n_fields
        call add2s2(fields%items(i)%ptr%x, s%x, g(i)*beta, n)

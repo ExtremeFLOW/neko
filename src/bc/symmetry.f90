@@ -37,11 +37,11 @@ module symmetry
   use num_types
   use dirichlet
   use bc
-  use coefs
   use math
   use utils
   use stack
   use tuple
+  use coefs, only : coef_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -52,19 +52,21 @@ module symmetry
      type(dirichlet_t) :: bc_y
      type(dirichlet_t) :: bc_z
    contains
-     procedure, pass(this) :: init_msk => symmetry_init_msk
+     procedure, pass(this) :: init => symmetry_init
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
      procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
+     !> Destructor.
+     procedure, pass(this) :: free => symmetry_free
   end type symmetry_t
 
 contains
 
   !> Initialize symmetry mask for each axis
-  subroutine symmetry_init_msk(this, c)
+  subroutine symmetry_init(this, coef)
     class(symmetry_t), intent(inout) :: this
-    type(coef_t), intent(in) :: c
+    type(coef_t), intent(in) :: coef
     integer :: i, m, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
@@ -72,13 +74,15 @@ contains
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
-    call symmetry_free(this)
+    call this%free()
 
-    call this%bc_x%init(c%dof)
-    call this%bc_y%init(c%dof)
-    call this%bc_z%init(c%dof)
+    call this%init_base(coef)
+    call this%bc_x%init_base(this%coef)
+    call this%bc_y%init_base(this%coef)
+    call this%bc_z%init_base(this%coef)
 
-    associate(nx => c%nx, ny => c%ny, nz => c%nz)
+    associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+              nz => this%coef%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
          bc_facet = bfp(i)
@@ -137,16 +141,7 @@ contains
     call this%bc_z%finalize()
     call this%bc_z%set_g(0.0_rp)
 
-  end subroutine symmetry_init_msk
-
-  subroutine symmetry_free(this)
-    type(symmetry_t), intent(inout) :: this
-
-    call this%bc_x%free()
-    call this%bc_y%free()
-    call this%bc_z%free()
-
-  end subroutine symmetry_free
+  end subroutine symmetry_init
 
   !> No-op scalar apply
   subroutine symmetry_apply_scalar(this, x, n, t, tstep)
@@ -199,4 +194,14 @@ contains
 
   end subroutine symmetry_apply_vector_dev
 
+  !> Destructor
+  subroutine symmetry_free(this)
+    class(symmetry_t), target, intent(inout) :: this
+
+    call this%free_base()
+    call this%bc_x%free()
+    call this%bc_y%free()
+    call this%bc_z%free()
+
+  end subroutine symmetry_free
 end module symmetry

@@ -229,47 +229,47 @@ contains
 
     allocate(this%stat_fields%items(this%n_stats))
 
-    this%stat_fields%items(1)%ptr => this%pp%mf
-    this%stat_fields%items(2)%ptr => this%uu%mf
-    this%stat_fields%items(3)%ptr => this%vv%mf
-    this%stat_fields%items(4)%ptr => this%ww%mf
-    this%stat_fields%items(5)%ptr => this%uv%mf
-    this%stat_fields%items(6)%ptr => this%uw%mf
-    this%stat_fields%items(7)%ptr => this%vw%mf
-    this%stat_fields%items(8)%ptr => this%uuu%mf !< <uuu>
-    this%stat_fields%items(9)%ptr => this%vvv%mf !< <vvv>
-    this%stat_fields%items(10)%ptr => this%www%mf !< <www>
-    this%stat_fields%items(11)%ptr => this%uuv%mf !< <uuv>
-    this%stat_fields%items(12)%ptr => this%uuw%mf !< <uuw>
-    this%stat_fields%items(13)%ptr => this%uvv%mf !< <uvv>
-    this%stat_fields%items(14)%ptr => this%uvw%mf !< <uvv>
-    this%stat_fields%items(15)%ptr => this%vvw%mf !< <vvw>
-    this%stat_fields%items(16)%ptr => this%uww%mf !< <uww>
-    this%stat_fields%items(17)%ptr => this%vww%mf !< <vww>
-    this%stat_fields%items(18)%ptr => this%uuuu%mf !< <uuuu>
-    this%stat_fields%items(19)%ptr => this%vvvv%mf !< <vvvv>
-    this%stat_fields%items(20)%ptr => this%wwww%mf !< <wwww>
-    this%stat_fields%items(21)%ptr => this%ppp%mf
-    this%stat_fields%items(22)%ptr => this%pppp%mf
-    this%stat_fields%items(23)%ptr => this%pu%mf
-    this%stat_fields%items(24)%ptr => this%pv%mf
-    this%stat_fields%items(25)%ptr => this%pw%mf
+    call this%stat_fields%assign_to_field(1, this%pp%mf)
+    call this%stat_fields%assign_to_field(2, this%uu%mf)
+    call this%stat_fields%assign_to_field(3, this%vv%mf)
+    call this%stat_fields%assign_to_field(4, this%ww%mf)
+    call this%stat_fields%assign_to_field(5, this%uv%mf)
+    call this%stat_fields%assign_to_field(6, this%uw%mf)
+    call this%stat_fields%assign_to_field(7, this%vw%mf)
+    call this%stat_fields%assign_to_field(8, this%uuu%mf) !< <uuu>
+    call this%stat_fields%assign_to_field(9, this%vvv%mf) !< <vvv>
+    call this%stat_fields%assign_to_field(10, this%www%mf) !< <www>
+    call this%stat_fields%assign_to_field(11, this%uuv%mf) !< <uuv>
+    call this%stat_fields%assign_to_field(12, this%uuw%mf) !< <uuw>
+    call this%stat_fields%assign_to_field(13, this%uvv%mf) !< <uvv>
+    call this%stat_fields%assign_to_field(14, this%uvw%mf) !< <uvv>
+    call this%stat_fields%assign_to_field(15, this%vvw%mf) !< <vvw>
+    call this%stat_fields%assign_to_field(16, this%uww%mf) !< <uww>
+    call this%stat_fields%assign_to_field(17, this%vww%mf) !< <vww>
+    call this%stat_fields%assign_to_field(18, this%uuuu%mf) !< <uuuu>
+    call this%stat_fields%assign_to_field(19, this%vvvv%mf) !< <vvvv>
+    call this%stat_fields%assign_to_field(20, this%wwww%mf) !< <wwww>
+    call this%stat_fields%assign_to_field(21, this%ppp%mf)
+    call this%stat_fields%assign_to_field(22, this%pppp%mf)
+    call this%stat_fields%assign_to_field(23, this%pu%mf)
+    call this%stat_fields%assign_to_field(24, this%pv%mf)
+    call this%stat_fields%assign_to_field(25, this%pw%mf)
 
-    this%stat_fields%items(26)%ptr => this%pdudx%mf
-    this%stat_fields%items(27)%ptr => this%pdudy%mf
-    this%stat_fields%items(28)%ptr => this%pdudz%mf
-    this%stat_fields%items(29)%ptr => this%pdvdx%mf
-    this%stat_fields%items(30)%ptr => this%pdvdy%mf
-    this%stat_fields%items(31)%ptr => this%pdvdz%mf
-    this%stat_fields%items(32)%ptr => this%pdwdx%mf
-    this%stat_fields%items(33)%ptr => this%pdwdy%mf
-    this%stat_fields%items(34)%ptr => this%pdwdz%mf
-    this%stat_fields%items(35)%ptr => this%e11%mf
-    this%stat_fields%items(36)%ptr => this%e22%mf
-    this%stat_fields%items(37)%ptr => this%e33%mf
-    this%stat_fields%items(38)%ptr => this%e12%mf
-    this%stat_fields%items(39)%ptr => this%e13%mf
-    this%stat_fields%items(40)%ptr => this%e23%mf
+    call this%stat_fields%assign_to_field(26, this%pdudx%mf)
+    call this%stat_fields%assign_to_field(27, this%pdudy%mf)
+    call this%stat_fields%assign_to_field(28, this%pdudz%mf)
+    call this%stat_fields%assign_to_field(29, this%pdvdx%mf)
+    call this%stat_fields%assign_to_field(30, this%pdvdy%mf)
+    call this%stat_fields%assign_to_field(31, this%pdvdz%mf)
+    call this%stat_fields%assign_to_field(32, this%pdwdx%mf)
+    call this%stat_fields%assign_to_field(33, this%pdwdy%mf)
+    call this%stat_fields%assign_to_field(34, this%pdwdz%mf)
+    call this%stat_fields%assign_to_field(35, this%e11%mf)
+    call this%stat_fields%assign_to_field(36, this%e22%mf)
+    call this%stat_fields%assign_to_field(37, this%e33%mf)
+    call this%stat_fields%assign_to_field(38, this%e12%mf)
+    call this%stat_fields%assign_to_field(39, this%e13%mf)
+    call this%stat_fields%assign_to_field(40, this%e23%mf)
 
 
   end subroutine fluid_stats_init
@@ -648,35 +648,35 @@ contains
     integer :: n
 
     if (present(mean)) then
-       n = mean%items(1)%ptr%dof%size()
-       call copy(mean%items(1)%ptr%x,this%u_mean%x,n)
-       call copy(mean%items(2)%ptr%x,this%v_mean%x,n)
-       call copy(mean%items(3)%ptr%x,this%w_mean%x,n)
-       call copy(mean%items(4)%ptr%x,this%p_mean%x,n)
+       n = mean%item_size(1)
+       call copy(mean%items(1)%ptr%x, this%u_mean%x, n)
+       call copy(mean%items(2)%ptr%x, this%v_mean%x, n)
+       call copy(mean%items(3)%ptr%x, this%w_mean%x, n)
+       call copy(mean%items(4)%ptr%x, this%p_mean%x, n)
     end if
 
     if (present(reynolds)) then
-       n = reynolds%items(1)%ptr%dof%size()
-       call copy(reynolds%items(1)%ptr%x,this%pp%mf%x,n)
-       call subcol3(reynolds%items(1)%ptr%x,this%p_mean%x,this%p_mean%x,n)
+       n = reynolds%item_size(1)
+       call copy(reynolds%items(1)%ptr%x, this%pp%mf%x, n)
+       call subcol3(reynolds%items(1)%ptr%x, this%p_mean%x, this%p_mean%x, n)
 
-       call copy(reynolds%items(2)%ptr%x,this%uu%mf%x,n)
-       call subcol3(reynolds%items(2)%ptr%x,this%u_mean%x,this%u_mean%x,n)
+       call copy(reynolds%items(2)%ptr%x, this%uu%mf%x, n)
+       call subcol3(reynolds%items(2)%ptr%x, this%u_mean%x, this%u_mean%x, n)
 
-       call copy(reynolds%items(3)%ptr%x,this%vv%mf%x,n)
-       call subcol3(reynolds%items(3)%ptr%x,this%v_mean%x,this%v_mean%x,n)
+       call copy(reynolds%items(3)%ptr%x, this%vv%mf%x, n)
+       call subcol3(reynolds%items(3)%ptr%x, this%v_mean%x,this%v_mean%x,n)
 
-       call copy(reynolds%items(4)%ptr%x,this%ww%mf%x,n)
-       call subcol3(reynolds%items(4)%ptr%x,this%w_mean%x,this%w_mean%x,n)
+       call copy(reynolds%items(4)%ptr%x, this%ww%mf%x, n)
+       call subcol3(reynolds%items(4)%ptr%x, this%w_mean%x,this%w_mean%x,n)
 
-       call copy(reynolds%items(5)%ptr%x,this%uv%mf%x,n)
-       call subcol3(reynolds%items(5)%ptr%x,this%u_mean%x,this%v_mean%x,n)
+       call copy(reynolds%items(5)%ptr%x, this%uv%mf%x, n)
+       call subcol3(reynolds%items(5)%ptr%x, this%u_mean%x, this%v_mean%x, n)
 
-       call copy(reynolds%items(6)%ptr%x,this%uw%mf%x,n)
-       call subcol3(reynolds%items(6)%ptr%x,this%u_mean%x,this%w_mean%x,n)
+       call copy(reynolds%items(6)%ptr%x, this%uw%mf%x, n)
+       call subcol3(reynolds%items(6)%ptr%x, this%u_mean%x, this%w_mean%x, n)
 
-       call copy(reynolds%items(7)%ptr%x,this%vw%mf%x,n)
-       call subcol3(reynolds%items(7)%ptr%x,this%v_mean%x,this%w_mean%x,n)
+       call copy(reynolds%items(7)%ptr%x, this%vw%mf%x, n)
+       call subcol3(reynolds%items(7)%ptr%x, this%v_mean%x, this%w_mean%x, n)
     end if
     if (present(pressure_skewness)) then
 
@@ -695,7 +695,7 @@ contains
 
     if (present(mean_vel_grad)) then
        !Compute gradient of mean flow
-       n = mean_vel_grad%items(1)%ptr%dof%size()
+       n = mean_vel_grad%item_size(1)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(this%u_mean%x, this%u_mean%x_d, n, &
                              HOST_TO_DEVICE, sync=.false.)

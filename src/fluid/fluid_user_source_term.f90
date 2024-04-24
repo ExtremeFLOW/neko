@@ -160,7 +160,7 @@ contains
     call this%free()
     call this%init_base(fields, coef, 0.0_rp, huge(0.0_rp))
 
-    this%dm => fields%items(1)%ptr%dof
+    this%dm => fields%dof(1)
 
     allocate(this%u(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
              this%dm%msh%nelv))
@@ -224,7 +224,7 @@ contains
     integer :: n
 
     call this%compute_vector_(this, t)
-    n = this%fields%items(1)%ptr%dof%size()
+    n = this%fields%item_size(1)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(this%fields%x_d(1), this%u_d, n)

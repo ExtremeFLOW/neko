@@ -2,6 +2,9 @@ module field_list
   use field, only : field_ptr_t, field_t
   use iso_c_binding, only : c_ptr
   use num_types, only : rp
+  use space, only : space_t
+  use dofmap, only : dofmap_t
+  use mesh, only : mesh_t
   implicit none
   private
 
@@ -18,19 +21,27 @@ module field_list
      !> Get an item pointer by array index
      procedure, pass(this) :: get => field_list_get
      !> Point item at given index.
-     generic :: set => set_to_ptr, set_to_field_ptr
-     procedure, pass(this) :: set_to_ptr => field_list_set_to_ptr
-     procedure, pass(this) :: set_to_field_ptr => field_list_set_to_field_ptr
-     procedure, pass(this) :: set_to_field => field_list_set_to_field
+     generic :: assign => assign_to_ptr, assign_to_field_ptr
+     procedure, pass(this) :: assign_to_ptr => field_list_assign_to_ptr
+     procedure, pass(this) :: assign_to_field_ptr => field_list_assign_to_field_ptr
+     procedure, pass(this) :: assign_to_field => field_list_assign_to_field
 
-     !> Get device pointer for a given index
+     !> Get device pointer for a given index.
      procedure, pass(this) :: x_d => field_list_x_d
-
-     !> Get raw field data for a given index
+     !> Get pointer to the raw data array for a given index.
      procedure, pass(this) :: x => field_list_x
-
      !> Get number of items in the list.
      procedure, pass(this) :: size => field_list_size
+     !> Get the size of dofmap for an item in the list.
+     procedure, pass(this) :: item_size => field_list_item_size
+     !> Get the dofmap for an item in the list.
+     procedure, pass(this) :: dof => field_list_dof
+     !> Get the space for an item in the list.
+     procedure, pass(this) :: Xh => field_list_space
+     !> Get the mesh for an item in the list.
+     procedure, pass(this) :: msh => field_list_msh
+     !> Check wether the dofmap is internal for an item in the list.
+     procedure, pass(this) :: internal_dofmap => field_list_internal_dofmap
   end type field_list_t
 
 contains
@@ -98,54 +109,103 @@ contains
   !> Get device pointer for a given index
   !! @param i The index of the item.
   function field_list_x_d(this, i) result(ptr)
-    class(field_list_t), intent(inout) :: this
+    class(field_list_t), intent(in) :: this
+    integer, intent(in) :: i
     type(c_ptr) :: ptr
-    integer :: i
+
     ptr = this%items(i)%ptr%x_d
   end function field_list_x_d
 
-  !> Get raw field data for a given index
-  !! @param i The index of the item.
   function field_list_x(this, i) result(x)
-    class(field_list_t), target, intent(inout) :: this
+    class(field_list_t), target, intent(in) :: this
     real(kind=rp), pointer :: x(:,:,:,:)
-    integer :: i
+    integer, intent(in) :: i
     x => this%items(i)%ptr%x
   end function field_list_x
+
+  !> Get the size of the dofmap for item `i`.
+  !! @param i The index of the item.
+  function field_list_item_size(this, i) result(size)
+    class(field_list_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    integer :: size
+
+    size = this%items(i)%ptr%size()
+
+  end function field_list_item_size
 
   !> Point item at a given index.
   !! @param i The index of the item.
   !! @param ptr A field pointer to point the item to.
-  subroutine field_list_set_to_ptr(this, i, ptr)
+  subroutine field_list_assign_to_ptr(this, i, ptr)
     class(field_list_t), intent(inout) :: this
     integer, intent(in) :: i
     type(field_t), pointer, intent(in) :: ptr
 
     this%items(i)%ptr => ptr
-  end subroutine field_list_set_to_ptr
+  end subroutine field_list_assign_to_ptr
 
   !> Point item at a given index.
   !! @param i The index of the item.
   !! @param ptr An encapsulated field pointer to point the item to.
-  subroutine field_list_set_to_field_ptr(this, i, ptr)
+  subroutine field_list_assign_to_field_ptr(this, i, ptr)
     class(field_list_t), intent(inout) :: this
     integer, intent(in) :: i
     type(field_ptr_t), target, intent(in) :: ptr
 
     this%items(i)%ptr => ptr%ptr
-  end subroutine field_list_set_to_field_ptr
+  end subroutine field_list_assign_to_field_ptr
 
   !> Point item at a given index.
   !! @param i The index of the item.
   !! @param field A field to point the item to.
-  subroutine field_list_set_to_field(this, i, fld)
+  subroutine field_list_assign_to_field(this, i, fld)
     class(field_list_t), intent(inout) :: this
     integer, intent(in) :: i
     type(field_t), target, intent(in) :: fld
 
     this%items(i)%ptr => fld
-  end subroutine field_list_set_to_field
+  end subroutine field_list_assign_to_field
 
+  !> Get the the dofmap for item `i`.
+  !! @param i The index of the item.
+  function field_list_dof(this, i) result(result)
+    class(field_list_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    type(dofmap_t), pointer :: result
+
+    result => this%items(i)%ptr%dof
+  end function field_list_dof
+
+  !> Get the the space for item `i`.
+  !! @param i The index of the item.
+  function field_list_space(this, i) result(result)
+    class(field_list_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    type(space_t), pointer :: result
+
+    result => this%items(i)%ptr%Xh
+  end function field_list_space
+
+  !> Get the the mesh for item `i`.
+  !! @param i The index of the item.
+  function field_list_msh(this, i) result(result)
+    class(field_list_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    type(mesh_t), pointer :: result
+
+    result => this%items(i)%ptr%msh
+  end function field_list_msh
+
+  !> Whether the dofmap is internal for item `i`.
+  !! @param i The index of the item.
+  function field_list_internal_dofmap(this, i) result(result)
+    class(field_list_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    logical :: result
+
+    result = this%items(i)%ptr%internal_dofmap
+  end function field_list_internal_dofmap
 
 
 end module field_list

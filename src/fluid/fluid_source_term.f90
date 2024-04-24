@@ -109,9 +109,9 @@ contains
     if (json%valid_path('case.fluid.source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
        call rhs_fields%init(3)
-       call rhs_fields%set(1, f_x)
-       call rhs_fields%set(2, f_y)
-       call rhs_fields%set(3, f_z)
+       call rhs_fields%assign(1, f_x)
+       call rhs_fields%assign(2, f_y)
+       call rhs_fields%assign(3, f_z)
 
        call json%get_core(core)
        call json%get('case.fluid.source_terms', source_object, found)

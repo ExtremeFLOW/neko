@@ -129,7 +129,7 @@ contains
 
     n_fields = this%fields%size()
 
-    n = this%fields%items(1)%ptr%dof%size()
+    n = this%fields%item_size(1)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call const_source_term_compute_device(this%fields, this%values)

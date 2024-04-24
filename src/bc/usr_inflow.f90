@@ -38,11 +38,12 @@ module usr_inflow
   use device
   use device_inhom_dirichlet
   use utils
+  use bc, only : bc_t
   implicit none
   private
 
   !> User defined dirichlet condition for inlet (vector valued)
-  type, public, extends(inflow_t) :: usr_inflow_t
+  type, public, extends(bc_t) :: usr_inflow_t
      type(coef_t), pointer :: c => null()
      procedure(usr_inflow_eval), nopass, pointer :: eval => null()
      type(c_ptr), private :: usr_x_d = C_NULL_PTR
@@ -56,6 +57,8 @@ module usr_inflow
      procedure, pass(this) :: set_eval => usr_inflow_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_inflow_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_inflow_apply_scalar_dev
+     !> Destructor.
+     procedure, pass(this) :: free => usr_inflow_free
   end type usr_inflow_t
 
   abstract interface
@@ -102,7 +105,9 @@ module usr_inflow
 contains
 
   subroutine usr_inflow_free(this)
-    type(usr_inflow_t), intent(inout) :: this
+    class(usr_inflow_t), target, intent(inout) :: this
+
+    call this%free_base()
 
     if (c_associated(this%usr_x_d)) then
        call device_free(this%usr_x_d)
@@ -289,7 +294,7 @@ contains
               end select
            end do
          end associate
-        
+
          call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE, sync=.true.)

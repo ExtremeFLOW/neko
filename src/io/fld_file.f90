@@ -191,7 +191,7 @@ contains
        case default
           call neko_error('This many fields not supported yet, fld_file')
        end select
-       dof => data%items(1)%ptr%dof
+       dof => data%dof(1)
 
     type is (mean_flow_t)
        u%ptr => data%u%mf%x(:,1,1,1)

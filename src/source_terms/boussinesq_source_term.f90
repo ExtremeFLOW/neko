@@ -139,7 +139,7 @@ contains
     call this%init_base(fields, coef, start_time, end_time)
 
     if (.not. neko_field_registry%field_exists(scalar_name)) then
-       call neko_field_registry%add_field(this%fields%items(1)%ptr%dof, "s")
+       call neko_field_registry%add_field(this%fields%dof(1), "s")
     end if
     this%s => neko_field_registry%get_field("s")
 
@@ -166,7 +166,7 @@ contains
     integer :: n_fields, i, n
 
     n_fields = this%fields%size()
-    n = this%fields%items(1)%ptr%dof%size()
+    n = this%fields%item_size(1)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call boussinesq_source_term_compute_device(this%fields, this%s,&
