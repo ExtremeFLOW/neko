@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2023, The Neko Authors
+! Copyright (c) 2019-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -109,6 +109,7 @@ contains
        allocate(stl_file_t::this%file_type)
     else if (suffix .eq. "csv") then
        allocate(csv_file_t::this%file_type)
+       this%file_type%serial = .true.
     else
        call neko_error('Unknown file format')
     end if

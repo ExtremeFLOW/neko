@@ -76,23 +76,19 @@ contains
 
     call this%init_base(fname, precision)
 
-    if (allocated(this%fluid%fields)) then
-       deallocate(this%fluid%fields)
-    end if
-
     if (present(scalar)) then
-       allocate(this%fluid%fields(5))
+       call this%fluid%init(5)
     else
-       allocate(this%fluid%fields(4))
+       call this%fluid%init(4)
     end if
 
-    this%fluid%fields(1)%f => fluid%p
-    this%fluid%fields(2)%f => fluid%u
-    this%fluid%fields(3)%f => fluid%v
-    this%fluid%fields(4)%f => fluid%w
+    call this%fluid%assign(1, fluid%p)
+    call this%fluid%assign(2, fluid%u)
+    call this%fluid%assign(3, fluid%v)
+    call this%fluid%assign(4, fluid%w)
 
     if (present(scalar)) then
-       this%fluid%fields(5)%f => scalar%s
+       call this%fluid%assign(5, scalar%s)
     end if
 
   end function fluid_output_init
@@ -105,10 +101,10 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       associate(fields => this%fluid%fields)
+       associate(fields => this%fluid%items)
          do i = 1, size(fields)
-            call device_memcpy(fields(i)%f%x, fields(i)%f%x_d, &
-                 fields(i)%f%dof%size(), DEVICE_TO_HOST, &
+            call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
+                 fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
                  sync=(i .eq. size(fields))) ! Sync on the last field
          end do
        end associate

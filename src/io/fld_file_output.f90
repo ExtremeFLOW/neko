@@ -74,11 +74,7 @@ contains
 
     call this%init_base(fname, precision)
 
-    if (allocated(this%fields%fields)) then
-       deallocate(this%fields%fields)
-    end if
-
-    allocate(this%fields%fields(nfields))
+    call this%fields%init(nfields)
 
    end subroutine fld_file_output_init
 
@@ -90,10 +86,10 @@ contains
     integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       associate(fields => this%fields%fields)
+       associate(fields => this%fields%items)
          do i = 1, size(fields)
-            call device_memcpy(fields(i)%f%x, fields(i)%f%x_d, &
-                 fields(i)%f%dof%size(), DEVICE_TO_HOST, &
+            call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
+                 fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
                  sync=(i .eq. size(fields))) ! Sync on the last field
          end do
        end associate

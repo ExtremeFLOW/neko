@@ -1,5 +1,7 @@
 # Installing Neko {#installation}
 
+\tableofcontents
+
 Neko can be installed in various ways, either building directly from source, manually compiling all dependencies and Neko or via Spack. Pre-built Docker images are also provided for each release of Neko.
 
 ## Building from source

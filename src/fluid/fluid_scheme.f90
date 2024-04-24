@@ -106,7 +106,7 @@ module fluid_scheme
      integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
-     class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+     class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: bc_field_vel   !< Field Dirichlet velocity condition
@@ -331,18 +331,18 @@ contains
     !
     if (params%valid_path('case.fluid.boundary_types')) then
        call json_get(params, &
-                                  'case.fluid.boundary_types', &
-                                  this%bc_labels)
+                     'case.fluid.boundary_types', &
+                     this%bc_labels)
     end if
 
     call bc_list_init(this%bclst_vel)
 
-    call this%bc_sym%init(this%c_Xh)
+    call this%bc_sym%init_base(this%c_Xh)
     call this%bc_sym%mark_zone(msh%sympln)
     call this%bc_sym%mark_zones_from_list(msh%labeled_zones,&
                         'sym', this%bc_labels)
     call this%bc_sym%finalize()
-    call this%bc_sym%init_msk()
+    call this%bc_sym%init(this%c_Xh)
     call bc_list_add(this%bclst_vel, this%bc_sym)
 
     !
@@ -360,7 +360,7 @@ contains
           call neko_error('Invalid inflow condition '//string_val1)
        end if
 
-       call this%bc_inflow%init(this%c_Xh)
+       call this%bc_inflow%init_base(this%c_Xh)
        call this%bc_inflow%mark_zone(msh%inlet)
        call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
                         'v', this%bc_labels)
@@ -369,30 +369,27 @@ contains
 
        if (trim(string_val1) .eq. "uniform") then
           call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
-          call this%bc_inflow%set_inflow(real_vec)
+          select type(bc_if => this%bc_inflow)
+          type is(inflow_t)
+             call bc_if%set_inflow(real_vec)
+          end select
        else if (trim(string_val1) .eq. "blasius") then
           select type(bc_if => this%bc_inflow)
           type is(blasius_t)
-             call bc_if%set_coef(this%C_Xh)
              call json_get(params, 'case.fluid.blasius.delta', real_val)
              call json_get(params, 'case.fluid.blasius.approximation',&
                            string_val2)
              call json_get(params, 'case.fluid.blasius.freestream_velocity',&
                            real_vec)
 
-             call bc_if%set_inflow(real_vec)
-             call bc_if%set_params(real_val, string_val2)
+             call bc_if%set_params(real_vec, real_val, string_val2)
 
           end select
        else if (trim(string_val1) .eq. "user") then
-          select type(bc_if => this%bc_inflow)
-          type is(usr_inflow_t)
-             call bc_if%set_coef(this%C_Xh)
-          end select
        end if
     end if
 
-    call this%bc_wall%init(this%c_Xh)
+    call this%bc_wall%init_base(this%c_Xh)
     call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%mark_zones_from_list(msh%labeled_zones,&
                         'w', this%bc_labels)
@@ -400,7 +397,7 @@ contains
     call bc_list_add(this%bclst_vel, this%bc_wall)
 
     ! Setup field dirichlet bc for u-velocity
-    call this%bc_field_vel%field_dirichlet_u%init(this%c_Xh)
+    call this%bc_field_vel%field_dirichlet_u%init_base(this%c_Xh)
     call this%bc_field_vel%field_dirichlet_u%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_u', this%bc_labels)
     call this%bc_field_vel%field_dirichlet_u%finalize()
@@ -410,7 +407,7 @@ contains
     if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_u%init_field('d_vel_u')
 
     ! Setup field dirichlet bc for v-velocity
-    call this%bc_field_vel%field_dirichlet_v%init(this%c_Xh)
+    call this%bc_field_vel%field_dirichlet_v%init_base(this%c_Xh)
     call this%bc_field_vel%field_dirichlet_v%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_v', this%bc_labels)
     call this%bc_field_vel%field_dirichlet_v%finalize()
@@ -420,7 +417,7 @@ contains
     if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_v%init_field('d_vel_v')
 
     ! Setup field dirichlet bc for w-velocity
-    call this%bc_field_vel%field_dirichlet_w%init(this%c_Xh)
+    call this%bc_field_vel%field_dirichlet_w%init_base(this%c_Xh)
     call this%bc_field_vel%field_dirichlet_w%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_w', this%bc_labels)
     call this%bc_field_vel%field_dirichlet_w%finalize()
@@ -430,7 +427,7 @@ contains
     if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_w%init_field('d_vel_w')
 
     ! Setup our global field dirichlet bc
-    call this%bc_field_vel%init(this%c_Xh)
+    call this%bc_field_vel%init_base(this%c_Xh)
     call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_u', this%bc_labels)
     call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
@@ -450,15 +447,15 @@ contains
     !
     ! Initialize field list and bc list for user_dirichlet_update
     !
-    allocate(this%field_dirichlet_fields%fields(4))
+    allocate(this%field_dirichlet_fields%items(4))
 
-    this%field_dirichlet_fields%fields(1)%f => &
+    this%field_dirichlet_fields%items(1)%ptr => &
          this%bc_field_vel%field_dirichlet_u%field_bc
-    this%field_dirichlet_fields%fields(2)%f => &
+    this%field_dirichlet_fields%items(2)%ptr => &
          this%bc_field_vel%field_dirichlet_v%field_bc
-    this%field_dirichlet_fields%fields(3)%f => &
+    this%field_dirichlet_fields%items(3)%ptr => &
          this%bc_field_vel%field_dirichlet_w%field_bc
-    this%field_dirichlet_fields%fields(4)%f => &
+    this%field_dirichlet_fields%items(4)%ptr => &
          this%bc_field_prs%field_bc
 
     call bc_list_init(this%field_dirichlet_bcs, size=4)
@@ -476,7 +473,7 @@ contains
        call this%bdry%init(this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'w', this%bc_labels)
@@ -485,7 +482,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%inlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'v', this%bc_labels)
@@ -494,7 +491,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%outlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'o', this%bc_labels)
@@ -503,7 +500,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%sympln)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'sym', this%bc_labels)
@@ -512,14 +509,14 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
        call bdry_mask%set_g(5.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%c_Xh)
+       call bdry_mask%init_base(this%c_Xh)
        call bdry_mask%mark_zone(msh%outlet_normal)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'on', this%bc_labels)
@@ -606,7 +603,7 @@ contains
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
-    real(kind=rp) :: real_val, dong_delta, dong_uchar
+    real(kind=rp) :: real_val
     real(kind=rp), allocatable :: real_vec(:)
     integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
@@ -633,14 +630,14 @@ contains
     ! Setup pressure boundary conditions
     !
     call bc_list_init(this%bclst_prs)
-    call this%bc_prs%init(this%c_Xh)
+    call this%bc_prs%init_base(this%c_Xh)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
                         'o', this%bc_labels)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
                         'on', this%bc_labels)
 
     ! Field dirichlet pressure bc
-    call this%bc_field_prs%init(this%c_Xh)
+    call this%bc_field_prs%init_base(this%c_Xh)
     call this%bc_field_prs%mark_zones_from_list(msh%labeled_zones,&
                         'd_pres', this%bc_labels)
     call this%bc_field_prs%finalize()
@@ -661,20 +658,15 @@ contains
     call this%bc_prs%finalize()
     call this%bc_prs%set_g(0.0_rp)
     call bc_list_add(this%bclst_prs, this%bc_prs)
-    call this%bc_dong%init(this%c_Xh)
+    call this%bc_dong%init_base(this%c_Xh)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
                         'o+dong', this%bc_labels)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
                         'on+dong', this%bc_labels)
     call this%bc_dong%finalize()
 
-    call json_get_or_default(params, 'case.fluid.outflow_condition.delta',&
-                             dong_delta, 0.01_rp)
-    call json_get_or_default(params, 'case.fluid.outflow_condition.velocity_scale',&
-                             dong_uchar, 1.0_rp)
 
-
-    call this%bc_dong%set_vars(dong_uchar, dong_delta)
+    call this%bc_dong%init(this%c_Xh, params)
 
     call bc_list_add(this%bclst_prs, this%bc_dong)
 
