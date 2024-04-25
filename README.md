@@ -17,7 +17,7 @@ Documentation for Neko is available at https://neko.cfd and most things related 
 To build the project you will need: A Fortran compiler supporting the Fortran-08 standard, a working MPI installation, JSON-Fortran, and BLAS/lapack. Optional dependencies are gslib and ParMETIS. We use automake to build the project. These instructions should work in general, but as the project is quickly developing, things might change. While we assume MPI and BLAS are installed, if JSON-Fortran is not already available it can be cloned, installed, and the correct paths set with the following commands (Skip this step if you already have an installation of JSON-Fortran).
 
 ```bash
-export JSON_INSTALL=/path/to/json-fortran_install # To make life easier, lets export a variable where you want to install json-fortran
+export JSON_INSTALL=/path/to/json-fortran_install # Where you want to install json-fortran
 git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
 cd json-fortran
 mkdir build && cd build
