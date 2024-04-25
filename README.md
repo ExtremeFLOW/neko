@@ -18,6 +18,8 @@ To build the project you will need: A Fortran compiler supporting the Fortran-08
 
 ```bash
 export JSON_INSTALL=/path/to/json-fortran_install # Where you want to install json-fortran
+```
+```bash
 git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
 cd json-fortran
 mkdir build && cd build
