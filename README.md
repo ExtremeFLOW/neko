@@ -11,7 +11,7 @@ git clone https://github.com/ExtremeFLOW/neko
 ```
 
 ## Documentation
-Documentation for Neko is available at https://neko.cfd and most things related to the code, cases, and different features are described there. The documentation is always improving, in large part due to our active users and if something is missing or hard to understand, don't be afraid to create an issue or create a PR. It is a great way for us to help us improve and also to start getting involved in the project.
+Documentation for Neko is available at https://neko.cfd and most things related to the code, cases, and different features are described there. The documentation is always improving, in large part due to our active users and if something is missing or hard to understand, don't be afraid to create an issue or create a PR. It is a great way to help us improve and also to start getting involved in the project.
 
 ## Building the project
 To build the project you will need: A Fortran compiler supporting the Fortran-08 standard, a working MPI installation, JSON-Fortran, and BLAS/lapack. Optional dependencies are gslib and ParMETIS. We use automake to build the project. These instructions should work in general, but as the project is quickly developing, things might change. While we assume MPI and BLAS are installed, if JSON-Fortran is not already available it can be cloned, installed, and the correct paths set with the following commands (Skip this step if you already have an installation of JSON-Fortran).
@@ -43,6 +43,12 @@ cd examples/tgv
 /path/to/neko_install/bin/makeneko tgv.f90
 mpirun -np 4 ./neko tgv.case
 ```
+If there is not a .f90 (user) file in the example, the standard executable `neko` can also be used, for example:
+```bash
+cd examples/hemi
+mpirun -np 4 /path/to/neko_install/bin/neko hemi.case
+```
+only uses built-in functions and does not need a compiled user file. 
 
 ## Publications using Neko
 * Jansson, N., 2021. *Spectral Element Simulations on the NEC SX-Aurora TSUBASA*. In proc. HPCAsia 2021.
