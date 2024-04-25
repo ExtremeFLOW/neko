@@ -10,17 +10,30 @@ Neko is a portable framework for high-order spectral element flow simulations. W
 git clone https://github.com/ExtremeFLOW/neko
 ```
 
-## Building the project
-To build the project you will need: A Fortran compiler supporting the Fortran-08 standard, a working MPI installation, JSON-Fortran, and BLAS/lapack. Optional dependencies are gslib and ParMETIS. We use automake to build the project. These instructions should work in general, but as the project is quickly developing, things might change.
+## Documentation
+Documentation for Neko is available at https://neko.cfd and most things related to the code, cases, and different features are described there. The documentation is always improving, in large part due to our active users and if something is missing or hard to understand, don't be afraid to create an issue or create a PR. It is a great way for us to help us improve and also to start getting involved in the project.
 
+## Building the project
+To build the project you will need: A Fortran compiler supporting the Fortran-08 standard, a working MPI installation, JSON-Fortran, and BLAS/lapack. Optional dependencies are gslib and ParMETIS. We use automake to build the project. These instructions should work in general, but as the project is quickly developing, things might change. While we assume MPI and BLAS are installed, if JSON-Fortran is not already available it can be cloned, installed, and the correct paths set with the following commands (Skip this step if you already have an installation of JSON-Fortran).
+
+```bash
+git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
+cd json-fortran
+mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=path/to/json-fortran_install -DUSE_GNU_INSTALL_CONVENTION=ON ..
+make -j4 && make install && cd ../../
+export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:path/to/json-fortran_install/lib/pkgconfig
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/path/to/json-fortran_install/lib/
+```
+
+A basic CPU version of Neko can then be installed according to the following
 ```bash
 cd neko
 ./regen.sh
-./configure --prefix=/path/to/neko_install --with-pfunit=/path/to/pFUnit/installed/PFUNIT-VERSION
+./configure --prefix=/path/to/neko_install
 make install
 ```
-
-More detailed installation instructions can be found in the documentation.
+More detailed installation instructions and all the different options (such as how to install Neko for GPUs) can be found in the documentation available at https://neko.cfd. 
 
 ## Running examples
 After the project has been built
@@ -31,19 +44,6 @@ cd examples/tgv
 mpirun -np 4 ./neko tgv.case
 ```
 
-## Testing the Code
-Assuming you configured with pFUnit you should be able to test the code with
-```bash
-make check
-```
-
-## Documentation
-Documentation for Neko is available at https://neko.cfd.
-
-To generate the documentation, you need to have both doxygen and dot (part of the Graphviz package) installed (they will be picked up by configure). Once installed, you should be able to generate the documentation with
-```bash
-make html
-```
 ## Publications using Neko
 * Jansson, N., 2021. *Spectral Element Simulations on the NEC SX-Aurora TSUBASA*. In proc. HPCAsia 2021.
 * Karp, M., Podobas, A., Kenter, T., Jansson, N., Plessl, C., Schlatter, P. and Markidis, S., 2022. *A high-fidelity flow solver for unstructured meshes on field-programmable gate arrays: Design, evaluation, and future challenges*. In proc. HPCAsia 2022.
