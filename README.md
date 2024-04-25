@@ -23,8 +23,9 @@ cd json-fortran
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=${JSON_INSTALL} -DUSE_GNU_INSTALL_CONVENTION=ON ..
 make -j4 && make install && cd ../../
-export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${JSON_INSTALL}/lib64/pkgconfig
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JSON_INSTALL}/lib64/
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JSON_INSTALL}/lib/ #On some systems lib should be replaced with lib64
+export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${JSON_INSTALL}/lib/pkgconfig 
+
 ```
 
 A basic CPU version of Neko can then be installed according to the following
