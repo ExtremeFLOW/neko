@@ -176,6 +176,23 @@ contains
     allocate(this%dsdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%dtdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
+    ! HARRY
+    ! I also want the det(Jacobian) and mass matrix
+    allocate(this%B(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%jac(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    ! And dxdr etc
+    allocate(this%dxdr(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dxds(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dxdt(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+
+    allocate(this%dydr(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dyds(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dydt(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+
+    allocate(this%dzdr(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dzds(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dzdt(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+
 
     !
     ! Setup device memory (if present)
@@ -196,6 +213,25 @@ contains
        call device_map(this%dtdx, this%dtdx_d, n)
        call device_map(this%dtdy, this%dtdy_d, n)
        call device_map(this%dtdz, this%dtdz_d, n)
+
+
+		 ! harry
+       call device_map(this%jac, this%jac_d, n)
+       call device_map(this%B, this%B_d, n)
+
+       call device_map(this%xh%w3, this%xh%w3_d, this%Xh%lx * this%Xh%ly * this%Xh%lz)
+
+       call device_map(this%dxdr, this%dxdr_d, n)
+       call device_map(this%dydr, this%dydr_d, n)
+       call device_map(this%dzdr, this%dzdr_d, n)
+
+       call device_map(this%dxds, this%dxds_d, n)
+       call device_map(this%dyds, this%dyds_d, n)
+       call device_map(this%dzds, this%dzds_d, n)
+
+       call device_map(this%dxdt, this%dxdt_d, n)
+       call device_map(this%dydt, this%dydt_d, n)
+       call device_map(this%dzdt, this%dzdt_d, n)
 
     end if
 

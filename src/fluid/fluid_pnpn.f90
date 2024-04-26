@@ -576,6 +576,18 @@ contains
                             f_x%x, f_y%x, f_z%x, &
                             Xh, this%c_Xh, dm_Xh%size())
       endif
+      !! put a DSS call here??
+      !call col2(f_x%x,c_Xh%B,n)
+      !call col2(f_y%x,c_Xh%B,n)
+      !call col2(f_z%x,c_Xh%B,n)
+      !call gs_Xh%op(f_x, GS_OP_ADD)
+    	!call gs_Xh%op(f_y, GS_OP_ADD)
+    	!call gs_Xh%op(f_z, GS_OP_ADD)
+      !call col2(f_x%x,c_Xh%Binv,n)
+      !call col2(f_y%x,c_Xh%Binv,n)
+      !call col2(f_z%x,c_Xh%Binv,n)
+
+
 
       ! At this point the RHS contains the sum of the advection operator and
       ! additional source terms, evaluated using the velocity field from the

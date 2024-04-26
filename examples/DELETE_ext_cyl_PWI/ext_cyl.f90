@@ -41,6 +41,8 @@ contains
          fcoeff(3)= -2.0e5
        	v%x(ix,iy,iz,iel) = math_ran_dst(ix,iy,iz,iel,xl,fcoeff)*1.0e-08
        	w%x(ix,iy,iz,iel) = 0.0
+       	!u%x(ix,iy,iz,iel) = 1.0e-8
+       	!v%x(ix,iy,iz,iel) = 1.0e-8
     end do
     end do
     end do

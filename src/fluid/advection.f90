@@ -127,6 +127,23 @@ module advection
      type(c_ptr) :: tyb_d = C_NULL_PTR
      !> Device pointer for `tz`
      type(c_ptr) :: tzb_d = C_NULL_PTR
+
+     ! revised
+     ! THIS IS THE WORST WAY OF DOING IT
+     ! but I want to check the operator
+     ! I'll use less memory in the future
+     real(kind=rp), allocatable :: duxb(:), duyb(:), duzb(:)
+     real(kind=rp), allocatable :: dvxb(:), dvyb(:), dvzb(:)
+     real(kind=rp), allocatable :: dwxb(:), dwyb(:), dwzb(:)
+     type(c_ptr) :: duxb_d = C_NULL_PTR
+     type(c_ptr) :: duyb_d = C_NULL_PTR
+     type(c_ptr) :: duzb_d = C_NULL_PTR
+     type(c_ptr) :: dvxb_d = C_NULL_PTR
+     type(c_ptr) :: dvyb_d = C_NULL_PTR
+     type(c_ptr) :: dvzb_d = C_NULL_PTR
+     type(c_ptr) :: dwxb_d = C_NULL_PTR
+     type(c_ptr) :: dwyb_d = C_NULL_PTR
+     type(c_ptr) :: dwzb_d = C_NULL_PTR
      ! -----------------------------------------------
 
    contains
@@ -291,6 +308,22 @@ contains
     call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+    ! HARRY
+    ! I also want the det(jacobian) and the mass matrix
+    call this%GLL_to_GL%map(this%coef_GL%jac,  coef%jac,  nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%B,    coef%B,    nel, this%Xh_GL)
+    ! and dxdr etc
+    call this%GLL_to_GL%map(this%coef_GL%dxdr, coef%dxdr, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dxds, coef%dxds, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dxdt, coef%dxdt, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dydr, coef%dydr, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dyds, coef%dyds, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dydt, coef%dydt, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dzdr, coef%dzdr, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dzds, coef%dzds, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%dzdt, coef%dzdt, nel, this%Xh_GL)
+
+
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_SX .eq. 1) .or. &
          (NEKO_BCKND_XSMM .eq. 1)) then
@@ -302,6 +335,16 @@ contains
        allocate(this%vr(n_GL))
        allocate(this%vs(n_GL))
        allocate(this%vt(n_GL))
+       ! HARRY DO SOMETHING SMARTER!!!!
+       allocate(this%duxb(n_GL))
+       allocate(this%duyb(n_GL))
+       allocate(this%duzb(n_GL))
+       allocate(this%dvxb(n_GL))
+       allocate(this%dvyb(n_GL))
+       allocate(this%dvzb(n_GL))
+       allocate(this%dwxb(n_GL))
+       allocate(this%dwyb(n_GL))
+       allocate(this%dwzb(n_GL))
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -313,6 +356,16 @@ contains
        call device_map(this%vr, this%vr_d, n_GL)
        call device_map(this%vs, this%vs_d, n_GL)
        call device_map(this%vt, this%vt_d, n_GL)
+       ! HARRY DO SOMETHING SMARTER!!!!
+       call device_map(this%duxb, this%duxb_d, n_GL)
+       call device_map(this%duyb, this%duyb_d, n_GL)
+       call device_map(this%duzb, this%duzb_d, n_GL)
+       call device_map(this%dvxb, this%dvxb_d, n_GL)
+       call device_map(this%dvyb, this%dvyb_d, n_GL)
+       call device_map(this%dvzb, this%dvzb_d, n_GL)
+       call device_map(this%dwxb, this%dwxb_d, n_GL)
+       call device_map(this%dwyb, this%dwyb_d, n_GL)
+       call device_map(this%dwzb, this%dwzb_d, n_GL)
     end if
 
   end subroutine init_dealias
@@ -640,7 +693,6 @@ contains
 
   end subroutine compute_scalar_advection_dealias
 
-
   ! Tim,
   ! these are the vector ones, right now it's for LNS
 
@@ -659,6 +711,401 @@ contains
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
   subroutine compute_vector_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
+  !! HARRY added vxb etc for baseflow
+    implicit none
+    class(adv_dealias_t), intent(inout) :: this
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    type(field_t), intent(inout) :: vx, vy, vz
+    ! HARRY ---
+    ! Baseflow
+    type(field_t), intent(inout) :: vxb, vyb, vzb
+    ! --------
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz
+
+    ! these are u and U_b on dealiased mesh
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: txb, tyb, tzb
+
+    ! these are gradients of U_b on dealiased mesh
+    real(kind=rp), dimension(this%Xh_GL%lxyz,1) :: duxb, dvxb, dwxb
+    real(kind=rp), dimension(this%Xh_GL%lxyz,1) :: duyb, dvyb, dwyb
+    real(kind=rp), dimension(this%Xh_GL%lxyz,1) :: duzb, dvzb, dwzb
+
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: vr, vs, vt
+    real(kind=rp), dimension(this%Xh_GLL%lxyz) :: tempx, tempy, tempz
+    type(c_ptr) :: fx_d, fy_d, fz_d
+    integer :: e, i, idx, nel, n_GL
+    real :: fac
+    nel = coef%msh%nelv
+    n_GL = nel * this%Xh_GL%lxyz
+    !This is extremely primitive and unoptimized  on the device //Karp
+    associate(c_GL => this%coef_GL)
+
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         fx_d = device_get_ptr(fx)
+         fy_d = device_get_ptr(fy)
+         fz_d = device_get_ptr(fz)
+    ! HARRY
+    		! These are the baseflow
+         call this%GLL_to_GL%map(this%txb, vxb%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tyb, vyb%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tzb, vzb%x, nel, this%Xh_GL)
+
+			! These are velocity
+         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+
+    ! OK first we do u . grad U_b^T
+    !-----------------------------
+
+    		! gradient of grad U_b in x-y-z 
+    		! (I'm suspicious that we're in x-y-z not r-s-t)
+         call opgrad(this%duxb, this%duyb, this%duzb, this%txb, c_GL)
+         call opgrad(this%dvxb, this%dvyb, this%dvzb, this%tyb, c_GL)
+         call opgrad(this%dwxb, this%dwyb, this%dwzb, this%tzb, c_GL)
+
+         ! traspose and accumulate (free index x)
+         call device_vdot3(this%tbf_d, this%tx_d,  this%tx_d,  this%tx_d, &
+                                       this%duxb_d, this%dvxb_d, this%dwxb_d, n_GL)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call device_add2(fx_d, this%temp_d, n)
+
+         ! traspose and accumulate (free index y)
+         call device_vdot3(this%tbf_d, this%ty_d,  this%ty_d,  this%ty_d, &
+                                       this%duyb_d, this%dvyb_d, this%dwyb_d, n_GL)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call device_add2(fy_d, this%temp_d, n)
+
+         ! traspose and accumulate (free index z)
+         call device_vdot3(this%tbf_d, this%tz_d,  this%tz_d,  this%tz_d, &
+                                       this%duzb_d, this%dvzb_d, this%dwzb_d, n_GL)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call device_add2(fz_d, this%temp_d, n)
+
+    ! OK now we do -(grad . U_b) u
+    ! 
+    ! BUT!
+    !
+    ! We do it in weak form...
+    ! so int \grad v . U_b ^ u    with ^ an outer product
+    ! we're going to reuse uxb, uyb and uzb for the outer product 
+    !-----------------------------
+         call device_vdot3(this%duxb_d, this%tx_d,  this%tx_d,  this%tx_d, &
+                                       this%txb_d, this%tyb_d, this%tzb_d, n_GL)
+         call device_vdot3(this%duyb_d, this%ty_d,  this%ty_d,  this%ty_d, &
+                                       this%txb_d, this%tyb_d, this%tzb_d, n_GL)
+         call device_vdot3(this%duzb_d, this%tz_d,  this%tz_d,  this%tz_d, &
+                                       this%txb_d, this%tyb_d, this%tzb_d, n_GL)
+    ! I MIGHT HAVE FUCKED THE INDICIES
+         ! D^T 
+         !call cdtp(this%tbf, this%duxb, this%coef%drdx, this%coef%drdy, this%coef%drdz, c_GL)
+         !call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         !call device_add2(fx_d, this%temp_d, n)
+         !! D^T 
+         !call cdtp(this%tbf, this%duyb, this%coef%dsdx, this%coef%dsdy, this%coef%dsdz, c_GL)
+         !call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         !call device_add2(fy_d, this%temp_d, n)
+         !! D^T 
+         !call cdtp(this%tbf, this%duzb, this%coef%dtdx, this%coef%dtdy, this%coef%dtdz, c_GL)
+         !call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         !call device_add2(fz_d, this%temp_d, n)
+
+
+         !fingers crossed...
+    
+
+    	  
+
+      else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
+    ! HARRY
+    		! These are the baseflow
+         call this%GLL_to_GL%map(this%txb, vxb%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tyb, vyb%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tzb, vzb%x, nel, this%Xh_GL)
+
+			! These are velocity
+         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+
+    ! OK this will be du.grad Ub
+         call opgrad(this%vr, this%vs, this%vt, this%txb, c_GL)
+         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+                  this%tx, this%ty, this%tz, n_GL)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call sub2(fx, this%temp, n)
+
+
+         call opgrad(this%vr, this%vs, this%vt, this%tyb, c_GL)
+         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+                  this%tx, this%ty, this%tz, n_GL)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call sub2(fy, this%temp, n)
+
+         call opgrad(this%vr, this%vs, this%vt, this%tzb, c_GL)
+         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+                  this%tx, this%ty, this%tz, n_GL)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call sub2(fz, this%temp, n)
+
+    ! OK this will be Ub.grad du
+         call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
+         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+                  this%txb, this%tyb, this%tzb, n_GL)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call sub2(fx, this%temp, n)
+
+
+         call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
+         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+                  this%txb, this%tyb, this%tzb, n_GL)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call sub2(fy, this%temp, n)
+
+         call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
+         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+                  this%txb, this%tyb, this%tzb, n_GL)
+         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call sub2(fz, this%temp, n)
+      else
+		
+		do e = 1, coef%msh%nelv
+    ! HARRY
+    		! These are the baseflow
+         call this%GLL_to_GL%map(txb, vxb%x(1,1,1,e), 1, this%Xh_GL)
+         call this%GLL_to_GL%map(tyb, vyb%x(1,1,1,e), 1, this%Xh_GL)
+         call this%GLL_to_GL%map(tzb, vzb%x(1,1,1,e), 1, this%Xh_GL)
+
+			! These are velocity
+         call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
+         call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
+         call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
+
+
+    ! OK first we do u . grad U_b^T
+    !-----------------------------
+
+    		! gradient of grad U_b in x-y-z 
+    		! (I'm suspicious that we're in x-y-z not r-s-t)
+         call opgrad(duxb, duyb, duzb, txb, c_GL, e, e)
+         call opgrad(dvxb, dvyb, dvzb, tyb, c_GL, e, e)
+         call opgrad(dwxb, dwyb, dwzb, tzb, c_GL, e, e)
+
+         ! traspose and accumulate (free index x)
+         do i = 1, this%Xh_GL%lxyz
+               !tfx(i) = tx(i)*duxb(i,1) + tx(i)*dvxb(i,1) + tx(i)*dwxb(i,1)
+               !tfy(i) = ty(i)*duyb(i,1) + ty(i)*dvyb(i,1) + ty(i)*dwyb(i,1)
+               !tfz(i) = tz(i)*duzb(i,1) + tz(i)*dvzb(i,1) + tz(i)*dwzb(i,1)
+               tfx(i) = tx(i)*duxb(i,1) + ty(i)*dvxb(i,1) + tz(i)*dwxb(i,1)
+               tfy(i) = tx(i)*duyb(i,1) + ty(i)*dvyb(i,1) + tz(i)*dwyb(i,1)
+               tfz(i) = tx(i)*duzb(i,1) + ty(i)*dvzb(i,1) + tz(i)*dwzb(i,1)
+         end do
+
+            call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map(tempy, tfy, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
+
+				! HARRY UNCOMMENT THESE!!!
+            idx = (e-1)*this%Xh_GLL%lxyz+1
+            call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
+            call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
+            call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
+
+    ! OK now we do -(grad . U_b) u
+    ! 
+    ! BUT!
+    !
+    ! We do it in weak form...
+    ! so int \grad v . U_b ^ u    with ^ an outer product
+    ! we're going to reuse uxb, uyb and uzb for the outer product 
+    !-----------------------------
+    	  	! here we have index i, with free index j------------------------------x
+         do i = 1, this%Xh_GL%lxyz
+           		fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+               duxb(i,1) = tx(i)*txb(i)*fac
+               duyb(i,1) = tx(i)*tyb(i)*fac
+               duzb(i,1) = tx(i)*tzb(i)*fac
+         end do
+         ! D^T 
+         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
+         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
+
+         ! sum them
+         do i = 1, this%Xh_GL%lxyz
+           		tfx(i) = tfx(i) + tfy(i) + tfz(i)
+         end do
+
+         ! map back to GLL
+         call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+         call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
+
+    	  	! here we have index i, with free index j------------------------------y
+         do i = 1, this%Xh_GL%lxyz
+           		fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+               duxb(i,1) = ty(i)*txb(i)*fac
+               duyb(i,1) = ty(i)*tyb(i)*fac
+               duzb(i,1) = ty(i)*tzb(i)*fac
+         end do
+         ! D^T 
+         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
+         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
+
+         ! sum them
+         do i = 1, this%Xh_GL%lxyz
+           		tfx(i) = tfx(i) + tfy(i) + tfz(i)
+         end do
+
+         ! map back to GLL
+         call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+         call sub2(fy(idx), tempx, this%Xh_GLL%lxyz)
+
+    	  	! here we have index i, with free index j------------------------------z
+         do i = 1, this%Xh_GL%lxyz
+           		fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+               duxb(i,1) = tz(i)*txb(i)*fac
+               duyb(i,1) = tz(i)*tyb(i)*fac
+               duzb(i,1) = tz(i)*tzb(i)*fac
+         end do
+         ! D^T 
+         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
+         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
+
+         ! sum them
+         do i = 1, this%Xh_GL%lxyz
+           		tfx(i) = tfx(i) + tfy(i) + tfz(i)
+         end do
+
+         ! map back to GLL
+         call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+         call sub2(fz(idx), tempx, this%Xh_GLL%lxyz)
+
+		enddo
+
+
+      end if
+    end associate
+
+  end subroutine compute_vector_advection_dealias
+
+! THIS IS NOTHING
+  !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
+  !! RHS.
+  !! @param vx The x component of velocity.
+  !! @param vy The y component of velocity.
+  !! @param vz The z component of velocity.
+  !! @param fx The x component of source term.
+  !! @param fy The y component of source term.
+  !! @param fz The z component of source term.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
+  subroutine compute_vector_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
+    implicit none
+    class(adv_no_dealias_t), intent(inout) :: this
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: vxb, vyb, vzb
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
+    type(c_ptr) :: fx_d, fy_d, fz_d
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       fx_d = device_get_ptr(fx)
+       fy_d = device_get_ptr(fy)
+       fz_d = device_get_ptr(fz)
+
+       call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
+       call device_subcol3 (fx_d, coef%B_d, this%temp_d, n)
+       call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
+       call device_subcol3 (fy_d, coef%B_d, this%temp_d, n)
+       if (coef%Xh%lz .eq. 1) then
+          call device_rzero (this%temp_d, n)
+       else
+          call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
+          call device_subcol3(fz_d, coef%B_d, this%temp_d, n)
+       end if
+    else
+       call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
+       call subcol3 (fx, coef%B, this%temp, n)
+       call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
+       call subcol3 (fy, coef%B, this%temp, n)
+       if (coef%Xh%lz .eq. 1) then
+          call rzero (this%temp, n)
+       else
+          call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
+          call subcol3(fz, coef%B, this%temp, n)
+       end if
+    end if
+
+  end subroutine compute_vector_advection_no_dealias
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ! Tim,
+  ! these are the vector ones, right now it's for LNS
+
+  !> Add the linearized advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
+  !! the RHS.
+  !! @param vx The x component of velocity.
+  !! @param vy The y component of velocity.
+  !! @param vz The z component of velocity.
+  !! @param vxb The x component of baseflow velocity.
+  !! @param vyb The y component of baseflow velocity.
+  !! @param vzb The z component of baseflow velocity.
+  !! @param fx The x component of source term.
+  !! @param fy The y component of source term.
+  !! @param fz The z component of source term.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
+  subroutine compute_LNS_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
   !! HARRY added vxb etc for baseflow
     implicit none
     class(adv_dealias_t), intent(inout) :: this
@@ -859,7 +1306,7 @@ contains
       end if
     end associate
 
-  end subroutine compute_vector_advection_dealias
+  end subroutine compute_LNS_advection_dealias
 
 ! THIS IS NOTHING
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
@@ -873,7 +1320,7 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  subroutine compute_vector_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
+  subroutine compute_LNS_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
     implicit none
     class(adv_no_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
@@ -912,5 +1359,5 @@ contains
        end if
     end if
 
-  end subroutine compute_vector_advection_no_dealias
+  end subroutine compute_LNS_advection_no_dealias
 end module advection

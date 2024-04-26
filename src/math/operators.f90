@@ -153,13 +153,28 @@ contains
   !! @param coef The SEM coefficients.
   !> @note This needs to be revised... the loop over n1,n2 is probably
   !! unesccssary
-  subroutine cdtp (dtx, x, dr, ds, dt, coef)
+  subroutine cdtp (dtx, x, dr, ds, dt, coef, es, ee)
     type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+    integer, optional :: es, ee
+    integer :: eblk_start, eblk_end
+
+
+     if (present(es)) then
+        eblk_start = es
+     else
+        eblk_start = 1
+     end if
+
+     if (present(ee)) then
+        eblk_end = ee
+     else
+        eblk_end = coef%msh%nelv
+     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
@@ -168,7 +183,7 @@ contains
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_cdtp(dtx, x, dr, ds, dt, coef)
     else
-       call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
+       call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef, eblk_start, eblk_end)
     end if
 
   end subroutine cdtp
