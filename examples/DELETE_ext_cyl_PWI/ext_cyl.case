@@ -5,53 +5,59 @@
   "mesh_file": "ext_cyl.nmsh",
   "output_checkpoints": false,
   "output_at_end": true,
-  "output_boundary": true,
   "end_time": 50.0,
   "timestep": 5e-3,
 
-  "numerics": {
-    "time_order": 3,
-    "polynomial_order": 5,
-    "dealias": true
-  },
-   "perturbation": {
-        "if_pert": true,
-        "baseflow": {
-          "type": "load_file",
-    	  "filename": "harry.fld"
-        }
-    },
-  "fluid": {
-    "scheme": "pnpn",
-    "Re": 100,
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 5,
+            "dealias": true
+        },
 
-    "initial_condition": {
-      "type": "user"
-    },
-    "inflow_condition": {
-        "type": "uniform",
-        "value": [
-            0.0, 0.0, 0.0
-        ]
-    },
-    "velocity_solver": {
-      "type": "cg",
-      "preconditioner": "jacobi",
-      "projection_space_size": 0,
-      "absolute_tolerance": 1e-8,
-      "max_iterations": 800
-    },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 100,
 
-    "pressure_solver": {
-      "type": "gmres",
-      "preconditioner": "hsmg",
-      "projection_space_size": 8,
-      "absolute_tolerance": 1e-6,
-      "max_iterations": 800
-    },
+            "initial_condition": {
+                "type": "user"
+            },
 
-    "output_control": "tsteps",
-    "output_value": 200,
+            "inflow_condition": {
+                "type": "uniform",
+                "value": [
+                    0.0, 0.0, 0.0
+                ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": "jacobi",
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-8,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": "hsmg",
+                "projection_space_size": 8,
+                "absolute_tolerance": 1e-6,
+                "max_iterations": 800
+            },
+            "output_control": "tsteps",
+            "output_value": 200,
+        },
+        "perturbation": {
+            "if_pert": true,
+            "baseflow": {
+                "type": "load_file",
+                "filename": "harry0.fld"
+            }
+        },
+        "simulation_components": [
+            {
+                "type": "poweriterations",
+                "compute_control": "simulationtime",
+                "compute_value": 5.0,
   }
-  }
+  ]
+}
 }

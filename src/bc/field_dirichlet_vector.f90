@@ -139,10 +139,19 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
-    ! This is quite ugly
-    call this%field_dirichlet_u%apply_scalar(x, n, t, tstep)
-    call this%field_dirichlet_v%apply_scalar(y, n, t, tstep)
-    call this%field_dirichlet_w%apply_scalar(z, n, t, tstep)
+    if (present(t) .and. present(tstep)) then
+       call this%field_dirichlet_u%apply_scalar(x, n, t, tstep)
+       call this%field_dirichlet_v%apply_scalar(y, n, t, tstep)
+       call this%field_dirichlet_w%apply_scalar(z, n, t, tstep)
+    else if (present(t)) then
+       call this%field_dirichlet_u%apply_scalar(x, n, t=t)
+       call this%field_dirichlet_v%apply_scalar(y, n, t=t)
+       call this%field_dirichlet_w%apply_scalar(z, n, t=t)
+    else if (present(tstep)) then
+       call this%field_dirichlet_u%apply_scalar(x, n, tstep=tstep)
+       call this%field_dirichlet_v%apply_scalar(y, n, tstep=tstep)
+       call this%field_dirichlet_w%apply_scalar(z, n, tstep=tstep)
+    end if
 
   end subroutine field_dirichlet_vector_apply_vector
 
@@ -160,10 +169,19 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
-    ! This is quite ugly
-    call this%field_dirichlet_u%apply_scalar_dev(x_d, t, tstep)
-    call this%field_dirichlet_v%apply_scalar_dev(y_d, t, tstep)
-    call this%field_dirichlet_w%apply_scalar_dev(z_d, t, tstep)
+    if (present(t) .and. present(tstep)) then
+       call this%field_dirichlet_u%apply_scalar_dev(x_d, t, tstep)
+       call this%field_dirichlet_v%apply_scalar_dev(y_d, t, tstep)
+       call this%field_dirichlet_w%apply_scalar_dev(z_d, t, tstep)
+    else if (present(t)) then
+       call this%field_dirichlet_u%apply_scalar_dev(x_d, t=t)
+       call this%field_dirichlet_v%apply_scalar_dev(y_d, t=t)
+       call this%field_dirichlet_w%apply_scalar_dev(z_d, t=t)
+    else if (present(tstep)) then
+       call this%field_dirichlet_u%apply_scalar_dev(x_d, tstep=tstep)
+       call this%field_dirichlet_v%apply_scalar_dev(y_d, tstep=tstep)
+       call this%field_dirichlet_w%apply_scalar_dev(z_d, tstep=tstep)
+    end if
 
    end subroutine field_dirichlet_vector_apply_vector_dev
 
