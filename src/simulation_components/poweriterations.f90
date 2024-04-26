@@ -112,11 +112,11 @@ contains
     class(power_iterations_t), intent(inout) :: this
 
     ! Add new fields needed by the simulation here
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "u_old",&
+    call neko_field_registry%add_field(this%case%fluid%dm_Xh, "u_old",&
                                        ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "v_old",&
+    call neko_field_registry%add_field(this%case%fluid%dm_Xh, "v_old",&
                                        ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "w_old",&
+    call neko_field_registry%add_field(this%case%fluid%dm_Xh, "w_old",&
                                        ignore_existing=.true.)
 
     this%u => neko_field_registry%get_field("u")
