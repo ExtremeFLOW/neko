@@ -74,6 +74,9 @@ module power_iterations
      !> Temporary array for working with the data
      real(kind=rp), dimension(:), allocatable :: tmp
 
+     !> The previously used timestep
+     real(kind=rp) :: t_old
+
      real(kind=rp) :: lambda
      real(kind=rp) :: lambda_old
      real(kind=rp) :: lambda_diff
@@ -98,25 +101,8 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
 
-    this%neko_case => case
-
-    ! Add new fields needed by the simulation here
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "u_old",&
-                                       ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "v_old",&
-                                       ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "w_old",&
-                                       ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "lambda",&
-                                       ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "lambda_old",&
-                                       ignore_existing=.true.)
-    call neko_field_registry%add_field(case%fluid%dm_Xh, "lambda_diff",&
-                                       ignore_existing=.true.)
-
-
-    this%n = this%u%size()
-    allocate(this%tmp(this%n))
+    call this%free()
+    call this%init_base(json, case)
 
     call power_iterations_init_from_attributes(this)
   end subroutine power_iterations_init_from_json
@@ -125,6 +111,13 @@ contains
   subroutine power_iterations_init_from_attributes(this)
     class(power_iterations_t), intent(inout) :: this
 
+    ! Add new fields needed by the simulation here
+    call neko_field_registry%add_field(case%fluid%dm_Xh, "u_old",&
+                                       ignore_existing=.true.)
+    call neko_field_registry%add_field(case%fluid%dm_Xh, "v_old",&
+                                       ignore_existing=.true.)
+    call neko_field_registry%add_field(case%fluid%dm_Xh, "w_old",&
+                                       ignore_existing=.true.)
 
     this%u => neko_field_registry%get_field("u")
     this%v => neko_field_registry%get_field("v")
@@ -133,6 +126,9 @@ contains
     this%u_old => neko_field_registry%get_field("u_old")
     this%v_old => neko_field_registry%get_field("v_old")
     this%w_old => neko_field_registry%get_field("w_old")
+
+    this%n = this%u%size()
+    allocate(this%tmp(this%n))
 
   end subroutine power_iterations_init_from_attributes
 
@@ -155,10 +151,22 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    real(kind=rp) :: norm
-    real(kind=rp) :: volvm1
-    real(kind=rp) :: cnht_sv
-    real(kind=rp) :: f1
+    ! real(kind=rp) :: norm
+    ! real(kind=rp) :: volvm1
+    ! real(kind=rp) :: cnht_sv
+    ! real(kind=rp) :: f1
+
+    ! integer :: i
+
+    ! ! Assign the scalar constants
+    ! volvm1=this%neko_case%fluid%c_Xh%volume
+
+    ! ! https://github.com/KTH-Nek5000/KTH_Toolbox/blob/b2b7a97b4ba1a56a75dcbd2c1703a595cda9a850/utility/cnht/cnht_tools.f#L51C1-L54C40
+    ! ! This is the default value for cnht_sv in Nek5000. It was user defined in
+    ! ! the par file format. We should probably add this to the json file.
+    ! cnht_sv = 0.5
+
+    ! f1=cnht_sv/volvm1
 
     ! associate (u => this%u%x, &
     !            v => this%v%x, &
@@ -166,70 +174,230 @@ contains
     !            u_old => this%u_old%x, &
     !            v_old => this%v_old%x, &
     !            w_old => this%w_old%x, &
-    !            wt => this%case%fluid%c_Xh%B & ! Mass matrix
+    !            wt => this%neko_case%fluid%c_Xh%B & ! Mass matrix
     !            )
 
-    !   ! ! Calculate the new lambda value
-    !   ! ! lambda = U_n^T * U_old
-    !   ! ! U_old = U_{n-1} / ||U_{n-1}||
-    !   ! this%lambda_old = this%lambda
-    !   ! call vdot3(tmp, u, v, w, u_old, v_old, w_old, n)
-    !   ! ! this%lambda = glsc2(tmp, wt, n)
-    !   ! this%lambda_diff = this%lambda - this%lambda_old
+    !   do i=1, 100
 
-    !   ! ! Normalize the new power_iterations field
-    !   ! call copy(u_old, u, n)
-    !   ! call copy(v_old, v, n)
-    !   ! call copy(w_old, w, n)
+    !      ! Calculate the new lambda value
+    !      ! lambda = U_n^T * U_old
+    !      ! U_old = U_{n-1} / ||U_{n-1}||
+    !      this%lambda_old = this%lambda
 
-    !   ! ! Normalize the temporary pertubation fields.
+    !      !  ! Alternative 1: Compute the dot product of the velocity fields.
+    !      !  call vdot3(this%tmp, u, v, w, u_old, v_old, w_old, this%n)
+    !      !  this%lambda = glsum(this%tmp, this%n)
 
-    !   ! ! Compute the norm of the pertubation fields.
-    !   ! !
-    !   ! ! Nek5000 uses the following norm:
-    !   ! ! do il=1,ntotv
-    !   ! ! sum = sum + wt(il)*f1*( b1(il)*x1(il) + b2(il)*x2(il) + b3(il)*x3(il) )
-    !   ! !  end do
-    !   ! !
-    !   ! ! Where:
-    !   ! !       Harrison Nobis: Harrison Nobis said:
-    !   ! ! Harrison Nobis: a bit of Nek5000 notation:
-    !   ! ! if you want to take an integral of any scalar field in the domain, it's the pointwise product of the field and the mass matrix, then summed across the entire domain
-    !   ! ! so often people will use: glsc2(field1, bm1, n)
+    !      !  call vdot3(this%tmp, u_old, v_old, w_old, u_old, v_old, w_old, this%n)
+    !      !  this%lambda = this%lambda / glsum(this%tmp, this%n)
 
-    !   ! ! Harrison Nobis: in this case they're doing the sum locally on each processor, and then the last line glsum() does a global sum across all processors
+    !      ! Alternative 2: Compute the integral of the velocity fields.
+    !      call vdot3(this%tmp, u, v, w, u_old, v_old, w_old, this%n)
+    !      this%lambda = f1 * glsc2(this%tmp, wt, this%n)
 
-    !   ! ! Harrison Nobis: so by Neko notation, you would want to have:
-    !   ! ! uucoef%X_h%B + vvcoef%X_h%B + wwcoef%X_h%B
+    !      call vdot3(this%tmp, u_old, v_old, w_old, u_old, v_old, w_old, this%n)
+    !      norm = f1 * glsc2(this%tmp, wt, this%n)
+    !      this%lambda = this%lambda / norm
 
-    !   ! ! Harrison Nobis: I could be wrong with where B lives, but that's should be the mass matrix
 
-    !   ! ! Harrison Nobis: and then sum them everywhere
+    !      ! Calculate the difference between the new and old lambda values.
+    !      this%lambda_diff = abs(this%lambda - this%lambda_old)
 
-    !   ! ! Normalize the pertubation fields.
-    !   ! volvm1=this%case%fluid%c_Xh%volume
+    !      if (this%lambda_diff .lt. 1.0e-18_rp) then
+    !         exit
+    !      end if
 
-    !   ! ! https://github.com/KTH-Nek5000/KTH_Toolbox/blob/b2b7a97b4ba1a56a75dcbd2c1703a595cda9a850/utility/cnht/cnht_tools.f#L51C1-L54C40
-    !   ! ! This is the default value for cnht_sv in Nek5000. It was user defined in
-    !   ! ! the par file format. We should probably add this to the json file.
-    !   ! cnht_sv = 0.5
 
-    !   ! f1=cnht_sv/volvm1
-    !   ! call vdot3(tmp, u_old, v_old, w_old, u_old, v_old, w_old, n)
-    !   ! ! norm = f1 * glsc2(tmp, wt, n)
-    !   ! norm = f1
-    !   ! norm = sqrt(norm)
+    !      ! Normalize and store the pertubation fields.
+    !      call copy(u_old, u, this%n)
+    !      call copy(v_old, v, this%n)
+    !      call copy(w_old, w, this%n)
 
-    !   ! call cmult(u_old, 1.0_rp / norm, n)
-    !   ! call cmult(v_old, 1.0_rp / norm, n)
-    !   ! call cmult(w_old, 1.0_rp / norm, n)
+    !      ! Normalize the pertubation fields.
+    !      call vdot3(this%tmp, u_old, v_old, w_old, u_old, v_old, w_old, this%n)
+    !      norm = f1 * glsc2(this%tmp, wt, this%n)
+    !      norm = sqrt(norm)
+
+    !      call cmult(u_old, 1.0_rp / norm, this%n)
+    !      call cmult(v_old, 1.0_rp / norm, this%n)
+    !      call cmult(w_old, 1.0_rp / norm, this%n)
+
+    !   end do
 
     ! end associate
 
-    ! print *, "lambda: ", this%lambda
-    ! print *, "lambda_diff: ", this%lambda_diff
+    ! if (pe_rank .eq. 0) then
+    !    print *, "lambda: ", this%lambda
+    !    print *, "lambda_diff: ", this%lambda_diff
+    !    print *, "Number of iterations: ", i
+    ! end if
 
-    deallocate(tmp)
+    ! ======================================================================== !
+    ! Let's try to do a line by line translation instead of the above code.
+    ! ======================================================================== !
+    ! Translation:
+
+    ! Scratch space
+    real(kind=rp), dimension(:), allocatable :: TA1, TA2, TA3, TAT
+
+    ! Local variables
+    integer :: itmp, LASTEP
+    real(kind=rp) :: lnorm, grth_old, ltim
+    real(kind=rp) :: V, dt
+
+    ! ! Pointers to the fields
+    real(kind=rp), allocatable :: VXP(:), VYP(:), VZP(:)
+    ! real(kind=rp), pointer :: BM1(:)
+
+    ! Parameters that should be global
+    real(kind=rp) :: pwit_l2n = 1 !< Vector initial norm (Set to 1.0 in the Nek5000 code)
+    real(kind=rp) :: pwit_grw = 0 !< Initial growth rate
+    ! real(kind=rp), allocatable :: pwit_vx(:), pwit_vy(:), pwit_vz(:)
+    real(kind=rp) :: cnht_sv
+
+    ! tstpr parameters
+    real(kind=rp) :: tstpr_tol = 1.0e-5_rp !< Tolerance for the difference between the new and old lambda values
+    integer :: tstpr_cmax = 10 !< Maximum number of iterations
+    integer :: tstpr_vstep = 1 !< Number of steps between checkpointing
+
+    ! Allocate temporary arrays
+    allocate(TA1(this%n), TA2(this%n), TA3(this%n))
+    allocate(VXP(this%n), VYP(this%n), VZP(this%n))
+    ! allocate(pwit_vx(this%n), pwit_vy(this%n), pwit_vz(this%n))
+
+
+    ! call copy(pwit_vx, VXP, this%n)
+    ! call copy(pwit_vy, VYP, this%n)
+    ! call copy(pwit_vz, VZP, this%n)
+
+    cnht_sv = 0.5_rp
+    V = this%neko_case%fluid%c_Xh%volume
+    dt = t - this%t_old
+    this%t_old = t
+
+    ! Assign pointers
+    associate( BM1 => this%neko_case%fluid%c_Xh%B, &
+               pwit_vx => this%u_old%x, &
+               pwit_vy => this%v_old%x, &
+               pwit_vz => this%w_old%x, &
+               VXP => this%u%x, &
+               VYP => this%v%x, &
+               VZP => this%w%x)
+
+      ! do tstpr_vstep = 1, tstpr_cmax
+
+      ! ! timing
+      ! ltim=dnekclock()
+
+      ! normalise vector
+      ! lnorm = cnht_glsc2_wt(VXP,VYP,VZP,TP,VXP,VYP,VZP,TP,BM1)
+      call vdot3(this%tmp, VXP, VYP, VZP, VXP, VYP, VZP, this%n)
+      lnorm = cnht_sv / V * glsc2(this%tmp, BM1, this%n) !> This is wrong. We are missing the
+      ! scaling factor "f1 = cnht_sv/volvm1" from the Nek5000 code.
+      lnorm = sqrt(lnorm / pwit_l2n)
+
+      ! call cnht_opcmult (VXP,VYP,VZP,TP,lnorm)
+      call cmult(VXP, 1.0_rp / lnorm, this%n)
+      call cmult(VYP, 1.0_rp / lnorm, this%n)
+      call cmult(VZP, 1.0_rp / lnorm, this%n)
+
+      This%lambda_old = this%lambda
+      this%lambda = lnorm
+
+      ! if (tstpr_pr.ne.0) then
+      !    ! normalise pressure ???????????????????????????
+      !    itmp = nx2*ny2*nz2*nelv
+      !    call cmult(PRP,lnorm,itmp)
+      ! endif
+
+      ! ! make sure the velocity and temperature fields are continuous at
+      ! ! element faces and edges
+      ! call tstpr_dssum
+
+      ! compare current and prevoius growth rate
+      grth_old = pwit_grw
+      pwit_grw = lnorm
+      grth_old = pwit_grw - grth_old
+
+      ! get L2 norm of the update
+      ! call cnht_opsub3 (TA1,TA2,TA3,TAT,pwit_vx,pwit_vy,pwit_vz,pwit_t,
+      ! $ VXP,VYP,VZP,TP)
+      call sub3(TA1, pwit_vx, VXP, this%n)
+      call sub3(TA2, pwit_vy, VYP, this%n)
+      call sub3(TA3, pwit_vz, VZP, this%n)
+      ! lnorm = cnht_glsc2_wt(TA1,TA2,TA3,TAT,TA1,TA2,TA3,TAT,BM1)
+      call vdot3(this%tmp, TA1, TA2, TA3, TA1, TA2, TA3, this%n)
+      lnorm = cnht_sv / V * glsc2(this%tmp, BM1, this%n)
+      lnorm = sqrt(lnorm)
+
+      ! log stamp
+      ! call mntr_log(pwit_id,lp_prd,'POWER ITERATIONS: convergence')
+      ! call mntr_logr(pwit_id,lp_prd,'||V-V_old|| = ',lnorm)
+      ! call mntr_logr(pwit_id,lp_prd,'Growth ', pwit_grw)
+      if (pe_rank .eq. 0) then
+         print *, 'POWER ITERATIONS: convergence'
+         print *, '||V-V_old|| = ', lnorm
+         print *, 'Growth ', pwit_grw
+         print *, 'Eigen:', 1/dt * log(this%lambda / this%lambda_old)
+      end if
+
+      ! itmp = 0
+      ! if (IFHEAT) itmp = 1
+
+      ! !write down current field
+      ! call outpost2(VXP,VYP,VZP,PRP,TP,itmp,'PWI')
+
+      ! ! write down field difference
+      ! call outpost2(TA1,TA2,TA3,PRP,TAT,itmp,'VDF')
+
+      ! check convergence
+      LASTEP = 0
+      if(lnorm.lt.tstpr_tol.and.grth_old.lt.tstpr_tol) then
+         !  call mntr_log(pwit_id,lp_prd,'Reached stopping criteria')
+         if (pe_rank .eq. 0) then
+            print *, 'Reached stopping criteria'
+         end if
+         ! mark the last step
+         LASTEP = 1
+      else
+         ! save current vector and restart stepper
+         !  call cnht_opcopy(pwit_vx,pwit_vy,pwit_vz,pwit_t,VXP,VYP,VZP,TP)
+         call copy(pwit_vx, VXP, this%n)
+         call copy(pwit_vy, VYP, this%n)
+         call copy(pwit_vz, VZP, this%n)
+      endif
+
+      ! save checkpoint
+      if (LASTEP.eq.1.or.tstpr_cmax.eq.tstpr_vstep) then
+         ! call stepper_write()
+
+         ! mark the last step
+         LASTEP = 1
+      endif
+
+      ! timing
+      ! ltim = dnekclock() - ltim
+      ! call mntr_tmr_add(pwit_tmr_evl_id,1,ltim)
+
+      if (LASTEP.eq.1) then
+         ! final log stamp
+         !  call mntr_log(pwit_id,lp_prd,'POWER ITERATIONS finalised')
+         !  call mntr_logr(pwit_id,lp_prd,'||V-V_old|| = ',lnorm)
+         !  call mntr_logr(pwit_id,lp_prd,'Growth ',pwit_grw)
+         if (pe_rank .eq. 0) then
+            print *, 'POWER ITERATIONS finalised'
+            print *, '||V-V_old|| = ', lnorm
+            print *, 'Growth ', pwit_grw
+         end if
+         !  exit
+      endif
+
+      ! end do
+
+    end associate
+
+    deallocate(TA1, TA2, TA3)
+
   end subroutine power_iterations_compute
 
 end module power_iterations
