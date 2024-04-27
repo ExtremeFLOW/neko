@@ -47,15 +47,16 @@ module operators
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
-  use math, only : glsum, cmult, add2, cadd
+  use math, only : glsum, cmult, add2, cadd, copy
   use device, only : c_ptr, device_get_ptr
-  use device_math, only : device_add2, device_cmult
+  use device_math, only : device_add2, device_cmult, device_copy
+  use scratch_registry, only : neko_scratch_registry
   use comm
   implicit none
   private
 
   public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
-            lambda2op, strain_rate
+            lambda2op, strain_rate, div, grad
 
 contains
 
@@ -85,7 +86,82 @@ contains
 
   end subroutine dudxyz
 
+  !> Compute the divergence of a vector field.
+  !! @param res Holds the resulting divergence values.
+  !! @param ux The x component  of the vector field.
+  !! @param uy The y component  of the vector field.
+  !! @param uz The z component  of the vector field.
+  !! @param coef The SEM coefficients.
+  subroutine div(res, ux, uy, uz, coef)
+    type(coef_t), intent(in), target :: coef
+    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
+         intent(inout) :: res
+    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
+         intent(in) ::  ux, uy, uz
+    type(field_t), pointer :: work
+    integer :: ind
+    type(c_ptr) :: res_d
+
+    res_d = device_get_ptr(res)
+
+    call neko_scratch_registry%request_field(work, ind)
+
+    ! Get dux / dx
+    call dudxyz(work%x, ux, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_copy(res_d, work%x_d, work%size())
+    else
+       call copy(res, work%x, work%size())
+    end if
+
+    ! Get duy / dy
+    call dudxyz(work%x, uy, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(res_d, work%x_d, work%size())
+    else
+       call add2(res, work%x, work%size())
+    end if
+
+    ! Get dux / dz
+    call dudxyz(work%x, uz, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(res_d, work%x_d, work%size())
+    else
+       call add2(res, work%x, work%size())
+    end if
+
+    call neko_scratch_registry%relinquish_field(ind)
+
+  end subroutine div
+
   !> Compute the gradient of a scalar field.
+  !! @details By providing `es` and `ee`, it is possible to compute only for a
+  !! range of element indices.
+  !! @param ux Will store the x component of the gradient.
+  !! @param uy Will store the y component of the gradient.
+  !! @param uz Will store the z component of the gradient.
+  !! @param u The values of the field.
+  !! @param coef The SEM coefficients.
+  !! @param es Starting element index, optional, defaults to 1.
+  !! @param ee Ending element index, optional, defaults to `nelv`.
+  !! @note Equals wgradm1 in Nek5000, the weak form of the gradient.
+  subroutine grad(ux, uy, uz, u, coef, es, ee)
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+    integer, optional :: es, ee
+    integer :: eblk_start, eblk_end
+
+    call dudxyz(ux, u, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz(uy, u, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz(uz, u, coef%drdz, coef%dsdz, coef%dtdz, coef)
+
+  end subroutine grad
+
+  !> Compute the weak gradient of a scalar field, i.e. the gradient multiplied
+  !! by the mass matrix.
   !! @details By providing `es` and `ee`, it is possible to compute only for a
   !! range of element indices.
   !! @param ux Will store the x component of the gradient.
