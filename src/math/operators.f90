@@ -144,7 +144,6 @@ contains
   !! @param coef The SEM coefficients.
   !! @param es Starting element index, optional, defaults to 1.
   !! @param ee Ending element index, optional, defaults to `nelv`.
-  !! @note Equals wgradm1 in Nek5000, the weak form of the gradient.
   subroutine grad(ux, uy, uz, u, coef, es, ee)
     type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
