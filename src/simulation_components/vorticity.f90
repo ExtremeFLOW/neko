@@ -130,8 +130,16 @@ contains
   subroutine vorticity_free(this)
     class(vorticity_t), intent(inout) :: this
     call this%free_base()
+    call this%writer%free()
     call this%temp1%free()
     call this%temp2%free()
+
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+    nullify(this%omega_x)
+    nullify(this%omega_y)
+    nullify(this%omega_z)
   end subroutine vorticity_free
 
   !> Compute the vorticity field.
