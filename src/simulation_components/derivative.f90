@@ -83,7 +83,6 @@ contains
     class(derivative_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: filename
     character(len=:), allocatable :: fieldname
     character(len=:), allocatable :: direction
     character(len=:), allocatable :: precision
