@@ -43,6 +43,8 @@ module simulation_component_fctry
   use json_utils, only : json_get
   use logger, only : neko_log
   use field_writer, only : field_writer_t
+  use weak_grad, only : weak_grad_t
+  use derivative, only : derivative_t
   implicit none
   private
 
@@ -70,6 +72,10 @@ contains
        allocate(les_simcomp_t::simcomp)
     else if (trim(simcomp_type) .eq. "field_writer") then
        allocate(field_writer_t::simcomp)
+    else if (trim(simcomp_type) .eq. "weak_grad") then
+       allocate(weak_grad_t::simcomp)
+    else if (trim(simcomp_type) .eq. "derivative") then
+       allocate(derivative_t::simcomp)
     else
        call neko_log%error("Unknown simulation component type: " &
                            // trim(simcomp_type))
