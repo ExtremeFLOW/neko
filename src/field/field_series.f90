@@ -49,6 +49,11 @@ module field_series
      procedure, pass(this) :: size => field_series_size
   end type field_series_t
 
+  !> field_series_ptr_t, To easily obtain a pointer to a field series
+  type, public :: field_series_ptr_t
+     type(field_series_t), pointer :: fs => null()
+  end type field_series_ptr_t
+
 contains
 
   !> Initialize a field series of length @a len for a field @a f

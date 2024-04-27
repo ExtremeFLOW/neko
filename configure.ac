@@ -255,6 +255,14 @@ AX_NVTX
 # Checks for ROCTX profiling
 AX_ROCTX
 
+# Checks for HDF5
+if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
+   AX_CRAY_HDF5_PARALLEL
+else
+   AX_HDF5
+fi
+
+
 # JSON-Fortran
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
 LIBS="$JSON_Fortran_LIBS $LIBS"
