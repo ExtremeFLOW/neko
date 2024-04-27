@@ -91,7 +91,6 @@ contains
     class(vorticity_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: precision
     character(len=20) :: fields(3)
 
     ! Add fields keyword to the json so that the field_writer picks it up.

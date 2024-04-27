@@ -85,13 +85,12 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: fieldname
     character(len=:), allocatable :: direction
-    character(len=:), allocatable :: precision
     character(len=20) :: fields(1)
 
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
-    call json%get("field", fieldname)
-    call json%get("direction", direction)
+    call json_get(json, "field", fieldname)
+    call json_get(json, "direction", direction)
 
     fields(1) = "d" // trim(fieldname) // "_d" // direction
     call json%add("fields", fields)

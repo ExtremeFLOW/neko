@@ -81,12 +81,11 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: fieldname
-    character(len=:), allocatable :: precision
     character(len=20) :: fields(3)
 
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
-    call json%get("field", fieldname)
+    call json_get(json, "field", fieldname)
 
     fields(1) = "weak_grad_" // trim(fieldname) // "_x"
     fields(2) = "weak_grad_" // trim(fieldname) // "_y"
