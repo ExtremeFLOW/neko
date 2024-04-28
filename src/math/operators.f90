@@ -107,12 +107,7 @@ contains
     call neko_scratch_registry%request_field(work, ind)
 
     ! Get dux / dx
-    call dudxyz(work%x, ux, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(res_d, work%x_d, work%size())
-    else
-       call copy(res, work%x, work%size())
-    end if
+    call dudxyz(res, ux, coef%drdx, coef%dsdx, coef%dtdx, coef)
 
     ! Get duy / dy
     call dudxyz(work%x, uy, coef%drdy, coef%dsdy, coef%dtdy, coef)
