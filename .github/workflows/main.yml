@@ -420,7 +420,7 @@ jobs:
     
     # Deploy the HTML documentation to GitHub Pages
     - name: GH Pages Deployment
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./doc/html/
@@ -428,5 +428,5 @@ jobs:
         force_orphan: true
         publish_branch: gh-pages
         destination_dir: docs/release
-        keep_files: false
+        keep_files: true
         enable_jekyll: true
