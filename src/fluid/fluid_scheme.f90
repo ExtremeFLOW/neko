@@ -445,10 +445,14 @@ contains
 
     ! Note, some of these are potentially not initialized !
     call this%user_bc_vel%field_list%init(4)
-    call this%user_bc_vel%field_list%assign(1, this%user_bc_vel%bc_u%field_bc)
-    call this%user_bc_vel%field_list%assign(2, this%user_bc_vel%bc_v%field_bc)
-    call this%user_bc_vel%field_list%assign(3, this%user_bc_vel%bc_w%field_bc)
-    call this%user_bc_vel%field_list%assign(4, this%user_bc_prs%field_bc)
+    call this%user_bc_vel%field_list%assign_to_field(1, &
+            this%user_bc_vel%bc_u%field_bc)
+    call this%user_bc_vel%field_list%assign_to_field(2, &
+            this%user_bc_vel%bc_v%field_bc)
+    call this%user_bc_vel%field_list%assign_to_field(3, &
+            this%user_bc_vel%bc_w%field_bc)
+    call this%user_bc_vel%field_list%assign_to_field(4, &
+            this%user_bc_prs%field_bc)
 
     call bc_list_init(this%user_bc_vel%bc_list, size=4)
     ! Note, bc_list_add only adds if the bc is not empty
