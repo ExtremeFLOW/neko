@@ -37,9 +37,9 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./doc/html/
-        allow_empty_commit: false
+#        allow_empty_commit: false
+        keep_files: true
         force_orphan: true
         publish_branch: gh-pages
         destination_dir: docs/develop
-        keep_files: true
-        enable_jekyll: true
+#        enable_jekyll: true
