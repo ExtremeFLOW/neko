@@ -34,7 +34,7 @@ contains
     cp = 1.0_rp
   end subroutine set_material_properties
 
-  ! Boudnary condition for the scalar
+  ! Boundary condition for the scalar
   subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)
     type(field_list_t), intent(inout) :: field_bc_list
     type(bc_list_t), intent(inout) :: bc_bc_list
@@ -49,10 +49,7 @@ contains
     ! Only do this at the first time step since our BCs are constants.
     if (tstep .ne. 1) return
 
-    ! Check that we are being called by `fluid`
-    if (trim(which_solver) .eq. "fluid") then
-    else if (trim(which_solver) .eq. "scalar") then
-
+    if (trim(which_solver) .eq. "scalar") then
        associate( s => field_bc_list%items(1)%ptr, s_bc => bc_bc_list%bc(1)%bcp)
 
          !
