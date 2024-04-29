@@ -59,7 +59,6 @@ module scalar_scheme
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE
   use field_registry, only : neko_field_registry
-  use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use user_intf, only : user_t
@@ -118,8 +117,6 @@ module scalar_scheme
      type(field_list_t) :: field_dirichlet_fields
      !> Neumann conditions.
      type(neumann_t) :: neumann_bcs(NEKO_MSH_MAX_ZLBLS)
-     !> User Dirichlet conditions.
-     type(usr_scalar_t) :: user_bc
      !> Number of Dirichlet bcs.
      integer :: n_dir_bcs = 0
      !> Number of Neumann bcs.
@@ -149,8 +146,6 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
-     !> Assings the evaluation function for  `user_bc`.
-     procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
      !> Constructor.
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      !> Destructor.
@@ -266,11 +261,6 @@ contains
           call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value)
        end if
 
-       !> Check if user bc on this zone
-       if (bc_label(1:4) .eq. 'user') then
-          call this%user_bc%mark_zone(zones(i))
-       end if
-
     end do
 
     do i = 1, this%n_dir_bcs
@@ -371,7 +361,6 @@ contains
     ! Setup scalar boundary conditions
     !
     call bc_list_init(this%bclst_dirichlet)
-    call this%user_bc%init_base(this%c_Xh)
 
     ! Read boundary types from the case file
     allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
@@ -396,16 +385,6 @@ contains
     call this%source_term%init(params, this%f_Xh, this%c_Xh, user)
 
     call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
-
-    ! Mark BC zones
-    call this%user_bc%mark_zone(msh%wall)
-    call this%user_bc%mark_zone(msh%inlet)
-    call this%user_bc%mark_zone(msh%outlet)
-    call this%user_bc%mark_zone(msh%outlet_normal)
-    call this%user_bc%mark_zone(msh%sympln)
-    call this%user_bc%finalize()
-    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
-                                                     this%user_bc)
 
     ! Add field dirichlet BCs
     call this%field_dir_bc%init_base(this%c_Xh)
@@ -581,16 +560,5 @@ contains
     call ksp%set_pc(pc)
 
   end subroutine scalar_scheme_precon_factory
-
-  !> Initialize a user defined scalar bc
-  !! @param usr_eval User specified boundary condition for scalar field
-  subroutine scalar_scheme_set_user_bc(this, usr_eval)
-    class(scalar_scheme_t), intent(inout) :: this
-    procedure(usr_scalar_bc_eval) :: usr_eval
-
-    call this%user_bc%set_eval(usr_eval)
-
-  end subroutine scalar_scheme_set_user_bc
-
 
 end module scalar_scheme

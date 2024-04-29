@@ -80,7 +80,7 @@ module case
      type(stats_t) :: q
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
-     type(scalar_pnpn_t), allocatable :: scalar 
+     type(scalar_pnpn_t), allocatable :: scalar
      type(material_properties_t):: material_properties
   end type case_t
 
@@ -261,11 +261,6 @@ contains
        if (trim(string_val) .eq. 'user') then
           call C%fluid%set_usr_inflow(C%usr%fluid_user_if)
        end if
-    end if
-
-    ! Setup user boundary conditions for the scalar.
-    if (scalar) then
-       call C%scalar%set_user_bc(C%usr%scalar_user_bc)
     end if
 
     !

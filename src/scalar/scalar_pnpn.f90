@@ -184,11 +184,6 @@ contains
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
     end do
 
-    ! Check for user bcs
-    if (this%user_bc%msk(0) .gt. 0) then
-       call this%bc_res%mark_facets(this%user_bc%marked_facet)
-    end if
-
     call this%bc_res%mark_zones_from_list(msh%labeled_zones, 'd_s', &
                                          this%bc_labels)
     call this%bc_res%finalize()

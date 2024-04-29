@@ -12,8 +12,8 @@ contains
     type(user_t), intent(inout) :: u
     u%scalar_user_ic => set_ic
     u%fluid_user_f_vector => forcing
-    u%scalar_user_bc => scalar_bc
     u%material_properties => set_material_properties
+    u%user_dirichlet_update => dirichlet_update
   end subroutine user_setup
 
   subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
@@ -34,24 +34,45 @@ contains
     cp = 1.0_rp
   end subroutine set_material_properties
 
-  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-    real(kind=rp), intent(inout) :: s
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: z
-    real(kind=rp), intent(in) :: nx
-    real(kind=rp), intent(in) :: ny
-    real(kind=rp), intent(in) :: nz
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
+  ! Boudnary condition for the scalar
+  subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)
+    type(field_list_t), intent(inout) :: field_bc_list
+    type(bc_list_t), intent(inout) :: bc_bc_list
+    type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    ! If we set scalar_bcs(*) = 'user' instead
-    ! this will be used instead on that zone
-    s = 1.0_rp-z
-  end subroutine scalar_bc
+    character(len=*), intent(in) :: which_solver
+
+    integer :: i
+    real(kind=rp) :: z
+
+    ! Only do this at the first time step since our BCs are constants.
+    if (tstep .ne. 1) return
+
+    ! Check that we are being called by `fluid`
+    if (trim(which_solver) .eq. "fluid") then
+    else if (trim(which_solver) .eq. "scalar") then
+
+       associate( s => field_bc_list%items(1)%ptr, s_bc => bc_bc_list%bc(1)%bcp)
+
+         !
+         ! Perform operations on the scalar field here
+         ! Note that we are checking if the field is allocated, in
+         ! case the boundary is empty.
+         !
+         if (allocated(s%x)) then
+
+            do i = 1, s_bc%msk(0)
+               z = s_bc%dof%z(s_bc%msk(i), 1, 1, 1)
+               s%x(s_bc%msk(i), 1, 1, 1) = 1.0_rp - z
+            end do
+
+         end if
+       end associate
+
+    end if
+
+  end subroutine dirichlet_update
 
   !> User initial condition
   subroutine set_ic(s, params)
