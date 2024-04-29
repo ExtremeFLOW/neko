@@ -119,7 +119,7 @@ contains
 
     call this%field_bc%init(this%dof, bc_name)
     call this%field_list%init(1)
-    call this%field_list%assign(1, this%field_bc)
+    call this%field_list%assign_to_field(1, this%field_bc)
 
   end subroutine field_dirichlet_init
 
