@@ -51,7 +51,7 @@ module field_series
 
   !> field_series_ptr_t, To easily obtain a pointer to a field series
   type, public :: field_series_ptr_t
-     type(field_series_t), pointer :: fs => null()
+     type(field_series_t), pointer :: ptr => null()
   end type field_series_ptr_t
 
 contains

@@ -32,10 +32,10 @@
 !
 !> HDF5 file format
 module hdf5_file
-  use num_types
-  use generic_file
+  use num_types, only : rp
+  use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
-  use utils
+  use utils, only : neko_error, filename_suffix_pos
   use mesh, only : mesh_t
   use field, only : field_t, field_ptr_t
   use field_list, only : field_list_t
@@ -212,14 +212,14 @@ contains
 
        if (allocated(fsp)) then
           do i = 1, size(fsp)
-             do j = 1, fsp(i)%fs%size()
-                call h5dcreate_f(grp_id, fsp(i)%fs%lf(j)%name, &
+             do j = 1, fsp(i)%ptr%size()
+                call h5dcreate_f(grp_id, fsp(i)%ptr%lf(j)%name, &
                                  H5T_NATIVE_DOUBLE, filespace, dset_id, ierr)
                 call h5dget_space_f(dset_id, filespace, ierr)
                 call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
                                            doffset, dcount, ierr)
                 call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, &
-                                fsp(i)%fs%lf(j)%x(1,1,1,1), &
+                                fsp(i)%ptr%lf(j)%x(1,1,1,1), &
                                 ddim, ierr, file_space_id = filespace, &
                                 mem_space_id = memspace, xfer_prp = plist_id)
                 call h5dclose_f(dset_id, ierr)
@@ -361,13 +361,13 @@ contains
 
        if (allocated(fsp)) then
           do i = 1, size(fsp)
-             do j = 1, fsp(i)%fs%size()
-                call h5dopen_f(grp_id, fsp(i)%fs%lf(j)%name, dset_id, ierr)
+             do j = 1, fsp(i)%ptr%size()
+                call h5dopen_f(grp_id, fsp(i)%ptr%lf(j)%name, dset_id, ierr)
                 call h5dget_space_f(dset_id, filespace, ierr)
                 call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
                                             doffset, dcount, ierr)
                 call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, &
-                               fsp(i)%fs%lf(j)%x(1,1,1,1), &
+                               fsp(i)%ptr%lf(j)%x(1,1,1,1), &
                                ddim, ierr, file_space_id = filespace, &
                                mem_space_id = memspace, xfer_prp=plist_id)
                 call h5dclose_f(dset_id, ierr)
@@ -496,14 +496,14 @@ contains
        end if
 
        if (associated(data%ulag)) then
-          fsp(fsp_cur)%fs => data%ulag
-          fsp(fsp_cur+1)%fs => data%vlag
-          fsp(fsp_cur+2)%fs => data%wlag
+          fsp(fsp_cur)%ptr => data%ulag
+          fsp(fsp_cur+1)%ptr => data%vlag
+          fsp(fsp_cur+2)%ptr => data%wlag
           fsp_cur = fsp_cur + 3
        end if
 
        if (associated(data%slag)) then
-          fsp(fsp_cur)%fs => data%slag
+          fsp(fsp_cur)%ptr => data%slag
           fsp_cur = fsp_cur + 1
        end if
 
@@ -517,6 +517,7 @@ contains
     end select
     
   end subroutine hdf5_file_determine_data
+  
 #else
 
   !> Write data in HDF5 format
