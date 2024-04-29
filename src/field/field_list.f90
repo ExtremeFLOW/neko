@@ -122,7 +122,9 @@ contains
     if (allocated(this%items)) then
        n_fields = this%size()
        do i=1, n_fields
-          call this%items(i)%ptr%free()
+          if (associated(this%items(i)%ptr)) then
+             call this%items(i)%ptr%free()
+          end if
           nullify(this%items(i)%ptr)
        end do
        deallocate(this%items)
