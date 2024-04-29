@@ -4,7 +4,7 @@ on:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron:  '30 03 * * *'
-#  workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   build-dev-documentation:
@@ -41,5 +41,5 @@ jobs:
         force_orphan: true
         publish_branch: gh-pages
         destination_dir: docs/develop
-        keep_files: false
+        keep_files: true
         enable_jekyll: true
