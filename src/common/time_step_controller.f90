@@ -32,8 +32,8 @@
 !
 !> Implements type time_step_controller.
 module time_step_controller
-  use num_types
-  use logger
+  use num_types, only : rp
+  use logger, only : neko_log, LOG_SIZE
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
   implicit none
@@ -88,7 +88,7 @@ contains
   !! @param cfl courant number of current iteration.
   !! @param cfl_avrg average Courant number.
   !! @param tstep the current time step.
-  !! @Algorithm: 
+  !! @Algorithm:
   !! 1. Set the first time step such that cfl is the set one;
   !! 2. During time-stepping, adjust dt when cfl_avrg is offset by 20%.
   subroutine time_step_controller_set_dt(this, dt, cfl, cfl_avrg, tstep)
@@ -98,7 +98,7 @@ contains
     real(kind=rp), intent(in) :: cfl
     real(kind=rp), intent(inout) :: cfl_avrg
     real(kind=rp) :: dt_old, scaling_factor
-    character(len=LOG_SIZE) :: log_buf    
+    character(len=LOG_SIZE) :: log_buf
     integer, intent(in):: tstep
 
     if (this%if_variable_dt .eqv. .true.) then
@@ -112,12 +112,12 @@ contains
           if (abs(cfl_avrg - this%set_cfl) .ge. 0.2*this%set_cfl .and. &
              this%dt_last_change .ge. this%max_update_frequency) then
 
-             if (this%set_cfl/cfl .ge. 1) then 
+             if (this%set_cfl/cfl .ge. 1) then
                 ! increase of time step
-                scaling_factor = min(this%max_dt_increase_factor, this%set_cfl/cfl) 
+                scaling_factor = min(this%max_dt_increase_factor, this%set_cfl/cfl)
              else
                 ! reduction of time step
-                scaling_factor = max(this%min_dt_decrease_factor, this%set_cfl/cfl) 
+                scaling_factor = max(this%min_dt_decrease_factor, this%set_cfl/cfl)
              end if
 
              dt_old = dt

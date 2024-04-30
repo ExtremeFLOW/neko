@@ -92,7 +92,7 @@ contains
     real(kind=rp), allocatable :: g(:)
     real(kind=rp) :: beta
 
-    if (.not. size(fields%fields) == 3) then
+    if (.not. fields%size() == 3) then
        call neko_error("Boussinesq term expects 3 fields to work on.")
     end if
 
@@ -139,7 +139,7 @@ contains
     call this%init_base(fields, coef, start_time, end_time)
 
     if (.not. neko_field_registry%field_exists(scalar_name)) then
-       call neko_field_registry%add_field(this%fields%fields(1)%f%dof, "s")
+       call neko_field_registry%add_field(this%fields%dof(1), "s")
     end if
     this%s => neko_field_registry%get_field("s")
 
@@ -165,8 +165,8 @@ contains
     integer, intent(in) :: tstep
     integer :: n_fields, i, n
 
-    n_fields = size(this%fields%fields)
-    n = this%fields%fields(1)%f%dof%size()
+    n_fields = this%fields%size()
+    n = this%fields%item_size(1)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call boussinesq_source_term_compute_device(this%fields, this%s,&

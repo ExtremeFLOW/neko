@@ -46,10 +46,10 @@ module field_dirichlet
   use utils, only: neko_error
   implicit none
   private
-  
+
   !> User defined dirichlet condition, for which the user can work
   !! with an entire field.
-  !! Would be neat to add another class that contains all three 
+  !! Would be neat to add another class that contains all three
   !! dirichlet bcs for the velocity, this bc would then implement
   !! apply_vector.
   type, public, extends(bc_t) :: field_dirichlet_t
@@ -65,6 +65,9 @@ module field_dirichlet
      procedure, pass(this) :: apply_vector_dev => field_dirichlet_apply_vector_dev
      !> Apply scalar (device).
      procedure, pass(this) :: apply_scalar_dev => field_dirichlet_apply_scalar_dev
+     !> Destructor
+     procedure, pass(this) :: free => field_dirichlet_free
+
   end type field_dirichlet_t
 
   !> Abstract interface defining a dirichlet condition on a list of fields.
@@ -92,7 +95,7 @@ module field_dirichlet
   public :: field_dirichlet_update
 
 contains
-     
+
   !> Initializes this%field_bc.
   !! @param bc_name Name of this%field_bc
   subroutine field_dirichlet_init(this, bc_name)
@@ -105,12 +108,13 @@ contains
 
   !> Destructor. Currently this%field_bc is being freed in `fluid_scheme::free`
   subroutine field_dirichlet_free(this)
-    type(field_dirichlet_t), intent(inout) :: this
+    class(field_dirichlet_t), target, intent(inout) :: this
 
+    call this%free_base
     call this%field_bc%free()
 
   end subroutine field_dirichlet_free
-  
+
   !> Apply scalar by performing a masked copy.
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
   !! @param n Size of the array `x`.
@@ -128,7 +132,7 @@ contains
     end if
 
   end subroutine field_dirichlet_apply_scalar
-  
+
   !> Apply scalar (device).
   !! @param x_d Device pointer to the field onto which to copy the values.
   !! @param t Time.
@@ -143,7 +147,7 @@ contains
        call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
             this%field_bc%dof%size(), this%msk(0))
     end if
-  
+
   end subroutine field_dirichlet_apply_scalar_dev
 
   !> (No-op) Apply vector.

@@ -35,18 +35,18 @@ module blasius
   use num_types
   use coefs, only : coef_t
   use utils
-  use inflow, only : inflow_t
   use device
   use device_inhom_dirichlet
   use flow_profile
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
+  use bc, only : bc_t
   implicit none
   private
 
   !> Blasius profile for inlet (vector valued)
-  type, public, extends(inflow_t) :: blasius_t
-     type(coef_t), pointer :: c => null()
+  type, public, extends(bc_t) :: blasius_t
+     real(kind=rp), dimension(3) :: uinf = (/0d0, 0d0, 0d0 /)
      real(kind=rp) :: delta
      procedure(blasius_profile), nopass, pointer :: bla => null()
      type(c_ptr), private :: blax_d = C_NULL_PTR
@@ -58,14 +58,16 @@ module blasius
      procedure, pass(this) :: apply_scalar_dev => blasius_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => blasius_apply_vector_dev
      procedure, pass(this) :: set_params => blasius_set_params
-     procedure, pass(this) :: set_coef => blasius_set_coef
+     !> Destructor.
+     procedure, pass(this) :: free => blasius_free
   end type blasius_t
 
 contains
 
   subroutine blasius_free(this)
-    type(blasius_t), intent(inout) :: this
+    class(blasius_t), target, intent(inout) :: this
 
+    call this%free_base()
     nullify(this%bla)
 
     if (c_associated(this%blax_d)) then
@@ -110,9 +112,9 @@ contains
     integer, intent(in), optional :: tstep
     integer :: i, m, k, idx(4), facet
 
-    associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
-         nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
-         lx => this%c%Xh%lx)
+    associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
+              zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+              nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%msk(0)
       !$omp do
       do i = 1, m
@@ -122,19 +124,19 @@ contains
          select case(facet)
          case(1,2)
             x(k) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
-                 this%delta, this%x(1))
+                 this%delta, this%uinf(1))
             y(k) = 0.0_rp
             z(k) = 0.0_rp
          case(3,4)
             x(k) = 0.0_rp
             y(k) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
-                 this%delta, this%x(2))
+                 this%delta, this%uinf(2))
             z(k) = 0.0_rp
          case(5,6)
             x(k) = 0.0_rp
             y(k) = 0.0_rp
             z(k) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &
-                 this%delta, this%x(3))
+                 this%delta, this%uinf(3))
          end select
       end do
       !$omp end do
@@ -153,10 +155,10 @@ contains
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: bla_x(:), bla_y(:), bla_z(:)
 
-    associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
-         nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
-         lx => this%c%Xh%lx, blax_d => this%blax_d, blay_d => this%blay_d, &
-         blaz_d => this%blaz_d)
+    associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
+              zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+              nz => this%coef%nz, lx => this%coef%Xh%lx , blax_d => this%blax_d,&
+              blay_d => this%blay_d, blaz_d => this%blaz_d)
 
       m = this%msk(0)
 
@@ -182,19 +184,19 @@ contains
             select case(facet)
             case(1,2)
                bla_x(i) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
-                    this%delta, this%x(1))
+                    this%delta, this%uinf(1))
                bla_y(i) = 0.0_rp
                bla_z(i) = 0.0_rp
             case(3,4)
                bla_x(i) = 0.0_rp
                bla_y(i) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
-                    this%delta, this%x(2))
+                    this%delta, this%uinf(2))
                bla_z(i) = 0.0_rp
             case(5,6)
                bla_x(i) = 0.0_rp
                bla_y(i) = 0.0_rp
                bla_z(i) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &
-                    this%delta, this%x(3))
+                    this%delta, this%uinf(3))
             end select
          end do
 
@@ -213,11 +215,13 @@ contains
   end subroutine blasius_apply_vector_dev
 
   !> Set Blasius parameters
-  subroutine blasius_set_params(this, delta, type)
+  subroutine blasius_set_params(this, uinf, delta, type)
     class(blasius_t), intent(inout) :: this
-    real(kind=rp) :: delta
+    real(kind=rp), intent(in) :: uinf(3)
+    real(kind=rp), intent(in) :: delta
     character(len=*) :: type
     this%delta = delta
+    this%uinf = uinf
 
     select case(trim(type))
     case('linear')
@@ -234,12 +238,5 @@ contains
        call neko_error('Invalid Blasius approximation')
     end select
   end subroutine blasius_set_params
-
-  !> Assign coefficients (facet normals etc)
-  subroutine blasius_set_coef(this, c)
-    class(blasius_t), intent(inout) :: this
-    type(coef_t), target, intent(inout) :: c
-    this%c => c
-  end subroutine blasius_set_coef
 
 end module blasius

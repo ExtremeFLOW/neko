@@ -33,13 +33,12 @@
 !> Defines a checkpoint
 module checkpoint
   use neko_config
-  use num_types
-  use field_series
+  use num_types, only : rp, dp
+  use field_series, only : field_series_t
   use space
   use device
-  use field
-  use space
-  use utils
+  use field, only : field_t
+  use utils, only : neko_error
   use mesh, only: mesh_t
   implicit none
   private

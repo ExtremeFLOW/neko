@@ -669,16 +669,16 @@ contains
   !! @param uu field to add to the list
   !! @param vv field to add to the list
   !! @param ww field to add to the list
-  subroutine list_init3(list,uu,vv,ww)
+  subroutine list_init3(list, uu, vv, ww)
     type(field_list_t), intent(inout) :: list
-    type(field_t) , target:: uu
-    type(field_t) , target:: vv
-    type(field_t) , target:: ww
+    type(field_t), target:: uu
+    type(field_t), target:: vv
+    type(field_t), target:: ww
     !> Initialize field lists
-    allocate(list%fields(3))
-    list%fields(1)%f => uu
-    list%fields(2)%f => vv
-    list%fields(3)%f => ww
+    call list%init(3)
+    call list%assign_to_field(1, uu)
+    call list%assign_to_field(2, vv)
+    call list%assign_to_field(3, ww)
   end subroutine list_init3
 
 
@@ -686,8 +686,7 @@ contains
   !! @param list list to deallocate
   subroutine list_final3(list)
     type(field_list_t), intent(inout) :: list
-    !> Deallocate field lists
-    deallocate(list%fields)
+    call list%free
   end subroutine list_final3
 
 
