@@ -18,14 +18,14 @@ krylov/bcknd/device/hip/gmres_aux.o : krylov/bcknd/device/hip/gmres_aux.hip kryl
 gs/bcknd/device/hip/gs.o : gs/bcknd/device/hip/gs.hip gs/bcknd/device/hip/gs_kernels.h
 bc/bcknd/device/hip/dirichlet.o : bc/bcknd/device/hip/dirichlet.hip bc/bcknd/device/hip/dirichlet_kernel.h
 bc/bcknd/device/hip/inflow.o : bc/bcknd/device/hip/inflow.hip bc/bcknd/device/hip/inflow_kernel.h
-bc/bcknd/device/hip/no_slip_wall.o : bc/bcknd/device/hip/no_slip_wall.hip bc/bcknd/device/hip/no_slip_wall_kernel.h
+bc/bcknd/device/hip/zero_dirichlet.o : bc/bcknd/device/hip/zero_dirichlet.hip bc/bcknd/device/hip/zero_dirichlet_kernel.h
 bc/bcknd/device/hip/symmetry.o : bc/bcknd/device/hip/symmetry.hip bc/bcknd/device/hip/symmetry_kernel.h
 bc/bcknd/device/hip/facet_normal.o : bc/bcknd/device/hip/facet_normal.hip bc/bcknd/device/hip/facet_normal_kernel.h
 bc/bcknd/device/hip/inhom_dirichlet.o : bc/bcknd/device/hip/inhom_dirichlet.hip bc/bcknd/device/hip/inhom_dirichlet_kernel.h
 bc/bcknd/device/hip/dong_outflow.o : bc/bcknd/device/hip/dong_outflow.hip bc/bcknd/device/hip/dong_outflow_kernel.h
 common/bcknd/device/hip/rhs_maker.o : common/bcknd/device/hip/rhs_maker.hip common/bcknd/device/hip/sumab_kernel.h common/bcknd/device/hip/makeext_kernel.h common/bcknd/device/hip/makebdf_kernel.h
 common/bcknd/device/hip/projection.o : common/bcknd/device/hip/projection.hip common/bcknd/device/hip/projection_kernel.h
-fluid/bcknd/device/hip/pnpn_res.o : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h 
+fluid/bcknd/device/hip/pnpn_res.o : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h
 scalar/bcknd/device/hip/scalar_residual.o : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
 sem/bcknd/device/hip/coef.o : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
 device/cuda/check.o : device/cuda/check.cu device/cuda/check.h
@@ -45,22 +45,22 @@ krylov/bcknd/device/cuda/pc_jacobi.o : krylov/bcknd/device/cuda/pc_jacobi.cu
 krylov/bcknd/device/cuda/pipecg_aux.o : krylov/bcknd/device/cuda/pipecg_aux.cu krylov/bcknd/device/cuda/pipecg_kernel.h
 krylov/bcknd/device/cuda/fusedcg_aux.o : krylov/bcknd/device/cuda/fusedcg_aux.cu krylov/bcknd/device/cuda/fusedcg_kernel.h
 krylov/bcknd/device/cuda/gmres_aux.o : krylov/bcknd/device/cuda/gmres_aux.cu krylov/bcknd/device/cuda/gmres_kernel.h
-gs/bcknd/device/cuda/gs.o : gs/bcknd/device/cuda/gs.cu gs/bcknd/device/cuda/gs_kernels.h 
+gs/bcknd/device/cuda/gs.o : gs/bcknd/device/cuda/gs.cu gs/bcknd/device/cuda/gs_kernels.h
 bc/bcknd/device/cuda/dirichlet.o : bc/bcknd/device/cuda/dirichlet.cu bc/bcknd/device/cuda/dirichlet_kernel.h
 bc/bcknd/device/cuda/inflow.o : bc/bcknd/device/cuda/inflow.cu bc/bcknd/device/cuda/inflow_kernel.h
-bc/bcknd/device/cuda/no_slip_wall.o : bc/bcknd/device/cuda/no_slip_wall.cu bc/bcknd/device/cuda/no_slip_wall_kernel.h
+bc/bcknd/device/cuda/zero_dirichlet.o : bc/bcknd/device/cuda/zero_dirichlet.cu bc/bcknd/device/cuda/zero_dirichlet_kernel.h
 bc/bcknd/device/cuda/symmetry.o : bc/bcknd/device/cuda/symmetry.cu bc/bcknd/device/cuda/symmetry_kernel.h
 bc/bcknd/device/cuda/facet_normal.o : bc/bcknd/device/cuda/facet_normal.cu bc/bcknd/device/cuda/facet_normal_kernel.h
 bc/bcknd/device/cuda/inhom_dirichlet.o : bc/bcknd/device/cuda/inhom_dirichlet.cu bc/bcknd/device/cuda/inhom_dirichlet_kernel.h
 bc/bcknd/device/cuda/dong_outflow.o : bc/bcknd/device/cuda/dong_outflow.cu bc/bcknd/device/cuda/dong_outflow_kernel.h
 common/bcknd/device/cuda/rhs_maker.o : common/bcknd/device/cuda/rhs_maker.cu common/bcknd/device/cuda/sumab_kernel.h common/bcknd/device/cuda/makeext_kernel.h common/bcknd/device/cuda/makebdf_kernel.h
 common/bcknd/device/cuda/projection.o : common/bcknd/device/cuda/projection.cu common/bcknd/device/cuda/projection_kernel.h
-fluid/bcknd/device/cuda/pnpn_res.o : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h 
+fluid/bcknd/device/cuda/pnpn_res.o : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h
 scalar/bcknd/device/cuda/scalar_residual.o : scalar/bcknd/device/cuda/scalar_residual.cu scalar/bcknd/device/cuda/scalar_residual_update_kernel.h
 sem/bcknd/device/cuda/coef.o : sem/bcknd/device/cuda/coef.cu sem/bcknd/device/cuda/coef_kernel.h
 device/opencl/check.o : device/opencl/check.c device/opencl/check.h
 device/opencl/jit.o : device/opencl/jit.c device/opencl/jit.h
-math/bcknd/device/opencl/math.o : math/bcknd/device/opencl/math.c math/bcknd/device/opencl/math_kernel.cl.h 
+math/bcknd/device/opencl/math.o : math/bcknd/device/opencl/math.c math/bcknd/device/opencl/math_kernel.cl.h
 math/bcknd/device/opencl/schwarz.o : math/bcknd/device/opencl/schwarz.c math/bcknd/device/opencl/schwarz_kernel.cl.h
 math/bcknd/device/opencl/tensor.o : math/bcknd/device/opencl/tensor.c math/bcknd/device/opencl/tensor_kernel.cl.h
 math/bcknd/device/opencl/fdm.o : math/bcknd/device/opencl/fdm.c math/bcknd/device/opencl/fdm_kernel.cl.h
@@ -73,10 +73,10 @@ math/bcknd/device/opencl/opr_lambda2.o : math/bcknd/device/opencl/opr_lambda2.c 
 math/bcknd/device/opencl/opr_cfl.o : math/bcknd/device/opencl/opr_cfl.c math/bcknd/device/opencl/cfl_kernel.cl.h
 math/bcknd/device/opencl/ax_helm.o : math/bcknd/device/opencl/ax_helm.c math/bcknd/device/opencl/ax_helm_kernel.cl.h
 krylov/bcknd/device/opencl/pc_jacobi.o : krylov/bcknd/device/opencl/pc_jacobi.c krylov/bcknd/device/opencl/jacobi_kernel.cl.h
-gs/bcknd/device/opencl/gs.o : gs/bcknd/device/opencl/gs.c gs/bcknd/device/opencl/gs_kernels.cl.h 
+gs/bcknd/device/opencl/gs.o : gs/bcknd/device/opencl/gs.c gs/bcknd/device/opencl/gs_kernels.cl.h
 bc/bcknd/device/opencl/dirichlet.o : bc/bcknd/device/opencl/dirichlet.c bc/bcknd/device/opencl/dirichlet_kernel.cl.h
 bc/bcknd/device/opencl/inflow.o : bc/bcknd/device/opencl/inflow.c bc/bcknd/device/opencl/inflow_kernel.cl.h
-bc/bcknd/device/opencl/no_slip_wall.o : bc/bcknd/device/opencl/no_slip_wall.c bc/bcknd/device/opencl/no_slip_wall_kernel.cl.h
+bc/bcknd/device/opencl/zero_dirichlet.o : bc/bcknd/device/opencl/zero_dirichlet.c bc/bcknd/device/opencl/zero_dirichlet_kernel.cl.h
 bc/bcknd/device/opencl/symmetry.o : bc/bcknd/device/opencl/symmetry.c bc/bcknd/device/opencl/symmetry_kernel.cl.h
 bc/bcknd/device/opencl/facet_normal.o : bc/bcknd/device/opencl/facet_normal.c bc/bcknd/device/opencl/facet_normal_kernel.cl.h
 bc/bcknd/device/opencl/inhom_dirichlet.o : bc/bcknd/device/opencl/inhom_dirichlet.c bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl.h
