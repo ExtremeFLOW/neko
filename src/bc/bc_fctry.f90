@@ -42,6 +42,8 @@ module bc_fctry
   use coefs, only : coef_t
   use facet_zone, only : facet_zone_t
   use mesh, only : NEKO_MSH_MAX_ZLBLS
+  use usr_scalar, only : usr_scalar_t
+  use user_intf, only : user_t
   implicit none
   private
 
@@ -53,26 +55,42 @@ contains
   !! Will mark a mesh zone for the bc and finalize.
   !! @param[in] coef SEM coefficients.
   !! @param[inout] json JSON object for initializing the bc.
-  subroutine bc_factory(object, json, coef, zones)
+  subroutine bc_factory(object, json, coef, user)
     !class(bc_t), allocatable, intent(inout) :: object
     class(bc_t), pointer, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
-    type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
+    type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
     integer :: zone_index
 
-    call json_get(json, "zone_index", zone_index)
     call json_get(json, "type", type)
 
-    if (trim(type) .eq. "dirichlet") then
+    if (trim(type) .eq. "user_pointwise") then
+       ! Note, the bc is now in the list even if the mask is zero.
+       allocate(usr_scalar_t::object)
+       call object%init(coef, json)
+       call object%mark_zone(coef%msh%wall)
+       call object%mark_zone(coef%msh%inlet)
+       call object%mark_zone(coef%msh%outlet)
+       call object%mark_zone(coef%msh%outlet_normal)
+       call object%mark_zone(coef%msh%sympln)
+       call object%finalize()
+
+       select type(obj => object)
+       type is(usr_scalar_t)
+          call obj%set_eval(user%scalar_user_bc)
+       end select
+       return
+    else if (trim(type) .eq. "dirichlet") then
        allocate(dirichlet_t::object)
     else if (trim(type) .eq. "neumann") then
        allocate(neumann_t::object)
     end if
 
+    call json_get(json, "zone_index", zone_index)
     call object%init(coef, json)
-    call object%mark_zone(zones(zone_index))
+    call object%mark_zone(coef%msh%labeled_zones(zone_index))
     call object%finalize()
 
   end subroutine bc_factory

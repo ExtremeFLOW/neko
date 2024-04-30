@@ -183,13 +183,8 @@ contains
     ! todo: look that this works
     call this%bc_res%init(this%c_Xh, params)
     do i = 1, this%n_strong
-       call this%bc_res%mark_facets(this%bclst_dirichlet%items(i)%ptr%marked_facet)
+       call this%bc_res%mark_facets(this%bcs%items(i)%ptr%marked_facet)
     end do
-
-    ! Check for user bcs
-    if (this%user_bc%msk(0) .gt. 0) then
-       call this%bc_res%mark_facets(this%user_bc%marked_facet)
-    end if
 
 !    call this%bc_res%mark_zones_from_list('d_s', this%bc_labels)
     call this%bc_res%finalize()
@@ -316,7 +311,7 @@ contains
          call col2(f_Xh%x, c_Xh%B, n)
       end if
       ! Apply weak boundary conditions, that contribute to the source terms.
-      call this%bclst_dirichlet%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, &
+      call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, &
                                              tstep, strong=.false.)
 
       ! Add the advection operators to the right-hans-side.
@@ -341,8 +336,8 @@ contains
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
 !      call this%dirichlet_update_(this%field_dirichlet_fields, &
 !           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
-!      call this%bclst_dirichlet%apply_scalar(this%s%x, this%dm_Xh%size(), t, &
-!                                             tstep, strong=.true.)
+      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, &
+                                             tstep, strong=.true.)
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)

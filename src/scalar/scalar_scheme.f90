@@ -67,8 +67,8 @@ module scalar_scheme
   use utils, only : neko_error
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
-  use field_series
-  use time_step_controller
+  use field_series, only : field_series_t
+  use time_step_controller, only : time_step_controller_t
   use bc_fctry, only : bc_factory
   implicit none
 
@@ -115,12 +115,10 @@ module scalar_scheme
      type(bc_list_t) :: field_dirichlet_bcs
      !> List of fields to pass to user_dirichlet_update
      type(field_list_t) :: field_dirichlet_fields
-     !> User Dirichlet conditions.
-     type(usr_scalar_t) :: user_bc
      !> Number of strong  bcs.
      integer :: n_strong = 0
-     !> List of Dirichlet boundary conditions, including the user one.
-     type(bc_list_t) :: bclst_dirichlet
+     !> List of boundary conditions, including the user one.
+     type(bc_list_t) :: bcs
      !> Case paramters.
      type(json_file), pointer :: params
      !> Mesh.
@@ -133,8 +131,6 @@ module scalar_scheme
      real(kind=rp), pointer :: rho
      !> Specific heat capacity.
      real(kind=rp), pointer :: cp
-     !> Boundary condition labels (if any)
-     character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -142,8 +138,6 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
-     !> Assings the evaluation function for  `user_bc`.
-     procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
      !> Constructor.
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      !> Destructor.
@@ -225,30 +219,27 @@ contains
     type(json_file) :: bc_subdict
     logical :: found
 
-    call this%bclst_dirichlet%init()
-    call this%user_bc%init(this%c_Xh, this%params)
-
-
+    call this%bcs%init()
 
     if (this%params%valid_path('case.scalar.boundary_conditions')) then
        call this%params%info('case.scalar.boundary_conditions', n_children=n_bcs)
        call this%params%get_core(core)
        call this%params%get('case.scalar.boundary_conditions', bc_object, found)
-       call this%bclst_dirichlet%init(n_bcs)
+       call this%bcs%init(n_bcs)
 
        ! Gotta set this manually, becase we don't append to the list but
        ! rather directly allocate in the factory.
-       this%bclst_dirichlet%size_ = n_bcs
+       this%bcs%size_ = n_bcs
 
 
        do i=1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          call bc_factory(this%bclst_dirichlet%items(i)%ptr, bc_subdict, &
-                          this%c_Xh, this%msh%labeled_zones)
+          call bc_factory(this%bcs%items(i)%ptr, bc_subdict, &
+                          this%c_Xh, user)
 
-          if (this%bclst_dirichlet%strong(i)) then
+          if (this%bcs%strong(i)) then
              this%n_strong = this%n_strong + 1
           end if
        end do
@@ -263,15 +254,8 @@ contains
 
 !    end do
 
-    ! Mark BC zones
-    call this%user_bc%mark_zone(this%msh%wall)
-    call this%user_bc%mark_zone(this%msh%inlet)
-    call this%user_bc%mark_zone(this%msh%outlet)
-    call this%user_bc%mark_zone(this%msh%outlet_normal)
-    call this%user_bc%mark_zone(this%msh%sympln)
-    call this%user_bc%finalize()
-    if (this%user_bc%msk(0) .gt. 0) call this%bclst_dirichlet%append(&
-                                                     this%user_bc)
+!    if (this%user_bc%msk(0) .gt. 0) call this%bcs%append(&
+!                                                     this%user_bc)
 
     ! Add field dirichlet BCs
     !call this%field_dir_bc%init(this%c_Xh, this%params)
@@ -281,7 +265,7 @@ contains
     !     MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     !if (i .gt. 0) call this%field_dir_bc%init_field('d_s')
 
-    !call this%bclst_dirichlet%append(this%field_dir_bc)
+    !call this%bcs%append(this%field_dir_bc)
 
     !
     ! Associate our field dirichlet update to the user one.
@@ -399,7 +383,7 @@ contains
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_dirichlet, solver_precon)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, solver_precon)
 
     call neko_log%end_section()
 
@@ -426,13 +410,9 @@ contains
        deallocate(this%pc)
     end if
 
-    if (allocated(this%bc_labels)) then
-       deallocate(this%bc_labels)
-    end if
-
     call this%source_term%free()
 
-    call this%bclst_dirichlet%free()
+    call this%bcs%free()
 
     call this%slag%free()
 
@@ -539,16 +519,5 @@ contains
     call ksp%set_pc(pc)
 
   end subroutine scalar_scheme_precon_factory
-
-  !> Initialize a user defined scalar bc
-  !! @param usr_eval User specified boundary condition for scalar field
-  subroutine scalar_scheme_set_user_bc(this, usr_eval)
-    class(scalar_scheme_t), intent(inout) :: this
-    procedure(usr_scalar_bc_eval) :: usr_eval
-
-    call this%user_bc%set_eval(usr_eval)
-
-  end subroutine scalar_scheme_set_user_bc
-
 
 end module scalar_scheme

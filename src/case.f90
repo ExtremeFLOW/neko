@@ -265,11 +265,6 @@ contains
        end if
     end if
 
-    ! Setup user boundary conditions for the scalar.
-    if (scalar) then
-       call C%scalar%set_user_bc(C%usr%scalar_user_bc)
-    end if
-
     !
     ! Setup initial conditions
     !
