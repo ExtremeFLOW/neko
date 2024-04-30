@@ -151,7 +151,9 @@ contains
     logical, intent(in), optional :: strong
     type(c_ptr) :: x_d
     integer :: i
-    logical :: execute(this%size())
+    logical, allocatable :: execute(:)
+
+    allocate(execute(this%size()))
 
     execute = .true.
     if (present(strong)) then
