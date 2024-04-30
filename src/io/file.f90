@@ -45,6 +45,7 @@ module file
   use vtk_file, only : vtk_file_t
   use stl_file, only : stl_file_t
   use csv_file, only : csv_file_t
+  use hdf5_file, only : hdf5_file_t
   implicit none
 
   !> A wrapper around a polymorphic `generic_file_t` that handles its init.
@@ -110,6 +111,8 @@ contains
     else if (suffix .eq. "csv") then
        allocate(csv_file_t::this%file_type)
        this%file_type%serial = .true.
+    else if ((suffix .eq. "hdf5") .or. (suffix .eq. "h5")) then
+       allocate(hdf5_file_t::this%file_type)
     else
        call neko_error('Unknown file format')
     end if
