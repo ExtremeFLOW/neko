@@ -361,8 +361,8 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
-     call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
-                                 this%bclst_ds, gs_Xh, n, tstep, dt_controller)
+     call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bclst_ds, gs_Xh, &
+                                   n, tstep, dt_controller)
 
       ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then

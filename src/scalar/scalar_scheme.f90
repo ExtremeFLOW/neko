@@ -244,45 +244,6 @@ contains
           end if
        end do
     end if
-
-
-!    do i = 1, size(bc_labels)
-!       bc_label = trim(bc_labels(i))
-!       if (bc_label(1:4) .eq. 'user') then
-!          call this%user_bc%mark_zone(this%msh%labeled_zones(i))
-!       end if
-
-!    end do
-
-!    if (this%user_bc%msk(0) .gt. 0) call this%bcs%append(&
-!                                                     this%user_bc)
-
-    ! Add field dirichlet BCs
-    !call this%field_dir_bc%init(this%c_Xh, this%params)
-    !call this%field_dir_bc%mark_zones_from_list('d_s', this%bc_labels)
-    !call this%field_dir_bc%finalize()
-    !call MPI_Allreduce(this%field_dir_bc%msk(0), i, 1, &
-    !     MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    !if (i .gt. 0) call this%field_dir_bc%init_field('d_s')
-
-    !call this%bcs%append(this%field_dir_bc)
-
-    !
-    ! Associate our field dirichlet update to the user one.
-    !
-    !this%dirichlet_update_ => user%user_dirichlet_update
-
-    !
-    ! Initialize field list and bc list for user_dirichlet_update
-    !
-    !allocate(this%field_dirichlet_fields%fields(1))
-    !this%field_dirichlet_fields%fields(1)%f => &
-    !     this%field_dir_bc%field_bc
-
-    !call this%field_dirichlet_bcs%init(size=1)
-    !call this%field_dirichlet_bcs%append(this%field_dir_bc)
-
-
   end subroutine scalar_scheme_setup_bcs
 
   !> Initialize all related components of the current scheme
@@ -363,7 +324,6 @@ contains
 
     this%gs_Xh => gs_Xh
     this%c_Xh => c_Xh
-
 
     !
     ! Setup right-hand side field.
