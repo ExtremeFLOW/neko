@@ -413,8 +413,8 @@ contains
        if (data%size() .gt. 0) then
           allocate(fp(data%size()))
        
-          dof => data%items(1)%ptr%dof
-          msh => data%items(1)%ptr%msh
+          dof => data%dof(1)
+          msh => data%msh(1)
 
           do i = 1, data%size()
              fp(i)%ptr => data%items(i)%ptr
