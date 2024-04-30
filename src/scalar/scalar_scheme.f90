@@ -65,10 +65,10 @@ module scalar_scheme
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use utils, only : neko_error
-  use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
+  use comm
   use scalar_source_term, only : scalar_source_term_t
-  use field_series
-  use time_step_controller
+  use field_series, only : field_series_t
+  use time_step_controller, only :time_step_controller_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.

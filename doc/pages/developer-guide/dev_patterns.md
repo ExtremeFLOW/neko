@@ -8,18 +8,18 @@ your code against the guidelines here before opening a PR.
 It should be noted that these are note followed universally throughout the code
 base as of now, but we should at least make all new code as clean as possible.
 
-## A. Naming 
+## A. Naming
 
 1. Generally all names are lowercase, connected with `_` when needed. Some
    exceptions take place, e.g. `Re` for the Reynolds number and `Xh` for the
    function space, but these should be kept to a minimum.
 
 2. Follow established naming conventions for certain types. For example, `Xh`
-   for the function space.  
+   for the function space.
 
 3. Use easy-to-remember unambiguous variable names. Avoid abbreviations unless
    they are universally understandable (e.g. RANS).
-   
+
    The basic rationale is that code is read much more often than it is written,
    so clarity is very important. Moreover, it reduces the cognitive load of the
    developers since one does not have to remember the abbreviations, which often
@@ -38,7 +38,7 @@ base as of now, but we should at least make all new code as clean as possible.
      particularly interfaces.
    * Desirable to observe even for code not derictly exposed to the outside
      world.
-   
+
 4. All derived types should end with `_t` in the name.
 
 5. For a module implementing type `mytype_t`, the module should reside in
@@ -87,9 +87,9 @@ base as of now, but we should at least make all new code as clean as possible.
 
 ## B. Scope
 
-1. Always use `only` when `using` something from another module.  The `neko`
-   module is an exception and imports everything. 
-   
+1. Always use `only` when `using` something from another module. The exception
+   are tiny modules, from which one would always `use` all the publicly declared
+   things, the module `comm` and the `neko` module, which imports everything.
    This latter is done so that the user `.f90` files need only `use` the `neko`
    module to get access to everything.
 
@@ -104,7 +104,7 @@ base as of now, but we should at least make all new code as clean as possible.
    developers' good judgement to not mess with the types in the wrong way. That
    being said, using `private` is not discouraged in any way.
 
-## C. Constructors and destructors. 
+## C. Constructors and destructors.
 
 1.  If the type has a destructor, the constructor must begin with calling the
     destructor.
@@ -140,7 +140,7 @@ base as of now, but we should at least make all new code as clean as possible.
 
 1. All procedures and interfaces must be documented, with the *minimal*
    requirement being a one-liner telling what the procedure does followed by
-   `@param`s describing all the dummy  arguments. 
+   `@param`s describing all the dummy  arguments.
 
 2. Feel free to add more documentation under `@details` or other Doxygen
    decorators. It is highly encouraged.
@@ -176,7 +176,7 @@ Hopefully, they can guide towards better implementation.
 
    Try to add support for as many backends as possible. CPU-only will be merged,
    but should throw a clear error message when run on an accelerator.
-   
+
 
 2. Wrap legacy code with wrappers following correct naming conventions.
 
@@ -197,11 +197,11 @@ Hopefully, they can guide towards better implementation.
    that doesn't work.
 
    This point represents the S in SOLID, which is a set of design principles for
-   types. Highly recommended to get acquainted with all of them. 
+   types. Highly recommended to get acquainted with all of them.
 
 5. When encountering code repetition, consider whether these two pieces of code
 will likely change at different rates and different reasons in the future. If
-so, code repetition is fine, it will eventually cease to exist naturally. 
+so, code repetition is fine, it will eventually cease to exist naturally.
 
    True code duplication is when a change in one place will also necessary a
    change in the other.

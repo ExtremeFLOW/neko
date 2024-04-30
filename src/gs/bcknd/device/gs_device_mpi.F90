@@ -36,7 +36,7 @@ module gs_device_mpi
   use gs_comm, only : gs_comm_t
   use gs_ops
   use stack, only : stack_i4_t
-  use comm, only : pe_size, pe_rank
+  use comm
   use htable, only : htable_i4_t
   use device
   use utils, only : neko_error

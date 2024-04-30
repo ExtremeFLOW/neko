@@ -43,7 +43,7 @@ module spectral_error_indicator
   use gather_scatter
   use neko_config
   use device, only: DEVICE_TO_HOST, device_memcpy
-  use comm, only: pe_rank
+  use comm
   use utils, only: NEKO_FNAME_LEN
   use, intrinsic :: iso_c_binding
   implicit none

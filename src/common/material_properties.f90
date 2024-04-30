@@ -39,7 +39,7 @@ module material_properties
   use user_intf, only : user_t, dummy_user_material_properties, &
                         user_material_properties
   use utils, only : neko_warning, neko_error
-  use comm, only : pe_rank
+  use comm
   implicit none
   private
 

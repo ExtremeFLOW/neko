@@ -32,7 +32,7 @@
 !
 !> Logging routines
 module logger
-  use comm, only : pe_rank
+  use comm
   use num_types, only : rp
   implicit none
   private

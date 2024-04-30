@@ -33,7 +33,7 @@
 !> Defines a gather-scatter communication method
 module gs_comm
   use num_types, only : rp
-  use comm, only : pe_size
+  use comm
   use stack, only : stack_i4_t
   use, intrinsic :: iso_c_binding
   implicit none
