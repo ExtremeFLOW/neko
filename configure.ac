@@ -273,6 +273,7 @@ AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
+AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${have_contrib}" = xyes])
 
 # Set device dependent flags
 AC_SUBST(CUDA_ARCH)
