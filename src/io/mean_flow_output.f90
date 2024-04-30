@@ -33,9 +33,9 @@
 !> Defines an output for a mean flow field
 module mean_flow_output
   use mean_flow, only : mean_flow_t
-  use num_types
+  use num_types, only : rp
   use device
-  use output
+  use output, only : output_t
   implicit none
   private
 
