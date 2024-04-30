@@ -309,7 +309,7 @@ libneko_a_SOURCES += \
 	gs/bcknd/device/hip/gs.hip\
 	bc/bcknd/device/hip/dirichlet.hip\
 	bc/bcknd/device/hip/inflow.hip\
-	bc/bcknd/device/hip/zero_dirichlet_wall.hip\
+	bc/bcknd/device/hip/zero_dirichlet.hip\
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
@@ -343,7 +343,7 @@ libneko_a_SOURCES += \
 	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
-	bc/bcknd/device/cuda/zero_dirichlet_wall.cu\
+	bc/bcknd/device/cuda/zero_dirichlet.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
