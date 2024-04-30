@@ -61,22 +61,22 @@
 !! @note In this code we assume that the matrix project for the
 !! pressure Ax does not vary in time.
 module projection
-  use num_types
+  use num_types, only : rp
   use math
-  use coefs
-  use ax_product
-  use bc
+  use coefs, only : coef_t
+  use ax_product, only : ax_t
+  use bc, only : bc_list_t, bc_list_apply_scalar
   use comm
-  use gather_scatter
-  use neko_config
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use neko_config, only : NEKO_BCKND_DEVICE
   use device
   use device_math
   use device_projection
-  use profiler
-  use logger
+  use profiler, only : profiler_start_region, profiler_end_region
+  use logger, only : LOG_SIZE, neko_log
   use, intrinsic :: iso_c_binding
-  use time_step_controller
   use bc_list, only : bc_list_t
+  use time_step_controller, only : time_step_controller_t
 
   implicit none
   private

@@ -36,10 +36,11 @@ module fluid_output
   use fluid_scheme, only : fluid_scheme_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use device
   use output, only : output_t
   implicit none
+  private
 
   !> Fluid output
   type, public, extends(output_t) :: fluid_output_t

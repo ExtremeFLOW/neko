@@ -34,12 +34,18 @@
 !! @details Various utility functions
 module utils
   implicit none
+  private
 
   integer, parameter :: NEKO_FNAME_LEN = 1024
 
   interface neko_error
      module procedure neko_error_plain, neko_error_msg
   end interface neko_error
+
+  public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
+            filename_suffix, filename_suffix_pos, filename_tslash_pos, &
+            linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet
+
 
 contains
 
@@ -86,13 +92,13 @@ contains
     i = 0
     offset = 1
     length = 1
-    if (len(trim(string)) .eq. 0) then 
+    if (len(trim(string)) .eq. 0) then
        allocate(split_str(1))
        split_str(1) = trim(string)
        return
     end if
     do while( .true.)
-       i = scan(string(offset:), delimiter, back=.false.) 
+       i = scan(string(offset:), delimiter, back=.false.)
        if (i .eq. 0) exit
        length = length + 1
        offset = offset + i
@@ -103,9 +109,9 @@ contains
     j = 1
     offset=1
     do while( .true.)
-       i2 = scan(trim(string(offset:)), delimiter, back=.false.) 
+       i2 = scan(trim(string(offset:)), delimiter, back=.false.)
        if (i2 .eq. 0) then
-          split_str(j) = trim(string(offset:)) 
+          split_str(j) = trim(string(offset:))
           exit
        end if
        split_str(j) = trim(string(offset:offset+i2-2))

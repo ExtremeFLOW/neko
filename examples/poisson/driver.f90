@@ -52,8 +52,7 @@ program poisson
 
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
-  call dir_bc%init_base(coef)
-  call dir_bc%set_g(real(0.0d0,rp))
+  call dir_bc%init_from_components(coef, 0.0_rp)
 
   !user specified
   call set_bc(dir_bc, msh)

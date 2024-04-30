@@ -32,8 +32,8 @@
 !
 !> Stores a series fields
 module field_series
-  use num_types
-  use field
+  use num_types, only : rp
+  use field, only : field_t
   implicit none
   private
 
@@ -57,6 +57,7 @@ contains
     type(field_t), intent(inout), target :: f
     integer :: len
     character(len=80) :: name
+    character(len=5) :: id_str
     integer :: i
 
     call this%free()
@@ -67,7 +68,8 @@ contains
     allocate(this%lf(len))
 
     do i = 1, this%len
-       name = trim(f%name)//'_lag'//char(i)
+       write(id_str, '(I0)') i
+       name = trim(f%name)//'_lag'//id_str
        call this%lf(i)%init(this%f%dof, name)
     end do
 
