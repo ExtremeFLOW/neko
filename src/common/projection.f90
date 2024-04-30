@@ -65,7 +65,7 @@ module projection
   use math
   use coefs, only : coef_t
   use ax_product, only : ax_t
-  use bc, only : bc_list_t, bc_list_apply_scalar
+  use bc_list, only : bc_list_t
   use comm
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
