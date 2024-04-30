@@ -55,13 +55,20 @@
         "scalar": {
             "enabled": true,
             "Pr": 0.71,
-            "boundary_types": [
-                "",
-                "",
-                "",
-                "",
-                "d=1",
-                "d=0"
+            "boundary_conditions": [
+            {
+                "type": "dirichlet",
+                "zone_index": 5,
+                "value": 1.0
+            },
+            {
+                "type": "dirichlet",
+                "zone_index": 6,
+                "value": 0.0
+            },
+            {
+                "type": "user_pointwise"
+            }
             ],
             "initial_condition": {
                 "type": "user"
