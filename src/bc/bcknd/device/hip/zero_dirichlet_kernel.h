@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@
 #include <hip/hip_runtime.h>
 
 /**
- * Device kernel for scalar apply for a no-slip wall conditon
+ * Device kernel for scalar apply for a zero-dirichlet conditon
  */
 template< typename T >
 __global__ void zero_dirichlet_apply_scalar_kernel(const int * __restrict__ msk,
@@ -55,7 +55,7 @@ __global__ void zero_dirichlet_apply_scalar_kernel(const int * __restrict__ msk,
 }
 
 /**
- * Device kernel for vector apply for a no-slip wall conditon
+ * Device kernel for vector apply for a zero-dirichlet conditon
  */
 template< typename T >
 __global__ void zero_dirichlet_apply_vector_kernel(const int * __restrict__ msk,

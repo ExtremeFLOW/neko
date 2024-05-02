@@ -71,7 +71,7 @@ contains
     call this%init_base(coef)
   end subroutine zero_dirichlet_init
 
-  !> Boundary condition apply for a no-slip wall condition
+  !> Apply boundary condition to a scalar field.
   !! to a vector @a x
   subroutine zero_dirichlet_apply_scalar(this, x, n, t, tstep)
     class(zero_dirichlet_t), intent(inout) :: this
@@ -89,8 +89,7 @@ contains
 
   end subroutine zero_dirichlet_apply_scalar
 
-  !> Boundary condition apply for a no-slip wall condition
-  !! to vectors @a x, @a y and @a z
+  !> Apply boundary condition to a vector field.
   subroutine zero_dirichlet_apply_vector(this, x, y, z, n, t, tstep)
     class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -111,8 +110,7 @@ contains
 
   end subroutine zero_dirichlet_apply_vector
 
-  !> Boundary condition apply for a no-slip wall condition
-  !! to a vector @a x (device version)
+  !> Apply boundary condition to a scalar field, device version.
   subroutine zero_dirichlet_apply_scalar_dev(this, x_d, t, tstep)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
@@ -123,8 +121,7 @@ contains
 
   end subroutine zero_dirichlet_apply_scalar_dev
 
-  !> Boundary condition apply for a no-slip wall condition
-  !! to vectors @a x, @a y and @a z (device version)
+  !> Apply boundary condition to a vector field, device version.
   subroutine zero_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@
 #include "zero_dirichlet_kernel.cl.h"
 
 /**
- * Fortran wrapper for device no-slip wall apply vector
+ * Fortran wrapper for device zero-dirichlet apply vector
  */
 void opencl_no_slip_wall_apply_scalar(void *msk, void *x, int *m) {
 
@@ -74,7 +74,7 @@ void opencl_no_slip_wall_apply_scalar(void *msk, void *x, int *m) {
 }
 
 /**
- * Fortran wrapper for device no-slip wall apply vector
+ * Fortran wrapper for device zero-dirichlet apply vector
  */
 void opencl_no_slip_wall_apply_vector(void *msk, void *x, void *y,
                                       void *z, int *m) {
