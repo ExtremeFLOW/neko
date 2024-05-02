@@ -154,6 +154,11 @@ module fluid_scheme
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
+     ! HARRY
+     ! I'm making this public just to check
+     ! Time variables
+     type(field_t) :: abx1, aby1, abz1
+     type(field_t) :: abx2, aby2, abz2
    contains
      !> Constructor for the base type
      procedure, pass(this) :: fluid_scheme_init_all

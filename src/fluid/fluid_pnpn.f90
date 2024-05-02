@@ -110,9 +110,9 @@ module fluid_pnpn
 
      class(advection_t), allocatable :: adv
 
-     ! Time variables
-     type(field_t) :: abx1, aby1, abz1
-     type(field_t) :: abx2, aby2, abz2
+     !! Time variables
+     !type(field_t) :: abx1, aby1, abz1
+     !type(field_t) :: abx2, aby2, abz2
 
      !> Pressure residual
      class(pnpn_prs_res_t), allocatable :: prs_res
