@@ -337,6 +337,7 @@ contains
        scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this%case%fluid, scaling_factor)
 
+       norm_l2 = this%norm_target
        This%norm_l2_old = this%norm_target
     else if ( norm_l2 .lt. this%norm_l2_lower) then
        this%has_rescaled = .true.
@@ -344,6 +345,7 @@ contains
        scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this%case%fluid, scaling_factor)
 
+       norm_l2 = this%norm_target
        This%norm_l2_old = this%norm_target
     else if (this%has_rescaled) then
        this%slope_count = this%slope_count + 1.0_rp
