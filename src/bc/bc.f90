@@ -155,6 +155,16 @@ module bc
   end interface
 
   abstract interface
+     !> Constructor
+     subroutine bc_constructor(this, coef, json)
+       import :: bc_t, coef_t, json_file
+       class(bc_t), intent(inout), target :: this
+       type(coef_t), intent(in) :: coef
+       type(json_file), intent(inout) ::json
+     end subroutine bc_constructor
+  end interface
+
+  abstract interface
      !> Destructor
      subroutine bc_destructor(this)
        import :: bc_t
@@ -168,16 +178,6 @@ module bc
        import :: bc_t
        class(bc_t), intent(inout), target :: this
      end subroutine bc_finalize
-  end interface
-
-  abstract interface
-     !> Constructor
-     subroutine bc_constructor(this, coef, json)
-       import :: bc_t, coef_t, json_file
-       class(bc_t), intent(inout), target :: this
-       type(coef_t), intent(in) :: coef
-       type(json_file), intent(inout) ::json
-     end subroutine bc_constructor
   end interface
 
   abstract interface
@@ -262,6 +262,14 @@ contains
 
   end subroutine bc_free_base
 
+  !> Apply the boundary condition to a vector field. Dispatches to the CPU
+  !! or the device version.
+  !! @param x The x comp of the field for which to apply the bc.
+  !! @param y The y comp of the field for which to apply the bc.
+  !! @param z The z comp of the field for which to apply the bc.
+  !! @param n The size of x, y, and z.
+  !! @param t Current time.
+  !! @param tstep The current time iteration.
   subroutine bc_apply_vector_generic(this, x, y, z, n, t, tstep)
     class(bc_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -303,6 +311,14 @@ contains
 
   end subroutine bc_apply_vector_generic
 
+  !> Apply the boundary condition to a scalar field. Dispatches to the CPU
+  !! or the device version.
+  !! @param x The x comp of the field for which to apply the bc.
+  !! @param y The y comp of the field for which to apply the bc.
+  !! @param z The z comp of the field for which to apply the bc.
+  !! @param n The size of x, y, and z.
+  !! @param t Current time.
+  !! @param tstep The current time iteration.
   subroutine bc_apply_scalar_generic(this, x, n, t, tstep)
     class(bc_t), intent(inout) :: this
     integer, intent(in) :: n
