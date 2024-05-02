@@ -34,20 +34,20 @@
 !> Implements the `power_iterations_t` type.
 
 module power_iterations
-  use num_types, only : rp, dp, sp
-  use json_module, only : json_file
-  use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
-  use field, only : field_t
-  use operators, only : curl
-  use case, only : case_t
-  use fld_file_output, only : fld_file_output_t
-  use json_utils, only : json_get, json_get_or_default
-  use fluid_scheme, only : fluid_scheme_t
-  use file, only : file_t
-  use vector, only : vector_t
-  use math
-  use device_math
+  use num_types, only: rp, dp, sp
+  use json_module, only: json_file
+  use simulation_component, only: simulation_component_t
+  use field_registry, only: neko_field_registry
+  use field, only: field_t
+  use operators, only: curl
+  use case, only: case_t
+  use fld_file_output, only: fld_file_output_t
+  use json_utils, only: json_get, json_get_or_default
+  use fluid_scheme, only: fluid_scheme_t
+  use file, only: file_t
+  use vector, only: vector_t
+  use math, only: vdot3, glsc2, cmult
+  use device_math, only: device_cmult
   use comm, only: pe_rank
   use logger, only: neko_log, NEKO_LOG_DEBUG
   implicit none
@@ -176,8 +176,6 @@ contains
     this%norm_l2_upper = this%norm_tolerance * this%norm_target
     this%norm_l2_lower = this%norm_target / this%norm_tolerance
 
-
-
   end subroutine power_iterations_init_from_attributes
 
   !> Destructor.
@@ -202,9 +200,9 @@ contains
 
     ! Scale the velocity fields
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call cmult_device(fluid_data%u%x_d, scale, fluid_data%u%size())
-       call cmult_device(fluid_data%v%x_d, scale, fluid_data%v%size())
-       call cmult_device(fluid_data%w%x_d, scale, fluid_data%w%size())
+       call device_cmult(fluid_data%u%x_d, scale, fluid_data%u%size())
+       call device_cmult(fluid_data%v%x_d, scale, fluid_data%v%size())
+       call device_cmult(fluid_data%w%x_d, scale, fluid_data%w%size())
     else
        call cmult(fluid_data%u%x, scale, fluid_data%u%size())
        call cmult(fluid_data%v%x, scale, fluid_data%v%size())
@@ -213,9 +211,9 @@ contains
 
     ! Scale the right hand sides
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call cmult_device(fluid_data%f_x%x_d, scale, fluid_data%f_x%size())
-       call cmult_device(fluid_data%f_y%x_d, scale, fluid_data%f_y%size())
-       call cmult_device(fluid_data%f_z%x_d, scale, fluid_data%f_z%size())
+       call device_cmult(fluid_data%f_x%x_d, scale, fluid_data%f_x%size())
+       call device_cmult(fluid_data%f_y%x_d, scale, fluid_data%f_y%size())
+       call device_cmult(fluid_data%f_z%x_d, scale, fluid_data%f_z%size())
     else
        call cmult(fluid_data%f_x%x, scale, fluid_data%f_x%size())
        call cmult(fluid_data%f_y%x, scale, fluid_data%f_y%size())
@@ -225,17 +223,17 @@ contains
     ! Scale the lag terms
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, fluid_data%ulag%size()
-          call cmult_device(fluid_data%ulag%lf(i)%x_d, &
+          call device_cmult(fluid_data%ulag%lf(i)%x_d, &
                             scale, fluid_data%ulag%lf(i)%size())
        end do
 
        do i = 1, fluid_data%vlag%size()
-          call cmult_device(fluid_data%vlag%lf(i)%x_d, &
+          call device_cmult(fluid_data%vlag%lf(i)%x_d, &
                             scale, fluid_data%vlag%lf(i)%size())
        end do
 
        do i = 1, fluid_data%wlag%size()
-          call cmult_device(fluid_data%wlag%lf(i)%x_d, &
+          call device_cmult(fluid_data%wlag%lf(i)%x_d, &
                             scale, fluid_data%wlag%lf(i)%size())
        end do
     else
@@ -270,6 +268,23 @@ contains
     norm = sqrt(glsc2(tmp, B, n) / volume)
 
   end function norm
+
+  ! function device_norm(x_d, y_d, z_d, B_d, volume, n)
+  !   use neko_config, only: NEKO_BCKND_DEVICE
+  !   implicit none
+
+  !   type(c_ptr), intent(in) :: x_d, y_d, z_d
+  !   type(c_ptr), intent(in) :: B_d
+  !   real(kind=rp), intent(in) :: volume
+  !   integer, intent(in) :: n
+
+  !   real(kind=rp) :: norm
+  !   real(kind=rp), dimension(n) :: tmp
+
+  !   call vdot3(tmp, x_d, y_d, z_d, x_d, y_d, z_d, n)
+  !   norm = sqrt(glsc2(tmp, B_d, n) / volume)
+
+  ! end function device_norm
 
   !> Compute the power_iterations field.
   !! @param t The time value.
