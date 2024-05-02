@@ -327,21 +327,24 @@ contains
     lambda = (log(norm_l2) - log(this%norm_l2_old)) / dt
     scaling_factor = 1.0_rp
 
+    this%norm_l2_old = norm_l2
+    this%t_old = t
+
     if (norm_l2 .gt. this%norm_l2_upper) then
        this%has_rescaled = .true.
 
-       scaling_factor = this%norm_l2_lower / norm_l2
+       scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this%case%fluid, scaling_factor)
-       norm_l2 = this%norm_l2_lower
+       norm_l2 = this%norm_target
 
        this%t_old = t
        This%norm_l2_old = norm_l2
     else if ( norm_l2 .lt. this%norm_l2_lower) then
        this%has_rescaled = .true.
 
-       scaling_factor = this%norm_l2_upper / norm_l2
+       scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this%case%fluid, scaling_factor)
-       norm_l2 = this%norm_l2_upper
+       norm_l2 = this%norm_target
 
        this%t_old = t
        This%norm_l2_old = norm_l2
