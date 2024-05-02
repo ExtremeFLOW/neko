@@ -84,18 +84,18 @@ module power_iterations
      real(kind=rp), dimension(:,:,:,:), pointer :: B
 
      !> The previously used timestep
-     real(kind=rp) :: t_old = 0.0_rp
+     real(kind=rp) :: t_old
      !> The norm of the velocity field at the previous timestep
-     real(kind=rp) :: norm_l2_old = -1.0_rp
+     real(kind=rp) :: norm_l2_old
      !> The slope of the norm of the velocity field
-     real(kind=rp) :: slope_value = 0.0_rp
+     real(kind=rp) :: slope_value
      !> The number of times the slope has been computed
-     real(kind=rp) :: slope_count = 0.0_rp
+     real(kind=rp) :: slope_count
 
      !> Upper limit for the norm
-     real(kind=rp) :: norm_l2_upper = 0.0001_rp
+     real(kind=rp) :: norm_l2_upper
      !> Lower limit for the norm
-     real(kind=rp) :: norm_l2_lower = 0.0_rp
+     real(kind=rp) :: norm_l2_lower
 
      !> Flag to indicate if the flow has been rescaled.
      !! Used to wait for the slope to stabilize.
@@ -172,7 +172,7 @@ contains
     this%norm_target = sqrt(this%norm_scaling) * norm(this%u, this%v, this%w, &
                                                       this%B, this%vol, this%n)
 
-    this%norm_l2_old = norm_l2
+    this%norm_l2_old = this%norm_target
     this%norm_l2_upper = this%norm_tolerance * this%norm_target
     this%norm_l2_lower = this%norm_target / this%norm_tolerance
 
@@ -319,35 +319,32 @@ contains
     character(len=256) :: log_message
     type(vector_t) :: data_line
 
+    ! Compute timestep and update the old time
     dt = t - this%t_old
+    this%t_old = t
 
-    ! Compute the norm of the velocity field
+    ! Compute the norm of the velocity field and eigenvalue estimate
     norm_l2 = sqrt(this%norm_scaling) * norm(this%u, this%v, this%w, &
                                              this%B, this%vol, this%n)
     lambda = (log(norm_l2) - log(this%norm_l2_old)) / dt
-    scaling_factor = 1.0_rp
-
     this%norm_l2_old = norm_l2
-    this%t_old = t
 
+    ! Rescale the flow if necessary
+    scaling_factor = 1.0_rp
     if (norm_l2 .gt. this%norm_l2_upper) then
        this%has_rescaled = .true.
 
        scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this%case%fluid, scaling_factor)
-       norm_l2 = this%norm_target
 
-       this%t_old = t
-       This%norm_l2_old = norm_l2
+       This%norm_l2_old = this%norm_target
     else if ( norm_l2 .lt. this%norm_l2_lower) then
        this%has_rescaled = .true.
 
        scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this%case%fluid, scaling_factor)
-       norm_l2 = this%norm_target
 
-       this%t_old = t
-       This%norm_l2_old = norm_l2
+       This%norm_l2_old = this%norm_target
     else if (this%has_rescaled) then
        this%slope_count = this%slope_count + 1.0_rp
 
