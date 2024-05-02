@@ -93,7 +93,7 @@ module power_iterations
      real(kind=rp) :: slope_count = 0.0_rp
 
      !> Upper limit for the norm
-     real(kind=rp) :: norm_l2_upper = 1.0_rp
+     real(kind=rp) :: norm_l2_upper = 0.0001_rp
      !> Lower limit for the norm
      real(kind=rp) :: norm_l2_lower = 0.0_rp
 
@@ -214,10 +214,27 @@ contains
        call device_cmult(fluid_data%f_x%x_d, scale, fluid_data%f_x%size())
        call device_cmult(fluid_data%f_y%x_d, scale, fluid_data%f_y%size())
        call device_cmult(fluid_data%f_z%x_d, scale, fluid_data%f_z%size())
+       ! HARRY
+       ! maybe the abx's too
+       call device_cmult(fluid_data%abx1%x_d, scale, fluid_data%abx1%size())
+       call device_cmult(fluid_data%aby1%x_d, scale, fluid_data%aby1%size())
+       call device_cmult(fluid_data%abz1%x_d, scale, fluid_data%abz1%size())
+       call device_cmult(fluid_data%abx2%x_d, scale, fluid_data%abx2%size())
+       call device_cmult(fluid_data%aby2%x_d, scale, fluid_data%aby2%size())
+       call device_cmult(fluid_data%abz2%x_d, scale, fluid_data%abz2%size())
+
     else
        call cmult(fluid_data%f_x%x, scale, fluid_data%f_x%size())
        call cmult(fluid_data%f_y%x, scale, fluid_data%f_y%size())
        call cmult(fluid_data%f_z%x, scale, fluid_data%f_z%size())
+
+       call cmult(fluid_data%abx1%x, scale, fluid_data%abx1%size())
+       call cmult(fluid_data%aby1%x, scale, fluid_data%aby1%size())
+       call cmult(fluid_data%abz1%x, scale, fluid_data%abz1%size())
+
+       call cmult(fluid_data%abx2%x, scale, fluid_data%abx2%size())
+       call cmult(fluid_data%aby2%x, scale, fluid_data%aby2%size())
+       call cmult(fluid_data%abz2%x, scale, fluid_data%abz2%size())
     end if
 
     ! Scale the lag terms
