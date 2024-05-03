@@ -123,6 +123,7 @@
 !     Other:
 !
 !     PNLEG     Compute Legendre polynomial of degree N
+!     legendre_poly Compute Legendre polynomial of degree 0-N
 !     PNDLEG    Compute derivative of Legendre polynomial of degree N
 !
 !     Comments:
@@ -972,6 +973,20 @@ contains
     if (n.eq.0) pnleg = 1.
     RETURN
   end function PNLEG
+  
+  subroutine legendre_poly(L,x,N)
+    ! Evaluate Legendre polynomials of degrees 0-N at point x
+    real(kind=rp), intent(inout):: L(1:N+1)
+    real(kind=rp) :: x
+    integer :: N, j
+
+    L(1) = 1.0_rp
+    L(2) = x
+
+    do j=3,N+1
+       L(j) = ( (2*j-1) * x * L(j-1) - (j-1) * L(j-2) ) / j 
+    end do
+  end subroutine legendre_poly
 
   REAL(KIND=RP) FUNCTION PNDLEG (Z,N)
 !----------------------------------------------------------------------
