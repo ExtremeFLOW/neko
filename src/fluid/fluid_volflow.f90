@@ -58,18 +58,18 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module fluid_volflow
-  use operators
-  use num_types
-  use mathops
+  use operators, only : opgrad, cdtp
+  use num_types, only : rp
+  use mathops, only : opchsign
   use krylov, only : ksp_t, ksp_monitor_t
-  use precon
-  use dofmap
-  use field
-  use coefs
-  use time_scheme_controller
-  use math
+  use precon, only : pc_t
+  use dofmap, only : dofmap_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use math, only : cfill, rzero, copy, glsc2, glmin, glmax, add2, add2s2
   use comm
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use device_math
   use device_mathops
   use gather_scatter, only : gs_t, GS_OP_ADD

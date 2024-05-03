@@ -36,8 +36,10 @@ module fluid_fctry
 !  use fluid_plan1, only : fluid_plan1_t
   use fluid_pnpn, only : fluid_pnpn_t
   use utils, only : neko_error
-  use neko_config
   implicit none
+  private
+
+  public :: fluid_scheme_factory
 
 contains
 
