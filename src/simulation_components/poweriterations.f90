@@ -152,7 +152,7 @@ contains
 
     ! Temporary field pointers
     type(field_t), pointer :: u_tmp, v_tmp, w_tmp
-    real(kind=rp) :: norm_l2
+    real(kind=rp) :: norm_l2, norm_l2_base
 
     u_tmp => neko_field_registry%get_field("u")
     v_tmp => neko_field_registry%get_field("v")
@@ -169,12 +169,26 @@ contains
     this%vol = this%case%fluid%c_Xh%volume
 
     ! Setup the target norm for the velocity field
-    this%norm_target = sqrt(this%norm_scaling) * norm(this%u, this%v, this%w, &
-                                                      this%B, this%vol, this%n)
 
+    u_tmp => neko_field_registry%get_field("ub")
+    v_tmp => neko_field_registry%get_field("vb")
+    w_tmp => neko_field_registry%get_field("wb")
+
+    norm_l2 = sqrt(this%norm_scaling) * norm(this%u, this%v, this%w, &
+                                             this%B, this%vol, this%n)
+    norm_l2_base = sqrt(this%norm_scaling) * norm(u_tmp%x, v_tmp%x, w_tmp%x, &
+                                                  this%B, this%vol, this%n)
+
+    this%norm_target = norm_l2_base
     this%norm_l2_old = this%norm_target
     this%norm_l2_upper = this%norm_tolerance * this%norm_target
     this%norm_l2_lower = this%norm_target / this%norm_tolerance
+
+    if (norm_l2 .gt. this%norm_l2_upper) then
+       call rescale_fluid(this%case%fluid, norm_l2_base / norm_l2)
+    else if (norm_l2 .lt. this%norm_l2_lower) then
+       call rescale_fluid(this%case%fluid, norm_l2_base / norm_l2)
+    end if
 
   end subroutine power_iterations_init_from_attributes
 
@@ -337,7 +351,6 @@ contains
        scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this%case%fluid, scaling_factor)
 
-       norm_l2 = this%norm_target
        This%norm_l2_old = this%norm_target
     else if ( norm_l2 .lt. this%norm_l2_lower) then
        this%has_rescaled = .true.
@@ -345,7 +358,6 @@ contains
        scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this%case%fluid, scaling_factor)
 
-       norm_l2 = this%norm_target
        This%norm_l2_old = this%norm_target
     else if (this%has_rescaled) then
        this%slope_count = this%slope_count + 1.0_rp
