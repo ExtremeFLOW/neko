@@ -78,7 +78,7 @@ contains
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23, s_abs
     real(kind=rp) :: alpha ! running averaging coefficient
     integer :: temp_indices(7)
-    integer :: e, i
+    integer :: i
 
     if (tstep .eq. 1) then
        alpha = 1.0_rp
@@ -101,15 +101,13 @@ contains
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
     
-    do e=1, coef%msh%nelv
-       do i=1, coef%Xh%lxyz
-          s_abs%x(i,1,1,e) = sqrt(2.0_rp * (s11%x(i,1,1,e)*s11%x(i,1,1,e) + &
-                                 s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
-                                 s33%x(i,1,1,e)*s33%x(i,1,1,e)) + &
-                       4.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
-                                 s13%x(i,1,1,e)*s13%x(i,1,1,e) + &
-                                 s23%x(i,1,1,e)*s23%x(i,1,1,e)))
-       end do
+    do i=1, u%dof%size()
+       s_abs%x(i,1,1,1) = sqrt(2.0_rp * (s11%x(i,1,1,1)*s11%x(i,1,1,1) + &
+                               s22%x(i,1,1,1)*s22%x(i,1,1,1) + &
+                               s33%x(i,1,1,1)*s33%x(i,1,1,1)) + &
+                     4.0_rp * (s12%x(i,1,1,1)*s12%x(i,1,1,1) + &
+                               s13%x(i,1,1,1)*s13%x(i,1,1,1) + &
+                               s23%x(i,1,1,1)*s23%x(i,1,1,1)))
     end do
 
     call compute_lij_cpu(lij, u, v, w, test_filter, u%dof%size(), u%msh%nelv)
@@ -117,18 +115,13 @@ contains
                              s_abs, test_filter, delta, u%dof%size(), u%msh%nelv)
     call compute_num_den_cpu(num, den, lij, mij, alpha, u%dof%size())
 
-    call invcol3(c_dyn%x,num%x,den%x,u%dof%size())
-    call cmult(c_dyn%x, 0.5_rp, u%dof%size())
     do i=1, u%dof%size()
+       if (.not. (den%x(i,1,1,1) .eq. 0)) then
+          c_dyn%x(i,1,1,1) = 0.5_rp * (num%x(i,1,1,1)/den%x(i,1,1,1))
+       end if
        c_dyn%x(i,1,1,1) = max(c_dyn%x(i,1,1,1),0.0_rp)
+       nut%x(i,1,1,1) = c_dyn%x(i,1,1,1) * delta%x(i,1,1,1)**2 * s_abs%x(i,1,1,1)
     end do
-
-    do e=1, coef%msh%nelv
-       do i=1, coef%Xh%lxyz
-          nut%x(i,1,1,e) = c_dyn%x(i,1,1,e) * delta%x(i,1,1,e)**2 * s_abs%x(i,1,1,e)
-       end do
-    end do
-    
 
     call coef%gs_h%op(nut%x, nut%dof%size(), GS_OP_ADD)
     call col2(nut%x, coef%mult, nut%dof%size())

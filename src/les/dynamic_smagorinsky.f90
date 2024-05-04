@@ -99,7 +99,6 @@ contains
     call this%c_dyn%init(dofmap, "ds_c_dyn")
     call this%num%init(dofmap, "ds_num")
     call this%den%init(dofmap, "ds_den")
-    call rzero(this%c_dyn%x,dofmap%size())
     
     do i=1,6
        call this%mij(i)%init(dofmap)
