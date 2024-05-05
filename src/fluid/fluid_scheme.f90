@@ -151,6 +151,8 @@ module fluid_scheme
      procedure(fluid_scheme_step_intrf), pass(this), deferred :: step
      procedure(fluid_scheme_restart_intrf), pass(this), deferred :: restart
      generic :: scheme_init => fluid_scheme_init_all, fluid_scheme_init_uvw
+     procedure, private, pass(this) :: set_bc_type_output => &
+       fluid_scheme_set_bc_type_output
   end type fluid_scheme_t
 
   !> Abstract interface to initialize a fluid formulation
@@ -540,6 +542,10 @@ contains
     ! Initialize the source term
     call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
                                user)
+
+    ! If case.output_boundary is true, set the values for the bc types in the
+    ! output of the field.
+    call this%set_bc_type_output(params)
 
   end subroutine fluid_scheme_init_common
 
@@ -966,5 +972,66 @@ contains
          this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
 
   end function fluid_compute_cfl
+
+  !> Set boundary types for the diagnostic output.
+  !! @param params The JSON case file.
+  subroutine fluid_scheme_set_bc_type_output(this, params)
+    class(fluid_scheme_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(dirichlet_t) :: bdry_mask
+    logical :: found
+
+    !
+    ! Check if we need to output boundaries
+    !
+    call json_get_or_default(params, 'case.output_boundary', found, .false.)
+
+    if (found) then
+       call this%bdry%init(this%dm_Xh, 'bdry')
+       this%bdry = 0.0_rp
+
+       call bdry_mask%init_from_components(this%c_Xh, 1.0_rp)
+       call bdry_mask%mark_zone(this%msh%wall)
+       call bdry_mask%mark_zones_from_list('w', this%bc_labels)
+       call bdry_mask%finalize()
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
+
+       call bdry_mask%init_from_components(this%c_Xh, 2.0_rp)
+       call bdry_mask%mark_zone(this%msh%inlet)
+       call bdry_mask%mark_zones_from_list('v', this%bc_labels)
+       call bdry_mask%finalize()
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
+
+       call bdry_mask%init_from_components(this%c_Xh, 3.0_rp)
+       call bdry_mask%mark_zone(this%msh%outlet)
+       call bdry_mask%mark_zones_from_list('o', this%bc_labels)
+       call bdry_mask%finalize()
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
+
+       call bdry_mask%init_from_components(this%c_Xh, 4.0_rp)
+       call bdry_mask%mark_zone(this%msh%sympln)
+       call bdry_mask%mark_zones_from_list('sym', this%bc_labels)
+       call bdry_mask%finalize()
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
+
+       call bdry_mask%init_from_components(this%c_Xh, 5.0_rp)
+       call bdry_mask%mark_zone(this%msh%periodic)
+       call bdry_mask%finalize()
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
+
+       call bdry_mask%init_from_components(this%c_Xh, 6.0_rp)
+       call bdry_mask%mark_zone(this%msh%outlet_normal)
+       call bdry_mask%mark_zones_from_list('on', this%bc_labels)
+       call bdry_mask%finalize()
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
+    end if
+
+  end subroutine fluid_scheme_set_bc_type_output
 
 end module fluid_scheme
