@@ -591,8 +591,8 @@ contains
       !> We assume that no change of boundary conditions
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply the user dirichlet boundary condition
-      call this%user_bc_vel%update(this%user_bc_vel%field_list, &
-              this%user_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
+      call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
+              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
 
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
