@@ -48,6 +48,7 @@ module mesh
   use math
   use uset, only : uset_i8_t
   use curve, only : curve_t
+  use logger, only : LOG_SIZE
   implicit none
   private
 
@@ -185,15 +186,17 @@ contains
     integer, intent(in) :: gdim          !< Geometric dimension
     integer, intent(in) :: nelv          !< Local number of elements
     integer :: ierr
+    character(len=LOG_SIZE) :: log_buf
 
     call this%free()
 
-    if (this%nelv < 1) then
-       call neko_warning("One of the MPI ranks has 0 mesh elements!")
-    end if
-
     this%nelv = nelv
     this%gdim = gdim
+
+    if (this%nelv < 1) then
+       write(log_buf, '(A,I0,A)') 'MPI rank ', pe_rank, ' has zero elements'
+       call neko_warning(log_buf)
+    end if
 
     call MPI_Allreduce(this%nelv, this%glb_nelv, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -211,12 +214,14 @@ contains
     class(mesh_t), intent(inout) :: this    !< Mesh
     integer, intent(in) :: gdim             !< Geometric dimension
     type(linear_dist_t), intent(in) :: dist !< Data distribution
+    character(len=LOG_SIZE) :: log_buf
 
     call this%free()
 
     this%nelv = dist%num_local()
     if (this%nelv < 1) then
-       call neko_warning("One of the MPI ranks has 0 mesh elements!")
+       write(log_buf, '(A,I0,A)') 'MPI rank ', pe_rank, ' has zero elements'
+       call neko_warning(log_buf)
     end if
     this%glb_nelv = dist%num_global()
     this%offset_el = dist%start_idx()
