@@ -88,7 +88,7 @@ contains
 
     u => neko_field_registry%get_field_by_name("u")
     v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("u")
+    w => neko_field_registry%get_field_by_name("w")
 
     call neko_scratch_registry%request_field(s11, temp_indices(1))
     call neko_scratch_registry%request_field(s22, temp_indices(2))
