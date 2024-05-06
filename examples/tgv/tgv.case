@@ -44,6 +44,19 @@
       "type": "vorticity",
       "compute_control": "tsteps",
       "compute_value": 50
+    },
+    {
+      "type": "weak_grad",
+      "field": "u",
+      "output_control": "global",
+      "output_filename" : "opgrad"
+    },
+    {
+      "type": "derivative",
+      "field": "weak_grad_u_x",
+      "direction": "y",
+      "output_control": "global",
+      "output_filename" : "derivative"
     }
   ]
   }

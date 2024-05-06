@@ -57,6 +57,18 @@
       ],
       "boundary_types": [
           "d=0", "n=0.01"
+      ],
+      "boundary_conditions": [
+         {
+            "type": "dirichlet",
+            "zone_index": "1",
+            "value": 0.0
+         },
+         {
+            "type": "neumann",
+            "zone_index": "2",
+            "value": 0.01
+         }
       ]
     },
     "simulation_components": [
