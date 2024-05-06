@@ -216,7 +216,7 @@ contains
 
     this%nelv = dist%num_local()
     if (this%nelv < 1) then
-       call neko_warning("One of the MPI ranks has 0 mesh elements!")
+       call neko_warning("Rank " // pe_rank // " rank has zero mesh elements!")
     end if
     this%glb_nelv = dist%num_global()
     this%offset_el = dist%start_idx()
