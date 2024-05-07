@@ -224,3 +224,22 @@ AC_DEFUN([AX_CRAY_ACCEL], [
 	fi
 	AC_SUBST(have_cray_accel)
 ])
+
+
+AC_DEFUN([AX_CRAY_HDF5_PARALLEL],[
+	AC_ARG_WITH([hdf5],[],
+		    [
+		    ], [with_hdf5=no])
+	if test "x${with_hdf5}" != xno; then
+	AC_MSG_CHECKING([Cray HDF5 (parallel) ])
+	if test "${CRAY_HDF5_PARALLEL_VERSION}"; then
+	   AC_MSG_RESULT([yes])
+	   have_cray_hdf5="yes"
+      	   AC_DEFINE(HAVE_HDF5,1,[Define if you have HDF5.])
+	else
+	   AC_MSG_RESULT([no])
+	   have_cray_hdf5="no"
+	fi
+	AC_SUBST(have_cray_hdf5)
+        fi
+])

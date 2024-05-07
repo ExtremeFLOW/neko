@@ -32,11 +32,11 @@
 !
 !> Defines a field
 module field
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use device_math
   use num_types, only : rp
   use device
-  use math
+  use math, only : add2, copy, cadd
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
@@ -78,7 +78,7 @@ module field
 
   !> field_ptr_t, To easily obtain a pointer to a field
   type, public ::  field_ptr_t
-     type(field_t), pointer :: f => null()
+     type(field_t), pointer :: ptr => null()
   end type field_ptr_t
 
 contains

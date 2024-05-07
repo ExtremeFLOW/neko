@@ -33,11 +33,11 @@
 !> Gather-scatter
 module gather_scatter
   use neko_config
-  use gs_bcknd
+  use gs_bcknd, only : gs_bcknd_t, GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
   use gs_device, only : gs_device_t
   use gs_sx, only : gs_sx_t
   use gs_cpu, only : gs_cpu_t
-  use gs_ops
+  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use gs_comm, only : gs_comm_t
   use gs_mpi, only : gs_mpi_t
   use gs_device_mpi, only : gs_device_mpi_t
@@ -45,12 +45,12 @@ module gather_scatter
   use comm
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use num_types
+  use num_types, only : rp, dp, i2
   use htable, only : htable_i8_t, htable_iter_i8_t
   use stack, only : stack_i4_t
-  use utils
-  use logger
-  use profiler
+  use utils, only : neko_error, linear_index
+  use logger, only : neko_log, LOG_SIZE
+  use profiler, only : profiler_start_region, profiler_end_region
   use device
   implicit none
   private

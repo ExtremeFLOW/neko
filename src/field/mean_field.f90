@@ -33,8 +33,8 @@
 !> Defines a mean field
 !
 module mean_field
-  use neko_config
-  use stats_quant
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use stats_quant, only : stats_quant_t
   use num_types, only : rp
   use field, only : field_t
   use math, only : add2s2

@@ -255,6 +255,14 @@ AX_NVTX
 # Checks for ROCTX profiling
 AX_ROCTX
 
+# Checks for HDF5
+if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
+   AX_CRAY_HDF5_PARALLEL
+else
+   AX_HDF5
+fi
+
+
 # JSON-Fortran
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
 LIBS="$JSON_Fortran_LIBS $LIBS"
@@ -265,6 +273,7 @@ AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
+AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${have_contrib}" = xyes])
 
 # Set device dependent flags
 AC_SUBST(CUDA_ARCH)
