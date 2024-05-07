@@ -205,7 +205,7 @@ contains
 
     call neko_log%message('Done')
 
-    
+
   end subroutine re2_file_read
 
   subroutine re2_file_write(this, data, t)
@@ -225,7 +225,7 @@ contains
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
     character(len=LOG_SIZE) :: log_buf
-    
+
     select type(data)
     type is (mesh_t)
        msh => data
@@ -463,12 +463,12 @@ contains
           el_idx = re2v1_data_curve(i)%elem - dist%start_idx()
           id = re2v1_data_curve(i)%zone
           chtemp = re2v1_data_curve(i)%type
-          do j = 1, 5 
-             curve_data(j,id, el_idx) = real(re2v1_data_curve(i)%point(j),dp) 
+          do j = 1, 5
+             curve_data(j,id, el_idx) = real(re2v1_data_curve(i)%point(j),dp)
           enddo
        end if
 
-       curve_element(el_idx) = .true. 
+       curve_element(el_idx) = .true.
        !This might need to be extended
        select case(trim(chtemp))
        case ('s')
@@ -533,7 +533,7 @@ contains
     ! ---- Offsets for conversion from internal zones to labeled zones
     logical :: increment_labeled_zones
     integer :: pos_highest_label
-    pos_highest_label = -1 
+    pos_highest_label = -1
     increment_labeled_zones = .false.
     ! ----
 
@@ -605,7 +605,7 @@ contains
 
              ! Label of the current labeled zone
              label = int(re2v2_data_bc(i)%bc_data(5))
-             
+
              ! If there are any internal BCs converted to labeled zones, they
              ! will be in [1,6] so the user labeled zones will start from the
              ! label 7
@@ -630,7 +630,7 @@ contains
              write (*,*) re2v2_data_bc(i)%bc_data
           end select
        end do
-    
+
        !
        ! Fix periodic condition for shared nodes
        !
@@ -644,13 +644,13 @@ contains
                    p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
                    p_facet = facet_map(int(re2v2_data_bc(i)%bc_data(2)))
                    call msh%create_periodic_ids(sym_facet, el_idx, &
-                        p_facet, p_el_idx) 
+                        p_facet, p_el_idx)
                 end select
              end do
           end do
        end if
        deallocate(re2v2_data_bc)
-          
+
     else ! V! format
        do i = 1, nbcs
           el_idx = re2v1_data_bc(i)%elem - dist%start_idx()
@@ -726,7 +726,7 @@ contains
 
           end select
        end do
-       
+
        !
        ! Fix periodic condition for shared nodes
        !
@@ -740,15 +740,15 @@ contains
                    p_el_idx = int(re2v1_data_bc(i)%bc_data(1))
                    p_facet = facet_map(int(re2v1_data_bc(i)%bc_data(2)))
                    call msh%create_periodic_ids(sym_facet, el_idx, &
-                        p_facet, p_el_idx) 
+                        p_facet, p_el_idx)
                 end select
              end do
           end do
        end if
-          
+
        deallocate(re2v1_data_bc)
     end if
-    
+
   end subroutine re2_file_read_bcs
 
 
@@ -757,7 +757,7 @@ contains
     type(point_t), intent(inout) :: p
     integer, intent(inout) :: idx
     integer :: tmp
-    
+
     if (htp%get(p, tmp) .gt. 0) then
        idx = idx + 1
        call htp%set(p, idx)
@@ -765,7 +765,7 @@ contains
     else
        call p%set_id(tmp)
     end if
-    
+
   end subroutine re2_file_add_point
-  
+
 end module re2_file
