@@ -513,11 +513,14 @@ contains
     logical :: periodic
     type(re2v1_bc_t), allocatable :: re2v1_data_bc(:)
     type(re2v2_bc_t), allocatable :: re2v2_data_bc(:)
+    character(len=LOG_SIZE) :: log_buf
 
-    ! Offsets for labeled zones
-    integer :: labeled_zone_total_offset, labeled_zone_offsets(6)
-    labeled_zone_total_offset = 0
-    labeled_zone_offsets = 0
+    ! ---- Offsets for conversion from internal zones to labeled zones
+    logical :: increment_labeled_zones
+    integer :: pos_highest_label
+    pos_highest_label = -1 
+    increment_labeled_zones = .false.
+    ! ----
 
     call neko_log%message("Reading boundary conditions")
     if (.not. v2_format) then
@@ -540,28 +543,34 @@ contains
 
           select case(trim(re2v2_data_bc(i)%type))
           case ('W')
-             if (labeled_zone_offsets(1) .eq. 0) call neko_log%message("'W'     => labeled index 1")
-             labeled_zone_offsets(1) = 1
+             if (pos_highest_label .lt. 1) call neko_log%message("'W'     => labeled index 1")
+             pos_highest_label = max(1, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 1)
           case ('v', 'V')
-             if (labeled_zone_offsets(2) .eq. 0) call neko_log%message("'v'/'V' => labeled index 2")
-             labeled_zone_offsets(2) = 1
+             if (pos_highest_label .lt. 2) call neko_log%message("'v'/'V' => labeled index 2")
+             pos_highest_label = max(2, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 2)
           case ('O', 'o')
-             if (labeled_zone_offsets(3) .eq. 0) call neko_log%message("'o'/'O' => labeled index 3")
-             labeled_zone_offsets(3) = 1
+             if (pos_highest_label .lt. 3) call neko_log%message("'o'/'O' => labeled index 3")
+             pos_highest_label = max(3, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 3)
           case ('SYM')
-             if (labeled_zone_offsets(4) .eq. 0) call neko_log%message("'SYM'   => labeled index 4")
-             labeled_zone_offsets(4) = 1
+             if (pos_highest_label .lt. 4) call neko_log%message("'SYM'   => labeled index 4")
+             pos_highest_label = max(4, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 4)
           case ('ON', 'on')
-             if (labeled_zone_offsets(5) .eq. 0) call neko_log%message("'on'/'ON' => labeled index 5")
-             labeled_zone_offsets(5) = 1
+             if (pos_highest_label .lt. 5) call neko_log%message("'on'/'ON' => labeled index 5")
+             pos_highest_label = max(5, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 5)
           case ('SHL', 'shl')
-             if (labeled_zone_offsets(6) .eq. 0) call neko_log%message("'shl'/'SHL' => labeled index 6")
-             labeled_zone_offsets(6) = 1
+             if (pos_highest_label .lt. 6) call neko_log%message("'shl'/'SHL' => labeled index 6")
+             pos_highest_label = max(6, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 6)
           case ('P')
              periodic = .true.
@@ -573,16 +582,22 @@ contains
 
           case ('MSH', 'msh')
 
-             labeled_zone_total_offset = sum(labeled_zone_offsets)
+             ! Label of the current labeled zone
              label = int(re2v2_data_bc(i)%bc_data(5))
-
+             
              ! If there are any internal BCs converted to labeled zones, they
-             ! will be in [1,6] so the user labeled zones will start from there
-             if (labeled_zone_total_offset .ne. 0) then
-                write (log_buf, "(A,I2,A,I3)") "Labeled zone ", label, &
-                     " is now ", label + 6
-                label = label + 6
-                call neko_log%message(log_buf)
+             ! will be in [1,6] so the user labeled zones will start from the
+             ! label 7
+             if (increment_labeled_zones) then
+
+                if (pos_highest_label .lt. (label + 6)) then
+                   write (log_buf, "(A,I2,A,I3)") "Labeled zone ", label, &
+                        " is now ", label + 6
+                   label = label + 6
+                   call neko_log%warning(log_buf)
+                   pos_highest_label = label + 6
+                end if
+
              end if
 
              if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
@@ -621,28 +636,34 @@ contains
           sym_facet = facet_map(re2v1_data_bc(i)%face)
           select case(trim(re2v1_data_bc(i)%type))
           case ('W')
-             if (labeled_zone_offsets(1) .eq. 0) call neko_log%message("'W'     => labeled index 1")
-             labeled_zone_offsets(1) = 1
+             if (pos_highest_label .lt. 1) call neko_log%message("'W'     => labeled index 1")
+             pos_highest_label = max(1, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 1)
           case ('v', 'V')
-             if (labeled_zone_offsets(2) .eq. 0) call neko_log%message("'v'/'V' => labeled index 2")
-             labeled_zone_offsets(2) = 1
+             if (pos_highest_label .lt. 2) call neko_log%message("'v'/'V' => labeled index 2")
+             pos_highest_label = max(2, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 2)
           case ('O', 'o')
-             if (labeled_zone_offsets(3) .eq. 0) call neko_log%message("'o'/'O' => labeled index 3")
-             labeled_zone_offsets(3) = 1
+             if (pos_highest_label .lt. 3) call neko_log%message("'o'/'O' => labeled index 3")
+             pos_highest_label = max(3, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 3)
           case ('SYM')
-             if (labeled_zone_offsets(4) .eq. 0) call neko_log%message("'SYM'   => labeled index 4")
-             labeled_zone_offsets(4) = 1
+             if (pos_highest_label .lt. 4) call neko_log%message("'SYM'   => labeled index 4")
+             pos_highest_label = max(4, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 4)
           case ('ON', 'on')
-             if (labeled_zone_offsets(5) .eq. 0) call neko_log%message("'on'/'ON' => labeled index 5")
-             labeled_zone_offsets(5) = 1
+             if (pos_highest_label .lt. 5) call neko_log%message("'on'/'ON' => labeled index 5")
+             pos_highest_label = max(5, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 5)
           case ('SHL', 'shl')
-             if (labeled_zone_offsets(6) .eq. 0) call neko_log%message("'shl'/'SHL' => labeled index 6")
-             labeled_zone_offsets(6) = 1
+             if (pos_highest_label .lt. 6) call neko_log%message("'shl'/'SHL' => labeled index 6")
+             pos_highest_label = max(6, pos_highest_label)
+             increment_labeled_zones = .true.
              call msh%mark_labeled_facet(sym_facet, el_idx, 6)
           case ('P')
              periodic = .true.
@@ -654,13 +675,24 @@ contains
 
           case ('MSH', 'msh')
 
-             labeled_zone_total_offset = sum(labeled_zone_offsets)
-             label = int(re2v1_data_bc(i)%bc_data(5))
+             ! Label of the current labeled zone
+             label = int(re2v2_data_bc(i)%bc_data(5))
 
-             ! Take the offset into account and add it if necessary
-             ! e.g. if my label is 1 and i have 'v', 'w'
-             if (label .le. labeled_zone_total_offset) &
-                  label = label + labeled_zone_total_offset
+             ! If there are any internal BCs converted to labeled zones, they
+             ! will be in [1,6] so the user labeled zones will start from the
+             ! label 7
+             if (increment_labeled_zones) then
+
+                if (pos_highest_label .lt. (label + 6)) then
+                   write (log_buf, "(A,I2,A,I3)") "Labeled zone ", label, &
+                        " is now ", label + 6
+                   call neko_log%warning(log_buf)
+                end if
+
+                label = label + 6
+                pos_highest_label = max(pos_highest_label, label + 6)
+
+             end if
 
              if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
                 call neko_error('Invalid label id (valid range [1,...,20])')
