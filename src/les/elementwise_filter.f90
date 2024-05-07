@@ -80,13 +80,13 @@ contains
     this%nt = nx ! initialize as if nothing is filtered yet 
     this%filter_type = filter_type
 
-    allocate(this%fh(nx,nx))
-    allocate(this%fht(nx,nx))
+    allocate(this%fh(nx, nx))
+    allocate(this%fht(nx, nx))
     allocate(this%trnsfr(nx))
 
-    call rzero(this%fh,nx*nx)
-    call rzero(this%fht,nx*nx)
-    call rone(this%trnsfr,nx) ! initialize as if nothing is filtered yet
+    call rzero(this%fh, nx*nx)
+    call rzero(this%fht, nx*nx)
+    call rone(this%trnsfr, nx) ! initialize as if nothing is filtered yet
     
   end subroutine elementwise_filter_init
 
