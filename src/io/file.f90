@@ -40,8 +40,6 @@ module file
   use map_file, only : map_file_t
   use rea_file, only : rea_file_t
   use re2_file, only : re2_file_t
-  use rea_file_dirichlet, only: rea_file_dirichlet_t
-  use re2_file_dirichlet, only: re2_file_dirichlet_t
   use fld_file, only : fld_file_t
   use fld_file_data, only : fld_file_data_t
   use vtk_file, only : vtk_file_t

@@ -32,7 +32,7 @@
 !
 !> NEKTON mesh data in re2 format
 !! @details This module is used to read/write binary NEKTION mesh data
-module re2_file_dirichlet
+module re2_file
   use generic_file, only: generic_file_t
   use num_types, only: rp
   use utils
@@ -52,17 +52,17 @@ module re2_file_dirichlet
   
 
   !> Interface for NEKTON re2 files
-  type, public, extends(generic_file_t) :: re2_file_dirichlet_t
+  type, public, extends(generic_file_t) :: re2_file_t
    contains
-     procedure :: read => re2_file_dirichlet_read
-     procedure :: write => re2_file_dirichlet_write
-  end type re2_file_dirichlet_t
+     procedure :: read => re2_file_read
+     procedure :: write => re2_file_write
+  end type re2_file_t
 
 contains
 
   !> Load a binary NEKTON mesh from a re2 file
-  subroutine re2_file_dirichlet_read(this, data)
-    class(re2_file_dirichlet_t) :: this
+  subroutine re2_file_read(this, data)
+    class(re2_file_t) :: this
     class(*), target, intent(inout) :: data
     type(mesh_t), pointer :: msh
     character(len=5) :: hdr_ver
@@ -147,7 +147,7 @@ contains
        call neko_error('Invalid endian of re2 file, byte swap not implemented yet')
     end if
 
-    call re2_file_dirichlet_read_points(msh, ndim, nel, dist, fh, &
+    call re2_file_read_points(msh, ndim, nel, dist, fh, &
          mpi_offset, re2_data_xy_size, re2_data_xyz_size, v2_format)
     
           
@@ -165,22 +165,22 @@ contains
        call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
        ncurv = int(t2)
        mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
-       call re2_file_dirichlet_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
+       call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
        mpi_offset = mpi_offset + int(ncurv,i8) * int(re2_data_cv_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
        nbcs = int(t2)
        mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
 
-       call re2_file_dirichlet_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+       call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
     else 
        call MPI_File_read_at_all(fh, mpi_offset, ncurv, 1, MPI_INTEGER, status, ierr)
        mpi_offset = mpi_offset + MPI_INTEGER_SIZE
-       call re2_file_dirichlet_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
+       call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
        mpi_offset = mpi_offset + int(ncurv,i8) * int(re2_data_cv_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, nbcs, 1, MPI_INTEGER, status, ierr)
        mpi_offset = mpi_offset + MPI_INTEGER_SIZE
 
-       call re2_file_dirichlet_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+       call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
 
     end if
 
@@ -191,10 +191,10 @@ contains
     call neko_log%message('Done')
 
     
-  end subroutine re2_file_dirichlet_read
+  end subroutine re2_file_read
 
-  subroutine re2_file_dirichlet_write(this, data, t)
-    class(re2_file_dirichlet_t), intent(inout) :: this
+  subroutine re2_file_write(this, data, t)
+    class(re2_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
     real(kind=rp), intent(in), optional :: t
     type(re2v1_xy_t), allocatable :: re2_data_xy(:)
@@ -283,9 +283,9 @@ contains
 
     !> @todo Add support for curved side data
     
-  end subroutine re2_file_dirichlet_write
+  end subroutine re2_file_write
 
-  subroutine re2_file_dirichlet_read_points(msh, ndim, nel, dist, fh, &
+  subroutine re2_file_read_points(msh, ndim, nel, dist, fh, &
        mpi_offset, re2_data_xy_size, re2_data_xyz_size, v2_format)
     type(mesh_t), intent(inout) :: msh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
@@ -323,7 +323,7 @@ contains
              do j = 1, 4             
                 p(j) = point_t(real(re2v1_data_xy(i)%x(j),dp), &
                      real(re2v1_data_xy(i)%y(j),dp), 0.0d0)
-                call re2_file_dirichlet_add_point(htp, p(j), pt_idx)
+                call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 10) then
                 if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
@@ -340,7 +340,7 @@ contains
              do j = 1, 4             
                 p(j) = point_t(re2v2_data_xy(i)%x(j), &
                      re2v2_data_xy(i)%y(j), 0.0d0)
-                call re2_file_dirichlet_add_point(htp, p(j), pt_idx)
+                call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 10) then
                 if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
@@ -361,7 +361,7 @@ contains
                 p(j) = point_t(real(re2v1_data_xyz(i)%x(j),dp), &
                      real(re2v1_data_xyz(i)%y(j),dp),&
                      real(re2v1_data_xyz(i)%z(j),dp))
-                call re2_file_dirichlet_add_point(htp, p(j), pt_idx)
+                call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 100) then
                 if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
@@ -380,7 +380,7 @@ contains
                 p(j) = point_t(re2v2_data_xyz(i)%x(j), &
                      re2v2_data_xyz(i)%y(j),&
                      re2v2_data_xyz(i)%z(j))
-                call re2_file_dirichlet_add_point(htp, p(j), pt_idx)
+                call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 100) then
                 if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
@@ -394,9 +394,9 @@ contains
     end if
 
     call htp%free()
-  end subroutine re2_file_dirichlet_read_points
+  end subroutine re2_file_read_points
 
-  subroutine re2_file_dirichlet_read_curve(msh, ncurve, dist, fh, mpi_offset, v2_format)
+  subroutine re2_file_read_curve(msh, ncurve, dist, fh, mpi_offset, v2_format)
     type(mesh_t), intent(inout) :: msh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     integer, intent(inout) :: ncurve
@@ -494,10 +494,10 @@ contains
     deallocate(curve_data)
     deallocate(curve_element)
     deallocate(curve_type)
-  end subroutine re2_file_dirichlet_read_curve
+  end subroutine re2_file_read_curve
 
 
-  subroutine re2_file_dirichlet_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+  subroutine re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
     type(mesh_t), intent(inout) :: msh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     integer, intent(inout) :: nbcs
@@ -728,10 +728,10 @@ contains
        deallocate(re2v1_data_bc)
     end if
     
-  end subroutine re2_file_dirichlet_read_bcs
+  end subroutine re2_file_read_bcs
 
 
-  subroutine re2_file_dirichlet_add_point(htp, p, idx)
+  subroutine re2_file_add_point(htp, p, idx)
     type(htable_pt_t), intent(inout) :: htp
     type(point_t), intent(inout) :: p
     integer, intent(inout) :: idx
@@ -745,6 +745,6 @@ contains
        call p%set_id(tmp)
     end if
     
-  end subroutine re2_file_dirichlet_add_point
+  end subroutine re2_file_add_point
   
-end module re2_file_dirichlet
+end module re2_file

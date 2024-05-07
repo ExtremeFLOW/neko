@@ -32,7 +32,7 @@
 !
 !> NEKTON session data reader
 !! @details This module is used to read NEKTON session data in ascii
-module rea_file_dirichlet
+module rea_file
   use generic_file
   use num_types
   use utils
@@ -50,17 +50,17 @@ module rea_file_dirichlet
   private
 
   !> Interface for NEKTON ascii files
-  type, public, extends(generic_file_t) :: rea_file_dirichlet_t
+  type, public, extends(generic_file_t) :: rea_file_t
    contains
-     procedure :: read => rea_file_dirichlet_read
-     procedure :: write => rea_file_dirichlet_write
-  end type rea_file_dirichlet_t
+     procedure :: read => rea_file_read
+     procedure :: write => rea_file_write
+  end type rea_file_t
 
 contains
 
   !> Load NEKTON session data from an ascii file
-  subroutine rea_file_dirichlet_read(this, data)
-    class(rea_file_dirichlet_t) :: this
+  subroutine rea_file_read(this, data)
+    class(rea_file_t) :: this
     class(*), target, intent(inout) :: data
     type(mesh_t), pointer :: msh
     real(kind=dp), pointer :: params(:)
@@ -186,7 +186,7 @@ contains
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 4
                    p(j) = point_t(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
-                   call rea_file_dirichlet_add_point(htp, p(j), pt_idx)
+                   call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
                 call msh%add_element(el_idx, p(1), p(2), p(4), p(3))
@@ -201,7 +201,7 @@ contains
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 8
                    p(j) = point_t(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
-                   call rea_file_dirichlet_add_point(htp, p(j), pt_idx)
+                   call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
                 call msh%add_element(el_idx, &
@@ -360,15 +360,15 @@ contains
        close(9)
     endif
     
-  end subroutine rea_file_dirichlet_read
+  end subroutine rea_file_read
 
-  subroutine rea_file_dirichlet_write(this, data, t)
-    class(rea_file_dirichlet_t), intent(inout) :: this
+  subroutine rea_file_write(this, data, t)
+    class(rea_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
     real(kind=rp), intent(in), optional :: t
-  end subroutine rea_file_dirichlet_write
+  end subroutine rea_file_write
 
-  subroutine rea_file_dirichlet_add_point(htp, p, idx)
+  subroutine rea_file_add_point(htp, p, idx)
     type(htable_pt_t), intent(inout) :: htp
     type(point_t), intent(inout) :: p
     integer, intent(inout) :: idx
@@ -382,6 +382,6 @@ contains
        call p%set_id(tmp)
     end if
     
-  end subroutine rea_file_dirichlet_add_point
+  end subroutine rea_file_add_point
 
-end module rea_file_dirichlet
+end module rea_file
