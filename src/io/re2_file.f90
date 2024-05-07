@@ -49,7 +49,7 @@ module re2_file
   use logger, only: neko_log, LOG_SIZE
   implicit none
   private
-  
+
 
   !> Interface for NEKTON re2 files
   type, public, extends(generic_file_t) :: re2_file_t
@@ -67,7 +67,8 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
-    integer :: nel, ndim, nelv, ierr
+    character(len=80) :: hdr_full
+    integer :: nel, ndim, nelv, ierr, nBCre2
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
