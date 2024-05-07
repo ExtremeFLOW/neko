@@ -721,7 +721,7 @@ contains
              call msh%mark_labeled_facet(sym_facet, el_idx, label)
 
           case default
-              write (*,*) re2v1_data_bc(i)%type, 'bc type not supported yet'
+             write (*,*) re2v1_data_bc(i)%type, 'bc type not supported yet'
              write (*,*) re2v1_data_bc(i)%bc_data
 
           end select
