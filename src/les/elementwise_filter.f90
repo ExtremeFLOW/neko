@@ -45,6 +45,8 @@ module elementwise_filter
 
   !> Implements the explicit filter for SEM.
   type, public :: elementwise_filter_t
+     !> filter type:
+     !> possible options: "Boyd", "nonBoyd"
      character(len=64) :: filter_type
      !> dimension
      integer :: nx
@@ -60,13 +62,15 @@ module elementwise_filter
      !> Destructor.
      procedure, pass(this) :: free => elementwise_filter_free
      !> Set up 1D filter inside an element.
-     procedure, pass(this) :: build_1d_filt
+     procedure, pass(this) :: build_1d
      !> Filter a 3D field
      procedure, pass(this) :: filter_3d => elementwise_field_filter_3d
   end type elementwise_filter_t
 
 contains
   !> Constructor.
+  !! @param nx number of points in an elements in one direction.
+  !! @param filter_type possible options: "Boyd", "nonBoyd"
   subroutine elementwise_filter_init(this, nx, filter_type)
     class(elementwise_filter_t), intent(inout) :: this
     character(len=*) :: filter_type
@@ -109,17 +113,17 @@ contains
   end subroutine elementwise_filter_free
 
   !> Build the 1d filter for an element.
-  subroutine build_1d_filt(this)
+  subroutine build_1d(this)
     class(elementwise_filter_t), intent(inout) :: this
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("build_1d_filt not implemented on accelarators.")
+        call neko_error("build_1d not implemented on accelarators.")
     else
-        call build_1d_filt_cpu(this%fh, this%fht, this%trnsfr, &
+        call build_1d_cpu(this%fh, this%fht, this%trnsfr, &
                                this%nx, this%filter_type)
     end if
 
-  end subroutine build_1d_filt
+  end subroutine build_1d
 
   !> Filter a 3D field.
   subroutine elementwise_field_filter_3d(this, v, u, nelv)

@@ -974,7 +974,7 @@ contains
     RETURN
   end function PNLEG
   
-  subroutine legendre_poly(L,x,N)
+  subroutine legendre_poly(L, x, N)
     ! Evaluate Legendre polynomials of degrees 0-N at point x
     real(kind=rp), intent(inout):: L(1:N+1)
     real(kind=rp) :: x
@@ -983,7 +983,7 @@ contains
     L(1) = 1.0_rp
     L(2) = x
 
-    do j=3,N+1
+    do j=3, N+1
        L(j) = ( (2*j-1) * x * L(j-1) - (j-1) * L(j-2) ) / j 
     end do
   end subroutine legendre_poly

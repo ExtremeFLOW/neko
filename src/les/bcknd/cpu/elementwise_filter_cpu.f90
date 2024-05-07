@@ -41,7 +41,7 @@ module elementwise_filter_cpu
   implicit none
   private
 
-  public :: build_1d_filt_cpu
+  public :: build_1d_cpu
 
 contains
 
@@ -52,25 +52,25 @@ contains
   !! @param trnfr The transfer function containing weights for different modes.
   !! @param nx number of points, dimension of x.
   !! @param filter_type
-  subroutine build_1d_filt_cpu(fh,fht,trnsfr,nx,filter_type)
+  subroutine build_1d_cpu(fh, fht, trnsfr, nx, filter_type)
     integer, intent(in) :: nx
-    real(kind=rp), intent(inout) :: fh(nx,nx),fht(nx,nx)
+    real(kind=rp), intent(inout) :: fh(nx, nx), fht(nx, nx)
     real(kind=rp), intent(in) :: trnsfr(nx)
-    real(kind=rp) :: diag(nx,nx), rmult(nx), Lj(nx), zpts(nx)
+    real(kind=rp) :: diag(nx, nx), rmult(nx), Lj(nx), zpts(nx)
     type(matrix_t) :: phi, pht
     integer :: n, i, j, k
     real(kind=rp) :: z
     character(len=*), intent(in) :: filter_type
     
-    call phi%init(nx,nx)
-    call pht%init(nx,nx)
+    call phi%init(nx, nx)
+    call pht%init(nx, nx)
 
-    call zwgll(zpts,rmult,nx)
+    call zwgll(zpts, rmult, nx)
 
     n  = nx-1
     do j=1,nx
        z = zpts(j)
-       call legendre_poly(Lj,z,n)
+       call legendre_poly(Lj, z, n)
        select case (filter_type)
        case("Boyd")
           pht%x(1,j) = Lj(1)
@@ -83,7 +83,7 @@ contains
        end select
     end do
 
-    call trsp(phi%x,nx,pht%x,nx)
+    call trsp(phi%x, nx, pht%x, nx)
     pht = phi
     call pht%inverse()
 
@@ -93,11 +93,11 @@ contains
        diag(i,i) = trnsfr(i)
     end do
 
-    call mxm  (diag,nx,pht%x,nx,fh,nx)      !          -1
-    call mxm  (phi%x ,nx,fh,nx,pht%x,nx)      !     V D V
+    call mxm  (diag, nx, pht%x, nx, fh, nx)       !          -1
+    call mxm  (phi%x, nx, fh, nx, pht%x, nx)      !     V D V
 
-    call copy      (fh,pht%x,nx*nx)
-    call trsp (fht,nx,fh,nx)
+    call copy      (fh, pht%x, nx*nx)
+    call trsp (fht, nx, fh, nx)
 
    !  do k=1,nx*nx
    !     pht%x(k) = 1.0_rp-diag(k)
@@ -107,7 +107,7 @@ contains
    !     write(*,*) 'flt amp',(pht%x (k),k=1,nx*nx,np1)
    !     write(*,*) 'flt trn',(diag(k),k=1,nx*nx,np1)
    !  endif
-  end subroutine build_1d_filt_cpu
+  end subroutine build_1d_cpu
 
 end module elementwise_filter_cpu
 

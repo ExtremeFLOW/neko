@@ -50,6 +50,7 @@ module dynamic_smagorinsky
   private
 
   !> Implements the dynamic Smagorinsky LES model.
+  !! @note Reference DOI: 10.1063/1.857955
   type, public, extends(les_model_t) :: dynamic_smagorinsky_t
      !> Coefficient of the model.
      type(field_t) :: c_dyn
@@ -145,16 +146,16 @@ contains
   end subroutine dynamic_smagorinsky_compute
 
   !> Set up the test filter
-  subroutine set_ds_filt(oneD_filter)
-    type(elementwise_filter_t), intent(inout) :: oneD_filter
+  subroutine set_ds_filt(filter_1d)
+    type(elementwise_filter_t), intent(inout) :: filter_1d
 
-    oneD_filter%trnsfr(oneD_filter%nx-0) = 0.05   
-    oneD_filter%trnsfr(oneD_filter%nx-1) = 0.50
-    oneD_filter%trnsfr(oneD_filter%nx-2) = 0.95
+    filter_1d%trnsfr(filter_1d%nx-0) = 0.05   
+    filter_1d%trnsfr(filter_1d%nx-1) = 0.50
+    filter_1d%trnsfr(filter_1d%nx-2) = 0.95
 
-    oneD_filter%nt = oneD_filter%nx - 1
+    filter_1d%nt = filter_1d%nx - 1
 
-    call oneD_filter%build_1d_filt()
+    call filter_1d%build_1d()
 
   end subroutine set_ds_filt
 
