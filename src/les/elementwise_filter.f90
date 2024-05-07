@@ -51,7 +51,7 @@ module elementwise_filter
      !> filtered wavenumber
      integer :: nt
      !> matrix for 1d elementwise filtering
-     real(kind=rp), allocatable :: fh(:,:),fht(:,:)
+     real(kind=rp), allocatable :: fh(:,:), fht(:,:)
      !> transfer function
      real(kind=rp), allocatable :: trnsfr(:)
    contains
