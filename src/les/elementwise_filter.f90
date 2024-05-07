@@ -77,7 +77,7 @@ contains
     this%filter_type = filter_type
 
     allocate(this%fh(nx, nx))
-    allocate(this%fht(nx,nx))
+    allocate(this%fht(nx, nx))
     allocate(this%trnsfr(nx))
 
     call rzero(this%fh,nx*nx)
