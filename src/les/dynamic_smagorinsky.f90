@@ -57,8 +57,8 @@ module dynamic_smagorinsky
      character(len=:), allocatable :: test_filter_type
      type(elementwise_filter_t) :: test_filter
      !> Mij
-     ! index for tensor mij and lij:
-     ! 1=>1,1; 2=>2,2; 3=>3,3; 4=>1,2; 5=>1,3; 6=>2,3;
+     !! index for tensor mij and lij:
+     !! 1=>1,1; 2=>2,2; 3=>3,3; 4=>1,2; 5=>1,3; 6=>2,3;
      type(field_t) :: mij(6)
      !> Germano Identity
      type(field_t) :: lij(6)
