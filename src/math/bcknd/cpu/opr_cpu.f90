@@ -271,75 +271,59 @@ contains
       case(14)
          call cpu_cdtp_lx14(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(13)
          call cpu_cdtp_lx13(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(12)
          call cpu_cdtp_lx12(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(11)
          call cpu_cdtp_lx11(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(10)
          call cpu_cdtp_lx10(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(9)
          call cpu_cdtp_lx9(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(8)
          call cpu_cdtp_lx8(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(7)
          call cpu_cdtp_lx7(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(6)
          call cpu_cdtp_lx6(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(5)
          call cpu_cdtp_lx5(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(4)
          call cpu_cdtp_lx4(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(3)
          call cpu_cdtp_lx3(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case(2)
          call cpu_cdtp_lx2(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
       case default
          call cpu_cdtp_lx(dtx, x, &
          dr(1,e_start), ds(1,e_start), dt(1,e_start), &
-              Xh%dxt, Xh%dyt, Xh%dzt, &
-         coef%B(1,1,1,e_start), coef%jac(1,1,1,e_start), e_len, Xh%lx)
-         !call cpu_cdtp_lx(dtx, x, dr, ds, dt, &
-         !     Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, e_len, Xh%lx)
+              Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len, Xh%lx)
       end select
     end associate
 
