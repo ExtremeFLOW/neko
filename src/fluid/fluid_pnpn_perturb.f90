@@ -32,7 +32,7 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn_perturb
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use krylov, only : ksp_monitor_t
   use pnpn_res_fctry, only : pnpn_prs_res_factory, pnpn_vel_res_factory
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
@@ -67,12 +67,13 @@ module fluid_pnpn_perturb
   use time_step_controller, only : time_step_controller_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : col2, add2
+  use math, only : col2, add2, copy
   use mathops, only : opadd2cm, opcolv
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
     bc_list_apply_scalar, bc_list_apply_vector
   use flow_ic
   use file
+  use field_registry, only : neko_field_registry
   implicit none
   private
 
@@ -81,7 +82,7 @@ module fluid_pnpn_perturb
      type(field_t) :: p_res, u_res, v_res, w_res
 
      type(field_t) :: dp, du, dv, dw
-     type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
+     !  type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
 
      type(field_t), pointer :: u_b => null() !< x-component of baseflow velocity
      type(field_t), pointer :: v_b => null() !< y-component of baseflow Velocity
@@ -157,6 +158,7 @@ contains
     real(kind=rp) :: real_val
     type(file_t) :: field_file, mesh_file, out_file
     type(fld_file_data_t) :: field_data
+    character(len=:), allocatable :: string_val1, string_val2
 
     call this%free()
 
@@ -639,15 +641,11 @@ contains
       end if
 
       ! Add the advection operators to the right-hand-side.
-      if (.not. this%if_pert) then
-         call this%adv%compute(u, v, w, &
-                               f_x%x, f_y%x, f_z%x, &
-                               Xh, this%c_Xh, dm_Xh%size())
-      else
-         call this%adv%compute_vector(u, v, w, u_b, v_b, w_b, &
-                                      f_x%x, f_y%x, f_z%x, &
-                                      Xh, this%c_Xh, dm_Xh%size())
-      endif
+
+      call this%adv%compute_vector(u, v, w, u_b, v_b, w_b, &
+                            f_x%x, f_y%x, f_z%x, &
+                            Xh, this%c_Xh, dm_Xh%size())
+
       !! put a DSS call here??
       !call col2(f_x%x,c_Xh%B,n)
       !call col2(f_y%x,c_Xh%B,n)
