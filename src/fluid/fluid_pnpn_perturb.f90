@@ -78,6 +78,7 @@ module fluid_pnpn_perturb
   use fld_file_output, only: fld_file_output_t
   use comm, only: pe_rank
   use vector, only: vector_t
+  use, intrinsic :: iso_c_binding, only: c_ptr
   implicit none
   private
 
@@ -958,8 +959,9 @@ contains
   end subroutine rescale_fluid
 
   function norm(x, y, z, B, volume, n)
-    use mpi_f08, only: MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, &
+    use mpi_f08, only: MPI_SUM, MPI_COMM_WORLD, &
       MPI_IN_PLACE, mpi_allreduce
+    use comm, only: MPI_REAL_PRECISION
     use math, only: vlsc3
 
     real(kind=rp), dimension(n), intent(in) :: x, y, z
@@ -972,27 +974,37 @@ contains
     norm = vlsc3(x, x, B, n) + vlsc3(y, y, B, n) + vlsc3(z, z, B, n)
 
     call mpi_allreduce(MPI_IN_PLACE, norm, 1, &
-                       MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD)
+                       MPI_REAL_PRECISION, MPI_SUM, MPI_COMM_WORLD)
 
     norm = sqrt(norm / volume)
   end function norm
 
-  ! function device_norm(x_d, y_d, z_d, B_d, volume, n)
-  !   use neko_config, only: NEKO_BCKND_DEVICE
-  !   implicit none
+  function device_norm(x_d, y_d, z_d, B_d, volume, n)
+    use neko_config, only: NEKO_BCKND_DEVICE
+    use device_math, only: device_vlsc3
+    use comm, only: MPI_REAL_PRECISION
+    use mpi_f08, only: MPI_SUM, MPI_COMM_WORLD, &
+      MPI_IN_PLACE, mpi_allreduce
 
-  !   type(c_ptr), intent(in) :: x_d, y_d, z_d
-  !   type(c_ptr), intent(in) :: B_d
-  !   real(kind=rp), intent(in) :: volume
-  !   integer, intent(in) :: n
+    implicit none
 
-  !   real(kind=rp) :: norm
-  !   real(kind=rp), dimension(n) :: tmp
+    type(c_ptr), intent(in) :: x_d, y_d, z_d
+    type(c_ptr), intent(in) :: B_d
+    real(kind=rp), intent(in) :: volume
+    integer, intent(in) :: n
 
-  !   call vdot3(tmp, x_d, y_d, z_d, x_d, y_d, z_d, n)
-  !   norm = sqrt(glsc2(tmp, B_d, n) / volume)
+    real(kind=rp) :: device_norm
 
-  ! end function device_norm
+    device_norm = device_vlsc3(x_d, x_d, B_d, n) + &
+      device_vlsc3(y_d, y_d, B_d, n) + &
+      device_vlsc3(z_d, z_d, B_d, n)
+
+    call mpi_allreduce(MPI_IN_PLACE, device_norm, 1, &
+                       MPI_REAL_PRECISION, MPI_SUM, MPI_COMM_WORLD)
+
+    device_norm = sqrt(device_norm / volume)
+
+  end function device_norm
 
   !> Compute the power_iterations field.
   !! @param t The time value.
