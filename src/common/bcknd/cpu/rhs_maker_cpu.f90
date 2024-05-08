@@ -1,9 +1,9 @@
 module rhs_maker_cpu
-  use rhs_maker
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t
   use field_series, only : field_series_t
   use field, only : field_t
   use num_types, only : rp, c_rp
-  use scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 
