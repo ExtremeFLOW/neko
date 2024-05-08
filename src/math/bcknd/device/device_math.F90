@@ -56,7 +56,7 @@ module device_math
        integer(c_int) :: n, m
      end subroutine hip_masked_copy
   end interface
-  
+
   interface
      subroutine hip_cmult(a_d, c, n) &
           bind(c, name='hip_cmult')
@@ -964,7 +964,7 @@ module device_math
        device_addcol3, device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
        device_masked_copy, device_add4
-  
+
 contains
 
   subroutine device_copy(a_d, b_d, n)
@@ -1102,11 +1102,11 @@ contains
     type(c_ptr) :: a_d, b_d, c_d, d_d
     integer :: n
 #ifdef HAVE_HIP
-    call hip_add2(a_d, b_d, c_d, d_d, n)
+    call hip_add4(a_d, b_d, c_d, d_d, n)
 #elif HAVE_CUDA
-    call cuda_add2(a_d, b_d, c_d, d_d, n)
+    call cuda_add4(a_d, b_d, c_d, d_d, n)
 #elif HAVE_OPENCL
-    call opencl_add2(a_d, b_d, c_d, d_d, n)
+    call opencl_add4(a_d, b_d, c_d, d_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
