@@ -32,62 +32,52 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn_perturb
-  use num_types, only : rp, dp
-  use krylov, only : ksp_monitor_t
-  use pnpn_res_fctry, only : pnpn_prs_res_factory, pnpn_vel_res_factory
-  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use ax_helm_fctry, only : ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
+  use num_types, only: rp, dp
+  use krylov, only: ksp_monitor_t
+  use pnpn_res_fctry, only: pnpn_prs_res_factory, pnpn_vel_res_factory
+  use pnpn_residual, only: pnpn_prs_res_t, pnpn_vel_res_t
+  use ax_helm_fctry, only: ax_helm_factory
+  use rhs_maker_fctry, only: rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
     rhs_maker_ext_fctry
-  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
-  use fluid_volflow, only : fluid_volflow_t
-  use fluid_scheme, only : fluid_scheme_t
-  use field_series, only : field_series_t
-  use device_math, only : device_add2, device_col2
-  use device_mathops, only : device_opcolv, device_opadd2cm
-  use fluid_aux, only : fluid_step_info
-  use time_scheme_controller, only : time_scheme_controller_t
-  use projection, only : projection_t
-  use device, only : device_memcpy, HOST_TO_DEVICE
-  use logger, only : neko_log
-  use advection, only : advection_t
-  use profiler, only : profiler_start_region, profiler_end_region
-  use json_utils, only : json_get
-  use json_module, only : json_file
-  use material_properties, only : material_properties_t
-  use advection_fctry, only : advection_factory
-  use ax_product, only : ax_t
-  use field, only : field_t
-  use dirichlet, only : dirichlet_t
-  use facet_normal, only : facet_normal_t
-  use non_normal, only : non_normal_t
-  use mesh, only : mesh_t
-  use user_intf, only : user_t
-  use coefs, only : coef_t
-  use time_step_controller, only : time_step_controller_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : col2, add2, copy
-  use mathops, only : opadd2cm, opcolv
+  use rhs_maker, only: rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
+  use fluid_volflow, only: fluid_volflow_t
+  use fluid_scheme, only: fluid_scheme_t
+  use field_series, only: field_series_t
+  use device_math, only: device_add2, device_col2
+  use device_mathops, only: device_opcolv, device_opadd2cm
+  use fluid_aux, only: fluid_step_info
+  use time_scheme_controller, only: time_scheme_controller_t
+  use projection, only: projection_t
+  use device, only: device_memcpy, HOST_TO_DEVICE
+  use logger, only: neko_log, NEKO_LOG_DEBUG
+  use advection, only: advection_t
+  use profiler, only: profiler_start_region, profiler_end_region
+  use json_utils, only: json_get, json_get_or_default
+  use json_module, only: json_file
+  use material_properties, only: material_properties_t
+  use advection_fctry, only: advection_factory
+  use ax_product, only: ax_t
+  use field, only: field_t
+  use dirichlet, only: dirichlet_t
+  use facet_normal, only: facet_normal_t
+  use non_normal, only: non_normal_t
+  use mesh, only: mesh_t
+  use user_intf, only: user_t
+  use coefs, only: coef_t
+  use time_step_controller, only: time_step_controller_t
+  use gather_scatter, only: gs_t, GS_OP_ADD
+  use neko_config, only: NEKO_BCKND_DEVICE
+  use math, only: col2, add2, copy, glsc2, vdot3, cmult
+  use mathops, only: opadd2cm, opcolv
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
     bc_list_apply_scalar, bc_list_apply_vector
-  use flow_ic
-  use file
-  use field_registry, only : neko_field_registry
-  use num_types, only: rp, dp, sp
-  use json_module, only: json_file
+  use flow_ic, only: set_flow_ic
+  use file, only: file_t, file_free, fld_file_data_t
   use field_registry, only: neko_field_registry
-  use field, only: field_t
   use operators, only: curl
   use fld_file_output, only: fld_file_output_t
-  use json_utils, only: json_get, json_get_or_default
-  use fluid_scheme, only: fluid_scheme_t
-  use file, only: file_t
-  use vector, only: vector_t
-  use math, only: vdot3, glsc2, cmult
-  use device_math, only: device_cmult
   use comm, only: pe_rank
-  use logger, only: neko_log, NEKO_LOG_DEBUG
+  use vector, only: vector_t
   implicit none
   private
 
@@ -207,16 +197,13 @@ contains
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
     type(material_properties_t), target, intent(inout) :: material_properties
-    character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    logical :: found, logical_val
-    integer :: integer_val
-    real(kind=rp) :: real_val
-    type(file_t) :: field_file, mesh_file, out_file
+    character(len=20), parameter :: scheme = 'Perturbation (Pn/Pn)'
+    type(file_t) :: field_file, out_file
     type(fld_file_data_t) :: field_data
     character(len=:), allocatable :: string_val1, string_val2
 
     ! Temporary field pointers
-    real(kind=rp) :: norm_l2, norm_l2_base
+    real(kind=rp) :: norm_l2_base
     character(len=:), allocatable :: file_name
     character(len=256) :: header_line
 
@@ -437,8 +424,7 @@ contains
 
        call file_free(out_file)
        call file_free(field_file)
-    endif
-    if (trim(string_val1) .eq. 'user') then
+    else if (trim(string_val1) .eq. 'user') then
        ! Tim,
        ! I'm worried that because we're inside scheme, and not case,
        ! we maybe can't do user defined??
@@ -479,79 +465,85 @@ contains
     this%norm_l2_upper = this%norm_tolerance * this%norm_target
     this%norm_l2_lower = this%norm_target / this%norm_tolerance
 
+    if (norm_l2_base .lt. 1e-10_rp) then
+       call neko_log%error('Baseflow norm is too small')
+    end if
+
   end subroutine fluid_pnpn_perturb_init
 
-  subroutine fluid_pnpn_perturb_restart(this,dtlag, tlag)
+  subroutine fluid_pnpn_perturb_restart(this, dtlag, tlag)
     class(fluid_pnpn_perturb_t), target, intent(inout) :: this
     real(kind=rp) :: dtlag(10), tlag(10)
-    type(field_t) :: u_temp, v_temp, w_temp
-    integer :: i, n
+    integer :: i, nu, nv, nw, np
 
-    n = this%u%dof%size()
+    nu = this%u%dof%size()
+    nv = this%v%dof%size()
+    nw = this%w%dof%size()
+    np = this%p%dof%size()
+
     ! Make sure that continuity is maintained (important for interpolation)
     ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
-    call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
-    call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
-    call col2(this%w%x,this%c_Xh%mult,this%u%dof%size())
-    call col2(this%p%x,this%c_Xh%mult,this%u%dof%size())
+    call col2(this%u%x, this%c_Xh%mult, nu)
+    call col2(this%v%x, this%c_Xh%mult, nu)
+    call col2(this%w%x, this%c_Xh%mult, nu)
+    call col2(this%p%x, this%c_Xh%mult, nu)
     do i = 1, this%ulag%size()
-       call col2(this%ulag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
-       call col2(this%vlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
-       call col2(this%wlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
+       call col2(this%ulag%lf(i)%x, this%c_Xh%mult, nu)
+       call col2(this%vlag%lf(i)%x, this%c_Xh%mult, nu)
+       call col2(this%wlag%lf(i)%x, this%c_Xh%mult, nu)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
                  ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag,&
                  p=>this%p)
-         call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                                                    HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                                                    HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                                                    HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(p%x, p%x_d, p%dof%size(), &
-                                                    HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(u%x, u%x_d, nu, &
+                            HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(v%x, v%x_d, nv, &
+                            HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(w%x, w%x_d, nw, &
+                            HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(p%x, p%x_d, np, &
+                            HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
-                            u%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nu, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
-                            u%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nu, HOST_TO_DEVICE, sync=.false.)
 
          call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
-                            v%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nv, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
-                            v%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nv, HOST_TO_DEVICE, sync=.false.)
 
          call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nw, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nw, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nw, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nw, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%aby1%x, this%aby1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nw, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%aby2%x, this%aby2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nw, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abz1%x, this%abz1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nw, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abz2%x, this%abz2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                            nw, HOST_TO_DEVICE, sync=.false.)
        end associate
     end if
 
-
-    call this%gs_Xh%op(this%u,GS_OP_ADD)
-    call this%gs_Xh%op(this%v,GS_OP_ADD)
-    call this%gs_Xh%op(this%w,GS_OP_ADD)
-    call this%gs_Xh%op(this%p,GS_OP_ADD)
+    call this%gs_Xh%op(this%u, GS_OP_ADD)
+    call this%gs_Xh%op(this%v, GS_OP_ADD)
+    call this%gs_Xh%op(this%w, GS_OP_ADD)
+    call this%gs_Xh%op(this%p, GS_OP_ADD)
 
     do i = 1, this%ulag%size()
-       call this%gs_Xh%op(this%ulag%lf(i),GS_OP_ADD)
-       call this%gs_Xh%op(this%vlag%lf(i),GS_OP_ADD)
-       call this%gs_Xh%op(this%wlag%lf(i),GS_OP_ADD)
+       call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
+       call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
+       call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
     end do
 
     !! If we would decide to only restart from lagged fields instead of asving abx1, aby1 etc.
@@ -687,8 +679,6 @@ contains
     type(field_t), pointer :: u_e, v_e, w_e
     ! Indices for tracking temporary fields
     integer :: temp_indices(3)
-    ! Counter
-    integer :: i
 
     if (this%freeze) return
 
@@ -718,7 +708,8 @@ contains
       call this%scratch%request_field(v_e, temp_indices(2))
       call this%scratch%request_field(w_e, temp_indices(3))
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-                               ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+                               ulag, vlag, wlag, &
+                               ext_bdf%advection_coeffs, ext_bdf%nadv)
 
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
@@ -731,23 +722,9 @@ contains
       end if
 
       ! Add the advection operators to the right-hand-side.
-
       call this%adv%compute_vector(u, v, w, u_b, v_b, w_b, &
                                    f_x%x, f_y%x, f_z%x, &
                                    Xh, this%c_Xh, dm_Xh%size())
-
-      !! put a DSS call here??
-      !call col2(f_x%x,c_Xh%B,n)
-      !call col2(f_y%x,c_Xh%B,n)
-      !call col2(f_z%x,c_Xh%B,n)
-      !call gs_Xh%op(f_x, GS_OP_ADD)
-      !call gs_Xh%op(f_y, GS_OP_ADD)
-      !call gs_Xh%op(f_z, GS_OP_ADD)
-      !call col2(f_x%x,c_Xh%Binv,n)
-      !call col2(f_y%x,c_Xh%Binv,n)
-      !call col2(f_z%x,c_Xh%Binv,n)
-
-
 
       ! At this point the RHS contains the sum of the advection operator and
       ! additional source terms, evaluated using the velocity field from the
@@ -771,7 +748,8 @@ contains
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply dirichlet
       call this%dirichlet_update_(this%field_dirichlet_fields, &
-                                  this%field_dirichlet_bcs, this%c_Xh, t, tstep, "fluid")
+                                  this%field_dirichlet_bcs, this%c_Xh, &
+                                  t, tstep, "fluid")
 
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
@@ -780,14 +758,15 @@ contains
       call profiler_start_region('Pressure residual', 18)
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
                            f_x, f_y, f_z, c_Xh, gs_Xh, this%bc_prs_surface, &
-                           this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
-                           dt, mu, rho)
+                           this%bc_sym_surface, Ax, &
+                           ext_bdf%diffusion_coeffs(1), dt, mu, rho)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region
 
-      call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, 'Pressure')
+      call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, &
+                                     dt_controller, 'Pressure')
 
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
@@ -797,7 +776,8 @@ contains
       call profiler_end_region
 
       call this%proj_prs%post_solving(dp%x, Ax, c_Xh, &
-                                      this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+                                      this%bclst_dp, gs_Xh, n, &
+                                      tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2(p%x_d, dp%x_d,n)
@@ -824,15 +804,16 @@ contains
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
                                                                        t, tstep)
 
-      !We should implement a bc that takes three field_bcs and implements vector_apply
+      ! We should implement a bc that takes three field_bcs and implements
+      ! vector_apply
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)
          call this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)
          call this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)
       else
-         call this%bc_field_dirichlet_u%apply_scalar(u_res%x, this%dm_Xh%size(), t, tstep)
-         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, this%dm_Xh%size(), t, tstep)
-         call this%bc_field_dirichlet_w%apply_scalar(w_res%x, this%dm_Xh%size(), t, tstep)
+         call this%bc_field_dirichlet_u%apply_scalar(u_res%x, n, t, tstep)
+         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, n, t, tstep)
+         call this%bc_field_dirichlet_w%apply_scalar(w_res%x, n, t, tstep)
       end if
 
       call profiler_end_region
@@ -853,11 +834,14 @@ contains
       call profiler_end_region
 
       call this%proj_u%post_solving(du%x, Ax, c_Xh, &
-                                    this%bclst_du, gs_Xh, n, tstep, dt_controller)
+                                    this%bclst_du, gs_Xh, n, &
+                                    tstep, dt_controller)
       call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
-                                    this%bclst_dv, gs_Xh, n, tstep, dt_controller)
+                                    this%bclst_dv, gs_Xh, n, &
+                                    tstep, dt_controller)
       call this%proj_w%post_solving(dw%x, Ax, c_Xh, &
-                                    this%bclst_dw, gs_Xh, n, tstep, dt_controller)
+                                    this%bclst_dw, gs_Xh, n, &
+                                    tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
@@ -867,12 +851,12 @@ contains
       end if
 
       if (this%forced_flow_rate) then
-         call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-                                    c_Xh, gs_Xh, ext_bdf, rho, mu,&
-                                    dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
-                                    this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
-                                    this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
-                                    this%ksp_vel%max_iter)
+         call this%vol_flow%adjust(u, v, w, p, u_res, v_res, w_res, p_res, &
+           & c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
+           & this%bclst_dp, this%bclst_du, this%bclst_dv, &
+           & this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
+           & this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
+           & this%ksp_vel%max_iter)
       end if
 
       call fluid_step_info(tstep, t, dt, ksp_results)
@@ -974,17 +958,23 @@ contains
   end subroutine rescale_fluid
 
   function norm(x, y, z, B, volume, n)
+    use mpi_f08, only: MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD, &
+      MPI_IN_PLACE, mpi_allreduce
+    use math, only: vlsc3
+
     real(kind=rp), dimension(n), intent(in) :: x, y, z
     real(kind=rp), dimension(n), intent(in) :: B
     real(kind=rp), intent(in) :: volume
     integer, intent(in) :: n
 
     real(kind=rp) :: norm
-    real(kind=rp), dimension(n) :: tmp
 
-    call vdot3(tmp, x, y, z, x, y, z, n)
-    norm = sqrt(glsc2(tmp, B, n) / volume)
+    norm = vlsc3(x, x, B, n) + vlsc3(y, y, B, n) + vlsc3(z, z, B, n)
 
+    call mpi_allreduce(MPI_IN_PLACE, norm, 1, &
+                       MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD)
+
+    norm = sqrt(norm / volume)
   end function norm
 
   ! function device_norm(x_d, y_d, z_d, B_d, volume, n)
