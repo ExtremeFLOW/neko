@@ -41,7 +41,7 @@ module advection
   use device_math
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
                           NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
-  use operators, only : opgrad, conv1
+  use operators, only : opgrad, conv1, cdtp
   use interpolation, only : interpolator_t
   use device_math
   use device, only : device_free, device_map, device_get_ptr
