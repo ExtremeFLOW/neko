@@ -36,6 +36,15 @@ module advection
   use space, only : space_t
   use field, only : field_t
   use coefs, only : coef_t
+  use device_math
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
+       NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
+  use operators, only : opgrad, conv1, cdtp
+  use interpolation, only : interpolator_t
+  use device_math
+  use device, only : device_free, device_map, device_get_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
+       c_associated
   implicit none
   private
 
@@ -140,7 +149,7 @@ module advection
 
      ! Tim,
      ! I'm drawing inspiration from the fluid_user_source term
-     ! to switch between LNS and ADJOINT, because it's only 
+     ! to switch between LNS and ADJOINT, because it's only
      ! the compute vector that differs between the two.
      !procedure(advection_compute_vector), nopass, pointer :: compute_vector_&
      !  => null()
@@ -316,8 +325,8 @@ contains
     ! HARRY
     ! I also want the det(jacobian) and the mass matrix
     ! but this shouldn't be needed if we modify cdtp to use w3 for the weights
-    call this%GLL_to_GL%map(this%coef_GL%jac,  coef%jac,  nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%B,    coef%B,    nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%jac, coef%jac, nel, this%Xh_GL)
+    call this%GLL_to_GL%map(this%coef_GL%B, coef%B, nel, this%Xh_GL)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
        (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_SX .eq. 1) .or. &
@@ -739,121 +748,121 @@ contains
     associate(c_GL => this%coef_GL)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-        !TODO
+         !TODO
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
-      !TODO
+         !TODO
       else
-		
-		do e = 1, coef%msh%nelv
-    		! These are the baseflow
-         call this%GLL_to_GL%map(txb, vxb%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(tyb, vyb%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(tzb, vzb%x(1,1,1,e), 1, this%Xh_GL)
 
-			! These are velocity
-         call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
+         do e = 1, coef%msh%nelv
+            ! These are the baseflow
+            call this%GLL_to_GL%map(txb, vxb%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(tyb, vyb%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(tzb, vzb%x(1,1,1,e), 1, this%Xh_GL)
+
+            ! These are velocity
+            call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
 
 
-    ! u . grad U_b^T
-    !-----------------------------
-         call opgrad(duxb, duyb, duzb, txb, c_GL, e, e)
-         call opgrad(dvxb, dvyb, dvzb, tyb, c_GL, e, e)
-         call opgrad(dwxb, dwyb, dwzb, tzb, c_GL, e, e)
+            ! u . grad U_b^T
+            !-----------------------------
+            call opgrad(duxb, duyb, duzb, txb, c_GL, e, e)
+            call opgrad(dvxb, dvyb, dvzb, tyb, c_GL, e, e)
+            call opgrad(dwxb, dwyb, dwzb, tzb, c_GL, e, e)
 
-         ! traspose and multiply
-         do i = 1, this%Xh_GL%lxyz
+            ! traspose and multiply
+            do i = 1, this%Xh_GL%lxyz
                tfx(i) = tx(i)*duxb(i) + ty(i)*dvxb(i) + tz(i)*dwxb(i)
                tfy(i) = tx(i)*duyb(i) + ty(i)*dvyb(i) + tz(i)*dwyb(i)
                tfz(i) = tx(i)*duzb(i) + ty(i)*dvzb(i) + tz(i)*dwzb(i)
-         end do
+            end do
 
-			! map back to GLL
+            ! map back to GLL
             call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
             call this%GLL_to_GL%map(tempy, tfy, 1, this%Xh_GLL)
             call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
 
-			! accumulate
+            ! accumulate
             idx = (e-1)*this%Xh_GLL%lxyz+1
             call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
             call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
             call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
 
-    ! In most literature this term is -(grad . U_b) u + BDRY
-    !
-    ! We prefer the weak form
-    ! \int \grad v . U_b ^ u    with ^ an outer product
-    ! avoiding:
-    ! - an extra boundary term
-    ! - the assumption of \grad . U_b pointwise
-    !
-    ! we're going to reuse uxb, uyb and uzb for the outer product 
-    !-----------------------------
-    	  	! here we have index i, with free index j------------------------------x
-         do i = 1, this%Xh_GL%lxyz
-           		fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+            ! In most literature this term is -(grad . U_b) u + BDRY
+            !
+            ! We prefer the weak form
+            ! \int \grad v . U_b ^ u    with ^ an outer product
+            ! avoiding:
+            ! - an extra boundary term
+            ! - the assumption of \grad . U_b pointwise
+            !
+            ! we're going to reuse uxb, uyb and uzb for the outer product
+            !-----------------------------
+            ! here we have index i, with free index j------------------------------x
+            do i = 1, this%Xh_GL%lxyz
+               fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
                duxb(i) = tx(i)*txb(i)*fac
                duyb(i) = tx(i)*tyb(i)*fac
                duzb(i) = tx(i)*tzb(i)*fac
-         end do
-         ! D^T 
-         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
-         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
-         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
+            end do
+            ! D^T
+            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
+            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+            call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
 
-         ! sum them
-         do i = 1, this%Xh_GL%lxyz
-           		tfx(i) = tfx(i) + tfy(i) + tfz(i)
-         end do
+            ! sum them
+            do i = 1, this%Xh_GL%lxyz
+               tfx(i) = tfx(i) + tfy(i) + tfz(i)
+            end do
 
-         ! map back to GLL
-         call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-         call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
+            ! map back to GLL
+            call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+            call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
 
-    	  	! here we have index i, with free index j------------------------------y
-         do i = 1, this%Xh_GL%lxyz
-           		fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+            ! here we have index i, with free index j------------------------------y
+            do i = 1, this%Xh_GL%lxyz
+               fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
                duxb(i) = ty(i)*txb(i)*fac
                duyb(i) = ty(i)*tyb(i)*fac
                duzb(i) = ty(i)*tzb(i)*fac
-         end do
-         ! D^T 
-         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
-         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
-         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
+            end do
+            ! D^T
+            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
+            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+            call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
 
-         ! sum them
-         do i = 1, this%Xh_GL%lxyz
-           		tfx(i) = tfx(i) + tfy(i) + tfz(i)
-         end do
+            ! sum them
+            do i = 1, this%Xh_GL%lxyz
+               tfx(i) = tfx(i) + tfy(i) + tfz(i)
+            end do
 
-         ! map back to GLL
-         call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-         call sub2(fy(idx), tempx, this%Xh_GLL%lxyz)
+            ! map back to GLL
+            call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+            call sub2(fy(idx), tempx, this%Xh_GLL%lxyz)
 
-    	  	! here we have index i, with free index j------------------------------z
-         do i = 1, this%Xh_GL%lxyz
-           		fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+            ! here we have index i, with free index j------------------------------z
+            do i = 1, this%Xh_GL%lxyz
+               fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
                duxb(i) = tz(i)*txb(i)*fac
                duyb(i) = tz(i)*tyb(i)*fac
                duzb(i) = tz(i)*tzb(i)*fac
-         end do
-         ! D^T 
-         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
-         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
-         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
+            end do
+            ! D^T
+            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
+            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+            call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
 
-         ! sum them
-         do i = 1, this%Xh_GL%lxyz
-           		tfx(i) = tfx(i) + tfy(i) + tfz(i)
-         end do
+            ! sum them
+            do i = 1, this%Xh_GL%lxyz
+               tfx(i) = tfx(i) + tfy(i) + tfz(i)
+            end do
 
-         ! map back to GLL
-         call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-         call sub2(fz(idx), tempx, this%Xh_GLL%lxyz)
+            ! map back to GLL
+            call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+            call sub2(fz(idx), tempx, this%Xh_GLL%lxyz)
 
-		enddo
+         enddo
 
 
       end if
@@ -861,8 +870,8 @@ contains
 
   end subroutine compute_vector_advection_dealias
 
-	! FINISH THIS LATER
-	! It's a clean way to wrap into subroutines
+  ! FINISH THIS LATER
+  ! It's a clean way to wrap into subroutines
 !
 !  subroutine weak_adjoint_convect_cpu(this, f, u_adj, U_bx, U_by, U_bz, &
 !  													wo1, wo2, wo3, tx,   ty,   tz,  Xh, coef, n, idx)
@@ -885,7 +894,7 @@ contains
 !               wo2(i) = a_adj(i)*U_by(i)*fac
 !               wo3(i) = a_adj(i)*U_bz(i)*fac
 !         end do
-!         ! D^T 
+!         ! D^T
 !         call cdtp(tx, wo1, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
 !         call cdtp(ty, wo2, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
 !         call cdtp(tz, wo3, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
@@ -898,7 +907,7 @@ contains
 !         ! map back to GLL
 !         call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
 !         call sub2(fz(idx), tempx, this%Xh_GLL%lxyz)
-!  
+!
 !  end subroutine weak_adjoint_convect_cpu
   ! Tim,
   ! these are the vector ones, right now it's for LNS
@@ -918,7 +927,7 @@ contains
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
   subroutine compute_vector_advection_dealias_working(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
-  !! HARRY added vxb etc for baseflow
+    !! HARRY added vxb etc for baseflow
     implicit none
     class(adv_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
@@ -952,122 +961,122 @@ contains
     associate(c_GL => this%coef_GL)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-        !TODO
+         !TODO
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
-      !TODO
+         !TODO
       else
-		
-		do e = 1, coef%msh%nelv
-    ! HARRY
-    		! These are the baseflow
-         call this%GLL_to_GL%map(txb, vxb%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(tyb, vyb%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(tzb, vzb%x(1,1,1,e), 1, this%Xh_GL)
 
-			! These are velocity
-         call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
+         do e = 1, coef%msh%nelv
+            ! HARRY
+            ! These are the baseflow
+            call this%GLL_to_GL%map(txb, vxb%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(tyb, vyb%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(tzb, vzb%x(1,1,1,e), 1, this%Xh_GL)
+
+            ! These are velocity
+            call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
 
 
-    ! u . grad U_b^T
-    !-----------------------------
-         call opgrad(duxb, duyb, duzb, txb, c_GL, e, e)
-         call opgrad(dvxb, dvyb, dvzb, tyb, c_GL, e, e)
-         call opgrad(dwxb, dwyb, dwzb, tzb, c_GL, e, e)
+            ! u . grad U_b^T
+            !-----------------------------
+            call opgrad(duxb, duyb, duzb, txb, c_GL, e, e)
+            call opgrad(dvxb, dvyb, dvzb, tyb, c_GL, e, e)
+            call opgrad(dwxb, dwyb, dwzb, tzb, c_GL, e, e)
 
-         ! traspose and multiply
-         do i = 1, this%Xh_GL%lxyz
+            ! traspose and multiply
+            do i = 1, this%Xh_GL%lxyz
                tfx(i) = tx(i)*duxb(i,1) + ty(i)*dvxb(i,1) + tz(i)*dwxb(i,1)
                tfy(i) = tx(i)*duyb(i,1) + ty(i)*dvyb(i,1) + tz(i)*dwyb(i,1)
                tfz(i) = tx(i)*duzb(i,1) + ty(i)*dvzb(i,1) + tz(i)*dwzb(i,1)
-         end do
+            end do
 
-			! map back to GLL
+            ! map back to GLL
             call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
             call this%GLL_to_GL%map(tempy, tfy, 1, this%Xh_GLL)
             call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
 
-			! accumulate
+            ! accumulate
             idx = (e-1)*this%Xh_GLL%lxyz+1
             call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
             call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
             call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
 
-    ! In most literature this term is -(grad . U_b) u + BDRY
-    !
-    ! We prefer the weak form
-    ! \int \grad v . U_b ^ u    with ^ an outer product
-    ! avoiding:
-    ! - an extra boundary term
-    ! - the assumption of \grad . U_b pointwise
-    !
-    ! we're going to reuse uxb, uyb and uzb for the outer product 
-    !-----------------------------
-    	  	! here we have index i, with free index j------------------------------x
-         do i = 1, this%Xh_GL%lxyz
-           		fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+            ! In most literature this term is -(grad . U_b) u + BDRY
+            !
+            ! We prefer the weak form
+            ! \int \grad v . U_b ^ u    with ^ an outer product
+            ! avoiding:
+            ! - an extra boundary term
+            ! - the assumption of \grad . U_b pointwise
+            !
+            ! we're going to reuse uxb, uyb and uzb for the outer product
+            !-----------------------------
+            ! here we have index i, with free index j------------------------------x
+            do i = 1, this%Xh_GL%lxyz
+               fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
                duxb(i,1) = tx(i)*txb(i)*fac
                duyb(i,1) = tx(i)*tyb(i)*fac
                duzb(i,1) = tx(i)*tzb(i)*fac
-         end do
-         ! D^T 
-         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
-         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
-         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
+            end do
+            ! D^T
+            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
+            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+            call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
 
-         ! sum them
-         do i = 1, this%Xh_GL%lxyz
-           		tfx(i) = tfx(i) + tfy(i) + tfz(i)
-         end do
+            ! sum them
+            do i = 1, this%Xh_GL%lxyz
+               tfx(i) = tfx(i) + tfy(i) + tfz(i)
+            end do
 
-         ! map back to GLL
-         call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-         call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
+            ! map back to GLL
+            call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+            call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
 
-    	  	! here we have index i, with free index j------------------------------y
-         do i = 1, this%Xh_GL%lxyz
-           		fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+            ! here we have index i, with free index j------------------------------y
+            do i = 1, this%Xh_GL%lxyz
+               fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
                duxb(i,1) = ty(i)*txb(i)*fac
                duyb(i,1) = ty(i)*tyb(i)*fac
                duzb(i,1) = ty(i)*tzb(i)*fac
-         end do
-         ! D^T 
-         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
-         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
-         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
+            end do
+            ! D^T
+            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
+            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+            call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
 
-         ! sum them
-         do i = 1, this%Xh_GL%lxyz
-           		tfx(i) = tfx(i) + tfy(i) + tfz(i)
-         end do
+            ! sum them
+            do i = 1, this%Xh_GL%lxyz
+               tfx(i) = tfx(i) + tfy(i) + tfz(i)
+            end do
 
-         ! map back to GLL
-         call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-         call sub2(fy(idx), tempx, this%Xh_GLL%lxyz)
+            ! map back to GLL
+            call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+            call sub2(fy(idx), tempx, this%Xh_GLL%lxyz)
 
-    	  	! here we have index i, with free index j------------------------------z
-         do i = 1, this%Xh_GL%lxyz
-           		fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+            ! here we have index i, with free index j------------------------------z
+            do i = 1, this%Xh_GL%lxyz
+               fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
                duxb(i,1) = tz(i)*txb(i)*fac
                duyb(i,1) = tz(i)*tyb(i)*fac
                duzb(i,1) = tz(i)*tzb(i)*fac
-         end do
-         ! D^T 
-         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
-         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
-         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
+            end do
+            ! D^T
+            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
+            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+            call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
 
-         ! sum them
-         do i = 1, this%Xh_GL%lxyz
-           		tfx(i) = tfx(i) + tfy(i) + tfz(i)
-         end do
+            ! sum them
+            do i = 1, this%Xh_GL%lxyz
+               tfx(i) = tfx(i) + tfy(i) + tfz(i)
+            end do
 
-         ! map back to GLL
-         call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-         call sub2(fz(idx), tempx, this%Xh_GLL%lxyz)
+            ! map back to GLL
+            call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+            call sub2(fz(idx), tempx, this%Xh_GLL%lxyz)
 
-		enddo
+         enddo
 
 
       end if
@@ -1187,7 +1196,7 @@ contains
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
   subroutine compute_LNS_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
-  !! HARRY added vxb etc for baseflow
+    !! HARRY added vxb etc for baseflow
     implicit none
     class(adv_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
