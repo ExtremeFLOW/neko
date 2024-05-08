@@ -74,6 +74,20 @@ module fluid_pnpn_perturb
   use flow_ic
   use file
   use field_registry, only : neko_field_registry
+  use num_types, only: rp, dp, sp
+  use json_module, only: json_file
+  use field_registry, only: neko_field_registry
+  use field, only: field_t
+  use operators, only: curl
+  use fld_file_output, only: fld_file_output_t
+  use json_utils, only: json_get, json_get_or_default
+  use fluid_scheme, only: fluid_scheme_t
+  use file, only: file_t
+  use vector, only: vector_t
+  use math, only: vdot3, glsc2, cmult
+  use device_math, only: device_cmult
+  use comm, only: pe_rank
+  use logger, only: neko_log, NEKO_LOG_DEBUG
   implicit none
   private
 
@@ -82,13 +96,11 @@ module fluid_pnpn_perturb
      type(field_t) :: p_res, u_res, v_res, w_res
 
      type(field_t) :: dp, du, dv, dw
-     !  type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
 
      type(field_t), pointer :: u_b => null() !< x-component of baseflow velocity
      type(field_t), pointer :: v_b => null() !< y-component of baseflow Velocity
      type(field_t), pointer :: w_b => null() !< z-component of baseflow Velocity
-     type(field_t), pointer :: p_b => null() !< I don't think we'll need this HARRY
-     ! I can't remember if we'll need a baseflow for the passive scalar
+     type(field_t), pointer :: p_b => null() !< Baseflow pressure
 
      class(ax_t), allocatable :: Ax
 
@@ -113,9 +125,9 @@ module fluid_pnpn_perturb
 
      class(advection_t), allocatable :: adv
 
-     !  !! Time variables
-     !  type(field_t) :: abx1, aby1, abz1
-     !  type(field_t) :: abx2, aby2, abz2
+     !! Time variables
+     type(field_t) :: abx1, aby1, abz1
+     type(field_t) :: abx2, aby2, abz2
 
 
      !> Pressure residual
@@ -136,11 +148,54 @@ module fluid_pnpn_perturb
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
 
+     ! ======================================================================= !
+     ! Addressable attributes
+
+     real(kind=rp) :: norm_scaling !< Constant for the norm of the velocity field.
+     real(kind=rp) :: norm_target !< Target norm for the velocity field.
+     real(kind=rp) :: norm_tolerance !< Tolerance for when to rescale the flow.
+
+     ! ======================================================================= !
+     ! Definition of shorthands and local variables
+
+     !> Size of the arrays
+     integer :: n
+
+     !> Volume of the mesh
+     real(kind=rp) :: vol
+     !> Mass matrix
+     real(kind=rp), dimension(:,:,:,:), pointer :: B
+
+     !> The previously used timestep
+     real(kind=rp) :: t_old
+     !> The norm of the velocity field at the previous timestep
+     real(kind=rp) :: norm_l2_old
+     !> The slope of the norm of the velocity field
+     real(kind=rp) :: slope_value
+     !> The number of times the slope has been computed
+     real(kind=rp) :: slope_count
+
+     !> Upper limit for the norm
+     real(kind=rp) :: norm_l2_upper
+     !> Lower limit for the norm
+     real(kind=rp) :: norm_l2_lower
+
+     !> Flag to indicate if the flow has been rescaled.
+     !! Used to wait for the slope to stabilize.
+     logical :: has_rescaled = .false.
+
+     !> Output file
+     type(file_t) :: file_output
+
    contains
      procedure, pass(this) :: init => fluid_pnpn_perturb_init
      procedure, pass(this) :: free => fluid_pnpn_perturb_free
      procedure, pass(this) :: step => fluid_pnpn_perturb_step
      procedure, pass(this) :: restart => fluid_pnpn_perturb_restart
+
+
+     !> Compute the power_iterations field.
+     procedure, public, pass(this) :: PW_compute_ => power_iterations_compute
   end type fluid_pnpn_perturb_t
 
 contains
@@ -159,6 +214,11 @@ contains
     type(file_t) :: field_file, mesh_file, out_file
     type(fld_file_data_t) :: field_data
     character(len=:), allocatable :: string_val1, string_val2
+
+    ! Temporary field pointers
+    real(kind=rp) :: norm_l2, norm_l2_base
+    character(len=:), allocatable :: file_name
+    character(len=256) :: header_line
 
     call this%free()
 
@@ -375,7 +435,6 @@ contains
        call copy(this%v_b%x,field_data%v%x,this%u_b%dof%size())
        call copy(this%w_b%x,field_data%w%x,this%u_b%dof%size())
 
-
        call file_free(out_file)
        call file_free(field_file)
     endif
@@ -388,6 +447,37 @@ contains
 
     ! I'm going to
     !-------------------------------------------------------------------------------
+
+    ! Setup the power iterations for rescaling the fluid.
+
+    ! Read the json file
+    call json_get_or_default(params, 'norm_scaling', &
+                             this%norm_scaling, 0.5_rp)
+    call json_get_or_default(params, 'norm_tolerance', &
+                             this%norm_tolerance, 10.0_rp)
+    call json_get_or_default(params, 'output_file', &
+                             file_name, 'power_iterations.csv')
+
+    ! Build the header
+    this%file_output = file_t(trim(file_name))
+    write(header_line, '(A)') 'Time, Norm, Slope, Eigenvalue, Scaling'
+    call this%file_output%set_header(header_line)
+
+    ! Point the internal fields to the correct data
+    this%n = this%u%size()
+    ! Allocate the mass matrix
+    this%B => this%c_Xh%B
+    this%vol = this%c_Xh%volume
+
+    ! Setup the target norm for the velocity field
+    norm_l2_base = sqrt(this%norm_scaling) &
+      * norm(this%u_b%x, this%v_b%x, this%w_b%x, &
+                 this%B, this%vol, this%n)
+
+    this%norm_target = norm_l2_base
+    this%norm_l2_old = this%norm_target
+    this%norm_l2_upper = this%norm_tolerance * this%norm_target
+    this%norm_l2_lower = this%norm_target / this%norm_tolerance
 
   end subroutine fluid_pnpn_perturb_init
 
@@ -643,8 +733,8 @@ contains
       ! Add the advection operators to the right-hand-side.
 
       call this%adv%compute_vector(u, v, w, u_b, v_b, w_b, &
-                            f_x%x, f_y%x, f_z%x, &
-                            Xh, this%c_Xh, dm_Xh%size())
+                                   f_x%x, f_y%x, f_z%x, &
+                                   Xh, this%c_Xh, dm_Xh%size())
 
       !! put a DSS call here??
       !call col2(f_x%x,c_Xh%B,n)
@@ -791,7 +881,198 @@ contains
 
     end associate
     call profiler_end_region
+
+    ! Compute the norm of the field and determine if we should do a rescale.
+    call this%PW_compute_(t, tstep)
+
   end subroutine fluid_pnpn_perturb_step
+
+  subroutine rescale_fluid(fluid_data, scale)
+    use neko_config, only: NEKO_BCKND_DEVICE
+    implicit none
+
+    !> Fluid data
+    class(fluid_pnpn_perturb_t), intent(inout) :: fluid_data
+    !> Scaling factor
+    real(kind=rp), intent(in) :: scale
+
+    ! Local variables
+    integer :: i
+
+    ! Scale the velocity fields
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cmult(fluid_data%u%x_d, scale, fluid_data%u%size())
+       call device_cmult(fluid_data%v%x_d, scale, fluid_data%v%size())
+       call device_cmult(fluid_data%w%x_d, scale, fluid_data%w%size())
+    else
+       call cmult(fluid_data%u%x, scale, fluid_data%u%size())
+       call cmult(fluid_data%v%x, scale, fluid_data%v%size())
+       call cmult(fluid_data%w%x, scale, fluid_data%w%size())
+    end if
+
+    ! Scale the right hand sides
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cmult(fluid_data%f_x%x_d, scale, fluid_data%f_x%size())
+       call device_cmult(fluid_data%f_y%x_d, scale, fluid_data%f_y%size())
+       call device_cmult(fluid_data%f_z%x_d, scale, fluid_data%f_z%size())
+       ! HARRY
+       ! maybe the abx's too
+       call device_cmult(fluid_data%abx1%x_d, scale, fluid_data%abx1%size())
+       call device_cmult(fluid_data%aby1%x_d, scale, fluid_data%aby1%size())
+       call device_cmult(fluid_data%abz1%x_d, scale, fluid_data%abz1%size())
+       call device_cmult(fluid_data%abx2%x_d, scale, fluid_data%abx2%size())
+       call device_cmult(fluid_data%aby2%x_d, scale, fluid_data%aby2%size())
+       call device_cmult(fluid_data%abz2%x_d, scale, fluid_data%abz2%size())
+
+    else
+       call cmult(fluid_data%f_x%x, scale, fluid_data%f_x%size())
+       call cmult(fluid_data%f_y%x, scale, fluid_data%f_y%size())
+       call cmult(fluid_data%f_z%x, scale, fluid_data%f_z%size())
+
+       call cmult(fluid_data%abx1%x, scale, fluid_data%abx1%size())
+       call cmult(fluid_data%aby1%x, scale, fluid_data%aby1%size())
+       call cmult(fluid_data%abz1%x, scale, fluid_data%abz1%size())
+
+       call cmult(fluid_data%abx2%x, scale, fluid_data%abx2%size())
+       call cmult(fluid_data%aby2%x, scale, fluid_data%aby2%size())
+       call cmult(fluid_data%abz2%x, scale, fluid_data%abz2%size())
+    end if
+
+    ! Scale the lag terms
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       do i = 1, fluid_data%ulag%size()
+          call device_cmult(fluid_data%ulag%lf(i)%x_d, &
+                            scale, fluid_data%ulag%lf(i)%size())
+       end do
+
+       do i = 1, fluid_data%vlag%size()
+          call device_cmult(fluid_data%vlag%lf(i)%x_d, &
+                            scale, fluid_data%vlag%lf(i)%size())
+       end do
+
+       do i = 1, fluid_data%wlag%size()
+          call device_cmult(fluid_data%wlag%lf(i)%x_d, &
+                            scale, fluid_data%wlag%lf(i)%size())
+       end do
+    else
+       do i = 1, fluid_data%ulag%size()
+          call cmult(fluid_data%ulag%lf(i)%x, &
+                     scale, fluid_data%ulag%lf(i)%size())
+       end do
+
+       do i = 1, fluid_data%vlag%size()
+          call cmult(fluid_data%vlag%lf(i)%x, &
+                     scale, fluid_data%vlag%lf(i)%size())
+       end do
+
+       do i = 1, fluid_data%wlag%size()
+          call cmult(fluid_data%wlag%lf(i)%x, &
+                     scale, fluid_data%wlag%lf(i)%size())
+       end do
+    end if
+
+  end subroutine rescale_fluid
+
+  function norm(x, y, z, B, volume, n)
+    real(kind=rp), dimension(n), intent(in) :: x, y, z
+    real(kind=rp), dimension(n), intent(in) :: B
+    real(kind=rp), intent(in) :: volume
+    integer, intent(in) :: n
+
+    real(kind=rp) :: norm
+    real(kind=rp), dimension(n) :: tmp
+
+    call vdot3(tmp, x, y, z, x, y, z, n)
+    norm = sqrt(glsc2(tmp, B, n) / volume)
+
+  end function norm
+
+  ! function device_norm(x_d, y_d, z_d, B_d, volume, n)
+  !   use neko_config, only: NEKO_BCKND_DEVICE
+  !   implicit none
+
+  !   type(c_ptr), intent(in) :: x_d, y_d, z_d
+  !   type(c_ptr), intent(in) :: B_d
+  !   real(kind=rp), intent(in) :: volume
+  !   integer, intent(in) :: n
+
+  !   real(kind=rp) :: norm
+  !   real(kind=rp), dimension(n) :: tmp
+
+  !   call vdot3(tmp, x_d, y_d, z_d, x_d, y_d, z_d, n)
+  !   norm = sqrt(glsc2(tmp, B_d, n) / volume)
+
+  ! end function device_norm
+
+  !> Compute the power_iterations field.
+  !! @param t The time value.
+  !! @param tstep The current time-step
+  subroutine power_iterations_compute(this, t, tstep)
+    class(fluid_pnpn_perturb_t), target, intent(inout) :: this
+
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    ! Local variables
+    real(kind=rp) :: scaling_factor
+    real(kind=rp) :: norm_l2
+    real(kind=rp) :: lambda
+    real(kind=rp) :: dt
+    character(len=256) :: log_message
+    type(vector_t) :: data_line
+
+    ! Compute timestep and update the old time
+    dt = t - this%t_old
+    this%t_old = t
+
+    ! Compute the norm of the velocity field and eigenvalue estimate
+    norm_l2 = sqrt(this%norm_scaling) * norm(this%u%x, this%v%x, this%w%x, &
+                                             this%B, this%vol, this%n)
+    lambda = (log(norm_l2) - log(this%norm_l2_old)) / dt
+    this%norm_l2_old = norm_l2
+
+    ! Rescale the flow if necessary
+    scaling_factor = 1.0_rp
+    if (norm_l2 .gt. this%norm_l2_upper) then
+       this%has_rescaled = .true.
+
+       scaling_factor = this%norm_target / norm_l2
+       call rescale_fluid(this, scaling_factor)
+
+       This%norm_l2_old = this%norm_target
+    else if ( norm_l2 .lt. this%norm_l2_lower) then
+       this%has_rescaled = .true.
+
+       scaling_factor = this%norm_target / norm_l2
+       call rescale_fluid(this, scaling_factor)
+
+       This%norm_l2_old = this%norm_target
+    else if (this%has_rescaled) then
+       this%slope_count = this%slope_count + 1.0_rp
+
+       this%slope_value = this%slope_value + &
+         ( lambda - this%slope_value ) / (this%slope_count)
+
+    end if
+
+    ! Log the results
+    call neko_log%section('Power Iterations')
+
+    write (log_message, '(A7,E20.14)') 'Norm: ', norm_l2
+    call neko_log%message(log_message, lvl=NEKO_LOG_DEBUG)
+    write (log_message, '(A7,E20.14)') 'Slope: ', this%slope_value
+    call neko_log%message(log_message, lvl=NEKO_LOG_DEBUG)
+    write (log_message, '(A7,E20.14)') 'Eigen: ', abs(lambda)
+    call neko_log%message(log_message, lvl=NEKO_LOG_DEBUG)
+    write (log_message, '(A7,E20.14)') 'Scaling: ', scaling_factor
+
+    ! Save to file
+    call data_line%init(4)
+    data_line%x = [norm_l2, this%slope_value, abs(lambda), scaling_factor]
+    call this%file_output%write(data_line, t)
+
+    call neko_log%end_section('Power Iterations')
+  end subroutine power_iterations_compute
 
 
 end module fluid_pnpn_perturb

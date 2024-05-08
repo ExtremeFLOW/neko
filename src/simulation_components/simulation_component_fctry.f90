@@ -37,7 +37,6 @@ module simulation_component_fctry
   use vorticity, only : vorticity_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
-  use power_iterations, only : power_iterations_t
   use les_simcomp, only : les_simcomp_t
   use json_module, only : json_file
   use case, only : case_t
@@ -87,8 +86,6 @@ contains
        allocate(les_simcomp_t::simcomp)
     else if (trim(simcomp_type) .eq. "field_writer") then
        allocate(field_writer_t::simcomp)
-    else if (trim(simcomp_type) .eq. "poweriterations") then
-       allocate(power_iterations_t::simcomp)
     else
        type_string = concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
                                           .true.)
