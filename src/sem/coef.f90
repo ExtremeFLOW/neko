@@ -219,8 +219,6 @@ contains
        call device_map(this%jac, this%jac_d, n)
        call device_map(this%B, this%B_d, n)
 
-       call device_map(this%xh%w3, this%xh%w3_d, this%Xh%lx * this%Xh%ly * this%Xh%lz)
-
        call device_map(this%dxdr, this%dxdr_d, n)
        call device_map(this%dydr, this%dydr_d, n)
        call device_map(this%dzdr, this%dzdr_d, n)
@@ -1036,8 +1034,8 @@ contains
     class(coef_t), intent(in) :: this
     integer, intent(in) :: i, j, k, e, facet
     real(kind=rp) :: area
-      
-    select case (facet)               
+
+    select case (facet)
       case(1,2)
         area = this%area(j, k, facet, e)
       case(3,4)

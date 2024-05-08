@@ -43,7 +43,7 @@ module fluid_pnpn_perturb
   use fluid_volflow, only: fluid_volflow_t
   use fluid_scheme, only: fluid_scheme_t
   use field_series, only: field_series_t
-  use device_math, only: device_add2, device_col2
+  use device_math, only: device_add2, device_col2, device_cmult
   use device_mathops, only: device_opcolv, device_opadd2cm
   use fluid_aux, only: fluid_step_info
   use time_scheme_controller, only: time_scheme_controller_t
