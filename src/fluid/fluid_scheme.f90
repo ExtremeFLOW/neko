@@ -114,6 +114,13 @@ module fluid_scheme
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
 
+     ! Hack: These need to be moved.
+     ! The simulation component for rescaling it need them. But the rescaling
+    !  should be done In the scheme instead of an external component. 
+     !! Time variables
+     type(field_t) :: abx1, aby1, abz1
+     type(field_t) :: abx2, aby2, abz2
+
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
      type(field_dirichlet_t) :: user_field_bc_prs   !< User-computed Dirichlet pressure condition

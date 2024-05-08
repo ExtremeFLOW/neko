@@ -71,8 +71,8 @@ module fluid_pnpn_perturb
   use mathops, only : opadd2cm, opcolv
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
     bc_list_apply_scalar, bc_list_apply_vector
-    use flow_ic
-    use file
+  use flow_ic
+  use file
   implicit none
   private
 
@@ -112,10 +112,10 @@ module fluid_pnpn_perturb
 
      class(advection_t), allocatable :: adv
 
-     !! Time variables
-     type(field_t) :: abx1, aby1, abz1
-     type(field_t) :: abx2, aby2, abz2
-     
+     !  !! Time variables
+     !  type(field_t) :: abx1, aby1, abz1
+     !  type(field_t) :: abx2, aby2, abz2
+
 
      !> Pressure residual
      class(pnpn_prs_res_t), allocatable :: prs_res
@@ -327,20 +327,20 @@ contains
        call this%vol_flow%init(this%dm_Xh, params)
     end if
 
-    
-	 ! Tim,
-	 ! I'm only allocating if we require a baseflow,
-	 ! but I guess later on down the line if that flag changes
-	 ! we should include a "if allocated" or something to that effect?
-	 !
-	 ! Also, the thinking here is that in Nek5000 there were many 
-	 ! perturbation arrays and a single baseflow, as this is more likely 
-	 ! used for finding Lyapunov exponents etc
-	 ! so I think we're safe with using the registry for a single baseflow
-	 ! and then if you look at the branch feature/two_runs I was aiming 
-	 ! to have multiple 'u01', 'u02' etc
-	 ! I need to talk to Martin because I bet this is smarter with field lists
-	 ! Harry
+
+    ! Tim,
+    ! I'm only allocating if we require a baseflow,
+    ! but I guess later on down the line if that flag changes
+    ! we should include a "if allocated" or something to that effect?
+    !
+    ! Also, the thinking here is that in Nek5000 there were many
+    ! perturbation arrays and a single baseflow, as this is more likely
+    ! used for finding Lyapunov exponents etc
+    ! so I think we're safe with using the registry for a single baseflow
+    ! and then if you look at the branch feature/two_runs I was aiming
+    ! to have multiple 'u01', 'u02' etc
+    ! I need to talk to Martin because I bet this is smarter with field lists
+    ! Harry
     call neko_field_registry%add_field(this%dm_Xh, 'ub')
     call neko_field_registry%add_field(this%dm_Xh, 'vb')
     call neko_field_registry%add_field(this%dm_Xh, 'wb')
@@ -352,39 +352,39 @@ contains
     !
     !-------------------------------------------------------------------------------
     ! Tim,
-    ! this would also be a place where we would need to do something json equivelent 
+    ! this would also be a place where we would need to do something json equivelent
     ! to the initial condition where we can prescribe a baseflow
     call json_get(params, 'case.perturbation.baseflow.type',&
                   string_val1)
     ! TODO
     ! A baseflow setter needs to be written,
-    ! capable of: 
+    ! capable of:
     !   - loading a baseflow from a file
     !   - Prescribing one from the user
     if (trim(string_val1) .eq. 'load_file') then
-    	    call json_get(params, 'case.perturbation.baseflow.filename',&
-                  string_val2)
-          
-          ! assume they're on the same mesh
-          field_file = file_t(trim(string_val2), precision = dp)
-          call field_data%init
-          call field_file%read(field_data)
-          call copy(this%u_b%x,field_data%u%x,this%u_b%dof%size())
-          call copy(this%v_b%x,field_data%v%x,this%u_b%dof%size())
-          call copy(this%w_b%x,field_data%w%x,this%u_b%dof%size())
+       call json_get(params, 'case.perturbation.baseflow.filename',&
+                     string_val2)
+
+       ! assume they're on the same mesh
+       field_file = file_t(trim(string_val2), precision = dp)
+       call field_data%init
+       call field_file%read(field_data)
+       call copy(this%u_b%x,field_data%u%x,this%u_b%dof%size())
+       call copy(this%v_b%x,field_data%v%x,this%u_b%dof%size())
+       call copy(this%w_b%x,field_data%w%x,this%u_b%dof%size())
 
 
-          call file_free(out_file)
-          call file_free(field_file)
+       call file_free(out_file)
+       call file_free(field_file)
     endif
     if (trim(string_val1) .eq. 'user') then
-    	! Tim,
-    	! I'm worried that because we're inside scheme, and not case,
-    	! we maybe can't do user defined??
+       ! Tim,
+       ! I'm worried that because we're inside scheme, and not case,
+       ! we maybe can't do user defined??
     endif
 
 
-    ! I'm going to 
+    ! I'm going to
     !-------------------------------------------------------------------------------
 
   end subroutine fluid_pnpn_perturb_init
