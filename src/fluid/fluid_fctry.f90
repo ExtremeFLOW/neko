@@ -34,7 +34,8 @@
 module fluid_fctry
   use fluid_scheme, only : fluid_scheme_t
   use fluid_pnpn, only : fluid_pnpn_t
-  use utils, only : concat_string_array, neko_error
+  use fluid_pnpn_perturb, only: fluid_pnpn_perturb_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -52,8 +53,12 @@ contains
     character(len=*) :: type_name
     character(len=:), allocatable :: type_string
 
-    if (trim(type_name) .eq. 'pnpn') then
-       allocate(fluid_pnpn_t::object)
+    if (trim(fluid_scheme) .eq. 'plan1') then
+!       allocate(fluid_plan1_t::fluid)
+    else if (trim(fluid_scheme) .eq. 'pnpn') then
+       allocate(fluid_pnpn_t::fluid)
+    else if (trim(fluid_scheme) .eq. 'pnpn_perturb') then
+       allocate(fluid_pnpn_perturb_t::fluid)
     else
        type_string = concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
                                           .true.)
