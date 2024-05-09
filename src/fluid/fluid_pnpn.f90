@@ -210,7 +210,7 @@ contains
                                                  'd_vel_v', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'd_vel_w', this%bc_labels)
-    call this%bc_prs_surface%finalize()
+    call this%bc_prs_surface%finalize(.true.)
     ! Initialize symmetry surface terms in pressure rhs
     call this%bc_sym_surface%init_base(this%c_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
