@@ -229,7 +229,6 @@ contains
     logical :: logical_val
     integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
-    ! A local pointer that is needed to make Intel happy
 
 
     !
@@ -272,6 +271,20 @@ contains
     this%params => params
 
     this%msh => msh
+
+    call neko_log%section('Fluid')
+    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    if (lx .lt. 10) then
+       write(log_buf, '(A, I1)') 'Poly order : ', lx-1
+    else if (lx .ge. 10) then
+       write(log_buf, '(A, I1)') 'Poly order : ', lx-1
+    else
+       write(log_buf, '(A, I1)') 'Poly order : ', lx-1
+    end if
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, I0)') 'DoFs       : ', this%dm_Xh%size()
+    call neko_log%message(log_buf)
 
     call this%gs_Xh%init(this%dm_Xh)
 
@@ -564,16 +577,6 @@ contains
 
     ! Just logging from here on !
 
-    call neko_log%section('Fluid')
-    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
-    call neko_log%message(log_buf)
-    if (lx .lt. 10) then
-       write(log_buf, '(A, I1)') 'lx         : ', lx
-    else if (lx .ge. 10) then
-       write(log_buf, '(A, I2)') 'lx         : ', lx
-    else
-       write(log_buf, '(A, I3)') 'lx         : ', lx
-    end if
 
     call neko_log%message('Ksp prs.   : ('// trim(solver_type) // &
           ', ' // trim(precon_type) // ')')
