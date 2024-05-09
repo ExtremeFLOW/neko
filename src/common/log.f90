@@ -179,10 +179,23 @@ contains
   end subroutine log_warning
 
   !> Begin a new log section
-  subroutine log_section(this, msg)
+  subroutine log_section(this, msg, lvl)
     class(log_t), intent(inout) :: this
     character(len=*), intent(in) :: msg
+    integer, optional :: lvl
+
     integer :: i, pre
+    integer :: lvl_
+
+    if (present(lvl)) then
+       lvl_ = lvl
+    else
+       lvl_ = NEKO_LOG_INFO
+    end if
+
+    if (lvl_ .gt. this%level_) then
+       return
+    end if
 
     if (pe_rank .eq. 0) then
 
@@ -207,9 +220,21 @@ contains
   end subroutine log_section
 
   !> End a log section
-  subroutine log_end_section(this, msg)
+  subroutine log_end_section(this, msg, lvl)
     class(log_t), intent(inout) :: this
     character(len=*), intent(in), optional :: msg
+    integer, optional :: lvl
+    integer :: lvl_
+
+    if (present(lvl)) then
+       lvl_ = lvl
+    else
+       lvl_ = NEKO_LOG_INFO
+    end if
+
+    if (lvl_ .gt. this%level_) then
+       return
+    end if
 
     if (present(msg)) then
        call this%message(msg, NEKO_LOG_QUIET)
@@ -236,7 +261,7 @@ contains
     call this%message('----------------------------------------------------------------', &
                       NEKO_LOG_QUIET)
     write(log_buf, '(A,E15.7,A,F6.2,A)') &
-    't = ', t, '                                  [ ',t_prog,'% ]'
+      't = ', t, '                                  [ ',t_prog,'% ]'
 
     call this%message(log_buf, NEKO_LOG_QUIET)
     call this%message('----------------------------------------------------------------', &
