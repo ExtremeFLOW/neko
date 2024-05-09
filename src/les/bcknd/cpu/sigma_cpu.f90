@@ -74,7 +74,7 @@ contains
     real(kind=rp) :: Invariant1, Invariant2, Invariant3
     real(kind=rp) :: alpha1, alpha2, alpha3
     real(kind=rp) :: Dsigma
-    real(kind=rp) :: pi_3 = 4.d0/3.d0*atan(1.d0)
+    real(kind=rp) :: pi_3 = 4.0_rp/3.0_rp*atan(1.0_rp)
     real(kind=rp) :: tmp1
     real(kind=rp) :: eps
 
@@ -137,29 +137,29 @@ contains
           ! eigenvalues with the analytical method of Hasan et al. (2001)
           ! doi:10.1006/jmre.2001.2400
               if (abs(sigG11).lt.eps) then
-                 sigG11 = 0.d0
+                 sigG11 = 0.0_rp
               endif
               if (abs(sigG12).lt.eps) then
-                 sigG12 = 0.d0
+                 sigG12 = 0.0_rp
               endif
               if (abs(sigG13).lt.eps) then
-                 sigG13 = 0.d0
+                 sigG13 = 0.0_rp
               endif
               if (abs(sigG22).lt.eps) then
-                 sigG22 = 0.d0
+                 sigG22 = 0.0_rp
               endif
               if (abs(sigG23).lt.eps) then
-                 sigG23 = 0.d0
+                 sigG23 = 0.0_rp
               endif
               if (abs(sigG33).lt.eps) then
-                 sigG33 = 0.d0
+                 sigG33 = 0.0_rp
               endif
 
               if (abs(sigG12*sigG12 + sigG13*sigG13 + sigG23*sigG23).lt.eps) then
                  !             G is diagonal
                  ! estimate the singular values according to:
-                 sigma1=sqrt(max(max(max(sigG11, sigG22), sigG33), 0.d0))
-                 sigma3=sqrt(max(min(min(sigG11, sigG22), sigG33), 0.d0))
+                 sigma1=sqrt(max(max(max(sigG11, sigG22), sigG33), 0.0_rp))
+                 sigma3=sqrt(max(min(min(sigG11, sigG22), sigG33), 0.0_rp))
                  Invariant1=sigG11 + sigG22 + sigG33
                  sigma2=sqrt(abs(Invariant1 - sigma1*sigma1 - sigma3*sigma3))
               else
@@ -168,56 +168,56 @@ contains
                  Invariant1=sigG11 + sigG22 + sigG33
                  Invariant2=sigG11*sigG22 + sigG11*sigG33 + sigG22*sigG33 - &
                            (sigG12*sigG12 + sigG13*sigG13 + sigG23*sigG23)
-                 Invariant3=sigG11*sigG22*sigG33 + 2.d0*sigG12*sigG13*sigG23 - &
+                 Invariant3=sigG11*sigG22*sigG33 + 2.0_rp*sigG12*sigG13*sigG23 - &
                            (sigG11*sigG23*sigG23 + sigG22*sigG13*sigG13 + &
                             sigG33*sigG12*sigG12)
 
                  ! G is symmetric semi-definite positive matrix:
                  ! the invariants have to be larger-equal zero
                  ! which is obtained via forcing
-                 Invariant1=max(Invariant1, 0.d0)
-                 Invariant2=max(Invariant2, 0.d0)
-                 Invariant3=max(Invariant3, 0.d0)
+                 Invariant1=max(Invariant1, 0.0_rp)
+                 Invariant2=max(Invariant2, 0.0_rp)
+                 Invariant3=max(Invariant3, 0.0_rp)
 
 !                ! compute the following angles from the invariants
-                 alpha1=Invariant1*Invariant1/9.d0 - Invariant2/3.d0
+                 alpha1=Invariant1*Invariant1/9.0_rp - Invariant2/3.0_rp
 
                  ! since alpha1 is always positive (see Hasan et al. (2001))
                  ! forcing is applied
-                 alpha1=max(alpha1, 0.d0)
+                 alpha1=max(alpha1, 0.0_rp)
 
-                 alpha2=Invariant1*Invariant1*Invariant1/27.d0 - &
-                        Invariant1*Invariant2/6.d0 + Invariant3/2.d0
+                 alpha2=Invariant1*Invariant1*Invariant1/27.0_rp - &
+                        Invariant1*Invariant2/6.0_rp + Invariant3/2.0_rp
 
-                 ! since dacos(alpha2/(alpha1^(3/2)))/3.d0 only valid for
-                 ! alpha2^2 < alpha1^3.d0 and arccos(x) only valid for -1<=x<=1
+                 ! since dacos(alpha2/(alpha1^(3/2)))/3.0_rp only valid for
+                 ! alpha2^2 < alpha1^3.0_rp and arccos(x) only valid for -1<=x<=1
                  !  alpha3 is between 0 and pi/3
-                 tmp1=alpha2/(alpha1**(3.d0/2.d0))
+                 tmp1=alpha2/(alpha1**(3.0_rp/2.0_rp))
 
-                 if (tmp1.le.-1.d0) then
+                 if (tmp1.le.-1.0_rp) then
                     ! alpha3=pi/3 -> cos(alpha3)=0.5
                     ! compute the singular values
-                    sigma1=sqrt(max(Invariant1/3.d0 + sqrt(alpha1),0.d0))
+                    sigma1=sqrt(max(Invariant1/3.0_rp + sqrt(alpha1),0.0_rp))
                     sigma2=sigma1
-                    sigma3=sqrt(Invariant1/3.d0 - 2.d0*sqrt(alpha1))
+                    sigma3=sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1))
 
-                elseif (tmp1.ge.1.d0) then
-                    ! alpha3=0.d0 -> cos(alpha3)=1.0
-                    sigma1=sqrt(max(Invariant1/3.d0 + 2.d0*sqrt(alpha1),0.d0))
-                    sigma2=sqrt(Invariant1/3.d0 - sqrt(alpha1))
+                elseif (tmp1.ge.1.0_rp) then
+                    ! alpha3=0.0_rp -> cos(alpha3)=1.0
+                    sigma1=sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1),0.0_rp))
+                    sigma2=sqrt(Invariant1/3.0_rp - sqrt(alpha1))
                     sigma3=sigma2
                 else
-                    alpha3=dacos(tmp1)/3.d0
+                    alpha3=dacos(tmp1)/3.0_rp
 
                   if (abs(Invariant3).lt.eps) then
                      ! In case of Invariant3=0, one or more eigenvalues are equal to zero
                      ! Therefore force sigma3 to 0 and compute sigma1 and sigma2
-                     sigma1=sqrt(max(Invariant1/3.d0 + 2.d0*sqrt(alpha1)*dcos(alpha3),0.d0))
+                     sigma1=sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1)*dcos(alpha3),0.0_rp))
                      sigma2=sqrt(abs(Invariant1 - sigma1*sigma1))
-                     sigma3=0.d0
+                     sigma3=0.0_rp
                   else
-                     sigma1=sqrt(max(Invariant1/3.d0 + 2.d0*sqrt(alpha1)*dcos(alpha3),0.d0))
-                     sigma2=sqrt(Invariant1/3.d0 - 2.d0*sqrt(alpha1)*dcos(pi_3+alpha3))
+                     sigma1=sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1)*dcos(alpha3),0.0_rp))
+                     sigma2=sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1)*dcos(pi_3+alpha3))
                      sigma3=sqrt(abs(Invariant1 - sigma1*sigma1-sigma2*sigma2))
                   endif ! Invariant3=0 ?
                 endif ! tmp1
@@ -227,7 +227,7 @@ contains
               Dsigma=sigma3*(sigma1 - sigma2)*(sigma2 - sigma3)/(sigma1*sigma1)
 
               !clipping to avoid negative values
-              Dsigma=max(Dsigma, 0.d0)
+              Dsigma=max(Dsigma, 0.0_rp)
 
               ! estimate turbulent viscosity
 
