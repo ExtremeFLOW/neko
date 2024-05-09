@@ -107,7 +107,7 @@ module fluid_pnpn_perturb
      type(dirichlet_t) :: bc_field_dirichlet_u !< Dirichlet condition vel. res.
      type(dirichlet_t) :: bc_field_dirichlet_v !< Dirichlet condition vel. res.
      type(dirichlet_t) :: bc_field_dirichlet_w !< Dirichlet condition vel. res.
-     type(non_normal_t) :: bc_vel_res_non_normal !< Dirichlet condition vel. res.
+     type(non_normal_t) :: bc_vel_res_non_normal !< Dirichlet condition vel. res
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
      type(bc_list_t) :: bclst_dv
@@ -119,7 +119,6 @@ module fluid_pnpn_perturb
      !! Time variables
      type(field_t) :: abx1, aby1, abz1
      type(field_t) :: abx2, aby2, abz2
-
 
      !> Pressure residual
      class(pnpn_prs_res_t), allocatable :: prs_res
@@ -149,31 +148,13 @@ module fluid_pnpn_perturb
      ! ======================================================================= !
      ! Definition of shorthands and local variables
 
-     !> Size of the arrays
-     integer :: n
-
-     !> Volume of the mesh
-     real(kind=rp) :: vol
-     !> Mass matrix
-     real(kind=rp), dimension(:,:,:,:), pointer :: B
-
-     !> The previously used timestep
-     real(kind=rp) :: t_old
      !> The norm of the velocity field at the previous timestep
      real(kind=rp) :: norm_l2_old
-     !> The slope of the norm of the velocity field
-     real(kind=rp) :: slope_value
-     !> The number of times the slope has been computed
-     real(kind=rp) :: slope_count
 
      !> Upper limit for the norm
      real(kind=rp) :: norm_l2_upper
      !> Lower limit for the norm
      real(kind=rp) :: norm_l2_lower
-
-     !> Flag to indicate if the flow has been rescaled.
-     !! Used to wait for the slope to stabilize.
-     logical :: has_rescaled = .false.
 
      !> Output file
      type(file_t) :: file_output
@@ -202,6 +183,7 @@ contains
     type(file_t) :: field_file, out_file
     type(fld_file_data_t) :: field_data
     character(len=:), allocatable :: string_val1, string_val2
+    integer :: n
 
     ! Temporary field pointers
     real(kind=rp) :: norm_l2_base
@@ -447,19 +429,20 @@ contains
 
     ! Build the header
     this%file_output = file_t(trim(file_name))
-    write(header_line, '(A)') 'Time, Norm, Slope, Eigenvalue, Scaling'
+    write(header_line, '(A)') 'Time, Norm, Scaling'
     call this%file_output%set_header(header_line)
 
-    ! Point the internal fields to the correct data
-    this%n = this%u%size()
-    ! Allocate the mass matrix
-    this%B => this%c_Xh%B
-    this%vol = this%c_Xh%volume
-
     ! Setup the target norm for the velocity field
-    norm_l2_base = sqrt(this%norm_scaling) &
-      * norm(this%u_b%x, this%v_b%x, this%w_b%x, &
-                 this%B, this%vol, this%n)
+    n = this%c_Xh%dof%size()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       norm_l2_base= device_norm(this%u_b%x_d, this%v_b%x_d, this%w_b%x_d, &
+                                 this%c_Xh%B_d, this%c_Xh%volume, n)
+    else
+       norm_l2_base= norm(this%u_b%x, this%v_b%x, this%w_b%x, &
+                          this%c_Xh%B, this%c_Xh%volume, n)
+    end if
+
+    norm_l2_base = sqrt(this%norm_scaling) * norm_l2_base
 
     this%norm_target = norm_l2_base
     this%norm_l2_old = this%norm_target
@@ -1022,58 +1005,47 @@ contains
     real(kind=rp) :: dt
     character(len=256) :: log_message
     type(vector_t) :: data_line
+    integer :: n
 
     ! Compute timestep and update the old time
-    dt = t - this%t_old
-    this%t_old = t
+    n = this%c_Xh%dof%size()
 
     ! Compute the norm of the velocity field and eigenvalue estimate
-    norm_l2 = sqrt(this%norm_scaling) * norm(this%u%x, this%v%x, this%w%x, &
-                                             this%B, this%vol, this%n)
-    lambda = (log(norm_l2) - log(this%norm_l2_old)) / dt
-    this%norm_l2_old = norm_l2
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       norm_l2 = device_norm(this%u%x_d, this%v%x_d, this%w%x_d, &
+                             this%c_Xh%B_d, this%c_Xh%volume, n)
+    else
+       norm_l2 = norm(this%u%x, this%v%x, this%w%x, &
+                      this%c_Xh%B, this%c_Xh%volume, n)
+    end if
+    norm_l2 = sqrt(this%norm_scaling) * norm_l2
 
     ! Rescale the flow if necessary
-    scaling_factor = 1.0_rp
-    if (norm_l2 .gt. this%norm_l2_upper) then
-       this%has_rescaled = .true.
-
+    if (norm_l2 .gt. this%norm_l2_upper &
+        .or. norm_l2 .lt. this%norm_l2_lower) then
        scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this, scaling_factor)
 
        This%norm_l2_old = this%norm_target
-    else if ( norm_l2 .lt. this%norm_l2_lower) then
-       this%has_rescaled = .true.
-
-       scaling_factor = this%norm_target / norm_l2
-       call rescale_fluid(this, scaling_factor)
-
-       This%norm_l2_old = this%norm_target
-    else if (this%has_rescaled) then
-       this%slope_count = this%slope_count + 1.0_rp
-
-       this%slope_value = this%slope_value + &
-         ( lambda - this%slope_value ) / (this%slope_count)
-
+    else
+       this%norm_l2_old = norm_l2
+       scaling_factor = 1.0_rp
     end if
 
     ! Log the results
-    call neko_log%section('Power Iterations')
+    call neko_log%section('Power Iterations', lvl=NEKO_LOG_DEBUG)
 
     write (log_message, '(A7,E20.14)') 'Norm: ', norm_l2
     call neko_log%message(log_message, lvl=NEKO_LOG_DEBUG)
-    write (log_message, '(A7,E20.14)') 'Slope: ', this%slope_value
-    call neko_log%message(log_message, lvl=NEKO_LOG_DEBUG)
-    write (log_message, '(A7,E20.14)') 'Eigen: ', abs(lambda)
-    call neko_log%message(log_message, lvl=NEKO_LOG_DEBUG)
     write (log_message, '(A7,E20.14)') 'Scaling: ', scaling_factor
+    call neko_log%message(log_message, lvl=NEKO_LOG_DEBUG)
 
     ! Save to file
-    call data_line%init(4)
-    data_line%x = [norm_l2, this%slope_value, abs(lambda), scaling_factor]
+    call data_line%init(2)
+    data_line%x = [norm_l2, scaling_factor]
     call this%file_output%write(data_line, t)
 
-    call neko_log%end_section('Power Iterations')
+    call neko_log%end_section('Power Iterations', lvl=NEKO_LOG_DEBUG)
   end subroutine power_iterations_compute
 
 
