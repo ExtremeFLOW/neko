@@ -116,8 +116,10 @@ contains
     call compute_num_den_cpu(num, den, lij, mij, alpha, u%dof%size())
 
     do i=1, u%dof%size()
-       if (.not. (den%x(i,1,1,1) .eq. 0)) then
+       if (den%x(i,1,1,1) .gt. 0.0_rp) then
           c_dyn%x(i,1,1,1) = 0.5_rp * (num%x(i,1,1,1)/den%x(i,1,1,1))
+       else
+          c_dyn%x(i,1,1,1) = 0.0_rp
        end if
        c_dyn%x(i,1,1,1) = max(c_dyn%x(i,1,1,1),0.0_rp)
        nut%x(i,1,1,1) = c_dyn%x(i,1,1,1) * delta%x(i,1,1,1)**2 * s_abs%x(i,1,1,1)
