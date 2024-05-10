@@ -189,7 +189,7 @@ contains
                  alpha2=Invariant1*Invariant1*Invariant1/27.0_rp - &
                         Invariant1*Invariant2/6.0_rp + Invariant3/2.0_rp
 
-                 ! since dacos(alpha2/(alpha1^(3/2)))/3.0_rp only valid for
+                 ! since acos(alpha2/(alpha1^(3/2)))/3.0_rp only valid for
                  ! alpha2^2 < alpha1^3.0_rp and arccos(x) only valid for -1<=x<=1
                  !  alpha3 is between 0 and pi/3
                  tmp1=alpha2/(alpha1**(3.0_rp/2.0_rp))
@@ -207,17 +207,17 @@ contains
                     sigma2=sqrt(Invariant1/3.0_rp - sqrt(alpha1))
                     sigma3=sigma2
                 else
-                    alpha3=dacos(tmp1)/3.0_rp
+                    alpha3=acos(tmp1)/3.0_rp
 
                   if (abs(Invariant3).lt.eps) then
                      ! In case of Invariant3=0, one or more eigenvalues are equal to zero
                      ! Therefore force sigma3 to 0 and compute sigma1 and sigma2
-                     sigma1=sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1)*dcos(alpha3),0.0_rp))
+                     sigma1=sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1)*cos(alpha3),0.0_rp))
                      sigma2=sqrt(abs(Invariant1 - sigma1*sigma1))
                      sigma3=0.0_rp
                   else
-                     sigma1=sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1)*dcos(alpha3),0.0_rp))
-                     sigma2=sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1)*dcos(pi_3+alpha3))
+                     sigma1=sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1)*cos(alpha3),0.0_rp))
+                     sigma2=sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1)*cos(pi_3+alpha3))
                      sigma3=sqrt(abs(Invariant1 - sigma1*sigma1-sigma2*sigma2))
                   endif ! Invariant3=0 ?
                 endif ! tmp1
