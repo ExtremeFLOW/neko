@@ -109,13 +109,8 @@ module fluid_scheme
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
 
      ! Attributes for field dirichlet BCs
-     type(field_dirichlet_vector_t) :: bc_field_vel   !< Field Dirichlet velocity condition
-     type(field_dirichlet_t) :: bc_field_prs   !< Field Dirichlet pressure condition
-     procedure(field_dirichlet_update), nopass, pointer :: dirichlet_update_ &
-          => null() !< Pointer to user_dirichlet_update to be called in fluid_scheme_step
-     type(bc_list_t) :: field_dirichlet_bcs       !< List of BC objects to pass to user_dirichlet_update
-     type(field_list_t) :: field_dirichlet_fields !< List of fields to pass to user_dirichlet_update
-
+     type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
+     type(field_dirichlet_t) :: user_field_bc_prs   !< User-computed Dirichlet pressure condition
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
@@ -366,71 +361,73 @@ contains
     call bc_list_add(this%bclst_vel, this%bc_wall)
 
     ! Setup field dirichlet bc for u-velocity
-    call this%bc_field_vel%field_dirichlet_u%init_base(this%c_Xh)
-    call this%bc_field_vel%field_dirichlet_u%mark_zones_from_list(msh%labeled_zones,&
+    call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
+    call this%user_field_bc_vel%bc_u%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_u', this%bc_labels)
-    call this%bc_field_vel%field_dirichlet_u%finalize()
+    call this%user_field_bc_vel%bc_u%finalize()
 
-    call MPI_Allreduce(this%bc_field_vel%field_dirichlet_u%msk(0), integer_val, 1, &
+    call MPI_Allreduce(this%user_field_bc_vel%bc_u%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_u%init_field('d_vel_u')
+    if (integer_val .gt. 0)  call this%user_field_bc_vel%bc_u%init_field('d_vel_u')
 
     ! Setup field dirichlet bc for v-velocity
-    call this%bc_field_vel%field_dirichlet_v%init_base(this%c_Xh)
-    call this%bc_field_vel%field_dirichlet_v%mark_zones_from_list(msh%labeled_zones,&
+    call this%user_field_bc_vel%bc_v%init_base(this%c_Xh)
+    call this%user_field_bc_vel%bc_v%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_v', this%bc_labels)
-    call this%bc_field_vel%field_dirichlet_v%finalize()
+    call this%user_field_bc_vel%bc_v%finalize()
 
-    call MPI_Allreduce(this%bc_field_vel%field_dirichlet_v%msk(0), integer_val, 1, &
+    call MPI_Allreduce(this%user_field_bc_vel%bc_v%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_v%init_field('d_vel_v')
+    if (integer_val .gt. 0)  call this%user_field_bc_vel%bc_v%init_field('d_vel_v')
 
     ! Setup field dirichlet bc for w-velocity
-    call this%bc_field_vel%field_dirichlet_w%init_base(this%c_Xh)
-    call this%bc_field_vel%field_dirichlet_w%mark_zones_from_list(msh%labeled_zones,&
+    call this%user_field_bc_vel%bc_w%init_base(this%c_Xh)
+    call this%user_field_bc_vel%bc_w%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_w', this%bc_labels)
-    call this%bc_field_vel%field_dirichlet_w%finalize()
+    call this%user_field_bc_vel%bc_w%finalize()
 
-    call MPI_Allreduce(this%bc_field_vel%field_dirichlet_w%msk(0), integer_val, 1, &
+    call MPI_Allreduce(this%user_field_bc_vel%bc_w%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_w%init_field('d_vel_w')
+    if (integer_val .gt. 0)  call this%user_field_bc_vel%bc_w%init_field('d_vel_w')
 
     ! Setup our global field dirichlet bc
-    call this%bc_field_vel%init_base(this%c_Xh)
-    call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
+    call this%user_field_bc_vel%init_base(this%c_Xh)
+    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_u', this%bc_labels)
-    call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
+    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_v', this%bc_labels)
-    call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
+    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones,&
                         'd_vel_w', this%bc_labels)
-    call this%bc_field_vel%finalize()
+    call this%user_field_bc_vel%finalize()
 
     ! Add the field bc to velocity bcs
-    call bc_list_add(this%bclst_vel, this%bc_field_vel)
+    call bc_list_add(this%bclst_vel, this%user_field_bc_vel)
 
     !
     ! Associate our field dirichlet update to the user one.
     !
-    this%dirichlet_update_ => user%user_dirichlet_update
+    this%user_field_bc_vel%update => user%user_dirichlet_update
 
     !
     ! Initialize field list and bc list for user_dirichlet_update
     !
-    allocate(this%field_dirichlet_fields%items(4))
 
-    this%field_dirichlet_fields%items(1)%ptr => &
-         this%bc_field_vel%field_dirichlet_u%field_bc
-    this%field_dirichlet_fields%items(2)%ptr => &
-         this%bc_field_vel%field_dirichlet_v%field_bc
-    this%field_dirichlet_fields%items(3)%ptr => &
-         this%bc_field_vel%field_dirichlet_w%field_bc
-    this%field_dirichlet_fields%items(4)%ptr => &
-         this%bc_field_prs%field_bc
+    ! Note, some of these are potentially not initialized !
+    call this%user_field_bc_vel%field_list%init(4)
+    call this%user_field_bc_vel%field_list%assign_to_field(1, &
+            this%user_field_bc_vel%bc_u%field_bc)
+    call this%user_field_bc_vel%field_list%assign_to_field(2, &
+            this%user_field_bc_vel%bc_v%field_bc)
+    call this%user_field_bc_vel%field_list%assign_to_field(3, &
+            this%user_field_bc_vel%bc_w%field_bc)
+    call this%user_field_bc_vel%field_list%assign_to_field(4, &
+            this%user_field_bc_prs%field_bc)
 
-    call bc_list_init(this%field_dirichlet_bcs, size=4)
-    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_u)
-    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_v)
-    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_w)
+    call bc_list_init(this%user_field_bc_vel%bc_list, size=4)
+    ! Note, bc_list_add only adds if the bc is not empty
+    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_u)
+    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_v)
+    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_w)
 
     !
     ! Check if we need to output boundary types to a separate field
@@ -524,16 +521,16 @@ contains
                         'on', this%bc_labels)
 
     ! Field dirichlet pressure bc
-    call this%bc_field_prs%init_base(this%c_Xh)
-    call this%bc_field_prs%mark_zones_from_list(msh%labeled_zones,&
+    call this%user_field_bc_prs%init_base(this%c_Xh)
+    call this%user_field_bc_prs%mark_zones_from_list(msh%labeled_zones,&
                         'd_pres', this%bc_labels)
-    call this%bc_field_prs%finalize()
-    call MPI_Allreduce(this%bc_field_prs%msk(0), integer_val, 1, &
+    call this%user_field_bc_prs%finalize()
+    call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
-    if (integer_val .gt. 0)  call this%bc_field_prs%init_field('d_pres')
-    call bc_list_add(this%bclst_prs, this%bc_field_prs)
-    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_prs)
+    if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
+    call bc_list_add(this%bclst_prs, this%user_field_bc_prs)
+    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_prs)
 
     if (msh%outlet%size .gt. 0) then
        call this%bc_prs%mark_zone(msh%outlet)
@@ -627,18 +624,12 @@ contains
     !
     ! Free everything related to field_dirichlet BCs
     !
-    call this%bc_field_prs%field_bc%free()
-    call this%bc_field_prs%free()
-    call this%bc_field_vel%field_dirichlet_u%field_bc%free()
-    call this%bc_field_vel%field_dirichlet_v%field_bc%free()
-    call this%bc_field_vel%field_dirichlet_w%field_bc%free()
-    call this%bc_field_vel%free()
-
-    call this%field_dirichlet_fields%free()
-    call bc_list_free(this%field_dirichlet_bcs)
-    if (associated(this%dirichlet_update_)) then
-       this%dirichlet_update_ => null()
-    end if
+    call this%user_field_bc_prs%field_bc%free()
+    call this%user_field_bc_prs%free()
+    call this%user_field_bc_vel%bc_u%field_bc%free()
+    call this%user_field_bc_vel%bc_v%field_bc%free()
+    call this%user_field_bc_vel%bc_w%field_bc%free()
+    call this%user_field_bc_vel%free()
 
     call this%Xh%free()
 
