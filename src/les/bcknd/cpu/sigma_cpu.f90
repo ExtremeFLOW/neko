@@ -224,7 +224,11 @@ contains
               endif ! G diagonal ?
 
               ! Estimate Dsigma
-              Dsigma=sigma3*(sigma1 - sigma2)*(sigma2 - sigma3)/(sigma1*sigma1)
+              if (sigma1 .gt. 0.0_rp) then
+                 Dsigma=sigma3*(sigma1 - sigma2)*(sigma2 - sigma3)/(sigma1*sigma1)
+              else
+                 Dsigma=0.0_rp
+              end if
 
               !clipping to avoid negative values
               Dsigma=max(Dsigma, 0.0_rp)
