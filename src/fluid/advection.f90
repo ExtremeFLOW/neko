@@ -36,13 +36,13 @@ module advection
   use space, only : space_t
   use field, only : field_t
   use coefs, only : coef_t
-  use device_math
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
        NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
   use operators, only : opgrad, conv1, cdtp
   use interpolation, only : interpolator_t
   use device_math
-  use device, only : device_free, device_map, device_get_ptr
+  use device, only : device_free, device_map, device_get_ptr, device_memcpy, &
+       HOST_TO_DEVICE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated
   implicit none
@@ -349,6 +349,9 @@ contains
        allocate(this%dwxb(n_GL))
        allocate(this%dwyb(n_GL))
        allocate(this%dwzb(n_GL))
+       allocate(this%txb(n_GL))
+       allocate(this%tyb(n_GL))
+       allocate(this%tzb(n_GL))
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -370,6 +373,9 @@ contains
        call device_map(this%dwxb, this%dwxb_d, n_GL)
        call device_map(this%dwyb, this%dwyb_d, n_GL)
        call device_map(this%dwzb, this%dwzb_d, n_GL)
+       call device_map(this%txb, this%txb_d, n_GL)
+       call device_map(this%tyb, this%tyb_d, n_GL)
+       call device_map(this%tzb, this%tzb_d, n_GL)
     end if
 
   end subroutine init_dealias
@@ -751,91 +757,94 @@ contains
          fx_d = device_get_ptr(fx)
          fy_d = device_get_ptr(fy)
          fz_d = device_get_ptr(fz)
-    ! HARRY
-    		! These are the baseflow
+         ! HARRY
+         ! These are the baseflow
          call this%GLL_to_GL%map(this%txb, vxb%x, nel, this%Xh_GL)
+         call device_memcpy(this%txb, this%txb_d, n_GL, HOST_TO_DEVICE, .false.)
          call this%GLL_to_GL%map(this%tyb, vyb%x, nel, this%Xh_GL)
+         call device_memcpy(this%tyb, this%tyb_d, n_GL, HOST_TO_DEVICE, .false.)
          call this%GLL_to_GL%map(this%tzb, vzb%x, nel, this%Xh_GL)
+         call device_memcpy(this%tzb, this%tzb_d, n_GL, HOST_TO_DEVICE, .false.)
 
-			! These are velocity
+         ! These are velocity
          call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
          call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
          call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
 
 
-    ! u . grad U_b^T
-    !-----------------------------
-			! take all the gradients
+         ! u . grad U_b^T
+         !-----------------------------
+         ! take all the gradients
          call opgrad(this%duxb, this%duyb, this%duzb, this%txb, c_GL)
          call opgrad(this%dvxb, this%dvyb, this%dvzb, this%txb, c_GL)
          call opgrad(this%dwxb, this%dwyb, this%dwzb, this%txb, c_GL)
 
          ! traspose and multiply
-         call device_vdot3(this%vr_d,   this%tx_d,   this%ty_d,   this%tz_d, &
-         						this%duxb_d, this%dvxb_d, this%dwxb_d, n_GL)
+         call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
+                           this%duxb_d, this%dvxb_d, this%dwxb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%vr, nel, this%Xh_GLL)
          call device_sub2(fx_d, this%temp_d, n)
 
-         call device_vdot3(this%vr_d,   this%tx_d,   this%ty_d,   this%tz_d, &
-         						this%duyb_d, this%dvyb_d, this%dwyb_d, n_GL)
+         call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
+                           this%duyb_d, this%dvyb_d, this%dwyb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%vr, nel, this%Xh_GLL)
          call device_sub2(fy_d, this%temp_d, n)
 
-         call device_vdot3(this%vr_d,   this%tx_d,   this%ty_d,   this%tz_d, &
-         						this%duzb_d, this%dvzb_d, this%dwzb_d, n_GL)
+         call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
+                           this%duzb_d, this%dvzb_d, this%dwzb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%vr, nel, this%Xh_GLL)
          call device_sub2(fz_d, this%temp_d, n)
 
-    ! \int \grad v . U_b ^ u    with ^ an outer product
+         ! \int \grad v . U_b ^ u    with ^ an outer product
 
-			! (x)
+         ! (x)
          ! duxb,duyb,duzb are temporary arrays
-    		call device_col3(this%duxb_d, this%tx_d, this%txb_d, n_GL)
-    		call device_col3(this%duyb_d, this%tx_d, this%tyb_d, n_GL)
-    		call device_col3(this%duzb_d, this%tx_d, this%tzb_d, n_GL)
+         call device_col3(this%duxb_d, this%tx_d, this%txb_d, n_GL)
+         call device_col3(this%duyb_d, this%tx_d, this%tyb_d, n_GL)
+         call device_col3(this%duzb_d, this%tx_d, this%tzb_d, n_GL)
 
-         ! D^T 
+         ! D^T
          ! vr,vs,vt are temporary arrays
          call cdtp(this%vr, this%duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL)
          call cdtp(this%vs, this%duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL)
          call cdtp(this%vt, this%duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL)
 
-			! reuse duxb as a temp
+         ! reuse duxb as a temp
          call device_add4(this%duxb_d, this%vr_d ,this%vs_d ,this%vt_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%duxb, nel, this%Xh_GLL)
          call device_sub2(fx_d, this%temp_d, n)
 
 
-			! (y)
+         ! (y)
          ! duxb,duyb,duzb are temporary arrays
-    		call device_col3(this%duxb_d, this%ty_d, this%txb_d, n_GL)
-    		call device_col3(this%duyb_d, this%ty_d, this%tyb_d, n_GL)
-    		call device_col3(this%duzb_d, this%ty_d, this%tzb_d, n_GL)
+         call device_col3(this%duxb_d, this%ty_d, this%txb_d, n_GL)
+         call device_col3(this%duyb_d, this%ty_d, this%tyb_d, n_GL)
+         call device_col3(this%duzb_d, this%ty_d, this%tzb_d, n_GL)
 
-         ! D^T 
+         ! D^T
          ! vr,vs,vt are temporary arrays
          call cdtp(this%vr, this%duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL)
          call cdtp(this%vs, this%duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL)
          call cdtp(this%vt, this%duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL)
 
-			! reuse duxb as a temp
+         ! reuse duxb as a temp
          call device_add4(this%duxb_d, this%vr_d ,this%vs_d ,this%vt_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%duxb, nel, this%Xh_GLL)
          call device_sub2(fy_d, this%temp_d, n)
-         
-			! (z)
-         ! duxb,duyb,duzb are temporary arrays
-    		call device_col3(this%duxb_d, this%tz_d, this%txb_d, n_GL)
-    		call device_col3(this%duyb_d, this%tz_d, this%tyb_d, n_GL)
-    		call device_col3(this%duzb_d, this%tz_d, this%tzb_d, n_GL)
 
-         ! D^T 
+         ! (z)
+         ! duxb,duyb,duzb are temporary arrays
+         call device_col3(this%duxb_d, this%tz_d, this%txb_d, n_GL)
+         call device_col3(this%duyb_d, this%tz_d, this%tyb_d, n_GL)
+         call device_col3(this%duzb_d, this%tz_d, this%tzb_d, n_GL)
+
+         ! D^T
          ! vr,vs,vt are temporary arrays
          call cdtp(this%vr, this%duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL)
          call cdtp(this%vs, this%duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL)
          call cdtp(this%vt, this%duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL)
 
-			! reuse duxb as a temp
+         ! reuse duxb as a temp
          call device_add4(this%duxb_d, this%vr_d ,this%vs_d ,this%vt_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%duxb, nel, this%Xh_GLL)
          call device_sub2(fz_d, this%temp_d, n)
@@ -844,12 +853,6 @@ contains
       else
 
 
-
-		do e = 1, coef%msh%nelv
-    		! These are the baseflow
-         call this%GLL_to_GL%map(txb, vxb%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(tyb, vyb%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(tzb, vzb%x(1,1,1,e), 1, this%Xh_GL)
 
          do e = 1, coef%msh%nelv
             ! These are the baseflow
@@ -887,21 +890,21 @@ contains
             call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
             call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
 
-    ! In most literature this term is -(grad . U_b) u + BDRY
-    !
-    ! We prefer the weak form
-    ! \int \grad v . U_b ^ u    with ^ an outer product
-    ! avoiding:
-    ! - an extra boundary term
-    ! - the assumption of \grad . U_b pointwise
-    !
-    ! we're going to reuse uxb, uyb and uzb for the outer product 
-    !-----------------------------
-    	  	! here we have index i, with free index j------------------------------x
-         do i = 1, this%Xh_GL%lxyz
-           		!fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
-           		! now this is correct
-           		fac = 1.0
+            ! In most literature this term is -(grad . U_b) u + BDRY
+            !
+            ! We prefer the weak form
+            ! \int \grad v . U_b ^ u    with ^ an outer product
+            ! avoiding:
+            ! - an extra boundary term
+            ! - the assumption of \grad . U_b pointwise
+            !
+            ! we're going to reuse uxb, uyb and uzb for the outer product
+            !-----------------------------
+            ! here we have index i, with free index j------------------------------x
+            do i = 1, this%Xh_GL%lxyz
+               !fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+               ! now this is correct
+               fac = 1.0
                duxb(i) = tx(i)*txb(i)*fac
                duyb(i) = tx(i)*tyb(i)*fac
                duzb(i) = tx(i)*tzb(i)*fac
@@ -920,11 +923,11 @@ contains
             call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
             call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
 
-    	  	! here we have index i, with free index j------------------------------y
-         do i = 1, this%Xh_GL%lxyz
-           		!fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
-           		! now this is correct
-           		fac = 1.0
+            ! here we have index i, with free index j------------------------------y
+            do i = 1, this%Xh_GL%lxyz
+               !fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+               ! now this is correct
+               fac = 1.0
                duxb(i) = ty(i)*txb(i)*fac
                duyb(i) = ty(i)*tyb(i)*fac
                duzb(i) = ty(i)*tzb(i)*fac
@@ -943,11 +946,11 @@ contains
             call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
             call sub2(fy(idx), tempx, this%Xh_GLL%lxyz)
 
-    	  	! here we have index i, with free index j------------------------------z
-         do i = 1, this%Xh_GL%lxyz
-           		!fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
-           		! now this is correct
-           		fac = 1.0
+            ! here we have index i, with free index j------------------------------z
+            do i = 1, this%Xh_GL%lxyz
+               !fac = this%Xh_GL%w3(i,1,1)*c_GL%jac(i,1,1,e)/c_GL%B(i,1,1,e)
+               ! now this is correct
+               fac = 1.0
                duxb(i) = tz(i)*txb(i)*fac
                duyb(i) = tz(i)*tyb(i)*fac
                duzb(i) = tz(i)*tzb(i)*fac
@@ -1069,7 +1072,7 @@ contains
 !      else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
 !      !TODO
 !      else
-!		
+!
 !		do e = 1, coef%msh%nelv
 !    ! HARRY
 !    		! These are the baseflow
@@ -1115,7 +1118,7 @@ contains
 !    ! - an extra boundary term
 !    ! - the assumption of \grad . U_b pointwise
 !    !
-!    ! we're going to reuse uxb, uyb and uzb for the outer product 
+!    ! we're going to reuse uxb, uyb and uzb for the outer product
 !    !-----------------------------
 !    	  	! here we have index i, with free index j------------------------------x
 !         do i = 1, this%Xh_GL%lxyz
@@ -1124,7 +1127,7 @@ contains
 !               duyb(i,1) = tx(i)*tyb(i)*fac
 !               duzb(i,1) = tx(i)*tzb(i)*fac
 !         end do
-!         ! D^T 
+!         ! D^T
 !         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
 !         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
 !         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
@@ -1145,7 +1148,7 @@ contains
 !               duyb(i,1) = ty(i)*tyb(i)*fac
 !               duzb(i,1) = ty(i)*tzb(i)*fac
 !         end do
-!         ! D^T 
+!         ! D^T
 !         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
 !         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
 !         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
@@ -1166,7 +1169,7 @@ contains
 !               duyb(i,1) = tz(i)*tyb(i)*fac
 !               duzb(i,1) = tz(i)*tzb(i)*fac
 !         end do
-!         ! D^T 
+!         ! D^T
 !         call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
 !         call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
 !         call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)

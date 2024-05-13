@@ -50,6 +50,7 @@ module fluid_pnpn_perturb
   use projection, only: projection_t
   use device, only: device_memcpy, HOST_TO_DEVICE
   use logger, only: neko_log, NEKO_LOG_DEBUG
+  use utils, only: neko_error
   use advection, only: advection_t
   use profiler, only: profiler_start_region, profiler_end_region
   use json_utils, only: json_get, json_get_or_default
@@ -148,6 +149,8 @@ module fluid_pnpn_perturb
      ! ======================================================================= !
      ! Definition of shorthands and local variables
 
+     !> Norm of the base field.
+     real(kind=rp) :: norm_l2_base
      !> The norm of the velocity field at the previous timestep
      real(kind=rp) :: norm_l2_old
 
@@ -182,7 +185,6 @@ contains
     character(len=20), parameter :: scheme = 'Perturbation (Pn/Pn)'
     type(file_t) :: field_file, out_file
     type(fld_file_data_t) :: field_data
-    character(len=:), allocatable :: string_val1, string_val2
     integer :: n
 
     ! Temporary field pointers
@@ -245,41 +247,55 @@ contains
     ! Initialize velocity surface terms in pressure rhs
     call this%bc_prs_surface%init_base(this%c_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
-    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                  'v', this%bc_labels)
-    !This impacts the rhs of the pressure, need to check what is correct to add here
-    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                  'd_vel_u', this%bc_labels)
-    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                  'd_vel_v', this%bc_labels)
-    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                  'd_vel_w', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list( &
+      & msh%labeled_zones, &
+      & 'v', this%bc_labels)
+    ! This impacts the rhs of the pressure, need to check what is correct to add
+    ! here
+    call this%bc_prs_surface%mark_zones_from_list( &
+      & msh%labeled_zones, &
+      & 'd_vel_u', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list( &
+      & msh%labeled_zones, &
+      & 'd_vel_v', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list( &
+      & msh%labeled_zones, &
+      & 'd_vel_w', this%bc_labels)
     call this%bc_prs_surface%finalize()
+
     ! Initialize symmetry surface terms in pressure rhs
     call this%bc_sym_surface%init_base(this%c_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
-    call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                  'sym', this%bc_labels)
+    call this%bc_sym_surface%mark_zones_from_list( &
+      & msh%labeled_zones, &
+      & 'sym', this%bc_labels)
+
     ! Same here, should du, dv, dw be marked here?
     call this%bc_sym_surface%finalize()
+
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_res_non_normal%init_base(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
-    call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                                                         'on', this%bc_labels)
-    call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                                                         'on+dong', &
-                                                         this%bc_labels)
+    call this%bc_vel_res_non_normal%mark_zones_from_list( &
+      & msh%labeled_zones, &
+      & 'on', this%bc_labels)
+    call this%bc_vel_res_non_normal%mark_zones_from_list( &
+      & msh%labeled_zones, &
+      & 'on+dong', &
+      & this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
     call this%bc_vel_res_non_normal%init(this%c_Xh)
 
     call this%bc_field_dirichlet_p%init_base(this%c_Xh)
-    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
-                                                        this%bc_labels)
-    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
-                                                        'o+dong', this%bc_labels)
-    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'd_pres', &
-                                                        this%bc_labels)
+    call this%bc_field_dirichlet_p%mark_zones_from_list( &
+      & msh%labeled_zones, 'on+dong', &
+      & this%bc_labels)
+    call this%bc_field_dirichlet_p%mark_zones_from_list( &
+      & msh%labeled_zones, &
+      & 'o+dong', this%bc_labels)
+    call this%bc_field_dirichlet_p%mark_zones_from_list( &
+      & msh%labeled_zones, 'd_pres', &
+      & this%bc_labels)
     call this%bc_field_dirichlet_p%finalize()
     call this%bc_field_dirichlet_p%set_g(0.0_rp)
     call bc_list_init(this%bclst_dp)
@@ -288,30 +304,35 @@ contains
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
     call this%bc_field_dirichlet_u%init_base(this%c_Xh)
-    call this%bc_field_dirichlet_u%mark_zones_from_list(msh%labeled_zones, 'd_vel_u', &
-                                                        this%bc_labels)
+    call this%bc_field_dirichlet_u%mark_zones_from_list( &
+      & msh%labeled_zones, 'd_vel_u', &
+      & this%bc_labels)
     call this%bc_field_dirichlet_u%finalize()
     call this%bc_field_dirichlet_u%set_g(0.0_rp)
 
     call this%bc_field_dirichlet_v%init_base(this%c_Xh)
-    call this%bc_field_dirichlet_v%mark_zones_from_list(msh%labeled_zones, 'd_vel_v', &
-                                                        this%bc_labels)
+    call this%bc_field_dirichlet_v%mark_zones_from_list( &
+      & msh%labeled_zones, 'd_vel_v', &
+      & this%bc_labels)
     call this%bc_field_dirichlet_v%finalize()
     call this%bc_field_dirichlet_v%set_g(0.0_rp)
 
     call this%bc_field_dirichlet_w%init_base(this%c_Xh)
-    call this%bc_field_dirichlet_w%mark_zones_from_list(msh%labeled_zones, 'd_vel_w', &
-                                                        this%bc_labels)
+    call this%bc_field_dirichlet_w%mark_zones_from_list( &
+      & msh%labeled_zones, 'd_vel_w', &
+      & this%bc_labels)
     call this%bc_field_dirichlet_w%finalize()
     call this%bc_field_dirichlet_w%set_g(0.0_rp)
 
     call this%bc_vel_res%init_base(this%c_Xh)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
-    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
-                                              'v', this%bc_labels)
-    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
-                                              'w', this%bc_labels)
+    call this%bc_vel_res%mark_zones_from_list( &
+      & msh%labeled_zones, &
+      & 'v', this%bc_labels)
+    call this%bc_vel_res%mark_zones_from_list( &
+      & msh%labeled_zones, &
+      & 'w', this%bc_labels)
     call this%bc_vel_res%finalize()
     call this%bc_vel_res%set_g(0.0_rp)
     call bc_list_init(this%bclst_vel_res)
@@ -321,20 +342,20 @@ contains
 
     !Initialize bcs for u, v, w velocity components
     call bc_list_init(this%bclst_du)
-    call bc_list_add(this%bclst_du,this%bc_sym%bc_x)
-    call bc_list_add(this%bclst_du,this%bc_vel_res_non_normal%bc_x)
+    call bc_list_add(this%bclst_du, this%bc_sym%bc_x)
+    call bc_list_add(this%bclst_du, this%bc_vel_res_non_normal%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res)
     call bc_list_add(this%bclst_du, this%bc_field_dirichlet_u)
 
     call bc_list_init(this%bclst_dv)
-    call bc_list_add(this%bclst_dv,this%bc_sym%bc_y)
-    call bc_list_add(this%bclst_dv,this%bc_vel_res_non_normal%bc_y)
+    call bc_list_add(this%bclst_dv, this%bc_sym%bc_y)
+    call bc_list_add(this%bclst_dv, this%bc_vel_res_non_normal%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res)
     call bc_list_add(this%bclst_dv, this%bc_field_dirichlet_v)
 
     call bc_list_init(this%bclst_dw)
-    call bc_list_add(this%bclst_dw,this%bc_sym%bc_z)
-    call bc_list_add(this%bclst_dw,this%bc_vel_res_non_normal%bc_z)
+    call bc_list_add(this%bclst_dw, this%bc_sym%bc_z)
+    call bc_list_add(this%bclst_dw, this%bc_vel_res_non_normal%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
     call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
 
@@ -349,7 +370,6 @@ contains
     call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
                                            this%vel_projection_activ_step)
 
-
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
@@ -359,99 +379,32 @@ contains
        call this%vol_flow%init(this%dm_Xh, params)
     end if
 
+    ! ------------------------------------------------------------------------ !
+    ! Handling the rescaling and baseflow
 
-    ! Tim,
-    ! I'm only allocating if we require a baseflow,
-    ! but I guess later on down the line if that flag changes
-    ! we should include a "if allocated" or something to that effect?
-    !
-    ! Also, the thinking here is that in Nek5000 there were many
-    ! perturbation arrays and a single baseflow, as this is more likely
-    ! used for finding Lyapunov exponents etc
-    ! so I think we're safe with using the registry for a single baseflow
-    ! and then if you look at the branch feature/two_runs I was aiming
-    ! to have multiple 'u01', 'u02' etc
-    ! I need to talk to Martin because I bet this is smarter with field lists
-    ! Harry
-    call neko_field_registry%add_field(this%dm_Xh, 'ub')
-    call neko_field_registry%add_field(this%dm_Xh, 'vb')
-    call neko_field_registry%add_field(this%dm_Xh, 'wb')
-    call neko_field_registry%add_field(this%dm_Xh, 'pb')
-    this%u_b => neko_field_registry%get_field('ub')
-    this%v_b => neko_field_registry%get_field('vb')
-    this%w_b => neko_field_registry%get_field('wb')
-    this%p_b => neko_field_registry%get_field('pb')
-    !
-    !-------------------------------------------------------------------------------
-    ! Tim,
-    ! this would also be a place where we would need to do something json equivelent
-    ! to the initial condition where we can prescribe a baseflow
-    call json_get(params, 'case.perturbation.baseflow.type',&
-                  string_val1)
-    ! TODO
-    ! A baseflow setter needs to be written,
-    ! capable of:
-    !   - loading a baseflow from a file
-    !   - Prescribing one from the user
-    if (trim(string_val1) .eq. 'load_file') then
-       call json_get(params, 'case.perturbation.baseflow.filename',&
-                     string_val2)
-
-       ! assume they're on the same mesh
-       field_file = file_t(trim(string_val2), precision = dp)
-       call field_data%init
-       call field_file%read(field_data)
-       call copy(this%u_b%x,field_data%u%x,this%u_b%dof%size())
-       call copy(this%v_b%x,field_data%v%x,this%u_b%dof%size())
-       call copy(this%w_b%x,field_data%w%x,this%u_b%dof%size())
-
-       call file_free(out_file)
-       call file_free(field_file)
-    else if (trim(string_val1) .eq. 'user') then
-       ! Tim,
-       ! I'm worried that because we're inside scheme, and not case,
-       ! we maybe can't do user defined??
-    endif
-
-
-    ! I'm going to
-    !-------------------------------------------------------------------------------
-
-    ! Setup the power iterations for rescaling the fluid.
-
-    ! Read the json file
+    ! Read the norm scaling from the json file
     call json_get_or_default(params, 'norm_scaling', &
                              this%norm_scaling, 0.5_rp)
+
+    ! Read the baseflow from file or user input.
+    call read_baseflow(this, params)
+
+    ! Read the json file
+    call json_get_or_default(params, 'norm_target', &
+                             this%norm_target, this%norm_l2_base)
     call json_get_or_default(params, 'norm_tolerance', &
                              this%norm_tolerance, 10.0_rp)
-    call json_get_or_default(params, 'output_file', &
-                             file_name, 'power_iterations.csv')
 
-    ! Build the header
-    this%file_output = file_t(trim(file_name))
-    write(header_line, '(A)') 'Time, Norm, Scaling'
-    call this%file_output%set_header(header_line)
-
-    ! Setup the target norm for the velocity field
-    n = this%c_Xh%dof%size()
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       norm_l2_base= device_norm(this%u_b%x_d, this%v_b%x_d, this%w_b%x_d, &
-                                 this%c_Xh%B_d, this%c_Xh%volume, n)
-    else
-       norm_l2_base= norm(this%u_b%x, this%v_b%x, this%w_b%x, &
-                          this%c_Xh%B, this%c_Xh%volume, n)
-    end if
-
-    norm_l2_base = sqrt(this%norm_scaling) * norm_l2_base
-
-    this%norm_target = norm_l2_base
     this%norm_l2_old = this%norm_target
     this%norm_l2_upper = this%norm_tolerance * this%norm_target
     this%norm_l2_lower = this%norm_target / this%norm_tolerance
 
-    if (norm_l2_base .lt. 1e-10_rp) then
-       call neko_log%error('Baseflow norm is too small')
-    end if
+    ! Build the header
+    call json_get_or_default(params, 'output_file', &
+                             file_name, 'power_iterations.csv')
+    this%file_output = file_t(trim(file_name))
+    write(header_line, '(A)') 'Time, Norm, Scaling'
+    call this%file_output%set_header(header_line)
 
   end subroutine fluid_pnpn_perturb_init
 
@@ -480,7 +433,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
-                 ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag,&
+                 ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag, &
                  p=>this%p)
          call device_memcpy(u%x, u%x_d, nu, &
                             HOST_TO_DEVICE, sync=.false.)
@@ -580,6 +533,96 @@ contains
     !this%abz1 = this%f_z
 
   end subroutine fluid_pnpn_perturb_restart
+
+  !> Read the baseflow from file or user input.
+  !!
+  !! This baseflow reader is currently capable of:
+  !!   - loading a baseflow from a file
+  !!   - Todo: Prescribing one from the user
+  subroutine read_baseflow(this, params)
+    class(fluid_pnpn_perturb_t), intent(inout) :: this
+    type(json_file), target, intent(inout) :: params
+
+    type(file_t) :: field_file
+    type(fld_file_data_t) :: field_data
+
+    character(len=:), allocatable :: base_type, file_name
+    integer :: n
+    real(kind=rp) :: norm_l2_base
+
+    ! Tim,
+    ! I'm only allocating if we require a baseflow,
+    ! but I guess later on down the line if that flag changes
+    ! we should include a "if allocated" or something to that effect?
+    !
+    ! Also, the thinking here is that in Nek5000 there were many
+    ! perturbation arrays and a single baseflow, as this is more likely
+    ! used for finding Lyapunov exponents etc
+    ! so I think we're safe with using the registry for a single baseflow
+    ! and then if you look at the branch feature/two_runs I was aiming
+    ! to have multiple 'u01', 'u02' etc
+    ! I need to talk to Martin because I bet this is smarter with field lists
+    ! Harry
+
+    ! Allocation of the baseflow fields
+    n = this%dm_Xh%size()
+    call neko_field_registry%add_field(this%dm_Xh, 'ub')
+    call neko_field_registry%add_field(this%dm_Xh, 'vb')
+    call neko_field_registry%add_field(this%dm_Xh, 'wb')
+    call neko_field_registry%add_field(this%dm_Xh, 'pb')
+    this%u_b => neko_field_registry%get_field('ub')
+    this%v_b => neko_field_registry%get_field('vb')
+    this%w_b => neko_field_registry%get_field('wb')
+    this%p_b => neko_field_registry%get_field('pb')
+
+    ! Read the baseflow type
+    call json_get(params, 'case.fluid.baseflow.type', base_type)
+
+    if (trim(base_type) .eq. 'file') then
+       call json_get(params, 'case.fluid.baseflow.file_name', file_name)
+
+       ! assume they're on the same mesh
+       field_file = file_t(trim(file_name), precision = rp)
+       call field_data%init
+       call field_file%read(field_data)
+       call copy(this%u_b%x, field_data%u%x, n)
+       call copy(this%v_b%x, field_data%v%x, n)
+       call copy(this%w_b%x, field_data%w%x, n)
+
+       call file_free(field_file)
+       call field_data%free()
+    else if (trim(base_type) .eq. 'user') then
+       call neko_error('User baseflow not implemented yet')
+    else
+       call neko_error('Unknown baseflow type')
+    end if
+
+    ! Save the baseflow to the device
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%u_b%x, this%u_b%x_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%v_b%x, this%v_b%x_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%w_b%x, this%w_b%x_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
+    end if
+
+    ! Setup the target norm for the velocity field
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       norm_l2_base = device_norm(this%u_b%x_d, this%v_b%x_d, this%w_b%x_d, &
+                                  this%c_Xh%B_d, this%c_Xh%volume, n)
+    else
+       norm_l2_base = norm(this%u_b%x, this%v_b%x, this%w_b%x, &
+                           this%c_Xh%B, this%c_Xh%volume, n)
+    end if
+
+    this%norm_l2_base = sqrt(this%norm_scaling) * norm_l2_base
+
+    if (norm_l2_base .lt. 1e-10_rp) then
+       call neko_error('Baseflow norm is too small')
+    end if
+
+  end subroutine read_baseflow
 
   subroutine fluid_pnpn_perturb_free(this)
     class(fluid_pnpn_perturb_t), intent(inout) :: this
@@ -714,7 +757,7 @@ contains
       ! additional source terms, evaluated using the velocity field from the
       ! previous time-step. Now, this value is used in the explicit time
       ! scheme to advance both terms in time.
-      call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
+      call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1, &
                                  this%abx2, this%aby2, this%abz2, &
                                  f_x%x, f_y%x, f_z%x, &
                                  rho, ext_bdf%advection_coeffs, n)
@@ -784,8 +827,8 @@ contains
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
 
-      call bc_list_apply_vector(this%bclst_vel_res,&
-                                u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
+      call bc_list_apply_vector(this%bclst_vel_res, &
+                                u_res%x, v_res%x, w_res%x, dm_Xh%size(), &
                                                                        t, tstep)
 
       ! We should implement a bc that takes three field_bcs and implements
