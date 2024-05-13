@@ -267,6 +267,12 @@ contains
 
     this%msh => msh
 
+    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
+
+    !
+    ! First section of fluid log
+    !
+
     call neko_log%section('Fluid')
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
     call neko_log%message(log_buf)
@@ -281,18 +287,30 @@ contains
     write(log_buf, '(A, I0)') 'DoFs       : ', this%dm_Xh%size()
     call neko_log%message(log_buf)
 
+    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'mu         :',  this%mu
+    call neko_log%message(log_buf)
+
+    call json_get(params, 'case.numerics.dealias', logical_val)
+    write(log_buf, '(A, L1)') 'Dealias    : ',  logical_val
+    call neko_log%message(log_buf)
+
+    call json_get_or_default(params, 'case.output_boundary', logical_val, &
+                             .false.)
+    write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
+    call neko_log%message(log_buf)
+
     call this%gs_Xh%init(this%dm_Xh)
 
     call this%c_Xh%init(this%gs_Xh)
 
-    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
-
-    allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
-    this%bc_labels = "not"
-
     !
     ! Setup velocity boundary conditions
     !
+    allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
+    this%bc_labels = "not"
+
     if (params%valid_path('case.fluid.boundary_types')) then
        call json_get(params, &
                      'case.fluid.boundary_types', &
@@ -462,6 +480,11 @@ contains
        call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
                      real_val)
 
+       call neko_log%message('Ksp vel.   : ('// trim(string_val1) // &
+           ', ' // trim(string_val2) // ')')
+
+       write(log_buf, '(A,ES13.6)') ' `-abs tol :',  real_val
+       call neko_log%message(log_buf)
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val)
        call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
@@ -564,45 +587,18 @@ contains
                      precon_type)
        call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
                      abs_tol)
+       call neko_log%message('Ksp prs.   : ('// trim(solver_type) // &
+             ', ' // trim(precon_type) // ')')
+       write(log_buf, '(A,ES13.6)') ' `-abs tol :',  abs_tol
+       call neko_log%message(log_buf)
 
        call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
             solver_type, integer_val, abs_tol)
        call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
 
-   end if
-
-    ! Just logging from here on !
-
-
-    call neko_log%message('Ksp prs.   : ('// trim(solver_type) // &
-          ', ' // trim(precon_type) // ')')
-    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  this%ksp_prs%abs_tol
-    call neko_log%message(log_buf)
-    if (kspv_init) then
-        call json_get(params, 'case.fluid.velocity_solver.type', solver_type)
-        call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
-                  precon_type)
-        call neko_log%message('Ksp vel.   : ('// trim(solver_type) // &
-            ', ' // trim(precon_type) // ')')
-
-        write(log_buf, '(A,ES13.6)') ' `-abs tol :',  this%ksp_vel%abs_tol
-        call neko_log%message(log_buf)
     end if
 
-    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'mu         :',  this%mu
-    call neko_log%message(log_buf)
-
-    call json_get(params, 'case.numerics.dealias', logical_val)
-    write(log_buf, '(A, L1)') 'Dealias    : ',  logical_val
-    call neko_log%message(log_buf)
-
-    call json_get_or_default(params, 'case.output_boundary', logical_val, &
-                             .false.)
-    write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
-    call neko_log%message(log_buf)
 
     call neko_log%end_section()
 
