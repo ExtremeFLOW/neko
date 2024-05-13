@@ -151,8 +151,6 @@ module fluid_pnpn_perturb
 
      !> Norm of the base field.
      real(kind=rp) :: norm_l2_base
-     !> The norm of the velocity field at the previous timestep
-     real(kind=rp) :: norm_l2_old
 
      !> Upper limit for the norm
      real(kind=rp) :: norm_l2_upper
@@ -395,7 +393,6 @@ contains
     call json_get_or_default(params, 'norm_tolerance', &
                              this%norm_tolerance, 10.0_rp)
 
-    this%norm_l2_old = this%norm_target
     this%norm_l2_upper = this%norm_tolerance * this%norm_target
     this%norm_l2_lower = this%norm_target / this%norm_tolerance
 
@@ -1062,17 +1059,18 @@ contains
                       this%c_Xh%B, this%c_Xh%volume, n)
     end if
     norm_l2 = sqrt(this%norm_scaling) * norm_l2
+    scaling_factor = 1.0_rp
 
     ! Rescale the flow if necessary
     if (norm_l2 .gt. this%norm_l2_upper &
         .or. norm_l2 .lt. this%norm_l2_lower) then
        scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this, scaling_factor)
+       norm_l2 = this%norm_target
 
-       This%norm_l2_old = this%norm_target
-    else
-       this%norm_l2_old = norm_l2
-       scaling_factor = 1.0_rp
+       if (tstep .eq. 1) then
+          scaling_factor = 1.0_rp
+       end if
     end if
 
     ! Log the results

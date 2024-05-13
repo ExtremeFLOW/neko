@@ -414,6 +414,7 @@ contains
     integer :: e, i, idx, nel, n_GL
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
+
     !This is extremely primitive and unoptimized  on the device //Karp
     associate(c_GL => this%coef_GL)
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -705,6 +706,80 @@ contains
 
   end subroutine compute_scalar_advection_dealias
 
+  !> Add the linearized advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
+  !! the RHS.
+  !! @param vx The x component of velocity.
+  !! @param vy The y component of velocity.
+  !! @param vz The z component of velocity.
+  !! @param vxb The x component of baseflow velocity.
+  !! @param vyb The y component of baseflow velocity.
+  !! @param vzb The z component of baseflow velocity.
+  !! @param fx The x component of source term.
+  !! @param fy The y component of source term.
+  !! @param fz The z component of source term.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
+  subroutine compute_vector_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
+    class(adv_dealias_t), intent(inout) :: this
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: vxb, vyb, vzb
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
+
+    logical, parameter :: use_adjoint = .true.
+
+    ! Linearized advection term for the fluid
+    if (use_adjoint) then
+       call compute_adjoint_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, &
+                                              fx, fy, fz, Xh, coef, n)
+    else
+       call compute_LNS_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, &
+                                          fy, fz, Xh, coef, n)
+    end if
+
+  end subroutine compute_vector_advection_dealias
+
+
+  !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
+  !! RHS.
+  !! @param vx The x component of velocity.
+  !! @param vy The y component of velocity.
+  !! @param vz The z component of velocity.
+  !! @param fx The x component of source term.
+  !! @param fy The y component of source term.
+  !! @param fz The z component of source term.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
+  subroutine compute_vector_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
+    implicit none
+    class(adv_no_dealias_t), intent(inout) :: this
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: vxb, vyb, vzb
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
+
+    logical, parameter :: use_adjoint = .true.
+
+    ! Linearized advection term for the fluid
+    if (use_adjoint) then
+       call compute_adjoint_advection_no_dealias(this, vx, vy, vz, vxb, vyb, &
+                                                 vzb, fx, fy, fz, Xh, coef, n)
+    else
+       call compute_LNS_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, &
+                                             fx, fy, fz, Xh, coef, n)
+    end if
+  end subroutine compute_vector_advection_no_dealias
+
+
+
+
+
   ! Tim,
   ! these are the vector ones, right now it's for LNS
 
@@ -722,7 +797,7 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  subroutine compute_vector_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
+  subroutine compute_adjoint_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
     !! HARRY added vxb etc for baseflow
     implicit none
     class(adv_dealias_t), intent(inout) :: this
@@ -762,11 +837,8 @@ contains
          ! HARRY
          ! These are the baseflow
          call this%GLL_to_GL%map(this%txb, vxb%x, nel, this%Xh_GL)
-         call device_memcpy(this%txb, this%txb_d, n_GL, HOST_TO_DEVICE, .false.)
          call this%GLL_to_GL%map(this%tyb, vyb%x, nel, this%Xh_GL)
-         call device_memcpy(this%tyb, this%tyb_d, n_GL, HOST_TO_DEVICE, .false.)
          call this%GLL_to_GL%map(this%tzb, vzb%x, nel, this%Xh_GL)
-         call device_memcpy(this%tzb, this%tzb_d, n_GL, HOST_TO_DEVICE, .false.)
 
          ! These are velocity
          call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
@@ -977,7 +1049,7 @@ contains
       end if
     end associate
 
-  end subroutine compute_vector_advection_dealias
+  end subroutine compute_adjoint_advection_dealias
 
   ! FINISH THIS LATER
   ! It's a clean way to wrap into subroutines
@@ -1205,7 +1277,7 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  subroutine compute_vector_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
+  subroutine compute_adjoint_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
     implicit none
     class(adv_no_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
@@ -1244,7 +1316,7 @@ contains
        end if
     end if
 
-  end subroutine compute_vector_advection_no_dealias
+  end subroutine compute_adjoint_advection_no_dealias
 
 
 
