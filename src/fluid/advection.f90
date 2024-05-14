@@ -762,7 +762,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
 
-    logical, parameter :: use_adjoint = .true.
+    logical, parameter :: use_adjoint = .false.
 
     ! Linearized advection term for the fluid
     if (use_adjoint) then
@@ -848,8 +848,8 @@ contains
          !-----------------------------
          ! take all the gradients
          call opgrad(this%duxb, this%duyb, this%duzb, this%txb, c_GL)
-         call opgrad(this%dvxb, this%dvyb, this%dvzb, this%txb, c_GL)
-         call opgrad(this%dwxb, this%dwyb, this%dwzb, this%txb, c_GL)
+         call opgrad(this%dvxb, this%dvyb, this%dvzb, this%tyb, c_GL)
+         call opgrad(this%dwxb, this%dwyb, this%dwzb, this%tzb, c_GL)
 
          ! traspose and multiply
          call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
