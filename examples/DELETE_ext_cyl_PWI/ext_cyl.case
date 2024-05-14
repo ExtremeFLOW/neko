@@ -6,7 +6,7 @@
         "output_checkpoints": false,
         "output_at_end": true,
         "output_boundary": true,
-        "end_time": 100.0,
+        "end_time": 200.0,
         "timestep": 1e-2,
         "numerics": {
             "time_order": 3,
@@ -14,7 +14,7 @@
             "dealias": true
         },
         "fluid": {
-            "scheme": "pnpn",
+            "scheme": "pnpn_perturb",
             "Re": 100,
 
             "initial_condition": {
@@ -36,33 +36,16 @@
             "pressure_solver": {
                 "type": "gmres",
                 "preconditioner": "hsmg",
-                "projection_space_size": 8,
+                "projection_space_size": 0,
                 "absolute_tolerance": 1e-6,
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
             "output_value": 0.1,
-        },
-        "perturbation": {
-            "if_pert": true,
             "baseflow": {
-                "type": "load_file",
-                "filename": "harry0.fld"
+                "type": "file",
+                "file_name": "harry0.fld"
             }
-        },
-        "simulation_components": [
-            {
-                "type": "poweriterations",
-                "compute_control": "simulationtime",
-                "compute_value": 5.0,
-
-            },
-            // {
-            //     "type": "field_writer",
-            //     "fields": [ "lambda", "lambda_old", "lambda_diff" ],
-            //     "output_filename": "full_field",
-            //     "precision": "double"
-            // }
-        ]
+        }
     }
 }
