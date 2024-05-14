@@ -41,7 +41,7 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
-            "output_value": 0.1,
+            "output_value": 1.0,
             "baseflow": {
                 "type": "file",
                 "file_name": "harry0.fld"
