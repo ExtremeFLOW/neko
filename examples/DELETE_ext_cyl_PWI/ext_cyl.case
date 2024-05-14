@@ -1,27 +1,25 @@
 {
-  "version": 1.0,
-  "case":
-  {
-  "mesh_file": "ext_cyl.nmsh",
-  "output_checkpoints": false,
-  "output_at_end": true,
-  "end_time": 50.0,
-  "timestep": 5e-3,
-
+    "version": 1.0,
+    "case":
+    {
+        "mesh_file": "ext_cyl.nmsh",
+        "output_checkpoints": false,
+        "output_at_end": true,
+        "output_boundary": true,
+        "end_time": 200.0,
+        "timestep": 1e-2,
         "numerics": {
             "time_order": 3,
             "polynomial_order": 5,
             "dealias": true
         },
-
         "fluid": {
-            "scheme": "pnpn",
+            "scheme": "pnpn_perturb",
             "Re": 100,
 
             "initial_condition": {
                 "type": "user"
             },
-
             "inflow_condition": {
                 "type": "uniform",
                 "value": [
@@ -38,26 +36,16 @@
             "pressure_solver": {
                 "type": "gmres",
                 "preconditioner": "hsmg",
-                "projection_space_size": 8,
+                "projection_space_size": 0,
                 "absolute_tolerance": 1e-6,
                 "max_iterations": 800
             },
-            "output_control": "tsteps",
-            "output_value": 200,
-        },
-        "perturbation": {
-            "if_pert": true,
+            "output_control": "simulationtime",
+            "output_value": 0.1,
             "baseflow": {
-                "type": "load_file",
-                "filename": "harry0.fld"
+                "type": "file",
+                "file_name": "harry0.fld"
             }
-        },
-        "simulation_components": [
-            {
-                "type": "poweriterations",
-                "compute_control": "simulationtime",
-                "compute_value": 5.0,
-  }
-  ]
-}
+        }
+    }
 }
