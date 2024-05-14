@@ -490,7 +490,7 @@ contains
        call device_map(this%facet, this%facet_d, n)
 
        call device_memcpy(this%msk, this%msk_d, n, &
-                          HOST_TO_DEVICE, sync=.true.)
+                          HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%facet, this%facet_d, n, &
                           HOST_TO_DEVICE, sync=.true.)
     end if
