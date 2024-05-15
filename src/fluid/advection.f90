@@ -1605,25 +1605,47 @@ contains
        fy_d = device_get_ptr(fy)
        fz_d = device_get_ptr(fz)
 
-       call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
+		 ! (x)
+       call conv1(this%temp, vx%x, vxb%x, vyb%x, vzb%x, Xh, coef)
        call device_subcol3 (fx_d, coef%B_d, this%temp_d, n)
-       call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
+       call conv1(this%temp, vxb%x, vx%x, vy%x, vz%x, Xh, coef)
+       call device_subcol3 (fx_d, coef%B_d, this%temp_d, n)
+		 
+		 ! (y)
+       call conv1(this%temp, vy%x, vxb%x, vyb%x, vzb%x, Xh, coef)
        call device_subcol3 (fy_d, coef%B_d, this%temp_d, n)
+       call conv1(this%temp, vyb%x, vx%x, vy%x, vz%x, Xh, coef)
+       call device_subcol3 (fy_d, coef%B_d, this%temp_d, n)
+
+       ! (z)
        if (coef%Xh%lz .eq. 1) then
           call device_rzero (this%temp_d, n)
        else
-          call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
+          call conv1(this%temp, vz%x, vxb%x, vyb%x, vzb%x, Xh, coef)
+          call device_subcol3(fz_d, coef%B_d, this%temp_d, n)
+          call conv1(this%temp, vzb%x, vx%x, vy%x, vz%x, Xh, coef)
           call device_subcol3(fz_d, coef%B_d, this%temp_d, n)
        end if
     else
-       call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
+    	 ! (x)
+       call conv1(this%temp, vx%x, vxb%x, vyb%x, vzb%x, Xh, coef)
        call subcol3 (fx, coef%B, this%temp, n)
-       call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
+       call conv1(this%temp, vxb%x, vx%x, vy%x, vz%x, Xh, coef)
+       call subcol3 (fx, coef%B, this%temp, n)
+
+       ! (y)
+       call conv1(this%temp, vy%x, vxb%x, vyb%x, vzb%x, Xh, coef)
        call subcol3 (fy, coef%B, this%temp, n)
+       call conv1(this%temp, vyb%x, vx%x, vy%x, vz%x, Xh, coef)
+       call subcol3 (fy, coef%B, this%temp, n)
+
+       ! (z)
        if (coef%Xh%lz .eq. 1) then
           call rzero (this%temp, n)
        else
-          call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
+          call conv1(this%temp, vz%x, vxb%x, vyb%x, vzb%x, Xh, coef)
+          call subcol3(fz, coef%B, this%temp, n)
+          call conv1(this%temp, vzb%x, vx%x, vy%x, vz%x, Xh, coef)
           call subcol3(fz, coef%B, this%temp, n)
        end if
     end if
