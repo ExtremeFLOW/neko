@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Subroutines to add advection terms to the RHS of a transport equation.
-module advection_lin_dealias
+module adv_lin_dealias
   use advection, only: advection_lin_t
   use num_types, only : rp
   use math, only : vdot3, sub2, subcol3, rzero
@@ -481,7 +481,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
 
-    logical, parameter :: use_adjoint = .false.
+    logical, parameter :: use_adjoint = .true.
 
     ! Linearized advection term for the fluid
     if (use_adjoint) then
@@ -561,8 +561,8 @@ contains
          !-----------------------------
          ! take all the gradients
          call opgrad(this%duxb, this%duyb, this%duzb, this%txb, c_GL)
-         call opgrad(this%dvxb, this%dvyb, this%dvzb, this%txb, c_GL)
-         call opgrad(this%dwxb, this%dwyb, this%dwzb, this%txb, c_GL)
+         call opgrad(this%dvxb, this%dvyb, this%dvzb, this%tyb, c_GL)
+         call opgrad(this%dwxb, this%dwyb, this%dwzb, this%tzb, c_GL)
 
          ! traspose and multiply
          call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
@@ -982,4 +982,4 @@ contains
 
   end subroutine compute_LNS_advection_dealias
 
-end module advection_lin_dealias
+end module adv_lin_dealias
