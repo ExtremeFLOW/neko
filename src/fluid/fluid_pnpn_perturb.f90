@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
+!> Linearized Navier Stokes solver based on Pn/Pn formulation.
 module fluid_pnpn_perturb
   use num_types, only: rp, dp
   use krylov, only: ksp_monitor_t
@@ -51,12 +51,12 @@ module fluid_pnpn_perturb
   use device, only: device_memcpy, HOST_TO_DEVICE
   use logger, only: neko_log, NEKO_LOG_DEBUG
   use utils, only: neko_error
-  use advection, only: advection_t
+  use advection, only: advection_lin_t
   use profiler, only: profiler_start_region, profiler_end_region
   use json_utils, only: json_get, json_get_or_default
   use json_module, only: json_file
   use material_properties, only: material_properties_t
-  use advection_fctry, only: advection_factory
+  use advection_fctry, only: advection_lin_factory
   use ax_product, only: ax_t
   use field, only: field_t
   use dirichlet, only: dirichlet_t
@@ -115,7 +115,7 @@ module fluid_pnpn_perturb
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
 
-     class(advection_t), allocatable :: adv
+     class(advection_lin_t), allocatable :: adv
 
      !! Time variables
      type(field_t) :: abx1, aby1, abz1
@@ -371,7 +371,7 @@ contains
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
-    call advection_factory(this%adv, params, this%c_Xh)
+    call advection_lin_factory(this%adv, params, this%c_Xh)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
@@ -746,9 +746,9 @@ contains
       end if
 
       ! Add the advection operators to the right-hand-side.
-      call this%adv%compute_vector(u, v, w, u_b, v_b, w_b, &
-                                   f_x%x, f_y%x, f_z%x, &
-                                   Xh, this%c_Xh, dm_Xh%size())
+      call this%adv%compute(u, v, w, u_b, v_b, w_b, &
+                            f_x%x, f_y%x, f_z%x, &
+                            Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator and
       ! additional source terms, evaluated using the velocity field from the
