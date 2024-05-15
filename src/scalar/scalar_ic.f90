@@ -40,10 +40,12 @@ module scalar_ic
   use field, only : field_t
   use utils, only : neko_error
   use coefs, only : coef_t
-  use math, only : col2, cfill
+  use math, only : col2, cfill, cfill_mask
   use user_intf, only : useric_scalar
   use json_module, only : json_file
   use json_utils, only: json_get
+  use point_zone, only: point_zone_t
+  use point_zone_registry, only: neko_point_zone_registry
   implicit none
   private
 
@@ -73,10 +75,20 @@ contains
 
     ! Variables for retrieving JSON parameters
     real(kind=rp) :: ic_value
+    character(len=:), allocatable :: zone_name
+    real(kind=rp) :: zone_value
 
     if (trim(type) .eq. 'uniform') then
        call json_get(params, 'case.scalar.initial_condition.value', ic_value)
        call set_scalar_ic_uniform(s, ic_value)
+    else if (trim(type) .eq. 'point_zone') then
+       call json_get(params, 'case.scalar.initial_condition.base_value', &
+                     ic_value)
+       call json_get(params, 'case.scalar.initial_condition.zone_name', &
+                     zone_name)
+       call json_get(params, 'case.scalar.initial_condition.zone_value', &
+                     zone_value)
+       call set_scalar_ic_point_zone(s, ic_value, zone_name, zone_value)
     else
        call neko_error('Invalid initial condition')
     end if
@@ -118,7 +130,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x, s%x_d, s%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+                                                  HOST_TO_DEVICE, sync=.false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -147,5 +159,23 @@ contains
     end if
 
   end subroutine set_scalar_ic_uniform
+
+  subroutine set_scalar_ic_point_zone(s, base_value, zone_name, zone_value)
+    type(field_t), intent(inout) :: s
+    real(kind=rp), intent(in):: base_value
+    character(len=*), intent(in) :: zone_name
+    real(kind=rp), intent(in) :: zone_value
+
+    ! Internal variables
+    class(point_zone_t), pointer :: zone
+    integer :: size
+
+    size = s%dof%size()
+    zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
+
+    call set_flow_ic_uniform(s, base_value)
+    call cfill_mask(s%x, zone_value, size, zone%mask, zone%size)
+
+  end subroutine set_scalar_ic_point_zone
 
 end module scalar_ic
