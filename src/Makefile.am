@@ -198,8 +198,8 @@ neko_fortran_SOURCES = \
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
 	fluid/advection_fctry.f90\
-    fluid/bcknd/advection/advection_dealias.f90\
-    fluid/bcknd/advection/advection_no_dealias.f90\
+    fluid/bcknd/advection/adv_dealias.f90\
+    fluid/bcknd/advection/adv_no_dealias.f90\
     fluid/bcknd/advection/advection_lin_dealias.f90\
     fluid/bcknd/advection/advection_lin_no_dealias.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
