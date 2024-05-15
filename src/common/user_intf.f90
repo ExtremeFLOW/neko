@@ -90,6 +90,17 @@ module user_intf
      end subroutine user_initialize_modules
   end interface
 
+  !> Abstract interface for initializing user defined baseflows
+  abstract interface
+     subroutine user_baseflow_init(u_b, v_b, w_b, params)
+       import field_t
+       import json_file
+       type(field_t), intent(inout) :: u_b
+       type(field_t), intent(inout) :: v_b
+       type(field_t), intent(inout) :: w_b
+       type(json_file), intent(inout) :: params
+     end subroutine user_baseflow_init
+  end interface
 
   !> Abstract interface for user defined mesh deformation functions
   abstract interface
@@ -149,6 +160,7 @@ module user_intf
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
+     procedure(user_baseflow_init), nopass, pointer :: baseflow_user => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
      procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
@@ -166,7 +178,7 @@ module user_intf
   end type user_t
 
   public :: useric, useric_scalar, user_initialize_modules, usermsh, &
-            dummy_user_material_properties, user_material_properties
+    user_baseflow_init, dummy_user_material_properties, user_material_properties
 contains
 
   !> User interface initialization
@@ -215,6 +227,10 @@ contains
 
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
+    end if
+
+    if (.not. associated(u%baseflow_user)) then
+       u%baseflow_user => dummy_user_init_no_baseflow
     end if
 
     if (.not. associated(u%user_finalize_modules)) then
@@ -333,6 +349,13 @@ contains
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
+
+  subroutine dummy_user_init_no_baseflow(u_b, v_b, w_b, params)
+    type(field_t), intent(inout) :: u_b
+    type(field_t), intent(inout) :: v_b
+    type(field_t), intent(inout) :: w_b
+    type(json_file), intent(inout) :: params
+  end subroutine dummy_user_init_no_baseflow
 
   subroutine dummy_user_final_no_modules(t, params)
     real(kind=rp) :: t
