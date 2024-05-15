@@ -387,16 +387,20 @@ contains
                              this%norm_scaling, 0.5_rp)
 
     ! Read the baseflow from file or user input.
-    call read_baseflow(this, params)
+    call neko_field_registry%add_field(this%dm_Xh, 'u_b')
+    call neko_field_registry%add_field(this%dm_Xh, 'v_b')
+    call neko_field_registry%add_field(this%dm_Xh, 'w_b')
+    call neko_field_registry%add_field(this%dm_Xh, 'p_b')
+    this%u_b => neko_field_registry%get_field('u_b')
+    this%v_b => neko_field_registry%get_field('v_b')
+    this%w_b => neko_field_registry%get_field('w_b')
+    this%p_b => neko_field_registry%get_field('p_b')
 
     ! Read the json file
     call json_get_or_default(params, 'norm_target', &
-                             this%norm_target, this%norm_l2_base)
+                             this%norm_target, -1.0_rp)
     call json_get_or_default(params, 'norm_tolerance', &
                              this%norm_tolerance, 10.0_rp)
-
-    this%norm_l2_upper = this%norm_tolerance * this%norm_target
-    this%norm_l2_lower = this%norm_target / this%norm_tolerance
 
     ! Build the header
     call json_get_or_default(params, 'output_file', &
@@ -532,96 +536,6 @@ contains
     !this%abz1 = this%f_z
 
   end subroutine fluid_pnpn_perturb_restart
-
-  !> Read the baseflow from file or user input.
-  !!
-  !! This baseflow reader is currently capable of:
-  !!   - loading a baseflow from a file
-  !!   - Todo: Prescribing one from the user
-  subroutine read_baseflow(this, params)
-    class(fluid_pnpn_perturb_t), intent(inout) :: this
-    type(json_file), target, intent(inout) :: params
-
-    type(file_t) :: field_file
-    type(fld_file_data_t) :: field_data
-
-    character(len=:), allocatable :: base_type, file_name
-    integer :: n
-    real(kind=rp) :: norm_l2_base
-
-    ! Tim,
-    ! I'm only allocating if we require a baseflow,
-    ! but I guess later on down the line if that flag changes
-    ! we should include a "if allocated" or something to that effect?
-    !
-    ! Also, the thinking here is that in Nek5000 there were many
-    ! perturbation arrays and a single baseflow, as this is more likely
-    ! used for finding Lyapunov exponents etc
-    ! so I think we're safe with using the registry for a single baseflow
-    ! and then if you look at the branch feature/two_runs I was aiming
-    ! to have multiple 'u01', 'u02' etc
-    ! I need to talk to Martin because I bet this is smarter with field lists
-    ! Harry
-
-    ! Allocation of the baseflow fields
-    n = this%dm_Xh%size()
-    call neko_field_registry%add_field(this%dm_Xh, 'ub')
-    call neko_field_registry%add_field(this%dm_Xh, 'vb')
-    call neko_field_registry%add_field(this%dm_Xh, 'wb')
-    call neko_field_registry%add_field(this%dm_Xh, 'pb')
-    this%u_b => neko_field_registry%get_field('ub')
-    this%v_b => neko_field_registry%get_field('vb')
-    this%w_b => neko_field_registry%get_field('wb')
-    this%p_b => neko_field_registry%get_field('pb')
-
-    ! Read the baseflow type
-    call json_get(params, 'case.fluid.baseflow.type', base_type)
-
-    if (trim(base_type) .eq. 'file') then
-       call json_get(params, 'case.fluid.baseflow.file_name', file_name)
-
-       ! assume they're on the same mesh
-       field_file = file_t(trim(file_name), precision = rp)
-       call field_data%init
-       call field_file%read(field_data)
-       call copy(this%u_b%x, field_data%u%x, n)
-       call copy(this%v_b%x, field_data%v%x, n)
-       call copy(this%w_b%x, field_data%w%x, n)
-
-       call file_free(field_file)
-       call field_data%free()
-    else if (trim(base_type) .eq. 'user') then
-       call neko_error('User baseflow not implemented yet')
-    else
-       call neko_error('Unknown baseflow type')
-    end if
-
-    ! Save the baseflow to the device
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%u_b%x, this%u_b%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%v_b%x, this%v_b%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%w_b%x, this%w_b%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
-    end if
-
-    ! Setup the target norm for the velocity field
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       norm_l2_base = device_norm(this%u_b%x_d, this%v_b%x_d, this%w_b%x_d, &
-                                  this%c_Xh%B_d, this%c_Xh%volume, n)
-    else
-       norm_l2_base = norm(this%u_b%x, this%v_b%x, this%w_b%x, &
-                           this%c_Xh%B, this%c_Xh%volume, n)
-    end if
-
-    this%norm_l2_base = sqrt(this%norm_scaling) * norm_l2_base
-
-    if (norm_l2_base .lt. 1e-10_rp) then
-       call neko_error('Baseflow norm is too small')
-    end if
-
-  end subroutine read_baseflow
 
   subroutine fluid_pnpn_perturb_free(this)
     class(fluid_pnpn_perturb_t), intent(inout) :: this
@@ -1048,15 +962,30 @@ contains
 
     ! Local variables
     real(kind=rp) :: scaling_factor
-    real(kind=rp) :: norm_l2
+    real(kind=rp) :: norm_l2, norm_l2_base
     real(kind=rp) :: lambda
     real(kind=rp) :: dt
     character(len=256) :: log_message
     type(vector_t) :: data_line
     integer :: n
 
-    ! Compute timestep and update the old time
     n = this%c_Xh%dof%size()
+    if (tstep .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          norm_l2_base = device_norm(this%u%x_d, this%v%x_d, this%w%x_d, &
+                                     this%c_Xh%B_d, this%c_Xh%volume, n)
+       else
+          norm_l2_base = this%norm_scaling * norm(this%u%x, this%v%x, this%w%x, &
+                                                  this%c_Xh%B, this%c_Xh%volume, n)
+       end if
+       if (this%norm_target .lt. 0.0_rp) then
+          this%norm_target = norm_l2_base
+       end if
+
+       this%norm_l2_upper = this%norm_tolerance * this%norm_target
+       this%norm_l2_lower = this%norm_target / this%norm_tolerance
+
+    end if
 
     ! Compute the norm of the velocity field and eigenvalue estimate
     if (NEKO_BCKND_DEVICE .eq. 1) then

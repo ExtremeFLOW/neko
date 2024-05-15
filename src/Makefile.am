@@ -196,6 +196,7 @@ neko_fortran_SOURCES = \
 	fluid/mean_sqr_flow.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
+	fluid/baseflow.f90\
 	fluid/advection.f90\
 	fluid/advection_fctry.f90\
     fluid/bcknd/advection/adv_dealias.f90\
