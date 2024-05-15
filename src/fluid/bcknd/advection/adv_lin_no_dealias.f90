@@ -56,24 +56,26 @@ module adv_lin_no_dealias
      real(kind=rp), allocatable :: temp(:)
      type(c_ptr) :: temp_d = C_NULL_PTR
    contains
-     !> Constructor
-     procedure, pass(this) :: init => init_adj_lin_no_dealias
-     !> Destructor
-     procedure, pass(this) :: free => free_adj_lin_no_dealias
      !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
-     !! the RHS
-     procedure, pass(this) :: compute => compute_advection_lin_no_dealias
+     !! the RHS.
+     procedure, pass(this) :: compute_linear => linear_advection_no_dealias
+     !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
+     !! the RHS.
+     procedure, pass(this) :: compute_adjoint => adjoint_advection_no_dealias
      !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
-     !! the RHS
-     procedure, pass(this) :: compute_scalar => &
-       compute_scalar_advection_lin_no_dealias
+     !! the RHS.
+     procedure, pass(this) :: compute_scalar => scalar_advection_no_dealias
+     !> Constructor
+     procedure, pass(this) :: init => init_no_dealias
+     !> Destructor
+     procedure, pass(this) :: free => free_no_dealias
   end type adv_lin_no_dealias_t
 
 contains
 
   !> Constructor
   !! @param coef The coefficients of the (space, mesh) pair.
-  subroutine init_adj_lin_no_dealias(this, coef)
+  subroutine init_no_dealias(this, coef)
     class(adv_lin_no_dealias_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
 
@@ -83,10 +85,10 @@ contains
        call device_map(this%temp, this%temp_d, coef%dof%size())
     end if
 
-  end subroutine init_adj_lin_no_dealias
+  end subroutine init_no_dealias
 
   !> Destructor
-  subroutine free_adj_lin_no_dealias(this)
+  subroutine free_no_dealias(this)
     class(adv_lin_no_dealias_t), intent(inout) :: this
 
     if (allocated(this%temp)) then
@@ -95,58 +97,7 @@ contains
     if (c_associated(this%temp_d)) then
        call device_free(this%temp_d)
     end if
-  end subroutine free_adj_lin_no_dealias
-
-
-  !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
-  !! RHS.
-  !! @param vx The x component of velocity.
-  !! @param vy The y component of velocity.
-  !! @param vz The z component of velocity.
-  !! @param fx The x component of source term.
-  !! @param fy The y component of source term.
-  !! @param fz The z component of source term.
-  !! @param Xh The function space.
-  !! @param coef The coefficients of the (Xh, mesh) pair.
-  !! @param n Typically the size of the mesh.
-  subroutine compute_advection_no_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
-    class(adv_lin_no_dealias_t), intent(inout) :: this
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
-    type(field_t), intent(inout) :: vx, vy, vz
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
-    type(c_ptr) :: fx_d, fy_d, fz_d
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       fx_d = device_get_ptr(fx)
-       fy_d = device_get_ptr(fy)
-       fz_d = device_get_ptr(fz)
-
-       call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
-       call device_subcol3 (fx_d, coef%B_d, this%temp_d, n)
-       call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-       call device_subcol3 (fy_d, coef%B_d, this%temp_d, n)
-       if (coef%Xh%lz .eq. 1) then
-          call device_rzero (this%temp_d, n)
-       else
-          call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
-          call device_subcol3(fz_d, coef%B_d, this%temp_d, n)
-       end if
-    else
-       call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (fx, coef%B, this%temp, n)
-       call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (fy, coef%B, this%temp, n)
-       if (coef%Xh%lz .eq. 1) then
-          call rzero (this%temp, n)
-       else
-          call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
-          call subcol3(fz, coef%B, this%temp, n)
-       end if
-    end if
-
-  end subroutine compute_advection_no_dealias
+  end subroutine free_no_dealias
 
   !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to the
   !! RHS.
@@ -159,8 +110,8 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  subroutine compute_scalar_advection_lin_no_dealias(this, vx, vy, vz, s, fs, Xh, &
-                                                     coef, n)
+  subroutine scalar_advection_no_dealias(this, vx, vy, vz, s, fs, Xh, &
+                                         coef, n)
     class(adv_lin_no_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
@@ -189,8 +140,7 @@ contains
        end if
     end if
 
-  end subroutine compute_scalar_advection_lin_no_dealias
-
+  end subroutine scalar_advection_no_dealias
 
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
   !! RHS.
@@ -203,44 +153,7 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  subroutine compute_advection_lin_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
-    implicit none
-    class(adv_lin_no_dealias_t), intent(inout) :: this
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
-    type(field_t), intent(inout) :: vx, vy, vz
-    type(field_t), intent(inout) :: vxb, vyb, vzb
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
-
-    logical, parameter :: use_adjoint = .false.
-
-    ! Linearized advection term for the fluid
-    if (use_adjoint) then
-       call compute_adjoint_advection_no_dealias(this, vx, vy, vz, vxb, vyb, &
-                                                 vzb, fx, fy, fz, Xh, coef, n)
-    else
-       call compute_LNS_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, &
-                                             fx, fy, fz, Xh, coef, n)
-    end if
-  end subroutine compute_advection_lin_no_dealias
-
-
-
-
-! THIS IS NOTHING
-  !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
-  !! RHS.
-  !! @param vx The x component of velocity.
-  !! @param vy The y component of velocity.
-  !! @param vz The z component of velocity.
-  !! @param fx The x component of source term.
-  !! @param fy The y component of source term.
-  !! @param fz The z component of source term.
-  !! @param Xh The function space.
-  !! @param coef The coefficients of the (Xh, mesh) pair.
-  !! @param n Typically the size of the mesh.
-  subroutine compute_adjoint_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
+  subroutine adjoint_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
     implicit none
     class(adv_lin_no_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
@@ -279,7 +192,7 @@ contains
        end if
     end if
 
-  end subroutine compute_adjoint_advection_no_dealias
+  end subroutine adjoint_advection_no_dealias
 
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
   !! RHS.
@@ -292,7 +205,7 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  subroutine compute_LNS_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
+  subroutine linear_advection_no_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
     implicit none
     class(adv_lin_no_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
@@ -333,5 +246,5 @@ contains
        end if
     end if
 
-  end subroutine compute_LNS_advection_no_dealias
+  end subroutine linear_advection_no_dealias
 end module adv_lin_no_dealias
