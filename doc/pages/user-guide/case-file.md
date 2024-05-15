@@ -466,16 +466,16 @@ example case.
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
-| Name                      | Description                                              | Admissible values              | Default value |
-| ------------------------- | -------------------------------------------------------- | ------------------------------ | ------------- |
-| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`              | `true`        |
-| `Pe`                      | The Peclet number.                                       | Positive real                  | -             |
-| `cp`                      | Specific heat cpacity.                                   | Positive real                  | -             |
-| `lambda`                  | Thermal conductivity.                                    | Positive real                  | -             |
-| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings               | -             |
-| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`              | -             |
-| `initial_condition.value` | Value of the velocity initial condition.                 | Real                           | -             |
-| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above | -             |
+| Name                      | Description                                              | Admissible values               | Default value |
+| ------------------------- | -------------------------------------------------------- | ------------------------------- | ------------- |
+| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`               | `true`        |
+| `Pe`                      | The Peclet number.                                       | Positive real                   | -             |
+| `cp`                      | Specific heat cpacity.                                   | Positive real                   | -             |
+| `lambda`                  | Thermal conductivity.                                    | Positive real                   | -             |
+| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings                | -             |
+| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`, `point_zone` | -             |
+| `initial_condition.value` | Value of the velocity initial condition.                 | Real                            | -             |
+| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above  | -             |
 
 ## Statistics
 

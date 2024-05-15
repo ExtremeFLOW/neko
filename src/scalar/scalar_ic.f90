@@ -160,6 +160,13 @@ contains
 
   end subroutine set_scalar_ic_uniform
 
+  !> Point zone initial condition
+  !! @details Set scalar initial condition to a uniform value across a point
+  !! zone.
+  !! @param s Scalar field.
+  !! @param base_value Base value of the scalar field.
+  !! @param zone_name Name of the point zone.
+  !! @param zone_value Desired value of the scalar field in the point zone.
   subroutine set_scalar_ic_point_zone(s, base_value, zone_name, zone_value)
     type(field_t), intent(inout) :: s
     real(kind=rp), intent(in):: base_value

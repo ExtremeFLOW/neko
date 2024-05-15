@@ -223,6 +223,15 @@ contains
 
   end subroutine set_flow_ic_blasius
 
+  !> Set the initial condition of the flow based on a point zone.
+  !! @details The initial condition is set to the base value and then the
+  !! zone is filled with the zone value.
+  !! @param u The x-component of the velocity field.
+  !! @param v The y-component of the velocity field.
+  !! @param w The z-component of the velocity field.
+  !! @param base_value The base value of the initial condition.
+  !! @param zone_name The name of the point zone.
+  !! @param zone_value The value of the point zone.
   subroutine set_flow_ic_point_zone(u, v, w, base_value, zone_name, zone_value)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
