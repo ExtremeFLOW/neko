@@ -92,12 +92,16 @@ module user_intf
      end subroutine user_initialize_modules
   end interface
 
-  !> Abstract interface for adding user defined simulation components
+  !> Abstract interface for initializing user defined baseflows
   abstract interface
-     subroutine user_simcomp_init(params)
+     subroutine user_baseflow_init(u_b, v_b, w_b, params)
+       import field_t
        import json_file
+       type(field_t), intent(inout) :: u_b
+       type(field_t), intent(inout) :: v_b
+       type(field_t), intent(inout) :: w_b
        type(json_file), intent(inout) :: params
-     end subroutine user_simcomp_init
+     end subroutine user_baseflow_init
   end interface
 
   !> Abstract interface for user defined mesh deformation functions
@@ -159,7 +163,7 @@ module user_intf
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
-     procedure(user_simcomp_init), nopass, pointer :: init_user_simcomp => null()
+     procedure(user_baseflow_init), nopass, pointer :: baseflow_user => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
      procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
@@ -177,8 +181,7 @@ module user_intf
   end type user_t
 
   public :: useric, useric_scalar, user_initialize_modules, usermsh, &
-    dummy_user_material_properties, user_material_properties, &
-    user_simcomp_init, simulation_component_user_settings
+    user_baseflow_init, dummy_user_material_properties, user_material_properties
 contains
 
   !> User interface initialization
@@ -279,6 +282,10 @@ contains
 
     if (.not. associated(u%init_user_simcomp)) then
        u%init_user_simcomp => dummy_user_init_no_simcomp
+    end if
+
+    if (.not. associated(u%baseflow_user)) then
+       u%baseflow_user => dummy_user_init_no_baseflow
     end if
 
     if (.not. associated(u%user_finalize_modules)) then
@@ -417,9 +424,12 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
 
-  subroutine dummy_user_init_no_simcomp(params)
+  subroutine dummy_user_init_no_baseflow(u_b, v_b, w_b, params)
+    type(field_t), intent(inout) :: u_b
+    type(field_t), intent(inout) :: v_b
+    type(field_t), intent(inout) :: w_b
     type(json_file), intent(inout) :: params
-  end subroutine dummy_user_init_no_simcomp
+  end subroutine dummy_user_init_no_baseflow
 
   subroutine dummy_user_final_no_modules(t, params)
     real(kind=rp) :: t
@@ -495,3 +505,4 @@ contains
   !! simulation component to the list.
   !! @include simulation_components/user_simcomp.case
 end module user_intf
+
