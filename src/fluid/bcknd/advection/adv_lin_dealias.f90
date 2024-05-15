@@ -115,21 +115,14 @@ module adv_lin_dealias
      type(c_ptr) :: dwxb_d = C_NULL_PTR
      type(c_ptr) :: dwyb_d = C_NULL_PTR
      type(c_ptr) :: dwzb_d = C_NULL_PTR
-     ! -----------------------------------------------
-
-
-     ! Tim,
-     ! I'm drawing inspiration from the fluid_user_source term
-     ! to switch between LNS and ADJOINT, because it's only
-     ! the compute vector that differs between the two.
-     !procedure(advection_compute_vector), nopass, pointer :: compute_vector_&
-     !  => null()
-
 
    contains
      !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
      !! the RHS.
-     procedure, pass(this) :: compute => compute_vector_advection_dealias
+     procedure, pass(this) :: compute_linear => compute_linear_advection_dealias
+     !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
+     !! the RHS.
+     procedure, pass(this) :: compute_adjoint => compute_adjoint_advection_dealias
      !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
      !! the RHS.
      procedure, pass(this) :: compute_scalar => compute_scalar_advection_dealias
@@ -232,123 +225,6 @@ contains
     class(adv_lin_dealias_t), intent(inout) :: this
   end subroutine free_dealias
 
-
-  !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
-  !! the RHS.
-  !! @param vx The x component of velocity.
-  !! @param vy The y component of velocity.
-  !! @param vz The z component of velocity.
-  !! @param fx The x component of source term.
-  !! @param fy The y component of source term.
-  !! @param fz The z component of source term.
-  !! @param Xh The function space.
-  !! @param coef The coefficients of the (Xh, mesh) pair.
-  !! @param n Typically the size of the mesh.
-  subroutine compute_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
-    class(adv_lin_dealias_t), intent(inout) :: this
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
-    type(field_t), intent(inout) :: vx, vy, vz
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
-    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
-    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz
-    real(kind=rp), dimension(this%Xh_GL%lxyz) :: vr, vs, vt
-    real(kind=rp), dimension(this%Xh_GLL%lxyz) :: tempx, tempy, tempz
-    type(c_ptr) :: fx_d, fy_d, fz_d
-    integer :: e, i, idx, nel, n_GL
-    nel = coef%msh%nelv
-    n_GL = nel * this%Xh_GL%lxyz
-
-    !This is extremely primitive and unoptimized  on the device //Karp
-    associate(c_GL => this%coef_GL)
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         fx_d = device_get_ptr(fx)
-         fy_d = device_get_ptr(fy)
-         fz_d = device_get_ptr(fz)
-         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
-
-         call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
-         call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%tx_d, this%ty_d, this%tz_d, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call device_sub2(fx_d, this%temp_d, n)
-
-
-         call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
-         call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%tx_d, this%ty_d, this%tz_d, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call device_sub2(fy_d, this%temp_d, n)
-
-         call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
-         call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%tx_d, this%ty_d, this%tz_d, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call device_sub2(fz_d, this%temp_d, n)
-
-      else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
-
-         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
-
-         call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
-         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%tx, this%ty, this%tz, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call sub2(fx, this%temp, n)
-
-
-         call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
-         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%tx, this%ty, this%tz, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call sub2(fy, this%temp, n)
-
-         call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
-         call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%tx, this%ty, this%tz, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call sub2(fz, this%temp, n)
-
-      else
-
-         do e = 1, coef%msh%nelv
-            call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
-
-            call opgrad(vr, vs, vt, tx, c_GL, e, e)
-            do i = 1, this%Xh_GL%lxyz
-               tfx(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
-            end do
-
-            call opgrad(vr, vs, vt, ty, c_GL, e, e)
-            do i = 1, this%Xh_GL%lxyz
-               tfy(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
-            end do
-
-            call opgrad(vr, vs, vt, tz, c_GL, e, e)
-            do i = 1, this%Xh_GL%lxyz
-               tfz(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
-            end do
-
-            call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-            call this%GLL_to_GL%map(tempy, tfy, 1, this%Xh_GLL)
-            call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
-
-            idx = (e-1)*this%Xh_GLL%lxyz+1
-            call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
-            call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
-            call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
-         end do
-      end if
-    end associate
-
-  end subroutine compute_advection_dealias
 
   !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to the
   !! RHS.
@@ -457,42 +333,6 @@ contains
     end associate
 
   end subroutine compute_scalar_advection_dealias
-
-  !> Add the linearized advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
-  !! the RHS.
-  !! @param vx The x component of velocity.
-  !! @param vy The y component of velocity.
-  !! @param vz The z component of velocity.
-  !! @param vxb The x component of baseflow velocity.
-  !! @param vyb The y component of baseflow velocity.
-  !! @param vzb The z component of baseflow velocity.
-  !! @param fx The x component of source term.
-  !! @param fy The y component of source term.
-  !! @param fz The z component of source term.
-  !! @param Xh The function space.
-  !! @param coef The coefficients of the (Xh, mesh) pair.
-  !! @param n Typically the size of the mesh.
-  subroutine compute_vector_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
-    class(adv_lin_dealias_t), intent(inout) :: this
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
-    type(field_t), intent(inout) :: vx, vy, vz
-    type(field_t), intent(inout) :: vxb, vyb, vzb
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
-
-    logical, parameter :: use_adjoint = .true.
-
-    ! Linearized advection term for the fluid
-    if (use_adjoint) then
-       call compute_adjoint_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, &
-                                              fx, fy, fz, Xh, coef, n)
-    else
-       call compute_LNS_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, &
-                                          fy, fz, Xh, coef, n)
-    end if
-
-  end subroutine compute_vector_advection_dealias
 
   !> Add the linearized advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
   !! the RHS.
@@ -762,11 +602,8 @@ contains
 
   end subroutine compute_adjoint_advection_dealias
 
-  ! Tim,
-  ! these are the vector ones, right now it's for LNS
-
-  !> Add the linearized advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
-  !! the RHS.
+  !> Add the linearized advection term for the fluid, i.e.
+  !! \f$u \cdot \nabla u \f$, to the RHS.
   !! @param vx The x component of velocity.
   !! @param vy The y component of velocity.
   !! @param vz The z component of velocity.
@@ -779,7 +616,8 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  subroutine compute_LNS_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, Xh, coef, n)
+  subroutine compute_linear_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, &
+                                              fx, fy, fz, Xh, coef, n)
     !! HARRY added vxb etc for baseflow
     implicit none
     class(adv_lin_dealias_t), intent(inout) :: this
@@ -980,6 +818,6 @@ contains
       end if
     end associate
 
-  end subroutine compute_LNS_advection_dealias
+  end subroutine compute_linear_advection_dealias
 
 end module adv_lin_dealias

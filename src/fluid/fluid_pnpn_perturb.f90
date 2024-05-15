@@ -116,6 +116,7 @@ module fluid_pnpn_perturb
      type(bc_list_t) :: bclst_dp
 
      class(advection_lin_t), allocatable :: adv
+     logical :: toggle_adjoint
 
      !! Time variables
      type(field_t) :: abx1, aby1, abz1
@@ -165,7 +166,6 @@ module fluid_pnpn_perturb
      procedure, pass(this) :: free => fluid_pnpn_perturb_free
      procedure, pass(this) :: step => fluid_pnpn_perturb_step
      procedure, pass(this) :: restart => fluid_pnpn_perturb_restart
-
 
      !> Compute the power_iterations field.
      procedure, public, pass(this) :: PW_compute_ => power_iterations_compute
@@ -371,6 +371,8 @@ contains
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
+    call json_get_or_default(params, 'case.fluid.adjoint', this%toggle_adjoint,&
+                             .false.)
     call advection_lin_factory(this%adv, params, this%c_Xh)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
@@ -746,9 +748,15 @@ contains
       end if
 
       ! Add the advection operators to the right-hand-side.
-      call this%adv%compute(u, v, w, u_b, v_b, w_b, &
-                            f_x%x, f_y%x, f_z%x, &
-                            Xh, this%c_Xh, dm_Xh%size())
+      if (this%toggle_adjoint) then
+         call this%adv%compute_adjoint(u, v, w, u_b, v_b, w_b, &
+                                       f_x%x, f_y%x, f_z%x, &
+                                       Xh, this%c_Xh, dm_Xh%size())
+      else
+         call this%adv%compute_linear(u, v, w, u_b, v_b, w_b, &
+                                      f_x%x, f_y%x, f_z%x, &
+                                      Xh, this%c_Xh, dm_Xh%size())
+      end if
 
       ! At this point the RHS contains the sum of the advection operator and
       ! additional source terms, evaluated using the velocity field from the
