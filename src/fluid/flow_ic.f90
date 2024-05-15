@@ -240,20 +240,10 @@ contains
 
     zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
 
-    ! if (NEKO_BCKND_DEVICE .eq. 1) then
-    !    call device_cfill_mask(u%x_d, zone_value(1), size, zone%mask_d, &
-    !                           zone%size)
-    !    call device_cfill_mask(v%x_d, zone_value(2), size, zone%mask_d, &
-    !                           zone%size)
-    !    call device_cfill_mask(w%x_d, zone_value(3), size, zone%mask_d, &
-    !                           zone%size)
-    ! else
     call cfill_mask(u%x, zone_value(1), size, zone%mask, zone%size)
     call cfill_mask(v%x, zone_value(2), size, zone%mask, zone%size)
     call cfill_mask(w%x, zone_value(3), size, zone%mask, zone%size)
-    ! end if
 
   end subroutine set_flow_ic_point_zone
-
 
 end module flow_ic
