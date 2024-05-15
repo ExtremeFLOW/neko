@@ -84,6 +84,32 @@ void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m) {
 
 }
 
+/** Fortran wrapper for cfill_mask
+ * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
+ */
+void opencl_cfill_mask(void* a, void* c, int* size, void* mask, int* mask_size) {
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+  
+  cl_kernel kernel = clCreateKernel(math_program, "cfill_mask_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), size));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &mask));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), mask_size));
+  
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));  
+  }
+
 /** Fortran wrapper for rzero
  * Zero a real vector
  */
