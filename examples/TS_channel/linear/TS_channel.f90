@@ -17,9 +17,24 @@ contains
 
     usr%user_mesh_setup => user_mesh_scale
     usr%fluid_user_ic => user_ic
+    usr%baseflow_user => user_baseflow
     
   end subroutine user_setup
 
+
+	subroutine user_baseflow(u_b, v_b, w_b, params)
+    type(field_t), intent(inout) :: u_b
+    type(field_t), intent(inout) :: v_b
+    type(field_t), intent(inout) :: w_b
+    type(json_file), intent(inout) :: params
+    integer :: i
+
+    do i = 1, u_b%dof%size()
+       u_b%x(i,1,1,1) = 1.0 - u_b%dof%y(i,1,1,1)**2
+       v_b%x(i,1,1,1) = 0.0
+       w_b%x(i,1,1,1) = 0.0
+    end do
+	end subroutine user_baseflow
 
   ! Rescale mesh
   ! Original mesh size: (2.0, 2.0, 1.0).

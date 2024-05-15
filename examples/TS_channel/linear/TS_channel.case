@@ -16,19 +16,15 @@
         "polynomial_order": 7,
         "dealias": true
     },
-    "perturbation": {
-    	  "if_pert": true,
-    	  "baseflow": {
-    	  	 "type": "load_file",
-    	  	 "filename": "baseflow0.fld"
-		  }
-	 },
     "fluid": {
-        "scheme": "pnpn",
+        "scheme": "pnpn_perturb",
         "Re": 5000,
         "initial_condition": {
             "type": "user"
         },
+        "baseflow": {
+        	 "type": "user"
+		  },
         "velocity_solver": {
             "type": "cg",
             "preconditioner": "jacobi",
@@ -43,12 +39,12 @@
             "absolute_tolerance": 1e-5,
             "max_iterations": 800
         },
-# Linearized doesn't need fixed mass flow rate
-#        "flow_rate_force": {
-#            "direction": 1,
-#            "value": 0.66666666666666666666,
-#            "use_averaged_flow": true
-#        },
+// Linearized doesn't need fixed mass flow rate
+//        "flow_rate_force": {
+//            "direction": 1,
+//            "value": 0.66666666666666666666,
+//            "use_averaged_flow": true
+//        },
         "boundary_types": ["", "", "w", "w"],
         "output_control": "simulationtime",
         "output_value": 1
