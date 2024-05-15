@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Subroutines to add advection terms to the RHS of a transport equation.
-module advection_lin_no_dealias
+module adv_lin_no_dealias
   use advection, only: advection_lin_t
   use num_types, only: rp
   use math, only: vdot3, sub2, subcol3, rzero
@@ -334,4 +334,4 @@ contains
     end if
 
   end subroutine compute_LNS_advection_no_dealias
-end module advection_lin_no_dealias
+end module adv_lin_no_dealias

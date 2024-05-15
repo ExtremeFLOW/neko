@@ -46,6 +46,8 @@ module advection_fctry
   use advection, only : advection_t
   use adv_dealias, only : adv_dealias_t
   use adv_no_dealias, only : adv_no_dealias_t
+  use adv_lin_dealias, only : adv_lin_dealias_t
+  use adv_lin_no_dealias, only : adv_lin_no_dealias_t
 
   implicit none
   private
