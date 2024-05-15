@@ -39,6 +39,7 @@ module adv_lin_no_dealias
   use space, only: space_t, GL
   use field, only: field_t
   use coefs, only: coef_t
+  use scratch_registry, only : neko_scratch_registry
   use neko_config, only: NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
     NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
   use operators, only: opgrad, conv1, cdtp
@@ -163,36 +164,193 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
     type(c_ptr) :: fx_d, fy_d, fz_d
+    type(c_ptr) :: vx_d, vy_d, vz_d
+
+    ! these are gradients of U_b (one element)
+    real(kind=rp), dimension(Xh%lxyz) :: duxb, dvxb, dwxb
+    real(kind=rp), dimension(Xh%lxyz) :: duyb, dvyb, dwyb
+    real(kind=rp), dimension(Xh%lxyz) :: duzb, dvzb, dwzb
+    ! temporary arrays
+    real(kind=rp), dimension(Xh%lxyz) :: tfx,  tfy,  tfz
+    integer :: e, i, idx, idxx
+
+
+	 ! Tim F
+	 ! I saw this in pnpn_prs_res and it looks like we can get temp arrays this way
+	 ! I'm not sure if we can do the same for dealiased, but this looks clean for
+	 ! the no dealiased.
+	 !
+	 ! Harry
+    type(field_t), pointer :: tduxb, tdvxb, tdwxb, tduyb, tdvyb, tdwyb, tduzb, tdvzb, tdwzb
+    integer :: temp_indices(9)
+
+
+
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       fx_d = device_get_ptr(fx)
-       fy_d = device_get_ptr(fy)
-       fz_d = device_get_ptr(fz)
+    		call neko_scratch_registry%request_field(tduxb, temp_indices(1))
+    		call neko_scratch_registry%request_field(tdvxb, temp_indices(2))
+    		call neko_scratch_registry%request_field(tdwxb, temp_indices(3))
+    		call neko_scratch_registry%request_field(tduyb, temp_indices(4))
+    		call neko_scratch_registry%request_field(tdvyb, temp_indices(5))
+    		call neko_scratch_registry%request_field(tdwyb, temp_indices(6))
+    		call neko_scratch_registry%request_field(tduzb, temp_indices(7))
+    		call neko_scratch_registry%request_field(tdvzb, temp_indices(8))
+    		call neko_scratch_registry%request_field(tdwzb, temp_indices(9))
+    	   fx_d = device_get_ptr(fx)
+         fy_d = device_get_ptr(fy)
+         fz_d = device_get_ptr(fz)
+    	   vx_d = vx%x_d
+    	   vy_d = vy%x_d
+    	   vz_d = vz%x_d
 
-       call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
-       call device_subcol3 (fx_d, coef%B_d, this%temp_d, n)
-       call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-       call device_subcol3 (fy_d, coef%B_d, this%temp_d, n)
-       if (coef%Xh%lz .eq. 1) then
-          call device_rzero (this%temp_d, n)
-       else
-          call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
-          call device_subcol3(fz_d, coef%B_d, this%temp_d, n)
-       end if
+         ! u . grad U_b^T
+         !-----------------------------
+         ! take all the gradients
+         call opgrad(tduxb%x, tduyb%x, tduzb%x, vxb%x, coef)
+         call opgrad(tdvxb%x, tdvyb%x, tdvzb%x, vyb%x, coef)
+         call opgrad(tdwxb%x, tdwyb%x, tdwzb%x, vzb%x, coef)
+
+
+         ! traspose and multiply
+         call device_vdot3(this%temp_d, vx_d, vy_d, vz_d, &
+                           tduxb%x_d, tdvxb%x_d, tdwxb%x_d, n)
+         call device_sub2(fx_d, this%temp_d, n)
+
+         call device_vdot3(this%temp_d, vx_d, vy_d, vz_d, &
+                           tduyb%x_d, tdvyb%x_d, tdwyb%x_d, n)
+         call device_sub2(fy_d, this%temp_d, n)
+
+         call device_vdot3(this%temp_d, vx_d, vy_d, vz_d, &
+                           tduzb%x_d, tdvzb%x_d, tdwzb%x_d, n)
+         call device_sub2(fz_d, this%temp_d, n)
+
+			! \int \grad v . U_b ^ u    with ^ an outer product
+         call adjoint_weak_no_dealias_device(fx_d, vx_d,  &		! index in (x) 
+         			 						 vxb%x, vyb%x, vzb%x, &    ! baseflow
+         											   coef, Xh, n, &
+         							 tduxb%x, tdvxb%x, tdwxb%x, &
+         							 tduyb%x, tdvyb%x, tdwyb%x)		! work 
+
+         call adjoint_weak_no_dealias_device(fy_d, vy_d,  &		
+         			 						 vxb%x, vyb%x, vzb%x, &    
+         											   coef, Xh, n, &
+         							 tduxb%x, tdvxb%x, tdwxb%x, &
+         							 tduyb%x, tdvyb%x, tdwyb%x)		
+
+         call adjoint_weak_no_dealias_device(fz_d, vz_d,  &		
+         			 						 vxb%x, vyb%x, vzb%x, &    
+         											   coef, Xh, n, &
+         							 tduxb%x, tdvxb%x, tdwxb%x, &
+         							 tduyb%x, tdvyb%x, tdwyb%x)		
+
+         call neko_scratch_registry%relinquish_field(temp_indices)
     else
-       call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (fx, coef%B, this%temp, n)
-       call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (fy, coef%B, this%temp, n)
-       if (coef%Xh%lz .eq. 1) then
-          call rzero (this%temp, n)
-       else
-          call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
-          call subcol3(fz, coef%B, this%temp, n)
-       end if
+    	do e = 1, coef%msh%nelv
+    	      ! u . grad U_b^T
+            !-----------------------------
+            call opgrad(duxb, duyb, duzb, vxb%x, coef, e, e)
+            call opgrad(dvxb, dvyb, dvzb, vyb%x, coef, e, e)
+            call opgrad(dwxb, dwyb, dwzb, vzb%x, coef, e, e)
+
+            ! traspose and multiply
+            idx = (e-1)*Xh%lxyz+1
+            do i = 1, Xh%lxyz
+               idxx = idx + i
+               fx(idxx) = fx(idxx) - (vx%x(i,1,1,e)*duxb(i) + vy%x(i,1,1,e)*dvxb(i) + vz%x(i,1,1,e)*dwxb(i))
+               fy(idxx) = fy(idxx) - (vx%x(i,1,1,e)*duyb(i) + vy%x(i,1,1,e)*dvyb(i) + vz%x(i,1,1,e)*dwyb(i))
+               fz(idxx) = fz(idxx) - (vx%x(i,1,1,e)*duzb(i) + vy%x(i,1,1,e)*dvzb(i) + vz%x(i,1,1,e)*dwzb(i))
+            end do
+
+				! \int \grad v . U_b ^ u    with ^ an outer product
+            call adjoint_weak_no_dealias_cpu(fx(idx), vx%x(1,1,1,e),  &		! index in (x) 
+            			 vxb%x(1,1,1,e), vyb%x(1,1,1,e), vzb%x(1,1,1,e), &    ! baseflow
+            											   e, coef, Xh, Xh%lxyz, &
+            							 duxb, dvxb, dwxb, duyb, dvyb, dwyb)		! work 
+
+            call adjoint_weak_no_dealias_cpu(fy(idx), vy%x(1,1,1,e),  &		
+            			 vxb%x(1,1,1,e), vyb%x(1,1,1,e), vzb%x(1,1,1,e), &    
+            											   e, coef, Xh, Xh%lxyz, &
+            							 duxb, dvxb, dwxb, duyb, dvyb, dwyb)		
+
+            call adjoint_weak_no_dealias_cpu(fz(idx), vz%x(1,1,1,e),  &		
+            			 vxb%x(1,1,1,e), vyb%x(1,1,1,e), vzb%x(1,1,1,e), &    
+            											   e, coef, Xh, Xh%lxyz, &
+            							 duxb, dvxb, dwxb, duyb, dvyb, dwyb)		
+    	enddo
+
     end if
 
   end subroutine adjoint_advection_no_dealias
+
+  subroutine adjoint_weak_no_dealias_device(f_d, u_i_d, ub, vb, wb, coef, Xh, n, & 
+  						work1, work2, work3, w1, w2, w3)
+  implicit none
+  type(c_ptr), intent(inout) :: f_d
+  type(c_ptr), intent(in) :: u_i_d
+  real(kind=rp), intent(inout), dimension(n) :: ub, vb, wb
+  real(kind=rp), intent(inout), dimension(n) :: w1, w2, w3
+  real(kind=rp), intent(inout), dimension(n) :: work1, work2, work3
+  type(space_t), intent(inout) :: Xh
+  type(coef_t), intent(inout) :: coef
+  integer, intent(in) ::  n
+  type(c_ptr) :: ub_d, vb_d, wb_d
+  type(c_ptr) :: work1_d, work2_d, work3_d, w1_d, w2_d, w3_d
+  integer :: i
+
+  work1_d = device_get_ptr(work1)
+  work2_d = device_get_ptr(work2)
+  work3_d = device_get_ptr(work3)
+  w1_d = device_get_ptr(w1)
+  w2_d = device_get_ptr(w2)
+  w3_d = device_get_ptr(w3)
+  ub_d = device_get_ptr(ub)
+  vb_d = device_get_ptr(vb)
+  wb_d = device_get_ptr(wb)
+
+   ! outer product
+   call device_col3(work1_d, u_i_d, ub_d, n)
+   call device_col3(work2_d, u_i_d, vb_d, n)
+   call device_col3(work3_d, u_i_d, wb_d, n)
+   ! D^T
+   call cdtp(w1, work1, coef%drdx, coef%dsdx, coef%dtdx, coef)
+   call cdtp(w2, work2, coef%drdy, coef%dsdy, coef%dtdy, coef)
+   call cdtp(w3, work3, coef%drdz, coef%dsdz, coef%dtdz, coef)
+   ! sum them
+   call device_add4(work1_d, w1_d, w2_d, w3_d , n)
+   call device_sub2(f_d, work1_d, n)
+  end subroutine adjoint_weak_no_dealias_device
+
+  subroutine adjoint_weak_no_dealias_cpu(f, u_i, ub, vb, wb, e, coef, Xh, n, work1, work2, work3, w1, w2, w3)
+  implicit none
+  integer, intent(in) :: e, n
+  integer :: i
+  real(kind=rp), intent(inout), dimension(n) :: f
+  real(kind=rp), intent(inout), dimension(n) :: u_i
+  real(kind=rp), intent(inout), dimension(n) :: ub, vb, wb
+  real(kind=rp), intent(inout), dimension(n) :: w1, w2, w3
+  real(kind=rp), intent(inout), dimension(n) :: work1, work2, work3
+  type(space_t), intent(inout) :: Xh
+  type(coef_t), intent(inout) :: coef
+
+   ! outer product
+   do i = 1, Xh%lxyz
+      work1(i) = u_i(i)*ub(i)
+      work2(i) = u_i(i)*vb(i)
+      work3(i) = u_i(i)*wb(i)
+   end do
+   ! D^T
+   call cdtp(w1, work1, coef%drdx, coef%dsdx, coef%dtdx, coef, e ,e)
+   call cdtp(w2, work2, coef%drdy, coef%dsdy, coef%dtdy, coef, e ,e)
+   call cdtp(w3, work3, coef%drdz, coef%dsdz, coef%dtdz, coef, e, e)
+
+   ! sum them
+   do i = 1, Xh%lxyz
+      f(i) = f(i) - w1(i) + w2(i) + w3(i)
+   end do
+  end subroutine adjoint_weak_no_dealias_cpu
+
+
 
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
   !! RHS.

@@ -11,10 +11,11 @@
         "numerics": {
             "time_order": 3,
             "polynomial_order": 5,
-            "dealias": true
+            "dealias": false
         },
         "fluid": {
             "scheme": "pnpn_perturb",
+            "adjoint": true,
             "Re": 100,
 
             "initial_condition": {
