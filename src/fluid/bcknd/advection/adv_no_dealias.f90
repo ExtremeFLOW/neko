@@ -108,35 +108,31 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: fx, fy, fz
     integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
-    type(c_ptr) :: fx_d, fy_d, fz_d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       fx_d = device_get_ptr(fx)
-       fy_d = device_get_ptr(fy)
-       fz_d = device_get_ptr(fz)
 
        call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
-       call device_subcol3 (fx_d, coef%B_d, this%temp_d, n)
+       call device_subcol3 (fx%x_d, coef%B_d, this%temp_d, n)
        call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-       call device_subcol3 (fy_d, coef%B_d, this%temp_d, n)
+       call device_subcol3 (fy%x_d, coef%B_d, this%temp_d, n)
        if (coef%Xh%lz .eq. 1) then
           call device_rzero (this%temp_d, n)
        else
           call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
-          call device_subcol3(fz_d, coef%B_d, this%temp_d, n)
+          call device_subcol3(fz%x_d, coef%B_d, this%temp_d, n)
        end if
     else
        call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (fx, coef%B, this%temp, n)
+       call subcol3 (fx%x, coef%B, this%temp, n)
        call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (fy, coef%B, this%temp, n)
+       call subcol3 (fy%x, coef%B, this%temp, n)
        if (coef%Xh%lz .eq. 1) then
           call rzero (this%temp, n)
        else
           call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
-          call subcol3(fz, coef%B, this%temp, n)
+          call subcol3(fz%x, coef%B, this%temp, n)
        end if
     end if
 
@@ -158,17 +154,15 @@ contains
     class(adv_no_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fs
+    type(field_t), intent(inout) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    type(c_ptr) :: fs_d
+    integer, intent(in) :: n
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       fs_d = device_get_ptr(fs)
 
        call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
-       call device_subcol3 (fs_d, coef%B_d, this%temp_d, n)
+       call device_subcol3 (fs%x_d, coef%B_d, this%temp_d, n)
        if (coef%Xh%lz .eq. 1) then
           call device_rzero (this%temp_d, n)
        end if
@@ -177,7 +171,7 @@ contains
        call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
 
        ! fs = fs - B*temp
-       call subcol3 (fs, coef%B, this%temp, n)
+       call subcol3 (fs%x, coef%B, this%temp, n)
        if (coef%Xh%lz .eq. 1) then
           call rzero (this%temp, n)
        end if
