@@ -32,8 +32,8 @@
 !
 !> Implements the CPU kernel for the `sigma_t` type.
 !> Following Nicoud et al. "Using singular values to build a
-!> subgrid-scale model for large-eddy simulations"
-!> https://doi.org/10.1063/1.3623274
+!! subgrid-scale model for large-eddy simulations"
+!! https://doi.org/10.1063/1.3623274
 
 module sigma_cpu
   use num_types, only : rp
