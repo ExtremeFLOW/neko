@@ -242,11 +242,11 @@ contains
     class(adv_lin_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fs
+    type(field_t), intent(inout) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    type(c_ptr) :: fs_d
+    integer, intent(in) :: n
+
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vx_GL, vy_GL, vz_GL, s_GL
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: dsdx, dsdy, dsdz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: f_GL
@@ -258,7 +258,6 @@ contains
 
     associate(c_GL => this%coef_GL)
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         fs_d = device_get_ptr(fs)
 
          ! Map advecting velocity onto the higher-order space
          call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
@@ -279,7 +278,7 @@ contains
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
 
          ! Update the source term
-         call device_sub2(fs_d, this%temp_d, n)
+         call device_sub2(fs%x_d, this%temp_d, n)
 
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
 
@@ -302,7 +301,7 @@ contains
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
 
          ! Update the source term
-         call sub2(fs, this%temp, n)
+         call sub2(fs%x, this%temp, n)
 
       else
          do e = 1, coef%msh%nelv
@@ -327,7 +326,7 @@ contains
 
             idx = (e-1)*this%Xh_GLL%lxyz + 1
 
-            call sub2(fs(idx), temp, this%Xh_GLL%lxyz)
+            call sub2(fs%x(idx, 1, 1, 1), temp, this%Xh_GLL%lxyz)
          end do
       end if
     end associate
@@ -359,8 +358,8 @@ contains
     ! Baseflow
     type(field_t), intent(inout) :: vxb, vyb, vzb
     ! --------
+    type(field_t), intent(inout) :: fx, fy, fz
     integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz
 
 !    ! these are u and U_b on dealiased mesh (one element)
@@ -374,7 +373,6 @@ contains
 
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vr, vs, vt
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: tempx, tempy, tempz
-    type(c_ptr) :: fx_d, fy_d, fz_d
     integer :: e, i, idx, nel, n_GL
     real :: fac
     nel = coef%msh%nelv
@@ -382,9 +380,6 @@ contains
     associate(c_GL => this%coef_GL)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         fx_d = device_get_ptr(fx)
-         fy_d = device_get_ptr(fy)
-         fz_d = device_get_ptr(fz)
          ! HARRY
          ! These are the baseflow
          call this%GLL_to_GL%map(this%txb, vxb%x, nel, this%Xh_GL)
@@ -408,17 +403,17 @@ contains
          call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
                            this%duxb_d, this%dvxb_d, this%dwxb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%vr, nel, this%Xh_GLL)
-         call device_sub2(fx_d, this%temp_d, n)
+         call device_sub2(fx%x_d, this%temp_d, n)
 
          call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
                            this%duyb_d, this%dvyb_d, this%dwyb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%vr, nel, this%Xh_GLL)
-         call device_sub2(fy_d, this%temp_d, n)
+         call device_sub2(fy%x_d, this%temp_d, n)
 
          call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
                            this%duzb_d, this%dvzb_d, this%dwzb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%vr, nel, this%Xh_GLL)
-         call device_sub2(fz_d, this%temp_d, n)
+         call device_sub2(fz%x_d, this%temp_d, n)
 
          ! \int \grad v . U_b ^ u    with ^ an outer product
 
@@ -435,9 +430,9 @@ contains
          call cdtp(this%vt, this%duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL)
 
          ! reuse duxb as a temp
-         call device_add4(this%duxb_d, this%vr_d ,this%vs_d ,this%vt_d, n_GL)
+         call device_add4(this%duxb_d, this%vr_d, this%vs_d, this%vt_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%duxb, nel, this%Xh_GLL)
-         call device_sub2(fx_d, this%temp_d, n)
+         call device_sub2(fx%x_d, this%temp_d, n)
 
 
          ! (y)
@@ -453,9 +448,9 @@ contains
          call cdtp(this%vt, this%duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL)
 
          ! reuse duxb as a temp
-         call device_add4(this%duxb_d, this%vr_d ,this%vs_d ,this%vt_d, n_GL)
+         call device_add4(this%duxb_d, this%vr_d, this%vs_d, this%vt_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%duxb, nel, this%Xh_GLL)
-         call device_sub2(fy_d, this%temp_d, n)
+         call device_sub2(fy%x_d, this%temp_d, n)
 
          ! (z)
          ! duxb,duyb,duzb are temporary arrays
@@ -470,9 +465,9 @@ contains
          call cdtp(this%vt, this%duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL)
 
          ! reuse duxb as a temp
-         call device_add4(this%duxb_d, this%vr_d ,this%vs_d ,this%vt_d, n_GL)
+         call device_add4(this%duxb_d, this%vr_d, this%vs_d, this%vt_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%duxb, nel, this%Xh_GLL)
-         call device_sub2(fz_d, this%temp_d, n)
+         call device_sub2(fz%x_d, this%temp_d, n)
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
          !TODO
       else
@@ -511,9 +506,9 @@ contains
 
             ! accumulate
             idx = (e-1)*this%Xh_GLL%lxyz+1
-            call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
-            call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
-            call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
+            call sub2(fx%x(idx, 1, 1, 1), tempx, this%Xh_GLL%lxyz)
+            call sub2(fy%x(idx, 1, 1, 1), tempy, this%Xh_GLL%lxyz)
+            call sub2(fz%x(idx, 1, 1, 1), tempz, this%Xh_GLL%lxyz)
 
             ! In most literature this term is -(grad . U_b) u + BDRY
             !
@@ -534,9 +529,10 @@ contains
                duyb(i) = tx(i)*tyb(i)*fac
                duzb(i) = tx(i)*tzb(i)*fac
             end do
+
             ! D^T
-            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
-            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e, e)
+            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e, e)
             call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
 
             ! sum them
@@ -546,7 +542,7 @@ contains
 
             ! map back to GLL
             call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-            call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
+            call sub2(fx%x(idx, 1, 1, 1), tempx, this%Xh_GLL%lxyz)
 
             ! here we have index i, with free index j------------------------------y
             do i = 1, this%Xh_GL%lxyz
@@ -557,9 +553,10 @@ contains
                duyb(i) = ty(i)*tyb(i)*fac
                duzb(i) = ty(i)*tzb(i)*fac
             end do
+
             ! D^T
-            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
-            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e, e)
+            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e, e)
             call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
 
             ! sum them
@@ -569,7 +566,7 @@ contains
 
             ! map back to GLL
             call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-            call sub2(fy(idx), tempx, this%Xh_GLL%lxyz)
+            call sub2(fy%x(idx, 1, 1, 1), tempx, this%Xh_GLL%lxyz)
 
             ! here we have index i, with free index j------------------------------z
             do i = 1, this%Xh_GL%lxyz
@@ -581,8 +578,8 @@ contains
                duzb(i) = tz(i)*tzb(i)*fac
             end do
             ! D^T
-            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e ,e)
-            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e ,e)
+            call cdtp(tfx, duxb, c_GL%drdx, c_GL%dsdx, c_GL%dtdx, c_GL, e, e)
+            call cdtp(tfy, duyb, c_GL%drdy, c_GL%dsdy, c_GL%dtdy, c_GL, e, e)
             call cdtp(tfz, duzb, c_GL%drdz, c_GL%dsdz, c_GL%dtdz, c_GL, e, e)
 
             ! sum them
@@ -592,7 +589,7 @@ contains
 
             ! map back to GLL
             call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-            call sub2(fz(idx), tempx, this%Xh_GLL%lxyz)
+            call sub2(fz%x(idx, 1, 1, 1), tempx, this%Xh_GLL%lxyz)
 
          enddo
 
@@ -629,7 +626,7 @@ contains
     type(field_t), intent(inout) :: vxb, vyb, vzb
     ! --------
     integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
+    type(field_t), intent(inout) :: fx, fy, fz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
     ! HARRY ---
     ! Baseflow temporary arrays
@@ -638,17 +635,15 @@ contains
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vr, vs, vt
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: tempx, tempy, tempz
-    type(c_ptr) :: fx_d, fy_d, fz_d
+
     integer :: e, i, idx, nel, n_GL
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
+
     !This is extremely primitive and unoptimized  on the device //Karp
     associate(c_GL => this%coef_GL)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         fx_d = device_get_ptr(fx)
-         fy_d = device_get_ptr(fy)
-         fz_d = device_get_ptr(fz)
          ! HARRY
          ! These are the baseflow
          call this%GLL_to_GL%map(this%txb, vxb%x, nel, this%Xh_GL)
@@ -665,20 +660,20 @@ contains
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call device_sub2(fx_d, this%temp_d, n)
+         call device_sub2(fx%x_d, this%temp_d, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%tyb, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call device_sub2(fy_d, this%temp_d, n)
+         call device_sub2(fy%x_d, this%temp_d, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tzb, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call device_sub2(fz_d, this%temp_d, n)
+         call device_sub2(fz%x_d, this%temp_d, n)
 
          ! HARRY
          ! this will be U.grad du
@@ -686,20 +681,20 @@ contains
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%txb_d, this%tyb_d, this%tzb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call device_sub2(fx_d, this%temp_d, n)
+         call device_sub2(fx%x_d, this%temp_d, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%txb_d, this%tyb_d, this%tzb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call device_sub2(fy_d, this%temp_d, n)
+         call device_sub2(fy%x_d, this%temp_d, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%txb_d, this%tyb_d, this%tzb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call device_sub2(fz_d, this%temp_d, n)
+         call device_sub2(fz%x_d, this%temp_d, n)
 
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
          ! HARRY
@@ -718,40 +713,40 @@ contains
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
                     this%tx, this%ty, this%tz, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call sub2(fx, this%temp, n)
+         call sub2(fx%x, this%temp, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%tyb, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
                     this%tx, this%ty, this%tz, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call sub2(fy, this%temp, n)
+         call sub2(fy%x, this%temp, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tzb, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
                     this%tx, this%ty, this%tz, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call sub2(fz, this%temp, n)
+         call sub2(fz%x, this%temp, n)
 
          ! OK this will be Ub.grad du
          call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
                     this%txb, this%tyb, this%tzb, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call sub2(fx, this%temp, n)
+         call sub2(fx%x, this%temp, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
                     this%txb, this%tyb, this%tzb, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call sub2(fy, this%temp, n)
+         call sub2(fy%x, this%temp, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
                     this%txb, this%tyb, this%tzb, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call sub2(fz, this%temp, n)
+         call sub2(fz%x, this%temp, n)
       else
 
          do e = 1, coef%msh%nelv
@@ -786,9 +781,9 @@ contains
             call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
 
             idx = (e-1)*this%Xh_GLL%lxyz+1
-            call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
-            call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
-            call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
+            call sub2(fx%x(idx, 1, 1, 1), tempx, this%Xh_GLL%lxyz)
+            call sub2(fy%x(idx, 1, 1, 1), tempy, this%Xh_GLL%lxyz)
+            call sub2(fz%x(idx, 1, 1, 1), tempz, this%Xh_GLL%lxyz)
 
             ! OK this will be Ub.grad du
             call opgrad(vr, vs, vt, tx, c_GL, e, e)
@@ -811,9 +806,9 @@ contains
             call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
 
             idx = (e-1)*this%Xh_GLL%lxyz+1
-            call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
-            call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
-            call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
+            call sub2(fx%x(idx, 1, 1, 1), tempx, this%Xh_GLL%lxyz)
+            call sub2(fy%x(idx, 1, 1, 1), tempy, this%Xh_GLL%lxyz)
+            call sub2(fz%x(idx, 1, 1, 1), tempz, this%Xh_GLL%lxyz)
          end do
       end if
     end associate

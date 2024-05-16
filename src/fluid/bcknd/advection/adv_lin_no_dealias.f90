@@ -45,7 +45,7 @@ module adv_lin_no_dealias
   use operators, only: opgrad, conv1, cdtp
   use interpolation, only: interpolator_t
   use device_math
-  use device, only: device_free, device_map, device_get_ptr, device_memcpy, &
+  use device, only: device_free, device_map, device_memcpy, device_get_ptr, &
     HOST_TO_DEVICE
   use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, &
     c_associated
@@ -71,11 +71,6 @@ module adv_lin_no_dealias
      !> Destructor
      procedure, pass(this) :: free => free_no_dealias
   end type adv_lin_no_dealias_t
-
-
-  interface weak_adjoint
-     module procedure adjoint_weak_no_dealias_cpu, adjoint_weak_no_dealias_device
-  end interface weak_adjoint
 
 contains
 
@@ -121,14 +116,14 @@ contains
     class(adv_lin_no_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fs
+    type(field_t), intent(inout) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
+    integer, intent(in) :: n
     type(c_ptr) :: fs_d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       fs_d = device_get_ptr(fs)
+       fs_d = fs%x_d
 
        call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
        call device_subcol3 (fs_d, coef%B_d, this%temp_d, n)
@@ -140,7 +135,7 @@ contains
        call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
 
        ! fs = fs - B*temp
-       call subcol3 (fs, coef%B, this%temp, n)
+       call subcol3 (fs%x, coef%B, this%temp, n)
        if (coef%Xh%lz .eq. 1) then
           call rzero (this%temp, n)
        end if
@@ -167,7 +162,7 @@ contains
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: vxb, vyb, vzb
     integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
+    type(field_t), intent(inout) :: fx, fy, fz
     type(c_ptr) :: fx_d, fy_d, fz_d
     type(c_ptr) :: vx_d, vy_d, vz_d
 
@@ -200,9 +195,9 @@ contains
        call neko_scratch_registry%request_field(tduzb, temp_indices(7))
        call neko_scratch_registry%request_field(tdvzb, temp_indices(8))
        call neko_scratch_registry%request_field(tdwzb, temp_indices(9))
-       fx_d = device_get_ptr(fx)
-       fy_d = device_get_ptr(fy)
-       fz_d = device_get_ptr(fz)
+       fx_d = fx%x_d
+       fy_d = fy%x_d
+       fz_d = fz%x_d
        vx_d = vx%x_d
        vy_d = vy%x_d
        vz_d = vz%x_d
@@ -230,23 +225,23 @@ contains
 
        ! \int \grad v . U_b ^ u
        ! with '^' an outer product
-       call weak_adjoint(fx_d, vx_d, &
-                         vxb%x, vyb%x, vzb%x, &
-                         coef, Xh, n, &
-                         tduxb%x, tdvxb%x, tdwxb%x, &
-                         tduyb%x, tdvyb%x, tdwyb%x)
+       call adjoint_weak_no_dealias_device(fx_d, vx_d, &
+                                           vxb%x, vyb%x, vzb%x, &
+                                           coef, Xh, n, &
+                                           tduxb, tdvxb, tdwxb, &
+                                           tduyb, tdvyb, tdwyb)
 
-       call weak_adjoint(fy_d, vy_d, &
-                         vxb%x, vyb%x, vzb%x, &
-                         coef, Xh, n, &
-                         tduxb%x, tdvxb%x, tdwxb%x, &
-                         tduyb%x, tdvyb%x, tdwyb%x)
+       call adjoint_weak_no_dealias_device(fy_d, vy_d, &
+                                           vxb%x, vyb%x, vzb%x, &
+                                           coef, Xh, n, &
+                                           tduxb, tdvxb, tdwxb, &
+                                           tduyb, tdvyb, tdwyb)
 
-       call weak_adjoint(fz_d, vz_d, &
-                         vxb%x, vyb%x, vzb%x, &
-                         coef, Xh, n, &
-                         tduxb%x, tdvxb%x, tdwxb%x, &
-                         tduyb%x, tdvyb%x, tdwyb%x)
+       call adjoint_weak_no_dealias_device(fz_d, vz_d, &
+                                           vxb%x, vyb%x, vzb%x, &
+                                           coef, Xh, n, &
+                                           tduxb, tdvxb, tdwxb, &
+                                           tduyb, tdvyb, tdwyb)
 
        call neko_scratch_registry%relinquish_field(temp_indices)
     else
@@ -261,35 +256,41 @@ contains
           idx = (e - 1)*Xh%lxyz + 1
           do i = 1, Xh%lxyz
              idxx = idx + i
-             fx(idxx) = fx(idxx) - (vx%x(i,1,1,e)*duxb(i) + &
-                                    vy%x(i,1,1,e)*dvxb(i) + &
-                                    vz%x(i,1,1,e)*dwxb(i))
+             fx%x(idxx, 1, 1, 1) = fx%x(idxx, 1, 1, 1) - ( &
+               & vx%x(i,1,1,e)*duxb(i) + &
+               & vy%x(i,1,1,e)*dvxb(i) + &
+               & vz%x(i,1,1,e)*dwxb(i) )
 
-             fy(idxx) = fy(idxx) - (vx%x(i,1,1,e)*duyb(i) + &
-                                    vy%x(i,1,1,e)*dvyb(i) + &
-                                    vz%x(i,1,1,e)*dwyb(i))
+             fy%x(idxx, 1, 1, 1) = fy%x(idxx, 1, 1, 1) - ( &
+               & vx%x(i,1,1,e)*duyb(i) + &
+               & vy%x(i,1,1,e)*dvyb(i) + &
+               & vz%x(i,1,1,e)*dwyb(i))
 
-             fz(idxx) = fz(idxx) - (vx%x(i,1,1,e)*duzb(i) + &
-                                    vy%x(i,1,1,e)*dvzb(i) + &
-                                    vz%x(i,1,1,e)*dwzb(i))
+             fz%x(idxx, 1, 1, 1) = fz%x(idxx, 1, 1, 1) - ( &
+               & vx%x(i,1,1,e)*duzb(i) + &
+               & vy%x(i,1,1,e)*dvzb(i) + &
+               & vz%x(i,1,1,e)*dwzb(i))
           end do
 
           ! \int \grad v . U_b ^ u
           ! with ^ an outer product
-          call weak_adjoint(fx(idx), vx%x(1,1,1,e), &	! index in (x)
-                            vxb%x(1,1,1,e), vyb%x(1,1,1,e), vzb%x(1,1,1,e), & ! baseflow
-                            e, coef, Xh, Xh%lxyz, &
-                            duxb, dvxb, dwxb, duyb, dvyb, dwyb)	! work
+          call adjoint_weak_no_dealias_cpu( &
+            & fx%x(:,:,:,e), vx%x(1,1,1,e), &
+            & vxb%x(1,1,1,e), vyb%x(1,1,1,e), vzb%x(1,1,1,e), &
+            & e, coef, Xh, Xh%lxyz, &
+            & duxb, dvxb, dwxb, duyb, dvyb, dwyb)
 
-          call weak_adjoint(fy(idx), vy%x(1,1,1,e), &
-                            vxb%x(1,1,1,e), vyb%x(1,1,1,e), vzb%x(1,1,1,e), &
-                            e, coef, Xh, Xh%lxyz, &
-                            duxb, dvxb, dwxb, duyb, dvyb, dwyb)
+          call adjoint_weak_no_dealias_cpu( &
+            & fy%x(:,:,:,e), vy%x(1,1,1,e), &
+            & vxb%x(1,1,1,e), vyb%x(1,1,1,e), vzb%x(1,1,1,e), &
+            & e, coef, Xh, Xh%lxyz, &
+            & duxb, dvxb, dwxb, duyb, dvyb, dwyb)
 
-          call weak_adjoint(fz(idx), vz%x(1,1,1,e), &
-                            vxb%x(1,1,1,e), vyb%x(1,1,1,e), vzb%x(1,1,1,e), &
-                            e, coef, Xh, Xh%lxyz, &
-                            duxb, dvxb, dwxb, duyb, dvyb, dwyb)
+          call adjoint_weak_no_dealias_cpu( &
+            & fz%x(:,:,:,e), vz%x(1,1,1,e), &
+            & vxb%x(1,1,1,e), vyb%x(1,1,1,e), vzb%x(1,1,1,e), &
+            & e, coef, Xh, Xh%lxyz, &
+            & duxb, dvxb, dwxb, duyb, dvyb, dwyb)
        enddo
 
     end if
@@ -302,8 +303,8 @@ contains
     type(c_ptr), intent(inout) :: f_d
     type(c_ptr), intent(in) :: u_i_d
     real(kind=rp), intent(inout), dimension(n) :: ub, vb, wb
-    real(kind=rp), intent(inout), dimension(n) :: w1, w2, w3
-    real(kind=rp), intent(inout), dimension(n) :: work1, work2, work3
+    type(field_t), intent(inout) :: w1, w2, w3
+    type(field_t), intent(inout) :: work1, work2, work3
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     integer, intent(in) :: n
@@ -311,12 +312,12 @@ contains
     type(c_ptr) :: work1_d, work2_d, work3_d, w1_d, w2_d, w3_d
     integer :: i
 
-    work1_d = device_get_ptr(work1)
-    work2_d = device_get_ptr(work2)
-    work3_d = device_get_ptr(work3)
-    w1_d = device_get_ptr(w1)
-    w2_d = device_get_ptr(w2)
-    w3_d = device_get_ptr(w3)
+    work1_d = work1%x_d
+    work2_d = work2%x_d
+    work3_d = work3%x_d
+    w1_d = w1%x_d
+    w2_d = w2%x_d
+    w3_d = w3%x_d
     ub_d = device_get_ptr(ub)
     vb_d = device_get_ptr(vb)
     wb_d = device_get_ptr(wb)
@@ -326,9 +327,9 @@ contains
     call device_col3(work2_d, u_i_d, vb_d, n)
     call device_col3(work3_d, u_i_d, wb_d, n)
     ! D^T
-    call cdtp(w1, work1, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call cdtp(w2, work2, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call cdtp(w3, work3, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call cdtp(w1%x, work1%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call cdtp(w2%x, work2%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call cdtp(w3%x, work3%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
     ! sum them
     call device_add4(work1_d, w1_d, w2_d, w3_d , n)
     call device_sub2(f_d, work1_d, n)
@@ -385,13 +386,13 @@ contains
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: vxb, vyb, vzb
     integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
+    type(field_t), intent(inout) :: fx, fy, fz
     type(c_ptr) :: fx_d, fy_d, fz_d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       fx_d = device_get_ptr(fx)
-       fy_d = device_get_ptr(fy)
-       fz_d = device_get_ptr(fz)
+       fx_d = fx%x_d
+       fy_d = fy%x_d
+       fz_d = fz%x_d
 
        ! (x)
        call conv1(this%temp, vx%x, vxb%x, vyb%x, vzb%x, Xh, coef)
@@ -417,24 +418,24 @@ contains
     else
        ! (x)
        call conv1(this%temp, vx%x, vxb%x, vyb%x, vzb%x, Xh, coef)
-       call subcol3 (fx, coef%B, this%temp, n)
+       call subcol3 (fx%x, coef%B, this%temp, n)
        call conv1(this%temp, vxb%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (fx, coef%B, this%temp, n)
+       call subcol3 (fx%x, coef%B, this%temp, n)
 
        ! (y)
        call conv1(this%temp, vy%x, vxb%x, vyb%x, vzb%x, Xh, coef)
-       call subcol3 (fy, coef%B, this%temp, n)
+       call subcol3 (fy%x, coef%B, this%temp, n)
        call conv1(this%temp, vyb%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (fy, coef%B, this%temp, n)
+       call subcol3 (fy%x, coef%B, this%temp, n)
 
        ! (z)
        if (coef%Xh%lz .eq. 1) then
           call rzero (this%temp, n)
        else
           call conv1(this%temp, vz%x, vxb%x, vyb%x, vzb%x, Xh, coef)
-          call subcol3(fz, coef%B, this%temp, n)
+          call subcol3(fz%x, coef%B, this%temp, n)
           call conv1(this%temp, vzb%x, vx%x, vy%x, vz%x, Xh, coef)
-          call subcol3(fz, coef%B, this%temp, n)
+          call subcol3(fz%x, coef%B, this%temp, n)
        end if
     end if
 
