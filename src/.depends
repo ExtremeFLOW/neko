@@ -272,13 +272,17 @@ source_terms/bcknd/device/brinkman_source_term_device.o : source_terms/bcknd/dev
 source_terms/brinkman/filters.o : source_terms/brinkman/filters.f90 source_terms/bcknd/cpu/filters_cpu.o config/num_types.o field/field.o 
 source_terms/bcknd/cpu/filters_cpu.o : source_terms/bcknd/cpu/filters_cpu.f90 config/num_types.o 
 les/les_model.o : les/les_model.f90 math/bcknd/device/device_math.o math/math.o device/device.o config/neko_config.o gs/gs_ops.o sem/coef.o sem/dofmap.o field/field_registry.o field/field.o config/num_types.o 
-les/les_model_fctry.o : les/les_model_fctry.f90 sem/coef.o sem/dofmap.o les/smagorinsky.o les/sigma.o les/vreman.o les/les_model.o 
+les/les_model_fctry.o : les/les_model_fctry.f90 sem/coef.o sem/dofmap.o les/sigma.o les/dynamic_smagorinsky.o les/smagorinsky.o les/vreman.o les/les_model.o 
 les/vreman.o : les/vreman.f90 sem/coef.o les/bcknd/cpu/vreman_cpu.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o config/num_types.o 
 les/bcknd/cpu/vreman_cpu.o : les/bcknd/cpu/vreman_cpu.f90 gs/gs_ops.o sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o math/math.o field/field_list.o config/num_types.o 
-les/sigma.o : les/sigma.f90 sem/coef.o les/bcknd/cpu/sigma_cpu.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o config/num_types.o
-les/bcknd/cpu/sigma_cpu.o : les/bcknd/cpu/sigma_cpu.f90 gs/gs_ops.o sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o math/math.o field/field_list.o config/num_types.o
 les/smagorinsky.o : les/smagorinsky.f90 sem/coef.o les/bcknd/cpu/smagorinsky_cpu.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o config/num_types.o 
 les/bcknd/cpu/smagorinsky_cpu.o : les/bcknd/cpu/smagorinsky_cpu.f90 gs/gs_ops.o sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o math/math.o field/field_list.o config/num_types.o 
+les/elementwise_filter.o : les/elementwise_filter.f90 math/tensor.o les/bcknd/cpu/elementwise_filter_cpu.o config/neko_config.o common/utils.o field/field.o math/math.o config/num_types.o 
+les/bcknd/cpu/elementwise_filter_cpu.o : les/bcknd/cpu/elementwise_filter_cpu.f90 math/mxm_wrapper.o math/tensor.o math/matrix.o sem/speclib.o math/math.o config/num_types.o 
+les/dynamic_smagorinsky.o : les/dynamic_smagorinsky.f90 les/bcknd/cpu/dynamic_smagorinsky_cpu.o les/elementwise_filter.o sem/coef.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o field/field_list.o math/math.o config/num_types.o 
+les/bcknd/cpu/dynamic_smagorinsky_cpu.o : les/bcknd/cpu/dynamic_smagorinsky_cpu.f90 les/elementwise_filter.o gs/gs_ops.o sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o math/math.o field/field_list.o config/num_types.o 
+les/sigma.o : les/sigma.f90 sem/coef.o les/bcknd/cpu/sigma_cpu.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o config/num_types.o 
+les/bcknd/cpu/sigma_cpu.o : les/bcknd/cpu/sigma_cpu.f90 sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o math/math.o field/field_list.o config/num_types.o 
 wall_models/wall_model.o : wall_models/wall_model.f90 comm/comm.o math/math.o common/utils.o math/vector.o device/device.o config/neko_config.o sem/coef.o sem/dofmap.o field/field_registry.o field/field.o config/num_types.o 
 wall_models/rough_log_law.o : wall_models/rough_log_law.f90 field/field_registry.o wall_models/wall_model.o config/neko_config.o sem/coef.o sem/dofmap.o config/num_types.o field/field.o 
 wall_models/spalding.o : wall_models/spalding.f90 field/field_registry.o wall_models/wall_model.o config/neko_config.o sem/coef.o sem/dofmap.o config/num_types.o field/field.o 
