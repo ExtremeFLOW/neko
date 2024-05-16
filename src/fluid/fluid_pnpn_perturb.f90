@@ -664,11 +664,11 @@ contains
       ! Add the advection operators to the right-hand-side.
       if (this%toggle_adjoint) then
          call this%adv%compute_adjoint(u, v, w, u_b, v_b, w_b, &
-                                       f_x%x, f_y%x, f_z%x, &
+                                       f_x, f_y, f_z, &
                                        Xh, this%c_Xh, dm_Xh%size())
       else
          call this%adv%compute_linear(u, v, w, u_b, v_b, w_b, &
-                                      f_x%x, f_y%x, f_z%x, &
+                                      f_x, f_y, f_z, &
                                       Xh, this%c_Xh, dm_Xh%size())
       end if
 
