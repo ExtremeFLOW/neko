@@ -74,7 +74,7 @@ contains
     ! argument list
     integer ix,iy,iz,ieg
     real(kind=rp) :: fcoeff(3), xl(2)
-!-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------
     math_ran_dst = fcoeff(1)*(ieg+xl(1)*sin(xl(2))) + &
       fcoeff(2)*ix*iy + fcoeff(3)*ix
     math_ran_dst = 1.e3*sin(math_ran_dst)
