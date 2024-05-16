@@ -45,7 +45,7 @@
             "output_value": 1.0,
             "baseflow": {
                 "type": "file",
-                "file_name": "harry0.fld"
+                "file_name": "baseflow0.fld"
             }
         }
     }
