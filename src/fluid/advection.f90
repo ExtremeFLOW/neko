@@ -69,8 +69,8 @@ module advection
        type(space_t), intent(inout) :: Xh
        type(coef_t), intent(inout) :: coef
        type(field_t), intent(inout) :: vx, vy, vz
+       type(field_t), intent(inout) :: fx, fy, fz
        integer, intent(in) :: n
-       real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
      end subroutine compute_adv
   end interface
 
@@ -94,7 +94,7 @@ module advection
        class(advection_t), intent(inout) :: this
        type(field_t), intent(inout) :: vx, vy, vz
        type(field_t), intent(inout) :: s
-       real(kind=rp), intent(inout), dimension(n) :: fs
+       type(field_t), intent(inout) :: fs
        type(space_t), intent(inout) :: Xh
        type(coef_t), intent(inout) :: coef
        integer, intent(in) :: n
