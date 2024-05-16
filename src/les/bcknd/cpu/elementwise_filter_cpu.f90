@@ -99,14 +99,6 @@ contains
     call copy      (fh, pht%x, nx*nx)
     call trsp (fht, nx, fh, nx)
 
-   !  do k=1,nx*nx
-   !     pht%x(k) = 1.0_rp-diag(k)
-   !  end do
-
-   !  if (pe_rank.eq.0) then
-   !     write(*,*) 'flt amp',(pht%x (k),k=1,nx*nx,np1)
-   !     write(*,*) 'flt trn',(diag(k),k=1,nx*nx,np1)
-   !  endif
   end subroutine build_1d_cpu
 
 end module elementwise_filter_cpu
