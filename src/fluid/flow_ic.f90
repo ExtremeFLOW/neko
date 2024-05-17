@@ -37,7 +37,7 @@ module flow_ic
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
     blasius_quadratic, blasius_quartic, blasius_sin
-  use device
+  use device, only: device_memcpy, HOST_TO_DEVICE
   use field, only : field_t
   use utils, only : neko_error
   use coefs, only : coef_t
@@ -125,14 +125,17 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
+    integer :: n
+
+    n = u%dof%size()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                                                  HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                                                  HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                                                  HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(u%x, u%x_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(v%x, v%x_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(w%x, w%x_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -184,17 +187,17 @@ contains
     integer :: i
 
     select case(trim(type))
-      case('linear')
+    case('linear')
        bla => blasius_linear
-      case('quadratic')
+    case('quadratic')
        bla => blasius_quadratic
-      case('cubic')
+    case('cubic')
        bla => blasius_cubic
-      case('quartic')
+    case('quartic')
        bla => blasius_quartic
-      case('sin')
+    case('sin')
        bla => blasius_sin
-      case default
+    case default
        call neko_error('Invalid Blasius approximation')
     end select
 

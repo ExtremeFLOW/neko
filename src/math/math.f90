@@ -81,11 +81,11 @@ module math
   end interface relcmp
 
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
-    glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, vcross, &
-    vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, add2s1, add2s2, &
-    addsqr2s2, cmult2, invcol2, col2, col3, subcol3, add3s2, subcol4, addcol3,&
-    addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort, &
-    masked_copy, cfill_mask, relcmp, glimax, glimin
+       glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
+       vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
+       add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
+       add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
+       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin
 
 contains
 
@@ -222,7 +222,7 @@ contains
   !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
   !! @param a Destination array of size `n`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length m+1, where `mask(0)=m`
+  !! @param mask Mask array of length m+1, where `mask(0) =m`
   !! the length of the mask array.
   !! @param n Size of the arrays `a` and `b`.
   !! @param m Size of the mask array `mask`.
@@ -384,7 +384,7 @@ contains
     real(kind=rp), intent(in) :: vec(n)
     real(kind=rp) :: tmax
     tmax = real(-99d20, rp)
-    do i=1,n
+    do i =1,n
        tmax = max(tmax,vec(i))
     end do
   end function vlmax
@@ -396,7 +396,7 @@ contains
     real(kind=rp) :: tmin
     integer :: i
     tmin = real(99.0e20, rp)
-    do i=1,n
+    do i =1,n
        tmin = min(tmin,vec(i))
     end do
   end function vlmin
@@ -856,6 +856,7 @@ contains
                        MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc4
+
   !> Use Heap Sort (p 231 Num. Rec., 1st Ed.)
   subroutine sort(a,ind,n)
     integer, intent(in) :: n
@@ -864,43 +865,43 @@ contains
     real(kind=rp) :: aa
     integer :: j, ir, i, ii, l
     do j = 1, n
-       ind(j)=j
+       ind(j) = j
     end do
 
     if (n.le.1) return
 
-    l=n/2+1
-    ir=n
+    l =n/2+1
+    ir =n
     do while (.true.)
        if (l.gt.1) then
-          l=l-1
-          aa = a (l)
+          l = l-1
+          aa = a(l)
           ii = ind(l)
        else
           aa = a(ir)
           ii = ind(ir)
-          a(ir) = a( 1)
-          ind(ir) = ind( 1)
-          ir=ir-1
+          a(ir) = a(1)
+          ind(ir) = ind(1)
+          ir = ir-1
           if (ir.eq.1) then
              a(1) = aa
              ind(1) = ii
              return
           endif
        endif
-       i=l
-       j=l+l
+       i = l
+       j = l+l
        do while (j .le. ir)
           if (j.lt.ir) then
-             if ( a(j).lt.a(j+1) ) j=j+1
+             if ( a(j).lt.a(j+1) ) j = j+1
           endif
           if (aa.lt.a(j)) then
              a(i) = a(j)
              ind(i) = ind(j)
-             i=j
-             j=j+j
+             i = j
+             j = j+j
           else
-             j=ir+1
+             j = ir+1
           endif
        end do
        a(i) = aa
