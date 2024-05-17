@@ -180,7 +180,7 @@ contains
     size = s%dof%size()
     zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
 
-    call set_flow_ic_uniform(s, base_value)
+    call set_scalar_ic_uniform(s, base_value)
     call cfill_mask(s%x, zone_value, size, zone%mask, zone%size)
 
   end subroutine set_scalar_ic_point_zone
