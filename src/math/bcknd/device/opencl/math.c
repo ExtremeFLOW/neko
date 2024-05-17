@@ -88,6 +88,7 @@ void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m) {
  * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
  */
 void opencl_cfill_mask(void* a, void* c, int* size, void* mask, int* mask_size) {
+  cl_int err;
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
