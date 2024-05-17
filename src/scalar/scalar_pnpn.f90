@@ -179,7 +179,7 @@ contains
 
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
-    call this%bc_res%init(this%c_Xh)
+    call this%bc_res%init_base(this%c_Xh)
     do i = 1, this%n_dir_bcs
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
     end do
@@ -348,7 +348,7 @@ contains
       !> Apply Dirichlet boundary conditions
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
-      call this%dirichlet_update_(this%field_dirichlet_fields, &
+      call this%field_dir_bc%update(this%field_dir_bc%field_list, &
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 

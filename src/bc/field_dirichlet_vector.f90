@@ -35,7 +35,7 @@ module field_dirichlet_vector
   use num_types, only: rp
   use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
-  use bc, only: bc_list_t, bc_t
+  use bc, only: bc_list_t, bc_t, bc_list_free
   use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
@@ -43,20 +43,33 @@ module field_dirichlet_vector
   use math, only: masked_copy
   use device_math, only: device_masked_copy
   use dofmap, only : dofmap_t
-  use field_dirichlet, only: field_dirichlet_t
+  use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use utils, only: neko_error
+  use field_list, only : field_list_t
   implicit none
   private
-  
+
   !> Extension of the user defined dirichlet condition `field_dirichlet`
   ! for the application on a vector field.
   type, public, extends(bc_t) :: field_dirichlet_vector_t
-     type(field_dirichlet_t) :: field_dirichlet_u
-     type(field_dirichlet_t) :: field_dirichlet_v
-     type(field_dirichlet_t) :: field_dirichlet_w
+     ! The bc for the first compoent.
+     type(field_dirichlet_t) :: bc_u
+     ! The bc for the second compoent.
+     type(field_dirichlet_t) :: bc_v
+     ! The bc for the third compoent.
+     type(field_dirichlet_t) :: bc_w
+     !> A field list to store the bcs for passing to various subroutines.
+     type(field_list_t) :: field_list
+     !> A bc list to store the bcs for passing to various subroutines.
+     type(bc_list_t) :: bc_list
+     !> Function pointer to the user routine performing the update of the values
+     !! of the boundary fields.
+     procedure(field_dirichlet_update), nopass, pointer :: update => null()
    contains
      !> Initializes this%field_bc.
      procedure, pass(this) :: init_field => field_dirichlet_vector_init
+     !> Destructor
+     procedure, pass(this) :: free => field_dirichlet_vector_free
      !> Apply scalar by performing a masked copy.
      procedure, pass(this) :: apply_scalar => field_dirichlet_vector_apply_scalar
      !> (No-op) Apply vector.
@@ -70,7 +83,7 @@ module field_dirichlet_vector
   end type field_dirichlet_vector_t
 
 contains
-     
+
   !> Initializes this%field_bc.
   subroutine field_dirichlet_vector_init(this, bc_name)
     class(field_dirichlet_vector_t), intent(inout) :: this
@@ -83,14 +96,22 @@ contains
   !> Destructor. Currently unused as is, all field_dirichlet attributes
   !! are freed in `fluid_scheme::free`.
   subroutine field_dirichlet_vector_free(this)
-    type(field_dirichlet_vector_t), intent(inout) :: this
+    class(field_dirichlet_vector_t), target, intent(inout) :: this
 
-    call this%field_dirichlet_u%free()
-    call this%field_dirichlet_v%free()
-    call this%field_dirichlet_w%free()
-    
+    call this%bc_u%free()
+    call this%bc_v%free()
+    call this%bc_w%free()
+
+    call this%field_list%free()
+    call bc_list_free(this%bc_list)
+
+    if (associated(this%update)) then
+       nullify(this%update)
+    end if
+
+
   end subroutine field_dirichlet_vector_free
-  
+
   !> Apply scalar by performing a masked copy.
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
   !! @param n Size of the array `x`.
@@ -107,7 +128,7 @@ contains
 &Use field_dirichlet instead!")
 
   end subroutine field_dirichlet_vector_apply_scalar
-  
+
   !> Apply scalar (device).
   !! @param x_d Device pointer to the field onto which to copy the values.
   !! @param t Time.
@@ -140,17 +161,17 @@ contains
     integer, intent(in), optional :: tstep
 
     if (present(t) .and. present(tstep)) then
-       call this%field_dirichlet_u%apply_scalar(x, n, t, tstep)
-       call this%field_dirichlet_v%apply_scalar(y, n, t, tstep)
-       call this%field_dirichlet_w%apply_scalar(z, n, t, tstep)
+       call this%bc_u%apply_scalar(x, n, t, tstep)
+       call this%bc_v%apply_scalar(y, n, t, tstep)
+       call this%bc_w%apply_scalar(z, n, t, tstep)
     else if (present(t)) then
-       call this%field_dirichlet_u%apply_scalar(x, n, t=t)
-       call this%field_dirichlet_v%apply_scalar(y, n, t=t)
-       call this%field_dirichlet_w%apply_scalar(z, n, t=t)
+       call this%bc_u%apply_scalar(x, n, t=t)
+       call this%bc_v%apply_scalar(y, n, t=t)
+       call this%bc_w%apply_scalar(z, n, t=t)
     else if (present(tstep)) then
-       call this%field_dirichlet_u%apply_scalar(x, n, tstep=tstep)
-       call this%field_dirichlet_v%apply_scalar(y, n, tstep=tstep)
-       call this%field_dirichlet_w%apply_scalar(z, n, tstep=tstep)
+       call this%bc_u%apply_scalar(x, n, tstep=tstep)
+       call this%bc_v%apply_scalar(y, n, tstep=tstep)
+       call this%bc_w%apply_scalar(z, n, tstep=tstep)
     end if
 
   end subroutine field_dirichlet_vector_apply_vector
@@ -170,17 +191,17 @@ contains
     integer, intent(in), optional :: tstep
 
     if (present(t) .and. present(tstep)) then
-       call this%field_dirichlet_u%apply_scalar_dev(x_d, t, tstep)
-       call this%field_dirichlet_v%apply_scalar_dev(y_d, t, tstep)
-       call this%field_dirichlet_w%apply_scalar_dev(z_d, t, tstep)
+       call this%bc_u%apply_scalar_dev(x_d, t, tstep)
+       call this%bc_v%apply_scalar_dev(y_d, t, tstep)
+       call this%bc_w%apply_scalar_dev(z_d, t, tstep)
     else if (present(t)) then
-       call this%field_dirichlet_u%apply_scalar_dev(x_d, t=t)
-       call this%field_dirichlet_v%apply_scalar_dev(y_d, t=t)
-       call this%field_dirichlet_w%apply_scalar_dev(z_d, t=t)
+       call this%bc_u%apply_scalar_dev(x_d, t=t)
+       call this%bc_v%apply_scalar_dev(y_d, t=t)
+       call this%bc_w%apply_scalar_dev(z_d, t=t)
     else if (present(tstep)) then
-       call this%field_dirichlet_u%apply_scalar_dev(x_d, tstep=tstep)
-       call this%field_dirichlet_v%apply_scalar_dev(y_d, tstep=tstep)
-       call this%field_dirichlet_w%apply_scalar_dev(z_d, tstep=tstep)
+       call this%bc_u%apply_scalar_dev(x_d, tstep=tstep)
+       call this%bc_v%apply_scalar_dev(y_d, tstep=tstep)
+       call this%bc_w%apply_scalar_dev(z_d, tstep=tstep)
     end if
 
    end subroutine field_dirichlet_vector_apply_vector_dev

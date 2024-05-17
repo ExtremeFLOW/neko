@@ -199,7 +199,7 @@ contains
     end associate
 
     ! Initialize velocity surface terms in pressure rhs
-    call this%bc_prs_surface%init(this%c_Xh)
+    call this%bc_prs_surface%init_base(this%c_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'v', this%bc_labels)
@@ -212,14 +212,14 @@ contains
                                                  'd_vel_w', this%bc_labels)
     call this%bc_prs_surface%finalize()
     ! Initialize symmetry surface terms in pressure rhs
-    call this%bc_sym_surface%init(this%c_Xh)
+    call this%bc_sym_surface%init_base(this%c_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'sym', this%bc_labels)
     ! Same here, should du, dv, dw be marked here?
     call this%bc_sym_surface%finalize()
     ! Initialize dirichlet bcs for velocity residual
-    call this%bc_vel_res_non_normal%init(this%c_Xh)
+    call this%bc_vel_res_non_normal%init_base(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
                                                          'on', this%bc_labels)
@@ -227,9 +227,9 @@ contains
                                                          'on+dong', &
                                                          this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
-    call this%bc_vel_res_non_normal%init_msk()
+    call this%bc_vel_res_non_normal%init(this%c_Xh)
 
-    call this%bc_field_dirichlet_p%init(this%c_Xh)
+    call this%bc_field_dirichlet_p%init_base(this%c_Xh)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
@@ -243,25 +243,25 @@ contains
     !Add 0 prs bcs
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
-    call this%bc_field_dirichlet_u%init(this%c_Xh)
+    call this%bc_field_dirichlet_u%init_base(this%c_Xh)
     call this%bc_field_dirichlet_u%mark_zones_from_list(msh%labeled_zones, 'd_vel_u', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_u%finalize()
     call this%bc_field_dirichlet_u%set_g(0.0_rp)
 
-    call this%bc_field_dirichlet_v%init(this%c_Xh)
+    call this%bc_field_dirichlet_v%init_base(this%c_Xh)
     call this%bc_field_dirichlet_v%mark_zones_from_list(msh%labeled_zones, 'd_vel_v', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_v%finalize()
     call this%bc_field_dirichlet_v%set_g(0.0_rp)
 
-    call this%bc_field_dirichlet_w%init(this%c_Xh)
+    call this%bc_field_dirichlet_w%init_base(this%c_Xh)
     call this%bc_field_dirichlet_w%mark_zones_from_list(msh%labeled_zones, 'd_vel_w', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_w%finalize()
     call this%bc_field_dirichlet_w%set_g(0.0_rp)
 
-    call this%bc_vel_res%init(this%c_Xh)
+    call this%bc_vel_res%init_base(this%c_Xh)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
@@ -591,9 +591,9 @@ contains
 
       !> We assume that no change of boundary conditions
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
-      !> Apply dirichlet
-      call this%dirichlet_update_(this%field_dirichlet_fields, &
-           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "fluid")
+      !> Apply the user dirichlet boundary condition
+      call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
+              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
 
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)

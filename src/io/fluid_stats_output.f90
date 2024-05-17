@@ -32,11 +32,11 @@
 !
 !> Defines an output for a mean flow field
 module fluid_stats_output
-  use fluid_stats
-  use neko_config
-  use num_types
+  use fluid_stats, only : fluid_stats_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
   use device
-  use output
+  use output, only : output_t
   implicit none
   private
 
@@ -81,13 +81,13 @@ contains
     class(fluid_stats_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
-    associate (out_fields => this%stats%stat_fields%fields)
+    associate (out_fields => this%stats%stat_fields%items)
       if (t .ge. this%T_begin) then
          call this%stats%make_strong_grad()
          if ( NEKO_BCKND_DEVICE .eq. 1) then
             do i = 1, size(out_fields)
-               call device_memcpy(out_fields(i)%f%x, out_fields(i)%f%x_d,&
-                  out_fields(i)%f%dof%size(), DEVICE_TO_HOST, &
+               call device_memcpy(out_fields(i)%ptr%x, out_fields(i)%ptr%x_d,&
+                  out_fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
                   sync=(i .eq. size(out_fields))) ! Sync on last field
             end do
          end if

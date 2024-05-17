@@ -111,13 +111,8 @@ module scalar_scheme
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)
      !> Field Dirichlet conditions.
      type(field_dirichlet_t) :: field_dir_bc
-     !> Pointer to user_dirichlet_update to be called in fluid_scheme_step
-     procedure(field_dirichlet_update), nopass, pointer :: dirichlet_update_ &
-          => null()
      !> List of BC objects to pass to user_dirichlet_update
      type(bc_list_t) :: field_dirichlet_bcs
-     !< List of fields to pass to user_dirichlet_update
-     type(field_list_t) :: field_dirichlet_fields
      !> Neumann conditions.
      type(neumann_t) :: neumann_bcs(NEKO_MSH_MAX_ZLBLS)
      !> User Dirichlet conditions.
@@ -253,7 +248,7 @@ contains
 !             call this%dir_bcs(j)%mark_zone(zones(i))
 !          else
           this%n_dir_bcs = this%n_dir_bcs + 1
-          call this%dir_bcs(this%n_dir_bcs)%init(this%c_Xh)
+          call this%dir_bcs(this%n_dir_bcs)%init_base(this%c_Xh)
           call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) dir_value
           call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
@@ -262,7 +257,7 @@ contains
 
        if (bc_label(1:2) .eq. 'n=') then
           this%n_neumann_bcs = this%n_neumann_bcs + 1
-          call this%neumann_bcs(this%n_neumann_bcs)%init(this%c_Xh)
+          call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) flux_value
           call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value)
@@ -373,7 +368,7 @@ contains
     ! Setup scalar boundary conditions
     !
     call bc_list_init(this%bclst_dirichlet)
-    call this%user_bc%init(this%c_Xh)
+    call this%user_bc%init_base(this%c_Xh)
 
     ! Read boundary types from the case file
     allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
@@ -409,12 +404,11 @@ contains
     call this%user_bc%mark_zone(msh%outlet_normal)
     call this%user_bc%mark_zone(msh%sympln)
     call this%user_bc%finalize()
-    call this%user_bc%set_coef(this%c_Xh)
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
                                                      this%user_bc)
 
     ! Add field dirichlet BCs
-    call this%field_dir_bc%init(this%c_Xh)
+    call this%field_dir_bc%init_base(this%c_Xh)
     call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
          'd_s', this%bc_labels)
     call this%field_dir_bc%finalize()
@@ -427,14 +421,7 @@ contains
     !
     ! Associate our field dirichlet update to the user one.
     !
-    this%dirichlet_update_ => user%user_dirichlet_update
-
-    !
-    ! Initialize field list and bc list for user_dirichlet_update
-    !
-    allocate(this%field_dirichlet_fields%fields(1))
-    this%field_dirichlet_fields%fields(1)%f => &
-         this%field_dir_bc%field_bc
+    this%field_dir_bc%update => user%user_dirichlet_update
 
     call bc_list_init(this%field_dirichlet_bcs, size=1)
     call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
@@ -485,13 +472,8 @@ contains
     call this%slag%free()
 
     ! Free everything related to field dirichlet BCs
-    call this%field_dirichlet_fields%free()
     call bc_list_free(this%field_dirichlet_bcs)
-    call this%field_dir_bc%field_bc%free()
     call this%field_dir_bc%free()
-    if (associated(this%dirichlet_update_)) then
-       this%dirichlet_update_ => null()
-    end if
 
   end subroutine scalar_scheme_free
 

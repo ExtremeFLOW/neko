@@ -115,6 +115,7 @@ neko_fortran_SOURCES = \
 	io/nmsh_file.f90\
 	io/chkp_file.f90\
 	io/csv_file.f90\
+	io/hdf5_file.F90\
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
@@ -251,6 +252,8 @@ neko_fortran_SOURCES = \
 	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
+	simulation_components/weak_grad.f90\
+	simulation_components/derivative.f90\
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\

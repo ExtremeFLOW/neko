@@ -54,15 +54,15 @@ contains
     type(field_t), pointer :: u, v, w
     integer :: n
 
-    n = fields%fields(1)%f%dof%size()
+    n = fields%item_size(1)
 
     u => neko_field_registry%get_field('u')
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
 
-    call subcol3(fields%fields(1)%f%x, u%x, brinkman%x, n)
-    call subcol3(fields%fields(2)%f%x, v%x, brinkman%x, n)
-    call subcol3(fields%fields(3)%f%x, w%x, brinkman%x, n)
+    call subcol3(fields%x(1), u%x, brinkman%x, n)
+    call subcol3(fields%x(2), v%x, brinkman%x, n)
+    call subcol3(fields%x(3), w%x, brinkman%x, n)
 
   end subroutine brinkman_source_term_compute_cpu
 
@@ -73,11 +73,10 @@ contains
     type(field_list_t), intent(inout) :: fields
     type(field_t), intent(inout) :: brinkman
     integer :: n
-	 
-	 ! perhaps not the most clean.. we associate the field chi with the 4th field
-    n = fields%fields(1)%f%dof%size()
 
-    call add2(fields%fields(4)%f%x, brinkman%x, n)
+    ! perhaps not the most clean.. we associate the field chi with the 4th field
+    n = fields%item_size(4)
+    call add2(fields%x(4), brinkman%x, n)
 
   end subroutine implicit_brinkman_source_term_compute_cpu
 end module brinkman_source_term_cpu

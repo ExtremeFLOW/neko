@@ -112,14 +112,11 @@ contains
 
     if (json%valid_path('case.fluid.source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
-       allocate(rhs_fields%fields(4))
-       rhs_fields%fields(1)%f => f_x
-       rhs_fields%fields(2)%f => f_y
-       rhs_fields%fields(3)%f => f_z
-       ! at this point we say that the 4th field is chi
-       ! in principal, this can be extended to anisotropic porousity fields with 
-       ! little conceptual difficulty
-       rhs_fields%fields(4)%f => chi
+       call rhs_fields%init(4)
+       call rhs_fields%assign(1, f_x)
+       call rhs_fields%assign(2, f_y)
+       call rhs_fields%assign(3, f_z)
+       call rhs_fields%assign(4, chi)
 
        call json%get_core(core)
        call json%get('case.fluid.source_terms', source_object, found)
