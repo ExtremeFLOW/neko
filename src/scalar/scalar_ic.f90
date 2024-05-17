@@ -127,19 +127,21 @@ contains
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
+    integer :: n
 
+    n = s%dof%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, s%dof%size(), &
-                                                  HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%x, s%x_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
-    call gs%op(s%x, s%dof%size(), GS_OP_ADD)
+    call gs%op(s%x, n, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col2(s%x_d, coef%mult_d, s%dof%size())
+       call device_col2(s%x_d, coef%mult_d, n)
     else
-       call col2(s%x, coef%mult, s%dof%size())
+       call col2(s%x, coef%mult, n)
     end if
 
   end subroutine set_scalar_ic_common
