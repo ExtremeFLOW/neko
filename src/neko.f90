@@ -100,6 +100,8 @@ module neko
   use box_point_zone, only: box_point_zone_t
   use sphere_point_zone, only: sphere_point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
+  use field_dirichlet, only : field_dirichlet_t
+  use field_dirichlet_vector, only : field_dirichlet_vector_t
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
