@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the CPU kernel for the `sigma_t` type.
-!> Following Nicoud et al. "Using singular values to build a
+!! Following Nicoud et al. "Using singular values to build a
 !! subgrid-scale model for large-eddy simulations"
 !! https://doi.org/10.1063/1.3623274
 
@@ -179,7 +179,7 @@ contains
                  Invariant2=max(Invariant2, 0.0_rp)
                  Invariant3=max(Invariant3, 0.0_rp)
 
-!                ! compute the following angles from the invariants
+                 ! compute the following angles from the invariants
                  alpha1=Invariant1*Invariant1/9.0_rp - Invariant2/3.0_rp
 
                  ! since alpha1 is always positive (see Hasan et al. (2001))
