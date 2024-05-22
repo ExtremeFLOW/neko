@@ -176,6 +176,8 @@ contains
 
     call this%write_to_log(.true.)
 
+    call neko_log%end_section()
+
   end subroutine material_properties_init
 
   !> Write final dimensional values to the log.
