@@ -266,7 +266,6 @@ fortran-syntax:
       - 'while'
 
   ponctuations:
-    - ','
     - '\)'
     - ';'
   
