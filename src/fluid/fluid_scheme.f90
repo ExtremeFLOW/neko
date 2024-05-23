@@ -471,6 +471,7 @@ contains
 
     ! Initialize velocity solver
     if (kspv_init) then
+       call neko_log%section("Velocity solver")
        call json_get_or_default(params, &
                                 'case.fluid.velocity_solver.max_iterations', &
                                 integer_val, 800)
@@ -480,15 +481,16 @@ contains
        call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
                      real_val)
 
-       call neko_log%message('Ksp vel.   : ('// trim(string_val1) // &
+       call neko_log%message('Type       : ('// trim(string_val1) // &
            ', ' // trim(string_val2) // ')')
 
-       write(log_buf, '(A,ES13.6)') ' `-abs tol :',  real_val
+       write(log_buf, '(A,ES13.6)') 'Abs tol    :',  real_val
        call neko_log%message(log_buf)
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val)
        call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, string_val2)
+       call neko_log%end_section()
     end if
 
     ! Assign velocity fields
@@ -579,6 +581,8 @@ contains
 
     ! Pressure solver
     if (kspp_init) then
+       call neko_log%section("Pressure solver")
+
        call json_get_or_default(params, &
                                'case.fluid.pressure_solver.max_iterations', &
                                integer_val, 800)
@@ -587,15 +591,17 @@ contains
                      precon_type)
        call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
                      abs_tol)
-       call neko_log%message('Ksp prs.   : ('// trim(solver_type) // &
+       call neko_log%message('Type       : ('// trim(solver_type) // &
              ', ' // trim(precon_type) // ')')
-       write(log_buf, '(A,ES13.6)') ' `-abs tol :',  abs_tol
+       write(log_buf, '(A,ES13.6)') 'Abs tol    :',  abs_tol
        call neko_log%message(log_buf)
 
        call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
             solver_type, integer_val, abs_tol)
        call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
+
+       call neko_log%end_section()
 
     end if
 
