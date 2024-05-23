@@ -43,7 +43,7 @@ module hdf5_file
   use dofmap, only : dofmap_t
   use logger
   use comm
-  use mpi_f08
+  use mpi
 #ifdef HAVE_HDF5
   use hdf5
 #endif
@@ -88,8 +88,8 @@ contains
        
     call h5open_f(ierr)
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
-    info = MPI_INFO_NULL%mpi_val
-    call h5pset_fapl_mpio_f(plist_id, NEKO_COMM%mpi_val, info, ierr)
+    info = MPI_INFO_NULL
+    call h5pset_fapl_mpio_f(plist_id, NEKO_COMM, info, ierr)
 
     call h5fcreate_f(fname, H5F_ACC_TRUNC_F, &
          file_id, ierr, access_prp = plist_id)
@@ -262,8 +262,8 @@ contains
 
     call h5open_f(ierr)
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
-    info = MPI_INFO_NULL%mpi_val
-    call h5pset_fapl_mpio_f(plist_id, NEKO_COMM%mpi_val, info, ierr)
+    info = MPI_INFO_NULL
+    call h5pset_fapl_mpio_f(plist_id, NEKO_COMM, info, ierr)
 
     call h5fopen_f(trim(this%fname), H5F_ACC_RDONLY_F, &
          file_id, ierr, access_prp = plist_id)
