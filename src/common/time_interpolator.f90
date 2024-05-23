@@ -34,7 +34,7 @@
 module time_interpolator
   use num_types, only : rp
   use field, only : field_t
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_add3s2
   use math, only : add3s2
   use utils, only : neko_error

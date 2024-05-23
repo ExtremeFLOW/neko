@@ -75,7 +75,7 @@ contains
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
     integer :: nelv, gdim, nzones, ncurves
     integer :: el_idx
-    type(point_t) :: p(8)
+    type(point_t), target :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
 

@@ -32,25 +32,45 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
-  use pnpn_res_fctry
-  use ax_helm_fctry
-  use rhs_maker_fctry
-  use fluid_volflow
-  use fluid_scheme
-  use field_series
-  use facet_normal
-  use device_math
-  use device_mathops
-  use fluid_aux
-  use time_scheme_controller
-  use projection
-  use device
-  use logger
-  use advection
-  use profiler
+  use num_types, only : rp
+  use krylov, only : ksp_monitor_t
+  use pnpn_res_fctry, only : pnpn_prs_res_factory, pnpn_vel_res_factory
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
+  use ax_helm_fctry, only : ax_helm_factory
+  use rhs_maker_fctry, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
+                              rhs_maker_ext_fctry
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
+  use fluid_volflow, only : fluid_volflow_t
+  use fluid_scheme, only : fluid_scheme_t
+  use field_series, only : field_series_t
+  use device_math, only : device_add2, device_col2
+  use device_mathops, only : device_opcolv, device_opadd2cm
+  use fluid_aux, only : fluid_step_info
+  use time_scheme_controller, only : time_scheme_controller_t
+  use projection, only : projection_t
+  use device, only : device_memcpy, HOST_TO_DEVICE
+  use logger, only : neko_log
+  use advection, only : advection_t
+  use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only : json_get
   use json_module, only : json_file
   use material_properties, only : material_properties_t
+  use advection_fctry, only : advection_factory
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use dirichlet, only : dirichlet_t
+  use facet_normal, only : facet_normal_t
+  use non_normal, only : non_normal_t
+  use mesh, only : mesh_t
+  use user_intf, only : user_t
+  use coefs, only : coef_t
+  use time_step_controller, only : time_step_controller_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use math, only : col2, add2
+  use mathops, only : opadd2cm, opcolv
+  use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
+                bc_list_apply_scalar, bc_list_apply_vector
   implicit none
   private
 
@@ -70,7 +90,10 @@ module fluid_pnpn
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
      type(dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_dp   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_w   !< Dirichlet condition vel. res.
      type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
@@ -117,7 +140,7 @@ contains
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
-    type(material_properties_t), intent(inout) :: material_properties
+    type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: found, logical_val
     integer :: integer_val
@@ -176,21 +199,27 @@ contains
     end associate
 
     ! Initialize velocity surface terms in pressure rhs
-    call this%bc_prs_surface%init(this%dm_Xh)
+    call this%bc_prs_surface%init_base(this%c_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'v', this%bc_labels)
+    !This impacts the rhs of the pressure, need to check what is correct to add here
+    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
+                                                 'd_vel_u', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
+                                                 'd_vel_v', this%bc_labels)
+    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
+                                                 'd_vel_w', this%bc_labels)
     call this%bc_prs_surface%finalize()
-    call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
-    call this%bc_sym_surface%init(this%dm_Xh)
+    call this%bc_sym_surface%init_base(this%c_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'sym', this%bc_labels)
+    ! Same here, should du, dv, dw be marked here?
     call this%bc_sym_surface%finalize()
-    call this%bc_sym_surface%set_coef(this%c_Xh)
     ! Initialize dirichlet bcs for velocity residual
-    call this%bc_vel_res_non_normal%init(this%dm_Xh)
+    call this%bc_vel_res_non_normal%init_base(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
                                                          'on', this%bc_labels)
@@ -198,21 +227,41 @@ contains
                                                          'on+dong', &
                                                          this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
-    call this%bc_vel_res_non_normal%init_msk(this%c_Xh)
+    call this%bc_vel_res_non_normal%init(this%c_Xh)
 
-    call this%bc_dp%init(this%dm_Xh)
-    call this%bc_dp%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
+    call this%bc_field_dirichlet_p%init_base(this%c_Xh)
+    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
                                          this%bc_labels)
-    call this%bc_dp%mark_zones_from_list(msh%labeled_zones, &
+    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
                                          'o+dong', this%bc_labels)
-    call this%bc_dp%finalize()
-    call this%bc_dp%set_g(0.0_rp)
+    call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, 'd_pres', &
+                                         this%bc_labels)
+    call this%bc_field_dirichlet_p%finalize()
+    call this%bc_field_dirichlet_p%set_g(0.0_rp)
     call bc_list_init(this%bclst_dp)
-    call bc_list_add(this%bclst_dp, this%bc_dp)
+    call bc_list_add(this%bclst_dp, this%bc_field_dirichlet_p)
     !Add 0 prs bcs
     call bc_list_add(this%bclst_dp, this%bc_prs)
 
-    call this%bc_vel_res%init(this%dm_Xh)
+    call this%bc_field_dirichlet_u%init_base(this%c_Xh)
+    call this%bc_field_dirichlet_u%mark_zones_from_list(msh%labeled_zones, 'd_vel_u', &
+                                         this%bc_labels)
+    call this%bc_field_dirichlet_u%finalize()
+    call this%bc_field_dirichlet_u%set_g(0.0_rp)
+
+    call this%bc_field_dirichlet_v%init_base(this%c_Xh)
+    call this%bc_field_dirichlet_v%mark_zones_from_list(msh%labeled_zones, 'd_vel_v', &
+                                         this%bc_labels)
+    call this%bc_field_dirichlet_v%finalize()
+    call this%bc_field_dirichlet_v%set_g(0.0_rp)
+
+    call this%bc_field_dirichlet_w%init_base(this%c_Xh)
+    call this%bc_field_dirichlet_w%mark_zones_from_list(msh%labeled_zones, 'd_vel_w', &
+                                         this%bc_labels)
+    call this%bc_field_dirichlet_w%finalize()
+    call this%bc_field_dirichlet_w%set_g(0.0_rp)
+
+    call this%bc_vel_res%init_base(this%c_Xh)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
@@ -231,40 +280,36 @@ contains
     call bc_list_add(this%bclst_du,this%bc_sym%bc_x)
     call bc_list_add(this%bclst_du,this%bc_vel_res_non_normal%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res)
+    call bc_list_add(this%bclst_du, this%bc_field_dirichlet_u)
 
     call bc_list_init(this%bclst_dv)
     call bc_list_add(this%bclst_dv,this%bc_sym%bc_y)
     call bc_list_add(this%bclst_dv,this%bc_vel_res_non_normal%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res)
+    call bc_list_add(this%bclst_dv, this%bc_field_dirichlet_v)
 
     call bc_list_init(this%bclst_dw)
     call bc_list_add(this%bclst_dw,this%bc_sym%bc_z)
     call bc_list_add(this%bclst_dw,this%bc_vel_res_non_normal%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
+    call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
 
     !Intialize projection space thingy
-    if (this%pr_projection_dim .gt. 0) then
-       call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim)
-    end if
+    call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
+                              this%pr_projection_activ_step)
 
-    if (this%vel_projection_dim .gt. 0) then
-       call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim)
-       call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim)
-       call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim)
-    end if
+    call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+    call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+    call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
-    call json_get(params, 'case.numerics.dealias', logical_val)
-    call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
-                    found)
-    if (.not. found) then
-       call json_get(params, 'case.numerics.polynomial_order', integer_val)
-       integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
-    end if
-    ! an extra +1 below to go from poly order to space size
-    call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
+    call advection_factory(this%adv, params, this%c_Xh)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
@@ -279,8 +324,9 @@ contains
     integer :: i, n
 
     n = this%u%dof%size()
-    ! Make sure that continuity is maintained (important for interpolation) 
-    ! Do not do this for lagged rhs (derivatives are not necessairly coninous across elements)
+    ! Make sure that continuity is maintained (important for interpolation)
+    ! Do not do this for lagged rhs
+    ! (derivatives are not necessairly coninous across elements)
     call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
     call col2(this%w%x,this%c_Xh%mult,this%u%dof%size())
@@ -461,12 +507,14 @@ contains
   !! @param tstep The current interation.
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
-  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf)
-    class(fluid_pnpn_t), intent(inout) :: this
+  !! @param dt_controller timestep controller
+  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+    class(fluid_pnpn_t), target, intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
     integer :: n
     ! Solver results monitors (pressure + 3 velocity)
@@ -496,7 +544,9 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          rho => this%rho, mu => this%mu, &
-         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z)
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
+         if_variable_dt => dt_controller%if_variable_dt, &
+         dt_last_change => dt_controller%dt_last_change)
 
       ! Get temporary arrays
       call this%scratch%request_field(u_e, temp_indices(1))
@@ -517,7 +567,7 @@ contains
 
       ! Add the advection operators to the right-hand-side.
       call this%adv%compute(u, v, w, &
-                            f_x%x, f_y%x, f_z%x, &
+                            f_x, f_y, f_z, &
                             Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator and
@@ -540,7 +590,10 @@ contains
 
       !> We assume that no change of boundary conditions
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
-      !> Apply dirichlet
+      !> Apply the user dirichlet boundary condition
+      call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
+              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
+
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
 
@@ -555,10 +608,7 @@ contains
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
-         call this%proj_prs%project_on(p_res%x, c_Xh, n)
-         call this%proj_prs%log_info('Pressure')
-      end if
+      call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, 'Pressure')
 
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
@@ -567,10 +617,8 @@ contains
 
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
-         call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
-                                         this%bclst_dp, gs_Xh, n)
-      end if
+      call this%proj_prs%post_solving(dp%x, Ax, c_Xh, &
+                                 this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2(p%x_d, dp%x_d,n)
@@ -597,13 +645,22 @@ contains
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
                                 t, tstep)
 
+      !We should implement a bc that takes three field_bcs and implements vector_apply
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)
+         call this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)
+         call this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)
+      else
+         call this%bc_field_dirichlet_u%apply_scalar(u_res%x, this%dm_Xh%size(), t, tstep)
+         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, this%dm_Xh%size(), t, tstep)
+         call this%bc_field_dirichlet_w%apply_scalar(w_res%x, this%dm_Xh%size(), t, tstep)
+      end if
+
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
-         call this%proj_u%project_on(u_res%x, c_Xh, n)
-         call this%proj_v%project_on(v_res%x, c_Xh, n)
-         call this%proj_w%project_on(w_res%x, c_Xh, n)
-      end if
+      call this%proj_u%pre_solving(u_res%x, tstep, c_Xh, n, dt_controller)
+      call this%proj_v%pre_solving(v_res%x, tstep, c_Xh, n, dt_controller)
+      call this%proj_w%pre_solving(w_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc_vel%update()
 
@@ -616,14 +673,12 @@ contains
            c_Xh, this%bclst_dw, gs_Xh)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then
-         call this%proj_u%project_back(du%x, Ax, c_Xh, &
-                                  this%bclst_du, gs_Xh, n)
-         call this%proj_v%project_back(dv%x, Ax, c_Xh, &
-                                  this%bclst_dv, gs_Xh, n)
-         call this%proj_w%project_back(dw%x, Ax, c_Xh, &
-                                  this%bclst_dw, gs_Xh, n)
-      end if
+      call this%proj_u%post_solving(du%x, Ax, c_Xh, &
+                                 this%bclst_du, gs_Xh, n, tstep, dt_controller)
+      call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
+                                 this%bclst_dv, gs_Xh, n, tstep, dt_controller)
+      call this%proj_w%post_solving(dw%x, Ax, c_Xh, &
+                                 this%bclst_dw, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &

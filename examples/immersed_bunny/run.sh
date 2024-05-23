@@ -38,9 +38,9 @@ if [[ -z $(which neko) ]]; then
 fi
 
 if [ $# == 0 ]; then
-    Nx=16; Ny=8; Nz=8
+    Nx=16 && Ny=8 && Nz=8
 elif [ $# == 3 ]; then
-    Nx=$1; Ny=$2; Nz=$3
+    Nx=$1 && Ny=$2 && Nz=$3
 else
     echo -e "Invalid number of input arguments." >&2
     help
@@ -50,7 +50,7 @@ fi
 # Generate mesh and run case
 
 echo "Generating mesh with dimensions: $Nx $Ny $Nz"
-genmeshbox -200 600 -100 100 0 200 $Nx $Ny $Nz .false. .false. .false.
+genmeshbox 0 4 0 1 0 1 $Nx $Ny $Nz .false. .false. .false.
 neko immersed_bunny.case
 
 # End of file

@@ -32,30 +32,32 @@
 !
 !> Defines a simulation case
 module case
-  use num_types
-  use fluid_fctry
-  use fluid_output
-  use chkp_output
-  use mean_sqr_flow_output
-  use mean_flow_output
-  use fluid_stats_output
+  use num_types, only : rp, sp, dp
+  use fluid_fctry, only : fluid_scheme_factory
+  use fluid_pnpn, only : fluid_pnpn_t
+  use fluid_scheme, only : fluid_scheme_t
+  use fluid_output, only : fluid_output_t
+  use chkp_output, only : chkp_output_t
+  use mean_sqr_flow_output, only : mean_sqr_flow_output_t
+  use mean_flow_output, only : mean_flow_output_t
+  use fluid_stats_output, only : fluid_stats_output_t
   use mpi
-  use mesh_field
-  use parmetis
-  use redist
-  use sampler
-  use flow_ic
+  use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
+  use parmetis, only : parmetis_partmeshkway
+  use redist, only : redist_mesh
+  use sampler, only : sampler_t
+  use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
-  use stats
-  use file
-  use utils
-  use mesh
+  use stats, only : stats_t
+  use file, only : file_t
+  use utils, only : neko_error
+  use mesh, only : mesh_t
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
-  use logger
-  use jobctrl
-  use user_intf
-  use scalar_pnpn ! todo directly load the pnpn? can we have other
+  use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
+  use jobctrl, only :  jobctrl_set_time_limit
+  use user_intf, only : user_t
+  use scalar_pnpn, only : scalar_pnpn_t
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
@@ -176,7 +178,13 @@ contains
     !
     ! Time step
     !
-    call json_get(C%params, 'case.timestep', C%dt)
+    call C%params%get('case.variable_timestep', logical_val, found)
+    if (.not. logical_val) then
+       call json_get(C%params, 'case.timestep', C%dt)
+    else
+       ! randomly set an initial dt to get cfl when dt is variable
+       C%dt = 1.0_rp
+    end if
 
     !
     ! End time
@@ -294,7 +302,6 @@ contains
        call f%wlag%set(f%w)
     end select
 
-
     !
     ! Validate that the case is properly setup for time-stepping
     !
@@ -397,7 +404,10 @@ contains
     call json_get_or_default(C%params, 'case.output_checkpoints',&
                              logical_val, .true.)
     if (logical_val) then
-       C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory)
+       call json_get_or_default(C%params, 'case.checkpoint_format', &
+            string_val, "chkp")
+       C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory, &
+            fmt=trim(string_val))
        call json_get_or_default(C%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
        call json_get_or_default(C%params, 'case.checkpoint_value', real_val,&

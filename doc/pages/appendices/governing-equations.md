@@ -1,5 +1,7 @@
 # Governing equations {#governing-equations}
 
+\tableofcontents
+
 ## Fluid
 
 Neko's solves the Navier-Stokes equations formulated as follows.
