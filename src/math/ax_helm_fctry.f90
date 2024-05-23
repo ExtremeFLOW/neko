@@ -49,15 +49,17 @@ contains
   !> Factory routine for the a Helmholtz problem matrix-vector product.
   !! The selection is based on the compute backend.
   !! @param Ax The matrix-vector product type to be allocated.
-  subroutine ax_helm_factory(Ax, formulation)
+  !! @param full_formulation Whether to use the formulation with the full
+  !! viscous stress tensor, not assuming constant material properties.
+  subroutine ax_helm_factory(Ax, full_formulation)
     class(ax_t), allocatable, intent(inout) :: Ax
-    character(len=*), intent(in) :: formulation
+    logical, intent(in) :: full_formulation
 
     if (allocated(Ax)) then
        deallocate(Ax)
     end if
 
-    if (trim(formulation) .eq. "full") then
+    if (full_formulation) then
       allocate(ax_helm_full_cpu_t::Ax)
     else
        if (NEKO_BCKND_SX .eq. 1) then

@@ -153,7 +153,7 @@ contains
                           material_properties)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax, "simple")
+    call ax_helm_factory(this%ax, full_formulation=.false.)
 
     ! Setup backend dependent prs residual routines
     call pnpn_prs_res_factory(this%prs_res)
