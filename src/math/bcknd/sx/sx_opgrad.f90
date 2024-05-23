@@ -46,7 +46,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -123,7 +123,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -200,7 +200,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -277,7 +277,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -354,7 +354,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -431,7 +431,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -508,7 +508,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -585,7 +585,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -662,7 +662,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -739,7 +739,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -816,7 +816,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -893,7 +893,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -970,7 +970,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -1047,7 +1047,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -1124,7 +1124,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -1201,7 +1201,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -1278,7 +1278,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -1355,7 +1355,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)

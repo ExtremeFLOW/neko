@@ -329,7 +329,7 @@ contains
       call bc_list_apply_scalar(this%bclst_neumann, this%f_Xh%x, dm_Xh%size())
 
       ! Add the advection operators to the right-hans-side.
-      call this%adv%compute_scalar(u, v, w, s, f_Xh%x, &
+      call this%adv%compute_scalar(u, v, w, s, f_Xh, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator,
