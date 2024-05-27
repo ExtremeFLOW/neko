@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Subroutines to add advection terms to the RHS of a transport equation.
+!> Subroutines to add perturbed advection terms to the RHS of a transport equation.
 module adv_lin_no_dealias
   use advection, only: advection_lin_t
   use num_types, only: rp
@@ -57,15 +57,15 @@ module adv_lin_no_dealias
      real(kind=rp), allocatable :: temp(:)
      type(c_ptr) :: temp_d = C_NULL_PTR
    contains
-     !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
+     !> Add the linearized advection term for the fluid, i.e. 
+     !! \f$u' \cdot \nabla \bar{U} + \bar{U} \cdot \nabla u' \f$, to
      !! the RHS.
      procedure, pass(this) :: compute_linear => linear_advection_no_dealias
-     !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
+     !> Add the adjoint advection term for the fluid in weak form, i.e. 
+     !! \f$ \int_\Omega v \cdot u' (\nabla \bar{U})^T u^\dagger d\Omega
+     !! + \int_\Omega \nabla v \cdot (\bar{U} \otimes u^\dagger) d \Omega  \f$, to
      !! the RHS.
      procedure, pass(this) :: compute_adjoint => adjoint_advection_no_dealias
-     !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
-     !! the RHS.
-     procedure, pass(this) :: compute_scalar => scalar_advection_no_dealias
      !> Constructor
      procedure, pass(this) :: init => init_no_dealias
      !> Destructor
@@ -100,54 +100,16 @@ contains
     end if
   end subroutine free_no_dealias
 
-  !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to the
-  !! RHS.
-  !! @param this The object.
-  !! @param vx The x component of velocity.
-  !! @param vy The y component of velocity.
-  !! @param vz The z component of velocity.
-  !! @param s The scalar.
-  !! @param fs The source term.
-  !! @param Xh The function space.
-  !! @param coef The coefficients of the (Xh, mesh) pair.
-  !! @param n Typically the size of the mesh.
-  subroutine scalar_advection_no_dealias(this, vx, vy, vz, s, fs, Xh, &
-                                         coef, n)
-    class(adv_lin_no_dealias_t), intent(inout) :: this
-    type(field_t), intent(inout) :: vx, vy, vz
-    type(field_t), intent(inout) :: s
-    type(field_t), intent(inout) :: fs
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
-    integer, intent(in) :: n
-    type(c_ptr) :: fs_d
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       fs_d = fs%x_d
-
-       call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
-       call device_subcol3 (fs_d, coef%B_d, this%temp_d, n)
-       if (coef%Xh%lz .eq. 1) then
-          call device_rzero (this%temp_d, n)
-       end if
-    else
-       ! temp will hold vx*ds/dx + vy*ds/dy + vz*ds/sz
-       call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
-
-       ! fs = fs - B*temp
-       call subcol3 (fs%x, coef%B, this%temp, n)
-       if (coef%Xh%lz .eq. 1) then
-          call rzero (this%temp, n)
-       end if
-    end if
-
-  end subroutine scalar_advection_no_dealias
-
-  !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
-  !! RHS.
-  !! @param vx The x component of velocity.
-  !! @param vy The y component of velocity.
-  !! @param vz The z component of velocity.
+  !> Add the adjoint advection term for the fluid in weak form, i.e. 
+  !! \f$ \int_\Omega v \cdot u' (\nabla \bar{U})^T u^\dagger d\Omega
+  !! + \int_\Omega \nabla v \cdot (\bar{U} \otimes u^\dagger) d \Omega  \f$, to
+  !! the RHS.
+  !! @param vx The x component of adjoint velocity.
+  !! @param vy The y component of adjoint velocity.
+  !! @param vz The z component of adjoint velocity.
+  !! @param vxb The x component of baseflow.
+  !! @param vyb The y component of baseflow.
+  !! @param vzb The z component of baseflow.
   !! @param fx The x component of source term.
   !! @param fy The y component of source term.
   !! @param fz The z component of source term.
@@ -175,12 +137,6 @@ contains
     integer :: e, i, idx, idxx
 
 
-    ! Tim F
-    ! I saw this in pnpn_prs_res and it looks like we can get temp arrays this way
-    ! I'm not sure if we can do the same for dealiased, but this looks clean for
-    ! the no dealiased.
-    !
-    ! Harry
     type(field_t), pointer :: tduxb, tdvxb, tdwxb, tduyb, tdvyb, tdwyb, tduzb, tdvzb, tdwzb
     integer :: temp_indices(9)
 
@@ -297,6 +253,17 @@ contains
 
   end subroutine adjoint_advection_no_dealias
 
+  !> Compute a single component of 
+  !! \f$ \int_\Omega \nabla v \cdot (\bar{U} \otimes u^\dagger) d \Omega |_i \f$, to
+  !! the RHS on device.
+  !! @param f_d The i'th component of this term.
+  !! @param u_i_d The i'th component of adjoint velocity.
+  !! @param ub The x component of baseflow.
+  !! @param vb The y component of baseflow.
+  !! @param wb The z component of baseflow.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
   subroutine adjoint_weak_no_dealias_device(f_d, u_i_d, ub, vb, wb, coef, Xh, n, &
                                             work1, work2, work3, w1, w2, w3)
     implicit none
@@ -335,6 +302,17 @@ contains
     call device_sub2(f_d, work1_d, n)
   end subroutine adjoint_weak_no_dealias_device
 
+  !> Compute a single component of 
+  !! \f$ \int_\Omega \nabla v \cdot (\bar{U} \otimes u^\dagger) d \Omega |_i \f$, to
+  !! the RHS on CPU.
+  !! @param f The i'th component of this term.
+  !! @param u_i The i'th component of adjoint velocity.
+  !! @param ub The x component of baseflow.
+  !! @param vb The y component of baseflow.
+  !! @param wb The z component of baseflow.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
   subroutine adjoint_weak_no_dealias_cpu(f, u_i, ub, vb, wb, e, coef, Xh, n, work1, work2, work3, w1, w2, w3)
     implicit none
     integer, intent(in) :: e, n
@@ -367,11 +345,15 @@ contains
 
 
 
-  !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
-  !! RHS.
-  !! @param vx The x component of velocity.
-  !! @param vy The y component of velocity.
-  !! @param vz The z component of velocity.
+  !> Add the linearized advection term for the fluid, i.e. 
+  !! \f$u' \cdot \nabla \bar{U} + \bar{U} \cdot \nabla u' \f$, to
+  !! the RHS.
+  !! @param vx The x component of perturbed velocity.
+  !! @param vy The y component of perturbed velocity.
+  !! @param vz The z component of perturbed velocity.
+  !! @param vxb The x component of baseflow.
+  !! @param vyb The y component of baseflow.
+  !! @param vzb The z component of baseflow.
   !! @param fx The x component of source term.
   !! @param fy The y component of source term.
   !! @param fz The z component of source term.
