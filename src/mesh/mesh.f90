@@ -467,7 +467,7 @@ contains
     class(element_t), pointer :: ep
     type(tuple_i4_t) :: e
     type(tuple4_i4_t) :: f
-    integer :: p_local_idx, res
+    integer :: p_local_idx
     integer :: el, id
     integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, src, dst
 
@@ -1400,7 +1400,7 @@ contains
     integer, value :: el
     type(point_t), target, intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
-    integer :: p(4), el_glb_idx, i, p_local_idx
+    integer :: p(4), el_glb_idx
     type(tuple_i4_t) :: e
 
     ! Connectivity invalidated if a new element is added
@@ -1436,7 +1436,7 @@ contains
     integer, value :: el
     type(point_t), target, intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
-    integer :: p(8), el_glb_idx, i, p_local_idx
+    integer :: p(8), el_glb_idx
     type(tuple4_i4_t) :: f
     type(tuple_i4_t) :: e
 
@@ -1678,7 +1678,6 @@ contains
     type(point_t), pointer :: pi
     type(tuple4_i4_t) :: t
     type(tuple_i4_t) :: t2
-    integer :: i
 
     select type(ele => this%elements(e)%e)
     type is(hex_t)

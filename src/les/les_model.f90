@@ -144,7 +144,7 @@ contains
     class(les_model_t), intent(inout) :: this
     integer :: e, i, j, k
     integer ::  im, ip, jm, jp, km, kp
-    real(kind=rp) :: di, dj, dk, ndim_inv
+    real(kind=rp) :: di, dj, dk
 
 
     do e=1, this%coef%msh%nelv
