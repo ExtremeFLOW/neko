@@ -520,8 +520,6 @@ contains
     type(field_t), pointer :: u_e, v_e, w_e
     ! Indices for tracking temporary fields
     integer :: temp_indices(3)
-    ! Counter
-    integer :: i
 
     if (this%freeze) return
 
