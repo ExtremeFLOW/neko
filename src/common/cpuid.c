@@ -63,7 +63,7 @@ void system_cpuid(char *name, int len) {
       char *token = strtok (buf, delim);
       token = strtok (NULL, delim);
       if (strstr(token, "0x001")) {
-        strncpy(name, "A64FX", len);
+        strncpy(name, "Fujitsu A64FX", len);
         break;
       }      
     }
