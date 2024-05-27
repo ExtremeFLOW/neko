@@ -88,13 +88,13 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
     integer :: i
-    !$omp parallel
+
     !$omp do
     do i = 1, n
        z(i) = r(i) * this%d(i,1,1,1)
     end do
     !$omp end do
-    !$omp end parallel
+
   end subroutine jacobi_solve
 
   !> Update Jacobi preconditioner if the geometry G has changed

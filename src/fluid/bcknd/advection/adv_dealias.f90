@@ -236,7 +236,8 @@ contains
          call sub2(fz%x, this%temp, n)
 
       else
-
+         !$omp parallel do private(e, i, idx, tx, ty, tz, vr, vs, vt)&
+         !$omp& private(tempx, tempy, tempz, tfx, tfy, tfz)
          do e = 1, coef%msh%nelv
             call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
             call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
@@ -266,6 +267,7 @@ contains
             call sub2(fy%x(idx, 1, 1, 1), tempy, this%Xh_GLL%lxyz)
             call sub2(fz%x(idx, 1, 1, 1), tempz, this%Xh_GLL%lxyz)
          end do
+         !$omp end parallel do
       end if
     end associate
 

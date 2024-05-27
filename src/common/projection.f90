@@ -364,21 +364,27 @@ contains
       call rzero(alpha, this%m)
       this%proj_res = sqrt(glsc3(b,b,coef%mult,n)/coef%volume)
       this%proj_m = this%m
-      !$omp parallel do private(i,j,k) reduction(+:alpha)
+      !$omp parallel private(i,j,k)
+      !$omp do reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, this%m
             alpha(k) = alpha(k) + vlsc3(xx(i,k), coef%mult(i,1,1,1), b(i), j)
          end do
       end do
-      !$omp end parallel do
-
+      !$omp end do
+      !$omp single
       !First one outside loop to avoid zeroing xbar and bbar
       call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+      !$omp end single
+      !$omp do
+      do i = 1, this%m
+         work(i) = 0.0_rp
+      end do
+      !$omp end do
 
-      call rzero(work, this%m)
-      !$omp parallel do private(i,j,k) reduction(+:work)
+      !$omp do reduction(+:work)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          call cmult2(xbar(i), xx(i,1), alpha(1), j)
@@ -392,11 +398,12 @@ contains
             work(k) = work(k) + vlsc3(xx(i,k), coef%mult(i,1,1,1), b(i), j)
          end do
       end do
-      !$omp end parallel do
-
+      !$omp end do
+      !$omp single
       call MPI_Allreduce(work, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      !$omp parallel do private(i,j,k)
+      !$omp end single
+      !$omp do
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1,this%m
@@ -404,7 +411,8 @@ contains
             call add2s2(b(i), bb(i,k), -alpha(k), j)
          end do
       end do
-      !$omp end parallel do
+      !$omp end do
+      !$omp end parallel
     end associate
   end subroutine cpu_project_on
 
@@ -574,8 +582,13 @@ contains
 
       ! AX = B
       ! Calculate dx, db: dx = x-XX^Tb, db=b-BX^Tb
-      call rzero(alpha, m)
-      !$omp parallel do private(i, j, k) reduction(+:alpha)
+      !$omp parallel private(i, j, k)
+      !$omp do
+      do i = 1, m
+         alpha = 0.0_rp
+      end do
+      !$omp end do
+      !$omp do reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m !First round CGS
@@ -583,15 +596,19 @@ contains
                  + vlsc3(bb(i,k), w(i), xx(i,m), j))
          end do
       end do
-      !$omp end parallel do
-
+      !$omp end do
+      !$omp single
       call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
       nrm = sqrt(alpha(m)) !Calculate A-norm of new vector
-
-      call rzero(beta,m)
-      !$omp parallel do private(i, j, k) reduction(+:beta)
+      !$omp end single
+      !$omp do
+      do i = 1, m
+         beta = 0.0_rp
+      end do
+      !$omp end do
+      !$omp do reduction(+:beta)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1,m-1
@@ -601,13 +618,15 @@ contains
                  + vlsc3(bb(i,k), w(i), xx(i,m), j))
          end do
       end do
-      !$omp end parallel do
+      !$omp end do
 
+      !$omp single
       call MPI_Allreduce(MPI_IN_PLACE, beta, this%m-1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
       alpha(m) = 0.0_rp
-      !$omp parallel do private(i, j, k) reduction(+:alpha)
+      !$omp end single
+      !$omp do reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE,n-i+1)
          do k = 1, m-1
@@ -616,13 +635,13 @@ contains
          end do
          alpha(m) = alpha(m) + vlsc3(xx(i,m), w(i), bb(i,m), j)
       end do
-      !$omp end parallel do
-      !$omp parallel do
+      !$omp end do
+      !$omp do
       do k = 1, m-1
          alpha(k) = alpha(k) + beta(k)
       end do
-      !$omp end parallel do
-
+      !$omp end do
+      !$omp end parallel
       !alpha(m) = glsc3(xx(1,m), w, bb(1,m), n)
       call MPI_Allreduce(MPI_IN_PLACE, alpha(m), 1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
