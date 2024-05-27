@@ -142,9 +142,6 @@ contains
     type(user_t), intent(in) :: user
     type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    logical :: found, logical_val
-    integer :: integer_val
-    real(kind=rp) :: real_val
 
     call this%free()
 
