@@ -197,6 +197,8 @@ neko_fortran_SOURCES = \
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
 	fluid/advection_fctry.f90\
+        fluid/bcknd/advection/adv_dealias.f90\
+        fluid/bcknd/advection/adv_no_dealias.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
@@ -252,6 +254,8 @@ neko_fortran_SOURCES = \
 	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
+	simulation_components/weak_grad.f90\
+	simulation_components/derivative.f90\
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
