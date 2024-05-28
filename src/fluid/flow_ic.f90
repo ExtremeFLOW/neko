@@ -67,8 +67,6 @@ contains
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
     type(json_file), intent(inout) :: params
-    ! Variables for retrieving json parameters
-    logical :: found
     real(kind=rp) :: delta
     real(kind=rp), allocatable :: uinf(:)
     character(len=:), allocatable :: blasius_approximation

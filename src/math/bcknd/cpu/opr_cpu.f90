@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -716,7 +716,7 @@ contains
     type(field_t), intent(inout) :: lambda2
     type(field_t), intent(in) :: u, v, w
     real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
-    integer :: temp_indices(9), e, i, ind_sort(3)
+    integer :: e, i
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23

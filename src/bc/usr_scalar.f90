@@ -280,7 +280,7 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k, idx(4), facet
+
   end subroutine usr_scalar_apply_vector
 
   !> No-op vector apply (device version)
@@ -291,11 +291,7 @@ contains
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k, idx(4), facet
-    integer(c_size_t) :: s
-    real(kind=rp), allocatable :: x(:)
-    real(kind=rp), allocatable :: y(:)
-    real(kind=rp), allocatable :: z(:)
+
   end subroutine usr_scalar_apply_vector_dev
 
   !> Assign user provided eval function

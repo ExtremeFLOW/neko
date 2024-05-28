@@ -225,8 +225,7 @@ contains
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
-    character(len=LOG_SIZE) :: log_buf
-
+ 
     select type(data)
     type is (mesh_t)
        msh => data
