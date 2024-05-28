@@ -84,9 +84,10 @@
                     "brinkman": {
                         "limits": [
                             0.0,
-                            1000.0
+                            100000000.0
                         ],
                         "penalty": 1.0,
+                        "implicit": true,
                     },
                 }
             ]
