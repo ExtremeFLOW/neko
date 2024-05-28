@@ -39,6 +39,7 @@ module ax_helm_fctry
   use ax_helm_cpu, only : ax_helm_cpu_t
   use ax_helm_full_cpu, only : ax_helm_full_cpu_t
   use ax_product, only : ax_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -60,13 +61,18 @@ contains
     end if
 
     if (full_formulation) then
-      allocate(ax_helm_full_cpu_t::Ax)
+      if (NEKO_BCKND_DEVICE .eq. 1 .or. NEKO_BCKND_SX .eq. 1 .or. &
+          NEKO_BCKND_XSMM .eq. 1) then
+         call neko_error("Full stress formulation is only available on the CPU")
+      else
+         allocate(ax_helm_full_cpu_t::Ax)
+      end if
     else
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(ax_helm_sx_t::Ax)
        else if (NEKO_BCKND_XSMM .eq. 1) then
           allocate(ax_helm_xsmm_t::Ax)
-       else if (NEKO_BCKND_DEVICE .eq. 1)then
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(ax_helm_device_t::Ax)
        else
           allocate(ax_helm_cpu_t::Ax)
