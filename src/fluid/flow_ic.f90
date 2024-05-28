@@ -36,16 +36,18 @@ module flow_ic
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
-                           blasius_quadratic, blasius_quartic, blasius_sin
-  use device_math
-  use device
+    blasius_quadratic, blasius_quartic, blasius_sin
+  use device, only: device_memcpy, HOST_TO_DEVICE
   use field, only : field_t
   use utils, only : neko_error
   use coefs, only : coef_t
-  use math, only : col2, cfill
+  use math, only : col2, cfill, cfill_mask
+  use device_math, only : device_col2, device_cfill, device_cfill_mask
   use user_intf, only : useric
   use json_module, only : json_file
   use json_utils, only: json_get
+  use point_zone, only: point_zone_t
+  use point_zone_registry, only: neko_point_zone_registry
   implicit none
   private
 
@@ -69,17 +71,26 @@ contains
     type(json_file), intent(inout) :: params
     real(kind=rp) :: delta
     real(kind=rp), allocatable :: uinf(:)
+    real(kind=rp), allocatable :: zone_value(:)
     character(len=:), allocatable :: blasius_approximation
+    character(len=:), allocatable :: zone_name
 
     if (trim(type) .eq. 'uniform') then
        call json_get(params, 'case.fluid.initial_condition.value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
     else if (trim(type) .eq. 'blasius') then
        call json_get(params, 'case.fluid.blasius.delta', delta)
-       call json_get(params, 'case.fluid.blasius.approximation',&
+       call json_get(params, 'case.fluid.blasius.approximation', &
                      blasius_approximation)
        call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
        call set_flow_ic_blasius(u, v, w, delta, uinf, blasius_approximation)
+    else if (trim(type) .eq. 'point_zone') then
+       call json_get(params, 'case.fluid.initial_condition.base_value', uinf)
+       call json_get(params, 'case.fluid.initial_condition.zone_name', &
+                     zone_name)
+       call json_get(params, 'case.fluid.initial_condition.zone_value', &
+                     zone_value)
+       call set_flow_ic_point_zone(u, v, w, uinf, zone_name, zone_value)
     else
        call neko_error('Invalid initial condition')
     end if
@@ -112,13 +123,16 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
+    integer :: n
+
+    n = u%dof%size()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(u%x, u%x_d, u%dof%size(), &
+       call device_memcpy(u%x, u%x_d, n, &
                           HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(v%x, v%x_d, v%dof%size(), &
+       call device_memcpy(v%x, v%x_d, n, &
                           HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(w%x, w%x_d, w%dof%size(), &
+       call device_memcpy(w%x, w%x_d, n, &
                           HOST_TO_DEVICE, sync=.false.)
     end if
 
@@ -186,21 +200,21 @@ contains
     end select
 
     if ((uinf(1) .gt. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
-         .and. (uinf(3) .eq. 0.0_rp)) then
+       .and. (uinf(3) .eq. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = bla(u%dof%z(i,1,1,1), delta, uinf(1))
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = 0.0_rp
        end do
     else if ((uinf(1) .eq. 0.0_rp) .and. (uinf(2) .gt. 0.0_rp) &
-         .and. (uinf(3) .eq. 0.0_rp)) then
+            .and. (uinf(3) .eq. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = bla(u%dof%x(i,1,1,1), delta, uinf(2))
           w%x(i,1,1,1) = 0.0_rp
        end do
     else if ((uinf(1) .eq. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
-         .and. (uinf(3) .gt. 0.0_rp)) then
+            .and. (uinf(3) .gt. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = 0.0_rp
@@ -209,5 +223,37 @@ contains
     end if
 
   end subroutine set_flow_ic_blasius
+
+  !> Set the initial condition of the flow based on a point zone.
+  !! @details The initial condition is set to the base value and then the
+  !! zone is filled with the zone value.
+  !! @param u The x-component of the velocity field.
+  !! @param v The y-component of the velocity field.
+  !! @param w The z-component of the velocity field.
+  !! @param base_value The base value of the initial condition.
+  !! @param zone_name The name of the point zone.
+  !! @param zone_value The value of the point zone.
+  subroutine set_flow_ic_point_zone(u, v, w, base_value, zone_name, zone_value)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    real(kind=rp), intent(in), dimension(3) :: base_value
+    character(len=*), intent(in) :: zone_name
+    real(kind=rp), intent(in) :: zone_value(:)
+
+    ! Internal variables
+    class(point_zone_t), pointer :: zone
+    integer :: size
+
+    call set_flow_ic_uniform(u, v, w, base_value)
+    size = u%dof%size()
+
+    zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
+
+    call cfill_mask(u%x, zone_value(1), size, zone%mask, zone%size)
+    call cfill_mask(v%x, zone_value(2), size, zone%mask, zone%size)
+    call cfill_mask(w%x, zone_value(3), size, zone%mask, zone%size)
+
+  end subroutine set_flow_ic_point_zone
 
 end module flow_ic
