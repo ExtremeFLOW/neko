@@ -194,7 +194,7 @@ contains
     class(scalar_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    integer :: i, n
+    integer :: i
 
     this%f = 0.0_rp
     this%chi = 0.0_rp
