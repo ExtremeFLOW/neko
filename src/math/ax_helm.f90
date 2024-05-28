@@ -44,11 +44,11 @@ module ax_helm
   type, public, abstract, extends(ax_t) :: ax_helm_t
    contains
      !> Compute the product for 3 fields.
-     procedure, pass(this) :: compute3 => ax_helm_compute3
+     procedure, pass(this) :: compute_vector => ax_helm_compute_vector
   end type ax_helm_t
 
 contains
-  subroutine ax_helm_compute3(this, au, av, aw, u, v, w, coef, msh, Xh)
+  subroutine ax_helm_compute_vector(this, au, av, aw, u, v, w, coef, msh, Xh)
     class(ax_helm_t), intent(in) :: this
     type(space_t), intent(inout) :: Xh
     type(mesh_t), intent(inout) :: msh
@@ -63,6 +63,6 @@ contains
     call this%compute(au, u, coef, msh, Xh)
     call this%compute(av, v, coef, msh, Xh)
     call this%compute(aw, w, coef, msh, Xh)
-  end subroutine ax_helm_compute3
+  end subroutine ax_helm_compute_vector
 
 end module ax_helm

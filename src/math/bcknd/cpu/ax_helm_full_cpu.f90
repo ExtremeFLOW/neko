@@ -45,13 +45,13 @@ module ax_helm_full_cpu
   type, public, extends(ax_helm_full_t) :: ax_helm_full_cpu_t
    contains
      !> Compute the product.
-     procedure, pass(this) :: compute3 => ax_helm_full_compute3
+     procedure, pass(this) :: compute_vector => ax_helm_full_compute_vector
   end type ax_helm_full_cpu_t
 
 contains
 
 
-  subroutine ax_helm_full_compute3(this, au, av, aw, u, v, w, coef, msh, Xh)
+  subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh, Xh)
     class(ax_helm_full_cpu_t), intent(in) :: this
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
@@ -156,7 +156,7 @@ contains
        call addcol4 (aw, coef%h2, coef%B, w, coef%dof%size())
     end if
 
-  end subroutine ax_helm_full_compute3
+  end subroutine ax_helm_full_compute_vector
 
   subroutine ax_helm_full_lx(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
