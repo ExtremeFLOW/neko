@@ -45,10 +45,6 @@ __global__ void prs_res_part1_kernel(T * __restrict__ ta1,
                                      const T * __restrict__ f_u,
                                      const T * __restrict__ f_v,
                                      const T * __restrict__ f_w,
-                                     const T * __restrict__ u_e,
-                                     const T * __restrict__ v_e,
-                                     const T * __restrict__ w_e,
-                                     const T * __restrict__ chi,
                                      const T * __restrict__ B,
                                      T * __restrict__ h1,
                                      const T mu,
@@ -64,9 +60,6 @@ __global__ void prs_res_part1_kernel(T * __restrict__ ta1,
     ta1[i] = (f_u[i] / rho) - ((wa1[i] * (mu / rho)) * B[i]);
     ta2[i] = (f_v[i] / rho) - ((wa2[i] * (mu / rho)) * B[i]);
     ta3[i] = (f_w[i] / rho) - ((wa3[i] * (mu / rho)) * B[i]);
-    // ta1[i] = (f_u[i] / rho) - ((wa1[i] * (mu / rho)) * B[i]) - chi[i] * u_e[i] * B[i];
-    // ta2[i] = (f_v[i] / rho) - ((wa2[i] * (mu / rho)) * B[i]) - chi[i] * v_e[i] * B[i];
-    // ta3[i] = (f_w[i] / rho) - ((wa3[i] * (mu / rho)) * B[i]) - chi[i] * w_e[i] * B[i];
   }
 
 }
