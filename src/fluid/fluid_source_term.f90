@@ -78,7 +78,7 @@ module fluid_source_term
 contains
 
   !> Costructor.
-  subroutine fluid_source_term_init(this, json, f_x, f_y, f_z, coef, user, chi)
+  subroutine fluid_source_term_init(this, json, f_x, f_y, f_z, chi, coef, user)
     class(fluid_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_t), pointer, intent(in) :: f_x, f_y, f_z

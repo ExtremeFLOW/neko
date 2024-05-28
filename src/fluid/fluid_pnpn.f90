@@ -631,8 +631,8 @@ contains
       call profiler_start_region('Velocity residual', 19)
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
-                           p, chi, &
-                           f_x, f_y, f_z, &
+                           p, &
+                           f_x, f_y, f_z, chi, &
                            c_Xh, msh, Xh, &
                            mu, rho, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())

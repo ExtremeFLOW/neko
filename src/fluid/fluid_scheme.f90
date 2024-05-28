@@ -541,8 +541,8 @@ contains
     call this%chi%init(this%dm_Xh, fld_name="fluid_chi")
 
     ! Initialize the source term
-    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
-                               user, this%chi)
+    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%chi, &
+                               this%c_Xh, user)
 
   end subroutine fluid_scheme_init_common
 

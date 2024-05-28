@@ -74,7 +74,7 @@ module scalar_source_term
 contains
 
   !> Constructor.
-  subroutine scalar_source_term_init(this, json, f, coef, user, chi)
+  subroutine scalar_source_term_init(this, json, f, chi, coef, user)
     class(scalar_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_t), pointer, intent(in) :: f

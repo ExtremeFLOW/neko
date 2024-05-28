@@ -229,7 +229,7 @@ contains
        else
           call brinkman_source_term_compute_cpu(this%fields, this%brinkman)
        end if
-    endif
+    end if
   end subroutine brinkman_source_term_compute
 
   ! ========================================================================== !

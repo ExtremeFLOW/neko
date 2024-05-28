@@ -83,7 +83,7 @@ module pnpn_residual
 
   abstract interface
      subroutine vel_res(Ax, u, v, w, u_res, v_res, w_res, &
-          p, chi, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
+          p, f_x, f_y, f_z, chi, c_Xh, msh, Xh, mu, rho, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t
@@ -95,9 +95,9 @@ module pnpn_residual
        class(ax_t), intent(in) :: Ax
        type(mesh_t), intent(inout) :: msh
        type(space_t), intent(inout) :: Xh
-       type(field_t), intent(inout) :: p, u, v, w, chi
+       type(field_t), intent(inout) :: p, u, v, w
        type(field_t), intent(inout) :: u_res, v_res, w_res
-       type(field_t), intent(inout) :: f_x, f_y, f_z
+       type(field_t), intent(inout) :: f_x, f_y, f_z, chi
        type(coef_t), intent(inout) :: c_Xh
        real(kind=rp), intent(in) :: mu
        real(kind=rp), intent(in) :: rho
