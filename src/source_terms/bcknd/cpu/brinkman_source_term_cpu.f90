@@ -79,4 +79,5 @@ contains
     call add2(fields%x(4), brinkman%x, n)
 
   end subroutine implicit_brinkman_source_term_compute_cpu
+  
 end module brinkman_source_term_cpu

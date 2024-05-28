@@ -393,7 +393,7 @@ contains
     call this%chi%init(this%dm_Xh, fld_name="scalar_chi")
 
     ! Initialize the source term
-    call this%source_term%init(params, this%f_Xh, this%c_Xh, user,this%chi)
+    call this%source_term%init(params, this%f_Xh, this%c_Xh, user, this%chi)
 
     call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
 

@@ -129,7 +129,7 @@ contains
   end subroutine pnpn_prs_res_sx_compute
 
   subroutine pnpn_vel_res_sx_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p,chi, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
+       p, chi, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh

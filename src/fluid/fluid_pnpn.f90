@@ -558,7 +558,6 @@ contains
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
 
-
       ! Pre-multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_x%x_d, f_y%x_d, f_z%x_d, c_Xh%B_d, msh%gdim, n)
@@ -633,7 +632,7 @@ contains
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
                            p, chi, &
-                           f_x, f_y, f_z,&
+                           f_x, f_y, f_z, &
                            c_Xh, msh, Xh, &
                            mu, rho, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())

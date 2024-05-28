@@ -83,7 +83,7 @@ module pnpn_residual
 
   abstract interface
      subroutine vel_res(Ax, u, v, w, u_res, v_res, w_res, &
-          p,chi, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
+          p, chi, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t

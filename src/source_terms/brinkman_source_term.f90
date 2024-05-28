@@ -215,21 +215,21 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-	if(this%is_implicit) then
-   ! this is implicit
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call implicit_brinkman_source_term_compute_device(this%fields, this%brinkman)
+    if(this%is_implicit) then
+       ! this is implicit
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call implicit_brinkman_source_term_compute_device(this%fields, this%brinkman)
+       else
+          call implicit_brinkman_source_term_compute_cpu(this%fields, this%brinkman)
+       end if
     else
-       call implicit_brinkman_source_term_compute_cpu(this%fields, this%brinkman)
-    end if
-   else
-	! this is all explicit
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call brinkman_source_term_compute_device(this%fields, this%brinkman)
-    else
-       call brinkman_source_term_compute_cpu(this%fields, this%brinkman)
-    end if
-   endif
+       ! this is all explicit
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call brinkman_source_term_compute_device(this%fields, this%brinkman)
+       else
+          call brinkman_source_term_compute_cpu(this%fields, this%brinkman)
+       end if
+    endif
   end subroutine brinkman_source_term_compute
 
   ! ========================================================================== !

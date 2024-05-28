@@ -79,4 +79,5 @@ contains
     call device_add2(fields%x_d(4), brinkman%x_d, n)
 
   end subroutine implicit_brinkman_source_term_compute_device
+  
 end module brinkman_source_term_device

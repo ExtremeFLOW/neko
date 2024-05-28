@@ -542,7 +542,8 @@ contains
 
     ! Initialize the source term
     call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
-                               user,this%chi)
+                               user, this%chi)
+
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
@@ -792,15 +793,14 @@ contains
     if (associated(this%f_z)) then
        call this%f_z%free()
     end if
+    
+    if (associated(this%chi)) then
+        call this%chi%free()
+    end if
 
     nullify(this%f_x)
     nullify(this%f_y)
     nullify(this%f_z)
-
-
-    if (associated(this%chi)) then
-       call this%chi%free()
-    end if
     nullify(this%chi)
 
 
