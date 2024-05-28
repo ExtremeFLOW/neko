@@ -30,8 +30,9 @@ The current high-level structure of the case file is shown below.
 }
 ~~~~~~~~~~~~~~~
 The `version` keywords is reserved to track changes in the format of the file.
-The the subsections below we list all the configuration options for each of the high-level objects.
-Some parameters will have default values, and are therefore optional.
+The the subsections below we list all the configuration options for each of the
+high-level objects. Some parameters will have default values, and are therefore
+optional.
 
 ## Output frequency control
 A common scheme for controlling the output frequency is applied for various
@@ -140,11 +141,11 @@ arbitrary parameters read from the case file. Additionally, this allows to
 change the material properties in time.
 
 ### Boundary types {#case-file_boundary-types}
-The optional `boundary_types` keyword can be used to specify boundary conditions.
-The reason for it being optional, is that some conditions can be specified
-directly inside the mesh file.
-In particular, this happens when Nek5000 `.re2` files are converted to `.nmsh`.
-Periodic boundary conditions are *always* defined inside the mesh file.
+The optional `boundary_types` keyword can be used to specify boundary
+conditions. The reason for it being optional, is that some conditions can be
+specified directly inside the mesh file. In particular, this happens when
+Nek5000 `.re2` files are converted to `.nmsh`. Periodic boundary conditions are
+*always* defined inside the mesh file.
 
 The value of the keyword is an array of strings, with the following possible
 values:
@@ -154,8 +155,8 @@ values:
   * `v`, a velocity Dirichlet boundary.
   * `sym`, a symmetry boundary.
   * `o`, outlet boundary.
-  * `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
-   the wall-normal. The wall-parallel velocity is defined by the initial
+  * `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann
+   for the wall-normal. The wall-parallel velocity is defined by the initial
    condition.
 
 * Advanced boundary conditions
@@ -210,10 +211,9 @@ The means of prescribing the values are controlled via the `type` keyword:
    in the `case.fluid.blasius` object, see below.
 
 ### Blasius profile
-The `blasius` object is used to specify the Blasius profile that can be used for the
-initial and inflow condition.
-The boundary cannot be tilted with respect to the coordinate axes.
-It requires  the following parameters:
+The `blasius` object is used to specify the Blasius profile that can be used for
+the initial and inflow condition. The boundary cannot be tilted with respect to
+the coordinate axes. It requires  the following parameters:
 
 1. `delta`, the thickness of the boundary layer.
 2. `freestream_velocity`, the velocity value in the free stream.
@@ -264,18 +264,19 @@ The following types are currently implemented.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
-The volume force \f$ f_i \f$ applied in the selected regions are proportional to the
-fluid velocity component \f$ u_i \f$.
+The volume force \f$ f_i \f$ applied in the selected regions are proportional to
+the fluid velocity component \f$ u_i \f$.
 
 \f{eqnarray*}{
    f_i(x) &=& - B(x) u_i(x), \\
    B(x) &=& \kappa_0 + (\kappa_1 - \kappa_0) \xi(x) \frac{q + 1}{q + \xi(x)},
  \f}
 
-where, \f$ x \f$ is the current location in the domain, \f$ \xi: x \mapsto [0,1] \f$
-represent an indicator function for the resistance where \f$ \xi(x) = 0 \f$ is a free
-flow. \f$ \kappa_i \f$ describes the limits for the force application at \f$ \xi(x)=0 \f$
-and \f$ \xi(x)=1 \f$. A penalty parameter \f$ q \f$ help us to reduce numerical problems.
+where, \f$ x \f$ is the current location in the domain, \f$ \xi: x \mapsto [0,1]
+\f$ represent an indicator function for the resistance where \f$ \xi(x) = 0 \f$
+is a free flow. \f$ \kappa_i \f$ describes the limits for the force application
+at \f$ \xi(x)=0 \f$ and \f$ \xi(x)=1 \f$. A penalty parameter \f$ q \f$ help us
+to reduce numerical problems.
 
 The indicator function will be defined based on the object type. The following
 types are currently implemented.
@@ -318,7 +319,7 @@ Additional keywords are available to modify the Brinkman force term.
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
 | ---------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
 | `brinkman.limits`                  | Brinkman factor at free-flow (\f$ \kappa_0 \f$) and solid domain (\f$ \kappa_1 \f$).          | Vector of 2 reals.                | -             |
-| `brinkman.penalty`                 | Penalty parameter \f$ q \f$ when estimating Brinkman factor.                                        | Real                              | \f$ 1.0 \f$         |
+| `brinkman.penalty`                 | Penalty parameter \f$ q \f$ when estimating Brinkman factor.                                  | Real                              | \f$ 1.0 \f$   |
 | `objects`                          | Array of JSON objects, defining the objects to be immersed.                                   | Each object must specify a `type` | -             |
 | `distance_transform.type`          | How to map from distance field to indicator field.                                            | `step`, `smooth_step`             | -             |
 | `distance_transform.value`         | Values used to define the distance transform, such as cut-off distance for the step function. | Real                              | -             |
@@ -374,19 +375,22 @@ The following keywords are used, with the corresponding options.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
   - `cacg`, a communication-avoiding conjugate gradient solver.
   - `gmres`, a GMRES solver. Typically used for pressure.
-  - `fusedcg`, a conjugate gradient solver optimised for accelerators using kernel fusion.
+  - `fusedcg`, a conjugate gradient solver optimised for accelerators using
+    kernel fusion.
 * `preconditioner`, preconditioner type.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
-  - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for pressure.
+  - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for
+    pressure.
   - `ident`, an identity matrix (no preconditioner).
 * `absolute_tolerance`, tolerance criterion for convergence.
 * `max_iterations`, maximum number of iterations before giving up.
 * `projection_space_size`, size of the vector space used for accelerating the
    solution procedure. If 0, then the projection space is not used.
    More important for the pressure equation.
-* `projection_hold_steps`, steps for which the simulation does not use projection after starting
-   or time step changes. E.g. if 5, then the projection space will start to update at the 6th
-   time step and the space will be utilized at the 7th time step.
+* `projection_hold_steps`, steps for which the simulation does not use
+   projection after starting or time step changes. E.g. if 5, then the
+   projection space will start to update at the 6th time step and the space will
+   be utilized at the 7th time step.
 
 ### Flow rate forcing
 The optional `flow_rate_force` object can be used to force a particular flow
