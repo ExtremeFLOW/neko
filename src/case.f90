@@ -151,7 +151,6 @@ contains
     real(kind=rp) :: stats_start_time, stats_output_val
     integer ::  stats_sampling_interval
     integer :: output_dir_len
-    integer :: n_simcomps
     integer :: precision
 
     !

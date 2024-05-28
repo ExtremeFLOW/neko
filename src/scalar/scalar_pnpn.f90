@@ -141,9 +141,6 @@ contains
     type(material_properties_t), intent(inout) :: material_properties
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    ! Variables for retrieving json parameters
-    logical :: found, logical_val
-    integer :: integer_val
 
     call this%free()
 

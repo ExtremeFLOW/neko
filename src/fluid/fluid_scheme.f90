@@ -602,8 +602,8 @@ contains
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
-    real(kind=rp) :: real_val, dong_delta, dong_uchar
     character(len=:), allocatable :: string_val1, string_val2, ax_type
+    real(kind=rp) :: real_val
     integer :: integer_val, ierr
     real(kind=rp), allocatable :: real_vec(:)
 
