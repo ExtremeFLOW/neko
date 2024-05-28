@@ -224,7 +224,6 @@ contains
     if (.not. associated(u%material_properties)) then
        u%material_properties => dummy_user_material_properties
     end if
-
   end subroutine user_intf_init
 
 
@@ -232,7 +231,6 @@ contains
   ! Below is the dummy user interface
   ! when running in pure turboNEKO mode
   !
-
 
   !> Dummy user initial condition
   subroutine dummy_user_ic(u, v, w, p, params)
