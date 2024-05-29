@@ -36,7 +36,7 @@ contains
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(inout) :: bc_prs_surface
     type(facet_normal_t), intent(inout) :: bc_sym_surface
-    class(Ax_t), intent(inout) :: Ax
+    class(ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(in) :: dt
     real(kind=rp), intent(in) :: mu
@@ -67,7 +67,7 @@ contains
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho &
             - ((wa1%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1))
        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho &
@@ -80,7 +80,7 @@ contains
     call gs_Xh%op(ta2, GS_OP_ADD)
     call gs_Xh%op(ta3, GS_OP_ADD)
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
@@ -100,7 +100,7 @@ contains
     !
     ! Surface velocity terms
     !
-    do i = 1, n
+    do concurrent (i = 1:n)
        wa1%x(i,1,1,1) = 0.0_rp
        wa2%x(i,1,1,1) = 0.0_rp
        wa3%x(i,1,1,1) = 0.0_rp
@@ -109,7 +109,7 @@ contains
     call bc_sym_surface%apply_surfvec(wa1%x,wa2%x,wa3%x,ta1%x, ta2%x, ta3%x, n)
 
     dtbd = bd / dt
-    do i = 1, n
+    do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = 0.0_rp
        ta2%x(i,1,1,1) = 0.0_rp
        ta3%x(i,1,1,1) = 0.0_rp
@@ -117,7 +117,7 @@ contains
 
     call bc_prs_surface%apply_surfvec(ta1%x, ta2%x, ta3%x, u%x, v%x, w%x, n)
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        p_res%x(i,1,1,1) = p_res%x(i,1,1,1) &
             - (dtbd * (ta1%x(i,1,1,1) + ta2%x(i,1,1,1) + ta3%x(i,1,1,1)))&
             - (wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1))
