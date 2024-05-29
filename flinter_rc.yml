@@ -157,13 +157,13 @@ regexp-rules:
     regexp: ^end$
     replacement: null
     active: true
-  
+
   not-recommended-bare-stop:
     message: Bare stop statement not recommended
     regexp: ^stop$
     replacement: null
     active: true
-  
+
   not-recommended-use-exit:
     message: exit is an extension and should be avoided
     regexp: ^exit$
@@ -175,25 +175,25 @@ regexp-rules:
     regexp: ^goto.*$
     replacement: null
     active: true
-  
+
   not-recommended-use-double-precision:
     message: double precision is discouraged; use real instead.
     regexp: ^double precision.*$
     replacement: null
     active: true
-  
+
   not-recommended-use-pause:
     message: pause is discouraged.
     regexp: ^pause.*$
     replacement: null
     active: true
-  
+
   not-recommended-use-include:
     message: include is discouraged, prefer use.
     regexp: ^include.*$
     replacement: null
     active: true
-  
+
   # AD : I did not understood what was tried there
   problem-kind:
     message: null
@@ -233,7 +233,7 @@ structure-rules:
 # These are the fortran syntax we use to parse the source
 # A priori there is no need to edit, but Fortran is so vast in time...
 fortran-syntax:
-  types: 
+  types:
       - real
       - character
       - logical
@@ -266,9 +266,10 @@ fortran-syntax:
       - 'while'
 
   ponctuations:
+    - ','
     - '\)'
     - ';'
-  
+
   blocks:
     - "program"
     - "subroutine"
