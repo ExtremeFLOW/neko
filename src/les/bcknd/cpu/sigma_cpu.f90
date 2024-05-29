@@ -158,80 +158,85 @@ contains
               if (abs(sigG12*sigG12 + sigG13*sigG13 + sigG23*sigG23).lt.eps) then
                  !             G is diagonal
                  ! estimate the singular values according to:
-                 sigma1=sqrt(max(max(max(sigG11, sigG22), sigG33), 0.0_rp))
-                 sigma3=sqrt(max(min(min(sigG11, sigG22), sigG33), 0.0_rp))
-                 Invariant1=sigG11 + sigG22 + sigG33
-                 sigma2=sqrt(abs(Invariant1 - sigma1*sigma1 - sigma3*sigma3))
+                 sigma1 = sqrt(max(max(max(sigG11, sigG22), sigG33), 0.0_rp))
+                 sigma3 = sqrt(max(min(min(sigG11, sigG22), sigG33), 0.0_rp))
+                 Invariant1 = sigG11 + sigG22 + sigG33
+                 sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1 - sigma3*sigma3))
               else
 
                  !  estimation of invariants
-                 Invariant1=sigG11 + sigG22 + sigG33
-                 Invariant2=sigG11*sigG22 + sigG11*sigG33 + sigG22*sigG33 - &
+                 Invariant1 = sigG11 + sigG22 + sigG33
+                 Invariant2 = sigG11*sigG22 + sigG11*sigG33 + sigG22*sigG33 - &
                            (sigG12*sigG12 + sigG13*sigG13 + sigG23*sigG23)
-                 Invariant3=sigG11*sigG22*sigG33 + 2.0_rp*sigG12*sigG13*sigG23 - &
+                 Invariant3 = sigG11*sigG22*sigG33 + 2.0_rp*sigG12*sigG13*sigG23 - &
                            (sigG11*sigG23*sigG23 + sigG22*sigG13*sigG13 + &
                             sigG33*sigG12*sigG12)
 
                  ! G is symmetric semi-definite positive matrix:
                  ! the invariants have to be larger-equal zero
                  ! which is obtained via forcing
-                 Invariant1=max(Invariant1, 0.0_rp)
-                 Invariant2=max(Invariant2, 0.0_rp)
-                 Invariant3=max(Invariant3, 0.0_rp)
+                 Invariant1 = max(Invariant1, 0.0_rp)
+                 Invariant2 = max(Invariant2, 0.0_rp)
+                 Invariant3 = max(Invariant3, 0.0_rp)
 
                  ! compute the following angles from the invariants
-                 alpha1=Invariant1*Invariant1/9.0_rp - Invariant2/3.0_rp
+                 alpha1 = Invariant1*Invariant1/9.0_rp - Invariant2/3.0_rp
 
                  ! since alpha1 is always positive (see Hasan et al. (2001))
                  ! forcing is applied
-                 alpha1=max(alpha1, 0.0_rp)
+                 alpha1 = max(alpha1, 0.0_rp)
 
-                 alpha2=Invariant1*Invariant1*Invariant1/27.0_rp - &
+                 alpha2 = Invariant1*Invariant1*Invariant1/27.0_rp - &
                         Invariant1*Invariant2/6.0_rp + Invariant3/2.0_rp
 
                  ! since acos(alpha2/(alpha1^(3/2)))/3.0_rp only valid for
                  ! alpha2^2 < alpha1^3.0_rp and arccos(x) only valid for -1<=x<=1
                  !  alpha3 is between 0 and pi/3
-                 tmp1=alpha2/(alpha1**(3.0_rp/2.0_rp))
+                 tmp1 = alpha2/(alpha1**(3.0_rp/2.0_rp))
 
                  if (tmp1.le.-1.0_rp) then
                     ! alpha3=pi/3 -> cos(alpha3)=0.5
                     ! compute the singular values
-                    sigma1=sqrt(max(Invariant1/3.0_rp + sqrt(alpha1),0.0_rp))
-                    sigma2=sigma1
-                    sigma3=sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1))
+                    sigma1 = sqrt(max(Invariant1/3.0_rp + sqrt(alpha1), 0.0_rp))
+                    sigma2 = sigma1
+                    sigma3 = sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1))
 
                 elseif (tmp1.ge.1.0_rp) then
                     ! alpha3=0.0_rp -> cos(alpha3)=1.0
-                    sigma1=sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1),0.0_rp))
-                    sigma2=sqrt(Invariant1/3.0_rp - sqrt(alpha1))
-                    sigma3=sigma2
+                    sigma1 = sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1), &
+                                      0.0_rp))
+                    sigma2 = sqrt(Invariant1/3.0_rp - sqrt(alpha1))
+                    sigma3 = sigma2
                 else
-                    alpha3=acos(tmp1)/3.0_rp
+                    alpha3 = acos(tmp1)/3.0_rp
 
                   if (abs(Invariant3).lt.eps) then
                      ! In case of Invariant3=0, one or more eigenvalues are equal to zero
                      ! Therefore force sigma3 to 0 and compute sigma1 and sigma2
-                     sigma1=sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1)*cos(alpha3),0.0_rp))
-                     sigma2=sqrt(abs(Invariant1 - sigma1*sigma1))
-                     sigma3=0.0_rp
+                     sigma1 = sqrt(max(Invariant1/3.0_rp + &
+                                   2.0_rp*sqrt(alpha1)*cos(alpha3), 0.0_rp))
+                     sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1))
+                     sigma3 = 0.0_rp
                   else
-                     sigma1=sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1)*cos(alpha3),0.0_rp))
-                     sigma2=sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1)*cos(pi_3+alpha3))
-                     sigma3=sqrt(abs(Invariant1 - sigma1*sigma1-sigma2*sigma2))
+                     sigma1 = sqrt(max(Invariant1/3.0_rp + &
+                                   2.0_rp*sqrt(alpha1)*cos(alpha3), 0.0_rp))
+                     sigma2 = sqrt(Invariant1/3.0_rp - &
+                                   2.0_rp*sqrt(alpha1)*cos(pi_3 + alpha3))
+                     sigma3 = sqrt(abs(Invariant1 - sigma1*sigma1-sigma2*sigma2))
                   endif ! Invariant3=0 ?
                 endif ! tmp1
               endif ! G diagonal ?
 
               ! Estimate Dsigma
               if (sigma1 .gt. 0.0_rp) then
-                 Dsigma=sigma3*(sigma1 - sigma2)*(sigma2 - sigma3)/(sigma1*sigma1)
+                 Dsigma = &
+                   sigma3*(sigma1 - sigma2)*(sigma2 - sigma3)/(sigma1*sigma1)
               else
-                 Dsigma=0.0_rp
+                 Dsigma = 0.0_rp
               endif
 
               !clipping to avoid negative values
-              Dsigma=max(Dsigma, 0.0_rp)
+              Dsigma = max(Dsigma, 0.0_rp)
 
               ! estimate turbulent viscosity
 
