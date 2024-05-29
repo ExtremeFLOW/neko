@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm
-  use ax_product, only : ax_t
+module ax_helm_cpu
+  use ax_helm, only : ax_helm_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -41,11 +41,11 @@ module ax_helm
   private
 
   !> CPU matrix-vector product for a Helmholtz problem.
-  type, public, extends(ax_t) :: ax_helm_t
+  type, public, extends(ax_helm_t) :: ax_helm_cpu_t
    contains
      !> Compute the product.
      procedure, nopass :: compute => ax_helm_compute
-  end type ax_helm_t
+  end type ax_helm_cpu_t
 
 contains
 
@@ -1917,4 +1917,4 @@ contains
     end do
   end subroutine ax_helm_lx2
 
-end module ax_helm
+end module ax_helm_cpu

@@ -551,8 +551,8 @@ contains
     type is(hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
-                  bclst, trim(pctype(6:)))
+             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
+                  trim(pctype(6:)))
           else
              call neko_error('Unknown coarse grid solver')
           end if
