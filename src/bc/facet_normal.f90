@@ -117,22 +117,22 @@ contains
          k = this%msk(i)
          facet = this%facet(i)
          idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
-         select case(facet)
-         case(1,2)
+         select case (facet)
+         case (1,2)
             x(k) = u(k) * c%nx(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
             y(k) = v(k) * c%ny(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
             z(k) = w(k) * c%nz(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
-         case(3,4)
+         case (3,4)
             x(k) = u(k) * c%nx(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
             y(k) = v(k) * c%ny(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
             z(k) = w(k) * c%nz(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
-         case(5,6)
+         case (5,6)
             x(k) = u(k) * c%nx(idx(1), idx(2), facet, idx(4)) &
                  * c%area(idx(1), idx(2), facet, idx(4))
             y(k) = v(k) * c%ny(idx(1), idx(2), facet, idx(4)) &

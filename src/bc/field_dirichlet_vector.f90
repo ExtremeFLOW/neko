@@ -165,13 +165,13 @@ contains
        call this%bc_v%apply_scalar(y, n, t, tstep)
        call this%bc_w%apply_scalar(z, n, t, tstep)
     else if (present(t)) then
-       call this%bc_u%apply_scalar(x, n, t=t)
-       call this%bc_v%apply_scalar(y, n, t=t)
-       call this%bc_w%apply_scalar(z, n, t=t)
+       call this%bc_u%apply_scalar(x, n, t = t)
+       call this%bc_v%apply_scalar(y, n, t = t)
+       call this%bc_w%apply_scalar(z, n, t = t)
     else if (present(tstep)) then
-       call this%bc_u%apply_scalar(x, n, tstep=tstep)
-       call this%bc_v%apply_scalar(y, n, tstep=tstep)
-       call this%bc_w%apply_scalar(z, n, tstep=tstep)
+       call this%bc_u%apply_scalar(x, n, tstep = tstep)
+       call this%bc_v%apply_scalar(y, n, tstep = tstep)
+       call this%bc_w%apply_scalar(z, n, tstep = tstep)
     end if
 
   end subroutine field_dirichlet_vector_apply_vector
@@ -195,13 +195,13 @@ contains
        call this%bc_v%apply_scalar_dev(y_d, t, tstep)
        call this%bc_w%apply_scalar_dev(z_d, t, tstep)
     else if (present(t)) then
-       call this%bc_u%apply_scalar_dev(x_d, t=t)
-       call this%bc_v%apply_scalar_dev(y_d, t=t)
-       call this%bc_w%apply_scalar_dev(z_d, t=t)
+       call this%bc_u%apply_scalar_dev(x_d, t = t)
+       call this%bc_v%apply_scalar_dev(y_d, t = t)
+       call this%bc_w%apply_scalar_dev(z_d, t = t)
     else if (present(tstep)) then
-       call this%bc_u%apply_scalar_dev(x_d, tstep=tstep)
-       call this%bc_v%apply_scalar_dev(y_d, tstep=tstep)
-       call this%bc_w%apply_scalar_dev(z_d, tstep=tstep)
+       call this%bc_u%apply_scalar_dev(x_d, tstep = tstep)
+       call this%bc_v%apply_scalar_dev(y_d, tstep = tstep)
+       call this%bc_w%apply_scalar_dev(z_d, tstep = tstep)
     end if
 
    end subroutine field_dirichlet_vector_apply_vector_dev

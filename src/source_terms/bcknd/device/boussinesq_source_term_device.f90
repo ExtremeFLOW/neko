@@ -61,7 +61,7 @@ contains
     n_fields = fields%size()
     n = fields%item_size(1)
 
-    do i=1, n_fields
+    do i = 1, n_fields
        call device_add2s2(fields%x_d(i), s%x_d, g(i)*beta, n)
        call device_cadd(fields%x_d(i), -g(i)*beta*ref_value, n)
     end do

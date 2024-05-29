@@ -65,7 +65,7 @@ contains
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
 
-    select case(Xh%lx)
+    select case (Xh%lx)
     case (14)
        call ax_helm_lx14(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
@@ -78,31 +78,31 @@ contains
     case (11)
        call ax_helm_lx11(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(10)
+    case (10)
        call ax_helm_lx10(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(9)
+    case (9)
        call ax_helm_lx9(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(8)
+    case (8)
        call ax_helm_lx8(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(7)
+    case (7)
        call ax_helm_lx7(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(6)
+    case (6)
        call ax_helm_lx6(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(5)
+    case (5)
        call ax_helm_lx5(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(4)
+    case (4)
        call ax_helm_lx4(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(3)
+    case (3)
        call ax_helm_lx3(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(2)
+    case (2)
        call ax_helm_lx2(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
     case default
@@ -110,7 +110,7 @@ contains
             coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv, Xh%lx)
     end select
 
-    if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%size())
+    if (coef%ifh2) call addcol4(w, coef%h2, coef%B, u, coef%dof%size())
 
 
   end subroutine ax_helm_compute
@@ -128,12 +128,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -239,12 +239,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -265,11 +265,11 @@ contains
                         + Dx(i,7) * u(7,j,1,e) &
                         + Dx(i,8) * u(8,j,1,e) &
                         + Dx(i,9) * u(9,j,1,e) &
-                        + Dx(i,10) * u(10,j,1,e) &
-                        + Dx(i,11) * u(11,j,1,e) &
-                        + Dx(i,12) * u(12,j,1,e) &
-                        + Dx(i,13) * u(13,j,1,e) &
-                        + Dx(i,14) * u(14,j,1,e)
+                        + Dx(i, 10) * u(10,j,1,e) &
+                        + Dx(i, 11) * u(11,j,1,e) &
+                        + Dx(i, 12) * u(12,j,1,e) &
+                        + Dx(i, 13) * u(13,j,1,e) &
+                        + Dx(i, 14) * u(14,j,1,e)
           end do
        end do
 
@@ -285,11 +285,11 @@ contains
                            + Dy(j,7) * u(i,7,k,e) &
                            + Dy(j,8) * u(i,8,k,e) &
                            + Dy(j,9) * u(i,9,k,e) &
-                           + Dy(j,10) * u(i,10,k,e) &
-                           + Dy(j,11) * u(i,11,k,e) &
-                           + Dy(j,12) * u(i,12,k,e) &
-                           + Dy(j,13) * u(i,13,k,e) &
-                           + Dy(j,14) * u(i,14,k,e)
+                           + Dy(j, 10) * u(i, 10,k,e) &
+                           + Dy(j, 11) * u(i, 11,k,e) &
+                           + Dy(j, 12) * u(i, 12,k,e) &
+                           + Dy(j, 13) * u(i, 13,k,e) &
+                           + Dy(j, 14) * u(i, 14,k,e)
              end do
           end do
        end do
@@ -305,11 +305,11 @@ contains
                         + Dz(k,7) * u(i,1,7,e) &
                         + Dz(k,8) * u(i,1,8,e) &
                         + Dz(k,9) * u(i,1,9,e) &
-                        + Dz(k,10) * u(i,1,10,e) &
-                        + Dz(k,11) * u(i,1,11,e) &
-                        + Dz(k,12) * u(i,1,12,e) &
-                        + Dz(k,13) * u(i,1,13,e) &
-                        + Dz(k,14) * u(i,1,14,e)
+                        + Dz(k, 10) * u(i,1, 10,e) &
+                        + Dz(k, 11) * u(i,1, 11,e) &
+                        + Dz(k, 12) * u(i,1, 12,e) &
+                        + Dz(k, 13) * u(i,1, 13,e) &
+                        + Dz(k, 14) * u(i,1, 14,e)
           end do
        end do
 
@@ -339,11 +339,11 @@ contains
                         + Dxt(i,7) * ur(7,j,1) &
                         + Dxt(i,8) * ur(8,j,1) &
                         + Dxt(i,9) * ur(9,j,1) &
-                        + Dxt(i,10) * ur(10,j,1) &
-                        + Dxt(i,11) * ur(11,j,1) &
-                        + Dxt(i,12) * ur(12,j,1) &
-                        + Dxt(i,13) * ur(13,j,1) &
-                        + Dxt(i,14) * ur(14,j,1)
+                        + Dxt(i, 10) * ur(10,j,1) &
+                        + Dxt(i, 11) * ur(11,j,1) &
+                        + Dxt(i, 12) * ur(12,j,1) &
+                        + Dxt(i, 13) * ur(13,j,1) &
+                        + Dxt(i, 14) * ur(14,j,1)
           end do
        end do
 
@@ -360,11 +360,11 @@ contains
                            + Dyt(j,7) * us(i,7,k) &
                            + Dyt(j,8) * us(i,8,k) &
                            + Dyt(j,9) * us(i,9,k) &
-                           + Dyt(j,10) * us(i,10,k) &
-                           + Dyt(j,11) * us(i,11,k) &
-                           + Dyt(j,12) * us(i,12,k) &
-                           + Dyt(j,13) * us(i,13,k) &
-                           + Dyt(j,14) * us(i,14,k)
+                           + Dyt(j, 10) * us(i, 10,k) &
+                           + Dyt(j, 11) * us(i, 11,k) &
+                           + Dyt(j, 12) * us(i, 12,k) &
+                           + Dyt(j, 13) * us(i, 13,k) &
+                           + Dyt(j, 14) * us(i, 14,k)
              end do
           end do
        end do
@@ -381,11 +381,11 @@ contains
                         + Dzt(k,7) * ut(i,1,7) &
                         + Dzt(k,8) * ut(i,1,8) &
                         + Dzt(k,9) * ut(i,1,9) &
-                        + Dzt(k,10) * ut(i,1,10) &
-                        + Dzt(k,11) * ut(i,1,11) &
-                        + Dzt(k,12) * ut(i,1,12) &
-                        + Dzt(k,13) * ut(i,1,13) &
-                        + Dzt(k,14) * ut(i,1,14)
+                        + Dzt(k, 10) * ut(i,1, 10) &
+                        + Dzt(k, 11) * ut(i,1, 11) &
+                        + Dzt(k, 12) * ut(i,1, 12) &
+                        + Dzt(k, 13) * ut(i,1, 13) &
+                        + Dzt(k, 14) * ut(i,1, 14)
           end do
        end do
 
@@ -405,12 +405,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -431,10 +431,10 @@ contains
                         + Dx(i,7) * u(7,j,1,e) &
                         + Dx(i,8) * u(8,j,1,e) &
                         + Dx(i,9) * u(9,j,1,e) &
-                        + Dx(i,10) * u(10,j,1,e) &
-                        + Dx(i,11) * u(11,j,1,e) &
-                        + Dx(i,12) * u(12,j,1,e) &
-                        + Dx(i,13) * u(13,j,1,e)
+                        + Dx(i, 10) * u(10,j,1,e) &
+                        + Dx(i, 11) * u(11,j,1,e) &
+                        + Dx(i, 12) * u(12,j,1,e) &
+                        + Dx(i, 13) * u(13,j,1,e)
 
           end do
        end do
@@ -451,10 +451,10 @@ contains
                            + Dy(j,7) * u(i,7,k,e) &
                            + Dy(j,8) * u(i,8,k,e) &
                            + Dy(j,9) * u(i,9,k,e) &
-                           + Dy(j,10) * u(i,10,k,e) &
-                           + Dy(j,11) * u(i,11,k,e) &
-                           + Dy(j,12) * u(i,12,k,e) &
-                           + Dy(j,13) * u(i,13,k,e)
+                           + Dy(j, 10) * u(i, 10,k,e) &
+                           + Dy(j, 11) * u(i, 11,k,e) &
+                           + Dy(j, 12) * u(i, 12,k,e) &
+                           + Dy(j, 13) * u(i, 13,k,e)
              end do
           end do
        end do
@@ -470,10 +470,10 @@ contains
                         + Dz(k,7) * u(i,1,7,e) &
                         + Dz(k,8) * u(i,1,8,e) &
                         + Dz(k,9) * u(i,1,9,e) &
-                        + Dz(k,10) * u(i,1,10,e) &
-                        + Dz(k,11) * u(i,1,11,e) &
-                        + Dz(k,12) * u(i,1,12,e) &
-                        + Dz(k,13) * u(i,1,13,e)
+                        + Dz(k, 10) * u(i,1, 10,e) &
+                        + Dz(k, 11) * u(i,1, 11,e) &
+                        + Dz(k, 12) * u(i,1, 12,e) &
+                        + Dz(k, 13) * u(i,1, 13,e)
           end do
        end do
 
@@ -503,10 +503,10 @@ contains
                         + Dxt(i,7) * ur(7,j,1) &
                         + Dxt(i,8) * ur(8,j,1) &
                         + Dxt(i,9) * ur(9,j,1) &
-                        + Dxt(i,10) * ur(10,j,1) &
-                        + Dxt(i,11) * ur(11,j,1) &
-                        + Dxt(i,12) * ur(12,j,1) &
-                        + Dxt(i,13) * ur(13,j,1)
+                        + Dxt(i, 10) * ur(10,j,1) &
+                        + Dxt(i, 11) * ur(11,j,1) &
+                        + Dxt(i, 12) * ur(12,j,1) &
+                        + Dxt(i, 13) * ur(13,j,1)
           end do
        end do
 
@@ -523,10 +523,10 @@ contains
                            + Dyt(j,7) * us(i,7,k) &
                            + Dyt(j,8) * us(i,8,k) &
                            + Dyt(j,9) * us(i,9,k) &
-                           + Dyt(j,10) * us(i,10,k) &
-                           + Dyt(j,11) * us(i,11,k) &
-                           + Dyt(j,12) * us(i,12,k) &
-                           + Dyt(j,13) * us(i,13,k)
+                           + Dyt(j, 10) * us(i, 10,k) &
+                           + Dyt(j, 11) * us(i, 11,k) &
+                           + Dyt(j, 12) * us(i, 12,k) &
+                           + Dyt(j, 13) * us(i, 13,k)
              end do
           end do
        end do
@@ -543,10 +543,10 @@ contains
                         + Dzt(k,7) * ut(i,1,7) &
                         + Dzt(k,8) * ut(i,1,8) &
                         + Dzt(k,9) * ut(i,1,9) &
-                        + Dzt(k,10) * ut(i,1,10) &
-                        + Dzt(k,11) * ut(i,1,11) &
-                        + Dzt(k,12) * ut(i,1,12) &
-                        + Dzt(k,13) * ut(i,1,13)
+                        + Dzt(k, 10) * ut(i,1, 10) &
+                        + Dzt(k, 11) * ut(i,1, 11) &
+                        + Dzt(k, 12) * ut(i,1, 12) &
+                        + Dzt(k, 13) * ut(i,1, 13)
           end do
        end do
 
@@ -566,12 +566,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -592,9 +592,9 @@ contains
                         + Dx(i,7) * u(7,j,1,e) &
                         + Dx(i,8) * u(8,j,1,e) &
                         + Dx(i,9) * u(9,j,1,e) &
-                        + Dx(i,10) * u(10,j,1,e) &
-                        + Dx(i,11) * u(11,j,1,e) &
-                        + Dx(i,12) * u(12,j,1,e)
+                        + Dx(i, 10) * u(10,j,1,e) &
+                        + Dx(i, 11) * u(11,j,1,e) &
+                        + Dx(i, 12) * u(12,j,1,e)
           end do
        end do
 
@@ -610,9 +610,9 @@ contains
                            + Dy(j,7) * u(i,7,k,e) &
                            + Dy(j,8) * u(i,8,k,e) &
                            + Dy(j,9) * u(i,9,k,e) &
-                           + Dy(j,10) * u(i,10,k,e) &
-                           + Dy(j,11) * u(i,11,k,e) &
-                           + Dy(j,12) * u(i,12,k,e)
+                           + Dy(j, 10) * u(i, 10,k,e) &
+                           + Dy(j, 11) * u(i, 11,k,e) &
+                           + Dy(j, 12) * u(i, 12,k,e)
              end do
           end do
        end do
@@ -628,9 +628,9 @@ contains
                         + Dz(k,7) * u(i,1,7,e) &
                         + Dz(k,8) * u(i,1,8,e) &
                         + Dz(k,9) * u(i,1,9,e) &
-                        + Dz(k,10) * u(i,1,10,e) &
-                        + Dz(k,11) * u(i,1,11,e) &
-                        + Dz(k,12) * u(i,1,12,e)
+                        + Dz(k, 10) * u(i,1, 10,e) &
+                        + Dz(k, 11) * u(i,1, 11,e) &
+                        + Dz(k, 12) * u(i,1, 12,e)
           end do
        end do
 
@@ -660,9 +660,9 @@ contains
                         + Dxt(i,7) * ur(7,j,1) &
                         + Dxt(i,8) * ur(8,j,1) &
                         + Dxt(i,9) * ur(9,j,1) &
-                        + Dxt(i,10) * ur(10,j,1) &
-                        + Dxt(i,11) * ur(11,j,1) &
-                        + Dxt(i,12) * ur(12,j,1)
+                        + Dxt(i, 10) * ur(10,j,1) &
+                        + Dxt(i, 11) * ur(11,j,1) &
+                        + Dxt(i, 12) * ur(12,j,1)
           end do
        end do
 
@@ -679,9 +679,9 @@ contains
                            + Dyt(j,7) * us(i,7,k) &
                            + Dyt(j,8) * us(i,8,k) &
                            + Dyt(j,9) * us(i,9,k) &
-                           + Dyt(j,10) * us(i,10,k) &
-                           + Dyt(j,11) * us(i,11,k) &
-                           + Dyt(j,12) * us(i,12,k)
+                           + Dyt(j, 10) * us(i, 10,k) &
+                           + Dyt(j, 11) * us(i, 11,k) &
+                           + Dyt(j, 12) * us(i, 12,k)
              end do
           end do
        end do
@@ -698,9 +698,9 @@ contains
                         + Dzt(k,7) * ut(i,1,7) &
                         + Dzt(k,8) * ut(i,1,8) &
                         + Dzt(k,9) * ut(i,1,9) &
-                        + Dzt(k,10) * ut(i,1,10) &
-                        + Dzt(k,11) * ut(i,1,11) &
-                        + Dzt(k,12) * ut(i,1,12)
+                        + Dzt(k, 10) * ut(i,1, 10) &
+                        + Dzt(k, 11) * ut(i,1, 11) &
+                        + Dzt(k, 12) * ut(i,1, 12)
           end do
        end do
 
@@ -720,12 +720,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -746,8 +746,8 @@ contains
                         + Dx(i,7) * u(7,j,1,e) &
                         + Dx(i,8) * u(8,j,1,e) &
                         + Dx(i,9) * u(9,j,1,e) &
-                        + Dx(i,10) * u(10,j,1,e) &
-                        + Dx(i,11) * u(11,j,1,e)
+                        + Dx(i, 10) * u(10,j,1,e) &
+                        + Dx(i, 11) * u(11,j,1,e)
           end do
        end do
 
@@ -763,8 +763,8 @@ contains
                            + Dy(j,7) * u(i,7,k,e) &
                            + Dy(j,8) * u(i,8,k,e) &
                            + Dy(j,9) * u(i,9,k,e) &
-                           + Dy(j,10) * u(i,10,k,e) &
-                           + Dy(j,11) * u(i,11,k,e)
+                           + Dy(j, 10) * u(i, 10,k,e) &
+                           + Dy(j, 11) * u(i, 11,k,e)
              end do
           end do
        end do
@@ -780,8 +780,8 @@ contains
                         + Dz(k,7) * u(i,1,7,e) &
                         + Dz(k,8) * u(i,1,8,e) &
                         + Dz(k,9) * u(i,1,9,e) &
-                        + Dz(k,10) * u(i,1,10,e) &
-                        + Dz(k,11) * u(i,1,11,e)
+                        + Dz(k, 10) * u(i,1, 10,e) &
+                        + Dz(k, 11) * u(i,1, 11,e)
           end do
        end do
 
@@ -811,8 +811,8 @@ contains
                         + Dxt(i,7) * ur(7,j,1) &
                         + Dxt(i,8) * ur(8,j,1) &
                         + Dxt(i,9) * ur(9,j,1) &
-                        + Dxt(i,10) * ur(10,j,1) &
-                        + Dxt(i,11) * ur(11,j,1)
+                        + Dxt(i, 10) * ur(10,j,1) &
+                        + Dxt(i, 11) * ur(11,j,1)
           end do
        end do
 
@@ -829,8 +829,8 @@ contains
                            + Dyt(j,7) * us(i,7,k) &
                            + Dyt(j,8) * us(i,8,k) &
                            + Dyt(j,9) * us(i,9,k) &
-                           + Dyt(j,10) * us(i,10,k) &
-                           + Dyt(j,11) * us(i,11,k)
+                           + Dyt(j, 10) * us(i, 10,k) &
+                           + Dyt(j, 11) * us(i, 11,k)
              end do
           end do
        end do
@@ -847,8 +847,8 @@ contains
                         + Dzt(k,7) * ut(i,1,7) &
                         + Dzt(k,8) * ut(i,1,8) &
                         + Dzt(k,9) * ut(i,1,9) &
-                        + Dzt(k,10) * ut(i,1,10) &
-                        + Dzt(k,11) * ut(i,1,11)
+                        + Dzt(k, 10) * ut(i,1, 10) &
+                        + Dzt(k, 11) * ut(i,1, 11)
           end do
        end do
 
@@ -868,12 +868,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -894,7 +894,7 @@ contains
                         + Dx(i,7) * u(7,j,1,e) &
                         + Dx(i,8) * u(8,j,1,e) &
                         + Dx(i,9) * u(9,j,1,e) &
-                        + Dx(i,10) * u(10,j,1,e)
+                        + Dx(i, 10) * u(10,j,1,e)
           end do
        end do
 
@@ -910,7 +910,7 @@ contains
                            + Dy(j,7) * u(i,7,k,e) &
                            + Dy(j,8) * u(i,8,k,e) &
                            + Dy(j,9) * u(i,9,k,e) &
-                           + Dy(j,10) * u(i,10,k,e)
+                           + Dy(j, 10) * u(i, 10,k,e)
              end do
           end do
        end do
@@ -926,7 +926,7 @@ contains
                         + Dz(k,7) * u(i,1,7,e) &
                         + Dz(k,8) * u(i,1,8,e) &
                         + Dz(k,9) * u(i,1,9,e) &
-                        + Dz(k,10) * u(i,1,10,e)
+                        + Dz(k, 10) * u(i,1, 10,e)
           end do
        end do
 
@@ -956,7 +956,7 @@ contains
                         + Dxt(i,7) * ur(7,j,1) &
                         + Dxt(i,8) * ur(8,j,1) &
                         + Dxt(i,9) * ur(9,j,1) &
-                        + Dxt(i,10) * ur(10,j,1)
+                        + Dxt(i, 10) * ur(10,j,1)
           end do
        end do
 
@@ -973,7 +973,7 @@ contains
                            + Dyt(j,7) * us(i,7,k) &
                            + Dyt(j,8) * us(i,8,k) &
                            + Dyt(j,9) * us(i,9,k) &
-                           + Dyt(j,10) * us(i,10,k)
+                           + Dyt(j, 10) * us(i, 10,k)
              end do
           end do
        end do
@@ -990,7 +990,7 @@ contains
                         + Dzt(k,7) * ut(i,1,7) &
                         + Dzt(k,8) * ut(i,1,8) &
                         + Dzt(k,9) * ut(i,1,9) &
-                        + Dzt(k,10) * ut(i,1,10)
+                        + Dzt(k, 10) * ut(i,1, 10)
           end do
        end do
 
@@ -1010,12 +1010,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -1146,12 +1146,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -1276,12 +1276,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -1400,12 +1400,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -1518,12 +1518,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -1630,12 +1630,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -1736,12 +1736,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)
@@ -1836,12 +1836,12 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp) :: ur(lx, lx, lx)
     real(kind=rp) :: us(lx, lx, lx)
     real(kind=rp) :: ut(lx, lx, lx)

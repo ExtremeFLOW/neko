@@ -84,7 +84,7 @@ contains
     allocate(this%q(n))
     allocate(this%r(n))
     allocate(this%s(n))
-    allocate(this%u(n,PIPECG_P_SPACE+1))
+    allocate(this%u(n, PIPECG_P_SPACE+1))
     allocate(this%w(n))
     allocate(this%z(n))
     allocate(this%mi(n))
@@ -96,9 +96,9 @@ contains
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
     else
        call this%ksp_init(max_iter)
     end if
@@ -183,8 +183,8 @@ contains
       call rzero(p, n)
       call rzero(s, n)
       call copy(r, f, n)
-      call this%M%solve(u(1,u_prev), r, n)
-      call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
+      call this%M%solve(u(1, u_prev), r, n)
+      call Ax%compute(w, u(1, u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
       call bc_list_apply(blst, w, n)
 
@@ -193,15 +193,15 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) return
+      if (abscmp(rnorm, 0.0_rp)) return
 
       gamma1 = 0.0_rp
       tmp1 = 0.0_rp
       tmp2 = 0.0_rp
       tmp3 = 0.0_rp
       do i = 1, n
-         tmp1 = tmp1 + r(i) * coef%mult(i,1,1,1) * u(i,u_prev)
-         tmp2 = tmp2 + w(i) * coef%mult(i,1,1,1) * u(i,u_prev)
+         tmp1 = tmp1 + r(i) * coef%mult(i,1,1,1) * u(i, u_prev)
+         tmp2 = tmp2 + w(i) * coef%mult(i,1,1,1) * u(i, u_prev)
          tmp3 = tmp3 + r(i) * coef%mult(i,1,1,1) * r(i)
       end do
       reduction(1) = tmp1
@@ -244,10 +244,10 @@ contains
                   q(i+k) = beta(p_cur) * q(i+k) + mi(i+k)
                   s(i+k) = beta(p_cur) * s(i+k) + w(i+k)
                   r(i+k) =  r(i+k) - alpha(p_cur) * s(i+k)
-                  u(i+k,p_cur) =  u(i+k,u_prev) - alpha(p_cur) * q(i+k)
+                  u(i+k, p_cur) =  u(i+k, u_prev) - alpha(p_cur) * q(i+k)
                   w(i+k) =  w(i+k) - alpha(p_cur) * z(i+k)
-                  tmp1 = tmp1 + r(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
-                  tmp2 = tmp2 + w(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
+                  tmp1 = tmp1 + r(i+k) * coef%mult(i+k,1,1,1) * u(i+k, p_cur)
+                  tmp2 = tmp2 + w(i+k) * coef%mult(i+k,1,1,1) * u(i+k, p_cur)
                   tmp3 = tmp3 + r(i+k) * coef%mult(i+k,1,1,1) * r(i+k)
                end do
             else
@@ -256,10 +256,10 @@ contains
                   q(i+k) = beta(p_cur) * q(i+k) + mi(i+k)
                   s(i+k) = beta(p_cur) * s(i+k) + w(i+k)
                   r(i+k) =  r(i+k) - alpha(p_cur) * s(i+k)
-                  u(i+k,p_cur) =  u(i+k,u_prev) - alpha(p_cur) * q(i+k)
+                  u(i+k, p_cur) =  u(i+k, u_prev) - alpha(p_cur) * q(i+k)
                   w(i+k) =  w(i+k) - alpha(p_cur) * z(i+k)
-                  tmp1 = tmp1 + r(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
-                  tmp2 = tmp2 + w(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
+                  tmp1 = tmp1 + r(i+k) * coef%mult(i+k,1,1,1) * u(i+k, p_cur)
+                  tmp2 = tmp2 + w(i+k) * coef%mult(i+k,1,1,1) * u(i+k, p_cur)
                   tmp3 = tmp3 + r(i+k) * coef%mult(i+k,1,1,1) * r(i+k)
                end do
             end if
@@ -278,26 +278,26 @@ contains
                   p_prev = PIPECG_P_SPACE+1
                   do j = 1, p_cur
                      do k = 1, NEKO_BLK_SIZE
-                        p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
+                        p(i+k) = beta(j) * p(i+k) + u(i+k, p_prev)
                         x_plus(k) = x_plus(k) + alpha(j) * p(i+k)
                      end do
                      p_prev = j
                   end do
                   do k = 1, NEKO_BLK_SIZE
                      x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-                     u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
+                     u(i+k, PIPECG_P_SPACE+1) = u(i+k, PIPECG_P_SPACE)
                   end do
                else
                   do k = 1, n-i
                      x_plus(1) = 0.0_rp
                      p_prev = PIPECG_P_SPACE + 1
                      do j = 1, p_cur
-                        p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
+                        p(i+k) = beta(j) * p(i+k) + u(i+k, p_prev)
                         x_plus(1) = x_plus(1) + alpha(j) * p(i+k)
                         p_prev = j
                      end do
                      x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
-                     u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
+                     u(i+k, PIPECG_P_SPACE+1) = u(i+k, PIPECG_P_SPACE)
                   end do
                end if
             end do
@@ -322,26 +322,26 @@ contains
                p_prev = PIPECG_P_SPACE+1
                do j = 1, p_cur
                   do k = 1, NEKO_BLK_SIZE
-                     p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
+                     p(i+k) = beta(j) * p(i+k) + u(i+k, p_prev)
                      x_plus(k) = x_plus(k) + alpha(j) * p(i+k)
                   end do
                   p_prev = j
                end do
                do k = 1, NEKO_BLK_SIZE
                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-                  u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
+                  u(i+k, PIPECG_P_SPACE+1) = u(i+k, PIPECG_P_SPACE)
                end do
             else
                do k = 1, n-i
                   x_plus(1) = 0.0_rp
                   p_prev = PIPECG_P_SPACE + 1
                   do j = 1, p_cur
-                     p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
+                     p(i+k) = beta(j) * p(i+k) + u(i+k, p_prev)
                      x_plus(1) = x_plus(1) + alpha(j) * p(i+k)
                      p_prev = j
                   end do
                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
-                  u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
+                  u(i+k, PIPECG_P_SPACE+1) = u(i+k, PIPECG_P_SPACE)
                end do
             end if
          end do

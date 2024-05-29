@@ -275,7 +275,7 @@ contains
 
     ! Create list with just Neumann bcs
     call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
-    do i=1, this%n_neumann_bcs
+    do i = 1, this%n_neumann_bcs
        call this%neumann_bcs(i)%finalize()
        call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
     end do
@@ -385,7 +385,7 @@ contains
     ! Setup right-hand side field.
     !
     allocate(this%f_Xh)
-    call this%f_Xh%init(this%dm_Xh, fld_name="scalar_rhs")
+    call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
     call this%source_term%init(params, this%f_Xh, this%c_Xh, user)
@@ -418,7 +418,7 @@ contains
     !
     this%field_dir_bc%update => user%user_dirichlet_update
 
-    call bc_list_init(this%field_dirichlet_bcs, size=1)
+    call bc_list_init(this%field_dirichlet_bcs, size = 1)
     call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
 
 

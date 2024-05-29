@@ -454,7 +454,7 @@ contains
     call this%user_field_bc_vel%field_list%assign_to_field(4, &
             this%user_field_bc_prs%field_bc)
 
-    call bc_list_init(this%user_field_bc_vel%bc_list, size=4)
+    call bc_list_init(this%user_field_bc_vel%bc_list, size = 4)
     ! Note, bc_list_add only adds if the bc is not empty
     call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_u)
     call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_v)
@@ -463,7 +463,7 @@ contains
     !
     ! Check if we need to output boundaries
     !
-    call json_get_or_default(params, 'case.output_boundary', logical_val,&
+    call json_get_or_default(params, 'case.output_boundary', logical_val, &
                              .false.)
 
     if (logical_val) then
@@ -530,9 +530,9 @@ contains
     allocate(this%f_x)
     allocate(this%f_y)
     allocate(this%f_z)
-    call this%f_x%init(this%dm_Xh, fld_name="fluid_rhs_x")
-    call this%f_y%init(this%dm_Xh, fld_name="fluid_rhs_y")
-    call this%f_z%init(this%dm_Xh, fld_name="fluid_rhs_z")
+    call this%f_x%init(this%dm_Xh, fld_name = "fluid_rhs_x")
+    call this%f_y%init(this%dm_Xh, fld_name = "fluid_rhs_y")
+    call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
 
     ! Initialize the source term
     call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&

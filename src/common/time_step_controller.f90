@@ -99,7 +99,7 @@ contains
     real(kind=rp), intent(inout) :: cfl_avrg
     real(kind=rp) :: dt_old, scaling_factor
     character(len=LOG_SIZE) :: log_buf
-    integer, intent(in):: tstep
+    integer, intent(in) :: tstep
 
     if (this%if_variable_dt .eqv. .true.) then
        if (tstep .eq. 1) then

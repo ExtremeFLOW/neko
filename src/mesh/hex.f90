@@ -128,7 +128,7 @@ module hex
                                                                 2,6,&
                                                                 3,7,&
                                                                 4,8/),&
-                                                                (/2,12/))
+                                                                (/2, 12/))
 
 contains
 
@@ -157,7 +157,7 @@ contains
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
     integer :: i, j, temp
-    type(point_t), pointer :: p1,p2,p3,p4
+    type(point_t), pointer :: p1, p2, p3, p4
 
     p1 => this%p(face_nodes(1, side))
     p2 => this%p(face_nodes(2, side))
@@ -169,13 +169,13 @@ contains
        t%x = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
        do i = 1, 3
           do j = i+1,4
-             if(t%x(j) .lt. t%x(i)) then
+             if (t%x(j) .lt. t%x(i)) then
                 temp = t%x(i)
                 t%x(i) = t%x(j)
                 t%x(j) = temp
-             endif
-          enddo
-       enddo
+             end if
+          end do
+       end do
     end select
 
   end subroutine hex_facet_id
@@ -185,7 +185,7 @@ contains
     class(hex_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    type(point_t), pointer :: p1,p2,p3,p4
+    type(point_t), pointer :: p1, p2, p3, p4
 
     p1 => this%p(face_nodes(1, side))
     p2 => this%p(face_nodes(2, side))
@@ -205,7 +205,7 @@ contains
     class(hex_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    type(point_t), pointer :: p1,p2
+    type(point_t), pointer :: p1, p2
 
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
@@ -216,7 +216,7 @@ contains
           t%x = (/ p1%id(), p2%id() /)
        else
           t%x = (/ p2%id(), p1%id() /)
-       endif
+       end if
 
     end select
 

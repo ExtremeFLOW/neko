@@ -60,7 +60,7 @@ contains
     n_fields = fields%size()
     n = fields%item_size(1)
 
-    do i=1, n_fields
+    do i = 1, n_fields
        call add2s2(fields%items(i)%ptr%x, s%x, g(i)*beta, n)
        call cadd(fields%items(i)%ptr%x, -g(i)*beta*ref_value, n)
     end do

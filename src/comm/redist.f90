@@ -309,23 +309,23 @@ contains
        if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
           call neko_error('Missing element after redistribution')
        end if
-       select case(zp(i)%type)
-       case(1)
+       select case (zp(i)%type)
+       case (1)
           call msh%mark_wall_facet(zp(i)%f, new_el_idx)
-       case(2)
+       case (2)
           call msh%mark_inlet_facet(zp(i)%f, new_el_idx)
-       case(3)
+       case (3)
           call msh%mark_outlet_facet(zp(i)%f, new_el_idx)
-       case(4)
+       case (4)
           call msh%mark_sympln_facet(zp(i)%f, new_el_idx)
-       case(5)
+       case (5)
           if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
              call neko_error('Missing periodic element after redistribution')
           end if
 
           call msh%mark_periodic_facet(zp(i)%f, new_el_idx, &
                zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
-       case(7)
+       case (7)
           call msh%mark_labeled_facet(zp(i)%f, new_el_idx, zp(i)%p_f)
        end select
     end do
@@ -333,8 +333,8 @@ contains
        if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
           call neko_error('Missing element after redistribution')
        end if
-       select case(zp(i)%type)
-       case(5)
+       select case (zp(i)%type)
+       case (5)
           if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
              call neko_error('Missing periodic element after redistribution')
           end if

@@ -105,8 +105,8 @@ contains
     logical, intent(in) :: shrd
 
     if (.not. shrd) then
-       associate(w=>this%local_wrk)
-         select case(op)
+       associate(w => this%local_wrk)
+         select case (op)
          case (GS_OP_ADD)
             call gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b, w)
          case (GS_OP_MUL)
@@ -118,8 +118,8 @@ contains
          end select
        end associate
     else if (shrd) then
-       associate(w=>this%shared_wrk)
-         select case(op)
+       associate(w => this%shared_wrk)
+         select case (op)
          case (GS_OP_ADD)
             call gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b, w)
          case (GS_OP_MUL)

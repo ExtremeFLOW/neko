@@ -29,7 +29,7 @@ contains
     call this%free()
 
     !> Setup velocity fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx, param, kspv_init=.true., scheme=scheme)
+    call this%scheme_init(msh, lx, param, kspv_init = .true., scheme = scheme)
 
     !> Setup pressure field and related space \f$ Yh \f$
     lx2 = lx - 2

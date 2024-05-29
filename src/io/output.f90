@@ -68,7 +68,7 @@ contains
     integer, intent(in), optional :: precision
 
     if (present(precision)) then
-       this%file_ = file_t(fname, precision=precision)
+       this%file_ = file_t(fname, precision = precision)
     else
        this%file_ = file_t(fname)
     end if

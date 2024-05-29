@@ -77,12 +77,12 @@ contains
        facet = this%facet(i)
        idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
                              this%coef%Xh%lx)
-       select case(facet)
-       case(1,2)
+       select case (facet)
+       case (1,2)
           x(k) = x(k) + this%flux_*this%coef%area(idx(2), idx(3), facet, idx(4))
-       case(3,4)
+       case (3,4)
           x(k) = x(k) + this%flux_*this%coef%area(idx(1), idx(3), facet, idx(4))
-       case(5,6)
+       case (5,6)
           x(k) = x(k) + this%flux_*this%coef%area(idx(1), idx(2), facet, idx(4))
        end select
     end do

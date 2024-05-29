@@ -52,7 +52,7 @@ module mean_sqr_flow_output
 contains
 
   function mean_sqr_flow_output_init(msqrf, T_begin, name, path) result(this)
-    type(mean_sqr_flow_t), intent(in), target ::msqrf
+    type(mean_sqr_flow_t), intent(in), target :: msqrf
     real(kind=rp), intent(in) :: T_begin
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path

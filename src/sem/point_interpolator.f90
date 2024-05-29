@@ -143,7 +143,7 @@ contains
     real(kind=rp), allocatable :: res(:)
 
     real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
-    integer :: lx,ly,lz, i
+    integer :: lx, ly, lz, i
     integer :: N
     lx = this%Xh%lx
     ly = this%Xh%ly
@@ -160,7 +160,7 @@ contains
     call fd_weights_full(real(rst(1)%x(3), rp), this%Xh%zg(:,3), lz-1, 0, ht)
 
     ! And interpolate!
-    call triple_tensor_product(res(1),X,lx,hr,hs,ht)
+    call triple_tensor_product(res(1), X, lx, hr, hs, ht)
 
     if (N .eq. 1) return
 
@@ -207,7 +207,7 @@ contains
     type(point_t), allocatable :: res(:)
     real(kind=rp), allocatable :: tmp(:,:)
     real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
-    integer :: lx,ly,lz, i
+    integer :: lx, ly, lz, i
     integer :: N
     lx = this%Xh%lx
     ly = this%Xh%ly
@@ -283,7 +283,7 @@ contains
     type(point_t) :: res
     real(kind=rp) :: tmp(3)
 
-    integer :: lx,ly,lz, i
+    integer :: lx, ly, lz, i
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
@@ -293,7 +293,7 @@ contains
     !
     call fd_weights_full(real(rst%x(1), rp), this%Xh%zg(:,1), lx-1, 1, hr)
     call fd_weights_full(real(rst%x(2), rp), this%Xh%zg(:,2), ly-1, 1, hs)
-    call fd_weights_full(real(rst%x(3), rp),this%Xh%zg(:,3), lz-1, 1, ht)
+    call fd_weights_full(real(rst%x(3), rp), this%Xh%zg(:,3), lz-1, 1, ht)
 
     !
     ! Interpolate

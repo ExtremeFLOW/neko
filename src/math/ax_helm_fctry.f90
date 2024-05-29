@@ -58,7 +58,7 @@ contains
        allocate(ax_helm_sx_t::Ax)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        allocate(ax_helm_xsmm_t::Ax)
-    else if (NEKO_BCKND_DEVICE .eq. 1)then
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        allocate(ax_helm_device_t::Ax)
     else
        allocate(ax_helm_t::Ax)

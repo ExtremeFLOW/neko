@@ -42,7 +42,7 @@ module system
      !! of length `len` and `c_char` kind.
      !! @param len The maximum anticipated length of the retrieved name.
      subroutine system_cpuid(name, len) &
-          bind(c, name='system_cpuid')
+          bind(c, name = 'system_cpuid')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: name
        integer(c_int), value :: len
@@ -63,7 +63,7 @@ contains
     call system_cpuid(c_loc(c_name), 80)
 
     end_pos = scan(c_name, C_NULL_CHAR)
-    if(end_pos .ge. 2) then
+    if (end_pos .ge. 2) then
        name(1:end_pos-1) = c_name(1:end_pos-1)
     end if
   end subroutine system_cpu_name

@@ -120,9 +120,9 @@ contains
     nl = Xh%lx + 2 !Schwarz!
     nelv = dm%msh%nelv
     call fdm_free(this)
-    allocate(this%s(nl*nl,2,dm%msh%gdim, dm%msh%nelv))
-    allocate(this%d(nl**3,dm%msh%nelv))
-    allocate(this%swplen(Xh%lx, Xh%lx, Xh%lx,dm%msh%nelv))
+    allocate(this%s(nl*nl,2, dm%msh%gdim, dm%msh%nelv))
+    allocate(this%d(nl**3, dm%msh%nelv))
+    allocate(this%swplen(Xh%lx, Xh%lx, Xh%lx, dm%msh%nelv))
     allocate(this%len_lr(nelv), this%len_ls(nelv), this%len_lt(nelv))
     allocate(this%len_mr(nelv), this%len_ms(nelv), this%len_mt(nelv))
     allocate(this%len_rr(nelv), this%len_rs(nelv), this%len_rt(nelv))
@@ -132,9 +132,9 @@ contains
     call rzero(this%swplen, Xh%lxyz * dm%msh%nelv)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv)
-       call device_map(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv)
-       call device_map(this%swplen,this%swplen_d, Xh%lxyz*dm%msh%nelv)
+       call device_map(this%s, this%s_d, nl*nl*2*dm%msh%gdim*dm%msh%nelv)
+       call device_map(this%d, this%d_d, nl**dm%msh%gdim*dm%msh%nelv)
+       call device_map(this%swplen, this%swplen_d, Xh%lxyz*dm%msh%nelv)
     end if
 
     call semhat(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, n, wh)
@@ -149,21 +149,21 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s, this%s_d, &
-            nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
+            nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%d, this%d_d, &
-            nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
+            nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%swplen, this%swplen_d, &
-            Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
+            Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE, sync = .false.)
     end if
   end subroutine fdm_init
 
   subroutine swap_lengths(this, x, y, z, nelv, gdim)
     type(fdm_t), intent(inout) :: this
     integer, intent(in) :: gdim, nelv
-    real(kind=rp), dimension(this%Xh%lxyz,nelv) , intent(in):: x, y, z
+    real(kind=rp), dimension(this%Xh%lxyz, nelv), intent(in) :: x, y, z
     integer :: j, k, e, n2, nz0, nzn, nx, lx1, n
 
-    associate(l => this%swplen, Xh =>this%Xh, &
+    associate(l => this%swplen, Xh => this%Xh, &
          llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
          lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
          lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
@@ -180,9 +180,9 @@ contains
            nx, n2, nz0, nzn, nelv, gdim)
       n = n2 + 1
       if (gdim .eq. 3) then
-         do e = 1,nelv
-            do j = 2,n2
-               do k = 2,n2
+         do e = 1, nelv
+            do j = 2, n2
+               do k = 2, n2
                   l(1,k,j,e) = lmr(e)
                   l(n,k,j,e) = lmr(e)
                   l(k,1,j,e) = lms(e)
@@ -194,15 +194,15 @@ contains
          end do
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+                               HOST_TO_DEVICE, sync = .false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               DEVICE_TO_HOST, sync=.false.)
+                               DEVICE_TO_HOST, sync = .false.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
 
-         do e = 1,nelv
+         do e = 1, nelv
             llr(e) = l(1,2,2,e) - lmr(e)
             lrr(e) = l(n,2,2,e) - lmr(e)
             lls(e) = l(2,1,2,e) - lms(e)
@@ -211,8 +211,8 @@ contains
             lrt(e) = l(2,2,n,e) - lmt(e)
          end do
       else
-         do e = 1,nelv
-            do j = 2,n2
+         do e = 1, nelv
+            do j = 2, n2
                l(1,j,1,e) = lmr(e)
                l(n,j,1,e) = lmr(e)
                l(j,1,1,e) = lms(e)
@@ -222,15 +222,15 @@ contains
 
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+                               HOST_TO_DEVICE, sync = .false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               DEVICE_TO_HOST, sync=.true.)
+                               DEVICE_TO_HOST, sync = .true.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
 
-         do e = 1,nelv
+         do e = 1, nelv
             llr(e) = l(1,2,1,e) - lmr(e)
             lrr(e) = l(n,2,1,e) - lmr(e)
             lls(e) = l(2,1,1,e) - lms(e)
@@ -248,9 +248,9 @@ contains
     integer, intent(in) :: nxn, nzn, i1, i2, nelv, gdim, nx, nz0
     real(kind=rp), intent(inout) :: lr(nelv), ls(nelv), lt(nelv)
     real(kind=rp), intent(inout) :: w(nx)
-    real(kind=rp), intent(in) :: x(0:nxn,0:nxn,nz0:nzn,nelv)
-    real(kind=rp), intent(in) :: y(0:nxn,0:nxn,nz0:nzn,nelv)
-    real(kind=rp), intent(in) :: z(0:nxn,0:nxn,nz0:nzn,nelv)
+    real(kind=rp), intent(in) :: x(0:nxn, 0:nxn, nz0:nzn, nelv)
+    real(kind=rp), intent(in) :: y(0:nxn, 0:nxn, nz0:nzn, nelv)
+    real(kind=rp), intent(in) :: z(0:nxn, 0:nxn, nz0:nzn, nelv)
     real(kind=rp) ::  lr2, ls2, lt2, weight, wsum
     integer :: ny, nz, j1, k1, j2, k2, i, j, k, ie
     ny = nx
@@ -260,17 +260,17 @@ contains
     j2 = i2
     k2 = i2
     !   Now, for each element, compute lr,ls,lt between specified planes
-    do ie = 1,nelv
+    do ie = 1, nelv
        if (gdim .eq. 3) then
           lr2  = 0d0
           wsum = 0d0
-          do k = 1,nz
-             do j = 1,ny
+          do k = 1, nz
+             do j = 1, ny
                 weight = w(j)*w(k)
                 lr2  = lr2  +   weight /&
-                     ( (x(i2,j,k,ie)-x(i1,j,k,ie))**2&
-                     +   (y(i2,j,k,ie)-y(i1,j,k,ie))**2&
-                     +   (z(i2,j,k,ie)-z(i1,j,k,ie))**2 )
+                     ( (x(i2,j,k, ie)-x(i1,j,k, ie))**2&
+                     +   (y(i2,j,k, ie)-y(i1,j,k, ie))**2&
+                     +   (z(i2,j,k, ie)-z(i1,j,k, ie))**2 )
                 wsum = wsum + weight
              end do
           end do
@@ -278,13 +278,13 @@ contains
           lr(ie)  = 1d0/sqrt(lr2)
           ls2 = 0d0
           wsum = 0d0
-          do k = 1,nz
-             do i = 1,nx
+          do k = 1, nz
+             do i = 1, nx
                 weight = w(i)*w(k)
                 ls2  = ls2  +   weight / &
-                     ( (x(i,j2,k,ie)-x(i,j1,k,ie))**2 &
-                     +   (y(i,j2,k,ie)-y(i,j1,k,ie))**2 &
-                     +   (z(i,j2,k,ie)-z(i,j1,k,ie))**2 )
+                     ( (x(i, j2,k, ie)-x(i, j1,k, ie))**2 &
+                     +   (y(i, j2,k, ie)-y(i, j1,k, ie))**2 &
+                     +   (z(i, j2,k, ie)-z(i, j1,k, ie))**2 )
                 wsum = wsum + weight
              end do
           end do
@@ -292,13 +292,13 @@ contains
           ls(ie)  = 1d0/sqrt(ls2)
           lt2 = 0d0
           wsum = 0d0
-          do j=1,ny
-             do i=1,nx
+          do j = 1, ny
+             do i = 1, nx
                 weight = w(i)*w(j)
                 lt2  = lt2  +   weight / &
-                     ( (x(i,j,k2,ie)-x(i,j,k1,ie))**2 &
-                     +   (y(i,j,k2,ie)-y(i,j,k1,ie))**2 &
-                     +   (z(i,j,k2,ie)-z(i,j,k1,ie))**2 )
+                     ( (x(i,j, k2, ie)-x(i,j, k1, ie))**2 &
+                     +   (y(i,j, k2, ie)-y(i,j, k1, ie))**2 &
+                     +   (z(i,j, k2, ie)-z(i,j, k1, ie))**2 )
                 wsum = wsum + weight
              end do
           end do
@@ -307,28 +307,28 @@ contains
        else              ! 2D
           lr2 = 0d0
           wsum = 0d0
-          do j=1,ny
+          do j = 1, ny
              weight = w(j)
              lr2  = lr2  + weight / &
-                          ( (x(i2,j,1,ie)-x(i1,j,1,ie))**2 &
-                          + (y(i2,j,1,ie)-y(i1,j,1,ie))**2 )
+                          ( (x(i2,j,1, ie)-x(i1,j,1, ie))**2 &
+                          + (y(i2,j,1, ie)-y(i1,j,1, ie))**2 )
              wsum = wsum + weight
-          enddo
+          end do
           lr2     = lr2/wsum
           lr(ie)  = 1d0/sqrt(lr2)
           ls2 = 0d0
           wsum = 0d0
-          do i=1,nx
+          do i = 1, nx
              weight = w(i)
              ls2  = ls2  + weight / &
-                          ( (x(i,j2,1,ie)-x(i,j1,1,ie))**2 &
-                        +   (y(i,j2,1,ie)-y(i,j1,1,ie))**2 )
+                          ( (x(i, j2,1, ie)-x(i, j1,1, ie))**2 &
+                        +   (y(i, j2,1, ie)-y(i, j1,1, ie))**2 )
              wsum = wsum + weight
-          enddo
+          end do
           ls2     = ls2/wsum
           ls(ie)  = 1d0/sqrt(ls2)
-       endif
-    enddo
+       end if
+    end do
     ie = 1014
   end subroutine plane_space
 
@@ -336,7 +336,7 @@ contains
   subroutine fdm_setup_fast(this, ah, bh, nl, n)
     integer, intent(in) :: nl, n
     type(fdm_t), intent(inout) :: this
-    real(kind=rp), intent(inout) ::  ah(n+1,n+1), bh(n+1)
+    real(kind=rp), intent(inout) ::  ah(n+1, n+1), bh(n+1)
     real(kind=rp), dimension(2*this%Xh%lx + 4) :: lr, ls, lt
     integer :: i, j, k
     integer :: ie, il, nr, ns, nt
@@ -347,7 +347,7 @@ contains
               llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
               lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
               lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
-      do ie=1,this%dof%msh%nelv
+      do ie = 1, this%dof%msh%nelv
          lbr = this%dof%msh%facet_type(1, ie)
          rbr = this%dof%msh%facet_type(2, ie)
          lbs = this%dof%msh%facet_type(3, ie)
@@ -358,46 +358,46 @@ contains
          nr = nl
          ns = nl
          nt = nl
-         call fdm_setup_fast1d(s(1,1,1,ie), lr, nr, lbr, rbr, &
+         call fdm_setup_fast1d(s(1,1,1, ie), lr, nr, lbr, rbr, &
               llr(ie), lmr(ie), lrr(ie), ah, bh, n)
-         call fdm_setup_fast1d(s(1,1,2,ie), ls, ns, lbs, rbs, &
+         call fdm_setup_fast1d(s(1,1,2, ie), ls, ns, lbs, rbs, &
               lls(ie), lms(ie), lrs(ie), ah, bh, n)
-         if(this%dof%msh%gdim .eq. 3) then
-            call fdm_setup_fast1d(s(1,1,3,ie), lt, nt, lbt, rbt, &
+         if (this%dof%msh%gdim .eq. 3) then
+            call fdm_setup_fast1d(s(1,1,3, ie), lt, nt, lbt, rbt, &
                  llt(ie), lmt(ie), lrt(ie), ah, bh, n)
          end if
 
          il = 1
-         if(.not. this%dof%msh%gdim .eq. 3) then
+         if (.not. this%dof%msh%gdim .eq. 3) then
             eps = 1d-5 * (vlmax(lr(2), nr-2) + vlmax(ls(2), ns-2))
             do j = 1, ns
                do i = 1, nr
                   diag = lr(i) + ls(j)
                   if (diag .gt. eps) then
-                     d(il,ie) = 1.0_rp / diag
+                     d(il, ie) = 1.0_rp / diag
                   else
-                     d(il,ie) = 0.0_rp
-                  endif
+                     d(il, ie) = 0.0_rp
+                  end if
                   il = il + 1
                end do
             end do
          else
             eps = 1d-5 * (vlmax(lr(2), nr-2) + &
-                 vlmax(ls(2),ns-2) + vlmax(lt(2), nt-2))
+                 vlmax(ls(2), ns-2) + vlmax(lt(2), nt-2))
             do k = 1, nt
                do j = 1, ns
                   do i = 1, nr
                      diag = lr(i) + ls(j) + lt(k)
                      if (diag .gt. eps) then
-                        d(il,ie) = 1.0_rp / diag
+                        d(il, ie) = 1.0_rp / diag
                      else
-                        d(il,ie) = 0.0_rp
-                     endif
+                        d(il, ie) = 0.0_rp
+                     end if
                      il = il + 1
                   end do
                end do
             end do
-         endif
+         end if
       end do
     end associate
 
@@ -416,10 +416,10 @@ contains
     call fdm_setup_fast1d_a(s, lbc, rbc, ll, lm, lr, ah, n)
     call fdm_setup_fast1d_b(b, lbc, rbc, ll, lm, lr, bh, n)
     call generalev(s, b, lam, nl, lx1)
-    if(lbc .gt. 0) call row_zero(s, nl, nl, 1)
-    if(lbc .eq. 1) call row_zero(s, nl, nl, 2)
-    if(rbc .gt. 0) call row_zero(s, nl, nl, nl)
-    if(rbc .eq. 1) call row_zero(s, nl, nl, nl-1)
+    if (lbc .gt. 0) call row_zero(s, nl, nl, 1)
+    if (lbc .eq. 1) call row_zero(s, nl, nl, 2)
+    if (rbc .gt. 0) call row_zero(s, nl, nl, nl)
+    if (rbc .eq. 1) call row_zero(s, nl, nl, nl-1)
 
     call trsp(s(1,1,2), nl, s, nl)
 
@@ -478,16 +478,16 @@ contains
   end subroutine qp_sygv
 
   subroutine fdm_setup_fast1d_a(a, lbc, rbc, ll, lm, lr, ah, n)
-    integer, intent(in) ::lbc, rbc, n
-    real(kind=rp), intent(inout) :: a(0:n+2,0:n+2), ll, lm, lr
-    real(kind=rp), intent(inout) :: ah(0:n,0:n)
+    integer, intent(in) :: lbc, rbc, n
+    real(kind=rp), intent(inout) :: a(0:n+2, 0:n+2), ll, lm, lr
+    real(kind=rp), intent(inout) :: ah(0:n, 0:n)
     real(kind=rp) :: fac
     integer :: i, j, i0, i1
 
     i0 = 0
-    if(lbc .eq. 1) i0 = 1
+    if (lbc .eq. 1) i0 = 1
     i1 = n
-    if(rbc .eq. 1) i1 = n - 1
+    if (rbc .eq. 1) i1 = n - 1
 
     call rzero(a, (n+3) * (n+3))
 
@@ -498,28 +498,28 @@ contains
     do j = i0, i1
        do i = i0, i1
           a(i+1,j+1) = fac * ah(i,j)
-       enddo
-    enddo
+       end do
+    end do
 
-    if(lbc .eq. 0) then
+    if (lbc .eq. 0) then
        fac = 2.0_rp / ll
-       a(0,0) = fac * ah(n-1,n-1)
-       a(1,0) = fac * ah(n  ,n-1)
+       a(0, 0) = fac * ah(n-1,n-1)
+       a(1, 0) = fac * ah(n  ,n-1)
        a(0,1) = fac * ah(n-1,n  )
        a(1,1) = a(1,1) + fac * ah(n,n)
     else
-       a(0,0) = 1.0_rp
-    endif
+       a(0, 0) = 1.0_rp
+    end if
 
-    if(rbc .eq. 0) then
+    if (rbc .eq. 0) then
        fac = 2.0_rp / lr
-       a(n+1,n+1) = a(n+1,n+1) + fac*ah(0,0)
-       a(n+2,n+1) = fac * ah(1,0)
+       a(n+1,n+1) = a(n+1,n+1) + fac*ah(0, 0)
+       a(n+2,n+1) = fac * ah(1, 0)
        a(n+1,n+2) = fac * ah(0,1)
        a(n+2,n+2) = fac * ah(1,1)
     else
        a(n+2,n+2) = 1.0_rp
-    endif
+    end if
 
   end subroutine fdm_setup_fast1d_a
 
@@ -531,9 +531,9 @@ contains
     integer :: i, i0, i1
 
     i0 = 0
-    if(lbc .eq. 1) i0 = 1
+    if (lbc .eq. 1) i0 = 1
     i1 = n
-    if(rbc .eq. 1) i1 = n - 1
+    if (rbc .eq. 1) i1 = n - 1
 
     call rzero(b, (n + 3) * (n + 3))
 
@@ -545,15 +545,15 @@ contains
        b(i+1,i+1) = fac * bh(i)
     end do
 
-    if(lbc .eq. 0) then
+    if (lbc .eq. 0) then
        fac = 0.5_rp * ll
-       b(0,0) = fac * bh(n-1)
+       b(0, 0) = fac * bh(n-1)
        b(1,1) = b(1,1) + fac * bh(n)
     else
-       b(0,0) = 1.0_rp
+       b(0, 0) = 1.0_rp
     end if
 
-    if(rbc .eq. 0) then
+    if (rbc .eq. 0) then
        fac = 0.5_rp * lr
        b(n+1,n+1) = b(n+1,n+1) + fac * bh(0)
        b(n+2,n+2) = fac * bh(1)
@@ -566,51 +566,51 @@ contains
   subroutine fdm_free(this)
     class(fdm_t), intent(inout) :: this
 
-    if(allocated(this%s)) then
+    if (allocated(this%s)) then
        deallocate(this%s)
     end if
 
-    if(allocated(this%d)) then
+    if (allocated(this%d)) then
        deallocate(this%d)
     end if
 
-    if(allocated(this%len_lr)) then
+    if (allocated(this%len_lr)) then
        deallocate(this%len_lr)
     end if
 
-    if(allocated(this%len_ls)) then
+    if (allocated(this%len_ls)) then
        deallocate(this%len_ls)
     end if
 
-    if(allocated(this%len_lt)) then
+    if (allocated(this%len_lt)) then
        deallocate(this%len_lt)
     end if
 
-    if(allocated(this%len_mr)) then
+    if (allocated(this%len_mr)) then
        deallocate(this%len_mr)
     end if
 
-    if(allocated(this%len_ms)) then
+    if (allocated(this%len_ms)) then
        deallocate(this%len_ms)
     end if
 
-    if(allocated(this%len_mt)) then
+    if (allocated(this%len_mt)) then
        deallocate(this%len_mt)
     end if
 
-    if(allocated(this%len_rr)) then
+    if (allocated(this%len_rr)) then
        deallocate(this%len_rr)
     end if
 
-    if(allocated(this%len_rs)) then
+    if (allocated(this%len_rs)) then
        deallocate(this%len_rs)
     end if
 
-    if(allocated(this%len_rt)) then
+    if (allocated(this%len_rt)) then
        deallocate(this%len_rt)
     end if
 
-    if(allocated(this%swplen)) then
+    if (allocated(this%swplen)) then
        deallocate(this%swplen)
     end if
 

@@ -112,7 +112,7 @@ contains
     end if
 
 
-    open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
+    open(unit = 9, file = trim(this%fname), status = 'old', iostat = ierr)
     call neko_log%message('Reading NEKTON file ' // this%fname)
 
     read(9, *)
@@ -147,19 +147,19 @@ contains
     ! Read mesh info
     read(9, *)
     read(9, *)
-    read(9, *) nelgs,ndim, nelgv
+    read(9, *) nelgs, ndim, nelgv
     if (nelgs .lt. 0) then
        re2_fname = trim(this%fname(1:scan(trim(this%fname), &
-            '.', back=.true.)))//'re2'
+            '.', back = .true.)))//'re2'
        call re2_file%init(re2_fname)
        call re2_file%read(msh)
     else
        write(log_buf,1) ndim, nelgv
-1      format('gdim = ', i1, ', nelements =', i7)
+1      format('gdim = ', i1, ', nelements = ', i7)
        call neko_log%message(log_Buf)
 
        call filename_chsuffix(this%fname, map_fname, 'map')
-       inquire(file=map_fname, exist=read_map)
+       inquire(file = map_fname, exist = read_map)
        if (read_map) then
           call map_init(nm, nelgv, 2**ndim)
           call map_file%init(map_fname)
@@ -183,26 +183,26 @@ contains
        do i = 1, nelgv
           read(9, *)
           if (ndim .eq. 2) then
-             read(9, *) (xc(j),j=1,4)
-             read(9, *) (yc(j),j=1,4)
+             read(9, *) (xc(j), j = 1,4)
+             read(9, *) (yc(j), j = 1,4)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 4
-                   p(j) = point_t(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
+                   p(j) = point_t(real(xc(j), dp), real(yc(j), dp), real(0d0, dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
                 call msh%add_element(el_idx, p(1), p(2), p(4), p(3))
              end if
           else if (ndim .eq. 3) then
-             read(9, *) (xc(j),j=1,4)
-             read(9, *) (yc(j),j=1,4)
-             read(9, *) (zc(j),j=1,4)
-             read(9, *) (xc(j),j=5,8)
-             read(9, *) (yc(j),j=5,8)
-             read(9, *) (zc(j),j=5,8)
+             read(9, *) (xc(j), j = 1,4)
+             read(9, *) (yc(j), j = 1,4)
+             read(9, *) (zc(j), j = 1,4)
+             read(9, *) (xc(j), j = 5,8)
+             read(9, *) (yc(j), j = 5,8)
+             read(9, *) (zc(j), j = 5,8)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 8
-                   p(j) = point_t(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
+                   p(j) = point_t(real(xc(j), dp), real(yc(j), dp), real(zc(j), dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
@@ -219,9 +219,9 @@ contains
 
        read(9, *)
        read(9, *) ncurve
-       allocate(curve_data(5,8,nelgv))
+       allocate(curve_data(5,8, nelgv))
        allocate(curve_element(nelgv))
-       allocate(curve_type(8,nelgv))
+       allocate(curve_type(8, nelgv))
        do i = 1, nelgv
           curve_element(i) = .false.
           do j = 1, 8
@@ -232,22 +232,22 @@ contains
           end do
        end do
        do i = 1, ncurve
-          read(9, *) edge, el_idx, (curve(j),j=1,5), chtemp
+          read(9, *) edge, el_idx, (curve(j), j = 1,5), chtemp
           do j = 1, 5
-             curve_data(j,edge,el_idx) = curve(j)
+             curve_data(j, edge, el_idx) = curve(j)
           end do
           curve_element(el_idx) = .true.
-          select case(trim(chtemp))
+          select case (trim(chtemp))
           case ('s')
-             curve_type(edge,el_idx) = 1
+             curve_type(edge, el_idx) = 1
              curve_skip = .true.
           case ('e')
-             curve_type(edge,el_idx) = 2
+             curve_type(edge, el_idx) = 2
              curve_skip = .true.
           case ('C')
-             curve_type(edge,el_idx) = 3
+             curve_type(edge, el_idx) = 3
           case ('m')
-             curve_type(edge,el_idx) = 4
+             curve_type(edge, el_idx) = 4
           end select
        end do
        if (curve_skip) then
@@ -256,7 +256,7 @@ contains
           do el_idx = 1, nelgv
              if (curve_element(el_idx)) then
                 call msh%mark_curve_element(el_idx, &
-                     curve_data(1,1,el_idx), curve_type(1,el_idx))
+                     curve_data(1,1, el_idx), curve_type(1, el_idx))
              end if
           end do
        end if
@@ -268,8 +268,8 @@ contains
        read(9,*)
        read(9,*)
        if (.not. read_bcs) then ! Mark zones in the mesh
-          allocate(cbc(6,nelgv))
-          allocate(bc_data(6,2*ndim,nelgv))
+          allocate(cbc(6, nelgv))
+          allocate(bc_data(6,2*ndim, nelgv))
           off = 0
           !Fix for different horrible .rea periodic bc formats.
           if (nelgv .lt. 1000) off = 1
@@ -277,9 +277,9 @@ contains
              if (i .ge. start_el .and. i .le. end_el) then
                 el_idx = i - start_el + 1
                 do j = 1, 2*ndim
-                   read(9, *) cbc(j, i), (bc_data(l,j,i),l=1,6)
+                   read(9, *) cbc(j, i), (bc_data(l,j,i), l = 1, 6)
                    sym_facet = facet_map(j)
-                   select case(trim(cbc(j,i)))
+                   select case (trim(cbc(j,i)))
                    case ('W')
                       call msh%mark_wall_facet(sym_facet, el_idx)
                    case ('v', 'V')
@@ -305,7 +305,7 @@ contains
                 el_idx = i - start_el + 1
                 do j = 1, 2*ndim
                    sym_facet = facet_map(j)
-                   select case(trim(cbc(j,i)))
+                   select case (trim(cbc(j,i)))
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
@@ -320,7 +320,7 @@ contains
                 el_idx = i - start_el + 1
                 do j = 1, 2*ndim
                    sym_facet = facet_map(j)
-                   select case(trim(cbc(j,i)))
+                   select case (trim(cbc(j,i)))
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
@@ -335,7 +335,7 @@ contains
                 el_idx = i - start_el + 1
                 do j = 1, 2*ndim
                    sym_facet = facet_map(j)
-                   select case(trim(cbc(j,i)))
+                   select case (trim(cbc(j,i)))
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
@@ -348,7 +348,7 @@ contains
           deallocate(cbc)
           deallocate(bc_data)
        else  ! Store bcs in a NEKTON session structure
-          allocate(cbc(6,nelgv))
+          allocate(cbc(6, nelgv))
           do i = 1, nelgv
              do j = 1, 2*ndim
                 read(9,'(a1, a3)') chtemp, cbc(j, i)
@@ -360,7 +360,7 @@ contains
 
        call neko_log%message('Done')
        close(9)
-    endif
+    end if
 
   end subroutine rea_file_read
 

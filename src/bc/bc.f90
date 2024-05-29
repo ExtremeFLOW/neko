@@ -299,22 +299,22 @@ contains
     integer :: i, j, k, l, msh_bc_type
 
     msh_bc_type = 0
-    if(trim(bc_key) .eq. 'o' .or. trim(bc_key) .eq. 'on' &
+    if (trim(bc_key) .eq. 'o' .or. trim(bc_key) .eq. 'on' &
        .or. trim(bc_key) .eq. 'o+dong' .or. trim(bc_key) .eq. 'on+dong') then
        msh_bc_type = 1
-    else if(trim(bc_key) .eq. 'd_pres') then
+    else if (trim(bc_key) .eq. 'd_pres') then
        msh_bc_type = 1
-    else if(trim(bc_key) .eq. 'w') then
+    else if (trim(bc_key) .eq. 'w') then
        msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'v') then
+    else if (trim(bc_key) .eq. 'v') then
        msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'd_vel_u') then
+    else if (trim(bc_key) .eq. 'd_vel_u') then
        msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'd_vel_v') then
+    else if (trim(bc_key) .eq. 'd_vel_v') then
        msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'd_vel_w') then
+    else if (trim(bc_key) .eq. 'd_vel_w') then
        msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'sym') then
+    else if (trim(bc_key) .eq. 'sym') then
        msh_bc_type = 2
     end if
 
@@ -325,7 +325,7 @@ contains
           if (trim(bc_key) .eq. trim(bc_labels(i))) then
              call bc_mark_zone(this, bc_zones(i))
              ! Loop across all faces in the mesh
-             do j = 1,this%msh%nelv
+             do j = 1, this%msh%nelv
                 do k = 1, 2 * this%msh%gdim
                    if (this%msh%facet_type(k,j) .eq. -i) then
                       this%msh%facet_type(k,j) = msh_bc_type
@@ -339,7 +339,7 @@ contains
              if (trim(split_key(l)) .eq. trim(bc_key)) then
                 call bc_mark_zone(this, bc_zones(i))
                 ! Loop across all faces in the mesh
-                do j = 1,this%msh%nelv
+                do j = 1, this%msh%nelv
                    do k = 1, 2 * this%msh%gdim
                       if (this%msh%facet_type(k,j) .eq. -i) then
                          this%msh%facet_type(k,j) = msh_bc_type
@@ -391,7 +391,7 @@ contains
           do l = 1, lz
              do k = 1, ly
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(1,k,l,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(1,k,l, el, lx, ly, lz)
                 this%facet(msk_c) = 1
              end do
           end do
@@ -399,39 +399,39 @@ contains
           do l = 1, lz
              do k = 1, ly
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(lx,k,l,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(lx,k,l, el, lx, ly, lz)
                 this%facet(msk_c) = 2
              end do
           end do
-       case(3)
+       case (3)
           do l = 1, lz
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j,1,l,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(j,1,l, el, lx, ly, lz)
                 this%facet(msk_c) = 3
              end do
           end do
-       case(4)
+       case (4)
           do l = 1, lz
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j,ly,l,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(j, ly,l, el, lx, ly, lz)
                 this%facet(msk_c) = 4
              end do
           end do
-       case(5)
+       case (5)
           do k = 1, ly
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j,k,1,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(j,k,1, el, lx, ly, lz)
                 this%facet(msk_c) = 5
              end do
           end do
-       case(6)
+       case (6)
           do k = 1, ly
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j,k,lz,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(j,k, lz, el, lx, ly, lz)
                 this%facet(msk_c) = 6
              end do
           end do
@@ -447,9 +447,9 @@ contains
        call device_map(this%facet, this%facet_d, n)
 
        call device_memcpy(this%msk, this%msk_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%facet, this%facet_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine bc_finalize
@@ -503,7 +503,7 @@ contains
     type(bcp_t), allocatable :: tmp(:)
 
     !> Do not add if bc is empty
-    if(bc%marked_facet%size() .eq. 0) return
+    if (bc%marked_facet%size() .eq. 0) return
 
     if (bclst%n .ge. bclst%size) then
        bclst%size = bclst%size * 2
@@ -535,15 +535,15 @@ contains
        x_d = device_get_ptr(x)
        if (present(t) .and. present(tstep)) then
           do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t, tstep=tstep)
+             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t = t, tstep = tstep)
           end do
        else if (present(t)) then
           do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t)
+             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t = t)
           end do
        else if (present(tstep)) then
           do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, tstep=tstep)
+             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, tstep = tstep)
           end do
        else
           do i = 1, bclst%n
@@ -557,11 +557,11 @@ contains
           end do
        else if (present(t)) then
           do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n, t=t)
+             call bclst%bc(i)%bcp%apply_scalar(x, n, t = t)
           end do
        else if (present(tstep)) then
           do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n, tstep=tstep)
+             call bclst%bc(i)%bcp%apply_scalar(x, n, tstep = tstep)
           end do
        else
           do i = 1, bclst%n
@@ -602,11 +602,11 @@ contains
           end do
        else if (present(t)) then
           do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t=t)
+             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t = t)
           end do
        else if (present(tstep)) then
           do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
+             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, tstep = tstep)
           end do
        else
           do i = 1, bclst%n
@@ -620,11 +620,11 @@ contains
           end do
        else if (present(t)) then
           do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t=t)
+             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t = t)
           end do
        else if (present(tstep)) then
           do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, tstep=tstep)
+             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, tstep = tstep)
           end do
        else
           do i = 1, bclst%n

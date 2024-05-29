@@ -83,7 +83,7 @@ contains
   subroutine lambda2_init_from_json(this, json, case)
     class(lambda2_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    class(case_t), intent(inout), target ::case
+    class(case_t), intent(inout), target :: case
     character(len=20) :: fields(1)
 
     ! Add fields keyword to the json so that the field_writer picks it up.

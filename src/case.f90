@@ -83,7 +83,7 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
-     type(material_properties_t):: material_properties
+     type(material_properties_t) :: material_properties
   end type case_t
 
   interface case_init
@@ -106,7 +106,7 @@ contains
                           NEKO_LOG_QUIET)
 
     if (pe_rank .eq. 0) then
-       call C%params%load_file(filename=trim(case_file))
+       call C%params%load_file(filename = trim(case_file))
        call C%params%print_to_string(json_buffer)
        integer_val = len(json_buffer)
     end if
@@ -374,10 +374,10 @@ contains
     call C%s%init(C%end_time)
     if (scalar) then
        C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
-            path=trim(output_directory))
+            path = trim(output_directory))
     else
        C%f_out = fluid_output_t(precision, C%fluid, &
-            path=trim(output_directory))
+            path = trim(output_directory))
     end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
@@ -405,8 +405,8 @@ contains
     if (logical_val) then
        call json_get_or_default(C%params, 'case.checkpoint_format', &
             string_val, "chkp")
-       C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory, &
-            fmt=trim(string_val))
+       C%f_chkp = chkp_output_t(C%fluid%chkp, path = output_directory, &
+            fmt = trim(string_val))
        call json_get_or_default(C%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
        call json_get_or_default(C%params, 'case.checkpoint_value', real_val,&
@@ -442,7 +442,7 @@ contains
           call C%q%add(C%fluid%mean%p)
 
           C%f_mf = mean_flow_output_t(C%fluid%mean, stats_start_time, &
-                                      path=output_directory)
+                                      path = output_directory)
 
           call json_get(C%params, 'case.statistics.output_control', &
                         string_val)
@@ -453,7 +453,7 @@ contains
           call C%q%add(C%fluid%stats)
 
           C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
-            stats_start_time, path=output_directory)
+            stats_start_time, path = output_directory)
           call C%s%add(C%f_stats_output, stats_output_val, string_val)
        end if
     end if
@@ -467,7 +467,7 @@ contains
 !       if (C%params%output_mean_sqr_flow) then
 !          C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
 !                                             C%params%stats_begin, &
-!                                             path=output_directory)
+!                                             path = output_directory)
 !          call C%s%add(C%f_msqrf, C%params%stats_write_par, &
 !               C%params%stats_write_control)
 !       end if

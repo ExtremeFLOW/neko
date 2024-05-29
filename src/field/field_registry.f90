@@ -79,7 +79,7 @@ contains
   !! @param size The allocation size of `fields` on init.
   !! @param expansion_size The number of entries added to `fields` on expansion.
   subroutine field_registry_init(this, size, expansion_size)
-    class(field_registry_t), intent(inout):: this
+    class(field_registry_t), intent(inout) :: this
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
 
@@ -102,10 +102,10 @@ contains
 
   !> Destructor
   subroutine field_registry_free(this)
-    class(field_registry_t), intent(inout):: this
+    class(field_registry_t), intent(inout) :: this
     integer :: i
     if (allocated(this%fields)) then
-       do i=1, this%n_fields()
+       do i = 1, this%n_fields()
           call this%fields(i)%free()
        end do
        deallocate(this%fields)
@@ -196,7 +196,7 @@ contains
        call neko_error("Field index must be > 1")
     else if (i > this%n_fields()) then
        call neko_error("Field index exceeds number of stored fields")
-    endif
+    end if
 
     f => this%fields(i)
   end function get_field_by_index
@@ -204,14 +204,14 @@ contains
   !> Get pointer to a stored field by field name.
   function get_field_by_name(this, name) result(f)
     class(field_registry_t), target, intent(in) :: this
-    character(len=*), intent(in) ::name
+    character(len=*), intent(in) :: name
     type(field_t), pointer :: f
     logical :: found
     integer :: i
 
     found = .false.
    
-    do i=1, this%n_fields()
+    do i = 1, this%n_fields()
        if (this%fields(i)%name == name) then
           f => this%fields(i)
           found = .true.
@@ -228,12 +228,12 @@ contains
   !> Check if a field with a given name is already in the registry.
   function field_exists(this, name) result(found)
     class(field_registry_t), target, intent(in) :: this
-    character(len=*), intent(in) ::name
+    character(len=*), intent(in) :: name
     logical :: found
     integer :: i
 
     found = .false.
-    do i=1, this%n_fields()
+    do i = 1, this%n_fields()
        if (this%fields(i)%name == name) then
           found = .true.
           exit

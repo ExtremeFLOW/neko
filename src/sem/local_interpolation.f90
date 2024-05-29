@@ -94,9 +94,9 @@ contains
 
     this%Xh => Xh
     this%n_points = n_points
-    allocate(this%weights_r(Xh%lx,n_points))
-    allocate(this%weights_s(Xh%ly,n_points))
-    allocate(this%weights_t(Xh%lz,n_points))
+    allocate(this%weights_r(Xh%lx, n_points))
+    allocate(this%weights_s(Xh%ly, n_points))
+    allocate(this%weights_t(Xh%lz, n_points))
     call this%compute_weights(r, s, t)
     size_weights = Xh%lx * n_points
 
@@ -120,9 +120,9 @@ contains
 
     if (associated(this%Xh)) this%Xh => null()
 
-    if(allocated(this%weights_r)) deallocate(this%weights_r)
-    if(allocated(this%weights_s)) deallocate(this%weights_s)
-    if(allocated(this%weights_t)) deallocate(this%weights_t)
+    if (allocated(this%weights_r)) deallocate(this%weights_r)
+    if (allocated(this%weights_s)) deallocate(this%weights_s)
+    if (allocated(this%weights_t)) deallocate(this%weights_t)
     if (c_associated(this%weights_r_d)) then
        call device_free(this%weights_r_d)
     end if
@@ -172,7 +172,7 @@ contains
   !! number of points to interpolate.
   !! @note The weights can be generated with the subroutine `compute_weights`.
   !! Assumes weights have been computed for these points.
-  subroutine local_interpolator_evaluate(this, interp_values, el_list, field,nel)
+  subroutine local_interpolator_evaluate(this, interp_values, el_list, field, nel)
     class(local_interpolator_t), intent(inout) :: this
     integer, intent(in) :: el_list(this%n_points)
     integer, intent(in) :: nel

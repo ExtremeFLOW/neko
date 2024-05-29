@@ -76,10 +76,10 @@ contains
     character(len=1024) :: fname
     integer :: ierr, suffix_pos, optional_fields
     type(field_t), pointer :: u, v, w, p, s
-    type(field_t), pointer :: abx1,abx2
-    type(field_t), pointer :: aby1,aby2
-    type(field_t), pointer :: abz1,abz2
-    type(field_t), pointer :: abs1,abs2
+    type(field_t), pointer :: abx1, abx2
+    type(field_t), pointer :: aby1, aby2
+    type(field_t), pointer :: abz1, abz2
+    type(field_t), pointer :: abs1, abs2
     type(field_series_t), pointer :: ulag => null()
     type(field_series_t), pointer :: vlag => null()
     type(field_series_t), pointer :: wlag => null()
@@ -94,7 +94,7 @@ contains
     integer :: i
 
     if (present(t)) then
-       time = real(t,dp)
+       time = real(t, dp)
     else
        time = 0d0
     end if
@@ -188,12 +188,12 @@ contains
     ! Dump mandatory checkpoint data
     !
 
-    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + int(MPI_DOUBLE_PRECISION_SIZE, i8)
     byte_offset = byte_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-    call MPI_File_write_at_all(fh, byte_offset,u%x, u%dof%size(), &
+    call MPI_File_write_at_all(fh, byte_offset, u%x, u%dof%size(), &
          MPI_REAL_PRECISION, status, ierr)
-    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + int(MPI_DOUBLE_PRECISION_SIZE, i8)
     mpi_offset = mpi_offset +&
          n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
@@ -358,10 +358,10 @@ contains
     type(mesh_t), pointer :: msh
     type(MPI_Status) :: status
     type(MPI_File) :: fh
-    type(field_t), pointer :: abx1,abx2
-    type(field_t), pointer :: aby1,aby2
-    type(field_t), pointer :: abz1,abz2
-    type(field_t), pointer :: abs1,abs2
+    type(field_t), pointer :: abx1, abx2
+    type(field_t), pointer :: aby1, aby2
+    type(field_t), pointer :: abz1, abz2
+    type(field_t), pointer :: abs1, abs2
     real(kind=rp), allocatable :: x_coord(:,:,:,:)
     real(kind=rp), allocatable :: y_coord(:,:,:,:)
     real(kind=rp), allocatable :: z_coord(:,:,:,:)
@@ -458,11 +458,11 @@ contains
     call MPI_File_read_all(fh, optional_fields, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, chkp%t, 1, MPI_DOUBLE_PRECISION, status, ierr)
 
-    have_lag = mod(optional_fields,2)/1
-    have_scalar = mod(optional_fields,4)/2
-    have_dtlag = mod(optional_fields,8)/4
-    have_abvel = mod(optional_fields,16)/8
-    have_scalarlag = mod(optional_fields,32)/16
+    have_lag = mod(optional_fields, 2)/1
+    have_scalar = mod(optional_fields, 4)/2
+    have_dtlag = mod(optional_fields, 8)/4
+    have_abvel = mod(optional_fields, 16)/8
+    have_scalarlag = mod(optional_fields, 32)/16
 
     if ( ( glb_nelv .ne. msh%glb_nelv ) .or. &
          ( gdim .ne. msh%gdim) .or. &
@@ -479,9 +479,9 @@ contains
     end if
     if (this%mesh2mesh) then
        dof = dofmap_t(msh, this%chkp_Xh)
-       allocate(x_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
-       allocate(y_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
-       allocate(z_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
+       allocate(x_coord(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv))
+       allocate(y_coord(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv))
+       allocate(z_coord(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv))
        !> To ensure that each point is within an element
        !! Remedies issue with points on the boundary
        !! Technically gives each point a slightly different value
@@ -490,7 +490,7 @@ contains
           center_x = 0d0
           center_y = 0d0
           center_z = 0d0
-          do i = 1,u%dof%Xh%lxyz
+          do i = 1, u%dof%Xh%lxyz
              center_x = center_x + u%dof%x(i,1,1,e)
              center_y = center_y + u%dof%y(i,1,1,e)
              center_z = center_z + u%dof%z(i,1,1,e)
@@ -498,14 +498,14 @@ contains
           center_x = center_x/u%Xh%lxyz
           center_y = center_y/u%Xh%lxyz
           center_z = center_z/u%Xh%lxyz
-          do i = 1,u%dof%Xh%lxyz
+          do i = 1, u%dof%Xh%lxyz
              x_coord(i,1,1,e) = u%dof%x(i,1,1,e) - tol*(u%dof%x(i,1,1,e)-center_x)
              y_coord(i,1,1,e) = u%dof%y(i,1,1,e) - tol*(u%dof%y(i,1,1,e)-center_y)
              z_coord(i,1,1,e) = u%dof%z(i,1,1,e) - tol*(u%dof%z(i,1,1,e)-center_z)
           end do
        end do
-       call this%global_interp%init(dof,tol=tol)
-       call this%global_interp%find_points(x_coord,y_coord,z_coord,u%dof%size())
+       call this%global_interp%init(dof, tol = tol)
+       call this%global_interp%find_points(x_coord, y_coord, z_coord, u%dof%size())
        deallocate(x_coord)
        deallocate(y_coord)
        deallocate(z_coord)
@@ -519,11 +519,11 @@ contains
     ! Read mandatory checkpoint data
     !
 
-    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + int(MPI_DOUBLE_PRECISION_SIZE, i8)
     byte_offset = byte_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
     call this%read_field(fh, byte_offset, u%x, nel)
-    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + int(MPI_DOUBLE_PRECISION_SIZE, i8)
     mpi_offset = mpi_offset +&
          n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
@@ -646,12 +646,12 @@ contains
 
     allocate(read_array(this%chkp_Xh%lxyz*nel))
 
-    call rzero(read_array,this%chkp_xh%lxyz*nel)
+    call rzero(read_array, this%chkp_xh%lxyz*nel)
     call MPI_File_read_at_all(fh, byte_offset, read_array, &
                nel*this%chkp_Xh%lxyz, MPI_REAL_PRECISION, status, ierr)
     if (this%mesh2mesh) then
        x = 0.0_rp
-       call this%global_interp%evaluate(x,read_array)
+       call this%global_interp%evaluate(x, read_array)
 
     else
        call this%space_interp%map_host(x, read_array, nel, this%sim_Xh)

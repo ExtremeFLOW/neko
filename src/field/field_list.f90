@@ -86,7 +86,7 @@ contains
     character(len=*), intent(in) :: name
     integer :: i
 
-    do i=1, this%size()
+    do i = 1, this%size()
       if (this%name(i) .eq. trim(name)) then
          f => this%items(i)%ptr
          return
@@ -120,7 +120,7 @@ contains
 
     if (allocated(this%items)) then
        n_fields = this%size()
-       do i=1, n_fields
+       do i = 1, n_fields
           if (associated(this%items(i)%ptr)) then
              call this%items(i)%ptr%free()
           end if

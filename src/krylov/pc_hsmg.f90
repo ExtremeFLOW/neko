@@ -218,12 +218,12 @@ contains
        end do
     end if
     call this%bc_reg%finalize()
-    call this%bc_reg%set_g(real(0d0,rp))
+    call this%bc_reg%set_g(real(0d0, rp))
     call bc_list_init(this%bclst_reg)
     call bc_list_add(this%bclst_reg, this%bc_reg)
 
     call this%bc_crs%finalize()
-    call this%bc_crs%set_g(real(0d0,rp))
+    call this%bc_crs%set_g(real(0d0, rp))
     call bc_list_init(this%bclst_crs)
     call bc_list_add(this%bclst_crs, this%bc_crs)
 
@@ -237,8 +237,8 @@ contains
     call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
                               this%bclst_mg, msh)
 
-    call this%interp_fine_mid%init(Xh,this%Xh_mg)
-    call this%interp_mid_crs%init(this%Xh_mg,this%Xh_crs)
+    call this%interp_fine_mid%init(Xh, this%Xh_mg)
+    call this%interp_mid_crs%init(this%Xh_mg, this%Xh_crs)
 
     call hsmg_fill_grid(dof, gs_h, Xh, coef, this%bclst_reg, this%schwarz, &
                         this%e, this%grids, 3)
@@ -389,7 +389,7 @@ contains
        call device_col2(this%w_d, this%grids(2)%coef%mult_d, &
                         this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%wf%x, this%w,this%msh%nelv, &
+       call this%interp_mid_crs%map(this%wf%x, this%w, this%msh%nelv, &
                                     this%grids(1)%Xh)
        !Crs solve
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
@@ -406,7 +406,7 @@ contains
        if (thrdid .eq. 0) then
           call profiler_start_region('HSMG schwarz', 9)
           call this%grids(3)%schwarz%compute(z, this%r)
-          call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
+          call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
           call profiler_end_region
        end if
        if (nthrds .eq. 1 .or. thrdid .eq. 1) then
@@ -454,10 +454,10 @@ contains
                                      this%msh%nelv, this%grids(2)%Xh)
        call this%grids(2)%gs_h%op(this%w, this%grids(2)%dof%size(), GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
-       call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
+       call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
        call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
+       call this%interp_mid_crs%map(this%r, this%w, this%msh%nelv, this%grids(1)%Xh)
        !Crs solve
 
        call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)

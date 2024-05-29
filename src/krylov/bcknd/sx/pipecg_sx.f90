@@ -91,9 +91,9 @@ contains
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
     else
        call this%ksp_init(max_iter)
     end if
@@ -184,7 +184,7 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(abscmp(rnorm, 0.0_rp)) return
+    if (abscmp(rnorm, 0.0_rp)) return
 
     gamma1 = 0.0_rp
 

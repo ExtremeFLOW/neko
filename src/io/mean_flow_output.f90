@@ -53,7 +53,7 @@ module mean_flow_output
 contains
 
   function mean_flow_output_init(mf, T_begin, name, path) result(this)
-    type(mean_flow_t), intent(in), target ::mf
+    type(mean_flow_t), intent(in), target :: mf
     real(kind=rp), intent(in) :: T_begin
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
@@ -82,13 +82,13 @@ contains
 
     if (t .ge. this%T_begin) then
        call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.false.)
+                          DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%mf%u%mf%x, this%mf%u%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.false.)
+                          DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%mf%v%mf%x, this%mf%v%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.false.)
+                          DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.true.)
+                          DEVICE_TO_HOST, sync = .true.)
        call this%file_%write(this%mf, t)
        call this%mf%reset()
     end if

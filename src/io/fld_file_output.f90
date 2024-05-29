@@ -90,7 +90,7 @@ contains
          do i = 1, size(fields)
             call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
                  fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                 sync=(i .eq. size(fields))) ! Sync on the last field
+                 sync = (i .eq. size(fields))) ! Sync on the last field
          end do
        end associate
 

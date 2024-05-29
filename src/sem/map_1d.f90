@@ -75,7 +75,7 @@ contains
         line => dof%x
     else if (dir .eq. 2) then
         line => dof%y
-    else if(dir .eq. 3) then
+    else if (dir .eq. 3) then
         line => dof%z
     else
         call neko_error('Invalid dir for geopmetric comm')
@@ -86,7 +86,7 @@ contains
     allocate(min_vals(lx, lx, lx, nelv))
     allocate(this%pt_lvl(lx, lx, lx, nelv))
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(min_vals,min_vals_d,n)
+       call device_map(min_vals, min_vals_d, n)
     end if
 
     do i = 1, nelv
@@ -102,7 +102,7 @@ contains
        el_dim(3,:) = el_dim(3,:)/norm2(el_dim(3,:))
        ! Checks which directions in rst the xyz corresponds to
        ! 1 corresponds to r, 2 to s, 3 to t and are stored in dir_el
-       this%dir_el(i) = maxloc(el_dim(:,this%dir),dim=1)
+       this%dir_el(i) = maxloc(el_dim(:, this%dir), dim = 1)
     end do
     glb_min =  glmin(line,n)
     glb_max =  glmax(line,n)
@@ -115,7 +115,7 @@ contains
        min_vals(:,:,:,e) = el_min
        ! Check if this element is on the bottom, in this case assign el_lvl = i = 1 
        if (relcmp(el_min, glb_min, this%tol)) then
-          if(this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
+          if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
        end if
     end do
     ! While loop where at each iteation the global maximum value propagates down one level.
@@ -133,15 +133,15 @@ contains
             end if
          end if
          if (this%dir_el(e) .eq. 2) then
-            if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
-               min_vals(:,lx,:,e) = glb_max
+            if (line(1,1,1,e) .gt. line(1, lx,1,e)) then
+               min_vals(:, lx,:,e) = glb_max
             else
                min_vals(:,1,:,e) = glb_max
             end if
          end if
          if (this%dir_el(e) .eq. 3) then
-            if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
-               min_vals(:,:,lx,e) = glb_max
+            if (line(1,1,1,e) .gt. line(1,1, lx,e)) then
+               min_vals(:,:, lx,e) = glb_max
             else
                min_vals(:,:,1,e) = glb_max
             end if
@@ -149,12 +149,12 @@ contains
       end do
       if (NEKO_BCKND_DEVICE .eq. 1) &
          call device_memcpy(min_vals, min_vals_d, n,&
-                            HOST_TO_DEVICE, sync=.false.)
+                            HOST_TO_DEVICE, sync = .false.)
       !Propagates the minumum value along the element boundary.
-      call gs%op(min_vals,n,GS_OP_MIN)
+      call gs%op(min_vals, n, GS_OP_MIN)
       if (NEKO_BCKND_DEVICE .eq. 1) &
           call device_memcpy(min_vals, min_vals_d, n,&
-                             DEVICE_TO_HOST, sync=.true.)
+                             DEVICE_TO_HOST, sync = .true.)
       !Checks the new minimum value on each element
       !Assign this value to all points in this element in min_val
       !If the element has not already been assinged a level, 
@@ -167,7 +167,7 @@ contains
          end if
       end do
     end do
-    this%n_el_lvls = glimax(this%el_lvl,nelv)
+    this%n_el_lvls = glimax(this%el_lvl, nelv)
     if ( pe_rank .eq. 0) then
        write(*,*) 'Number of element levels', this%n_el_lvls
     end if
@@ -184,15 +184,15 @@ contains
             end if
          end if
          if (this%dir_el(e) .eq. 2) then
-            if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
-               this%pt_lvl(:,lx-i+1,:,e) = lvl
+            if (line(1,1,1,e) .gt. line(1, lx,1,e)) then
+               this%pt_lvl(:, lx-i+1,:,e) = lvl
             else
                this%pt_lvl(:,i,:,e) = lvl
             end if
          end if
          if (this%dir_el(e) .eq. 3) then
-            if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
-               this%pt_lvl(:,:,lx-i+1,e) = lvl
+            if (line(1,1,1,e) .gt. line(1,1, lx,e)) then
+               this%pt_lvl(:,:, lx-i+1,e) = lvl
             else
                this%pt_lvl(:,:,i,e) = lvl
             end if
@@ -207,11 +207,11 @@ contains
   subroutine map_1d_free(this)
     class(map_1d_t) :: this
 
-    if(allocated(this%dir_el)) deallocate(this%dir_el)
-    if(allocated(this%el_lvl)) deallocate(this%el_lvl)
-    if(allocated(this%pt_lvl)) deallocate(this%pt_lvl)
-    if(associated(this%dof)) nullify(this%dof)
-    if(associated(this%msh)) nullify(this%msh)
+    if (allocated(this%dir_el)) deallocate(this%dir_el)
+    if (allocated(this%el_lvl)) deallocate(this%el_lvl)
+    if (allocated(this%pt_lvl)) deallocate(this%pt_lvl)
+    if (associated(this%dof)) nullify(this%dof)
+    if (associated(this%msh)) nullify(this%msh)
     this%dir = 0
     this%n_el_lvls = 0
 

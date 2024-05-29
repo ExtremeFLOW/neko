@@ -62,7 +62,7 @@ contains
     if (.not. z%finalized) then
 
        allocate(z%curve_el(z%scratch%size()))
-       select type (tp=>z%scratch%data)
+       select type (tp => z%scratch%data)
        type is (struct_curve_t)
           do i = 1, z%scratch%size()
              z%curve_el(i) = tp(i)
@@ -82,7 +82,7 @@ contains
   !> Add a (facet, el) tuple to an unfinalized domain
   subroutine curve_element_add(z, el_idx, curve_data, curve_type )
     class(curve_t), intent(inout) :: z
-    real(kind=dp), dimension(5,12), intent(in) :: curve_data
+    real(kind=dp), dimension(5, 12), intent(in) :: curve_data
     integer, dimension(12), intent(in) :: curve_type
     integer, intent(in) :: el_idx
     type(struct_curve_t) :: c_el

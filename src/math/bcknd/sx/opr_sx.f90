@@ -23,48 +23,48 @@ contains
 
   subroutine opr_sx_dudxyz(du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv), intent(inout) ::  du
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv), intent(in) ::  u, dr, ds, dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
-      select case(coef%Xh%lx)
-      case(14)
+      select case (coef%Xh%lx)
+      case (14)
          call sx_dudxyz_lx14(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(13)
+      case (13)
          call sx_dudxyz_lx13(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(12)
+      case (12)
          call sx_dudxyz_lx12(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(11)
+      case (11)
          call sx_dudxyz_lx11(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(10)
+      case (10)
          call sx_dudxyz_lx10(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(9)
+      case (9)
          call sx_dudxyz_lx9(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(8)
+      case (8)
          call sx_dudxyz_lx8(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(7)
+      case (7)
          call sx_dudxyz_lx7(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(6)
+      case (6)
          call sx_dudxyz_lx6(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(5)
+      case (5)
          call sx_dudxyz_lx5(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(4)
+      case (4)
          call sx_dudxyz_lx4(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(3)
+      case (3)
          call sx_dudxyz_lx3(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(2)
+      case (2)
          call sx_dudxyz_lx2(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
       case default
@@ -75,128 +75,128 @@ contains
 
   end subroutine opr_sx_dudxyz
 
-  subroutine opr_sx_opgrad(ux,uy,uz,u,coef)
+  subroutine opr_sx_opgrad(ux, uy, uz, u, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
 
     associate(Xh => coef%Xh, msh => coef%msh)
-      select case(Xh%lx)
-      case(18)
+      select case (Xh%lx)
+      case (18)
          call sx_opgrad_lx18(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(17)
+      case (17)
          call sx_opgrad_lx17(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(16)
+      case (16)
          call sx_opgrad_lx16(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(15)
+      case (15)
          call sx_opgrad_lx15(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(14)
+      case (14)
          call sx_opgrad_lx14(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(13)
+      case (13)
          call sx_opgrad_lx13(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(12)
+      case (12)
          call sx_opgrad_lx12(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(11)
+      case (11)
          call sx_opgrad_lx11(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(10)
+      case (10)
          call sx_opgrad_lx10(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(9)
+      case (9)
          call sx_opgrad_lx9(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(8)
+      case (8)
          call sx_opgrad_lx8(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(7)
+      case (7)
          call sx_opgrad_lx7(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(6)
+      case (6)
          call sx_opgrad_lx6(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(5)
+      case (5)
          call sx_opgrad_lx5(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(4)
+      case (4)
          call sx_opgrad_lx4(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(3)
+      case (3)
          call sx_opgrad_lx3(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(2)
+      case (2)
          call sx_opgrad_lx2(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
@@ -215,65 +215,65 @@ contains
 
   end subroutine opr_sx_opgrad
 
-  subroutine opr_sx_cdtp(dtx,x,dr,ds,dt, coef)
+  subroutine opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dr
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: ds
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
-      select case(Xh%lx)
-      case(14)
+      select case (Xh%lx)
+      case (14)
          call sx_cdtp_lx14(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(13)
+      case (13)
          call sx_cdtp_lx13(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(12)
+      case (12)
          call sx_cdtp_lx12(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(11)
+      case (11)
          call sx_cdtp_lx11(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(10)
+      case (10)
          call sx_cdtp_lx10(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(9)
+      case (9)
          call sx_cdtp_lx9(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(8)
+      case (8)
          call sx_cdtp_lx8(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(7)
+      case (7)
          call sx_cdtp_lx7(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(6)
+      case (6)
          call sx_cdtp_lx6(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(5)
+      case (5)
          call sx_cdtp_lx5(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(4)
+      case (4)
          call sx_cdtp_lx4(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(3)
+      case (3)
          call sx_cdtp_lx3(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(2)
+      case (2)
          call sx_cdtp_lx2(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
@@ -290,86 +290,86 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     integer, intent(in) :: nelv
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz,nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
+    real(kind=rp), intent(inout) ::  du(Xh%lxyz, nelv)
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  u
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  vx
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  vy
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  vz
 
-    select case(Xh%lx)
-    case(14)
+    select case (Xh%lx)
+    case (14)
        call sx_conv1_lx14(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(13)
+    case (13)
        call sx_conv1_lx13(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(12)
+    case (12)
        call sx_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(11)
+    case (11)
        call sx_conv1_lx11(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(10)
+    case (10)
        call sx_conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(9)
+    case (9)
        call sx_conv1_lx9(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(8)
+    case (8)
        call sx_conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(7)
+    case (7)
        call sx_conv1_lx7(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(6)
+    case (6)
        call sx_conv1_lx6(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(5)
+    case (5)
        call sx_conv1_lx5(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(4)
+    case (4)
        call sx_conv1_lx4(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(3)
+    case (3)
        call sx_conv1_lx3(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv)
-    case(2)
+    case (2)
        call sx_conv1_lx2(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
@@ -424,11 +424,11 @@ contains
     call sub3(w3%x, work1%x, work2%x, n)
     !!    BC dependent, Needs to change if cyclic
 
-    call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
+    call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
     call c_Xh%gs_h%op(w1, GS_OP_ADD)
     call c_Xh%gs_h%op(w2, GS_OP_ADD)
     call c_Xh%gs_h%op(w3, GS_OP_ADD)
-    call opcolv(w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
+    call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
 
   end subroutine opr_sx_curl
 
@@ -437,10 +437,10 @@ contains
     type(coef_t) :: coef
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  u, v, w
     real(kind=rp) :: cfl
 
-    select case(Xh%lx)
+    select case (Xh%lx)
     case (14)
        cfl = sx_cfl_lx14(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
@@ -549,7 +549,7 @@ contains
     type(field_t), intent(in) :: u, v, w
 
     associate(Xh => coef%Xh, msh => coef%msh)
-      select case(Xh%lx)
+      select case (Xh%lx)
       case (18)
          call sx_lambda2_lx18(lambda2%x, u%x, v%x, w%x, &
                               Xh%dx, Xh%dy, Xh%dz, &

@@ -132,7 +132,7 @@ contains
     n = s%dof%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x, s%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -171,7 +171,7 @@ contains
   !! @param zone_value Desired value of the scalar field in the point zone.
   subroutine set_scalar_ic_point_zone(s, base_value, zone_name, zone_value)
     type(field_t), intent(inout) :: s
-    real(kind=rp), intent(in):: base_value
+    real(kind=rp), intent(in) :: base_value
     character(len=*), intent(in) :: zone_name
     real(kind=rp), intent(in) :: zone_value
 

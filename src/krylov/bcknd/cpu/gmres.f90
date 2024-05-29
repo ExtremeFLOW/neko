@@ -96,18 +96,18 @@ contains
     allocate(this%s(this%lgmres))
     allocate(this%gam(this%lgmres + 1))
 
-    allocate(this%z(n,this%lgmres))
-    allocate(this%v(n,this%lgmres))
+    allocate(this%z(n, this%lgmres))
+    allocate(this%v(n, this%lgmres))
 
-    allocate(this%h(this%lgmres,this%lgmres))
+    allocate(this%h(this%lgmres, this%lgmres))
 
 
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
     else
        call this%ksp_init(max_iter)
     end if
@@ -189,7 +189,7 @@ contains
     end if
 
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-          v => this%v, s => this%s, gam => this%gam, wk1 =>this%wk1)
+          v => this%v, s => this%s, gam => this%gam, wk1 => this%wk1)
 
       norm_fac = 1.0_rp / sqrt(coef%volume)
       call rzero(x%x, n)
@@ -199,7 +199,7 @@ contains
       call rzero(h, this%lgmres * this%lgmres)
       do while (.not. conv .and. iter .lt. max_iter)
 
-         if(iter.eq.0) then
+         if (iter .eq. 0) then
             call copy(r, f, n)
          else
             call copy(r, f, n)
@@ -210,7 +210,7 @@ contains
          end if
 
          gam(1) = sqrt(glsc3(r, r, coef%mult, n))
-         if(iter.eq.0) then
+         if (iter .eq. 0) then
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
@@ -230,7 +230,7 @@ contains
 
             do l = 1, j
                h(l,j) = 0.0_rp
-            enddo
+            end do
 
             do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
@@ -255,7 +255,7 @@ contains
             call copy(h(1,j), wk1, j)
 
             alpha2 = 0.0_rp
-            do i = 0,n,NEKO_BLK_SIZE
+            do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do k = 1, NEKO_BLK_SIZE
                      w_plus(k) = 0.0_rp
@@ -285,14 +285,14 @@ contains
                   MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
             alpha2 = temp
             alpha = sqrt(alpha2)
-            do i=1,j-1
+            do i = 1, j-1
                temp = h(i,j)
-               h(i  ,j) =  c(i)*temp + s(i) * h(i+1,j)
-               h(i+1,j) = -s(i)*temp + c(i) * h(i+1,j)
+               h(i  , j) =  c(i)*temp + s(i) * h(i+1,j)
+               h(i+1, j) = -s(i)*temp + c(i) * h(i+1,j)
             end do
 
             rnorm = 0.0_rp
-            if(abscmp(alpha, 0.0_rp)) then
+            if (abscmp(alpha, 0.0_rp)) then
                conv = .true.
                exit
             end if
@@ -313,9 +313,9 @@ contains
 
             if (iter + 1 .gt. max_iter) exit
 
-            if( j .lt. this%lgmres) then
+            if ( j .lt. this%lgmres) then
                temp = 1.0_rp / alpha
-               call cmult2(v(1,j+1), w, temp, n)
+               call cmult2(v(1, j+1), w, temp, n)
             end if
 
          end do

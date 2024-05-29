@@ -82,7 +82,7 @@ contains
     integer :: e, i
 
     ! some constant
-    eps=1.d-14
+    eps = 1.d-14
 
 
     ! get fields from registry
@@ -114,8 +114,8 @@ contains
     call dudxyz (g32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (g33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    do e=1, coef%msh%nelv
-       do i=1, coef%Xh%lxyz
+    do e = 1, coef%msh%nelv
+       do i = 1, coef%Xh%lxyz
           ! G_ij = g^t g = g_mi g_mj
           sigG11 = g11%x(i,1,1,e)**2 + g21%x(i,1,1,e)**2 + g31%x(i,1,1,e)**2
           sigG22 = g12%x(i,1,1,e)**2 + g22%x(i,1,1,e)**2 + g32%x(i,1,1,e)**2
@@ -136,26 +136,26 @@ contains
 
           ! eigenvalues with the analytical method of Hasan et al. (2001)
           ! doi:10.1006/jmre.2001.2400
-              if (abs(sigG11).lt.eps) then
+              if (abs(sigG11) .lt. eps) then
                  sigG11 = 0.0_rp
-              endif
-              if (abs(sigG12).lt.eps) then
+              end if
+              if (abs(sigG12) .lt. eps) then
                  sigG12 = 0.0_rp
-              endif
-              if (abs(sigG13).lt.eps) then
+              end if
+              if (abs(sigG13) .lt. eps) then
                  sigG13 = 0.0_rp
-              endif
-              if (abs(sigG22).lt.eps) then
+              end if
+              if (abs(sigG22) .lt. eps) then
                  sigG22 = 0.0_rp
-              endif
-              if (abs(sigG23).lt.eps) then
+              end if
+              if (abs(sigG23) .lt. eps) then
                  sigG23 = 0.0_rp
-              endif
-              if (abs(sigG33).lt.eps) then
+              end if
+              if (abs(sigG33) .lt. eps) then
                  sigG33 = 0.0_rp
-              endif
+              end if
 
-              if (abs(sigG12*sigG12 + sigG13*sigG13 + sigG23*sigG23).lt.eps) then
+              if (abs(sigG12*sigG12 + sigG13*sigG13 + sigG23*sigG23) .lt. eps) then
                  !             G is diagonal
                  ! estimate the singular values according to:
                  sigma1 = sqrt(max(max(max(sigG11, sigG22), sigG33), 0.0_rp))
@@ -194,14 +194,14 @@ contains
                  !  alpha3 is between 0 and pi/3
                  tmp1 = alpha2/(alpha1**(3.0_rp/2.0_rp))
 
-                 if (tmp1.le.-1.0_rp) then
+                 if (tmp1 .le. -1.0_rp) then
                     ! alpha3=pi/3 -> cos(alpha3)=0.5
                     ! compute the singular values
                     sigma1 = sqrt(max(Invariant1/3.0_rp + sqrt(alpha1), 0.0_rp))
                     sigma2 = sigma1
                     sigma3 = sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1))
 
-                elseif (tmp1.ge.1.0_rp) then
+                 else if (tmp1 .ge. 1.0_rp) then
                     ! alpha3=0.0_rp -> cos(alpha3)=1.0
                     sigma1 = sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1), &
                                       0.0_rp))
@@ -210,7 +210,7 @@ contains
                 else
                     alpha3 = acos(tmp1)/3.0_rp
 
-                  if (abs(Invariant3).lt.eps) then
+                  if (abs(Invariant3) .lt. eps) then
                      ! In case of Invariant3=0, one or more eigenvalues are equal to zero
                      ! Therefore force sigma3 to 0 and compute sigma1 and sigma2
                      sigma1 = sqrt(max(Invariant1/3.0_rp + &
@@ -223,9 +223,9 @@ contains
                      sigma2 = sqrt(Invariant1/3.0_rp - &
                                    2.0_rp*sqrt(alpha1)*cos(pi_3 + alpha3))
                      sigma3 = sqrt(abs(Invariant1 - sigma1*sigma1-sigma2*sigma2))
-                  endif ! Invariant3=0 ?
-                endif ! tmp1
-              endif ! G diagonal ?
+                  end if ! Invariant3=0 ?
+                end if ! tmp1
+              end if ! G diagonal ?
 
               ! Estimate Dsigma
               if (sigma1 .gt. 0.0_rp) then
@@ -233,7 +233,7 @@ contains
                    sigma3*(sigma1 - sigma2)*(sigma2 - sigma3)/(sigma1*sigma1)
               else
                  Dsigma = 0.0_rp
-              endif
+              end if
 
               !clipping to avoid negative values
               Dsigma = max(Dsigma, 0.0_rp)

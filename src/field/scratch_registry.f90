@@ -98,7 +98,7 @@ contains
 
     if (present(size)) then
        allocate (this%fields(size))
-       do i= 1, size
+       do i = 1, size
           allocate(this%fields(i)%ptr)
        end do
        allocate (this%inuse(size))
@@ -120,11 +120,11 @@ contains
 
   !> Destructor
   subroutine scratch_registry_free(this)
-    class(scratch_registry_t), intent(inout):: this
+    class(scratch_registry_t), intent(inout) :: this
     integer :: i
 
     if (allocated(this%fields)) then
-       do i=1, this%nfields
+       do i = 1, this%nfields
           call this%fields(i)%ptr%free()
           deallocate(this%fields(i)%ptr)
        end do
@@ -151,7 +151,7 @@ contains
     integer :: n, i
 
     n = 0
-    do i=1,this%get_size()
+    do i = 1, this%get_size()
        if (this%inuse(i)) n = n + 1
     end do
   end function get_nfields_inuse
@@ -181,9 +181,9 @@ contains
     allocate(temp(this%get_size() + this%expansion_size))
     temp(1:this%nfields) = this%fields(1:this%nfields)
 
-    do i=this%nfields +1, size(temp)
+    do i = this%nfields +1, size(temp)
        allocate(temp(i)%ptr)
-    enddo
+    end do
 
     call move_alloc(temp, this%fields)
 
@@ -204,7 +204,7 @@ contains
 
     associate(nfields => this%nfields, nfields_inuse => this%nfields_inuse)
 
-      do index=1,this%get_size()
+      do index= 1, this%get_size()
          if (this%inuse(index) .eqv. .false.) then
             write (name, "(A3,I0.3)") "wrk", index
 
@@ -245,7 +245,7 @@ contains
     integer, intent(inout) :: indices(:) !< The indices of the field to free
     integer :: i
 
-    do i=1, size(indices)
+    do i = 1, size(indices)
        this%inuse(indices(i)) = .false.
     end do
     this%nfields_inuse = this%nfields_inuse - size(indices)

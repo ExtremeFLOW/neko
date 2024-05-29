@@ -91,10 +91,10 @@ contains
 
     call this%free()
 
-    allocate(this%Xh_to_Yh(Yh%lx,Xh%lx))
-    allocate(this%Xh_to_YhT(Xh%lx,Yh%lx))
-    allocate(this%Yh_to_Xh(Xh%lx,Yh%lx))
-    allocate(this%Yh_to_XhT(Yh%lx,Xh%lx))
+    allocate(this%Xh_to_Yh(Yh%lx, Xh%lx))
+    allocate(this%Xh_to_YhT(Xh%lx, Yh%lx))
+    allocate(this%Yh_to_Xh(Xh%lx, Yh%lx))
+    allocate(this%Yh_to_XhT(Yh%lx, Xh%lx))
 
     if (Xh%t .eq. GLL .and. Yh%t .eq. GLL) then
     else if ((Xh%t .eq. GL .and. Yh%t .eq. GLL) .or. &
@@ -116,13 +116,13 @@ contains
        call device_map(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx)
        call device_map(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx)
        call device_memcpy(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine interpolator_init
@@ -166,15 +166,15 @@ contains
     class(interpolator_t), intent(inout) :: this
     integer :: nel
     type(space_t) :: to_space
-    real(kind=rp), intent(inout) :: x(1,nel)
-    real(kind=rp), intent(inout) :: y(1,nel)
+    real(kind=rp), intent(inout) :: x(1, nel)
+    real(kind=rp), intent(inout) :: y(1, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d(y, this%Yh%lx, x, &
-                   this%Xh%lx,this%Yh_to_XhT, &
+                   this%Xh%lx, this%Yh_to_XhT, &
                    this%Yh_to_Xh, this%Yh_to_Xh, nel)
     else if (to_space .eq. this%Xh) then
        call tnsr3d(y, this%Xh%lx, x, &
-                   this%Yh%lx,this%Yh_to_Xh, &
+                   this%Yh%lx, this%Yh_to_Xh, &
                    this%Yh_to_XhT, this%Yh_to_XhT, nel)
     else
        call neko_error('Invalid interpolation')
@@ -192,15 +192,15 @@ contains
     class(interpolator_t), intent(inout) :: this
     integer :: nel
     type(space_t) :: to_space
-    real(kind=rp), intent(inout) :: x(1,nel)
-    real(kind=rp), intent(inout) :: y(1,nel)
+    real(kind=rp), intent(inout) :: x(1, nel)
+    real(kind=rp), intent(inout) :: y(1, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d_cpu(y, this%Yh%lx, x, &
-                   this%Xh%lx,this%Yh_to_XhT, &
+                   this%Xh%lx, this%Yh_to_XhT, &
                    this%Yh_to_Xh, this%Yh_to_Xh, nel)
     else if (to_space .eq. this%Xh) then
        call tnsr3d_cpu(y, this%Xh%lx, x, &
-                   this%Yh%lx,this%Yh_to_Xh, &
+                   this%Yh%lx, this%Yh_to_Xh, &
                    this%Yh_to_XhT, this%Yh_to_XhT, nel)
     else
        call neko_error('Invalid interpolation')

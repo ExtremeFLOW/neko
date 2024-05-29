@@ -145,7 +145,7 @@ contains
     class(source_scalar_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     integer :: j, k, l, e
-    integer :: jj,kk,ll,ee
+    integer :: jj, kk, ll, ee
 
     do e = 1, f%dm%msh%nelv
        ee = e
@@ -154,7 +154,7 @@ contains
           do k = 1, f%dm%Xh%ly
              kk = k
              do j = 1, f%dm%Xh%lx
-                jj =j
+                jj = j
                 call f%eval_pw(f%s(j,k,l,e), jj, kk, ll, ee, t)
              end do
           end do

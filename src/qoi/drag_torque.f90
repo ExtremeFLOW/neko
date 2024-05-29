@@ -90,12 +90,12 @@ contains
     integer, intent(in) :: tstep
     type(facet_zone_t) :: zone
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: s11(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s22(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s33(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s12(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s13(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s23(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s11(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s22(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s33(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s12(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s13(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s23(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, coef%msh%nelv)
     type(field_t), intent(inout) :: p
     real(kind=rp), intent(in) :: visc, center(3)
     real(kind=rp) :: dgtq(3,4)
@@ -126,13 +126,13 @@ contains
       dragvx = 0.0
       dragvy = 0.0
       dragvz = 0.0
-      do mem  = 1,zone%size
+      do mem  = 1, zone%size
          ie   = zone%facet_el(mem)%x(2)
          ifc   = zone%facet_el(mem)%x(1)
-         call drag_torque_facet(dgtq,coef%dof%x,coef%dof%y,coef%dof%z,&
-                                center,&
-                                s11, s22, s33, s12, s13, s23,&
-                                p%x,visc,ifc,ie, coef, coef%Xh)
+         call drag_torque_facet(dgtq, coef%dof%x, coef%dof%y, coef%dof%z, &
+                                center, &
+                                s11, s22, s33, s12, s13, s23, &
+                                p%x, visc, ifc, ie, coef, coef%Xh)
 
          dragpx = dragpx + dgtq(1,1)  ! pressure
          dragpy = dragpy + dgtq(2,1)
@@ -149,34 +149,34 @@ contains
          torqvx = torqvx + dgtq(1,4)  ! viscous
          torqvy = torqvy + dgtq(2,4)
          torqvz = torqvz + dgtq(3,4)
-      enddo
+      end do
 !
 !     Sum contributions from all processors
 !
-      call MPI_Allreduce(MPI_IN_PLACE,dragpx, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, dragpx, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,dragpy, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, dragpy, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,dragpz, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, dragpz, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,dragvx, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, dragvx, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,dragvy, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, dragvy, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,dragvz, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, dragvz, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
       !Torque
-      call MPI_Allreduce(MPI_IN_PLACE,torqpx, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, torqpx, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,torqpy, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, torqpy, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,torqpz, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, torqpz, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,torqvx, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, torqvx, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,torqvy, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, torqvy, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call MPI_Allreduce(MPI_IN_PLACE,torqvz, 1, &
+      call MPI_Allreduce(MPI_IN_PLACE, torqvz, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
       dgtq(1,1) = dragpx  ! pressure
@@ -208,27 +208,27 @@ contains
   !! @param p, the pressure
   !! @param coef, coefficents
   !! @param visc, the viscosity
-  subroutine drag_torque_facet(dgtq,xm0,ym0,zm0, center,&
+  subroutine drag_torque_facet(dgtq, xm0, ym0, zm0, center,&
                                s11, s22, s33, s12, s13, s23,&
-                               pm1,visc,f,e, coef, Xh)
+                               pm1, visc, f, e, coef, Xh)
     type(coef_t), intent(in) :: coef
     type(space_t), intent(in) :: Xh
     real(kind=rp), intent(out) :: dgtq(3,4)
     real(kind=rp), intent(in) :: center(3)
-    real(kind=rp), intent(in) :: xm0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: ym0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: zm0 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: s11 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: s22 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: s33 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: s12 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: s13 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: s23 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: pm1 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(in) :: xm0 (Xh%lx, xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: ym0 (Xh%lx, xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: zm0 (Xh%lx, xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: s11 (Xh%lx, xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: s22 (Xh%lx, xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: s33 (Xh%lx, xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: s12 (Xh%lx, xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: s13 (Xh%lx, xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: s23 (Xh%lx, xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: pm1 (Xh%lx, xh%ly, Xh%lz, coef%msh%nelv)
     real(kind=rp), intent(in) :: visc
     integer, intent(in) :: f,e
     integer :: pf, i, j1, j2
-    real(kind=rp) ::    n1,n2,n3, a, v, dgtq_i(3,4)
+    real(kind=rp) ::    n1, n2, n3, a, v, dgtq_i(3,4)
     integer :: skpdat(6,6), NX, NY, NZ
     integer :: js1
     integer :: jf1
@@ -242,74 +242,74 @@ contains
     NX = Xh%lx
     NY = Xh%ly
     NZ = Xh%lz
-    SKPDAT(1,1)=1
-    SKPDAT(2,1)=NX*(NY-1)+1
-    SKPDAT(3,1)=NX
-    SKPDAT(4,1)=1
-    SKPDAT(5,1)=NY*(NZ-1)+1
-    SKPDAT(6,1)=NY
+    SKPDAT(1,1) = 1
+    SKPDAT(2,1) = NX*(NY-1)+1
+    SKPDAT(3,1) = NX
+    SKPDAT(4,1) = 1
+    SKPDAT(5,1) = NY*(NZ-1)+1
+    SKPDAT(6,1) = NY
 
-    SKPDAT(1,2)=1             + (NX-1)
-    SKPDAT(2,2)=NX*(NY-1)+1   + (NX-1)
-    SKPDAT(3,2)=NX
-    SKPDAT(4,2)=1
-    SKPDAT(5,2)=NY*(NZ-1)+1
-    SKPDAT(6,2)=NY
+    SKPDAT(1,2) = 1             + (NX-1)
+    SKPDAT(2,2) = NX*(NY-1)+1   + (NX-1)
+    SKPDAT(3,2) = NX
+    SKPDAT(4,2) = 1
+    SKPDAT(5,2) = NY*(NZ-1)+1
+    SKPDAT(6,2) = NY
 
-    SKPDAT(1,3)=1
-    SKPDAT(2,3)=NX
-    SKPDAT(3,3)=1
-    SKPDAT(4,3)=1
-    SKPDAT(5,3)=NY*(NZ-1)+1
-    SKPDAT(6,3)=NY
+    SKPDAT(1,3) = 1
+    SKPDAT(2,3) = NX
+    SKPDAT(3,3) = 1
+    SKPDAT(4,3) = 1
+    SKPDAT(5,3) = NY*(NZ-1)+1
+    SKPDAT(6,3) = NY
 
-    SKPDAT(1,4)=1           + NX*(NY-1)
-    SKPDAT(2,4)=NX          + NX*(NY-1)
-    SKPDAT(3,4)=1
-    SKPDAT(4,4)=1
-    SKPDAT(5,4)=NY*(NZ-1)+1
-    SKPDAT(6,4)=NY
+    SKPDAT(1,4) = 1           + NX*(NY-1)
+    SKPDAT(2,4) = NX          + NX*(NY-1)
+    SKPDAT(3,4) = 1
+    SKPDAT(4,4) = 1
+    SKPDAT(5,4) = NY*(NZ-1)+1
+    SKPDAT(6,4) = NY
 
-    SKPDAT(1,5)=1
-    SKPDAT(2,5)=NX
-    SKPDAT(3,5)=1
-    SKPDAT(4,5)=1
-    SKPDAT(5,5)=NY
-    SKPDAT(6,5)=1
+    SKPDAT(1,5) = 1
+    SKPDAT(2,5) = NX
+    SKPDAT(3,5) = 1
+    SKPDAT(4,5) = 1
+    SKPDAT(5,5) = NY
+    SKPDAT(6,5) = 1
 
-    SKPDAT(1,6)=1           + NX*NY*(NZ-1)
-    SKPDAT(2,6)=NX          + NX*NY*(NZ-1)
-    SKPDAT(3,6)=1
-    SKPDAT(4,6)=1
-    SKPDAT(5,6)=NY
-    SKPDAT(6,6)=1
+    SKPDAT(1,6) = 1           + NX*NY*(NZ-1)
+    SKPDAT(2,6) = NX          + NX*NY*(NZ-1)
+    SKPDAT(3,6) = 1
+    SKPDAT(4,6) = 1
+    SKPDAT(5,6) = NY
+    SKPDAT(6,6) = 1
     pf = f
-    js1    = skpdat(1,pf)
-    jf1    = skpdat(2,pf)
-    jskip1 = skpdat(3,pf)
-    js2    = skpdat(4,pf)
-    jf2    = skpdat(5,pf)
-    jskip2 = skpdat(6,pf)
-    call rzero(dgtq,12)
+    js1    = skpdat(1, pf)
+    jf1    = skpdat(2, pf)
+    jskip1 = skpdat(3, pf)
+    js2    = skpdat(4, pf)
+    jf2    = skpdat(5, pf)
+    jskip2 = skpdat(6, pf)
+    call rzero(dgtq, 12)
     i = 0
     a = 0
-    do j2=js2,jf2,jskip2
-       do j1=js1,jf1,jskip1
+    do j2 = js2, jf2, jskip2
+       do j1 = js1, jf1, jskip1
          i = i+1
          n1 = coef%nx(i,1,f,e)*coef%area(i,1,f,e)
          n2 = coef%ny(i,1,f,e)*coef%area(i,1,f,e)
          n3 = coef%nz(i,1,f,e)*coef%area(i,1,f,e)
          a  = a +          coef%area(i,1,f,e)
          v  = visc
-         s11_ = s11(j1,j2,1,e)
-         s12_ = s12(j1,j2,1,e)
-         s22_ = s22(j1,j2,1,e)
-         s13_ = s13(j1,j2,1,e)
-         s23_ = s23(j1,j2,1,e)
-         s33_ = s33(j1,j2,1,e)
-         call drag_torque_pt(dgtq_i,xm0(j1,j2,1,e), ym0(j1,j2,1,e),zm0(j1,j2,1,e), center,&
+         s11_ = s11(j1, j2, 1, e)
+         s12_ = s12(j1, j2, 1, e)
+         s22_ = s22(j1, j2, 1, e)
+         s13_ = s13(j1, j2, 1, e)
+         s23_ = s23(j1, j2, 1, e)
+         s33_ = s33(j1, j2, 1, e)
+         call drag_torque_pt(dgtq_i, xm0(j1, j2,1,e), ym0(j1, j2,1,e), zm0(j1, j2,1,e), center,&
                              s11_, s22_, s33_, s12_, s13_, s23_,&
-                             pm1(j1,j2,1,e), n1, n2, n3, v)
+                             pm1(j1, j2,1,e), n1, n2, n3, v)
          dgtq = dgtq + dgtq_i
        end do
     end do
@@ -338,7 +338,7 @@ contains
     real(kind=rp), intent(in) :: n1, n2, n3, center(3)
     real(kind=rp), intent(in) :: s11, s12, s22, s13, s23, s33
     real(kind=rp) ::  s21, s31, s32, r1, r2, r3
-    call rzero(dgtq,12)
+    call rzero(dgtq, 12)
     s21 = s12
     s32 = s23
     s31 = s13

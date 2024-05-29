@@ -227,7 +227,7 @@ contains
              do k = 1, size(this%s, 2)
                 kk = k
                 do j = 1, size(this%s, 1)
-                   jj =j
+                   jj = j
                    call this%compute_pw_(this%s(j,k,l,e), jj, kk, ll, ee, t)
                 end do
              end do

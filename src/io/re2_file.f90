@@ -71,7 +71,7 @@ contains
     integer :: nel, ndim, nelv, ierr, nBCre2
     type(MPI_Status) :: status
     type(MPI_File) :: fh
-    integer (kind=MPI_OFFSET_KIND) :: mpi_offset
+    integer (kind= MPI_OFFSET_KIND) :: mpi_offset
     real(kind=sp) :: test
     real(kind=dp) :: t2
     integer :: ncurv, nbcs
@@ -97,7 +97,7 @@ contains
     end select
 
     v2_format = .false.
-    open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
+    open(unit = 9, file = trim(this%fname), status = 'old', iostat = ierr)
     call neko_log%message('Reading binary NEKTON file ' // this%fname)
 
     read(9,'(a80)') hdr_full
@@ -126,13 +126,13 @@ contains
     end if
 
     write(log_buf,1) ndim, nelv
-1   format('gdim = ', i1, ', nelements =', i7)
+1   format('gdim = ', i1, ', nelements = ', i7)
     call neko_log%message(log_buf)
     close(9)
 
-    call filename_chsuffix(this%fname, map_fname,'map')
+    call filename_chsuffix(this%fname, map_fname, 'map')
 
-    inquire(file=map_fname, exist=read_map)
+    inquire(file = map_fname, exist = read_map)
     if (read_map) then
        call map_init(nm, nelv, 2**ndim)
        call map_file%init(map_fname)
@@ -169,9 +169,9 @@ contains
     ! Set offset to start of curved side data
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE + MPI_REAL_SIZE
     if (ndim .eq. 2) then
-       mpi_offset = mpi_offset + int(dist%num_global(),i8) * int(re2_data_xy_size,i8)
+       mpi_offset = mpi_offset + int(dist%num_global(), i8) * int(re2_data_xy_size, i8)
     else
-       mpi_offset = mpi_offset + int(dist%num_global(),i8) * int(re2_data_xyz_size,i8)
+       mpi_offset = mpi_offset + int(dist%num_global(), i8) * int(re2_data_xyz_size, i8)
     end if
 
     !> @todo Add support for curved side data
@@ -181,7 +181,7 @@ contains
        ncurv = int(t2)
        mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
        call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
-       mpi_offset = mpi_offset + int(ncurv,i8) * int(re2_data_cv_size,i8)
+       mpi_offset = mpi_offset + int(ncurv, i8) * int(re2_data_cv_size, i8)
        call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
        nbcs = int(t2)
        mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
@@ -191,7 +191,7 @@ contains
        call MPI_File_read_at_all(fh, mpi_offset, ncurv, 1, MPI_INTEGER, status, ierr)
        mpi_offset = mpi_offset + MPI_INTEGER_SIZE
        call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
-       mpi_offset = mpi_offset + int(ncurv,i8) * int(re2_data_cv_size,i8)
+       mpi_offset = mpi_offset + int(ncurv, i8) * int(re2_data_cv_size, i8)
        call MPI_File_read_at_all(fh, mpi_offset, nbcs, 1, MPI_INTEGER, status, ierr)
        mpi_offset = mpi_offset + MPI_INTEGER_SIZE
 
@@ -211,7 +211,7 @@ contains
   subroutine re2_file_write(this, data, t)
     class(re2_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind= rp), intent(in), optional :: t
     type(re2v1_xy_t), allocatable :: re2_data_xy(:)
     type(re2v1_xyz_t), allocatable :: re2_data_xyz(:)
     type(mesh_t), pointer :: msh
@@ -220,7 +220,7 @@ contains
     integer :: i, j, ierr, nelgv
     type(MPI_Status) :: status
     type(MPI_File) :: fh
-    integer (kind=MPI_OFFSET_KIND) :: mpi_offset
+    integer (kind= MPI_OFFSET_KIND) :: mpi_offset
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
@@ -243,8 +243,8 @@ contains
     call neko_log%message('Writing data as a binary NEKTON file ' // this%fname)
 
     if (pe_rank .eq. 0) then
-       open(unit=9,file=trim(this%fname), status='new', iostat=ierr)
-       write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
+       open(unit = 9, file = trim(this%fname), status = 'new', iostat = ierr)
+       write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim, &
             nelgv, RE2_HDR_STR
        close(9)
     end if
@@ -302,7 +302,7 @@ contains
   subroutine re2_file_read_points(msh, ndim, nel, dist, fh, &
        mpi_offset, re2_data_xy_size, re2_data_xyz_size, v2_format)
     type(mesh_t), intent(inout) :: msh
-    integer (kind=MPI_OFFSET_KIND) :: mpi_offset
+    integer (kind= MPI_OFFSET_KIND) :: mpi_offset
     integer, intent(inout) :: ndim
     integer, intent(inout) :: nel
     type(MPI_File), intent(inout) :: fh
@@ -335,12 +335,12 @@ contains
                re2v1_data_xy, nelv, MPI_RE2V1_DATA_XY, status, ierr)
           do i = 1, nelv
              do j = 1, 4
-                p(j) = point_t(real(re2v1_data_xy(i)%x(j),dp), &
-                     real(re2v1_data_xy(i)%y(j),dp), 0.0d0)
+                p(j) = point_t(real(re2v1_data_xy(i)%x(j), dp), &
+                     real(re2v1_data_xy(i)%y(j), dp), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 10) then
-                if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
+                if (mod(i, nelv/10) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
              call msh%add_element(i, p(1), p(2), p(4), p(3))
@@ -357,7 +357,7 @@ contains
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 10) then
-                if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
+                if (mod(i, nelv/10) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
              call msh%add_element(i, p(1), p(2), p(4), p(3))
@@ -372,13 +372,13 @@ contains
                re2v1_data_xyz, nelv, MPI_RE2V1_DATA_XYZ, status, ierr)
           do i = 1, nelv
              do j = 1, 8
-                p(j) = point_t(real(re2v1_data_xyz(i)%x(j),dp), &
-                     real(re2v1_data_xyz(i)%y(j),dp),&
-                     real(re2v1_data_xyz(i)%z(j),dp))
+                p(j) = point_t(real(re2v1_data_xyz(i)%x(j), dp), &
+                     real(re2v1_data_xyz(i)%y(j), dp),&
+                     real(re2v1_data_xyz(i)%z(j), dp))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 100) then
-                if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
+                if (mod(i, nelv/100) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
              call msh%add_element(i, &
@@ -397,7 +397,7 @@ contains
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if (nelv > 100) then
-                if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
+                if (mod(i, nelv/100) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
              call msh%add_element(i, &
@@ -412,7 +412,7 @@ contains
 
   subroutine re2_file_read_curve(msh, ncurve, dist, fh, mpi_offset, v2_format)
     type(mesh_t), intent(inout) :: msh
-    integer (kind=MPI_OFFSET_KIND) :: mpi_offset
+    integer (kind= MPI_OFFSET_KIND) :: mpi_offset
     integer, intent(inout) :: ncurve
     type(linear_dist_t) :: dist
     type(MPI_File), intent(inout) :: fh
@@ -427,9 +427,9 @@ contains
     character(len=1) :: chtemp
     logical :: curve_skip = .false.
 
-    allocate(curve_data(5,12,msh%nelv))
+    allocate(curve_data(5, 12, msh%nelv))
     allocate(curve_element(msh%nelv))
-    allocate(curve_type(12,msh%nelv))
+    allocate(curve_type(12, msh%nelv))
     do i = 1, msh%nelv
        curve_element(i) = .false.
        do j = 1, 12
@@ -451,47 +451,47 @@ contains
     end if
     !This can probably be made nicer...
     do i = 1, ncurve
-       if(v2_format) then
+       if (v2_format) then
           el_idx = re2v2_data_curve(i)%elem - dist%start_idx()
           id = re2v2_data_curve(i)%zone
           chtemp = re2v2_data_curve(i)%type
           do j = 1, 5
-             curve_data(j,id, el_idx) = re2v2_data_curve(i)%point(j)
-          enddo
+             curve_data(j, id, el_idx) = re2v2_data_curve(i)%point(j)
+          end do
        else
           el_idx = re2v1_data_curve(i)%elem - dist%start_idx()
           id = re2v1_data_curve(i)%zone
           chtemp = re2v1_data_curve(i)%type
           do j = 1, 5
-             curve_data(j,id, el_idx) = real(re2v1_data_curve(i)%point(j),dp)
-          enddo
+             curve_data(j, id, el_idx) = real(re2v1_data_curve(i)%point(j), dp)
+          end do
        end if
 
        curve_element(el_idx) = .true.
        !This might need to be extended
-       select case(trim(chtemp))
+       select case (trim(chtemp))
        case ('s')
-          curve_type(id,el_idx) = 1
+          curve_type(id, el_idx) = 1
           call neko_log%warning('curve type s not supported, treating mesh as non-curved')
           curve_skip = .true.
           exit
        case ('e')
-          curve_type(id,el_idx) = 2
+          curve_type(id, el_idx) = 2
           call neko_log%warning('curve type e not supported, treating mesh as non-curved')
           curve_skip = .true.
           exit
        case ('C')
-          curve_type(id,el_idx) = 3
+          curve_type(id, el_idx) = 3
        case ('m')
-          curve_type(id,el_idx) = 4
+          curve_type(id, el_idx) = 4
        case default
-          write(*,*) chtemp, 'curve type not supported yet, treating mesh as non-curved',id, el_idx
+          write(*,*) chtemp, 'curve type not supported yet, treating mesh as non-curved', id, el_idx
 
           curve_skip = .true.
        end select
     end do
 
-    if( v2_format) then
+    if (v2_format) then
        deallocate(re2v2_data_curve)
     else
        deallocate(re2v1_data_curve)
@@ -500,7 +500,7 @@ contains
        do el_idx = 1, msh%nelv
           if (curve_element(el_idx)) then
              call msh%mark_curve_element(el_idx, &
-                  curve_data(1,1,el_idx), curve_type(1,el_idx))
+                  curve_data(1,1, el_idx), curve_type(1, el_idx))
           end if
        end do
     end if
@@ -513,7 +513,7 @@ contains
 
   subroutine re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
     type(mesh_t), intent(inout) :: msh
-    integer (kind=MPI_OFFSET_KIND) :: mpi_offset
+    integer (kind= MPI_OFFSET_KIND) :: mpi_offset
     integer, intent(inout) :: nbcs
     type(linear_dist_t) :: dist
     type(MPI_File), intent(inout) :: fh
@@ -546,7 +546,7 @@ contains
           el_idx = int(re2v2_data_bc(i)%elem) - dist%start_idx()
           sym_facet = facet_map(int(re2v2_data_bc(i)%face))
 
-          select case(trim(re2v2_data_bc(i)%type))
+          select case (trim(re2v2_data_bc(i)%type))
           case ('W')
              call msh%mark_wall_facet(sym_facet, el_idx)
           case ('v', 'V')
@@ -584,7 +584,7 @@ contains
              do i = 1, nbcs
                 el_idx = re2v2_data_bc(i)%elem - dist%start_idx()
                 sym_facet = facet_map(int(re2v2_data_bc(i)%face))
-                select case(trim(re2v2_data_bc(i)%type))
+                select case (trim(re2v2_data_bc(i)%type))
                 case ('P')
                    p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
                    p_facet = facet_map(int(re2v2_data_bc(i)%bc_data(2)))
@@ -600,7 +600,7 @@ contains
        do i = 1, nbcs
           el_idx = re2v1_data_bc(i)%elem - dist%start_idx()
           sym_facet = facet_map(re2v1_data_bc(i)%face)
-          select case(trim(re2v1_data_bc(i)%type))
+          select case (trim(re2v1_data_bc(i)%type))
           case ('W')
              call msh%mark_wall_facet(sym_facet, el_idx)
           case ('v', 'V')
@@ -634,7 +634,7 @@ contains
              do i = 1, nbcs
                 el_idx = re2v1_data_bc(i)%elem - dist%start_idx()
                 sym_facet = facet_map(re2v1_data_bc(i)%face)
-                select case(trim(re2v1_data_bc(i)%type))
+                select case (trim(re2v1_data_bc(i)%type))
                 case ('P')
                    p_el_idx = int(re2v1_data_bc(i)%bc_data(1))
                    p_facet = facet_map(int(re2v1_data_bc(i)%bc_data(2)))

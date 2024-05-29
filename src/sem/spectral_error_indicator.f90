@@ -105,7 +105,7 @@ contains
   !! @param v v velocity field
   !! @param w w velocity field
   !! @param coef type with all geometrical variables
-  subroutine spec_err_ind_init(this, u,v,w,coef)
+  subroutine spec_err_ind_init(this, u, v, w, coef)
     class(spectral_error_indicator_t), intent(inout) :: this
     type(field_t), intent(in), target :: u
     type(field_t), intent(in), target :: v
@@ -146,19 +146,19 @@ contains
       SERI_ELR    => this%SERI_ELR     &
       )
       ! correctness check
-      if (SERI_NP.gt.SERI_NP_MAX) then
-         if (pe_rank.eq.0) write(*,*) 'SETI_NP greater than SERI_NP_MAX'
-      endif
+      if (SERI_NP .gt. SERI_NP_MAX) then
+         if (pe_rank .eq. 0) write(*,*) 'SETI_NP greater than SERI_NP_MAX'
+      end if
       il = SERI_NP+SERI_ELR
-      jl = min(LX1,LY1)
-      jl = min(jl,LZ1)
-      if (il.gt.jl) then
-         if (pe_rank.eq.0) write(*,*) 'SERI_NP+SERI_ELR greater than L?1'
-      endif
+      jl = min(LX1, LY1)
+      jl = min(jl, LZ1)
+      if (il .gt. jl) then
+         if (pe_rank .eq. 0) write(*,*) 'SERI_NP+SERI_ELR greater than L?1'
+      end if
     end associate
 
     !> Initialize the list that holds the fields to write
-    call list_init3(this%speri_l,this%u_hat,this%v_hat, &
+    call list_init3(this%speri_l, this%u_hat, this%v_hat, &
                     this%w_hat)
     ! Initialize the file
     fname_speri = 'speri.fld'
@@ -171,27 +171,27 @@ contains
   subroutine spec_err_ind_free(this)
     class(spectral_error_indicator_t), intent(inout) :: this
 
-    if(allocated(this%eind_u)) then
+    if (allocated(this%eind_u)) then
        deallocate(this%eind_u)
     end if
 
-    if(allocated(this%eind_v)) then
+    if (allocated(this%eind_v)) then
        deallocate(this%eind_v)
     end if
 
-    if(allocated(this%eind_w)) then
+    if (allocated(this%eind_w)) then
        deallocate(this%eind_w)
     end if
 
-    if(allocated(this%sig_u)) then
+    if (allocated(this%sig_u)) then
        deallocate(this%sig_u)
     end if
 
-    if(allocated(this%sig_w)) then
+    if (allocated(this%sig_w)) then
        deallocate(this%sig_w)
     end if
 
-    if(allocated(this%sig_w)) then
+    if (allocated(this%sig_w)) then
        deallocate(this%sig_w)
     end if
 
@@ -238,14 +238,14 @@ contains
        call copy(wk%x,u%x,n)
     end if
 
-    select case(space)
-    case('spec')
+    select case (space)
+    case ('spec')
        call tnsr3d(u_hat%x, coef%Xh%lx, wk%x, &
-                    coef%Xh%lx,coef%Xh%vinv, &
+                    coef%Xh%lx, coef%Xh%vinv, &
                     coef%Xh%vinvt, coef%Xh%vinvt, nelv)
-    case('phys')
+    case ('phys')
        call tnsr3d(u_hat%x, coef%Xh%lx, wk%x, &
-                    coef%Xh%lx,coef%Xh%v, &
+                    coef%Xh%lx, coef%Xh%v, &
                     coef%Xh%vt, coef%Xh%vt, nelv)
     end select
 
@@ -253,15 +253,15 @@ contains
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
        (NEKO_BCKND_OPENCL .eq. 1)) then
 
-       call device_memcpy(u_hat%x,u_hat%x_d, n, &
-                         DEVICE_TO_HOST, sync=.true.)
+       call device_memcpy(u_hat%x, u_hat%x_d, n, &
+                         DEVICE_TO_HOST, sync = .true.)
     end if
 
   end subroutine transform_to_spec_or_phys
 
   !> Transform and get the spectral error indicators
   !! @param coef type coef for mesh parameters and space
-  subroutine spec_err_ind_get(this,coef)
+  subroutine spec_err_ind_get(this, coef)
     class(spectral_error_indicator_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
     integer :: i
@@ -300,8 +300,8 @@ contains
     nelv = this%u_hat%msh%nelv
 
     !> Copy the element indicator into all points of the field
-    do e = 1,nelv
-       do i = 1,lx*ly*lx
+    do e = 1, nelv
+       do i = 1, lx*ly*lx
           this%u_hat%x(i,1,1,e) = this%eind_u(e)
           this%v_hat%x(i,1,1,e) = this%eind_v(e)
           this%w_hat%x(i,1,1,e) = this%eind_w(e)
@@ -333,18 +333,18 @@ contains
     integer :: LZ1
     real(kind=rp) :: eind(lnelt)
     real(kind=rp) :: sig(lnelt)
-    real(kind=rp) :: var(LX1,LY1,LZ1,lnelt)
+    real(kind=rp) :: var(LX1, LY1, LZ1, lnelt)
 
-    real(kind=rp) :: xa(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz)
-    real(kind=rp) :: xb(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz)
+    real(kind=rp) :: xa(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz)
+    real(kind=rp) :: xb(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz)
     integer :: i, e
 
     ! zero arrays
-    call rzero(eind,lnelt)
-    call rzero(sig,lnelt)
+    call rzero(eind, lnelt)
+    call rzero(sig, lnelt)
 
     ! Get the indicator
-    call speri_var(this, eind,sig,var,lnelt,xa,xb, LX1, LY1, LZ1)
+    call speri_var(this, eind, sig, var, lnelt, xa, xb, LX1, LY1, LZ1)
 
   end subroutine calculate_indicators
 
@@ -359,7 +359,7 @@ contains
   !! @param LX1 gll points in x
   !! @param LY1 gll points in y
   !! @param LZ1 gll points in z
-  subroutine speri_var(this, est,sig,var,nell,xa,xb,LX1,LY1,LZ1)
+  subroutine speri_var(this, est, sig, var, nell, xa, xb, LX1, LY1, LZ1)
     type(spectral_error_indicator_t), intent(inout) :: this
     integer :: nell
     integer :: LX1
@@ -367,20 +367,20 @@ contains
     integer :: LZ1
     real(kind=rp) :: est(nell)
     real(kind=rp) :: sig(nell)
-    real(kind=rp) :: var(LX1,LY1,LZ1,nell)
-    real(kind=rp) :: xa(LX1,LY1,LZ1)
-    real(kind=rp) :: xb(LX1,LY1,LZ1)
+    real(kind=rp) :: var(LX1, LY1, LZ1, nell)
+    real(kind=rp) :: xa(LX1, LY1, LZ1)
+    real(kind=rp) :: xb(LX1, LY1, LZ1)
 
     !> local variables
     integer :: il, jl, kl, ll, j_st, j_en, ii
     !> polynomial coefficients
-    real(kind=rp) :: coeff(LX1,LY1,LZ1)
+    real(kind=rp) :: coeff(LX1, LY1, LZ1)
     !> Legendre coefficients; first value coeff(1,1,1)
     real(kind=rp) ::  coef11
     !> copy of last SERI_NP columns of coefficients
-    real(kind=rp) ::  coefx(this%SERI_NP_MAX,LY1,LZ1), &
-                      coefy(this%SERI_NP_MAX,LX1,LZ1), &
-                      coefz(this%SERI_NP_MAX,LX1,LY1)
+    real(kind=rp) ::  coefx(this%SERI_NP_MAX, LY1, LZ1), &
+                      coefy(this%SERI_NP_MAX, LX1, LZ1), &
+                      coefz(this%SERI_NP_MAX, LX1, LY1)
     !> estimated error
     real(kind=rp) ::  estx, esty, estz
     !> estimated decay rate
@@ -389,66 +389,66 @@ contains
     parameter (third = 1.0/3.0)
 
     !> loop over elements
-    do il = 1,nell
+    do il = 1, nell
        !> go to Legendre space (done in two operations)
        !! and square the coefficient
        do ii = 1, LX1*LY1*LZ1
-          coeff(ii,1,1) = var(ii,1,1,il) * var(ii,1,1,il)
+          coeff(ii,1,1) = var(ii,1,1, il) * var(ii,1,1, il)
        end do
 
        !> lower left corner
        coef11 = coeff(1,1,1)
 
        !> small value; nothing to od
-       if (coef11.ge.this%SERI_SMALL) then
+       if (coef11 .ge. this%SERI_SMALL) then
           !> extrapolate coefficients
           !> X - direction
           !> copy last SERI_NP collumns (or less if NX1 is smaller)
           !> SERI_ELR allows to exclude last row
-          j_st = max(1,LX1-this%SERI_NP+1-this%SERI_ELR)
-          j_en = max(1,LX1-this%SERI_ELR)
-          do ll = 1,LZ1
-             do kl = 1,LY1
-                do jl = j_st,j_en
-                   coefx(j_en-jl+1,kl,ll) = coeff(jl,kl,ll)
-                enddo
-             enddo
-          enddo
+          j_st = max(1, LX1-this%SERI_NP+1-this%SERI_ELR)
+          j_en = max(1, LX1-this%SERI_ELR)
+          do ll = 1, LZ1
+             do kl = 1, LY1
+                do jl = j_st, j_en
+                   coefx(j_en-jl+1, kl, ll) = coeff(jl, kl, ll)
+                end do
+             end do
+          end do
           !> get extrapolated values
-          call speri_extrap(this,estx,sigx,coef11,coefx, &
-            j_st,j_en,LY1,LZ1)
+          call speri_extrap(this, estx, sigx, coef11, coefx, &
+            j_st, j_en, LY1, LZ1)
 
           !> Y - direction
           !> copy last SERI_NP collumns (or less if NY1 is smaller)
           !> SERI_ELR allows to exclude last row
-          j_st = max(1,LY1-this%SERI_NP+1-this%SERI_ELR)
-          j_en = max(1,LY1-this%SERI_ELR)
-          do ll = 1,LZ1
-             do kl = j_st,j_en
-                do jl = 1,LX1
-                   coefy(j_en-kl+1,jl,ll) = coeff(jl,kl,ll)
-                enddo
-             enddo
-          enddo
+          j_st = max(1, LY1-this%SERI_NP+1-this%SERI_ELR)
+          j_en = max(1, LY1-this%SERI_ELR)
+          do ll = 1, LZ1
+             do kl = j_st, j_en
+                do jl = 1, LX1
+                   coefy(j_en-kl+1, jl, ll) = coeff(jl, kl, ll)
+                end do
+             end do
+          end do
           !> get extrapolated values
-          call speri_extrap(this, esty,sigy,coef11,coefy, &
-             j_st,j_en,LX1,LZ1)
+          call speri_extrap(this, esty, sigy, coef11, coefy, &
+             j_st, j_en, LX1, LZ1)
 
           !> Z - direction
           !> copy last SERI_NP collumns (or less if NZ1 is smaller)
           !> SERI_ELR allows to exclude last row
-          j_st = max(1,LZ1-this%SERI_NP+1-this%SERI_ELR)
-          j_en = max(1,LZ1-this%SERI_ELR)
-          do ll = j_st,j_en
-             do kl = 1,LY1
-                do jl = 1,LX1
-                   coefz(j_en-ll+1,jl,kl) = coeff(jl,kl,ll)
-                enddo
-             enddo
-          enddo
+          j_st = max(1, LZ1-this%SERI_NP+1-this%SERI_ELR)
+          j_en = max(1, LZ1-this%SERI_ELR)
+          do ll = j_st, j_en
+             do kl = 1, LY1
+                do jl = 1, LX1
+                   coefz(j_en-ll+1, jl, kl) = coeff(jl, kl, ll)
+                end do
+             end do
+          end do
           !> get extrapolated values
-          call speri_extrap(this, estz,sigz,coef11,coefz, &
-        j_st,j_en,LX1,LY1)
+          call speri_extrap(this, estz, sigz, coef11, coefz, &
+        j_st, j_en, LX1, LY1)
 
           !> average
           est(il) =  sqrt(estx + esty + estz)
@@ -466,7 +466,7 @@ contains
 
           est(il) =  0.0
           sig(il) = -1.0
-       endif
+       end if
 
     end do
 
@@ -482,14 +482,14 @@ contains
   !! @paran ix_en argument list
   !! @param nyl argument list
   !! @param nzl argument list
-  subroutine speri_extrap(this,estx,sigx,coef11,coef, &
-                ix_st,ix_en,nyl,nzl)
+  subroutine speri_extrap(this, estx, sigx, coef11, coef, &
+                ix_st, ix_en, nyl, nzl)
     implicit none
     type(spectral_error_indicator_t), intent(inout) :: this
     !> argument list
-    integer :: ix_st,ix_en,nyl,nzl
+    integer :: ix_st, ix_en, nyl, nzl
     !> Legendre coefficients; last SERI_NP columns
-    real(kind=rp) :: coef(this%SERI_NP_MAX,nyl,nzl)
+    real(kind=rp) :: coef(this%SERI_NP_MAX, nyl, nzl)
     !> Legendre coefficients; first value coeff(1,1,1)
     real(kind=rp) :: coef11
     !> estimated error and decay rate
@@ -522,77 +522,77 @@ contains
       pnr = ix_en - ix_st +1
 
       ! to few points to interpolate
-      !if ((ix_en - ix_st).le.1) return
+      !if ((ix_en - ix_st) .le.1) return
 
       ! for averaging, initial values
       sigt = 0.0
       nsigt = 0
 
       ! loop over all face points
-      nzlt = max(1,nzl - SERI_ELR) !  for 2D runs
-      do il=1,nzlt
+      nzlt = max(1, nzl - SERI_ELR) !  for 2D runs
+      do il = 1, nzlt
          ! weight
          rtmp3 = 1.0/(2.0*(il-1)+1.0)
-         do jl=1,nyl - SERI_ELR
+         do jl = 1, nyl - SERI_ELR
 
             ! find min and max coef along single row
-            cffl(1) = coef(1,jl,il)
+            cffl(1) = coef(1, jl, il)
             cmin = cffl(1)
             cmax = cmin
-            do kl =2,pnr
-               cffl(kl) = coef(kl,jl,il)
-               cmin = min(cmin,cffl(kl))
-               cmax = max(cmax,cffl(kl))
-            enddo
+            do kl = 2, pnr
+               cffl(kl) = coef(kl, jl, il)
+               cmin = min(cmin, cffl(kl))
+               cmax = max(cmax, cffl(kl))
+            end do
 
             ! are coefficients sufficiently big
-            if((cmin.gt.0.0).and.(cmax.gt.smallr)) then
+            if ((cmin .gt. 0.0) .and. (cmax .gt. smallr)) then
                ! mark array position we use in iterpolation
-               do kl =1,pnr
+               do kl = 1, pnr
                   cuse(kl) = .TRUE.
-               enddo
+               end do
                ! max n for polynomial order
                cnm = real(ix_en)
 
                ! check if all the points should be taken into account
                ! in original code by Catherine Mavriplis this part is written
                ! for 4 points, so I place if statement first
-               if (pnr.eq.4) then
+               if (pnr .eq. 4) then
                   ! should we neglect last values
-                  if ((cffl(1).lt.smallr).and. &
-                 (cffl(2).lt.smallr)) then
-                     if (cffl(3).lt.smallr) then
+                  if ((cffl(1) .lt. smallr) .and. &
+                 (cffl(2) .lt. smallr)) then
+                     if (cffl(3) .lt. smallr) then
                         cuse(1) = .FALSE.
                         cuse(2) = .FALSE.
                         cnm = real(ix_en-2)
                      else
                         cuse(1) = .FALSE.
                         cnm = real(ix_en-1)
-                     endif
+                     end if
                   else
                      ! should we take stronger gradient
-                     if ((cffl(1)/cffl(2).lt.SERI_SMALLG).and. &
-                   (cffl(3)/cffl(4).lt.SERI_SMALLG)) then
+                     if ((cffl(1)/cffl(2) .lt. SERI_SMALLG) .and. &
+                   (cffl(3)/cffl(4) .lt. SERI_SMALLG)) then
                         cuse(1) = .FALSE.
                         cuse(3) = .FALSE.
                         cnm = real(ix_en-1)
-                     elseif ((cffl(2)/cffl(1).lt.SERI_SMALLG).and. &
-                       (cffl(4)/cffl(3).lt.SERI_SMALLG)) then
+                     elseif ((cffl(2)/cffl(1) .lt. SERI_SMALLG) .and. &
+                       (cffl(4)/cffl(3) .lt. SERI_SMALLG)) then
                         cuse(2) = .FALSE.
                         cuse(4) = .FALSE.
-                     endif
-                  endif
-               endif
+                     end if
+                  end if
+               end if
 
                ! get sigma for given face point
-               do kl =1,4
+               do kl = 1,4
                   sumtmp(kl) = 0.0
-               enddo
+               end do
                ! find new min and count number of points
                cmin = cmax
                cmax = 0.0
-               do kl =1,pnr
-                  if(cuse(kl)) then
+               do kl = 1, pnr
+                  if (cuse(kl)) then
                      rtmp  = real(ix_en-kl)
                      rtmp2 = log(cffl(kl))
                      sumtmp(1) = sumtmp(1) +rtmp2
@@ -600,10 +600,10 @@ contains
                      sumtmp(3) = sumtmp(3) +rtmp*rtmp
                      sumtmp(4) = sumtmp(4) +rtmp2*rtmp
                      ! find new min and count used points
-                     cmin = min(cffl(kl),cmin)
+                     cmin = min(cffl(kl), cmin)
                      cmax = cmax + 1.0
-                  endif
-               enddo
+                  end if
+               end do
                ! decay rate along single row
                stmp = (sumtmp(1)*sumtmp(2) - sumtmp(4)*cmax)/ &
                    (sumtmp(3)*cmax - sumtmp(2)*sumtmp(2))
@@ -613,7 +613,7 @@ contains
 
                ! get error estimator depending on calculated decay rate
                estt = 0.0
-               if (stmp.lt.SERI_SMALLS) then
+               if (stmp .lt. SERI_SMALLS) then
                   estt = cmin
                else
                   ! get averaged constant in front of c*exp(-sig*n)
@@ -622,31 +622,31 @@ contains
                   ! average exponent
                   cave = sumtmp(1)/cmax
                   ! check quality of approximation comparing is to the constant cave
-                  do kl =1,2
+                  do kl = 1,2
                      sumtmp(kl) = 0.0
-                  enddo
-                  do kl =1,pnr
-                     if(cuse(kl)) then
+                  end do
+                  do kl = 1, pnr
+                     if (cuse(kl)) then
                         erlog = clog - stmp*real(ix_en-kl)
                         sumtmp(1) = sumtmp(1)+ &
                             (erlog-log(cffl(kl)))**2
                         sumtmp(2) = sumtmp(2)+ &
                   (erlog-cave)**2
-                     endif
-                  enddo
+                     end if
+                  end do
                   rtmp = 1.0 - sumtmp(1)/sumtmp(2)
-                  if (rtmp.lt.SERI_SMALLS) then
+                  if (rtmp .lt. SERI_SMALLS) then
                      estt = cmin
                   else
                      ! last coefficient is not included in error estimator
                      estt = ctmp/stmp*exp(-stmp*cnm)
-                  endif
-               endif
+                  end if
+               end if
                ! add contribution to error estimator; variable weight
                estx = estx + estt/(2.0*(jl-1)+1.0)*rtmp3
-            endif  ! if((cmin.gt.0.0).and.(cmax.gt.smallr))
-         enddo
-      enddo
+            end if  ! if ((cmin .gt. 0.0) .and. (cmax .gt. smallr))
+         end do
+      end do
       ! constant weight
       ! Multiplication by 4 in 2D / 8 in 3D
       ! Normalization of the error by the volume of the reference element
@@ -656,9 +656,9 @@ contains
 
       ! final everaging
       ! sigt = 2*sigma so we divide by 2
-      if (nsigt.gt.0) then
+      if (nsigt .gt. 0) then
          sigx = 0.5*sigt/nsigt
-      endif
+      end if
 
     end associate
 
@@ -671,9 +671,9 @@ contains
   !! @param ww field to add to the list
   subroutine list_init3(list, uu, vv, ww)
     type(field_list_t), intent(inout) :: list
-    type(field_t), target:: uu
-    type(field_t), target:: vv
-    type(field_t), target:: ww
+    type(field_t), target :: uu
+    type(field_t), target :: vv
+    type(field_t), target :: ww
     !> Initialize field lists
     call list%init(3)
     call list%assign_to_field(1, uu)
