@@ -82,7 +82,7 @@ module ax_product
   !! @param Xh Function space \f$ X_h \f$.
   abstract interface
      subroutine ax_compute_vector(this, au, av, aw, u, v, w, coef, msh, Xh)
-        import space_t
+       import space_t
        import mesh_t
        import coef_t
        import ax_t
