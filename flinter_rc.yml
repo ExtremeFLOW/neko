@@ -153,13 +153,13 @@ regexp-rules:
 
   not-recommended-bare-end:
     message: Bare end statement not recommended
-    regexp: ^end$
+    regexp: \s^end$
     replacement: null
     active: true
   
   not-recommended-bare-stop:
     message: Bare stop statement not recommended
-    regexp: ^stop$
+    regexp: \s^stop$
     replacement: null
     active: true
   
