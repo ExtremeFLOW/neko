@@ -70,9 +70,13 @@ module ax_product
   end interface
 
   !> Abstract interface for computing\f$ Ax \f$ inside a Krylov method,
-  !! taking 3 vectors at the same time.
-  !! @param w Vector of size @a (lx,ly,lz,nelv).
-  !! @param u Vector of size @a (lx,ly,lz,nelv).
+  !! taking 3 components of a vector field in a coupled manner.
+  !! @param au Result for the first component of the vector.
+  !! @param av Result for the first component of the vector.
+  !! @param aw Result for the first component of the vector.
+  !! @param u The first component of the vector.
+  !! @param v The second component of the vector.
+  !! @param w The third component of the vector.
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
