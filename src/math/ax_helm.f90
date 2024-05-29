@@ -43,11 +43,22 @@ module ax_helm
   !> Matrix-vector product for a Helmholtz problem.
   type, public, abstract, extends(ax_t) :: ax_helm_t
    contains
-     !> Compute the product for 3 fields.
+     !! Compute the product for 3 compenents of a vector field.
      procedure, pass(this) :: compute_vector => ax_helm_compute_vector
   end type ax_helm_t
 
 contains
+  !! Compute the product for 3 compenents of a vector field.
+  !! @details applies `compute` to one component at a time.
+  !! @param au Result for the first component of the vector.
+  !! @param av Result for the first component of the vector.
+  !! @param aw Result for the first component of the vector.
+  !! @param u The first component of the vector.
+  !! @param v The second component of the vector.
+  !! @param w The third component of the vector.
+  !! @param coef Coefficients.
+  !! @param msh Mesh.
+  !! @param Xh Function space \f$ X_h \f$.
   subroutine ax_helm_compute_vector(this, au, av, aw, u, v, w, coef, msh, Xh)
     class(ax_helm_t), intent(in) :: this
     type(space_t), intent(inout) :: Xh
