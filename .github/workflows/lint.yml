@@ -2,6 +2,7 @@ name: Linting
 
 # Controls when the action will run.
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       global_minimum_score:
@@ -37,7 +38,7 @@ jobs:
           score=$(awk '$1==0{print $3}' flint.txt)
 
           if (( $(echo "$score < $min_score" | bc -l) )); then
-            echo "Linting requirement not met: $score < $min_score" >&2
+            echo "Linting requirement not met, $score < $min_score" >&2
             exit 1
           fi
       - name: Archive linter report
