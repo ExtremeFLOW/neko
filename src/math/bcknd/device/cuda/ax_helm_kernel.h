@@ -1,7 +1,7 @@
 #ifndef __MATH_AX_HELM_KERNEL_H__
 #define __MATH_AX_HELM_KERNEL_H__
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -318,17 +318,17 @@ __global__ void ax_helm_kernel_kstep_padded(T * __restrict__ w,
       stmp += shdy[j+l*(LX+1)] * shu[i+l*(LX+1)];
     }
     shur[ij] = H1
-	     * (G00 * rtmp
-		+ G01 * stmp
-		+ G02 * ttmp);
+             * (G00 * rtmp
+                + G01 * stmp
+                + G02 * ttmp);
     shus[ij_p] = H1
-	     * (G01 * rtmp
-		+ G11 * stmp
-		+ G12 * ttmp);
+               * (G01 * rtmp
+                  + G11 * stmp
+                  + G12 * ttmp);
     rut      = H1
-	     * (G02 * rtmp
-		+ G12 * stmp
-		+ G22 * ttmp);
+             * (G02 * rtmp
+                + G12 * stmp
+                + G22 * ttmp);
 
     __syncthreads();
 
@@ -622,9 +622,9 @@ __global__ void ax_helm_kernel_vector_kstep_padded(T * __restrict__ au,
     shv[ij_p] = rv[k];
     shw[ij_p] = rw[k];
     for (int l = 0; l < LX; l++){
-      uttmp += shdz[k+l*LX] * ru[l];
-      vttmp += shdz[k+l*LX] * rv[l];
-      wttmp += shdz[k+l*LX] * rw[l];
+      uttmp += shdz[k+l*(LX+1)] * ru[l];
+      vttmp += shdz[k+l*(LX+1)] * rv[l];
+      wttmp += shdz[k+l*(LX+1)] * rw[l];
     }
     __syncthreads();
 
@@ -638,14 +638,14 @@ __global__ void ax_helm_kernel_vector_kstep_padded(T * __restrict__ au,
     T wstmp = 0.0;
 #pragma unroll
     for (int l = 0; l < LX; l++){
-      urtmp += shdx[i+l*LX] * shu[l+j*LX];
-      ustmp += shdy[j+l*LX] * shu[i+l*LX];
+      urtmp += shdx[i+l*(LX+1)] * shu[l+j*(LX+1)];
+      ustmp += shdy[j+l*(LX+1)] * shu[i+l*(LX+1)];
 
-      vrtmp += shdx[i+l*LX] * shv[l+j*LX];
-      vstmp += shdy[j+l*LX] * shv[i+l*LX];
+      vrtmp += shdx[i+l*(LX+1)] * shv[l+j*(LX+1)];
+      vstmp += shdy[j+l*(LX+1)] * shv[i+l*(LX+1)];
 
-      wrtmp += shdx[i+l*LX] * shw[l+j*LX];
-      wstmp += shdy[j+l*LX] * shw[i+l*LX];
+      wrtmp += shdx[i+l*(LX+1)] * shw[l+j*(LX+1)];
+      wstmp += shdy[j+l*(LX+1)] * shw[i+l*(LX+1)];
     }
 
     shur[ij] = H1
@@ -694,17 +694,17 @@ __global__ void ax_helm_kernel_vector_kstep_padded(T * __restrict__ au,
     T wwijke = 0.0;
 #pragma unroll
     for (int l = 0; l < LX; l++){
-      uwijke += shur[l+j*LX] * shdx[l+i*LX];
-      ruw[l] += rut * shdz[k+l*LX];
-      uwijke += shus[i+l*LX] * shdy[l + j*LX];
+      uwijke += shur[l+j*LX] * shdx[l+i*(LX+1)];
+      ruw[l] += rut * shdz[k+l*(LX+1)];
+      uwijke += shus[i+l*(LX+1)] * shdy[l + j*(LX+1)];
 
-      vwijke += shvr[l+j*LX] * shdx[l+i*LX];
-      rvw[l] += rvt * shdz[k+l*LX];
-      vwijke += shvs[i+l*LX] * shdy[l + j*LX];
+      vwijke += shvr[l+j*LX] * shdx[l+i*(LX+1)];
+      rvw[l] += rvt * shdz[k+l*(LX+1)];
+      vwijke += shvs[i+l*(LX+1)] * shdy[l + j*(LX+1)];
 
-      wwijke += shwr[l+j*LX] * shdx[l+i*LX];
-      rww[l] += rwt * shdz[k+l*LX];
-      wwijke += shws[i+l*LX] * shdy[l + j*LX];
+      wwijke += shwr[l+j*LX] * shdx[l+i*(LX+1)];
+      rww[l] += rwt * shdz[k+l*(LX+1)];
+      wwijke += shws[i+l*(LX+1)] * shdy[l + j*(LX+1)];
     }
     ruw[k] += uwijke;
     rvw[k] += vwijke;
