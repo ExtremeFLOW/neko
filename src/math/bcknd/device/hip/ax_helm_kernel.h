@@ -469,42 +469,42 @@ __global__ void __launch_bounds__(LX*LX,3)
 
     shur[ij] = H1
              * (G00 * urtmp
-		+ G01 * ustmp
-		+ G02 * uttmp);
+                + G01 * ustmp
+                + G02 * uttmp);
     shus[ij] = H1
              * (G01 * urtmp
-		+ G11 * ustmp
-		+ G12 * uttmp);
+                + G11 * ustmp
+                + G12 * uttmp);
     rut      = H1
-	     * (G02 * urtmp
-		+ G12 * ustmp
-		+ G22 * uttmp);
+             * (G02 * urtmp
+                + G12 * ustmp
+                + G22 * uttmp);
 
     shvr[ij] = H1
-	     * (G00 * vrtmp
-		+ G01 * vstmp
-		+ G02 * vttmp);
+             * (G00 * vrtmp
+                + G01 * vstmp
+                + G02 * vttmp);
     shvs[ij] = H1
-	     * (G01 * vrtmp
-		+ G11 * vstmp
-		+ G12 * vttmp);
+             * (G01 * vrtmp
+                + G11 * vstmp
+                + G12 * vttmp);
     rvt      = H1
-	     * (G02 * vrtmp
-		+ G12 * vstmp
-		+ G22 * vttmp);
+             * (G02 * vrtmp
+                + G12 * vstmp
+                + G22 * vttmp);
 
     shwr[ij] = H1
-	     * (G00 * wrtmp
-		+ G01 * wstmp
-		+ G02 * wttmp);
+             * (G00 * wrtmp
+                + G01 * wstmp
+                + G02 * wttmp);
     shws[ij] = H1
-	     * (G01 * wrtmp
-		+ G11 * wstmp
-		+ G12 * wttmp);
+             * (G01 * wrtmp
+                + G11 * wstmp
+                + G12 * wttmp);
     rwt      = H1
-	     * (G02 * wrtmp
-		+ G12 * wstmp
-		+ G22 * wttmp);
+             * (G02 * wrtmp
+                + G12 * wstmp
+                + G22 * wttmp);
 
     __syncthreads();
 
@@ -653,43 +653,43 @@ __global__ void __launch_bounds__(LX*LX,3)
     }
 
     shur[ij] = H1
-	     * (G00 * urtmp
-		+ G01 * ustmp
-		+ G02 * uttmp);
+             * (G00 * urtmp
+                + G01 * ustmp
+                + G02 * uttmp);
     shus[ij_p] = H1
                * (G01 * urtmp
                   + G11 * ustmp
                   + G12 * uttmp);
     rut      = H1
-	     * (G02 * urtmp
-		+ G12 * ustmp
-		+ G22 * uttmp);
+             * (G02 * urtmp
+                + G12 * ustmp
+                + G22 * uttmp);
 
     shvr[ij] = H1
-	     * (G00 * vrtmp
-		+ G01 * vstmp
-		+ G02 * vttmp);
+             * (G00 * vrtmp
+                + G01 * vstmp
+                + G02 * vttmp);
     shvs[ij_p] = H1
-	       * (G01 * vrtmp
+               * (G01 * vrtmp
                   + G11 * vstmp
                   + G12 * vttmp);
     rvt      = H1
-	     * (G02 * vrtmp
-		+ G12 * vstmp
-		+ G22 * vttmp);
+             * (G02 * vrtmp
+                + G12 * vstmp
+                + G22 * vttmp);
 
     shwr[ij] = H1
-	     * (G00 * wrtmp
-		+ G01 * wstmp
-		+ G02 * wttmp);
+             * (G00 * wrtmp
+                + G01 * wstmp
+                + G02 * wttmp);
     shws[ij_p] = H1
-	       * (G01 * wrtmp
+               * (G01 * wrtmp
                   + G11 * wstmp
                   + G12 * wttmp);
     rwt      = H1
-	     * (G02 * wrtmp
-		+ G12 * wstmp
-		+ G22 * wttmp);
+             * (G02 * wrtmp
+                + G12 * wstmp
+                + G22 * wttmp);
 
     __syncthreads();
 

@@ -214,17 +214,17 @@ __global__ void ax_helm_kernel_kstep(T * __restrict__ w,
       stmp += shdy[j+l*LX] * shu[i+l*LX];
     }
     shur[ij] = H1
-	     * (G00 * rtmp
-		+ G01 * stmp
-		+ G02 * ttmp);
+             * (G00 * rtmp
+                + G01 * stmp
+                + G02 * ttmp);
     shus[ij] = H1
-	     * (G01 * rtmp
-		+ G11 * stmp
-		+ G12 * ttmp);
+             * (G01 * rtmp
+                + G11 * stmp
+                + G12 * ttmp);
     rut      = H1
-	     * (G02 * rtmp
-		+ G12 * stmp
-		+ G22 * ttmp);
+             * (G02 * rtmp
+                + G12 * stmp
+                + G22 * ttmp);
 
     __syncthreads();
 
@@ -466,42 +466,42 @@ __global__ void ax_helm_kernel_vector_kstep(T * __restrict__ au,
 
     shur[ij] = H1
              * (G00 * urtmp
-		+ G01 * ustmp
-		+ G02 * uttmp);
+                + G01 * ustmp
+                + G02 * uttmp);
     shus[ij] = H1
              * (G01 * urtmp
-		+ G11 * ustmp
-		+ G12 * uttmp);
+                + G11 * ustmp
+                + G12 * uttmp);
     rut      = H1
-	     * (G02 * urtmp
-		+ G12 * ustmp
-		+ G22 * uttmp);
+             * (G02 * urtmp
+                + G12 * ustmp
+                + G22 * uttmp);
 
     shvr[ij] = H1
-	     * (G00 * vrtmp
-		+ G01 * vstmp
-		+ G02 * vttmp);
+             * (G00 * vrtmp
+                + G01 * vstmp
+                + G02 * vttmp);
     shvs[ij] = H1
-	     * (G01 * vrtmp
-		+ G11 * vstmp
-		+ G12 * vttmp);
+             * (G01 * vrtmp
+                + G11 * vstmp
+                + G12 * vttmp);
     rvt      = H1
-	     * (G02 * vrtmp
-		+ G12 * vstmp
-		+ G22 * vttmp);
+             * (G02 * vrtmp
+                + G12 * vstmp
+                + G22 * vttmp);
 
     shwr[ij] = H1
-	     * (G00 * wrtmp
-		+ G01 * wstmp
-		+ G02 * wttmp);
+             * (G00 * wrtmp
+                + G01 * wstmp
+                + G02 * wttmp);
     shws[ij] = H1
-	     * (G01 * wrtmp
-		+ G11 * wstmp
-		+ G12 * wttmp);
+             * (G01 * wrtmp
+                + G11 * wstmp
+                + G12 * wttmp);
     rwt      = H1
-	     * (G02 * wrtmp
-		+ G12 * wstmp
-		+ G22 * wttmp);
+             * (G02 * wrtmp
+                + G12 * wstmp
+                + G22 * wttmp);
 
     __syncthreads();
 
@@ -649,43 +649,43 @@ __global__ void ax_helm_kernel_vector_kstep_padded(T * __restrict__ au,
     }
 
     shur[ij] = H1
-	     * (G00 * urtmp
-		+ G01 * ustmp
-		+ G02 * uttmp);
+             * (G00 * urtmp
+                + G01 * ustmp
+                + G02 * uttmp);
     shus[ij_p] = H1
                * (G01 * urtmp
                   + G11 * ustmp
                   + G12 * uttmp);
     rut      = H1
-	     * (G02 * urtmp
-		+ G12 * ustmp
-		+ G22 * uttmp);
+             * (G02 * urtmp
+                + G12 * ustmp
+                + G22 * uttmp);
 
     shvr[ij] = H1
-	     * (G00 * vrtmp
-		+ G01 * vstmp
-		+ G02 * vttmp);
+             * (G00 * vrtmp
+                + G01 * vstmp
+                + G02 * vttmp);
     shvs[ij_p] = H1
-	       * (G01 * vrtmp
+               * (G01 * vrtmp
                   + G11 * vstmp
                   + G12 * vttmp);
     rvt      = H1
-	     * (G02 * vrtmp
-		+ G12 * vstmp
-		+ G22 * vttmp);
+             * (G02 * vrtmp
+                + G12 * vstmp
+                + G22 * vttmp);
 
     shwr[ij] = H1
-	     * (G00 * wrtmp
-		+ G01 * wstmp
-		+ G02 * wttmp);
+             * (G00 * wrtmp
+                + G01 * wstmp
+                + G02 * wttmp);
     shws[ij_p] = H1
-	       * (G01 * wrtmp
+               * (G01 * wrtmp
                   + G11 * wstmp
                   + G12 * wttmp);
     rwt      = H1
-	     * (G02 * wrtmp
-		+ G12 * wstmp
-		+ G22 * wttmp);
+             * (G02 * wrtmp
+                + G12 * wstmp
+                + G22 * wttmp);
 
     __syncthreads();
 
