@@ -174,10 +174,11 @@ contains
           call json_get(params, 'case.scalar.lambda', this%lambda)
           call json_get(params, 'case.scalar.cp', this%cp)
        end if
+
+       call this%write_to_log(.true.)
+       call neko_log%end_section()
     end if
 
-    call this%write_to_log(.true.)
-    call neko_log%end_section()
 
   end subroutine material_properties_init
 
