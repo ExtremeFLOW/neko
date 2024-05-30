@@ -82,6 +82,10 @@ jobs:
           changed_files: ${{ steps.get-changed-files.outputs.changed-files }}
           min_score: ${{ github.event.inputs.changed_files_minimum_score }}
         run: |
+          if [ -z "$changed_files" ]; then
+            echo "No files changed"
+            exit 0
+          fi
 
           fails=()
           for file in $changed_files; do
