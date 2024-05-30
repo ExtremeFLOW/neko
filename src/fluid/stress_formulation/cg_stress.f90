@@ -41,7 +41,6 @@ module cg_stress
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
   use math, only : glsc3, glsc2, add2s1
-  use stress_formulation
   implicit none
   private
 
@@ -186,8 +185,10 @@ contains
   end function cg_stress_nop
 
 
-  function cg_stress_solve(this, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+  function cg_stress_solve(this, Ax, x, y, z, fx, fy, fz, n, coef, blstx, blsty, &
+                           blstz, gs_h, niter) result(ksp_results)
     class(cg_stress_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x, y, z
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: fx, fy, fz
@@ -253,7 +254,7 @@ contains
        call add2s1(this%p2, this%z2, beta, n)
        call add2s1(this%p3, this%z3, beta, n)
 
-       call ax_helm_stress_compute(this%w1, this%w2, this%w3, &
+       call Ax%compute_vector(this%w1, this%w2, this%w3, &
                        this%p1, this%p2, this%p3, coef, x%msh, x%Xh)
        call gs_h%op(this%w1, n, GS_OP_ADD)
        call gs_h%op(this%w2, n, GS_OP_ADD)

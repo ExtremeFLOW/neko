@@ -11,7 +11,6 @@ module pnpn_res_stress_cpu
   use mesh, only : mesh_t
   use num_types, only : rp
   use space, only : space_t
-  use stress_formulation, only : ax_helm_stress_compute
   use math, only : rzero, vdot3, cmult, sub2, col2
   implicit none
   private
@@ -213,7 +212,7 @@ contains
     c_Xh%ifh2 = .true.
 
     ! Viscous stresses
-    call ax_helm_stress_compute(u_res%x, v_res%x, w_res%x, u%x, v%x, w%x, c_Xh,&
+    call Ax%compute_vector(u_res%x, v_res%x, w_res%x, u%x, v%x, w%x, c_Xh,&
                                 msh, Xh)
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1))

@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_full
-  use ax_product, only : ax_t
+module ax_helm_full_cpu
+  use ax_helm_full, only : ax_helm_full_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -41,31 +41,41 @@ module ax_helm_full
   implicit none
   private
 
-  !> Matrix-vector product for a Helmholtz problem.
-  type, public, abstract, extends(ax_t) :: ax_helm_full_t
+  !> CPU matrix-vector product for a Helmholtz problem with full stress tensor.
+  type, public, extends(ax_helm_full_t) :: ax_helm_full_cpu_t
    contains
-     !> Compute the product for 3 fields.
-     procedure, nopass :: compute => ax_helm_full_compute
-  end type ax_helm_full_t
+     !> Compute the product.
+     procedure, pass(this) :: compute_vector => ax_helm_full_compute_vector
+  end type ax_helm_full_cpu_t
 
 contains
 
-  !> Compute the product for a single vector. Not implemented for the full
-  !! stress formulation.
-  !! @param w Vector of size @a (lx,ly,lz,nelv).
-  !! @param u Vector of size @a (lx,ly,lz,nelv).
+
+  !> Compute \f$ Ax \f$ inside a Krylov method, taking 3
+  !! components of a vector field in a coupled manner.
+  !! @param au Result for the first component of the vector.
+  !! @param av Result for the first component of the vector.
+  !! @param aw Result for the first component of the vector.
+  !! @param u The first component of the vector.
+  !! @param v The second component of the vector.
+  !! @param w The third component of the vector.
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_full_compute(w, u, coef, msh, Xh)
+  subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh, Xh)
+    class(ax_helm_full_cpu_t), intent(in) :: this
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: au(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    call neko_error("The full Helmholtz operators cannot be applied to a &
-                   &single field")
-  end subroutine ax_helm_full_compute
+   end subroutine
 
-end module ax_helm_full
+
+
+end module ax_helm_full_cpu

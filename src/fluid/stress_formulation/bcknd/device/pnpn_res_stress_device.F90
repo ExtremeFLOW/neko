@@ -11,7 +11,6 @@ module pnpn_res_stress_device
   use mesh, only : mesh_t
   use num_types, only : rp, c_rp
   use space, only : space_t
-  use stress_formulation, only : ax_helm_stress_compute
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use device_mathops, only : device_opcolv
   use device_math, only : device_rzero, device_vdot3, device_cmult, &
@@ -264,7 +263,7 @@ contains
     call dudxyz(ta2%x, mu%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     call dudxyz(ta3%x, mu%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
 
-    ! S^T grad \mu    
+    ! S^T grad \mu
     call device_vdot3 (work1%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
                        s11%x_d, s12%x_d, s13%x_d, n)
 
@@ -302,7 +301,7 @@ contains
     call gs_Xh%op(ta3, GS_OP_ADD)
 
     call device_opcolv(ta1%x_d, ta2%x_d, ta3%x_d, c_Xh%Binv_d, gdim, n)
-    
+
     ! Compute the components of the divergence of the rhs
     call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
@@ -342,7 +341,7 @@ contains
                                        wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_CUDA
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                                        wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n) 
+                                        wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_OPENCL
     call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
                                           wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
@@ -380,7 +379,7 @@ contains
     c_Xh%ifh2 = .true.
 
     ! Viscous stresses
-    call ax_helm_stress_compute(u_res%x, v_res%x, w_res%x, u%x, v%x, w%x, c_Xh,&
+    call Ax%compute_vector(u_res%x, v_res%x, w_res%x, u%x, v%x, w%x, c_Xh,&
                                 msh, Xh)
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
@@ -401,7 +400,7 @@ contains
     call pnpn_vel_res_update_opencl(u_res%x_d, v_res%x_d, w_res%x_d, &
          ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #endif
-    
+
     call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine pnpn_vel_res_stress_device_compute
