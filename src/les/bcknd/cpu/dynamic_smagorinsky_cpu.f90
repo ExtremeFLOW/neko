@@ -145,7 +145,7 @@ contains
     !> filtered u,v,w by the test filter
     real(kind=rp), dimension(u%dof%size()) :: fu, fv, fw
 
-    !! Use test filter for the velocity fields
+    ! Use test filter for the velocity fields
     call test_filter%filter_3d(fu, u%x, nelv)
     call test_filter%filter_3d(fv, v%x, nelv)
     call test_filter%filter_3d(fw, w%x, nelv)
