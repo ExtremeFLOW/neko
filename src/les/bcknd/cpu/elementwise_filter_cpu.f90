@@ -68,7 +68,7 @@ contains
     call zwgll(zpts, rmult, nx)
 
     n  = nx-1
-    do j=1,nx
+    do j = 1, nx
        z = zpts(j)
        call legendre_poly(Lj, z, n)
        select case (filter_type)
