@@ -275,6 +275,7 @@ les/les_model.o : les/les_model.f90 device/device.o config/neko_config.o gs/gs_o
 les/les_model_fctry.o : les/les_model_fctry.f90 sem/coef.o sem/dofmap.o les/sigma.o les/smagorinsky.o les/vreman.o les/les_model.o 
 les/vreman.o : les/vreman.f90 sem/coef.o les/bcknd/cpu/vreman_cpu.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o config/num_types.o 
 les/bcknd/cpu/vreman_cpu.o : les/bcknd/cpu/vreman_cpu.f90 gs/gs_ops.o sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o math/math.o field/field_list.o config/num_types.o 
+wall_models/wall_model.o : wall_models/wall_model.f90 device/device.o config/neko_config.o gs/gs_ops.o sem/coef.o sem/dofmap.o field/field_registry.o field/field.o config/num_types.o 
 les/smagorinsky.o : les/smagorinsky.f90 sem/coef.o les/bcknd/cpu/smagorinsky_cpu.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o config/num_types.o 
 les/bcknd/cpu/smagorinsky_cpu.o : les/bcknd/cpu/smagorinsky_cpu.f90 gs/gs_ops.o sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o math/math.o field/field_list.o config/num_types.o 
 les/sigma.o : les/sigma.f90 sem/coef.o les/bcknd/cpu/sigma_cpu.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o config/num_types.o 
