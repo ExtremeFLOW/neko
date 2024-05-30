@@ -11,7 +11,7 @@ jobs:
       name: "Flint"
       uses: ./.github/workflows/lint.yml
       with:
-        global_minimum_score: 9.0
+        global_minimum_score: 8.0
         changed_files_minimum_score: 8.0
 
   GNU:

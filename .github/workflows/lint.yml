@@ -7,11 +7,11 @@ on:
     inputs:
       global_minimum_score:
         description: "The minimum score required for the repository."
-        required: true
+        default: 10.0
         type: number
       changed_files_minimum_score:
         description: "The minimum score required for changed files."
-        required: true
+        default: 10.0
         type: number
 
 jobs:
@@ -37,8 +37,6 @@ jobs:
           flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
           score=$(awk '$1==0{print $3}' flint.txt)
 
-          echo "Score, $score"
-          echo "Min score, $min_score"
           if (( $(echo "$score < $min_score" | bc -l) )); then
             echo "Linting requirement not met, $score < $min_score" >&2
             exit 1
@@ -86,7 +84,7 @@ jobs:
           min_score: ${{ inputs.changed_files_minimum_score }}
         run: |
           if [ -z "$changed_files" ]; then
-            echo "No files changed"
+            echo "No fortran files changed"
             exit 0
           fi
 
