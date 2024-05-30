@@ -149,7 +149,7 @@ contains
   subroutine set_ds_filt(filter_1d)
     type(elementwise_filter_t), intent(inout) :: filter_1d
 
-    filter_1d%trnsfr(filter_1d%nx-0) = 0.05   
+    filter_1d%trnsfr(filter_1d%nx-0) = 0.05
     filter_1d%trnsfr(filter_1d%nx-1) = 0.50
     filter_1d%trnsfr(filter_1d%nx-2) = 0.95
 
