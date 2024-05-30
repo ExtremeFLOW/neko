@@ -142,7 +142,7 @@ contains
     type(elementwise_filter_t), intent(inout) :: test_filter
     integer, intent(in) :: n
     integer, intent(inout) :: nelv
-    !! filted u,v,w by the test filter
+    !> filtered u,v,w by the test filter
     real(kind=rp), dimension(u%dof%size()) :: fu, fv, fw
 
     !! Use test filter for the velocity fields
