@@ -183,7 +183,7 @@ contains
     call this%c_mg%init(this%gs_mg)
 
     ! Create backend specific Ax operator
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, full_formulation = .false.)
 
 
     ! Create a backend specific preconditioner

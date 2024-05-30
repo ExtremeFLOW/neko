@@ -166,8 +166,8 @@ contains
     class(interpolator_t), intent(inout) :: this
     integer :: nel
     type(space_t) :: to_space
-    real(kind=rp), intent(inout) :: x(1, nel)
-    real(kind=rp), intent(inout) :: y(1, nel)
+    real(kind=rp), intent(inout) :: x(this%Xh%lx, this%Xh%lx, this%Xh%lx, nel)
+    real(kind=rp), intent(inout) :: y(this%Yh%lx, this%Yh%lx, this%Yh%lx, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d(y, this%Yh%lx, x, &
                    this%Xh%lx, this%Yh_to_XhT, &
@@ -192,8 +192,8 @@ contains
     class(interpolator_t), intent(inout) :: this
     integer :: nel
     type(space_t) :: to_space
-    real(kind=rp), intent(inout) :: x(1, nel)
-    real(kind=rp), intent(inout) :: y(1, nel)
+    real(kind=rp), intent(inout) :: x(this%Xh%lx, this%Xh%lx, this%Xh%lx, nel)
+    real(kind=rp), intent(inout) :: y(this%Yh%lx, this%Yh%lx, this%Yh%lx, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d_cpu(y, this%Yh%lx, x, &
                    this%Xh%lx, this%Yh_to_XhT, &
