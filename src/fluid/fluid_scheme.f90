@@ -523,11 +523,9 @@ contains
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: abs_tol
-    real(kind=rp), allocatable :: real_vec(:)
     integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, precon_type
     character(len=LOG_SIZE) :: log_buf
-    logical :: logical_val
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
                                   material_properties, kspv_init)
