@@ -150,6 +150,7 @@ neko_fortran_SOURCES = \
 	krylov/precon_fctry.f90\
 	krylov/krylov_fctry.f90\
 	krylov/bcknd/cpu/cg.f90\
+	krylov/bcknd/cpu/cg_stress.f90\
 	krylov/bcknd/cpu/cacg.f90\
 	krylov/bcknd/cpu/pipecg.f90\
 	krylov/bcknd/cpu/bicgstab.f90\
@@ -189,7 +190,6 @@ neko_fortran_SOURCES = \
 	fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90\
 	fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90\
 	fluid/stress_formulation/pnpn_res_stress.f90\
-	fluid/stress_formulation/cg_stress.f90\
 	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
 	fluid/fluid_pnpn.f90\
