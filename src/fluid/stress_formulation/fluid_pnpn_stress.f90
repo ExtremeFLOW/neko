@@ -666,7 +666,7 @@ contains
 
       ! Add the advection operators to the right-hand-side.
       call this%adv%compute(u, v, w, &
-                            f_x%x, f_y%x, f_z%x, &
+                            f_x, f_y, f_z, &
                             Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator and

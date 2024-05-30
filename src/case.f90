@@ -35,6 +35,7 @@ module case
   use num_types, only : rp, sp, dp
   use fluid_fctry, only : fluid_scheme_factory
   use fluid_pnpn, only : fluid_pnpn_t
+  use fluid_pnpn_stress, only : fluid_pnpn_stress_t
   use fluid_scheme, only : fluid_scheme_t
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
