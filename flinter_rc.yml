@@ -262,6 +262,8 @@ fortran-syntax:
       - 'select'
       - 'case'
       - 'while'
+      - 'is'
+      - 'select type'
 
   punctuations:
     - ','
