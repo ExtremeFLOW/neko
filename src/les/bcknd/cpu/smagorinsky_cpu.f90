@@ -97,9 +97,6 @@ contains
        end do
     end do
 
-    call coef%gs_h%op(nut%x, nut%dof%size(), GS_OP_ADD)
-    call col2(nut%x, coef%mult, nut%dof%size())
-
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine smagorinsky_compute_cpu
 

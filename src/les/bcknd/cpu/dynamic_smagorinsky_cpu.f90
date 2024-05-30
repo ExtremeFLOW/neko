@@ -40,7 +40,6 @@ module dynamic_smagorinsky_cpu
   use field, only : field_t
   use operators, only : strain_rate
   use coefs, only : coef_t
-  use gs_ops, only : GS_OP_ADD
   use math
   use elementwise_filter, only : elementwise_filter_t
   implicit none
@@ -100,7 +99,7 @@ contains
 
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
-    
+
     do i=1, u%dof%size()
        s_abs%x(i,1,1,1) = sqrt(2.0_rp * (s11%x(i,1,1,1)*s11%x(i,1,1,1) + &
                                s22%x(i,1,1,1)*s22%x(i,1,1,1) + &
@@ -209,7 +208,7 @@ contains
     real(kind=rp) :: delta_ratio2 !test- to grid- filter ratio, squared
     integer :: i
     real(kind=rp) :: delta2
-    
+
     delta_ratio2 = ((test_filter%nx-1)/(test_filter%nt-1))**2
 
     !! The first term:
@@ -305,7 +304,7 @@ contains
                      mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &
                      mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))
     end do
-    
+
     ! running average over time
     call add3s2(num%x, num%x, num_curr, alpha, 1.0_rp-alpha, n)
     call add3s2(den%x, den%x, den_curr, alpha, 1.0_rp-alpha, n)
