@@ -52,6 +52,33 @@ extern "C" {
                                (cudaStream_t) glb_cmd_queue));
   }
 
+  /** Fortran wrapper for masked copy
+   * Copy a vector \f$ a(mask) = b(mask) \f$
+   */
+  void cuda_masked_copy(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    masked_copy_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real*) b,(int*) mask, *n, *m);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  /** Fortran wrapper for cfill_mask
+   * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
+   */
+  void cuda_cfill_mask(void* a, real* c, int* size, int* mask, int* mask_size) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*mask_size) + 1024 - 1) / 1024, 1, 1);
+
+    cfill_mask_kernel<real><<<nblcks, nthrds, 0, (cudaStream_t)glb_cmd_queue>>>(
+        (real*)a, *c, *size, mask, *mask_size);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
   /** Fortran wrapper for rzero
    * Zero a real vector
    */

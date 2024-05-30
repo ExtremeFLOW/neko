@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,8 @@ contains
 
   subroutine sx_conv1_lx(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim, lx)
-    integer, intent(in) :: nelv, gdim, lx
+       jacinv, nelv, lx)
+    integer, intent(in) :: nelv, lx
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -120,9 +120,9 @@ contains
 
   subroutine sx_conv1_lx14(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 14
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -196,9 +196,9 @@ contains
 
   subroutine sx_conv1_lx13(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 13
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -272,9 +272,9 @@ contains
 
   subroutine sx_conv1_lx12(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 12
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -348,9 +348,9 @@ contains
 
   subroutine sx_conv1_lx11(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 11
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -424,9 +424,9 @@ contains
 
   subroutine sx_conv1_lx10(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 10
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -500,9 +500,9 @@ contains
 
   subroutine sx_conv1_lx9(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 9
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -576,9 +576,9 @@ contains
 
   subroutine sx_conv1_lx8(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 8
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -652,9 +652,9 @@ contains
 
   subroutine sx_conv1_lx7(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 7
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -728,9 +728,9 @@ contains
 
   subroutine sx_conv1_lx6(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 6
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -804,9 +804,9 @@ contains
 
   subroutine sx_conv1_lx5(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 5
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -880,9 +880,9 @@ contains
 
   subroutine sx_conv1_lx4(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 4
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -956,9 +956,9 @@ contains
 
   subroutine sx_conv1_lx3(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 3
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -1032,9 +1032,9 @@ contains
 
   subroutine sx_conv1_lx2(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
-       jacinv, nelv, gdim)
+       jacinv, nelv)
     integer, parameter :: lx = 2
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx

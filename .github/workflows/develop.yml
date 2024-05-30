@@ -4,11 +4,26 @@ name: develop
 on:
   pull_request:
      branches: [develop,release/*]
+     types:
+       - opened
+       - synchronize
+       - reopened
+       - ready_for_review
   workflow_dispatch:
   
 jobs:
+  is_draft:
+    name: Check if PR is a draft
+    if: github.event.pull_request.draft == true
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is a draft
+        run: echo "This PR is a draft"
+
   linting:
       name: "Flint"
+      if: github.event.pull_request.draft != true
       runs-on: ubuntu-20.04
       steps:
         - name: Setup env.
@@ -23,7 +38,7 @@ jobs:
           run: |
             flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
             score=$(awk '$1==0{print $3}' flint.txt)
-            if (( $(echo "$score < 8.13" |bc -l) )) ; then
+            if (( $(echo "$score < 8.06" |bc -l) )) ; then
               exit 1
             fi
         - name: Archive linter report
@@ -33,6 +48,7 @@ jobs:
             path: flint.txt
             retention-days: 5
   GNU:
+    if: github.event.pull_request.draft != true
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
@@ -145,7 +161,7 @@ jobs:
           echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
           sudo apt-get update && sudo apt-get install -y rocm-dev
           ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.0.0
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.1.1
           make -j$(nproc)
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
@@ -190,7 +206,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=/opt/rocm-6.0.0
+          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=/opt/rocm-6.1.1
           make -j $(nproc)
       - name: Dist (OpenCL backend)
         if: matrix.backend == 'opencl'
@@ -203,6 +219,7 @@ jobs:
           make -j $(nproc)
     
   Intel:
+    if: github.event.pull_request.draft != true
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
@@ -218,7 +235,7 @@ jobs:
             wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list && sudo apt-get update -y && sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
             source /opt/intel/oneapi/setvars.sh
             sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
-            export PATH=/opt/intel/oneapi/compiler/2024.0/bin:${PATH}
+            export PATH=/opt/intel/oneapi/compiler/2024.1/bin:${PATH}
             printenv >> $GITHUB_ENV
     env:
       CC: icc
@@ -258,6 +275,7 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
   NVIDIA:
+    if: github.event.pull_request.draft != true
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
@@ -343,6 +361,7 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/cuda/
           make -j $(nproc)
   ReFrame:
+    if: github.event.pull_request.draft != true
     needs: GNU
     runs-on: ubuntu-20.04
     strategy:

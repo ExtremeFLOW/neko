@@ -59,7 +59,7 @@ neko_fortran_SOURCES = \
 	mesh/point_zones/sphere_point_zone.f90\
 	mesh/point_zones/box_point_zone.f90\
 	mesh/point_zones/cylinder_point_zone.f90\
-	mesh/point_zone_factory.f90\
+	mesh/point_zone_fctry.f90\
 	mesh/point_zone_registry.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
@@ -85,6 +85,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/sx/sx_dudxyz.f90\
 	math/bcknd/sx/sx_opgrad.f90\
 	math/bcknd/sx/sx_cfl.f90\
+	math/bcknd/sx/sx_lambda2.f90\
 	math/operators.f90\
 	math/bcknd/cpu/opr_cpu.f90\
 	math/bcknd/sx/opr_sx.f90\
@@ -114,6 +115,7 @@ neko_fortran_SOURCES = \
 	io/nmsh_file.f90\
 	io/chkp_file.f90\
 	io/csv_file.f90\
+	io/hdf5_file.F90\
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
@@ -133,6 +135,8 @@ neko_fortran_SOURCES = \
 	bc/dong_outflow.f90\
 	bc/wall.f90\
 	bc/inflow.f90\
+	bc/field_dirichlet.f90\
+	bc/field_dirichlet_vector.f90\
 	bc/usr_inflow.f90\
 	bc/usr_scalar.f90\
 	bc/facet_normal.f90\
@@ -171,6 +175,7 @@ neko_fortran_SOURCES = \
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
+	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
@@ -191,6 +196,9 @@ neko_fortran_SOURCES = \
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
+	fluid/advection_fctry.f90\
+        fluid/bcknd/advection/adv_dealias.f90\
+        fluid/bcknd/advection/adv_no_dealias.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
@@ -199,7 +207,10 @@ neko_fortran_SOURCES = \
 	common/time_step_controller.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
-	math/bcknd/cpu/ax_helm.f90\
+	math/ax_helm.f90\
+	math/ax_helm_full.f90\
+	math/bcknd/cpu/ax_helm_cpu.f90\
+	math/bcknd/cpu/ax_helm_full_cpu.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
 	math/bcknd/device/ax_helm_device.F90\
@@ -246,13 +257,18 @@ neko_fortran_SOURCES = \
 	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
+	simulation_components/weak_grad.f90\
+	simulation_components/derivative.f90\
 	simulation_components/les_simcomp.f90\
-	simulation_components/simulation_component_factory.f90\
+	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
 	source_terms/bcknd/device/const_source_term_device.f90\
-	source_terms/source_term_factory.f90\
+	source_terms/boussinesq_source_term.f90\
+	source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90\
+	source_terms/bcknd/device/boussinesq_source_term_device.f90\
+	source_terms/source_term_fctry.f90\
 	source_terms/brinkman_source_term.f90\
 	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
 	source_terms/bcknd/device/brinkman_source_term_device.f90\
@@ -263,6 +279,10 @@ neko_fortran_SOURCES = \
 	les/vreman.f90\
 	les/bcknd/cpu/vreman_cpu.f90\
 	wall_models/wall_model.f90\
+	les/smagorinsky.f90\
+	les/bcknd/cpu/smagorinsky_cpu.f90\
+	les/sigma.f90\
+	les/bcknd/cpu/sigma_cpu.f90\
 	neko.f90
 
 neko_c_SOURCES = comm/comm_wrapper.c\

@@ -56,18 +56,15 @@ contains
 
   !> Main driver to solve a case @a C
   subroutine neko_solve(C)
-    implicit none
-    type(case_t), intent(inout) :: C
+    type(case_t), target, intent(inout) :: C
     real(kind=rp) :: t, cfl
     real(kind=dp) :: start_time_org, start_time, end_time
     character(len=LOG_SIZE) :: log_buf
-    integer :: tstep, i
+    integer :: tstep
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
     ! for variable_tsteping
-    integer :: dt_last_change = 0
-    real(kind=rp) :: cfl_avrg = 0_rp
-    real(kind=rp) :: set_cfl
+    real(kind=rp) :: cfl_avrg = 0.0_rp
     type(time_step_controller_t) :: dt_controller
 
     t = 0d0
@@ -75,12 +72,12 @@ contains
     call neko_log%section('Starting simulation')
     write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%end_time,')'
     call neko_log%message(log_buf)
-    call dt_controller%init(C)
+    call dt_controller%init(C%params)
     if (.not. dt_controller%if_variable_dt) then
        write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
        call neko_log%message(log_buf)
     else
-       write(log_buf,'(A, E15.7)') 'CFL :  ', set_cfl
+       write(log_buf,'(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
        call neko_log%message(log_buf)
     end if
 
@@ -111,10 +108,10 @@ contains
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()
-       if (dt_last_change .eq. 0) then
+       if (dt_controller%dt_last_change .eq. 0) then
           cfl_avrg = cfl
        end if
-       call dt_controller%set_dt(C, cfl, cfl_avrg, dt_last_change, tstep)
+       call dt_controller%set_dt(C%dt, cfl, cfl_avrg, tstep)
        !calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%dt)
 
@@ -128,7 +125,7 @@ contains
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 
        call neko_log%section('Fluid')
-       call C%fluid%step(t, tstep, C%dt, C%ext_bdf)
+       call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7,A,E15.7)') &
             'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
@@ -139,7 +136,7 @@ contains
        if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')
-          call C%scalar%step(t, tstep, C%dt, C%ext_bdf)
+          call C%scalar%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7,A,E15.7)') &
                'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
@@ -271,10 +268,20 @@ contains
     type(case_t), intent(inout) :: C
     real(kind=rp), intent(inout) :: t
     type(file_t) :: chkpf
+    character(len=:), allocatable :: chkp_format
     character(len=LOG_SIZE) :: log_buf
+    character(len=10) :: format_str
+    logical :: found
 
+    call C%params%get('case.checkpoint_format', chkp_format, found)   
     call C%fluid%chkp%sync_host()
-    chkpf = file_t('joblimit.chkp')
+    format_str = '.chkp'
+    if (found) then
+       if (chkp_format .eq. 'hdf5') then
+          format_str = '.h5'
+       end if
+    end if
+    chkpf = file_t('joblimit'//trim(format_str))
     call chkpf%write(C%fluid%chkp, t)
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)

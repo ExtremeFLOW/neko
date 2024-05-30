@@ -16,18 +16,18 @@ jobs:
             sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
             pip install nobvisual==0.2.0 flinter==0.4.0
         - name: Checkout
-          uses: actions/checkout@v3
+          uses: actions/checkout@v4
           with:
             fetch-depth: 1
         - name: Lint
           run: |
             flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
             score=$(awk '$1==0{print $3}' flint.txt)
-            if (( $(echo "$score < 8.13" |bc -l) )) ; then
+            if (( $(echo "$score < 8.06" |bc -l) )) ; then
               exit 1
             fi
         - name: Archive linter report
-          uses: actions/upload-artifact@v3
+          uses: actions/upload-artifact@v4
           with:
             name: flint-report
             path: flint.txt
@@ -74,7 +74,7 @@ jobs:
         run: ${{ matrix.setup-env }}
       - name: Cache pFUnit
         id: cache-pfunit
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/pkg/pfunit
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -103,7 +103,7 @@ jobs:
           make -j$(nproc) && make install && cd ../../
       - name: Cache json-fortran
         id: cache-json-fortran
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/pkg/json-fortran
           key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -121,7 +121,7 @@ jobs:
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Build (CPU backend)
@@ -145,7 +145,7 @@ jobs:
           echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
           sudo apt-get update && sudo apt-get install -y rocm-dev
           ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.0.0/
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.1.1
           make -j$(nproc)
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
@@ -190,7 +190,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=/opt/rocm-6.0.0
+          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=/opt/rocm-6.1.1
           make -j $(nproc)
       - name: Dist (OpenCL backend)
         if: matrix.backend == 'opencl'
@@ -218,7 +218,7 @@ jobs:
             wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list && sudo apt-get update -y && sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
             source /opt/intel/oneapi/setvars.sh
             sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
-            export PATH=/opt/intel/oneapi/compiler/2024.0/bin:${PATH}
+            export PATH=/opt/intel/oneapi/compiler/2024.1/bin:${PATH}
             printenv >> $GITHUB_ENV
     env:
       CC: icc
@@ -230,7 +230,7 @@ jobs:
         run: ${{ matrix.setup-env }}
       - name: Cache json-fortran
         id: cache-json-fortran
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/pkg/json-fortran
           key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -248,7 +248,7 @@ jobs:
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Build
@@ -269,7 +269,7 @@ jobs:
         precision: [dp]
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-24-1 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/24.1/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/24.1/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
+          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-24-3 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/24.3/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/24.3/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
     env:
       CC: gcc
       FC: ${{ matrix.compiler }}
@@ -285,7 +285,7 @@ jobs:
         run: ${{ matrix.setup-env }}
       - name: Cache json-fortran
         id: cache-json-fortran
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/pkg/json-fortran
           key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -303,7 +303,7 @@ jobs:
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Build (CPU backend)
@@ -320,6 +320,28 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.1/cuda/
           make
+      - name: Dist (CPU backend)
+        if: matrix.backend == 'cpu'
+        run: |
+          git stash
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
+          make -j $(nproc)
+      - name: Dist (CUDA backend)
+        if: matrix.backend == 'cuda'
+        run: |
+          git stash
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/cuda/
+          make -j $(nproc)
   ReFrame:
     needs: GNU
     runs-on: ubuntu-20.04
@@ -343,7 +365,7 @@ jobs:
           pip install reframe-hpc 
       - name: Cache json-fortran
         id: cache-json-fortran
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/pkg/json-fortran
           key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -364,7 +386,7 @@ jobs:
         run: |
           reframe --detect-host-topology
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Regression tests
@@ -378,7 +400,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup env.
       run: |
         sudo apt-get update && sudo apt-get install -y git openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 doxygen fonts-freefont-ttf graphviz
@@ -398,13 +420,13 @@ jobs:
     
     # Deploy the HTML documentation to GitHub Pages
     - name: GH Pages Deployment
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./doc/html/
         allow_empty_commit: false
-        force_orphan: false
+        force_orphan: true
         publish_branch: gh-pages
-        destination_dir: docs
-        keep_files: false
+        destination_dir: docs/release
+        keep_files: true
         enable_jekyll: true

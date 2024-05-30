@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,52 +30,64 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!
-!> Defines a factory subroutine for simulation components.
-module simulation_component_fctry
-  use simulation_component, only : simulation_component_t
-  use vorticity, only : vorticity_t
-  use lambda2, only : lambda2_t
-  use probes, only : probes_t
-  use les_simcomp, only : les_simcomp_t
+!> Contains the factory routine for `advection_t` children.
+module advection_fctry
+  use coefs, only : coef_t
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
-  use case, only : case_t
-  use json_utils, only : json_get
-  use logger, only : neko_log
+
+  ! Advection and derivatives
+  use advection, only : advection_t
+  use adv_dealias, only : adv_dealias_t
+  use adv_no_dealias, only : adv_no_dealias_t
+
   implicit none
   private
 
-  public :: simulation_component_factory
+  public :: advection_factory
 
 contains
 
-  !> Simulation component factory. Both constructs and initializes the object.
-  !! @param json JSON object initializing the simulation component.
-  subroutine simulation_component_factory(simcomp, json, case)
-    class(simulation_component_t), allocatable, intent(inout) :: simcomp
+  !> A factory for \ref advection_t decendants.
+  !! @param this Polymorphic object of class \ref advection_t.
+  !! @param json The parameter file.
+  !! @param coef The coefficients of the (space, mesh) pair.
+  !! @note The factory both allocates and initializes `this`.
+  subroutine advection_factory(this, json, coef)
+    implicit none
+    class(advection_t), allocatable, intent(inout) :: this
     type(json_file), intent(inout) :: json
-    class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: simcomp_type
+    type(coef_t), target :: coef
+    logical :: dealias
+    integer :: lxd, order
 
-    call json_get(json, "type", simcomp_type)
+    ! Read the parameters from the json file
+    call json_get(json, 'case.numerics.dealias', dealias)
+    call json_get(json, 'case.numerics.polynomial_order', order)
 
-    if (trim(simcomp_type) .eq. "vorticity") then
-       allocate(vorticity_t::simcomp)
-    else if (trim(simcomp_type) .eq. "lambda2") then
-       allocate(lambda2_t::simcomp)
-    else if (trim(simcomp_type) .eq. "probes") then
-       allocate(probes_t::simcomp)
-    else if (trim(simcomp_type) .eq. "les_model") then
-       allocate(les_simcomp_t::simcomp)
-    else
-       call neko_log%error("Unknown simulation component type: " &
-                           // trim(simcomp_type))
-       stop
+    call json_get_or_default(json, 'case.numerics.dealiased_polynomial_order', &
+                             lxd, ( 3 * (order + 1) ) / 2)
+
+    ! Free allocatables if necessary
+    if (allocated(this)) then
+       call this%free
+       deallocate(this)
     end if
 
-    ! Initialize
-    call simcomp%init(json, case)
+    if (dealias) then
+       allocate(adv_dealias_t::this)
+    else
+       allocate(adv_no_dealias_t::this)
+    end if
 
-  end subroutine simulation_component_factory
+    select type(adv => this)
+      type is(adv_dealias_t)
+       call adv%init(lxd, coef)
+      type is(adv_no_dealias_t)
+       call adv%init(coef)
+    end select
 
-end module simulation_component_fctry
+  end subroutine advection_factory
+
+
+end module advection_fctry
