@@ -129,7 +129,7 @@ regexp-rules:
 
   trailing-white-spaces:
     message: Trailing white-spaces
-    regexp: (\s)$
+    regexp: (\w\s+)$
     replacement: ''
     active: true
 
