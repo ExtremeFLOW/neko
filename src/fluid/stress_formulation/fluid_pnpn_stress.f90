@@ -32,25 +32,33 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn_stress
+  use num_types, only : rp
+  use krylov, only : ksp_monitor_t
+  use neko_config, only : NEKO_BCKND_DEVICE
   use pnpn_res_stress_fctry
   use pnpn_res_fctry
-  use ax_helm_fctry
-  use rhs_maker_fctry
-  use rhs_maker
-  use fluid_volflow
-  use fluid_scheme
-  use field_series
-  use facet_normal
+  use ax_helm_fctry, only : ax_helm_factory
+  use rhs_maker_fctry, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
+                              rhs_maker_ext_fctry
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
+  use fluid_volflow, only : fluid_volflow_t
+  use fluid_scheme, only : fluid_scheme_t
+  use field_series, only : field_series_t
+  use dirichlet, only : dirichlet_t
+  use facet_normal, only : facet_normal_t
+  use non_normal, only : non_normal_t
   use device_math
   use device_mathops
-  use fluid_aux
-  use time_scheme_controller
-  use projection
+  use fluid_aux, only : fluid_step_info_stress
+  use time_scheme_controller, only : time_scheme_controller_t
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use projection, only : projection_t
   use device
-  use logger
-  use advection
-  use advection_fctry
-  use profiler
+  use logger, only : neko_log
+  use advection_fctry, only : advection_factory
+  use advection, only : advection_t
+  use profiler, only : profiler_start_region, profiler_end_region
   use cg_stress
   use json_utils, only : json_get
   use json_module, only : json_file
@@ -59,6 +67,15 @@ module fluid_pnpn_stress
   use rough_log_law, only : rough_log_law_t
   use spalding, only : spalding_t
   use wall_model_bc, only : wall_model_bc_t
+  use time_step_controller, only : time_step_controller_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
+                bc_list_apply_scalar, bc_list_apply_vector
+  use math, only : col2, add2, rzero, cfill
+  use mathops, only : opadd2cm, opcolv
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use user_intf, only : user_t
+  use coefs, only : coef_t
   implicit none
   private
 
@@ -161,7 +178,7 @@ contains
                           material_properties)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, full_formulation = .true.)
 
     ! Setup backend dependent prs residual routines
     call pnpn_prs_res_stress_factory(this%prs_res)
