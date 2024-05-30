@@ -32,12 +32,12 @@
 !
 !> Defines inflow dirichlet conditions
 module usr_inflow
-  use num_types
-  use coefs
-  use inflow
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use inflow, only : inflow_t
   use device
   use device_inhom_dirichlet
-  use utils
+  use utils, only : neko_error, nonlinear_index, neko_warning
   use bc, only : bc_t
   implicit none
   private

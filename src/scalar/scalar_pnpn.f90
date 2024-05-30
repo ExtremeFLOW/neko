@@ -141,9 +141,6 @@ contains
     type(material_properties_t), intent(inout) :: material_properties
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    ! Variables for retrieving json parameters
-    logical :: found, logical_val
-    integer :: integer_val
 
     call this%free()
 
@@ -330,7 +327,7 @@ contains
       call bc_list_apply_scalar(this%bclst_neumann, this%f_Xh%x, dm_Xh%size())
 
       ! Add the advection operators to the right-hans-side.
-      call this%adv%compute_scalar(u, v, w, s, f_Xh%x, &
+      call this%adv%compute_scalar(u, v, w, s, f_Xh, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator,
@@ -349,7 +346,7 @@ contains
       !> Apply Dirichlet boundary conditions
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
-      call this%dirichlet_update_(this%field_dirichlet_fields, &
+      call this%field_dir_bc%update(this%field_dir_bc%field_list, &
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 

@@ -58,18 +58,18 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module fluid_volflow
-  use operators
-  use num_types
-  use mathops
+  use operators, only : opgrad, cdtp
+  use num_types, only : rp
+  use mathops, only : opchsign
   use krylov, only : ksp_t, ksp_monitor_t
-  use precon
-  use dofmap
-  use field
-  use coefs
-  use time_scheme_controller
-  use math
+  use precon, only : pc_t
+  use dofmap, only : dofmap_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use math, only : cfill, rzero, copy, glsc2, glmin, glmax, add2, add2s2
   use comm
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use device_math
   use device_mathops
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -105,7 +105,7 @@ contains
     class(fluid_volflow_t), intent(inout) :: this
     type(dofmap_t), intent(inout) :: dm_Xh
     type(json_file), intent(inout) :: params
-    logical average, found
+    logical average
     integer :: direction
     real(kind=rp) :: rate
 
@@ -348,10 +348,9 @@ contains
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     integer, intent(in) :: prs_max_iter, vel_max_iter
     real(kind=rp) :: ifcomp, flow_rate, xsec
-    real(kind=rp) :: current_flow, delta_flow, base_flow, scale
+    real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr
     type(field_t), pointer :: ta1, ta2, ta3
-    integer :: temp_indices(3)
 
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)

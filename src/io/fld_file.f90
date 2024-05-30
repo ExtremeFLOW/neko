@@ -85,7 +85,7 @@ contains
     character(len=6) :: id_str
     character(len=1024) :: fname
     character(len=1024) :: start_field
-    integer :: i, ierr, n, j,k,l,el, suffix_pos,tslash_pos
+    integer :: i, ierr, n, suffix_pos, tslash_pos
     integer :: lx, ly, lz, lxyz, gdim, glb_nelv, nelv, offset_el
     integer, allocatable :: idx(:)
     type(MPI_Status) :: status
@@ -492,7 +492,7 @@ contains
     integer, intent(in) :: gdim, lxyz, nelv
     real(kind=rp), intent(in) :: x(lxyz,nelv), y(lxyz,nelv), z(lxyz,nelv)
     integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
-    integer :: i, el, j, ierr, nout
+    integer :: el, j, ierr, nout
     type(MPI_Status) :: status
     real(kind=sp) :: buffer(2*gdim*nelv)
 
@@ -522,7 +522,7 @@ contains
     integer, intent(in) :: lxyz, nelv
     real(kind=rp), intent(in) :: x(lxyz,nelv)
     integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
-    integer :: i, el, j, ierr, nout
+    integer :: el, j, ierr, nout
     type(MPI_Status) :: status
     real(kind=sp) :: buffer(2*nelv)
 
@@ -635,7 +635,7 @@ contains
     character(len=6) :: id_str
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer :: lx, ly, lz, glb_nelv, counter, lxyz
-    integer :: FLD_DATA_SIZE, n_scalars, n, nd
+    integer :: FLD_DATA_SIZE, n_scalars, n
     real(kind=rp) ::  time
     real(kind=sp) :: temp
     type(linear_dist_t) :: dist
@@ -880,7 +880,7 @@ contains
     integer(kind=MPI_OFFSET_KIND) :: byte_offset
     type(MPI_File) :: fh
     type(MPI_Status) :: status
-    integer :: n, ierr, lxyz, i, j, e
+    integer :: n, ierr, lxyz, i
 
     n = x%n
     lxyz = fld_data%lx*fld_data%ly*fld_data%lz

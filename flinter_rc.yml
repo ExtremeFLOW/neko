@@ -1,12 +1,10 @@
-
-# Flinter configuation file.
-
+# Flinter configuration file.
 
 # These are all the regexp rules
 
-# Set active to false is you want to skip  rule
-# All are regexp rules, meaning you can add new rules simply by editong this file
-# test your rule on https://regex101.com/ if needed
+# Set active to false is you want to skip the rule.
+# All are regexp rules, meaning you can add new rules simply by editing this
+# file test your rule on https://regex101.com/ if needed
 regexp-rules:
   missing-spaces-on-do:
     message: Missing spaces
@@ -50,17 +48,18 @@ regexp-rules:
     replacement: ':: \1'
     active: true
 
-  missing-spaces-after-ponctuation:
-    message: Missing space after ponctuation
-    regexp: ({ponctuations})(\w)
+  missing-spaces-after-punctuation:
+    message: Missing space after punctuation
+    regexp: ({punctuations})(\w\w)
     replacement: \1 \2
     active: true
 
+  # Todo: This rule is not working as expected.
   types-should-be-lowercased:
     message: Types should be lowercased
     regexp: \b({types_upper})\b
     replacement: null
-    active: true
+    active: false
 
   missing-space-before-parenthesis:
     message: Missing space before parenthesis
@@ -104,7 +103,7 @@ regexp-rules:
     replacement: '! \1'
     active: true
 
-  useless-eol-dotcomma:
+  useless-eol-semicolon:
     message: Useless ";" at end of line
     regexp: ;\s*$
     replacement: \n
@@ -128,25 +127,25 @@ regexp-rules:
     replacement: ' = \2'
     active: true
 
-  trailing-whitespaces:
-    message: Trailing whitespaces
+  trailing-white-spaces:
+    message: Trailing white-spaces
     regexp: ( \t)+$
     replacement: ''
     active: true
 
-  reommended-use-of-sp-dp:
+  recommended-use-of-sp-dp:
     message: You should use "sp" or "dp" instead
     regexp: \(kind\s*=\s*\d\s*\)
     replacement: null
     active: true
 
-  reommended-use-of-brackets:
+  recommended-use-of-brackets:
     message: You should use "[]" instead
     regexp: \(\\([^\)]*)\\\)
     replacement: '[\1]'
     active: true
 
-  reommended-use-mpi_f08:
+  recommended-use-mpi_f08:
     message: Should use `use mpi_f08` instead (or `use mpi` if not available)
     regexp: include ["\']mpif.h[\'"]
     replacement: null
@@ -218,9 +217,9 @@ regexp-rules:
 # - ask us.
 # - fork the code.
 structure-rules:
-  file-line-lenght: 80
+  file-line-length: 80
   file-line-number: 2000
-  max-statements-in-context: 300   # Subroutine of function
+  max-statements-in-context: 300 # Subroutine of function
   max-declared-locals: 35
   min-varlen: 1
   max-varlen: 30
@@ -228,7 +227,6 @@ structure-rules:
   min-arglen: 1
   max-arglen: 70
   max-nesting-levels: 8
-
 
 # These are the fortran syntax we use to parse the source
 # A priori there is no need to edit, but Fortran is so vast in time...
@@ -265,7 +263,7 @@ fortran-syntax:
       - 'case'
       - 'while'
 
-  ponctuations:
+  punctuations:
     - ','
     - '\)'
     - ';'

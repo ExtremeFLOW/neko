@@ -67,7 +67,7 @@ contains
   subroutine symmetry_init(this, coef)
     class(symmetry_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
-    integer :: i, m, j, l
+    integer :: i, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
     real(kind=rp), parameter :: TOL = 1d-3
@@ -161,7 +161,6 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k
 
     call this%bc_x%apply_scalar(x,n)
     call this%bc_y%apply_scalar(y,n)
