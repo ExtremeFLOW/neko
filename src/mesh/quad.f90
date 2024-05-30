@@ -118,7 +118,7 @@ contains
           t%x = (/ p1%id(), p2%id() /)
        else
           t%x = (/ p2%id(), p1%id() /)
-       endif
+       end if
     end select
   end subroutine quad_facet_id
 
