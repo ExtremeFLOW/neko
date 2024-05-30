@@ -279,9 +279,9 @@ contains
     if (lx .lt. 10) then
        write(log_buf, '(A, I1)') 'Poly order : ', lx-1
     else if (lx .ge. 10) then
-       write(log_buf, '(A, I1)') 'Poly order : ', lx-1
+       write(log_buf, '(A, I2)') 'Poly order : ', lx-1
     else
-       write(log_buf, '(A, I1)') 'Poly order : ', lx-1
+       write(log_buf, '(A, I3)') 'Poly order : ', lx-1
     end if
     call neko_log%message(log_buf)
     write(log_buf, '(A, I0)') 'DoFs       : ', this%dm_Xh%size()
