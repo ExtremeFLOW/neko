@@ -157,7 +157,75 @@ extern "C" {
       }
     }
   }
+  /** 
+   * Fortran wrapper for device HIP Ax vector version
+   */
+  void hip_ax_helm_vector(void *au, void *av, void *aw,
+                           void *u, void *v, void *w,
+                           void *dx, void *dy, void *dz,
+                           void *dxt, void *dyt, void *dzt,
+                           void *h1, void *g11, void *g22,
+                           void *g33, void *g12, void *g13,
+                           void *g23, int *nelv, int *lx) {
 
+    const dim3 nthrds((*lx), (*lx), 1);
+    const dim3 nblcks((*nelv), 1, 1);
+
+#define CASE_VECTOR_KSTEP(LX)                                                   \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_kernel_vector_kstep<real, LX> ), \
+                        nblcks, nthrds, 0,                                      \
+                        (hipStream_t) glb_cmd_queue,                            \
+                        (real *) au, (real *) av, (real *) aw,                  \
+                        (real *) u, (real *) v, (real *) w,                     \
+                        (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
+                        (real *) g11, (real *) g22, (real *) g33,               \
+                        (real *) g12, (real *) g13, (real *) g23);              \
+    HIP_CHECK(hipGetLastError());
+
+#define CASE_VECTOR_KSTEP_PADDED(LX)                                            \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_kernel_vector_kstep_padded<real, LX> ), \
+                        nblcks, nthrds, 0,                                      \
+                        (hipStream_t) glb_cmd_queue,                            \
+                        (real *) au, (real *) av, (real *) aw,                  \
+                        (real *) u, (real *) v, (real *) w,                     \
+                        (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
+                        (real *) g11, (real *) g22, (real *) g33,               \
+                        (real *) g12, (real *) g13, (real *) g23);              \
+    HIP_CHECK(hipGetLastError());
+
+#define CASE_VECTOR(LX)                                                         \
+    case LX:                                                                    \
+      CASE_VECTOR_KSTEP(LX);                                                    \
+       break
+
+#define CASE_VECTOR_PADDED(LX)                                                  \
+    case LX:                                                                    \
+      CASE_VECTOR_KSTEP_PADDED(LX);                                             \
+       break
+      
+    switch(*lx) {
+      CASE_VECTOR(2);
+      CASE_VECTOR(3);
+      CASE_VECTOR_PADDED(4);
+      CASE_VECTOR(5);
+      CASE_VECTOR(6);
+      CASE_VECTOR(7);
+      CASE_VECTOR_PADDED(8);
+      CASE_VECTOR(9);
+      CASE_VECTOR(10);
+      CASE_VECTOR(11);
+      CASE_VECTOR(12);
+      CASE_VECTOR(13);
+      CASE_VECTOR(14);
+      CASE_VECTOR(15);
+      CASE_VECTOR_PADDED(16);
+      default:
+        {
+          fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+          exit(1);
+        }
+      }   
+  }
 }
 
 template < const int LX > 
