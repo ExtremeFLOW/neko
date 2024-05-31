@@ -1,16 +1,23 @@
 name: develop
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   pull_request:
-     branches: [develop,release/*]
-     types:
-       - opened
-       - synchronize
-       - reopened
-       - ready_for_review
+    branches: [develop, release/*]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   workflow_dispatch:
-  
+
+  # Todo: this should be removed once the rework is done.
+  push:
+    branches: [cicd/rework]
+
+# Allow only one concurrent deployment, skipping runs queued between the run
+# in-progress and latest queued. We do not wish to waste time on old runs if a
+# newer one is available.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -26,12 +33,12 @@ jobs:
         run: echo "This PR is a draft"
 
   linting:
-      name: Flint
-      if: github.event.pull_request.draft != true
-      uses: ./.github/workflows/lint.yml
-      with:
-        global_minimum_score: 8.0
-        changed_files_minimum_score: 8.0
+    name: Flint
+    if: github.event.pull_request.draft != true
+    uses: ./.github/workflows/lint.yml
+    with:
+      global_minimum_score: 8.0
+      changed_files_minimum_score: 8.0
 
   GNU:
     if: github.event.pull_request.draft != true
@@ -45,25 +52,25 @@ jobs:
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
         exclude:
-        - os: ubuntu-20.04
-          compiler: gfortran-11
-        - os: ubuntu-20.04
-          compiler: gfortran-12
-        - os: ubuntu-20.04
-          backend: opencl
-        - os: macos-13
-          compiler: gfortran-10
-        - os: macos-13
-          backend: cuda
-        - os: macos-13
-          backend: hip
+          - os: ubuntu-20.04
+            compiler: gfortran-11
+          - os: ubuntu-20.04
+            compiler: gfortran-12
+          - os: ubuntu-20.04
+            backend: opencl
+          - os: macos-13
+            compiler: gfortran-10
+          - os: macos-13
+            backend: cuda
+          - os: macos-13
+            backend: hip
         include:
-        - os: ubuntu-20.04
-          setup-env: |
-            sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
-        - os: macos-13
-          setup-env: export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 && brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
-          
+          - os: ubuntu-20.04
+            setup-env: |
+              sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui
+          - os: macos-13
+            setup-env: export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 && brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
+
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
@@ -99,7 +106,7 @@ jobs:
           +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
            #endif
                  end if
-           
+
           _ACEOF
           git apply pfunit_error_stop.patch && mkdir b && cd b
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
@@ -131,29 +138,29 @@ jobs:
         if: matrix.backend == 'cpu'
         run: |
           echo $PKG_CONFIG_PATH
-          ./regen.sh 
+          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.4 --enable-real=${RP}
           make -j$(nproc)
-      - name: Build (CUDA backend)        
+      - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
           sudo apt-get install -y nvidia-cuda-toolkit
-          ./regen.sh 
+          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-cuda=/usr
           make -j$(nproc)
-      - name: Build (HIP backend)        
+      - name: Build (HIP backend)
         if: matrix.backend == 'HIP'
         run: |
           wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
           echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
           sudo apt-get update && sudo apt-get install -y rocm-dev
-          ./regen.sh 
+          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.1.1
           make -j$(nproc)
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
-          ./regen.sh 
+          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-opencl
           make -j$(nproc)
       - name: Check
@@ -204,7 +211,7 @@ jobs:
           cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-opencl
           make -j $(nproc)
-    
+
   Intel:
     if: github.event.pull_request.draft != true
     needs: linting
@@ -217,13 +224,13 @@ jobs:
         precision: [sp, dp]
         backend: [cpu]
         include:
-        - os: ubuntu-20.04
-          setup-env: |
-            wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list && sudo apt-get update -y && sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
-            source /opt/intel/oneapi/setvars.sh
-            sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
-            export PATH=/opt/intel/oneapi/compiler/2024.1/bin:${PATH}
-            printenv >> $GITHUB_ENV
+          - os: ubuntu-20.04
+            setup-env: |
+              wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list && sudo apt-get update -y && sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
+              source /opt/intel/oneapi/setvars.sh
+              sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
+              export PATH=/opt/intel/oneapi/compiler/2024.1/bin:${PATH}
+              printenv >> $GITHUB_ENV
     env:
       CC: icc
       FC: ${{ matrix.compiler }}
@@ -259,7 +266,7 @@ jobs:
         run: |
           echo $PKG_CONFIG_PATH
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
+          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP}
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
   NVIDIA:
     if: github.event.pull_request.draft != true
@@ -273,8 +280,8 @@ jobs:
         backend: [cpu, cuda]
         precision: [dp]
         include:
-        - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-24-3 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/24.3/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/24.3/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
+          - os: ubuntu-20.04
+            setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-24-3 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/24.3/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/24.3/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
     env:
       CC: gcc
       FC: ${{ matrix.compiler }}
@@ -368,7 +375,7 @@ jobs:
       - name: Setup env.
         run: |
           sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
-          pip install reframe-hpc 
+          pip install reframe-hpc
       - name: Cache json-fortran
         id: cache-json-fortran
         uses: actions/cache@v4
@@ -400,5 +407,3 @@ jobs:
           ./regen.sh
           cd reframe
           env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
-
-
