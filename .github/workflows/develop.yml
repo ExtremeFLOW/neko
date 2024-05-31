@@ -66,55 +66,9 @@ jobs:
       json-fortran-version: 8.3.0
 
   ReFrame:
-    if: github.event.pull_request.draft != true
-    needs: GNU
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: true
-      matrix:
-        precision: [sp, dp]
-        compiler: [gfortran-10]
-    env:
-      FC: ${{ matrix.compiler }}
-      OMPI_FC: ${{ matrix.compiler}}
-      OMPI_ALLOW_RUN_AS_ROOT: 1
-      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-      RP: ${{ matrix.precision }}
-    name: ReFrame / ${{ matrix.compiler}} / ${{ matrix.precision }}
-    steps:
-      - name: Setup env.
-        run: |
-          sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
-          pip install reframe-hpc
-      - name: Cache json-fortran
-        id: cache-json-fortran
-        uses: actions/cache@v4
-        with:
-          path: ~/pkg/json-fortran
-          key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
-      - name: Install json-fortran
-        if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
-        run: |
-          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
-          cd json-fortran
-          mkdir build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
-          make -j$(nproc) && make install && cd ../../
-          cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
-      - name: Setup json-fortran
-        run: |
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
-      - name: Topology
-        run: |
-          reframe --detect-host-topology
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Regression tests
-        run: |
-          ./regen.sh
-          cd reframe
-          env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
+    needs:
+      - is_draft
+      - linting
+    uses: ./.github/workflows/check_reframe.yml
+    with:
+      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
