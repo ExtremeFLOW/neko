@@ -12,8 +12,8 @@ jobs:
     needs: is_draft
     uses: ./.github/workflows/check_lint.yml
     with:
-      global_minimum_score: 8.0
-      changed_files_minimum_score: 8.0
+      global_minimum_score: ${{ vars.FLINT_GLOBAL_MINIMUM }}
+      changed_files_minimum_score: ${{ vars.FLINT_CHANGED_FILES_MINIMUM }}
 
   GNU:
     needs:
@@ -21,8 +21,8 @@ jobs:
       - linting
     uses: ./.github/workflows/check_gnu.yml
     with:
-      json-fortran-version: 8.3.0
-      pfunit-version: v4.4.2
+      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
+      pfunit-version: ${{ vars.PFUNIT_VERSION }}
 
   Intel:
     needs:
@@ -30,7 +30,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_intel.yml
     with:
-      json-fortran-version: 8.3.0
+      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
 
   NVIDIA:
     needs:
@@ -38,7 +38,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_nvidia.yml
     with:
-      json-fortran-version: 8.3.0
+      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
 
   ReFrame:
     needs:
@@ -47,7 +47,7 @@ jobs:
       - GNU
     uses: ./.github/workflows/check_reframe.yml
     with:
-      json-fortran-version: 8.3.0
+      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
 
   documentation:
     needs: [Intel, GNU, NVIDIA, ReFrame]
@@ -59,13 +59,22 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y git openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 doxygen fonts-freefont-ttf graphviz
           git clone https://github.com/ExtremeFLOW/doxygen-awesome-css doc/doxygen-awesome-css
-          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
-          cd json-fortran
-          mkdir build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
-          make -j$(nproc) && make install && cd ../../
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
+
+      - name: Get JSON-Fortran
+        id: get-json-fortran
+        uses: ./.github/actions/setup_json-fortran
+        with:
+          version: ${{ inputs.json-fortran-version }}
+          os: ${{ matrix.os }}
+          compiler: ${{ matrix.compiler }}
+
+      - name: Add JSON-Fortran to environment
+        env:
+          JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
+        run: |
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
+
       - name: Doxygen
         run: |
           ./regen.sh
@@ -86,6 +95,7 @@ jobs:
           enable_jekyll: true
 
   check_complete:
+    name: Main PR Ready
     if: ${{ always() }}
     needs:
       - is_draft
@@ -96,7 +106,6 @@ jobs:
       - ReFrame
       - documentation
 
-    name: Develop PR Ready
     runs-on: ubuntu-latest
     env:
       draft_status: ${{ needs.is_draft.result }}
@@ -144,7 +153,7 @@ jobs:
           if [ "$success" = false ]; then
             >&2 echo "The following checks failed:"
             for i in "${fail[@]}"; do
-              >&2 printf "$i"
+              >&2 printf "$i\n"
             done
             exit 1
           fi

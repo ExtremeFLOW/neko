@@ -75,6 +75,7 @@ jobs:
       json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
 
   check_complete:
+    name: Develop PR Ready
     if: ${{ always() }}
     needs:
       - is_draft
@@ -83,7 +84,6 @@ jobs:
       - Intel
       - NVIDIA
       - ReFrame
-    name: Develop PR Ready
     runs-on: ubuntu-latest
     env:
       draft_status: ${{ needs.is_draft.result }}
@@ -126,7 +126,7 @@ jobs:
           if [ "$success" = false ]; then
             >&2 echo "The following checks failed:"
             for i in "${fail[@]}"; do
-              >&2 printf "$i"
+              >&2 printf "$i\n"
             done
             exit 1
           fi
