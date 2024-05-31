@@ -25,8 +25,9 @@ jobs:
     steps:
       - name: Check if PR is a draft
         run: |
-          [ -z "${{ github.event.pull_request.draft }}" ] && exit 0
-          [ "${{ github.event.pull_request.draft }}" == "true" ] && exit 1
+          if [ "${{ github.event.pull_request.draft }}" == "true" ]; then
+            exit 1
+          fi
 
   linting:
     name: Flint
