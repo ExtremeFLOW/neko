@@ -11,10 +11,6 @@ on:
       - ready_for_review
   workflow_dispatch:
 
-  # Todo: this should be removed once the rework is done.
-  push:
-    branches: [cicd/rework]
-
 # Allow only one concurrent deployment, skipping runs queued between the run
 # in-progress and latest queued. We do not wish to waste time on old runs if a
 # newer one is available.
