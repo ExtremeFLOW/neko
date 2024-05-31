@@ -21,6 +21,8 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+env:
+  JSON_FORTRAN_VERSION: 8.3.0
 
 jobs:
   is_draft:
@@ -46,7 +48,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_gnu.yml
     with:
-      json-fortran-version: 8.3.0
+      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
       pfunit-version: v4.4.2
 
   Intel:
@@ -55,7 +57,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_intel.yml
     with:
-      json-fortran-version: 8.3.0
+      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
 
   NVIDIA:
     needs:
@@ -63,7 +65,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_nvidia.yml
     with:
-      json-fortran-version: 8.3.0
+      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
 
   ReFrame:
     needs:
