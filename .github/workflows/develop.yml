@@ -86,47 +86,47 @@ jobs:
     name: Develop PR Ready
     runs-on: ubuntu-latest
     env:
-      is_draft: ${{ needs.is_draft.result }}
-      linting_complete: ${{ needs.linting.result }}
-      GNU_complete: ${{ needs.GNU.result }}
-      Intel_complete: ${{ needs.Intel.result }}
-      NVIDIA_complete: ${{ needs.NVIDIA.result }}
-      ReFrame_complete: ${{ needs.ReFrame.result }}
+      draft_status: ${{ needs.is_draft.result }}
+      flint_status: ${{ needs.linting.result }}
+      gnu_status: ${{ needs.GNU.result }}
+      inel_status: ${{ needs.Intel.result }}
+      nvidia_status: ${{ needs.NVIDIA.result }}
+      reframe_status: ${{ needs.ReFrame.result }}
 
     steps:
       - name: All checks passed
         run: |
           success=true
           fail=()
-          if [ "$is_draft" != "success" ]; then
-            fail+=("Draft check failed")
+          if [ "$draft_status" != "success" ]; then
+            fail+=("\t- Draft check: $draft_status")
             success=false
           fi
-          if [ "$linting_complete" != "success" ]; then
-            fail+=("Linting check failed")
+          if [ "$flint_status" != "success" ]; then
+            fail+=("\t- Linting check: $flint_status")
             success=false
           fi
-          if [ "$GNU_complete" != "success" ]; then
-            fail+=("GNU check failed")
+          if [ "$gnu_status" != "success" ]; then
+            fail+=("\t- GNU check: $gnu_status")
             success=false
           fi
-          if [ "$Intel_complete" != "success" ]; then
-            fail+=("Intel check failed")
+          if [ "$inel_status" != "success" ]; then
+            fail+=("\t- Intel check: $inel_status")
             success=false
           fi
-          if [ "$NVIDIA_complete" != "success" ]; then
-            fail+=("NVIDIA check failed")
+          if [ "$nvidia_status" != "success" ]; then
+            fail+=("\t- NVIDIA check: $nvidia_status")
             success=false
           fi
-          if [ "$ReFrame_complete" != "success" ]; then
-            fail+=("ReFrame check failed")
+          if [ "$reframe_status" != "success" ]; then
+            fail+=("\t- ReFrame check: $reframe_status")
             success=false
           fi
 
           if [ "$success" = false ]; then
             >&2 echo "The following checks failed:"
             for i in "${fail[@]}"; do
-              >&2 echo "$i"
+              >&2 printf "$i"
             done
             exit 1
           fi
