@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check if PR is a draft
+        shell: bash
         run: |
           if [ "${{ github.event.pull_request.draft }}" == "true" ]; then
             exit 1
