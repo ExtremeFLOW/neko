@@ -59,6 +59,8 @@ contains
   !! @param test_filter
   !! @param mij
   !! @param lij The Germano identity.
+  !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
+  !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
   subroutine dynamic_smagorinsky_compute_cpu(t, tstep, coef, nut, delta, &
                                              c_dyn, test_filter, mij, lij, num, den)
     real(kind=rp), intent(in) :: t
@@ -281,6 +283,12 @@ contains
 
   end subroutine compute_mij_cpu
 
+  !> Compute numerator and denominator for c_dyn on the CPU.
+  !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
+  !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
+  !! @param mij
+  !! @param lij The Germano identity.
+  !! @param alpha The moving average coefficient 
   subroutine compute_num_den_cpu(num, den, lij, mij, alpha, n)
     type(field_t), intent(inout) :: num, den
     type(field_t), intent(in) :: lij(6), mij(6)
