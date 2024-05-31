@@ -37,8 +37,8 @@ jobs:
     needs: is_draft
     uses: ./.github/workflows/check_lint.yml
     with:
-      global_minimum_score: 8.0
-      changed_files_minimum_score: 8.0
+      global_minimum_score: ${{ vars.FLINT_GLOBAL_MINIMUM }}
+      changed_files_minimum_score: ${{ vars.FLINT_CHANGED_FILES_MINIMUM }}
 
   GNU:
     needs:
@@ -46,8 +46,8 @@ jobs:
       - linting
     uses: ./.github/workflows/check_gnu.yml
     with:
-      json-fortran-version: 8.3.0
-      pfunit-version: v4.4.2
+      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
+      pfunit-version: ${{ vars.PFUNIT_VERSION }}
 
   Intel:
     needs:
@@ -55,7 +55,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_intel.yml
     with:
-      json-fortran-version: 8.3.0
+      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
 
   NVIDIA:
     needs:
@@ -63,7 +63,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_nvidia.yml
     with:
-      json-fortran-version: 8.3.0
+      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
 
   ReFrame:
     needs:
@@ -72,7 +72,7 @@ jobs:
       - GNU
     uses: ./.github/workflows/check_reframe.yml
     with:
-      json-fortran-version: 8.3.0
+      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
 
   check_complete:
     if: ${{ always() }}
