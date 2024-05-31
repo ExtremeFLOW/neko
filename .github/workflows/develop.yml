@@ -21,18 +21,16 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-env:
-  JSON_FORTRAN_VERSION: 8.3.0
 
 jobs:
   is_draft:
     name: Check if PR is a draft
-    if: github.event.pull_request.draft == true
-
     runs-on: ubuntu-latest
     steps:
       - name: Check if PR is a draft
-        run: echo "This PR is a draft"
+        run: |
+          [ -z "${{ github.event.pull_request.draft }}" ] && exit 0
+          [ "${{ github.event.pull_request.draft }}" == "true" ] && exit 1
 
   linting:
     name: Flint
@@ -48,7 +46,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_gnu.yml
     with:
-      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
+      json-fortran-version: 8.3.0
       pfunit-version: v4.4.2
 
   Intel:
@@ -57,7 +55,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_intel.yml
     with:
-      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
+      json-fortran-version: 8.3.0
 
   NVIDIA:
     needs:
@@ -65,12 +63,62 @@ jobs:
       - linting
     uses: ./.github/workflows/check_nvidia.yml
     with:
-      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
+      json-fortran-version: 8.3.0
 
   ReFrame:
     needs:
       - is_draft
       - linting
+      - GNU
     uses: ./.github/workflows/check_reframe.yml
     with:
-      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
+      json-fortran-version: 8.3.0
+
+  check_complete:
+    name: Develop PR Ready
+    if: ${{ always() }}
+    needs:
+      - is_draft
+      - linting
+      - GNU
+      - Intel
+      - NVIDIA
+      - ReFrame
+
+    runs-on: ubuntu-latest
+    env:
+      is_draft: ${{ needs.is_draft.result }}
+      linting_complete: ${{ needs.linting.result }}
+      GNU_complete: ${{ needs.GNU.result }}
+      Intel_complete: ${{ needs.Intel.result }}
+      NVIDIA_complete: ${{ needs.NVIDIA.result }}
+      ReFrame_complete: ${{ needs.ReFrame.result }}
+
+    steps:
+      - name: All checks passed
+        run: |
+          success=true
+          if [ "$is_draft" != "success" ]; then
+            echo "Draft check failed"
+            success=false
+          if [ "$linting_complete" != "success" ]; then
+            echo "Linting check failed"
+            success=false
+          elif [ "$GNU_complete" != "success" ]; then
+            echo "GNU check failed"
+            success=false
+          elif [ "$Intel_complete" != "success" ]; then
+            echo "Intel check failed"
+            success=false
+          elif [ "$NVIDIA_complete" != "success" ]; then
+            echo "NVIDIA check failed"
+            success=false
+          elif [ "$ReFrame_complete" != "success" ]; then
+            echo "ReFrame check failed"
+            success=false
+          fi
+
+          if [ "$success" = false ]; then
+            exit 1
+          fi
+          echo "All checks passed"
