@@ -35,7 +35,7 @@ jobs:
   linting:
     name: Flint
     needs: is_draft
-    uses: ./.github/workflows/lint.yml
+    uses: ./.github/workflows/check_lint.yml
     with:
       global_minimum_score: 8.0
       changed_files_minimum_score: 8.0
@@ -75,7 +75,6 @@ jobs:
       json-fortran-version: 8.3.0
 
   check_complete:
-    name: Develop PR Ready
     if: ${{ always() }}
     needs:
       - is_draft
@@ -84,7 +83,7 @@ jobs:
       - Intel
       - NVIDIA
       - ReFrame
-
+    name: Develop PR Ready
     runs-on: ubuntu-latest
     env:
       is_draft: ${{ needs.is_draft.result }}
@@ -98,27 +97,37 @@ jobs:
       - name: All checks passed
         run: |
           success=true
+          fail=()
           if [ "$is_draft" != "success" ]; then
-            echo "Draft check failed"
+            fail+=("Draft check failed")
             success=false
+          fi
           if [ "$linting_complete" != "success" ]; then
-            echo "Linting check failed"
+            fail+=("Linting check failed")
             success=false
-          elif [ "$GNU_complete" != "success" ]; then
-            echo "GNU check failed"
+          fi
+          if [ "$GNU_complete" != "success" ]; then
+            fail+=("GNU check failed")
             success=false
-          elif [ "$Intel_complete" != "success" ]; then
-            echo "Intel check failed"
+          fi
+          if [ "$Intel_complete" != "success" ]; then
+            fail+=("Intel check failed")
             success=false
-          elif [ "$NVIDIA_complete" != "success" ]; then
-            echo "NVIDIA check failed"
+          fi
+          if [ "$NVIDIA_complete" != "success" ]; then
+            fail+=("NVIDIA check failed")
             success=false
-          elif [ "$ReFrame_complete" != "success" ]; then
-            echo "ReFrame check failed"
+          fi
+          if [ "$ReFrame_complete" != "success" ]; then
+            fail+=("ReFrame check failed")
             success=false
           fi
 
           if [ "$success" = false ]; then
+            >&2 echo "The following checks failed:"
+            for i in "${fail[@]}"; do
+              >&2 echo "$i"
+            done
             exit 1
           fi
           echo "All checks passed"
