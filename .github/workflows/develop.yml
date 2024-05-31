@@ -58,91 +58,13 @@ jobs:
       json-fortran-version: 8.3.0
 
   NVIDIA:
-    if: github.event.pull_request.draft != true
-    needs: linting
-    runs-on: ${{matrix.os}}
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ubuntu-20.04]
-        compiler: [nvfortran]
-        backend: [cpu, cuda]
-        precision: [dp]
-        include:
-          - os: ubuntu-20.04
-            setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-24-3 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/24.3/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/24.3/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
-    env:
-      CC: gcc
-      FC: ${{ matrix.compiler }}
-      OMPI_FC: ${{ matrix.compiler }}
-      OMPI_CC: gcc
-      OMPI_ALLOW_RUN_AS_ROOT: 1
-      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-      RP: ${{ matrix.precision }}
-    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
-    steps:
-      - name: Setup env.
-        run: ${{ matrix.setup-env }}
-      - name: Cache json-fortran
-        id: cache-json-fortran
-        uses: actions/cache@v4
-        with:
-          path: ~/pkg/json-fortran
-          key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
-      - name: Install json-fortran
-        if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
-        run: |
-          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
-          cd json-fortran
-          mkdir build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
-          make -j$(nproc) && make install && cd ../../
-          cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
-      - name: Setup json-fortran
-        run: |
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Build (CPU backend)
-        if: matrix.backend == 'cpu'
-        run: |
-          git apply patches/nvhpc_bge.patch
-          ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
-          make
-      - name: Build (CUDA backend)
-        if: matrix.backend == 'cuda'
-        run: |
-          git apply patches/nvhpc_bge.patch
-          ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/cuda/
-          make
-      - name: Dist (CPU backend)
-        if: matrix.backend == 'cpu'
-        run: |
-          git stash
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
-          make -j $(nproc)
-      - name: Dist (CUDA backend)
-        if: matrix.backend == 'cuda'
-        run: |
-          git stash
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/cuda/
-          make -j $(nproc)
+    needs:
+      - is_draft
+      - linting
+    uses: ./.github/workflows/check_nvidia.yml
+    with:
+      json-fortran-version: 8.3.0
+
   ReFrame:
     if: github.event.pull_request.draft != true
     needs: GNU
