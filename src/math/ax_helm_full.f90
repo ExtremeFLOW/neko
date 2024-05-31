@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,56 +30,42 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_fctry
-  use neko_config
-  use ax_helm_device, only : ax_helm_device_t
-  use ax_helm_xsmm, only : ax_helm_xsmm_t
-  use ax_helm_sx, only : ax_helm_sx_t
-  use ax_helm, only : ax_helm_t
-  use ax_helm_cpu, only : ax_helm_cpu_t
-  use ax_helm_full_cpu, only : ax_helm_full_cpu_t
+module ax_helm_full
   use ax_product, only : ax_t
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use math, only : addcol4
   use utils, only : neko_error
   implicit none
   private
 
-  public :: ax_helm_factory
+  !> Matrix-vector product for a Helmholtz problem.
+  type, public, abstract, extends(ax_t) :: ax_helm_full_t
+   contains
+     !> Compute the product for 3 fields.
+     procedure, nopass :: compute => ax_helm_full_compute
+  end type ax_helm_full_t
 
 contains
 
-  !> Factory routine for the a Helmholtz problem matrix-vector product.
-  !! The selection is based on the compute backend.
-  !! @param Ax The matrix-vector product type to be allocated.
-  !! @param full_formulation Whether to use the formulation with the full
-  !! viscous stress tensor, not assuming constant material properties.
-  subroutine ax_helm_factory(Ax, full_formulation)
-    class(ax_t), allocatable, intent(inout) :: Ax
-    logical, intent(in) :: full_formulation
+  !> Compute the product for a single vector. Not implemented for the full
+  !! stress formulation.
+  !! @param w Vector of size @a (lx,ly,lz,nelv).
+  !! @param u Vector of size @a (lx,ly,lz,nelv).
+  !! @param coef Coefficients.
+  !! @param msh Mesh.
+  !! @param Xh Function space \f$ X_h \f$.
+  subroutine ax_helm_full_compute(w, u, coef, msh, Xh)
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    if (allocated(Ax)) then
-       deallocate(Ax)
-    end if
+    call neko_error("The full Helmholtz operators cannot be applied to a &
+                   & field")
+  end subroutine ax_helm_full_compute
 
-    if (full_formulation) then
-      if (NEKO_BCKND_DEVICE .eq. 1 .or. NEKO_BCKND_SX .eq. 1 .or. &
-          NEKO_BCKND_XSMM .eq. 1) then
-         call neko_error("Full stress formulation is only available on the CPU")
-      else
-         allocate(ax_helm_full_cpu_t::Ax)
-      end if
-    else
-       if (NEKO_BCKND_SX .eq. 1) then
-          allocate(ax_helm_sx_t::Ax)
-       else if (NEKO_BCKND_XSMM .eq. 1) then
-          allocate(ax_helm_xsmm_t::Ax)
-       else if (NEKO_BCKND_DEVICE .eq. 1) then
-          allocate(ax_helm_device_t::Ax)
-       else
-          allocate(ax_helm_cpu_t::Ax)
-       end if
-    end if
-
-  end subroutine ax_helm_factory
-
-
-end module ax_helm_fctry
+end module ax_helm_full

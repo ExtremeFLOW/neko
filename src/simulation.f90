@@ -60,7 +60,7 @@ contains
     real(kind=rp) :: t, cfl
     real(kind=dp) :: start_time_org, start_time, end_time
     character(len=LOG_SIZE) :: log_buf
-    integer :: tstep, i
+    integer :: tstep
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
     ! for variable_tsteping
