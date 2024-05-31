@@ -39,68 +39,68 @@
  */
 
 template< typename T, const int LX, const int CHUNKS >
-__global__ void ax_helm_kernel_1d(T * __restrict__ w,            
-                                  const T * __restrict__ u,      
-                                  const T * __restrict__ dx,     
-                                  const T * __restrict__ dy,     
-                                  const T * __restrict__ dz,     
-                                  const T * __restrict__ dxt,    
-                                  const T * __restrict__ dyt,    
-                                  const T * __restrict__ dzt,    
-                                  const T * __restrict__ h1,     
-                                  const T * __restrict__ g11,    
-                                  const T * __restrict__ g22,    
-                                  const T * __restrict__ g33,    
-                                  const T * __restrict__ g12,    
-                                  const T * __restrict__ g13,    
-                                  const T * __restrict__ g23) {  
-                                                                               
-  __shared__ T shdx[LX*LX];                                                    
-  __shared__ T shdy[LX*LX];                                                    
-  __shared__ T shdzt[LX*LX];                                                   
-                                                                               
-  __shared__ T shdxt[LX*LX];                                                   
-  __shared__ T shdyt[LX*LX];                                                   
-  __shared__ T shdz[LX*LX];                                                    
-                                                                               
-  __shared__ T shu[LX*LX*LX];                                                  
-  __shared__ T shur[LX*LX*LX];                                                 
-  __shared__ T shus[LX*LX*LX];                                                 
-  __shared__ T shut[LX*LX*LX];                                   
-                                                                               
+__global__ void ax_helm_kernel_1d(T * __restrict__ w,
+                                  const T * __restrict__ u,
+                                  const T * __restrict__ dx,
+                                  const T * __restrict__ dy,
+                                  const T * __restrict__ dz,
+                                  const T * __restrict__ dxt,
+                                  const T * __restrict__ dyt,
+                                  const T * __restrict__ dzt,
+                                  const T * __restrict__ h1,
+                                  const T * __restrict__ g11,
+                                  const T * __restrict__ g22,
+                                  const T * __restrict__ g33,
+                                  const T * __restrict__ g12,
+                                  const T * __restrict__ g13,
+                                  const T * __restrict__ g23) {
+
+  __shared__ T shdx[LX*LX];
+  __shared__ T shdy[LX*LX];
+  __shared__ T shdzt[LX*LX];
+
+  __shared__ T shdxt[LX*LX];
+  __shared__ T shdyt[LX*LX];
+  __shared__ T shdz[LX*LX];
+
+  __shared__ T shu[LX*LX*LX];
+  __shared__ T shur[LX*LX*LX];
+  __shared__ T shus[LX*LX*LX];
+  __shared__ T shut[LX*LX*LX];
+
   const int e = blockIdx.x;
   const int iii = threadIdx.x;
-  const int nchunks = (LX * LX * LX - 1)/CHUNKS + 1;                           
-                                                                               
-  if (iii<LX*LX) {                                                             
-    shdx[iii] = dx[iii];                                                       
-    shdy[iii] = dy[iii];                                                       
-    shdz[iii] = dz[iii];                                                       
-  }                                                                            
+  const int nchunks = (LX * LX * LX - 1)/CHUNKS + 1;
+
+  if (iii<LX*LX) {
+    shdx[iii] = dx[iii];
+    shdy[iii] = dy[iii];
+    shdz[iii] = dz[iii];
+  }
 
   {
-    int i = iii;                                                               
-    while (i < LX * LX * LX){                                                   
-      shu[i] = u[i+e*LX*LX*LX];                                                 
-      i = i + CHUNKS;                                                           
+    int i = iii;
+    while (i < LX * LX * LX){
+      shu[i] = u[i+e*LX*LX*LX];
+      i = i + CHUNKS;
     }
   }
-                                                                               
+
   __syncthreads();
-                                                                               
-  if (iii<LX*LX){                                                              
-    shdxt[iii] = dxt[iii];                                                     
-    shdyt[iii] = dyt[iii];                                                     
-    shdzt[iii] = dzt[iii];                                                     
-  }                                                                            
-                                                                               
-  for (int n=0; n<nchunks; n++){                                              
-    const int ijk = iii+n*CHUNKS;                                              
+
+  if (iii<LX*LX){
+    shdxt[iii] = dxt[iii];
+    shdyt[iii] = dyt[iii];
+    shdzt[iii] = dzt[iii];
+  }
+
+  for (int n=0; n<nchunks; n++){
+    const int ijk = iii+n*CHUNKS;
     const int jk = ijk/LX;
     const int i = ijk-jk*LX;
     const int k = jk/LX;
     const int j = jk-k*LX;
-    if (i<LX && j<LX && k<LX && ijk < LX*LX*LX){        
+    if (i<LX && j<LX && k<LX && ijk < LX*LX*LX){
       const T G00 = g11[ijk+e*LX*LX*LX];
       const T G11 = g22[ijk+e*LX*LX*LX];
       const T G22 = g33[ijk+e*LX*LX*LX];
@@ -108,41 +108,41 @@ __global__ void ax_helm_kernel_1d(T * __restrict__ w,
       const T G02 = g13[ijk+e*LX*LX*LX];
       const T G12 = g23[ijk+e*LX*LX*LX];
       const T H1 = h1[ijk+e*LX*LX*LX];
-      T rtmp = 0.0;                                                         
-      T stmp = 0.0;                                                            
+      T rtmp = 0.0;
+      T stmp = 0.0;
       T ttmp = 0.0;
 #pragma unroll
       for (int l = 0; l<LX; l++){
-        rtmp = rtmp + shdx[i+l*LX] * shu[l+j*LX+k*LX*LX];                      
-        stmp = stmp + shdy[j+l*LX] * shu[i+l*LX+k*LX*LX];                      
-        ttmp = ttmp + shdz[k+l*LX] * shu[i+j*LX+l*LX*LX];                      
-      }                                                                        
+        rtmp = rtmp + shdx[i+l*LX] * shu[l+j*LX+k*LX*LX];
+        stmp = stmp + shdy[j+l*LX] * shu[i+l*LX+k*LX*LX];
+        ttmp = ttmp + shdz[k+l*LX] * shu[i+j*LX+l*LX*LX];
+      }
       shur[ijk] = H1 * (G00 * rtmp + G01 * stmp + G02 * ttmp);
-      shus[ijk] = H1 * (G01 * rtmp + G11 * stmp + G12 * ttmp);     
+      shus[ijk] = H1 * (G01 * rtmp + G11 * stmp + G12 * ttmp);
       shut[ijk] = H1 * (G02 * rtmp + G12 * stmp + G22 * ttmp);
-    }                                                                          
-  }                                                                            
-                                                                               
+    }
+  }
+
   __syncthreads();
-                                                                               
-  for (int n=0; n<nchunks; n++){                                             
-    const int ijk = iii+n*CHUNKS;                                              
-    const int jk = ijk/LX;                                                     
+
+  for (int n=0; n<nchunks; n++){
+    const int ijk = iii+n*CHUNKS;
+    const int jk = ijk/LX;
     const int k = jk/LX;
     const int j = jk-k*LX;
     const int i = ijk-jk*LX;
-    if (i<LX && j<LX && k<LX && ijk <LX*LX*LX){                 
+    if (i<LX && j<LX && k<LX && ijk <LX*LX*LX){
       T wijke = 0.0;
 #pragma unroll
       for (int l = 0; l<LX; l++){
-        wijke = wijke                                                          
-              + shdxt[i+l*LX] * shur[l+j*LX+k*LX*LX]                           
-              + shdyt[j+l*LX] * shus[i+l*LX+k*LX*LX]                           
-              + shdzt[k+l*LX] * shut[i+j*LX+l*LX*LX];                          
-      }                                                                        
-      w[ijk+e*LX*LX*LX] = wijke;                                               
-    }                                                                          
-  }                                                                            
+        wijke = wijke
+              + shdxt[i+l*LX] * shur[l+j*LX+k*LX*LX]
+              + shdyt[j+l*LX] * shus[i+l*LX+k*LX*LX]
+              + shdzt[k+l*LX] * shut[i+j*LX+l*LX*LX];
+      }
+      w[ijk+e*LX*LX*LX] = wijke;
+    }
+  }
 }
 
 template< typename T, const int LX >
@@ -163,7 +163,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   __shared__ T shdx[LX * LX];
   __shared__ T shdy[LX * LX];
   __shared__ T shdz[LX * LX];
-    
+
   __shared__ T shu[LX * LX];
   __shared__ T shur[LX * LX];
   __shared__ T shus[LX * LX];
@@ -181,7 +181,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   shdx[ij] = dx[ij];
   shdy[ij] = dy[ij];
   shdz[ij] = dz[ij];
-  
+
 #pragma unroll
   for(int k = 0; k < LX; ++k){
     ru[k] = u[ij + k*LX*LX + ele];
@@ -192,10 +192,10 @@ __global__ void __launch_bounds__(LX*LX,3)
   __syncthreads();
 #pragma unroll
   for (int k = 0; k < LX; ++k){
-    const int ijk = ij + k*LX*LX; 
+    const int ijk = ij + k*LX*LX;
     const T G00 = g11[ijk+ele];
     const T G11 = g22[ijk+ele];
-    const T G22 = g33[ijk+ele]; 
+    const T G22 = g33[ijk+ele];
     const T G01 = g12[ijk+ele];
     const T G02 = g13[ijk+ele];
     const T G12 = g23[ijk+ele];
@@ -206,7 +206,7 @@ __global__ void __launch_bounds__(LX*LX,3)
       ttmp += shdz[k+l*LX] * ru[l];
     }
     __syncthreads();
-    
+
     T rtmp = 0.0;
     T stmp = 0.0;
 #pragma unroll
@@ -224,7 +224,7 @@ __global__ void __launch_bounds__(LX*LX,3)
                 + G12 * ttmp);
     rut      = H1
              * (G02 * rtmp
-                + G12 * stmp 
+                + G12 * stmp
                 + G22 * ttmp);
 
     __syncthreads();
@@ -240,12 +240,12 @@ __global__ void __launch_bounds__(LX*LX,3)
   }
 #pragma unroll
   for (int k = 0; k < LX; ++k){
-    w[ij + k*LX*LX + ele] = rw[k]; 
+    w[ij + k*LX*LX + ele] = rw[k];
   }
 }
 
 /**
- * Device kernel for axhelm with padding in shared memory to 
+ * Device kernel for axhelm with padding in shared memory to
  * remove bank conflicts when LX is a power of 2
  */
 
@@ -265,9 +265,9 @@ __global__ void __launch_bounds__(LX*LX,3)
                               const T * __restrict__ g23) {
 
   __shared__ T shdx[LX * (LX+1)];
-  __shared__ T shdy[LX * (LX+1)]; 
+  __shared__ T shdy[LX * (LX+1)];
   __shared__ T shdz[LX * (LX+1)];
-    
+
   __shared__ T shu[LX * (LX+1)];
   __shared__ T shur[LX * LX];  // only accessed using fastest dimension
   __shared__ T shus[LX * (LX+1)];
@@ -286,7 +286,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   shdx[ij_p] = dx[ij];
   shdy[ij_p] = dy[ij];
   shdz[ij_p] = dz[ij];
-  
+
 #pragma unroll
   for(int k = 0; k < LX; ++k){
     ru[k] = u[ij + k*LX*LX + ele];
@@ -297,10 +297,10 @@ __global__ void __launch_bounds__(LX*LX,3)
   __syncthreads();
 #pragma unroll
   for (int k = 0; k < LX; ++k){
-    const int ijk = ij + k*LX*LX; 
+    const int ijk = ij + k*LX*LX;
     const T G00 = g11[ijk+ele];
     const T G11 = g22[ijk+ele];
-    const T G22 = g33[ijk+ele]; 
+    const T G22 = g33[ijk+ele];
     const T G01 = g12[ijk+ele];
     const T G02 = g13[ijk+ele];
     const T G12 = g23[ijk+ele];
@@ -311,7 +311,7 @@ __global__ void __launch_bounds__(LX*LX,3)
       ttmp += shdz[k+l*(LX+1)] * ru[l];
     }
     __syncthreads();
-    
+
     T rtmp = 0.0;
     T stmp = 0.0;
 #pragma unroll
@@ -329,7 +329,7 @@ __global__ void __launch_bounds__(LX*LX,3)
                 + G12 * ttmp);
     rut      = H1
              * (G02 * rtmp
-                + G12 * stmp 
+                + G12 * stmp
                 + G22 * ttmp);
 
     __syncthreads();
@@ -345,7 +345,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   }
 #pragma unroll
   for (int k = 0; k < LX; ++k){
-    w[ij + k*LX*LX + ele] = rw[k]; 
+    w[ij + k*LX*LX + ele] = rw[k];
   }
 }
 
@@ -375,7 +375,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   __shared__ T shdx[LX * LX];
   __shared__ T shdy[LX * LX];
   __shared__ T shdz[LX * LX];
-    
+
   __shared__ T shu[LX * LX];
   __shared__ T shur[LX * LX];
   __shared__ T shus[LX * LX];
@@ -391,11 +391,11 @@ __global__ void __launch_bounds__(LX*LX,3)
   T ru[LX];
   T rv[LX];
   T rw[LX];
-  
+
   T ruw[LX];
   T rvw[LX];
   T rww[LX];
-  
+
   T rut;
   T rvt;
   T rwt;
@@ -409,7 +409,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   shdx[ij] = dx[ij];
   shdy[ij] = dy[ij];
   shdz[ij] = dz[ij];
-  
+
 #pragma unroll
   for(int k = 0; k < LX; ++k){
     ru[k] = u[ij + k*LX*LX + ele];
@@ -426,10 +426,10 @@ __global__ void __launch_bounds__(LX*LX,3)
   __syncthreads();
 #pragma unroll
   for (int k = 0; k < LX; ++k){
-    const int ijk = ij + k*LX*LX; 
+    const int ijk = ij + k*LX*LX;
     const T G00 = g11[ijk+ele];
     const T G11 = g22[ijk+ele];
-    const T G22 = g33[ijk+ele]; 
+    const T G22 = g33[ijk+ele];
     const T G01 = g12[ijk+ele];
     const T G02 = g13[ijk+ele];
     const T G12 = g23[ijk+ele];
@@ -446,7 +446,7 @@ __global__ void __launch_bounds__(LX*LX,3)
       wttmp += shdz[k+l*LX] * rw[l];
     }
     __syncthreads();
-    
+
     T urtmp = 0.0;
     T ustmp = 0.0;
 
@@ -466,7 +466,7 @@ __global__ void __launch_bounds__(LX*LX,3)
       wrtmp += shdx[i+l*LX] * shw[l+j*LX];
       wstmp += shdy[j+l*LX] * shw[i+l*LX];
     }
-    
+
     shur[ij] = H1
 	     * (G00 * urtmp
 		+ G01 * ustmp
@@ -477,7 +477,7 @@ __global__ void __launch_bounds__(LX*LX,3)
 		+ G12 * uttmp);
     rut      = H1
 	     * (G02 * urtmp
-		+ G12 * ustmp 
+		+ G12 * ustmp
 		+ G22 * uttmp);
 
     shvr[ij] = H1
@@ -490,7 +490,7 @@ __global__ void __launch_bounds__(LX*LX,3)
 		+ G12 * vttmp);
     rvt      = H1
 	     * (G02 * vrtmp
-		+ G12 * vstmp 
+		+ G12 * vstmp
 		+ G22 * vttmp);
 
     shwr[ij] = H1
@@ -503,7 +503,7 @@ __global__ void __launch_bounds__(LX*LX,3)
 		+ G12 * wttmp);
     rwt      = H1
 	     * (G02 * wrtmp
-		+ G12 * wstmp 
+		+ G12 * wstmp
 		+ G22 * wttmp);
 
     __syncthreads();
@@ -533,7 +533,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   for (int k = 0; k < LX; ++k){
    au[ij + k*LX*LX + ele] = ruw[k];
    av[ij + k*LX*LX + ele] = rvw[k];
-   aw[ij + k*LX*LX + ele] = rww[k]; 
+   aw[ij + k*LX*LX + ele] = rww[k];
   }
 }
 
@@ -559,7 +559,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   __shared__ T shdx[LX * (LX+1)];
   __shared__ T shdy[LX * (LX+1)];
   __shared__ T shdz[LX * (LX+1)];
-    
+
   __shared__ T shu[LX * (LX+1)];
   __shared__ T shur[LX * LX];
   __shared__ T shus[LX * (LX+1)];
@@ -575,11 +575,11 @@ __global__ void __launch_bounds__(LX*LX,3)
   T ru[LX];
   T rv[LX];
   T rw[LX];
-  
+
   T ruw[LX];
   T rvw[LX];
   T rww[LX];
-  
+
   T rut;
   T rvt;
   T rwt;
@@ -594,7 +594,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   shdx[ij_p] = dx[ij];
   shdy[ij_p] = dy[ij];
   shdz[ij_p] = dz[ij];
-  
+
 #pragma unroll
   for(int k = 0; k < LX; ++k){
     ru[k] = u[ij + k*LX*LX + ele];
@@ -611,10 +611,10 @@ __global__ void __launch_bounds__(LX*LX,3)
   __syncthreads();
 #pragma unroll
   for (int k = 0; k < LX; ++k){
-    const int ijk = ij + k*LX*LX; 
+    const int ijk = ij + k*LX*LX;
     const T G00 = g11[ijk+ele];
     const T G11 = g22[ijk+ele];
-    const T G22 = g33[ijk+ele]; 
+    const T G22 = g33[ijk+ele];
     const T G01 = g12[ijk+ele];
     const T G02 = g13[ijk+ele];
     const T G12 = g23[ijk+ele];
@@ -631,7 +631,7 @@ __global__ void __launch_bounds__(LX*LX,3)
       wttmp += shdz[k+l*LX] * rw[l];
     }
     __syncthreads();
-    
+
     T urtmp = 0.0;
     T ustmp = 0.0;
 
@@ -651,7 +651,7 @@ __global__ void __launch_bounds__(LX*LX,3)
       wrtmp += shdx[i+l*LX] * shw[l+j*LX];
       wstmp += shdy[j+l*LX] * shw[i+l*LX];
     }
-    
+
     shur[ij] = H1
 	     * (G00 * urtmp
 		+ G01 * ustmp
@@ -662,7 +662,7 @@ __global__ void __launch_bounds__(LX*LX,3)
                   + G12 * uttmp);
     rut      = H1
 	     * (G02 * urtmp
-		+ G12 * ustmp 
+		+ G12 * ustmp
 		+ G22 * uttmp);
 
     shvr[ij] = H1
@@ -675,7 +675,7 @@ __global__ void __launch_bounds__(LX*LX,3)
                   + G12 * vttmp);
     rvt      = H1
 	     * (G02 * vrtmp
-		+ G12 * vstmp 
+		+ G12 * vstmp
 		+ G22 * vttmp);
 
     shwr[ij] = H1
@@ -688,7 +688,7 @@ __global__ void __launch_bounds__(LX*LX,3)
                   + G12 * wttmp);
     rwt      = H1
 	     * (G02 * wrtmp
-		+ G12 * wstmp 
+		+ G12 * wstmp
 		+ G22 * wttmp);
 
     __syncthreads();
@@ -718,7 +718,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   for (int k = 0; k < LX; ++k){
    au[ij + k*LX*LX + ele] = ruw[k];
    av[ij + k*LX*LX + ele] = rvw[k];
-   aw[ij + k*LX*LX + ele] = rww[k]; 
+   aw[ij + k*LX*LX + ele] = rww[k];
   }
 }
 
