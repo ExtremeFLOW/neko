@@ -214,14 +214,14 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
 
-#define CASE_VECTOR(LX)                                                         \
-    case LX:                                                                    \
-      CASE_VECTOR_KSTEP(LX);                                                    \
+#define CASE_VECTOR(LX)                                                        \
+    case LX:                                                                   \
+      CASE_VECTOR_KSTEP(LX);                                                   \
        break
 
-#define CASE_VECTOR_PADDED(LX)                                                  \
-    case LX:                                                                    \
-      CASE_VECTOR_KSTEP_PADDED(LX);                                             \
+#define CASE_VECTOR_PADDED(LX)                                                 \
+    case LX:                                                                   \
+      CASE_VECTOR_KSTEP_PADDED(LX);                                            \
        break
 
     switch(*lx) {
