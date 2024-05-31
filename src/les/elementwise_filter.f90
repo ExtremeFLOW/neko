@@ -128,7 +128,7 @@ contains
   !> Filter a 3D field.
   subroutine elementwise_field_filter_3d(this, v, u, nelv)
     class(elementwise_filter_t), intent(inout) :: this
-    integer, intent(in) :: nelv
+    integer, intent(inout) :: nelv
     real(kind=rp), intent(inout), dimension(this%nx, this%nx, this%nx, nelv) :: u,v
 
     ! v = fh x fh x fh x u
