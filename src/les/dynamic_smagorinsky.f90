@@ -94,7 +94,7 @@ contains
 
     call this%free()
     call this%init_base(dofmap, coef, nut_name)
-    this%test_filter_type = "Boyd"
+    this%test_filter_type = "nonBoyd"
     call this%test_filter%init(dofmap%xh%lx, this%test_filter_type) ! suppose lx = ly = lz
 
     call this%c_dyn%init(dofmap, "ds_c_dyn")
@@ -148,12 +148,19 @@ contains
   !> Set up the test filter
   subroutine set_ds_filt(filter_1d)
     type(elementwise_filter_t), intent(inout) :: filter_1d
+    integer :: i
 
-    filter_1d%trnsfr(filter_1d%nx-0) = 0.05
-    filter_1d%trnsfr(filter_1d%nx-1) = 0.50
-    filter_1d%trnsfr(filter_1d%nx-2) = 0.95
-
-    filter_1d%nt = filter_1d%nx - 1
+    if (mod(filter_1d%nx,2) .eq. 0) then ! number of grid spacing is even
+       do i = 1, int(filter_1d%nx/2) - 1 ! make delta_ratio = (nx-1)/(nt-1) as close to 2
+          filter_1d%trnsfr(filter_1d%nx - i + 1) = 0.0_rp
+       end do
+       filter_1d%nt = int(filter_1d%nx/2) + 1
+    else ! number of grid spacing is odd
+       do i = 1, int((filter_1d%nx-1)/2) ! make delta_ratio = (nx-1)/(nt-1) = 2
+          filter_1d%trnsfr(filter_1d%nx - i + 1) = 0.0_rp
+       end do
+       filter_1d%nt = int((filter_1d%nx-1)/2) + 1
+    end if
 
     call filter_1d%build_1d()
 
