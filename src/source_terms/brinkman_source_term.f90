@@ -53,7 +53,9 @@ module brinkman_source_term
   type, public, extends(source_term_t) :: brinkman_source_term_t
      private
 
-     !> The value of the source term.
+     !> The unfiltered indicator field
+     type(field_t), pointer :: indicator_unfiltered => null()
+     !> The filtered indicator field
      type(field_t), pointer :: indicator => null()
      !> Brinkman permeability field.
      type(field_t), pointer :: brinkman => null()
@@ -69,6 +71,11 @@ module brinkman_source_term
      ! Private methods
      procedure, pass(this) :: init_boundary_mesh
      procedure, pass(this) :: init_point_zone
+     ! Tim, this may not be the best way to hand this...
+     procedure, pass(this) :: init_filter
+     procedure, pass(this) :: filter
+     procedure, pass(this) :: free_filter
+
   end type brinkman_source_term_t
 
 contains
@@ -84,10 +91,11 @@ contains
     use file, only: file_t
     use tri_mesh, only: tri_mesh_t
     use device, only: device_memcpy, HOST_TO_DEVICE
-    use filters, only: smooth_step_field, step_function_field, permeability_field
+    use filters, only: smooth_step_field, step_function_field, permeability_field, PDE_filter
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
     use json_module, only: json_core, json_value
+    use math, only : copy
     implicit none
 
     class(brinkman_source_term_t), intent(inout) :: this
@@ -97,6 +105,7 @@ contains
     real(kind=rp) :: start_time, end_time
 
     character(len=:), allocatable :: filter_type
+    real(kind=rp) :: filter_radius
     real(kind=rp), dimension(:), allocatable :: brinkman_limits
     real(kind=rp) :: brinkman_penalty
 
@@ -165,10 +174,19 @@ contains
 
     ! Run filter on the full indicator field to smooth it out.
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
+    call json_get_or_default(json, 'filter.radius', filter_radius, 1.0_rp)
 
     select case (filter_type)
+      case ('PDE')
+       ! allocate the unfiltered design field
+    	 call neko_field_registry%add_field(coef%dof, 'unfiltered_brinkman_indicator')
+    	 this%indicator_unfiltered => neko_field_registry%get_field_by_name('unfiltered_brinkman_indicator')
+     	 ! copy 
+       call copy(this%indicator_unfiltered%x,this%indicator%x,this%indicator%dof%size())
+       ! filter
+       call PDE_filter(this%indicator, this%indicator_unfiltered, filter_radius,coef) 
       case ('none')
-       ! Do nothing
+       ! do nothing
       case default
        call neko_error('Brinkman source term unknown filter type')
     end select
@@ -340,7 +358,6 @@ contains
 
     ! ------------------------------------------------------------------------ !
     ! Run filter on the temporary indicator field to smooth it out.
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     select case (filter_type)
       case ('none')
@@ -394,6 +411,8 @@ contains
     ! Run filter on the temporary indicator field to smooth it out.
 
     select case (filter_type)
+      case ('PDE')
+       ! Do nothing
       case ('none')
        ! Do nothing
       case default
