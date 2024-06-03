@@ -275,6 +275,9 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/brinkman_source_term_device.f90\
 	source_terms/brinkman/filters.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
+	source_terms/brinkman/filter.f90\
+	source_terms/brinkman/filter_fctry.f90\
+	source_terms/brinkman/PDE_filter.f90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
 	les/vreman.f90\

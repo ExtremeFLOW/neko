@@ -44,6 +44,8 @@ module brinkman_source_term
   use utils, only: neko_error
   use brinkman_source_term_cpu, only: brinkman_source_term_compute_cpu
   use brinkman_source_term_device, only: brinkman_source_term_compute_device
+  use filter, only: filter_t
+  use filter_fctry, only: filter_factory
   implicit none
   private
 
@@ -59,6 +61,9 @@ module brinkman_source_term
      type(field_t), pointer :: indicator => null()
      !> Brinkman permeability field.
      type(field_t), pointer :: brinkman => null()
+     !> Filter 
+     class(filter_t), allocatable :: filter
+     
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => brinkman_source_term_init_from_json
@@ -71,10 +76,6 @@ module brinkman_source_term
      ! Private methods
      procedure, pass(this) :: init_boundary_mesh
      procedure, pass(this) :: init_point_zone
-     ! Tim, this may not be the best way to hand this...
-     procedure, pass(this) :: init_filter
-     procedure, pass(this) :: filter
-     procedure, pass(this) :: free_filter
 
   end type brinkman_source_term_t
 
@@ -172,24 +173,38 @@ contains
 
     end do
 
-    ! Run filter on the full indicator field to smooth it out.
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
-    call json_get_or_default(json, 'filter.radius', filter_radius, 1.0_rp)
+    ! ------------------------------------------------------------------------ !
+    ! Initialize the filter
+    call filter_factory(this%filter, json, coef)
 
-    select case (filter_type)
-      case ('PDE')
-       ! allocate the unfiltered design field
-    	 call neko_field_registry%add_field(coef%dof, 'unfiltered_brinkman_indicator')
-    	 this%indicator_unfiltered => neko_field_registry%get_field_by_name('unfiltered_brinkman_indicator')
-     	 ! copy 
-       call copy(this%indicator_unfiltered%x,this%indicator%x,this%indicator%dof%size())
-       ! filter
-       call PDE_filter(this%indicator, this%indicator_unfiltered, filter_radius,coef) 
-      case ('none')
-       ! do nothing
-      case default
-       call neko_error('Brinkman source term unknown filter type')
-    end select
+    ! allocate the unfiltered design field
+    ! note, if you use no filter this is not needed...
+    ! not sure what to do here
+    call neko_field_registry%add_field(coef%dof, 'unfiltered_brinkman_indicator')
+    this%indicator_unfiltered => neko_field_registry%get_field_by_name('unfiltered_brinkman_indicator')
+    ! copy 
+    call copy(this%indicator_unfiltered%x,this%indicator%x,this%indicator%dof%size())
+
+    ! now we try and compute the filter
+    ! filter
+    call this%filter%apply(this%indicator, this%indicator_unfiltered)
+    !call PDE_filter(this%indicator, this%indicator_unfiltered, filter_radius,coef) 
+
+
+!    select case (filter_type)
+!      case ('PDE')
+!       ! allocate the unfiltered design field
+!    	 call neko_field_registry%add_field(coef%dof, 'unfiltered_brinkman_indicator')
+!    	 this%indicator_unfiltered => neko_field_registry%get_field_by_name('unfiltered_brinkman_indicator')
+!     	 ! copy 
+!       call copy(this%indicator_unfiltered%x,this%indicator%x,this%indicator%dof%size())
+!       ! filter
+!       call PDE_filter(this%indicator, this%indicator_unfiltered, filter_radius,coef) 
+!      case ('none')
+!       ! do nothing
+!      case default
+!       call neko_error('Brinkman source term unknown filter type')
+!    end select
 
     ! ------------------------------------------------------------------------ !
     ! Compute the permeability field

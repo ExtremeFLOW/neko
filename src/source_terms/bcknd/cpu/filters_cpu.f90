@@ -81,4 +81,12 @@ contains
   end function permeability_cpu
 
 
+!  !> @brief Apply a PDE based filter, see B.S. Lazarov & O. Sigmund 2010
+!  subroutine PDE_filter(filtered, unfiltered, r, coef) 
+!    real(kind=rp), intent(in) :: x, k_0, k_1, q
+!    real(kind=rp) :: perm
+!
+!    perm = k_0 + (k_1 - k_0) * x * (q + 1.0_rp) / (q + x)
+!
+!  end subroutine PDE_filter
 end module filters_cpu
