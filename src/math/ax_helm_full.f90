@@ -1,5 +1,4 @@
-
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,51 +30,42 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module les_model_fctry
-  use les_model, only : les_model_t
-  use vreman, only : vreman_t
-  use smagorinsky, only : smagorinsky_t
-  use sigma, only : sigma_t
-  use dofmap, only : dofmap_t
+module ax_helm_full
+  use ax_product, only : ax_t
+  use num_types, only : rp
   use coefs, only : coef_t
-  use json_module, only : json_file
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use math, only : addcol4
+  use utils, only : neko_error
   implicit none
   private
 
-  public :: les_model_factory
+  !> Matrix-vector product for a Helmholtz problem.
+  type, public, abstract, extends(ax_t) :: ax_helm_full_t
+   contains
+     !> Compute the product for 3 fields.
+     procedure, nopass :: compute => ax_helm_full_compute
+  end type ax_helm_full_t
 
 contains
-  !> LES model factory. Both constructs and initializes the object.
-  !! @param les_model The object to be allocated.
-  !! @param name The name of the LES model.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
-  !! @param json A dictionary with parameters.
-  subroutine les_model_factory(les_model, name, dofmap, coef, json)
-    class(les_model_t), allocatable, target, intent(inout) :: les_model
-    character(len=*), intent(in) :: name
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
-    type(json_file), intent(inout) :: json
 
-    if (allocated(les_model)) then
-       deallocate(les_model)
-    end if
+  !> Compute the product for a single vector. Not implemented for the full
+  !! stress formulation.
+  !! @param w Vector of size @a (lx,ly,lz,nelv).
+  !! @param u Vector of size @a (lx,ly,lz,nelv).
+  !! @param coef Coefficients.
+  !! @param msh Mesh.
+  !! @param Xh Function space \f$ X_h \f$.
+  subroutine ax_helm_full_compute(w, u, coef, msh, Xh)
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    if (trim(name) .eq. 'vreman') then
-       allocate(vreman_t::les_model)
-    end if
+    call neko_error("The full Helmholtz operators cannot be applied to a &
+                   & field")
+  end subroutine ax_helm_full_compute
 
-    if (trim(name) .eq. 'smagorinsky') then
-      allocate(smagorinsky_t::les_model)
-   end if
-
-   if (trim(name) .eq. 'sigma') then
-      allocate(sigma_t::les_model)
-   end if
-   
-    call les_model%init(dofmap, coef, json)
-
-  end subroutine les_model_factory
-
-end module les_model_fctry
+end module ax_helm_full

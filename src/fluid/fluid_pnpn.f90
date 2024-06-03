@@ -142,9 +142,6 @@ contains
     type(user_t), intent(in) :: user
     type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    logical :: found, logical_val
-    integer :: integer_val
-    real(kind=rp) :: real_val
 
     call this%free()
 
@@ -153,7 +150,7 @@ contains
                           material_properties)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, full_formulation = .false.)
 
     ! Setup backend dependent prs residual routines
     call pnpn_prs_res_factory(this%prs_res)
@@ -523,8 +520,6 @@ contains
     type(field_t), pointer :: u_e, v_e, w_e
     ! Indices for tracking temporary fields
     integer :: temp_indices(3)
-    ! Counter
-    integer :: i
 
     if (this%freeze) return
 
@@ -567,7 +562,7 @@ contains
 
       ! Add the advection operators to the right-hand-side.
       call this%adv%compute(u, v, w, &
-                            f_x%x, f_y%x, f_z%x, &
+                            f_x, f_y, f_z, &
                             Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator and

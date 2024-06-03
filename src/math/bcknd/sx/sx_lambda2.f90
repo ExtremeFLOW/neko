@@ -50,9 +50,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -230,9 +229,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -410,9 +408,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -590,9 +587,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -770,9 +766,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -950,9 +945,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -1130,9 +1124,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -1310,9 +1303,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -1490,9 +1482,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -1670,9 +1661,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -1850,9 +1840,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -2030,9 +2019,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -2210,9 +2198,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -2390,9 +2377,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -2570,9 +2556,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -2750,9 +2735,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -2930,9 +2914,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
@@ -3110,9 +3093,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
-    integer :: temp_indices(9), ind_sort(3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23

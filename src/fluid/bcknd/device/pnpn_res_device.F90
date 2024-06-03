@@ -354,9 +354,8 @@ contains
     call device_add2s2(c_Xh%h2_d, chi%x_d, rho, n)
     c_Xh%ifh2 = .true.
 
-    call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
-    call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
-    call Ax%compute(w_res%x, w%x, c_Xh, msh, Xh)
+    call Ax%compute_vector(u_res%x, v_res%x, w_res%x, &
+                           u%x, v%x, w%x, c_Xh, msh, Xh)
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
     call neko_scratch_registry%request_field(ta2, temp_indices(2))

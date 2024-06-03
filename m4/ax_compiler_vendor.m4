@@ -58,7 +58,7 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 33
+#serial 34
 
 AC_DEFUN([AX_COMPILER_VENDOR], [dnl
     AC_CACHE_CHECK([for _AC_LANG compiler vendor], ax_cv_[]_AC_LANG_ABBREV[]_compiler_vendor, [dnl
@@ -75,6 +75,7 @@ AC_DEFUN([AX_COMPILER_VENDOR], [dnl
 		pathscale:	__PATHCC__,__PATHSCALE__
 		clang:		__clang__
 		cray:		_CRAYC,_CRAYFTN
+                flang:          __flang__
 		fujitsu:	__FUJITSU
 		sdcc:		SDCC,__SDCC
 		sx:		_SX

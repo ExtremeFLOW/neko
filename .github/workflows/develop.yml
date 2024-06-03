@@ -11,6 +11,10 @@ on:
        - ready_for_review
   workflow_dispatch:
   
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   is_draft:
     name: Check if PR is a draft
@@ -22,31 +26,13 @@ jobs:
         run: echo "This PR is a draft"
 
   linting:
-      name: "Flint"
+      name: Flint
       if: github.event.pull_request.draft != true
-      runs-on: ubuntu-20.04
-      steps:
-        - name: Setup env.
-          run: |
-            sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
-            pip install nobvisual==0.2.0 flinter==0.4.0
-        - name: Checkout
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 1
-        - name: Lint
-          run: |
-            flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
-            score=$(awk '$1==0{print $3}' flint.txt)
-            if (( $(echo "$score < 8.06" |bc -l) )) ; then
-              exit 1
-            fi
-        - name: Archive linter report
-          uses: actions/upload-artifact@v4
-          with:
-            name: flint-report
-            path: flint.txt
-            retention-days: 5
+      uses: ./.github/workflows/lint.yml
+      with:
+        global_minimum_score: 8.0
+        changed_files_minimum_score: 8.0
+
   GNU:
     if: github.event.pull_request.draft != true
     needs: linting
@@ -77,6 +63,7 @@ jobs:
             sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
         - os: macos-13
           setup-env: export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 && brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
+          
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
@@ -161,7 +148,7 @@ jobs:
           echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
           sudo apt-get update && sudo apt-get install -y rocm-dev
           ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.1.0
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.1.1
           make -j$(nproc)
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
@@ -206,7 +193,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=/opt/rocm-6.1.0
+          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=/opt/rocm-6.1.1
           make -j $(nproc)
       - name: Dist (OpenCL backend)
         if: matrix.backend == 'opencl'

@@ -88,11 +88,11 @@ contains
     type(coef_t), intent(in), target :: coef
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
+#ifdef HAVE_LIBXSMM
     real(kind=rp) :: drst(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz)
     type(space_t), pointer :: Xh
     type(mesh_t), pointer :: msh
     integer :: e, k, lxy, lyz, lxyz
-#ifdef HAVE_LIBXSMM
     type(libxsmm_dmmfunction), save :: dudxyz_xmm1
     type(libxsmm_dmmfunction), save :: dudxyz_xmm2
     type(libxsmm_dmmfunction), save :: dudxyz_xmm3
@@ -142,6 +142,7 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+#ifdef HAVE_LIBXSMM
     real(kind=rp) :: ur(coef%Xh%lxyz)
     real(kind=rp) :: us(coef%Xh%lxyz)
     real(kind=rp) :: ut(coef%Xh%lxyz)
@@ -150,7 +151,7 @@ contains
     integer :: e, i, N
     N = coef%Xh%lx - 1
 
-#ifdef HAVE_LIBXSMM
+
     if ((.not. lgrad_xsmm_init) .or. &
          (init_size .gt. 0 .and. init_size .ne. N)) then
        call libxsmm_dispatch(lgrad_xmm1, (N+1), (N+1)**2, (N+1), &
@@ -162,7 +163,7 @@ contains
        lgrad_xsmm_init = .true.
        init_size = N
     end if
-#endif
+
 
     do e=1,coef%msh%nelv
        if(coef%msh%gdim .eq. 3) then
@@ -190,6 +191,7 @@ contains
           end do
        endif
     end do
+#endif
   end subroutine opr_xsmm_opgrad
 
   subroutine local_grad3_xsmm(ur, us, ut, u, n, D, Dt)
@@ -200,11 +202,12 @@ contains
     real(kind=rp), intent(in) :: u(0:n, 0:n, 0:n)
     real(kind=rp), intent(in) :: D(0:n, 0:n)
     real(kind=rp), intent(in) :: Dt(0:n, 0:n)
+#ifdef HAVE_LIBXSMM
     integer :: m1, m2, k
 
     m1 = n + 1
     m2 = m1*m1
-#ifdef HAVE_LIBXSMM
+
     call libxsmm_mmcall(lgrad_xmm1, D, u, ur)
     do k=0,n
        call libxsmm_mmcall(lgrad_xmm2, u(0,0,k), Dt, us(0,0,k))
@@ -221,7 +224,7 @@ contains
     real(kind=rp), intent(in) :: u(0:n, 0:n)
     real(kind=rp), intent(in) :: D(0:n, 0:n)
     real(kind=rp), intent(in) :: Dt(0:n, 0:n)
-    integer :: m1, m2, k
+    integer :: m1
 
     m1 = n + 1
 
@@ -237,13 +240,14 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+#ifdef HAVE_LIBXSMM
     real(kind=rp) :: wx(coef%Xh%lxyz)
     real(kind=rp) :: ta1(coef%Xh%lxyz)
     real(kind=rp) :: ta2(coef%Xh%lxyz)
     real(kind=rp) :: ta3(coef%Xh%lxyz)
     integer :: e, i1, i2, n1, n2, iz
     type(space_t), pointer :: Xh
-#ifdef HAVE_LIBXSMM
+
     type(libxsmm_dmmfunction), save :: cdtp_xmm1
     type(libxsmm_dmmfunction), save :: cdtp_xmm2
     type(libxsmm_dmmfunction), save :: cdtp_xmm3
@@ -293,10 +297,11 @@ contains
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
+#ifdef HAVE_LIBXSMM
     !   Store the inverse jacobian to speed this operation up
     real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz) :: dudr, duds, dudt
     integer :: ie, iz, i
-#ifdef HAVE_LIBXSMM
+
     type(libxsmm_dmmfunction), save :: conv1_xmm1
     type(libxsmm_dmmfunction), save :: conv1_xmm2
     type(libxsmm_dmmfunction), save :: conv1_xmm3

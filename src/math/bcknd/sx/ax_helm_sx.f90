@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module ax_helm_sx
-  use ax_product, only : ax_t
+  use ax_helm, only : ax_helm_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -40,7 +40,7 @@ module ax_helm_sx
   implicit none
   private
 
-  type, public, extends(ax_t) :: ax_helm_sx_t
+  type, public, extends(ax_helm_t) :: ax_helm_sx_t
    contains
      procedure, nopass :: compute => ax_helm_sx_compute
   end type ax_helm_sx_t
