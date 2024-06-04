@@ -127,7 +127,7 @@ io/nmsh_file.lo : io/nmsh_file.f90 common/log.lo comm/mpi_types.lo common/datadi
 io/chkp_file.lo : io/chkp_file.f90 common/global_interpolation.lo comm/comm.lo comm/mpi_types.lo sem/interpolation.lo math/math.lo mesh/mesh.lo sem/space.lo common/utils.lo math/bcknd/device/device_math.lo sem/dofmap.lo field/field.lo config/num_types.lo common/checkpoint.lo field/field_series.lo io/generic_file.lo 
 io/csv_file.lo : io/csv_file.f90 comm/comm.lo common/log.lo config/num_types.lo common/utils.lo io/generic_file.lo math/matrix.lo math/vector.lo 
 io/hdf5_file.lo : io/hdf5_file.F90 comm/comm.lo common/log.lo sem/dofmap.lo field/field_series.lo field/field_list.lo field/field.lo mesh/mesh.lo common/utils.lo common/checkpoint.lo io/generic_file.lo config/num_types.lo 
-io/file.lo : io/file.f90 io/hdf5_file.lo io/csv_file.lo io/stl_file.lo io/vtk_file.lo io/fld_file_data.lo io/fld_file.lo io/re2_file.lo io/rea_file.lo io/map_file.lo io/chkp_file.lo io/nmsh_file.lo io/generic_file.lo config/num_types.lo common/utils.lo 
+io/file.lo : io/file.f90 io/bp_file.lo io/hdf5_file.lo io/csv_file.lo io/stl_file.lo io/vtk_file.lo io/fld_file_data.lo io/fld_file.lo io/re2_file.lo io/rea_file.lo io/map_file.lo io/chkp_file.lo io/nmsh_file.lo io/generic_file.lo config/num_types.lo common/utils.lo 
 io/output.lo : io/output.f90 io/file.lo config/num_types.lo 
 io/fluid_output.lo : io/fluid_output.f90 io/output.lo device/device.lo config/neko_config.lo field/field_list.lo scalar/scalar_scheme.lo fluid/fluid_scheme_base.lo fluid/fluid_scheme_incompressible.lo config/num_types.lo 
 io/fld_file_output.lo : io/fld_file_output.f90 io/output.lo device/device.lo config/neko_config.lo field/field_list.lo config/num_types.lo 

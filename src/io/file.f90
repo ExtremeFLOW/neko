@@ -40,6 +40,7 @@ module file
   use map_file, only : map_file_t
   use rea_file, only : rea_file_t
   use re2_file, only : re2_file_t
+  use bp_file, only : bp_file_t
   use fld_file, only : fld_file_t
   use fld_file_data, only : fld_file_data_t
   use vtk_file, only : vtk_file_t
@@ -104,6 +105,8 @@ contains
        allocate(vtk_file_t::this%file_type)
     else if (suffix .eq. "nmsh") then
        allocate(nmsh_file_t::this%file_type)
+    else if (suffix .eq. "bp") then
+       allocate(bp_file_t::this%file_type)
     else if (suffix .eq. "fld") then
        allocate(fld_file_t::this%file_type)
     else if (suffix .eq. "chkp") then
@@ -230,6 +233,8 @@ contains
 
     select type(ft => this%file_type)
     type is (fld_file_t)
+       call ft%set_precision(precision)
+    type is (bp_file_t)
        call ft%set_precision(precision)
     class default
        call filename_suffix(this%file_type%fname, suffix)
