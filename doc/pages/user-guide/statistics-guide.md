@@ -8,7 +8,7 @@ Statistics in the context of Neko, is the common name for fields that are averag
 
 The statistics module in Neko computes the temporal average of a wide range of fields.
 
-In the following page we use the following convetion for a field
+In this page we use the following convention for a field
 - \f$ u \f$, the instantaneous field.
 - \f$ \langle u \rangle_t \f$, the temporal average of \f$ u \f$. 
 - \f$ u = \langle u \rangle + u' \f$, the Reynolds decomposition of \f$ u \f$, where \f$ u' \f$ is the fluctuation of \f$ u \f$ around the mean field.
@@ -124,7 +124,7 @@ $$
 # Postprocessing
 Of course, these statistics are only the "raw statistics" in the sense that in general we are not interested in \f$ \langle uu\rangle \f$, but rather say the rms of the velocity fluctuation. FOr this we need to postprocess the statistics. 
 
-There is some rudimentary postprocessing to compute the spatial averages of fld filesa and also to combine the statistics collected from several runs (compute average in time) and also compute both the rms values and the Reynolds stresses available among the contrib scripts. By running the contrib scripts without any arguments one gets a hint on their usage, and also the text below gives a guide on how to postprocess the raw statistics. The postprocessing part of Neko is expanding and changing quite a lot at the moment, where we currently envision primarily using python for the postprocessing of the final statistics.
+There is some rudimentary postprocessing to compute the spatial averages of fld filesa and also to combine the statistics collected from several runs (compute average in time) and also compute both the mean velocity gradient and the Reynolds stresses available among the contrib scripts. By running the contrib scripts without any arguments one gets a hint on their usage, and also the text below gives a guide on how to postprocess the raw statistics. The postprocessing part of Neko is expanding and changing quite a lot at the moment, where we currently envision primarily using python for the postprocessing of the final statistics.
 
 
 
