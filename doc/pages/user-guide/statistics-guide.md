@@ -42,7 +42,7 @@ In addition to the usual controls for the output, which then outputs the average
 For example, if one wants to sample the fields every 4 time steps and compute the averages in time intervals of 20 and write the output every 20 time units, and start collecting statistics after an initial transient of 50 time units the following would work:
 
 ~~~~~~~~~~~~~~~{.json}
-statistics": {
+"statistics": {
         "enabled": true,
         "start_time": 50.0,
         "sampling_interval": 4,
