@@ -124,7 +124,7 @@ $$
 # Postprocessing
 Of course, these statistics are only the "raw statistics" in the sense that in general we are not interested in \f$ \langle uu\rangle \f$, but rather say the rms of the velocity fluctuation. FOr this we need to posprocess the statistics. 
 
-There is some rudimentary postprocessing to compute the spatial averages and also compute both the rms values and the Reynolds stresses available among the contrib scripts. By running the contrib scripts without any arguments one gets a hint on their usage, and also the text below gives a guide on how to postprocess the raw statistics. The postprocessing part of Neko is expanding and changing quite a lot at the moment, where we currently envision primarily using python for the postprocessing of the final statistics.
+There is some rudimentary postprocessing to compute the spatial averages of fld filesa and also to combine the statistics collected from several runs (compute average in time) and also compute both the rms values and the Reynolds stresses available among the contrib scripts. By running the contrib scripts without any arguments one gets a hint on their usage, and also the text below gives a guide on how to postprocess the raw statistics. The postprocessing part of Neko is expanding and changing quite a lot at the moment, where we currently envision primarily using python for the postprocessing of the final statistics.
 
 
 
