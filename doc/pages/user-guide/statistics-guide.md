@@ -62,7 +62,7 @@ In `mean_field` the following averages are stored. The stored in variable column
 | 3 | \f$ \langle v \rangle \f$ | Y-Velocity|
 | 4 | \f$ \langle w \rangle \f$ | Z-Velocity|
 
-In `stats` several other statistics are stored, and while not all might be interesting to your specific usecase, with them most different budgets and quantities of interest can be computed. They are stored as the following:
+In `stats` several other statistics are stored, and while not all might be interesting to your specific use case, with them most different budgets and quantities of interest can be computed. They are stored as the following:
 
 
 | Number | Statistic | Stored in variable |
