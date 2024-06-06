@@ -47,7 +47,7 @@ module smagorinsky
   private
 
   !> Implements the smagorinsky LES model.
-  !! @note Reference DOI: Smagorinsky (1963)
+  !! @note Reference DOI: 10.1175/1520-0493(1963)091<0099:GCEWTP>2.3.CO;2
   type, public, extends(les_model_t) :: smagorinsky_t
      !> Model constant, defaults to 0.07.
      real(kind=rp) :: c_s
