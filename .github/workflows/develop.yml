@@ -25,9 +25,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  is_draft:
-    name: Check if PR is a draft
+  prepare:
+    name: Prepare the environment
     runs-on: ubuntu-latest
+    outputs:
+      flint-global-minimum-score: ${{ steps.flint-minimum.outputs.global-minimum-score }}
+      flint-changed-files-minimum-score: ${{ steps.flint-minimum.outputs.global-minimum-score }}
+      pfunit-version: ${{ steps.flint-minimum.outputs.pfunit-version }}
+      json-fortran-version: ${{ steps.flint-minimum.outputs.json-fortran-version }}
+
     steps:
       - name: Check if PR is a draft
         shell: bash
@@ -36,28 +42,17 @@ jobs:
             exit 1
           fi
 
-  prepare:
-    name: Prepare the environment
-    runs-on: ubuntu-latest
-    needs: is_draft
-    outputs:
-      flint-global-minimum-score: ${{ steps.flint-minimum.outputs.global-minimum-score }}
-      flint-changed-files-minimum-score: ${{ steps.flint-minimum.outputs.global-minimum-score }}
-      pfunit-version: ${{ steps.flint-minimum.outputs.pfunit-version }}
-      json-fortran-version: ${{ steps.flint-minimum.outputs.json-fortran-version }}
-    steps:
       - name: Assign the flint minimum score
         id: flint-minimum
         run: |
-          echo "flint-global-minimum-score=${{ env.FLINT_GLOBAL_MINIMUM }}" >> $GITHUB_OUTPUT
-          echo "flint-changed-files-minimum-score=${{ env.FLINT_CHANGED_FILES_MINIMUM }}" >> $GITHUB_OUTPUT
-          echo "pfunit-version=${{ env.PFUNIT_VERSION }}" >> $GITHUB_OUTPUT
-          echo "json-fortran-version=${{ env.JSON_FORTRAN_VERSION }}" >> $GITHUB_OUTPUT
+          echo "flint-global-minimum-score=$FLINT_GLOBAL_MINIMUM" >> $GITHUB_OUTPUT
+          echo "flint-changed-files-minimum-score=$FLINT_CHANGED_FILES_MINIMUM" >> $GITHUB_OUTPUT
+          echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
+          echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
   linting:
     name: Flint
     needs:
-      - is_draft
       - prepare
     uses: ./.github/workflows/check_lint.yml
     with:
@@ -66,7 +61,6 @@ jobs:
 
   GNU:
     needs:
-      - is_draft
       - linting
       - prepare
     uses: ./.github/workflows/check_gnu.yml
@@ -76,7 +70,6 @@ jobs:
 
   Intel:
     needs:
-      - is_draft
       - linting
       - prepare
     uses: ./.github/workflows/check_intel.yml
@@ -85,7 +78,6 @@ jobs:
 
   NVIDIA:
     needs:
-      - is_draft
       - linting
       - prepare
     uses: ./.github/workflows/check_nvidia.yml
@@ -94,7 +86,6 @@ jobs:
 
   ReFrame:
     needs:
-      - is_draft
       - linting
       - GNU
       - prepare
@@ -106,7 +97,7 @@ jobs:
     name: Develop PR Ready
     if: ${{ always() }}
     needs:
-      - is_draft
+      - prepare
       - linting
       - GNU
       - Intel
@@ -114,7 +105,7 @@ jobs:
       - ReFrame
     runs-on: ubuntu-latest
     env:
-      draft_status: ${{ needs.is_draft.result }}
+      draft_status: ${{ needs.prepare.result }}
       flint_status: ${{ needs.linting.result }}
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
