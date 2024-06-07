@@ -40,6 +40,8 @@ jobs:
     name: Prepare the environment
     runs-on: ubuntu-latest
     needs: is_draft
+    outputs:
+      global-minimum-score: ${{ steps.flint-minimum.outputs.global-minimum-score }}
     steps:
       - name: Assign the flint minimum score
         id: flint-minimum
@@ -51,7 +53,7 @@ jobs:
     needs: is_draft
     uses: ./.github/workflows/check_lint.yml
     with:
-      global-minimum-score: ${{ job.prepare.outputs.global-minimum-score }}
+      global-minimum-score: ${{ jobs.prepare.outputs.global-minimum-score }}
       changed-files-minimum-score: ${{ FLINT_CHANGED_FILES_MINIMUM }}
 
   GNU:
