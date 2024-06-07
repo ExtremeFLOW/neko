@@ -19,6 +19,15 @@ jobs:
     name: "Lint repository"
     runs-on: ubuntu-20.04
     steps:
+      - name: Check environment
+        env:
+          min_score: ${{ inputs.global_minimum_score }}
+        run: |
+          if [ -z "$min_score" ]; then
+            echo "Minimum score not set" >&2
+            exit 1
+          fi
+
       - name: Setup env.
         run: |
           sudo apt-get update
@@ -52,6 +61,15 @@ jobs:
     name: "Lint changed files"
     runs-on: ubuntu-20.04
     steps:
+      - name: Check environment
+        env:
+          min_score: ${{ inputs.changed_files_minimum_score }}
+        run: |
+          if [ -z "$min_score" ]; then
+            echo "Minimum score not set" >&2
+            exit 1
+          fi
+
       - name: Setup env.
         run: |
           sudo apt-get update
