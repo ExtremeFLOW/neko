@@ -29,8 +29,8 @@ jobs:
     name: Prepare the environment
     runs-on: ubuntu-latest
     outputs:
-      flint-global-minimum-score: ${{ steps.flint-minimum.outputs.global-minimum-score }}
-      flint-changed-files-minimum-score: ${{ steps.flint-minimum.outputs.global-minimum-score }}
+      flint-global-minimum-score: ${{ steps.flint-minimum.outputs.flint-global-minimum-score }}
+      flint-changed-files-minimum-score: ${{ steps.flint-minimum.outputs.flint-global-minimum-score }}
       pfunit-version: ${{ steps.flint-minimum.outputs.pfunit-version }}
       json-fortran-version: ${{ steps.flint-minimum.outputs.json-fortran-version }}
 
