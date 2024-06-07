@@ -20,7 +20,7 @@ jobs:
     name: "Lint repository"
     runs-on: ubuntu-20.04
     env:
-      min_score: ${{ inputs.global-minimum-score }}
+      global_min: ${{ inputs.global-minimum-score }}
 
     steps:
       - name: Checkout
@@ -30,8 +30,8 @@ jobs:
 
       - name: Check environment
         run: |
-          if [ -z "$min_score" ]; then
-            echo "Minimum score not set" >&2
+          if [ -z "$global_min" ]; then
+            echo "Minimum score not set: $global_min" >&2
             exit 1
           fi
 
@@ -46,8 +46,8 @@ jobs:
           flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
           score=$(awk '$1==0{print $3}' flint.txt)
 
-          if (( $(echo "$score < $min_score" | bc -l) )); then
-            echo "Linting requirement not met, $score < $min_score" >&2
+          if (( $(echo "$score < $global_min" | bc -l) )); then
+            echo "Linting requirement not met, $score < $global_min" >&2
             exit 1
           fi
       - name: Archive linter report
@@ -61,7 +61,7 @@ jobs:
     name: "Lint changed files"
     runs-on: ubuntu-20.04
     env:
-      min_score: ${{ inputs.changed-files-minimum-score }}
+      changed_min: ${{ inputs.changed-files-minimum-score }}
 
     steps:
       - name: Checkout
@@ -71,8 +71,8 @@ jobs:
 
       - name: Check environment
         run: |
-          if [ -z "$min_score" ]; then
-            echo "Minimum score not set" >&2
+          if [ -z "$changed_min" ]; then
+            echo "Minimum score not set: $changed_min" >&2
             exit 1
           fi
 
@@ -115,7 +115,7 @@ jobs:
               score=$(flint score -r flinter_rc.yml $file 2>/dev/null |
                   grep -oP '(?<=\>\|)[^\|\<]+(?=\|\<)')
 
-              if (($(echo "$score < $min_score" | bc -l))); then
+              if (($(echo "$score < $changed_min" | bc -l))); then
                   fails+=($file)
               fi
           done
