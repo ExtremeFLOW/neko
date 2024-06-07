@@ -52,6 +52,7 @@ jobs:
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
   linting:
+    name: Flint
     needs:
       - prepare
     uses: ./.github/workflows/check_lint.yml
@@ -60,6 +61,7 @@ jobs:
       changed-files-minimum-score: ${{ needs.prepare.outputs.flint-changed-minimum }}
 
   GNU:
+    name: GNU
     needs:
       - prepare
     uses: ./.github/workflows/check_gnu.yml
@@ -68,6 +70,7 @@ jobs:
       pfunit-version: ${{ needs.prepare.outputs.pfunit-version }}
 
   Intel:
+    name: Intel
     needs:
       - prepare
     uses: ./.github/workflows/check_intel.yml
@@ -75,6 +78,7 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   NVIDIA:
+    name: NVIDIA
     needs:
       - prepare
     uses: ./.github/workflows/check_nvidia.yml
@@ -82,6 +86,7 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   ReFrame:
+    name: ReFrame
     needs:
       - GNU
       - prepare
