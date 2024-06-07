@@ -31,7 +31,7 @@ jobs:
       - name: Check environment
         run: |
           if [ -z "$global_min" ]; then
-            echo "Minimum score not set: $global_min" >&2
+            echo "Minimum score not set: '$global_min'" >&2
             exit 1
           fi
 
@@ -72,7 +72,7 @@ jobs:
       - name: Check environment
         run: |
           if [ -z "$changed_min" ]; then
-            echo "Minimum score not set: $changed_min" >&2
+            echo "Minimum score not set: '$changed_min'" >&2
             exit 1
           fi
 
