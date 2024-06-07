@@ -50,10 +50,12 @@ jobs:
 
   linting:
     name: Flint
-    needs: is_draft
+    needs:
+      - is_draft
+      - prepare
     uses: ./.github/workflows/check_lint.yml
     with:
-      global-minimum-score: ${{ prepare.outputs.global-minimum-score }}
+      global-minimum-score: ${{ needs.prepare.outputs.global-minimum-score }}
       changed-files-minimum-score: ${{ FLINT_CHANGED_FILES_MINIMUM }}
 
   GNU:
