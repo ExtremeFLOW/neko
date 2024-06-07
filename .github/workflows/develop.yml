@@ -49,8 +49,8 @@ jobs:
       - name: Assign the flint minimum score
         id: flint-minimum
         run: |
-          echo "global-minimum-score: ${{ env.FLINT_GLOBAL_MINIMUM }}" >> $GITHUB_OUTPUT
-          echo "changed-files-minimum-score: ${{ env.FLINT_CHANGED_FILES_MINIMUM }}" >> $GITHUB_OUTPUT
+          echo "flint-global-minimum-score: ${{ env.FLINT_GLOBAL_MINIMUM }}" >> $GITHUB_OUTPUT
+          echo "flint-changed-files-minimum-score: ${{ env.FLINT_CHANGED_FILES_MINIMUM }}" >> $GITHUB_OUTPUT
           echo "pfunit-version: ${{ env.PFUNIT_VERSION }}" >> $GITHUB_OUTPUT
           echo "json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}" >> $GITHUB_OUTPUT
 
@@ -61,8 +61,8 @@ jobs:
       - prepare
     uses: ./.github/workflows/check_lint.yml
     with:
-      global-minimum-score: ${{ needs.prepare.outputs.global-minimum-score }}
-      changed-files-minimum-score: ${{ needs.prepare.outputs.changed-files-minimum-score }}
+      global-minimum-score: ${{ needs.prepare.outputs.flint-global-minimum-score }}
+      changed-files-minimum-score: ${{ needs.prepare.outputs.flint-changed-files-minimum-score }}
 
   GNU:
     needs:
