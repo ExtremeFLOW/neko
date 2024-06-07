@@ -30,6 +30,24 @@ jobs:
             exit 1
           fi
 
+  linting_debug:
+    name: Flint Debug
+    needs: is_draft
+    runs-on: ubuntu-latest
+    env:
+      global-minimum-score: ${{ vars.FLINT_GLOBAL_MINIMUM }}
+      changed-files-minimum-score: ${{ vars.FLINT_CHANGED_FILES_MINIMUM }}
+    steps:
+      - name: Print the environment variables for flint
+        shell: bash
+
+        run: |
+          echo "Global minimum: $global-minimum-score"
+          echo "Changed files minimum: $changed-files-minimum-score"
+          echo "Environment variables:"
+          echo "  - FLINT_GLOBAL_MINIMUM: ${{ vars.FLINT_GLOBAL_MINIMUM }}"
+          echo "  - FLINT_CHANGED_FILES_MINIMUM: ${{ vars.FLINT_CHANGED_FILES_MINIMUM }}"
+
   linting:
     name: Flint
     needs: is_draft
