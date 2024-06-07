@@ -7,11 +7,11 @@ on:
     inputs:
       global_minimum_score:
         description: "The minimum score required for the repository."
-        default: "10.0"
+        required: true
         type: string
       changed_files_minimum_score:
         description: "The minimum score required for changed files."
-        default: "10.0"
+        required: true
         type: string
 
 jobs:
