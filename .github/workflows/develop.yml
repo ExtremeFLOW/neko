@@ -64,6 +64,7 @@ jobs:
     name: GNU
     needs:
       - prepare
+      - linting
     uses: ./.github/workflows/check_gnu.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -73,6 +74,7 @@ jobs:
     name: Intel
     needs:
       - prepare
+      - linting
     uses: ./.github/workflows/check_intel.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -81,6 +83,7 @@ jobs:
     name: NVIDIA
     needs:
       - prepare
+      - linting
     uses: ./.github/workflows/check_nvidia.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -88,8 +91,9 @@ jobs:
   ReFrame:
     name: ReFrame
     needs:
-      - GNU
       - prepare
+      - linting
+      - GNU
     uses: ./.github/workflows/check_reframe.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
