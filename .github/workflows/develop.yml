@@ -11,6 +11,12 @@ on:
       - ready_for_review
   workflow_dispatch:
 
+env:
+  FLINT_GLOBAL_MINIMUM: 8.0
+  FLINT_CHANGED_FILES_MINIMUM: 8.0
+  PFUNIT_VERSION: v4.4.2
+  JSON_FORTRAN_VERSION: 8.3.0
+
 # Allow only one concurrent deployment, skipping runs queued between the run
 # in-progress and latest queued. We do not wish to waste time on old runs if a
 # newer one is available.
@@ -35,9 +41,9 @@ jobs:
     needs: is_draft
     runs-on: ubuntu-latest
     env:
-      global_minimum_score: ${{ vars.FLINT_GLOBAL_MINIMUM }}
-      changed_files_minimum_score: ${{ vars.FLINT_CHANGED_FILES_MINIMUM }}
-      pf_version: ${{ vars.PFUNIT_VERSION }}
+      global_minimum_score: ${{ env.FLINT_GLOBAL_MINIMUM }}
+      changed_files_minimum_score: ${{ env.FLINT_CHANGED_FILES_MINIMUM }}
+      pf_version: ${{ env.PFUNIT_VERSION }}
     steps:
       - name: Print the environment variables for flint
         shell: bash
@@ -47,17 +53,17 @@ jobs:
           echo "Changed files minimum: $changed_files_minimum_score"
           echo "PFUNIT version: $pf_version"
           echo "Environment variables:"
-          echo "  - FLINT_GLOBAL_MINIMUM: ${{ vars.FLINT_GLOBAL_MINIMUM }}"
-          echo "  - FLINT_CHANGED_FILES_MINIMUM: ${{ vars.FLINT_CHANGED_FILES_MINIMUM }}"
-          echo "  - PFUNIT_VERSION: ${{ vars.PFUNIT_VERSION }}"
+          echo "  - FLINT_GLOBAL_MINIMUM: ${{ env.FLINT_GLOBAL_MINIMUM }}"
+          echo "  - FLINT_CHANGED_FILES_MINIMUM: ${{ env.FLINT_CHANGED_FILES_MINIMUM }}"
+          echo "  - PFUNIT_VERSION: ${{ env.PFUNIT_VERSION }}"
 
   linting:
     name: Flint
     needs: is_draft
     uses: ./.github/workflows/check_lint.yml
     with:
-      global-minimum-score: ${{ vars.FLINT_GLOBAL_MINIMUM }}
-      changed-files-minimum-score: ${{ vars.FLINT_CHANGED_FILES_MINIMUM }}
+      global-minimum-score: ${{ env.FLINT_GLOBAL_MINIMUM }}
+      changed-files-minimum-score: ${{ env.FLINT_CHANGED_FILES_MINIMUM }}
 
   GNU:
     needs:
@@ -65,8 +71,8 @@ jobs:
       - linting
     uses: ./.github/workflows/check_gnu.yml
     with:
-      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
-      pfunit-version: ${{ vars.PFUNIT_VERSION }}
+      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
+      pfunit-version: ${{ env.PFUNIT_VERSION }}
 
   Intel:
     needs:
@@ -74,7 +80,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_intel.yml
     with:
-      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
+      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
 
   NVIDIA:
     needs:
@@ -82,7 +88,7 @@ jobs:
       - linting
     uses: ./.github/workflows/check_nvidia.yml
     with:
-      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
+      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
 
   ReFrame:
     needs:
@@ -91,7 +97,7 @@ jobs:
       - GNU
     uses: ./.github/workflows/check_reframe.yml
     with:
-      json-fortran-version: ${{ vars.JSON_FORTRAN_VERSION }}
+      json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}
 
   check_complete:
     name: Develop PR Ready
