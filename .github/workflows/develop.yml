@@ -35,8 +35,8 @@ jobs:
     needs: is_draft
     uses: ./.github/workflows/check_lint.yml
     with:
-      global-minimum-score: "${{ vars.FLINT_GLOBAL_MINIMUM }}"
-      changed-files-minimum-score: "${{ vars.FLINT_CHANGED_FILES_MINIMUM }}"
+      global-minimum-score: ${{ vars.FLINT_GLOBAL_MINIMUM }}
+      changed-files-minimum-score: ${{ vars.FLINT_CHANGED_FILES_MINIMUM }}
 
   GNU:
     needs:
