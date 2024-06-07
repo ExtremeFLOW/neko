@@ -52,7 +52,6 @@ jobs:
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
   linting:
-    name: Flint
     needs:
       - prepare
     uses: ./.github/workflows/check_lint.yml
@@ -62,7 +61,6 @@ jobs:
 
   GNU:
     needs:
-      - linting
       - prepare
     uses: ./.github/workflows/check_gnu.yml
     with:
@@ -71,7 +69,6 @@ jobs:
 
   Intel:
     needs:
-      - linting
       - prepare
     uses: ./.github/workflows/check_intel.yml
     with:
@@ -79,7 +76,6 @@ jobs:
 
   NVIDIA:
     needs:
-      - linting
       - prepare
     uses: ./.github/workflows/check_nvidia.yml
     with:
@@ -87,7 +83,6 @@ jobs:
 
   ReFrame:
     needs:
-      - linting
       - GNU
       - prepare
     uses: ./.github/workflows/check_reframe.yml
