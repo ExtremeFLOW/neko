@@ -46,7 +46,7 @@ jobs:
       - name: Assign the flint minimum score
         id: flint-minimum
         run: |
-          echo "global-minimum-score: ${{ FLINT_GLOBAL_MINIMUM }}" >> $GITHUB_OUTPUT
+          echo "global-minimum-score: ${{ env.FLINT_GLOBAL_MINIMUM }}" >> $GITHUB_OUTPUT
 
   linting:
     name: Flint
