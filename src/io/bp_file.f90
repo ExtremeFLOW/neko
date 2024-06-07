@@ -37,11 +37,13 @@ module bp_file
   use generic_file
   use field_list
   use dofmap, only: dofmap_t
+  use vector, only: vector_t
   use space, only: space_t
   use mesh, only: mesh_t
   use structs, only: array_ptr_t
   use fld_file_data
   use utils
+  use datadist
   use comm
   use adios2
 
@@ -50,6 +52,7 @@ module bp_file
 
   type(adios2_adios)    :: adios
   type(adios2_io)       :: ioWriter
+  type(adios2_io)       :: ioReader
   type(adios2_engine)   :: bpWriter
   type(adios2_engine)   :: bpReader
 
@@ -233,6 +236,7 @@ contains
 
     ! Adapt filename with counter
     !> @todo write into single file with multiple steps
+    !> @todo write into function because of code duplication
     suffix_pos = filename_suffix_pos(this%fname)
     write(id_str, '(i5.5,a)') this%counter, '.bp'
     fname = trim(this%fname(1:suffix_pos-1))//"0."//id_str
@@ -446,8 +450,325 @@ contains
   subroutine bp_file_read(this, data)
     class(bp_file_t) :: this
     class(*), target, intent(inout) :: data
+    character(len=132) :: hdr
+    integer :: ierr, suffix_pos, i, j
+    character(len=1024) :: fname, meta_fname, string
+    logical :: meta_file, read_mesh, read_velocity, read_pressure
+    logical :: read_temp
+    character(len=8) :: id_str
+    integer :: lx, ly, lz, glb_nelv, counter, lxyz
+    integer :: adios2_type, n
+    real(kind=rp) :: time
+    type(linear_dist_t) :: dist
+    character :: rdcode(10), temp_str(4)
+    type(adios2_variable) :: variable_hdr, variable_idx, variable_msh
+    type(adios2_variable) :: variable_v, variable_p, variable_temp
+    integer(kind=8), dimension(1) :: start_dims_idx, count_dims_idx
+    integer(kind=8), dimension(1) :: start_dims_msh, count_dims_msh
+    integer(kind=8), dimension(1) :: start_dims_v, count_dims_v
+    integer(kind=8), dimension(1) :: start_dims_p, count_dims_p
+    integer(kind=8), dimension(1) :: start_dims_temp, count_dims_temp
+
+    select type(data)
+    type is (fld_file_data_t)
+       suffix_pos = filename_suffix_pos(this%fname)
+       meta_fname = trim(this%fname(1:suffix_pos-1))
+       call filename_chsuffix(meta_fname, meta_fname,'adios2')
+
+       !> @ todo debug and check if correct strings and filenames are extracted
+       inquire(file=trim(meta_fname), exist=meta_file)
+       if (meta_file .and. data%meta_nsamples .eq. 0) then
+          if (pe_rank .eq. 0) then
+             open(unit=9, file=trim(meta_fname))
+             read(9, fmt='(A)') string
+             read(string(14:),fmt='(A)') string
+             string = trim(string)
+             data%fld_series_fname = string(:scan(trim(string), '%')-1)
+             data%fld_series_fname = trim(data%fld_series_fname)//'0'
+             read(9, fmt='(A)') string
+             read(string(scan(string,':')+1:),*) data%meta_start_counter
+             read(9, fmt='(A)') string
+             read(string(scan(string,':')+1:),*) data%meta_nsamples
+
+             close(9)
+             write(*,*) 'Reading meta file for bp series'
+             write(*,*) 'Name: ', trim(data%fld_series_fname)
+             write(*,*) 'Start counter: ', data%meta_start_counter, 'Nsamples: ', data%meta_nsamples
+          end if
+          call MPI_Bcast(data%fld_series_fname, 1024, MPI_CHARACTER, 0, NEKO_COMM, ierr)
+          call MPI_Bcast(data%meta_start_counter, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+          call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+          if(this%counter .eq. 0) this%counter = data%meta_start_counter
+       end if
+
+       if (meta_file) then
+          write(id_str, '(i5.5,a)') this%counter, '.bp'
+          fname = trim(data%fld_series_fname)//'.'//id_str
+          if (this%counter .ge. data%meta_nsamples+data%meta_start_counter) then
+             call neko_error('Trying to read more bp files than exist')
+          end if
+       else
+          !> @todo write into function because of code duplication
+          !suffix_pos = filename_suffix_pos(this%fname)
+          !write(id_str, '(i5.5,a)') this%counter, '.bp'
+          !fname = trim(this%fname(1:suffix_pos-1))//'.'//id_str
+          fname = this%fname
+       end if
+
+       if (.not.adios%valid) then
+          !> @todo enable parsing XML filename
+          call adios2_init(adios, 'adios2.xml', NEKO_COMM%mpi_val, ierr)
+       end if
+       if (.not.ioReader%valid) then
+          call adios2_declare_io(ioReader, adios, 'reader', ierr)
+          call adios2_set_engine(ioReader, 'BP5', ierr)
+       end if
+
+       !> @todo check if engines and variables should be brought in to local subroutine scope
+       call adios2_open(bpReader, ioReader, trim(fname), adios2_mode_read, NEKO_COMM%mpi_val, ierr)
+       call adios2_begin_step(bpReader, ierr)
+
+       ! Read header and adjust data accordingly
+       if (.not.variable_hdr%valid) then
+          call adios2_inquire_variable(variable_hdr, ioReader, 'header', ierr)
+       end if
+       call adios2_get(bpReader, variable_hdr, hdr, adios2_mode_sync, ierr)
+
+       read(hdr, 1) temp_str, adios2_type, lx, ly, lz, glb_nelv, glb_nelv,&
+          time, counter, i, j, (rdcode(i),i=1,10)
+1      format(4a,1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
+         1x,i9,1x,i6,1x,i6,1x,10a)
+       if (data%nelv .eq. 0) then
+          dist = linear_dist_t(glb_nelv, pe_rank, pe_size, NEKO_COMM)
+          data%nelv = dist%num_local()
+          data%offset_el = dist%start_idx()
+       end if
+       data%lx = lx
+       data%ly = ly
+       data%lz = lz
+       data%glb_nelv = glb_nelv
+       data%t_counter = counter
+       data%time = time
+       lxyz = lx * ly * lz
+       n = lxyz * data%nelv
+
+       if (lz .eq. 1) then
+          data%gdim = 2
+       else
+          data%gdim = 3
+       end if
+
+       if (adios2_type .eq. adios2_type_double) then
+          this%dp_precision = .true.
+       else
+          this%dp_precision = .false.
+       end if
+       if (this%dp_precision) then
+          allocate(tmp_dp(data%gdim*n))
+       else
+          allocate(tmp_sp(data%gdim*n))
+       end if
+
+       i = 1
+       read_mesh = .false.
+       read_velocity = .false.
+       read_pressure = .false.
+       read_temp = .false.
+       if (rdcode(i) .eq. 'X') then
+          read_mesh = .true.
+          if (data%x%n .ne. n) call data%x%init(n)
+          if (data%y%n .ne. n) call data%y%init(n)
+          if (data%z%n .ne. n) call data%z%init(n)
+          i = i + 1
+       end if
+       if (rdcode(i) .eq. 'U') then
+          read_velocity = .true.
+          if (data%u%n .ne. n) call data%u%init(n)
+          if (data%v%n .ne. n) call data%v%init(n)
+          if (data%w%n .ne. n) call data%w%init(n)
+          i = i + 1
+       end if
+       if (rdcode(i) .eq. 'P') then
+          read_pressure = .true.
+          if (data%p%n .ne. n) call data%p%init(n)
+          i = i + 1
+       end if
+       if (rdcode(i) .eq. 'T') then
+          read_temp = .true.
+          if (data%t%n .ne. n) call data%t%init(n)
+          i = i + 1
+       end if
+
+       if (allocated(data%idx)) then
+          if (size(data%idx) .ne. data%nelv) then
+             deallocate(data%idx)
+             allocate(data%idx(data%nelv))
+          end if
+       else
+          allocate(data%idx(data%nelv))
+       end if
+
+       ! Read element idxs
+       start_dims_idx = (int(data%offset_el, i8))
+       count_dims_idx = (int(data%nelv, i8))
+       call adios2_inquire_variable(variable_idx, ioReader, 'idx', ierr)
+       if (variable_idx%valid) then
+          call adios2_set_selection(variable_idx, size(start_dims_idx), &
+               start_dims_idx, count_dims_idx, ierr)
+       end if
+       call adios2_get(bpReader, variable_idx, data%idx, adios2_mode_sync, ierr)
+
+       if (read_mesh) then
+          write(*,*) 'Reading mesh', 1
+          call adios2_inquire_variable(variable_msh, ioReader, 'mesh', ierr)
+          start_dims_msh = (int(data%offset_el, i8) * int(lxyz, i8) * int(data%gdim, i8))
+          count_dims_msh = (int(data%nelv, i8) * int(lxyz, i8) * int(data%gdim, i8))
+          if (variable_msh%valid) then
+             call adios2_set_selection(variable_msh, size(start_dims_msh), &
+                  start_dims_msh, count_dims_msh, ierr)
+          end if
+          if (this%dp_precision) then
+             call adios2_get(bpReader, variable_msh, tmp_dp, adios2_mode_sync, ierr)
+          else
+             call adios2_get(bpReader, variable_msh, tmp_sp, adios2_mode_sync, ierr)
+          end if
+          call bp_file_cp_buffered_vector_field(this, data%x, data%y, data%z, data)
+       end if
+
+       if (read_velocity) then
+          write(*,*) 'Reading velocity', 1
+          call adios2_inquire_variable(variable_v, ioReader, 'velocity', ierr)
+          start_dims_v = (int(data%offset_el, i8) * int(lxyz, i8) * int(data%gdim, i8))
+          count_dims_v = (int(data%nelv, i8) * int(lxyz, i8) * int(data%gdim, i8))
+          if (variable_v%valid) then
+             call adios2_set_selection(variable_v, size(start_dims_v), &
+                  start_dims_v, count_dims_v, ierr)
+          end if
+          if (this%dp_precision) then
+             call adios2_get(bpReader, variable_v, tmp_dp, adios2_mode_sync, ierr)
+          else
+             call adios2_get(bpReader, variable_v, tmp_sp, adios2_mode_sync, ierr)
+          end if
+          call bp_file_cp_buffered_vector_field(this, data%u, data%v, data%w, data)
+       end if
+
+       if (read_pressure) then
+          write(*,*) 'Reading pressure', 1
+          call adios2_inquire_variable(variable_p, ioReader, 'pressure', ierr)
+          start_dims_p = (int(data%offset_el, i8) * int(lxyz, i8))
+          count_dims_p = (int(data%nelv, i8) * int(lxyz, i8))
+          if (variable_p%valid) then
+             call adios2_set_selection(variable_p, size(start_dims_p), &
+                  start_dims_p, count_dims_p, ierr)
+          end if
+          if (this%dp_precision) then
+             call adios2_get(bpReader, variable_p, tmp_dp, adios2_mode_sync, ierr)
+          else
+             call adios2_get(bpReader, variable_p, tmp_sp, adios2_mode_sync, ierr)
+          end if
+          call bp_file_cp_buffered_field(this, data%p, data)
+       end if
+
+       if (read_temp) then
+          write(*,*) 'Reading temperature', 1
+          call adios2_inquire_variable(variable_temp, ioReader, 'temperature', ierr)
+          start_dims_temp = (int(data%offset_el, i8) * int(lxyz, i8))
+          count_dims_temp = (int(data%nelv, i8) * int(lxyz, i8))
+          if (variable_temp%valid) then
+             call adios2_set_selection(variable_temp, size(start_dims_temp), &
+                  start_dims_temp, count_dims_temp, ierr)
+          end if
+          if (this%dp_precision) then
+             call adios2_get(bpReader, variable_temp, tmp_dp, adios2_mode_sync, ierr)
+          else
+             call adios2_get(bpReader, variable_temp, tmp_sp, adios2_mode_sync, ierr)
+          end if
+          call bp_file_cp_buffered_field(this, data%t, data)
+       end if
+
+       call adios2_end_step(bpReader, ierr)
+       call adios2_close(bpReader, ierr)
+
+       this%counter = this%counter + 1
+
+       if (allocated(tmp_dp)) deallocate(tmp_dp)
+       if (allocated(tmp_sp)) deallocate(tmp_sp)
+    class default
+       call neko_error('Currently we only read into fld_file_data_t,&
+                        please use that data structure instead.&
+                        (output_format.adios2)')
+    end select
 
   end subroutine bp_file_read
+
+  subroutine bp_file_cp_buffered_field(this, x, fld_data)
+    class(bp_file_t), intent(inout) :: this
+    type(vector_t), intent(inout) :: x
+    type(fld_file_data_t) :: fld_data
+    integer :: n, i
+
+    n = x%n
+
+    if (this%dp_precision) then
+       do i = 1, n
+          x%x(i) = tmp_dp(i)
+       end do
+    else
+       do i = 1, n
+          x%x(i) = tmp_sp(i)
+       end do
+    end if
+
+  end subroutine bp_file_cp_buffered_field
+
+  subroutine bp_file_cp_buffered_vector_field(this, x, y, z, fld_data)
+    class(bp_file_t), intent(inout) :: this
+    type(vector_t), intent(inout) :: x, y, z
+    type(fld_file_data_t) :: fld_data
+    integer :: nd, lxyz, i, j, e
+
+    nd = n * fld_data%gdim
+    lxyz = fld_data%lx * fld_data%ly * fld_data%lz
+
+    if (this%dp_precision) then
+       i = 1
+       do e = 1, fld_data%nelv
+          do j = 1, lxyz
+             x%x((e-1)*lxyz+j) = tmp_dp(i)
+             i = i + 1
+          end do
+          do j = 1, lxyz
+             y%x((e-1)*lxyz+j) = tmp_dp(i)
+             i = i + 1
+          end do
+          if (fld_data%gdim .eq. 3) then
+             do j = 1, lxyz
+                z%x((e-1)*lxyz+j) = tmp_dp(i)
+                i = i + 1
+             end do
+          end if
+       end do
+    else
+       i = 1
+       do e = 1, fld_data%nelv
+          do j = 1, lxyz
+             x%x((e-1)*lxyz+j) = tmp_sp(i)
+             i = i + 1
+          end do
+          do j = 1, lxyz
+             y%x((e-1)*lxyz+j) = tmp_sp(i)
+             i = i + 1
+          end do
+          if (fld_data%gdim .eq. 3) then
+             do j = 1, lxyz
+                z%x((e-1)*lxyz+j) = tmp_sp(i)
+                i = i + 1
+             end do
+          end if
+       end do
+    end if
+
+  end subroutine bp_file_cp_buffered_vector_field
 
   subroutine bp_file_set_precision(this, precision)
     class(bp_file_t) :: this
