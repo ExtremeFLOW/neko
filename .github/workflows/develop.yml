@@ -29,24 +29,25 @@ jobs:
     name: Prepare the environment
     runs-on: ubuntu-latest
     outputs:
-      flint-global-minimum-score: ${{ steps.flint-minimum.outputs.flint-global-minimum-score }}
-      flint-changed-files-minimum-score: ${{ steps.flint-minimum.outputs.flint-global-minimum-score }}
-      pfunit-version: ${{ steps.flint-minimum.outputs.pfunit-version }}
-      json-fortran-version: ${{ steps.flint-minimum.outputs.json-fortran-version }}
+      flint-global-minimum: ${{ steps.store.outputs.flint-global-minimum }}
+      flint-changed-minimum: ${{ steps.store.outputs.flint-global-minimum }}
+      pfunit-version: ${{ steps.store.outputs.pfunit-version }}
+      json-fortran-version: ${{ steps.store.outputs.json-fortran-version }}
 
     steps:
       - name: Check if PR is a draft
         shell: bash
         run: |
           if [ "${{ github.event.pull_request.draft }}" == "true" ]; then
+            echo "PR is a draft" >&2
             exit 1
           fi
 
-      - name: Assign the flint minimum score
-        id: flint-minimum
+      - name: Store environment variables
+        id: store
         run: |
-          echo "flint-global-minimum-score=$FLINT_GLOBAL_MINIMUM" >> $GITHUB_OUTPUT
-          echo "flint-changed-files-minimum-score=$FLINT_CHANGED_FILES_MINIMUM" >> $GITHUB_OUTPUT
+          echo "flint-global-minimum=$FLINT_GLOBAL_MINIMUM" >> $GITHUB_OUTPUT
+          echo "flint-changed-minimum=$FLINT_CHANGED_FILES_MINIMUM" >> $GITHUB_OUTPUT
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
@@ -56,8 +57,8 @@ jobs:
       - prepare
     uses: ./.github/workflows/check_lint.yml
     with:
-      global-minimum-score: ${{ needs.prepare.outputs.flint-global-minimum-score }}
-      changed-files-minimum-score: ${{ needs.prepare.outputs.flint-changed-files-minimum-score }}
+      global-minimum-score: ${{ needs.prepare.outputs.flint-global-minimum }}
+      changed-files-minimum-score: ${{ needs.prepare.outputs.flint-changed-minimum }}
 
   GNU:
     needs:
