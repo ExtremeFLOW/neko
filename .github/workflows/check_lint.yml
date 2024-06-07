@@ -7,12 +7,14 @@ on:
     inputs:
       global-minimum-score:
         description: "The minimum score required for the repository."
-        required: true
+        required: false
         type: string
+        default: "10.0"
       changed-files-minimum-score:
         description: "The minimum score required for changed files."
-        required: true
+        required: false
         type: string
+        default: "10.0"
 
 jobs:
   repository-linting:
@@ -21,7 +23,7 @@ jobs:
     steps:
       - name: Check environment
         env:
-          min_score: ${{ inputs.global_minimum_score }}
+          min_score: ${{ inputs.global-minimum-score }}
         run: |
           if [ -z "$min_score" ]; then
             echo "Minimum score not set" >&2
@@ -41,7 +43,7 @@ jobs:
 
       - name: Lint
         env:
-          min_score: ${{ inputs.global_minimum_score }}
+          min_score: ${{ inputs.global-minimum-score }}
         run: |
           flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
           score=$(awk '$1==0{print $3}' flint.txt)
@@ -63,7 +65,7 @@ jobs:
     steps:
       - name: Check environment
         env:
-          min_score: ${{ inputs.changed_files_minimum_score }}
+          min_score: ${{ inputs.changed-files-minimum-score }}
         run: |
           if [ -z "$min_score" ]; then
             echo "Minimum score not set" >&2
@@ -99,7 +101,7 @@ jobs:
       - name: Lint changed files
         env:
           changed_files: ${{ steps.get-changed-files.outputs.changed-files }}
-          min_score: ${{ inputs.changed_files_minimum_score }}
+          min_score: ${{ inputs.changed-files-minimum-score }}
         run: |
           if [ -z "$changed_files" ]; then
             echo "No fortran files changed"
