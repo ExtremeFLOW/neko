@@ -41,12 +41,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: is_draft
     outputs:
-      global-minimum-score: ${{ steps.flint-minimum.outputs.global-minimum-score }}
+      flint-global-minimum-score: ${{ steps.flint-minimum.outputs.global-minimum-score }}
+      flint-changed-files-minimum-score: ${{ steps.flint-minimum.outputs.global-minimum-score }}
+      pfunit-version: ${{ steps.flint-minimum.outputs.pfunit-version }}
+      json-fortran-version: ${{ steps.flint-minimum.outputs.json-fortran-version }}
     steps:
       - name: Assign the flint minimum score
         id: flint-minimum
         run: |
           echo "global-minimum-score: ${{ env.FLINT_GLOBAL_MINIMUM }}" >> $GITHUB_OUTPUT
+          echo "changed-files-minimum-score: ${{ env.FLINT_CHANGED_FILES_MINIMUM }}" >> $GITHUB_OUTPUT
+          echo "pfunit-version: ${{ env.PFUNIT_VERSION }}" >> $GITHUB_OUTPUT
+          echo "json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}" >> $GITHUB_OUTPUT
 
   linting:
     name: Flint
@@ -56,41 +62,45 @@ jobs:
     uses: ./.github/workflows/check_lint.yml
     with:
       global-minimum-score: ${{ needs.prepare.outputs.global-minimum-score }}
-      changed-files-minimum-score: ${{ FLINT_CHANGED_FILES_MINIMUM }}
+      changed-files-minimum-score: ${{ needs.prepare.outputs.changed-files-minimum-score }}
 
   GNU:
     needs:
       - is_draft
       - linting
+      - prepare
     uses: ./.github/workflows/check_gnu.yml
     with:
-      json-fortran-version: ${{ JSON_FORTRAN_VERSION }}
-      pfunit-version: ${{ PFUNIT_VERSION }}
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+      pfunit-version: ${{ needs.prepare.outputs.pfunit-version }}
 
   Intel:
     needs:
       - is_draft
       - linting
+      - prepare
     uses: ./.github/workflows/check_intel.yml
     with:
-      json-fortran-version: ${{ JSON_FORTRAN_VERSION }}
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   NVIDIA:
     needs:
       - is_draft
       - linting
+      - prepare
     uses: ./.github/workflows/check_nvidia.yml
     with:
-      json-fortran-version: ${{ JSON_FORTRAN_VERSION }}
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   ReFrame:
     needs:
       - is_draft
       - linting
       - GNU
+      - prepare
     uses: ./.github/workflows/check_reframe.yml
     with:
-      json-fortran-version: ${{ JSON_FORTRAN_VERSION }}
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   check_complete:
     name: Develop PR Ready
