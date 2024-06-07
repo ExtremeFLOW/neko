@@ -49,10 +49,10 @@ jobs:
       - name: Assign the flint minimum score
         id: flint-minimum
         run: |
-          echo "flint-global-minimum-score: ${{ env.FLINT_GLOBAL_MINIMUM }}" >> $GITHUB_OUTPUT
-          echo "flint-changed-files-minimum-score: ${{ env.FLINT_CHANGED_FILES_MINIMUM }}" >> $GITHUB_OUTPUT
-          echo "pfunit-version: ${{ env.PFUNIT_VERSION }}" >> $GITHUB_OUTPUT
-          echo "json-fortran-version: ${{ env.JSON_FORTRAN_VERSION }}" >> $GITHUB_OUTPUT
+          echo "flint-global-minimum-score=${{ env.FLINT_GLOBAL_MINIMUM }}" >> $GITHUB_OUTPUT
+          echo "flint-changed-files-minimum-score=${{ env.FLINT_CHANGED_FILES_MINIMUM }}" >> $GITHUB_OUTPUT
+          echo "pfunit-version=${{ env.PFUNIT_VERSION }}" >> $GITHUB_OUTPUT
+          echo "json-fortran-version=${{ env.JSON_FORTRAN_VERSION }}" >> $GITHUB_OUTPUT
 
   linting:
     name: Flint
