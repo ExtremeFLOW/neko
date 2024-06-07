@@ -42,7 +42,7 @@ jobs:
     steps:
 
     - name: Setup pFUnit
-      uses: ./.github/actions/setup_neko
+      uses: ./.github/actions/setup_pfunit
       with:
         compiler: 'gfortran'
         compiler-options: '-O3'
