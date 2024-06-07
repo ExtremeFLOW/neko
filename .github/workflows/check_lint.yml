@@ -5,11 +5,11 @@ on:
   workflow_dispatch:
   workflow_call:
     inputs:
-      global_minimum_score:
+      global-minimum-score:
         description: "The minimum score required for the repository."
         required: true
         type: string
-      changed_files_minimum_score:
+      changed-files-minimum-score:
         description: "The minimum score required for changed files."
         required: true
         type: string
