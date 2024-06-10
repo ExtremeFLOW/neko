@@ -34,6 +34,9 @@
 module les_model_fctry
   use les_model, only : les_model_t
   use vreman, only : vreman_t
+  use smagorinsky, only : smagorinsky_t
+  use dynamic_smagorinsky, only : dynamic_smagorinsky_t
+  use sigma, only : sigma_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use json_module, only : json_file
@@ -64,7 +67,19 @@ contains
        allocate(vreman_t::les_model)
     end if
 
-    call les_model%init(dofmap, coef, json)
+    if (trim(name) .eq. 'smagorinsky') then
+      allocate(smagorinsky_t::les_model)
+    end if
+
+    if (trim(name) .eq. 'dynamic_smagorinsky') then
+      allocate(dynamic_smagorinsky_t::les_model)
+    end if
+
+   if (trim(name) .eq. 'sigma') then
+      allocate(sigma_t::les_model)
+   end if
+
+   call les_model%init(dofmap, coef, json)
 
   end subroutine les_model_factory
 

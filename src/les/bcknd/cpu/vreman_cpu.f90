@@ -40,6 +40,8 @@ module vreman_cpu
   use field, only : field_t
   use operators, only : dudxyz
   use coefs, only : coef_t
+  use gs_ops, only : GS_OP_ADD
+  use math, only : col2
   implicit none
   private
 
@@ -78,7 +80,7 @@ contains
 
     u => neko_field_registry%get_field_by_name("u")
     v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("u")
+    w => neko_field_registry%get_field_by_name("w")
 
     call neko_scratch_registry%request_field(a11, temp_indices(1))
     call neko_scratch_registry%request_field(a12, temp_indices(2))
@@ -128,7 +130,8 @@ contains
           ! alpha_ij alpha_ij
           aijaij = beta11 + beta22 + beta33
 
-          nut%x(i,1,1,e) = c*delta%x(i,1,1,e) * sqrt(b_beta/(aijaij + NEKO_EPS))
+          nut%x(i,1,1,e) = c*delta%x(i,1,1,e)*delta%x(i,1,1,e) &
+                            * sqrt(b_beta/(aijaij + NEKO_EPS))
        end do
     end do
 

@@ -42,6 +42,8 @@ module les_model
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, HOST_TO_DEVICE
+  use math, only : col2
+  use device_math, only : device_col2
   implicit none
   private
 
@@ -131,6 +133,7 @@ contains
     class(les_model_t), intent(inout) :: this
 
     nullify(this%nut)
+    nullify(this%delta)
     nullify(this%coef)
   end subroutine les_model_free_base
 
@@ -144,7 +147,7 @@ contains
     class(les_model_t), intent(inout) :: this
     integer :: e, i, j, k
     integer ::  im, ip, jm, jp, km, kp
-    real(kind=rp) :: di, dj, dk, ndim_inv
+    real(kind=rp) :: di, dj, dk
 
 
     do e=1, this%coef%msh%nelv
@@ -182,11 +185,15 @@ contains
        enddo
     enddo
 
-    call this%coef%gs_h%op(this%delta, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
                           HOST_TO_DEVICE, sync=.false.)
+       call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
+       call device_col2(this%delta%x_d, this%coef%mult_d, this%delta%dof%size())
+    else
+       call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
+       call col2(this%delta%x, this%coef%mult, this%delta%dof%size())
     end if
 
   end subroutine les_model_compute_delta

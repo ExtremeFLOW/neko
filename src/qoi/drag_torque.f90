@@ -112,7 +112,6 @@ contains
     real(kind=rp) :: torqvy = 0.0_rp
     real(kind=rp) :: torqvz = 0.0_rp
     real(kind=rp) :: dragx, dragy, dragz
-    real(kind=rp) :: torqx, torqy, torqz
     integer :: ie, ifc, mem, ierr
     dragx = 0.0
     dragy = 0.0
@@ -228,8 +227,8 @@ contains
     real(kind=rp), intent(in) :: pm1 (Xh%lx,xh%ly,Xh%lz,coef%msh%nelv)
     real(kind=rp), intent(in) :: visc
     integer, intent(in) :: f,e
-    integer :: pf,l, k, i, j1, j2
-    real(kind=rp) ::    n1,n2,n3, j, a, r1, r2, r3, v, dgtq_i(3,4)
+    integer :: pf, i, j1, j2
+    real(kind=rp) ::    n1,n2,n3, a, v, dgtq_i(3,4)
     integer :: skpdat(6,6), NX, NY, NZ
     integer :: js1
     integer :: jf1
@@ -237,7 +236,7 @@ contains
     integer :: js2
     integer :: jf2
     integer :: jskip2
-    real(kind=rp) :: s11_, s21_, s31_, s12_, s22_, s32_, s13_, s23_, s33_
+    real(kind=rp) :: s11_, s12_, s22_, s13_, s23_, s33_
 
 
     NX = Xh%lx

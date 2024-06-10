@@ -798,7 +798,8 @@ contains
   end subroutine fluid_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  subroutine fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype)
+  subroutine fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &
+                                         pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(inout) :: coef
@@ -819,8 +820,8 @@ contains
     type is(hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
-                  bclst, trim(pctype(6:)))
+             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
+                  trim(pctype(6:)))
           else
              call neko_error('Unknown coarse grid solver')
           end if
