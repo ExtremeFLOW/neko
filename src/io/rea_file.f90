@@ -49,7 +49,7 @@ module rea_file
   implicit none
   private
 
-  ! Defines the conventions for conversion of re2 labels to labeled zones.
+  ! Defines the conventions for conversion of rea labels to labeled zones.
   integer, public :: NEKO_W_BC_LABEL = -1
   integer, public :: NEKO_V_BC_LABEL = -1
   integer, public :: NEKO_O_BC_LABEL = -1
@@ -298,8 +298,6 @@ contains
 
                    select case(trim(cbc(j,i)))
                    case ('W')
-
-                      ! If this is the first time we find a wall, give it a label
                       if (NEKO_W_BC_LABEL .eq. -1) then
                          NEKO_W_BC_LABEL = current_internal_zone
                          current_internal_zone = current_internal_zone + 1
@@ -313,7 +311,6 @@ contains
                       labeled_zone_offsets(NEKO_W_BC_LABEL) = 1
 
                    case ('v', 'V')
-                      ! If this is the first time we find a V, give it a label
                       if (NEKO_V_BC_LABEL .eq. -1) then
                          NEKO_V_BC_LABEL = current_internal_zone
                          current_internal_zone = current_internal_zone + 1
@@ -326,8 +323,6 @@ contains
 
                       labeled_zone_offsets(NEKO_V_BC_LABEL) = 1
                    case ('O', 'o')
-
-                      ! If this is the first time we find a V, give it a label
                       if (NEKO_O_BC_LABEL .eq. -1) then
                          NEKO_O_BC_LABEL = current_internal_zone
                          current_internal_zone = current_internal_zone + 1
@@ -340,8 +335,6 @@ contains
 
                       labeled_zone_offsets(NEKO_O_BC_LABEL) = 1
                    case ('SYM')
-
-                      ! If this is the first time we find a V, give it a label
                       if (NEKO_SYM_BC_LABEL .eq. -1) then
                          NEKO_SYM_BC_LABEL = current_internal_zone
                          current_internal_zone = current_internal_zone + 1
@@ -354,8 +347,6 @@ contains
 
                       labeled_zone_offsets(NEKO_SYM_BC_LABEL) = 1
                    case ('ON', 'on')
-
-                      ! If this is the first time we find a V, give it a label
                       if (NEKO_ON_BC_LABEL .eq. -1) then
                          NEKO_ON_BC_LABEL = current_internal_zone
                          current_internal_zone = current_internal_zone + 1
@@ -368,8 +359,6 @@ contains
 
                       labeled_zone_offsets(NEKO_ON_BC_LABEL) = 1
                    case ('s', 'sl', 'sh', 'shl', 'S', 'SL', 'SH', 'SHL')
-
-                      ! If this is the first time we find a V, give it a label
                       if (NEKO_SHL_BC_LABEL .eq. -1) then
                          NEKO_SHL_BC_LABEL = current_internal_zone
                          current_internal_zone = current_internal_zone + 1
@@ -482,7 +471,7 @@ contains
   !! @param msh The mesh on which to mark the labeled zone.
   !! @param el_idx The index of the element on which to mark the labeled zone.
   !! @param facet The facet index to mark.
-  !! @param type The re2 label type (e.g. "W", "ON", "SYM", etc).
+  !! @param type The rea label type (e.g. "W", "ON", "SYM", etc).
   !! @param label The integer label with which to mark the labeled zone.
   !! @param offset The offset with which to increment the label, in case there
   !! are any existing user labeled zones.
