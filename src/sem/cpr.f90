@@ -147,7 +147,6 @@ contains
     real(kind=rp) :: L(0:cpr%Xh%lx-1)
     real(kind=rp) :: delta(cpr%Xh%lx)
     integer :: i, kj, j, j2, kk
-    character(len=LOG_SIZE) :: log_buf
 
     associate(Xh => cpr%Xh, v=> cpr%v, vt => cpr%vt, &
          vinv => cpr%vinv, vinvt => cpr%vinvt, w => cpr%w)
@@ -224,8 +223,7 @@ contains
     real(kind=rp) :: w1(cpr%Xh%lx,cpr%Xh%lx,cpr%Xh%lx)
     real(kind=rp) :: specmat(cpr%Xh%lx,cpr%Xh%lx)
     real(kind=rp) :: specmatt(cpr%Xh%lx,cpr%Xh%lx)
-    integer :: i, j, k, e, nxyz, nelv
-    character(len=LOG_SIZE) :: log_buf
+    integer :: k, e, nxyz, nelv
     character(len=4) :: space
 
     ! define some constants
@@ -277,8 +275,8 @@ contains
     real(kind=rp) :: fz(cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: l2norm, oldl2norm, targeterr
     integer :: isort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
-    integer :: i, j, k, e, nxyz, nelv
-    integer :: kut, kutx, kuty, kutz, nx
+    integer :: i, k, e, nxyz, nelv
+    integer :: kut, nx
     character(len=LOG_SIZE) :: log_buf
 
     ! define some constants
@@ -381,9 +379,7 @@ contains
     real(kind=rp), intent(inout) :: vsort(nxyz)
     real(kind=rp), intent(inout) :: v(nxyz)
     integer, intent(inout) :: isort(nxyz)
-    real(kind=rp) :: wrksort(nxyz)
-    integer :: wrkisort(nxyz)
-    integer :: i, j, k
+    integer :: i
 
     ! copy absolute values to sort by magnitude
     do i =1, nxyz
@@ -531,7 +527,7 @@ contains
     type(coef_t), intent(in) :: coef
     real(kind=rp) :: elemdata(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx)
     real(kind=rp) :: vole, suma, l2e
-    integer i, e, eg, nxyz
+    integer i, e, nxyz
     character(len=4) :: space
 
     ! Get the volume of the element

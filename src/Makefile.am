@@ -207,7 +207,10 @@ neko_fortran_SOURCES = \
 	common/time_step_controller.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
-	math/bcknd/cpu/ax_helm.f90\
+	math/ax_helm.f90\
+	math/ax_helm_full.f90\
+	math/bcknd/cpu/ax_helm_cpu.f90\
+	math/bcknd/cpu/ax_helm_full_cpu.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
 	math/bcknd/device/ax_helm_device.F90\
@@ -275,6 +278,14 @@ neko_fortran_SOURCES = \
 	les/les_model_fctry.f90\
 	les/vreman.f90\
 	les/bcknd/cpu/vreman_cpu.f90\
+	les/smagorinsky.f90\
+	les/bcknd/cpu/smagorinsky_cpu.f90\
+	les/dynamic_smagorinsky.f90\
+	les/bcknd/cpu/dynamic_smagorinsky_cpu.f90\
+	les/elementwise_filter.f90\
+	les/bcknd/cpu/elementwise_filter_cpu.f90\
+	les/sigma.f90\
+	les/bcknd/cpu/sigma_cpu.f90\
 	neko.f90
 
 neko_c_SOURCES = comm/comm_wrapper.c\

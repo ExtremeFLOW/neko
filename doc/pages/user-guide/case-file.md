@@ -208,6 +208,10 @@ The means of prescribing the values are controlled via the `type` keyword:
    keyword.
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
    in the `case.fluid.blasius` object, see below.
+4. `point_zone`, the values are set to a constant base value, supplied under the
+   `base_value` keyword, and then assigned a zone value inside a point zone. The
+   point zone is specified by the `name` keyword, and should be defined in the
+   `case.point_zones` object. See more about point zones @ref point-zones.md.
 
 ### Blasius profile
 The `blasius` object is used to specify the Blasius profile that can be used for the
@@ -318,7 +322,7 @@ Additional keywords are available to modify the Brinkman force term.
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
 | ---------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
 | `brinkman.limits`                  | Brinkman factor at free-flow (\f$ \kappa_0 \f$) and solid domain (\f$ \kappa_1 \f$).          | Vector of 2 reals.                | -             |
-| `brinkman.penalty`                 | Penalty parameter \f$ q \f$ when estimating Brinkman factor.                                        | Real                              | \f$ 1.0 \f$         |
+| `brinkman.penalty`                 | Penalty parameter \f$ q \f$ when estimating Brinkman factor.                                  | Real                              | \f$ 1.0 \f$   |
 | `objects`                          | Array of JSON objects, defining the objects to be immersed.                                   | Each object must specify a `type` | -             |
 | `distance_transform.type`          | How to map from distance field to indicator field.                                            | `step`, `smooth_step`             | -             |
 | `distance_transform.value`         | Values used to define the distance transform, such as cut-off distance for the step function. | Real                              | -             |
@@ -462,16 +466,16 @@ example case.
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
-| Name                      | Description                                              | Admissible values              | Default value |
-| ------------------------- | -------------------------------------------------------- | ------------------------------ | ------------- |
-| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`              | `true`        |
-| `Pe`                      | The Peclet number.                                       | Positive real                  | -             |
-| `cp`                      | Specific heat cpacity.                                   | Positive real                  | -             |
-| `lambda`                  | Thermal conductivity.                                    | Positive real                  | -             |
-| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings               | -             |
-| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`              | -             |
-| `initial_condition.value` | Value of the velocity initial condition.                 | Real                           | -             |
-| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above | -             |
+| Name                      | Description                                              | Admissible values               | Default value |
+| ------------------------- | -------------------------------------------------------- | ------------------------------- | ------------- |
+| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`               | `true`        |
+| `Pe`                      | The Peclet number.                                       | Positive real                   | -             |
+| `cp`                      | Specific heat cpacity.                                   | Positive real                   | -             |
+| `lambda`                  | Thermal conductivity.                                    | Positive real                   | -             |
+| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings                | -             |
+| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`, `point_zone` | -             |
+| `initial_condition.value` | Value of the velocity initial condition.                 | Real                            | -             |
+| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above  | -             |
 
 ## Statistics
 

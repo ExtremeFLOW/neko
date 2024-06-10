@@ -98,7 +98,6 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k
 
     call neko_error("Neumann bc not implemented for vectors")
 
