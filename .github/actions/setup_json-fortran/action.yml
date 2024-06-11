@@ -44,6 +44,36 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Check the environment
+      env:
+        INSTALL_DIR: ${{ inputs.install-dir }}
+        WORKING_DIR: ${{ inputs.working-dir }}
+        OS: ${{ inputs.os }}
+        COMPILER: ${{ inputs.compiler }}
+        VERSION: ${{ inputs.version }}
+      shell: bash
+      run: |
+        if [ -z "$INSTALL_DIR" ]; then
+          echo "install-dir is not set" >&2
+          exit 1
+        fi
+        if [ -z "$WORKING_DIR" ]; then
+          echo "working-dir is not set" >&2
+          exit 1
+        fi
+        if [ -z "$OS" ]; then
+          echo "os is not set" >&2
+          exit 1
+        fi
+        if [ -z "$COMPILER" ]; then
+          echo "compiler is not set" >&2
+          exit 1
+        fi
+        if [ -z "$VERSION" ]; then
+          echo "version is not set" >&2
+          exit 1
+        fi
+
     - name: Set up environment
       id: setup-env
       shell: bash
