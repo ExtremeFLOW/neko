@@ -283,7 +283,7 @@ contains
        read(9,*)
        read(9,*)
        if (.not. read_bcs) then ! Mark zones in the mesh
-          call neko_log%message("Reading boundary conditions")
+          call neko_log%message("Reading boundary conditions", neko_log_debug)
           allocate(cbc(6,nelgv))
           allocate(bc_data(6,2*ndim,nelgv))
           off = 0
