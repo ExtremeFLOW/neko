@@ -36,9 +36,10 @@ module time_interpolator
   use field, only : field_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_add3s2
-  use math, only : add3s2
+  use math, only : add3s2, rzero
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
+  use fast3d, only: fd_weights_full
   implicit none
   private
 
@@ -53,6 +54,8 @@ module time_interpolator
      procedure, pass(this) :: free => time_interpolator_free
      !> Calculate the indicator
      procedure, pass(this) :: interpolate => time_interpolator_interpolate
+     !> Interpolate a velocity field 
+     procedure, pass(this) :: interpolate_velocity => time_interpolator_velocity
 
   end type time_interpolator_t
 
@@ -111,5 +114,42 @@ contains
     end if
 
   end subroutine time_interpolator_interpolate
+
+  !> Interpolate field at time t from previous times step, equal to int_vel in nek5000
+  !! @param t time to get interpolated field
+  !! @param c_t the interpolated field 
+  !! @param c an array of previous fields
+  !! @param ct an array of previous time steps
+  !! @param n size of the array
+  subroutine time_interpolator_velocity(this, t, c_t, c, ct, n)
+    class(time_interpolator_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n,0:this%order - 1), intent(in):: c
+    real(kind=rp), dimension(n), intent(inout):: c_t
+    real(kind=rp), dimension(0:this%order), intent(in) :: ct
+    
+    integer :: no, i, l
+
+    integer, parameter :: lwtmax = 10
+    real(kind=rp) :: wt(0:lwtmax)
+    wt = 0
+
+    if(this%order .gt. lwtmax) then
+      call neko_error("lwtmax is smaller than the number of stored convecting fields")
+    end if
+
+    no = this%order - 1
+    call fd_weights_full(t, ct, no, 0, wt) ! interpolation weights
+    call rzero(c_t, n)
+    
+    do i = 1, n
+       do l = 0, no
+        c_t(i) = c_t(i) + wt(l) * c(i,l)
+      end do 
+    end do
+
+
+  end subroutine time_interpolator_velocity
 
 end module time_interpolator

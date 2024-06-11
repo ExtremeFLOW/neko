@@ -151,18 +151,20 @@ module fluid_scheme
   !> Abstract interface to initialize a fluid formulation
   abstract interface
      subroutine fluid_scheme_init_intrf(this, msh, lx, params, user, &
-                                        material_properties)
+                                        material_properties, time_scheme)
        import fluid_scheme_t
        import json_file
        import mesh_t
        import user_t
        import material_properties_t
+       import time_scheme_controller_t
        class(fluid_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
        integer, intent(inout) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), intent(in) :: user
        type(material_properties_t), target, intent(inout) :: material_properties
+       type(time_scheme_controller_t), target, intent(in):: time_scheme
      end subroutine fluid_scheme_init_intrf
   end interface
 

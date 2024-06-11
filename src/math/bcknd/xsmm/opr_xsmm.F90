@@ -66,6 +66,7 @@ module opr_xsmm
   use math
   use mesh, only : mesh_t
   use field, only : field_t
+  use interpolation
   use gather_scatter
   use mathops
 #ifdef HAVE_LIBXSMM
@@ -74,7 +75,8 @@ module opr_xsmm
   implicit none
   private
 
-  public :: opr_xsmm_dudxyz, opr_xsmm_opgrad, opr_xsmm_cdtp, opr_xsmm_conv1, opr_xsmm_curl
+  public :: opr_xsmm_dudxyz, opr_xsmm_opgrad, opr_xsmm_cdtp, opr_xsmm_conv1, opr_xsmm_curl, &
+            opr_xsmm_conv_fst_3d, opr_xsmm_set_convect_new
 
 #ifdef HAVE_LIBXSMM
   type(libxsmm_dmmfunction), private :: lgrad_xmm1
@@ -360,6 +362,50 @@ contains
 
   end subroutine opr_xsmm_conv1
 
+  subroutine opr_xsmm_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
+    type(space_t), intent(in) :: Xh_GL
+    type(space_t), intent(in) :: Xh_GLL
+    type(coef_t), intent(in) :: coef_GLL
+    type(coef_t), intent(in) :: coef_GL
+    type(interpolator_t), intent(inout) :: GLL_to_GL
+    real(kind=rp), intent(inout) :: du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh_GL%lxyz, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: c(Xh_GL%lxyz,coef_GL%msh%nelv,3)
+    real(kind=rp) :: ur(Xh_GL%lxyz)
+    real(kind=rp) :: us(Xh_GL%lxyz)
+    real(kind=rp) :: ut(Xh_GL%lxyz)
+    real(kind=rp) :: ud(Xh_GL%lxyz, coef_GL%msh%nelv)
+    logical, save :: lgrad_xsmm_init = .false.
+    integer, save :: init_size = 0
+    integer :: e, i, N, n_GLL
+    N = coef_GL%Xh%lx - 1
+    n_GLL = coef_GLL%msh%nelv * Xh_GLL%lxyz
+
+#ifdef HAVE_LIBXSMM
+    if ((.not. lgrad_xsmm_init) .or. &
+         (init_size .gt. 0 .and. init_size .ne. N)) then
+       call libxsmm_dispatch(lgrad_xmm1, (N+1), (N+1)**2, (N+1), &
+            alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
+       call libxsmm_dispatch(lgrad_xmm2, (N+1), (N+1), (N+1), &
+            alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
+       call libxsmm_dispatch(lgrad_xmm3, (N+1)**2, (N+1), (N+1), &
+            alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
+       lgrad_xsmm_init = .true.
+       init_size = N
+    end if
+
+    do e=1,coef_GLL%msh%nelv
+       call local_grad3_xsmm(ur, us, ut, u(1,e), N, Xh_GL%dx, Xh_GL%dxt)
+       do i=1, Xh_GL%lxyz
+          ud(i,e) = c(i,e,1) * ur(i) + c(i,e,2) * us(i) + c(i,e,3) * ut(i)
+       end do
+    end do
+#endif
+    call GLL_to_GL%map(du, ud, coef_GL%msh%nelv, Xh_GLL)
+    call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
+    call col2(du, coef_GLL%Binv,n_GLL) 
+  end subroutine opr_xsmm_conv_fst_3d
+
   subroutine opr_xsmm_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
@@ -406,6 +452,33 @@ contains
     call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
 
   end subroutine opr_xsmm_curl
+
+  subroutine opr_xsmm_set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef)  
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), intent(inout) :: cr, cs, ct
+    real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), intent(in) :: cx, cy, cz
+    integer :: e, i, t, nxyz
+    associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
+      dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
+      dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &  
+      nelv => coef%msh%nelv, lx=>Xh%lx, w3 => Xh%w3)
+      nxyz = lx * lx * lx
+      do e = 1, nelv
+         do i = 1, nxyz
+            cr(i,e) = w3(i,1,1) * (cx(i,e) * drdx(i,1,1,e) &
+                        + cy(i,e) * drdy(i,1,1,e) &
+                        + cz(i,e) * drdz(i,1,1,e))
+            cs(i,e) = w3(i,1,1) * (cx(i,e) * dsdx(i,1,1,e) &
+                        + cy(i,e) * dsdy(i,1,1,e) &
+                        + cz(i,e) * dsdz(i,1,1,e))
+            ct(i,e) = w3(i,1,1) * (cx(i,e) * dtdx(i,1,1,e) &
+                        + cy(i,e) * dtdy(i,1,1,e) &
+                        + cz(i,e) * dtdz(i,1,1,e))
+         end do
+      end do
+    end associate
+  end subroutine opr_xsmm_set_convect_new
 
 
 

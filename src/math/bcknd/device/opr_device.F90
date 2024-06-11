@@ -33,6 +33,7 @@
 !> Operators accelerator backends
 module opr_device
   use gather_scatter
+  use interpolation
   use num_types, only : rp, c_rp
   use device_math
   use device_mathops
@@ -48,7 +49,8 @@ module opr_device
   private
 
   public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
-       opr_device_conv1, opr_device_curl, opr_device_cfl, opr_device_lambda2
+       opr_device_conv1, opr_device_curl, opr_device_cfl, opr_device_lambda2, &
+       opr_device_conv_fst_3d
 
 #ifdef HAVE_HIP
   interface
@@ -268,6 +270,16 @@ module opr_device
   end interface
 
   interface
+     subroutine opencl_conv_fst_3d(du_d, u_d, cr_d, cs_d, ct_d, &
+          dx_d, dy_d, dz_d) &
+          bind(c, name='opencl_conv_fst_3d')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d, cr_d, cs_d, ct_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+     end subroutine opencl_conv_fst_3d
+  end interface
+
+  interface
      subroutine opencl_opgrad(ux_d, uy_d, uz_d, u_d, &
           dx_d, dy_d, dz_d, &
           drdx_d, dsdx_d, dtdx_d, &
@@ -399,6 +411,7 @@ contains
     end associate
 
   end subroutine opr_device_opgrad
+
   subroutine opr_device_lambda2(lambda2, u, v, w, coef)
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: lambda2
@@ -511,6 +524,52 @@ contains
     end associate
 
   end subroutine opr_device_conv1
+
+  subroutine opr_device_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, &
+                                    coef_GLL, coef_GL, GLL_to_GL)  
+    type(space_t), intent(in) :: Xh_GL
+    type(space_t), intent(in) :: Xh_GLL
+    type(coef_t), intent(in) :: coef_GLL
+    type(coef_t), intent(in) :: coef_GL
+    type(interpolator_t), intent(inout) :: GLL_to_GL
+    real(kind=rp), intent(inout) :: du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: c(Xh_GL%lxyz,coef_GL%msh%nelv,3)
+    real(kind=rp) :: cr(Xh_GL%lxyz,coef_GL%msh%nelv)
+    real(kind=rp) :: cs(Xh_GL%lxyz,coef_GL%msh%nelv)
+    real(kind=rp) :: ct(Xh_GL%lxyz,coef_GL%msh%nelv)
+    real(kind=rp):: ud(Xh_GL%lx, Xh_GL%ly, Xh_GL%lz, coef_GL%msh%nelv)
+    integer :: n_GLL, idx, idy,idz, e, ii
+    type(c_ptr) :: du_d, u_d, cr_d, cs_d, ct_d
+
+    do e = 1, coef_GL%msh%nelv
+       do ii = 1, Xh_GL%lxyz
+          cr(ii,e)=c(ii,e,1)
+          cs(ii,e)=c(ii,e,1)
+          ct(ii,e)=c(ii,e,1)
+       end do
+    end do
+
+    n_GLL = coef_GL%msh%nelv * Xh_GLL%lxyz
+
+    du_d = device_get_ptr(du)
+    u_d = device_get_ptr(u)
+
+    cr_d = device_get_ptr(cr)
+    cs_d = device_get_ptr(cs)
+    ct_d = device_get_ptr(ct)
+    
+#ifdef HAVE_OPENCL
+      call opencl_conv_fst_3d(du_d, u_d, cr_d, cs_d, ct_d, &
+                        Xh_GL%dx_d, Xh_GL%dy_d, Xh_GL%dz_d)
+#else
+      call neko_error('No device backend configured')
+#endif
+    call GLL_to_GL%map(du, ud, coef_GLL%msh%nelv, Xh_GLL) 
+    call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
+    call device_col2(du_d, coef_GLL%Binv_d, n_GLL)
+    
+  end subroutine opr_device_conv_fst_3d
 
   subroutine opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     type(field_t), intent(inout) :: w1

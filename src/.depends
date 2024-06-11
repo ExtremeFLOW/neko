@@ -76,18 +76,22 @@ io/format/rea.o : io/format/rea.f90 mesh/mesh.o config/num_types.o
 math/bcknd/cpu/cdtp.o : math/bcknd/cpu/cdtp.f90 config/num_types.o 
 math/bcknd/cpu/conv1.o : math/bcknd/cpu/conv1.f90 config/num_types.o 
 math/bcknd/cpu/dudxyz.o : math/bcknd/cpu/dudxyz.f90 config/num_types.o 
-math/bcknd/cpu/opgrad.o : math/bcknd/cpu/opgrad.f90 config/num_types.o 
+math/bcknd/cpu/opgrad.o : math/bcknd/cpu/opgrad.f90 config/num_types.o
+math/bcknd/cpu/conv_fst_3d.o : math/bcknd/cpu/conv_fst_3d.f90 config/num_types.o sem/coef.o sem/space.o sem/interpolation.o math/math.o gs/gather_scatter.o
+math/bcknd/cpu/set_convect_new.o : math/bcknd/cpu/set_convect_new.f90 config/num_types.o 
 math/bcknd/sx/sx_cdtp.o : math/bcknd/sx/sx_cdtp.f90 math/math.o config/num_types.o 
 math/bcknd/sx/sx_conv1.o : math/bcknd/sx/sx_conv1.f90 config/num_types.o 
 math/bcknd/sx/sx_dudxyz.o : math/bcknd/sx/sx_dudxyz.f90 math/math.o config/num_types.o 
 math/bcknd/sx/sx_opgrad.o : math/bcknd/sx/sx_opgrad.f90 config/num_types.o 
 math/bcknd/sx/sx_cfl.o : math/bcknd/sx/sx_cfl.f90 config/num_types.o 
-math/bcknd/sx/sx_lambda2.o : math/bcknd/sx/sx_lambda2.f90 math/math.o config/num_types.o 
+math/bcknd/sx/sx_lambda2.o : math/bcknd/sx/sx_lambda2.f90 math/math.o config/num_types.o
+math/bcknd/sx/sx_conv_fst_3d.o : math/bcknd/sx/sx_conv_fst_3d.f90 config/num_types.o sem/coef.o sem/space.o sem/interpolation.o math/math.o gs/gather_scatter.o
+math/bcknd/sx/sx_set_convect_new.o : math/bcknd/sx/sx_set_convect_new.f90 config/num_types.o 
 math/operators.o : math/operators.f90 comm/comm.o field/scratch_registry.o math/bcknd/device/device_math.o device/device.o math/math.o field/field.o sem/coef.o sem/space.o math/bcknd/device/opr_device.o math/bcknd/xsmm/opr_xsmm.o math/bcknd/sx/opr_sx.o math/bcknd/cpu/opr_cpu.o config/num_types.o config/neko_config.o 
-math/bcknd/cpu/opr_cpu.o : math/bcknd/cpu/opr_cpu.f90 math/mathops.o gs/gather_scatter.o field/field.o math/math.o sem/coef.o sem/space.o config/num_types.o math/bcknd/cpu/conv1.o math/bcknd/cpu/cdtp.o math/bcknd/cpu/opgrad.o math/bcknd/cpu/dudxyz.o 
-math/bcknd/sx/opr_sx.o : math/bcknd/sx/opr_sx.f90 math/mathops.o field/field.o math/math.o sem/coef.o sem/space.o config/num_types.o gs/gather_scatter.o math/bcknd/sx/sx_lambda2.o math/bcknd/sx/sx_cfl.o math/bcknd/sx/sx_cdtp.o math/bcknd/sx/sx_conv1.o math/bcknd/sx/sx_opgrad.o math/bcknd/sx/sx_dudxyz.o 
+math/bcknd/cpu/opr_cpu.o : math/bcknd/cpu/opr_cpu.f90 math/mathops.o gs/gather_scatter.o field/field.o math/math.o sem/coef.o sem/space.o config/num_types.o math/bcknd/cpu/conv1.o math/bcknd/cpu/cdtp.o math/bcknd/cpu/opgrad.o math/bcknd/cpu/dudxyz.o math/bcknd/cpu/conv_fst_3d.o math/bcknd/cpu/set_convect_new.o
+math/bcknd/sx/opr_sx.o : math/bcknd/sx/opr_sx.f90 math/mathops.o field/field.o math/math.o sem/coef.o sem/space.o config/num_types.o gs/gather_scatter.o math/bcknd/sx/sx_lambda2.o math/bcknd/sx/sx_cfl.o math/bcknd/sx/sx_cdtp.o math/bcknd/sx/sx_conv1.o math/bcknd/sx/sx_opgrad.o math/bcknd/sx/sx_dudxyz.o math/bcknd/sx/sx_conv_fst_3d.o math/bcknd/sx/sx_set_convect_new.o
 math/bcknd/xsmm/opr_xsmm.o : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o math/mxm_wrapper.o config/num_types.o 
-math/bcknd/device/opr_device.o : math/bcknd/device/opr_device.F90 comm/comm.o common/utils.o field/field.o mesh/mesh.o sem/coef.o sem/space.o device/device.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o config/num_types.o gs/gather_scatter.o 
+math/bcknd/device/opr_device.o : math/bcknd/device/opr_device.F90 comm/comm.o common/utils.o field/field.o mesh/mesh.o sem/coef.o sem/space.o device/device.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o config/num_types.o gs/gather_scatter.o sem/interpolation.o
 math/tensor.o : math/tensor.f90 device/device.o config/neko_config.o math/mxm_wrapper.o config/num_types.o math/bcknd/device/tensor_device.o math/bcknd/sx/tensor_sx.o math/bcknd/cpu/tensor_cpu.o math/bcknd/xsmm/tensor_xsmm.o 
 math/bcknd/cpu/tensor_cpu.o : math/bcknd/cpu/tensor_cpu.f90 math/mxm_wrapper.o config/num_types.o 
 math/bcknd/sx/tensor_sx.o : math/bcknd/sx/tensor_sx.f90 math/mxm_wrapper.o config/num_types.o 
@@ -193,9 +197,10 @@ fluid/mean_sqr_flow.o : fluid/mean_sqr_flow.f90 field/field.o field/mean_sqr_fie
 fluid/flow_profile.o : fluid/flow_profile.f90 config/num_types.o 
 fluid/flow_ic.o : fluid/flow_ic.f90 mesh/point_zone_registry.o mesh/point_zone.o common/json_utils.o common/user_intf.o math/bcknd/device/device_math.o math/math.o sem/coef.o common/utils.o field/field.o device/device.o fluid/flow_profile.o config/neko_config.o gs/gather_scatter.o config/num_types.o 
 fluid/advection.o : fluid/advection.f90 sem/coef.o field/field.o sem/space.o config/num_types.o 
-fluid/advection_fctry.o : fluid/advection_fctry.f90 fluid/bcknd/advection/adv_no_dealias.o fluid/bcknd/advection/adv_dealias.o fluid/advection.o common/json_utils.o sem/coef.o 
+fluid/advection_fctry.o : fluid/advection_fctry.f90 fluid/bcknd/advection/adv_no_dealias.o fluid/bcknd/advection/adv_dealias.o fluid/bcknd/advection/adv_oifs.o fluid/advection.o common/json_utils.o sem/coef.o 
 fluid/bcknd/advection/adv_dealias.o : fluid/bcknd/advection/adv_dealias.f90 device/device.o sem/interpolation.o math/operators.o config/neko_config.o math/bcknd/device/device_math.o sem/coef.o field/field.o sem/space.o math/math.o config/num_types.o fluid/advection.o 
 fluid/bcknd/advection/adv_no_dealias.o : fluid/bcknd/advection/adv_no_dealias.f90 device/device.o math/operators.o config/neko_config.o math/bcknd/device/device_math.o sem/coef.o field/field.o sem/space.o math/math.o config/num_types.o fluid/advection.o 
+fluid/bcknd/advection/adv_oifs.o : fluid/bcknd/advection/adv_oifs.f90 device/device.o sem/interpolation.o math/operators.o config/neko_config.o sem/coef.o field/field.o sem/space.o config/num_types.o fluid/advection.o common/time_interpolator.o time_schemes/time_scheme_controller.o
 fluid/bcknd/cpu/pnpn_res_cpu.o : fluid/bcknd/cpu/pnpn_res_cpu.f90 sem/space.o config/num_types.o mesh/mesh.o field/scratch_registry.o fluid/pnpn_res.o bc/facet_normal.o sem/coef.o math/ax.o field/field.o math/operators.o gs/gather_scatter.o 
 fluid/bcknd/sx/pnpn_res_sx.o : fluid/bcknd/sx/pnpn_res_sx.f90 sem/space.o config/num_types.o mesh/mesh.o field/scratch_registry.o fluid/pnpn_res.o bc/facet_normal.o sem/coef.o math/ax.o field/field.o math/operators.o gs/gather_scatter.o 
 fluid/bcknd/device/pnpn_res_device.o : fluid/bcknd/device/pnpn_res_device.F90 field/scratch_registry.o fluid/pnpn_res.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o sem/space.o config/num_types.o mesh/mesh.o bc/facet_normal.o sem/coef.o math/ax.o field/field.o math/operators.o gs/gather_scatter.o 

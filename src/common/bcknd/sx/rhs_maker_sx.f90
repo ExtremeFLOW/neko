@@ -24,6 +24,12 @@ module rhs_maker_sx
      procedure, nopass :: compute_scalar => scalar_rhs_maker_bdf_sx
   end type rhs_maker_bdf_sx_t
 
+  type, public, extends(rhs_maker_oifs_t) :: rhs_maker_oifs_sx_t
+   contains
+     procedure, nopass :: compute_fluid => rhs_maker_oifs_sx
+     procedure, nopass :: compute_scalar => scalar_rhs_maker_oifs_sx
+  end type rhs_maker_oifs_sx_t
+
 contains
 
   subroutine rhs_maker_sumab_sx(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
@@ -209,6 +215,37 @@ contains
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine scalar_rhs_maker_bdf_sx
+
+  subroutine rhs_maker_oifs_sx(phix, phiy, phiz, bfx, bfy, bfz, &
+       rho, dt, n)
+    real(kind=rp), intent(in) :: rho, dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
+    real(kind=rp), intent(inout) :: phix(n), phiy(n), phiz(n)
+    integer :: i
+
+    do i = 1, n
+       bfx(i) = bfx(i) + phix(i) * (rho / dt) 
+       bfy(i) = bfy(i) + phiy(i) * (rho / dt) 
+       bfz(i) = bfz(i) + phiz(i) * (rho / dt)  
+    end do
+
+
+  end subroutine rhs_maker_oifs_sx
+
+  subroutine scalar_rhs_maker_oifs_sx(phis, bfs, rho, dt, n)
+    real(kind=rp), intent(in) :: rho, dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bfs(n)
+    real(kind=rp), intent(inout) :: phis(n)
+    integer :: i
+    
+    do i = 1, n
+       bfs(i) = bfs(i) + phis(i) * (rho / dt) 
+    end do
+    
+    
+  end subroutine scalar_rhs_maker_oifs_sx
 
 end module rhs_maker_sx
 

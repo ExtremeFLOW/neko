@@ -35,11 +35,15 @@ module advection_fctry
   use coefs, only : coef_t
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
-
+  use field_series, only: field_series_t 
+  use time_scheme_controller, only: time_scheme_controller_t
+  use time_interpolator, only: time_interpolator_t
+  use num_types, only: rp
   ! Advection and derivatives
   use advection, only : advection_t
   use adv_dealias, only : adv_dealias_t
   use adv_no_dealias, only : adv_no_dealias_t
+  use adv_oifs, only : adv_oifs_t
 
   implicit none
   private
@@ -53,20 +57,33 @@ contains
   !! @param json The parameter file.
   !! @param coef The coefficients of the (space, mesh) pair.
   !! @note The factory both allocates and initializes `this`.
-  subroutine advection_factory(this, json, coef)
+  subroutine advection_factory(this, json, coef, ulag, vlag, wlag, dtlag, tlag, time_scheme, slag)
     implicit none
     class(advection_t), allocatable, intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(coef_t), target :: coef
-    logical :: dealias
-    integer :: lxd, order
+    type(field_series_t), target, intent(in) :: ulag, vlag, wlag
+    real(kind=rp), target, intent(in) :: dtlag(10)
+    real(kind=rp), target, intent(in) :: tlag(10)
+    type(time_scheme_controller_t), target, intent(in):: time_scheme
+    type(field_series_t), target, optional :: slag
 
+    logical :: dealias
+    logical :: oifs, default_oifs
+    real(kind=rp) :: ctarget, default_cfl
+    integer :: lxd, order
+    default_oifs = .false.
+    default_cfl = 1.9
     ! Read the parameters from the json file
     call json_get(json, 'case.numerics.dealias', dealias)
     call json_get(json, 'case.numerics.polynomial_order', order)
+    call json_get_or_default(json, 'case.numerics.oifs', oifs, default_oifs)
 
     call json_get_or_default(json, 'case.numerics.dealiased_polynomial_order', &
                              lxd, ( 3 * (order + 1) ) / 2)
+
+    call json_get_or_default(json, 'case.numerics.target_cfl', ctarget, default_cfl)
+
 
     ! Free allocatables if necessary
     if (allocated(this)) then
@@ -74,17 +91,23 @@ contains
        deallocate(this)
     end if
 
-    if (dealias) then
-       allocate(adv_dealias_t::this)
+    if (oifs) then
+      allocate(adv_oifs_t::this)
     else
-       allocate(adv_no_dealias_t::this)
+      if(dealias) then 
+         allocate(adv_dealias_t::this)
+      else
+         allocate(adv_no_dealias_t::this)
+      end if
     end if
 
     select type(adv => this)
-      type is(adv_dealias_t)
-       call adv%init(lxd, coef)
-      type is(adv_no_dealias_t)
+    type is(adv_dealias_t)
+       call adv%init(lxd, coef) 
+    type is(adv_no_dealias_t)
        call adv%init(coef)
+    type is(adv_oifs_t)
+       call adv%init(lxd, coef, ctarget, ulag, vlag, wlag, dtlag, tlag, time_scheme, slag)
     end select
 
   end subroutine advection_factory

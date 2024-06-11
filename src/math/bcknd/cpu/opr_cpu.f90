@@ -36,18 +36,21 @@ module opr_cpu
   use cpu_opgrad
   use cpu_cdtp
   use cpu_conv1
+  use cpu_conv_fst_3d
+  use cpu_set_convect_new
   use num_types, only : rp
   use space, only : space_t
   use coefs, only : coef_t
   use math
   use field, only : field_t
+  use interpolation
   use gather_scatter
   use mathops
   implicit none
   private
 
   public :: opr_cpu_dudxyz, opr_cpu_opgrad, opr_cpu_cdtp, &
-       opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl, opr_cpu_lambda2
+       opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl, opr_cpu_lambda2, opr_cpu_conv_fst_3d, opr_cpu_set_convect_new
 
 contains
 
@@ -418,6 +421,78 @@ contains
 
   end subroutine opr_cpu_conv1
 
+  subroutine opr_cpu_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
+    type(space_t), intent(in) :: Xh_GL
+    type(space_t), intent(in) :: Xh_GLL
+    type(coef_t), intent(in) :: coef_GLL
+    type(coef_t), intent(in) :: coef_GL
+    type(interpolator_t), intent(inout) :: GLL_to_GL
+    real(kind=rp), intent(inout) :: du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: c(Xh_GL%lxyz,coef_GL%msh%nelv,3)
+    associate(dx => Xh_GL%dx, dy => Xh_GL%dyt, dz => Xh_GL%dzt, &
+         lx => Xh_GL%lx, nelv => coef_GL%msh%nelv)
+      
+      select case(lx)
+      case(18)
+         call cpu_conv_fst_3d_lx18(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(17)
+         call cpu_conv_fst_3d_lx17(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(16)
+         call cpu_conv_fst_3d_lx16(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(15)
+         call cpu_conv_fst_3d_lx15(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(14)
+         call cpu_conv_fst_3d_lx14(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(13)
+         call cpu_conv_fst_3d_lx13(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(12)
+         call cpu_conv_fst_3d_lx12(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(11)
+         call cpu_conv_fst_3d_lx11(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(10)
+         call cpu_conv_fst_3d_lx10(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(9)
+         call cpu_conv_fst_3d_lx9(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(8)
+         call cpu_conv_fst_3d_lx8(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(7)
+         call cpu_conv_fst_3d_lx7(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(6)
+         call cpu_conv_fst_3d_lx6(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(5)
+         call cpu_conv_fst_3d_lx5(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(4)
+         call cpu_conv_fst_3d_lx4(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(3)
+         call cpu_conv_fst_3d_lx3(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case(2)
+         call cpu_conv_fst_3d_lx2(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case default
+         call cpu_conv_fst_3d_lx(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv, lx)
+      end select
+    end associate
+
+  end subroutine opr_cpu_conv_fst_3d
+
   subroutine opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
@@ -596,5 +671,75 @@ contains
     end do
        
   end subroutine opr_cpu_lambda2  
+
+  subroutine opr_cpu_set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef)   
+   type(space_t), intent(inout) :: Xh
+   type(coef_t), intent(inout) :: coef
+   real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), intent(inout) :: cr, cs, ct
+   real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), intent(in) :: cx, cy, cz
+   associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
+     dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
+     dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &  
+     nelv => coef%msh%nelv, lx=>Xh%lx, w3 => Xh%w3)
+     select case(lx)
+     case(18)
+        call cpu_set_convect_new_lx18(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(17)
+        call cpu_set_convect_new_lx17(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(16)
+        call cpu_set_convect_new_lx16(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(15)
+        call cpu_set_convect_new_lx15(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(14)
+        call cpu_set_convect_new_lx14(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(13)
+        call cpu_set_convect_new_lx13(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(12)
+        call cpu_set_convect_new_lx12(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(11)
+        call cpu_set_convect_new_lx11(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(10)
+        call cpu_set_convect_new_lx10(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(9)
+        call cpu_set_convect_new_lx9(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(8)
+        call cpu_set_convect_new_lx8(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(7)
+        call cpu_set_convect_new_lx7(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(6)
+        call cpu_set_convect_new_lx6(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(5)
+        call cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(4)
+        call cpu_set_convect_new_lx4(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(3)
+        call cpu_set_convect_new_lx3(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case(2)
+        call cpu_set_convect_new_lx2(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+     case default
+        call cpu_set_convect_new_lx(cr, cs, ct, cx, cy, cz, &
+             drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv, lx)
+     end select
+   end associate
+ end subroutine opr_cpu_set_convect_new
+
+
 
 end module opr_cpu
