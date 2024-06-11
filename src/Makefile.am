@@ -199,6 +199,7 @@ neko_fortran_SOURCES = \
 	fluid/advection_fctry.f90\
         fluid/bcknd/advection/adv_dealias.f90\
         fluid/bcknd/advection/adv_no_dealias.f90\
+	fluid/bcknd/advection/adv_oifs.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
@@ -211,7 +212,11 @@ neko_fortran_SOURCES = \
 	math/ax_helm_full.f90\
 	math/bcknd/cpu/ax_helm_cpu.f90\
 	math/bcknd/cpu/ax_helm_full_cpu.f90\
+	math/bcknd/cpu/conv_fst_3d.f90\
+	math/bcknd/cpu/set_convect_new.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
+	math/bcknd/sx/sx_conv_fst_3d.f90\
+	math/bcknd/sx/sx_set_convect_new.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
 	math/bcknd/device/ax_helm_device.F90\
 	common/projection.f90\

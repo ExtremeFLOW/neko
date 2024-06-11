@@ -1,5 +1,5 @@
 module rhs_maker_cpu
-  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t, rhs_maker_oifs_t
   use field_series, only : field_series_t
   use field, only : field_t
   use num_types, only : rp, c_rp
@@ -23,6 +23,12 @@ module rhs_maker_cpu
      procedure, nopass :: compute_fluid => rhs_maker_bdf_cpu
      procedure, nopass :: compute_scalar => scalar_rhs_maker_bdf_cpu
   end type rhs_maker_bdf_cpu_t
+
+  type, public, extends(rhs_maker_oifs_t) :: rhs_maker_oifs_cpu_t
+   contains
+     procedure, nopass :: compute_fluid => rhs_maker_oifs_cpu
+     procedure, nopass :: compute_scalar => scalar_rhs_maker_oifs_cpu
+  end type rhs_maker_oifs_cpu_t
 
 contains
 
@@ -209,6 +215,37 @@ contains
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine scalar_rhs_maker_bdf_cpu
+  
+
+  subroutine rhs_maker_oifs_cpu(phix, phiy, phiz, bfx, bfy, bfz, &
+       rho, dt, n)
+    real(kind=rp), intent(in) :: rho, dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
+    real(kind=rp), intent(inout) :: phix(n), phiy(n), phiz(n)
+    integer :: i
+
+    do i = 1, n
+       bfx(i) = bfx(i) + phix(i) * (rho / dt) 
+       bfy(i) = bfy(i) + phiy(i) * (rho / dt) 
+       bfz(i) = bfz(i) + phiz(i) * (rho / dt)  
+    end do
+
+
+  end subroutine rhs_maker_oifs_cpu
+
+  subroutine scalar_rhs_maker_oifs_cpu(phis, bfs, rho, dt, n)
+    real(kind=rp), intent(in) :: rho, dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bfs(n)
+    real(kind=rp), intent(inout) :: phis(n)
+    integer :: i
+
+    do i = 1, n
+       bfs(i) = bfs(i) + phis(i) * (rho / dt) 
+    end do
+        
+  end subroutine scalar_rhs_maker_oifs_cpu
 
 end module rhs_maker_cpu
 

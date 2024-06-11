@@ -36,8 +36,9 @@ module scalar_pnpn
   use num_types, only: rp
   use scalar_residual_fctry, only : scalar_residual_factory
   use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_ext_fctry, rhs_maker_bdf_fctry
-  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t
+  use rhs_maker_fctry, only : rhs_maker_ext_fctry, rhs_maker_bdf_fctry, &
+                              rhs_maker_oifs_fctry
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -63,7 +64,7 @@ module scalar_pnpn
   use advection, only : advection_t
   use advection_fctry, only : advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_default
   use json_module, only : json_file
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
@@ -99,8 +100,14 @@ module scalar_pnpn
      !> Advection operator.
      class(advection_t), allocatable :: adv
 
+     ! Time interpolation scheme
+     logical :: oifs
+
      ! Lag arrays for the RHS.
      type(field_t) :: abx1, abx2
+
+     ! Advection terms for the oifs method
+     type(field_t) :: advs
 
      !> Computes the residual.
      class(scalar_residual_t), allocatable :: res
@@ -110,6 +117,9 @@ module scalar_pnpn
 
      !> Contributions to the RHS from lagged BDF terms.
      class(rhs_maker_bdf_t), allocatable :: makebdf
+
+     !> Contrivbutions for the operator-integrator factoring scheme
+     class(rhs_maker_oifs_t), allocatable :: makef
 
    contains
      !> Constructor.
@@ -131,7 +141,7 @@ contains
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
   subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
-                              material_properties)
+                              material_properties, time_scheme)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: coef
@@ -139,6 +149,7 @@ contains
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     type(material_properties_t), intent(inout) :: material_properties
+    type(time_scheme_controller_t), target, intent(in):: time_scheme
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
@@ -160,6 +171,9 @@ contains
     ! Setup backend depenent contributions to F from lagged BD terms
     call rhs_maker_bdf_fctry(this%makebdf)
 
+    ! Setup backend dependent summations of the operator-integrator-factoring scheme
+    call rhs_maker_oifs_fctry(this%makef)
+
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
@@ -169,6 +183,8 @@ contains
       call this%abx1%init(dm_Xh, "abx1")
 
       call this%abx2%init(dm_Xh, "abx2")
+
+      call this%advs%init(dm_Xh, "advs")
 
       call this%ds%init(dm_Xh, 'ds')
 
@@ -203,7 +219,12 @@ contains
     ! @todo Init chkp object, note, adding 3 slags
     ! call this%chkp%add_lag(this%slag, this%slag, this%slag)
 
-    call advection_factory(this%adv, params, this%c_Xh)
+    ! Determine the time-interpolation scheme
+    call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
+
+    call advection_factory(this%adv, params, this%c_Xh, &
+                           this%chkp%ulag, this%chkp%vlag, this%chkp%wlag, &
+                           this%chkp%dtlag, this%chkp%tlag, time_scheme, this%slag)
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
@@ -229,6 +250,8 @@ contains
                           n, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%abx2%x, this%abx2%x_d, &
                           n, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%advs%x, this%advs%x_d, &
+                          n, HOST_TO_DEVICE, sync=.false.)
     end if
 
     call this%gs_Xh%op(this%s,GS_OP_ADD)
@@ -252,6 +275,7 @@ contains
 
     call this%abx1%free()
     call this%abx2%free()
+    call this%advs%free()
 
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
@@ -263,6 +287,10 @@ contains
 
     if (allocated(this%makeext)) then
        deallocate(this%makeext)
+    end if
+
+    if (allocated(this%makebdf)) then
+       deallocate(this%makebdf)
     end if
 
     if (allocated(this%makebdf)) then
@@ -293,9 +321,9 @@ contains
          s_res =>this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
-         slag => this%slag, &
+         slag => this%slag, advs => this%advs, oifs => this%oifs, &
          projection_dim => this%projection_dim, &
-         msh => this%msh, res => this%res, &
+         msh => this%msh, res => this%res, makef => this%makef, &
          makeext => this%makeext, makebdf => this%makebdf, &
          if_variable_dt => dt_controller%if_variable_dt, &
          dt_last_change => dt_controller%dt_last_change)
@@ -325,20 +353,32 @@ contains
       ! Apply Neumann boundary conditions
       call bc_list_apply_scalar(this%bclst_neumann, this%f_Xh%x, dm_Xh%size())
 
-      ! Add the advection operators to the right-hans-side.
-      call this%adv%compute_scalar(u, v, w, s, f_Xh, &
+      if (oifs) then
+         ! Add the advection operators to the right-hans-side.
+         call this%adv%compute_scalar(u, v, w, s, advs, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
-      ! At this point the RHS contains the sum of the advection operator,
-      ! Neumann boundary sources and additional source terms, evaluated using
-      ! the scalar field from the previous time-step. Now, this value is used in
-      ! the explicit time scheme to advance these terms in time.
-      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
-           ext_bdf%advection_coeffs, n)
+         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
+                                     ext_bdf%advection_coeffs, n)
 
-      ! Add the RHS contributions coming from the BDF scheme.
-      call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
-           ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+         call makef%compute_scalar(advs%x, f_Xh%x, rho, dt, n)
+      else
+
+         ! Add the advection operators to the right-hans-side.
+         call this%adv%compute_scalar(u, v, w, s, f_Xh, &
+                                      Xh, this%c_Xh, dm_Xh%size())
+
+         ! At this point the RHS contains the sum of the advection operator,
+         ! Neumann boundary sources and additional source terms, evaluated using
+         ! the scalar field from the previous time-step. Now, this value is used in
+         ! the explicit time scheme to advance these terms in time.
+         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
+                                     ext_bdf%advection_coeffs, n)
+
+         ! Add the RHS contributions coming from the BDF scheme.
+         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
+              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+      end if
 
       call slag%update()
 
