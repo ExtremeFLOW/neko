@@ -19,7 +19,7 @@ jobs:
   GNU:
     runs-on: ${{matrix.os}}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-20.04, macos-13]
         compiler: [gfortran-10, gfortran-11, gfortran-12]
@@ -75,6 +75,7 @@ jobs:
       - name: Get pFunit
         id: get-pfunit
         uses: ./.github/actions/setup_pfunit
+        if: matrix.backend == 'cpu'
         with:
           version: ${{ inputs.pfunit-version }}
           os: ${{ matrix.os }}
@@ -136,13 +137,13 @@ jobs:
       - name: Check
         if: matrix.backend == 'cpu'
         run: |
-          make -j$(nproc) check
+          make -j$(nproc) check > tests/test-suite.log
 
       - name: Archive test report
         if: matrix.backend == 'cpu' && failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: Test report_${{ matrix.os }}_${{ matrix.compiler }}
+          name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
           path: tests/test-suite.log
           retention-days: 2
 
