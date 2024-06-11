@@ -16,7 +16,7 @@ on:
         default: "10.0"
 
 jobs:
-  repository-linting:
+  lint-repository:
     name: "Lint repository"
     runs-on: ubuntu-20.04
     env:
@@ -50,6 +50,7 @@ jobs:
             echo "Linting requirement not met, $score < $global_min" >&2
             exit 1
           fi
+
       - name: Archive linter report
         uses: actions/upload-artifact@v4
         with:
@@ -57,7 +58,7 @@ jobs:
           path: flint.txt
           retention-days: 5
 
-  changes_lint:
+  lint-changed-files:
     name: "Lint changed files"
     runs-on: ubuntu-20.04
     env:
@@ -89,15 +90,20 @@ jobs:
           target: ${{ github.event.pull_request.base.ref }}
           current: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ -z "${{ inputs.target }}" ]; then
+          if [ -z "$target" ]; then
             target="develop"
+          fi
+          if [ -z "$current" ]; then
+            current="HEAD"
           fi
 
           git fetch --unshallow origin $target
-          changes=($(git diff --name-status $current origin/$target | cut -f2))
+          changes=($(git diff --name-only --diff-filter=d \
+            `git merge-base $current origin/$target`))
           echo "changed-files=${changes[@]}" >> $GITHUB_OUTPUT
 
       - name: Lint changed files
+        id: lint-changed-files
         env:
           changed_files: ${{ steps.get-changed-files.outputs.changed-files }}
         run: |
@@ -107,33 +113,43 @@ jobs:
           fi
 
           fails=()
+          printf "Linting files:\n"
           for file in $changed_files; do
 
-              # If the file is not a Fortran file, skip it.
-              if [[ ! $file =~ \.f90$ ]]; then continue; fi
+            # If the file is not a Fortran file, skip it.
+            if [[ ! $file =~ \.f90$ ]]; then continue; fi
 
-              score=$(flint score -r flinter_rc.yml $file 2>/dev/null |
+            printf "\t- $file"
+            score=$(flint score -r flinter_rc.yml $(realpath $file) 2> /dev/null |
                   grep -oP '(?<=\>\|)[^\|\<]+(?=\|\<)')
+            printf ": $score\n"
 
-              if (($(echo "$score < $changed_min" | bc -l))); then
-                  fails+=($file)
-              fi
+            if (($(echo "$score < $changed_min" | bc -l))); then
+                fails+=($file)
+            fi
           done
 
-          printf "\n" && printf "%.s=" {1..80} && printf "\n"
+          echo "failed-files=${fails[@]}" >> $GITHUB_OUTPUT
+
+      - name: Print failed files and their errors
+        if: ${{ steps.lint-changed-files.outputs.failed-files != '' }}
+        env:
+          fails: ${{ steps.lint-changed-files.outputs.failed-files }}
+        run: |
           printf "Files that failed linting:\n"
           printf "\t${fails[@]}\n"
 
           if [ ${#fails[@]} -gt 0 ]; then
-              for fail in "${fails[@]}"; do
-                  printf "%.s-" {1..80} && printf "\n"
-                  printf "Linting failed for \n\t$fail\n\n"
+            for fail in "${fails[@]}"; do
+              printf "%.s-" {1..80} && printf "\n"
+              printf "Linting failed for \n\t$fail\n\n"
 
-                  report=$(flint lint -r flinter_rc.yml $file 2>/dev/null)
-                  if [ -z "$report" ]; then
-                       report=$(flint stats -r flinter_rc.yml $file 2>/dev/null)
-                  fi
-                  echo "$report"
-              done
-              exit 1
+              report=$(flint lint -r flinter_rc.yml $file)
+              if [ -z "$report" ]; then
+                report=$(flint stats -r flinter_rc.yml $file)
+              fi
+              echo "$report"
+            done
+            exit 2
           fi
+
