@@ -129,3 +129,4 @@ runs:
           exit 1
         fi
         echo "install-dir=$INSTALL_DIR" >> $GITHUB_OUTPUT
+        rm -f $INSTALL_DIR/lib/*.dylib
