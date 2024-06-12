@@ -57,6 +57,8 @@ module scalar_source_term
      class(source_term_wrapper_t), allocatable :: source_terms(:)
      !> The right-hand side.
      type(field_t), pointer :: f => null()
+     !> The implicit Brinkman term
+     type(field_t), pointer :: chi => null()
    contains
      !> Constructor.
      procedure, pass(this) :: init => scalar_source_term_init
@@ -72,10 +74,11 @@ module scalar_source_term
 contains
 
   !> Constructor.
-  subroutine scalar_source_term_init(this, json, f, coef, user)
+  subroutine scalar_source_term_init(this, json, f, chi, coef, user)
     class(scalar_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_t), pointer, intent(in) :: f
+    type(field_t), pointer, intent(in) :: chi
     type(coef_t), intent(inout) :: coef
     type(user_t), intent(in) :: user
 
@@ -98,12 +101,15 @@ contains
     call this%free()
 
     this%f => f
+    this%chi => chi
 
 
     if (json%valid_path('case.scalar.source_terms')) then
+
        ! We package the fields for the source term to operate on in a field list.
-       call rhs_fields%init(1)
+       call rhs_fields%init(2)
        call rhs_fields%assign(1, f)
+       call rhs_fields%assign(2, chi)
 
        call json%get_core(core)
        call json%get('case.scalar.source_terms', source_object, found)
@@ -121,19 +127,19 @@ contains
 
           ! The user source is treated separately
           if ((trim(type) .eq. "user_vector") .or. &
-              (trim(type) .eq. "user_pointwise")) then
+             (trim(type) .eq. "user_pointwise")) then
              if (source_subdict%valid_path("start_time") .or. &
                  source_subdict%valid_path("end_time")) then
-                 call neko_warning("The start_time and end_time parameters have&
-                                    & no effect on the scalar user source term")
+                call neko_warning("The start_time and end_time parameters have&
+                     & no effect on the scalar user source term")
              end if
 
              call init_user_source(this%source_terms(i)%source_term, &
-                                    rhs_fields, coef, type, user)
+                                   rhs_fields, coef, type, user)
           else
 
              call source_term_factory(this%source_terms(i)%source_term, &
-                                       source_subdict, rhs_fields, coef)
+                                      source_subdict, rhs_fields, coef)
           end if
        end do
     end if
@@ -159,8 +165,8 @@ contains
     select type (source_term)
     type is (scalar_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
-                                            user%scalar_user_f_vector, &
-                                            user%scalar_user_f)
+                                             user%scalar_user_f_vector, &
+                                             user%scalar_user_f)
     end select
   end subroutine init_user_source
 
@@ -170,6 +176,7 @@ contains
     integer :: i
 
     nullify(this%f)
+    nullify(this%chi)
 
     if (allocated(this%source_terms)) then
        do i=1, size(this%source_terms)
@@ -187,9 +194,10 @@ contains
     class(scalar_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    integer :: i, n
+    integer :: i
 
     this%f = 0.0_rp
+    this%chi = 0.0_rp
 
     ! Add contribution from all source terms.
     if (allocated(this%source_terms)) then

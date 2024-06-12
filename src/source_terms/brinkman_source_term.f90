@@ -44,6 +44,8 @@ module brinkman_source_term
   use utils, only: neko_error
   use brinkman_source_term_cpu, only: brinkman_source_term_compute_cpu
   use brinkman_source_term_device, only: brinkman_source_term_compute_device
+  use brinkman_source_term_cpu, only: implicit_brinkman_source_term_compute_cpu
+  use brinkman_source_term_device, only: implicit_brinkman_source_term_compute_device
   implicit none
   private
 
@@ -57,6 +59,8 @@ module brinkman_source_term
      type(field_t), pointer :: indicator => null()
      !> Brinkman permeability field.
      type(field_t), pointer :: brinkman => null()
+     ! > Flag for implicit vs explicit
+     logical :: is_implicit
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => brinkman_source_term_init_from_json
@@ -98,6 +102,7 @@ contains
 
     character(len=:), allocatable :: filter_type
     real(kind=rp), dimension(:), allocatable :: brinkman_limits
+    logical :: brinkman_implicit
     real(kind=rp) :: brinkman_penalty
 
     type(json_value), pointer :: json_object_list
@@ -115,6 +120,10 @@ contains
     ! Read the options for the permeability field
     call json_get(json, 'brinkman.limits', brinkman_limits)
     call json_get(json, 'brinkman.penalty', brinkman_penalty)
+
+    ! Read implicit vs explicit formulation
+    call json_get(json, 'brinkman.implicit', brinkman_implicit)
+    this%is_implicit = brinkman_implicit
 
     if (size(brinkman_limits) .ne. 2) then
        call neko_error('brinkman_limits must be a 2 element array of reals')
@@ -206,10 +215,20 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call brinkman_source_term_compute_device(this%fields, this%brinkman)
+    if(this%is_implicit) then
+       ! this is implicit
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call implicit_brinkman_source_term_compute_device(this%fields, this%brinkman)
+       else
+          call implicit_brinkman_source_term_compute_cpu(this%fields, this%brinkman)
+       end if
     else
-       call brinkman_source_term_compute_cpu(this%fields, this%brinkman)
+       ! this is all explicit
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call brinkman_source_term_compute_device(this%fields, this%brinkman)
+       else
+          call brinkman_source_term_compute_cpu(this%fields, this%brinkman)
+       end if
     end if
   end subroutine brinkman_source_term_compute
 

@@ -66,6 +66,8 @@ module fluid_user_source_term
      real(kind=rp), allocatable :: v(:, :, :, :)
      !> z-component of source term.
      real(kind=rp), allocatable :: w(:, :, :, :)
+     !> implicit Brinkman component of source term.
+     real(kind=rp), allocatable :: chi(:, :, :, :)
 
      !> Device pointer for `u`.
      type(c_ptr) :: u_d = C_NULL_PTR
@@ -73,6 +75,8 @@ module fluid_user_source_term
      type(c_ptr) :: v_d = C_NULL_PTR
      !> Device pointer for `w`.
      type(c_ptr) :: w_d = C_NULL_PTR
+     !> Device pointer for `chi`.
+     type(c_ptr) :: chi_d = C_NULL_PTR
      !> Compute the source term for a single point
      procedure(fluid_source_compute_pointwise), nopass, pointer :: compute_pw_ &
        => null()
@@ -168,15 +172,19 @@ contains
              this%dm%msh%nelv))
     allocate(this%w(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
              this%dm%msh%nelv))
+    allocate(this%chi(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
+             this%dm%msh%nelv))
 
     this%u = 0d0
     this%v = 0d0
     this%w = 0d0
+    this%chi = 0d0
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%u, this%u_d, this%dm%size())
        call device_map(this%v, this%v_d, this%dm%size())
        call device_map(this%w, this%w_d, this%dm%size())
+       call device_map(this%chi, this%chi_d, this%dm%size())
     end if
 
 
@@ -202,10 +210,12 @@ contains
     if (allocated(this%u)) deallocate(this%u)
     if (allocated(this%v)) deallocate(this%v)
     if (allocated(this%w)) deallocate(this%w)
+    if (allocated(this%chi)) deallocate(this%chi)
 
     if (c_associated(this%u_d)) call device_free(this%u_d)
     if (c_associated(this%v_d)) call device_free(this%v_d)
     if (c_associated(this%w_d)) call device_free(this%w_d)
+    if (c_associated(this%chi_d)) call device_free(this%chi_d)
 
     nullify(this%compute_vector_)
     nullify(this%compute_pw_)
@@ -229,11 +239,13 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(this%fields%x_d(1), this%u_d, n)
        call device_add2(this%fields%x_d(2), this%v_d, n)
-       call device_add2(this%fields%x_d(3), this%w_d, n)
+       call device_add2(this%fields%x_d(3), this%w_d, n)       
+       call device_add2(this%fields%x_d(4), this%chi_d, n)
     else
        call add2(this%fields%items(1)%ptr%x, this%u, n)
        call add2(this%fields%items(2)%ptr%x, this%v, n)
-       call add2(this%fields%items(3)%ptr%x, this%w, n)
+       call add2(this%fields%items(3)%ptr%x, this%w, n)       
+       call add2(this%fields%items(4)%ptr%x, this%chi, n)
     end if
 
   end subroutine fluid_user_source_term_compute

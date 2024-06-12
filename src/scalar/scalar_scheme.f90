@@ -93,6 +93,8 @@ module scalar_scheme
      type(coef_t), pointer  :: c_Xh
      !> Right-hand side.
      type(field_t), pointer :: f_Xh => null()
+     !> implicit Brinkman chi for scalar equation
+     type(field_t), pointer :: chi => null()
      !> The source term for equation.
      type(scalar_source_term_t) :: source_term
      !> Krylov solver.
@@ -386,9 +388,12 @@ contains
     !
     allocate(this%f_Xh)
     call this%f_Xh%init(this%dm_Xh, fld_name="scalar_rhs")
+    ! and the implicit Brinkman type source
+    allocate(this%chi)
+    call this%chi%init(this%dm_Xh, fld_name="scalar_chi")
 
     ! Initialize the source term
-    call this%source_term%init(params, this%f_Xh, this%c_Xh, user)
+    call this%source_term%init(params, this%f_Xh, this%chi, this%c_Xh, user)
 
     call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
 
@@ -502,6 +507,10 @@ contains
 
     if (.not. associated(this%f_Xh)) then
        call neko_error('No rhs allocated')
+    end if
+
+    if (.not. associated(this%chi)) then
+       call neko_error('No Brinkman chi allocated')
     end if
 
     if (.not. associated(this%params)) then

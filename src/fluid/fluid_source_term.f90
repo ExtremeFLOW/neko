@@ -61,6 +61,8 @@ module fluid_source_term
      type(field_t), pointer :: f_y => null()
      !> Z-component of the right-hand side.
      type(field_t), pointer :: f_z => null()
+     !> Scalar field asociated with an implicit Brinkman term
+     type(field_t), pointer :: chi => null()
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_source_term_init
@@ -76,10 +78,11 @@ module fluid_source_term
 contains
 
   !> Costructor.
-  subroutine fluid_source_term_init(this, json, f_x, f_y, f_z, coef, user)
+  subroutine fluid_source_term_init(this, json, f_x, f_y, f_z, chi, coef, user)
     class(fluid_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_t), pointer, intent(in) :: f_x, f_y, f_z
+    type(field_t), pointer, intent(in) :: chi
     type(coef_t), intent(inout) :: coef
     type(user_t), intent(in) :: user
 
@@ -102,14 +105,16 @@ contains
     this%f_x => f_x
     this%f_y => f_y
     this%f_z => f_z
+    this%chi => chi
 
 
     if (json%valid_path('case.fluid.source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
-       call rhs_fields%init(3)
+       call rhs_fields%init(4)
        call rhs_fields%assign(1, f_x)
        call rhs_fields%assign(2, f_y)
        call rhs_fields%assign(3, f_z)
+       call rhs_fields%assign(4, chi)
 
        call json%get_core(core)
        call json%get('case.fluid.source_terms', source_object, found)
@@ -179,6 +184,7 @@ contains
     nullify(this%f_x)
     nullify(this%f_y)
     nullify(this%f_z)
+    nullify(this%chi)
 
     if (allocated(this%source_terms)) then
        do i=1, size(this%source_terms)
@@ -201,6 +207,7 @@ contains
     this%f_x = 0.0_rp
     this%f_y = 0.0_rp
     this%f_z = 0.0_rp
+    this%chi = 0.0_rp
 
     ! Add contribution from all source terms.
     if (allocated(this%source_terms)) then

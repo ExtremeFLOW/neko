@@ -97,6 +97,8 @@ module fluid_scheme
      type(field_t), pointer :: f_y => null()
      !> Z-component of the right-hand side.
      type(field_t), pointer :: f_z => null()
+     !> Scalar field asociated with an implicit Brinkman term
+     type(field_t), pointer :: chi => null()
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
@@ -534,9 +536,13 @@ contains
     call this%f_y%init(this%dm_Xh, fld_name="fluid_rhs_y")
     call this%f_z%init(this%dm_Xh, fld_name="fluid_rhs_z")
 
+    ! allocate the chi field for an implicit Brinkman term
+    allocate(this%chi)
+    call this%chi%init(this%dm_Xh, fld_name="fluid_chi")
+
     ! Initialize the source term
-    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
-                               user)
+    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%chi, &
+                               this%c_Xh, user)
 
   end subroutine fluid_scheme_init_common
 
@@ -787,10 +793,15 @@ contains
     if (associated(this%f_z)) then
        call this%f_z%free()
     end if
+    
+    if (associated(this%chi)) then
+        call this%chi%free()
+    end if
 
     nullify(this%f_x)
     nullify(this%f_y)
     nullify(this%f_z)
+    nullify(this%chi)
 
 
   end subroutine fluid_scheme_free

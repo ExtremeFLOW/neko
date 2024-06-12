@@ -539,7 +539,7 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          rho => this%rho, mu => this%mu, &
-         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, chi => this%chi, &
          if_variable_dt => dt_controller%if_variable_dt, &
          dt_last_change => dt_controller%dt_last_change)
 
@@ -627,7 +627,7 @@ contains
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
                            p, &
-                           f_x, f_y, f_z, &
+                           f_x, f_y, f_z, chi, &
                            c_Xh, msh, Xh, &
                            mu, rho, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())

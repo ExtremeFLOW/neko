@@ -43,6 +43,8 @@ module source_term
   !> Base abstract type for source terms.
   type, abstract, public:: source_term_t
      !> The fields to be updated with the source term values
+     !! note: that the 4th field in fields is associated with \chi, 
+     !! an implicit Brinkman term of the form f = \chi * u^(n+1)
      type(field_list_t) :: fields
      !> Coefficients for the SEM.
      type(coef_t), pointer :: coef => null()
