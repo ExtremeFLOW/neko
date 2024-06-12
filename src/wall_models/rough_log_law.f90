@@ -41,6 +41,7 @@ module rough_log_law
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use field_registry, only : neko_field_registry
+  use json_utils, only : json_get_or_default, json_get
   implicit none
   private
 
@@ -56,7 +57,7 @@ module rough_log_law
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => rough_log_law_init
-     !> Constructor.
+     !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
        rough_log_law_init_from_components
      !> Destructor.
@@ -66,42 +67,56 @@ module rough_log_law
   end type rough_log_law_t
 
 contains
-  !> Constructor
-  !! @param dofmap SEM map of degrees of freedom.
+  !> Constructor from JSON.
   !! @param coef SEM coefficients.
+  !! @param msk The boundary mask.
+  !! @param facet The boundary facets.
+  !! @param nu The molecular kinematic viscosity.
+  !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  subroutine rough_log_law_init(this, dofmap, coef, msk, facet, nu, &
-                                index, json)
+  subroutine rough_log_law_init(this, coef, msk, facet, nu, h_index, json)
     class(rough_log_law_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     real(kind=rp), intent(in) :: nu
-    integer, intent(in) :: index
+    integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
+    real(kind=rp) :: kappa, B, z0
 
-    call this%init_base(dofmap, coef, msk, facet, nu, index)
+    call json_get_or_default(json, "kappa", kappa, 0.41_rp)
+    call json_get(json, "B", B)
+    call json_get(json, "z0", z0)
 
-    ! Will parse JSON here eventually
-
+    call this%init_from_components(coef, msk, facet, nu, h_index, kappa, B, z0)
   end subroutine rough_log_law_init
 
-  subroutine rough_log_law_init_from_components(this, dofmap, coef, msk, facet,&
-                                                nu, index, kappa, B, z0)
+  !> Constructor from components.
+  !! @param coef SEM coefficients.
+  !! @param msk The boundary mask.
+  !! @param facet The boundary facets.
+  !! @param nu The molecular kinematic viscosity.
+  !! @param h_index The off-wall index of the sampling cell.
+  !! @param kappa The von Karman coefficient.
+  !! @param B The log-law intercept.
+  !! @param z0 The roughness height.
+  subroutine rough_log_law_init_from_components(this, coef, msk, facet,&
+                                                nu, h_index, kappa, B, z0)
     class(rough_log_law_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     real(kind=rp), intent(in) :: nu
-    integer, intent(in) :: index
+    integer, intent(in) :: h_index
     real(kind=rp), intent(in) :: kappa
     real(kind=rp), intent(in) :: B
     real(kind=rp), intent(in) :: z0
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error("The rough loglaw is only available on the CPU backend.")
+    end if
 
-    call this%init_base(dofmap, coef, msk, facet, nu, index)
+    call this%init_base(coef, msk, facet, nu, h_index)
 
     this%kappa = kappa
     this%B = B

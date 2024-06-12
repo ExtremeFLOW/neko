@@ -32,33 +32,63 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module wall_model_fctry
-  use wall_model_bc, only : wall_model_bc_t
+  use num_types, only : rp
+  use wall_model, only : wall_model_t
   use vreman, only : vreman_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use json_module, only : json_file
+  use spalding, only : spalding_t
+  use rough_log_law, only : rough_log_law_t
+  use utils, only : concat_string_array, neko_error
+  use json_utils, only : json_get
   implicit none
   private
 
   public :: wall_model_factory
 
+  ! List of all possible types created by the factory routine
+  character(len=20) :: KNOWN_TYPES(2) = [character(len=20) :: &
+     "spalding", &
+     "rough_log_law"]
+
 contains
 
-  !! CURRENTLY NOT USED !!
-
-
   !> Wall model factory. Both constructs and initializes the object.
-  !! @param wall_model The object to be allocated.
-  !! @param name The name of the LES model.
-  !! @param dofmap SEM map of degrees of freedom.
+  !! @param object The object to be allocated.
   !! @param coef SEM coefficients.
+  !! @param msk The boundary mask.
+  !! @param facet The boundary facets.
+  !! @param nu The molecular kinematic viscosity.
+  !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  subroutine wall_model_factory(wall_model, name, dofmap, coef, json)
-    class(wall_model_bc_t), allocatable, target, intent(inout) :: wall_model
-    character(len=*), intent(in) :: name
-    type(dofmap_t), intent(in) :: dofmap
+  subroutine wall_model_factory(object, coef, msk, facet, nu, h_index, json)
+    class(wall_model_t), allocatable, target, intent(inout) :: object
     type(coef_t), intent(in) :: coef
+    integer, intent(in) :: msk(:)
+    integer, intent(in) :: facet(:)
+    real(kind=rp), intent(in) :: nu
+    integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
+    character(len=:), allocatable :: type_name
+    character(len=:), allocatable :: type_string
+
+    type_string =  concat_string_array(KNOWN_TYPES)
+
+    call json_get(json, "model", type_name)
+
+    if (trim(type_name) .eq. "spalding") then
+       allocate(spalding_t::object)
+    else if (trim(type_name) .eq. "rough_log_law") then
+       allocate(rough_log_law_t::object)
+    else
+       call neko_error("Unknown wall model type: " // trim(type_name) // &
+          trim(type_name) // ".  Known types are: "  // type_string)
+       stop
+    end if
+
+    ! Initialize
+    call object%init(coef, msk, facet, nu, h_index, json)
 
   end subroutine wall_model_factory
 

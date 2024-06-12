@@ -54,8 +54,8 @@ module wall_model
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
      !> Map of degrees of freedom.
-     type(dofmap_t), pointer :: dofmap => null()
-     !> The boundary condition mask. First element, holds the array size!
+     type(dofmap_t), pointer :: dof => null()
+     !> The boundary condition mask. First element holds the array size!
      integer, pointer :: msk(:) => null()
      !> The boundary condition facet ids. First element holds the array size!
      integer, pointer :: facet(:) => null()
@@ -118,19 +118,20 @@ module wall_model
 
   abstract interface
      !> Common constructor.
-     !! @param dofmap SEM map of degrees of freedom.
      !! @param coef SEM coefficients.
+     !! @param msk The boundary mask.
+     !! @param facet The boundary facets.
+     !! @param nu The molecular kinematic viscosity.
+     !! @param h_index The off-wall index of the sampling cell.
      !! @param json A dictionary with parameters.
-     subroutine wall_model_init(this, dofmap, coef, msk, facet, nu, &
-                                index, json)
+     subroutine wall_model_init(this, coef, msk, facet, nu, h_index, json)
        import wall_model_t, json_file, dofmap_t, coef_t, rp
        class(wall_model_t), intent(inout) :: this
-       type(dofmap_t), intent(in) :: dofmap
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: msk(:)
        integer, intent(in) :: facet(:)
        real(kind=rp), intent(in) :: nu
-       integer, intent(in) :: index
+       integer, intent(in) :: h_index
        type(json_file), intent(inout) :: json
      end subroutine wall_model_init
   end interface
@@ -145,13 +146,11 @@ module wall_model
 
 contains
   !> Constructor for the wall_model_t (base) class.
-  !! @param dofmap SEM map of degrees of freedom.
+  !! @param dof SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param nu_name The name of the turbulent viscosity field.
-  subroutine wall_model_init_base(this, dofmap, coef, msk, facet, nu, &
-                                  index)
+  subroutine wall_model_init_base(this, coef, msk, facet, nu, index)
     class(wall_model_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
     type(coef_t), target, intent(in) :: coef
     integer, target, intent(in) :: msk(:)
     integer, target, intent(in) :: facet(:)
@@ -161,13 +160,13 @@ contains
     call this%free_base
 
     this%coef => coef
-    this%dofmap => coef%dof
+    this%dof => coef%dof
     this%msk => msk
     this%facet => facet
     this%nu = nu
     this%h_index = index
 
-    call neko_field_registry%add_field(this%dofmap, "tau", &
+    call neko_field_registry%add_field(this%dof, "tau", &
                                        ignore_existing=.true.)
 
     this%tau_field => neko_field_registry%get_field("tau")
@@ -272,17 +271,17 @@ contains
        this%ind_e(i) = idx(4)
 
        ! Location of the wall node
-       xw = this%dofmap%x(idx(1), idx(2), idx(3), idx(4))
-       yw = this%dofmap%y(idx(1), idx(2), idx(3), idx(4))
-       zw = this%dofmap%z(idx(1), idx(2), idx(3), idx(4))
+       xw = this%dof%x(idx(1), idx(2), idx(3), idx(4))
+       yw = this%dof%y(idx(1), idx(2), idx(3), idx(4))
+       zw = this%dof%z(idx(1), idx(2), idx(3), idx(4))
 
        ! Location of the sampling point
 !       write(*,*) "IND", this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i), fid
-       x = this%dofmap%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                         this%ind_e(i))
-       y = this%dofmap%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                         this%ind_e(i))
-       z = this%dofmap%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
+       x = this%dof%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
+                      this%ind_e(i))
+       y = this%dof%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
+                      this%ind_e(i))
+       z = this%dof%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
                          this%ind_e(i))
 
 

@@ -283,7 +283,7 @@ contains
              call json_get(params, "case.fluid.wall_model.kappa", kappa)
              call json_get(params, "case.fluid.wall_model.B", B)
              call json_get(params, "case.fluid.wall_model.z0", z0)
-             call wm%init_from_components(this%dm_Xh, this%c_Xh, this%wm%msk,&
+             call wm%init_from_components(this%c_Xh, this%wm%msk,&
                     this%wm%facet, this%mu/this%rho, integer_val, kappa, B, z0)
           end select
        else if(string_val .eq. "spalding") then
@@ -292,7 +292,7 @@ contains
           type is (spalding_t)
              call json_get(params, "case.fluid.wall_model.kappa", kappa)
              call json_get(params, "case.fluid.wall_model.B", B)
-             call wm%init_from_components(this%dm_Xh, this%c_Xh, this%wm%msk,&
+             call wm%init_from_components(this%c_Xh, this%wm%msk,&
                      this%wm%facet,this%mu/this%rho, integer_val, kappa, B)
           end select
        else
