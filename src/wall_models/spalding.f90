@@ -47,7 +47,8 @@ module spalding
   implicit none
   private
 
-  !> Wall model based on Spalding's law of the wall
+  !> Wall model based on Spalding's law of the wall.
+  !! Reference: http://dx.doi.org/10.1115/1.3641728
   type, public, extends(wall_model_t) :: spalding_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa = 0.41_rp

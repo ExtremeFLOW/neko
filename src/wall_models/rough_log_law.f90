@@ -46,6 +46,9 @@ module rough_log_law
   private
 
   !> Wall model based on the log-law for a rough wall.
+  !! The formula defining the law is \f$ u^+ = log(z/z_0)/\kappa + B \f$.
+  !! Here, \f$ z \f$ is the wall-normal distance, as per tradition in
+  !! atmospheric sciences, where this law is often used.
   type, public, extends(wall_model_t) :: rough_log_law_t
 
      !> The von Karman coefficient.
