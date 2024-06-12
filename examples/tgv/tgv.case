@@ -9,12 +9,11 @@
   "load_balance": false,
   "job_timelimit": "00:00:00",
   "end_time": 3.0,
-  "timestep": 1e-1,
+  "timestep": 1e-2,
   "numerics": {
     "time_order": 3,
     "polynomial_order": 7,
     "dealias": true,
-    "oifs": true
   },
   "fluid": {
     "scheme": "pnpn",
