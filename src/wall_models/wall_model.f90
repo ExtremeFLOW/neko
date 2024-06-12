@@ -55,9 +55,9 @@ module wall_model
      type(coef_t), pointer :: coef => null()
      !> Map of degrees of freedom.
      type(dofmap_t), pointer :: dof => null()
-     !> The boundary condition mask. First element holds the array size!
+     !> The boundary condition mask. Stores the array size at index zero!
      integer, pointer :: msk(:) => null()
-     !> The boundary condition facet ids. First element holds the array size!
+     !> The boundary condition facet ids. Stores the array size at index zero!
      integer, pointer :: facet(:) => null()
      !> The x component of the shear stress.
      real(kind=rp), allocatable :: tau_x(:)
@@ -161,7 +161,7 @@ contains
 
     this%coef => coef
     this%dof => coef%dof
-    this%msk => msk
+    this%msk(0:msk(0)) => msk
     this%facet => facet
     this%nu = nu
     this%h_index = index
@@ -171,19 +171,19 @@ contains
 
     this%tau_field => neko_field_registry%get_field("tau")
 
-    allocate(this%tau_x(this%msk(1)))
-    allocate(this%tau_y(this%msk(1)))
-    allocate(this%tau_z(this%msk(1)))
+    allocate(this%tau_x(this%msk(0)))
+    allocate(this%tau_y(this%msk(0)))
+    allocate(this%tau_z(this%msk(0)))
 
-    allocate(this%ind_r(this%msk(1)))
-    allocate(this%ind_s(this%msk(1)))
-    allocate(this%ind_t(this%msk(1)))
-    allocate(this%ind_e(this%msk(1)))
+    allocate(this%ind_r(this%msk(0)))
+    allocate(this%ind_s(this%msk(0)))
+    allocate(this%ind_t(this%msk(0)))
+    allocate(this%ind_e(this%msk(0)))
 
-    call this%h%init(this%msk(1))
-    call this%n_x%init(this%msk(1))
-    call this%n_y%init(this%msk(1))
-    call this%n_z%init(this%msk(1))
+    call this%h%init(this%msk(0))
+    call this%n_x%init(this%msk(0))
+    call this%n_y%init(this%msk(0))
+    call this%n_z%init(this%msk(0))
 
     call this%find_points
 
@@ -223,12 +223,11 @@ contains
     real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, dot
     real(kind=rp) :: hmin, hmax
 
-    n_nodes = this%msk(1)
+    n_nodes = this%msk(0)
     this%n_nodes = n_nodes
     do i = 1, n_nodes
-       ! Because these arrays in bc.f90 start from 0, we have to add 1 here.
-       linear = this%msk(i + 1)
-       fid = this%facet(i + 1)
+       linear = this%msk(i)
+       fid = this%facet(i)
        idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%lx,&
                              this%coef%Xh%lx)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
