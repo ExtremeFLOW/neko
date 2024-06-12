@@ -310,7 +310,7 @@ contains
       call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
                          sync=.false.)
       call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync=.false.)
+                         sync=.true.)
     end if
   end subroutine wall_model_find_points
 
