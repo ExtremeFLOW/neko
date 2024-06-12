@@ -101,6 +101,7 @@ contains
 
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
+
     do i=1, u%dof%size()
        s_abs%x(i,1,1,1) = sqrt(2.0_rp * (s11%x(i,1,1,1)*s11%x(i,1,1,1) + &
                                s22%x(i,1,1,1)*s22%x(i,1,1,1) + &
@@ -209,6 +210,7 @@ contains
     real(kind=rp) :: delta_ratio2 !test- to grid- filter ratio, squared
     integer :: i
     real(kind=rp) :: delta2
+
     delta_ratio2 = ((test_filter%nx-1)/(test_filter%nt-1))**2
 
     !! The first term:
@@ -286,7 +288,7 @@ contains
   !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
   !! @param mij
   !! @param lij The Germano identity.
-  !! @param alpha The moving average coefficient
+  !! @param alpha The moving average coefficient 
   subroutine compute_num_den_cpu(num, den, lij, mij, alpha, n)
     type(field_t), intent(inout) :: num, den
     type(field_t), intent(in) :: lij(6), mij(6)
@@ -310,6 +312,7 @@ contains
                      mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &
                      mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))
     end do
+
     ! running average over time
     call add3s2(num%x, num%x, num_curr, alpha, 1.0_rp-alpha, n)
     call add3s2(den%x, den%x, den_curr, alpha, 1.0_rp-alpha, n)

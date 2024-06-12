@@ -94,7 +94,7 @@ contains
 
     call this%free()
     call this%init_base(dofmap, coef, nut_name)
-    this%test_filter_type = "Boyd"
+    this%test_filter_type = "nonBoyd"
     call this%test_filter%init(dofmap%xh%lx, this%test_filter_type) ! suppose lx = ly = lz
 
     call this%c_dyn%init(dofmap, "ds_c_dyn")
@@ -148,12 +148,35 @@ contains
   !> Set up the test filter
   subroutine set_ds_filt(filter_1d)
     type(elementwise_filter_t), intent(inout) :: filter_1d
+    integer :: i
 
-    filter_1d%trnsfr(filter_1d%nx-0) = 0.05
-    filter_1d%trnsfr(filter_1d%nx-1) = 0.50
-    filter_1d%trnsfr(filter_1d%nx-2) = 0.95
+    if (filter_1d%nx .le. 6) then
+        call neko_error("Dynamic Smagorinsky model error: test filter is not defined for the current polynomial order")
+    end if
 
-    filter_1d%nt = filter_1d%nx - 1
+    if (mod(filter_1d%nx,2) .eq. 0) then ! number of grid spacing is even
+       ! cutoff at polynomial order int((filter_1d%nx)/2) (a conservative approach)
+       filter_1d%trnsfr(int((filter_1d%nx)/2) + 2) = 0.95_rp
+       filter_1d%trnsfr(int((filter_1d%nx)/2) + 3) = 0.50_rp
+       filter_1d%trnsfr(int((filter_1d%nx)/2) + 4) = 0.05_rp
+       if ((int((filter_1d%nx)/2) + 4) .lt. filter_1d%nx) then
+          do i = int((filter_1d%nx)/2) + 5, filter_1d%nx ! make delta_ratio = (nx-1)/(nt-1) as close to 2
+             filter_1d%trnsfr(i) = 0.0_rp
+          end do
+       end if
+       filter_1d%nt = int(filter_1d%nx/2) + 1
+    else ! number of grid spacing is odd
+       ! cutoff at polynomial order int((filter_1d%nx-1)/2)
+       filter_1d%trnsfr(int((filter_1d%nx-1)/2) + 2) = 0.95_rp
+       filter_1d%trnsfr(int((filter_1d%nx-1)/2) + 3) = 0.50_rp
+       filter_1d%trnsfr(int((filter_1d%nx-1)/2) + 4) = 0.05_rp
+       if ((int((filter_1d%nx-1)/2) + 4) .lt. filter_1d%nx) then
+          do i = int((filter_1d%nx-1)/2) + 5, filter_1d%nx ! make delta_ratio = (nx-1)/(nt-1) = 2
+             filter_1d%trnsfr(i) = 0.0_rp
+          end do
+       end if
+       filter_1d%nt = int((filter_1d%nx-1)/2) + 1
+    end if
 
     call filter_1d%build_1d()
 
