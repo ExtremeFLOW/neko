@@ -2,45 +2,55 @@ name: Linting
 
 # Controls when the action will run.
 on:
-  workflow_dispatch:
   workflow_call:
     inputs:
-      global_minimum_score:
+      global-minimum-score:
         description: "The minimum score required for the repository."
-        default: "10.0"
+        required: false
         type: string
-      changed_files_minimum_score:
+        default: "10.0"
+      changed-files-minimum-score:
         description: "The minimum score required for changed files."
-        default: "10.0"
+        required: false
         type: string
+        default: "10.0"
 
 jobs:
-  repository-linting:
+  lint-repository:
     name: "Lint repository"
     runs-on: ubuntu-20.04
+    env:
+      global_min: ${{ inputs.global-minimum-score }}
+
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Check environment
+        run: |
+          if [ -z "$global_min" ]; then
+            echo "Minimum score not set: '$global_min'" >&2
+            exit 1
+          fi
+
       - name: Setup env.
         run: |
           sudo apt-get update
           sudo apt-get install -yq bc python3-dev python3-pip python3-tk
           pip install nobvisual==0.2.0 flinter==0.4.0
 
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Lint
-        env:
-          min_score: ${{ inputs.global_minimum_score }}
+      - name: Lint repository
         run: |
           flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
           score=$(awk '$1==0{print $3}' flint.txt)
 
-          if (( $(echo "$score < $min_score" | bc -l) )); then
-            echo "Linting requirement not met, $score < $min_score" >&2
+          if (( $(echo "$score < $global_min" | bc -l) )); then
+            echo "Linting requirement not met, $score < $global_min" >&2
             exit 1
           fi
+
       - name: Archive linter report
         uses: actions/upload-artifact@v4
         with:
@@ -48,20 +58,30 @@ jobs:
           path: flint.txt
           retention-days: 5
 
-  changes_lint:
+  lint-changed-files:
     name: "Lint changed files"
     runs-on: ubuntu-20.04
+    env:
+      changed_min: ${{ inputs.changed-files-minimum-score }}
+
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Check environment
+        run: |
+          if [ -z "$changed_min" ]; then
+            echo "Minimum score not set: '$changed_min'" >&2
+            exit 1
+          fi
+
       - name: Setup env.
         run: |
           sudo apt-get update
           sudo apt-get install -yq bc python3-dev python3-pip python3-tk
           pip install flinter nobvisual
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
         # Get a list of the changed files and store them for later use.
       - name: Get changed files
@@ -70,18 +90,22 @@ jobs:
           target: ${{ github.event.pull_request.base.ref }}
           current: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ -z "${{ inputs.target }}" ]; then
+          if [ -z "$target" ]; then
             target="develop"
+          fi
+          if [ -z "$current" ]; then
+            current="HEAD"
           fi
 
           git fetch --unshallow origin $target
-          changes=($(git diff --name-status $current origin/$target | cut -f2))
+          changes=($(git diff --name-only --diff-filter=d \
+            `git merge-base $current origin/$target`))
           echo "changed-files=${changes[@]}" >> $GITHUB_OUTPUT
 
       - name: Lint changed files
+        id: lint-changed-files
         env:
           changed_files: ${{ steps.get-changed-files.outputs.changed-files }}
-          min_score: ${{ inputs.changed_files_minimum_score }}
         run: |
           if [ -z "$changed_files" ]; then
             echo "No fortran files changed"
@@ -89,33 +113,43 @@ jobs:
           fi
 
           fails=()
+          printf "Linting files:\n"
           for file in $changed_files; do
 
-              # If the file is not a Fortran file, skip it.
-              if [[ ! $file =~ \.f90$ ]]; then continue; fi
+            # If the file is not a Fortran file, skip it.
+            if [[ ! $file =~ \.f90$ ]]; then continue; fi
 
-              score=$(flint score -r flinter_rc.yml $file 2>/dev/null |
+            printf "\t- $file"
+            score=$(flint score -r flinter_rc.yml $(realpath $file) 2> /dev/null |
                   grep -oP '(?<=\>\|)[^\|\<]+(?=\|\<)')
+            printf ": $score\n"
 
-              if (($(echo "$score < $min_score" | bc -l))); then
-                  fails+=($file)
-              fi
+            if (($(echo "$score < $changed_min" | bc -l))); then
+                fails+=($file)
+            fi
           done
 
-          printf "\n" && printf "%.s=" {1..80} && printf "\n"
+          echo "failed-files=${fails[@]}" >> $GITHUB_OUTPUT
+
+      - name: Print failed files and their errors
+        if: ${{ steps.lint-changed-files.outputs.failed-files != '' }}
+        env:
+          fails: ${{ steps.lint-changed-files.outputs.failed-files }}
+        run: |
           printf "Files that failed linting:\n"
           printf "\t${fails[@]}\n"
 
           if [ ${#fails[@]} -gt 0 ]; then
-              for fail in "${fails[@]}"; do
-                  printf "%.s-" {1..80} && printf "\n"
-                  printf "Linting failed for \n\t$fail\n\n"
+            for fail in "${fails[@]}"; do
+              printf "%.s-" {1..80} && printf "\n"
+              printf "Linting failed for \n\t$fail\n\n"
 
-                  report=$(flint lint -r flinter_rc.yml $file 2>/dev/null)
-                  if [ -z "$report" ]; then
-                       report=$(flint stats -r flinter_rc.yml $file 2>/dev/null)
-                  fi
-                  echo "$report"
-              done
-              exit 1
+              report=$(flint lint -r flinter_rc.yml $file)
+              if [ -z "$report" ]; then
+                report=$(flint stats -r flinter_rc.yml $file)
+              fi
+              echo "$report"
+            done
+            exit 2
           fi
+
