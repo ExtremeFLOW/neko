@@ -40,7 +40,6 @@ module dynamic_smagorinsky_cpu
   use field, only : field_t
   use operators, only : strain_rate
   use coefs, only : coef_t
-  use gs_ops, only : GS_OP_ADD
   use math
   use elementwise_filter, only : elementwise_filter_t
   implicit none
@@ -60,6 +59,8 @@ contains
   !! @param test_filter
   !! @param mij
   !! @param lij The Germano identity.
+  !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
+  !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
   subroutine dynamic_smagorinsky_compute_cpu(t, tstep, coef, nut, delta, &
                                              c_dyn, test_filter, mij, lij, num, den)
     real(kind=rp), intent(in) :: t
@@ -100,7 +101,6 @@ contains
 
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
-    
     do i=1, u%dof%size()
        s_abs%x(i,1,1,1) = sqrt(2.0_rp * (s11%x(i,1,1,1)*s11%x(i,1,1,1) + &
                                s22%x(i,1,1,1)*s22%x(i,1,1,1) + &
@@ -143,10 +143,10 @@ contains
     type(elementwise_filter_t), intent(inout) :: test_filter
     integer, intent(in) :: n
     integer, intent(inout) :: nelv
-    !! filted u,v,w by the test filter
+    !> filtered u,v,w by the test filter
     real(kind=rp), dimension(u%dof%size()) :: fu, fv, fw
 
-    !! Use test filter for the velocity fields
+    ! Use test filter for the velocity fields
     call test_filter%filter_3d(fu, u%x, nelv)
     call test_filter%filter_3d(fv, v%x, nelv)
     call test_filter%filter_3d(fw, w%x, nelv)
@@ -209,7 +209,6 @@ contains
     real(kind=rp) :: delta_ratio2 !test- to grid- filter ratio, squared
     integer :: i
     real(kind=rp) :: delta2
-    
     delta_ratio2 = ((test_filter%nx-1)/(test_filter%nt-1))**2
 
     !! The first term:
@@ -282,6 +281,12 @@ contains
 
   end subroutine compute_mij_cpu
 
+  !> Compute numerator and denominator for c_dyn on the CPU.
+  !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
+  !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
+  !! @param mij
+  !! @param lij The Germano identity.
+  !! @param alpha The moving average coefficient
   subroutine compute_num_den_cpu(num, den, lij, mij, alpha, n)
     type(field_t), intent(inout) :: num, den
     type(field_t), intent(in) :: lij(6), mij(6)
@@ -305,7 +310,6 @@ contains
                      mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &
                      mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))
     end do
-    
     ! running average over time
     call add3s2(num%x, num%x, num_curr, alpha, 1.0_rp-alpha, n)
     call add3s2(den%x, den%x, den_curr, alpha, 1.0_rp-alpha, n)

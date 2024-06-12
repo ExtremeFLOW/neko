@@ -90,7 +90,7 @@ contains
     character(len=:), allocatable :: nut_name !! The name of the SGS viscosity field.
     integer :: i
 
-    call json_get(json, "nut_field", nut_name) 
+    call json_get(json, "nut_field", nut_name)
 
     call this%free()
     call this%init_base(dofmap, coef, nut_name)
@@ -100,7 +100,7 @@ contains
     call this%c_dyn%init(dofmap, "ds_c_dyn")
     call this%num%init(dofmap, "ds_num")
     call this%den%init(dofmap, "ds_den")
-    
+
     do i=1,6
        call this%mij(i)%init(dofmap)
        call this%lij(i)%init(dofmap)
@@ -112,7 +112,7 @@ contains
   subroutine dynamic_smagorinsky_free(this)
     class(dynamic_smagorinsky_t), intent(inout) :: this
     integer :: i
-    
+
     call this%c_dyn%free()
     do i=1,6
        call this%mij(i)%free()
@@ -149,7 +149,7 @@ contains
   subroutine set_ds_filt(filter_1d)
     type(elementwise_filter_t), intent(inout) :: filter_1d
 
-    filter_1d%trnsfr(filter_1d%nx-0) = 0.05   
+    filter_1d%trnsfr(filter_1d%nx-0) = 0.05
     filter_1d%trnsfr(filter_1d%nx-1) = 0.50
     filter_1d%trnsfr(filter_1d%nx-2) = 0.95
 
