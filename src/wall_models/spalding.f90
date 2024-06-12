@@ -43,6 +43,7 @@ module spalding
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get_or_default
   use logger, only : neko_log, NEKO_LOG_DEBUG
+  use utils, only : neko_error
 
   implicit none
   private

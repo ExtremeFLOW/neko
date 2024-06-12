@@ -42,6 +42,7 @@ module rough_log_law
   use wall_model, only : wall_model_t
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get_or_default, json_get
+  use utils, only : neko_error
   implicit none
   private
 
