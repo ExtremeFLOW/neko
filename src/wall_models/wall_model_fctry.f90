@@ -31,41 +31,65 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module les_model_fctry
-  use les_model, only : les_model_t
+module wall_model_fctry
+  use num_types, only : rp
+  use wall_model, only : wall_model_t
   use vreman, only : vreman_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use json_module, only : json_file
+  use spalding, only : spalding_t
+  use rough_log_law, only : rough_log_law_t
+  use utils, only : concat_string_array, neko_error
+  use json_utils, only : json_get
   implicit none
   private
 
-  public :: les_model_factory
+  public :: wall_model_factory
+
+  ! List of all possible types created by the factory routine
+  character(len=20) :: KNOWN_TYPES(2) = [character(len=20) :: &
+     "spalding", &
+     "rough_log_law"]
 
 contains
-  !> LES model factory. Both constructs and initializes the object.
-  !! @param les_model The object to be allocated.
-  !! @param name The name of the LES model.
-  !! @param dofmap SEM map of degrees of freedom.
+
+  !> Wall model factory. Both constructs and initializes the object.
+  !! @param object The object to be allocated.
   !! @param coef SEM coefficients.
+  !! @param msk The boundary mask.
+  !! @param facet The boundary facets.
+  !! @param nu The molecular kinematic viscosity.
+  !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  subroutine les_model_factory(les_model, name, dofmap, coef, json)
-    class(les_model_t), allocatable, target, intent(inout) :: les_model
-    character(len=*), intent(in) :: name
-    type(dofmap_t), intent(in) :: dofmap
+  subroutine wall_model_factory(object, coef, msk, facet, nu, h_index, json)
+    class(wall_model_t), allocatable, target, intent(inout) :: object
     type(coef_t), intent(in) :: coef
+    integer, intent(in) :: msk(:)
+    integer, intent(in) :: facet(:)
+    real(kind=rp), intent(in) :: nu
+    integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
+    character(len=:), allocatable :: type_name
+    character(len=:), allocatable :: type_string
 
-    if (allocated(les_model)) then
-       deallocate(les_model)
+    type_string =  concat_string_array(KNOWN_TYPES)
+
+    call json_get(json, "model", type_name)
+
+    if (trim(type_name) .eq. "spalding") then
+       allocate(spalding_t::object)
+    else if (trim(type_name) .eq. "rough_log_law") then
+       allocate(rough_log_law_t::object)
+    else
+       call neko_error("Unknown wall model type: " // trim(type_name) // &
+          trim(type_name) // ".  Known types are: "  // type_string)
+       stop
     end if
 
-    if (trim(name) .eq. 'vreman') then
-       allocate(vreman_t::les_model)
-    end if
+    ! Initialize
+    call object%init(coef, msk, facet, nu, h_index, json)
 
-    call les_model%init(dofmap, coef, json)
+  end subroutine wall_model_factory
 
-  end subroutine les_model_factory
-
-end module les_model_fctry
+end module wall_model_fctry

@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,13 @@ module wall_model
   use field_registry, only : neko_field_registry
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
-  use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, HOST_TO_DEVICE
+  use vector, only : vector_t
+  use utils, only : neko_error, nonlinear_index
+  use math, only : glmin, glmax
+  use comm, only : pe_rank
+
   implicit none
   private
 
@@ -49,6 +53,42 @@ module wall_model
   type, abstract, public :: wall_model_t
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
+     !> Map of degrees of freedom.
+     type(dofmap_t), pointer :: dof => null()
+     !> The boundary condition mask. First element holds the array size!
+     integer, pointer :: msk(:) => null()
+     !> The boundary condition facet ids. First element holds the array size!
+     integer, pointer :: facet(:) => null()
+     !> The x component of the shear stress.
+     real(kind=rp), allocatable :: tau_x(:)
+     !> The y component of the shear stress.
+     real(kind=rp), allocatable :: tau_y(:)
+     !> The z component of the shear stress.
+     real(kind=rp), allocatable :: tau_z(:)
+     !> The x component of the normal.
+     type(vector_t) :: n_x
+     !> The y component of the normal.
+     type(vector_t) :: n_y
+     !> The z component of the normal.
+     type(vector_t) :: n_z
+     !> The r indices of the sampling points
+     integer, allocatable :: ind_r(:)
+     !> The s indices of the sampling points
+     integer, allocatable :: ind_s(:)
+     !> The t indices of the sampling points
+     integer, allocatable :: ind_t(:)
+     !> The element indices of the sampling points
+     integer, allocatable :: ind_e(:)
+     !> The sampling height
+     type(vector_t) :: h
+     !> Sampling index
+     integer :: h_index = 0
+     !> Number of nodes in the boundary
+     integer :: n_nodes = 0
+     !> Kinematic viscosity value.
+     real(kind=rp) :: nu = 0_rp
+     !> The 3D field with the computed stress magnitude at the boundary.
+     type(field_t), pointer :: tau_field => null()
    contains
      !> Constructor for the wall_model_t (base) class.
      procedure, pass(this) :: init_base => wall_model_init_base
@@ -60,6 +100,8 @@ module wall_model
      procedure(wall_model_free), pass(this), deferred :: free
      !> Compute the wall shear stress.
      procedure(wall_model_compute), pass(this), deferred :: compute
+     !> Find the sampling points based on the value of `h_index`.
+     procedure, pass(this) :: find_points => wall_model_find_points
   end type wall_model_t
 
   abstract interface
@@ -76,14 +118,20 @@ module wall_model
 
   abstract interface
      !> Common constructor.
-     !! @param dofmap SEM map of degrees of freedom.
      !! @param coef SEM coefficients.
+     !! @param msk The boundary mask.
+     !! @param facet The boundary facets.
+     !! @param nu The molecular kinematic viscosity.
+     !! @param h_index The off-wall index of the sampling cell.
      !! @param json A dictionary with parameters.
-     subroutine wall_model_init(this, dofmap, coef, json)
-       import wall_model_t, json_file, dofmap_t, coef_t
+     subroutine wall_model_init(this, coef, msk, facet, nu, h_index, json)
+       import wall_model_t, json_file, dofmap_t, coef_t, rp
        class(wall_model_t), intent(inout) :: this
        type(coef_t), intent(in) :: coef
-       type(dofmap_t), intent(in) :: dofmap
+       integer, intent(in) :: msk(:)
+       integer, intent(in) :: facet(:)
+       real(kind=rp), intent(in) :: nu
+       integer, intent(in) :: h_index
        type(json_file), intent(inout) :: json
      end subroutine wall_model_init
   end interface
@@ -98,15 +146,46 @@ module wall_model
 
 contains
   !> Constructor for the wall_model_t (base) class.
-  !! @param dofmap SEM map of degrees of freedom.
+  !! @param dof SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param nu_name The name of the turbulent viscosity field.
-  subroutine wall_model_init_base(this, dofmap, coef)
+  subroutine wall_model_init_base(this, coef, msk, facet, nu, index)
     class(wall_model_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
     type(coef_t), target, intent(in) :: coef
+    integer, target, intent(in) :: msk(:)
+    integer, target, intent(in) :: facet(:)
+    real(kind=rp), intent(in) :: nu
+    integer, intent(in) :: index
+
+    call this%free_base
 
     this%coef => coef
+    this%dof => coef%dof
+    this%msk => msk
+    this%facet => facet
+    this%nu = nu
+    this%h_index = index
+
+    call neko_field_registry%add_field(this%dof, "tau", &
+                                       ignore_existing=.true.)
+
+    this%tau_field => neko_field_registry%get_field("tau")
+
+    allocate(this%tau_x(this%msk(1)))
+    allocate(this%tau_y(this%msk(1)))
+    allocate(this%tau_z(this%msk(1)))
+
+    allocate(this%ind_r(this%msk(1)))
+    allocate(this%ind_s(this%msk(1)))
+    allocate(this%ind_t(this%msk(1)))
+    allocate(this%ind_e(this%msk(1)))
+
+    call this%h%init(this%msk(1))
+    call this%n_x%init(this%msk(1))
+    call this%n_y%init(this%msk(1))
+    call this%n_z%init(this%msk(1))
+
+    call this%find_points
 
   end subroutine wall_model_init_base
 
@@ -115,6 +194,125 @@ contains
     class(wall_model_t), intent(inout) :: this
 
     nullify(this%coef)
+    nullify(this%msk)
+    nullify(this%facet)
+    nullify(this%tau_field)
+
+    if (allocated(this%tau_x)) then
+      deallocate(this%tau_x)
+    end if
+    if (allocated(this%tau_y)) then
+      deallocate(this%tau_y)
+    end if
+    if (allocated(this%tau_z)) then
+      deallocate(this%tau_z)
+    end if
+    if (allocated(this%ind_r)) then
+      deallocate(this%ind_r)
+    end if
+
+    call this%h%free()
+    call this%n_x%free()
+    call this%n_y%free()
+    call this%n_z%free()
   end subroutine wall_model_free_base
+
+  subroutine wall_model_find_points(this)
+    class(wall_model_t), intent(inout) :: this
+    integer :: n_nodes, fid, idx(4), i, linear
+    real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, dot
+    real(kind=rp) :: hmin, hmax
+
+    n_nodes = this%msk(1)
+    this%n_nodes = n_nodes
+    do i = 1, n_nodes
+       ! Because these arrays in bc.f90 start from 0, we have to add 1 here.
+       linear = this%msk(i + 1)
+       fid = this%facet(i + 1)
+       idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%lx,&
+                             this%coef%Xh%lx)
+       normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
+
+       this%n_x%x(i) = normal(1)
+       this%n_y%x(i) = normal(2)
+       this%n_z%x(i) = normal(3)
+
+       ! inward normal
+       normal = -normal
+
+       select case (fid)
+       case(1)
+         this%ind_r(i) = idx(1) + this%h_index
+         this%ind_s(i) = idx(2)
+         this%ind_t(i) = idx(3)
+       case(2)
+         this%ind_r(i) = idx(1) - this%h_index
+         this%ind_s(i) = idx(2)
+         this%ind_t(i) = idx(3)
+       case(3)
+         this%ind_r(i) = idx(1)
+         this%ind_s(i) = idx(2) + this%h_index
+         this%ind_t(i) = idx(3)
+       case(4)
+         this%ind_r(i) = idx(1)
+         this%ind_s(i) = idx(2) - this%h_index
+         this%ind_t(i) = idx(3)
+       case(5)
+         this%ind_r(i) = idx(1)
+         this%ind_s(i) = idx(2)
+         this%ind_t(i) = idx(3) + this%h_index
+       case(6)
+         this%ind_r(i) = idx(1)
+         this%ind_s(i) = idx(2)
+         this%ind_t(i) = idx(3) - this%h_index
+       case default
+         call neko_error("The face index is not correct")
+       end select
+       this%ind_e(i) = idx(4)
+
+       ! Location of the wall node
+       xw = this%dof%x(idx(1), idx(2), idx(3), idx(4))
+       yw = this%dof%y(idx(1), idx(2), idx(3), idx(4))
+       zw = this%dof%z(idx(1), idx(2), idx(3), idx(4))
+
+       ! Location of the sampling point
+!       write(*,*) "IND", this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i), fid
+       x = this%dof%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
+                      this%ind_e(i))
+       y = this%dof%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
+                      this%ind_e(i))
+       z = this%dof%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
+                         this%ind_e(i))
+
+
+       ! vector from the sampling point to the wall
+       p(1) = x - xw
+       p(2) = y - yw
+       p(3) = z - zw
+
+       ! project on the normal direction to get h
+       this%h%x(i) = p(1)*normal(1) + p(2)*normal(2) + p(3)*normal(3)
+    end do
+
+    hmin = glmin(this%h%x, n_nodes)
+    hmax = glmax(this%h%x, n_nodes)
+
+    if (pe_rank .eq. 0) then
+       write(*,*) "h min / max", hmin, hmax
+    end if
+
+
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
+                         sync=.false.)
+      call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
+                         sync=.false.)
+      call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
+                         sync=.false.)
+      call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
+                         sync=.false.)
+    end if
+  end subroutine wall_model_find_points
 
 end module wall_model
