@@ -281,6 +281,10 @@ neko_fortran_SOURCES = \
 	wall_models/wall_model.f90\
 	les/smagorinsky.f90\
 	les/bcknd/cpu/smagorinsky_cpu.f90\
+	les/dynamic_smagorinsky.f90\
+	les/bcknd/cpu/dynamic_smagorinsky_cpu.f90\
+	les/elementwise_filter.f90\
+	les/bcknd/cpu/elementwise_filter_cpu.f90\
 	les/sigma.f90\
 	les/bcknd/cpu/sigma_cpu.f90\
 	neko.f90
