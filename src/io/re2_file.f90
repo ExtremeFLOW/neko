@@ -580,7 +580,7 @@ contains
              end if
 
              if (user_labeled_zones(label) .eq. 0) then
-                write (log_buf, "(A,I2,A,I3)") "Labeled zone ", label, &
+                write (log_buf, "(A,I2,A)") "Labeled zone ", label, &
                      " found."
                 call neko_log%message(log_buf)
                 user_labeled_zones(label) = 1
