@@ -507,16 +507,16 @@ contains
        call bdry_mask%free()
 
        call bdry_mask%init_base(this%c_Xh)
-       call bdry_mask%mark_zone(msh%periodic)
+       call bdry_mask%mark_zone(msh%outlet_normal)
+       call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
+                      'on', this%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(5.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init_base(this%c_Xh)
-       call bdry_mask%mark_zone(msh%outlet_normal)
-       call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'on', this%bc_labels)
+       call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
        call bdry_mask%set_g(6.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
