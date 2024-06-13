@@ -76,7 +76,6 @@ jobs:
         id: get-pfunit
         if: matrix.backend == 'cpu'
         uses: ./.github/actions/setup_pfunit
-        if: matrix.backend == 'cpu'
         with:
           version: ${{ inputs.pfunit-version }}
           os: ${{ matrix.os }}
