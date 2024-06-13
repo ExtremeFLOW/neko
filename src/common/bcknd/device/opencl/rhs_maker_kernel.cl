@@ -213,42 +213,6 @@ __kernel void scalar_makebdf_kernel(__global const real * __restrict__ s_lag,
   }
   
 }
-  kernel void makeoifs_kernel(__global const real * __restrict__ phix,
-                             __global const real * __restrict__ phiy,
-                             __global const real * __restrict__ phiz,
-                             __global real * __restrict__ bfx,
-                             __global real * __restrict__ bfy,
-                             __global real * __restrict__ bfz,
-                             const real rho,
-                             const real dt,
-                             const int n) {
 
-  const int idx = get_global_id(0);
-  const int str = get_global_size(0);
-
-  for (int i = idx; i < n; i += str) {
-
-    bfx[i] = bfx[i] + phix[i] * (rho/dt);
-    bfy[i] = bfy[i] + phiy[i] * (rho/dt);
-    bfz[i] = bfz[i] + phiz[i] * (rho/dt);
-  }
-}
-
-__kernel void scalar_makeoifs_kernel(__global const real * __restrict__ phis,
-                             __global real * __restrict__ bfs,
-                             const real rho,
-                             const real dt,
-                             const int n) {
-
-  const int idx = get_global_id(0);
-  const int str = get_global_size(0);
-
-  for (int i = idx; i < n; i += str) {
-
-
-    bfs[i] = bfs[i] + phis[i] * (rho/dt);
-
-  }
-}
 
 #endif // __COMMON_RHS_MAKER_KENEL__

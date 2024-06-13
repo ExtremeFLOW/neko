@@ -23,7 +23,7 @@ bc/bcknd/device/hip/symmetry.o : bc/bcknd/device/hip/symmetry.hip bc/bcknd/devic
 bc/bcknd/device/hip/facet_normal.o : bc/bcknd/device/hip/facet_normal.hip bc/bcknd/device/hip/facet_normal_kernel.h
 bc/bcknd/device/hip/inhom_dirichlet.o : bc/bcknd/device/hip/inhom_dirichlet.hip bc/bcknd/device/hip/inhom_dirichlet_kernel.h
 bc/bcknd/device/hip/dong_outflow.o : bc/bcknd/device/hip/dong_outflow.hip bc/bcknd/device/hip/dong_outflow_kernel.h
-common/bcknd/device/hip/rhs_maker.o : common/bcknd/device/hip/rhs_maker.hip common/bcknd/device/hip/sumab_kernel.h common/bcknd/device/hip/makeext_kernel.h common/bcknd/device/hip/makebdf_kernel.h common/bcknd/device/hip/makeoifs_kernel.h
+common/bcknd/device/hip/rhs_maker.o : common/bcknd/device/hip/rhs_maker.hip common/bcknd/device/hip/sumab_kernel.h common/bcknd/device/hip/makeext_kernel.h common/bcknd/device/hip/makebdf_kernel.h 
 common/bcknd/device/hip/projection.o : common/bcknd/device/hip/projection.hip common/bcknd/device/hip/projection_kernel.h
 fluid/bcknd/device/hip/pnpn_res.o : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h 
 scalar/bcknd/device/hip/scalar_residual.o : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
@@ -53,7 +53,7 @@ bc/bcknd/device/cuda/symmetry.o : bc/bcknd/device/cuda/symmetry.cu bc/bcknd/devi
 bc/bcknd/device/cuda/facet_normal.o : bc/bcknd/device/cuda/facet_normal.cu bc/bcknd/device/cuda/facet_normal_kernel.h
 bc/bcknd/device/cuda/inhom_dirichlet.o : bc/bcknd/device/cuda/inhom_dirichlet.cu bc/bcknd/device/cuda/inhom_dirichlet_kernel.h
 bc/bcknd/device/cuda/dong_outflow.o : bc/bcknd/device/cuda/dong_outflow.cu bc/bcknd/device/cuda/dong_outflow_kernel.h
-common/bcknd/device/cuda/rhs_maker.o : common/bcknd/device/cuda/rhs_maker.cu common/bcknd/device/cuda/sumab_kernel.h common/bcknd/device/cuda/makeext_kernel.h common/bcknd/device/cuda/makebdf_kernel.h common/bcknd/device/cuda/makeoifs_kernel.h
+common/bcknd/device/cuda/rhs_maker.o : common/bcknd/device/cuda/rhs_maker.cu common/bcknd/device/cuda/sumab_kernel.h common/bcknd/device/cuda/makeext_kernel.h common/bcknd/device/cuda/makebdf_kernel.h 
 common/bcknd/device/cuda/projection.o : common/bcknd/device/cuda/projection.cu common/bcknd/device/cuda/projection_kernel.h
 fluid/bcknd/device/cuda/pnpn_res.o : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h 
 scalar/bcknd/device/cuda/scalar_residual.o : scalar/bcknd/device/cuda/scalar_residual.cu scalar/bcknd/device/cuda/scalar_residual_update_kernel.h
@@ -68,7 +68,6 @@ math/bcknd/device/opencl/mathops.o : math/bcknd/device/opencl/mathops.c math/bck
 math/bcknd/device/opencl/opr_dudxyz.o : math/bcknd/device/opencl/opr_dudxyz.c math/bcknd/device/opencl/dudxyz_kernel.cl.h
 math/bcknd/device/opencl/opr_cdtp.o : math/bcknd/device/opencl/opr_cdtp.c math/bcknd/device/opencl/cdtp_kernel.cl.h
 math/bcknd/device/opencl/opr_conv1.o : math/bcknd/device/opencl/opr_conv1.c math/bcknd/device/opencl/conv1_kernel.cl.h
-math/bcknd/device/opencl/opr_conv_fst_3d.o : math/bcknd/device/opencl/opr_conv_fst_3d.c math/bcknd/device/opencl/conv_fst_3d_kernel.cl.h
 math/bcknd/device/opencl/opr_opgrad.o : math/bcknd/device/opencl/opr_opgrad.c math/bcknd/device/opencl/opgrad_kernel.cl.h
 math/bcknd/device/opencl/opr_lambda2.o : math/bcknd/device/opencl/opr_lambda2.c math/bcknd/device/opencl/lambda2_kernel.cl.h
 math/bcknd/device/opencl/opr_cfl.o : math/bcknd/device/opencl/opr_cfl.c math/bcknd/device/opencl/cfl_kernel.cl.h

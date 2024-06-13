@@ -46,7 +46,7 @@ module operators
                        opr_xsmm_set_convect_new
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
                          opr_device_conv1, opr_device_dudxyz, &
-                         opr_device_lambda2, opr_device_opgrad, opr_device_conv_fst_3d
+                         opr_device_lambda2, opr_device_opgrad
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -317,9 +317,6 @@ contains
    else if (NEKO_BCKND_XSMM .eq. 1) then
       call opr_xsmm_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, &
                                 coef_GLL, coef_GL, GLL_to_GL)
-   else if (NEKO_BCKND_DEVICE .eq. 1) then
-      call opr_device_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, &
-                                  coef_GLL, coef_GL, GLL_to_GL)
    else
       call opr_cpu_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, &
                                coef_GLL, coef_GL, GLL_to_GL)

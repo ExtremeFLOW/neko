@@ -106,8 +106,6 @@ contains
 
    if (NEKO_BCKND_SX .eq. 1) then
       allocate(rhs_maker_oifs_sx_t::makeoifs)
-   else if (NEKO_BCKND_DEVICE .eq. 1) then
-      allocate(rhs_maker_oifs_device_t::makeoifs)
    else       
       allocate(rhs_maker_oifs_cpu_t::makeoifs)
    end if
