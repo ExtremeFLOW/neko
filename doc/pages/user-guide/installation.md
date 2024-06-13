@@ -121,6 +121,7 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-parmetis=DIR`           | Compile with support for parmetis library     |
 | `--with-parmetis-libdir=LIBDIR` | Directory for parmetis library (if different) |
 | `--with-adios2=DIR`             | Compile with support for ADIOS2               |
+| `--with-adios2-fortran=DIR`     | Compile with support for ADIOS2 with Fortran  |
 | `--with-gslib=DIR`              | Compile with support for gslib                |
 | `--with-libxsmm`                | Compile with support for libxsmm              |
 | `--with-hip=DIR`                | Compile with HIP backend                      |

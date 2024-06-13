@@ -179,6 +179,9 @@ fi
 # Checks for ADIOS2
 AX_ADIOS2
 
+# Checks for ADIOS2 with Fortran bindings
+AX_ADIOS2_FORTRAN
+
 # Checks for gslib
 AX_GSLIB
 
@@ -315,6 +318,7 @@ FCFLAGS="$JSON_Fortran_CFLAGS $FCFLAGS"
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
+AM_CONDITIONAL([ENABLE_ADIOS2_FORTRAN], [test "x${have_adios2_fortran}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
