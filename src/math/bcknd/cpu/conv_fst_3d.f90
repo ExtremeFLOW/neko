@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,16 +35,16 @@ module cpu_conv_fst_3d
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
-  use interpolation
-  use math
-  use gather_scatter 
-  use mxm_wrapper  
+  use interpolation, only : interpolator_t
+  use math, only : col2
+  use gather_scatter
+  use mxm_wrapper
   implicit none
 
 contains
 
-  subroutine cpu_conv_fst_3d_lx(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv, lx)
+  subroutine cpu_conv_fst_3d_lx(du, u, c, dx, dy, dz, Xh_GLL, &
+                                coef_GLL, GLL_to_GL, nelv, lx)
     integer, intent(in) :: nelv, lx
     type(space_t), intent(in) :: Xh_GLL
     type(coef_t), intent(in) :: coef_GLL
@@ -75,8 +75,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx
 
-  subroutine cpu_conv_fst_3d_lx18(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx18(du, u, c, dx, dy, dz, Xh_GLL, &
+                                  coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 18
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -108,8 +108,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx18
 
-  subroutine cpu_conv_fst_3d_lx17(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx17(du, u, c, dx, dy, dz, Xh_GLL, &
+                                  coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 17
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -141,8 +141,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx17
 
-  subroutine cpu_conv_fst_3d_lx16(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx16(du, u, c, dx, dy, dz, Xh_GLL, &
+                                  coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 16
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -174,8 +174,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx16
 
-  subroutine cpu_conv_fst_3d_lx15(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx15(du, u, c, dx, dy, dz, Xh_GLL, &
+                                  coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 15
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -207,8 +207,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx15
 
-  subroutine cpu_conv_fst_3d_lx14(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx14(du, u, c, dx, dy, dz, Xh_GLL, &
+                                  coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 14
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -240,8 +240,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx14
 
-  subroutine cpu_conv_fst_3d_lx13(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx13(du, u, c, dx, dy, dz, Xh_GLL, &
+                                  coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 13
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -273,8 +273,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx13
 
-  subroutine cpu_conv_fst_3d_lx12(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx12(du, u, c, dx, dy, dz, Xh_GLL, &
+                                  coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 12
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -306,8 +306,8 @@ contains
     
   end subroutine cpu_conv_fst_3d_lx12
 
-  subroutine cpu_conv_fst_3d_lx11(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx11(du, u, c, dx, dy, dz, Xh_GLL, &
+                                  coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 11
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -339,8 +339,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx11
 
-  subroutine cpu_conv_fst_3d_lx10(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx10(du, u, c, dx, dy, dz, Xh_GLL, &
+                                  coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 10
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -372,8 +372,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx10
 
-  subroutine cpu_conv_fst_3d_lx9(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx9(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 9
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -405,8 +405,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx9
 
-  subroutine cpu_conv_fst_3d_lx8(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx8(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 8
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -438,8 +438,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx8
 
-  subroutine cpu_conv_fst_3d_lx7(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx7(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 7
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -471,8 +471,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx7
 
-  subroutine cpu_conv_fst_3d_lx6(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx6(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 6
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -504,8 +504,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx6
 
-  subroutine cpu_conv_fst_3d_lx5(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx5(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 5
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -537,8 +537,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx5
 
-  subroutine cpu_conv_fst_3d_lx4(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx4(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 4
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -570,8 +570,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx4
 
-  subroutine cpu_conv_fst_3d_lx3(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx3(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 3
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -603,8 +603,8 @@ contains
 
   end subroutine cpu_conv_fst_3d_lx3
 
-  subroutine cpu_conv_fst_3d_lx2(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine cpu_conv_fst_3d_lx2(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 2
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL

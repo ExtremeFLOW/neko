@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,22 +35,21 @@ module sx_conv_fst_3d
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
-  use interpolation
-  use math
+  use interpolation, only : interpolator_t
+  use math, only : col2
   use gather_scatter 
   implicit none
 
 contains
 
-  subroutine sx_conv_fst_3d_lx(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv, lx)
+  subroutine sx_conv_fst_3d_lx(du, u, c, dx, dy, dz, Xh_GLL, &
+                               coef_GLL, GLL_to_GL, nelv, lx)
     integer, intent(in) :: nelv, lx
     type(space_t), intent(in) :: Xh_GLL
     type(coef_t), intent(in) :: coef_GLL
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -69,7 +68,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -102,9 +101,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -113,8 +112,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx
 
-  subroutine sx_conv_fst_3d_lx18(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx18(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 18
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -122,7 +121,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -141,7 +139,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -174,9 +172,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -185,8 +183,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx18
 
-  subroutine sx_conv_fst_3d_lx17(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx17(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 17
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -194,7 +192,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -213,7 +210,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -246,9 +243,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -257,8 +254,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx17
 
-  subroutine sx_conv_fst_3d_lx16(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx16(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 16
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -266,7 +263,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -285,7 +281,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -318,9 +314,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -329,8 +325,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx16
 
-  subroutine sx_conv_fst_3d_lx15(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx15(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 15
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -338,7 +334,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -357,7 +352,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -390,9 +385,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -401,8 +396,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx15
 
-  subroutine sx_conv_fst_3d_lx14(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx14(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 14
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -410,7 +405,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -429,7 +423,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -462,9 +456,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -473,8 +467,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx14
 
-  subroutine sx_conv_fst_3d_lx13(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx13(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 13
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -482,7 +476,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -501,7 +494,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -534,9 +527,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -545,8 +538,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx13
 
-  subroutine sx_conv_fst_3d_lx12(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx12(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 12
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -554,7 +547,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -573,7 +565,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -606,9 +598,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -617,8 +609,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx12
 
-  subroutine sx_conv_fst_3d_lx11(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx11(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 11
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -626,7 +618,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -645,7 +636,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -678,9 +669,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -689,8 +680,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx11
 
-  subroutine sx_conv_fst_3d_lx10(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx10(du, u, c, dx, dy, dz, Xh_GLL, &
+                                 coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 10
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -698,7 +689,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -717,7 +707,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -750,9 +740,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -761,8 +751,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx10
 
-  subroutine sx_conv_fst_3d_lx9(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx9(du, u, c, dx, dy, dz, Xh_GLL, &
+                                coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 9
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -770,7 +760,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -789,7 +778,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -822,9 +811,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -833,8 +822,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx9
 
-  subroutine sx_conv_fst_3d_lx8(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx8(du, u, c, dx, dy, dz, Xh_GLL, &
+                                coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 8
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -842,7 +831,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -861,7 +849,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -894,9 +882,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -905,8 +893,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx8
 
-  subroutine sx_conv_fst_3d_lx7(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx7(du, u, c, dx, dy, dz, Xh_GLL, &
+                                coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 7
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -914,7 +902,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -933,7 +920,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -966,9 +953,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -977,8 +964,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx7
 
-  subroutine sx_conv_fst_3d_lx6(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx6(du, u, c, dx, dy, dz, Xh_GLL, &
+                                coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 6
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -986,7 +973,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -1005,7 +991,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -1038,9 +1024,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -1049,8 +1035,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx6
 
-  subroutine sx_conv_fst_3d_lx5(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx5(du, u, c, dx, dy, dz, Xh_GLL, &
+                                coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 5
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -1058,7 +1044,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -1077,7 +1062,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -1110,9 +1095,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -1121,8 +1106,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx5
 
-  subroutine sx_conv_fst_3d_lx4(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx4(du, u, c, dx, dy, dz, Xh_GLL, &
+                                coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 4
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -1130,7 +1115,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -1149,7 +1133,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -1182,9 +1166,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -1193,8 +1177,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx4
 
-  subroutine sx_conv_fst_3d_lx3(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx3(du, u, c, dx, dy, dz, Xh_GLL, &
+                                coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 3
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -1202,7 +1186,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -1221,7 +1204,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -1254,9 +1237,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
@@ -1265,8 +1248,8 @@ contains
 
   end subroutine sx_conv_fst_3d_lx3
 
-  subroutine sx_conv_fst_3d_lx2(du, u, c, dx, dy, dz, &
-        Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+  subroutine sx_conv_fst_3d_lx2(du, u, c, dx, dy, dz, Xh_GLL, &
+                                coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 2
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -1274,7 +1257,6 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), dimension(Xh_GLL%lx,Xh_GLL%lx,Xh_GLL%lx, nelv), intent(inout) :: du
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u
-    !real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: cr, cs, ct
     real(kind=rp), dimension(lx*lx*lx,nelv,3), intent(in) :: c
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp) :: ur(lx,lx,lx,nelv)
@@ -1293,7 +1275,7 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
@@ -1326,9 +1308,9 @@ contains
 
     do i = 1, lx * lx * lx
        do e = 1, nelv
-         ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
-                     + c(i,e,2) * us(i,1,1,e) &
-                     + c(i,e,3) * ut(i,1,1,e) )
+          ud(i,1,1,e) = ( c(i,e,1) * ur(i,1,1,e) &
+                      + c(i,e,2) * us(i,1,1,e) &
+                      + c(i,e,3) * ut(i,1,1,e) )
        end do
     end do
     call GLL_to_GL%map(du, ud, nelv, Xh_GLL)

@@ -56,6 +56,11 @@ contains
   !! @param this Polymorphic object of class \ref advection_t.
   !! @param json The parameter file.
   !! @param coef The coefficients of the (space, mesh) pair.
+  !! @param ulag, vlag, wlag The lagged velocity fields. 
+  !! @param dtlag The lagged time steps.
+  !! @param tlag The lagged times.
+  !! @param time_scheme The bdf-ext time scheme used in the method. 
+  !! @param slag The lagged scalar field. 
   !! @note The factory both allocates and initializes `this`.
   subroutine advection_factory(this, json, coef, ulag, vlag, wlag, dtlag, tlag, time_scheme, slag)
     implicit none
@@ -107,7 +112,11 @@ contains
     type is(adv_no_dealias_t)
        call adv%init(coef)
     type is(adv_oifs_t)
-       call adv%init(lxd, coef, ctarget, ulag, vlag, wlag, dtlag, tlag, time_scheme, slag)
+       if (present(slag)) then
+          call adv%init(lxd, coef, ctarget, ulag, vlag, wlag, dtlag, tlag, time_scheme, slag)
+       else
+          call adv%init(lxd, coef, ctarget, ulag, vlag, wlag, dtlag, tlag, time_scheme)
+       end if
     end select
 
   end subroutine advection_factory

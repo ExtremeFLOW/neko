@@ -117,17 +117,18 @@ contains
 
   !> Interpolate field at time t from previous times step, equal to int_vel in nek5000
   !! @param t time to get interpolated field
-  !! @param c_t the interpolated field 
+  !! @param c_interpolated the interpolated field
   !! @param c an array of previous fields
-  !! @param ct an array of previous time steps
+  !! @param tlag an array of previous time steps
   !! @param n size of the array
-  subroutine time_interpolator_velocity(this, t, c_t, c, ct, n)
+  !! @note This subroutine is similar to the int_vel subroutine of NEK5000
+  subroutine time_interpolator_velocity(this, t, c_interpolated, c, tlag, n)
     class(time_interpolator_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: n
     real(kind=rp), dimension(n,0:this%order - 1), intent(in):: c
-    real(kind=rp), dimension(n), intent(inout):: c_t
-    real(kind=rp), dimension(0:this%order), intent(in) :: ct
+    real(kind=rp), dimension(n), intent(inout):: c_interpolated
+    real(kind=rp), dimension(0:this%order), intent(in) :: tlag
     
     integer :: no, i, l
 
@@ -140,12 +141,12 @@ contains
     end if
 
     no = this%order - 1
-    call fd_weights_full(t, ct, no, 0, wt) ! interpolation weights
-    call rzero(c_t, n)
+    call fd_weights_full(t, tlag, no, 0, wt) ! interpolation weights
+    call rzero(c_interpolated, n)
     
     do i = 1, n
        do l = 0, no
-        c_t(i) = c_t(i) + wt(l) * c(i,l)
+        c_interpolated(i) = c_interpolated(i) + wt(l) * c(i,l)
       end do 
     end do
 

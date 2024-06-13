@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -620,7 +620,6 @@ contains
                                   f_x%x, f_y%x, f_z%x, &
                                   rho, dt, n)
       else
-
         ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
                                f_x, f_y, f_z, &
@@ -682,7 +681,6 @@ contains
       else
          call add2(p%x, dp%x,n)
       end if
-
 
       ! Compute velocity.
       call profiler_start_region('Velocity residual', 19)

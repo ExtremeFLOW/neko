@@ -38,6 +38,7 @@ module scalar_scheme
   use checkpoint, only : chkp_t
   use num_types, only: rp
   use field, only : field_t
+  use field_series, only : field_series_t
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only :  dofmap_t
@@ -67,8 +68,7 @@ module scalar_scheme
   use utils, only : neko_error
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
-  use field_series
-  use time_step_controller
+  use time_step_controller, only : time_step_controller_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -159,7 +159,7 @@ module scalar_scheme
   !> Abstract interface to initialize a scalar formulation
   abstract interface
      subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user,&
-                                         material_properties, time_scheme)
+                                         material_properties, ulag, vlag, wlag, time_scheme)
        import scalar_scheme_t
        import json_file
        import coef_t
@@ -167,6 +167,7 @@ module scalar_scheme
        import mesh_t
        import user_t
        import material_properties_t
+       import field_series_t
        import time_scheme_controller_t
        class(scalar_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
@@ -175,6 +176,7 @@ module scalar_scheme
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
        type(material_properties_t), intent(inout) :: material_properties
+       type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in):: time_scheme
      end subroutine scalar_scheme_init_intrf
   end interface

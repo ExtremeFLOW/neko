@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -141,7 +141,7 @@ module rhs_maker
 
   abstract interface
      subroutine rhs_maker_oifs(phix, phiy, phiz, bfx, bfy, bfz, &
-          rho, dt, n)
+                               rho, dt, n)
        import rp
        real(kind=rp), intent(in) :: rho, dt
        integer, intent(in) :: n
@@ -157,7 +157,6 @@ module rhs_maker
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: bfs(n)
        real(kind=rp), intent(inout) :: phis(n)
-       
      end subroutine scalar_rhs_maker_oifs
   end interface
 

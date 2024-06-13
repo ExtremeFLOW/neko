@@ -1,4 +1,4 @@
-! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
+! Copyright (c) 2008-2024, UCHICAGO ARGONNE, LLC.
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -66,7 +66,7 @@ module opr_xsmm
   use math
   use mesh, only : mesh_t
   use field, only : field_t
-  use interpolation
+  use interpolation, only : interpolator_t
   use gather_scatter
   use mathops
 #ifdef HAVE_LIBXSMM
@@ -453,15 +453,16 @@ contains
 
   end subroutine opr_xsmm_curl
 
-  subroutine opr_xsmm_set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef)  
+  subroutine opr_xsmm_set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), intent(inout) :: cr, cs, ct
     real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), intent(in) :: cx, cy, cz
     integer :: e, i, t, nxyz
+
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
       dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
-      dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &  
+      dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
       nelv => coef%msh%nelv, lx=>Xh%lx, w3 => Xh%w3)
       nxyz = lx * lx * lx
       do e = 1, nelv
@@ -478,8 +479,7 @@ contains
          end do
       end do
     end associate
+
   end subroutine opr_xsmm_set_convect_new
-
-
 
 end module opr_xsmm

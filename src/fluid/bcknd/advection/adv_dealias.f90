@@ -167,6 +167,7 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
+  !! @param dt Current time-step, not required for this case. 
   subroutine compute_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
@@ -283,6 +284,7 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
+  !! @param dt Current time-step, nor required for this case. 
   subroutine compute_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
                                               coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this

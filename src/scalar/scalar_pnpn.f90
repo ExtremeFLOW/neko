@@ -69,7 +69,7 @@ module scalar_pnpn
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use time_step_controller
+  use time_step_controller, only : time_step_controller_t
   implicit none
   private
 
@@ -141,7 +141,7 @@ contains
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
   subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
-                              material_properties, time_scheme)
+                              material_properties, ulag, vlag, wlag, time_scheme)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: coef
@@ -149,6 +149,7 @@ contains
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     type(material_properties_t), intent(inout) :: material_properties
+    type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in):: time_scheme
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
@@ -223,8 +224,8 @@ contains
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
 
     call advection_factory(this%adv, params, this%c_Xh, &
-                           this%chkp%ulag, this%chkp%vlag, this%chkp%wlag, &
-                           this%chkp%dtlag, this%chkp%tlag, time_scheme, this%slag)
+                           ulag, vlag, wlag, this%chkp%dtlag, &
+                           this%chkp%tlag, time_scheme, this%slag)
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
@@ -293,8 +294,8 @@ contains
        deallocate(this%makebdf)
     end if
 
-    if (allocated(this%makebdf)) then
-       deallocate(this%makebdf)
+    if (allocated(this%makef)) then
+       deallocate(this%makef)
     end if
 
   end subroutine scalar_pnpn_free
@@ -363,7 +364,6 @@ contains
 
          call makef%compute_scalar(advs%x, f_Xh%x, rho, dt, n)
       else
-
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
                                       Xh, this%c_Xh, dm_Xh%size())

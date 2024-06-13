@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -233,8 +233,6 @@ contains
        f%chkp%abz1 => f%abz1
        f%chkp%abz2 => f%abz2
     end select
-
-
     !
     ! Setup scratch registry
     !
@@ -251,22 +249,16 @@ contains
 
     if (scalar) then
        allocate(C%scalar)
-       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
-                          C%material_properties, C%ext_bdf)
        C%scalar%chkp%tlag => C%tlag
        C%scalar%chkp%dtlag => C%dtlag
-       select type(f => C%fluid)
-       type is(fluid_pnpn_t)
-         C%scalar%chkp%ulag => f%ulag
-         C%scalar%chkp%vlag => f%vlag
-         C%scalar%chkp%wlag => f%wlag
-       end select
+       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
+                          C%material_properties, C%fluid%ulag, C%fluid%vlag, &
+                          C%fluid%wlag, C%ext_bdf)
        call C%fluid%chkp%add_scalar(C%scalar%s)
        C%fluid%chkp%abs1 => C%scalar%abx1
        C%fluid%chkp%abs2 => C%scalar%abx2
        C%fluid%chkp%slag => C%scalar%slag
     end if
-
     !
     ! Setup user defined conditions
     !

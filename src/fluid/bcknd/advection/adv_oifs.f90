@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,9 @@ module adv_oifs
   use space, only: space_t, GL
   use field, only: field_t
   use coefs, only: coef_t
-  use math
+  use math, only: copy, rzero
   use operators, only: runge_kutta, set_convect_new
-  use neko_config, only: NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
-    NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
+  use neko_config, only: NEKO_BCKND_SX, NEKO_BCKND_XSMM
   use interpolation, only: interpolator_t
   use time_interpolator, only: time_interpolator_t
   use field_series, only: field_series_t
@@ -50,8 +49,8 @@ module adv_oifs
   implicit none
   private
 
-  !> Type encapsulating advection routines with dealiasing
-  !> Type encapsulating operator-integration-factor splitting advection routines with no dealiasing applied
+  !! Type encapsulating operator-integration-factor splitting advection 
+  !! routines with dealiasing applied
   type, public, extends(advection_t) :: adv_oifs_t
      !> Number of RK4 sub-steps
      integer :: ntaubd 
@@ -79,14 +78,6 @@ module adv_oifs
      real(kind=rp), allocatable :: cx(:), cy(:), cz(:)
      !> The convecting field in GL space
      real(kind=rp), allocatable :: c(:,:)
-     !> Device pointer for `cx`
-     type(c_ptr) :: cx_d = C_NULL_PTR
-     !> Device pointer for `cy`
-     type(c_ptr) :: cy_d = C_NULL_PTR
-     !> Device pointer for `cz`
-     type(c_ptr) :: cz_d = C_NULL_PTR
-     !> Device pointer for `c`
-     type(c_ptr) :: c_d = C_NULL_PTR     
    contains
      !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
      !! the RHS
@@ -157,13 +148,6 @@ contains
     allocate(this%cy(n_GL))
     allocate(this%cz(n_GL))
     allocate(this%c(n_GL_t, 3))
-    
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%cx, this%cx_d, n_GL)
-       call device_map(this%cy, this%cy_d, n_GL)
-       call device_map(this%cz, this%cz_d, n_GL)
-       call device_map(this%c, this%c_d, 3 * n_GL_t)
-    end if
 
     call this%dtime%init(1)
     this%ulag => ulag
@@ -178,30 +162,30 @@ contains
     call this%GLL_to_GL%map(this%cx, this%ulag%f%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cy, this%vlag%f%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cz, this%wlag%f%x, nel, this%Xh_GL)
-   
+
     ! Set the convecting field in the rst format
     call set_convect_new(this%c(idx,1), this%c(idy,1), this%c(idz,1), &
-                         this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL) 
-
+                         this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
+    ! Repeat for previous time-steps
     call this%GLL_to_GL%map(this%cx, this%ulag%lf(1)%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cy, this%vlag%lf(1)%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cz, this%wlag%lf(1)%x, nel, this%Xh_GL)
 
     call set_convect_new(this%c(idx,2), this%c(idy,2), this%c(idz,2), &
-                         this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)  
+                         this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
 
     call this%GLL_to_GL%map(this%cx, this%ulag%lf(2)%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cy, this%vlag%lf(2)%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cz, this%wlag%lf(2)%x, nel, this%Xh_GL)
 
     call set_convect_new(this%c(idx,3), this%c(idy,3), this%c(idz,3), &
-                         this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL) 
+                         this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
 
-
+    ! Initilize the lagged scalar field, if present. 
     if (present(slag)) then
       this%slag => slag
     end if
-    
+
   end subroutine init_oifs
 
   !> Destructor
@@ -229,13 +213,13 @@ contains
     call this%GLL_to_GL%map(this%cx, u%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cy, v%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cz, w%x, nel, this%Xh_GL)
-    
+
     idx = 1
     idy = idx + n_GL
     idz = idy + n_GL
 
     call set_convect_new(this%c(idx,1), this%c(idy,1), this%c(idz,1), &
-                         this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL) 
+                         this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
 
   end subroutine set_conv_char_fst
 
@@ -251,7 +235,7 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  !! @param dt Current time-step
+  !! @param dt Current time-step.
   subroutine compute_adv_oifs(this, vx, vy, vz, fx, fy, fz, Xh, coef, n, dt)
     implicit none
     class(adv_oifs_t), intent(inout) :: this
@@ -261,15 +245,18 @@ contains
     type(coef_t), intent(inout) :: coef
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
+
     real(kind=rp) :: tau, tau1, th, dtau
     integer :: i, ilag, itau, nel, n_GL, n_GL_t
     real(kind=rp), dimension(3 * coef%msh%nelv * this%Xh_GL%lxyz) ::  c_r1, c_r23, c_r4
+    real(kind=rp), parameter :: eps = 1e-10
+
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
     n_GL_t = 3 * n_GL
 
     associate(ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
-      ctlag => this%ctlag, dctlag => this%dctlag, dtime => this%dtime, & 
+      ctlag => this%ctlag, dctlag => this%dctlag, dtime => this%dtime, &
       oifs_scheme => this%oifs_scheme, ntaubd => this%ntaubd, c => this%c)
 
       call dtime%init(oifs_scheme%ndiff)
@@ -283,7 +270,6 @@ contains
       call this%set_conv_char_fst(vx, vy, vz)
 
       do ilag = oifs_scheme%ndiff, 1, -1
-
 
          if (ilag.eq.1) then
             do i = 1, n
@@ -301,8 +287,8 @@ contains
                                   oifs_scheme%diffusion_coeffs(ilag+1) * wlag%lf(ilag-1)%x(i,1,1,1) * coef%B(i,1,1,1)
             end do
          end if
-                  
-         if (dctlag(ilag).lt.1e-10) then 
+
+         if (dctlag(ilag).lt.eps) then
             dtau = dt/real(ntaubd)
          else
             dtau = dctlag(ilag)/real(ntaubd)
@@ -310,9 +296,9 @@ contains
          do itau = 1, ntaubd
             th = tau + dtau/2.
             tau1 = tau + dtau
-            call dtime%interpolate_velocity(tau, c_r1, c, ctlag, n_GL_t) 
-            call dtime%interpolate_velocity(th, c_r23, c, ctlag, n_GL_t) 
-            call dtime%interpolate_velocity(tau1, c_r4, c, ctlag, n_GL_t) 
+            call dtime%interpolate_velocity(tau, c_r1, c, ctlag, n_GL_t)
+            call dtime%interpolate_velocity(th, c_r23, c, ctlag, n_GL_t)
+            call dtime%interpolate_velocity(tau1, c_r4, c, ctlag, n_GL_t)
             call runge_kutta(fx%x, c_r1, c_r23, c_r4, Xh, this%Xh_GL, coef, this%coef_GL, &
                              this%GLL_to_GL, tau, dtau, n, nel, n_GL)
             call runge_kutta(fy%x, c_r1, c_r23, c_r4, Xh, this%Xh_GL, coef, this%coef_GL, &
@@ -337,7 +323,7 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  !! @param dt Current time-step
+  !! @param dt Current time-step.
   subroutine compute_scalar_adv_oifs(this, vx, vy, vz, s, fs, Xh, coef, n, dt)
     implicit none
     class(adv_oifs_t), intent(inout) :: this
@@ -378,7 +364,7 @@ contains
                                oifs_scheme%diffusion_coeffs(ilag+1) * slag%lf(ilag-1)%x(i,1,1,1) * coef%B(i,1,1,1)
             end do
          end if
-                  
+
          if (dctlag(ilag).lt.1e-10) then 
             dtau = dt/real(ntaubd)
          else
@@ -387,15 +373,15 @@ contains
          do itau = 1, ntaubd
             th = tau + dtau/2.
             tau1 = tau + dtau
-            call dtime%interpolate_velocity(tau, c_r1, c, ctlag, n_GL_t) 
-            call dtime%interpolate_velocity(th, c_r23, c, ctlag, n_GL_t) 
-            call dtime%interpolate_velocity(tau1, c_r4, c, ctlag, n_GL_t) 
+            call dtime%interpolate_velocity(tau, c_r1, c, ctlag, n_GL_t)
+            call dtime%interpolate_velocity(th, c_r23, c, ctlag, n_GL_t)
+            call dtime%interpolate_velocity(tau1, c_r4, c, ctlag, n_GL_t)
             call runge_kutta(fs%x, c_r1, c_r23, c_r4, Xh, this%Xh_GL, coef, this%coef_GL, &
                              this%GLL_to_GL, tau, dtau, n, nel, n_GL)
             tau = tau1
          end do
       end do
-      
+
     end associate
 
   end subroutine compute_scalar_adv_oifs

@@ -217,7 +217,7 @@ contains
   end subroutine scalar_rhs_maker_bdf_sx
 
   subroutine rhs_maker_oifs_sx(phix, phiy, phiz, bfx, bfy, bfz, &
-       rho, dt, n)
+                               rho, dt, n)
     real(kind=rp), intent(in) :: rho, dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
@@ -225,11 +225,10 @@ contains
     integer :: i
 
     do i = 1, n
-       bfx(i) = bfx(i) + phix(i) * (rho / dt) 
-       bfy(i) = bfy(i) + phiy(i) * (rho / dt) 
-       bfz(i) = bfz(i) + phiz(i) * (rho / dt)  
+       bfx(i) = bfx(i) + phix(i) * (rho / dt)
+       bfy(i) = bfy(i) + phiy(i) * (rho / dt)
+       bfz(i) = bfz(i) + phiz(i) * (rho / dt)
     end do
-
 
   end subroutine rhs_maker_oifs_sx
 
@@ -239,12 +238,11 @@ contains
     real(kind=rp), intent(inout) :: bfs(n)
     real(kind=rp), intent(inout) :: phis(n)
     integer :: i
-    
+
     do i = 1, n
-       bfs(i) = bfs(i) + phis(i) * (rho / dt) 
+       bfs(i) = bfs(i) + phis(i) * (rho / dt)
     end do
-    
-    
+
   end subroutine scalar_rhs_maker_oifs_sx
 
 end module rhs_maker_sx

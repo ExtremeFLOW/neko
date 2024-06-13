@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -64,6 +64,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx
 
   subroutine cpu_set_convect_new_lx18(cr, cs, ct, cx, cy, cz, &
@@ -74,7 +75,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -94,6 +95,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx18
 
   subroutine cpu_set_convect_new_lx17(cr, cs, ct, cx, cy, cz, &
@@ -104,7 +106,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -124,6 +126,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx17
 
   subroutine cpu_set_convect_new_lx16(cr, cs, ct, cx, cy, cz, &
@@ -134,7 +137,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -154,6 +157,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx16
 
   subroutine cpu_set_convect_new_lx15(cr, cs, ct, cx, cy, cz, &
@@ -164,7 +168,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -184,6 +188,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx15
 
   subroutine cpu_set_convect_new_lx14(cr, cs, ct, cx, cy, cz, &
@@ -194,7 +199,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -214,6 +219,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx14
 
   subroutine cpu_set_convect_new_lx13(cr, cs, ct, cx, cy, cz, &
@@ -224,7 +230,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -244,6 +250,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx13
 
   subroutine cpu_set_convect_new_lx12(cr, cs, ct, cx, cy, cz, &
@@ -254,7 +261,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -274,6 +281,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx12
 
   subroutine cpu_set_convect_new_lx11(cr, cs, ct, cx, cy, cz, &
@@ -284,7 +292,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -304,6 +312,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx11
 
   subroutine cpu_set_convect_new_lx10(cr, cs, ct, cx, cy, cz, &
@@ -314,7 +323,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -334,6 +343,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx10
 
   subroutine cpu_set_convect_new_lx9(cr, cs, ct, cx, cy, cz, &
@@ -344,7 +354,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -364,6 +374,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx9
 
   subroutine cpu_set_convect_new_lx8(cr, cs, ct, cx, cy, cz, &
@@ -374,7 +385,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -394,6 +405,7 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx8 
 
   subroutine cpu_set_convect_new_lx7(cr, cs, ct, cx, cy, cz, &
@@ -404,7 +416,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -424,39 +436,41 @@ contains
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx7
 
   subroutine cpu_set_convect_new_lx6(cr, cs, ct, cx, cy, cz, &
-   drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
-integer, parameter :: lx = 6
-integer, intent(in) :: n
-real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: cr, cs, ct
-real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
-real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
-integer :: e, i
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
+    integer, parameter :: lx = 6
+    integer, intent(in) :: n
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: cr, cs, ct
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    integer :: e, i
 
-do e = 1, n
-   do i = 1, lx * lx * lx
-      cr(i,1,1,e) = w3(i,1,1) &
-                  * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                    + cy(i,1,1,e) * drdy(i,1,1,e) &
-                    + cz(i,1,1,e) * drdz(i,1,1,e) )
-      cs(i,1,1,e) = w3(i,1,1) &
-                  * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                    + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                    + cz(i,1,1,e) * dsdz(i,1,1,e))
-      ct(i,1,1,e) = w3(i,1,1) &
-                  * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                    + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                    + cz(i,1,1,e) * dtdz(i,1,1,e))
-   end do
-end do
-end subroutine cpu_set_convect_new_lx6
+    do e = 1, n
+       do i = 1, lx * lx * lx
+          cr(i,1,1,e) = w3(i,1,1) &
+                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+                        + cy(i,1,1,e) * drdy(i,1,1,e) &
+                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+          cs(i,1,1,e) = w3(i,1,1) &
+                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
+                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+          ct(i,1,1,e) = w3(i,1,1) &
+                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
+                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+       end do
+    end do
+    
+  end subroutine cpu_set_convect_new_lx6
 
-subroutine cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
+  subroutine cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 5
     integer, intent(in) :: n
@@ -464,7 +478,7 @@ subroutine cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -484,6 +498,7 @@ subroutine cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx5
   
   subroutine cpu_set_convect_new_lx4(cr, cs, ct, cx, cy, cz, &
@@ -494,7 +509,7 @@ subroutine cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -514,6 +529,7 @@ subroutine cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx4
   
   subroutine cpu_set_convect_new_lx3(cr, cs, ct, cx, cy, cz, &
@@ -524,7 +540,7 @@ subroutine cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -544,6 +560,7 @@ subroutine cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+
   end subroutine cpu_set_convect_new_lx3 
 
   subroutine cpu_set_convect_new_lx2(cr, cs, ct, cx, cy, cz, &
@@ -554,7 +571,7 @@ subroutine cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cx, cy, cz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
     integer :: e, i
 
@@ -574,7 +591,7 @@ subroutine cpu_set_convect_new_lx5(cr, cs, ct, cx, cy, cz, &
                         + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
-  end subroutine cpu_set_convect_new_lx2
 
+  end subroutine cpu_set_convect_new_lx2
 
 end module cpu_set_convect_new

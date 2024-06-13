@@ -13,7 +13,7 @@
   "numerics": {
     "time_order": 3,
     "polynomial_order": 7,
-    "dealias": true,
+    "dealias": true
   },
   "fluid": {
     "scheme": "pnpn",

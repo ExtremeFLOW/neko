@@ -399,7 +399,7 @@ contains
     real(kind=rp), intent(inout) :: c(Xh_GL%lxyz,coef_GL%msh%nelv,3)
     associate(dx => Xh_GL%dx, dy => Xh_GL%dy, dz => Xh_GL%dz, &
          lx => Xh_GL%lx, nelv => coef_GL%msh%nelv)
-      
+
       select case(lx)
       case(18)
          call sx_conv_fst_3d_lx18(du, u, c, dx, dy, dz, &
@@ -765,7 +765,7 @@ contains
       dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
       dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &  
       nelv => coef%msh%nelv, lx=>Xh%lx, w3 => Xh%w3)
-     
+
       select case(lx)
       case(18)
          call sx_set_convect_new_lx18(cr, cs, ct, cx, cy, cz, &

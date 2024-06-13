@@ -273,7 +273,7 @@ contains
     character(len=10) :: format_str
     logical :: found
 
-    call C%params%get('case.checkpoint_format', chkp_format, found)   
+    call C%params%get('case.checkpoint_format', chkp_format, found)
     call C%fluid%chkp%sync_host()
     format_str = '.chkp'
     if (found) then

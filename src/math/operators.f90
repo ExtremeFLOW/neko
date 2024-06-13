@@ -54,7 +54,7 @@ module operators
   use device, only : c_ptr, device_get_ptr
   use device_math, only : device_add2, device_cmult, device_copy
   use scratch_registry, only : neko_scratch_registry
-  use interpolation
+  use interpolation, only : interpolator_t
   use gather_scatter 
   use comm
   implicit none
@@ -290,37 +290,37 @@ contains
     end associate
 
   end subroutine conv1
-  
+
   !> Apply the convecting velocity c to the to the scalar field u
-  !! @param du Holds the result.
+  !! @param du Holds the result
   !! @param c The convecting velocity
   !! @param u The convected scalar field
-  !! @param Xh_GLL The GLL space used in simulation 
+  !! @param Xh_GLL The GLL space used in simulation
   !! @param Xh_GL The GL space used for dealiasing
   !! @param coef The coefficients of the original space in simulation
-  !! @param coef_GL The coefficients of the GL space used for dealiasing 
+  !! @param coef_GL The coefficients of the GL space used for dealiasing
   !! @param GLL_to_GL the interpolator between the GLL and GL spaces
   !! @note This subroutine is equal to the convop_fst_3d of the NEK5000
   subroutine convop_fst_3d(du, u, c, Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
-   type(space_t), intent(in) :: Xh_GL
-   type(space_t), intent(in) :: Xh_GLL
-   type(coef_t), intent(in) :: coef_GLL
-   type(coef_t), intent(in) :: coef_GL
-   type(interpolator_t), intent(inout) :: GLL_to_GL
-   real(kind=rp), intent(inout) :: du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
-   real(kind=rp), intent(inout) :: u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
-   real(kind=rp), intent(inout) :: c(Xh_GL%lxyz,coef_GL%msh%nelv, 3)
+    type(space_t), intent(in) :: Xh_GL
+    type(space_t), intent(in) :: Xh_GLL
+    type(coef_t), intent(in) :: coef_GLL
+    type(coef_t), intent(in) :: coef_GL
+    type(interpolator_t), intent(inout) :: GLL_to_GL
+    real(kind=rp), intent(inout) :: du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: c(Xh_GL%lxyz,coef_GL%msh%nelv, 3)
 
-   if (NEKO_BCKND_SX .eq. 1) then 
-      call opr_sx_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, &
-                              coef_GLL, coef_GL, GLL_to_GL)
-   else if (NEKO_BCKND_XSMM .eq. 1) then
-      call opr_xsmm_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, &
-                                coef_GLL, coef_GL, GLL_to_GL)
-   else
-      call opr_cpu_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, &
+    if (NEKO_BCKND_SX .eq. 1) then 
+       call opr_sx_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, &
                                coef_GLL, coef_GL, GLL_to_GL)
-   end if
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       call opr_xsmm_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, &
+                                 coef_GLL, coef_GL, GLL_to_GL)
+    else
+       call opr_cpu_conv_fst_3d(du, u, c, Xh_GLL, Xh_GL, &
+                                coef_GLL, coef_GL, GLL_to_GL)
+    end if
 
  end subroutine convop_fst_3d
 
@@ -497,43 +497,42 @@ contains
   !! @param cx convecting velocity in x-direction
   !! @param cy convecting velocity in y-direction
   !! @param cz convecting velocity in z-direction
-  !! @param Xh The GL space used for dealiasing 
-  !! @param coef The coeffiecients of the GL space used for dealiasing 
+  !! @param Xh The GL space used for dealiasing
+  !! @param coef The coeffiecients of the GL space used for dealiasing
   !! @note This subroutine is equal to the set_convect_new subroutine of NEK5000
   subroutine set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef)   
-   type(space_t), intent(inout) :: Xh
-   type(coef_t), intent(inout) :: coef
-   real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), intent(inout) :: cr, cs, ct
-   real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), intent(in) :: cx, cy, cz
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), intent(inout) :: cr, cs, ct
+    real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), intent(in) :: cx, cy, cz
 
-   if (NEKO_BCKND_SX .eq. 1) then 
-      call opr_sx_set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef) 
-   else if (NEKO_BCKND_XSMM .eq. 1) then
-      call opr_xsmm_set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef) 
-   else
-      call opr_cpu_set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef) 
-   end if
-   
- end subroutine set_convect_new
+    if (NEKO_BCKND_SX .eq. 1) then
+       call opr_sx_set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       call opr_xsmm_set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef)
+    else
+       call opr_cpu_set_convect_new(cr, cs, ct, cx, cy, cz, Xh, coef)
+    end if
 
+  end subroutine set_convect_new
 
-  !> Compute one step of Runge Kutta time interpolatio for OIFS scheme.
+  !> Compute one step of Runge Kutta time interpolation for OIFS scheme
   !! @param phi The iterpolated field
-  !! @param c_r1 The covecting velocity for the first stage.
-  !! @param c_r23 The convecting velocity for the second and third stage.
-  !! @param c_r4 The convecting velocity for the fourth stage.
-  !! @param Xh_GLL The GLL space used in simulation 
+  !! @param c_r1 The covecting velocity for the first stage
+  !! @param c_r23 The convecting velocity for the second and third stage
+  !! @param c_r4 The convecting velocity for the fourth stage
+  !! @param Xh_GLL The GLL space used in simulation
   !! @param Xh_GL The GL space used for dealiasing
   !! @param coef The coefficients of the original space in simulation
-  !! @param coef_GL The coefficients of the GL space used for dealiasing 
+  !! @param coef_GL The coefficients of the GL space used for dealiasing
   !! @param GLL_to_GL the interpolator between the GLL and GL spaces
   !! @param tau The the starting time
   !! @param dtau The time step used for the Runge Kutta scheme
   !! @param n size of phi
   !! @param nel Total number of elements
-  !! @param n_GL the size in the GL space 
+  !! @param n_GL the size in the GL space
   subroutine runge_kutta(phi, c_r1, c_r23, c_r4, Xh_GLL, Xh_GL, coef, coef_GL, &
-                        GLL_to_GL, tau, dtau, n, nel, n_GL)
+                         GLL_to_GL, tau, dtau, n, nel, n_GL)
     type(space_t), intent(inout) :: Xh_GLL
     type(space_t), intent(inout) :: Xh_GL
     type(coef_t), intent(inout) :: coef
@@ -549,7 +548,6 @@ contains
     real(kind=rp), dimension(n_GL) :: u1_GL
     integer :: i, e
 
-
     c1 = 1.
     c2 = -dtau/2.
     c3 = -dtau
@@ -558,36 +556,34 @@ contains
     call invcol3 (u1, phi, coef%B, n)
     call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
     call convop_fst_3d(r1, u1_GL, c_r1, Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
-    call col2(r1, coef%B, n)    
-                   
+    call col2(r1, coef%B, n)
+
     ! Stage 2:
     call add3s2 (u1, phi, r1, c1, c2, n)
-    call invcol2 (u1, coef%B, n)  
+    call invcol2 (u1, coef%B, n)
     call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
     call convop_fst_3d(r2, u1_GL, c_r23, Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
-    call col2(r2, coef%B, n)   
-   
+    call col2(r2, coef%B, n)
 
     ! Stage 3:
-    call add3s2 (u1, phi, r2, c1, c2, n)           
+    call add3s2 (u1, phi, r2, c1, c2, n)
     call invcol2 (u1,  coef%B, n)
     call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
     call convop_fst_3d(r3, u1_GL, c_r23, Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
-    call col2(r3, coef%B, n)  
+    call col2(r3, coef%B, n)
 
     ! Stage 4:
     call add3s2 (u1, phi, r3, c1, c3, n)
-    call invcol2 (u1, coef%B, n)                   
+    call invcol2 (u1, coef%B, n)
     call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
     call convop_fst_3d(r4, u1_GL, c_r4, Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
-    call col2(r4, coef%B, n)  
-   
+    call col2(r4, coef%B, n)
+
     c1 = -dtau/6.
     c2 = -dtau/3.
     do i = 1, n
        phi(i) = phi(i) + c1 * (r1(i)+r4(i)) + c2 * (r2(i)+r3(i))
     end do
-
 
   end subroutine runge_kutta
 

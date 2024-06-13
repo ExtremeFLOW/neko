@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -98,17 +98,17 @@ contains
   end subroutine rhs_maker_bdf_fctry
 
   subroutine rhs_maker_oifs_fctry(makeoifs)
-   class(rhs_maker_oifs_t), allocatable, intent(inout) :: makeoifs
-      
-   if (allocated(makeoifs)) then
-      deallocate(makeoifs)
-   end if
+    class(rhs_maker_oifs_t), allocatable, intent(inout) :: makeoifs
 
-   if (NEKO_BCKND_SX .eq. 1) then
-      allocate(rhs_maker_oifs_sx_t::makeoifs)
-   else       
-      allocate(rhs_maker_oifs_cpu_t::makeoifs)
-   end if
+    if (allocated(makeoifs)) then
+       deallocate(makeoifs)
+    end if
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(rhs_maker_oifs_sx_t::makeoifs)
+    else
+       allocate(rhs_maker_oifs_cpu_t::makeoifs)
+    end if
 
  end subroutine rhs_maker_oifs_fctry
 
