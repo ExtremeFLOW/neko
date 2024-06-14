@@ -85,23 +85,23 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   documentation:
-    needs: [Intel, GNU, NVIDIA, ReFrame]
+    needs: [prepare, Intel, GNU, NVIDIA, ReFrame]
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - name: Setup env.
         run: |
-          sudo apt-get update && sudo apt-get install -y git openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 doxygen fonts-freefont-ttf graphviz
+          sudo apt-get update && sudo apt-get install -y git openmpi-bin libopenmpi-dev autoconf automake autotools-dev gfortran libopenblas-dev make git m4 python3 doxygen fonts-freefont-ttf graphviz
           git clone https://github.com/ExtremeFLOW/doxygen-awesome-css doc/doxygen-awesome-css
 
       - name: Get JSON-Fortran
         id: get-json-fortran
         uses: ./.github/actions/setup_json-fortran
         with:
-          version: ${{ inputs.json-fortran-version }}
-          os: ${{ matrix.os }}
-          compiler: ${{ matrix.compiler }}
+          version: ${{ needs.prepare.outputs.json-fortran-version }}
+          os: ${{ runner.os }}
+          compiler: gfortran
 
       - name: Add JSON-Fortran to environment
         env:
@@ -113,7 +113,7 @@ jobs:
       - name: Doxygen
         run: |
           ./regen.sh
-          ./configure FC=${FC}
+          ./configure FC=gfortran
           make html
 
       # Deploy the HTML documentation to GitHub Pages
