@@ -53,8 +53,6 @@ module bp_file
   type(adios2_adios)    :: adios
   type(adios2_io)       :: ioWriter
   type(adios2_io)       :: ioReader
-  type(adios2_engine)   :: bpWriter
-  type(adios2_engine)   :: bpReader
 
   !> Interface for ADIOS2 bp files
   type, public, extends(generic_file_t) :: bp_file_t
@@ -86,13 +84,10 @@ contains
     integer, allocatable :: idx(:)
     logical :: write_mesh, write_velocity, write_pressure, write_temperature
     integer :: adios2_type
+    type(adios2_engine)   :: bpWriter
     type(adios2_variable) :: variable_idx, variable_hdr, variable_msh
     type(adios2_variable) :: variable_v, variable_p, variable_temp
-    integer(kind=8), dimension(1) :: shape_dims_idx, start_dims_idx, count_dims_idx
-    integer(kind=8), dimension(1) :: shape_dims_msh, start_dims_msh, count_dims_msh
-    integer(kind=8), dimension(1) :: shape_dims_v, start_dims_v, count_dims_v
-    integer(kind=8), dimension(1) :: shape_dims_p, start_dims_p, count_dims_p
-    integer(kind=8), dimension(1) :: shape_dims_temp, start_dims_temp, count_dims_temp
+    integer(kind=8), dimension(1) :: shape_dims, start_dims, count_dims
   
     if (present(t)) then
        time = real(t,dp)
@@ -259,104 +254,56 @@ contains
     call adios2_put(bpWriter, variable_hdr, hdr, adios2_mode_sync, ierr)
 
     ! Write element idxs
-    shape_dims_idx = (int(glb_nelv, i8))
-    start_dims_idx = (int(offset_el, i8))
-    count_dims_idx = (int(nelv, i8))
+    shape_dims = (int(glb_nelv, i8))
+    start_dims = (int(offset_el, i8))
+    count_dims = (int(nelv, i8))
     call adios2_inquire_variable(variable_idx, ioWriter, 'idx', ierr)
     if (.not.variable_idx%valid) then
        call adios2_define_variable(variable_idx, ioWriter, 'idx', adios2_type_integer4,&
-            size(shape_dims_idx), shape_dims_idx, start_dims_idx, count_dims_idx, .false., ierr)
+            size(shape_dims), shape_dims, start_dims, count_dims, .false., ierr)
     else
-       call adios2_set_shape(variable_idx, size(shape_dims_idx), shape_dims_idx, ierr)
-       call adios2_set_selection(variable_idx, size(start_dims_idx), &
-            start_dims_idx, count_dims_idx, ierr)
+       call adios2_set_shape(variable_idx, size(shape_dims), shape_dims, ierr)
+       call adios2_set_selection(variable_idx, size(start_dims), &
+            start_dims, count_dims, ierr)
     end if
     call adios2_put(bpWriter, variable_idx, idx, adios2_mode_sync, ierr)
 
     deallocate(idx)
 
     if (write_mesh) then
-       shape_dims_msh = (int(glb_nelv, i8) * int(lxyz, i8) * int(gdim, i8))
-       start_dims_msh = (int(offset_el, i8) * int(lxyz, i8) * int(gdim, i8))
-       count_dims_msh = (int(nelv, i8) * int(lxyz, i8) * int(gdim, i8))
-       call adios2_inquire_variable(variable_msh, ioWriter, 'mesh', ierr)
-       if (.not.variable_msh%valid) then
-          call adios2_define_variable(variable_msh, ioWriter, 'mesh', adios2_type,&
-               size(shape_dims_msh), shape_dims_msh, start_dims_msh, count_dims_msh, .false., ierr)
-       else
-          call adios2_set_shape(variable_msh, size(shape_dims_msh), shape_dims_msh, ierr)
-          call adios2_set_selection(variable_msh, size(start_dims_msh), &
-               start_dims_msh, count_dims_msh, ierr)
-       end if
+       shape_dims = (int(glb_nelv, i8) * int(lxyz, i8) * int(gdim, i8))
+       start_dims = (int(offset_el, i8) * int(lxyz, i8) * int(gdim, i8))
+       count_dims = (int(nelv, i8) * int(lxyz, i8) * int(gdim, i8))
        call bp_file_buffer_vector_field(this, x%ptr, y%ptr, z%ptr, n, gdim, lxyz, nelv)
-       if (this%dp_precision) then
-          call adios2_put(bpWriter, variable_msh, tmp_dp, adios2_mode_sync, ierr)
-       else
-          call adios2_put(bpWriter, variable_msh, tmp_sp, adios2_mode_sync, ierr)
-       end if
+       call bp_file_bp_write(this, bpWriter, 'mesh', adios2_type, shape_dims, &
+            start_dims, count_dims, ierr)
     end if
 
     if (write_velocity) then
-       shape_dims_v = (int(glb_nelv, i8) * int(lxyz, i8) * int(gdim, i8))
-       start_dims_v = (int(offset_el, i8) * int(lxyz, i8) * int(gdim, i8))
-       count_dims_v = (int(nelv, i8) * int(lxyz, i8) * int(gdim, i8))
-       call adios2_inquire_variable(variable_v, ioWriter, 'velocity', ierr)
-       if (.not.variable_v%valid) then
-          call adios2_define_variable(variable_v, ioWriter, 'velocity', adios2_type,&
-               size(shape_dims_v), shape_dims_v, start_dims_v, count_dims_v, .false., ierr)
-       else
-          call adios2_set_shape(variable_v, size(shape_dims_v), shape_dims_v, ierr)
-          call adios2_set_selection(variable_v, size(start_dims_v), &
-               start_dims_v, count_dims_v, ierr)
-       end if
+       shape_dims = (int(glb_nelv, i8) * int(lxyz, i8) * int(gdim, i8))
+       start_dims = (int(offset_el, i8) * int(lxyz, i8) * int(gdim, i8))
+       count_dims = (int(nelv, i8) * int(lxyz, i8) * int(gdim, i8))
        call bp_file_buffer_vector_field(this, u%ptr, v%ptr, w%ptr, n, gdim, lxyz, nelv)
-       if (this%dp_precision) then
-          call adios2_put(bpWriter, variable_v, tmp_dp, adios2_mode_sync, ierr)
-       else
-          call adios2_put(bpWriter, variable_v, tmp_sp, adios2_mode_sync, ierr)
-       end if
+       call bp_file_bp_write(this, bpWriter, 'velocity', adios2_type, shape_dims, &
+            start_dims, count_dims, ierr)
     end if
 
     if (write_pressure) then
-       shape_dims_p = (int(glb_nelv, i8) * int(lxyz, i8))
-       start_dims_p = (int(offset_el, i8) * int(lxyz, i8))
-       count_dims_p = (int(nelv, i8) * int(lxyz, i8))
-       call adios2_inquire_variable(variable_p, ioWriter, 'pressure', ierr)
-       if (.not.variable_p%valid) then
-          call adios2_define_variable(variable_p, ioWriter, 'pressure', adios2_type,&
-               size(shape_dims_p), shape_dims_p, start_dims_p, count_dims_p, .false., ierr)
-       else
-          call adios2_set_shape(variable_p, size(shape_dims_p), shape_dims_p, ierr)
-          call adios2_set_selection(variable_p, size(start_dims_p), &
-               start_dims_p, count_dims_p, ierr)
-       end if
+       shape_dims = (int(glb_nelv, i8) * int(lxyz, i8))
+       start_dims = (int(offset_el, i8) * int(lxyz, i8))
+       count_dims = (int(nelv, i8) * int(lxyz, i8))
        call bp_file_buffer_field(this, p%ptr, n)
-       if (this%dp_precision) then
-          call adios2_put(bpWriter, variable_p, tmp_dp, adios2_mode_sync, ierr)
-       else
-          call adios2_put(bpWriter, variable_p, tmp_sp, adios2_mode_sync, ierr)
-       end if
+       call bp_file_bp_write(this, bpWriter, 'pressure', adios2_type, shape_dims, &
+            start_dims, count_dims, ierr)
     end if
 
     if (write_temperature) then
-       shape_dims_temp = (int(glb_nelv, i8) * int(lxyz, i8))
-       start_dims_temp = (int(offset_el, i8) * int(lxyz, i8))
-       count_dims_temp = (int(nelv, i8) * int(lxyz, i8))
-       call adios2_inquire_variable(variable_temp, ioWriter, 'temperature', ierr)
-       if (.not.variable_temp%valid) then
-          call adios2_define_variable(variable_temp, ioWriter, 'temperature', adios2_type,&
-               size(shape_dims_temp), shape_dims_temp, start_dims_temp, count_dims_temp, .false., ierr)
-       else
-          call adios2_set_shape(variable_temp, size(shape_dims_temp), shape_dims_temp, ierr)
-          call adios2_set_selection(variable_temp, size(start_dims_temp), &
-               start_dims_temp, count_dims_temp, ierr)
-       end if
+       shape_dims = (int(glb_nelv, i8) * int(lxyz, i8))
+       start_dims = (int(offset_el, i8) * int(lxyz, i8))
+       count_dims = (int(nelv, i8) * int(lxyz, i8))
        call bp_file_buffer_field(this, tem%ptr, n)
-       if (this%dp_precision) then
-          call adios2_put(bpWriter, variable_temp, tmp_dp, adios2_mode_sync, ierr)
-       else
-          call adios2_put(bpWriter, variable_temp, tmp_sp, adios2_mode_sync, ierr)
-       end if
+       call bp_file_bp_write(this, bpWriter, 'temperature', adios2_type, shape_dims, &
+            start_dims, count_dims, ierr)
     end if
 
     call adios2_end_step(bpWriter, ierr)
@@ -381,6 +328,34 @@ contains
     if (allocated(tmp_dp)) deallocate(tmp_dp)
     if (allocated(tmp_sp)) deallocate(tmp_sp)
   end subroutine bp_file_write
+
+  subroutine bp_file_bp_write(this, bpWriter, variable_name, adios2_type, &
+                              shape_dims, start_dims, count_dims, ierr)
+    class(bp_file_t), intent(inout) :: this
+    type(adios2_engine), intent(in) :: bpWriter
+    character(len=*), intent(in) :: variable_name
+    integer :: adios2_type
+    integer(kind=8), dimension(1), intent(in) :: shape_dims, start_dims, count_dims
+    integer, intent(inout) :: ierr
+    type(adios2_variable) :: variable
+
+    call adios2_inquire_variable(variable, ioWriter, variable_name, ierr)
+    if (.not.variable%valid) then
+       !> @todo could the shape and slice be fixed?
+       call adios2_define_variable(variable, ioWriter, variable_name, adios2_type, &
+            size(shape_dims), shape_dims, start_dims, count_dims, .false., ierr)
+    else
+       call adios2_set_shape(variable, size(shape_dims), shape_dims, ierr)
+       call adios2_set_selection(variable, size(start_dims), &
+            start_dims, count_dims, ierr)
+    end if
+    if (this%dp_precision) then
+       call adios2_put(bpWriter, variable, tmp_dp, adios2_mode_sync, ierr)
+    else
+       call adios2_put(bpWriter, variable, tmp_sp, adios2_mode_sync, ierr)
+    end if
+
+  end subroutine bp_file_bp_write
 
   subroutine bp_file_buffer_field(this, p, n)
     class(bp_file_t), intent(inout) :: this
@@ -461,13 +436,9 @@ contains
     real(kind=rp) :: time
     type(linear_dist_t) :: dist
     character :: rdcode(10), temp_str(4)
-    type(adios2_variable) :: variable_hdr, variable_idx, variable_msh
-    type(adios2_variable) :: variable_v, variable_p, variable_temp
-    integer(kind=8), dimension(1) :: start_dims_idx, count_dims_idx
-    integer(kind=8), dimension(1) :: start_dims_msh, count_dims_msh
-    integer(kind=8), dimension(1) :: start_dims_v, count_dims_v
-    integer(kind=8), dimension(1) :: start_dims_p, count_dims_p
-    integer(kind=8), dimension(1) :: start_dims_temp, count_dims_temp
+    type(adios2_engine)   :: bpReader
+    type(adios2_variable) :: variable_hdr, variable_idx
+    integer(kind=8), dimension(1) :: start_dims, count_dims
 
     select type(data)
     type is (fld_file_data_t)
@@ -609,80 +580,40 @@ contains
        end if
 
        ! Read element idxs
-       start_dims_idx = (int(data%offset_el, i8))
-       count_dims_idx = (int(data%nelv, i8))
+       start_dims = (int(data%offset_el, i8))
+       count_dims = (int(data%nelv, i8))
        call adios2_inquire_variable(variable_idx, ioReader, 'idx', ierr)
        if (variable_idx%valid) then
-          call adios2_set_selection(variable_idx, size(start_dims_idx), &
-               start_dims_idx, count_dims_idx, ierr)
+          call adios2_set_selection(variable_idx, size(start_dims), &
+               start_dims, count_dims, ierr)
        end if
        call adios2_get(bpReader, variable_idx, data%idx, adios2_mode_sync, ierr)
 
        if (read_mesh) then
-          write(*,*) 'Reading mesh', 1
-          call adios2_inquire_variable(variable_msh, ioReader, 'mesh', ierr)
-          start_dims_msh = (int(data%offset_el, i8) * int(lxyz, i8) * int(data%gdim, i8))
-          count_dims_msh = (int(data%nelv, i8) * int(lxyz, i8) * int(data%gdim, i8))
-          if (variable_msh%valid) then
-             call adios2_set_selection(variable_msh, size(start_dims_msh), &
-                  start_dims_msh, count_dims_msh, ierr)
-          end if
-          if (this%dp_precision) then
-             call adios2_get(bpReader, variable_msh, tmp_dp, adios2_mode_sync, ierr)
-          else
-             call adios2_get(bpReader, variable_msh, tmp_sp, adios2_mode_sync, ierr)
-          end if
+          start_dims = (int(data%offset_el, i8) * int(lxyz, i8) * int(data%gdim, i8))
+          count_dims = (int(data%nelv, i8) * int(lxyz, i8) * int(data%gdim, i8))
+          call bp_file_bp_read(this, bpReader, 'mesh', start_dims, count_dims, ierr)
           call bp_file_cp_buffered_vector_field(this, data%x, data%y, data%z, data)
        end if
 
        if (read_velocity) then
-          write(*,*) 'Reading velocity', 1
-          call adios2_inquire_variable(variable_v, ioReader, 'velocity', ierr)
-          start_dims_v = (int(data%offset_el, i8) * int(lxyz, i8) * int(data%gdim, i8))
-          count_dims_v = (int(data%nelv, i8) * int(lxyz, i8) * int(data%gdim, i8))
-          if (variable_v%valid) then
-             call adios2_set_selection(variable_v, size(start_dims_v), &
-                  start_dims_v, count_dims_v, ierr)
-          end if
-          if (this%dp_precision) then
-             call adios2_get(bpReader, variable_v, tmp_dp, adios2_mode_sync, ierr)
-          else
-             call adios2_get(bpReader, variable_v, tmp_sp, adios2_mode_sync, ierr)
-          end if
+          start_dims = (int(data%offset_el, i8) * int(lxyz, i8) * int(data%gdim, i8))
+          count_dims = (int(data%nelv, i8) * int(lxyz, i8) * int(data%gdim, i8))
+          call bp_file_bp_read(this, bpReader, 'velocity', start_dims, count_dims, ierr)
           call bp_file_cp_buffered_vector_field(this, data%u, data%v, data%w, data)
        end if
 
        if (read_pressure) then
-          write(*,*) 'Reading pressure', 1
-          call adios2_inquire_variable(variable_p, ioReader, 'pressure', ierr)
-          start_dims_p = (int(data%offset_el, i8) * int(lxyz, i8))
-          count_dims_p = (int(data%nelv, i8) * int(lxyz, i8))
-          if (variable_p%valid) then
-             call adios2_set_selection(variable_p, size(start_dims_p), &
-                  start_dims_p, count_dims_p, ierr)
-          end if
-          if (this%dp_precision) then
-             call adios2_get(bpReader, variable_p, tmp_dp, adios2_mode_sync, ierr)
-          else
-             call adios2_get(bpReader, variable_p, tmp_sp, adios2_mode_sync, ierr)
-          end if
+          start_dims = (int(data%offset_el, i8) * int(lxyz, i8))
+          count_dims = (int(data%nelv, i8) * int(lxyz, i8))
+          call bp_file_bp_read(this, bpReader, 'pressure', start_dims, count_dims, ierr)
           call bp_file_cp_buffered_field(this, data%p, data)
        end if
 
        if (read_temp) then
-          write(*,*) 'Reading temperature', 1
-          call adios2_inquire_variable(variable_temp, ioReader, 'temperature', ierr)
-          start_dims_temp = (int(data%offset_el, i8) * int(lxyz, i8))
-          count_dims_temp = (int(data%nelv, i8) * int(lxyz, i8))
-          if (variable_temp%valid) then
-             call adios2_set_selection(variable_temp, size(start_dims_temp), &
-                  start_dims_temp, count_dims_temp, ierr)
-          end if
-          if (this%dp_precision) then
-             call adios2_get(bpReader, variable_temp, tmp_dp, adios2_mode_sync, ierr)
-          else
-             call adios2_get(bpReader, variable_temp, tmp_sp, adios2_mode_sync, ierr)
-          end if
+          start_dims = (int(data%offset_el, i8) * int(lxyz, i8))
+          count_dims = (int(data%nelv, i8) * int(lxyz, i8))
+          call bp_file_bp_read(this, bpReader, 'temperature', start_dims, count_dims, ierr)
           call bp_file_cp_buffered_field(this, data%t, data)
        end if
 
@@ -700,6 +631,27 @@ contains
     end select
 
   end subroutine bp_file_read
+
+  subroutine bp_file_bp_read(this, bpReader, variable_name, start_dims, count_dims, ierr)
+    class(bp_file_t), intent(inout) :: this
+    type(adios2_engine), intent(in) :: bpReader
+    character(len=*), intent(in) :: variable_name
+    integer(kind=8), dimension(1), intent(in) :: start_dims, count_dims
+    integer, intent(inout) :: ierr
+    type(adios2_variable) :: variable
+
+    call adios2_inquire_variable(variable, ioReader, trim(variable_name), ierr)
+    if (variable%valid) then
+       call adios2_set_selection(variable, size(start_dims), &
+            start_dims, count_dims, ierr)
+    end if
+    if (this%dp_precision) then
+       call adios2_get(bpReader, variable, tmp_dp, adios2_mode_sync, ierr)
+    else
+       call adios2_get(bpReader, variable, tmp_sp, adios2_mode_sync, ierr)
+    end if
+
+  end subroutine bp_file_bp_read
 
   subroutine bp_file_cp_buffered_field(this, x, fld_data)
     class(bp_file_t), intent(inout) :: this
