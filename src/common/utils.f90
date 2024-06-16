@@ -202,6 +202,8 @@ contains
   !> Concatenate an array of strings into one string with array items
   !! separated by spaces.
   !! @param array The array of strings.
+  !! @param sep The separator put between the strings in the array.
+  !! @param prepend Whether to also prepend the string with the separator.
   function concat_string_array(array, sep, prepend) result(result)
     character(len=*), intent(in) :: array(:)
     character(len=*), intent(in) :: sep
