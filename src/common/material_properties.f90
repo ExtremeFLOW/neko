@@ -84,6 +84,7 @@ contains
        call neko_log%message(log_buf)
        call user%material_properties(0.0_rp, 0, this%rho, this%mu, &
                                         this%cp, this%lambda, params)
+       call neko_log%end_section()
     else
 
        !
@@ -133,6 +134,7 @@ contains
           this%cp = 1.0_rp
           this%lambda = 1.0_rp
           call this%write_to_log(.false.)
+          call neko_log%end_section()
           return
        end if
 
@@ -172,9 +174,11 @@ contains
           call json_get(params, 'case.scalar.lambda', this%lambda)
           call json_get(params, 'case.scalar.cp', this%cp)
        end if
+
+       call this%write_to_log(.true.)
+       call neko_log%end_section()
     end if
 
-    call this%write_to_log(.true.)
 
   end subroutine material_properties_init
 
