@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a shear stress boundary condition for a vector field.
+!> Defines the `wall_model_bc_t` type.
 module wall_model_bc
     use num_types
     use bc, only : bc_t
@@ -47,9 +47,7 @@ module wall_model_bc
     !> A shear stress boundary condition, computing the stress values using a
     !! wall model.
     type, public, extends(shear_stress_t) :: wall_model_bc_t
-      !> The wall model to compute the stress.
-      !class(rough_log_law_t), pointer :: wall_model => null()
-      !type(rough_log_law_t) :: wall_model
+       !> The wall model to compute the stress.
        class(wall_model_t), allocatable :: wall_model
      contains
        procedure, pass(this) :: apply_scalar => wall_model_bc_apply_scalar
@@ -69,9 +67,6 @@ module wall_model_bc
       real(kind=rp), intent(inout),  dimension(n) :: x
       real(kind=rp), intent(in), optional :: t
       integer, intent(in), optional :: tstep
-      integer :: i, m, k, facet
-      ! Store non-linear index
-      integer :: idx(4)
 
       call neko_error("The wall model bc is not applicable to scalar fields.")
 
@@ -92,13 +87,9 @@ module wall_model_bc
 
       call this%wall_model%compute(t, tstep)
 
-!      write(*,*) this%wall_model%n_nodes, this%msk(0), size(this%wall_model%ind_s), &
-!      size(this%wall_model%ind_t)
-
       do i=1, this%msk(0)
         magtau = sqrt(this%wall_model%tau_x(i)**2 + this%wall_model%tau_y(i)**2&
                       + this%wall_model%tau_z(i)**2)
-!        write(*,*) magtau, this%wall_model%ind_t(i)
 
         ! Mark sampling nodes with a -1 for debugging
         this%wall_model%tau_field%x(this%wall_model%ind_r(i), &

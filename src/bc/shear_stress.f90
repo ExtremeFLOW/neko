@@ -45,10 +45,8 @@ module shear_stress
     private
 
     !> A shear stress boundary condition.
-    !! This sets a given stress of the boundary-parallel components of the vector
-    !! field and a homogenoeus Dirichlet condition on the wall-normal component.
-    !! @note The condition is imposed weekly by adding an appropriate source
-    !! term to the right-hand-side.
+    !! @warning Currently hard coded to prescribe a given stress in x, 0 stress
+    !! in z, and 0 velocity in y.
     type, public, extends(bc_t) :: shear_stress_t
        !> The stress in the 1st wall-parallel direction.
        real(kind=rp), allocatable, private :: tau1_(:)
@@ -101,39 +99,10 @@ module shear_stress
       real(kind=rp), intent(inout),  dimension(n) :: z
       real(kind=rp), intent(in), optional :: t
       integer, intent(in), optional :: tstep
-      integer :: i, m, k, fid
-      ! Store non-linear index
-      integer :: idx(4)
-
-!      write(*,*) "tau1", this%tau1_(1:100)
 
       call this%neumann1%apply_scalar(x, n, t, tstep)
       call this%neumann2%apply_scalar(z, n, t, tstep)
       call this%dirichlet%apply_scalar(y, n, t, tstep)
-
-!      m = this%msk(0)
-!      do i = 1, m
-!         k = this%msk(i)
-!         fid = this%facet(i)
-!         idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
-!                               this%coef%Xh%lx)
-!         select case(fid)
-!         case(1,2)
-!            x(k) = x(k) + this%tau1_(i)*this%coef%area(idx(2), idx(3), fid, idx(4))
-!            z(k) = z(k) + this%tau2_(i)*this%coef%area(idx(2), idx(3), fid, idx(4))
-!            y(k) = 0.0_rp
-!         case(3,4)
-            !x(k) = x(k) + this%tau1_(i)*this%coef%area(idx(1), idx(3), fid, idx(4))
-            !z(k) = z(k) + this%tau2_(i)*this%coef%area(idx(1), idx(3), fid, idx(4))
-!            x(k) = x(k) + this%coef%area(idx(1), idx(3), fid, idx(4))
-!            z(k) = z(k) + this%coef%area(idx(1), idx(3), fid, idx(4))
-!            y(k) = 0.0_rp
-!         case(5,6)
-!            x(k) = x(k) + this%tau1_(i)*this%coef%area(idx(1), idx(2), fid, idx(4))
-!            z(k) = z(k) + this%tau2_(i)*this%coef%area(idx(1), idx(2), fid, idx(4))
-!            y(k) = 0.0_rp
-!         end select
-!      end do
 
     end subroutine shear_stress_apply_vector
 
