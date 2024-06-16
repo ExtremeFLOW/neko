@@ -154,15 +154,21 @@ contains
   !> Concatenate an array of strings into one string with array items
   !! separated by spaces.
   !! @param array The array of strings.
-  function concat_string_array(array) result(result)
+  function concat_string_array(array, sep, prepend) result(result)
     character(len=*), intent(in) :: array(:)
+    character(len=*), intent(in) :: sep
+    logical, intent(in) :: prepend
     character(:), allocatable :: result
     integer :: i
 
     result = trim(array(1))
     do i=2, size(array)
-       result = result // " " // trim(array(i))
+       result = result // sep // trim(array(i))
     end do
+
+    if (prepend .eqv. .true.) then
+      result = sep // result
+    end if
 
    end function concat_string_array
 

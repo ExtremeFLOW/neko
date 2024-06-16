@@ -68,7 +68,8 @@ contains
     character(len=:), allocatable :: simcomp_type
     character(len=:), allocatable :: type_string
 
-    type_string =  concat_string_array(KNOWN_TYPES)
+    type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+                                       .true.)
     call json_get(json, "type", simcomp_type)
 
     if (trim(simcomp_type) .eq. "vorticity") then
