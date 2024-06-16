@@ -45,6 +45,7 @@ module wall_model
   use utils, only : neko_error, nonlinear_index
   use math, only : glmin, glmax
   use comm, only : pe_rank
+  use logger, only : neko_log, NEKO_LOG_DEBUG
 
   implicit none
   private
@@ -220,7 +221,7 @@ contains
   subroutine wall_model_find_points(this)
     class(wall_model_t), intent(inout) :: this
     integer :: n_nodes, fid, idx(4), i, linear
-    real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw
+    real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, magp
     real(kind=rp) :: hmin, hmax
 
     n_nodes = this%msk(0)
@@ -284,13 +285,24 @@ contains
                          this%ind_e(i))
 
 
-       ! vector from the sampling point to the wall
+       ! Vector from the sampling point to the wall
        p(1) = x - xw
        p(2) = y - yw
        p(3) = z - zw
 
-       ! project on the normal direction to get h
+       ! Total distance to the sampling point
+       magp = sqrt(p(1)**2 + p(2)**2 + p(3)**2)
+
+       ! Project on the normal direction to get h
        this%h%x(i) = p(1)*normal(1) + p(2)*normal(2) + p(3)*normal(3)
+
+       ! Look at how much the total distance distance from the normal and warn
+       ! if significant
+       if ((this%h%x(i) - magp) / magp > 0.1 &
+           .and. (neko_log%level_ .eq. NEKO_LOG_DEBUG)) then
+          write(*,*) "Significant missalignment between wall normal and &
+                   & sampling point direction at wall node", xw, yw, zw
+       end if
     end do
 
     hmin = glmin(this%h%x, n_nodes)
