@@ -49,6 +49,28 @@ module device_math
   end interface
 
   interface
+     subroutine hip_masked_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name='hip_masked_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine hip_masked_copy
+  end interface
+  
+  interface
+     subroutine hip_cfill_mask(a_d, c, size, mask_d, mask_size) &
+          bind(c, name='hip_cfill_mask')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: size
+       type(c_ptr), value :: mask_d
+       integer(c_int) :: mask_size
+     end subroutine hip_cfill_mask
+  end interface
+
+  interface
      subroutine hip_cmult(a_d, c, n) &
           bind(c, name='hip_cmult')
        use, intrinsic :: iso_c_binding
@@ -337,6 +359,28 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_masked_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name='cuda_masked_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine cuda_masked_copy
+  end interface
+
+  interface
+     subroutine cuda_cfill_mask(a_d, c, size, mask_d, mask_size) &
+          bind(c, name='cuda_cfill_mask')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: size
+       type(c_ptr), value :: mask_d
+       integer(c_int) :: mask_size
+     end subroutine cuda_cfill_mask
+  end interface
+
+  interface
      subroutine cuda_cmult(a_d, c, n) &
           bind(c, name='cuda_cmult')
        use, intrinsic :: iso_c_binding
@@ -581,6 +625,7 @@ module device_math
        integer(c_int) :: n
      end function cuda_glsc3
   end interface
+
   interface
      subroutine cuda_glsc3_many(h,w_d,v_d_d,mult_d,j,n) &
           bind(c, name='cuda_glsc3_many')
@@ -625,6 +670,28 @@ module device_math
   end interface
 
   interface
+     subroutine opencl_masked_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name='opencl_masked_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine opencl_masked_copy
+  end interface
+
+  interface
+     subroutine opencl_cfill_mask(a_d, c, size, mask_d, mask_size) &
+          bind(c, name='opencl_cfill_mask')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: size
+       type(c_ptr), value :: mask_d
+       integer(c_int) :: mask_size
+     end subroutine opencl_cfill_mask
+  end interface
+
+  interface
      subroutine opencl_cmult(a_d, c, n) &
           bind(c, name='opencl_cmult')
        use, intrinsic :: iso_c_binding
@@ -645,6 +712,7 @@ module device_math
        integer(c_int) :: n
      end subroutine opencl_cmult2
   end interface
+
   interface
      subroutine opencl_cadd(a_d, c, n) &
           bind(c, name='opencl_cadd')
@@ -905,8 +973,9 @@ module device_math
        device_addsqr2s2, device_add3s2, device_invcol1, device_invcol2, &
        device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
        device_addcol3, device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
-       device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum
-
+       device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
+       device_masked_copy, device_cfill_mask
+  
 contains
 
   subroutine device_copy(a_d, b_d, n)
@@ -919,9 +988,40 @@ contains
 #elif HAVE_OPENCL
     call opencl_copy(a_d, b_d, n)
 #else
-    call neko_error('No device backend configured')
+    call neko_error('no device backend configured')
 #endif
   end subroutine device_copy
+
+  subroutine device_masked_copy(a_d, b_d, mask_d, n, m)
+    type(c_ptr) :: a_d, b_d, mask_d
+    integer :: n, m
+#ifdef HAVE_HIP
+    call hip_masked_copy(a_d, b_d, mask_d, n, m)
+#elif HAVE_CUDA
+    call cuda_masked_copy(a_d, b_d, mask_d, n, m)
+#elif HAVE_OPENCL
+    call opencl_masked_copy(a_d, b_d, mask_d, n, m)
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_masked_copy
+
+  subroutine device_cfill_mask(a_d, c, size, mask_d, mask_size)
+    type(c_ptr) :: a_d
+    real(kind=rp), intent(in) :: c
+    integer :: size
+    type(c_ptr) :: mask_d
+    integer :: mask_size
+#ifdef HAVE_HIP
+    call hip_cfill_mask(a_d, c, size, mask_d, mask_size)
+#elif HAVE_CUDA
+    call cuda_cfill_mask(a_d, c, size, mask_d, mask_size)
+#elif HAVE_OPENCL
+    call opencl_cfill_mask(a_d, c, size, mask_d, mask_size)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_cfill_mask
 
   subroutine device_rzero(a_d, n)
     type(c_ptr) :: a_d

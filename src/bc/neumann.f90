@@ -46,8 +46,6 @@ module neumann
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
      real(kind=rp), private :: flux_
-     !> SEM coeffs.
-     type(coef_t), pointer :: coef
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
      procedure, pass(this) :: apply_vector => neumann_apply_vector
@@ -55,6 +53,8 @@ module neumann
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
      procedure, pass(this) :: init_neumann => neumann_init_neumann
      procedure, pass(this) :: flux => neumann_flux
+     !> Destructor.
+     procedure, pass(this) :: free => neumann_free
   end type neumann_t
 
 contains
@@ -98,7 +98,6 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k
 
     call neko_error("Neumann bc not implemented for vectors")
 
@@ -133,13 +132,11 @@ contains
   !> Constructor
   !> @param flux The desired flux.
   !> @param coef The SEM coefficients.
-  subroutine neumann_init_neumann(this, flux, coef)
+  subroutine neumann_init_neumann(this, flux)
     class(neumann_t), intent(inout) :: this
     real(kind=rp), intent(in) :: flux
-    type(coef_t), target, intent(in) :: coef
 
     this%flux_ = flux
-    this%coef => coef
   end subroutine neumann_init_neumann
 
   !> Get the set flux.
@@ -149,5 +146,13 @@ contains
 
     flux = this%flux_
   end function neumann_flux
+
+  !> Destructor
+  subroutine neumann_free(this)
+    class(neumann_t), target, intent(inout) :: this
+
+    call this%free_base
+
+  end subroutine neumann_free
 
 end module neumann

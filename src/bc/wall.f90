@@ -33,19 +33,21 @@
 !> Defines wall boundary conditions
 module wall
   use device_wall
-  use num_types
-  use dirichlet
+  use num_types, only : rp
+  use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
   !> No-slip Wall boundary condition
-  type, public, extends(dirichlet_t) :: no_slip_wall_t
+  type, public, extends(bc_t) :: no_slip_wall_t
    contains
      procedure, pass(this) :: apply_scalar => no_slip_wall_apply_scalar
      procedure, pass(this) :: apply_vector => no_slip_wall_apply_vector
      procedure, pass(this) :: apply_scalar_dev => no_slip_wall_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => no_slip_wall_apply_vector_dev
+     !> Destructor.
+     procedure, pass(this) :: free => no_slip_wall_free
   end type no_slip_wall_t
 
 contains
@@ -116,5 +118,13 @@ contains
                                           size(this%msk))
 
   end subroutine no_slip_wall_apply_vector_dev
+
+  !> Destructor
+  subroutine no_slip_wall_free(this)
+    class(no_slip_wall_t), target, intent(inout) :: this
+
+    call this%free_base()
+
+  end subroutine no_slip_wall_free
 
 end module wall

@@ -32,9 +32,10 @@
 !
 !> Job control
 module jobctrl
-  use num_types
-  use signal
-  use utils
+  use num_types, only : rp, dp
+  use signal, only : signal_timeout, signal_usr, signal_trap_usr, &
+                     signal_set_timeout, signal_trap_cpulimit
+  use utils, onlY : neko_error
   use comm
   use logger
   implicit none

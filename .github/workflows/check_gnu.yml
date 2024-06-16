@@ -1,0 +1,189 @@
+name: GNU Matrix
+
+# Controls when the action will run.
+on:
+  workflow_call:
+    inputs:
+      json-fortran-version:
+        description: "The version of the JSON-Fortran library to use."
+        type: string
+        required: false
+        default: "8.3.0"
+      pfunit-version:
+        description: "The version of the pFUnit library to use."
+        type: string
+        required: false
+        default: "v4.4.2"
+
+jobs:
+  GNU:
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, macos-13]
+        compiler: [gfortran-10, gfortran-11, gfortran-12]
+        backend: [cpu, cuda, hip, opencl]
+        precision: [sp, dp]
+        exclude:
+          - os: ubuntu-20.04
+            compiler: gfortran-11
+          - os: ubuntu-20.04
+            compiler: gfortran-12
+          - os: ubuntu-20.04
+            backend: opencl
+          - os: macos-13
+            compiler: gfortran-10
+          - os: macos-13
+            backend: cuda
+          - os: macos-13
+            backend: hip
+
+        include:
+          - os: ubuntu-20.04
+            setup-env: |
+              sudo apt-get update
+              sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
+                automake autotools-dev libopenblas-dev make git m4 python3 \
+                cmake-curses-gui
+          - os: macos-13
+            setup-env: |
+              export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+              brew install openmpi
+              brew install automake
+              brew install gcc@11
+              brew install gcc@12
+
+    name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+    env:
+      FC: ${{ matrix.compiler }}
+      OMPI_FC: ${{ matrix.compiler }}
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      RP: ${{ matrix.precision }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup env.
+        run: ${{ matrix.setup-env }}
+
+      - name: Get pFunit
+        id: get-pfunit
+        if: matrix.backend == 'cpu'
+        uses: ./.github/actions/setup_pfunit
+        with:
+          version: ${{ inputs.pfunit-version }}
+          os: ${{ matrix.os }}
+          compiler: ${{ matrix.compiler }}
+
+      - name: Get json-fortran
+        id: get-json-fortran
+        uses: ./.github/actions/setup_json-fortran
+        with:
+          version: ${{ inputs.json-fortran-version }}
+          os: ${{ matrix.os }}
+          compiler: ${{ matrix.compiler }}
+
+      - name: Add JSON-Fortran to environment
+        env:
+          JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
+        run: |
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
+
+      - name: Build (CPU backend)
+        if: matrix.backend == 'cpu'
+        env:
+          PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
+        run: |
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --with-pfunit=$PFUNIT_DIR --enable-real=${RP}
+          make -j$(nproc)
+
+      - name: Build (CUDA backend)
+        if: matrix.backend == 'cuda'
+        run: |
+          sudo apt-get install -y nvidia-cuda-toolkit
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda=/usr
+          make -j$(nproc)
+
+      - name: Build (HIP backend)
+        if: matrix.backend == 'HIP'
+        run: |
+          wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
+          echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
+          sudo apt-get update && sudo apt-get install -y rocm-dev
+
+          # Lets not hardcode the version
+          ROCM_DIR=$(ls -d /opt/rocm-*)
+
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=$ROCM_DIR
+          make -j$(nproc)
+
+      - name: Build (OpenCL backend)
+        if: matrix.backend == 'opencl'
+        run: |
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-opencl
+          make -j$(nproc)
+
+      - name: Check
+        if: matrix.backend == 'cpu'
+        run: |
+          make -j$(nproc) check > tests/test-suite.log
+
+      - name: Archive test report
+        if: matrix.backend == 'cpu' && failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+          path: tests/test-suite.log
+          retention-days: 2
+
+      - name: Dist (CPU backend)
+        if: matrix.backend == 'cpu'
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          ./configure FC=${FC} --enable-real=${RP}
+          make -j $(nproc)
+
+      - name: Dist (CUDA backend)
+        if: matrix.backend == 'cuda'
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
+          make -j $(nproc)
+
+      - name: Dist (HIP backend)
+        if: matrix.backend == 'hip'
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          ROCM_DIR=$(ls -d /opt/rocm-*)
+          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=$ROCM_DIR
+          make -j $(nproc)
+
+      - name: Dist (OpenCL backend)
+        if: matrix.backend == 'opencl'
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          ./configure FC=${FC} --enable-real=${RP} --with-opencl
+          make -j $(nproc)
