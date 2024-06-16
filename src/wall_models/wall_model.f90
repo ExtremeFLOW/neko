@@ -220,7 +220,7 @@ contains
   subroutine wall_model_find_points(this)
     class(wall_model_t), intent(inout) :: this
     integer :: n_nodes, fid, idx(4), i, linear
-    real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, dot
+    real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw
     real(kind=rp) :: hmin, hmax
 
     n_nodes = this%msk(0)
