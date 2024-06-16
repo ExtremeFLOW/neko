@@ -67,6 +67,7 @@ module scalar_scheme
   use utils, only : neko_error
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
+  use math, only : cfill
   use field_series
   use time_step_controller
   implicit none
@@ -225,6 +226,7 @@ contains
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_label
     integer :: i, j, bc_idx
     real(kind=rp) :: dir_value, flux_value
+    real(kind=rp), allocatable :: flux(:)
     logical :: bc_exists
 
     do i = 1, size(bc_labels)
@@ -258,7 +260,10 @@ contains
           call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) flux_value
-          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value)
+          allocate(flux(this%neumann_bcs(this%n_neumann_bcs)%msk(0)))
+          call cfill(flux, flux_value, size(flux))
+          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann()
+          call this%neumann_bcs(this%n_neumann_bcs)%finalize_neumann(flux)
        end if
 
        !> Check if user bc on this zone
