@@ -288,6 +288,10 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/elementwise_filter_cpu.f90\
 	les/sigma.f90\
 	les/bcknd/cpu/sigma_cpu.f90\
+	wall_models/rough_log_law.f90\
+	wall_models/spalding.f90\
+	wall_models/wall_model.f90\
+	wall_models/wall_model_fctry.f90\
 	neko.f90
 
 neko_c_SOURCES = comm/comm_wrapper.c\
