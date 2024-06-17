@@ -49,7 +49,7 @@ module krylov_fctry
   use utils, only : concat_string_array, neko_error
   use neko_config
   implicit none
-!  private
+  private
 
   public :: krylov_solver_factory, krylov_solver_destroy
 
