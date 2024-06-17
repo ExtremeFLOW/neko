@@ -46,7 +46,7 @@ module fluid_scheme
   use space
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t
-  use coefs
+  use coefs, only: coef_t
   use wall, only : no_slip_wall_t
   use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
@@ -57,6 +57,10 @@ module fluid_scheme
   use non_normal, only : non_normal_t
   use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
   use field_dirichlet_vector, only: field_dirichlet_vector_t
+  use jacobi, only : jacobi_t
+  use sx_jacobi, only : sx_jacobi_t
+  use device_jacobi, only : device_jacobi_t
+  use hsmg, only : hsmg_t
   use krylov_fctry
   use precon_fctry
   use fluid_stats, only : fluid_stats_t

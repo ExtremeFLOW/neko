@@ -49,15 +49,15 @@ contains
 
   !> Factory routine for the a Helmholtz problem matrix-vector product.
   !! The selection is based on the compute backend.
-  !! @param Ax The matrix-vector product type to be allocated.
+  !! @param object The matrix-vector product type to be allocated.
   !! @param full_formulation Whether to use the formulation with the full
   !! viscous stress tensor, not assuming constant material properties.
-  subroutine ax_helm_factory(Ax, full_formulation)
-    class(ax_t), allocatable, intent(inout) :: Ax
+  subroutine ax_helm_factory(object, full_formulation)
+    class(ax_t), allocatable, intent(inout) :: object
     logical, intent(in) :: full_formulation
 
-    if (allocated(Ax)) then
-       deallocate(Ax)
+    if (allocated(object)) then
+       deallocate(object)
     end if
 
     if (full_formulation) then
@@ -65,17 +65,17 @@ contains
           NEKO_BCKND_XSMM .eq. 1) then
          call neko_error("Full stress formulation is only available on the CPU")
       else
-         allocate(ax_helm_full_cpu_t::Ax)
+         allocate(ax_helm_full_cpu_t::object)
       end if
     else
        if (NEKO_BCKND_SX .eq. 1) then
-          allocate(ax_helm_sx_t::Ax)
+          allocate(ax_helm_sx_t::object)
        else if (NEKO_BCKND_XSMM .eq. 1) then
-          allocate(ax_helm_xsmm_t::Ax)
+          allocate(ax_helm_xsmm_t::object)
        else if (NEKO_BCKND_DEVICE .eq. 1) then
-          allocate(ax_helm_device_t::Ax)
+          allocate(ax_helm_device_t::object)
        else
-          allocate(ax_helm_cpu_t::Ax)
+          allocate(ax_helm_cpu_t::object)
        end if
     end if
 
