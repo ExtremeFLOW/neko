@@ -66,8 +66,6 @@ contains
     character(len=:), allocatable :: type_name
     character(len=:), allocatable :: type_string
 
-    type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                       .true.)
 
     call json_get(json, "geometry", type_name)
 
@@ -78,6 +76,8 @@ contains
     else if (trim(type_name) .eq. "cylinder") then
        allocate(cylinder_point_zone_t::object)
     else
+       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+                                          .true.)
        call neko_error("Unknown point zone type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)

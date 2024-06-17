@@ -59,9 +59,6 @@ contains
     character(len=*), intent(in) :: type_name
     character(len=:), allocatable :: type_string
 
-    type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                       .true.)
-
     if (allocated(pc)) then
        call precon_destroy(pc)
        deallocate(pc)
@@ -84,6 +81,8 @@ contains
           allocate(ident_t::pc)
        end if
     else
+       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+                                          .true.)
        call neko_error("Unknown preconditioner type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)

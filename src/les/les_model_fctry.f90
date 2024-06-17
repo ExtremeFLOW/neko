@@ -68,9 +68,6 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_string
 
-    type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                       .true.)
-
     if (allocated(object)) then
        deallocate(object)
     else if (trim(type_name) .eq. 'vreman') then
@@ -82,6 +79,8 @@ contains
     else if (trim(type_name) .eq. 'sigma') then
        allocate(sigma_t::object)
     else
+       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+                                          .true.)
        call neko_error("Unknown LES model type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)
