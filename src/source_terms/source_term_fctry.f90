@@ -40,38 +40,52 @@ module source_term_fctry
   use json_module, only : json_file
   use json_utils, only : json_get
   use field_list, only : field_list_t
-  use utils, only : neko_error
+  use utils, only : concat_string_array, neko_error
   use coefs, only : coef_t
   implicit none
   private
 
   public :: source_term_factory
 
+  ! List of all possible types created by the factory routine
+  character(len=20) :: KNOWN_TYPES(3) = [character(len=20) :: &
+     "constant", &
+     "boussinesq", &
+     "brinkman"]
+
 contains
 
   !> Source term factory. Both constructs and initializes the object.
   !! @param json JSON object initializing the source term.
-  subroutine source_term_factory(source_term, json, fields, coef)
-    class(source_term_t), allocatable, intent(inout) :: source_term
+  !! @param fields The list of fields updated by the source term.
+  !! @param coef The SEM coefficients.
+  subroutine source_term_factory(object, json, fields, coef)
+    class(source_term_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout) :: fields
     type(coef_t), intent(inout) :: coef
-    character(len=:), allocatable :: source_type
+    character(len=:), allocatable :: type_name
+    character(len=:), allocatable :: type_string
 
-    call json_get(json, "type", source_type)
+    type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+                                       .true.)
 
-    if (trim(source_type) .eq. "constant") then
-       allocate(const_source_term_t::source_term)
-    else if (trim(source_type) .eq. "boussinesq") then
-       allocate(boussinesq_source_term_t::source_term)
-    else if (trim(source_type) .eq. "brinkman") then
-       allocate(brinkman_source_term_t::source_term)
+    call json_get(json, "type", type_name)
+
+    if (trim(type_name) .eq. "constant") then
+       allocate(const_source_term_t::object)
+    else if (trim(type_name) .eq. "boussinesq") then
+       allocate(boussinesq_source_term_t::object)
+    else if (trim(type_name) .eq. "brinkman") then
+       allocate(brinkman_source_term_t::object)
     else
-       call neko_error('Unknown source term '//trim(source_type))
+       call neko_error("Unknown source term type: " &
+                       // trim(type_name) // ".  Known types are: " &
+                       // type_string)
     end if
 
     ! Initialize
-    call source_term%init(json, fields, coef)
+    call object%init(json, fields, coef)
 
   end subroutine source_term_factory
 

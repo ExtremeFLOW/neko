@@ -61,6 +61,7 @@ module fluid_scheme
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
   use hsmg, only : hsmg_t
+  use precon, only : pc_t
   use krylov_fctry
   use precon_fctry
   use fluid_stats, only : fluid_stats_t
