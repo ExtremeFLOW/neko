@@ -133,6 +133,10 @@ contains
                        // type_string)
     end if
 
+    ! This select type is in principle not necessary,but we have it due to
+    ! issues with compilers, when it was not there. However, at some point we
+    ! should check if we can get away with just having one obj%init statement.
+    ! Same applies to the code in the "destroy" routine below.
     if (present(abstol) .and. present(M)) then
        select type(obj => object)
        type is(cg_t)
