@@ -55,6 +55,8 @@ contains
     character(len=:), allocatable :: filter_type
 
 ! fuck the json for now
+! Tim I'm going to need you to come in and do this properly
+
 !    call json_get(json, "type", filter_type)
 !
 !    if (trim(filter_type) .eq. "PDE") then

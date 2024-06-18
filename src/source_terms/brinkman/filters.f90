@@ -218,6 +218,8 @@ contains
        RHS(i) = F_in%x(i,1,1,1)*coef%B(i,1,1,1)
     end do
     coef%ifh2 = .true.
+    ! maybe one ax compute?
+    call Ax%compute(F_out%x, RHS, coef, coef%msh, coef%Xh)
 
 
 
@@ -245,6 +247,7 @@ contains
     write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results%iter, &
          ksp_results%res_start, ksp_results%res_final
     call neko_log%message(log_buf)
+
 
     ! Check for divergence
     !   if (ieee_is_nan(ksp_results%res_final)) then

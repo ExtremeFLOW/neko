@@ -47,7 +47,7 @@ module filter
   !> Base abstract class for filter.
   type, abstract, public :: filter_t
   	  !> Coefficients for the SEM.
-     type(coef_t), pointer :: coef 
+     type(coef_t), pointer :: coef => null() 
  
    contains
      !> Constructor for the filter_t class.
@@ -108,6 +108,7 @@ contains
     character(len=:), allocatable :: compute_control, output_control
     real(kind=rp) :: compute_value, output_value
     integer :: order
+
 
     this%coef => coef
 !    call json_get_or_default(json, "compute_control", compute_control, &

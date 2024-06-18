@@ -32,7 +32,7 @@
 !
 !> Implements the `brinkman_source_term_t` type.
 module brinkman_source_term
-  use num_types, only: rp, dp
+  use num_types, only: rp, dp, sp
   use field, only: field_t
   use field_list, only: field_list_t
   use json_module, only: json_file
@@ -97,6 +97,9 @@ contains
     use profiler, only: profiler_start_region, profiler_end_region
     use json_module, only: json_core, json_value
     use math, only : copy
+
+    ! delete later
+    use fld_file_output
     implicit none
 
     class(brinkman_source_term_t), intent(inout) :: this
@@ -117,6 +120,12 @@ contains
     type(json_file) :: object_settings
     integer :: n_regions
     integer :: i
+
+
+    ! delete later,
+    ! I just want to look at them
+    type(field_t), pointer :: fu,fv
+    type(fld_file_output_t) :: fout
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -180,8 +189,11 @@ contains
     ! allocate the unfiltered design field
     ! note, if you use no filter this is not needed...
     ! not sure what to do here
-    call neko_field_registry%add_field(coef%dof, 'unfiltered_brinkman_indicator')
-    this%indicator_unfiltered => neko_field_registry%get_field_by_name('unfiltered_brinkman_indicator')
+    ! 
+    ! also... I wanted to go with "unfiltered_brinkman_indicator" but it was too many
+    ! characters to be picked up by the probes
+    call neko_field_registry%add_field(coef%dof, 'UF_indicator')
+    this%indicator_unfiltered => neko_field_registry%get_field_by_name('UF_indicator')
     ! copy 
     call copy(this%indicator_unfiltered%x,this%indicator%x,this%indicator%dof%size())
 
@@ -189,6 +201,16 @@ contains
     ! filter
     call this%filter%apply(this%indicator, this%indicator_unfiltered)
     !call PDE_filter(this%indicator, this%indicator_unfiltered, filter_radius,coef) 
+
+
+    ! and spy on them
+    call fout%init(sp, "yofam", 2)
+    fu => neko_field_registry%get_field('UF_indicator')
+    fv => neko_field_registry%get_field('brinkman_indicator')
+    fout%fields%items(1)%ptr => fu
+    fout%fields%items(2)%ptr => fv
+    call fout%sample(1.0_rp)
+
 
 
 !    select case (filter_type)

@@ -42,6 +42,7 @@ module PDE_filter
   use operators, only : lambda2op
 
 ! these are the ones I want
+    use json_utils, only: json_get, json_get_or_default, json_extract_item
   	 use coefs, only: coef_t
     use ax_helm_fctry, only: ax_helm_factory
     use ax_product, only : ax_t
@@ -59,6 +60,7 @@ module PDE_filter
     use field_registry, only : neko_field_registry
     use logger, only : neko_log, LOG_SIZE
     use filter, only: filter_t
+    use scratch_registry, only: neko_scratch_registry
 
 
     implicit none
@@ -81,6 +83,7 @@ module PDE_filter
      type(neumann_t) :: filter_bcs
     !> Filter boundary conditions
     type(bc_list_t) :: bclst_filt
+
 
 
 
@@ -119,6 +122,7 @@ contains
     type(json_file), intent(inout) :: json
     type(coef_t), intent(inout) :: coef
     character(len=20) :: fields(1)
+    real(kind=rp) :: tmp_real
 
 
 	! I'll do the json stuff later...
@@ -127,6 +131,9 @@ contains
     this%ksp_max_iter = 200
     this%ksp_solver = "gmres"
     this%precon_type_filt = "ident"
+
+    ! JSON stuff
+    call json_get_or_default(json, 'filter.radius', this%r, 1.0_rp)
 
     call this%init_base(json, coef)
     call PDE_filter_init_from_attributes(this, coef)
@@ -139,19 +146,20 @@ contains
     type(coef_t), intent(inout) :: coef
     integer :: n
 
+
     ! HARRY
     ! if I'm being honest... I don't think this is doing anything...
     ! but also, a Neumann condition, in my mind, is a "do nothing" condition
     !
     ! so maybe it's ok if I've fucked this up.
 
-    n = coef%dof%size()
+    n = this%coef%dof%size()
 
     ! init filter BCs (all Neumann)
     ! Create list with just Neumann bcs
     call bc_list_init(this%bclst_filt)
     ! add all the neumann BCs
-    call this%filter_bcs%init_base(coef)
+    call this%filter_bcs%init_base(this%coef)
     call this%filter_bcs%init_neumann(0.0_rp)
     call this%filter_bcs%finalize()
     call bc_list_add(this%bclst_filt, this%filter_bcs)
@@ -163,7 +171,7 @@ contains
     call krylov_solver_factory(this%ksp_filt, n, this%ksp_solver, this%ksp_max_iter, this%abstol_filt)
     ! set up preconditioner
     call filter_precon_factory(this%pc_filt, this%ksp_filt, &
-            coef, coef%dof, coef%gs_h, this%bclst_filt, this%precon_type_filt)
+            this%coef, this%coef%dof, this%coef%gs_h, this%bclst_filt, this%precon_type_filt)
 
   end subroutine PDE_filter_init_from_attributes
 
@@ -181,36 +189,46 @@ contains
     type(field_t), intent(in) ::  F_in
     type(field_t), intent(inout) ::  F_out
     integer :: n, i
-    real(kind=rp), dimension(this%coef%dof%size()) ::  RHS
+    type(field_t), pointer ::  RHS 
+    integer :: temp_indices
+    type(field_t), pointer :: ta1, ta2, ta3
     character(len=LOG_SIZE) :: log_buf
 
     n = this%coef%dof%size()
 
+    
+    ! you should be using the scratch registry!!!
+    ! but for some reason i segfault here if I try
+    !call neko_scratch_registry%request_field(RHS, temp_indices(1))
+    call neko_field_registry%add_field(this%coef%dof, 'RHS')
+    RHS => neko_field_registry%get_field('RHS')
+
 
     ! set up Helmholtz operators and RHS
     do i = 1, n
-       ! note, h1 is already negative in its definition
+       ! h1 is already negative in its definition
        this%coef%h1(i,1,1,1) = this%r**2
+       ! ax_helm includes the mass matrix in h2
        this%coef%h2(i,1,1,1) = 1.0_rp
-       RHS(i) = F_in%x(i,1,1,1)*this%coef%B(i,1,1,1)
+       ! mass matrix should be included here
+       RHS%x(i,1,1,1) = F_in%x(i,1,1,1)*this%coef%B(i,1,1,1)
     end do
     this%coef%ifh2 = .true.
 
-
-
-
     ! set BCs
-    call bc_list_apply_scalar(this%bclst_filt, RHS, n)
+    call bc_list_apply_scalar(this%bclst_filt, RHS%x, n)
+
+	 ! gather scatter
+    call this%coef%gs_h%op(RHS, GS_OP_ADD)
 
     ! Solve Helmholtz equation
     call profiler_start_region('filter solve')
       this%ksp_results(1) = &
-         this%ksp_filt%solve(this%Ax, F_out, RHS, n, this%coef, this%bclst_filt, this%coef%gs_h)
+         this%ksp_filt%solve(this%Ax, F_out, RHS%x, n, this%coef, this%bclst_filt, this%coef%gs_h)
 
     call profiler_end_region
 
     ! update preconditioner (needed?)
-
     call this%pc_filt%update()
 
     ! write it all out
@@ -222,6 +240,10 @@ contains
     write(log_buf, '(I11,3x, E15.7,5x, E15.7)') this%ksp_results%iter, &
          this%ksp_results%res_start, this%ksp_results%res_final
     call neko_log%message(log_buf)
+
+
+	 ! YOU SHOULD RELINGUISH IF YOU GET THIS TO WORK!
+    !call neko_scratch_registry%relinquish_field(temp_indices)
 
 
 
