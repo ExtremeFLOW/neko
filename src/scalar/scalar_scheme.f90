@@ -50,7 +50,8 @@ module scalar_scheme
   use device_jacobi, only : device_jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
-  use precon_fctry, only : precon_factory, pc_t, precon_destroy
+  use precon_fctry, only : precon_factory, precon_destroy
+  use precon, only : pc_t
   use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
                  bc_list_apply_scalar, bc_list_add
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update

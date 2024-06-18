@@ -41,20 +41,30 @@ module precon_fctry
   use utils
   use neko_config
   implicit none
+ ! private
+
+  public :: precon_factory, precon_destroy
+
+  ! List of all possible types created by the factory routine
+  character(len=20) :: KNOWN_TYPES(3) = [character(len=20) :: &
+     "jacobi", &
+     "hsmg", &
+     "ident"]
 
 contains
 
   !> Create a preconditioner
-  subroutine precon_factory(pc, pctype)
+  subroutine precon_factory(pc, type_name)
     class(pc_t), target, allocatable, intent(inout) :: pc
-    character(len=*), intent(in) :: pctype
+    character(len=*), intent(in) :: type_name
+    character(len=:), allocatable :: type_string
 
     if (allocated(pc)) then
        call precon_destroy(pc)
        deallocate(pc)
     end if
 
-    if (trim(pctype) .eq. 'jacobi') then
+    if (trim(type_name) .eq. 'jacobi') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_jacobi_t::pc)
        else if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -62,16 +72,20 @@ contains
        else
           allocate(jacobi_t::pc)
        end if
-    else if (pctype(1:4) .eq. 'hsmg') then
+    else if (type_name(1:4) .eq. 'hsmg') then
        allocate(hsmg_t::pc)
-    else if(trim(pctype) .eq. 'ident') then
+    else if(trim(type_name) .eq. 'ident') then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(device_ident_t::pc)
        else
           allocate(ident_t::pc)
        end if
     else
-       call neko_error('Unknown preconditioner '//trim(pctype))
+       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+                                          .true.)
+       call neko_error("Unknown preconditioner type: " &
+                       // trim(type_name) // ".  Known types are: " &
+                       // type_string)
     end if
 
   end subroutine precon_factory
