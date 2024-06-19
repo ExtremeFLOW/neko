@@ -195,7 +195,7 @@ contains
        nthrds = 1
        !$omp parallel
        !$omp master
-!$     nthrds = omp_get_num_threads()
+       !$ nthrds = omp_get_num_threads()
        !$omp end master
        !$omp end parallel
 

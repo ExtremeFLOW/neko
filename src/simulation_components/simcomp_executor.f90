@@ -39,10 +39,9 @@ module simcomp_executor
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use case, only : case_t
+  use utils, only : neko_error
   implicit none
   private
-
-  integer :: NEKO_MAX_USER_SIMCOMPS = 10
 
   !> Singleton type that serves as a driver for the simulation components.
   !! Stores all the components in the case and provides an interface matching
@@ -53,11 +52,10 @@ module simcomp_executor
   type, public :: simcomp_executor_t
      !> The simcomps.
      class(simulation_component_wrapper_t), allocatable :: simcomps(:)
-     !> Index array defining the order of execution, i.e. simcomps(order(1)) is
-     !! first to execute, and so on.
-     integer, allocatable :: order(:)
      !> Number of simcomps
      integer :: n_simcomps
+     !> Logical to test if the executor is completely initialized.
+     logical :: initialized = .false.
    contains
      !> Constructor.
      procedure, pass(this) :: init => simcomp_executor_init
@@ -69,7 +67,8 @@ module simcomp_executor
      procedure, pass(this) :: compute => simcomp_executor_compute
      !> Execute restart for all simcomps.
      procedure, pass(this) :: restart=> simcomp_executor_restart
-
+     !> Finalize the initialization.
+     procedure, pass(this) :: finalize => simcomp_executor_finalize
   end type simcomp_executor_t
 
   !> Global variable for the simulation component driver.
@@ -86,12 +85,6 @@ contains
     type(json_value), pointer :: simcomp_object
     type(json_file) :: comp_subdict
     logical :: found
-    ! Help array for finding minimal values
-    logical, allocatable :: mask(:)
-    ! The order value for each simcomp in order of appearance in the case file.
-    integer, allocatable :: read_order(:)
-    ! Location of the min value
-    integer :: loc(1)
 
     call this%free()
 
@@ -100,40 +93,14 @@ contains
        call case%params%info('case.simulation_components', n_children=n_simcomps)
 
        this%n_simcomps = n_simcomps
-       allocate(this%simcomps(n_simcomps + NEKO_MAX_USER_SIMCOMPS))
-       allocate(this%order(n_simcomps + NEKO_MAX_USER_SIMCOMPS))
-       allocate(read_order(n_simcomps))
-       allocate(mask(n_simcomps))
-       mask = .true.
+       allocate(this%simcomps(n_simcomps))
 
        call case%params%get_core(core)
        call case%params%get('case.simulation_components', simcomp_object, found)
 
-       ! We need a separate loop to figure out the order, so that we can
-       ! apply the order to the initialization as well.
-       do i=1, n_simcomps
-          ! Create a new json containing just the subdict for this simcomp
-          call json_extract_item(core, simcomp_object, i, comp_subdict)
-          call json_get_or_default(comp_subdict, "order", read_order(i), i)
-       end do
-
-       ! Figure out the execution order using a poor man's argsort.
-       ! Searches for the location of the min value, each time masking out the
-       ! found location prior to the next search.
-       do i= 1, n_simcomps
-          loc = minloc(read_order, mask=mask)
-          this%order(i) = loc(1)
-          mask(loc) = .false.
-       end do
-
        ! Init in the determined order.
-       do i=1, n_simcomps
-          call json_extract_item(core, simcomp_object, this%order(i),&
-                                 comp_subdict)
-          ! Have to add, the simcomp constructor expects it.
-          if (.not. comp_subdict%valid_path("order")) then
-             call comp_subdict%add("order", this%order(i))
-          end if
+       do i = 1, n_simcomps
+          call json_extract_item(core, simcomp_object, i, comp_subdict)
           call simulation_component_factory(this%simcomps(i)%simcomp, &
                                             comp_subdict, case)
        end do
@@ -145,10 +112,9 @@ contains
     class(simcomp_executor_t), intent(inout) :: this
     integer :: i
 
-    if (allocated(this%order)) deallocate(this%order)
-
+    this%initialized = .false.
     if (allocated(this%simcomps)) then
-       do i=1, this%n_simcomps
+       do i = 1, this%n_simcomps
           call this%simcomps(i)%simcomp%free
        end do
        deallocate(this%simcomps)
@@ -162,40 +128,97 @@ contains
     class(simulation_component_t), intent(in) :: simcomp
 
     class(simulation_component_wrapper_t), allocatable, dimension(:) :: tmp_simcomps
-    integer, allocatable, dimension(:) :: tmp_order
-    integer :: i, n, o
+    integer :: i
 
     if (allocated(this%simcomps)) then
        call move_alloc(this%simcomps, tmp_simcomps)
     end if
-    if (allocated(this%order)) then
-       call move_alloc(this%order, tmp_order)
+
+    ! Insert the simulation component into the list
+    allocate(this%simcomps(this%n_simcomps+1))
+    do i = 1, this%n_simcomps
+       call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)
+    end do
+
+    this%n_simcomps = this%n_simcomps + 1
+    this%simcomps(this%n_simcomps)%simcomp = simcomp
+
+    if (allocated(tmp_simcomps)) then
+       deallocate(tmp_simcomps)
     end if
 
-    n = this%n_simcomps
-    allocate(this%simcomps(n+1))
-    allocate(this%order(n+1))
+  end subroutine simcomp_executor_add
 
-    o = simcomp%order
-    if (o < 1) o = n + 1
+  !> Finalize the initialization.
+  subroutine simcomp_executor_finalize(this)
+    class(simcomp_executor_t), intent(inout) :: this
+    integer :: i, order, max_order
+    logical :: order_found, previous_found
 
-    do i = 1, n
-       call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)
-       if (tmp_order(i) < o) then
-          this%order(i) = tmp_order(i)
-       else
-          this%order(i) = tmp_order(i) + 1
+    class(simulation_component_wrapper_t), allocatable, dimension(:) :: tmp_simcomps
+    integer, allocatable :: order_list(:)
+
+    if (this%initialized) then
+       call neko_error("Simulation components already initialized.")
+    end if
+
+    allocate(order_list(this%n_simcomps))
+    max_order = 0
+    do i = 1, this%n_simcomps
+       order_list(i) = this%simcomps(i)%simcomp%order
+       if (order_list(i) .gt. max_order) then
+          max_order = order_list(i)
        end if
     end do
 
-    this%simcomps(n+1)%simcomp = simcomp
-    this%order(n+1) = o
-    this%n_simcomps = n + 1
+    do i = 1, this%n_simcomps
+       if (order_list(i) .lt. 1) then
+          order_list(i) = max_order + 1
+          max_order = max_order + 1
+       end if
+    end do
 
-    deallocate(tmp_simcomps)
-    deallocate(tmp_order)
+    ! Check that the order is unique and contiguous
+    previous_found = .true.
+    do order = 1, this%n_simcomps
+       order_found = .false.
+       do i = 1, this%n_simcomps
+          if (this%simcomps(i)%simcomp%order == order .and. order_found) then
+             call neko_error("Simulation component order must be unique.")
+          else if (this%simcomps(i)%simcomp%order == order) then
+             order_found = .true.
+          end if
+       end do
+       if (order_found .and. .not. previous_found) then
+          call neko_error("Simulation component order must be contiguous &
+            &starting at 1.")
+       end if
+       previous_found = order_found
+    end do
 
-  end subroutine simcomp_executor_add
+    ! Check that the order is within bounds
+    do i = 1, this%n_simcomps
+       if (order_list(i) .gt. this%n_simcomps) then
+          call neko_error("Simulation component order is out of bounds.")
+       end if
+    end do
+
+    write(*,*) "Simulation components initialized."
+    write(*,*) "Order of execution:"
+    do i = 1, this%n_simcomps
+       write(*,*) "  ", order_list(i)
+    end do
+
+    ! Sort the simcomps based on the order
+    call move_alloc(this%simcomps, tmp_simcomps)
+    allocate(this%simcomps(this%n_simcomps))
+    do i = 1, this%n_simcomps
+       order = order_list(i)
+       call move_alloc(tmp_simcomps(order)%simcomp, this%simcomps(i)%simcomp)
+    end do
+
+    this%initialized = .true.
+  end subroutine simcomp_executor_finalize
 
   !> Execute compute_ for all simcomps.
   !! @param t The time value.
@@ -206,9 +229,13 @@ contains
     integer, intent(in) :: tstep
     integer :: i
 
+    if (.not. this%initialized) then
+       call neko_error("Simulation components not initialized.")
+    end if
+
     if (allocated(this%simcomps)) then
-       do i=1, this%n_simcomps
-          call this%simcomps(this%order(i))%simcomp%compute(t, tstep)
+       do i = 1, this%n_simcomps
+          call this%simcomps(i)%simcomp%compute(t, tstep)
        end do
     end if
 
@@ -222,8 +249,8 @@ contains
     integer :: i
 
     if (allocated(this%simcomps)) then
-       do i=1, this%n_simcomps
-          call this%simcomps(this%order(i))%simcomp%restart(t)
+       do i = 1, this%n_simcomps
+          call this%simcomps(i)%simcomp%restart(t)
        end do
     end if
 

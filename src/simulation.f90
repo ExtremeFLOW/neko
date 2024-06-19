@@ -84,6 +84,7 @@ contains
     ! Run user init routine
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
                                  C%fluid%p, C%fluid%c_Xh, C%params)
+    call neko_simcomps%finalize()
 
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
@@ -130,8 +131,8 @@ contains
        call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7,A,E15.7)') &
-            'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
-            end_time-start_time
+         'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
+         end_time-start_time
        call neko_log%end_section(log_buf)
 
        ! Scalar step
@@ -141,8 +142,8 @@ contains
           call C%scalar%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7,A,E15.7)') &
-               'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
-               end_time-start_time
+            'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
+            end_time-start_time
           call neko_log%end_section(log_buf)
        end if
 
@@ -161,7 +162,7 @@ contains
                                       C%params)
 
        call C%usr%user_check(t, tstep,&
-            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+                             C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
 
        call neko_log%end_section()
 
@@ -256,7 +257,7 @@ contains
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
     write(log_buf,'(A,A)') 'File :   ', &
-         trim(restart_file)
+      trim(restart_file)
     call neko_log%message(log_buf)
     write(log_buf,'(A,E15.7)') 'Time : ', t
     call neko_log%message(log_buf)
@@ -275,7 +276,7 @@ contains
     character(len=10) :: format_str
     logical :: found
 
-    call C%params%get('case.checkpoint_format', chkp_format, found)   
+    call C%params%get('case.checkpoint_format', chkp_format, found)
     call C%fluid%chkp%sync_host()
     format_str = '.chkp'
     if (found) then
