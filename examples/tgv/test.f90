@@ -76,7 +76,7 @@ module simcomp_test
      procedure, pass(this) :: init => simcomp_test_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_attributes => &
-        simcomp_test_init_from_attributes
+       simcomp_test_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => simcomp_test_free
      !> Compute the simcomp_test field.
@@ -98,14 +98,14 @@ contains
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        if (json%valid_path("output_precision")) then
-           call json_get(json, "output_precision", precision)
-           if (precision == "double") then
-              call simcomp_test_init_from_attributes(this, filename, dp)
-           else
-              call simcomp_test_init_from_attributes(this, filename, sp)
-           end if
+          call json_get(json, "output_precision", precision)
+          if (precision == "double") then
+             call simcomp_test_init_from_attributes(this, filename, dp)
+          else
+             call simcomp_test_init_from_attributes(this, filename, sp)
+          end if
        else
-           call simcomp_test_init_from_attributes(this, filename)
+          call simcomp_test_init_from_attributes(this, filename)
        end if
     else
        call simcomp_test_init_from_attributes(this)
@@ -148,9 +148,9 @@ contains
        else
           call this%output%init(sp, filename, 3)
        end if
-       this%output%fields%fields(1)%f => this%omega_x
-       this%output%fields%fields(2)%f => this%omega_y
-       this%output%fields%fields(3)%f => this%omega_z
+       call this%output%fields%assign(1, this%omega_x)
+       call this%output%fields%assign(2, this%omega_y)
+       call this%output%fields%assign(3, this%omega_z)
        call this%case%s%add(this%output, this%output_controller%control_value, &
                             this%output_controller%control_mode)
     else
@@ -181,7 +181,7 @@ contains
     write(*,*) "Computing user simcomp"
 
     call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
-                 this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
+              this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
   end subroutine simcomp_test_compute
 
 end module simcomp_test
