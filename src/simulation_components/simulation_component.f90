@@ -140,11 +140,11 @@ contains
                      output_value)
     end if
 
-    call json_get(json, "order", order)
+    call json_get_or_default(json, "order", order, -1)
     this%order = order
 
     call this%compute_controller%init(case%end_time, compute_control, &
-                                        compute_value)
+                                      compute_value)
     call this%output_controller%init(case%end_time, output_control, &
                                      output_value)
 

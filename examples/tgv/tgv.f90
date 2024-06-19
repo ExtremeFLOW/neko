@@ -110,7 +110,7 @@ contains
     call json_extract_item(core, simcomp_object, 1, comp_subdict)
     ! Need to add order for the constructor of the simcomp, but the value is
     ! irrelevant.
-    call comp_subdict%add("order", 1)
+    ! call comp_subdict%add("order", 1)
     ! ! Have to assume the case is the same, because case is not passed to this
     ! ! routine, but this is probably very future-proof.
     ! call neko_simcomps%simcomps(n_simcomps + 1)%simcomp%init(comp_subdict, &
