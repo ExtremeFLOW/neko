@@ -83,22 +83,61 @@ contains
     type(json_value), pointer :: simcomp_object
     type(json_file) :: comp_subdict
     logical :: found
+    ! Help array for finding minimal values
+    logical, allocatable :: mask(:)
+    ! The order value for each simcomp in order of appearance in the case file.
+    integer, allocatable :: read_order(:), order(:)
+    ! Location of the min value
+    integer :: loc(1)
+    integer :: max_order
 
     call this%free()
 
     if (case%params%valid_path('case.simulation_components')) then
 
        call case%params%info('case.simulation_components', n_children=n_simcomps)
-
-       this%n_simcomps = n_simcomps
        allocate(this%simcomps(n_simcomps))
+       allocate(read_order(n_simcomps))
+       allocate(mask(n_simcomps))
+       mask = .true.
 
        call case%params%get_core(core)
        call case%params%get('case.simulation_components', simcomp_object, found)
 
+       ! We need a separate loop to figure out the order, so that we can
+       ! apply the order to the initialization as well.
+       max_order = 0
+       do i = 1, n_simcomps
+          ! Create a new json containing just the subdict for this simcomp
+          call json_extract_item(core, simcomp_object, i, comp_subdict)
+          call json_get_or_default(comp_subdict, "order", read_order(i), -1)
+          if (read_order(i) .gt. max_order) then
+             max_order = read_order(i)
+          end if
+       end do
+
+       ! If the order was not specified, we use the order of appearance in the
+       ! case file.
+       do i = 1, n_simcomps
+          if (read_order(i) == - 1) then
+             max_order = max_order + 1
+             read_order(i) = max_order
+          end if
+       end do
+
+       ! Figure out the execution order using a poor man's argsort.
+       ! Searches for the location of the min value, each time masking out the
+       ! found location prior to the next search.
+       do i= 1, n_simcomps
+          loc = minloc(read_order, mask=mask)
+          order(i) = loc(1)
+          mask(loc) = .false.
+       end do
+
        ! Init in the determined order.
        do i = 1, n_simcomps
-          call json_extract_item(core, simcomp_object, i, comp_subdict)
+          call json_extract_item(core, simcomp_object, order(i), &
+                                 comp_subdict)
           call simulation_component_factory(this%simcomps(i)%simcomp, &
                                             comp_subdict, case)
        end do
