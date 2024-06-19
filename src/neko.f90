@@ -102,8 +102,9 @@ module neko
   use point_zone_registry, only: neko_point_zone_registry
   use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use json_utils
   use, intrinsic :: iso_fortran_env
-  !$ use omp_lib
+!$ use omp_lib
   implicit none
 
 contains
@@ -161,11 +162,11 @@ contains
        !
        call neko_log%section("Job Information")
        write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
-            time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
+         time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
        write(log_buf, '(a)') 'Running on: '
        sw = 10
-       if (pe_size .lt. 1e1)  then
+       if (pe_size .lt. 1e1) then
           write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
           if (pe_size .eq. 1) then
              write(log_buf(19:), '(a)') 'rank'
@@ -194,23 +195,23 @@ contains
        nthrds = 1
        !$omp parallel
        !$omp master
-       !$ nthrds = omp_get_num_threads()
+!$     nthrds = omp_get_num_threads()
        !$omp end master
        !$omp end parallel
 
        if (nthrds .gt. 1) then
           if (nthrds .lt. 1e1) then
              write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
-                  nthrds, ' thrds each'
+               nthrds, ' thrds each'
           else if (nthrds .lt. 1e2) then
              write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
-                  nthrds, ' thrds each'
+               nthrds, ' thrds each'
           else if (nthrds .lt. 1e3) then
              write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
-                  nthrds, ' thrds each'
+               nthrds, ' thrds each'
           else if (nthrds .lt. 1e4) then
              write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
-                  nthrds, ' thrds each'
+               nthrds, ' thrds each'
           end if
        end if
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
@@ -236,7 +237,7 @@ contains
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
        if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
-            NEKO_BCKND_OPENCL .eq. 1) then
+           NEKO_BCKND_OPENCL .eq. 1) then
           write(log_buf, '(a)') 'Dev. name : '
           call device_name(log_buf(13:))
           call neko_log%message(log_buf, NEKO_LOG_QUIET)
@@ -244,11 +245,11 @@ contains
 
        write(log_buf, '(a)') 'Real type : '
        select case (rp)
-       case (real32)
+         case (real32)
           write(log_buf(13:), '(a)') 'single precision'
-       case (real64)
+         case (real64)
           write(log_buf(13:), '(a)') 'double precision'
-       case (real128)
+         case (real128)
           write(log_buf(13:), '(a)') 'quad precision'
        end select
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
