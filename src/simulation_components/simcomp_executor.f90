@@ -34,7 +34,7 @@
 !> Contains the `simcomp_executor_t` type.
 module simcomp_executor
   use num_types, only : rp
-  use simulation_component, only : simulation_component_wrapper_t
+  use simulation_component, only : simulation_component_t, simulation_component_wrapper_t
   use simulation_component_fctry, only : simulation_component_factory
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
@@ -55,14 +55,16 @@ module simcomp_executor
      class(simulation_component_wrapper_t), allocatable :: simcomps(:)
      !> Index array defining the order of execution, i.e. simcomps(order(1)) is
      !! first to execute, and so on.
-     integer, allocatable ::  order(:)
+     integer, allocatable :: order(:)
      !> Number of simcomps
-     integer ::  n_simcomps
+     integer :: n_simcomps
    contains
      !> Constructor.
      procedure, pass(this) :: init => simcomp_executor_init
      !> Destructor.
      procedure, pass(this) :: free => simcomp_executor_free
+     !> Appending a new simcomp to the executor.
+     procedure, pass(this) :: add => simcomp_executor_add
      !> Execute compute_ for all simcomps.
      procedure, pass(this) :: compute => simcomp_executor_compute
      !> Execute restart for all simcomps.
@@ -119,15 +121,15 @@ contains
        ! Searches for the location of the min value, each time masking out the
        ! found location prior to the next search.
        do i= 1, n_simcomps
-         loc = minloc(read_order, mask=mask)
-         this%order(i) = loc(1)
-         mask(loc) = .false.
+          loc = minloc(read_order, mask=mask)
+          this%order(i) = loc(1)
+          mask(loc) = .false.
        end do
 
        ! Init in the determined order.
        do i=1, n_simcomps
           call json_extract_item(core, simcomp_object, this%order(i),&
-                                    comp_subdict)
+                                 comp_subdict)
           ! Have to add, the simcomp constructor expects it.
           if (.not. comp_subdict%valid_path("order")) then
              call comp_subdict%add("order", this%order(i))
@@ -152,6 +154,41 @@ contains
        deallocate(this%simcomps)
     end if
   end subroutine simcomp_executor_free
+
+  !> Appending a new simcomp to the executor.
+  !! @param simcomp The simcomp to append.
+  subroutine simcomp_executor_add(this, simcomp)
+    class(simcomp_executor_t), intent(inout) :: this
+    class(simulation_component_t), intent(in) :: simcomp
+
+    class(simulation_component_wrapper_t), allocatable, dimension(:) :: tmp_simcomps
+    integer, allocatable, dimension(:) :: tmp_order
+    integer :: i, n
+
+    if (allocated(this%simcomps)) then
+       call move_alloc(this%simcomps, tmp_simcomps)
+    end if
+    if (allocated(this%order)) then
+       call move_alloc(this%order, tmp_order)
+    end if
+
+    n = this%n_simcomps
+    allocate(this%simcomps(n+1))
+    allocate(this%order(n+1))
+
+    do i = 1, n
+       call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)
+       this%order(i) = tmp_order(i)
+    end do
+
+    this%simcomps(n+1)%simcomp = simcomp
+    this%order(n+1) = n+1
+    this%n_simcomps = n+1
+
+    deallocate(tmp_simcomps)
+    deallocate(tmp_order)
+
+  end subroutine simcomp_executor_add
 
   !> Execute compute_ for all simcomps.
   !! @param t The time value.

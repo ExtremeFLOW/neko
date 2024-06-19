@@ -68,9 +68,9 @@ contains
     real(kind=rp) :: ux, uy, uz
     real(kind=rp) :: uvw(3)
 
-    uvw(1)   = sin(x)*cos(y)*cos(z)
-    uvw(2)   = -cos(x)*sin(y)*cos(z)
-    uvw(3)   = 0._rp
+    uvw(1) = sin(x)*cos(y)*cos(z)
+    uvw(2) = -cos(x)*sin(y)*cos(z)
+    uvw(3) = 0._rp
   end function tgv_ic
 
   ! User-defined initialization called just before time loop starts
@@ -90,17 +90,17 @@ contains
     type(json_core) :: core
     type(json_value), pointer :: simcomp_object
     logical :: found
+    type(simcomp_test_t), allocatable :: my_simcomp
 
 
-    ! Probably we can put this into some %add function in the simcomp_exector.
-    ! However, it won't know the new simcomp type, so one would have to create
-    ! it here and inside %add there would be an allocate(..., source=...)
-    n_simcomps = neko_simcomps%n_simcomps
-    ! User simcomps always executed last
-    neko_simcomps%order(n_simcomps + 1) = n_simcomps + 1
-    allocate(simcomp_test_t::neko_simcomps%simcomps(n_simcomps + 1)%simcomp)
-    !allocate(neko_simcomps%simcomps(n_simcomps + 1)%simcomp, source=my_simcomp)
-    neko_simcomps%n_simcomps = n_simcomps + 1
+    ! ! Probably we can put this into some %add function in the simcomp_exector.
+    ! ! However, it won't know the new simcomp type, so one would have to create
+    ! ! it here and inside %add there would be an allocate(..., source=...)
+    ! n_simcomps = neko_simcomps%n_simcomps
+    ! ! User simcomps always executed last
+    ! neko_simcomps%order(n_simcomps + 1) = n_simcomps + 1
+    ! allocate(simcomp_test_t::neko_simcomps%simcomps(n_simcomps + 1)%simcomp)
+    ! neko_simcomps%n_simcomps = n_simcomps + 1
 
     ! Extracting json. I put an array under "user_simcomps", here we just
     ! assume there is only 1 item there.
@@ -111,10 +111,16 @@ contains
     ! Need to add order for the constructor of the simcomp, but the value is
     ! irrelevant.
     call comp_subdict%add("order", 1)
-    ! Have to assume the case is the same, because case is not passed to this
-    ! routine, but this is probably very future-proof.
-    call neko_simcomps%simcomps(n_simcomps + 1)%simcomp%init(comp_subdict, &
-       neko_simcomps%simcomps(n_simcomps)%simcomp%case)
+    ! ! Have to assume the case is the same, because case is not passed to this
+    ! ! routine, but this is probably very future-proof.
+    ! call neko_simcomps%simcomps(n_simcomps + 1)%simcomp%init(comp_subdict, &
+    !                                                          neko_simcomps%simcomps(n_simcomps)%simcomp%case)
+
+    ! Allocate a simulation component
+    allocate(my_simcomp)
+    call my_simcomp%init(comp_subdict, neko_simcomps%simcomps(1)%simcomp%case)
+    ! Add the simulation component to the list
+    call neko_simcomps%add(my_simcomp)
 
     ! initialize work arrays for postprocessing
     call w1%init(u%dof, 'work1')
@@ -197,8 +203,8 @@ contains
     end if
 
     if (pe_rank .eq. 0) &
-         &  write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
-         &  'POST: t:', t, ' Ekin:', e1, ' enst:', e2
+      & write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
+      & 'POST: t:', t, ' Ekin:', e1, ' enst:', e2
 
   end subroutine user_calc_quantities
 
