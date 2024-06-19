@@ -82,7 +82,7 @@ module probes
      integer, allocatable :: n_local_probes_tot_offset(:)
      integer, allocatable :: n_local_probes_tot(:)
      !>  For output on rank 0
-     logical :: seq_io
+     logical :: seq_io = .true.
      real(kind=rp), allocatable :: global_output_values(:,:)
      !> Output variables
      type(file_t) :: fout
@@ -242,16 +242,10 @@ contains
 
     real(kind=rp), dimension(:,:), allocatable :: point_list
     real(kind=rp), dimension(:), allocatable :: rp_list_reader
-    logical :: found
 
     ! Ensure only rank 0 reads the coordinates.
     if (pe_rank .ne. 0) return
     call json_get(json, 'coordinates', rp_list_reader)
-
-    ! Check if the coordinates were found and were valid
-    if (.not. found) then
-       call neko_error('No coordinates found.')
-    end if
 
     if (mod(size(rp_list_reader), 3) /= 0) then
        call neko_error('Invalid number of coordinates.')
@@ -640,6 +634,8 @@ contains
     integer, intent(in) :: tstep
     integer :: i, ierr
 
+    write(*,*) 'Probes evaluate and write'
+
     !> Check controller to determine if we must write
     do i = 1,this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
@@ -695,10 +691,10 @@ contains
     select type(ft => file_in%file_type)
       type is (csv_file_t)
        call read_xyz_from_csv(xyz, n_local_probes, n_global_probes, ft)
-       this%seq_io = .true.
       class default
        call neko_error("Invalid data. Expected csv_file_t.")
     end select
+    this%seq_io = .true.
 
     !> Close the file
     call file_free(file_in)
