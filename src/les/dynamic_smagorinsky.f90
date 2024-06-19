@@ -89,11 +89,13 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name !! The name of the SGS viscosity field.
     integer :: i
+    character(len=:), allocatable :: delta_type
 
     call json_get(json, "nut_field", nut_name)
+    call json_get_or_default(json, "delta_type", delta_type, "pointwise")
 
     call this%free()
-    call this%init_base(dofmap, coef, nut_name)
+    call this%init_base(dofmap, coef, nut_name, delta_type)
     this%test_filter_type = "nonBoyd"
     call this%test_filter%init(dofmap%xh%lx, this%test_filter_type) ! suppose lx = ly = lz
 
