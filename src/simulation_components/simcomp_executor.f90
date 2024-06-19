@@ -157,13 +157,14 @@ contains
 
   !> Appending a new simcomp to the executor.
   !! @param simcomp The simcomp to append.
-  subroutine simcomp_executor_add(this, simcomp)
+  subroutine simcomp_executor_add(this, simcomp, order)
     class(simcomp_executor_t), intent(inout) :: this
     class(simulation_component_t), intent(in) :: simcomp
+    integer, intent(in), optional :: order
 
     class(simulation_component_wrapper_t), allocatable, dimension(:) :: tmp_simcomps
     integer, allocatable, dimension(:) :: tmp_order
-    integer :: i, n
+    integer :: i, n, o
 
     if (allocated(this%simcomps)) then
        call move_alloc(this%simcomps, tmp_simcomps)
@@ -176,13 +177,23 @@ contains
     allocate(this%simcomps(n+1))
     allocate(this%order(n+1))
 
+    if (present(order)) then
+       o = order
+    else
+       o = n+1
+    end if
+
     do i = 1, n
        call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)
-       this%order(i) = tmp_order(i)
+       if (tmp_order(i) < o) then
+          this%order(i) = tmp_order(i)
+       else
+          this%order(i) = tmp_order(i) + 1
+       end if
     end do
 
     this%simcomps(n+1)%simcomp = simcomp
-    this%order(n+1) = n+1
+    this%order(n+1) = o
     this%n_simcomps = n+1
 
     deallocate(tmp_simcomps)
