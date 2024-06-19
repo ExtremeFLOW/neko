@@ -49,9 +49,8 @@
   "user_simcomps": 
   [
     {
-      "type": "vorticity",
       "compute_control": "tsteps",
-      "compute_value": 1 
+      "compute_value": 1
     }
   ]
   }
