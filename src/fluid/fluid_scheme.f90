@@ -325,7 +325,6 @@ contains
     call bc_list_init(this%bclst_vel)
 
     call this%bc_sym%init_base(this%c_Xh)
-    call this%bc_sym%mark_zone(msh%sympln)
     call this%bc_sym%mark_zones_from_list(msh%labeled_zones,&
                         'sym', this%bc_labels)
     call this%bc_sym%finalize()
@@ -348,7 +347,6 @@ contains
        end if
 
        call this%bc_inflow%init_base(this%c_Xh)
-       call this%bc_inflow%mark_zone(msh%inlet)
        call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
                         'v', this%bc_labels)
        call this%bc_inflow%finalize()
@@ -377,7 +375,6 @@ contains
     end if
 
     call this%bc_wall%init_base(this%c_Xh)
-    call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%mark_zones_from_list(msh%labeled_zones,&
                         'w', this%bc_labels)
     call this%bc_wall%finalize()
@@ -559,13 +556,6 @@ contains
     if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
     call bc_list_add(this%bclst_prs, this%user_field_bc_prs)
     call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_prs)
-
-    if (msh%outlet%size .gt. 0) then
-       call this%bc_prs%mark_zone(msh%outlet)
-    end if
-    if (msh%outlet_normal%size .gt. 0) then
-       call this%bc_prs%mark_zone(msh%outlet_normal)
-    end if
 
     call this%bc_prs%finalize()
     call this%bc_prs%set_g(0.0_rp)
@@ -881,7 +871,6 @@ contains
       this%bdry = 0.0_rp
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%wall)
       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
                      'w', this%bc_labels)
       call bdry_mask%finalize()
@@ -890,7 +879,6 @@ contains
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%inlet)
       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
                      'v', this%bc_labels)
       call bdry_mask%finalize()
@@ -899,7 +887,6 @@ contains
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%outlet)
       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
                      'o', this%bc_labels)
       call bdry_mask%finalize()
@@ -908,7 +895,6 @@ contains
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%sympln)
       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
                      'sym', this%bc_labels)
       call bdry_mask%finalize()
@@ -917,7 +903,6 @@ contains
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%outlet_normal)
       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
                      'on', this%bc_labels)
       call bdry_mask%finalize()
