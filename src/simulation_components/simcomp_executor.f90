@@ -96,7 +96,9 @@ contains
     if (case%params%valid_path('case.simulation_components')) then
 
        call case%params%info('case.simulation_components', n_children=n_simcomps)
+       this%n_simcomps = n_simcomps
        allocate(this%simcomps(n_simcomps))
+       allocate(order(n_simcomps))
        allocate(read_order(n_simcomps))
        allocate(mask(n_simcomps))
        mask = .true.
@@ -128,7 +130,7 @@ contains
        ! Figure out the execution order using a poor man's argsort.
        ! Searches for the location of the min value, each time masking out the
        ! found location prior to the next search.
-       do i= 1, n_simcomps
+       do i = 1, n_simcomps
           loc = minloc(read_order, mask=mask)
           order(i) = loc(1)
           mask(loc) = .false.
@@ -234,6 +236,7 @@ contains
     ! Check that the order is within bounds
     do i = 1, this%n_simcomps
        if (order_list(i) .gt. this%n_simcomps) then
+          deallocate(order_list)
           call neko_error("Simulation component order is out of bounds.")
        end if
     end do
