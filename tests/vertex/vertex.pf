@@ -1,0 +1,266 @@
+@test
+subroutine test_vertex_polytope
+  use pfunit
+  use num_types, only : i4
+  use vertex, only : vertex_tpl_t
+  implicit none
+  type(vertex_tpl_t) :: vrt1, vrt2
+  integer(i4) :: tdim, nfacet, nridge, npeak, id1, id2
+
+  ! test polytope_t
+  @assertEqual(vrt1%tdim(), -1)
+  tdim = 0
+  call vrt1%set_tdim(tdim)
+  @assertEqual(vrt1%tdim(), tdim)
+  call vrt1%set_ncomp(0, 0, 0)
+  call vrt1%ncomp(nfacet, nridge, npeak)
+  @assertEqual(nfacet, 0)
+  @assertEqual(nridge, 0)
+  @assertEqual(npeak, 0)
+
+  id1 = 1
+  id2 = 2
+  call vrt1%set_id(id1)
+  @assertEqual(vrt1%id(), id1)
+
+  @assertTrue(vrt1%check_comp(0, 0, 0))
+  @assertFalse(vrt1%check_comp(0, 0, 1))
+
+  call vrt2%set_tdim(tdim)
+  call vrt2%set_ncomp(0, 0, 0)
+  call vrt2%set_id(id1)
+  @assertTrue(vrt1%equal_poly(vrt2))
+
+  call vrt2%set_id(id2)
+  @assertTrue(vrt1%equal_poly(vrt2))
+
+  call vrt2%set_tdim(1)
+  @assertFalse(vrt1%equal_poly(vrt2))
+
+  call vrt1%set_tdim(1)
+  call vrt2%set_ncomp(2, 0, 0)
+  @assertFalse(vrt1%equal_poly(vrt2))
+
+  ! free
+  call vrt1%free_base()
+  call vrt2%free_base()
+
+end subroutine test_vertex_polytope
+
+@test
+subroutine test_vertex_topology
+  use pfunit
+  use num_types, only : i4, i8
+  use topology, only : topology_component_t
+  use vertex, only : vertex_tpl_t
+  implicit none
+  type(vertex_tpl_t) :: vrt1, vrt2
+  type(topology_component_t), dimension(0) :: fct
+  integer(i4) :: itmp, id1, id2, bnd1, bnd2
+  integer(i8) :: gsid
+  integer(i4), dimension(:, :), allocatable :: facetp
+
+  id1 = 1
+  id2 = 2
+  bnd1 = 3
+  bnd2 = 4
+  gsid = 5
+  call vrt1%init(id1, 0, fct, bnd1)
+
+  ! vertex dimensions
+  @assertEqual(vrt1%id(), id1)
+  @assertEqual(vrt1%tdim(), 0)
+  @assertTrue(vrt1%check_comp(0, 0, 0))
+
+  ! no pointer tests as vertex has no components
+
+  ! boundary
+  @assertEqual(vrt1%bnd(), -1)
+  call vrt1%set_bnd(bnd2)
+  @assertEqual(vrt1%bnd(), bnd2)
+
+  ! gather-scatter id
+  @assertEqual(vrt1%gsid(), -1_i8)
+  call vrt1%set_gsid(gsid)
+  @assertEqual(vrt1%gsid(), gsid)
+
+  ! self-periodic flag; vertex has no components
+  @assertFalse(vrt1%self_periodic())
+
+  ! no facet alignment tests
+
+  call vrt2%init(id1, 0, fct, bnd1)
+
+  ! shared facets; vertex has no facets
+  call vrt1%fct_share(vrt2, itmp, facetp)
+  @assertEqual(itmp, 0)
+  deallocate(facetp)
+
+  ! shared ridges; vertex has no ridges
+  call vrt1%rdg_share(vrt2, itmp, facetp)
+  @assertEqual(itmp, 0)
+  deallocate(facetp)
+
+  ! vertex equality
+  @assertTrue(vrt1%equal(vrt2))
+  call vrt2%init(id2, 0, fct, bnd2)
+  @assertFalse(vrt1%equal(vrt2))
+
+  call vrt1%free()
+  call vrt2%free()
+
+end subroutine test_vertex_topology
+
+@test
+subroutine test_vertex_tpl_add
+  use pfunit
+  use num_types, only : i4
+  use topology, only : topology_t
+  use vertex, only : vertex_tpl_add
+  implicit none
+  class(topology_t), allocatable :: vrt
+  integer(i4) :: id
+
+  id = 10
+  call vertex_tpl_add(vrt, id)
+
+  ! vertex dimensions
+  @assertEqual(vrt%id(), id)
+  @assertEqual(vrt%tdim(), 0)
+  @assertTrue(vrt%check_comp(0, 0, 0))
+
+  call vrt%free()
+  deallocate(vrt)
+
+end subroutine test_vertex_tpl_add
+
+@test
+subroutine test_vertex_oriented
+  use pfunit
+  use num_types, only : i4, i8
+  use topology, only : topology_t, topology_component_t
+  use vertex, only : vertex_tpl_t, vertex_ornt_t
+  implicit none
+  class(topology_t), pointer :: poly
+  type(vertex_tpl_t) :: vrt1, vrt2
+  type(vertex_ornt_t) :: vro1
+  type(topology_component_t), dimension(0) :: fct
+  integer(i4) :: itmp, id1, id2, bnd1, bnd2, algn
+  integer(i8) :: gsid
+  logical :: equal
+
+  id1 = 1
+  id2 = 2
+  bnd1 = 3
+  bnd2 = 4
+  gsid = 5
+  call vrt1%init(id1, 0, fct, bnd1)
+  call vrt2%init(id2, 0, fct, bnd2)
+  call vrt1%set_gsid(gsid)
+
+  algn = 1
+  call vro1%init(vrt1, algn)
+
+  ! pointer
+  poly => vro1%polyp()
+  @assertTrue(associated(poly))
+  @assertEqual(poly%id(), id1)
+  @assertEqual(poly%tdim(), 0)
+  @assertTrue(poly%check_comp(0, 0, 0))
+  @assertEqual(poly%bnd(), -1)
+  @assertEqual(poly%gsid(), gsid)
+  @assertTrue(poly%equal(vrt1))
+
+  ! alignment; vertex has no alignment
+  @assertFalse(vro1%ifalgn())
+  @assertEqual(vro1%algn(), -1)
+
+  ! equality
+  @assertTrue(vro1%equal(vrt1))
+  @assertFalse(vro1%equal(vrt2))
+  call vro1%equal_algn(vrt1, equal, algn)
+  @assertTrue(equal)
+  @assertEqual(algn, -1)
+   call vro1%equal_algn(vrt2, equal, algn)
+  @assertFalse(equal)
+  @assertEqual(algn, -1)
+
+  ! alignment test
+  @assertTrue(vro1%test(vrt1))
+  @assertFalse(vro1%test(vrt2))
+
+  call vrt1%free()
+  call vrt2%free()
+  call vro1%free()
+
+end subroutine test_vertex_oriented
+
+@test
+subroutine test_vertex_actualisation
+  use pfunit
+  use num_types, only : i4, i8
+  use topology, only : topology_t, topology_component_t
+  use vertex, only : vertex_tpl_t, vertex_act_t
+  implicit none
+  class(topology_t), pointer :: poly
+  type(vertex_tpl_t) :: vrt1, vrt2
+  type(vertex_act_t) :: vra1
+  type(topology_component_t), dimension(0) :: fct
+  integer(i4) :: itmp, id1, id2, bnd1, bnd2, algn, hng, pos
+  integer(i8) :: gsid
+  logical :: equal, ifintp
+
+  id1 = 1
+  id2 = 2
+  bnd1 = 3
+  bnd2 = 4
+  gsid = 5
+  call vrt1%init(id1, 0, fct, bnd1)
+  call vrt2%init(id2, 0, fct, bnd2)
+  call vrt1%set_gsid(gsid)
+
+  algn = 1
+  ifintp = .true.
+  hng = 2
+  pos = 6
+  call vra1%init(vrt1, algn, ifintp, hng, pos)
+
+  ! pointer
+  poly => vra1%polyp()
+  @assertTrue(associated(poly))
+  @assertEqual(poly%id(), id1)
+  @assertEqual(poly%tdim(), 0)
+  @assertTrue(poly%check_comp(0, 0, 0))
+  @assertEqual(vrt1%bnd(), -1)
+  @assertEqual(vrt1%gsid(), gsid)
+
+  ! alignment; vertex has no alignment
+  @assertFalse(vra1%ifalgn())
+  @assertEqual(vra1%algn(), -1)
+
+  ! interpolation and hanging information
+  @assertFalse(vra1%ifintp())
+  @assertEqual(vra1%hng(), hng)
+
+  ! position
+  @assertEqual(vra1%pos(), pos)
+
+  ! equality
+  @assertTrue(vra1%equal(vrt1))
+  @assertFalse(vra1%equal(vrt2))
+  call vra1%equal_algn(vrt1, equal, algn)
+  @assertTrue(equal)
+  @assertEqual(algn, -1)
+   call vra1%equal_algn(vrt2, equal, algn)
+  @assertFalse(equal)
+  @assertEqual(algn, -1)
+
+  ! alignment test
+  @assertTrue(vra1%test(vrt1))
+  @assertFalse(vra1%test(vrt2))
+
+  call vrt1%free()
+  call vrt2%free()
+  call vra1%free()
+
+end subroutine test_vertex_actualisation

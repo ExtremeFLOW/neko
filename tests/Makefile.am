@@ -8,6 +8,14 @@ SUBDIRS = tuple\
 	  tet\
 	  tri\
 	  math\
+	  alignment\
+	  vertex\
+	  edge\
+	  quad_new\
+	  hex_new\
+	  element_list\
+	  point_list\
+	  topology_list\
 	  mesh\
 	  space\
 	  dofmap\
@@ -43,6 +51,14 @@ TESTS = device/device_test\
 	tet/tet_test\
 	tri/tri_test\
 	math/math_test\
+	alignment/alignment_test\
+	vertex/vertex_test\
+	edge/edge_test\
+	quad_new/quad_test\
+	hex_new/hex_test\
+	element_list/element_list_test\
+	point_list/point_list_test\
+	topology_list/topology_list_test\
 	mesh/mesh_test\
 	space/space_test\
 	dofmap/dofmap_test\
@@ -68,6 +84,15 @@ TESTS = device/device_test\
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
+	alignment/alignment_edge.pf\
+	alignment/alignment_quad.pf\
+	vertex/vertex.pf\
+	edge/edge.pf\
+	quad_new/quad.pf\
+	hex_new/hex.pf\
+	element_list/element_list.pf\
+	point_list/point_list.pf\
+	topology_list/topology_list.pf\
 	mesh/mesh_parallel.pf\
 	quad/quad.pf\
 	gather_scatter/gather_scatter_parallel.pf\

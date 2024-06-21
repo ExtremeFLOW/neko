@@ -311,6 +311,14 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/tet/Makefile\
 		 tests/tri/Makefile\
 		 tests/math/Makefile\
+		 tests/alignment/Makefile\
+		 tests/vertex/Makefile\
+		 tests/edge/Makefile\
+		 tests/quad_new/Makefile\
+		 tests/hex_new/Makefile\
+		 tests/element_list/Makefile\
+		 tests/point_list/Makefile\
+		 tests/topology_list/Makefile\
 		 tests/mesh/Makefile\
 		 tests/space/Makefile\
 		 tests/dofmap/Makefile\
