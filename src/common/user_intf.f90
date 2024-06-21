@@ -421,4 +421,11 @@ contains
 
   end function simulation_component_user_settings
 
+
+  !> @example simulation_components/user_simcomp.f90
+  !! @brief User defined simulation components.
+  !! @details
+  !! Example of how to use the simcomp_executor to add a user defined
+  !! simulation component to the list.
+  !! @include simulation_components/user_simcomp.case
 end module user_intf
