@@ -45,8 +45,9 @@ module user_intf
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use field_dirichlet, only: field_dirichlet_update
   use num_types, only : rp
-  use json_module, only : json_file
-  use utils, only : neko_error,  neko_warning
+  use json_module, only : json_file, json_core, json_value
+  use json_utils, only : json_extract_item, json_get, json_get_or_default
+  use utils, only : neko_error, neko_warning
   implicit none
   private
 
@@ -90,6 +91,13 @@ module user_intf
      end subroutine user_initialize_modules
   end interface
 
+  !> Abstract interface for adding user defined simulation components
+  abstract interface
+     subroutine user_simcomp_init(params)
+       import json_file
+       type(json_file), intent(inout) :: params
+     end subroutine user_simcomp_init
+  end interface
 
   !> Abstract interface for user defined mesh deformation functions
   abstract interface
@@ -149,6 +157,7 @@ module user_intf
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
+     procedure(user_simcomp_init), nopass, pointer :: init_user_simcomp => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
      procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
@@ -166,7 +175,8 @@ module user_intf
   end type user_t
 
   public :: useric, useric_scalar, user_initialize_modules, usermsh, &
-            dummy_user_material_properties, user_material_properties
+    dummy_user_material_properties, user_material_properties, &
+    user_simcomp_init, simulation_component_user_settings
 contains
 
   !> User interface initialization
@@ -215,6 +225,10 @@ contains
 
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
+    end if
+
+    if (.not. associated(u%init_user_simcomp)) then
+       u%init_user_simcomp => dummy_user_init_no_simcomp
     end if
 
     if (.not. associated(u%user_finalize_modules)) then
@@ -334,13 +348,17 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
 
+  subroutine dummy_user_init_no_simcomp(params)
+    type(json_file), intent(inout) :: params
+  end subroutine dummy_user_init_no_simcomp
+
   subroutine dummy_user_final_no_modules(t, params)
     real(kind=rp) :: t
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
   subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc_list, &
-       coef, t, tstep, which_solver)
+                                  coef, t, tstep, which_solver)
     type(field_list_t), intent(inout) :: dirichlet_field_list
     type(bc_list_t), intent(inout) :: dirichlet_bc_list
     type(coef_t), intent(inout) :: coef
@@ -356,5 +374,51 @@ contains
     real(kind=rp), intent(inout) :: rho, mu, cp, lambda
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_material_properties
+
+  ! ========================================================================== !
+  ! Helper functions for user defined interfaces
+
+  !> JSON extraction helper function for simulation components
+  !! @param name The name of the object to be created.
+  !! @param params The JSON object containing the user-defined component.
+  !! @return The JSON object for initializing the simulation component.
+  function simulation_component_user_settings(name, params) result(comp_subdict)
+    character(len=*), intent(in) :: name
+    type(json_file), intent(inout) :: params
+    type(json_file) :: comp_subdict
+
+    type(json_core) :: core
+    type(json_value), pointer :: simcomp_object
+    character(len=:), allocatable :: current_type
+    integer :: n_simcomps
+    integer :: i
+    logical :: found, is_user
+
+    ! Extract the JSON object for the current component
+    if (.not. params%valid_path('case.simulation_components')) return
+
+    call params%get_core(core)
+    call params%info('case.simulation_components', n_children=n_simcomps)
+    call params%get('case.simulation_components', simcomp_object)
+
+    ! We need a separate loop to figure out the order, so that we can
+    ! apply the order to the initialization as well.
+    do i = 1, n_simcomps
+       ! Create a new json containing just the subdict for this simcomp
+       call json_extract_item(core, simcomp_object, i, comp_subdict)
+       call json_get(comp_subdict, "type", current_type)
+       call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
+       if (trim(current_type) .eq. trim(name) .and. is_user) then
+          found = .true.
+          exit
+       end if
+    end do
+
+    if (.not. found) then
+       call neko_error("User-defined simulation component " &
+                       // trim(name) // " not found in case file.")
+    end if
+
+  end function simulation_component_user_settings
 
 end module user_intf

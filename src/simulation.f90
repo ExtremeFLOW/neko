@@ -81,9 +81,10 @@ contains
        call neko_log%message(log_buf)
     end if
 
-    ! Run user init routine
+    ! Run user init routines
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
                                  C%fluid%p, C%fluid%c_Xh, C%params)
+    call C%usr%init_user_simcomp(C%params)
     call neko_simcomps%finalize()
 
     call C%params%get('case.restart_file', restart_file, found)

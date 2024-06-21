@@ -1,35 +1,39 @@
-! Copyright (c) 2024, The Neko Authors
-! All rights reserved.
-!
-! Redistribution and use in source and binary forms, with or without
-! modification, are permitted provided that the following conditions
-! are met:
-!
-!   * Redistributions of source code must retain the above copyright
-!     notice, this list of conditions and the following disclaimer.
-!
-!   * Redistributions in binary form must reproduce the above
-!     copyright notice, this list of conditions and the following
-!     disclaimer in the documentation and/or other materials provided
-!     with the distribution.
-!
-!   * Neither the name of the authors nor the names of its
-!     contributors may be used to endorse or promote products derived
-!     from this software without specific prior written permission.
-!
-! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-! POSSIBILITY OF SUCH DAMAGE.
-!
+!> @file simcomp_executor.f90
+!! @brief Contains the main driver of simulation components.
+!!
+!! @date 2024-06-20
+!! @copyright
+!! Copyright (c) 2024, The Neko Authors
+!! All rights reserved.
+!!
+!! Redistribution and use in source and binary forms, with or without
+!! modification, are permitted provided that the following conditions
+!! are met:
+!!
+!!   * Redistributions of source code must retain the above copyright
+!!     notice, this list of conditions and the following disclaimer.
+!!
+!!   * Redistributions in binary form must reproduce the above
+!!     copyright notice, this list of conditions and the following
+!!     disclaimer in the documentation and/or other materials provided
+!!     with the distribution.
+!!
+!!   * Neither the name of the authors nor the names of its
+!!     contributors may be used to endorse or promote products derived
+!!     from this software without specific prior written permission.
+!!
+!! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+!! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+!! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+!! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+!! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+!! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+!! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+!! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+!! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+!! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+!! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+!! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Contains the `simcomp_executor_t` type.
 module simcomp_executor
@@ -54,13 +58,15 @@ module simcomp_executor
      class(simulation_component_wrapper_t), allocatable :: simcomps(:)
      !> Number of simcomps
      integer :: n_simcomps
+     !> The case
+     type(case_t), pointer :: case
    contains
      !> Constructor.
      procedure, pass(this) :: init => simcomp_executor_init
      !> Destructor.
      procedure, pass(this) :: free => simcomp_executor_free
      !> Appending a new simcomp to the executor.
-     procedure, pass(this) :: add => simcomp_executor_add
+     procedure, pass(this) :: add_user_simcomp => simcomp_executor_add
      !> Execute compute_ for all simcomps.
      procedure, pass(this) :: compute => simcomp_executor_compute
      !> Execute restart for all simcomps.
@@ -92,6 +98,7 @@ contains
     integer :: max_order
 
     call this%free()
+    this%case => case
 
     if (case%params%valid_path('case.simulation_components')) then
 
@@ -160,26 +167,43 @@ contains
   end subroutine simcomp_executor_free
 
   !> Appending a new simcomp to the executor.
-  !! @param simcomp The simcomp to append.
-  subroutine simcomp_executor_add(this, simcomp)
+  !! @param new_object The simcomp to append.
+  !! @param settings The settings for the simcomp.
+  subroutine simcomp_executor_add(this, object, settings)
     class(simcomp_executor_t), intent(inout) :: this
-    class(simulation_component_t), intent(in) :: simcomp
+    class(simulation_component_t), intent(in) :: object
+    type(json_file), intent(inout) :: settings
 
     class(simulation_component_wrapper_t), allocatable :: tmp_simcomps(:)
-    integer :: i
+    integer :: i, position
 
-    if (allocated(this%simcomps)) then
-       call move_alloc(this%simcomps, tmp_simcomps)
-    end if
-
-    ! Insert the simulation component into the list
-    allocate(this%simcomps(this%n_simcomps+1))
+    ! Find the first empty position
+    position = 0
     do i = 1, this%n_simcomps
-       call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)
+       if (.not. allocated(this%simcomps(i)%simcomp)) then
+          position = i
+          exit
+       end if
     end do
 
-    this%n_simcomps = this%n_simcomps + 1
-    this%simcomps(this%n_simcomps)%simcomp = simcomp
+    ! If no empty position was found, append to the end
+    if (position == 0) then
+       call move_alloc(this%simcomps, tmp_simcomps)
+       allocate(this%simcomps(position))
+
+       if (allocated(tmp_simcomps)) then
+          do i = 1, this%n_simcomps
+             call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)
+          end do
+          deallocate(tmp_simcomps)
+       end if
+
+       this%n_simcomps = this%n_simcomps + 1
+       position = this%n_simcomps
+    end if
+
+    this%simcomps(position)%simcomp = object
+    call this%simcomps(position)%simcomp%init(settings, this%case)
 
     if (allocated(tmp_simcomps)) then
        deallocate(tmp_simcomps)
@@ -198,6 +222,13 @@ contains
 
     class(simulation_component_wrapper_t), allocatable :: tmp_simcomps(:)
     integer, allocatable :: order_list(:)
+
+    ! Check that all components are initialized
+    do i = 1, this%n_simcomps
+       if (.not. allocated(this%simcomps(i)%simcomp)) then
+          call neko_error("Simulation component not initialized.")
+       end if
+    end do
 
     ! Check that the order is unique and contiguous
     previous_found = .true.
@@ -218,6 +249,7 @@ contains
     end do
 
     allocate(order_list(this%n_simcomps))
+    order_list = 0
     max_order = 0
     do i = 1, this%n_simcomps
        order_list(i) = this%simcomps(i)%simcomp%order
