@@ -102,7 +102,8 @@ contains
 
     if (case%params%valid_path('case.simulation_components')) then
 
-       call case%params%info('case.simulation_components', n_children=n_simcomps)
+       call case%params%info('case.simulation_components', &
+                             n_children=n_simcomps)
        this%n_simcomps = n_simcomps
        allocate(this%simcomps(n_simcomps))
        allocate(order(n_simcomps))

@@ -81,9 +81,7 @@ contains
        call neko_log%message(log_buf)
     end if
 
-    ! Run user init routines
-    call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
-                                 C%fluid%p, C%fluid%c_Xh, C%params)
+    ! Run user init routines for simulation components
     call C%usr%init_user_simcomp(C%params)
     call neko_simcomps%finalize()
 
@@ -101,6 +99,8 @@ contains
     call C%q%eval(t, C%dt, tstep)
     call C%s%sample(t, tstep)
 
+    call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
+                                 C%fluid%p, C%fluid%c_Xh, C%params)
     call neko_log%end_section()
     call neko_log%newline()
 
@@ -162,8 +162,8 @@ contains
                                       C%material_properties%lambda, &
                                       C%params)
 
-       call C%usr%user_check(t, tstep,&
-                             C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+       call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
+                             C%fluid%p, C%fluid%c_Xh, C%params)
 
        call neko_log%end_section()
 
