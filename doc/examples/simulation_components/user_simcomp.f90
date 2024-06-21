@@ -68,8 +68,6 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
 
-    write(*,*) "Initing user simcomp"
-
     call this%init_from_attributes()
     call this%init_base(json, case)
 
@@ -78,14 +76,11 @@ contains
   ! Actual constructor.
   subroutine simcomp_test_init_from_attributes(this)
     class(user_simcomp_t), intent(inout) :: this
-
   end subroutine simcomp_test_init_from_attributes
 
   ! Destructor.
   subroutine simcomp_test_free(this)
     class(user_simcomp_t), intent(inout) :: this
-    write(*,*) "Freeing user simcomp"
-
     call this%free_base()
   end subroutine simcomp_test_free
 
@@ -94,8 +89,6 @@ contains
     class(user_simcomp_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-
-    write(*,*) "Computing user simcomp"
 
   end subroutine simcomp_test_compute
 
