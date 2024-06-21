@@ -282,8 +282,12 @@ contains
        call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(order)%simcomp)
     end do
 
-    deallocate(tmp_simcomps)
-    deallocate(order_list)
+    if (allocated(tmp_simcomps)) then
+       deallocate(tmp_simcomps)
+    end if
+    if (allocated(order_list)) then
+       deallocate(order_list)
+    end if
 
   end subroutine simcomp_executor_finalize
 
