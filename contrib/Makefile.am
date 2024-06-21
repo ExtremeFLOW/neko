@@ -7,5 +7,6 @@ SUBDIRS = rea2nbin\
 	  postprocess_fluid_stats\
 	  mesh_checker\
 	  map_to_equidistant_1d\
-	  adios2_to_nek5000
+	  adios2_to_nek5000\
+	  psnr
 

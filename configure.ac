@@ -398,7 +398,8 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/map_to_equidistant_1d/Makefile\
 		    contrib/mesh_checker/Makefile\
 		    contrib/prepart/Makefile\
-		    contrib/adios2_to_nek5000/Makefile])
+		    contrib/adios2_to_nek5000/Makefile\
+		    contrib/psnr/Makefile])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
