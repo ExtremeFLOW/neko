@@ -29,7 +29,8 @@ jobs:
               sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
               source /opt/intel/oneapi/setvars.sh
               sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
-              INTEL_PATH=$(realpath /opt/intel/oneapi/compiler/*/bin)
+              echo 'INTEL_PATH=find /opt/intel/oneapi/compiler/ -name "${FC}" -type f | xargs dirname'
+              INTEL_PATH=$(find /opt/intel/oneapi/compiler/ -name "${FC}" -type f | xargs dirname)
               echo "compiler found at: $INTEL_PATH"
               export PATH=/opt/intel/oneapi/compiler/2024.1/bin:${PATH}
               printenv >> $GITHUB_ENV
