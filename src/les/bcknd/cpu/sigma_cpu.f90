@@ -38,12 +38,13 @@
 module sigma_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS
+  use math, only : cadd, NEKO_EPS, col2
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz
   use coefs, only : coef_t
+  use gs_ops, only : GS_OP_ADD
   implicit none
   private
 
@@ -113,6 +114,26 @@ contains
     call dudxyz (g31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (g32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (g33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+
+    call coef%gs_h%op(g11%x, g11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(g12%x, g11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(g13%x, g11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(g21%x, g11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(g22%x, g11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(g23%x, g11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(g31%x, g11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(g32%x, g11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(g33%x, g11%dof%size(), GS_OP_ADD)
+
+    call col2(g11%x, coef%mult, g11%dof%size())
+    call col2(g12%x, coef%mult, g11%dof%size())
+    call col2(g13%x, coef%mult, g11%dof%size())
+    call col2(g21%x, coef%mult, g11%dof%size())
+    call col2(g22%x, coef%mult, g11%dof%size())
+    call col2(g23%x, coef%mult, g11%dof%size())
+    call col2(g31%x, coef%mult, g11%dof%size())
+    call col2(g32%x, coef%mult, g11%dof%size())
+    call col2(g33%x, coef%mult, g11%dof%size())
 
     do e=1, coef%msh%nelv
        do i=1, coef%Xh%lxyz

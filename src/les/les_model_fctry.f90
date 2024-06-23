@@ -75,11 +75,11 @@ contains
       allocate(dynamic_smagorinsky_t::les_model)
     end if
 
-   if (trim(name) .eq. 'sigma') then
-      allocate(sigma_t::les_model)
-   end if
+    if (trim(name) .eq. 'sigma') then
+       allocate(sigma_t::les_model)
+    end if
 
-   call les_model%init(dofmap, coef, json)
+    call les_model%init(dofmap, coef, json)
 
   end subroutine les_model_factory
 
