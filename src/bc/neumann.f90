@@ -37,7 +37,7 @@ module neumann
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
-  use math, only : copy
+  use math, only : cfill
   implicit none
   private
 
@@ -52,7 +52,6 @@ module neumann
      procedure, pass(this) :: apply_vector => neumann_apply_vector
      procedure, pass(this) :: apply_scalar_dev => neumann_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
-     procedure, pass(this) :: init_neumann => neumann_init_neumann
      procedure, pass(this) :: finalize_neumann => neumann_finalize_neumann
      procedure, pass(this) :: flux => neumann_flux
      !> Destructor.
@@ -131,13 +130,6 @@ contains
 
   end subroutine neumann_apply_vector_dev
 
-  !> Constructor
-  !> @param flux The desired flux.
-  subroutine neumann_init_neumann(this)
-    class(neumann_t), intent(inout) :: this
-
-  end subroutine neumann_init_neumann
-
   !> Destructor
   subroutine neumann_free(this)
     class(neumann_t), target, intent(inout) :: this
@@ -158,11 +150,12 @@ contains
   !> @param flux The desired flux.
   subroutine neumann_finalize_neumann(this, flux)
     class(neumann_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: flux(this%msk(0))
+    real(kind=rp), intent(in) :: flux
 
+    call this%finalize()
     allocate(this%flux_(this%msk(0)))
 
-    call copy(this%flux_, flux, this%msk(0))
+    call cfill(this%flux_, flux, this%msk(0))
   end subroutine neumann_finalize_neumann
 
 end module neumann

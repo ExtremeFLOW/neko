@@ -140,13 +140,12 @@ module shear_stress
       class(shear_stress_t), intent(inout) :: this
       type(coef_t), target, intent(in) :: coef
 
+      call this%init_base(coef)
 
       call this%dirichlet%init_base(coef)
       call this%neumann1%init_base(coef)
       call this%neumann2%init_base(coef)
 
-      call this%neumann1%init_neumann()
-      call this%neumann2%init_neumann()
       call this%dirichlet%set_g(0.0_rp)
 
       this%coef => coef
@@ -156,23 +155,14 @@ module shear_stress
     !! the bc components.
     subroutine shear_stress_finalize(this, tau1, tau2)
       class(shear_stress_t), intent(inout) :: this
-      real(kind=rp), intent(in) :: tau1(this%msk(0))
-      real(kind=rp), intent(in) :: tau2(this%msk(0))
-
-      allocate(this%tau1_(this%msk(0)))
-      allocate(this%tau2_(this%msk(0)))
-
-      this%tau1_ = tau1
-      this%tau2_ = tau2
+      real(kind=rp), intent(in) :: tau1
+      real(kind=rp), intent(in) :: tau2
 
       call this%neumann1%mark_facets(this%marked_facet)
       call this%neumann2%mark_facets(this%marked_facet)
       call this%dirichlet%mark_facets(this%marked_facet)
 
-      call this%neumann1%finalize()
-      call this%neumann2%finalize()
       call this%dirichlet%finalize()
-
       call this%neumann1%finalize_neumann(tau1)
       call this%neumann2%finalize_neumann(tau2)
 
