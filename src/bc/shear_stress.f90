@@ -176,8 +176,6 @@ module shear_stress
       call this%neumann1%finalize_neumann(tau1)
       call this%neumann2%finalize_neumann(tau2)
 
-       write(*,*) "Stress array size", size(this%tau1_), size(this%tau2_)
-
     end subroutine shear_stress_finalize
 
     !> Get the stress in the 1st wall-parallel direction.
