@@ -72,7 +72,8 @@ contains
     character(len=:), allocatable :: type_name
     character(len=:), allocatable :: type_string
 
-    type_string =  concat_string_array(KNOWN_TYPES)
+    type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+                                       prepend=.true.)
 
     call json_get(json, "model", type_name)
 
