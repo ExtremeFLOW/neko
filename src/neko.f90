@@ -199,6 +199,10 @@ contains
        !
        call case_init(C, case_file)
        
+       if (C%usr%user_extended .eq. .true.) then
+          write(log_buf, '(a)') 'Running neko in user extended mode.'
+          call neko_log%message(log_buf)
+       end if
     end if
     
   end subroutine neko_init

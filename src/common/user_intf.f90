@@ -99,6 +99,9 @@ module user_intf
   end interface
 
   type :: user_t
+     !> Logical to indicate if the code have been extended by the user.
+     logical :: user_extended = .false.
+
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
@@ -119,33 +122,41 @@ contains
 
     if (.not. associated(u%fluid_user_ic)) then
        u%fluid_user_ic => dummy_user_ic
+       u%user_extended = .true.
     end if
 
     if (.not. associated(u%fluid_user_f)) then
        u%fluid_user_f => dummy_user_f
+       u%user_extended = .true.
     end if
     
     if (.not. associated(u%fluid_user_f_vector)) then
        u%fluid_user_f_vector => dummy_user_f_vector
+       u%user_extended = .true.
     end if
 
     if (.not. associated(u%scalar_user_f)) then
        u%scalar_user_f => dummy_scalar_user_f
+       u%user_extended = .true.
     end if
     
     if (.not. associated(u%scalar_user_f_vector)) then
        u%scalar_user_f_vector => dummy_user_scalar_f_vector
+       u%user_extended = .true.
     end if
     
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
+       u%user_extended = .true.
     end if
 
     if (.not. associated(u%user_check)) then
        u%user_check => dummy_user_check
+       u%user_extended = .true.
     end if
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
+       u%user_extended = .true.
     end if
     
   end subroutine user_intf_init
