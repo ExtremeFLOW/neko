@@ -67,6 +67,8 @@ module simcomp_executor
      procedure, pass(this) :: free => simcomp_executor_free
      !> Appending a new simcomp to the executor.
      procedure, pass(this) :: add_user_simcomp => simcomp_executor_add
+     !> Execute preprocess_ for all simcomps.
+     procedure, pass(this) :: preprocess => simcomp_executor_preprocess
      !> Execute compute_ for all simcomps.
      procedure, pass(this) :: compute => simcomp_executor_compute
      !> Execute restart for all simcomps.
@@ -290,6 +292,22 @@ contains
     end if
 
   end subroutine simcomp_executor_finalize
+  !> Execute preprocess_ for all simcomps.
+  !! @param t The time value.
+  !! @param tstep The timestep number.
+  subroutine simcomp_executor_preprocess(this, t, tstep)
+    class(simcomp_executor_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    integer :: i
+
+    if (allocated(this%simcomps)) then
+       do i=1, size(this%simcomps)
+          call this%simcomps(i)%simcomp%preprocess(t, tstep)
+       end do
+    end if
+
+  end subroutine simcomp_executor_preprocess
 
   !> Execute compute_ for all simcomps.
   !! @param t The time value.
