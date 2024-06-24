@@ -282,7 +282,7 @@ class GetTgvDns(rfm.RunOnlyRegressionTest):
 
 class TgvBase(NekoTestBase):
     descr = 'Run TGV and compare with DNS data'
-    executable = './neko_tgv'
+    executable = './neko'
     case = 'tgv.case'
     tgv_dns = fixture(GetTgvDns, scope='session')
 
@@ -362,7 +362,6 @@ class MiniHemi(NekoTestBase):
     build_system = DummyBuildSystem()
     case = 'minihemi.case'
     mesh_file = 'examples/hemi/hemi.nmsh'
-    executable = './neko_hemi'
 
     @run_before('compile')
     def setup_case(self):
@@ -374,7 +373,7 @@ class MiniTgv8(NekoTestBase):
     mesh_file = 'examples/tgv/512.nmsh'
     dt = '1d-2'
     T_end = '0.02'
-    executable = './neko_tgv'
+    executable = './neko'
     case = 'tgv.case'
 
     @run_after('setup')
@@ -388,7 +387,7 @@ class MiniRB(NekoTestBase):
     mesh_file = 'examples/rayleigh-benard/box.nmsh'
     dt = '1d-2'
     T_end = '0.02'
-    executable = './neko_rayleigh'
+    executable = './neko'
     case = 'rayleigh.case'
 
     @run_after('setup')
