@@ -252,7 +252,7 @@ contains
           call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) dir_value
           call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
-          call this%dir_bcs(i)%finalize()
+          call this%dir_bcs(this%n_dir_bcs)%finalize()
 !          end if
        end if
 
