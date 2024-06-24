@@ -40,7 +40,7 @@
             "absolute_tolerance": 1e-7,
             "max_iterations": 800
         },
-        "boundary_labels": ["sym", "w", "o", "v"],
+        "boundary_types": ["sym", "w", "o", "v"],
         "output_control": "nsamples",
         "output_value": 100
     }
