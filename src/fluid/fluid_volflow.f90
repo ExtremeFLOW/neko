@@ -105,7 +105,7 @@ contains
     class(fluid_volflow_t), intent(inout) :: this
     type(dofmap_t), intent(inout) :: dm_Xh
     type(json_file), intent(inout) :: params
-    logical average, found
+    logical average
     integer :: direction
     real(kind=rp) :: rate
 
@@ -347,10 +347,9 @@ contains
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     integer, intent(in) :: prs_max_iter, vel_max_iter
     real(kind=rp) :: ifcomp, flow_rate, xsec
-    real(kind=rp) :: current_flow, delta_flow, base_flow, scale
+    real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr
     type(field_t), pointer :: ta1, ta2, ta3
-    integer :: temp_indices(3)
 
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)

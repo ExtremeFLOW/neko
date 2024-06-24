@@ -142,9 +142,6 @@ contains
     type(user_t), intent(in) :: user
     type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    logical :: found, logical_val
-    integer :: integer_val
-    real(kind=rp) :: real_val
 
     call this%free()
 
@@ -153,7 +150,7 @@ contains
                           material_properties)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, full_formulation = .false.)
 
     ! Setup backend dependent prs residual routines
     call pnpn_prs_res_factory(this%prs_res)
@@ -508,8 +505,6 @@ contains
     type(field_t), pointer :: u_e, v_e, w_e
     ! Indices for tracking temporary fields
     integer :: temp_indices(3)
-    ! Counter
-    integer :: i
 
     if (this%freeze) return
 
@@ -552,7 +547,7 @@ contains
 
       ! Add the advection operators to the right-hand-side.
       call this%adv%compute(u, v, w, &
-                            f_x%x, f_y%x, f_z%x, &
+                            f_x, f_y, f_z, &
                             Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator and
@@ -575,9 +570,9 @@ contains
 
       !> We assume that no change of boundary conditions
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
-      !> Apply dirichlet
-      call this%dirichlet_update_(this%field_dirichlet_fields, &
-           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "fluid")
+      !> Apply the user dirichlet boundary condition
+      call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
+              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
 
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)

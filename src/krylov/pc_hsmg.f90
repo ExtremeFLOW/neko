@@ -185,7 +185,7 @@ contains
     call this%c_mg%init(this%gs_mg)
 
     ! Create backend specific Ax operator
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, full_formulation = .false.)
 
 
     ! Create a backend specific preconditioner
@@ -357,7 +357,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: crs_info
-    integer :: i, thrdid, nthrds
+    integer :: thrdid, nthrds
 
     call profiler_start_region('HSMG solve', 8)
     if (NEKO_BCKND_DEVICE .eq. 1) then

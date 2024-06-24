@@ -137,16 +137,12 @@ contains
   !! @param uz Will store the z component of the gradient.
   !! @param u The values of the field.
   !! @param coef The SEM coefficients.
-  !! @param es Starting element index, optional, defaults to 1.
-  !! @param ee Ending element index, optional, defaults to `nelv`.
-  subroutine grad(ux, uy, uz, u, coef, es, ee)
+  subroutine grad(ux, uy, uz, u, coef)
     type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
-    integer, optional :: es, ee
-    integer :: eblk_start, eblk_end
 
     call dudxyz(ux, u, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz(uy, u, coef%drdy, coef%dsdy, coef%dtdy, coef)
@@ -278,7 +274,7 @@ contains
       end if
 
       if (NEKO_BCKND_SX .eq. 1) then
-         call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+         call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv)
       else if (NEKO_BCKND_XSMM .eq. 1) then
          call opr_xsmm_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
       else if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -342,7 +338,7 @@ contains
     integer :: ierr
 
     if (NEKO_BCKND_SX .eq. 1) then
-       cfl = opr_sx_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
+       cfl = opr_sx_cfl(dt, u, v, w, Xh, coef, nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        cfl = opr_device_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
     else

@@ -1,7 +1,11 @@
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = neko.pc
 
-SUBDIRS = src contrib
+SUBDIRS = src
+
+if ENABLE_CONTRIB
+SUBDIRS += contrib
+endif
 
 if ENABLE_PFUNIT
 SUBDIRS += tests

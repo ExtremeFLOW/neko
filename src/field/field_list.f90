@@ -5,6 +5,7 @@ module field_list
   use space, only : space_t
   use dofmap, only : dofmap_t
   use mesh, only : mesh_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -18,8 +19,11 @@ module field_list
      procedure, pass(this) :: free => field_list_free
      !> Append a field to the list.
      procedure, pass(this) :: append => field_list_append
+     generic :: get => get_by_index, get_by_name
      !> Get an item pointer by array index
-     procedure, pass(this) :: get => field_list_get
+     procedure, pass(this) :: get_by_index => field_list_get_by_index
+     !> Get an item pointer by field name
+     procedure, pass(this) :: get_by_name => field_list_get_by_name
      !> Point item at given index.
      generic :: assign => assign_to_ptr, assign_to_field_ptr
      procedure, pass(this) :: assign_to_ptr => field_list_assign_to_ptr
@@ -42,6 +46,8 @@ module field_list
      procedure, pass(this) :: msh => field_list_msh
      !> Check wether the dofmap is internal for an item in the list.
      procedure, pass(this) :: internal_dofmap => field_list_internal_dofmap
+     !> Get the name for an item in the list.
+     procedure, pass(this) :: name => field_list_name
   end type field_list_t
 
 contains
@@ -50,7 +56,6 @@ contains
   subroutine field_list_init(this, size)
     class(field_list_t), intent(inout) :: this
     integer, intent(in) :: size
-    integer :: i
 
     call this%free()
 
@@ -66,12 +71,30 @@ contains
 
   !> Get an item pointer by array index
   !! @param i The index of the item.
-  function field_list_get(this, i) result(f)
+  function field_list_get_by_index(this, i) result(f)
     class(field_list_t), intent(inout) :: this
     type(field_t), pointer :: f
-    integer :: i
+    integer, intent(in) :: i
     f => this%items(i)%ptr
-  end function field_list_get
+  end function field_list_get_by_index
+
+  !> Get an item pointer by array index
+  !! @param i The index of the item.
+  function field_list_get_by_name(this, name) result(f)
+    class(field_list_t), intent(inout) :: this
+    type(field_t), pointer :: f
+    character(len=*), intent(in) :: name
+    integer :: i
+
+    do i=1, this%size()
+      if (this%name(i) .eq. trim(name)) then
+         f => this%items(i)%ptr
+         return
+      end if
+    end do
+
+    call neko_error("No field with name " // trim(name) // " found in list")
+  end function field_list_get_by_name
 
   !> Append a field to the list.
   !! @param f The field to append.
@@ -98,7 +121,9 @@ contains
     if (allocated(this%items)) then
        n_fields = this%size()
        do i=1, n_fields
-          call this%items(i)%ptr%free()
+          if (associated(this%items(i)%ptr)) then
+             call this%items(i)%ptr%free()
+          end if
           nullify(this%items(i)%ptr)
        end do
        deallocate(this%items)
@@ -206,6 +231,16 @@ contains
 
     result = this%items(i)%ptr%internal_dofmap
   end function field_list_internal_dofmap
+
+  !> Get the name for an item in the list.
+  !! @param i The index of the item.
+  function field_list_name(this, i) result(result)
+    class(field_list_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    character(len=80) :: result
+
+    result = this%items(i)%ptr%name
+  end function field_list_name
 
 
 end module field_list

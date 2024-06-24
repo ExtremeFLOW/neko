@@ -193,7 +193,6 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k
 
     call this%bc_x%apply_scalar(x, n)
     call this%bc_y%apply_scalar(y, n)

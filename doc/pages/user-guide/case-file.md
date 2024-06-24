@@ -70,6 +70,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_checkpoints`       | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
 | `checkpoint_control`       | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
 | `checkpoint_value`         | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
+| `checkpoint_format`        | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
 | `restart_file`             | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `timestep`                 | Time-step size                                                                                        | Positive reals                                  | -             |
 | `variable_timestep`        | Whether to use variable dt                                                                            | `true` or `false`                               | `false`       |
@@ -94,8 +95,8 @@ boundary as follows:
 2. A Dirichlet boundary, i.e. the `v` label.
 3. An outlet boundary, i.e. the `o` label.
 4. A symmetry boundary, i.e. the `sym` label.
-5. A periodic boundary.
-6. An wall-normal transpiration boundary, i.e. the `on` label.
+5. An wall-normal transpiration boundary, i.e. the `on` label.
+6. A periodic boundary.
 
 Note that the boundary conditions can be both prescribed via the labels in the
 case file or built into the mesh via conversion from a `.re2` file. Both types
@@ -148,23 +149,24 @@ Periodic boundary conditions are *always* defined inside the mesh file.
 The value of the keyword is an array of strings, with the following possible
 values:
 
-* Standard boundary conditions 
+* Standard boundary conditions
   * `w`, a no-slip wall.
   * `v`, a velocity Dirichlet boundary.
   * `sym`, a symmetry boundary.
-  * `o`, outlet boundary. 
+  * `o`, outlet boundary.
   * `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
    the wall-normal. The wall-parallel velocity is defined by the initial
-   condition. 
+   condition.
 
 * Advanced boundary conditions
-  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a `"/"`), a 
-  Dirichlet boundary for more complex velocity profiles. This boundary condition uses a 
-  [more advanced user interface](#user-file_field-dirichlet-update). 
-  * `d_pres`, a boundary for specified non-uniform pressure profiles, similar in 
-  essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other 
-  complex Dirichlet coonditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
-  * `o+dong`, outlet boundary using the Dong condition. 
+  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a
+  `"/"`), a Dirichlet boundary for more complex velocity profiles. This boundary
+  condition uses a [more advanced user
+  interface](#user-file_field-dirichlet-update).
+  * `d_pres`, a boundary for specified non-uniform pressure profiles, similar in
+  essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other
+  complex Dirichlet conditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
+  * `o+dong`, outlet boundary using the Dong condition.
   * `on+dong`, an `on` boundary using the Dong condition, ensuring that the
    wall-normal velocity is directed outwards.
 
@@ -206,6 +208,10 @@ The means of prescribing the values are controlled via the `type` keyword:
    keyword.
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
    in the `case.fluid.blasius` object, see below.
+4. `point_zone`, the values are set to a constant base value, supplied under the
+   `base_value` keyword, and then assigned a zone value inside a point zone. The
+   point zone is specified by the `name` keyword, and should be defined in the
+   `case.point_zones` object. See more about point zones @ref point-zones.md.
 
 ### Blasius profile
 The `blasius` object is used to specify the Blasius profile that can be used for the
@@ -316,7 +322,7 @@ Additional keywords are available to modify the Brinkman force term.
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
 | ---------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
 | `brinkman.limits`                  | Brinkman factor at free-flow (\f$ \kappa_0 \f$) and solid domain (\f$ \kappa_1 \f$).          | Vector of 2 reals.                | -             |
-| `brinkman.penalty`                 | Penalty parameter \f$ q \f$ when estimating Brinkman factor.                                        | Real                              | \f$ 1.0 \f$         |
+| `brinkman.penalty`                 | Penalty parameter \f$ q \f$ when estimating Brinkman factor.                                  | Real                              | \f$ 1.0 \f$   |
 | `objects`                          | Array of JSON objects, defining the objects to be immersed.                                   | Each object must specify a `type` | -             |
 | `distance_transform.type`          | How to map from distance field to indicator field.                                            | `step`, `smooth_step`             | -             |
 | `distance_transform.value`         | Values used to define the distance transform, such as cut-off distance for the step function. | Real                              | -             |
@@ -460,21 +466,21 @@ example case.
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
-| Name                      | Description                                              | Admissible values              | Default value |
-| ------------------------- | -------------------------------------------------------- | ------------------------------ | ------------- |
-| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`              | `true`        |
-| `Pe`                      | The Peclet number.                                       | Positive real                  | -             |
-| `cp`                      | Specific heat cpacity.                                   | Positive real                  | -             |
-| `lambda`                  | Thermal conductivity.                                    | Positive real                  | -             |
-| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings               | -             |
-| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`              | -             |
-| `initial_condition.value` | Value of the velocity initial condition.                 | Real                           | -             |
-| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above | -             |
+| Name                      | Description                                              | Admissible values               | Default value |
+| ------------------------- | -------------------------------------------------------- | ------------------------------- | ------------- |
+| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`               | `true`        |
+| `Pe`                      | The Peclet number.                                       | Positive real                   | -             |
+| `cp`                      | Specific heat cpacity.                                   | Positive real                   | -             |
+| `lambda`                  | Thermal conductivity.                                    | Positive real                   | -             |
+| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings                | -             |
+| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`, `point_zone` | -             |
+| `initial_condition.value` | Value of the velocity initial condition.                 | Real                            | -             |
+| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above  | -             |
 
 ## Statistics
 
 This object adds the collection of statistics for the fluid fields. For
-additional details on the workflow, see the 
+additional details on the workflow, see the
 [corresponding page](@ref statistics-guide) in the user manual.
 
 | Name                | Description                                                          | Admissible values | Default value |

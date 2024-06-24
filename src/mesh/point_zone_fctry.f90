@@ -40,41 +40,52 @@ module point_zone_fctry
   use json_module, only: json_file
   use json_utils, only: json_get
   use dofmap, only: dofmap_t
-  use utils, only: neko_error
+  use utils, only : concat_string_array, neko_error
   implicit none
   private
 
   public :: point_zone_factory
 
+  ! List of all possible types created by the factory routine
+  character(len=20) :: KNOWN_TYPES(3) = [character(len=20) :: &
+     "box", &
+     "sphere", &
+     "cylinder"]
+
 contains
 
   !> Point zone factory. Constructs, initializes, and maps the
   !! point zone object.
+  !! @param object The object allocated by the factory.
   !! @param json JSON object initializing the point zone.
   !! @param dof Dofmap from which to map the point zone.
-  subroutine point_zone_factory(point_zone, json, dof)
-    class(point_zone_t), allocatable, intent(inout) :: point_zone
+  subroutine point_zone_factory(object, json, dof)
+    class(point_zone_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(dofmap_t), intent(inout) :: dof
-    character(len=:), allocatable :: zone_type
+    character(len=:), allocatable :: type_name
+    character(len=:), allocatable :: type_string
 
-    call json_get(json, "geometry", zone_type)
 
-    if (trim(zone_type) .eq. "box") then
-       allocate(box_point_zone_t::point_zone)
-    else if (trim(zone_type) .eq. "sphere") then
-       allocate(sphere_point_zone_t::point_zone)
-    else if (trim(zone_type) .eq. "cylinder") then
-       allocate(cylinder_point_zone_t::point_zone)
+    call json_get(json, "geometry", type_name)
+
+    if (trim(type_name) .eq. "box") then
+       allocate(box_point_zone_t::object)
+    else if (trim(type_name) .eq. "sphere") then
+       allocate(sphere_point_zone_t::object)
+    else if (trim(type_name) .eq. "cylinder") then
+       allocate(cylinder_point_zone_t::object)
     else
-       call neko_error("Unknown source term "//trim(zone_type)//"! Valid &
-         &source terms are 'box', 'sphere', 'cylinder'.")
+       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+                                          .true.)
+       call neko_error("Unknown point zone type: " &
+                       // trim(type_name) // ".  Known types are: " &
+                       // type_string)
     end if
 
-    call point_zone%init(json, dof%size())
-
-    call point_zone%map(dof)
-    call point_zone%finalize()
+    call object%init(json, dof%size())
+    call object%map(dof)
+    call object%finalize()
 
   end subroutine point_zone_factory
 

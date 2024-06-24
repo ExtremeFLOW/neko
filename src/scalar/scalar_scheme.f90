@@ -50,9 +50,10 @@ module scalar_scheme
   use device_jacobi, only : device_jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
-  use precon_fctry, only : precon_factory, pc_t, precon_destroy
   use bc, only : bc_t
   use bc_list, only : bc_list_t
+  use precon_fctry, only : precon_factory, precon_destroy
+  use precon, only : pc_t
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
@@ -108,17 +109,14 @@ module scalar_scheme
      class(pc_t), allocatable :: pc
      !> Field Dirichlet conditions.
      type(field_dirichlet_t) :: field_dir_bc
-     !> Pointer to user_dirichlet_update to be called in fluid_scheme_step
-     procedure(field_dirichlet_update), nopass, pointer :: dirichlet_update_ &
-          => null()
      !> List of BC objects to pass to user_dirichlet_update
      type(bc_list_t) :: field_dirichlet_bcs
-     !> List of fields to pass to user_dirichlet_update
-     type(field_list_t) :: field_dirichlet_fields
      !> Number of strong  bcs.
      integer :: n_strong = 0
      !> List of boundary conditions, including the user one.
      type(bc_list_t) :: bcs
+     !> User Dirichlet conditions.
+     type(usr_scalar_t) :: user_bc
      !> Case paramters.
      type(json_file), pointer :: params
      !> Mesh.
@@ -337,6 +335,37 @@ contains
     ! Set up boundary conditions
     call scalar_scheme_setup_bcs(this, user)
 
+
+!! COMMENTING USER STUFF
+    ! Mark BC zones
+!    call this%user_bc%mark_zone(msh%wall)
+!    call this%user_bc%mark_zone(msh%inlet)
+!    call this%user_bc%mark_zone(msh%outlet)
+!    call this%user_bc%mark_zone(msh%outlet_normal)
+!    call this%user_bc%mark_zone(msh%sympln)
+!    call this%user_bc%finalize()
+!    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
+!                                                     this%user_bc)
+
+    ! Add field dirichlet BCs
+!    call this%field_dir_bc%init_base(this%c_Xh)
+!    call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
+!         'd_s', this%bc_labels)
+!    call this%field_dir_bc%finalize()
+!    call MPI_Allreduce(this%field_dir_bc%msk(0), integer_val, 1, &
+!         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+!    if (integer_val .gt. 0) call this%field_dir_bc%init_field('d_s')
+
+!    call bc_list_add(this%bclst_dirichlet, this%field_dir_bc)
+
+    !
+    ! Associate our field dirichlet update to the user one.
+    !
+!    this%field_dir_bc%update => user%user_dirichlet_update
+
+!    call bc_list_init(this%field_dirichlet_bcs, size=1)
+!    call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
+
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
                              integer_val, 800)
@@ -378,12 +407,7 @@ contains
 
     ! Free everything related to field dirichlet BCs
     call this%field_dirichlet_fields%free()
-    call this%field_dirichlet_bcs%free()
-    call this%field_dir_bc%field_bc%free()
     call this%field_dir_bc%free()
-    if (associated(this%dirichlet_update_)) then
-       this%dirichlet_update_ => null()
-    end if
 
   end subroutine scalar_scheme_free
 
@@ -466,8 +490,8 @@ contains
     type is(hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
-                  bclst, trim(pctype(6:)))
+             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
+                  trim(pctype(6:)))
           else
              call neko_error('Unknown coarse grid solver')
           end if

@@ -1,417 +1,170 @@
 name: develop
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   pull_request:
-     branches: [develop,release/*]
-     types:
-       - opened
-       - synchronize
-       - reopened
-       - ready_for_review
+    branches: [develop, release/*]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   workflow_dispatch:
-  
-jobs:
-  is_draft:
-    name: Check if PR is a draft
-    if: github.event.pull_request.draft == true
 
+env:
+  FLINT_GLOBAL_MINIMUM: 8.0
+  FLINT_CHANGED_FILES_MINIMUM: 8.0
+  PFUNIT_VERSION: v4.4.2
+  JSON_FORTRAN_VERSION: 8.3.0
+
+# Allow only one concurrent deployment, skipping runs queued between the run
+# in-progress and latest queued. We do not wish to waste time on old runs if a
+# newer one is available.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    name: Prepare the environment
     runs-on: ubuntu-latest
+    outputs:
+      flint-global-minimum: ${{ steps.store.outputs.flint-global-minimum }}
+      flint-changed-minimum: ${{ steps.store.outputs.flint-global-minimum }}
+      pfunit-version: ${{ steps.store.outputs.pfunit-version }}
+      json-fortran-version: ${{ steps.store.outputs.json-fortran-version }}
+
     steps:
       - name: Check if PR is a draft
-        run: echo "This PR is a draft"
+        shell: bash
+        run: |
+          if [ "${{ github.event.pull_request.draft }}" == "true" ]; then
+            echo "PR is a draft" >&2
+            exit 1
+          fi
+
+      - name: Store environment variables
+        id: store
+        run: |
+          echo "flint-global-minimum=$FLINT_GLOBAL_MINIMUM" >> $GITHUB_OUTPUT
+          echo "flint-changed-minimum=$FLINT_CHANGED_FILES_MINIMUM" >> $GITHUB_OUTPUT
+          echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
+          echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
   linting:
-      name: "Flint"
-      if: github.event.pull_request.draft != true
-      runs-on: ubuntu-20.04
-      steps:
-        - name: Setup env.
-          run: |
-            sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
-            pip install nobvisual==0.2.0 flinter==0.4.0
-        - name: Checkout
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 1
-        - name: Lint
-          run: |
-            flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
-            score=$(awk '$1==0{print $3}' flint.txt)
-            if (( $(echo "$score < 8.06" |bc -l) )) ; then
-              exit 1
-            fi
-        - name: Archive linter report
-          uses: actions/upload-artifact@v4
-          with:
-            name: flint-report
-            path: flint.txt
-            retention-days: 5
+    name: Flint
+    needs:
+      - prepare
+    uses: ./.github/workflows/check_lint.yml
+    with:
+      global-minimum-score: ${{ needs.prepare.outputs.flint-global-minimum }}
+      changed-files-minimum-score: ${{ needs.prepare.outputs.flint-changed-minimum }}
+
+  depend:
+    name: Make depend
+    needs:
+      - prepare
+    uses: ./.github/workflows/check_depend.yml
+    with:
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
   GNU:
-    if: github.event.pull_request.draft != true
-    needs: linting
-    runs-on: ${{matrix.os}}
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ubuntu-20.04, macos-13]
-        compiler: [gfortran-10, gfortran-11, gfortran-12]
-        backend: [cpu, cuda, hip, opencl]
-        precision: [sp, dp]
-        exclude:
-        - os: ubuntu-20.04
-          compiler: gfortran-11
-        - os: ubuntu-20.04
-          compiler: gfortran-12
-        - os: ubuntu-20.04
-          backend: opencl
-        - os: macos-13
-          compiler: gfortran-10
-        - os: macos-13
-          backend: cuda
-        - os: macos-13
-          backend: hip
-        include:
-        - os: ubuntu-20.04
-          setup-env: |
-            sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
-        - os: macos-13
-          setup-env: export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 && brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
-    env:
-      FC: ${{ matrix.compiler }}
-      OMPI_FC: ${{ matrix.compiler }}
-      OMPI_ALLOW_RUN_AS_ROOT: 1
-      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-      RP: ${{ matrix.precision }}
-    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
-    steps:
-      - name: Setup env.
-        run: ${{ matrix.setup-env }}
-      - name: Cache pFUnit
-        id: cache-pfunit
-        uses: actions/cache@v4
-        with:
-          path: ~/pkg/pfunit
-          key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
-      - name: Build pFUnit
-        if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
-        run: |
-          git clone --depth 1 https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
-          cd pFUnit
-          cat >> pfunit_error_stop.patch << _ACEOF
-          diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
-          index 7df7b65..4f7dbf5 100644
-          --- a/src/funit/FUnit.F90
-          +++ b/src/funit/FUnit.F90
-          @@ -168,7 +168,7 @@ contains
-           #if defined(PGI)
-                    call exit(-1)
-           #else
-          -         stop '*** Encountered 1 or more failures/errors during testing. ***'
-          +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
-           #endif
-                 end if
-           
-          _ACEOF
-          git apply pfunit_error_stop.patch && mkdir b && cd b
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
-          make -j$(nproc) && make install && cd ../../
-      - name: Cache json-fortran
-        id: cache-json-fortran
-        uses: actions/cache@v4
-        with:
-          path: ~/pkg/json-fortran
-          key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
-      - name: Install json-fortran
-        if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
-        run: |
-          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
-          cd json-fortran
-          mkdir build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
-          make -j$(nproc) && make install && cd ../../
-          rm -f ${HOME}/pkg/json-fortran/lib/*.dylib
-      - name: Setup json-fortran
-        run: |
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Build (CPU backend)
-        if: matrix.backend == 'cpu'
-        run: |
-          echo $PKG_CONFIG_PATH
-          ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.4 --enable-real=${RP}
-          make -j$(nproc)
-      - name: Build (CUDA backend)        
-        if: matrix.backend == 'cuda'
-        run: |
-          sudo apt-get install -y nvidia-cuda-toolkit
-          ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-cuda=/usr
-          make -j$(nproc)
-      - name: Build (HIP backend)        
-        if: matrix.backend == 'HIP'
-        run: |
-          wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
-          echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
-          sudo apt-get update && sudo apt-get install -y rocm-dev
-          ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm-6.1.0
-          make -j$(nproc)
-      - name: Build (OpenCL backend)
-        if: matrix.backend == 'opencl'
-        run: |
-          ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-opencl
-          make -j$(nproc)
-      - name: Check
-        if: matrix.backend == 'cpu'
-        run: |
-          ls ${HOME}/pkg/json-fortran/lib/
-          make -j$(nproc) check
-      - name: Archive test report
-        if: matrix.backend == 'cpu' && failure()
-        uses: actions/upload-artifact@v2
-        with:
-          name: Test report_${{ matrix.os }}_${{ matrix.compiler }}
-          path: tests/test-suite.log
-          retention-days: 2
-      - name: Dist (CPU backend)
-        if: matrix.backend == 'cpu'
-        run: |
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          ./configure FC=${FC} --enable-real=${RP}
-          make -j $(nproc)
-      - name: Dist (CUDA backend)
-        if: matrix.backend == 'cuda'
-        run: |
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
-          make -j $(nproc)
-      - name: Dist (HIP backend)
-        if: matrix.backend == 'hip'
-        run: |
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=/opt/rocm-6.1.0
-          make -j $(nproc)
-      - name: Dist (OpenCL backend)
-        if: matrix.backend == 'opencl'
-        run: |
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          ./configure FC=${FC} --enable-real=${RP} --with-opencl
-          make -j $(nproc)
-    
+    name: GNU
+    needs:
+      - prepare
+      - linting
+      - depend
+    uses: ./.github/workflows/check_gnu.yml
+    with:
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+      pfunit-version: ${{ needs.prepare.outputs.pfunit-version }}
+
   Intel:
-    if: github.event.pull_request.draft != true
-    needs: linting
-    runs-on: ${{matrix.os}}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-20.04]
-        compiler: [ifort, ifx]
-        precision: [sp, dp]
-        backend: [cpu]
-        include:
-        - os: ubuntu-20.04
-          setup-env: |
-            wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list && sudo apt-get update -y && sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
-            source /opt/intel/oneapi/setvars.sh
-            sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
-            export PATH=/opt/intel/oneapi/compiler/2024.1/bin:${PATH}
-            printenv >> $GITHUB_ENV
-    env:
-      CC: icc
-      FC: ${{ matrix.compiler }}
-      RP: ${{ matrix.precision }}
-    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
-    steps:
-      - name: Setup env.
-        run: ${{ matrix.setup-env }}
-      - name: Cache json-fortran
-        id: cache-json-fortran
-        uses: actions/cache@v4
-        with:
-          path: ~/pkg/json-fortran
-          key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
-      - name: Install json-fortran
-        if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
-        run: |
-          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
-          cd json-fortran
-          mkdir build && cd build
-          env FC=${FC} cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
-          make -j$(nproc) && make install && cd ../../
-          cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
-      - name: Setup json-fortran
-        run: |
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Build
-        run: |
-          echo $PKG_CONFIG_PATH
-          ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
-          make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
+    name: Intel
+    needs:
+      - prepare
+      - linting
+      - depend
+    uses: ./.github/workflows/check_intel.yml
+    with:
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
   NVIDIA:
-    if: github.event.pull_request.draft != true
-    needs: linting
-    runs-on: ${{matrix.os}}
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ubuntu-20.04]
-        compiler: [nvfortran]
-        backend: [cpu, cuda]
-        precision: [dp]
-        include:
-        - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-24-3 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/24.3/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/24.3/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
-    env:
-      CC: gcc
-      FC: ${{ matrix.compiler }}
-      OMPI_FC: ${{ matrix.compiler }}
-      OMPI_CC: gcc
-      OMPI_ALLOW_RUN_AS_ROOT: 1
-      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-      RP: ${{ matrix.precision }}
-    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
-    steps:
-      - name: Setup env.
-        run: ${{ matrix.setup-env }}
-      - name: Cache json-fortran
-        id: cache-json-fortran
-        uses: actions/cache@v4
-        with:
-          path: ~/pkg/json-fortran
-          key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
-      - name: Install json-fortran
-        if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
-        run: |
-          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
-          cd json-fortran
-          mkdir build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
-          make -j$(nproc) && make install && cd ../../
-          cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
-      - name: Setup json-fortran
-        run: |
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Build (CPU backend)
-        if: matrix.backend == 'cpu'
-        run: |
-          git apply patches/nvhpc_bge.patch
-          ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
-          make
-      - name: Build (CUDA backend)
-        if: matrix.backend == 'cuda'
-        run: |
-          git apply patches/nvhpc_bge.patch
-          ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/cuda/
-          make
-      - name: Dist (CPU backend)
-        if: matrix.backend == 'cpu'
-        run: |
-          git stash
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
-          make -j $(nproc)
-      - name: Dist (CUDA backend)
-        if: matrix.backend == 'cuda'
-        run: |
-          git stash
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.3/cuda/
-          make -j $(nproc)
+    name: NVIDIA
+    needs:
+      - prepare
+      - linting
+      - depend
+    uses: ./.github/workflows/check_nvidia.yml
+    with:
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
   ReFrame:
-    if: github.event.pull_request.draft != true
-    needs: GNU
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: true
-      matrix:
-        precision: [sp, dp]
-        compiler: [gfortran-10]
+    name: ReFrame
+    needs:
+      - prepare
+      - linting
+      - depend
+      - GNU
+    uses: ./.github/workflows/check_reframe.yml
+    with:
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
+  check_complete:
+    name: Develop PR Ready
+    if: ${{ always() }}
+    needs:
+      - prepare
+      - linting
+      - depend
+      - GNU
+      - Intel
+      - NVIDIA
+      - ReFrame
+    runs-on: ubuntu-latest
     env:
-      FC: ${{ matrix.compiler }}
-      OMPI_FC: ${{ matrix.compiler}}
-      OMPI_ALLOW_RUN_AS_ROOT: 1
-      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-      RP: ${{ matrix.precision }}
-    name: ReFrame / ${{ matrix.compiler}} / ${{ matrix.precision }}
+      draft_status: ${{ needs.prepare.result }}
+      flint_status: ${{ needs.linting.result }}
+      gnu_status: ${{ needs.GNU.result }}
+      inel_status: ${{ needs.Intel.result }}
+      nvidia_status: ${{ needs.NVIDIA.result }}
+      reframe_status: ${{ needs.ReFrame.result }}
+
     steps:
-      - name: Setup env.
+      - name: All checks passed
         run: |
-          sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
-          pip install reframe-hpc 
-      - name: Cache json-fortran
-        id: cache-json-fortran
-        uses: actions/cache@v4
-        with:
-          path: ~/pkg/json-fortran
-          key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
-      - name: Install json-fortran
-        if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
-        run: |
-          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
-          cd json-fortran
-          mkdir build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
-          make -j$(nproc) && make install && cd ../../
-          cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
-      - name: Setup json-fortran
-        run: |
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
-      - name: Topology
-        run: |
-          reframe --detect-host-topology
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Regression tests
-        run: |
-          ./regen.sh
-          cd reframe
-          env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
+          success=true
+          fail=()
+          if [ "$draft_status" != "success" ]; then
+            fail+=("\t- Draft check: $draft_status")
+            success=false
+          fi
+          if [ "$flint_status" != "success" ]; then
+            fail+=("\t- Linting check: $flint_status")
+            success=false
+          fi
+          if [ "$gnu_status" != "success" ]; then
+            fail+=("\t- GNU check: $gnu_status")
+            success=false
+          fi
+          if [ "$inel_status" != "success" ]; then
+            fail+=("\t- Intel check: $inel_status")
+            success=false
+          fi
+          if [ "$nvidia_status" != "success" ]; then
+            fail+=("\t- NVIDIA check: $nvidia_status")
+            success=false
+          fi
+          if [ "$reframe_status" != "success" ]; then
+            fail+=("\t- ReFrame check: $reframe_status")
+            success=false
+          fi
 
-
+          if [ "$success" = false ]; then
+            >&2 echo "The following checks failed:"
+            for i in "${fail[@]}"; do
+              >&2 printf "$i\n"
+            done
+            exit 1
+          fi
+          echo "All checks passed"

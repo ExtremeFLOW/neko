@@ -143,9 +143,6 @@ contains
     type(material_properties_t), intent(inout) :: material_properties
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    ! Variables for retrieving json parameters
-    logical :: found, logical_val
-    integer :: integer_val
 
     call this%free()
 
@@ -154,7 +151,7 @@ contains
                           material_properties)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, full_formulation = .false.)
 
     ! Setup backend dependent scalar residual routines
     call scalar_residual_factory(this%res)
@@ -315,8 +312,8 @@ contains
                                              tstep, strong=.false.)
 
       ! Add the advection operators to the right-hans-side.
-      call this%adv%compute_scalar(u, v, w, s, f_Xh%x, Xh, this%c_Xh, &
-           dm_Xh%size())
+      call this%adv%compute_scalar(u, v, w, s, f_Xh, &
+                                   Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator,
       ! Neumann boundary sources and additional source terms, evaluated using
@@ -334,10 +331,10 @@ contains
       !> Apply strong boundary conditions.
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
-!      call this%dirichlet_update_(this%field_dirichlet_fields, &
-!           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
-      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, &
-                                             tstep, strong=.true.)
+      call this%field_dir_bc%update(this%field_dir_bc%field_list, &
+           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
+      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), tstep, &
+                                 strong=.true.)
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
