@@ -197,7 +197,6 @@ contains
 
     ! Initialize velocity surface terms in pressure rhs
     call this%bc_prs_surface%init(this%c_Xh, params)
-    call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list('v', this%bc_labels)
     !This impacts the rhs of the pressure, need to check what is correct to add here
     call this%bc_prs_surface%mark_zones_from_list('d_vel_u', this%bc_labels)
@@ -206,13 +205,11 @@ contains
     call this%bc_prs_surface%finalize()
     ! Initialize symmetry surface terms in pressure rhs
     call this%bc_sym_surface%init(this%c_Xh, params)
-    call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list('sym', this%bc_labels)
     ! Same here, should du, dv, dw be marked here?
     call this%bc_sym_surface%finalize()
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_res_non_normal%init(this%c_Xh, params)
-    call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list('on', this%bc_labels)
     call this%bc_vel_res_non_normal%mark_zones_from_list('on+dong', &
                                                          this%bc_labels)
@@ -247,8 +244,6 @@ contains
     call this%bc_field_dirichlet_w%finalize()
 
     call this%bc_vel_res%init(this%c_Xh, params)
-    call this%bc_vel_res%mark_zone(msh%inlet)
-    call this%bc_vel_res%mark_zone(msh%wall)
     call this%bc_vel_res%mark_zones_from_list('v', this%bc_labels)
     call this%bc_vel_res%mark_zones_from_list('w', this%bc_labels)
     call this%bc_vel_res%finalize()
