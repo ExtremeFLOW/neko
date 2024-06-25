@@ -60,11 +60,20 @@ jobs:
       global-minimum-score: ${{ needs.prepare.outputs.flint-global-minimum }}
       changed-files-minimum-score: ${{ needs.prepare.outputs.flint-changed-minimum }}
 
+  depend:
+    name: Make depend
+    needs:
+      - prepare
+    uses: ./.github/workflows/check_depend.yml
+    with:
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
   GNU:
     name: GNU
     needs:
       - prepare
       - linting
+      - depend
     uses: ./.github/workflows/check_gnu.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -75,6 +84,7 @@ jobs:
     needs:
       - prepare
       - linting
+      - depend
     uses: ./.github/workflows/check_intel.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -84,6 +94,7 @@ jobs:
     needs:
       - prepare
       - linting
+      - depend
     uses: ./.github/workflows/check_nvidia.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -93,6 +104,7 @@ jobs:
     needs:
       - prepare
       - linting
+      - depend
       - GNU
     uses: ./.github/workflows/check_reframe.yml
     with:
@@ -104,6 +116,7 @@ jobs:
     needs:
       - prepare
       - linting
+      - depend
       - GNU
       - Intel
       - NVIDIA

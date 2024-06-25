@@ -1,0 +1,56 @@
+name: Check depend file
+
+# Controls when the action will run.
+on:
+  workflow_call:
+    inputs:
+      json-fortran-version:
+        description: "The version of the JSON-Fortran library to use."
+        type: string
+        required: false
+        default: "8.3.0"
+
+jobs:
+  check_depend:
+    name: "Dependencies (make depend)"
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Setup env.
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
+            automake autotools-dev libopenblas-dev make makedepf90 git gfortran
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Get json-fortran
+      id: get-json-fortran
+      uses: ./.github/actions/setup_json-fortran
+      with:
+        version: ${{ inputs.json-fortran-version }}
+        os: ${{ runner.os }}
+        compiler: gfortran
+
+    - name: Add JSON-Fortran to environment
+      env:
+        JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
+      run: |
+        echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
+
+    - name: Run makedependf90
+      run: |
+        ./regen.sh
+        ./configure FC=${FC}
+        cd src/; make depend; cd ../
+
+    - name: Check .depend
+      run: |
+        if [ ! -z "$(git diff --exit-code)" ]; then
+            >&2 echo "Dependencies not up-to-date"
+            git diff --exit-code
+            exit 1
+        fi

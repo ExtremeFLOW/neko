@@ -54,6 +54,14 @@ jobs:
       global-minimum-score: ${{ needs.prepare.outputs.flint-global-minimum }}
       changed-files-minimum-score: ${{ needs.prepare.outputs.flint-changed-minimum }}
 
+  depend:
+    name: Make depend
+    needs:
+      - prepare
+    uses: ./.github/workflows/check_depend.yml
+    with:
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
   GNU:
     needs:
       - prepare
@@ -135,6 +143,7 @@ jobs:
     needs:
       - prepare
       - linting
+      - depend
       - GNU
       - Intel
       - NVIDIA
