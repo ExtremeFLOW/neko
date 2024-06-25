@@ -215,6 +215,7 @@ neko_fortran_SOURCES = \
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
+	common/gradient_jump_penalty.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/ax_helm.f90\
