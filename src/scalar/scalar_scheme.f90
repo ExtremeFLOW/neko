@@ -225,7 +225,7 @@ contains
     type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
     character(len=NEKO_MSH_MAX_ZLBL_LEN), intent(in) :: bc_labels(:)
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_label
-    integer :: i, j, bc_idx
+    integer :: i
     real(kind=rp) :: dir_value, flux
     logical :: bc_exists
 
