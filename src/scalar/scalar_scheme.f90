@@ -406,7 +406,7 @@ contains
     call this%slag%free()
 
     ! Free everything related to field dirichlet BCs
-    call this%field_dirichlet_fields%free()
+    call this%field_dirichlet_bcs%free()
     call this%field_dir_bc%free()
 
   end subroutine scalar_scheme_free

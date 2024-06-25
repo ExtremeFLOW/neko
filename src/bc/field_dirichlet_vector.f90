@@ -120,7 +120,7 @@ contains
     call this%bc_w%free()
 
     call this%field_list%free()
-    call bc_list_free(this%bc_list)
+    call this%bc_list%free()
 
     if (associated(this%update)) then
        nullify(this%update)

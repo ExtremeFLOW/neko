@@ -333,7 +333,7 @@ contains
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
       call this%field_dir_bc%update(this%field_dir_bc%field_list, &
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
-      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), tstep, &
+      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, &
                                  strong=.true.)
 
       ! Compute scalar residual.

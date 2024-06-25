@@ -48,7 +48,6 @@ module fluid_scheme
   use krylov, only : ksp_t
   use zero_dirichlet, only : zero_dirichlet_t
   use coefs, only: coef_t
-  use wall, only : no_slip_wall_t
   use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use blasius, only : blasius_t
@@ -362,7 +361,7 @@ contains
 
     ! Setup field dirichlet bc for u-velocity
     call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
-    call this%user_field_bc_vel%bc_u%mark_zones_from_list(msh%labeled_zones,&
+    call this%user_field_bc_vel%bc_u%mark_zones_from_list(&
                         'd_vel_u', this%bc_labels)
     call this%user_field_bc_vel%bc_u%finalize()
 
@@ -372,7 +371,7 @@ contains
 
     ! Setup field dirichlet bc for v-velocity
     call this%user_field_bc_vel%bc_v%init_base(this%c_Xh)
-    call this%user_field_bc_vel%bc_v%mark_zones_from_list(msh%labeled_zones,&
+    call this%user_field_bc_vel%bc_v%mark_zones_from_list(&
                         'd_vel_v', this%bc_labels)
     call this%user_field_bc_vel%bc_v%finalize()
 
@@ -382,8 +381,8 @@ contains
 
     ! Setup field dirichlet bc for w-velocity
     call this%user_field_bc_vel%bc_w%init_base(this%c_Xh)
-    call this%user_field_bc_vel%bc_w%mark_zones_from_list(msh%labeled_zones,&
-                        'd_vel_w', this%bc_labels)
+    call this%user_field_bc_vel%bc_w%mark_zones_from_list('d_vel_w',&
+                                                          this%bc_labels)
     call this%user_field_bc_vel%bc_w%finalize()
 
     call MPI_Allreduce(this%user_field_bc_vel%bc_w%msk(0), integer_val, 1, &
@@ -392,12 +391,9 @@ contains
 
     ! Setup our global field dirichlet bc
     call this%user_field_bc_vel%init_base(this%c_Xh)
-    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones,&
-                        'd_vel_u', this%bc_labels)
-    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones,&
-                        'd_vel_v', this%bc_labels)
-    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones,&
-                        'd_vel_w', this%bc_labels)
+    call this%user_field_bc_vel%mark_zones_from_list('d_vel_u', this%bc_labels)
+    call this%user_field_bc_vel%mark_zones_from_list('d_vel_v', this%bc_labels)
+    call this%user_field_bc_vel%mark_zones_from_list('d_vel_w', this%bc_labels)
     call this%user_field_bc_vel%finalize()
 
     ! Add the field bc to velocity bcs
@@ -525,15 +521,14 @@ contains
 
     ! Field dirichlet pressure bc
     call this%user_field_bc_prs%init_base(this%c_Xh)
-    call this%user_field_bc_prs%mark_zones_from_list(msh%labeled_zones,&
-                        'd_pres', this%bc_labels)
+    call this%user_field_bc_prs%mark_zones_from_list('d_pres', this%bc_labels)
     call this%user_field_bc_prs%finalize()
     call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
     call this%bclst_prs%append(this%user_field_bc_prs)
-    call this%user_field_bc_vels%bc_list%append(this%user_field_bc_prss)
+    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_prs)
 
     if (msh%outlet%size .gt. 0) then
        call this%bc_prs%mark_zone(msh%outlet)
@@ -853,8 +848,7 @@ contains
 
       call bdry_mask%init_base(this%c_Xh)
       call bdry_mask%mark_zone(this%msh%wall)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
-                     'w', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('w', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(1.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -862,8 +856,7 @@ contains
 
       call bdry_mask%init_base(this%c_Xh)
       call bdry_mask%mark_zone(this%msh%inlet)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
-                     'v', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('v', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(2.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -871,8 +864,7 @@ contains
 
       call bdry_mask%init_base(this%c_Xh)
       call bdry_mask%mark_zone(this%msh%outlet)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
-                     'o', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('o', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(3.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -880,8 +872,7 @@ contains
 
       call bdry_mask%init_base(this%c_Xh)
       call bdry_mask%mark_zone(this%msh%sympln)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
-                     'sym', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('sym', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(4.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -889,8 +880,7 @@ contains
 
       call bdry_mask%init_base(this%c_Xh)
       call bdry_mask%mark_zone(this%msh%outlet_normal)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
-                     'on', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('on', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(5.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
