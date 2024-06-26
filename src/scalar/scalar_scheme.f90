@@ -238,9 +238,8 @@ contains
     type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
     character(len=NEKO_MSH_MAX_ZLBL_LEN), intent(in) :: bc_labels(:)
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_label
-    integer :: i, j, bc_idx
-    real(kind=rp) :: dir_value, flux_value
-    real(kind=rp), allocatable :: flux(:)
+    integer :: i
+    real(kind=rp) :: dir_value, flux
     logical :: bc_exists
 
     do i = 1, size(bc_labels)
@@ -266,6 +265,7 @@ contains
           call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) dir_value
           call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
+          call this%dir_bcs(this%n_dir_bcs)%finalize()
 !          end if
        end if
 
@@ -273,15 +273,8 @@ contains
           this%n_neumann_bcs = this%n_neumann_bcs + 1
           call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
-          read(bc_label(3:), *) flux_value
-
-          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann()
-          call this%neumann_bcs(i)%finalize()
-          allocate(flux(this%neumann_bcs(i)%msk(0)))
-          ! device..
-          call cfill(flux, flux_value, size(flux))
-          call this%neumann_bcs(i)%finalize_neumann(flux)
-          deallocate(flux)
+          read(bc_label(3:), *) flux
+          call this%neumann_bcs(this%n_neumann_bcs)%finalize_neumann(flux)
        end if
 
        !> Check if user bc on this zone
@@ -292,7 +285,6 @@ contains
     end do
 
     do i = 1, this%n_dir_bcs
-       call this%dir_bcs(i)%finalize()
        call bc_list_add(this%bclst_dirichlet, this%dir_bcs(i))
     end do
 

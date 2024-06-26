@@ -144,6 +144,8 @@ neko_fortran_SOURCES = \
 	bc/symmetry.f90\
 	bc/non_normal.f90\
 	bc/blasius.f90\
+	bc/shear_stress.f90\
+	bc/wall_model_bc.f90\
 	krylov/precon.f90\
 	krylov/krylov.f90\
 	krylov/pc_identity.f90\
