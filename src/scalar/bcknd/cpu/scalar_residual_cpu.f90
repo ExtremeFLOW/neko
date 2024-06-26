@@ -46,8 +46,6 @@ contains
 
     do i = 1, n
        c_Xh%h1(i,1,1,1) = lambda%x(i,1,1,1)
-       ! todo :should not be just rho here.
-       ! Tim M. 2023-12-19: What is this todo?
        c_Xh%h2(i,1,1,1) = rhocp * (bd / dt)
     end do
     c_Xh%ifh2 = .true.
