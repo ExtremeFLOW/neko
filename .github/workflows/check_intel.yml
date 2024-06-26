@@ -32,6 +32,8 @@ jobs:
               INTEL_PATH=$(find /opt/intel/oneapi/compiler/ -name "${FC}" -type f | xargs dirname)
               export PATH=$INTEL_PATH:${PATH}
               printenv >> $GITHUB_ENV
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
     env:
       CC: icc
       FC: ${{ matrix.compiler }}
@@ -39,6 +41,7 @@ jobs:
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
       - name: Setup env.
+        id: setup-env
         run: ${{ matrix.setup-env }}
 
       - name: Checkout
@@ -51,7 +54,7 @@ jobs:
         uses: ./.github/actions/setup_json-fortran
         with:
           version: ${{ inputs.json-fortran-version }}
-          os: ${{ matrix.os }}
+          os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
       - name: Add JSON-Fortran to environment
