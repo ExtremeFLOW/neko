@@ -171,7 +171,6 @@ contains
     ! Shear stress value, hardcoded to x direction !!
     real(kind=rp) :: tau_value
     ! Shear stress arrays
-    real(kind=rp), allocatable :: tau1(:), tau2(:)
     real(kind=rp) :: kappa, B, z0
 
     call this%free()
@@ -246,17 +245,8 @@ contains
           call this%shear_stress(this%n_shear_stress)%init_shear_stress(this%c_Xh)
           call this%shear_stress(this%n_shear_stress)%mark_zone(this%msh%labeled_zones(i))
           call this%shear_stress(this%n_shear_stress)%finalize()
+          call this%shear_stress(this%n_shear_stress)%shear_stress_finalize(tau_value, 0.0_rp)
 
-          allocate(tau1(this%shear_stress(this%n_shear_stress)%msk(0)))
-          allocate(tau2(this%shear_stress(this%n_shear_stress)%msk(0)))
-
-          ! Hardcoded direction, no device..
-          call cfill(tau1, tau_value, size(tau1))
-          call rzero(tau2, size(tau2))
-          call this%shear_stress(this%n_shear_stress)%shear_stress_finalize(tau1, tau2)
-
-          deallocate(tau1)
-          deallocate(tau2)
        end if
     end do
 
@@ -267,13 +257,8 @@ contains
        call this%wm%init_shear_stress(this%c_Xh)
        call this%wm%mark_zones_from_list(this%msh%labeled_zones, "wm", this%bc_labels)
        call this%wm%finalize()
-       allocate(tau1(this%wm%msk(0)))
-       allocate(tau2(this%wm%msk(0)))
-       ! no device
-       call rzero(tau1, size(tau1))
-       call rzero(tau2, size(tau2))
 
-       call this%wm%shear_stress_finalize(tau1, tau2)
+       call this%wm%shear_stress_finalize(0.0_rp, 0.0_rp)
        call json_get(params, "case.fluid.wall_model.model", string_val)
 
        if (string_val .eq. "rough_log_law") then
@@ -299,8 +284,6 @@ contains
           call neko_error("Unknown wall model " // string_val)
        end if
 
-       deallocate(tau1)
-       deallocate(tau2)
        call this%wm%wall_model%find_points()
 
        ! Create list with just Neumann bcs, 2 from each shear stress bc
