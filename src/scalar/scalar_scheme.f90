@@ -144,7 +144,7 @@ module scalar_scheme
      !> Specific heat capacity.
      real(kind=rp), pointer :: cp
      !> Turbulent Prandtl number.
-     real(kind=rp), pointer :: pr_turb
+     real(kind=rp) :: pr_turb
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
      !> Boundary condition labels (if any)
