@@ -1,8 +1,8 @@
 !> OpenCL JIT program library
 module opencl_prgm_lib
   use opencl_intf
-  use utils
-  use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
 
 #ifdef HAVE_OPENCL
@@ -39,7 +39,7 @@ module opencl_prgm_lib
 
   !> Device onvective kernels
   type(c_ptr), bind(c) :: conv1_program = C_NULL_PTR
-  
+
   !> Device CFL kernels
   type(c_ptr), bind(c) :: cfl_program = C_NULL_PTR
 
@@ -78,6 +78,9 @@ module opencl_prgm_lib
 
   !> Device scalar residual kernels
   type(c_ptr), bind(c) :: scalar_residual_program = C_NULL_PTR
+
+  !> Device lambda2 kernels
+  type(c_ptr), bind(c) :: lambda2_program = C_NULL_PTR
 
 contains
 
@@ -250,9 +253,16 @@ contains
        end if
        scalar_residual_program = C_NULL_PTR
     end if
-    
+
+    if (c_associated(lambda2_program)) then
+       if(clReleaseProgram(lambda2_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       lambda2_program = C_NULL_PTR
+    end if
+
   end subroutine opencl_prgm_lib_release
 
 #endif
-  
+
 end module opencl_prgm_lib

@@ -64,10 +64,11 @@ extern "C" {
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
     const dim3 nblcks((*nel), 1, 1);
-    
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+          
 #define CASE_1D(LX)                                                             \
     dudxyz_kernel_1d<real, LX, 1024>                                            \
-      <<<nblcks, nthrds_1d>>>((real *) du, (real *) u,                          \
+      <<<nblcks, nthrds_1d, 0, stream>>>((real *) du, (real *) u,               \
                               (real *) dr, (real *) ds, (real *) dt,            \
                               (real *) dx, (real *) dy, (real *) dz,            \
                               (real *) jacinv);                                 \
@@ -75,7 +76,7 @@ extern "C" {
     
 #define CASE_KSTEP(LX)                                                          \
     dudxyz_kernel_kstep<real, LX>                                               \
-        <<<nblcks, nthrds_kstep>>>((real *) du, (real *) u,                     \
+      <<<nblcks, nthrds_kstep, 0, stream>>>((real *) du, (real *) u,            \
                                 (real *) dr, (real *) ds, (real *) dt,          \
                                 (real *) dx, (real *) dy, (real *) dz,          \
                                 (real *) jacinv);                               \
@@ -149,6 +150,7 @@ int tune_dudxyz(void *du, void *u,
   const dim3 nthrds_1d(1024, 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks((*nel), 1, 1);
+  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
   
   char *env_value = NULL;
   char neko_log_buf[80];

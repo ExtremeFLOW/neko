@@ -46,7 +46,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME(opchsign_kernel<real>),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a1, (real *) a2, (real *) a3,
                        *gdim, *n);
     HIP_CHECK(hipGetLastError());
@@ -59,7 +59,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME(opcolv_kernel<real>),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a1, (real *) a2, (real *) a3, (real *) c,
                        *gdim, *n);
     HIP_CHECK(hipGetLastError());
@@ -74,7 +74,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME(opcolv3c_kernel<real>),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a1, (real *) a2, (real *) a3,
                        (real *) b1, (real *) b2, (real *) b3,
                        (real *) c, *d, *gdim, *n);
@@ -90,7 +90,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME(opadd2cm_kernel<real>),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a1, (real *) a2, (real *) a3,
                        (real *) b1, (real *) b2, (real *) b3,
                        *c, *gdim, *n);
@@ -106,7 +106,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME(opadd2col_kernel<real>),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a1, (real *) a2, (real *) a3,
                        (real *) b1, (real *) b2, (real *) b3,
                        (real *) c, *gdim, *n);

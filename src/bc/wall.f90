@@ -33,29 +33,33 @@
 !> Defines wall boundary conditions
 module wall
   use device_wall
-  use num_types
-  use dirichlet
-  use, intrinsic :: iso_c_binding
+  use num_types, only : rp
+  use bc, only : bc_t
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
   !> No-slip Wall boundary condition
-  type, public, extends(dirichlet_t) :: no_slip_wall_t
+  type, public, extends(bc_t) :: no_slip_wall_t
    contains
      procedure, pass(this) :: apply_scalar => no_slip_wall_apply_scalar
      procedure, pass(this) :: apply_vector => no_slip_wall_apply_vector
      procedure, pass(this) :: apply_scalar_dev => no_slip_wall_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => no_slip_wall_apply_vector_dev
+     !> Destructor.
+     procedure, pass(this) :: free => no_slip_wall_free
   end type no_slip_wall_t
 
 contains
 
   !> Boundary condition apply for a no-slip wall condition
   !! to a vector @a x
-  subroutine no_slip_wall_apply_scalar(this, x, n)
+  subroutine no_slip_wall_apply_scalar(this, x, n, t, tstep)
     class(no_slip_wall_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     integer :: i, m, k
 
     m = this%msk(0)
@@ -63,17 +67,19 @@ contains
        k = this%msk(i)
        x(k) = 0d0
     end do
-    
+
   end subroutine no_slip_wall_apply_scalar
-  
+
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z
-  subroutine no_slip_wall_apply_vector(this, x, y, z, n)
+  subroutine no_slip_wall_apply_vector(this, x, y, z, n, t, tstep)
     class(no_slip_wall_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     integer :: i, m, k
 
     m = this%msk(0)
@@ -83,30 +89,42 @@ contains
        y(k) = 0d0
        z(k) = 0d0
     end do
-    
+
   end subroutine no_slip_wall_apply_vector
 
   !> Boundary condition apply for a no-slip wall condition
   !! to a vector @a x (device version)
-  subroutine no_slip_wall_apply_scalar_dev(this, x_d)
+  subroutine no_slip_wall_apply_scalar_dev(this, x_d, t, tstep)
     class(no_slip_wall_t), intent(inout), target :: this
     type(c_ptr) :: x_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
 
     call device_no_slip_wall_apply_scalar(this%msk_d, x_d, size(this%msk))
-    
+
   end subroutine no_slip_wall_apply_scalar_dev
-  
+
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine no_slip_wall_apply_vector_dev(this, x_d, y_d, z_d)
+  subroutine no_slip_wall_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(no_slip_wall_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
 
     call device_no_slip_wall_apply_vector(this%msk_d, x_d, y_d, z_d, &
                                           size(this%msk))
-    
+
   end subroutine no_slip_wall_apply_vector_dev
-  
+
+  !> Destructor
+  subroutine no_slip_wall_free(this)
+    class(no_slip_wall_t), target, intent(inout) :: this
+
+    call this%free_base()
+
+  end subroutine no_slip_wall_free
+
 end module wall

@@ -30,17 +30,18 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!>  Stereolithography (STL) file 
+!>  Stereolithography (STL) file
 module stl_file
   use num_types
   use generic_file
-  use tri_mesh  
+  use tri_mesh
   use logger
   use point
-  use mpi_types
+  use neko_mpi_types
   use mpi_f08
+  use utils, only: neko_error
   use comm
-  use stl    
+  use stl
   implicit none
   private
 
@@ -59,17 +60,19 @@ contains
     real(kind=rp), intent(in), optional :: t
     call neko_log%error('Not implemented')
   end subroutine stl_file_write
-  
+
   subroutine stl_file_read(this, data)
     class(stl_file_t) :: this
     class(*), target, intent(inout) :: data
-    type(tri_mesh_t), pointer :: tri_msh => null()    
+    type(tri_mesh_t), pointer :: tri_msh => null()
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     type(point_t) :: p(3)
     type(stl_hdr_t) :: stl_hdr
     type(stl_triangle_t), allocatable :: stl_tri(:)
     integer :: i, p_idx, ierr
+
+    call this%check_exists()
 
     select type(data)
     type is(tri_mesh_t)
@@ -85,7 +88,7 @@ contains
     if (stl_hdr%hdr(1:6) .eq. 'solid') then
        call neko_log%error('Invalid STL file (ASCII)')
     end if
-    
+
     call tri_msh%init(stl_hdr%ntri)
     allocate(stl_tri(stl_hdr%ntri))
 
@@ -106,7 +109,7 @@ contains
     deallocate(stl_tri)
 
     call MPI_File_close(fh, ierr)
-     
+
   end subroutine stl_file_read
-  
+
 end module stl_file

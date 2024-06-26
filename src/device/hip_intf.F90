@@ -32,48 +32,60 @@
 !
 !> Fortran HIP interface
 module hip_intf
-  use utils
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
 
 #ifdef HAVE_HIP
-  
+
+  !> Global HIP command queue
+  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
+
+  !> Aux HIP command queue
+  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
+
+  !> High priority stream setting
+  integer :: STRM_HIGH_PRIO
+
+  !> Low priority stream setting
+  integer :: STRM_LOW_PRIO
+
   !> Enum @a hipError_t
   enum, bind(c)
-     enumerator :: hipSuccess = 0
-     enumerator :: hipErrorInvalidContext = 1
-     enumerator :: hipErrorInvalidKernelFile = 2
-     enumerator :: hipErrorMemoryAllocation = 3
-     enumerator :: hipErrorInitializationError = 4
-     enumerator :: hipErrorLaunchFailure = 5
-     enumerator :: hipErrorLaunchOutOfResources = 6
-     enumerator :: hipErrorInvalidDevice = 7
-     enumerator :: hipErrorInvalidValue = 8
-     enumerator :: hipErrorInvalidDevicePointer = 9
-     enumerator :: hipErrorInvalidMemcpyDirection = 10
-     enumerator :: hipErrorUnknown = 11
-     enumerator :: hipErrorInvalidResourceHandle = 12
-     enumerator :: hipErrorNotReady = 13
-     enumerator :: hipErrorNoDevice = 14
-     enumerator :: hipErrorPeerAccessAlreadyEnabled = 15
-     enumerator :: hipErrorPeerAccessNotEnabled = 16
-     enumerator :: hipErrorRuntimeMemory = 17
-     enumerator :: hipErrorRuntimeOther = 18
-     enumerator :: hipErrorHostMemoryAlreadyRegistered = 19
-     enumerator :: hipErrorHostMemoryNotRegistered = 20
-     enumerator :: hipErrorMapBufferObjectFailed = 21
-     enumerator :: hipErrorTbd = 22
+    enumerator :: hipSuccess = 0
+    enumerator :: hipErrorInvalidContext = 1
+    enumerator :: hipErrorInvalidKernelFile = 2
+    enumerator :: hipErrorMemoryAllocation = 3
+    enumerator :: hipErrorInitializationError = 4
+    enumerator :: hipErrorLaunchFailure = 5
+    enumerator :: hipErrorLaunchOutOfResources = 6
+    enumerator :: hipErrorInvalidDevice = 7
+    enumerator :: hipErrorInvalidValue = 8
+    enumerator :: hipErrorInvalidDevicePointer = 9
+    enumerator :: hipErrorInvalidMemcpyDirection = 10
+    enumerator :: hipErrorUnknown = 11
+    enumerator :: hipErrorInvalidResourceHandle = 12
+    enumerator :: hipErrorNotReady = 13
+    enumerator :: hipErrorNoDevice = 14
+    enumerator :: hipErrorPeerAccessAlreadyEnabled = 15
+    enumerator :: hipErrorPeerAccessNotEnabled = 16
+    enumerator :: hipErrorRuntimeMemory = 17
+    enumerator :: hipErrorRuntimeOther = 18
+    enumerator :: hipErrorHostMemoryAlreadyRegistered = 19
+    enumerator :: hipErrorHostMemoryNotRegistered = 20
+    enumerator :: hipErrorMapBufferObjectFailed = 21
+    enumerator :: hipErrorTbd = 22
   end enum
-  
+
   !> Enum @a hipMemcpyKind
   enum, bind(c)
-     enumerator :: hipMemcpyHostToHost = 0
-     enumerator :: hipMemcpyHostToDevice = 1
-     enumerator :: hipMemcpyDeviceToHost = 2
-     enumerator :: hipMemcpyDevicetoDevice = 3
-     enumerator :: hipMemcpyDefault = 4
+    enumerator :: hipMemcpyHostToHost = 0
+    enumerator :: hipMemcpyHostToDevice = 1
+    enumerator :: hipMemcpyDeviceToHost = 2
+    enumerator :: hipMemcpyDevicetoDevice = 3
+    enumerator :: hipMemcpyDefault = 4
   end enum
-  
+
   interface
      integer (c_int) function hipMalloc(ptr_d, s) &
           bind(c, name='hipMalloc')
@@ -92,7 +104,7 @@ module hip_intf
        type(c_ptr), value :: ptr_d
      end function hipFree
   end interface
-  
+
   interface
      integer (c_int) function hipMemcpy(ptr_dst, ptr_src, s, dir) &
           bind(c, name='hipMemcpy')
@@ -105,16 +117,16 @@ module hip_intf
   end interface
 
   interface
-     integer (c_int) function hipMemcpyAsync(ptr_dst, ptr_src, s, dir) &
+     integer (c_int) function hipMemcpyAsync(ptr_dst, ptr_src, s, dir, stream) &
           bind(c, name='hipMemcpyAsync')
        use, intrinsic :: iso_c_binding
        implicit none
-       type(c_ptr), value :: ptr_dst, ptr_src
+       type(c_ptr), value :: ptr_dst, ptr_src, stream
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function hipMemcpyAsync
   end interface
-  
+
   interface
      integer (c_int) function hipDeviceSynchronize() &
           bind(c, name='hipDeviceSynchronize')
@@ -154,6 +166,16 @@ module hip_intf
   end interface
 
   interface
+     integer (c_int) function hipStreamCreateWithPriority(stream, flags, prio) &
+          bind(c, name='hipStreamCreateWithPriority')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+       integer(c_int), value :: flags, prio
+     end function hipStreamCreateWithPriority
+  end interface
+
+  interface
      integer (c_int) function hipStreamDestroy(steam) &
           bind(c, name='hipStreamDestroy')
        use, intrinsic :: iso_c_binding
@@ -162,7 +184,7 @@ module hip_intf
      end function hipStreamDestroy
   end interface
 
-  interface 
+  interface
      integer (c_int) function hipStreamSynchronize(stream) &
           bind(c, name='hipStreamSynchronize')
        use, intrinsic :: iso_c_binding
@@ -172,12 +194,40 @@ module hip_intf
   end interface
 
   interface
+     integer (c_int) function hipStreamWaitEvent(stream, event, flags) &
+          bind(c, name='hipStreamWaitEvent')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: stream, event
+       integer(c_int), value :: flags
+     end function hipStreamWaitEvent
+  end interface
+
+  interface
+     integer (c_int) function hipDeviceGetStreamPriorityRange(low_prio, high_prio) &
+          bind(c, name='hipDeviceGetStreamPriorityRange')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: low_prio, high_prio
+     end function hipDeviceGetStreamPriorityRange
+  end interface
+
+  interface
      integer (c_int) function hipEventCreate(event) &
           bind(c, name='hipEventCreate')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: event
      end function hipEventCreate
+  end interface
+
+  interface
+     integer (c_int) function hipEventDestroy(event) &
+          bind(c, name='hipEventDestroy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event
+     end function hipEventDestroy
   end interface
 
   interface
@@ -199,7 +249,7 @@ module hip_intf
      end function hipEventRecord
   end interface
 
-  interface 
+  interface
      integer (c_int) function hipEventSynchronize(event) &
           bind(c, name='hipEventSynchronize')
        use, intrinsic :: iso_c_binding
@@ -207,14 +257,42 @@ module hip_intf
        type(c_ptr), value :: event
      end function hipEventSynchronize
   end interface
-  
+
 contains
+
+  subroutine hip_init
+
+    if (hipDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
+         .ne. hipSuccess) then
+       call neko_error('Error retrieving stream priority range')
+    end if
+
+    if (hipStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO) &
+         .ne. hipSuccess) then
+       call neko_error('Error creating main stream')
+    end if
+
+    if (hipStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
+         .ne. hipSuccess) then
+       call neko_error('Error creating main stream')
+    end if
+  end subroutine hip_init
+
+  subroutine hip_finalize
+    if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
+       call neko_error('Error destroying main stream')
+    end if
+
+    if (hipStreamDestroy(aux_cmd_queue) .ne. hipSuccess) then
+       call neko_error('Error destroying aux stream')
+    end if
+  end subroutine hip_finalize
 
   subroutine hip_device_name(name)
     character(len=*), intent(inout) :: name
     character(kind=c_char, len=1024), target :: c_name
     integer :: end_pos
-    
+
     if (hipDeviceGetName(c_loc(c_name), 1024, 0) .ne. hipSuccess) then
        call neko_error('Failed to query device')
     end if
@@ -227,5 +305,5 @@ contains
   end subroutine hip_device_name
 
 #endif
- 
+
 end module hip_intf

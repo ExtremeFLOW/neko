@@ -48,9 +48,86 @@ real * proj_bufred_d = NULL;
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
 
   void cuda_project_on(void *alpha, void * b, void *xx, void *bb, void *mult,
                        void *xbar, int *j, int *n){ 
+
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+    int pow2 = 1;
+    while(pow2 < (*j)){
+      pow2 = 2*pow2;
+    }
+    const int nt = 1024/pow2;   
+    const dim3 glsc3_nthrds(pow2, nt, 1);
+    const dim3 glsc3_nblcks(((*n)+nt - 1)/nt, 1, 1);
+    const int glsc3_nb = ((*n) + nt - 1)/nt;
+    if((*j)*glsc3_nb>proj_red_s){
+      proj_red_s = (*j)*glsc3_nb;
+      if (proj_bufred_d != NULL) {
+	CUDA_CHECK(cudaFree(proj_bufred_d));
+      }
+      CUDA_CHECK(cudaMalloc(&proj_bufred_d, (*j)*glsc3_nb*sizeof(real)));
+    }
+
+    /* First glsc3_many call */
+    glsc3_many_kernel<real>
+      <<<glsc3_nblcks, glsc3_nthrds, 0, stream>>>((const real *) b,
+                                                  (const real **) xx,
+                                                  (const real *) mult,
+                                                  proj_bufred_d, *j, *n);
+    CUDA_CHECK(cudaGetLastError());
+    glsc3_reduce_kernel<real>
+      <<<(*j), 1024, 0, stream>>>(proj_bufred_d, glsc3_nb, *j);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaMemcpyAsync(alpha, proj_bufred_d, (*j) * sizeof(real),
+                               cudaMemcpyDeviceToDevice, stream));
+    CUDA_CHECK(cudaMemsetAsync(xbar, 0, (*n) * sizeof(real), stream));
+
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
+
+    const dim3 vec_nthrds(1024, 1, 1);
+    const dim3 vec_nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    /* First vector operation block */
+    project_on_vec_kernel<real>
+      <<<vec_nblcks, vec_nthrds, 0, stream>>>((real *) xbar,
+                                              (const real **) xx,
+                                              (real *) b,
+                                              (const real **) bb,
+                                              (const real *) alpha,
+                                              *j, *n);
+    /* Second glsc3_many call */
+    glsc3_many_kernel<real>
+      <<<glsc3_nblcks, glsc3_nthrds, 0, stream>>>((const real *) b,
+                                                  (const real **) xx,
+                                                  (const real *) mult,
+                                                  proj_bufred_d, *j, *n);
+    CUDA_CHECK(cudaGetLastError());
+    glsc3_reduce_kernel<real>
+      <<<(*j), 1024, 0, stream>>>(proj_bufred_d, glsc3_nb, *j);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaMemcpyAsync(alpha, proj_bufred_d, (*j) * sizeof(real),
+                               cudaMemcpyDeviceToDevice, stream));
+
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
+
+    /* Second vector operation block */
+    project_on_vec_kernel<real>
+      <<<vec_nblcks, vec_nthrds, 0, stream>>>((real *) xbar,
+                                              (const real **) xx,
+                                              (real *) b,
+                                              (const real **) bb,
+                                              (const real *) alpha,
+                                              *j, *n);
+  }
+
+  void cuda_project_ortho(void *alpha, void * b, void *xx, void *bb,
+                          void *w, void *xm, int *j, int *n, real *nrm){
+
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
     
     int pow2 = 1;
     while(pow2 < (*j)){
@@ -70,90 +147,22 @@ extern "C" {
 
     /* First glsc3_many call */
     glsc3_many_kernel<real>
-      <<<glsc3_nblcks, glsc3_nthrds>>>((const real *) b,
-                                       (const real **) xx,
-                                       (const real *) mult,
-                                       proj_bufred_d, *j, *n);
+      <<<glsc3_nblcks, glsc3_nthrds, 0, stream>>>((const real *) b,
+                                                  (const real **) xx,
+                                                  (const real *) w,
+                                                  proj_bufred_d, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    glsc3_reduce_kernel<real><<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
+    glsc3_reduce_kernel<real>
+      <<<(*j), 1024, 0, stream>>>(proj_bufred_d, glsc3_nb, *j);
     CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
-                          cudaMemcpyDeviceToDevice));
-    CUDA_CHECK(cudaMemsetAsync(xbar, 0, (*n) * sizeof(real)));
+    CUDA_CHECK(cudaMemcpyAsync(alpha, proj_bufred_d, (*j) * sizeof(real),
+                               cudaMemcpyDeviceToDevice, stream));
 
-    cudaDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
-    const dim3 vec_nthrds(1024, 1, 1);
-    const dim3 vec_nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-
-    /* First vector operation block */
-    project_on_vec_kernel<real><<<vec_nblcks, vec_nthrds>>>((real *) xbar,
-                                                      (const real **) xx,
-                                                      (real *) b,
-                                                      (const real **) bb,
-                                                      (const real *) alpha,
-                                                      *j, *n);
-    /* Second glsc3_many call */
-    glsc3_many_kernel<real>
-      <<<glsc3_nblcks, glsc3_nthrds>>>((const real *) b,
-                                       (const real **) xx,
-                                       (const real *) mult,
-                                       proj_bufred_d, *j, *n);
-    CUDA_CHECK(cudaGetLastError());
-    glsc3_reduce_kernel<real><<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
-                          cudaMemcpyDeviceToDevice));
-
-    cudaDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
-
-    /* Second vector operation block */
-    project_on_vec_kernel<real><<<vec_nblcks, vec_nthrds>>>((real *) xbar,
-                                                            (const real **) xx,
-                                                            (real *) b,
-                                                            (const real **) bb,
-                                                            (const real *) alpha,
-                                                            *j, *n);
-  }
-
-  void cuda_project_ortho(void *alpha, void * b, void *xx, void *bb,
-                          void *w, void *xm, int *j, int *n, real *nrm){
-
-    int pow2 = 1;
-    while(pow2 < (*j)){
-      pow2 = 2*pow2;
-    }
-    const int nt = 1024/pow2;   
-    const dim3 glsc3_nthrds(pow2, nt, 1);
-    const dim3 glsc3_nblcks(((*n)+nt - 1)/nt, 1, 1);
-    const int glsc3_nb = ((*n) + nt - 1)/nt;
-    if((*j)*glsc3_nb>proj_red_s){
-      proj_red_s = (*j)*glsc3_nb;
-      if (proj_bufred_d != NULL) {
-	CUDA_CHECK(cudaFree(proj_bufred_d));
-      }
-      CUDA_CHECK(cudaMalloc(&proj_bufred_d, (*j)*glsc3_nb*sizeof(real)));
-    }
-
-    /* First glsc3_many call */
-    glsc3_many_kernel<real>
-      <<<glsc3_nblcks, glsc3_nthrds>>>((const real *) b,
-                                       (const real **) xx,
-                                       (const real *) w,
-                                       proj_bufred_d, *j, *n);
-    CUDA_CHECK(cudaGetLastError());
-    glsc3_reduce_kernel<real><<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
-                          cudaMemcpyDeviceToDevice));
-
-    cudaDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
-
-    CUDA_CHECK(cudaMemcpy(nrm, (real *) alpha + (*j - 1),
-                          sizeof(real), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpyAsync(nrm, (real *) alpha + (*j - 1),
+                               sizeof(real), cudaMemcpyDeviceToHost, stream));
     (*nrm) = sqrt(*nrm);
 
 
@@ -162,30 +171,31 @@ extern "C" {
 
     /* First vector operation block */
     project_ortho_vec_kernel<real>
-      <<<vec_nblcks, vec_nthrds>>>((real *) xm, (const real **) xx,
-                                   (real *) b, (const real **) bb,
-                                   (const real *) alpha, *j, *n);
+      <<<vec_nblcks, vec_nthrds, 0, stream>>>((real *) xm, (const real **) xx,
+                                              (real *) b, (const real **) bb,
+                                              (const real *) alpha, *j, *n);
 
     /* Second glsc3_many call */
     glsc3_many_kernel<real>
-      <<<glsc3_nblcks, glsc3_nthrds>>>((const real *) b,
-                                       (const real **) xx,
-                                       (const real *) w,
-                                       proj_bufred_d, *j, *n);
+      <<<glsc3_nblcks, glsc3_nthrds, 0, stream>>>((const real *) b,
+                                                  (const real **) xx,
+                                                  (const real *) w,
+                                                  proj_bufred_d, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    glsc3_reduce_kernel<real><<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
+    glsc3_reduce_kernel<real>
+      <<<(*j), 1024, 0, stream>>> (proj_bufred_d, glsc3_nb, *j);
     CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
-                          cudaMemcpyDeviceToDevice));
+    CUDA_CHECK(cudaMemcpyAsync(alpha, proj_bufred_d, (*j) * sizeof(real),
+                               cudaMemcpyDeviceToDevice, stream));
 
-    cudaDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     /* Second vector operation block */
     project_ortho_vec_kernel<real>
-      <<<vec_nblcks, vec_nthrds>>>((real *) xm, (const real **) xx,
-                                   (real *) b, (const real **) bb,
-                                   (const real *) alpha, *j, *n);
+      <<<vec_nblcks, vec_nthrds, 0, stream>>>((real *) xm, (const real **) xx,
+                                              (real *) b, (const real **) bb,
+                                              (const real *) alpha, *j, *n);
     
   }
       

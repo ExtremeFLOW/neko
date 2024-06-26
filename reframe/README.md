@@ -33,7 +33,7 @@ Control which configurations are used with environment variables:
 NEKO_REAL=sp,dp
 
 # Fluid scheme
-NEKO_SCHEME=plan4,pnpn
+NEKO_SCHEME=pnpn
 ```
 
 ## How to add a new system

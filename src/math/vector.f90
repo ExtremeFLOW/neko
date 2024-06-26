@@ -35,16 +35,16 @@ module vector
   use neko_config
   use num_types
   use device
-  use device_math
+  use device_math, only : device_copy, device_cfill
   use utils
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+
   type, public ::  vector_t
-     real(kind=rp), allocatable :: x(:) !< Vector entries
-     type(c_ptr) :: x_d = C_NULL_PTR    !< Device pointer
-     integer :: n  = 0                  !< Size of vector
+     real(kind=rp), allocatable :: x(:) !< Vector entries.
+     type(c_ptr) :: x_d = C_NULL_PTR    !< Device pointer.
+     integer :: n  = 0                  !< Size of vector.
    contains
      procedure, pass(v) :: init => vector_init
      procedure, pass(v) :: free => vector_free
@@ -55,9 +55,13 @@ module vector
           vector_assign_scalar
   end type vector_t
 
+  type, public :: vector_ptr_t
+     type(vector_t), pointer :: ptr
+  end type vector_ptr_t
+
 contains
 
-  !> Initialise a vector of size @a n
+  !> Initialise a vector of size @a n.
   subroutine vector_init(v, n)
     class(vector_t), intent(inout) :: v
     integer, intent(in) :: n
@@ -66,17 +70,17 @@ contains
 
     allocate(v%x(n))
     v%x = 0.0_rp
-   
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(v%x, v%x_d, n)
        call device_cfill(v%x_d, 0.0_rp, n)
     end if
 
     v%n = n
-    
+
   end subroutine vector_init
 
-  !> Deallocate a vector
+  !> Deallocate a vector.
   subroutine vector_free(v)
     class(vector_t), intent(inout) :: v
 
@@ -89,17 +93,17 @@ contains
     end if
 
     v%n = 0
-        
+
   end subroutine vector_free
 
-  !> Return the number of entries in the vector
+  !> Return the number of entries in the vector.
   function vector_size(v) result(s)
     class(vector_t), intent(inout) :: v
     integer :: s
-    s = v%n    
+    s = v%n
   end function vector_size
 
-  !> Assignment \f$ v = w \f$
+  !> Assignment \f$ v = w \f$.
   subroutine vector_assign_vector(v, w)
     class(vector_t), intent(inout) :: v
     type(vector_t), intent(in) :: w
@@ -112,11 +116,11 @@ contains
 
        v%n = w%n
        allocate(v%x(v%n))
-       
+
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-       
+
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -127,7 +131,7 @@ contains
 
   end subroutine vector_assign_vector
 
-  !> Assignment \f$ v = s \f$
+  !> Assignment \f$ v = s \f$.
   subroutine vector_assign_scalar(v, s)
     class(vector_t), intent(inout) :: v
     real(kind=rp), intent(in) :: s
@@ -144,5 +148,5 @@ contains
 
   end subroutine vector_assign_scalar
 
-  
+
 end module vector

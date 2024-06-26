@@ -34,9 +34,11 @@ AC_DEFUN([AX_CUDA],[
                 AS_IF([test "$CUDA_CFLAGS"],[],[CUDA_CFLAGS="-O3"])
 		
 		_CC=$CC
+                _CFLAGS=$CFLAGS
 		_LIBS=$LIBS
 		AC_LANG_PUSH([C])
 		CC=$NVCC
+                CFLAGS=""
 		LIBS=""
 
 		AC_CHECK_LIB(cudart, cudaFree,
@@ -51,6 +53,7 @@ AC_DEFUN([AX_CUDA],[
 		   AC_MSG_ERROR([CUDA not found])
 		fi
 	        CC=$_CC
+                CFLAGS=$_CFLAGS
 		AC_LANG_POP([C])
 	fi
 	AC_SUBST(cuda_bcknd)	

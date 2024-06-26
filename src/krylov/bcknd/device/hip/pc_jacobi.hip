@@ -116,7 +116,7 @@ extern "C" {
 #define CASE(N)\
     case N:\
     hipLaunchKernelGGL(HIP_KERNEL_NAME( jacobi_kernel<real, N> ),\
-	blocks, threads, 0, 0,\
+	blocks, threads, 0, (hipStream_t) glb_cmd_queue,\
 	(real *) d,\
 	(real *) dxt, (real *) dyt, (real *) dzt,\
 	(real *) G11, (real *) G22, (real *) G33,\

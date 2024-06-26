@@ -35,6 +35,7 @@ module gs_cpu
   use num_types
   use gs_bcknd
   use gs_ops
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -46,9 +47,9 @@ module gs_cpu
      procedure, pass(this) :: gather => gs_gather_cpu
      procedure, pass(this) :: scatter => gs_scatter_cpu
   end type gs_cpu_t
-  
+
 contains
-  
+
   !> Dummy backend initialisation
   subroutine gs_cpu_init(this, nlocal, nshared, nlcl_blks, nshrd_blks)
     class(gs_cpu_t), intent(inout) :: this
@@ -77,7 +78,7 @@ contains
     integer, intent(in) :: o
     integer, intent(in) :: op
     logical, intent(in) :: shrd
-    
+
     select case(op)
     case (GS_OP_ADD)
        call gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b)
@@ -88,9 +89,9 @@ contains
     case (GS_OP_MAX)
        call gs_gather_kernel_max(v, m, o, dg, u, n, gd, nb, b)
     end select
-    
+
   end subroutine gs_gather_cpu
- 
+
   !> Gather kernel for addition of data
   !! \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
   subroutine gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b)
@@ -114,9 +115,9 @@ contains
           tmp = tmp + u(gd(k + j))
        end do
        v(dg(k + 1)) = tmp
-       k = k + blk_len        
+       k = k + blk_len
     end do
-    
+
     if (o .lt. 0) then
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
@@ -127,7 +128,7 @@ contains
           v(dg(i)) = tmp
        end do
     end if
-    
+
   end subroutine gs_gather_kernel_add
 
   !> Gather kernel for multiplication of data
@@ -144,18 +145,18 @@ contains
     integer, intent(in) :: o
     integer :: i, j, k, blk_len
     real(kind=rp) :: tmp
-    
+
     k = 0
     do i = 1, nb
        blk_len = b(i)
-       tmp = u(gd(k + 1))              
+       tmp = u(gd(k + 1))
        do j = 2, blk_len
           tmp = tmp * u(gd(k + j))
        end do
        v(dg(k + 1)) = tmp
-       k = k + blk_len        
+       k = k + blk_len
     end do
-       
+
     if (o .lt. 0) then
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
@@ -166,9 +167,9 @@ contains
           v(dg(i)) = tmp
        end do
     end if
-    
+
   end subroutine gs_gather_kernel_mul
-  
+
   !> Gather kernel for minimum of data
   !! \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
   subroutine gs_gather_kernel_min(v, m, o, dg, u, n, gd, nb, b)
@@ -192,9 +193,9 @@ contains
           tmp = min(tmp, u(gd(k + j)))
        end do
        v(dg(k + 1)) = tmp
-       k = k + blk_len        
+       k = k + blk_len
     end do
-       
+
     if (o .lt. 0) then
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
@@ -205,7 +206,7 @@ contains
           v(dg(i)) = tmp
        end do
     end if
-    
+
   end subroutine gs_gather_kernel_min
 
   !> Gather kernel for maximum of data
@@ -231,9 +232,9 @@ contains
           tmp = max(tmp, u(gd(k + j)))
        end do
        v(dg(k + 1)) = tmp
-       k = k + blk_len        
+       k = k + blk_len
     end do
-       
+
     if (o .lt. 0) then
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
@@ -244,11 +245,11 @@ contains
           v(dg(i)) = tmp
        end do
     end if
-    
+
   end subroutine gs_gather_kernel_max
 
   !> Scatter kernel  @todo Make the kernel abstract
-  subroutine gs_scatter_cpu(this, v, m, dg, u, n, gd, nb, b, shrd)
+  subroutine gs_scatter_cpu(this, v, m, dg, u, n, gd, nb, b, shrd, event)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -259,7 +260,8 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     logical, intent(in) :: shrd
-        
+    type(c_ptr) :: event
+
     call gs_scatter_kernel(v, m, dg, u, n, gd, nb, b)
 
   end subroutine gs_scatter_cpu
@@ -276,7 +278,7 @@ contains
     integer, dimension(nb), intent(inout) :: b
     integer :: i, j, k, blk_len
     real(kind=rp) :: tmp
-    
+
     k = 0
     do i = 1, nb
        blk_len = b(i)

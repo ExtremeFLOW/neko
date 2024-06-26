@@ -9,6 +9,7 @@ module dofmap_parallel
   use point
   use datadist
   use device
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
   
 contains
@@ -59,17 +60,17 @@ contains
     p(12) = point_t(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
 
-    call mesh_init(m, gdim, dist)
+    call m%init(gdim, dist)
 
-    call mesh_add_element(m, 1, p(1), p(2), p(3), p(4), &
+    call m%add_element(1, p(1), p(2), p(3), p(4), &
          p(7), p(8), p(10), p(9))
 
-    call mesh_add_element(m, 2, p(2), p(5), p(4), p(6), &
+    call m%add_element(2, p(2), p(5), p(4), p(6), &
          p(8), p(11), p(9), p(12))
 
-    Call space_init(Xh, GLL, 2, 2, 2)
+    call Xh%init(GLL, 2, 2, 2)
 
-    call mesh_generate_conn(m)
+    call m%generate_conn()
     d = dofmap_t(m, Xh)
 
     @assertEqual(d%x(1,1,1,1), p(1)%x(1), tolerance=1d-14)
@@ -127,16 +128,16 @@ contains
     p(12) = point_t(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
 
-    call mesh_init(m, gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
 
-    call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
+    call m%add_element(1, p(1), p(2), p(4), p(3), &
          p(5), p(6), p(8), p(7))
 
-    call mesh_add_element(m, 2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
     
-    call mesh_generate_conn(m) 
+    call m%generate_conn() 
     d = dofmap_t(m, Xh)
     do i = 1,lx
       do j = 1,lx
@@ -201,16 +202,16 @@ contains
     p(12) = point_t(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
 
-    call mesh_init(m, gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
-    call mesh_add_element(m, 1, p(5), p(1), p(8), p(4), &
+    call m%add_element(1, p(5), p(1), p(8), p(4), &
          p(6), p(2), p(7), p(3))
-    call mesh_add_element(m, 2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
 
-    call mesh_generate_conn(m)
+    call m%generate_conn()
     d = dofmap_t(m, Xh)
     do i = 1,lx
       do j = 1,lx
@@ -274,15 +275,15 @@ contains
     p(12) = point_t(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
 
-    call mesh_init(m, gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
-    call mesh_add_element(m, 1, p(7), p(8), p(6), p(5), &
+    call m%add_element(1, p(7), p(8), p(6), p(5), &
          p(3), p(4), p(2), p(1))
-    call mesh_add_element(m, 2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
-    call mesh_generate_conn(m)
+    call m%generate_conn()
     d = dofmap_t(m, Xh)
     do i = 1,lx
       do j = 1,lx
@@ -346,16 +347,16 @@ contains
     p(12) = point_t(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
 
-    call mesh_init(m, gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
-    call mesh_add_element(m, 1, p(6), p(5), p(7), p(8), &
+    call m%add_element(1, p(6), p(5), p(7), p(8), &
          p(2), p(1), p(3), p(4))
-    call mesh_add_element(m, 2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
 
-    call mesh_generate_conn(m)
+    call m%generate_conn()
     d = dofmap_t(m, Xh)
     do i = 1,lx
       do j = 1,lx
@@ -419,17 +420,17 @@ contains
     p(12) = point_t(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
 
-    call mesh_init(m, gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
-    call mesh_add_element(m, 1, p(2), p(6), p(3), p(7), &
+    call m%add_element(1, p(2), p(6), p(3), p(7), &
          p(1), p(5), p(4), p(8))
-    call mesh_add_element(m, 2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
-    call mesh_generate_conn(m)
+    call m%generate_conn()
 
-    call mesh_generate_conn(m)
+    call m%generate_conn()
     d = dofmap_t(m, Xh)
     do i = 1,lx
       do j = 1,lx
@@ -493,16 +494,16 @@ contains
     p(12) = point_t(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
 
-    call mesh_init(m, gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
-    call mesh_add_element(m, 1, p(4), p(1), p(3), p(2), &
+    call m%add_element(1, p(4), p(1), p(3), p(2), &
          p(8), p(5), p(7), p(6))
-    call mesh_add_element(m, 2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
 
-    call mesh_generate_conn(m)
+    call m%generate_conn()
     d = dofmap_t(m, Xh)
     do i = 1,lx
       do j = 1,lx
@@ -566,16 +567,16 @@ contains
     p(12) = point_t(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
 
-    call mesh_init(m, gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
-    call mesh_add_element(m, 1, p(2), p(3), p(1), p(4), &
+    call m%add_element(1, p(2), p(3), p(1), p(4), &
          p(6), p(7), p(5), p(8))
-    call mesh_add_element(m, 2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
 
-    call mesh_generate_conn(m)
+    call m%generate_conn()
     d = dofmap_t(m, Xh)
     do i = 1,lx
       do j = 1,lx

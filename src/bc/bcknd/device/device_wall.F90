@@ -31,12 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_wall
-  use num_types
-  use utils
-  use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  private
 
 #ifdef HAVE_HIP
-    interface
+  interface
      subroutine hip_no_slip_wall_apply_scalar(msk, x, m) &
           bind(c, name='hip_no_slip_wall_apply_scalar')
        use, intrinsic :: iso_c_binding
@@ -45,7 +45,7 @@ module device_wall
        type(c_ptr), value :: msk, x
      end subroutine hip_no_slip_wall_apply_scalar
   end interface
-  
+
   interface
      subroutine hip_no_slip_wall_apply_vector(msk, x, y, z, m) &
           bind(c, name='hip_no_slip_wall_apply_vector')
@@ -56,7 +56,7 @@ module device_wall
      end subroutine hip_no_slip_wall_apply_vector
   end interface
 #elif HAVE_CUDA
-    interface
+  interface
      subroutine cuda_no_slip_wall_apply_scalar(msk, x, m) &
           bind(c, name='cuda_no_slip_wall_apply_scalar')
        use, intrinsic :: iso_c_binding
@@ -65,7 +65,7 @@ module device_wall
        type(c_ptr), value :: msk, x
      end subroutine cuda_no_slip_wall_apply_scalar
   end interface
-  
+
   interface
      subroutine cuda_no_slip_wall_apply_vector(msk, x, y, z, m) &
           bind(c, name='cuda_no_slip_wall_apply_vector')
@@ -76,7 +76,7 @@ module device_wall
      end subroutine cuda_no_slip_wall_apply_vector
   end interface
 #elif HAVE_OPENCL
-    interface
+  interface
      subroutine opencl_no_slip_wall_apply_scalar(msk, x, m) &
           bind(c, name='opencl_no_slip_wall_apply_scalar')
        use, intrinsic :: iso_c_binding
@@ -85,7 +85,7 @@ module device_wall
        type(c_ptr), value :: msk, x
      end subroutine opencl_no_slip_wall_apply_scalar
   end interface
-  
+
   interface
      subroutine opencl_no_slip_wall_apply_vector(msk, x, y, z, m) &
           bind(c, name='opencl_no_slip_wall_apply_vector')
@@ -96,7 +96,9 @@ module device_wall
      end subroutine opencl_no_slip_wall_apply_vector
   end interface
 #endif
-  
+
+  public :: device_no_slip_wall_apply_scalar, device_no_slip_wall_apply_vector
+
 contains
 
   subroutine device_no_slip_wall_apply_scalar(msk, x, m)
@@ -112,7 +114,7 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
+
   end subroutine device_no_slip_wall_apply_scalar
 
   subroutine device_no_slip_wall_apply_vector(msk, x, y, z, m)
@@ -128,7 +130,7 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
+
   end subroutine device_no_slip_wall_apply_vector
-  
+
 end module device_wall

@@ -1,3 +1,5 @@
+#ifndef __MATH_OPGRAD_KERNEL_H__
+#define __MATH_OPGRAD_KERNEL_H__
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -197,3 +199,5 @@ opgrad_kernel_kstep(T * __restrict__ ux,
   }
 }
 
+
+#endif // __MATH_OPGRAD_KERNEL_H__

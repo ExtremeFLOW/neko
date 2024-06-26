@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,12 @@
 !
 !> Defines a statistical quantity
 module stats_quant
-  use num_types
+  use num_types, only : rp
   implicit none
+  private
 
   !> Abstract type defining a statistical quantity
-  type, abstract :: stats_quant_t
+  type, public, abstract :: stats_quant_t
    contains
      procedure(stats_quant_update), pass(this), deferred :: update
   end type stats_quant_t
@@ -50,5 +51,5 @@ module stats_quant
        real(kind=rp), intent(in) :: k
      end subroutine stats_quant_update
   end interface
-  
+
 end module stats_quant

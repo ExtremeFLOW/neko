@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2022, The Neko Authors
+! Copyright (c) 2018-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,27 +36,27 @@
 !! and the BDF scheme applied to the time derivative.
 !! Inheritance is used to define implementation for different backends.
 module rhs_maker
-  use num_types
+  use num_types, only : rp
   use field_series, only : field_series_t
   use field, only : field_t
-  implicit none 
+  implicit none
+  private
 
   !> Abstract type to compute extrapolated velocity field for the pressure equation
-  type, abstract :: rhs_maker_sumab_t
+  type, public, abstract :: rhs_maker_sumab_t
    contains
      procedure(rhs_maker_sumab), nopass, deferred :: compute_fluid
-
   end type rhs_maker_sumab_t
 
   !> Abstract type to sum up contributions to kth order extrapolation scheme
-  type, abstract :: rhs_maker_ext_t
+  type, public, abstract :: rhs_maker_ext_t
    contains
      procedure(rhs_maker_ext), nopass, deferred :: compute_fluid
      procedure(scalar_rhs_maker_ext), nopass, deferred :: compute_scalar
   end type rhs_maker_ext_t
 
   !> Abstract type to add contributions to F from lagged BD terms
-  type, abstract :: rhs_maker_bdf_t
+  type, public, abstract :: rhs_maker_bdf_t
    contains
      procedure(rhs_maker_bdf), nopass, deferred :: compute_fluid
      procedure(scalar_rhs_maker_bdf), nopass, deferred :: compute_scalar
@@ -76,65 +76,59 @@ module rhs_maker
   end interface
 
   abstract interface
-     subroutine rhs_maker_ext(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
+     subroutine rhs_maker_ext(fx_lag, fy_lag, fz_lag, &
           fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
           rho, ext_coeffs, n)
        import field_t
        import rp
-       type(field_t), intent(inout) :: temp1, temp2, temp3
        type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
        type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-       real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
+       real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
      end subroutine rhs_maker_ext
   end interface
 
   abstract interface
-     subroutine scalar_rhs_maker_ext(temp1, fs_lag, fs_laglag, fs, rho, &
+     subroutine scalar_rhs_maker_ext(fs_lag, fs_laglag, fs, rho, &
           ext_coeffs, n)
        import field_t
        import rp
-       type(field_t), intent(inout) :: temp1
        type(field_t), intent(inout) :: fs_lag
        type(field_t), intent(inout) :: fs_laglag
-       real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
+       real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: fs(n)
      end subroutine scalar_rhs_maker_ext
   end interface
 
   abstract interface
-     subroutine rhs_maker_bdf(ta1, ta2, ta3, tb1, tb2, tb3, &
-          ulag, vlag, wlag, bfx, bfy, bfz, &
+     subroutine rhs_maker_bdf(ulag, vlag, wlag, bfx, bfy, bfz, &
           u, v, w, B, rho, dt, bd, nbd, n)
        import field_series_t
        import field_t
        import rp
        integer, intent(in) :: n, nbd
-       type(field_t), intent(inout) :: ta1, ta2, ta3
        type(field_t), intent(in) :: u, v, w
-       type(field_t), intent(inout) :: tb1, tb2, tb3
-       type(field_series_t), intent(in) :: ulag, vlag, wlag        
+       type(field_series_t), intent(in) :: ulag, vlag, wlag
        real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
        real(kind=rp), intent(in) :: B(n)
-       real(kind=rp), intent(in) :: dt, rho, bd(10)
+       real(kind=rp), intent(in) :: dt, rho, bd(4)
      end subroutine rhs_maker_bdf
   end interface
 
   abstract interface
-     subroutine scalar_rhs_maker_bdf(temp1, temp2, s_lag, fs, s, B, rho, dt,&
+     subroutine scalar_rhs_maker_bdf(s_lag, fs, s, B, rho, dt,&
           bd, nbd, n)
        import field_series_t
        import field_t
        import rp
        integer, intent(in) :: n, nbd
-       type(field_t), intent(inout) :: temp1, temp2
        type(field_t), intent(in) :: s
        type(field_series_t), intent(in) :: s_lag
        real(kind=rp), intent(inout) :: fs(n)
        real(kind=rp), intent(in) :: B(n)
-       real(kind=rp), intent(in) :: dt, rho, bd(10)
+       real(kind=rp), intent(in) :: dt, rho, bd(4)
      end subroutine scalar_rhs_maker_bdf
   end interface
 

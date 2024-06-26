@@ -32,11 +32,11 @@
 !
 module element
   use num_types
-  use entity
-  use tuple
-  use point
+  use entity, only : entity_t
+  use tuple, only : tuple_t
+  use point, only : point_ptr, point_t
   implicit none
-  private 
+  private
 
   !> Base type for an element
   !! @details An element is a collection of @a npts_ points forming an
@@ -44,13 +44,13 @@ module element
   type, public, extends(entity_t), abstract :: element_t
      integer, private :: gdim_              !< Geometric dimension
      integer, private :: npts_              !< number of points
-     type(point_ptr), allocatable :: pts(:) !< Points of an element 
+     type(point_ptr), allocatable :: pts(:) !< Points of an element
    contains
      procedure, pass(this) :: element => element_init
      procedure, pass(this) :: free => element_free
      procedure, pass(this) :: gdim => element_gdim
      procedure, pass(this) :: npts => element_npts
-     procedure, pass(this) :: p => element_point 
+     procedure, pass(this) :: p => element_point
      procedure, pass(this) :: n_points => element_npts
      procedure, pass(this), non_overridable :: element_point
      procedure(element_equal), pass(this), deferred :: equal
@@ -88,7 +88,7 @@ module element
   end interface
 
   abstract interface
-     subroutine element_facet_id(this, t, side) 
+     subroutine element_facet_id(this, t, side)
        import :: element_t
        import :: tuple_t
        class(element_t), intent(in) :: this
@@ -98,7 +98,7 @@ module element
   end interface
 
   abstract interface
-     subroutine element_facet_order(this, t, side) 
+     subroutine element_facet_order(this, t, side)
        import :: element_t
        import :: tuple_t
        class(element_t), intent(in) :: this
@@ -118,7 +118,7 @@ contains
     call this%free()
 
     call this%set_id(id)
-    
+
     this%gdim_ = gdim
     this%npts_ = npts
 
@@ -133,9 +133,9 @@ contains
     if (allocated(this%pts)) then
        deallocate(this%pts)
     end if
-    
+
   end subroutine element_free
-  
+
   !> Get the geometric dimension of an element
   pure function element_gdim(this) result(gdim)
     class(element_t), intent(in) :: this

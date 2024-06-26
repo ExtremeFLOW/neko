@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,10 @@
 module htable
   use num_types
   use utils
-  use point
-  use tuple
+  use point, only : point_t
+  use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_t
   use math, only : NEKO_M_LN2
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_associated
   implicit none
   private
 
@@ -47,7 +47,7 @@ module htable
   type :: h_tuple_t
      logical :: valid = .false.
      logical :: skip = .false.
-     class(*), allocatable :: key      
+     class(*), allocatable :: key
      class(*), allocatable :: data
   end type h_tuple_t
 
@@ -135,7 +135,7 @@ module htable
      procedure, pass(this) :: set => htable_i4t4_set
      procedure, pass(this) :: get => htable_i4t4_get
      procedure, pass(this) :: hash => htable_i4t4_hash
-     procedure, pass(this) :: remove => htable_i4t4_remove          
+     procedure, pass(this) :: remove => htable_i4t4_remove
   end type htable_i4t4_t
 
   !> C pointer based hash table
@@ -145,7 +145,7 @@ module htable
      procedure, pass(this) :: set => htable_cptr_set
      procedure, pass(this) :: get => htable_cptr_get
      procedure, pass(this) :: hash => htable_cptr_hash
-     procedure, pass(this) :: remove => htable_cptr_remove          
+     procedure, pass(this) :: remove => htable_cptr_remove
   end type htable_cptr_t
 
   !
@@ -168,6 +168,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_i4_init
      procedure, pass(this) :: value => htable_iter_i4_value
      procedure, pass(this) :: key => htable_iter_i4_key
+     final :: htable_iter_i4_free
   end type htable_iter_i4_t
 
   !> Iterator for an integer*8 based hash table
@@ -176,6 +177,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_i8_init
      procedure, pass(this) :: value => htable_iter_i8_value
      procedure, pass(this) :: key => htable_iter_i8_key
+     final :: htable_iter_i8_free
   end type htable_iter_i8_t
 
   !> Iterator for a double precision based hash table
@@ -184,6 +186,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_r8_init
      procedure, pass(this) :: value => htable_iter_r8_value
      procedure, pass(this) :: key => htable_iter_r8_key
+     final :: htable_iter_r8_free
   end type htable_iter_r8_t
 
   !> Iterator for a point based hash table
@@ -192,6 +195,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_pt_init
      procedure, pass(this) :: value => htable_iter_pt_value
      procedure, pass(this) :: key => htable_iter_pt_key
+     final :: htable_iter_pt_free
   end type htable_iter_pt_t
 
   !> Iterator for an integer based 2-tuple hash table
@@ -200,6 +204,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_i4t2_init
      procedure, pass(this) :: value => htable_iter_i4t2_value
      procedure, pass(this) :: key => htable_iter_i4t2_key
+     final :: htable_iter_i4t2_free
   end type htable_iter_i4t2_t
 
   !> Iterator for an integer based 4-tuple hash table
@@ -208,6 +213,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_i4t4_init
      procedure, pass(this) :: value => htable_iter_i4t4_value
      procedure, pass(this) :: key => htable_iter_i4t4_key
+     final :: htable_iter_i4t4_free
   end type htable_iter_i4t4_t
 
   !> Iterator for a C pointer based hash table
@@ -216,6 +222,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_cptr_init
      procedure, pass(this) :: value => htable_iter_cptr_value
      procedure, pass(this) :: key => htable_iter_cptr_key
+     final :: htable_iter_cptr_free
   end type htable_iter_cptr_t
 
   !
@@ -235,10 +242,10 @@ contains
     class(*), target, intent(in), optional :: data !< Type of data
     class(*), pointer :: dp
     integer :: i
-    
+
 
     call htable_free(this)
-    
+
     if (size .lt. 4) then
        size = 4
     end if
@@ -276,7 +283,7 @@ contains
 
     this%size = 0
     this%entries = 0
-    
+
   end subroutine htable_free
 
   !> Clear all entries in a hash table
@@ -287,9 +294,9 @@ contains
        this%t(:)%valid = .false.
        this%entries = 0
     else
-       call neko_error("Hash table not allocated")       
+       call neko_error("Hash table not allocated")
     end if
-    
+
   end subroutine htable_clear
 
   !> Return number of entries in the table
@@ -308,7 +315,7 @@ contains
 
 
   !> Insert tuple @a (key, value) into the hash table
-  recursive subroutine htable_set(this, key, data) 
+  recursive subroutine htable_set(this, key, data)
     class(htable_t), intent(inout) :: this
     class(*), intent(inout) :: key   !< Table key
     class(*), intent(inout) ::  data !< Data associated with @a key
@@ -317,9 +324,8 @@ contains
 
     c = 0
     i = log(1.0/this%size)/log(0.6)
-    !i = (this%size-1)/10
     index = 0
-    
+
     do while (i .ge. 0)
        index = this%hash(key, c**2)
        if (index .lt. 0) then
@@ -383,8 +389,8 @@ contains
     integer :: index, i, c
 
     c = 0
-    i = this%size - 1
-    
+    i = log(1.0/this%size)/log(0.6)
+
     do while (i .ge. 0)
        index = this%hash(key, c**2)
        if (index .lt. 0) then
@@ -394,7 +400,7 @@ contains
        if (.not. this%t(index)%valid .and. &
             .not. this%t(index)%skip) then
           rcode = 1
-          return          
+          return
        else if ((this%t(index)%valid) .and. &
             htable_eq_key(this, index, key)) then
           call htable_get_data(this, index, data)
@@ -414,8 +420,8 @@ contains
     integer :: index, i, c
 
     c = 0
-    i = this%size - 1
-    
+    i = log(1.0/this%size)/log(0.6)
+
     do while (i .ge. 0)
        index = this%hash(key, c**2)
        if (index .lt. 0) then
@@ -569,12 +575,12 @@ contains
   end function htable_eq_key
 
   !> Set key at @a idx to @a key
-  subroutine htable_set_key(this, idx, key) 
+  subroutine htable_set_key(this, idx, key)
     class(htable_t), target, intent(inout) :: this
     integer, intent(in) :: idx  !< Table index
     class(*), intent(in) :: key !< Key to set at @a idx
     class(*), pointer :: kp
-    
+
     kp => this%t(idx)%key
     select type(key)
     type is (integer)
@@ -626,7 +632,7 @@ contains
 
     valid = (this%n .lt. this%t%size)
     if (.not. valid) this%n = -1
-    
+
   end function htable_iter_next
 
   !> Reset an iterator
@@ -681,9 +687,9 @@ contains
     class default
        call neko_error('Invalid htable data (iter)')
     end select
-    
+
   end subroutine htable_iter_data
-  
+
   !
   ! Integer based implementation
   !
@@ -699,11 +705,11 @@ contains
     else
        call htable_init(this, size, key)
     end if
-    
+
   end subroutine htable_i4_init
 
   !> Insert an integer into the hash table
-  subroutine htable_i4_set(this, key, data) 
+  subroutine htable_i4_set(this, key, data)
     class(htable_i4_t), intent(inout) :: this
     integer, intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
@@ -754,7 +760,7 @@ contains
   end function htable_i4_hash
 
   !> Remove an integer with key @a key from the hash table
-  subroutine htable_i4_remove(this, key) 
+  subroutine htable_i4_remove(this, key)
     class(htable_i4_t), intent(inout) :: this
     integer, intent(inout) :: key   !< Table key
 
@@ -768,9 +774,15 @@ contains
     type(htable_i4_t), target, intent(inout) :: t
 
     this%t => t
-    this%n = -1    
+    this%n = -1
 
   end subroutine htable_iter_i4_init
+
+  !> Destroy an integer based hash table iterator
+  subroutine htable_iter_i4_free(this)
+    type(htable_iter_i4_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_i4_free
 
   !> Return the current value of the integer based hash table iterator
   function htable_iter_i4_value(this) result(value)
@@ -783,7 +795,7 @@ contains
     class default
        call neko_error('Key and data of different kind (i4)')
     end select
-    
+
   end function htable_iter_i4_value
 
   !> Return the current key of the integer based hash table iterator
@@ -797,7 +809,7 @@ contains
     class default
        call neko_error('Invalid key (i4)')
     end select
-    
+
   end function htable_iter_i4_key
 
   !
@@ -815,11 +827,11 @@ contains
     else
        call htable_init(this, size, key)
     end if
-    
+
   end subroutine htable_i8_init
 
   !> Insert an integer*8 into the hash table
-  subroutine htable_i8_set(this, key, data) 
+  subroutine htable_i8_set(this, key, data)
     class(htable_i8_t), intent(inout) :: this
     integer(kind=i8), intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
@@ -871,7 +883,7 @@ contains
   end function htable_i8_hash
 
   !> Remove an integer*8 with key @a key from the hash table
-  subroutine htable_i8_remove(this, key) 
+  subroutine htable_i8_remove(this, key)
     class(htable_i8_t), intent(inout) :: this
     integer(kind=i8), intent(inout) :: key   !< Table key
 
@@ -885,9 +897,15 @@ contains
     type(htable_i8_t), target, intent(inout) :: t
 
     this%t => t
-    this%n = -1    
+    this%n = -1
 
   end subroutine htable_iter_i8_init
+
+  !> Destroy an integer*8 based hash table iterator
+  subroutine htable_iter_i8_free(this)
+    type(htable_iter_i8_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_i8_free
 
   !> Return the current value of the integer*8 based hash table iterator
   function htable_iter_i8_value(this) result(value)
@@ -901,7 +919,7 @@ contains
     class default
        call neko_error('Key and data of different kind (i8)')
     end select
-    
+
   end function htable_iter_i8_value
 
   !> Return the current key of the integer*8 based hash table iterator
@@ -923,9 +941,9 @@ contains
     class default
        call neko_error('Corrupt htable iter. (i8)')
     end select
-    
+
   end function htable_iter_i8_key
-  
+
 
   !
   ! Double precision based implementation
@@ -942,11 +960,11 @@ contains
     else
        call htable_init(this, size, key)
     end if
-    
+
   end subroutine htable_r8_init
 
   !> Insert a double precision @a key (with @a data) into the hash table
-  subroutine htable_r8_set(this, key, data) 
+  subroutine htable_r8_set(this, key, data)
     class(htable_r8_t), intent(inout) :: this
     real(kind=dp), intent(inout) :: key !< Table key
     class(*), intent(inout) :: data     !< Data associated with @a key
@@ -981,14 +999,14 @@ contains
   end function htable_r8_hash
 
   !> Remove a double precision key @a key from the hash table
-  subroutine htable_r8_remove(this, key) 
+  subroutine htable_r8_remove(this, key)
     class(htable_r8_t), intent(inout) :: this
     real(kind=dp), intent(inout) :: key   !< Table key
 
     call htable_remove(this, key)
 
   end subroutine htable_r8_remove
-  
+
 
   !> Initialize a double precision based hash table iterator
   subroutine htable_iter_r8_init(this, t)
@@ -996,9 +1014,15 @@ contains
     type(htable_r8_t), target, intent(inout) :: t
 
     this%t => t
-    this%n = -1    
+    this%n = -1
 
   end subroutine htable_iter_r8_init
+
+  !> Destroy a double precision based hash table iterator
+  subroutine htable_iter_r8_free(this)
+    type(htable_iter_r8_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_r8_free
 
   !> Return the current value of the double precision based hash table iterator
   function htable_iter_r8_value(this) result(value)
@@ -1011,7 +1035,7 @@ contains
     class default
        call neko_error('Key and data of different kind (r8)')
     end select
-    
+
   end function htable_iter_r8_value
 
   !> Return the current key of the double precision based hash table iterator
@@ -1025,9 +1049,9 @@ contains
     class default
        call neko_error('Invalid key (r8)')
     end select
-    
+
   end function htable_iter_r8_key
-  
+
   !
   ! Point based implementation
   !
@@ -1043,11 +1067,11 @@ contains
     else
        call htable_init(this, size, key)
     end if
-    
+
   end subroutine htable_pt_init
 
   !> Insert a point @a key (with @a data) into the hash table
-  subroutine htable_pt_set(this, key, data) 
+  subroutine htable_pt_set(this, key, data)
     class(htable_pt_t), intent(inout) :: this
     type(point_t), intent(inout) :: key !< Table key
     class(*), intent(inout) :: data     !< Data associated with @a key
@@ -1072,7 +1096,7 @@ contains
     class(htable_pt_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
-    integer :: hash, i 
+    integer :: hash, i
     integer(kind=i8) :: hash2, tmp, mult
     integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
     integer(kind=i8), parameter :: M2 = int(Z'c761c23c', i8)
@@ -1106,7 +1130,7 @@ contains
   end function htable_pt_hash
 
   !> Remove a point with key @a key from the hash table
-  subroutine htable_pt_remove(this, key) 
+  subroutine htable_pt_remove(this, key)
     class(htable_pt_t), intent(inout) :: this
     type(point_t), intent(inout) :: key   !< Table key
 
@@ -1121,9 +1145,15 @@ contains
     type(htable_pt_t), target, intent(inout) :: t
 
     this%t => t
-    this%n = -1    
+    this%n = -1
 
   end subroutine htable_iter_pt_init
+
+  !> Destroy a point based hash table iterator
+  subroutine htable_iter_pt_free(this)
+    type(htable_iter_pt_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_pt_free
 
   !> Return the current value of the point based hash table iterator
   function htable_iter_pt_value(this) result(value)
@@ -1136,7 +1166,7 @@ contains
     class default
        call neko_error('Key and data of different kind (pt)')
     end select
-    
+
   end function htable_iter_pt_value
 
   !> Return the current key of the point based hash table iterator
@@ -1150,7 +1180,7 @@ contains
     class default
        call neko_error('Invalid key (pt)')
     end select
-    
+
   end function htable_iter_pt_key
 
   !
@@ -1168,11 +1198,11 @@ contains
     else
        call htable_init(this, size, key)
     end if
-    
+
   end subroutine htable_i4t2_init
 
   !> Insert an integer 2-tuple into the hash table
-  subroutine htable_i4t2_set(this, key, data) 
+  subroutine htable_i4t2_set(this, key, data)
     class(htable_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
@@ -1230,23 +1260,29 @@ contains
   end function htable_i4t2_hash
 
   !> Remove an integer 2-tuple with key @a key from the hash table
-  subroutine htable_i4t2_remove(this, key) 
+  subroutine htable_i4t2_remove(this, key)
     class(htable_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), intent(inout) :: key   !< Table key
 
     call htable_remove(this, key)
 
   end subroutine htable_i4t2_remove
-  
+
   !> Initialize an integer 2-tuple based hash table iterator
   subroutine htable_iter_i4t2_init(this, t)
     class(htable_iter_i4t2_t), intent(inout) :: this
     type(htable_i4t2_t), target, intent(inout) :: t
 
     this%t => t
-    this%n = -1    
+    this%n = -1
 
   end subroutine htable_iter_i4t2_init
+
+  !> Destroy an integer 2-tuple based  hash table iterator
+  subroutine htable_iter_i4t2_free(this)
+    type(htable_iter_i4t2_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_i4t2_free
 
   !> Return the current value of integer based 2-tuple hash table iterator
   function htable_iter_i4t2_value(this) result(value)
@@ -1259,7 +1295,7 @@ contains
     class default
        call neko_error('Key and data of different kind (i4t2)')
     end select
-    
+
   end function htable_iter_i4t2_value
 
   !> Return the current key of integer based 2-tuple hash table iterator
@@ -1273,7 +1309,7 @@ contains
     class default
        call neko_error('Invalid key (i4t2)')
     end select
-    
+
   end function htable_iter_i4t2_key
 
   !
@@ -1291,11 +1327,11 @@ contains
     else
        call htable_init(this, size, key)
     end if
-    
+
   end subroutine htable_i4t4_init
 
   !> Insert an integer 4-tuple into the hash table
-  subroutine htable_i4t4_set(this, key, data) 
+  subroutine htable_i4t4_set(this, key, data)
     class(htable_i4t4_t), intent(inout) :: this
     type(tuple4_i4_t), intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
@@ -1328,7 +1364,7 @@ contains
     integer(kind=i8), parameter :: M4 = int(Z'd3a2646c', i8)
     integer(kind=i8), parameter :: M5 = int(Z'fd7046c5', i8)
     integer(kind=i8), parameter :: M6 = int(Z'b55a4f09', i8)
-    
+
     select type(k)
     type is (tuple4_i4_t)
        mult = int(1000003, i8)
@@ -1353,7 +1389,7 @@ contains
   end function htable_i4t4_hash
 
   !> Remove an integer 4-tuple with key @a key from the hash table
-  subroutine htable_i4t4_remove(this, key) 
+  subroutine htable_i4t4_remove(this, key)
     class(htable_i4t4_t), intent(inout) :: this
     type(tuple4_i4_t), intent(inout) :: key   !< Table key
 
@@ -1367,9 +1403,15 @@ contains
     type(htable_i4t4_t), target, intent(inout) :: t
 
     this%t => t
-    this%n = -1    
+    this%n = -1
 
   end subroutine htable_iter_i4t4_init
+
+  !> Destroy an integer 4-tuple based  hash table iterator
+  subroutine htable_iter_i4t4_free(this)
+    type(htable_iter_i4t4_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_i4t4_free
 
   !> Return the current value of integer based 4-tuple hash table iterator
   function htable_iter_i4t4_value(this) result(value)
@@ -1382,7 +1424,7 @@ contains
     class default
        call neko_error('Key and data of different kind (i4t4)')
     end select
-    
+
   end function htable_iter_i4t4_value
 
   !> Return the current key of integer based 4-tuple hash table iterator
@@ -1404,7 +1446,7 @@ contains
     class default
        call neko_error('Corrupt htable iter. (i4t4)')
     end select
-    
+
   end function htable_iter_i4t4_key
 
   !
@@ -1416,17 +1458,17 @@ contains
     integer, value :: size                    !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
     type(h_cptr_t) :: key
-    
+
     if (present(data)) then
        call htable_init(this, size, key, data)
     else
        call htable_init(this, size, key)
     end if
-    
+
   end subroutine htable_cptr_init
 
   !> Insert a C pointer into the hash table
-  subroutine htable_cptr_set(this, key, data) 
+  subroutine htable_cptr_set(this, key, data)
     class(htable_cptr_t), target, intent(inout) :: this
     type(h_cptr_t), intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
@@ -1465,7 +1507,7 @@ contains
   end function htable_cptr_hash
 
   !> Remove a C pointer with key @a key from the hash table
-  subroutine htable_cptr_remove(this, key) 
+  subroutine htable_cptr_remove(this, key)
     class(htable_cptr_t), target, intent(inout) :: this
     type(h_cptr_t), intent(inout) :: key   !< Table key
 
@@ -1479,9 +1521,15 @@ contains
     type(htable_cptr_t), target, intent(inout) :: t
 
     this%t => t
-    this%n = -1    
+    this%n = -1
 
   end subroutine htable_iter_cptr_init
+
+  !> Destroy a C pointer based  hash table iterator
+  subroutine htable_iter_cptr_free(this)
+    type(htable_iter_cptr_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_cptr_free
 
   !> Return the current value of C pointer based hash table iterator
   function htable_iter_cptr_value(this) result(value)
@@ -1496,7 +1544,7 @@ contains
     class default
        call neko_error('Key and data of different kind (cptr)')
     end select
-    
+
   end function htable_iter_cptr_value
 
   !> Return the current key of a C pointer based hash table iterator
@@ -1512,7 +1560,7 @@ contains
     class default
        call neko_error('Invalid key (cptr)')
     end select
-    
+
   end function htable_iter_cptr_key
 
 end module htable

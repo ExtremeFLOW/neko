@@ -49,30 +49,34 @@ module non_normal
   !> Dirichlet condition in non normal direction of a plane
   type, public, extends(symmetry_t) :: non_normal_t
    contains
-     procedure, pass(this) :: init_msk => non_normal_init_msk
-     final :: non_normal_free
+     !> Constructor.
+     procedure, pass(this) :: init => non_normal_init
+     !> Destructor.
+     procedure, pass(this) :: free => non_normal_free
   end type non_normal_t
 
 contains
 
-  !> Initialize symmetry mask for each axis
-  subroutine non_normal_init_msk(this, c)
+  !> Constructor.
+  subroutine non_normal_init(this, coef)
     class(non_normal_t), intent(inout) :: this
-    type(coef_t), intent(in) :: c
-    integer :: i, j, k, l 
+    type(coef_t), intent(in) :: coef
+    integer :: i, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
-    
-    call non_normal_free(this)
 
-    call this%bc_x%init(c%dof)
-    call this%bc_y%init(c%dof)
-    call this%bc_z%init(c%dof)
-    
-    associate(nx => c%nx, ny => c%ny, nz => c%nz)
+    call this%free()
+
+    call this%init_base(coef)
+    call this%bc_x%init_base(this%coef)
+    call this%bc_y%init_base(this%coef)
+    call this%bc_z%init_base(this%coef)
+
+    associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+              nz => this%coef%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
          bc_facet = bfp(i)
@@ -81,7 +85,7 @@ contains
          sx = 0d0
          sy = 0d0
          sz = 0d0
-         select case (facet)               
+         select case (facet)
          case(1,2)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx -1
@@ -105,7 +109,7 @@ contains
                   sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
                   sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
                end do
-            end do               
+            end do
          end select
          sx = sx / (c%Xh%lx - 2)**2
          sy = sy / (c%Xh%lx - 2)**2
@@ -133,15 +137,12 @@ contains
     call this%bc_y%set_g(0.0_rp)
     call this%bc_z%finalize()
     call this%bc_z%set_g(0.0_rp)
-  end subroutine non_normal_init_msk
+  end subroutine non_normal_init
 
- 
+  !> Destructor
   subroutine non_normal_free(this)
-    type(non_normal_t), intent(inout) :: this
+    class(non_normal_t), target, intent(inout) :: this
 
-    call this%bc_x%free()
-    call this%bc_y%free()
-    call this%bc_z%free()
-
+    call this%symmetry_t%free()
   end subroutine non_normal_free
- end module non_normal
+end module non_normal

@@ -32,10 +32,10 @@
 !
 !> Defines a quadrilateral element
 module quad
-  use num_types
-  use element
-  use tuple
-  use point
+  use num_types, only : dp
+  use element, only : element_t
+  use tuple, only : tuple_t, tuple_i4_t
+  use point, only : point_t
   implicit none
   private
 
@@ -49,10 +49,10 @@ module quad
   !! @verbatim
   !! Node numbering (NEKTON symmetric notation)
   !!
-  !!      3+-----+4    ^ s                 
-  !!       |     |     |                   
-  !!       |     |     |                   
-  !!      1+-----+2    +----> r            
+  !!      3+-----+4    ^ s
+  !!       |     |     |
+  !!       |     |     |
+  !!      1+-----+2    +----> r
   !!
   !! @endverbatim
   type, public, extends(element_t) :: quad_t
@@ -71,11 +71,11 @@ module quad
   !! @verbatim
   !! Edge numbering (similar to NEKTON symmetric notation)
   !!          4
-  !!       +------+      ^ s                 
+  !!       +------+      ^ s
   !!       |      |      |
   !!     1 |      | 2    |
-  !!       |      |      |                   
-  !!       +------+      +-----> r            
+  !!       |      |      |
+  !!       +------+      +-----> r
   !!          3
   !! @endverbatim
   integer, parameter, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
@@ -83,7 +83,7 @@ module quad
                                                                 1,2,&
                                                                 3,4 /),&
                                                                 (/2,4/))
-  
+
 contains
 
   !> Create a quadrilateral element based upon four points
@@ -116,13 +116,13 @@ contains
     type is(tuple_i4_t)
        if (p1%id() .lt. p2%id()) then
           t%x = (/ p1%id(), p2%id() /)
-      else
+       else
           t%x = (/ p2%id(), p1%id() /)
-      endif
-    end select   
+       endif
+    end select
   end subroutine quad_facet_id
 
-  !> Return the ordered edge for face @a i as a 2-tuple @a t 
+  !> Return the ordered edge for face @a i as a 2-tuple @a t
   subroutine quad_facet_order(this, t, side)
     class(quad_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
@@ -136,7 +136,7 @@ contains
     type is(tuple_i4_t)
        t%x = (/ p1%id(), p2%id() /)
     end select
-    
+
   end subroutine quad_facet_order
 
   !> Compute the diameter of a quadrilateral element
@@ -186,7 +186,7 @@ contains
   pure function quad_equal(this, other) result(res)
     class(quad_t), intent(in) :: this
     class(element_t), intent(in) :: other
-    integer :: i    
+    integer :: i
     logical :: res
 
     res = .false.
@@ -202,7 +202,7 @@ contains
           res = .true.
        end if
     end select
-    
+
   end function quad_equal
-  
+
 end module quad

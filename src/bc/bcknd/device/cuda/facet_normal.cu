@@ -51,11 +51,20 @@ extern "C" {
     const dim3 nblcks(((*m) + 1024 - 1)/ 1024, 1, 1);
 
     facet_normal_apply_surfvec_kernel<real>
-      <<<nblcks, nthrds>>>((int *) msk, (int *) facet,
-                           (real *) x, (real *) y, (real *) z,
-                           (real *) u, (real *) v, (real *) w,
-                           (real *) nx,(real *) ny, (real *) nz,
-                           (real *) area, *lx, *m);
+      <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
+                                                            (int *) facet,
+                                                            (real *) x,
+                                                            (real *) y,
+                                                            (real *) z,
+                                                            (real *) u,
+                                                            (real *) v,
+                                                            (real *) w,
+                                                            (real *) nx,
+                                                            (real *) ny,
+                                                            (real *) nz,
+                                                            (real *) area,
+                                                            *lx,
+                                                            *m);
     CUDA_CHECK(cudaGetLastError());
   }
   

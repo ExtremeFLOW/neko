@@ -1,8 +1,8 @@
 !> Interface to CrayPat F77 API
 module craypat
-  use iso_c_binding
-  use stack
-  use utils
+  use, intrinsic :: iso_c_binding
+  use stack, only : stack_i4_t
+  use utils, only : neko_error
   implicit none
 
   type(stack_i4_t), private :: region_depth
@@ -31,7 +31,7 @@ contains
   subroutine craypat_region_begin(name)
     character(kind=c_char,len=*) :: name
     integer :: ierr, region_id
-    
+
     if (craypat_on) then
        !> @todo Don't hardcode region names...
        if (name .eq. 'Time-Step') then
@@ -43,13 +43,13 @@ contains
        else if (name .eq. 'gather-scatter') then
           region_id = 4
        else ! User defined region
-          region_id = 99 
+          region_id = 99
        end if
-       
+
        call region_depth%push(region_id)
        call PAT_region_begin(region_id, name, ierr)
     end if
-    
+
   end subroutine craypat_region_begin
 
   !> End a CrayPat region
@@ -62,9 +62,9 @@ contains
        end if
        call PAT_region_end(region_depth%pop(), ierr)
     end if
-    
+
   end subroutine craypat_region_end
 
 #endif
- 
+
 end module craypat

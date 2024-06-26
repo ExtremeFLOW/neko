@@ -1,15 +1,18 @@
 !> Auxiliary routines for fluid solvers
 module fluid_aux
-  use logger
-  use num_types
+  use logger, only : neko_log, LOG_SIZE
+  use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
   implicit none
+  private
+
+  public :: fluid_step_info
 
 contains
 
   !> Prints for prs, velx, vely, velz the following:
-  !! Number of iterations, start residual, end residual 
+  !! Number of iterations, start residual, end residual
   subroutine fluid_step_info(step, t, dt, ksp_results)
     type(ksp_monitor_t), intent(in) :: ksp_results(4)
     integer, intent(in) :: step
@@ -58,7 +61,7 @@ contains
           stop
        end if
     end do
-    
+
   end subroutine fluid_step_info
 
 

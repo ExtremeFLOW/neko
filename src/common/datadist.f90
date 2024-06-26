@@ -32,7 +32,7 @@
 !
 !> Defines practical data distributions
 module datadist
-  use mpi_f08
+  use mpi_f08, only : MPI_Comm
   implicit none
   private
 
@@ -40,15 +40,15 @@ module datadist
      type(MPI_Comm) :: comm !< Communicator on which the dist. is defined
      integer :: pe_rank     !< Pe's rank in the given distribution
      integer :: pe_size     !< Size of communicator in the given dist.
-     integer :: L               
+     integer :: L
      integer :: R
-     integer :: M
-     integer :: Ip
+     integer :: M !< Total, global, size
+     integer :: Ip !< Number of local values on this process
   end type dist_t
 
   !> Load-balanced linear distribution \f$ M = PL + R \f$
   type, extends(dist_t) :: linear_dist_t
-   contains 
+   contains
      procedure :: num_local => linear_dist_Ip
      procedure :: num_global => linear_dist_M
      procedure :: start_idx => linear_dist_start
@@ -62,7 +62,7 @@ module datadist
   public :: linear_dist_t
 
 contains
-  
+
   function linear_dist_init(n, rank, size, comm) result(this)
     integer, intent(in) :: n    !< Total size
     integer :: rank             !< PE's rank to define the dist. over
@@ -74,11 +74,11 @@ contains
     this%comm = comm
     this%pe_rank = rank
     this%pe_size = size
-    
+
     this%L = floor(dble(this%M) / dble(this%pe_size))
     this%R = modulo(this%M, this%pe_size)
     this%Ip = floor((dble(this%M) + dble(this%pe_size) - &
-         dble(this%pe_rank) - 1d0) / dble(this%pe_size))    
+         dble(this%pe_rank) - 1d0) / dble(this%pe_size))
   end function linear_dist_init
 
   pure function linear_dist_Ip(this) result(n)

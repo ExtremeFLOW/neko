@@ -1,0 +1,58 @@
+ @test
+ subroutine test_ab_constant_dt()
+   use pfunit
+   use ab_time_scheme, only: ab_time_scheme_t
+   use num_types, only : rp
+   implicit none
+   
+   type(ab_time_scheme_t) ab
+   real(kind=rp) :: dt(10), x, coeffs(4)
+   
+   ! Equal timesteps
+   dt = 1.00_rp
+
+   ! 1st order scheme, [1]
+   call ab%compute_coeffs(coeffs, dt, 1)
+   @assertEqual(coeffs(1), 1.0_rp, tolerance=1e-6_rp)
+
+   ! 2nd order scheme, [2, -1]
+   call ab%compute_coeffs(coeffs, dt, 2)
+   @assertEqual(coeffs(1), 1.5_rp, tolerance=1e-6_rp)
+   @assertEqual(coeffs(2), -0.5_rp, tolerance=1e-6_rp)
+
+   ! 3rd order scheme, [23/12 -16/12 5/12]
+   call ab%compute_coeffs(coeffs, dt, 3)
+   @assertRelativelyEqual(coeffs(1), 23.0_rp/12.0_rp, tolerance=1e-3_rp)
+   @assertEqual(coeffs(2), -16.0_rp/12.0_rp, tolerance=1e-6_rp)
+   @assertEqual(coeffs(3), 5.0_rp/12.0_rp, tolerance=1e-6_rp)
+
+end subroutine test_ab_constant_dt
+
+ @test
+ subroutine test_ab_variable_dt()
+   use pfunit
+   use ab_time_scheme, only: ab_time_scheme_t
+   use num_types, only : rp
+   implicit none
+   
+   type(ab_time_scheme_t) ab
+   real(kind=rp) :: dt(10), coeffs(4)
+   
+   ! Some random dt values
+   dt = 4.3_rp
+   dt(1) = 2_rp
+   dt(2) = 0.05_rp
+   dt(3) = 1.34_rp
+
+   ! order 1
+   call ab%compute_coeffs(coeffs, dt, 1)
+   @assertEqual(1.0_rp, coeffs(1), tolerance=1e-3_rp)
+
+   ! order 2
+   call ab%compute_coeffs(coeffs, dt, 2)
+   @assertRelativelyEqual(1.0_rp + 0.5*dt(1)/dt(2), coeffs(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(-0.5*dt(1)/dt(2), coeffs(2), tolerance=1e-3_rp)
+
+   ! order 3 not done now. Perhaps use fd_weights_full later
+   
+end subroutine test_ab_variable_dt

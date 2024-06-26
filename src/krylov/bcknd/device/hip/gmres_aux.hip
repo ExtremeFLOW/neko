@@ -41,6 +41,7 @@
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
   
   /**
    * @todo Make sure that this gets deleted at some point...
@@ -68,20 +69,23 @@ extern "C" {
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(gmres_part2_kernel<real>),
-		       nblcks, nthrds, 0, 0, (real *) w, (real **) v,
-		       (real *) mult, (real *) h, gmres_bfd1, *j, *n);
+		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) w, (real **) v, (real *) mult,
+                       (real *) h, gmres_bfd1, *j, *n);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                       1, 1024, 0 , 0, gmres_bfd1, nb);
+                       1, 1024, 0, (hipStream_t) glb_cmd_queue, gmres_bfd1, nb);
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipDeviceSynchronize();
-    device_mpi_allreduce(gmres_bfd1, gmres_bf1, 1, sizeof(real));
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    device_mpi_allreduce(gmres_bfd1, gmres_bf1, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     
-    HIP_CHECK(hipMemcpy(gmres_bf1, gmres_bfd1, sizeof(real),
-                          hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
+                             hipMemcpyDeviceToHost,
+                             (hipStream_t) glb_cmd_queue));
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
 #endif
     return gmres_bf1[0];
 

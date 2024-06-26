@@ -1,0 +1,68 @@
+name: Intel Matrix
+
+# Controls when the action will run.
+on:
+  workflow_call:
+    inputs:
+      json-fortran-version:
+        description: "The version of the JSON-Fortran library to use."
+        type: string
+        required: false
+        default: "8.3.0"
+
+jobs:
+  Intel:
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+        compiler: [ifort, ifx]
+        precision: [sp, dp]
+        backend: [cpu]
+        include:
+          - os: ubuntu-20.04
+            setup-env: |
+              wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+              echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+              sudo apt-get update -y
+              sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
+              source /opt/intel/oneapi/setvars.sh
+              sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
+              INTEL_PATH=$(find /opt/intel/oneapi/compiler/ -name "${FC}" -type f | xargs dirname)
+              export PATH=$INTEL_PATH:${PATH}
+              printenv >> $GITHUB_ENV
+    env:
+      CC: icc
+      FC: ${{ matrix.compiler }}
+      RP: ${{ matrix.precision }}
+    name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+    steps:
+      - name: Setup env.
+        run: ${{ matrix.setup-env }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get JSON-Fortran
+        id: get-json-fortran
+        uses: ./.github/actions/setup_json-fortran
+        with:
+          version: ${{ inputs.json-fortran-version }}
+          os: ${{ matrix.os }}
+          compiler: ${{ matrix.compiler }}
+
+      - name: Add JSON-Fortran to environment
+        env:
+          JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
+        run: |
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
+
+      - name: Build
+        run: |
+          ./regen.sh
+          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP}
+          make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)

@@ -8,7 +8,10 @@ module user
   implicit none
 
   ! Global user variables
-  type(field_t) :: om1, om2, om3, w1, w2
+  type(field_t) :: w1
+
+  type(file_t) output_file ! output file
+  type(vector_t) :: vec_out    ! will store our output data
 
  contains
 
@@ -19,10 +22,11 @@ module user
     user%fluid_user_if => user_bc
     user%user_check => user_calc_quantities
     user%user_init_modules => user_initialize
+    user%user_finalize_modules => user_finalize
   end subroutine user_setup
 
   ! user-defined boundary condition
-  subroutine user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+  subroutine user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: u
     real(kind=rp), intent(inout) :: v
     real(kind=rp), intent(inout) :: w
@@ -36,6 +40,8 @@ module user
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
 
     real(kind=rp) lsmoothing
     lsmoothing = 0.05_rp    ! length scale of smoothing at the edges
@@ -52,7 +58,7 @@ module user
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     u = 0._rp
     v = 0._rp
     w = 0._rp
@@ -67,16 +73,17 @@ module user
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
 
     integer tstep
+    ! Initialize the file object and create the output.csv file
+    ! in the working directory
+    output_file = file_init("output.csv")
+    call output_file%set_header("t,Ekin,enst")
+    call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
 
     ! initialize work arrays for postprocessing
-    call field_init(om1, u%dof, 'omega1')
-    call field_init(om2, u%dof, 'omega2')
-    call field_init(om3, u%dof, 'omega3')
-    call field_init(w1, u%dof, 'work1')
-    call field_init(w2, u%dof, 'work1')
+    call w1%init(u%dof, 'work1')
 
     ! call usercheck also for tstep=0
     tstep = 0
@@ -89,19 +96,22 @@ module user
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(inout) :: coef
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
+    type(field_t), pointer :: om1, om2, om3
     integer :: ntot, i
     real(kind=rp) :: e1, e2
 
     if (mod(tstep,50).ne.0) return
 
+    om1 => neko_field_registry%get_field("omega_x")
+    om2 => neko_field_registry%get_field("omega_y")
+    om3 => neko_field_registry%get_field("omega_z")
+    
     ntot = u%dof%size()
-
-    call curl(om1, om2, om3, u, v, w, w1, w2, coef)
 
     call col3(w1%x,u%x,u%x,ntot)
     call addcol3(w1%x,v%x,v%x,ntot)
@@ -112,10 +122,11 @@ module user
     call addcol3(w1%x,om2%x,om2%x,ntot)
     call addcol3(w1%x,om3%x,om3%x,ntot)
     e2 = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
-      
-    if (pe_rank .eq. 0) &
-         &  write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
-         &  'POST: t:', t, ' Ekin:', e1, ' enst:', e2
+
+    ! Output all this to file
+    call neko_log%message("Writing csv file")
+    vec_out%x = (/e1, e2/)
+    call output_file%write(vec_out, t)
 
   end subroutine user_calc_quantities
 
@@ -137,5 +148,19 @@ module user
     end if
 
   end function step
-  
+
+  ! User-defined finalization routine called at the end of the simulation
+  subroutine user_finalize(t, params)
+    real(kind=rp) :: t
+    type(json_file), intent(inout) :: params
+
+    ! Deallocate the fields
+    call w1%free()
+
+    ! Deallocate output file and vector
+    call file_free(output_file)
+    call vec_out%free
+
+  end subroutine user_finalize
+
 end module user

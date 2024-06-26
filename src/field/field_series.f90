@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,14 @@
 !
 !> Stores a series fields
 module field_series
-  use num_types
-  use field
+  use num_types, only : rp
+  use field, only : field_t
   implicit none
   private
-  
+
   type, public :: field_series_t
      type(field_t), pointer :: f => null()
-     type(field_t), allocatable :: lf(:) 
+     type(field_t), allocatable :: lf(:)
      integer, private :: len = 0
    contains
      procedure, pass(this) :: init => field_series_init
@@ -49,6 +49,11 @@ module field_series
      procedure, pass(this) :: size => field_series_size
   end type field_series_t
 
+  !> field_series_ptr_t, To easily obtain a pointer to a field series
+  type, public :: field_series_ptr_t
+     type(field_series_t), pointer :: ptr => null()
+  end type field_series_ptr_t
+
 contains
 
   !> Initialize a field series of length @a len for a field @a f
@@ -57,6 +62,7 @@ contains
     type(field_t), intent(inout), target :: f
     integer :: len
     character(len=80) :: name
+    character(len=5) :: id_str
     integer :: i
 
     call this%free()
@@ -67,8 +73,9 @@ contains
     allocate(this%lf(len))
 
     do i = 1, this%len
-       name = trim(f%name)//'_lag'//char(i)
-       call field_init(this%lf(i), f%dof, name)
+       write(id_str, '(I0)') i
+       name = trim(f%name)//'_lag'//id_str
+       call this%lf(i)%init(this%f%dof, name)
     end do
 
   end subroutine field_series_init
@@ -83,9 +90,9 @@ contains
     end if
 
     do i = 1, this%len
-       call field_free(this%lf(i))
+       call this%lf(i)%free()
     end do
-    
+
   end subroutine field_series_free
 
   !> Return the size of the field series
@@ -105,7 +112,7 @@ contains
     end do
 
     this%lf(1) = this%f
-    
+
   end subroutine field_series_update
 
   !> Set all fields in a series to @a g
@@ -117,7 +124,7 @@ contains
     do i = 1, this%len
        this%lf(i) = g
     end do
-    
+
   end subroutine field_series_set
-  
+
 end module field_series

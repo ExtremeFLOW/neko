@@ -39,9 +39,7 @@
 /**
  * @todo Make sure that this gets deleted at some point...
  */
-real *buf1 = NULL;
-real *buf2 = NULL;
-real *buf3 = NULL;
+real *buf = NULL;
 real *buf_d1 = NULL;
 real *buf_d2 = NULL;
 real *buf_d3 = NULL;
@@ -54,10 +52,12 @@ extern "C" {
         
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
     
     cg_update_xp_kernel<real>
-      <<<nblcks, nthrds>>>((real *) x, (real *) p,(real **) u, (real *) alpha,
-                           (real *) beta, *p_cur, *p_space, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) x, (real *) p,
+                                      (real **) u, (real *) alpha,
+                                      (real *) beta, *p_cur, *p_space, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -71,21 +71,18 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    if (buf1 != NULL && buf_len < nb) {
-      free(buf1);
-      free(buf2);
-      free(buf3);
+    if (buf != NULL && buf_len < nb) {
+      CUDA_CHECK(cudaFreeHost(buf));
       CUDA_CHECK(cudaFree(buf_d1));
       CUDA_CHECK(cudaFree(buf_d2));
       CUDA_CHECK(cudaFree(buf_d3));
-      buf1 = NULL;
+      buf = NULL;
     }
 
-    if (buf1 == NULL){
-      buf1 = (real *) malloc(nb * sizeof(real));
-      buf2 = (real *) malloc(nb * sizeof(real));
-      buf3 = (real *) malloc(nb * sizeof(real));
+    if (buf == NULL){
+      CUDA_CHECK(cudaMallocHost(&buf, 3*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&buf_d1, nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&buf_d2, nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&buf_d3, nb*sizeof(real)));
@@ -93,35 +90,39 @@ extern "C" {
     }
      
     pipecg_vecops_kernel<real>
-      <<<nblcks, nthrds>>>((real *) p, (real *) q,
-                           (real *) r, (real *) s,
-                           (real *) u1, (real *) u2,
-                           (real *) w, (real *) z,
-                           (real *) ni, (real *) mi, 
-                           *alpha, *beta, (real *)mult, 
-                           buf_d1, buf_d2, buf_d3, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) p, (real *) q,
+                                      (real *) r, (real *) s,
+                                      (real *) u1, (real *) u2,
+                                      (real *) w, (real *) z,
+                                      (real *) ni, (real *) mi, 
+                                      *alpha, *beta, (real *)mult, 
+                                      buf_d1, buf_d2, buf_d3, *n);
     
     CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpy(buf1, buf_d1, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaMemcpy(buf2, buf_d2, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaMemcpy(buf3, buf_d3, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
+    reduce_kernel<real><<<1, 1024, 0, stream>>>(buf_d1, nb);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024, 0, stream>>>(buf_d2, nb);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024, 0, stream>>>(buf_d3, nb);
+    CUDA_CHECK(cudaGetLastError());
+    
+    CUDA_CHECK(cudaMemcpyAsync(&buf[0], buf_d1, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaMemcpyAsync(&buf[1], buf_d2, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaMemcpyAsync(&buf[2], buf_d3, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    CUDA_CHECK(cudaGetLastError());
 
-    real res1 = 0.0;
-    real res2 = 0.0;
-    real res3 = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res1 += buf1[i];
-      res2 += buf2[i];
-      res3 += buf3[i];
-    }
+    CUDA_CHECK(cudaStreamSynchronize(stream));
 
-    reduction[0] = res1;
-    reduction[1] = res2;
-    reduction[2] = res3;
+    reduction[0] = buf[0];
+    reduction[1] = buf[1];
+    reduction[2] = buf[2];
+    
   }
 }
 

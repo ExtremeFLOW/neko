@@ -6,7 +6,7 @@ module vector_parallel
   use num_types
   use device
   use math
-  use comm
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
   @TestCase
@@ -109,7 +109,7 @@ contains
     v = s
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(v%x, v%x_d, n, DEVICE_TO_HOST)
+       call device_memcpy(v%x, v%x_d, n, DEVICE_TO_HOST, sync=.true.)
     end if
 
     do i = 1, n

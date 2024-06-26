@@ -1,4 +1,4 @@
-# Contributing to Neko 
+# Contributing to Neko
 Please read the following guide before contributing new code or a bug fix to Neko.
 
 All contributions to Neko must be made under the 3-Clause BSD license. Please refer to the `COPYING` file.
@@ -18,7 +18,7 @@ module example
   type :: derived_t
      integer :: x
    contains
-     procedure, pass(this) :: bar     
+     procedure, pass(this) :: bar
   end type derived_t
 
 contains
@@ -35,7 +35,7 @@ contains
     if (x .lt. y) then
        ...
     end if
-    
+
   end subroutine foo
 end module example
 ```
@@ -51,7 +51,7 @@ This section contains information on how to add new source files to the build sy
 
 Neko uses Autotools for building all sources. You will need to have at least `autoconf` and `automake` installed for development work. It is also highly recommended to have `makedepf90` installed to avoid error-prone manual dependency tracking.
 
-The following steps describe how to add a new Fortran file to Neko`s build system
+The following steps describe how to add a new Fortran file to Neko's build system
 1. Place the file in an appropriate subdirectory under `src/`. Either create a new subdirectory or place the file in `common` if none of the existing directories is a good match. Avoid placing the file directly under `src`
 2. Add the file to the `neko_fortran_SOURCES` list in `src/Makefile.am`, following the pattern of `<subdir under src>/newfile.f90`.
 3. Ensure correct dependency tracking
@@ -59,14 +59,14 @@ The following steps describe how to add a new Fortran file to Neko`s build syste
       - Regenerate build system by running `./regen.sh` at the top level, and reconfigure using `configure`
       - Regenerate dependency file (`src/.depends`) by issuing `make depend` under `src`
       - Do a final regeneration of the build system (`./regen.sh`)
-    * Manually 
-      - Manually add the new file and all its dependencies to `src/.depends`, using the following pattern, 
+    * Manually
+      - Manually add the new file and all its dependencies to `src/.depends`, using the following pattern,
       ```Make
       directory/newfile.o : directory/newfile.f90 directory/dependency.o anotherdirectory/anotherdependency.o
       ```
       - Regenerate build system by running `./regen.sh` at the top level.
 4. Finally reconfigure using `configure` and rebuild Neko with your new contribution!
 
-For more information, please refer to the documentation https://extremeflow.github.io/neko
+For more information, please refer to the documentation https://www.neko.cfd
 
 **Happy hacking!** 🍻

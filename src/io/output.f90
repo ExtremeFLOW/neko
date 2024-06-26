@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,16 @@
 !
 !> Defines an output
 module output
-  use num_types
+  use num_types, only : rp
   use file, only : file_t
   implicit none
+  private
 
   !> Abstract type defining an output type
-  type, abstract :: output_t
+  type, public, abstract :: output_t
      type(file_t) :: file_
    contains
-     procedure, pass(this) :: init => output_init
+     procedure, pass(this) :: init_base => output_init
      procedure, pass(this) :: set_counter => output_set_counter
      procedure, pass(this) :: set_start_counter => output_set_start_counter
      procedure(output_sample), pass(this), deferred :: sample
@@ -58,13 +59,20 @@ module output
 
 contains
 
-  !> Output constructor
-  subroutine output_init(this, fname)
+  !> Output constructor.
+  !! @param fname Name of the output file.
+  !! @param precision Output precision (sp or dp).
+  subroutine output_init(this, fname, precision)
     class(output_t), intent(inout) :: this
     character(len=*), intent(inout) :: fname
+    integer, intent(in), optional :: precision
 
-    this%file_ = file_t(fname)
-    
+    if (present(precision)) then
+       this%file_ = file_t(fname, precision=precision)
+    else
+       this%file_ = file_t(fname)
+    end if
+
   end subroutine output_init
 
   !> Update the output's file counter
@@ -73,13 +81,13 @@ contains
     integer, intent(in) :: n
     call this%file_%set_counter(n)
   end subroutine output_set_counter
- 
+
   !> Update the start of output's file counter
   subroutine output_set_start_counter(this, n)
     class(output_t), intent(inout) :: this
     integer, intent(in) :: n
     call this%file_%set_start_counter(n)
   end subroutine output_set_start_counter
-  
- 
+
+
 end module output

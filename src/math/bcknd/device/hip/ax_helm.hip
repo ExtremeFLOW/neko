@@ -57,8 +57,8 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
                 void *g13, void *g23, int *nelv, int *lx);
 
 extern "C" {
-  
-  /** 
+
+  /**
    * Fortran wrapper for device HIP Ax
    */
   void hip_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
@@ -75,7 +75,8 @@ extern "C" {
 
 #define CASE_1D(LX)                                                             \
     hipLaunchKernelGGL(HIP_KERNEL_NAME( ax_helm_kernel_1d<real, LX, 1024> ),    \
-                       nblcks_1d, nthrds_1d, 0, 0,                              \
+                       nblcks_1d, nthrds_1d, 0,                                 \
+                       (hipStream_t) glb_cmd_queue,                             \
                        (real *) w, (real *) u,                                  \
                        (real *) dx, (real *) dy, (real *) dz,                   \
                        (real *) dxt, (real *) dyt, (real *) dzt, (real *) h1,   \
@@ -85,7 +86,8 @@ extern "C" {
 
 #define CASE_KSTEP(LX)                                                          \
     hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_kernel_kstep<real, LX> ),      \
-                        nblcks_kstep, nthrds_kstep, 0, 0,                       \
+                        nblcks_kstep, nthrds_kstep, 0,                          \
+                        (hipStream_t) glb_cmd_queue,                            \
                         (real *) w, (real *) u,                                 \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
                         (real *) g11, (real *) g22, (real *) g33,               \
@@ -93,10 +95,11 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
 
- 
+
 #define CASE_KSTEP_PADDED(LX)                                                   \
     hipLaunchKernelGGL( HIP_KERNEL_NAME(ax_helm_kernel_kstep_padded<real, LX> ),\
-                        nblcks_kstep, nthrds_kstep, 0, 0,                       \
+                        nblcks_kstep, nthrds_kstep, 0,                          \
+                        (hipStream_t) glb_cmd_queue,                            \
                         (real *) w, (real *) u,                                 \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
                         (real *) g11, (real *) g22, (real *) g33,               \
@@ -134,7 +137,7 @@ extern "C" {
       }                                                                         \
       break
 
-    
+
     switch(*lx) {
       CASE(2);
       CASE(3);
@@ -154,10 +157,78 @@ extern "C" {
       }
     }
   }
+  /**
+   * Fortran wrapper for device HIP Ax vector version
+   */
+  void hip_ax_helm_vector(void *au, void *av, void *aw,
+                           void *u, void *v, void *w,
+                           void *dx, void *dy, void *dz,
+                           void *dxt, void *dyt, void *dzt,
+                           void *h1, void *g11, void *g22,
+                           void *g33, void *g12, void *g13,
+                           void *g23, int *nelv, int *lx) {
 
+    const dim3 nthrds((*lx), (*lx), 1);
+    const dim3 nblcks((*nelv), 1, 1);
+
+#define CASE_VECTOR_KSTEP(LX)                                                   \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_kernel_vector_kstep<real, LX> ), \
+                        nblcks, nthrds, 0,                                      \
+                        (hipStream_t) glb_cmd_queue,                            \
+                        (real *) au, (real *) av, (real *) aw,                  \
+                        (real *) u, (real *) v, (real *) w,                     \
+                        (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
+                        (real *) g11, (real *) g22, (real *) g33,               \
+                        (real *) g12, (real *) g13, (real *) g23);              \
+    HIP_CHECK(hipGetLastError());
+
+#define CASE_VECTOR_KSTEP_PADDED(LX)                                            \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_kernel_vector_kstep_padded<real, LX> ), \
+                        nblcks, nthrds, 0,                                      \
+                        (hipStream_t) glb_cmd_queue,                            \
+                        (real *) au, (real *) av, (real *) aw,                  \
+                        (real *) u, (real *) v, (real *) w,                     \
+                        (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
+                        (real *) g11, (real *) g22, (real *) g33,               \
+                        (real *) g12, (real *) g13, (real *) g23);              \
+    HIP_CHECK(hipGetLastError());
+
+#define CASE_VECTOR(LX)                                                         \
+    case LX:                                                                    \
+      CASE_VECTOR_KSTEP(LX);                                                    \
+       break
+
+#define CASE_VECTOR_PADDED(LX)                                                  \
+    case LX:                                                                    \
+      CASE_VECTOR_KSTEP_PADDED(LX);                                             \
+       break
+
+    switch(*lx) {
+      CASE_VECTOR(2);
+      CASE_VECTOR(3);
+      CASE_VECTOR_PADDED(4);
+      CASE_VECTOR(5);
+      CASE_VECTOR(6);
+      CASE_VECTOR(7);
+      CASE_VECTOR_PADDED(8);
+      CASE_VECTOR(9);
+      CASE_VECTOR(10);
+      CASE_VECTOR(11);
+      CASE_VECTOR(12);
+      CASE_VECTOR(13);
+      CASE_VECTOR(14);
+      CASE_VECTOR(15);
+      CASE_VECTOR_PADDED(16);
+      default:
+        {
+          fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+          exit(1);
+        }
+      }
+  }
 }
 
-template < const int LX > 
+template < const int LX >
 int tune(void *w, void *u, void *dx, void *dy, void *dz,
          void *dxt, void *dyt, void *dzt, void *h1,
          void *g11, void *g22, void *g33, void *g12,
@@ -170,18 +241,18 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   const dim3 nblcks_1d((*nelv), 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks_kstep((*nelv), 1, 1);
-  
+
   char *env_value = NULL;
   char neko_log_buf[80];
-  
+
   env_value=getenv("NEKO_AUTOTUNE");
 
   sprintf(neko_log_buf, "Autotune Ax helm (lx: %d)", *lx);
   log_section(neko_log_buf);
-  
+
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      CASE_1D(LX);       
+      CASE_1D(LX);
       sprintf(neko_log_buf,"Set by env : 1 (1D)");
       log_message(neko_log_buf);
       log_end_section();
@@ -192,7 +263,7 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
       log_message(neko_log_buf);
       log_end_section();
       return 2;
-    } else {       
+    } else {
        sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
        log_error(neko_log_buf);
     }
@@ -200,27 +271,27 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
 
   hipEventCreate(&start);
   hipEventCreate(&stop);
-  
+
   hipEventRecord(start,0);
-   
+
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
-  
-  hipEventRecord(stop,0); 
+
+  hipEventRecord(stop,0);
   hipEventSynchronize(stop);
   hipEventElapsedTime(&time1, start, stop);
-  
+
   hipEventRecord(start,0);
-   
+
   for(int i = 0; i < 100; i++) {
      CASE_KSTEP(LX);
    }
-  
-  hipEventRecord(stop,0); 
+
+  hipEventRecord(stop,0);
   hipEventSynchronize(stop);
   hipEventElapsedTime(&time2, start, stop);
-  
+
   if(time1 < time2) {
      retval = 1;
   } else {
@@ -247,7 +318,7 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   const dim3 nblcks_1d((*nelv), 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks_kstep((*nelv), 1, 1);
-  
+
   char *env_value = NULL;
   char neko_log_buf[80];
 
@@ -269,12 +340,12 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
       log_message(neko_log_buf);
       log_end_section();
       return 2;
-    } else {       
+    } else {
       sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
       log_error(neko_log_buf);
     }
   }
-    
+
   hipEventCreate(&start);
   hipEventCreate(&stop);
 
@@ -283,7 +354,7 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
-  
+
   hipEventRecord(stop, 0);
   hipEventSynchronize(stop);
   hipEventElapsedTime(&time1, start, stop);
@@ -297,7 +368,7 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   hipEventRecord(stop, 0);
   hipEventSynchronize(stop);
   hipEventElapsedTime(&time2, start, stop);
-  
+
   if(time1 < time2) {
     retval=1;
   } else {
@@ -310,4 +381,3 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   log_end_section();
   return retval;
 }
-

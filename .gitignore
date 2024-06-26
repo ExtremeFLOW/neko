@@ -1,3 +1,13 @@
+# Ignore everything which does not have an extension or are a directory
+*
+!*.*
+!*/
+
+# Exceptions to the no-extension rule
+!AUTHORS
+!COPYING
+
+# General list of files to ignore
 *.mod
 *.o
 *.dirstamp
@@ -11,21 +21,44 @@ config.status
 config.sub
 depcomp
 Makefile.in
-genmeshbox
-prepart
-rea2nbin
+!tests/*/*Makefile.in
 libneko.a
 .vscode
-neko
 neko.pc
 install-sh
 configure
+configure~
 cltostring.sh
 device_config.h
 neko_config.f90
 num_types.f90
 comm.F90
-makeneko
 missing
 test-driver
+tests/*/*.log
+tests/*/*.F90
+tests/*/*.inc
+tests/*/*.trs
+Doxyfile
+doxygen.stamp
+doc/html
+examples/*/*.nek5000
+examples/*/*0.f0*
+*.chkp
+*.lst
 
+# Ignore temporary files
+*~
+*.swp
+
+# Explicitly ignore binaries to avoid confusion
+neko
+makeneko
+rea2nbin
+genmeshbox
+prepart
+average_field_in_space
+average_fields_in_time
+postprocess_fluid_stats
+map_to_equidistant_1d
+calc_lift_from_field

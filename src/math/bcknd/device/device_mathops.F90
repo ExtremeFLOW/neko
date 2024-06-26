@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_mathops
-  use num_types
-  use utils
-  use, intrinsic :: iso_c_binding
+  use num_types, only : rp, c_rp
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_int, c_ptr
   implicit none
-  
+  private
+
 #ifdef HAVE_HIP
   interface
      subroutine hip_opchsign(a1_d, a2_d, a3_d, gdim, n) &
@@ -185,6 +186,9 @@ module device_mathops
   end interface
 #endif
 
+  public :: device_opchsign, device_opcolv, device_opcolv3c, &
+       device_opadd2cm, device_opadd2col
+
 contains
 
   !> \f$ a = -a \f$
@@ -217,7 +221,7 @@ contains
 #endif
   end subroutine device_opcolv
 
-  !> \f$ a(i) = b(i) * c(i) * d \f$ 
+  !> \f$ a(i) = b(i) * c(i) * d \f$
   subroutine device_opcolv3c(a1_d, a2_d, a3_d, &
                              b1_d, b2_d, b3_d, c_d, d, n, gdim)
     type(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
@@ -234,7 +238,7 @@ contains
 #endif
   end subroutine device_opcolv3c
 
-  !> \f$ a(i) = a + b(i) * c \f$ 
+  !> \f$ a(i) = a + b(i) * c \f$
   subroutine device_opadd2cm (a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, n, gdim)
     type(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d
     real(kind=rp) :: c
