@@ -34,6 +34,7 @@
 !> Implements `gradient_jump_penalty_t`.
 module gradient_jump_penalty
   use num_types, only : rp
+  use speclib, only : pnleg, pndleg
   use utils, only : neko_error
   use math
   use field, only : field_t
@@ -66,18 +67,14 @@ module gradient_jump_penalty
      !> Number of facet in elements and its maximum
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
-     !> Normal vector of facets
-     real(kind=rp), allocatable :: n_123(:,:,:)
      !> Length scale for element regarding a facet
-     real(kind=rp), allocatable :: h(:,:)
+     real(kind=rp), allocatable :: h(:)
      !> Polynomial Quadrature
-     real(kind=rp), allocatable :: w(:)
+     real(kind=rp), allocatable :: w(:), w2(:,:)
      !> Polynomial evaluated at collocation points
      real(kind=rp), allocatable :: phi(:,:)
      !> The first derivative of polynomial at two ends of the interval
      real(kind=rp), allocatable :: dphidxi(:,:)
-
-     
 
   contains
      !> Constructor.
@@ -100,7 +97,8 @@ contains
     type(coef_t), target, intent(in) :: coef
     
     class(element_t), pointer :: ep
-    integer :: temp_indices(4), i
+    integer :: temp_indices(4), i, j
+    real(kind=rp), allocatable :: zg(:) ! Quadrature points
     
     call this%free()
 
@@ -126,23 +124,56 @@ contains
     end do
     this%n_facet_max = maxval(this%n_facet)
 
-    allocate(this%h(this%n_facet_max, this%coef%msh%nelv))
-    allocate(this%n_123(3, this%n_facet_max, this%coef%msh%nelv))
-
-    allocate(this%w(dofmap%xh%lx))
-    allocate(this%phi(this%p + 1, this%p + 1))
-    allocate(this%dphidxi(2, this%p + 1))
-
-    ! do i = 1, this%coef%msh%nelv
-    !    h(i) = 
-    ! end do
+    allocate(this%h(this%coef%msh%nelv))
+    do i = 1, this%coef%msh%nelv
+       ep => this%coef%msh%elements(i)%e
+       select type(ep)
+       type is (hex_t)
+          call eval_h_hex(this%h(i), ep)
+       type is (quad_t)
+          call neko_error("Gradient jump penalty error: mesh size evaluation is not supported for quad_t")
+       end select
+    end do
     
+    allocate(zg(dofmap%xh%lx))
+    allocate(this%w(dofmap%xh%lx))
+    allocate(this%w2(dofmap%xh%lx, dofmap%xh%lx))
+    allocate(this%phi(this%p + 1, this%p + 1))
+    allocate(this%dphidxi(this%p + 1, this%p + 1))
+
+    zg = dofmap%xh%zg(:,1)
+    this%w = dofmap%xh%wx
+    do i = 1, dofmap%xh%lx
+       do j = 1, dofmap%xh%lx
+          this%w2(i, j) = this%w(i) * this%w(j)
+       end do
+    end do
+
+    do i = 1, dofmap%xh%lx
+       do j = 1, dofmap%xh%lx
+          this%phi(j,i) = pnleg(zg(j),i-1)
+          this%dphidxi(j,i) = pndleg(zg(j),i-1)
+       end do
+    end do
+    write(*,*) this%dphidxi(:,3)
+
+
     call neko_scratch_registry%request_field(this%G, temp_indices(1))
     call neko_scratch_registry%request_field(this%grad1, temp_indices(2))
     call neko_scratch_registry%request_field(this%grad2, temp_indices(3))
     call neko_scratch_registry%request_field(this%grad3, temp_indices(4))
 
   end subroutine gradient_jump_penalty_init
+  
+  !> Evaluate h for each element
+  subroutine eval_h_hex(h_el, ep)
+  real(kind=rp), intent(inout) :: h_el
+  type(hex_t), pointer, intent(in) :: ep
+  
+  !! todo: estimation of the length scale of the mesh could be more elegant
+  h_el = ep%diameter()
+
+  end subroutine eval_h_hex
 
   !> Destructor for the gradient_jump_penalty_t class.
   subroutine gradient_jump_penalty_free(this)
@@ -152,18 +183,17 @@ contains
     if (allocated(this%penalty)) then
        deallocate(this%penalty)
     end if
-    if (allocated(this%n_123)) then
-       deallocate(this%n_123)
-    end if
     if (allocated(this%h)) then
        deallocate(this%h)
     end if
     if (allocated(this%n_facet)) then
        deallocate(this%n_facet)
     end if
-
     if (allocated(this%w)) then
        deallocate(this%w)
+    end if
+    if (allocated(this%w2)) then
+       deallocate(this%w2)
     end if
     if (allocated(this%phi)) then
        deallocate(this%phi)
@@ -176,7 +206,7 @@ contains
     nullify(this%grad1)
     nullify(this%grad2)
     nullify(this%grad3)
-    write(*,*) "this%n_facet_max", this%n_facet_max
+    
   end subroutine gradient_jump_penalty_free
 
 !   !> Compute eddy viscosity.
@@ -203,6 +233,6 @@ contains
   ! !! @param f Integrant
   ! subroutine integrate_over_facet(f)
 
-  ! end subroutine
+  ! end subroutine integrate_over_facet
 
 end module gradient_jump_penalty
