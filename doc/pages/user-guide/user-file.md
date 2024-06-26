@@ -763,12 +763,12 @@ A very simple example illustrating the above is shown below, which is taken from
 
          !
          ! Perform operations on u%x, v%x, w%x and p%x here
-         ! Note that we are checking if fields are allocated. If the
+         ! Note that we are checking if fields are allocated. If a
          ! boundary type only contains e.g. "d_vel_u/d_pres", the fields
          ! v%x and w%x will not be allocated.
          !
          ! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)
-         ! and nonsensical pressure outlet of p = -1
+         ! and pressure outlet of p = -1
          !
          if (allocated(u%x)) u = 1.0_rp
          if (allocated(v%x)) v = 0.0_rp
