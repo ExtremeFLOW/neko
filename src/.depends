@@ -70,7 +70,7 @@ field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o
 field/field_list.o : field/field_list.f90 common/utils.o mesh/mesh.o sem/dofmap.o sem/space.o config/num_types.o field/field.o 
 field/field_series.o : field/field_series.f90 field/field.o config/num_types.o 
 field/mesh_field.o : field/mesh_field.f90 mesh/mesh.o 
-field/mean_field.o : field/mean_field.f90 math/bcknd/device/device_math.o math/math.o field/field.o config/num_types.o common/stats_quant.o config/neko_config.o 
+field/mean_field.o : field/mean_field.f90 math/bcknd/field_math.o field/field.o config/num_types.o common/stats_quant.o config/neko_config.o 
 field/mean_sqr_field.o : field/mean_sqr_field.f90 math/math.o math/bcknd/device/device_math.o field/mean_field.o config/neko_config.o config/num_types.o 
 io/format/rea.o : io/format/rea.f90 mesh/mesh.o config/num_types.o 
 math/bcknd/cpu/cdtp.o : math/bcknd/cpu/cdtp.f90 config/num_types.o 
@@ -267,9 +267,7 @@ source_terms/boussinesq_source_term.o : source_terms/boussinesq_source_term.f90 
 source_terms/bcknd/cpu/boussinesq_source_term_cpu.o : source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90 math/math.o field/field.o field/field_list.o config/num_types.o 
 source_terms/bcknd/device/boussinesq_source_term_device.o : source_terms/bcknd/device/boussinesq_source_term_device.f90 math/bcknd/device/device_math.o field/field.o field/field_list.o config/num_types.o 
 source_terms/source_term_fctry.o : source_terms/source_term_fctry.f90 sem/coef.o common/utils.o field/field_list.o common/json_utils.o source_terms/brinkman_source_term.o source_terms/boussinesq_source_term.o source_terms/const_source_term.o source_terms/source_term.o 
-source_terms/brinkman_source_term.o : source_terms/brinkman_source_term.f90 mesh/point_zone_registry.o mesh/point_zone.o mesh/search_tree/aabb.o common/profiler.o math/signed_distance.o source_terms/brinkman/filters.o device/device.o mesh/tri_mesh.o io/file.o source_terms/bcknd/device/brinkman_source_term_device.o source_terms/bcknd/cpu/brinkman_source_term_cpu.o common/utils.o config/neko_config.o sem/coef.o source_terms/source_term.o field/field_registry.o common/json_utils.o field/field_list.o field/field.o config/num_types.o 
-source_terms/bcknd/cpu/brinkman_source_term_cpu.o : source_terms/bcknd/cpu/brinkman_source_term_cpu.f90 field/field_registry.o math/math.o field/field_list.o field/field.o config/num_types.o 
-source_terms/bcknd/device/brinkman_source_term_device.o : source_terms/bcknd/device/brinkman_source_term_device.f90 field/field_registry.o math/bcknd/device/device_math.o field/field_list.o field/field.o config/num_types.o 
+source_terms/brinkman_source_term.o : source_terms/brinkman_source_term.f90 mesh/point_zone_registry.o mesh/point_zone.o mesh/search_tree/aabb.o common/profiler.o math/signed_distance.o source_terms/brinkman/filters.o device/device.o mesh/tri_mesh.o io/file.o math/bcknd/field_math.o common/utils.o config/neko_config.o sem/coef.o source_terms/source_term.o field/field_registry.o common/json_utils.o field/field_list.o field/field.o config/num_types.o 
 source_terms/brinkman/filters.o : source_terms/brinkman/filters.f90 source_terms/bcknd/cpu/filters_cpu.o config/num_types.o field/field.o 
 source_terms/bcknd/cpu/filters_cpu.o : source_terms/bcknd/cpu/filters_cpu.f90 config/num_types.o 
 les/les_model.o : les/les_model.f90 math/bcknd/device/device_math.o math/math.o device/device.o config/neko_config.o gs/gs_ops.o sem/coef.o sem/dofmap.o field/field_registry.o field/field.o config/num_types.o 

@@ -42,8 +42,7 @@ module brinkman_source_term
   use coefs, only: coef_t
   use neko_config, only: NEKO_BCKND_DEVICE
   use utils, only: neko_error
-  use brinkman_source_term_cpu, only: brinkman_source_term_compute_cpu
-  use brinkman_source_term_device, only: brinkman_source_term_compute_device
+  use field_math, only: field_subcol3
   implicit none
   private
 
@@ -199,18 +198,22 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine brinkman_source_term_compute(this, t, tstep)
-    use device, only: device_memcpy, HOST_TO_DEVICE
-    implicit none
-
     class(brinkman_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    type(field_t), pointer :: u, v, w
+    integer :: n
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call brinkman_source_term_compute_device(this%fields, this%brinkman)
-    else
-       call brinkman_source_term_compute_cpu(this%fields, this%brinkman)
-    end if
+    n = this%fields%item_size(1)
+
+    u => neko_field_registry%get_field('u')
+    v => neko_field_registry%get_field('v')
+    w => neko_field_registry%get_field('w')
+
+    call field_subcol3(this%fields%get(1), u, this%brinkman, n)
+    call field_subcol3(this%fields%get(2), v, this%brinkman, n)
+    call field_subcol3(this%fields%get(3), w, this%brinkman, n)
+
   end subroutine brinkman_source_term_compute
 
   ! ========================================================================== !

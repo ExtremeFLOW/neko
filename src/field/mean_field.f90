@@ -37,12 +37,11 @@ module mean_field
   use stats_quant, only : stats_quant_t
   use num_types, only : rp
   use field, only : field_t
-  use math, only : add2s2
-  use device_math, only : device_cmult, device_add2s2
+  use field_math, only : field_cmult, field_add2s2
   implicit none
   private
 
-  type, public, extends(stats_quant_t) ::  mean_field_t
+  type, public, extends(stats_quant_t) :: mean_field_t
      type(field_t), pointer :: f => null()
      type(field_t) :: mf
      real(kind=rp) :: time
@@ -102,17 +101,10 @@ contains
     class(mean_field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k !< Time since last sample
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult(this%mf%x_d, this%time, size(this%mf%x))
-       call device_add2s2(this%mf%x_d, this%f%x_d, k, size(this%mf%x))
-       this%time = this%time + k
-       call device_cmult(this%mf%x_d, 1.0_rp / this%time, size(this%mf%x))
-    else
-       this%mf%x = this%mf%x * this%time
-       call add2s2(this%mf%x, this%f%x, k, this%mf%dof%size())
-       this%time = this%time + k
-       this%mf%x = this%mf%x / this%time
-    end if
+    call field_cmult(this%mf, this%time, size(this%mf%x))
+    call field_add2s2(this%mf, this%f, k, size(this%mf%x))
+    this%time = this%time + k
+    call field_cmult(this%mf, 1.0_rp / this%time, size(this%mf%x))
 
   end subroutine mean_field_update
 
