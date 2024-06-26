@@ -46,6 +46,8 @@ jobs:
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
                 automake autotools-dev libopenblas-dev make git m4 python3 \
                 cmake-curses-gui
+              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+
           - os: macos-13
             setup-env: |
               export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
@@ -53,6 +55,7 @@ jobs:
               brew install automake
               brew install gcc@11
               brew install gcc@12
+              echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
 
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     env:
@@ -86,7 +89,7 @@ jobs:
         uses: ./.github/actions/setup_json-fortran
         with:
           version: ${{ inputs.json-fortran-version }}
-          os: ${{ runner.os }}
+          os: ${{ github.env.ImageOS }}.${{ github.env.ImageVersion }}
           compiler: ${{ matrix.compiler }}
 
       - name: Add JSON-Fortran to environment
