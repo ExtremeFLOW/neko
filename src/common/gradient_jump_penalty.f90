@@ -34,11 +34,16 @@
 !> Implements `gradient_jump_penalty_t`.
 module gradient_jump_penalty
   use num_types, only : rp
+  use utils, only : neko_error
   use math
   use field, only : field_t
   use dofmap , only : dofmap_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use coefs, only : coef_t
+  use scratch_registry, only : neko_scratch_registry
+  use element, only : element_t
+  use hex
+  use quad
 
   implicit none
   private
@@ -54,7 +59,25 @@ module gradient_jump_penalty
      real(kind=rp), allocatable :: penalty(:, :, :, :)
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
+     !> Gradient jump on the elementary interface (zero inside each element)
+     type(field_t), pointer :: G
+     !> Gradient of the quantity
+     type(field_t), pointer :: grad1, grad2, grad3
+     !> Number of facet in elements and its maximum
+     integer, allocatable :: n_facet(:)
+     integer :: n_facet_max
+     !> Normal vector of facets
+     real(kind=rp), allocatable :: n_123(:,:,:)
+     !> Length scale for element regarding a facet
+     real(kind=rp), allocatable :: h(:,:)
+     !> Polynomial Quadrature
+     real(kind=rp), allocatable :: w(:)
+     !> Polynomial evaluated at collocation points
+     real(kind=rp), allocatable :: phi(:,:)
+     !> The first derivative of polynomial at two ends of the interval
+     real(kind=rp), allocatable :: dphidxi(:,:)
 
+     
 
   contains
      !> Constructor.
@@ -76,6 +99,9 @@ contains
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), target, intent(in) :: coef
     
+    class(element_t), pointer :: ep
+    integer :: temp_indices(4), i
+    
     call this%free()
 
     this%p = dofmap%xh%lx - 1
@@ -87,7 +113,34 @@ contains
     this%coef => coef
 
     allocate(this%penalty(this%p + 1, this%p + 1 , this%p + 1 , this%coef%msh%nelv))
+    
+    allocate(this%n_facet(this%coef%msh%nelv))
+    do i = 1, this%coef%msh%nelv
+       ep => this%coef%msh%elements(i)%e
+       select type(ep)
+       type is (hex_t)
+          this%n_facet(i) = 6
+       type is (quad_t)
+          call neko_error("Only Hexahedral element is supported now for gradient jump penalty")
+       end select
+    end do
+    this%n_facet_max = maxval(this%n_facet)
 
+    allocate(this%h(this%n_facet_max, this%coef%msh%nelv))
+    allocate(this%n_123(3, this%n_facet_max, this%coef%msh%nelv))
+
+    allocate(this%w(dofmap%xh%lx))
+    allocate(this%phi(this%p + 1, this%p + 1))
+    allocate(this%dphidxi(2, this%p + 1))
+
+    ! do i = 1, this%coef%msh%nelv
+    !    h(i) = 
+    ! end do
+    
+    call neko_scratch_registry%request_field(this%G, temp_indices(1))
+    call neko_scratch_registry%request_field(this%grad1, temp_indices(2))
+    call neko_scratch_registry%request_field(this%grad2, temp_indices(3))
+    call neko_scratch_registry%request_field(this%grad3, temp_indices(4))
 
   end subroutine gradient_jump_penalty_init
 
@@ -99,8 +152,31 @@ contains
     if (allocated(this%penalty)) then
        deallocate(this%penalty)
     end if
-    nullify(this%coef)
+    if (allocated(this%n_123)) then
+       deallocate(this%n_123)
+    end if
+    if (allocated(this%h)) then
+       deallocate(this%h)
+    end if
+    if (allocated(this%n_facet)) then
+       deallocate(this%n_facet)
+    end if
 
+    if (allocated(this%w)) then
+       deallocate(this%w)
+    end if
+    if (allocated(this%phi)) then
+       deallocate(this%phi)
+    end if
+    if (allocated(this%dphidxi)) then
+       deallocate(this%dphidxi)
+    end if
+    nullify(this%coef)
+    nullify(this%G)
+    nullify(this%grad1)
+    nullify(this%grad2)
+    nullify(this%grad3)
+    write(*,*) "this%n_facet_max", this%n_facet_max
   end subroutine gradient_jump_penalty_free
 
 !   !> Compute eddy viscosity.
@@ -122,5 +198,11 @@ contains
 !     end if
 
 !   end subroutine gradient_jump_penalty_compute
+
+  ! !> Integrate over a facet
+  ! !! @param f Integrant
+  ! subroutine integrate_over_facet(f)
+
+  ! end subroutine
 
 end module gradient_jump_penalty
