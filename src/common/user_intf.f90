@@ -46,7 +46,7 @@ module user_intf
   use field_dirichlet, only: field_dirichlet_update
   use num_types, only : rp
   use json_module, only : json_file
-  use utils, only : neko_error, neko_warning, concat_string_array
+  use utils, only : neko_error, neko_warning
   use logger, only : neko_log
   implicit none
   private
