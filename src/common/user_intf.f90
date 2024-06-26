@@ -175,104 +175,122 @@ contains
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
     logical :: user_extended = .false.
+    character(len=256), dimension(13) :: extensions
+    integer :: i, n
 
-    call neko_log%section('Setup user interface')
-
+    n = 0
     if (.not. associated(u%fluid_user_ic)) then
        u%fluid_user_ic => dummy_user_ic
     else
        user_extended = .true.
-       call neko_log%message('- Fluid initial condition')
+       n = n + 1
+       write(extensions(n), '(A)') '- Fluid initial condition'
     end if
 
     if (.not. associated(u%scalar_user_ic)) then
        u%scalar_user_ic => dummy_user_ic_scalar
     else
        user_extended = .true.
-       call neko_log%message('- Scalar initial condition')
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar initial condition'
     end if
 
     if (.not. associated(u%fluid_user_f)) then
        u%fluid_user_f => dummy_user_f
     else
        user_extended = .true.
-       call neko_log%message('- Fluid source term')
+       n = n + 1
+       write(extensions(n), '(A)') '- Fluid source term'
     end if
 
     if (.not. associated(u%fluid_user_f_vector)) then
        u%fluid_user_f_vector => dummy_user_f_vector
     else
        user_extended = .true.
-       call neko_log%message('- Fluid source term vector')
+       n = n + 1
+       write(extensions(n), '(A)') '- Fluid source term vector'
     end if
 
     if (.not. associated(u%scalar_user_f)) then
        u%scalar_user_f => dummy_scalar_user_f
     else
        user_extended = .true.
-       call neko_log%message('- Scalar source term')
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar source term'
     end if
 
     if (.not. associated(u%scalar_user_f_vector)) then
        u%scalar_user_f_vector => dummy_user_scalar_f_vector
     else
        user_extended = .true.
-       call neko_log%message('- Scalar source term vector')
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar source term vector'
     end if
 
     if (.not. associated(u%scalar_user_bc)) then
        u%scalar_user_bc => dummy_scalar_user_bc
     else
        user_extended = .true.
-       call neko_log%message('- Scalar boundary condition')
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar boundary condition'
     end if
 
     if (.not. associated(u%user_dirichlet_update)) then
        u%user_dirichlet_update => dirichlet_do_nothing
     else
        user_extended = .true.
-       call neko_log%message('- Dirichlet boundary condition')
+       n = n + 1
+       write(extensions(n), '(A)') '- Dirichlet boundary condition'
     end if
 
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
     else
        user_extended = .true.
-       call neko_log%message('- Mesh setup')
+       n = n + 1
+       write(extensions(n), '(A)') '- Mesh setup'
     end if
 
     if (.not. associated(u%user_check)) then
        u%user_check => dummy_user_check
     else
        user_extended = .true.
-       call neko_log%message('- User check')
+       n = n + 1
+       write(extensions(n), '(A)') '- User check'
     end if
 
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
     else
        user_extended = .true.
-       call neko_log%message('- Initialize modules')
+       n = n + 1
+       write(extensions(n), '(A)') '- Initialize modules'
     end if
 
     if (.not. associated(u%user_finalize_modules)) then
        u%user_finalize_modules => dummy_user_final_no_modules
     else
        user_extended = .true.
-       call neko_log%message('- Finalize modules')
+       n = n + 1
+       write(extensions(n), '(A)') '- Finalize modules'
     end if
 
     if (.not. associated(u%material_properties)) then
        u%material_properties => dummy_user_material_properties
     else
        user_extended = .true.
-       call neko_log%message('- Material properties')
+       n = n + 1
+       write(extensions(n), '(A)') '- Material properties'
     end if
 
-    if (.not. user_extended) then
-       call neko_log%end_section('No User defined interface')
-    else
-       call neko_log%end_section('End of User defined interface')
+    if (user_extended) then
+       call neko_log%section('User defined extensions')
+
+       do i = 1, n
+          call neko_log%message(extensions(i))
+       end do
+
+       call neko_log%end_section()
     end if
 
   end subroutine user_intf_init
