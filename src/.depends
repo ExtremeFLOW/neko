@@ -226,6 +226,7 @@ device/opencl_intf.o : device/opencl_intf.F90 common/utils.o config/num_types.o
 device/opencl/prgm_lib.o : device/opencl/prgm_lib.F90 common/utils.o device/opencl_intf.o 
 device/dummy_device.o : device/dummy_device.F90 
 device/device.o : device/device.F90 device/opencl/prgm_lib.o device/dummy_device.o common/utils.o adt/htable.o device/hip_intf.o device/cuda_intf.o device/opencl_intf.o config/num_types.o 
+math/bcknd/field_math.o : math/bcknd/field_math.f90 math/bcknd/device/device_math.o math/math.o field/field.o config/num_types.o config/neko_config.o 
 math/bcknd/device/device_math.o : math/bcknd/device/device_math.F90 config/num_types.o common/utils.o comm/comm.o 
 math/bcknd/device/device_schwarz.o : math/bcknd/device/device_schwarz.F90 device/device.o common/utils.o config/num_types.o 
 math/bcknd/device/tensor_device.o : math/bcknd/device/tensor_device.F90 common/utils.o 
