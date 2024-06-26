@@ -86,7 +86,7 @@ jobs:
         uses: ./.github/actions/setup_json-fortran
         with:
           version: ${{ inputs.json-fortran-version }}
-          os: ${{ matrix.os }}
+          os: ${{ runner.os }}
           compiler: ${{ matrix.compiler }}
 
       - name: Add JSON-Fortran to environment
