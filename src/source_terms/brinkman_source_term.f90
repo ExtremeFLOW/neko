@@ -201,7 +201,7 @@ contains
     class(brinkman_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    type(field_t), pointer :: u, v, w
+    type(field_t), pointer :: u, v, w, fu, fv, fw
     integer :: n
 
     n = this%fields%item_size(1)
@@ -210,9 +210,13 @@ contains
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
 
-    call field_subcol3(this%fields%get(1), u, this%brinkman, n)
-    call field_subcol3(this%fields%get(2), v, this%brinkman, n)
-    call field_subcol3(this%fields%get(3), w, this%brinkman, n)
+    fu => this%fields%get(1)
+    fv => this%fields%get(2)
+    fw => this%fields%get(3)
+
+    call field_subcol3(fu, u, this%brinkman, n)
+    call field_subcol3(fv, v, this%brinkman, n)
+    call field_subcol3(fw, w, this%brinkman, n)
 
   end subroutine brinkman_source_term_compute
 
