@@ -259,11 +259,6 @@ contains
        ! Create case
        !
        call case_init(C, case_file)
-       
-       if (C%usr%user_extended) then
-          write(log_buf, '(a)') 'Running neko in user extended mode.'
-          call neko_log%message(log_buf)
-       end if
 
        !
        ! Create simulation components
