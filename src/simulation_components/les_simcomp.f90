@@ -155,21 +155,6 @@ contains
         call addcol3(this%mu_field%x, this%rho%x, this%les_model%nut%x, &
                      this%rho%dof%size())
     end if
-
-    if (allocated(this%case%scalar)) then
-      associate (s => this%case%scalar)
-        if (NEKO_BCKND_DEVICE .eq. 1) then
-           call device_cfill(s%lambda_field%x_d, s%lambda, s%dm_Xh%size())
-           call device_add2s2(s%lambda_field%x_d, this%les_model%nut%x_d, &
-                              s%rho*s%cp, s%dm_Xh%size())
-        else
-           call cfill(s%lambda_field%x, s%lambda, s%dm_Xh%size())
-           call add2s2(s%lambda_field%x, this%les_model%nut%x, s%rho*s%cp, &
-                       s%dm_Xh%size())
-        end if
-      end associate
-    end if
-
   end subroutine les_simcomp_compute
 
 end module les_simcomp

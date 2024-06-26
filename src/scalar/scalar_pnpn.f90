@@ -68,7 +68,8 @@ module scalar_pnpn
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use time_step_controller
+  use time_step_controller, only : time_step_controller_t
+  use scratch_registry, only: neko_scratch_registry
   implicit none
   private
 
@@ -288,7 +289,7 @@ contains
 
     call profiler_start_region('Scalar', 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
-         cp => this%cp, lambda => this%lambda, rho => this%rho, &
+         cp => this%cp, rho => this%rho, &
          ds => this%ds, &
          s_res =>this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
@@ -349,6 +350,10 @@ contains
       call this%field_dir_bc%update(this%field_dir_bc%field_list, &
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
+
+
+      ! Update material properties if necessary
+      call this%update_material_properties()
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
