@@ -144,7 +144,7 @@ module scalar_scheme
      !> Specific heat capacity.
      real(kind=rp), pointer :: cp
      !> Turbulent Prandtl number.
-     real(kind=rp), pointer :: pr_turb
+     real(kind=rp) :: pr_turb
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
      !> Boundary condition labels (if any)
@@ -620,6 +620,7 @@ contains
     if (this%variable_material_properties) then
       nut => neko_field_registry%get_field(this%nut_field_name)
       n = nut%size()
+
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(this%lambda_field%x_d, this%lambda, n)
          call device_add2s2(this%lambda_field%x_d, nut%x_d, lambda_factor, n)
