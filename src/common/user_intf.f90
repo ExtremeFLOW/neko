@@ -99,6 +99,9 @@ module user_intf
   end interface
 
   type :: user_t
+     !> Logical to indicate if the code have been extended by the user.
+     logical :: user_extended = .false.
+
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
@@ -111,7 +114,7 @@ module user_intf
    contains
      procedure, pass(u) :: init => user_intf_init
   end type user_t
-  
+
 contains
   !> User interface initialization
   subroutine user_intf_init(u)
@@ -119,38 +122,53 @@ contains
 
     if (.not. associated(u%fluid_user_ic)) then
        u%fluid_user_ic => dummy_user_ic
+    else
+       u%user_extended = .true.
     end if
 
     if (.not. associated(u%fluid_user_f)) then
        u%fluid_user_f => dummy_user_f
+    else
+       u%user_extended = .true.
     end if
-    
+
     if (.not. associated(u%fluid_user_f_vector)) then
        u%fluid_user_f_vector => dummy_user_f_vector
+    else
+       u%user_extended = .true.
     end if
 
     if (.not. associated(u%scalar_user_f)) then
        u%scalar_user_f => dummy_scalar_user_f
+    else
+       u%user_extended = .true.
     end if
-    
+
     if (.not. associated(u%scalar_user_f_vector)) then
        u%scalar_user_f_vector => dummy_user_scalar_f_vector
+    else
+       u%user_extended = .true.
     end if
-    
+
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
+    else
+       u%user_extended = .true.
     end if
 
     if (.not. associated(u%user_check)) then
        u%user_check => dummy_user_check
+       u%user_extended = .true.
     end if
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
+    else
+       u%user_extended = .true.
     end if
-    
+
   end subroutine user_intf_init
 
-  
+
   !
   ! Below is the dummy user interface
   ! when running in pure turboNEKO mode
@@ -163,14 +181,14 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(param_t), intent(inout) :: params
-    call neko_error('Dummy user defined initial condition set')    
+    call neko_error('Dummy user defined initial condition set')
   end subroutine dummy_user_ic
 
   !> Dummy user (fluid) forcing
   subroutine dummy_user_f_vector(f, t)
     class(source_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined vector valued forcing set')    
+    call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_f_vector
 
   !> Dummy user (fluid) forcing
@@ -183,14 +201,14 @@ contains
     integer, intent(in) :: l
     integer, intent(in) :: e
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined forcing set')    
+    call neko_error('Dummy user defined forcing set')
   end subroutine dummy_user_f
 
   !> Dummy user (scalar) forcing
   subroutine dummy_user_scalar_f_vector(f, t)
     class(source_scalar_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined vector valued forcing set')    
+    call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_scalar_f_vector
 
   !> Dummy user (scalar) forcing
@@ -201,17 +219,17 @@ contains
     integer, intent(in) :: l
     integer, intent(in) :: e
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined forcing set')    
+    call neko_error('Dummy user defined forcing set')
   end subroutine dummy_scalar_user_f
- 
+
   !> Dummy user mesh apply
   subroutine dummy_user_mesh_setup(msh)
     type(mesh_t), intent(inout) :: msh
   end subroutine dummy_user_mesh_setup
-  
+
   !> Dummy user check
   subroutine dummy_user_check(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t    
+    real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
