@@ -66,9 +66,9 @@
 
 #serial 17
 
-AU_ALIAS([ACX_BLAS], [AX_BLAS])
+AU_ALIAS([AX_BLAS], [AX_BLAS])
 AC_DEFUN([AX_BLAS], [
-AC_PREREQ([2.55])
+AC_PREREQ([2.71])
 ax_blas_ok=no
 
 AC_ARG_WITH(blas,

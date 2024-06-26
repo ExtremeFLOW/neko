@@ -67,7 +67,7 @@
 
 #serial 10
 
-AU_ALIAS([ACX_LAPACK], [AX_LAPACK])
+AU_ALIAS([AX_LAPACK], [AX_LAPACK])
 AC_DEFUN([AX_LAPACK], [
 AC_REQUIRE([AX_BLAS])
 ax_lapack_ok=no
