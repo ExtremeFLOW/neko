@@ -44,7 +44,7 @@ module adv_dealias
   use operators, only: opgrad
   use interpolation, only: interpolator_t
   use device, only: device_map, device_get_ptr
-  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR
+  use perturb
   implicit none
   private
 
@@ -81,6 +81,8 @@ module adv_dealias
      !> Device pointer for `vt`
      type(c_ptr) :: vt_d = C_NULL_PTR
 
+     !> pcs partub thingy
+     type(pcs_struct) :: pcs_thing
    contains
      !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
      !! the RHS.
@@ -104,6 +106,7 @@ contains
     integer, intent(in) :: lxd
     type(coef_t), intent(inout), target :: coef
     integer :: nel, n_GL, n
+    character(len=80) :: inputchar
 
     call this%Xh_GL%init(GL, lxd, lxd, lxd)
     this%Xh_GLL => coef%Xh
@@ -115,6 +118,12 @@ contains
     nel = coef%msh%nelv
     n_GL = nel*this%Xh_GL%lxyz
     n = nel*coef%Xh%lxyz
+    
+    
+    call get_command_argument(2, inputchar)
+    this%pcs_thing = perturb_init_opts_char(inputchar)
+    print *,trim(inputchar)
+
     call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
@@ -195,6 +204,7 @@ contains
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call perturb_vector_device(this%temp_d, this%temp_d,this%temp, n, this%pcs_thing)
          call device_sub2(fx%x_d, this%temp_d, n)
 
 
@@ -202,12 +212,14 @@ contains
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call perturb_vector_device(this%temp_d, this%temp_d,this%temp, n, this%pcs_thing)
          call device_sub2(fy%x_d, this%temp_d, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call perturb_vector_device(this%temp_d, this%temp_d,this%temp, n, this%pcs_thing)
          call device_sub2(fz%x_d, this%temp_d, n)
 
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
@@ -262,6 +274,9 @@ contains
             call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
 
             idx = (e-1)*this%Xh_GLL%lxyz+1
+            call perturb_vector(tempx, tempx, this%Xh_GLL%lxyz, this%pcs_thing)
+            call perturb_vector(tempy, tempy, this%Xh_GLL%lxyz, this%pcs_thing)
+            call perturb_vector(tempz, tempz, this%Xh_GLL%lxyz, this%pcs_thing)
             call sub2(fx%x(idx, 1, 1, 1), tempx, this%Xh_GLL%lxyz)
             call sub2(fy%x(idx, 1, 1, 1), tempy, this%Xh_GLL%lxyz)
             call sub2(fz%x(idx, 1, 1, 1), tempz, this%Xh_GLL%lxyz)
