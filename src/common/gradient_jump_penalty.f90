@@ -45,6 +45,8 @@ module gradient_jump_penalty
   use element, only : element_t
   use hex
   use quad
+  use operators, only : dudxyz
+  use gs_ops, only : GS_OP_ADD
 
   implicit none
   private
@@ -58,12 +60,16 @@ module gradient_jump_penalty
      integer :: p
      !> Penalty terms
      real(kind=rp), allocatable :: penalty(:, :, :, :)
+     !> Work array to store penalty terms on each element
+     real(kind=rp), allocatable :: penalty_el(:, :, :)
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
      !> Gradient jump on the elementary interface (zero inside each element)
      type(field_t), pointer :: G
-     !> Gradient of the quantity
-     type(field_t), pointer :: grad1, grad2, grad3
+     !> Flux of the quantity
+     type(field_t), pointer :: flux1, flux2, flux3
+     !> Expanded array of facet normal
+     type(field_t), pointer :: n1, n2, n3
      !> Number of facet in elements and its maximum
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
@@ -81,8 +87,8 @@ module gradient_jump_penalty
      procedure, pass(this) :: init => gradient_jump_penalty_init
      !> Destructor
      procedure, pass(this) :: free => gradient_jump_penalty_free
-    !  !> Compute gradient jump penalty term.
-    !  procedure, pass(this) :: compute => gradient_jump_penalty_compute
+     !> Compute gradient jump penalty term.
+     procedure, pass(this) :: compute => gradient_jump_penalty_compute
 
   end type gradient_jump_penalty_t
 
@@ -111,6 +117,7 @@ contains
     this%coef => coef
 
     allocate(this%penalty(this%p + 1, this%p + 1 , this%p + 1 , this%coef%msh%nelv))
+    allocate(this%penalty_el(this%p + 1, this%p + 1 , this%p + 1))
     
     allocate(this%n_facet(this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
@@ -155,25 +162,54 @@ contains
           this%dphidxi(j,i) = pndleg(zg(j),i-1)
        end do
     end do
-    write(*,*) this%dphidxi(:,3)
-
 
     call neko_scratch_registry%request_field(this%G, temp_indices(1))
-    call neko_scratch_registry%request_field(this%grad1, temp_indices(2))
-    call neko_scratch_registry%request_field(this%grad2, temp_indices(3))
-    call neko_scratch_registry%request_field(this%grad3, temp_indices(4))
+    call neko_scratch_registry%request_field(this%flux1, temp_indices(2))
+    call neko_scratch_registry%request_field(this%flux2, temp_indices(3))
+    call neko_scratch_registry%request_field(this%flux3, temp_indices(4))
+    call neko_scratch_registry%request_field(this%n1, temp_indices(2))
+    call neko_scratch_registry%request_field(this%n2, temp_indices(3))
+    call neko_scratch_registry%request_field(this%n3, temp_indices(4))
+    
+    ! formulate n1, n2 and n3
+    do i = 1, this%coef%msh%nelv
+       ep => this%coef%msh%elements(i)%e
+       select type(ep)
+       type is (hex_t)
+          call expand_normal_hex_el(this%n1%x(:, :, :, i), this%coef%nx(:, :, :, i), this%p + 1)
+          call expand_normal_hex_el(this%n2%x(:, :, :, i), this%coef%ny(:, :, :, i), this%p + 1)
+          call expand_normal_hex_el(this%n3%x(:, :, :, i), this%coef%nz(:, :, :, i), this%p + 1)
+       type is (quad_t)
+          call neko_error("Gradient jump penalty error: mesh size evaluation is not supported for quad_t")
+       end select
+    end do
 
   end subroutine gradient_jump_penalty_init
   
   !> Evaluate h for each element
   subroutine eval_h_hex(h_el, ep)
-  real(kind=rp), intent(inout) :: h_el
-  type(hex_t), pointer, intent(in) :: ep
-  
-  !! todo: estimation of the length scale of the mesh could be more elegant
-  h_el = ep%diameter()
+    real(kind=rp), intent(inout) :: h_el
+    type(hex_t), pointer, intent(in) :: ep
+    
+    !! todo: estimation of the length scale of the mesh could be more elegant
+    h_el = ep%diameter()
 
   end subroutine eval_h_hex
+
+  !> Expanding facet normal array into a field of (lx, lx, lx) for each element
+  subroutine expand_normal_hex_el(n1_el, coefnx_el, lx)
+    integer :: lx
+    real(kind=rp), intent(inout) :: n1_el(lx, lx, lx)
+    real(kind=rp), intent(in) :: coefnx_el(lx, lx, 6)
+
+    n1_el(1,:,:) = coefnx_el(:,:,1)
+    n1_el(lx,:,:) = coefnx_el(:,:,2)
+    n1_el(:,1,:) = coefnx_el(:,:,3)
+    n1_el(:,lx,:) = coefnx_el(:,:,4)
+    n1_el(:,:,1) = coefnx_el(:,:,5)
+    n1_el(:,:,lx) = coefnx_el(:,:,6)
+
+  end subroutine expand_normal_hex_el
 
   !> Destructor for the gradient_jump_penalty_t class.
   subroutine gradient_jump_penalty_free(this)
@@ -182,6 +218,9 @@ contains
     
     if (allocated(this%penalty)) then
        deallocate(this%penalty)
+    end if
+    if (allocated(this%penalty_el)) then
+       deallocate(this%penalty_el)
     end if
     if (allocated(this%h)) then
        deallocate(this%h)
@@ -203,31 +242,80 @@ contains
     end if
     nullify(this%coef)
     nullify(this%G)
-    nullify(this%grad1)
-    nullify(this%grad2)
-    nullify(this%grad3)
+    nullify(this%flux1)
+    nullify(this%flux2)
+    nullify(this%flux3)
+    nullify(this%n1)
+    nullify(this%n2)
+    nullify(this%n3)
     
   end subroutine gradient_jump_penalty_free
 
-!   !> Compute eddy viscosity.
-!   !! @param t The time value.
-!   !! @param tstep The current time-step.
-!   subroutine gradient_jump_penalty_compute(this, t, tstep)
-!     class(grad_jump_penalty_t), intent(inout) :: this
-!     real(kind=rp), intent(in) :: t
-!     integer, intent(in) :: tstep
+  !> Compute the gradient jump penalty term.
+  !! @param u x-velocity
+  !! @param v y-velocity
+  !! @param w z-velocity
+  !! @param s quantity of interest
+  subroutine gradient_jump_penalty_compute(this, u, v, w, s)
+    class(gradient_jump_penalty_t), intent(inout) :: this
+    type(field_t), intent(in) :: u, v, w, s
 
-!     call set_ds_filt(this%test_filter)
+    class(element_t), pointer :: ep
+    integer :: i
 
-!     if (NEKO_BCKND_DEVICE .eq. 1) then
-!         call neko_error("Dynamic Smagorinsky model not implemented on accelarators.")
-!     else
-!         call dynamic_smagorinsky_compute_cpu(t, tstep, this%coef, this%nut, &
-!                                 this%delta, this%c_dyn, this%test_filter, &
-!                                 this%mij, this%lij, this%num, this%den)
-!     end if
+    call G_compute(this, s)
+    do i = 1, this%coef%msh%nelv
+       ep => this%coef%msh%elements(i)%e
+       select type(ep)
+       type is (hex_t)
+          call gradient_jump_penalty_compute_hex_el(this, u, v, w, s)
+          this%penalty(:, :, :, i) = this%penalty_el
+       type is (quad_t)
+          call neko_error("Only Hexahedral element is supported now for gradient jump penalty")
+       end select
+    end do
 
-!   end subroutine gradient_jump_penalty_compute
+  end subroutine gradient_jump_penalty_compute
+
+  !> Compute the gradient jump penalty term for a single hexatedral element.
+  !! @param u x-velocity
+  !! @param v y-velocity
+  !! @param w z-velocity
+  !! @param s The quantity of interest
+  subroutine gradient_jump_penalty_compute_hex_el(this, u, v, w, s)
+    class(gradient_jump_penalty_t), intent(inout) :: this
+    type(field_t), intent(in) :: u, v, w, s
+
+    integer :: i
+
+    write(*,*) "call gradient_jump_penalty_compute_hex_el"
+
+  end subroutine gradient_jump_penalty_compute_hex_el
+
+  !> Compute the average of the flux over facets
+  !! @param s The quantity of interest
+  subroutine G_compute(this, s)
+    class(gradient_jump_penalty_t), intent(inout) :: this
+    type(field_t), intent(in) :: s
+
+    integer :: i
+
+    call dudxyz(this%flux1%x, s%x, this%coef%drdx, this%coef%dsdx, this%coef%dtdx, this%coef)
+    call dudxyz(this%flux2%x, s%x, this%coef%drdy, this%coef%dsdy, this%coef%dtdy, this%coef)
+    call dudxyz(this%flux3%x, s%x, this%coef%drdz, this%coef%dsdz, this%coef%dtdz, this%coef)
+
+    call col2(this%flux1%x, this%n1%x, this%coef%dof%size())
+    call col2(this%flux2%x, this%n2%x, this%coef%dof%size())
+    call col2(this%flux3%x, this%n3%x, this%coef%dof%size())
+
+    call this%coef%gs_h%op(this%flux1%x, this%coef%dof%size(), GS_OP_ADD)
+    call this%coef%gs_h%op(this%flux2%x, this%coef%dof%size(), GS_OP_ADD)
+    call this%coef%gs_h%op(this%flux3%x, this%coef%dof%size(), GS_OP_ADD)
+
+    call add3(this%G%x, this%flux1%x, this%flux2%x, this%coef%dof%size())
+    call add2(this%G%x, this%flux3%x, this%coef%dof%size())
+
+  end subroutine G_compute
 
   ! !> Integrate over a facet
   ! !! @param f Integrant
