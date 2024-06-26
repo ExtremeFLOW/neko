@@ -28,11 +28,13 @@ jobs:
     name: ReFrame - ${{ matrix.compiler}} - ${{ matrix.precision }}
     steps:
       - name: Setup env.
+        id: setup-env
         run: |
           sudo apt-get update
           sudo apt-get install -y openmpi-bin libopenmpi-dev \
             autoconf automake autotools-dev libopenblas-dev make git m4 python3
           pip install reframe-hpc
+          echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,7 +46,7 @@ jobs:
         uses: ./.github/actions/setup_json-fortran
         with:
           version: ${{ inputs.json-fortran-version }}
-          os: ${{ runner.os }}
+          os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
       - name: Add JSON-Fortran to environment
