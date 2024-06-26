@@ -457,6 +457,11 @@ specific heat capacity and thermal conductivity. These are provided as `cp` and
 `lambda`. Similarly to the fluid, one can provide the Peclet number, `Pe`, as an
 alternative. In this case, `cp` is set to 1 and `lambda` to the inverse of `Pe`.
 
+As for the fluid, turbulence modelling is enabled by setting the `nut_field` to
+the name matching that set for the simulation component with the LES model.
+Additionally, the turbulent Prandtl number, `Pr_t` should be set. The eddy
+viscosity values will be divided by it to produce eddy diffusivity.
+
 The boundary conditions for the scalar are specified through the
 `boundary_types` keyword.
 It is possible to directly specify a uniform value for a Dirichlet boundary.
@@ -472,6 +477,8 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 | `Pe`                      | The Peclet number.                                       | Positive real                   | -             |
 | `cp`                      | Specific heat cpacity.                                   | Positive real                   | -             |
 | `lambda`                  | Thermal conductivity.                                    | Positive real                   | -             |
+| `nut_field`               | Name of the turbulent kinematic viscosity field.         | String                          | Empty string  |
+| `Pr_t`                    | Turbulent Prandtl number                                 | Positive real                   | -             |
 | `boundary_types`          | Boundary types/conditions labels.                        | Array of strings                | -             |
 | `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`, `point_zone` | -             |
 | `initial_condition.value` | Value of the velocity initial condition.                 | Real                            | -             |
