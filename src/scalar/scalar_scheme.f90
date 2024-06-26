@@ -68,7 +68,6 @@ module scalar_scheme
   use utils, only : neko_error
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
-  use math, only : cfill
   use field_series
   use time_step_controller
   implicit none
