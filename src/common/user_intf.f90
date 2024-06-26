@@ -46,7 +46,8 @@ module user_intf
   use field_dirichlet, only: field_dirichlet_update
   use num_types, only : rp
   use json_module, only : json_file
-  use utils, only : neko_error,  neko_warning
+  use utils, only : neko_error, neko_warning
+  use logger, only : neko_log
   implicit none
   private
 
@@ -146,6 +147,7 @@ module user_intf
   end interface
 
   type, public :: user_t
+     !> Logical to indicate if the code have been extended by the user.
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
@@ -166,64 +168,131 @@ module user_intf
   end type user_t
 
   public :: useric, useric_scalar, user_initialize_modules, usermsh, &
-            dummy_user_material_properties, user_material_properties
+    dummy_user_material_properties, user_material_properties
 contains
 
   !> User interface initialization
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
+    logical :: user_extended = .false.
+    character(len=256), dimension(13) :: extensions
+    integer :: i, n
 
+    n = 0
     if (.not. associated(u%fluid_user_ic)) then
        u%fluid_user_ic => dummy_user_ic
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Fluid initial condition'
     end if
 
     if (.not. associated(u%scalar_user_ic)) then
        u%scalar_user_ic => dummy_user_ic_scalar
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar initial condition'
     end if
 
     if (.not. associated(u%fluid_user_f)) then
        u%fluid_user_f => dummy_user_f
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Fluid source term'
     end if
 
     if (.not. associated(u%fluid_user_f_vector)) then
        u%fluid_user_f_vector => dummy_user_f_vector
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Fluid source term vector'
     end if
 
     if (.not. associated(u%scalar_user_f)) then
        u%scalar_user_f => dummy_scalar_user_f
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar source term'
     end if
 
     if (.not. associated(u%scalar_user_f_vector)) then
        u%scalar_user_f_vector => dummy_user_scalar_f_vector
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar source term vector'
     end if
 
     if (.not. associated(u%scalar_user_bc)) then
        u%scalar_user_bc => dummy_scalar_user_bc
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar boundary condition'
     end if
 
     if (.not. associated(u%user_dirichlet_update)) then
        u%user_dirichlet_update => dirichlet_do_nothing
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Dirichlet boundary condition'
     end if
 
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Mesh setup'
     end if
 
     if (.not. associated(u%user_check)) then
        u%user_check => dummy_user_check
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- User check'
     end if
 
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Initialize modules'
     end if
 
     if (.not. associated(u%user_finalize_modules)) then
        u%user_finalize_modules => dummy_user_final_no_modules
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Finalize modules'
     end if
 
     if (.not. associated(u%material_properties)) then
        u%material_properties => dummy_user_material_properties
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Material properties'
     end if
+
+    if (user_extended) then
+       call neko_log%section('User defined extensions')
+
+       do i = 1, n
+          call neko_log%message(extensions(i))
+       end do
+
+       call neko_log%end_section()
+    end if
+
   end subroutine user_intf_init
 
 
@@ -340,7 +409,7 @@ contains
   end subroutine dummy_user_final_no_modules
 
   subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc_list, &
-       coef, t, tstep, which_solver)
+                                  coef, t, tstep, which_solver)
     type(field_list_t), intent(inout) :: dirichlet_field_list
     type(bc_list_t), intent(inout) :: dirichlet_bc_list
     type(coef_t), intent(inout) :: coef
