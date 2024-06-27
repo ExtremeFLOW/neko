@@ -42,7 +42,7 @@ module perturb
     type(pcs_struct), intent(in) :: opts
     integer :: ierr
 
-    if ((opts%fpopts%precision .ne. 52) .and. (opts%oper .ne. PCS_CPFLOAT)) then 
+    if ((opts%fpopts%precision .ne. 52)) then 
         ierr = pcs(x,y,int(n,8),opts)
     end if
 
@@ -55,7 +55,7 @@ module perturb
     real(kind=rp), dimension(n), intent(inout) :: temp
     integer :: ierr
 
-    if ((opts%fpopts%precision .ne. 52) .and. (opts%oper .ne. PCS_CPFLOAT)) then 
+    if ((opts%fpopts%precision .ne. 52)) then 
        call device_memcpy(temp, y_d, n, DEVICE_TO_HOST, sync=.true.)
        ierr = pcs(temp, temp,int(n,8),opts)
        call device_memcpy(temp, x_d, n, HOST_TO_DEVICE, sync=.true.)
