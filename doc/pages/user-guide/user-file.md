@@ -754,19 +754,19 @@ A very simple example illustrating the above is shown below, which is taken from
     ! Check that we are being called by `fluid`
     if (trim(which_solver) .eq. "fluid") then
 
-       associate(u => field_bc_list%fields(1)%f, &
-            v => field_bc_list%fields(2)%f, &
-            w => field_bc_list%fields(3)%f, &
-            p => field_bc_list%fields(4)%f)
+       associate(u => field_bc_list%items(1)%ptr, &
+            v => field_bc_list%items(2)%ptr, &
+            w => field_bc_list%items(3)%ptr, &
+            p => field_bc_list%items(4)%ptr)
 
          !
          ! Perform operations on u%x, v%x, w%x and p%x here
-         ! Note that we are checking if fields are allocated. If a
+         ! Note that we are checking if fields are allocated. If the
          ! boundary type only contains e.g. "d_vel_u/d_pres", the fields
          ! v%x and w%x will not be allocated.
          !
          ! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)
-         ! and pressure outlet of p = -1
+         ! and nonsensical pressure outlet of p = -1
          !
          if (allocated(u%x)) u = 1.0_rp
          if (allocated(v%x)) v = 0.0_rp
@@ -778,7 +778,7 @@ A very simple example illustrating the above is shown below, which is taken from
     ! Check that we are being called by `scalar`
     else if (trim(which_solver) .eq. "scalar") then
 
-       associate( s => field_bc_list%fields(1)%f, &
+       associate( s => field_bc_list%items(1)%ptr, &
             s_bc => bc_bc_list%bc(1)%bcp)
 
          !
