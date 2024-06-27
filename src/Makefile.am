@@ -17,6 +17,7 @@ neko_fortran_SOURCES = \
 	common/json_utils.f90\
 	common/system.f90\
 	math/mxm_wrapper.F90\
+        math/perturb.f90\
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
 	sem/local_interpolation.f90 \

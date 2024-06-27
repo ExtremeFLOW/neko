@@ -14,6 +14,7 @@ common/utils.o : common/utils.f90
 common/json_utils.o : common/json_utils.f90 common/utils.o config/num_types.o 
 common/system.o : common/system.f90 
 math/mxm_wrapper.o : math/mxm_wrapper.F90 common/utils.o config/num_types.o 
+math/perturb.o : math/perturb.f90 device/device.o 
 sem/speclib.o : sem/speclib.f90 common/utils.o config/num_types.o 
 qoi/drag_torque.o : qoi/drag_torque.f90 math/operators.o config/num_types.o sem/space.o math/math.o comm/comm.o mesh/facet_zone.o mesh/mesh.o sem/coef.o field/field.o 
 sem/local_interpolation.o : sem/local_interpolation.f90 config/neko_config.o math/bcknd/device/device_math.o device/device.o field/field_list.o field/field.o common/utils.o math/fast3d.o math/math.o mesh/point.o config/num_types.o sem/space.o math/tensor.o 
@@ -194,7 +195,7 @@ fluid/flow_profile.o : fluid/flow_profile.f90 config/num_types.o
 fluid/flow_ic.o : fluid/flow_ic.f90 mesh/point_zone_registry.o mesh/point_zone.o common/json_utils.o common/user_intf.o math/bcknd/device/device_math.o math/math.o sem/coef.o common/utils.o field/field.o device/device.o fluid/flow_profile.o config/neko_config.o gs/gather_scatter.o config/num_types.o 
 fluid/advection.o : fluid/advection.f90 sem/coef.o field/field.o sem/space.o config/num_types.o 
 fluid/advection_fctry.o : fluid/advection_fctry.f90 fluid/bcknd/advection/adv_no_dealias.o fluid/bcknd/advection/adv_dealias.o fluid/advection.o common/json_utils.o sem/coef.o 
-fluid/bcknd/advection/adv_dealias.o : fluid/bcknd/advection/adv_dealias.f90 device/device.o sem/interpolation.o math/operators.o config/neko_config.o math/bcknd/device/device_math.o sem/coef.o field/field.o sem/space.o math/math.o config/num_types.o fluid/advection.o 
+fluid/bcknd/advection/adv_dealias.o : fluid/bcknd/advection/adv_dealias.f90 math/perturb.o device/device.o sem/interpolation.o math/operators.o config/neko_config.o math/bcknd/device/device_math.o sem/coef.o field/field.o sem/space.o math/math.o config/num_types.o fluid/advection.o 
 fluid/bcknd/advection/adv_no_dealias.o : fluid/bcknd/advection/adv_no_dealias.f90 device/device.o math/operators.o config/neko_config.o math/bcknd/device/device_math.o sem/coef.o field/field.o sem/space.o math/math.o config/num_types.o fluid/advection.o 
 fluid/bcknd/cpu/pnpn_res_cpu.o : fluid/bcknd/cpu/pnpn_res_cpu.f90 sem/space.o config/num_types.o mesh/mesh.o field/scratch_registry.o fluid/pnpn_res.o bc/facet_normal.o sem/coef.o math/ax.o field/field.o math/operators.o gs/gather_scatter.o 
 fluid/bcknd/sx/pnpn_res_sx.o : fluid/bcknd/sx/pnpn_res_sx.f90 sem/space.o config/num_types.o mesh/mesh.o field/scratch_registry.o fluid/pnpn_res.o bc/facet_normal.o sem/coef.o math/ax.o field/field.o math/operators.o gs/gather_scatter.o 
