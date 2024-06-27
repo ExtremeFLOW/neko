@@ -31,6 +31,21 @@ module perturb
        opts%fpopts%emax = 15
        opts%fpopts%emin = -14
        opts%fpopts%round = CPFLOAT_RND_NE !Round toward +infinity.
+
+    else if (trim(inputchar) .eq. 'e4m3') then
+       opts%oper = PCS_CPFLOAT
+       opts%fpopts%precision = 4 !Bits in the significand + 1.
+       opts%fpopts%emax = 7
+       opts%fpopts%emin = -6
+       opts%fpopts%round = CPFLOAT_RND_NE !Round toward +infinity.
+
+    else if (trim(inputchar) .eq. 'e5m2') then
+       opts%oper = PCS_CPFLOAT
+       opts%fpopts%precision = 3 !Bits in the significand + 1.
+       opts%fpopts%emax = 15
+       opts%fpopts%emin = -14
+       opts%fpopts%round = CPFLOAT_RND_NE !Round toward +infinity.
+
     end if
 
 
