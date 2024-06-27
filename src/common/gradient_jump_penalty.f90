@@ -66,9 +66,13 @@ module gradient_jump_penalty
      type(coef_t), pointer :: coef => null()
      !> Gradient jump on the elementary interface (zero inside each element)
      type(field_t), pointer :: G
-     !> Flux of the quantity
+     !> 3 parts of the flux of the quantity
      type(field_t), pointer :: flux1, flux2, flux3
-     !> Expanded array of facet normal
+     !> 3 parts of the flux of the volumetric flow
+     type(field_t), pointer :: volflux1, volflux2, volflux3
+     !> The flux of the volumetric flow (volflux1 + volflux2 + volflux3)
+     type(field_t), pointer :: volflux
+     !> Expanded array of facet normal (zero inside each element)
      type(field_t), pointer :: n1, n2, n3
      !> Number of facet in elements and its maximum
      integer, allocatable :: n_facet(:)
@@ -103,7 +107,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     
     class(element_t), pointer :: ep
-    integer :: temp_indices(4), i, j
+    integer :: temp_indices(11), i, j
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
     
     call this%free()
@@ -167,9 +171,13 @@ contains
     call neko_scratch_registry%request_field(this%flux1, temp_indices(2))
     call neko_scratch_registry%request_field(this%flux2, temp_indices(3))
     call neko_scratch_registry%request_field(this%flux3, temp_indices(4))
-    call neko_scratch_registry%request_field(this%n1, temp_indices(2))
-    call neko_scratch_registry%request_field(this%n2, temp_indices(3))
-    call neko_scratch_registry%request_field(this%n3, temp_indices(4))
+    call neko_scratch_registry%request_field(this%n1, temp_indices(5))
+    call neko_scratch_registry%request_field(this%n2, temp_indices(6))
+    call neko_scratch_registry%request_field(this%n3, temp_indices(7))
+    call neko_scratch_registry%request_field(this%volflux1, temp_indices(8))
+    call neko_scratch_registry%request_field(this%volflux2, temp_indices(9))
+    call neko_scratch_registry%request_field(this%volflux3, temp_indices(10))
+    call neko_scratch_registry%request_field(this%volflux, temp_indices(11))
     
     ! formulate n1, n2 and n3
     do i = 1, this%coef%msh%nelv
@@ -248,7 +256,10 @@ contains
     nullify(this%n1)
     nullify(this%n2)
     nullify(this%n3)
-    
+    nullify(this%volflux1)
+    nullify(this%volflux2)
+    nullify(this%volflux3)
+
   end subroutine gradient_jump_penalty_free
 
   !> Compute the gradient jump penalty term.
@@ -264,6 +275,7 @@ contains
     integer :: i
 
     call G_compute(this, s)
+    call volflux_compute(this, u, v, w)
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
        select type(ep)
@@ -289,6 +301,21 @@ contains
     integer :: i
 
     write(*,*) "call gradient_jump_penalty_compute_hex_el"
+    !!! Brief summary of what we have now and what we need in total
+    !!! needed: 
+    !!! 1. real variables: tau, h, dphidxi, dxidn
+    !!! 2. field_t variables to pick from: G, n
+    !!! 3. arrays to store flux: dot(u,n), noting that we have n now as a field
+    !!! 4. subroutine/function performing integration over a facet
+    !!! 5. procedure to put integrals together: mayeb a do-loop
+    !!! Had now:
+    !!! 1. tau, h, dphidxi
+    !!! 2. G, n
+    !!! Need to figure out:
+    !!! 1. dxidn (noting that the distortion might be not uniform inside each element)
+    !!! 2. dot(u,n) on each element, OR field_t and pick later from it?
+    !!! 3. subroutine/function for 2DF integration
+    !!! 4. do-loop to gather all integrals together
 
   end subroutine gradient_jump_penalty_compute_hex_el
 
@@ -298,7 +325,7 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: s
 
-    integer :: i
+    !!! to do: need more love to the interface cross-section point
 
     call dudxyz(this%flux1%x, s%x, this%coef%drdx, this%coef%dsdx, this%coef%dtdx, this%coef)
     call dudxyz(this%flux2%x, s%x, this%coef%drdy, this%coef%dsdy, this%coef%dtdy, this%coef)
@@ -316,6 +343,21 @@ contains
     call add2(this%G%x, this%flux3%x, this%coef%dof%size())
 
   end subroutine G_compute
+
+  !> Compute the average of the flux over facets
+  !! @param s The quantity of interest
+  subroutine volflux_compute(this, u, v, w)
+    class(gradient_jump_penalty_t), intent(inout) :: this
+    type(field_t), intent(in) :: u, v, w
+
+    call col3(this%volflux1%x, u%x, this%n1%x, this%coef%dof%size())
+    call col3(this%volflux2%x, v%x, this%n2%x, this%coef%dof%size())
+    call col3(this%volflux3%x, w%x, this%n3%x, this%coef%dof%size())
+
+    call add3(this%volflux%x, this%volflux1%x, this%volflux2%x, this%coef%dof%size())
+    call add2(this%volflux%x, this%volflux3%x, this%coef%dof%size())
+
+  end subroutine volflux_compute
 
   ! !> Integrate over a facet
   ! !! @param f Integrant
