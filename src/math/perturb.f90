@@ -8,9 +8,10 @@ module perturb
 
   contains
 
-  function perturb_init_opts_char(inputchar) result(opts)
+  subroutine perturb_init_opts_char(opts, inputchar)
     character(len=LOG_SIZE) :: inputchar
     type(pcs_struct), target :: opts
+
     opts%fpopts_ptr = c_loc(opts%fpopts)
 
     if (trim(inputchar) .eq. 'fp64') then
@@ -33,13 +34,13 @@ module perturb
     end if
 
 
-  end function perturb_init_opts_char
+  end subroutine perturb_init_opts_char
 
   subroutine perturb_vector(x, y, n, opts )
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: y  
     real(kind=rp), dimension(n), intent(out) :: x
-    type(pcs_struct), intent(in) :: opts
+    type(pcs_struct), target,  intent(inout) :: opts
     integer :: ierr
 
     if ((opts%fpopts%precision .ne. 52)) then 

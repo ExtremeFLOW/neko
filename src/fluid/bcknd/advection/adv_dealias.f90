@@ -34,7 +34,7 @@
 module adv_dealias
   use advection, only: advection_t
   use num_types, only: rp
-  use math, only: vdot3, sub2
+  use math, only: vdot3, sub2, copy
   use space, only: space_t, GL
   use field, only: field_t
   use coefs, only: coef_t
@@ -82,7 +82,8 @@ module adv_dealias
      type(c_ptr) :: vt_d = C_NULL_PTR
 
      !> pcs partub thingy
-     type(pcs_struct) :: pcs_thing
+     type(pcs_struct), allocatable :: pcs_thing
+     real(kind=rp), allocatable :: pcs_temp1(:), pcs_temp2(:), pcs_temp3(:)
    contains
      !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
      !! the RHS.
@@ -121,8 +122,14 @@ contains
     
     
     call get_command_argument(2, inputchar)
-    this%pcs_thing = perturb_init_opts_char(inputchar)
-    print *,trim(inputchar)
+    allocate(this%pcs_thing)
+    allocate(this%pcs_temp1(n))
+    allocate(this%pcs_temp2(n))
+    allocate(this%pcs_temp3(n))
+    call perturb_init_opts_char(this%pcs_thing,inputchar)
+    
+    print *,trim(inputchar), this%pcs_thing%fpopts_ptr
+    print *, this%pcs_thing%fpopts%precision
 
     call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
@@ -274,13 +281,16 @@ contains
             call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
 
             idx = (e-1)*this%Xh_GLL%lxyz+1
-            call perturb_vector(tempx, tempx, this%Xh_GLL%lxyz, this%pcs_thing)
-            call perturb_vector(tempy, tempy, this%Xh_GLL%lxyz, this%pcs_thing)
-            call perturb_vector(tempz, tempz, this%Xh_GLL%lxyz, this%pcs_thing)
-            call sub2(fx%x(idx, 1, 1, 1), tempx, this%Xh_GLL%lxyz)
-            call sub2(fy%x(idx, 1, 1, 1), tempy, this%Xh_GLL%lxyz)
-            call sub2(fz%x(idx, 1, 1, 1), tempz, this%Xh_GLL%lxyz)
+            call copy(this%pcs_temp1(idx), tempx, this%Xh_GLL%lxyz)
+            call copy(this%pcs_temp2(idx), tempy, this%Xh_GLL%lxyz)
+            call copy(this%pcs_temp3(idx), tempz, this%Xh_GLL%lxyz)
          end do
+         call perturb_vector(this%pcs_temp1, this%pcs_temp1,n , this%pcs_thing)
+         call perturb_vector(this%pcs_temp2, this%pcs_temp2,n , this%pcs_thing)
+         call perturb_vector(this%pcs_temp3, this%pcs_temp3,n , this%pcs_thing)
+         call sub2(fx%x, this%pcs_temp1, n)
+         call sub2(fy%x, this%pcs_temp2, n)
+         call sub2(fz%x, this%pcs_temp3, n)
       end if
     end associate
 
