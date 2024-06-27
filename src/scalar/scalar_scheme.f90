@@ -224,8 +224,8 @@ contains
     type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
     character(len=NEKO_MSH_MAX_ZLBL_LEN), intent(in) :: bc_labels(:)
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_label
-    integer :: i, j, bc_idx
-    real(kind=rp) :: dir_value, flux_value
+    integer :: i
+    real(kind=rp) :: dir_value, flux
     logical :: bc_exists
 
     do i = 1, size(bc_labels)
@@ -251,15 +251,15 @@ contains
           call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) dir_value
           call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
-!          end if
+          call this%dir_bcs(this%n_dir_bcs)%finalize()
        end if
 
        if (bc_label(1:2) .eq. 'n=') then
           this%n_neumann_bcs = this%n_neumann_bcs + 1
           call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
-          read(bc_label(3:), *) flux_value
-          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value)
+          read(bc_label(3:), *) flux
+          call this%neumann_bcs(this%n_neumann_bcs)%finalize_neumann(flux)
        end if
 
        !> Check if user bc on this zone
@@ -270,14 +270,12 @@ contains
     end do
 
     do i = 1, this%n_dir_bcs
-       call this%dir_bcs(i)%finalize()
        call bc_list_add(this%bclst_dirichlet, this%dir_bcs(i))
     end do
 
     ! Create list with just Neumann bcs
     call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
     do i=1, this%n_neumann_bcs
-       call this%neumann_bcs(i)%finalize()
        call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
     end do
 
