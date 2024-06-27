@@ -252,7 +252,6 @@ contains
           read(bc_label(3:), *) dir_value
           call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
           call this%dir_bcs(this%n_dir_bcs)%finalize()
-!          end if
        end if
 
        if (bc_label(1:2) .eq. 'n=') then
