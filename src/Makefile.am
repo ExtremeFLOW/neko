@@ -540,6 +540,7 @@ EXTRA_DIST = \
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/fusedcg_kernel.h\
 	krylov/bcknd/device/hip/fusedcg_kernel.h\
+	krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\
