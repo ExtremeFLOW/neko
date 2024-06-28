@@ -148,6 +148,11 @@ contains
           call simulation_component_factory(this%simcomps(i)%simcomp, &
                                             comp_subdict, case)
        end do
+
+       ! Initialize the user simcomps
+       call case%usr%init_user_simcomp(case%params)
+       call neko_simcomps%finalize()
+
     end if
   end subroutine simcomp_executor_init
 

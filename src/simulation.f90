@@ -81,10 +81,6 @@ contains
        call neko_log%message(log_buf)
     end if
 
-    ! Run user init routines for simulation components
-    call C%usr%init_user_simcomp(C%params)
-    call neko_simcomps%finalize()
-
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
        ! Restart the case
