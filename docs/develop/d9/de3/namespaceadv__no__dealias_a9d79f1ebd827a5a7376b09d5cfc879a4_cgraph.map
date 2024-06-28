@@ -1,0 +1,20 @@
+<map id="adv_no_dealias::compute_scalar_advection_no_dealias" name="adv_no_dealias::compute_scalar_advection_no_dealias">
+<area shape="rect" id="node1" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="5,334,221,375"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#af4d7e0e187615ed2bb3cd3b90d77bd45" title="Compute the advection term." alt="" coords="283,123,413,149"/>
+<area shape="rect" id="node11" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title=" " alt="" coords="269,269,427,310"/>
+<area shape="rect" id="node14" href="$d2/d73/namespacedevice__math.html#ae0f24e98e78f0aafc483b8aa8865c0cc" title=" " alt="" coords="269,334,427,375"/>
+<area shape="rect" id="node17" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="299,400,397,427"/>
+<area shape="rect" id="node18" href="$dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f" title="Returns ." alt="" coords="291,451,405,477"/>
+<area shape="rect" id="node3" href="$d0/d94/namespaceopr__cpu.html#a76af39d4162d3b2edaff2c12816fef48" title=" " alt="" coords="475,5,653,32"/>
+<area shape="rect" id="node4" href="$d3/d4d/namespaceopr__device.html#a795bba73c5389fb6ab225ff277af5a60" title=" " alt="" coords="478,57,650,98"/>
+<area shape="rect" id="node8" href="$df/db5/namespaceopr__sx.html#a8ccef3afffebafd8cebc9a3acbc7621e" title=" " alt="" coords="483,123,645,149"/>
+<area shape="rect" id="node9" href="$d9/d5a/namespaceopr__xsmm.html#af292cc34652bea326c44a8024cccd14f" title=" " alt="" coords="480,174,648,215"/>
+<area shape="rect" id="node5" href="$d2/d79/opr__conv1_8cu.html#a2b1b534f6f070dbbefdf14808df129e9" title=" " alt="" coords="731,64,830,91"/>
+<area shape="rect" id="node6" href="$d1/dc1/opr__conv1_8c.html#ab07cb7910eb3d0e828e2220814aeb52f" title=" " alt="" coords="725,123,836,149"/>
+<area shape="rect" id="node7" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="908,253,1040,280"/>
+<area shape="rect" id="node10" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="701,181,860,208"/>
+<area shape="rect" id="node12" href="$de/d1e/math_8cu.html#a929f7979761fc7dfdb31c1bc7dcd3897" title=" " alt="" coords="517,240,611,267"/>
+<area shape="rect" id="node13" href="$d6/da3/math_8c.html#a4759a87ec336639cbcd865aea0801da7" title=" " alt="" coords="511,291,617,317"/>
+<area shape="rect" id="node15" href="$de/d1e/math_8cu.html#a62d8b6c255c11576170bbf10068c5645" title=" " alt="" coords="509,341,619,368"/>
+<area shape="rect" id="node16" href="$d6/da3/math_8c.html#a6e88855af43b300be89ca9c1ba0aedcc" title=" " alt="" coords="719,312,842,339"/>
+</map>

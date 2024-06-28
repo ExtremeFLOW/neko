@@ -1,0 +1,7 @@
+<map id="fluid_source_term::fluid_source_term_init" name="fluid_source_term::fluid_source_term_init">
+<area shape="rect" id="node1" title="Costructor." alt="" coords="5,64,172,105"/>
+<area shape="rect" id="node2" href="$df/d09/namespacefluid__source__term.html#a1fb35ee89aab4d8ba8e137d69aad8eee" title="Initialize the user source term." alt="" coords="225,5,371,47"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title=" " alt="" coords="224,71,372,98"/>
+<area shape="rect" id="node4" href="$d6/d25/namespacesource__term__fctry.html#af64a689adda82d24422dfcf69c7b8201" title="Source term factory. Both constructs and initializes the object." alt="" coords="220,123,376,164"/>
+<area shape="rect" id="node5" href="$d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="424,123,569,164"/>
+</map>

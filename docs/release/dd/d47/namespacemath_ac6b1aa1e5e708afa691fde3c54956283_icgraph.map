@@ -1,0 +1,4 @@
+<map id="math::vdot3" name="math::vdot3">
+<area shape="rect" id="node1" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="204,13,305,39"/>
+<area shape="rect" id="node2" href="$d3/d69/namespaceadvection.html#a50867235873a10384e4958a3f5dcdf32" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="5,5,156,47"/>
+</map>

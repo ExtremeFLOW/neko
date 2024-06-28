@@ -1,0 +1,15 @@
+<map id="fluid_scheme::fluid_scheme_t::scheme_init" name="fluid_scheme::fluid_scheme_t::scheme_init">
+<area shape="rect" id="node1" title=" " alt="" coords="5,126,184,167"/>
+<area shape="rect" id="node2" href="$d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="232,93,376,134"/>
+<area shape="rect" id="node13" href="$d8/d09/namespacefluid__scheme.html#aef307227a58707a41b65d2b72e8ce2dd" title="Initialize all velocity related components of the current scheme." alt="" coords="232,158,376,199"/>
+<area shape="rect" id="node3" href="$d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="674,85,793,112"/>
+<area shape="rect" id="node4" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="676,5,791,32"/>
+<area shape="rect" id="node6" href="$d8/d09/namespacefluid__scheme.html#a11bba55b2a5d6a93db2d79e5d5130a07" title="Initialize common data for the current scheme." alt="" coords="430,93,602,134"/>
+<area shape="rect" id="node7" href="$d8/d09/namespacefluid__scheme.html#ae118e3aebe30e81422421926063456d0" title="Initialize a Krylov preconditioner." alt="" coords="424,158,608,199"/>
+<area shape="rect" id="node10" href="$d8/d09/namespacefluid__scheme.html#a5fb59358d3639df4c60c471642d27e1f" title="Initialize a linear solver." alt="" coords="426,223,606,265"/>
+<area shape="rect" id="node5" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="876,5,996,32"/>
+<area shape="rect" id="node8" href="$dc/d51/namespaceprecon__fctry.html#afff90caf28849e7a442f5856ccf578b0" title="Create a preconditioner." alt="" coords="656,158,811,199"/>
+<area shape="rect" id="node9" href="$dc/d51/namespaceprecon__fctry.html#a18ffcb1756eab1b82266908473cf1f99" title="Destroy a preconditioner." alt="" coords="859,158,1013,199"/>
+<area shape="rect" id="node11" href="$d9/d77/namespacekrylov__fctry.html#ab34f81283355e144f26825624c538b32" title="Initialize an iterative Krylov solver." alt="" coords="659,223,807,265"/>
+<area shape="rect" id="node12" href="$d9/d77/namespacekrylov__fctry.html#a7dfe5acfded2cc272ea672dce234367c" title="Destroy an interative Krylov solver." alt="" coords="862,223,1010,265"/>
+</map>

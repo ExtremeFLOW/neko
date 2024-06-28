@@ -1,0 +1,5 @@
+<map id="point_zone::point_zone_init_base" name="point_zone::point_zone_init_base">
+<area shape="rect" id="node1" title="Constructor for the point_zone_t base type." alt="" coords="5,5,177,47"/>
+<area shape="rect" id="node2" href="$dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093" title="Destructor for the point_zone_t base type." alt="" coords="225,5,397,47"/>
+<area shape="rect" id="node3" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="445,13,595,39"/>
+</map>

@@ -1,0 +1,33 @@
+<map id="device::device_free" name="device::device_free">
+<area shape="rect" id="node1" title="Deallocate memory on the device." alt="" coords="552,684,701,711"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a6ef61f50823ff60fba8fa16de22e4bc2" title="Destructor." alt="" coords="346,5,439,32"/>
+<area shape="rect" id="node4" href="$de/da4/namespaceblasius.html#ad870c19602eeb17380eeba2452eaca92" title=" " alt="" coords="315,56,470,83"/>
+<area shape="rect" id="node5" href="$d6/d60/namespacecg__device.html#aabcb47b12d07f0931e0b9e6d7bb66023" title="Deallocate a device based PCG solver." alt="" coords="296,107,489,133"/>
+<area shape="rect" id="node6" href="$d6/dbe/namespacecoefs.html#a20a95815e8ab1a9d5e513b959db5c3e7" title="Deallocate coefficients." alt="" coords="329,157,456,184"/>
+<area shape="rect" id="node7" href="$d2/da7/namespacedevice__jacobi.html#a0449982992f4fcbd66b8e69699672ab7" title=" " alt="" coords="311,209,474,250"/>
+<area shape="rect" id="node8" href="$dd/dd2/namespacedofmap.html#a9f777e0d88d98b54f9b982f68089ed8e" title="Deallocate the dofmap." alt="" coords="311,275,474,301"/>
+<area shape="rect" id="node10" href="$d9/d33/namespacefluid__user__source__term.html#acc43030d76c9495cc0e2b4c8c6eec321" title="Destructor." alt="" coords="285,326,500,367"/>
+<area shape="rect" id="node11" href="$d3/d69/namespaceadvection.html#a781edb0213024a718af63bf0c2fb2036" title="Destructor." alt="" coords="321,391,464,433"/>
+<area shape="rect" id="node12" href="$d8/dcd/namespacegs__device.html#acb55cb0b9872ab64f6a6465b793176df" title="Dummy backend deallocation." alt="" coords="296,457,489,484"/>
+<area shape="rect" id="node13" href="$d9/dfa/namespacegs__device__mpi.html#abb045b3b7a92b5de7ffeed36d4da2a26" title=" " alt="" coords="297,509,489,550"/>
+<area shape="rect" id="node14" href="$d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="309,575,476,601"/>
+<area shape="rect" id="node15" href="$d9/da0/namespaceinterpolation.html#aebaa148b8bd583b1be14fb012ffe0bcb" title=" " alt="" coords="281,625,504,652"/>
+<area shape="rect" id="node16" href="$da/d80/namespacelocal__interpolation.html#a5031df031d8e98513957186ec0e21870" title="Free pointers." alt="" coords="304,677,481,718"/>
+<area shape="rect" id="node17" href="$d8/d8b/namespacemap__1d.html#ab18be3a40599881af5a9d0aeb33f08a3" title=" " alt="" coords="311,743,474,769"/>
+<area shape="rect" id="node18" href="$d0/de4/namespacematrix.html#a04dddb8ae0f27e3ad7f38aa3022109de" title="Deallocate a matrix." alt="" coords="318,793,467,820"/>
+<area shape="rect" id="node19" href="$da/d46/namespacepipecg__device.html#aeac2e2e47dadc8df22ea517657edae34" title="Deallocate a pipelined PCG solver." alt="" coords="309,845,476,886"/>
+<area shape="rect" id="node20" href="$dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093" title="Destructor for the point_zone_t base type." alt="" coords="307,910,479,951"/>
+<area shape="rect" id="node22" href="$d3/d06/namespaceprojection.html#a1b1f6be35bcc16036da6a95e6e5bd3eb" title=" " alt="" coords="296,976,489,1003"/>
+<area shape="rect" id="node23" href="$d0/d19/namespacescalar__user__source__term.html#ab9464cf2c26193060f07b8cc4f45b496" title="Destructor." alt="" coords="297,1027,489,1083"/>
+<area shape="rect" id="node24" href="$de/dcb/namespacesource__scalar.html#a6b4bf569b1eae353428fae0a54bc89be" title="Deallocate a source_scalar term f." alt="" coords="311,1107,474,1149"/>
+<area shape="rect" id="node26" href="$d5/d0d/namespacespace.html#ae0b8a6c7d8cb34ac618be6d7564460d4" title="Deallocate a space s." alt="" coords="323,1173,462,1200"/>
+<area shape="rect" id="node28" href="$dc/dfb/namespacetime__scheme__controller.html#a2effcc174c3daa14ef6ae6035f475c72" title="Destructor." alt="" coords="283,1225,503,1266"/>
+<area shape="rect" id="node29" href="$dc/d45/namespaceusr__inflow.html#ad596c94305154667eaeb02e8bb0243a9" title=" " alt="" coords="295,1291,490,1317"/>
+<area shape="rect" id="node30" href="$dd/d87/namespaceusr__scalar.html#abe8e638139ce3c992deb67eb18edd01b" title=" " alt="" coords="295,1341,490,1368"/>
+<area shape="rect" id="node31" href="$d7/d34/namespacevector.html#a71d35851a8d8d31c51daab97d50273a1" title="Deallocate a vector." alt="" coords="320,1392,465,1419"/>
+<area shape="rect" id="node3" href="$d0/dc0/namespacebc.html#afe11a4149cacaeebaef5258610f2fcab" title="Constructor." alt="" coords="75,5,163,32"/>
+<area shape="rect" id="node9" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,275,233,301"/>
+<area shape="rect" id="node21" href="$dc/d5f/namespacepoint__zone.html#a507936f9e00dbcb59306833ca04a718d" title="Constructor for the point_zone_t base type." alt="" coords="33,910,205,951"/>
+<area shape="rect" id="node25" href="$de/dcb/namespacesource__scalar.html#a6b6772c08418b69489322be4cff05fcc" title="Initialize a source_scalar term f." alt="" coords="38,1107,201,1149"/>
+<area shape="rect" id="node27" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="52,1173,187,1200"/>
+</map>

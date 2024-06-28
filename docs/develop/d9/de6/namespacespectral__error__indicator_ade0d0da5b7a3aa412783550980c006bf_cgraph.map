@@ -1,0 +1,5 @@
+<map id="spectral_error_indicator::calculate_indicators" name="spectral_error_indicator::calculate_indicators">
+<area shape="rect" id="node1" title="Wrapper for old fortran 77 subroutines." alt="" coords="5,5,181,47"/>
+<area shape="rect" id="node2" href="$d9/de6/namespacespectral__error__indicator.html#adca28e22f14112b2b37756eeda8b6ce2" title="Calculate the indicator in a specified variable." alt="" coords="229,5,405,47"/>
+<area shape="rect" id="node3" href="$d9/de6/namespacespectral__error__indicator.html#a362c18efaeac4a1281f49e56d7a82a18" title="Extrapolate the Legendre spectrum from the last points." alt="" coords="453,5,629,47"/>
+</map>

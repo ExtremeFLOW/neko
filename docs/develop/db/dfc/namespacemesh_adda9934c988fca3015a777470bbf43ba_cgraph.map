@@ -1,0 +1,13 @@
+<map id="mesh::mesh_generate_conn" name="mesh::mesh_generate_conn">
+<area shape="rect" id="node1" title="Generate element&#45;to&#45;element connectivity." alt="" coords="5,242,211,269"/>
+<area shape="rect" id="node2" href="$db/dfc/namespacemesh.html#a35d97ddb7d486cd79f3c1e4ee4ea2cfc" title="Generate element&#45;element connectivity via edges both between internal and between PEs." alt="" coords="259,71,425,112"/>
+<area shape="rect" id="node5" href="$db/dfc/namespacemesh.html#ac54b7d89e17024d5105cf449551a5335" title="Generate element&#45;element connectivity via facets between PEs." alt="" coords="259,201,425,243"/>
+<area shape="rect" id="node8" href="$db/dfc/namespacemesh.html#aadcee020052d3a876ded460252b3a42a" title="Generate element&#45;element connectivity via points between PEs." alt="" coords="259,267,425,308"/>
+<area shape="rect" id="node10" href="$db/dfc/namespacemesh.html#a18664cc50a3043167f74ea0da7291237" title="Generate a unique facet numbering." alt="" coords="259,332,425,373"/>
+<area shape="rect" id="node3" href="$dc/d48/namespacedistdata.html#a66e2d8156519bf42e00ef85a2dd9d696" title="Set local to global mapping (edges)" alt="" coords="474,5,667,47"/>
+<area shape="rect" id="node4" href="$dc/d48/namespacedistdata.html#ab553d9210e3f859553e82c8be368db33" title="Mark an element&#39;s edge as shared." alt="" coords="501,71,640,112"/>
+<area shape="rect" id="node6" href="$dc/d48/namespacedistdata.html#a13af2d2fa32c3733dbf1688e579951ec" title="Mark an element&#39;s facet as shared." alt="" coords="491,136,650,177"/>
+<area shape="rect" id="node7" href="$dc/d48/namespacedistdata.html#a7aa5fbd5e4916c9f7eca2e0005716486" title="Mark a facet as shared." alt="" coords="501,201,641,243"/>
+<area shape="rect" id="node9" href="$dc/d48/namespacedistdata.html#a104a6fac60956fc167df8bb063632973" title="Mark a point as shared." alt="" coords="501,267,641,308"/>
+<area shape="rect" id="node11" href="$dc/d48/namespacedistdata.html#a21b01a3e652f6cd332611cce8b4f46b9" title="Set local to global mapping (facets)" alt="" coords="473,332,668,373"/>
+</map>

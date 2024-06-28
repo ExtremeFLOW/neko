@@ -1,0 +1,4 @@
+<map id="const_source_term::const_source_term_t" name="const_source_term::const_source_term_t">
+<area shape="rect" id="node1" title="A constant source term. The strength is specified with the values keyword, which should be an array,..." alt="" coords="5,95,163,136"/>
+<area shape="rect" id="node2" href="$d8/d03/structsource__term_1_1source__term__t.html" title="Base abstract type for source terms." alt="" coords="7,5,161,47"/>
+</map>

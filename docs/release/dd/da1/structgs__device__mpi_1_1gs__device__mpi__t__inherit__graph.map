@@ -1,0 +1,4 @@
+<map id="gs_device_mpi::gs_device_mpi_t" name="gs_device_mpi::gs_device_mpi_t">
+<area shape="rect" id="node1" title="Gather&#45;scatter communication using device MPI. The arrays are indexed per PE like send_pe and @ recv_..." alt="" coords="5,80,197,121"/>
+<area shape="rect" id="node2" href="$d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="17,5,185,32"/>
+</map>

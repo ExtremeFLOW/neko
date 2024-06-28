@@ -1,0 +1,9 @@
+<map id="uset::uset_i4_t" name="uset::uset_i4_t">
+<area shape="rect" id="node1" title="Integer based unordered set." alt="" coords="156,260,273,287"/>
+<area shape="rect" id="node2" href="$d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="5,171,104,197"/>
+<area shape="rect" id="node3" href="$dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="129,171,301,197"/>
+<area shape="rect" id="node4" href="$d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="138,95,291,121"/>
+<area shape="rect" id="node5" href="$db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="325,171,467,197"/>
+<area shape="rect" id="node6" href="$d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="334,95,458,121"/>
+<area shape="rect" id="node7" href="$d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="331,5,461,32"/>
+</map>

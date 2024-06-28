@@ -1,0 +1,7 @@
+<map id="utils::linear_index" name="utils::linear_index">
+<area shape="rect" id="node1" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="431,64,569,91"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a204e045362bcbf89e2f26eba6c91980d" title="Finalize the construction of the bc by populting the msk and facet arrays." alt="" coords="244,5,359,32"/>
+<area shape="rect" id="node3" href="$d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="232,57,371,98"/>
+<area shape="rect" id="node5" href="$d6/d84/namespaceutils.html#a4e89d599e08bc4cd6c538a5956b6a4dd" title="Compute (i,j,k,l) array given linear index with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="220,123,383,149"/>
+<area shape="rect" id="node4" href="$d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,64,172,91"/>
+</map>

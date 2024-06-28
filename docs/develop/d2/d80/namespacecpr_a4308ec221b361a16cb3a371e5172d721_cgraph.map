@@ -1,0 +1,9 @@
+<map id="cpr::cpr_truncate_wn" name="cpr::cpr_truncate_wn">
+<area shape="rect" id="node1" title="Truncate the frequencies." alt="" coords="5,81,163,108"/>
+<area shape="rect" id="node2" href="$d2/d80/namespacecpr.html#a3ddd196381c64b6eece0ffc931ccce8a" title="create filter transfer function" alt="" coords="225,5,361,32"/>
+<area shape="rect" id="node3" href="$d2/d80/namespacecpr.html#a40239ede9363a3edd5ad65aa84acf857" title=" " alt="" coords="211,56,375,83"/>
+<area shape="rect" id="node4" href="$d2/d80/namespacecpr.html#ad5c749dc8d2b48a82406957877bca255" title="reorder the array &#45; inverse of swap" alt="" coords="251,107,335,133"/>
+<area shape="rect" id="node5" href="$d2/d80/namespacecpr.html#a5981c6c763b1b2a220da71f67f2b42a2" title="Sort the spectral coefficient in descending order array vsort. The original indices are stored in the..." alt="" coords="239,157,346,184"/>
+<area shape="rect" id="node6" href="$d2/d80/namespacecpr.html#a93a6484bb575b9a2bb0a3fb6ff78064f" title="Flip vector b and ind." alt="" coords="425,132,504,159"/>
+<area shape="rect" id="node7" href="$d2/d80/namespacecpr.html#a46bc70f2ea480c8ca7a025a7c469694f" title="sort the array acording to ind vector" alt="" coords="423,183,507,209"/>
+</map>

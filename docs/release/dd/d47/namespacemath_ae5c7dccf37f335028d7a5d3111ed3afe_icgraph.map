@@ -1,0 +1,5 @@
+<map id="math::sub2" name="math::sub2">
+<area shape="rect" id="node1" title="Vector substraction ." alt="" coords="208,42,303,69"/>
+<area shape="rect" id="node2" href="$d3/d69/namespaceadvection.html#a50867235873a10384e4958a3f5dcdf32" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="7,5,158,47"/>
+<area shape="rect" id="node3" href="$dc/d48/namespacegmres.html#a96f21cb206d8da8611f3c630ae4459ca" title="Standard GMRES solve." alt="" coords="5,71,160,98"/>
+</map>

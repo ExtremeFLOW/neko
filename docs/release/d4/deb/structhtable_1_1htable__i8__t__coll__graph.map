@@ -1,0 +1,5 @@
+<map id="htable::htable_i8_t" name="htable::htable_i8_t">
+<area shape="rect" id="node1" title="Integer*8 based hash table." alt="" coords="5,171,148,197"/>
+<area shape="rect" id="node2" href="$d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="15,95,139,121"/>
+<area shape="rect" id="node3" href="$d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="11,5,142,32"/>
+</map>

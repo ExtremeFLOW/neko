@@ -1,0 +1,6 @@
+<map id="device::device_event_sync" name="device::device_event_sync">
+<area shape="rect" id="node1" title="Synchronize an event." alt="" coords="220,71,417,98"/>
+<area shape="rect" id="node2" href="$d6/d60/namespacecg__device.html#a6e1d10056d59ba4295673097d13ac0f4" title="Standard PCG solve." alt="" coords="9,5,169,47"/>
+<area shape="rect" id="node3" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="17,71,161,98"/>
+<area shape="rect" id="node4" href="$da/d46/namespacepipecg__device.html#a97a1fd422c4c03f238038a1d3e8154fe" title="Pipelined PCG solve." alt="" coords="5,123,172,164"/>
+</map>

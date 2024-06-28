@@ -1,0 +1,9 @@
+<map id="device_math::device_add2" name="device_math::device_add2">
+<area shape="rect" id="node1" title=" " alt="" coords="277,177,473,204"/>
+<area shape="rect" id="node2" href="$d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18" title=" " alt="" coords="5,5,229,32"/>
+<area shape="rect" id="node3" href="$d9/d33/namespacefluid__user__source__term.html#a3b62ed264a985b4f6278041b423e987f" title="Computes the source term and adds the result to fields." alt="" coords="27,56,208,112"/>
+<area shape="rect" id="node4" href="$d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="44,137,191,178"/>
+<area shape="rect" id="node5" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="27,202,208,243"/>
+<area shape="rect" id="node6" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="45,268,189,295"/>
+<area shape="rect" id="node7" href="$d0/d19/namespacescalar__user__source__term.html#af21d8d1b876087064e3a30317ade1a4c" title="Computes the source term and adds the result to fields." alt="" coords="21,319,213,375"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="math::sub2" name="math::sub2">
+<area shape="rect" id="node1" title="Vector substraction ." alt="" coords="707,111,801,138"/>
+<area shape="rect" id="node2" href="$d9/df7/namespaceadv__dealias.html#aa8bd4106a15ecc382579a2712d33bdf2" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="489,5,654,47"/>
+<area shape="rect" id="node3" href="$da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78" title="Compute Germano Identity on the CPU." alt="" coords="487,71,655,112"/>
+<area shape="rect" id="node6" href="$da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376" title="Compute M_ij on the CPU." alt="" coords="484,136,659,177"/>
+<area shape="rect" id="node7" href="$dc/d48/namespacegmres.html#a96f21cb206d8da8611f3c630ae4459ca" title="Standard GMRES solve." alt="" coords="494,202,649,229"/>
+<area shape="rect" id="node4" href="$da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6" title="Compute eddy viscosity on the CPU." alt="" coords="229,97,436,153"/>
+<area shape="rect" id="node5" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="5,97,181,153"/>
+</map>

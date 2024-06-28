@@ -1,0 +1,5 @@
+<map id="point_zone_registry::add_point_zone_from_json" name="point_zone_registry::add_point_zone_from_json">
+<area shape="rect" id="node1" title="Adds a point zone object to the registry from a json object." alt="" coords="5,5,209,47"/>
+<area shape="rect" id="node2" href="$df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401" title="Point zone factory. Constructs, initializes, and maps the point zone object." alt="" coords="257,5,428,47"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="476,5,621,47"/>
+</map>

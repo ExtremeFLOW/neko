@@ -1,0 +1,4 @@
+<map id="point_interpolator::point_interpolator_interpolate_vector" name="point_interpolator::point_interpolator_interpolate_vector">
+<area shape="rect" id="node1" title="Interpolates a vector field &#160;on a set of &#160;points . Returns an array of N points ." alt="" coords="200,5,348,61"/>
+<area shape="rect" id="node2" href="$d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#af586e49329da60a0510bdf0ada15f8e1" title="Interpolates a scalar or vector field on a set of points." alt="" coords="5,5,152,61"/>
+</map>

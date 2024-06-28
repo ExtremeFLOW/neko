@@ -1,0 +1,10 @@
+<map id="fluid_plan1::fluid_plan1_init" name="fluid_plan1::fluid_plan1_init">
+<area shape="rect" id="node1" title=" " alt="" coords="5,72,135,113"/>
+<area shape="rect" id="node2" href="$d8/d09/namespacefluid__scheme.html#ae118e3aebe30e81422421926063456d0" title="Initialize a Krylov preconditioner." alt="" coords="183,39,367,80"/>
+<area shape="rect" id="node6" href="$d8/d09/namespacefluid__scheme.html#a5fb59358d3639df4c60c471642d27e1f" title="Initialize a linear solver." alt="" coords="185,104,365,145"/>
+<area shape="rect" id="node3" href="$dc/d51/namespaceprecon__fctry.html#a0aefd281124542ca1d4fb7468c1958d5" title="Create a preconditioner." alt="" coords="415,39,569,80"/>
+<area shape="rect" id="node4" href="$d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="622,71,767,112"/>
+<area shape="rect" id="node5" href="$dc/d51/namespaceprecon__fctry.html#afb99729cf63d194b6678502d515e0d48" title="Destroy a preconditioner." alt="" coords="617,5,772,47"/>
+<area shape="rect" id="node7" href="$d9/d77/namespacekrylov__fctry.html#afbaa64cc1a8ad32e985748ce4e32f7d2" title="Factory for Krylov solvers. Both creates and initializes the object." alt="" coords="418,104,566,145"/>
+<area shape="rect" id="node8" href="$d9/d77/namespacekrylov__fctry.html#a6aeb41860ae6067054a60c5ae6262d5f" title="Destroy an interative Krylov type_name." alt="" coords="621,136,769,177"/>
+</map>

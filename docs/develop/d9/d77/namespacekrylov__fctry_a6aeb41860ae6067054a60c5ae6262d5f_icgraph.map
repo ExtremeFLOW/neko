@@ -1,0 +1,15 @@
+<map id="krylov_fctry::krylov_solver_destroy" name="krylov_fctry::krylov_solver_destroy">
+<area shape="rect" id="node1" title="Destroy an interative Krylov type_name." alt="" coords="1087,96,1235,137"/>
+<area shape="rect" id="node2" href="$d8/d09/namespacefluid__scheme.html#a163ce93c7c8e760a2172e915aab75525" title="Deallocate a fluid formulation." alt="" coords="883,8,1027,49"/>
+<area shape="rect" id="node3" href="$dd/dd1/namespacehsmg.html#a74343fce57f519e87cbff9557ee65a27" title=" " alt="" coords="888,74,1023,101"/>
+<area shape="rect" id="node4" href="$d9/d77/namespacekrylov__fctry.html#afbaa64cc1a8ad32e985748ce4e32f7d2" title="Factory for Krylov solvers. Both creates and initializes the object." alt="" coords="881,125,1029,167"/>
+<area shape="rect" id="node13" href="$da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b" title="Deallocate a scalar formulation." alt="" coords="872,191,1039,232"/>
+<area shape="rect" id="node5" href="$d8/d09/namespacefluid__scheme.html#a5fb59358d3639df4c60c471642d27e1f" title="Initialize a linear solver." alt="" coords="644,65,824,107"/>
+<area shape="rect" id="node10" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="669,133,799,159"/>
+<area shape="rect" id="node11" href="$da/de3/namespacescalar__scheme.html#ab1f435e3dbdfe423434dc4428b89553c" title="Initialize a linear solver." alt="" coords="644,185,824,227"/>
+<area shape="rect" id="node6" href="$d6/d78/namespacefluid__plan1.html#ab1fb9c5e6fea5145cee2e111f6ce9404" title=" " alt="" coords="445,5,575,47"/>
+<area shape="rect" id="node7" href="$d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="232,64,376,105"/>
+<area shape="rect" id="node9" href="$d8/d09/namespacefluid__scheme.html#ab8289185c523ab7039d9076f81d2c2cc" title="Initialize common data for the current scheme." alt="" coords="424,123,596,164"/>
+<area shape="rect" id="node8" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a7e2136dedddf80e7660284a3feec1bc2" title=" " alt="" coords="5,93,184,135"/>
+<area shape="rect" id="node12" href="$da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="427,188,593,229"/>
+</map>

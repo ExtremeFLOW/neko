@@ -1,0 +1,5 @@
+<map id="bc::bc_init" name="bc::bc_init">
+<area shape="rect" id="node1" title="Constructor." alt="" coords="5,5,93,32"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a6ef61f50823ff60fba8fa16de22e4bc2" title="Destructor." alt="" coords="141,5,235,32"/>
+<area shape="rect" id="node3" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="283,5,432,32"/>
+</map>

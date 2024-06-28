@@ -1,0 +1,4 @@
+<map id="tet_mesh::tet_mesh_bisect_svtc" name="tet_mesh::tet_mesh_bisect_svtc">
+<area shape="rect" id="node1" title="Bisect each hexahedron into six tetrahedrons." alt="" coords="233,5,385,47"/>
+<area shape="rect" id="node2" href="$d4/d59/namespacetet__mesh.html#a9ac23acd0c59e3b77f7aa05115e15fa1" title="Initialise a tetrahedral mesh based on a hexahedral mesh msh." alt="" coords="5,13,185,39"/>
+</map>

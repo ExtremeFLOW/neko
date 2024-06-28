@@ -1,0 +1,6 @@
+<map id="point_zone_fctry::point_zone_factory" name="point_zone_fctry::point_zone_factory">
+<area shape="rect" id="node1" title="Point zone factory. Constructs, initializes, and maps the point zone object." alt="" coords="464,46,635,87"/>
+<area shape="rect" id="node2" href="$d9/dac/namespacepoint__zone__registry.html#ac000af656c591a6a7a133c1290416264" title="Adds a point zone object to the registry from a json object." alt="" coords="212,13,416,54"/>
+<area shape="rect" id="node4" href="$d9/dac/namespacepoint__zone__registry.html#a5dd04944419ba6b206c8f633e70e5ab7" title="Constructor, reading from json point zones." alt="" coords="221,78,407,119"/>
+<area shape="rect" id="node3" href="$dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html#a2d81276e1d36258ad45ef621369f5876" title=" " alt="" coords="5,5,164,61"/>
+</map>

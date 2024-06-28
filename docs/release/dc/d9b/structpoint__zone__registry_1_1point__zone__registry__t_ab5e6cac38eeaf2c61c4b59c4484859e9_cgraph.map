@@ -1,0 +1,5 @@
+<map id="point_zone_registry::point_zone_registry_t::get_point_zone" name="point_zone_registry::point_zone_registry_t::get_point_zone">
+<area shape="rect" id="node1" title=" " alt="" coords="5,31,164,87"/>
+<area shape="rect" id="node2" href="$d9/dac/namespacepoint__zone__registry.html#add503103a3dcb29115ad6d8910de73e3" title="Retrieves a point zone in the registry by its index in the point_zones array." alt="" coords="213,5,407,47"/>
+<area shape="rect" id="node3" href="$d9/dac/namespacepoint__zone__registry.html#acbeecef93f35f014523cc25382ba972a" title="Retrieves a point zone in the registry by its name." alt="" coords="212,71,408,112"/>
+</map>

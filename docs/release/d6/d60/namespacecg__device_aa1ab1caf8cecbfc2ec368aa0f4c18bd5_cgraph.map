@@ -1,0 +1,4 @@
+<map id="cg_device::cg_device_init" name="cg_device::cg_device_init">
+<area shape="rect" id="node1" title="Initialise a device based PCG solver." alt="" coords="5,13,193,39"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="241,5,401,47"/>
+</map>

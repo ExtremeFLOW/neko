@@ -1,0 +1,7 @@
+<map id="sphere_point_zone::sphere_point_zone_t" name="sphere_point_zone::sphere_point_zone_t">
+<area shape="rect" id="node1" title="A sphere&#45;shaped point zone." alt="" coords="19,247,175,288"/>
+<area shape="rect" id="node2" href="$d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones." alt="" coords="5,171,189,197"/>
+<area shape="rect" id="node3" title=" " alt="" coords="27,81,82,108"/>
+<area shape="rect" id="node4" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="107,81,237,108"/>
+<area shape="rect" id="node5" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="116,5,228,32"/>
+</map>

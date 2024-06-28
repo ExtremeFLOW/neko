@@ -1,0 +1,4 @@
+<map id="smagorinsky_cpu::smagorinsky_compute_cpu" name="smagorinsky_cpu::smagorinsky_compute_cpu">
+<area shape="rect" id="node1" title="Compute eddy viscosity on the CPU." alt="" coords="248,5,475,47"/>
+<area shape="rect" id="node2" href="$d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="5,5,200,47"/>
+</map>

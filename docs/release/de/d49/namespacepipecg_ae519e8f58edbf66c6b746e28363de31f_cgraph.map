@@ -1,0 +1,6 @@
+<map id="pipecg::pipecg_solve" name="pipecg::pipecg_solve">
+<area shape="rect" id="node1" title="Pipelined PCG solve." alt="" coords="5,56,164,83"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="214,5,309,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="212,56,311,83"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="213,107,310,133"/>
+</map>

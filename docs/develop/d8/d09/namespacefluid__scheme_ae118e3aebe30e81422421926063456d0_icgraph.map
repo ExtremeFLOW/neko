@@ -1,0 +1,7 @@
+<map id="fluid_scheme::fluid_scheme_precon_factory" name="fluid_scheme::fluid_scheme_precon_factory">
+<area shape="rect" id="node1" title="Initialize a Krylov preconditioner." alt="" coords="644,64,828,105"/>
+<area shape="rect" id="node2" href="$d6/d78/namespacefluid__plan1.html#ab1fb9c5e6fea5145cee2e111f6ce9404" title=" " alt="" coords="445,5,575,47"/>
+<area shape="rect" id="node3" href="$d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="232,64,376,105"/>
+<area shape="rect" id="node5" href="$d8/d09/namespacefluid__scheme.html#ab8289185c523ab7039d9076f81d2c2cc" title="Initialize common data for the current scheme." alt="" coords="424,123,596,164"/>
+<area shape="rect" id="node4" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a7e2136dedddf80e7660284a3feec1bc2" title=" " alt="" coords="5,93,184,135"/>
+</map>

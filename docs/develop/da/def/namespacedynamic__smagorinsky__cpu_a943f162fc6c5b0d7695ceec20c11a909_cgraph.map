@@ -1,0 +1,4 @@
+<map id="dynamic_smagorinsky_cpu::compute_num_den_cpu" name="dynamic_smagorinsky_cpu::compute_num_den_cpu">
+<area shape="rect" id="node1" title="Compute numerator and denominator for c_dyn on the CPU." alt="" coords="5,5,220,47"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a8449fe8f39c313a280adbf2b567797d4" title="Returns ." alt="" coords="268,13,379,39"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="brinkman_source_term_cpu::brinkman_source_term_compute_cpu" name="brinkman_source_term_cpu::brinkman_source_term_compute_cpu">
+<area shape="rect" id="node1" title="Computes the Brinkman source term on the cpu." alt="" coords="233,5,405,61"/>
+<area shape="rect" id="node2" href="$d0/d7b/namespacebrinkman__source__term.html#a720d472803e4fe61add63e18da4bd69a" title="Computes the source term and adds the result to fields." alt="" coords="5,5,185,61"/>
+</map>

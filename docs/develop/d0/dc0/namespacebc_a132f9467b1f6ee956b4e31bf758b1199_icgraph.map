@@ -1,0 +1,11 @@
+<map id="bc::bc_list_add" name="bc::bc_list_add">
+<area shape="rect" id="node1" title="Add a condition to a list of boundary conditions." alt="" coords="687,173,805,200"/>
+<area shape="rect" id="node2" href="$dc/da3/namespacefluid__pnpn.html#a24a6187aed087af84495969693831775" title=" " alt="" coords="447,5,639,32"/>
+<area shape="rect" id="node3" href="$d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="243,49,387,90"/>
+<area shape="rect" id="node5" href="$d8/d09/namespacefluid__scheme.html#ab8289185c523ab7039d9076f81d2c2cc" title="Initialize common data for the current scheme." alt="" coords="457,107,629,149"/>
+<area shape="rect" id="node6" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="477,173,608,200"/>
+<area shape="rect" id="node7" href="$db/d56/namespacescalar__pnpn.html#af70b26869059aa4be9721e2b29202e27" title="Constructor." alt="" coords="469,225,616,266"/>
+<area shape="rect" id="node8" href="$da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc" title="Initialize boundary conditions." alt="" coords="459,290,626,331"/>
+<area shape="rect" id="node9" href="$da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="232,319,399,361"/>
+<area shape="rect" id="node4" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a7e2136dedddf80e7660284a3feec1bc2" title=" " alt="" coords="5,78,184,119"/>
+</map>

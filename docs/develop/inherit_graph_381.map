@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="5,132,113,159"/>
+<area shape="rect" id="node2" href="$d9/d51/structtuple_1_1tuple3__i4__t.html" title="Integer based 3&#45;tuple." alt="" coords="168,5,303,32"/>
+<area shape="rect" id="node3" href="$dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="168,56,303,83"/>
+<area shape="rect" id="node4" href="$da/d95/structtuple_1_1tuple__2i4r8__t.html" title="Mixed integer ( ) double precision ( ) 3&#45;tuple." alt="" coords="161,107,309,133"/>
+<area shape="rect" id="node5" href="$d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="172,157,299,184"/>
+<area shape="rect" id="node6" href="$d4/deb/structtuple_1_1tuple__i4r8__t.html" title="Mixed integer ( ) double precision ( ) 2&#45;tuple ." alt="" coords="165,208,305,235"/>
+<area shape="rect" id="node7" href="$d7/d14/structtuple_1_1tuple__r8__t.html" title="Double precision based 2&#45;tuple." alt="" coords="171,259,299,285"/>
+</map>

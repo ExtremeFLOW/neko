@@ -1,0 +1,7 @@
+<map id="aabb::get_aabb_tet_mesh" name="aabb::get_aabb_tet_mesh">
+<area shape="rect" id="node1" title="Get the aabb of a tetrahedral mesh." alt="" coords="5,56,196,83"/>
+<area shape="rect" id="node2" href="$d5/de2/namespaceaabb.html#a9a79814aa9d37785cb4d53a4aef2beb8" title="Construct the aabb of a predefined object." alt="" coords="244,56,367,83"/>
+<area shape="rect" id="node3" href="$d5/de2/namespaceaabb.html#ab9198807cc6826776f8b94a84cd9f999" title="Get the aabb of an arbitrary element." alt="" coords="417,5,599,32"/>
+<area shape="rect" id="node4" href="$d5/de2/namespaceaabb.html#a7b35ee1d1158d03311f46930ee69b2de" title="Get the aabb of a mesh." alt="" coords="425,56,591,83"/>
+<area shape="rect" id="node5" href="$d5/de2/namespaceaabb.html#a6a76082373d4b84a0fb3f820a3203954" title="Get the aabb of a triangular mesh." alt="" coords="415,107,601,133"/>
+</map>

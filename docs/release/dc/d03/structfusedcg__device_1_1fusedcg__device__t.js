@@ -1,0 +1,26 @@
+var structfusedcg__device_1_1fusedcg__device__t =
+[
+    [ "free", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a3909087bb72b464ae08f08d6a3885e59", null ],
+    [ "init", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#afcff178bac3e4ef2f5bfadc8acf8fb82", null ],
+    [ "ksp_free", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#aa2507024b78f504511edbf410b7b9388", null ],
+    [ "ksp_init", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
+    [ "set_pc", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#ac8461060f257f28e50083521e7079adc", null ],
+    [ "solve", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a07124211ab2bf33d4c1ad24b010aec12", null ],
+    [ "abs_tol", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
+    [ "alpha", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a347944f7c70bce125f9e77df4fee05b6", null ],
+    [ "alpha_d", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a041a8810067286b575354c1c0ddd2514", null ],
+    [ "gs_event", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a27b9c79162ff058a046a170f98e55837", null ],
+    [ "m", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a919f46cedba40962024d26a886ab31f9", null ],
+    [ "m_ident", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#aeec0dc845eecbf135d94945f24a937dd", null ],
+    [ "max_iter", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a0604caa64f407001658d0678f200e426", null ],
+    [ "p", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a9b34ae14f4ff2d2b8692dae22d3d5edd", null ],
+    [ "p_d", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a6fd3e502bc06a95485f27a837c80ea2a", null ],
+    [ "p_d_d", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#aa9ce72790157adeb41301a080526d539", null ],
+    [ "r", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a378dd335fdf880c7fc295ceee445b8e5", null ],
+    [ "r_d", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a165fd5f39a48f8065b0e0136dae12755", null ],
+    [ "rel_tol", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a7e02bc45055956c25f0825ca6322051f", null ],
+    [ "w", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a8748f5cd7b33fb2f0c5eb7468cc00d4b", null ],
+    [ "w_d", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a435d8d6e929f282cb3d197b330af6ee7", null ],
+    [ "z", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#acdf2a92f45a12f2b508d2d40f2baaea3", null ],
+    [ "z_d", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#aa67a96776d4074366c9617c58ec7ad20", null ]
+];

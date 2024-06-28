@@ -1,0 +1,4 @@
+<map id="wall_model_fctry::wall_model_factory" name="wall_model_fctry::wall_model_factory">
+<area shape="rect" id="node1" title="Wall model factory. Both constructs and initializes the object." alt="" coords="5,5,173,47"/>
+<area shape="rect" id="node2" href="$d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="221,5,367,47"/>
+</map>

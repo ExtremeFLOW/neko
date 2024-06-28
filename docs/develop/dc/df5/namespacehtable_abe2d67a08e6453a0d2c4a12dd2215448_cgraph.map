@@ -1,0 +1,4 @@
+<map id="htable::htable_init" name="htable::htable_init">
+<area shape="rect" id="node1" title="Initialize a hash table of type data." alt="" coords="5,5,145,32"/>
+<area shape="rect" id="node2" href="$dc/df5/namespacehtable.html#a672b108e3f932f7c838cf39214a320d4" title="Destroy a hash table." alt="" coords="193,5,339,32"/>
+</map>

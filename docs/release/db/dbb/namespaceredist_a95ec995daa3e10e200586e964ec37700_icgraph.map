@@ -1,0 +1,7 @@
+<map id="redist::redist_zone" name="redist::redist_zone">
+<area shape="rect" id="node1" title="Fill redistribution list for zone data." alt="" coords="635,46,777,73"/>
+<area shape="rect" id="node2" href="$db/dbb/namespaceredist.html#a0495227a7bc72edb4553026a816d7ebf" title="Redistribute a mesh msh according to new partitions." alt="" coords="440,46,587,73"/>
+<area shape="rect" id="node3" href="$dd/da8/namespacecase.html#ae8960a3867b359b819ddafa169747832" title="Initialize a case from its (loaded) params object." alt="" coords="209,46,392,73"/>
+<area shape="rect" id="node4" href="$d8/d36/interfacecase_1_1case__init.html#a96fd088f5a85b607a614f31a86b826e6" title="Initialize a case from an input file case_file." alt="" coords="5,5,161,47"/>
+<area shape="rect" id="node5" href="$d8/d36/interfacecase_1_1case__init.html#a3fe242ef6c179c5b11d1004ac20f043e" title="Initialize a case from a JSON object describing a case." alt="" coords="5,71,161,112"/>
+</map>

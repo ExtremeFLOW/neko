@@ -1,0 +1,6 @@
+<map id="octree::octree_init" name="octree::octree_init">
+<area shape="rect" id="node1" title="Initialize an octree." alt="" coords="5,31,145,57"/>
+<area shape="rect" id="node2" href="$d8/d38/namespaceoctree.html#a36f53ea0ecfacb6b1ee426e8bfa6bf66" title="Destroy an octree." alt="" coords="204,5,349,32"/>
+<area shape="rect" id="node4" href="$d8/d38/namespaceoctree.html#aab2074f46ccdf70a1002b9a77ac922e7" title="Initialize an octant width a given width, origin and level." alt="" coords="193,56,360,83"/>
+<area shape="rect" id="node3" href="$d8/d38/namespaceoctree.html#a705270b5780e9cd2da7f565fdf96e8fb" title="Deallocate an oct in an octree." alt="" coords="408,5,580,32"/>
+</map>

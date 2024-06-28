@@ -1,0 +1,12 @@
+<map id="generic_file::generic_file_t" name="generic_file::generic_file_t">
+<area shape="rect" id="node1" title="A generic file handler." alt="" coords="5,201,159,242"/>
+<area shape="rect" id="node2" href="$dd/dd2/structchkp__file_1_1chkp__file__t.html" title="Interface for Neko checkpoint files." alt="" coords="211,5,370,32"/>
+<area shape="rect" id="node3" href="$d3/d88/structcsv__file_1_1csv__file__t.html" title=" " alt="" coords="221,56,361,83"/>
+<area shape="rect" id="node4" href="$dd/d2f/structfld__file_1_1fld__file__t.html" title="Interface for NEKTON fld files." alt="" coords="227,107,355,133"/>
+<area shape="rect" id="node5" href="$de/d14/structmap__file_1_1map__file__t.html" title="Interface for NEKTON map files." alt="" coords="213,157,368,184"/>
+<area shape="rect" id="node6" href="$df/d4d/structnmsh__file_1_1nmsh__file__t.html" title="Interface for Neko nmsh files." alt="" coords="207,208,375,235"/>
+<area shape="rect" id="node7" href="$d2/dfe/structre2__file_1_1re2__file__t.html" title="Interface for NEKTON re2 files." alt="" coords="221,259,360,285"/>
+<area shape="rect" id="node8" href="$d9/dfe/structrea__file_1_1rea__file__t.html" title="Interface for NEKTON ascii files." alt="" coords="221,309,360,336"/>
+<area shape="rect" id="node9" href="$d0/dab/structstl__file_1_1stl__file__t.html" title="Interface for STL files." alt="" coords="227,360,355,387"/>
+<area shape="rect" id="node10" href="$d8/d43/structvtk__file_1_1vtk__file__t.html" title="Interface for legacy VTK files." alt="" coords="221,411,360,437"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="drag_torque::drag_torque_facet" name="drag_torque::drag_torque_facet">
+<area shape="rect" id="node1" title="Calculate drag and torque over a facet." alt="" coords="5,23,192,65"/>
+<area shape="rect" id="node2" href="$d0/d6f/namespacedrag__torque.html#aa0aaba6013da47ebecf4ef3c36e0708c" title="Calculate drag and torque from one point." alt="" coords="240,5,447,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="495,31,592,57"/>
+</map>

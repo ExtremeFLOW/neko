@@ -1,0 +1,7 @@
+<map id="gs_mpi::gs_mpi_t" name="gs_mpi::gs_mpi_t">
+<area shape="rect" id="node1" title="Gather&#45;scatter communication using MPI." alt="" coords="171,289,307,316"/>
+<area shape="rect" id="node2" href="$d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="5,185,173,212"/>
+<area shape="rect" id="node3" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="24,81,155,108"/>
+<area shape="rect" id="node4" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="33,5,145,32"/>
+<area shape="rect" id="node5" href="$d7/d9f/structgs__mpi_1_1gs__comm__mpi__t.html" title="MPI buffer for non&#45;blocking operations." alt="" coords="197,185,381,212"/>
+</map>

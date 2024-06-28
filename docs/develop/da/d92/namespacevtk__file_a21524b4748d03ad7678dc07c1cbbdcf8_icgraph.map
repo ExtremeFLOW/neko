@@ -1,0 +1,4 @@
+<map id="vtk_file::vtk_file_write_dofmap_coordinates" name="vtk_file::vtk_file_write_dofmap_coordinates">
+<area shape="rect" id="node1" title="Write xyz&#45;coordinates of a dofmap dm as points." alt="" coords="180,5,383,47"/>
+<area shape="rect" id="node2" href="$da/d92/namespacevtk__file.html#a0b5d8b39ebf4fecb77391d9e468fb0b2" title="Write data in legacy VTK." alt="" coords="5,5,132,47"/>
+</map>

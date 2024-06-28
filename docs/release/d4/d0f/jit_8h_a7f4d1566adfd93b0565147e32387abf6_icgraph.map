@@ -1,0 +1,206 @@
+<map id="opencl_kernel_jit" name="opencl_kernel_jit">
+<area shape="rect" id="node1" title=" " alt="" coords="1352,2652,1484,2679"/>
+<area shape="rect" id="node2" href="$d6/da3/math_8c.html#aaf2f9ac78f3d79bcbe2e0584fa86fcf9" title=" " alt="" coords="1154,211,1258,237"/>
+<area shape="rect" id="node10" href="$d6/da3/math_8c.html#ad7645de3093aca20a011f8485e382380" title=" " alt="" coords="1147,1511,1265,1537"/>
+<area shape="rect" id="node13" href="$d6/da3/math_8c.html#a299eb8d523ba1c7d895b2430c2c2726b" title=" " alt="" coords="1147,1304,1265,1331"/>
+<area shape="rect" id="node18" href="$d6/da3/math_8c.html#a983acf5aeded19327a447d8e65ac373c" title=" " alt="" coords="1125,2259,1287,2285"/>
+<area shape="rect" id="node20" href="$d6/da3/math_8c.html#a70797e48565b1e348b464109ac4909c7" title=" " alt="" coords="1147,2141,1265,2168"/>
+<area shape="rect" id="node23" href="$d6/da3/math_8c.html#a03656599b99262f874e657d978cd7b27" title=" " alt="" coords="895,2576,1018,2603"/>
+<area shape="rect" id="node28" href="$d6/da3/math_8c.html#a5aa531b3f3d3a233af664b00f2a3254c" title=" " alt="" coords="1145,1961,1267,1988"/>
+<area shape="rect" id="node31" href="$d6/da3/math_8c.html#a116a0c88b392b55fb1262e5a6e7e80ad" title=" " alt="" coords="1137,1435,1275,1461"/>
+<area shape="rect" id="node34" href="$de/d16/ax__helm_8c.html#a45e57ab00f502da38c078cec253edb54" title=" " alt="" coords="1142,2081,1270,2108"/>
+<area shape="rect" id="node35" href="$d6/da3/math_8c.html#a1f45cde822dd4e80412f0cd54ab4482c" title=" " alt="" coords="1155,1236,1257,1263"/>
+<area shape="rect" id="node39" href="$d6/d10/opr__cdtp_8c.html#ad014ae6fead1604386995ca75f53a3e1" title=" " alt="" coords="1156,333,1256,360"/>
+<area shape="rect" id="node45" href="$d6/da3/math_8c.html#ace53d8c6b37b7549d3d1c15a5bda29ca" title=" " alt="" coords="1159,667,1253,693"/>
+<area shape="rect" id="node57" href="$da/d03/opr__cfl_8c.html#adf7676afc438521800bf332becd4212c" title=" " alt="" coords="1163,2947,1249,2973"/>
+<area shape="rect" id="node59" href="$d6/da3/math_8c.html#a11c52e9ccd9a49cda63423bb5ca32f94" title=" " alt="" coords="1151,1364,1261,1391"/>
+<area shape="rect" id="node61" href="$d6/da3/math_8c.html#a22f086daf6430d9aef14992ea61032eb" title=" " alt="" coords="1147,1652,1265,1679"/>
+<area shape="rect" id="node63" href="$d6/da9/coef_8c.html#aafbd283d930483605855d2397a10ab8d" title=" " alt="" coords="1123,2729,1289,2770"/>
+<area shape="rect" id="node66" href="$d6/da9/coef_8c.html#a7efd443816e810ea3561622c009a9ec0" title=" " alt="" coords="1108,2997,1304,3024"/>
+<area shape="rect" id="node68" href="$d6/da3/math_8c.html#a50e530ce31fce86fc27271f0a6277691" title=" " alt="" coords="907,2627,1006,2653"/>
+<area shape="rect" id="node76" href="$d6/da3/math_8c.html#a691550cff5b7c41017424d9a9ce5c952" title=" " alt="" coords="1157,2525,1255,2552"/>
+<area shape="rect" id="node79" href="$d1/dc1/opr__conv1_8c.html#ab07cb7910eb3d0e828e2220814aeb52f" title=" " alt="" coords="1151,3048,1261,3075"/>
+<area shape="rect" id="node82" href="$d0/d06/dirichlet_8c.html#ada40c8ffc06cf712209cdd5ae1308c00" title=" " alt="" coords="1122,3099,1290,3141"/>
+<area shape="rect" id="node86" href="$d0/d06/dirichlet_8c.html#abe67393ea835d5633a112b6e4712f795" title=" " alt="" coords="1122,3165,1290,3206"/>
+<area shape="rect" id="node89" href="$d4/dce/dong__outflow_8c.html#aad58a7c1e5641e428baad2edca38c410" title=" " alt="" coords="1127,3230,1285,3271"/>
+<area shape="rect" id="node93" href="$d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="1147,3296,1265,3323"/>
+<area shape="rect" id="node100" href="$df/d13/facet__normal_8c.html#a7f49779f0445c37353937d5bbcf63c0e" title=" " alt="" coords="1127,3347,1285,3389"/>
+<area shape="rect" id="node103" href="$d3/d18/fdm_8c.html#a65b6e22a9686f4446beb20d32dbc38f0" title=" " alt="" coords="1129,3413,1283,3440"/>
+<area shape="rect" id="node106" href="$d3/d3b/gs_8c.html#a45148d45c8cc297537c04418fbabd6c6" title=" " alt="" coords="1125,3464,1287,3491"/>
+<area shape="rect" id="node108" href="$d6/da3/math_8c.html#ae0e2f20f1dcc8815f9e4fd498965b30e" title=" " alt="" coords="903,1131,1010,1157"/>
+<area shape="rect" id="node110" href="$d6/da3/math_8c.html#a278d2d449c09caeb2e42dabf6a5521b9" title=" " alt="" coords="903,2307,1010,2333"/>
+<area shape="rect" id="node114" href="$d6/da3/math_8c.html#a0a18e8fd8aa391001adb05100d45820d" title=" " alt="" coords="1131,1771,1281,1797"/>
+<area shape="rect" id="node116" href="$d6/da3/math_8c.html#aed03de21002366623bffce735dea6076" title=" " alt="" coords="1150,1897,1262,1924"/>
+<area shape="rect" id="node118" href="$d0/dff/inflow_8c.html#a52a873328124fec5b6fee3ae6b407984" title=" " alt="" coords="1129,3515,1283,3557"/>
+<area shape="rect" id="node122" href="$d6/dfc/inhom__dirichlet_8c.html#a8511bdb6411abcf213bbaaef8095ad1a" title=" " alt="" coords="1119,3581,1293,3622"/>
+<area shape="rect" id="node124" href="$d6/dfc/inhom__dirichlet_8c.html#abac0820b5b254c31e7510afb2a0ae435" title=" " alt="" coords="1119,3646,1293,3687"/>
+<area shape="rect" id="node126" href="$d6/da3/math_8c.html#a050d326970f16412fdc23791968bc012" title=" " alt="" coords="897,2677,1016,2704"/>
+<area shape="rect" id="node128" href="$d6/da3/math_8c.html#aa1a9a7de56886d6918135b909da5cd86" title=" " alt="" coords="1147,2203,1265,2229"/>
+<area shape="rect" id="node130" href="$d6/d6b/pc__jacobi_8c.html#a9b29ba29a9552e97ac78ae3115d3fd67" title=" " alt="" coords="1125,3712,1287,3739"/>
+<area shape="rect" id="node131" href="$d9/d48/opr__lambda2_8c.html#aaa9807618cf70ed8ca827b7654650765" title=" " alt="" coords="1141,3763,1271,3789"/>
+<area shape="rect" id="node133" href="$d6/da3/math_8c.html#ab11037225065f04dcc7c2180d8b87990" title=" " alt="" coords="1125,1711,1287,1737"/>
+<area shape="rect" id="node136" href="$d9/dbe/no__slip__wall_8c.html#a28b27a823ee1b58565d9ba2152c1620a" title=" " alt="" coords="1130,3814,1282,3855"/>
+<area shape="rect" id="node140" href="$d9/dbe/no__slip__wall_8c.html#a1d78fb9a480d9ebc9f03b5dd13cfe38c" title=" " alt="" coords="1130,3879,1282,3921"/>
+<area shape="rect" id="node143" href="$d5/d69/mathops_8c.html#abde29084db4e5ac1f3396a03c15575cc" title=" " alt="" coords="1136,2795,1276,2821"/>
+<area shape="rect" id="node146" href="$d5/d69/mathops_8c.html#af84633acad96673e1261fcd3ad602cfa" title=" " alt="" coords="1137,2845,1275,2872"/>
+<area shape="rect" id="node148" href="$d5/d69/mathops_8c.html#af1c95bdbd1a81ab3817e85164931764e" title=" " alt="" coords="1141,1832,1271,1859"/>
+<area shape="rect" id="node150" href="$d5/d69/mathops_8c.html#ace47fde9bffcb8869b959bce8aadf033" title=" " alt="" coords="1149,2023,1263,2049"/>
+<area shape="rect" id="node152" href="$d5/d69/mathops_8c.html#a39329dc63c2b24ee76e52552ec588d19" title=" " alt="" coords="1141,2896,1271,2923"/>
+<area shape="rect" id="node154" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="1147,779,1265,805"/>
+<area shape="rect" id="node160" href="$d3/d3b/gs_8c.html#a97fd6c3de3674416ee967affb22a1071" title=" " alt="" coords="1124,3945,1288,3972"/>
+<area shape="rect" id="node162" href="$d0/d3c/schwarz_8c.html#af6a78f1b126adb41d068a7ef8df7c99c" title=" " alt="" coords="1115,3997,1297,4024"/>
+<area shape="rect" id="node165" href="$d0/d3c/schwarz_8c.html#a410565b7b3a5d28daaa75872444b86a8" title=" " alt="" coords="1115,4051,1297,4077"/>
+<area shape="rect" id="node167" href="$d0/d3c/schwarz_8c.html#a21d5e041078d3b1a56e0124eddd945fe" title=" " alt="" coords="1115,4107,1297,4133"/>
+<area shape="rect" id="node169" href="$d6/da3/math_8c.html#a488fcdc4f3a171e68af6e52f94a9699d" title=" " alt="" coords="905,2475,1008,2501"/>
+<area shape="rect" id="node171" href="$d6/da3/math_8c.html#a1afa5bd7206ea75ecca86f7034d940cb" title=" " alt="" coords="1155,1597,1257,1624"/>
+<area shape="rect" id="node173" href="$d6/da3/math_8c.html#a6e88855af43b300be89ca9c1ba0aedcc" title=" " alt="" coords="1145,2369,1267,2396"/>
+<area shape="rect" id="node177" href="$d6/d04/symmetry_8c.html#a3ba53bd119f13be13f8c1148e38902c4" title=" " alt="" coords="1115,4169,1297,4210"/>
+<area shape="rect" id="node179" href="$d9/dbd/tensor_8c.html#a1c1f3461770465a6b3d4d1b3358e8527" title=" " alt="" coords="1149,4255,1263,4281"/>
+<area shape="rect" id="node183" href="$d9/dbd/tensor_8c.html#ab25bcc507ceb1b1777403796cd1b28ab" title=" " alt="" coords="1127,4347,1285,4373"/>
+<area shape="rect" id="node187" href="$d6/da3/math_8c.html#ae027b835301b8c2ab4f4bd5c808899a4" title=" " alt="" coords="902,2424,1011,2451"/>
+<area shape="rect" id="node189" href="$df/d4b/pnpn__res_8c.html#a374afb77ede232d6f96c3df58c704b66" title=" " alt="" coords="617,1038,766,1079"/>
+<area shape="rect" id="node190" href="$df/d4b/pnpn__res_8c.html#a6ef5029e9556cc27d3076a0350dcf6c6" title=" " alt="" coords="617,907,766,949"/>
+<area shape="rect" id="node191" href="$df/d4b/pnpn__res_8c.html#a1592c5e447d4d3562124b4bb453c23f2" title=" " alt="" coords="617,973,766,1014"/>
+<area shape="rect" id="node192" href="$df/d4b/pnpn__res_8c.html#ad5f25881b8274b041f013c945a4bf65d" title=" " alt="" coords="611,406,771,447"/>
+<area shape="rect" id="node193" href="$d8/dae/rhs__maker_8c.html#ace029e8af372a3ad3f85ea03d0ab7523" title=" " alt="" coords="1122,4480,1290,4507"/>
+<area shape="rect" id="node195" href="$d8/dae/rhs__maker_8c.html#a93e26713dcaed5baca96f6a15509dc49" title=" " alt="" coords="1122,4695,1290,4721"/>
+<area shape="rect" id="node197" href="$d8/dae/rhs__maker_8c.html#a2c93cc08fdb6e89e9b2d461be93df9cd" title=" " alt="" coords="1111,4769,1301,4796"/>
+<area shape="rect" id="node200" href="$d7/d46/scalar__residual_8c.html#a601e0ff5fa599043701f6ac2066733f6" title=" " alt="" coords="1120,855,1292,897"/>
+<area shape="rect" id="node201" href="$d8/dae/rhs__maker_8c.html#a22cf6c2dc103a680f385d86767be2a44" title=" " alt="" coords="1124,4841,1288,4882"/>
+<area shape="rect" id="node203" href="$d8/dae/rhs__maker_8c.html#abac79c3366c1cf2c9a81fabf2847802f" title=" " alt="" coords="1124,4946,1288,4987"/>
+<area shape="rect" id="node3" href="$d2/d73/namespacedevice__math.html#a01473fcab0cde33512431de42b050384" title=" " alt="" coords="593,173,789,200"/>
+<area shape="rect" id="node4" href="$d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18" title=" " alt="" coords="284,85,508,112"/>
+<area shape="rect" id="node5" href="$d9/d33/namespacefluid__user__source__term.html#a3b62ed264a985b4f6278041b423e987f" title="Computes the source term and adds the result to fields." alt="" coords="305,136,487,192"/>
+<area shape="rect" id="node6" href="$d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="323,626,469,667"/>
+<area shape="rect" id="node7" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="305,1927,487,1969"/>
+<area shape="rect" id="node8" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="324,1352,468,1379"/>
+<area shape="rect" id="node9" href="$d0/d19/namespacescalar__user__source__term.html#af21d8d1b876087064e3a30317ade1a4c" title="Computes the source term and adds the result to fields." alt="" coords="300,5,492,61"/>
+<area shape="rect" id="node11" href="$d2/d73/namespacedevice__math.html#a15efe533d8411a3ff44ea486c8ce276d" title=" " alt="" coords="613,1467,770,1509"/>
+<area shape="rect" id="node12" href="$d6/d60/namespacecg__device.html#a6e1d10056d59ba4295673097d13ac0f4" title="Standard PCG solve." alt="" coords="316,1469,476,1510"/>
+<area shape="rect" id="node14" href="$d2/d73/namespacedevice__math.html#a3b9c190380a831ba86fa3fe155dae8f7" title=" " alt="" coords="613,1271,770,1313"/>
+<area shape="rect" id="node15" href="$dc/d0b/namespaceboussinesq__source__term__device.html#ab119b3913528cc79e3a5f7a3d2874ac1" title="Computes the Boussinesq source term on the device." alt="" coords="295,1205,497,1261"/>
+<area shape="rect" id="node17" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update a mean field." alt="" coords="309,1286,483,1327"/>
+<area shape="rect" id="node16" href="$d0/d10/namespaceboussinesq__source__term.html#a7fd0bdde632f857b2104d4cfe0a63cc1" title="Computes the source term and adds the result to fields." alt="" coords="15,1205,205,1261"/>
+<area shape="rect" id="node19" href="$d2/d73/namespacedevice__math.html#aa2e13e3b74630d2f201acd21f5ac0192" title=" " alt="" coords="613,2221,770,2262"/>
+<area shape="rect" id="node21" href="$d2/d73/namespacedevice__math.html#ae048353efd6bc55d1fc9d27a824062e9" title=" " alt="" coords="878,2125,1035,2166"/>
+<area shape="rect" id="node22" href="$d7/d12/namespacetime__interpolator.html#a09f88657e2a9de54f78eea4a7c5cb361" title="Interpolate a field at time t from fields at time t&#45;dt and t+dt." alt="" coords="585,2103,798,2145"/>
+<area shape="rect" id="node24" href="$d2/d73/namespacedevice__math.html#a07d4f69bef8f8e5cd58ca113e8651314" title=" " alt="" coords="613,2717,770,2758"/>
+<area shape="rect" id="node25" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="315,2810,477,2851"/>
+<area shape="rect" id="node27" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields." alt="" coords="333,2679,459,2721"/>
+<area shape="rect" id="node26" href="$d2/da7/namespacedevice__jacobi.html#a08dd6669e156ff25024b500bf81a5106" title=" " alt="" coords="29,2810,191,2851"/>
+<area shape="rect" id="node29" href="$d2/d73/namespacedevice__math.html#aed2fd3264759aee7b318baa739e572a6" title=" " alt="" coords="878,1942,1035,1983"/>
+<area shape="rect" id="node30" href="$d7/d82/namespaceax__helm__device.html#ac67c05cb2d7d26b14add945cfdd6639d" title=" " alt="" coords="603,1986,779,2027"/>
+<area shape="rect" id="node32" href="$d2/d73/namespacedevice__math.html#aff8bba420a03b5689e0f7be3fd999ebf" title=" " alt="" coords="613,1402,770,1443"/>
+<area shape="rect" id="node33" href="$de/d1a/namespacemean__sqr__field.html#ad713e2097358903ab18a79e8e7a136f2" title="Update a mean sqr field." alt="" coords="313,1403,479,1445"/>
+<area shape="rect" id="node36" href="$d2/d73/namespacedevice__math.html#a57a55eb4b4133985ea76f49b3e620e62" title=" " alt="" coords="594,1220,789,1247"/>
+<area shape="rect" id="node37" href="$df/d14/namespaceconst__source__term__device.html#af83bc0dc54335ebacb9437f48ec90b48" title="Computes the constant source term on the device." alt="" coords="263,1139,529,1181"/>
+<area shape="rect" id="node38" href="$d0/dd2/namespaceconst__source__term.html#a590ba6639d4cd3661edf69c9d4a0419c" title="Computes the source term and adds the result to fields." alt="" coords="5,1139,215,1181"/>
+<area shape="rect" id="node40" href="$d3/d4d/namespaceopr__device.html#a5976c035ccc91cc8b346fc866e476775" title=" " alt="" coords="853,297,1060,324"/>
+<area shape="rect" id="node41" href="$dd/d30/namespaceoperators.html#a0567ee7595ffc5b3ad3e1cf7359b112b" title="Apply D^T to a scalar field, where D is the derivative matrix." alt="" coords="631,224,751,251"/>
+<area shape="rect" id="node42" href="$d2/de4/namespacepnpn__res__cpu.html#ad6c673b61dcf98cf9c005572441b1108" title=" " alt="" coords="311,217,481,258"/>
+<area shape="rect" id="node43" href="$d8/dea/namespacepnpn__res__device.html#a59d926fd1cfc56254cdd2575d4b977ac" title=" " alt="" coords="301,941,491,982"/>
+<area shape="rect" id="node44" href="$d4/da3/namespacepnpn__res__sx.html#ac361814189461a57f388191c2894ceec" title=" " alt="" coords="311,282,481,323"/>
+<area shape="rect" id="node46" href="$d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612" title=" " alt="" coords="878,617,1035,658"/>
+<area shape="rect" id="node47" href="$d2/d73/namespacedevice__math.html#a3b08a6d3bd4244c6750bbbb6f7f27ca3" title=" " alt="" coords="595,2833,788,2860"/>
+<area shape="rect" id="node49" href="$d0/de4/namespacematrix.html#af9c0fe0434823ffbdc86e5fedb934867" title="Assignment ." alt="" coords="609,341,774,382"/>
+<area shape="rect" id="node51" href="$d0/de4/namespacematrix.html#afba6bd9b6c0d9b3f4d94c7389f5da813" title="Initialise a matrix of size nrows*ncols." alt="" coords="619,523,763,549"/>
+<area shape="rect" id="node52" href="$d8/dea/namespacepnpn__res__device.html#a55ee2fb2b8a79727bd59543ce201fe58" title=" " alt="" coords="301,465,491,506"/>
+<area shape="rect" id="node53" href="$d4/ddd/namespacescalar__residual__device.html#a5f39463a2e39375bf0567d2412410875" title=" " alt="" coords="602,827,781,883"/>
+<area shape="rect" id="node54" href="$d7/d34/namespacevector.html#a452b730b055f00cd54a256caa182638d" title="Assignment ." alt="" coords="611,275,772,317"/>
+<area shape="rect" id="node56" href="$d7/d34/namespacevector.html#a1a0b534cad1c19730864defe358e93f7" title="Initialise a vector of size n." alt="" coords="621,573,761,600"/>
+<area shape="rect" id="node48" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="324,2941,468,2968"/>
+<area shape="rect" id="node50" href="$da/d95/structmatrix_1_1matrix__t.html#a585a4f4b4de2b6f8fce869712c823780" title=" " alt="" coords="290,399,502,425"/>
+<area shape="rect" id="node55" href="$d3/d5b/structvector_1_1vector__t.html#ad971c7564a6e3ba5ad429e93b4427929" title=" " alt="" coords="292,348,500,375"/>
+<area shape="rect" id="node58" href="$d3/d4d/namespaceopr__device.html#a48e31f37921fd3b5e22da120678bd948" title=" " alt="" coords="859,2991,1054,3017"/>
+<area shape="rect" id="node60" href="$d2/d73/namespacedevice__math.html#a6e9089e626320f54bad8af5f0a13fc99" title=" " alt="" coords="613,1337,770,1378"/>
+<area shape="rect" id="node62" href="$d2/d73/namespacedevice__math.html#a664f07df9ff67cf0e8e216047a81bca7" title=" " alt="" coords="613,1635,770,1677"/>
+<area shape="rect" id="node64" href="$df/d80/namespacedevice__coef.html#a6bf9ddbe771387016c5f4cd71fe51256" title=" " alt="" coords="867,2729,1046,2770"/>
+<area shape="rect" id="node65" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="612,2950,771,2991"/>
+<area shape="rect" id="node67" href="$df/d80/namespacedevice__coef.html#a9fe243ec1f519293aaf4381039120349" title=" " alt="" coords="880,3042,1033,3083"/>
+<area shape="rect" id="node69" href="$d2/d73/namespacedevice__math.html#a14206e58118cce6865c6ce1bb6454061" title=" " alt="" coords="596,2783,787,2809"/>
+<area shape="rect" id="node70" href="$d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title=" " alt="" coords="323,2875,469,2917"/>
+<area shape="rect" id="node73" href="$d8/ddf/namespacescalar__ic.html#a284c2151baaf62794c62dfa896b63a6b" title="Set scalar initial condition (common)" alt="" coords="319,2745,473,2786"/>
+<area shape="rect" id="node71" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="37,2941,183,2982"/>
+<area shape="rect" id="node72" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#adae7fa3c28ad065d2dd29d0ac26d2afa" title="Set intial flow condition (user defined)" alt="" coords="37,2875,183,2917"/>
+<area shape="rect" id="node74" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#acec97723c5e2c32e459b067fd352bf65" title="Set scalar initial condition (builtin)" alt="" coords="32,2679,188,2721"/>
+<area shape="rect" id="node75" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aa53b59c1c405887a1b3408e21bbb4801" title="Set scalar intial condition (user defined)" alt="" coords="31,2745,189,2786"/>
+<area shape="rect" id="node77" href="$d2/d73/namespacedevice__math.html#a51b3ae540684036a51e44558a8e7650b" title=" " alt="" coords="596,2665,787,2692"/>
+<area shape="rect" id="node78" href="$d2/da7/namespacedevice__jacobi.html#af31a276a111dbeaf4661cfc33e996605" title="The jacobi preconditioner &#160;&#160;where ." alt="" coords="315,2614,477,2655"/>
+<area shape="rect" id="node80" href="$d3/d4d/namespaceopr__device.html#a795bba73c5389fb6ab225ff277af5a60" title=" " alt="" coords="871,3107,1043,3149"/>
+<area shape="rect" id="node81" href="$dd/d30/namespaceoperators.html#af4d7e0e187615ed2bb3cd3b90d77bd45" title="Compute the advection term." alt="" coords="626,3081,757,3108"/>
+<area shape="rect" id="node83" href="$d0/d0d/namespacedevice__dirichlet.html#a5d9e95775e4917531d11aa03b24c47ee" title=" " alt="" coords="869,3173,1045,3214"/>
+<area shape="rect" id="node84" href="$da/ddb/namespacedirichlet.html#ace88f3658841ce10d3865f4648ef8391" title="Boundary condition apply for a generic Dirichlet condition to a vector x (device version)" alt="" coords="620,3133,763,3174"/>
+<area shape="rect" id="node85" href="$d6/df8/interfacedevice__dirichlet_1_1hip__dirichlet__apply__vector.html#ac60488d63e632de61c9354e50bc084b4" title=" " alt="" coords="591,3199,792,3255"/>
+<area shape="rect" id="node87" href="$d0/d0d/namespacedevice__dirichlet.html#a6660f08c72ca368ea20e1b0a4e3845d3" title=" " alt="" coords="869,3238,1045,3279"/>
+<area shape="rect" id="node88" href="$da/ddb/namespacedirichlet.html#a9e9d6d1c1329235bab20a437d74c18dd" title="Boundary condition apply for a generic Dirichlet condition to vectors x, y and z (device version)" alt="" coords="619,3279,763,3321"/>
+<area shape="rect" id="node90" href="$d6/d2d/namespacedevice__dong__outflow.html#aba05d2f25e6eebdfcc8e4e53229ecf91" title=" " alt="" coords="873,3304,1040,3360"/>
+<area shape="rect" id="node91" href="$d5/d79/namespacedong__outflow.html#aae3837fe3813ef9de80f22390532928c" title="Boundary condition apply for a generic Dirichlet condition to a vector x (device version)" alt="" coords="593,3345,790,3386"/>
+<area shape="rect" id="node92" href="$df/dc2/interfacedevice__dong__outflow_1_1hip__dong__outflow__apply__scalar.html#afd1871d85a55adf38673c551f404426c" title=" " alt="" coords="596,3410,787,3481"/>
+<area shape="rect" id="node94" href="$d3/d4d/namespaceopr__device.html#ac2d9d38cf7791597652343f897d3eab9" title=" " alt="" coords="855,3384,1058,3411"/>
+<area shape="rect" id="node95" href="$d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="871,3435,1043,3477"/>
+<area shape="rect" id="node96" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="622,3505,761,3532"/>
+<area shape="rect" id="node97" href="$dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i." alt="" coords="315,3476,477,3503"/>
+<area shape="rect" id="node98" href="$d9/da0/namespacevreman__cpu.html#afd690af29ff96e9cde941ebdafd9ca44" title="Compute eddy viscosity on the CPU." alt="" coords="316,3527,476,3569"/>
+<area shape="rect" id="node99" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="13,3535,207,3561"/>
+<area shape="rect" id="node101" href="$db/db7/namespacedevice__facet__normal.html#a7886d535977fdcaf76b9ebb2070ea20b" title=" " alt="" coords="873,3501,1040,3557"/>
+<area shape="rect" id="node102" href="$d3/da7/interfacedevice__facet__normal_1_1hip__facet__normal__apply__surfvec.html#ad6fa26b23f4af279c79030faf19e68d9" title=" " alt="" coords="592,3557,791,3627"/>
+<area shape="rect" id="node104" href="$d9/d21/namespacefdm__device.html#a8a8ab5c4ed1eba5383efee8a94bc7496" title=" " alt="" coords="879,3582,1034,3623"/>
+<area shape="rect" id="node105" href="$dd/d18/interfacefdm__device_1_1hip__fdm__do__fast.html#abea7cd14fbf4bebf8424b791ad7fd8f7" title=" " alt="" coords="595,3651,788,3693"/>
+<area shape="rect" id="node107" href="$d8/dcd/namespacegs__device.html#a0dc20023a2019b907a4362fd93c2bd24" title="Gather kernel." alt="" coords="877,3647,1036,3689"/>
+<area shape="rect" id="node109" href="$d2/d73/namespacedevice__math.html#ab57c11009415162bd0eff486c8fb1616" title=" " alt="" coords="613,1103,770,1145"/>
+<area shape="rect" id="node111" href="$d2/d73/namespacedevice__math.html#ac80b69645b556fc4dc3022739f00bbd1" title=" " alt="" coords="613,2286,770,2327"/>
+<area shape="rect" id="node113" href="$d2/d73/namespacedevice__math.html#a384b19e4831cef680a3f660edcccb98b" title=" " alt="" coords="613,2351,770,2393"/>
+<area shape="rect" id="node112" href="$da/d46/namespacepipecg__device.html#a97a1fd422c4c03f238038a1d3e8154fe" title="Pipelined PCG solve." alt="" coords="313,2318,479,2359"/>
+<area shape="rect" id="node115" href="$d2/d73/namespacedevice__math.html#ae12856b035e05a988f6e6778c76cea92" title=" " alt="" coords="613,1818,770,1859"/>
+<area shape="rect" id="node117" href="$d2/d73/namespacedevice__math.html#ad690c17ceae42edb16e83f3f518a65fd" title=" " alt="" coords="878,1877,1035,1918"/>
+<area shape="rect" id="node119" href="$d6/d78/namespacedevice__inflow.html#a3fe7eb0f4fcc1f9e1f348efbb04becf0" title=" " alt="" coords="876,3713,1037,3754"/>
+<area shape="rect" id="node120" href="$d3/d75/interfacedevice__inflow_1_1hip__inflow__apply__vector.html#abce9ac5a7e6db69bf310df81bf73e23c" title=" " alt="" coords="598,3717,785,3773"/>
+<area shape="rect" id="node121" href="$d7/d43/namespaceinflow.html#acc06f3fa671c8234c4eca822843e8133" title="Apply inflow conditions (vector valued) (device version)" alt="" coords="616,3798,767,3839"/>
+<area shape="rect" id="node123" href="$d1/dc8/namespacedevice__inhom__dirichlet.html#a3d19a496683287f3c98891bb90a3e68d" title=" " alt="" coords="866,3779,1047,3835"/>
+<area shape="rect" id="node125" href="$d1/dc8/namespacedevice__inhom__dirichlet.html#a3bfd70c2de660cd7c083f4f7de0acdb1" title=" " alt="" coords="866,3859,1047,3915"/>
+<area shape="rect" id="node127" href="$d2/d73/namespacedevice__math.html#a46a957f0ada862da2400fb93b64b4cd9" title=" " alt="" coords="613,2885,770,2926"/>
+<area shape="rect" id="node129" href="$d2/d73/namespacedevice__math.html#af5ef1d1c47be4988b595aca1db11e883" title=" " alt="" coords="878,2190,1035,2231"/>
+<area shape="rect" id="node132" href="$d3/d4d/namespaceopr__device.html#ae39e101d94720e35947ae37ba3154d31" title=" " alt="" coords="871,3939,1043,3981"/>
+<area shape="rect" id="node134" href="$d2/d73/namespacedevice__math.html#a90c9098bec12d92a5584fc4d69d328d7" title=" " alt="" coords="878,1694,1035,1735"/>
+<area shape="rect" id="node135" href="$db/d5b/namespacefield__dirichlet.html#a6f70239d1c25c1c5789a6aef42ec25e7" title="Apply scalar (device)." alt="" coords="590,1753,793,1794"/>
+<area shape="rect" id="node137" href="$d0/d29/namespacedevice__wall.html#aeac8ad3a7a4b2e7b8123dc2b4094cf6f" title=" " alt="" coords="881,4005,1033,4061"/>
+<area shape="rect" id="node138" href="$d0/df8/interfacedevice__wall_1_1hip__no__slip__wall__apply__vector.html#ace801224233fcf9d8a3cdaad5e065934" title=" " alt="" coords="577,4045,805,4101"/>
+<area shape="rect" id="node139" href="$da/dd2/namespacewall.html#a92a559c9cda228fd4f4b5669c94c1913" title="Boundary condition apply for a no&#45;slip wall condition to a vector x (device version)" alt="" coords="620,3979,763,4021"/>
+<area shape="rect" id="node141" href="$d0/d29/namespacedevice__wall.html#ae48ccef8b83eeb007e4e52d8d201011f" title=" " alt="" coords="881,4085,1033,4141"/>
+<area shape="rect" id="node142" href="$da/dd2/namespacewall.html#a05de45b0f91d02261d9b1a2a25f6b6c0" title="Boundary condition apply for a no&#45;slip wall condition to vectors x, y and z (device version)" alt="" coords="619,4126,763,4167"/>
+<area shape="rect" id="node144" href="$d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4" title=" " alt="" coords="867,2794,1047,2835"/>
+<area shape="rect" id="node145" href="$d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html#a5597cd7cda317185fc5ce9f6558befa3" title=" " alt="" coords="592,3015,791,3057"/>
+<area shape="rect" id="node147" href="$d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7" title=" " alt="" coords="867,2859,1047,2901"/>
+<area shape="rect" id="node149" href="$d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453" title=" " alt="" coords="867,1811,1047,1853"/>
+<area shape="rect" id="node151" href="$d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912" title=" " alt="" coords="867,2007,1047,2049"/>
+<area shape="rect" id="node153" href="$d7/de8/namespacedevice__mathops.html#ad675163c1b5c8230ad78093d33d65ace" title=" " alt="" coords="867,2925,1047,2966"/>
+<area shape="rect" id="node155" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="871,735,1043,777"/>
+<area shape="rect" id="node156" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the gradient of a scalar field." alt="" coords="623,725,760,752"/>
+<area shape="rect" id="node157" href="$d3/d69/namespaceadvection.html#a50867235873a10384e4958a3f5dcdf32" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="321,2549,471,2590"/>
+<area shape="rect" id="node158" href="$d2/de4/namespacepnpn__res__cpu.html#a83914561389a65c3071032ec84207d10" title=" " alt="" coords="311,709,481,750"/>
+<area shape="rect" id="node159" href="$d4/da3/namespacepnpn__res__sx.html#a65fca305c4add463124daa0753282294" title=" " alt="" coords="311,774,481,815"/>
+<area shape="rect" id="node161" href="$d8/dcd/namespacegs__device.html#a1d373fb00085a71dd193a37048312ca2" title="Scatter kernel." alt="" coords="875,4166,1038,4207"/>
+<area shape="rect" id="node163" href="$d2/d0c/namespacedevice__schwarz.html#a4da36a42cc5183ff88e7e98eacab5b18" title=" " alt="" coords="869,4231,1045,4273"/>
+<area shape="rect" id="node164" href="$dc/d10/interfacedevice__schwarz_1_1hip__schwarz__toreg3d.html#a4d537c14ea9042c8604074826969b820" title=" " alt="" coords="608,4289,775,4345"/>
+<area shape="rect" id="node166" href="$d2/d0c/namespacedevice__schwarz.html#a67800d4ca1ec396e79462ecaa6281235" title=" " alt="" coords="869,4297,1045,4338"/>
+<area shape="rect" id="node168" href="$d2/d0c/namespacedevice__schwarz.html#a36b6f9553f820f4ff4810b601795abc2" title=" " alt="" coords="869,4362,1045,4403"/>
+<area shape="rect" id="node170" href="$d2/d73/namespacedevice__math.html#ae733f8b62f2410dae4188a682fe74fb8" title=" " alt="" coords="594,2615,789,2641"/>
+<area shape="rect" id="node172" href="$d2/d73/namespacedevice__math.html#ab9e58c9754184290830b9fe3cdefab5f" title=" " alt="" coords="859,1588,1054,1615"/>
+<area shape="rect" id="node174" href="$d2/d73/namespacedevice__math.html#ae0f24e98e78f0aafc483b8aa8865c0cc" title=" " alt="" coords="878,2358,1035,2399"/>
+<area shape="rect" id="node175" href="$d5/d38/namespacebrinkman__source__term__device.html#aefd93bd19a253a44586c96325e503859" title="Computes the Brinkman source term on the device." alt="" coords="595,2468,787,2524"/>
+<area shape="rect" id="node176" href="$d0/d7b/namespacebrinkman__source__term.html#a720d472803e4fe61add63e18da4bd69a" title="Computes the source term and adds the result to fields." alt="" coords="306,2468,486,2524"/>
+<area shape="rect" id="node178" href="$d0/dc5/namespacedevice__symmetry.html#aef35fe069516c1c5b46e9e682cb99846" title=" " alt="" coords="862,4427,1051,4469"/>
+<area shape="rect" id="node180" href="$d1/d4a/namespacetensor__device.html#ab3183ebd1f5fe0fdf12a23a4ec4c9556" title=" " alt="" coords="875,4493,1038,4534"/>
+<area shape="rect" id="node181" href="$dd/d8c/namespacetensor.html#a31e5a2faed314a1d5896d5061b803055" title="Tensor product &#160;performed on nelv elements." alt="" coords="635,4500,747,4527"/>
+<area shape="rect" id="node182" href="$d9/da0/namespaceinterpolation.html#a54fff1a3a8d409fda1871c53c8e4b7dd" title="Interpolates an array to one of Xh or Yh." alt="" coords="283,4500,509,4527"/>
+<area shape="rect" id="node184" href="$d1/d4a/namespacetensor__device.html#a976356a1bbd5b3fb673fcf68c87f8214" title=" " alt="" coords="875,4558,1038,4599"/>
+<area shape="rect" id="node185" href="$dd/d8c/namespacetensor.html#a9578e54c6fd6906866131eec193169b0" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="612,4565,771,4592"/>
+<area shape="rect" id="node186" href="$da/d80/namespacelocal__interpolation.html#a4707f5b542b2a511476d0bdf808ab48d" title="Interpolates a list of fields based on a set of element ids." alt="" coords="324,4551,468,4607"/>
+<area shape="rect" id="node188" href="$d2/d73/namespacedevice__math.html#a62afd65bc6fb07e354fde87dad4d7c8c" title=" " alt="" coords="613,2549,770,2590"/>
+<area shape="rect" id="node194" href="$d1/d29/namespacerhs__maker__device.html#a157e6f08c0aa59f1d0f8d2485a1cfc86" title=" " alt="" coords="873,4623,1041,4665"/>
+<area shape="rect" id="node196" href="$d1/d29/namespacerhs__maker__device.html#ac1263f64319e0bda5966fac0e67f3f3f" title=" " alt="" coords="873,4689,1041,4730"/>
+<area shape="rect" id="node198" href="$db/d09/interfacerhs__maker__device_1_1rhs__maker__bdf__hip.html#a513303b3364970e9c5cee865450013f8" title=" " alt="" coords="856,4755,1057,4811"/>
+<area shape="rect" id="node199" href="$d1/d29/namespacerhs__maker__device.html#a3ab42ff71df2fb175fade36961369027" title=" " alt="" coords="871,4835,1042,4877"/>
+<area shape="rect" id="node202" href="$d1/d29/namespacerhs__maker__device.html#a39f5fd49b8755247932def933756174a" title=" " alt="" coords="863,4901,1050,4942"/>
+<area shape="rect" id="node204" href="$d1/d29/namespacerhs__maker__device.html#a507f59536fcda5a1bbd5d547e2cd2aaa" title=" " alt="" coords="863,4966,1050,5007"/>
+</map>

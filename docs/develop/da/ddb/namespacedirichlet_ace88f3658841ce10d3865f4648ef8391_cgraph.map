@@ -1,0 +1,7 @@
+<map id="dirichlet::dirichlet_apply_scalar_dev" name="dirichlet::dirichlet_apply_scalar_dev">
+<area shape="rect" id="node1" title="Boundary condition apply for a generic Dirichlet condition to a vector x (device version)" alt="" coords="5,39,148,80"/>
+<area shape="rect" id="node2" href="$d0/d0d/namespacedevice__dirichlet.html#a5d9e95775e4917531d11aa03b24c47ee" title=" " alt="" coords="196,39,372,80"/>
+<area shape="rect" id="node3" href="$d4/d09/dirichlet_8cu.html#ae2bbc2ac76abf0ebcaa904af6d1cee79" title=" " alt="" coords="426,5,582,47"/>
+<area shape="rect" id="node4" href="$d0/d06/dirichlet_8c.html#ada40c8ffc06cf712209cdd5ae1308c00" title=" " alt="" coords="420,71,588,112"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="636,78,768,105"/>
+</map>

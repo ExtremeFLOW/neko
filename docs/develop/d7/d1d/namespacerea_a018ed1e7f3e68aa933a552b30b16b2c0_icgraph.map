@@ -1,0 +1,4 @@
+<map id="rea::rea_free" name="rea::rea_free">
+<area shape="rect" id="node1" title="Free a NEKTON session data." alt="" coords="216,5,321,32"/>
+<area shape="rect" id="node2" href="$d0/df9/namespacerea__file.html#a4c96bc73ea56a4b82eee98d8e9d621a0" title="Load NEKTON session data from an ascii file." alt="" coords="5,5,168,32"/>
+</map>

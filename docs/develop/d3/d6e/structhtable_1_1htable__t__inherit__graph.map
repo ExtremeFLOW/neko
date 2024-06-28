@@ -1,0 +1,10 @@
+<map id="htable::htable_t" name="htable::htable_t">
+<area shape="rect" id="node1" title="Base type for a hash table." alt="" coords="5,157,129,184"/>
+<area shape="rect" id="node2" href="$da/dfa/structhtable_1_1htable__cptr__t.html" title="C pointer based hash table." alt="" coords="177,5,333,32"/>
+<area shape="rect" id="node3" href="$db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="184,56,327,83"/>
+<area shape="rect" id="node4" href="$da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="177,107,333,133"/>
+<area shape="rect" id="node5" href="$d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="177,157,333,184"/>
+<area shape="rect" id="node6" href="$df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="184,208,327,235"/>
+<area shape="rect" id="node7" href="$d8/d19/structhtable_1_1htable__pt__t.html" title="Point based hash table." alt="" coords="183,259,327,285"/>
+<area shape="rect" id="node8" href="$da/dee/structhtable_1_1htable__r8__t.html" title="Double precision based hash table." alt="" coords="183,309,327,336"/>
+</map>

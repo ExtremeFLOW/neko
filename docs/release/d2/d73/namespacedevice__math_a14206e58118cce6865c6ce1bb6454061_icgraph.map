@@ -1,0 +1,14 @@
+<map id="device_math::device_col2" name="device_math::device_col2">
+<area shape="rect" id="node1" title=" " alt="" coords="445,173,636,199"/>
+<area shape="rect" id="node2" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="225,5,388,47"/>
+<area shape="rect" id="node4" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields." alt="" coords="244,71,369,112"/>
+<area shape="rect" id="node5" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="216,136,397,177"/>
+<area shape="rect" id="node6" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="235,202,379,229"/>
+<area shape="rect" id="node7" href="$d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title=" " alt="" coords="233,253,380,295"/>
+<area shape="rect" id="node10" href="$d8/ddf/namespacescalar__ic.html#a284c2151baaf62794c62dfa896b63a6b" title="Set scalar initial condition (common)" alt="" coords="230,319,383,360"/>
+<area shape="rect" id="node3" href="$d2/da7/namespacedevice__jacobi.html#a08dd6669e156ff25024b500bf81a5106" title=" " alt="" coords="5,5,168,47"/>
+<area shape="rect" id="node8" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="13,188,160,229"/>
+<area shape="rect" id="node9" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#adae7fa3c28ad065d2dd29d0ac26d2afa" title="Set intial flow condition (user defined)" alt="" coords="13,253,160,295"/>
+<area shape="rect" id="node11" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#acec97723c5e2c32e459b067fd352bf65" title="Set scalar initial condition (builtin)" alt="" coords="9,319,165,360"/>
+<area shape="rect" id="node12" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aa53b59c1c405887a1b3408e21bbb4801" title="Set scalar intial condition (user defined)" alt="" coords="7,384,166,425"/>
+</map>

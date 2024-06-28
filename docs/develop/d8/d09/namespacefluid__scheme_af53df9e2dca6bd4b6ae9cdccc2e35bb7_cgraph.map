@@ -1,0 +1,4 @@
+<map id="fluid_scheme::fluid_scheme_bc_apply_prs" name="fluid_scheme::fluid_scheme_bc_apply_prs">
+<area shape="rect" id="node1" title="Apply all boundary conditions defined for pressure." alt="" coords="5,5,177,47"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#ad2f682d4c03f5b33164d1e2f10fc41ef" title="Apply a list of boundary conditions to a scalar field." alt="" coords="225,13,401,39"/>
+</map>

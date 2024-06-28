@@ -1,0 +1,5 @@
+<map id="redist::redist_mesh" name="redist::redist_mesh">
+<area shape="rect" id="node1" title="Redistribute a mesh msh according to new partitions." alt="" coords="5,31,152,57"/>
+<area shape="rect" id="node2" href="$db/dbb/namespaceredist.html#ae07ae81a5fb1331996356b54d531fa72" title="Fill redistribution list for zone data." alt="" coords="200,5,347,32"/>
+<area shape="rect" id="node3" href="$db/dbb/namespaceredist.html#a95ec995daa3e10e200586e964ec37700" title="Fill redistribution list for zone data." alt="" coords="202,56,345,83"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="jobctrl::jobctrl_time_limit" name="jobctrl::jobctrl_time_limit">
+<area shape="rect" id="node1" title="Check if the job&#39;s time limit has been reached." alt="" coords="5,23,155,65"/>
+<area shape="rect" id="node2" href="$d1/daf/namespacesignal.html#a6b00a55dcd3c7bd830fa925efd51e571" title="Check if any timeout has occurred (either SIGXCPU or SIGALRM)" alt="" coords="203,5,369,32"/>
+<area shape="rect" id="node3" href="$d1/daf/namespacesignal.html#a2290a09befe1d36d50034e39096dcfe7" title="Check if a user signal has been raised." alt="" coords="219,56,353,83"/>
+</map>

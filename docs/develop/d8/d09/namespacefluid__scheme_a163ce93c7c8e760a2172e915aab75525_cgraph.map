@@ -1,0 +1,6 @@
+<map id="fluid_scheme::fluid_scheme_free" name="fluid_scheme::fluid_scheme_free">
+<area shape="rect" id="node1" title="Deallocate a fluid formulation." alt="" coords="5,57,149,98"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="215,5,335,32"/>
+<area shape="rect" id="node3" href="$d9/d77/namespacekrylov__fctry.html#a6aeb41860ae6067054a60c5ae6262d5f" title="Destroy an interative Krylov type_name." alt="" coords="201,57,349,98"/>
+<area shape="rect" id="node4" href="$dc/d51/namespaceprecon__fctry.html#afb99729cf63d194b6678502d515e0d48" title="Destroy a preconditioner." alt="" coords="197,122,352,163"/>
+</map>

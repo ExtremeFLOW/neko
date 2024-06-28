@@ -1,0 +1,26 @@
+var structfacet__normal_1_1facet__normal__t =
+[
+    [ "apply_scalar", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a5ffbd3a118740362de8cd66c651b7907", null ],
+    [ "apply_scalar_dev", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a313aa8bcb4b1b5ae28ce047f8f8fc190", null ],
+    [ "apply_surfvec", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#ab214099288c05d916111b56c5a9413fa", null ],
+    [ "apply_surfvec_dev", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a75b6cf7b59e4fb6e47930db659e5a632", null ],
+    [ "apply_vector", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a2d5ad89cc9e1843d66949f1c54c803ec", null ],
+    [ "apply_vector_dev", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a285794d557182f46e0b3e441f0477cc5", null ],
+    [ "finalize", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a897ed97b9085c952da6ef3b602f1f52e", null ],
+    [ "free", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a96395e7233bd2af282b1eb8f8e914c5c", null ],
+    [ "free_base", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a92d0c1cf8ef737f152b7bd2c15780169", null ],
+    [ "init_base", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a71a7effb26f9c3a23d649eb82aad5557", null ],
+    [ "mark_facet", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a404226f5beb9d747dd9163705bf2c647", null ],
+    [ "mark_facets", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#ae7dd79ba1a67d4b8fa2f01977e56cc1c", null ],
+    [ "mark_zone", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#afdb7cabf57856ca083625bd796ed2aa2", null ],
+    [ "mark_zones_from_list", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a7f17738d1de98b1325f064a7e069a36c", null ],
+    [ "coef", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a8044cfda61d692364d024558944e2fc7", null ],
+    [ "dof", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a1ac479f86685364bc367d05fae6b125c", null ],
+    [ "facet", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a896224ab8a3c1d19a08a816447f1f8f3", null ],
+    [ "facet_d", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a1bc263e701d6fc865ca5d4a1dfdac914", null ],
+    [ "marked_facet", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a4124089bd35e194fd05140100f9fb316", null ],
+    [ "msh", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#ac9c45a8ed2e761cf3d3460567cbc4336", null ],
+    [ "msk", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a638503614447154c642fcbc9bf5df9a6", null ],
+    [ "msk_d", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#a78a0e4bbf8808775dd18c3a5e041d92e", null ],
+    [ "xh", "d1/d1e/structfacet__normal_1_1facet__normal__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ]
+];

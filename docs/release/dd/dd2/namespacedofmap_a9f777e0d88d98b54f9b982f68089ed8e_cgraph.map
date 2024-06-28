@@ -1,0 +1,4 @@
+<map id="dofmap::dofmap_free" name="dofmap::dofmap_free">
+<area shape="rect" id="node1" title="Deallocate the dofmap." alt="" coords="5,5,168,32"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="216,5,365,32"/>
+</map>

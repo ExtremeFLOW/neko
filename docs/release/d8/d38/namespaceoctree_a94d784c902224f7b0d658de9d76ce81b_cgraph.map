@@ -1,0 +1,6 @@
+<map id="octree::octree_find" name="octree::octree_find">
+<area shape="rect" id="node1" title="Find a point p in an octree." alt="" coords="5,35,148,61"/>
+<area shape="rect" id="node2" href="$d8/d38/namespaceoctree.html#ab120b3f2b99884c38d35855b3bed2410" title="Find the octant containing a point p." alt="" coords="196,35,367,61"/>
+<area shape="rect" id="node3" href="$d8/d38/namespaceoctree.html#a960420894f5a5e971364de039ffca66c" title="Return the octant for a given point." alt="" coords="415,5,553,32"/>
+<area shape="rect" id="node4" href="$d8/d38/namespaceoctree.html#a28a4cde09ef482c3ca9615933c0e0cde" title="Return if a point is inside an octant." alt="" coords="415,57,553,98"/>
+</map>

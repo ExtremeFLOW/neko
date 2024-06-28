@@ -1,0 +1,4 @@
+<map id="ax_helm_cpu::ax_helm_lx" name="ax_helm_cpu::ax_helm_lx">
+<area shape="rect" id="node1" title="Generic CPU kernel for the Helmholtz matrix&#45;vector product." alt="" coords="225,13,416,39"/>
+<area shape="rect" id="node2" href="$d5/de3/namespaceax__helm__cpu.html#a718fc14929c63ea835feada5f0f152b3" title="Compute the product." alt="" coords="5,5,177,47"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="device_identity::device_ident_t" name="device_identity::device_ident_t">
+<area shape="rect" id="node1" title="Defines a canonical Krylov preconditioner for accelerators." alt="" coords="5,80,177,121"/>
+<area shape="rect" id="node2" href="$d7/d3a/structprecon_1_1pc__t.html" title="Defines a canonical Krylov preconditioner." alt="" coords="41,5,142,32"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="mesh_field::mesh_field_free" name="mesh_field::mesh_field_free">
+<area shape="rect" id="node1" title=" " alt="" coords="1077,21,1283,47"/>
+<area shape="rect" id="node2" href="$dd/da8/namespacecase.html#ae8960a3867b359b819ddafa169747832" title="Initialize a case from its (loaded) params object." alt="" coords="209,46,392,73"/>
+<area shape="rect" id="node5" href="$da/dc3/namespacemesh__field.html#aaa97d6c142cefd8fa464a140d00aeb77" title=" " alt="" coords="829,46,1029,73"/>
+<area shape="rect" id="node3" href="$d8/d36/interfacecase_1_1case__init.html#a96fd088f5a85b607a614f31a86b826e6" title="Initialize a case from an input file case_file." alt="" coords="5,5,161,47"/>
+<area shape="rect" id="node4" href="$d8/d36/interfacecase_1_1case__init.html#a3fe242ef6c179c5b11d1004ac20f043e" title="Initialize a case from a JSON object describing a case." alt="" coords="5,71,161,112"/>
+<area shape="rect" id="node6" href="$d1/dd7/namespaceparmetis.html#a167b3313549fa07a2cd414118bd40489" title="Fill mesh field according to new partitions." alt="" coords="635,97,781,139"/>
+<area shape="rect" id="node7" href="$d1/dd7/namespaceparmetis.html#afc65e966bf7728f9211082aa10b19989" title="Compute a k&#45;way partitioning of a mesh msh using a coordinated&#45;based space&#45;filing curves method." alt="" coords="440,97,587,139"/>
+<area shape="rect" id="node8" href="$d1/dd7/namespaceparmetis.html#a7015f5a8d7bb32005378d0df25fc45e7" title="Compute a k&#45;way partitioning of a mesh msh." alt="" coords="440,163,587,204"/>
+</map>

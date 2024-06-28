@@ -1,0 +1,6 @@
+<map id="fluid_scheme::fluid_scheme_solver_factory" name="fluid_scheme::fluid_scheme_solver_factory">
+<area shape="rect" id="node1" title="Initialize a linear solver." alt="" coords="5,39,185,80"/>
+<area shape="rect" id="node2" href="$d9/d77/namespacekrylov__fctry.html#afbaa64cc1a8ad32e985748ce4e32f7d2" title="Factory for Krylov solvers. Both creates and initializes the object." alt="" coords="233,39,381,80"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="431,5,576,47"/>
+<area shape="rect" id="node4" href="$d9/d77/namespacekrylov__fctry.html#a6aeb41860ae6067054a60c5ae6262d5f" title="Destroy an interative Krylov type_name." alt="" coords="429,71,577,112"/>
+</map>

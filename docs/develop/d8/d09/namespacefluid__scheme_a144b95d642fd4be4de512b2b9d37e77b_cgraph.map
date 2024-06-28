@@ -1,0 +1,15 @@
+<map id="fluid_scheme::fluid_scheme_init_all" name="fluid_scheme::fluid_scheme_init_all">
+<area shape="rect" id="node1" title="Initialize all components of the current scheme." alt="" coords="5,114,149,155"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="450,5,569,32"/>
+<area shape="rect" id="node3" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="452,56,567,83"/>
+<area shape="rect" id="node5" href="$d8/d09/namespacefluid__scheme.html#ab8289185c523ab7039d9076f81d2c2cc" title="Initialize common data for the current scheme." alt="" coords="197,114,369,155"/>
+<area shape="rect" id="node6" href="$d8/d09/namespacefluid__scheme.html#ae118e3aebe30e81422421926063456d0" title="Initialize a Krylov preconditioner." alt="" coords="417,187,601,229"/>
+<area shape="rect" id="node11" href="$d8/d09/namespacefluid__scheme.html#a5fb59358d3639df4c60c471642d27e1f" title="Initialize a linear solver." alt="" coords="419,253,599,294"/>
+<area shape="rect" id="node4" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="667,56,787,83"/>
+<area shape="rect" id="node10" href="$d8/d09/namespacefluid__scheme.html#a1f22a47782aa9ed193e551870ec02e2c" title="Set boundary types for the diagnostic output." alt="" coords="427,107,592,163"/>
+<area shape="rect" id="node7" href="$dc/d51/namespaceprecon__fctry.html#a0aefd281124542ca1d4fb7468c1958d5" title="Create a preconditioner." alt="" coords="649,187,804,229"/>
+<area shape="rect" id="node8" href="$d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="857,219,1002,261"/>
+<area shape="rect" id="node9" href="$dc/d51/namespaceprecon__fctry.html#afb99729cf63d194b6678502d515e0d48" title="Destroy a preconditioner." alt="" coords="852,154,1007,195"/>
+<area shape="rect" id="node12" href="$d9/d77/namespacekrylov__fctry.html#afbaa64cc1a8ad32e985748ce4e32f7d2" title="Factory for Krylov solvers. Both creates and initializes the object." alt="" coords="653,253,801,294"/>
+<area shape="rect" id="node13" href="$d9/d77/namespacekrylov__fctry.html#a6aeb41860ae6067054a60c5ae6262d5f" title="Destroy an interative Krylov type_name." alt="" coords="855,285,1003,326"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="mesh::mesh_free" name="mesh::mesh_free">
+<area shape="rect" id="node1" title="Deallocate a mesh this." alt="" coords="5,5,140,32"/>
+<area shape="rect" id="node2" href="$dc/d48/namespacedistdata.html#a3a77ef0dd4cbeff5d6c510c493007288" title="Free a distdata type." alt="" coords="188,5,357,32"/>
+</map>

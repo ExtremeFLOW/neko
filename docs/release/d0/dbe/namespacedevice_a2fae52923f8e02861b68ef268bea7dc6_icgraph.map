@@ -1,0 +1,4 @@
+<map id="device::device_get_ptr_r1" name="device::device_get_ptr_r1">
+<area shape="rect" id="node1" title="Return the device pointer for an associated Fortran rank 1 array." alt="" coords="224,5,368,47"/>
+<area shape="rect" id="node2" href="$dd/d49/interfacedevice_1_1device__get__ptr.html#ad96e0551b3b3e204b8af82abd927d417" title="Return the device pointer for an associated Fortran rank 1 array." alt="" coords="5,5,176,47"/>
+</map>

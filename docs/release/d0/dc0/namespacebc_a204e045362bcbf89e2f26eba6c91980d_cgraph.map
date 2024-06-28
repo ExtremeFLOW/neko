@@ -1,0 +1,4 @@
+<map id="bc::bc_finalize" name="bc::bc_finalize">
+<area shape="rect" id="node1" title="Finalize the construction of the bc by populting the msk and facet arrays." alt="" coords="5,5,120,32"/>
+<area shape="rect" id="node2" href="$d6/d84/namespaceutils.html#ae14221a870025e675db24d2b136d2aa0" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="168,5,307,32"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="point_interpolator::point_interpolator_interpolate_jacobian" name="point_interpolator::point_interpolator_interpolate_jacobian">
+<area shape="rect" id="node1" title="Constructs the Jacobian, returns a 3&#45;by&#45;3 array where ." alt="" coords="200,5,363,61"/>
+<area shape="rect" id="node2" href="$d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#af5ca4649f7a516ab3ebe2484b16380cb" title="Constructs the Jacobian for a point ." alt="" coords="5,5,152,61"/>
+</map>

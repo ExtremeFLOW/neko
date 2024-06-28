@@ -1,0 +1,4 @@
+<map id="device::device_stream_create_with_priority" name="device::device_stream_create_with_priority">
+<area shape="rect" id="node1" title="Create a device stream/command queue with priority." alt="" coords="245,5,415,47"/>
+<area shape="rect" id="node2" href="$d9/dfa/namespacegs__device__mpi.html#afe2c32b8ff7fe4f3941b8653b47ec885" title="Initialise MPI based communication method." alt="" coords="5,5,197,47"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="htable::htable_iter_t" name="htable::htable_iter_t">
+<area shape="rect" id="node1" title="Base type for a hash table iterator." alt="" coords="5,195,159,222"/>
+<area shape="rect" id="node2" href="$dd/d3e/structhtable_1_1htable__iter__cptr__t.html" title="Iterator for a C pointer based hash table." alt="" coords="223,5,364,47"/>
+<area shape="rect" id="node3" href="$dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="207,71,379,98"/>
+<area shape="rect" id="node4" href="$d8/dfb/structhtable_1_1htable__iter__i4t2__t.html" title="Iterator for an integer based 2&#45;tuple hash table." alt="" coords="223,123,364,164"/>
+<area shape="rect" id="node5" href="$de/d9b/structhtable_1_1htable__iter__i4t4__t.html" title="Iterator for an integer based 4&#45;tuple hash table." alt="" coords="223,188,364,229"/>
+<area shape="rect" id="node6" href="$d1/da0/structhtable_1_1htable__iter__i8__t.html" title="Iterator for an integer*8 based hash table." alt="" coords="207,254,379,281"/>
+<area shape="rect" id="node7" href="$d0/dfb/structhtable_1_1htable__iter__pt__t.html" title="Iterator for a point based hash table." alt="" coords="207,305,380,331"/>
+<area shape="rect" id="node8" href="$da/d47/structhtable_1_1htable__iter__r8__t.html" title="Iterator for a double precision based hash table." alt="" coords="207,355,380,382"/>
+</map>

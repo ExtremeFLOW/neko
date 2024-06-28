@@ -1,0 +1,9 @@
+<map id="scalar_residual_device::scalar_residual_device_compute" name="scalar_residual_device::scalar_residual_device_compute">
+<area shape="rect" id="node1" title=" " alt="" coords="5,57,184,113"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612" title=" " alt="" coords="259,5,416,47"/>
+<area shape="rect" id="node6" href="$d6/d2e/scalar__residual_8cu.html#a4a8e1c9711a0d75cbf7d00b71d9e742f" title=" " alt="" coords="232,71,443,98"/>
+<area shape="rect" id="node7" href="$d7/d46/scalar__residual_8c.html#a601e0ff5fa599043701f6ac2066733f6" title=" " alt="" coords="491,115,663,156"/>
+<area shape="rect" id="node3" href="$de/d1e/math_8cu.html#acb4fe9bc0a09e3ef698a39bb71086356" title=" " alt="" coords="535,13,618,39"/>
+<area shape="rect" id="node4" href="$d6/da3/math_8c.html#ace53d8c6b37b7549d3d1c15a5bda29ca" title=" " alt="" coords="529,63,624,90"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="711,93,843,119"/>
+</map>

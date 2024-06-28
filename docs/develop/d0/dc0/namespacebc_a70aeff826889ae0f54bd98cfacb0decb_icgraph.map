@@ -1,0 +1,15 @@
+<map id="bc::bc_list_free" name="bc::bc_list_free">
+<area shape="rect" id="node1" title="Destructor for a list of boundary conditions." alt="" coords="933,265,1053,292"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="729,173,843,200"/>
+<area shape="rect" id="node11" href="$d0/d1c/namespacefield__dirichlet__vector.html#aeaae7331013cccf541bae427fa6cb1dd" title="Destructor. Currently unused as is, all field_dirichlet attributes are freed in fluid_scheme::free." alt="" coords="687,225,885,266"/>
+<area shape="rect" id="node12" href="$d8/d09/namespacefluid__scheme.html#a163ce93c7c8e760a2172e915aab75525" title="Deallocate a fluid formulation." alt="" coords="714,290,858,331"/>
+<area shape="rect" id="node13" href="$da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b" title="Deallocate a scalar formulation." alt="" coords="703,355,869,397"/>
+<area shape="rect" id="node3" href="$dc/da3/namespacefluid__pnpn.html#a24a6187aed087af84495969693831775" title=" " alt="" coords="447,5,639,32"/>
+<area shape="rect" id="node4" href="$d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="243,49,387,90"/>
+<area shape="rect" id="node6" href="$d8/d09/namespacefluid__scheme.html#ab8289185c523ab7039d9076f81d2c2cc" title="Initialize common data for the current scheme." alt="" coords="457,107,629,149"/>
+<area shape="rect" id="node7" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="477,173,608,200"/>
+<area shape="rect" id="node8" href="$db/d56/namespacescalar__pnpn.html#af70b26869059aa4be9721e2b29202e27" title="Constructor." alt="" coords="469,225,616,266"/>
+<area shape="rect" id="node9" href="$da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc" title="Initialize boundary conditions." alt="" coords="459,290,626,331"/>
+<area shape="rect" id="node10" href="$da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="232,319,399,361"/>
+<area shape="rect" id="node5" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a7e2136dedddf80e7660284a3feec1bc2" title=" " alt="" coords="5,78,184,119"/>
+</map>

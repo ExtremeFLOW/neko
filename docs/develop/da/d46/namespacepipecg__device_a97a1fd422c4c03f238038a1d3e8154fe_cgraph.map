@@ -1,0 +1,21 @@
+<map id="pipecg_device::pipecg_device_solve" name="pipecg_device::pipecg_device_solve">
+<area shape="rect" id="node1" title="Pipelined PCG solve." alt="" coords="5,173,172,215"/>
+<area shape="rect" id="node2" href="$da/d46/namespacepipecg__device.html#aa3ab1356e5bada6530054c707c710072" title=" " alt="" coords="235,5,402,47"/>
+<area shape="rect" id="node4" href="$d2/d73/namespacedevice__math.html#addb4596de81a7518fcafd9e40aa7ed57" title=" " alt="" coords="221,71,416,98"/>
+<area shape="rect" id="node7" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="220,122,417,149"/>
+<area shape="rect" id="node8" href="$d2/d73/namespacedevice__math.html#ac80b69645b556fc4dc3022739f00bbd1" title=" " alt="" coords="240,239,397,280"/>
+<area shape="rect" id="node13" href="$da/d46/namespacepipecg__device.html#a20e5112bf3c11f03f58a2bd09e8f27a0" title=" " alt="" coords="235,173,402,215"/>
+<area shape="rect" id="node15" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title=" " alt="" coords="240,372,397,413"/>
+<area shape="rect" id="node18" href="$d2/d73/namespacedevice__math.html#a384b19e4831cef680a3f660edcccb98b" title=" " alt="" coords="240,304,397,345"/>
+<area shape="rect" id="node3" href="$da/d9a/pipecg__aux_8hip.html#a4ac59ecc540cb19e2ceca9beeaae179b" title=" " alt="" coords="469,13,607,39"/>
+<area shape="rect" id="node5" href="$de/d1e/math_8cu.html#aaa922bf0afc80480ef12d8260376bf53" title=" " alt="" coords="493,118,583,145"/>
+<area shape="rect" id="node6" href="$d6/da3/math_8c.html#af2055c7811d3d143b549d14a0f302079" title=" " alt="" coords="487,67,589,94"/>
+<area shape="rect" id="node9" href="$de/d1e/math_8cu.html#ae5a1628374d65b302e8a5f9993fab70a" title=" " alt="" coords="491,227,585,254"/>
+<area shape="rect" id="node11" href="$d6/da3/math_8c.html#a278d2d449c09caeb2e42dabf6a5521b9" title=" " alt="" coords="485,278,591,305"/>
+<area shape="rect" id="node10" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="659,227,823,254"/>
+<area shape="rect" id="node12" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="675,278,807,305"/>
+<area shape="rect" id="node14" href="$da/d9a/pipecg__aux_8hip.html#a5a0e60ff01db773d2d0f0737b5982a6a" title=" " alt="" coords="465,177,611,203"/>
+<area shape="rect" id="node16" href="$de/d1e/math_8cu.html#a929f7979761fc7dfdb31c1bc7dcd3897" title=" " alt="" coords="491,430,585,457"/>
+<area shape="rect" id="node17" href="$d6/da3/math_8c.html#a4759a87ec336639cbcd865aea0801da7" title=" " alt="" coords="485,379,591,406"/>
+<area shape="rect" id="node19" href="$de/d1e/math_8cu.html#a2ea1ad0b2b947b1213b0a83be439519d" title=" " alt="" coords="491,329,585,355"/>
+</map>

@@ -1,0 +1,16 @@
+<map id="bc::bc_t" name="bc::bc_t">
+<area shape="rect" id="node1" title="Base type for a boundary condition." alt="" coords="5,261,77,287"/>
+<area shape="rect" id="node2" href="$df/dd9/structdirichlet_1_1dirichlet__t.html" title="Generic Dirichlet boundary condition &#160;on ." alt="" coords="141,137,289,163"/>
+<area shape="rect" id="node10" href="$d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html" title="User defined dirichlet condition, for which the user can work with an entire field...." alt="" coords="141,188,288,229"/>
+<area shape="rect" id="node11" href="$da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html" title="Extension of the user defined dirichlet condition field_dirichlet" alt="" coords="125,253,304,295"/>
+<area shape="rect" id="node12" href="$d5/d84/structneumann_1_1neumann__t.html" title="Generic Neumann boundary condition. This sets the flux of the field to the chosen value." alt="" coords="133,319,297,346"/>
+<area shape="rect" id="node13" href="$d1/d83/structsymmetry_1_1symmetry__t.html" title="Mixed Dirichlet&#45;Neumann symmetry plane condition." alt="" coords="127,370,302,397"/>
+<area shape="rect" id="node3" href="$d0/d88/structdong__outflow_1_1dong__outflow__t.html" title="Dong outflow condition Follows &quot;A Convective&#45;like Energy&#45;Stable Open Boundary Condition for &#160;Simulati..." alt="" coords="376,5,524,47"/>
+<area shape="rect" id="node4" href="$d1/d1e/structfacet__normal_1_1facet__normal__t.html" title="Dirichlet condition in facet normal direction." alt="" coords="375,71,525,112"/>
+<area shape="rect" id="node5" href="$d5/d8a/structinflow_1_1inflow__t.html" title="Dirichlet condition for inlet (vector valued)" alt="" coords="391,137,509,163"/>
+<area shape="rect" id="node8" href="$d5/d57/structusr__scalar_1_1usr__scalar__t.html" title="User defined dirichlet condition for scalars." alt="" coords="363,187,537,214"/>
+<area shape="rect" id="node9" href="$dd/d9d/structwall_1_1no__slip__wall__t.html" title="No&#45;slip Wall boundary condition." alt="" coords="375,238,525,265"/>
+<area shape="rect" id="node6" href="$d0/dca/structblasius_1_1blasius__t.html" title="Blasius profile for inlet (vector valued)" alt="" coords="615,111,750,138"/>
+<area shape="rect" id="node7" href="$d8/d63/structusr__inflow_1_1usr__inflow__t.html" title="User defined dirichlet condition for inlet (vector valued)" alt="" coords="596,162,769,189"/>
+<area shape="rect" id="node14" href="$da/d18/structnon__normal_1_1non__normal__t.html" title="Dirichlet condition in non normal direction of a plane." alt="" coords="352,370,548,397"/>
+</map>

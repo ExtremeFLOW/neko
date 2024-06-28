@@ -1,0 +1,6 @@
+<map id="distdata::distdata_set_shared_point" name="distdata::distdata_set_shared_point">
+<area shape="rect" id="node1" title="Mark a point as shared." alt="" coords="677,5,817,47"/>
+<area shape="rect" id="node2" href="$db/dfc/namespacemesh.html#aadcee020052d3a876ded460252b3a42a" title="Generate element&#45;element connectivity via points between PEs." alt="" coords="463,5,629,47"/>
+<area shape="rect" id="node3" href="$db/dfc/namespacemesh.html#adda9934c988fca3015a777470bbf43ba" title="Generate element&#45;to&#45;element connectivity." alt="" coords="209,13,415,39"/>
+<area shape="rect" id="node4" href="$db/dfc/namespacemesh.html#ac2946fce1b2dd0901137b5d74e1d641a" title=" " alt="" coords="5,13,161,39"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="htable::htable_r8_init" name="htable::htable_r8_init">
+<area shape="rect" id="node1" title="Initialize a double precision based hash table." alt="" coords="5,5,165,32"/>
+<area shape="rect" id="node2" href="$dc/df5/namespacehtable.html#abe2d67a08e6453a0d2c4a12dd2215448" title="Initialize a hash table of type data." alt="" coords="213,5,353,32"/>
+<area shape="rect" id="node3" href="$dc/df5/namespacehtable.html#a672b108e3f932f7c838cf39214a320d4" title="Destroy a hash table." alt="" coords="401,5,547,32"/>
+</map>

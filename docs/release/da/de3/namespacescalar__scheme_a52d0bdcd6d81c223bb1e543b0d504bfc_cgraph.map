@@ -1,0 +1,6 @@
+<map id="scalar_scheme::scalar_scheme_add_bcs" name="scalar_scheme::scalar_scheme_add_bcs">
+<area shape="rect" id="node1" title="Initialize boundary conditions." alt="" coords="5,23,172,65"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="220,5,339,32"/>
+<area shape="rect" id="node3" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="222,56,337,83"/>
+<area shape="rect" id="node4" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="387,56,507,83"/>
+</map>

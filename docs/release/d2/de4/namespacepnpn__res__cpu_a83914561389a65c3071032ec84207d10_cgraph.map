@@ -1,0 +1,14 @@
+<map id="pnpn_res_cpu::pnpn_vel_res_cpu_compute" name="pnpn_res_cpu::pnpn_vel_res_cpu_compute">
+<area shape="rect" id="node1" title=" " alt="" coords="5,86,176,127"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the gradient of a scalar field." alt="" coords="224,93,361,120"/>
+<area shape="rect" id="node3" href="$d0/d94/namespaceopr__cpu.html#afdd18136c0ce66bc38ea740be2798416" title=" " alt="" coords="409,5,593,32"/>
+<area shape="rect" id="node4" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="415,57,587,98"/>
+<area shape="rect" id="node8" href="$df/db5/namespaceopr__sx.html#a3b4a270c453ead264e0628673c2e5e4a" title=" " alt="" coords="417,123,585,149"/>
+<area shape="rect" id="node9" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="417,174,585,215"/>
+<area shape="rect" id="node5" href="$d6/d68/opr__opgrad_8cu.html#a47a2678dd1f3bc0187df518f5fce764d" title=" " alt="" coords="700,31,805,57"/>
+<area shape="rect" id="node6" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="694,81,811,108"/>
+<area shape="rect" id="node7" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="925,81,1057,108"/>
+<area shape="rect" id="node10" href="$d9/d5a/namespaceopr__xsmm.html#ae87af796709692f90edc89ad48a47e93" title=" " alt="" coords="665,148,840,175"/>
+<area shape="rect" id="node12" href="$d9/d5a/namespaceopr__xsmm.html#a3d01aa528301a7ba984a8f558994c137" title=" " alt="" coords="641,199,864,225"/>
+<area shape="rect" id="node11" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="912,148,1071,175"/>
+</map>
