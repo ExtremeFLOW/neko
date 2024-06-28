@@ -90,7 +90,7 @@ contains
     type(json_core) :: core
     type(json_value), pointer :: simcomp_object
     type(json_file) :: comp_subdict
-    logical :: found, is_user, has_user, has_builtin
+    logical :: found, is_user, has_user
     ! Help array for finding minimal values
     logical, allocatable :: mask(:)
     ! The order value for each simcomp in order of appearance in the case file.
@@ -128,14 +128,12 @@ contains
     ! apply the order to the initialization as well.
     max_order = 0
     has_user = .false.
-    has_builtin = .false.
     do i = 1, n_simcomps
        ! Create a new json containing just the subdict for this simcomp
        call json_extract_item(core, simcomp_object, i, comp_subdict)
 
        call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
        has_user = has_user .or. is_user
-       has_builtin = has_builtin .or. .not. is_user
 
        call json_get_or_default(comp_subdict, "order", read_order(i), -1)
        if (read_order(i) .gt. max_order) then
@@ -179,7 +177,6 @@ contains
 
        comp_subdict = json_file(simcomp_object)
        call case%usr%init_user_simcomp(comp_subdict)
-
     end if
 
     ! Cleanup
