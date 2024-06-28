@@ -114,6 +114,7 @@ contains
     call case%params%get_core(core)
     call case%params%get(root_name, simcomp_object, found)
     if (.not. found) return
+    call neko_log%section('Initialize simcomp')
 
     ! Set the number of simcomps and allocate the arrays
     call case%params%info(root_name, n_children=n_simcomps)
@@ -161,31 +162,24 @@ contains
     end do
 
     ! Init in the determined order.
-    if (has_builtin) then
-       call neko_log%section('Initialize simcomp')
+    do i = 1, n_simcomps
+       call json_extract_item(core, simcomp_object, order(i), comp_subdict)
 
-       do i = 1, n_simcomps
-          call json_extract_item(core, simcomp_object, order(i), comp_subdict)
+       ! Log the component type if it is not a user component
+       call json_get(comp_subdict, "type", comp_type)
+       call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
+       if (.not. is_user) call neko_log%message('- ' // trim(comp_type))
 
-          ! Log the component type if it is not a user component
-          call json_get(comp_subdict, "type", comp_type)
-          call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
-          if (.not. is_user) call neko_log%message('- ' // trim(comp_type))
-
-          call simulation_component_factory(this%simcomps(i)%simcomp, &
-                                            comp_subdict, case)
-       end do
-
-       call neko_log%end_section()
-    end if
+       call simulation_component_factory(this%simcomps(i)%simcomp, &
+                                         comp_subdict, case)
+    end do
 
     if (has_user) then
-       call neko_log%section('Initialize user simcomp')
+       call neko_log%message('Initialize user simcomp')
 
        comp_subdict = json_file(simcomp_object)
        call case%usr%init_user_simcomp(comp_subdict)
 
-       call neko_log%end_section()
     end if
 
     ! Cleanup
@@ -194,6 +188,7 @@ contains
     deallocate(read_order)
     deallocate(mask)
 
+    call neko_log%end_section()
   end subroutine simcomp_executor_init
 
   !> Destructor.
