@@ -592,6 +592,9 @@ contains
 
     ! Throw and error
     call neko_error('Only defined for coupled solves')
+
+    ksp_results%res_final = 0.0
+    ksp_results%iter = 0
     
   end function fusedcg_cpld_device_solve
   
