@@ -70,8 +70,8 @@ module gradient_jump_penalty
      type(field_t), pointer :: flux1, flux2, flux3
      !> 3 parts of the flux of the volumetric flow
      type(field_t), pointer :: volflux1, volflux2, volflux3
-     !> The flux of the volumetric flow (volflux1 + volflux2 + volflux3)
-     type(field_t), pointer :: volflux
+     !> The absolute flux of the volumetric flow (volflux1 + volflux2 + volflux3)
+     type(field_t), pointer :: absvolflux
      !> Expanded array of facet normal (zero inside each element)
      type(field_t), pointer :: n1, n2, n3
      !> Number of facet in elements and its maximum
@@ -79,8 +79,6 @@ module gradient_jump_penalty
      integer :: n_facet_max
      !> Length scale for element regarding a facet
      real(kind=rp), allocatable :: h(:)
-     !> Polynomial Quadrature
-     real(kind=rp), allocatable :: w(:), w2(:,:)
      !> Polynomial evaluated at collocation points
      real(kind=rp), allocatable :: phi(:,:)
      !> The first derivative of polynomial at two ends of the interval
@@ -147,19 +145,10 @@ contains
     end do
     
     allocate(zg(dofmap%xh%lx))
-    allocate(this%w(dofmap%xh%lx))
-    allocate(this%w2(dofmap%xh%lx, dofmap%xh%lx))
     allocate(this%phi(this%p + 1, this%p + 1))
     allocate(this%dphidxi(this%p + 1, this%p + 1))
 
     zg = dofmap%xh%zg(:,1)
-    this%w = dofmap%xh%wx
-    do i = 1, dofmap%xh%lx
-       do j = 1, dofmap%xh%lx
-          this%w2(i, j) = this%w(i) * this%w(j)
-       end do
-    end do
-
     do i = 1, dofmap%xh%lx
        do j = 1, dofmap%xh%lx
           this%phi(j,i) = pnleg(zg(j),i-1)
@@ -177,7 +166,7 @@ contains
     call neko_scratch_registry%request_field(this%volflux1, temp_indices(8))
     call neko_scratch_registry%request_field(this%volflux2, temp_indices(9))
     call neko_scratch_registry%request_field(this%volflux3, temp_indices(10))
-    call neko_scratch_registry%request_field(this%volflux, temp_indices(11))
+    call neko_scratch_registry%request_field(this%absvolflux, temp_indices(11))
     
     ! formulate n1, n2 and n3
     do i = 1, this%coef%msh%nelv
@@ -236,12 +225,6 @@ contains
     if (allocated(this%n_facet)) then
        deallocate(this%n_facet)
     end if
-    if (allocated(this%w)) then
-       deallocate(this%w)
-    end if
-    if (allocated(this%w2)) then
-       deallocate(this%w2)
-    end if
     if (allocated(this%phi)) then
        deallocate(this%phi)
     end if
@@ -259,6 +242,7 @@ contains
     nullify(this%volflux1)
     nullify(this%volflux2)
     nullify(this%volflux3)
+    nullify(this%absvolflux)
 
   end subroutine gradient_jump_penalty_free
 
@@ -275,12 +259,12 @@ contains
     integer :: i
 
     call G_compute(this, s)
-    call volflux_compute(this, u, v, w)
+    call absvolflux_compute(this, u, v, w)
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
        select type(ep)
        type is (hex_t)
-          call gradient_jump_penalty_compute_hex_el(this, u, v, w, s)
+          call gradient_jump_penalty_compute_hex_el(this, u, v, w, s, i)
           this%penalty(:, :, :, i) = this%penalty_el
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported now for gradient jump penalty")
@@ -290,17 +274,34 @@ contains
   end subroutine gradient_jump_penalty_compute
 
   !> Compute the gradient jump penalty term for a single hexatedral element.
+  !> <tau * h^2 * abs(u .dot. n) * G * phij * phik * dphi_idxi * dxidn>
   !! @param u x-velocity
   !! @param v y-velocity
   !! @param w z-velocity
   !! @param s The quantity of interest
-  subroutine gradient_jump_penalty_compute_hex_el(this, u, v, w, s)
+  !! @param i_el index of the element
+  subroutine gradient_jump_penalty_compute_hex_el(this, u, v, w, s, i_el)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: u, v, w, s
+    integer, intent(in) :: i_el
 
-    integer :: i
+    real(kind=rp) :: integrant_facet(this%p + 1, this%p + 1)
+    integer :: i, j, k, l
 
     write(*,*) "call gradient_jump_penalty_compute_hex_el"
+    do i = 1, this%p + 1
+       do j = 1, this%p + 1
+          do k = 1, this%p + 1
+             this%penalty_el(i, j, k) = 0.0_rp
+             do l = 1, 6
+                integrant_facet = 0.0_rp
+                call generate_integrant_facet(this, integrant_facet, i, j, k, l, i_el)
+                this%penalty_el(i, j, k) = this%penalty_el(i, j, k) + &
+                                  integrate_over_facet(this, integrant_facet, l, i_el)
+             end do
+          end do
+       end do  
+    end do
     !!! Brief summary of what we have now and what we need in total
     !!! needed: 
     !!! 1. real variables: tau, h, dphidxi, dxidn
@@ -309,13 +310,11 @@ contains
     !!! 4. subroutine/function performing integration over a facet
     !!! 5. procedure to put integrals together: mayeb a do-loop
     !!! Had now:
-    !!! 1. tau, h, dphidxi
-    !!! 2. G, n
+    !!! 1. tau, h, dphidxi, dxidn -- as drdx dsdy and dtdz
+    !!! 2. G, n, dot(u,n)
+    !!! 3. subroutine/function for 2D integration
     !!! Need to figure out:
-    !!! 1. dxidn (noting that the distortion might be not uniform inside each element)
-    !!! 2. dot(u,n) on each element, OR field_t and pick later from it?
-    !!! 3. subroutine/function for 2DF integration
-    !!! 4. do-loop to gather all integrals together
+    !!! 1. do-loop to gather all integrals together
 
   end subroutine gradient_jump_penalty_compute_hex_el
 
@@ -346,23 +345,122 @@ contains
 
   !> Compute the average of the flux over facets
   !! @param s The quantity of interest
-  subroutine volflux_compute(this, u, v, w)
+  subroutine absvolflux_compute(this, u, v, w)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: u, v, w
+
+    integer :: i
 
     call col3(this%volflux1%x, u%x, this%n1%x, this%coef%dof%size())
     call col3(this%volflux2%x, v%x, this%n2%x, this%coef%dof%size())
     call col3(this%volflux3%x, w%x, this%n3%x, this%coef%dof%size())
 
-    call add3(this%volflux%x, this%volflux1%x, this%volflux2%x, this%coef%dof%size())
-    call add2(this%volflux%x, this%volflux3%x, this%coef%dof%size())
+    call add3(this%absvolflux%x, this%volflux1%x, this%volflux2%x, this%coef%dof%size())
+    call add2(this%absvolflux%x, this%volflux3%x, this%coef%dof%size())
 
-  end subroutine volflux_compute
+    do i = 1, this%coef%dof%size()
+       this%absvolflux%x(i, 1, 1, 1) = abs(this%absvolflux%x(i, 1, 1, 1))
+    end do
 
-  ! !> Integrate over a facet
-  ! !! @param f Integrant
-  ! subroutine integrate_over_facet(f)
+  end subroutine absvolflux_compute
 
-  ! end subroutine integrate_over_facet
+  !> Generate the integrant of the corresponding term
+  !! @param f The integrant in the gradient jump penalty term
+  !! @param i The order of the test function on r direction
+  !! @param j The order of the test function on s direction
+  !! @param k The order of the test function on t direction
+  !! @param l The facet index
+  !! @param i_el The index of the element
+  subroutine generate_integrant_facet(this, f, i, j, k, l, i_el)
+    class(gradient_jump_penalty_t), intent(in) :: this
+    real(kind=rp), intent(inout) :: f(this%p + 1, this%p + 1)
+    integer, intent(in) :: i, j, k, l, i_el
+
+    integer :: i_pt, j_pt
+    !!! tau * h^2 * abs(u .dot. n) * G * phij * phik * dphi_idxi * dxidn
+    select case (l) ! Identify the facet indexing
+    case(1)
+       do i_pt = 1, this%p + 1
+          do j_pt = 1, this%p + 1
+             f(i_pt, j_pt) = this%absvolflux%x(1, i_pt, j_pt, i_el) * &
+                       this%G%x(1, i_pt, j_pt, i_el) * &
+                       this%dphidxi(1, i) * &
+                       this%coef%drdx(1, i_pt, j_pt, i_el) * &
+                       this%phi(i_pt, j) * this%phi(j_pt, k)
+          end do
+       end do
+    case(2)
+       do i_pt = 1, this%p + 1
+          do j_pt = 1, this%p + 1
+             f(i_pt, j_pt) = this%absvolflux%x(this%p + 1, i_pt, j_pt, i_el) * &
+                       this%G%x(this%p + 1, i_pt, j_pt, i_el) * &
+                       this%dphidxi(2, i) * &
+                       this%coef%drdx(this%p + 1, i_pt, j_pt, i_el) * &
+                       this%phi(i_pt, j) * this%phi(j_pt, k)
+          end do
+       end do
+    case(3)
+       do i_pt = 1, this%p + 1
+          do j_pt = 1, this%p + 1
+             f(i_pt, j_pt) = this%absvolflux%x(i_pt, 1, j_pt, i_el) * &
+                       this%G%x(i_pt, 1, j_pt, i_el) * &
+                       this%dphidxi(1, j) * &
+                       this%coef%dsdy(i_pt, 1, j_pt, i_el) * &
+                       this%phi(i_pt, i) * this%phi(j_pt, k)
+          end do
+       end do
+    case(4)
+       do i_pt = 1, this%p + 1
+          do j_pt = 1, this%p + 1
+             f(i_pt, j_pt) = this%absvolflux%x(i_pt, this%p + 1, j_pt, i_el) * &
+                       this%G%x(i_pt, this%p + 1, j_pt, i_el) * &
+                       this%dphidxi(2, j) * &
+                       this%coef%dsdy(i_pt, this%p + 1, j_pt, i_el) * &
+                       this%phi(i_pt, i) * this%phi(j_pt, k)
+          end do
+       end do
+    case(5)
+       do i_pt = 1, this%p + 1
+          do j_pt = 1, this%p + 1
+             f(i_pt, j_pt) = this%absvolflux%x(i_pt, j_pt, 1, i_el) * &
+                       this%G%x(i_pt, j_pt, 1, i_el) * &
+                       this%dphidxi(1, k) * &
+                       this%coef%dtdz(i_pt, j_pt, 1, i_el) * &
+                       this%phi(i_pt, i) * this%phi(j_pt, j)
+          end do
+       end do
+    case(6)
+       do i_pt = 1, this%p + 1
+          do j_pt = 1, this%p + 1
+             f(i_pt, j_pt) = this%absvolflux%x(i_pt, j_pt, this%p + 1, i_el) * &
+                       this%G%x(i_pt, j_pt, this%p + 1, i_el) * &
+                       this%dphidxi(2, k) * &
+                       this%coef%dtdz(i_pt, j_pt, this%p + 1, i_el) * &
+                       this%phi(i_pt, i) * this%phi(j_pt, j)
+          end do
+       end do
+    end select
+    f = f * this%tau * this%h(i_el) ** 2
+
+  end subroutine generate_integrant_facet
+
+  !> Integrate over a facet
+  !! @param f Integrant
+  pure function integrate_over_facet(this, f, facet_index, i_el) result(f_int)
+    class(gradient_jump_penalty_t), intent(in) :: this
+    real(kind=rp), intent(in) :: f(this%p + 1, this%p + 1)
+    integer, intent(in) :: facet_index, i_el
+    real(kind=rp) :: f_int
+
+    integer :: i, j
+
+    f_int = 0.0_rp
+    do i = 1, this%p + 1
+       do j = 1, this%p + 1
+          f_int = f_int + f(i, j) * this%coef%area(i, j, facet_index, i_el)
+       end do
+    end do
+
+  end function integrate_over_facet
 
 end module gradient_jump_penalty
