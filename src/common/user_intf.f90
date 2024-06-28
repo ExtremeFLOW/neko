@@ -463,21 +463,20 @@ contains
     integer :: i
     logical :: found, is_user
 
-    ! Extract the JSON object for the current component
-    if (.not. params%valid_path('case.simulation_components')) return
-
     call params%get_core(core)
-    call params%info('case.simulation_components', n_children=n_simcomps)
-    call params%get('case.simulation_components', simcomp_object)
+    call params%get(simcomp_object)
+    call params%info('', n_children=n_simcomps)
 
     ! We need a separate loop to figure out the order, so that we can
     ! apply the order to the initialization as well.
+    found = .false.
     do i = 1, n_simcomps
-       ! Create a new json containing just the subdict for this simcomp
        call json_extract_item(core, simcomp_object, i, comp_subdict)
-       call json_get(comp_subdict, "type", current_type)
        call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
-       if (trim(current_type) .eq. trim(name) .and. is_user) then
+       if (.not. is_user) cycle
+
+       call json_get(comp_subdict, "type", current_type)
+       if (trim(current_type) .eq. trim(name)) then
           found = .true.
           exit
        end if

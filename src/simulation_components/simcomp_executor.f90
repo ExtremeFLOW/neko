@@ -39,6 +39,7 @@ module simcomp_executor
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use case, only : case_t
   use utils, only : neko_error
+  use logger, only : neko_log
   implicit none
   private
 
@@ -78,14 +79,18 @@ module simcomp_executor
 contains
 
   !> Constructor.
-  subroutine simcomp_executor_init(this, case)
+  !! @param case The case.
+  !! @param simcomp_root The root name of the simulation components in the case.
+  !! If not provided, the default is 'case.simulation_components'.
+  subroutine simcomp_executor_init(this, case, simcomp_root)
     class(simcomp_executor_t), intent(inout) :: this
     type(case_t), target, intent(inout) :: case
+    character(len=*), optional, intent(in) :: simcomp_root
     integer :: n_simcomps, i
     type(json_core) :: core
     type(json_value), pointer :: simcomp_object
     type(json_file) :: comp_subdict
-    logical :: found
+    logical :: found, is_user, has_user, has_builtin
     ! Help array for finding minimal values
     logical, allocatable :: mask(:)
     ! The order value for each simcomp in order of appearance in the case file.
@@ -93,67 +98,102 @@ contains
     ! Location of the min value
     integer :: loc(1)
     integer :: max_order
+    character(len=:), allocatable :: root_name, comp_type
 
     call this%free()
     this%case => case
 
-    if (case%params%valid_path('case.simulation_components')) then
+    ! Get the root name of the simulation components if specified
+    if (present(simcomp_root)) then
+       root_name = simcomp_root
+    else
+       root_name = 'case.simulation_components'
+    end if
 
-       call case%params%info('case.simulation_components', &
-                             n_children=n_simcomps)
-       this%n_simcomps = n_simcomps
-       allocate(this%simcomps(n_simcomps))
-       allocate(order(n_simcomps))
-       allocate(read_order(n_simcomps))
-       allocate(mask(n_simcomps))
-       mask = .true.
+    ! Get the core json object and the simulation components object
+    call case%params%get_core(core)
+    call case%params%get(root_name, simcomp_object, found)
+    if (.not. found) return
 
-       call case%params%get_core(core)
-       call case%params%get('case.simulation_components', simcomp_object, found)
+    ! Set the number of simcomps and allocate the arrays
+    call case%params%info(root_name, n_children=n_simcomps)
+    this%n_simcomps = n_simcomps
+    allocate(this%simcomps(n_simcomps))
+    allocate(order(n_simcomps))
+    allocate(read_order(n_simcomps))
+    allocate(mask(n_simcomps), source = .true.)
 
-       ! We need a separate loop to figure out the order, so that we can
-       ! apply the order to the initialization as well.
-       max_order = 0
+    ! We need a separate loop to figure out the order, so that we can
+    ! apply the order to the initialization as well.
+    max_order = 0
+    has_user = .false.
+    has_builtin = .false.
+    do i = 1, n_simcomps
+       ! Create a new json containing just the subdict for this simcomp
+       call json_extract_item(core, simcomp_object, i, comp_subdict)
+
+       call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
+       has_user = has_user .or. is_user
+       has_builtin = has_builtin .or. .not. is_user
+
+       call json_get_or_default(comp_subdict, "order", read_order(i), -1)
+       if (read_order(i) .gt. max_order) then
+          max_order = read_order(i)
+       end if
+    end do
+
+    ! If the order was not specified, we use the order of appearance in the
+    ! case file.
+    do i = 1, n_simcomps
+       if (read_order(i) == -1) then
+          max_order = max_order + 1
+          read_order(i) = max_order
+       end if
+    end do
+
+    ! Figure out the execution order using a poor man's argsort.
+    ! Searches for the location of the min value, each time masking out the
+    ! found location prior to the next search.
+    do i = 1, n_simcomps
+       loc = minloc(read_order, mask=mask)
+       order(i) = loc(1)
+       mask(loc) = .false.
+    end do
+
+    ! Init in the determined order.
+    if (has_builtin) then
+       call neko_log%section('Initialize simcomp')
+
        do i = 1, n_simcomps
-          ! Create a new json containing just the subdict for this simcomp
-          call json_extract_item(core, simcomp_object, i, comp_subdict)
-          call json_get_or_default(comp_subdict, "order", read_order(i), -1)
-          if (read_order(i) .gt. max_order) then
-             max_order = read_order(i)
-          end if
-       end do
+          call json_extract_item(core, simcomp_object, order(i), comp_subdict)
 
-       ! If the order was not specified, we use the order of appearance in the
-       ! case file.
-       do i = 1, n_simcomps
-          if (read_order(i) == - 1) then
-             max_order = max_order + 1
-             read_order(i) = max_order
-          end if
-       end do
+          ! Log the component type if it is not a user component
+          call json_get(comp_subdict, "type", comp_type)
+          call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
+          if (.not. is_user) call neko_log%message('- ' // trim(comp_type))
 
-       ! Figure out the execution order using a poor man's argsort.
-       ! Searches for the location of the min value, each time masking out the
-       ! found location prior to the next search.
-       do i = 1, n_simcomps
-          loc = minloc(read_order, mask=mask)
-          order(i) = loc(1)
-          mask(loc) = .false.
-       end do
-
-       ! Init in the determined order.
-       do i = 1, n_simcomps
-          call json_extract_item(core, simcomp_object, order(i), &
-                                 comp_subdict)
           call simulation_component_factory(this%simcomps(i)%simcomp, &
                                             comp_subdict, case)
        end do
 
-       ! Initialize the user simcomps
-       call case%usr%init_user_simcomp(case%params)
-       call neko_simcomps%finalize()
-
+       call neko_log%end_section()
     end if
+
+    if (has_user) then
+       call neko_log%section('Initialize user simcomp')
+
+       comp_subdict = json_file(simcomp_object)
+       call case%usr%init_user_simcomp(comp_subdict)
+
+       call neko_log%end_section()
+    end if
+
+    ! Cleanup
+    call neko_simcomps%finalize()
+    deallocate(order)
+    deallocate(read_order)
+    deallocate(mask)
+
   end subroutine simcomp_executor_init
 
   !> Destructor.
