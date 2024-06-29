@@ -152,7 +152,7 @@ module scalar_scheme
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
      !> Gradient jump panelty
      logical :: if_gradient_jump_penalty
-     type(gradient_jump_penalty_t) :: grad_jump_penalty
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -472,7 +472,7 @@ contains
                             this%if_gradient_jump_penalty, .false.)
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%grad_jump_penalty%init(this%dm_Xh, this%c_Xh)
+       call this%gradient_jump_penalty%init(this%dm_Xh, this%c_Xh)
     end if
 
     call neko_log%end_section()
@@ -518,7 +518,7 @@ contains
 
     ! Free gradient jump penalty
     if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%grad_jump_penalty%free()
+       call this%gradient_jump_penalty%free()
     end if
 
   end subroutine scalar_scheme_free

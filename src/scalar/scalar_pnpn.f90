@@ -351,9 +351,14 @@ contains
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 
-
       ! Update material properties if necessary
       call this%update_material_properties()
+
+      ! Compute the grandient jump penalty term
+      if (this%if_gradient_jump_penalty .eqv. .true.) then
+         call this%gradient_jump_penalty%compute(u, v, w, s)
+         call this%gradient_jump_penalty%perform(f_Xh)
+      end if
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)

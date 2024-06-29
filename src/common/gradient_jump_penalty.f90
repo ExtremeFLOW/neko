@@ -55,11 +55,11 @@ module gradient_jump_penalty
   !! @note Reference DOI: 10.1016/j.cma.2021.114200
   type, public :: gradient_jump_penalty_t
      !> Coefficient of the penalty.
-     real :: tau
+     real(kind=rp) :: tau
      !> Polynomial order
      integer :: p
      !> Penalty terms
-     real(kind=rp), allocatable :: penalty(:, :, :, :)
+     type(field_t), pointer :: penalty
      !> Work array to store penalty terms on each element
      real(kind=rp), allocatable :: penalty_el(:, :, :)
      !> SEM coefficients.
@@ -91,6 +91,8 @@ module gradient_jump_penalty
      procedure, pass(this) :: free => gradient_jump_penalty_free
      !> Compute gradient jump penalty term.
      procedure, pass(this) :: compute => gradient_jump_penalty_compute
+     !> Perform gradient jump penalty term.
+     procedure, pass(this) :: perform => gradient_jump_penalty_perform
 
   end type gradient_jump_penalty_t
 
@@ -105,20 +107,22 @@ contains
     type(coef_t), target, intent(in) :: coef
     
     class(element_t), pointer :: ep
-    integer :: temp_indices(11), i, j
+    integer :: temp_indices(12), i, j
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
     
     call this%free()
 
     this%p = dofmap%xh%lx - 1
     if (this%p .gt. 1) then
-       this%tau = 0.8_rp * (this%p + 1) ** (-4)
+       this%tau = -0.8_rp * (this%p + 1) ** (-4.0_rp)
     else
-       this%tau = 0.02_rp
+       this%tau = -0.02_rp
     end if
+
     this%coef => coef
 
-    allocate(this%penalty(this%p + 1, this%p + 1 , this%p + 1 , this%coef%msh%nelv))
+   !  allocate(this%penalty(this%p + 1, this%p + 1 , this%p + 1 , this%coef%msh%nelv))
+    call neko_scratch_registry%request_field(this%penalty, temp_indices(1))
     allocate(this%penalty_el(this%p + 1, this%p + 1 , this%p + 1))
     
     allocate(this%n_facet(this%coef%msh%nelv))
@@ -156,17 +160,17 @@ contains
        end do
     end do
 
-    call neko_scratch_registry%request_field(this%G, temp_indices(1))
-    call neko_scratch_registry%request_field(this%flux1, temp_indices(2))
-    call neko_scratch_registry%request_field(this%flux2, temp_indices(3))
-    call neko_scratch_registry%request_field(this%flux3, temp_indices(4))
-    call neko_scratch_registry%request_field(this%n1, temp_indices(5))
-    call neko_scratch_registry%request_field(this%n2, temp_indices(6))
-    call neko_scratch_registry%request_field(this%n3, temp_indices(7))
-    call neko_scratch_registry%request_field(this%volflux1, temp_indices(8))
-    call neko_scratch_registry%request_field(this%volflux2, temp_indices(9))
-    call neko_scratch_registry%request_field(this%volflux3, temp_indices(10))
-    call neko_scratch_registry%request_field(this%absvolflux, temp_indices(11))
+    call neko_scratch_registry%request_field(this%G, temp_indices(2))
+    call neko_scratch_registry%request_field(this%flux1, temp_indices(3))
+    call neko_scratch_registry%request_field(this%flux2, temp_indices(4))
+    call neko_scratch_registry%request_field(this%flux3, temp_indices(5))
+    call neko_scratch_registry%request_field(this%n1, temp_indices(6))
+    call neko_scratch_registry%request_field(this%n2, temp_indices(7))
+    call neko_scratch_registry%request_field(this%n3, temp_indices(8))
+    call neko_scratch_registry%request_field(this%volflux1, temp_indices(9))
+    call neko_scratch_registry%request_field(this%volflux2, temp_indices(10))
+    call neko_scratch_registry%request_field(this%volflux3, temp_indices(11))
+    call neko_scratch_registry%request_field(this%absvolflux, temp_indices(12))
     
     ! formulate n1, n2 and n3
     do i = 1, this%coef%msh%nelv
@@ -213,9 +217,10 @@ contains
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
     
-    if (allocated(this%penalty)) then
-       deallocate(this%penalty)
-    end if
+   !  if (allocated(this%penalty)) then
+   !     deallocate(this%penalty)
+   !  end if
+    nullify(this%penalty)
     if (allocated(this%penalty_el)) then
        deallocate(this%penalty_el)
     end if
@@ -265,13 +270,23 @@ contains
        select type(ep)
        type is (hex_t)
           call gradient_jump_penalty_compute_hex_el(this, u, v, w, s, i)
-          this%penalty(:, :, :, i) = this%penalty_el
+          this%penalty%x(:, :, :, i) = this%penalty_el
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported now for gradient jump penalty")
        end select
     end do
 
   end subroutine gradient_jump_penalty_compute
+
+  !> Assign the gradient jump penalty term.
+  !! @param f A field object to store RHS terms in the weak form equation.
+  subroutine gradient_jump_penalty_perform(this, f)
+    class(gradient_jump_penalty_t), intent(inout) :: this
+    type(field_t), intent(inout) :: f
+
+    call add2(f%x, this%penalty%x, this%coef%dof%size())
+
+  end subroutine gradient_jump_penalty_perform
 
   !> Compute the gradient jump penalty term for a single hexatedral element.
   !> <tau * h^2 * abs(u .dot. n) * G * phij * phik * dphi_idxi * dxidn>
@@ -288,7 +303,6 @@ contains
     real(kind=rp) :: integrant_facet(this%p + 1, this%p + 1)
     integer :: i, j, k, l
 
-    write(*,*) "call gradient_jump_penalty_compute_hex_el"
     do i = 1, this%p + 1
        do j = 1, this%p + 1
           do k = 1, this%p + 1
@@ -302,19 +316,6 @@ contains
           end do
        end do  
     end do
-    !!! Brief summary of what we have now and what we need in total
-    !!! needed: 
-    !!! 1. real variables: tau, h, dphidxi, dxidn
-    !!! 2. field_t variables to pick from: G, n
-    !!! 3. arrays to store flux: dot(u,n), noting that we have n now as a field
-    !!! 4. subroutine/function performing integration over a facet
-    !!! 5. procedure to put integrals together: mayeb a do-loop
-    !!! Had now:
-    !!! 1. tau, h, dphidxi, dxidn -- as drdx dsdy and dtdz
-    !!! 2. G, n, dot(u,n)
-    !!! 3. subroutine/function for 2D integration
-    !!! Need to figure out:
-    !!! 1. do-loop to gather all integrals together
 
   end subroutine gradient_jump_penalty_compute_hex_el
 
