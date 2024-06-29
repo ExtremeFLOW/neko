@@ -755,7 +755,7 @@ contains
        call json_get_or_default(this%params, 'case.statistics.enabled',&
                                 logical_val, .true.)
        if (logical_val) then
-          call this%mean%init(this%u, this%v, this%w, this%p)
+          call this%mean%init(this%u, this%v, this%w, this%p, this%c_xh)
           call this%stats%init(this%c_Xh, this%mean%u, &
                this%mean%v, this%mean%w, this%mean%p)
        end if

@@ -147,7 +147,7 @@ contains
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
-    character(len=:), allocatable :: string_val
+    character(len=:), allocatable :: string_val, hom_dir
     real(kind=rp) :: stats_start_time, stats_output_val
     integer ::  stats_sampling_interval
     integer :: output_dir_len
@@ -441,7 +441,9 @@ contains
           call C%q%add(C%fluid%mean%w)
           call C%q%add(C%fluid%mean%p)
 
-          C%f_mf = mean_flow_output_t(C%fluid%mean, stats_start_time, &
+          call json_get_or_default(C%params, 'case.statistics.avg_direction', &
+               hom_dir, 'none')
+          C%f_mf = mean_flow_output_t(C%fluid%mean, stats_start_time, hom_dir,&
                                       path=output_directory)
 
           call json_get(C%params, 'case.statistics.output_control', &
@@ -453,7 +455,7 @@ contains
           call C%q%add(C%fluid%stats)
 
           C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
-            stats_start_time, path=output_directory)
+            stats_start_time, hom_dir=hom_dir, path=output_directory)
           call C%s%add(C%f_stats_output, stats_output_val, string_val)
        end if
     end if

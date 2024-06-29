@@ -36,12 +36,15 @@ module mean_flow_output
   use num_types, only : rp
   use device
   use output, only : output_t
+  use map_1d
+  use matrix
   implicit none
   private
 
   type, public, extends(output_t) :: mean_flow_output_t
      type(mean_flow_t), pointer :: mf
      real(kind=rp) :: T_begin
+     type(map_1d_t), allocatable :: map_1d
    contains
      procedure, pass(this) :: sample => mean_flow_output_sample
   end type mean_flow_output_t
@@ -52,23 +55,39 @@ module mean_flow_output
 
 contains
 
-  function mean_flow_output_init(mf, T_begin, name, path) result(this)
+  function mean_flow_output_init(mf, T_begin, hom_dir, name, path) result(this)
     type(mean_flow_t), intent(in), target ::mf
     real(kind=rp), intent(in) :: T_begin
+    character(len=*), intent(inout) :: hom_dir
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     type(mean_flow_output_t) :: this
     character(len=1024) :: fname
 
-    if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // '.fld'
-    else if (present(name)) then
-       fname = trim(name) // '.fld'
-    else if (present(path)) then
-       fname = trim(path) // 'mean_field.fld'
-    else
-       fname = 'mean_field.fld'
+    if (trim(hom_dir) .eq. 'none') then
+       if (present(name) .and. present(path)) then
+          fname = trim(path) // trim(name) // '.fld'
+       else if (present(name)) then
+          fname = trim(name) // '.fld'
+       else if (present(path)) then
+          fname = trim(path) // 'mean_field.fld'
+       else
+          fname = 'mean_field.fld'
+       end if
+    else 
+       if (present(name) .and. present(path)) then
+          fname = trim(path) // trim(name) // '.csv'
+       else if (present(name)) then
+          fname = trim(name) // '.csv'
+       else if (present(path)) then
+          fname = trim(path) // 'mean_field.csv'
+       else
+          fname = 'mean_field.csv'
+       end if
+       allocate(this%map_1d)
+       call this%map_1d%init_char(mf%coef, hom_dir,1e-7_rp)
     end if
+
 
     call this%init_base(fname)
     this%mf => mf
@@ -79,6 +98,7 @@ contains
   subroutine mean_flow_output_sample(this, t)
     class(mean_flow_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    type(matrix_t) :: avg_output_1d
 
     if (t .ge. this%T_begin) then
        call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, this%mf%p%mf%dof%size(), &
@@ -89,7 +109,12 @@ contains
                           DEVICE_TO_HOST, sync=.false.)
        call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), &
                           DEVICE_TO_HOST, sync=.true.)
-       call this%file_%write(this%mf, t)
+       if (allocated(this%map_1d)) then
+            avg_output_1d = this%map_1d%average_planes(this%mf%list)
+            call this%file_%write(avg_output_1d, t)
+       else
+          call this%file_%write(this%mf, t)
+       end if
        call this%mf%reset()
     end if
 
