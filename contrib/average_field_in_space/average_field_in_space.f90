@@ -127,7 +127,7 @@ program average_field_in_space
   else
      call neko_error('homogenous direction not supported')
   end if
-  call map_1d%init(dof, gs_h,  dir, 1e-7_rp)
+  call map_1d%init(coef,  dir, 1e-7_rp)
   n_levels = map_1d%n_el_lvls
   n = u%dof%size()
 
@@ -140,34 +140,7 @@ program average_field_in_space
      call field_data%get_list(fields,field_data%size())
      if (pe_rank .eq. 0) write(*,*) 'Averaging field:', tstep
      if (avg_to_1d) then
-        n_1d = n_levels*Xh%lx
-        call avg_matrix%init(n_1d,field_data%size()+1)
-        call volume_per_gll_lvl%init(n_1d)
-        do i = 1, n
-           volume_per_gll_lvl%x(map_1d%pt_lvl(i,1,1,1)) = &
-           volume_per_gll_lvl%x(map_1d%pt_lvl(i,1,1,1)) + coef%B(i,1,1,1)
-        end do
-        call MPI_Allreduce(MPI_IN_PLACE,volume_per_gll_lvl%x, n_1d, &
-           MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-        !ugly way of getting coordinates, computes average
-        do i = 1, n
-           if (dir .eq. 1) coord = dof%x(i,1,1,1)
-           if (dir .eq. 2) coord = dof%y(i,1,1,1)
-           if (dir .eq. 3) coord = dof%z(i,1,1,1)
-           avg_matrix%x(map_1d%pt_lvl(i,1,1,1),1) = &
-           avg_matrix%x(map_1d%pt_lvl(i,1,1,1),1) + coord*coef%B(i,1,1,1) &
-           /volume_per_gll_lvl%x(map_1d%pt_lvl(i,1,1,1))
-        end do
-        do j = 2, field_data%size()+1
-           do i = 1, n
-              avg_matrix%x(map_1d%pt_lvl(i,1,1,1),j) = &
-              avg_matrix%x(map_1d%pt_lvl(i,1,1,1),j) + fields(j-1)%ptr%x(i)*coef%B(i,1,1,1) &
-              /volume_per_gll_lvl%x(map_1d%pt_lvl(i,1,1,1))
-           end do
-        end do 
-        call MPI_Allreduce(MPI_IN_PLACE,avg_matrix%x, (field_data%size()+1)*n_1d, &
-           MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-
+        avg_matrix = map_1d%average_planes(fields)       
         call output_file%write(avg_matrix,field_data%time)
      ! Compute averages in 1 direction and store in a 3d field (lots of redundant data, sorry)
      ! Should output a 2d field in principle
