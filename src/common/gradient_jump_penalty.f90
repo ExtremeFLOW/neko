@@ -37,6 +37,7 @@ module gradient_jump_penalty
   use speclib, only : pnleg, pndleg
   use utils, only : neko_error
   use math
+  use point, only : point_t
   use field, only : field_t
   use dofmap , only : dofmap_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -78,7 +79,7 @@ module gradient_jump_penalty
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
      !> Length scale for element regarding a facet
-     real(kind=rp), allocatable :: h(:)
+     real(kind=rp), allocatable :: h(:,:)
      !> Polynomial evaluated at collocation points
      real(kind=rp), allocatable :: phi(:,:)
      !> The first derivative of polynomial at two ends of the interval
@@ -137,12 +138,12 @@ contains
     end do
     this%n_facet_max = maxval(this%n_facet)
 
-    allocate(this%h(this%coef%msh%nelv))
+    allocate(this%h(this%n_facet_max, this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
        select type(ep)
        type is (hex_t)
-          call eval_h_hex(this%h(i), ep)
+          call eval_h_hex(this%h(:, i), ep)
        type is (quad_t)
           call neko_error("Gradient jump penalty error: mesh size evaluation is not supported for quad_t")
        end select
@@ -189,11 +190,39 @@ contains
   
   !> Evaluate h for each element
   subroutine eval_h_hex(h_el, ep)
-    real(kind=rp), intent(inout) :: h_el
+    real(kind=rp), intent(inout) :: h_el(6)
     type(hex_t), pointer, intent(in) :: ep
     
+    integer :: i
+    type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
+
     !! todo: estimation of the length scale of the mesh could be more elegant
-    h_el = ep%diameter()
+    !! strategy 1: use the diameter of the hexahedral
+    do i = 1, 6
+       h_el(i) = ep%diameter()
+    end do
+
+    !! strategy 2: hard code it, only works for cuboid mesh
+    p1 => ep%p(1)
+    p2 => ep%p(2)
+    p3 => ep%p(3)
+    p4 => ep%p(4)
+    p5 => ep%p(5)
+    p6 => ep%p(6)
+    p7 => ep%p(7)
+    p8 => ep%p(8)
+    h_el(:) = 0.0_rp
+    do i = 1, NEKO_HEX_GDIM
+       h_el(1) = h_el(1) + (p1%x(i) - p2%x(i))**2
+       h_el(2) = h_el(2) + (p1%x(i) - p2%x(i))**2
+       h_el(3) = h_el(3) + (p1%x(i) - p5%x(i))**2
+       h_el(4) = h_el(4) + (p1%x(i) - p5%x(i))**2
+       h_el(5) = h_el(5) + (p1%x(i) - p3%x(i))**2
+       h_el(6) = h_el(6) + (p1%x(i) - p3%x(i))**2
+    end do
+    do i = 1, 6
+       h_el(i) = sqrt(h_el(i))
+    end do
 
   end subroutine eval_h_hex
 
@@ -441,7 +470,7 @@ contains
           end do
        end do
     end select
-    f = f * this%tau * this%h(i_el) ** 2
+    f = f * this%tau * this%h(l, i_el) ** 2
 
   end subroutine generate_integrant_facet
 
