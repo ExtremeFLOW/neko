@@ -70,6 +70,7 @@ module scalar_scheme
   use scalar_source_term, only : scalar_source_term_t
   use field_series
   use time_step_controller
+  use gradient_jump_penalty
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -138,6 +139,9 @@ module scalar_scheme
      real(kind=rp), pointer :: cp
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
+     !> Gradient jump panelty
+     logical :: if_gradient_jump_penalty
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -428,6 +432,15 @@ contains
          solver_type, integer_val, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_dirichlet, solver_precon)
+   
+    ! Initiate gradient jump penalty
+    call json_get_or_default(params, &
+                            'case.scalar.gradient_jump_penalty',&
+                            this%if_gradient_jump_penalty, .false.)
+
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty%init(this%dm_Xh, this%c_Xh)
+    end if
 
     call neko_log%end_section()
 
@@ -468,6 +481,11 @@ contains
     ! Free everything related to field dirichlet BCs
     call bc_list_free(this%field_dirichlet_bcs)
     call this%field_dir_bc%free()
+
+    ! Free gradient jump penalty
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty%free()
+    end if
 
   end subroutine scalar_scheme_free
 
