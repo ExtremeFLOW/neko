@@ -240,7 +240,7 @@ contains
     real(kind=rp), intent(in) :: tol
     integer :: idir
     
-    if (trim(dir) .eq. 'yz' .or. trim(dir) .eq. 'yz') then
+    if (trim(dir) .eq. 'yz' .or. trim(dir) .eq. 'zx') then
        idir = 1
     else if (trim(dir) .eq. 'xz' .or. trim(dir) .eq. 'zx') then
        idir = 2
@@ -267,14 +267,16 @@ contains
 
   end subroutine map_1d_free
 
-  function map_1d_average_field_list(this,field_list) result(avg_planes)
+  subroutine map_1d_average_field_list(this,avg_planes,field_list)
     class(map_1d_t), intent(inout) :: this
     type(field_list_t), intent(inout) :: field_list
-    type(matrix_t) :: avg_planes
+    type(matrix_t), intent(inout) :: avg_planes
     integer :: n, ierr, j, i
     real(kind=rp) :: coord
-  
+     
+    call avg_planes%free() 
     call avg_planes%init(this%n_gll_lvls,field_list%size()+1)
+    avg_planes = 0.0_rp
     !ugly way of getting coordinates, computes average
     n = this%dof%size()
     do i = 1, n
@@ -292,22 +294,26 @@ contains
           /this%volume_per_gll_lvl%x(this%pt_lvl(i,1,1,1))
        end do
     end do 
-    call MPI_Allreduce(MPI_IN_PLACE,avg_planes%x, (field_list%size()+1)*this%n_gll_lvls, &
-       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    if (pe_size .gt. 1) then
+       call MPI_Allreduce(MPI_IN_PLACE,avg_planes%x, (field_list%size()+1)*this%n_gll_lvls, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    end if
 
 
-  end function map_1d_average_field_list
+  end subroutine map_1d_average_field_list
 
-  function map_1d_average_vector_ptr(this,vector_ptr) result(avg_planes)
+  subroutine map_1d_average_vector_ptr(this,avg_planes, vector_ptr)
     class(map_1d_t), intent(inout) :: this
     !Observe is an array...
     type(vector_ptr_t), intent(inout) :: vector_ptr(:)
-    type(matrix_t) :: avg_planes
+    type(matrix_t), intent(inout) :: avg_planes
     integer :: n, ierr, j, i
     real(kind=rp) :: coord
   
+    call avg_planes%free() 
     call avg_planes%init(this%n_gll_lvls,size(vector_ptr)+1)
     !ugly way of getting coordinates, computes average
+    avg_planes = 0.0_rp
 
     n = this%dof%size()
     do i = 1, n
@@ -329,6 +335,6 @@ contains
        MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
 
-  end function map_1d_average_vector_ptr
+  end subroutine map_1d_average_vector_ptr
 
 end module map_1d

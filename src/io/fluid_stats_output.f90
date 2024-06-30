@@ -111,7 +111,7 @@ contains
             end do
          end if
          if (allocated(this%map_1d)) then
-            avg_output_1d = this%map_1d%average_planes(this%stats%stat_fields)
+            call this%map_1d%average_planes(avg_output_1d, this%stats%stat_fields)
             call this%file_%write(avg_output_1d, t)
          else
             call this%file_%write(this%stats%stat_fields, t)
