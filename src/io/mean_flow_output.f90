@@ -110,7 +110,7 @@ contains
        call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), &
                           DEVICE_TO_HOST, sync=.true.)
        if (allocated(this%map_1d)) then
-            avg_output_1d = this%map_1d%average_planes(this%mf%list)
+            call this%map_1d%average_planes(avg_output_1d, this%mf%list)
             call this%file_%write(avg_output_1d, t)
        else
           call this%file_%write(this%mf, t)
