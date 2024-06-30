@@ -140,7 +140,7 @@ program average_field_in_space
      call field_data%get_list(fields,field_data%size())
      if (pe_rank .eq. 0) write(*,*) 'Averaging field:', tstep
      if (avg_to_1d) then
-        avg_matrix = map_1d%average_planes(fields)       
+        call map_1d%average_planes(avg_matrix, fields)       
         call output_file%write(avg_matrix,field_data%time)
      ! Compute averages in 1 direction and store in a 3d field (lots of redundant data, sorry)
      ! Should output a 2d field in principle
