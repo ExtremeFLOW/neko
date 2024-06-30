@@ -72,6 +72,7 @@ contains
     integer :: nelv, lx, n, i, e, lvl, ierr
     real(kind=rp), contiguous, pointer :: line(:,:,:,:)
     real(kind=rp), allocatable :: min_vals(:,:,:,:)
+    real(kind=rp), allocatable :: min_temp(:,:,:,:)
     type(c_ptr) :: min_vals_d = c_null_ptr
     real(kind=rp) :: el_dim(3,3), glb_min, glb_max, el_min
     call this%free()
@@ -103,6 +104,7 @@ contains
     allocate(this%dir_el(nelv))
     allocate(this%el_lvl(nelv))
     allocate(min_vals(lx, lx, lx, nelv))
+    allocate(min_temp(lx, lx, lx, nelv))
     allocate(this%pt_lvl(lx, lx, lx, nelv))
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(min_vals,min_vals_d,n)
@@ -166,14 +168,22 @@ contains
             end if
          end if
       end do
+      !Make sketchy min as GS_OP_MIN is not supported with device mpi
+      min_temp = min_vals
       if (NEKO_BCKND_DEVICE .eq. 1) &
          call device_memcpy(min_vals, min_vals_d, n,&
                             HOST_TO_DEVICE, sync=.false.)
       !Propagates the minumum value along the element boundary.
-      call coef%gs_h%op(min_vals,n,GS_OP_MIN)
+      call coef%gs_h%op(min_vals,n,GS_OP_ADD)
       if (NEKO_BCKND_DEVICE .eq. 1) &
           call device_memcpy(min_vals, min_vals_d, n,&
                              DEVICE_TO_HOST, sync=.true.)
+      !Obtain average along boundary
+      
+      min_vals = min_vals * coef%mult
+      min_vals = 2.00_rp*min_vals - min_temp
+      
+
       !Checks the new minimum value on each element
       !Assign this value to all points in this element in min_val
       !If the element has not already been assinged a level, 
@@ -223,6 +233,7 @@ contains
     call device_deassociate(min_vals)
     call device_free(min_vals_d)
     deallocate(min_vals)
+    deallocate(min_temp)
     call this%volume_per_gll_lvl%init(this%n_gll_lvls)
     do i = 1, n
        this%volume_per_gll_lvl%x(this%pt_lvl(i,1,1,1)) = &
