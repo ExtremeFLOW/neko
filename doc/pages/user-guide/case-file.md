@@ -379,6 +379,7 @@ The following keywords are used, with the corresponding options.
   - `cacg`, a communication-avoiding conjugate gradient solver.
   - `gmres`, a GMRES solver. Typically used for pressure.
   - `fusedcg`, a conjugate gradient solver optimised for accelerators using kernel fusion.
+  - `fcpldcg`, a coupled conjugate gradient solver optimised for accelerators using kernel fusion.
 * `preconditioner`, preconditioner type.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
   - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for pressure.
