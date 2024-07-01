@@ -304,7 +304,7 @@ contains
        avg_planes%x(this%pt_lvl(i,1,1,1),1) + coord*this%coef%B(i,1,1,1) &
        /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
     end do
-    do j = 2, field_list%size()+1
+    do j = 2, field_list%size() + 1
        do i = 1, n
           avg_planes%x(this%pt_lvl(i,1,1,1),j) = &
           avg_planes%x(this%pt_lvl(i,1,1,1),j) + field_list%items(j-1)%ptr%x(i,1,1,1)*this%coef%B(i,1,1,1) &
@@ -312,14 +312,14 @@ contains
        end do
     end do 
     if (pe_size .gt. 1) then
-       call MPI_Allreduce(MPI_IN_PLACE,avg_planes%x, (field_list%size()+1)*this%n_gll_lvls, &
+       call MPI_Allreduce(MPI_IN_PLACE, avg_planes%x, (field_list%size()+1)*this%n_gll_lvls, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 
 
   end subroutine map_1d_average_field_list
 
-  subroutine map_1d_average_vector_ptr(this,avg_planes, vector_ptr)
+  subroutine map_1d_average_vector_ptr(this, avg_planes, vector_ptr)
     class(map_1d_t), intent(inout) :: this
     !Observe is an array...
     type(vector_ptr_t), intent(inout) :: vector_ptr(:)
