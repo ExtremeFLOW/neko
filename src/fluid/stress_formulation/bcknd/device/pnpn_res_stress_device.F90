@@ -256,16 +256,20 @@ contains
     call device_col2(wa3%x_d, mu%x_d, n)
 
 
-    ! Double the strain rate tensor
+    ! The strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
                      u_e, v_e, w_e, c_Xh)
 
 
-    ! Gradient of viscosity
+    ! Gradient of viscosity * 2
     !call opgrad(ta1%x, ta2%x, ta3%x, mu%x, c_Xh)
     call dudxyz(ta1%x, mu%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call dudxyz(ta2%x, mu%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     call dudxyz(ta3%x, mu%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+
+    call device_cmult(ta1%x, 2.0_rp, n)
+    call device_cmult(ta2%x, 2.0_rp, n)
+    call device_cmult(ta3%x, 2.0_rp, n)
 
     ! S^T grad \mu
     call device_vdot3 (work1%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
