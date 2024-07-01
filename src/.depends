@@ -21,7 +21,7 @@ math/math.o : math/math.f90 comm/comm.o config/num_types.o
 math/mathops.o : math/mathops.f90 config/num_types.o 
 math/fast3d.o : math/fast3d.f90 math/math.o sem/speclib.o config/num_types.o 
 sem/space.o : sem/space.f90 math/mxm_wrapper.o math/tensor.o math/math.o math/fast3d.o common/utils.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 
-sem/map_1d.o : sem/map_1d.f90 comm/mpi_types.o math/vector.o math/math.o common/utils.o common/log.o math/matrix.o field/field_list.o sem/coef.o comm/comm.o device/device.o mesh/mesh.o gs/gather_scatter.o sem/dofmap.o sem/space.o config/num_types.o 
+sem/map_1d.o : sem/map_1d.f90 comm/mpi_types.o math/math.o common/utils.o common/log.o math/vector.o math/matrix.o field/field_list.o sem/coef.o comm/comm.o device/device.o mesh/mesh.o gs/gather_scatter.o sem/dofmap.o sem/space.o config/num_types.o 
 sem/dofmap.o : sem/dofmap.f90 mesh/hex.o mesh/quad.o mesh/element.o math/math.o device/device.o math/tensor.o math/fast3d.o common/utils.o config/num_types.o adt/tuple.o sem/space.o mesh/mesh.o config/neko_config.o 
 sem/coef.o : sem/coef.f90 device/device.o math/mxm_wrapper.o sem/bcknd/device/device_coef.o math/bcknd/device/device_math.o mesh/mesh.o math/math.o sem/space.o sem/dofmap.o config/num_types.o config/neko_config.o gs/gs_ops.o gs/gather_scatter.o 
 sem/cpr.o : sem/cpr.f90 sem/dofmap.o common/log.o math/mxm_wrapper.o math/tensor.o sem/coef.o mesh/mesh.o math/math.o sem/space.o field/field.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
