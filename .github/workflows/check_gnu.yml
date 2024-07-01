@@ -46,6 +46,9 @@ jobs:
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
                 automake autotools-dev libopenblas-dev make git m4 python3 \
                 cmake-curses-gui
+              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
           - os: macos-13
             setup-env: |
               export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
@@ -53,6 +56,8 @@ jobs:
               brew install automake
               brew install gcc@11
               brew install gcc@12
+              echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
+              echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     env:
@@ -70,6 +75,7 @@ jobs:
           fetch-depth: 1
 
       - name: Setup env.
+        id: setup-env
         run: ${{ matrix.setup-env }}
 
       - name: Get pFunit
@@ -78,7 +84,7 @@ jobs:
         uses: ./.github/actions/setup_pfunit
         with:
           version: ${{ inputs.pfunit-version }}
-          os: ${{ matrix.os }}
+          os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
       - name: Get json-fortran
@@ -86,7 +92,7 @@ jobs:
         uses: ./.github/actions/setup_json-fortran
         with:
           version: ${{ inputs.json-fortran-version }}
-          os: ${{ matrix.os }}
+          os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
       - name: Add JSON-Fortran to environment
@@ -103,7 +109,7 @@ jobs:
         run: |
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --with-pfunit=$PFUNIT_DIR --enable-real=${RP}
-          make -j$(nproc)
+          make -j${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
@@ -111,7 +117,7 @@ jobs:
           sudo apt-get install -y nvidia-cuda-toolkit
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda=/usr
-          make -j$(nproc)
+          make -j${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (HIP backend)
         if: matrix.backend == 'HIP'
@@ -125,19 +131,19 @@ jobs:
 
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=$ROCM_DIR
-          make -j$(nproc)
+          make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-opencl
-          make -j$(nproc)
+          make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Check
         if: matrix.backend == 'cpu'
         run: |
-          make -j$(nproc) check > tests/test-suite.log
+          make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
       - name: Archive test report
         if: matrix.backend == 'cpu' && failure()
@@ -155,7 +161,7 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP}
-          make -j $(nproc)
+          make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Dist (CUDA backend)
         if: matrix.backend == 'cuda'
@@ -165,7 +171,7 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
-          make -j $(nproc)
+          make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Dist (HIP backend)
         if: matrix.backend == 'hip'
@@ -176,7 +182,7 @@ jobs:
           cd releng/neko-*
           ROCM_DIR=$(ls -d /opt/rocm-*)
           ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=$ROCM_DIR
-          make -j $(nproc)
+          make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Dist (OpenCL backend)
         if: matrix.backend == 'opencl'
@@ -186,4 +192,4 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-opencl
-          make -j $(nproc)
+          make -j ${{ steps.setup-env.outputs.nproc }}

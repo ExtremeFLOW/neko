@@ -3,6 +3,7 @@ module scalar_residual_sx
   use gather_scatter
   use scalar_residual
   use operators
+  use math, only : copy, cfill
   implicit none
   private
 
@@ -29,11 +30,8 @@ contains
     integer, intent(in) :: n
     integer :: i
 
-    do i = 1, n
-       c_Xh%h1(i,1,1,1) = lambda%x(i,1,1,1)
-       ! todo :should not be just rho here.
-       c_Xh%h2(i,1,1,1) = rhocp * (bd / dt)
-    end do
+    call copy(c_Xh%h1, lambda%x, n)
+    call cfill(c_Xh%h2, rhocp * bd / dt, n)
     c_Xh%ifh2 = .true.
 
     call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)

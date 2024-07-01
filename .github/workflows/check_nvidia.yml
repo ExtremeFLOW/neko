@@ -36,6 +36,8 @@ jobs:
               PATH=$NVCOMPILERS/$NVARCH/24.3/compilers/bin:$PATH; export PATH
               export PATH=$NVCOMPILERS/$NVARCH/24.3/comm_libs/mpi/bin:$PATH
               printenv >> $GITHUB_ENV
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
     env:
       CC: gcc
       FC: ${{ matrix.compiler }}
@@ -48,6 +50,7 @@ jobs:
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
       - name: Setup env.
+        id: setup-env
         run: ${{ matrix.setup-env }}
 
       - name: Checkout
@@ -60,7 +63,7 @@ jobs:
         uses: ./.github/actions/setup_json-fortran
         with:
           version: ${{ inputs.json-fortran-version }}
-          os: ${{ matrix.os }}
+          os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
       - name: Add JSON-Fortran to environment
