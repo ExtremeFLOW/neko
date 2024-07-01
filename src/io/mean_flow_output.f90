@@ -44,7 +44,7 @@ module mean_flow_output
   type, public, extends(output_t) :: mean_flow_output_t
      type(mean_flow_t), pointer :: mf
      real(kind=rp) :: T_begin
-     type(map_1d_t), allocatable :: map_1d
+     type(map_1d_t) :: map_1d
    contains
      procedure, pass(this) :: sample => mean_flow_output_sample
   end type mean_flow_output_t
@@ -84,7 +84,6 @@ contains
        else
           fname = 'mean_field.csv'
        end if
-       allocate(this%map_1d)
        call this%map_1d%init_char(mf%coef, hom_dir,1e-7_rp)
     end if
 
@@ -109,7 +108,7 @@ contains
                           DEVICE_TO_HOST, sync=.false.)
        call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), &
                           DEVICE_TO_HOST, sync=.true.)
-       if (allocated(this%map_1d)) then
+       if (allocated(this%map_1d%pt_lvl)) then
             call this%map_1d%average_planes(avg_output_1d, this%mf%list)
             call this%file_%write(avg_output_1d, t)
        else
