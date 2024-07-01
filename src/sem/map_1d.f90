@@ -255,7 +255,7 @@ contains
     real(kind=rp), intent(in) :: tol
     integer :: idir
     
-    if (trim(dir) .eq. 'yz' .or. trim(dir) .eq. 'zx') then
+    if (trim(dir) .eq. 'yz' .or. trim(dir) .eq. 'zy') then
        idir = 1
     else if (trim(dir) .eq. 'xz' .or. trim(dir) .eq. 'zx') then
        idir = 2
