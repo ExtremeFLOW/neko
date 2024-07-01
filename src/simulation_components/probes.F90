@@ -433,7 +433,7 @@ contains
     real(kind=rp), dimension(:,:), intent(in) :: new_points
 
     real(kind=rp), dimension(:,:), allocatable :: temp
-    integer :: n_old, n_new, n_global
+    integer :: n_old, n_new
 
     ! Get the current number of points
     n_old = this%n_local_probes

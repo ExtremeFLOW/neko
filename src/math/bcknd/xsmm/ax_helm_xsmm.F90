@@ -58,7 +58,7 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module ax_helm_xsmm
-  use ax_product, only : ax_t
+  use ax_helm, only : ax_helm_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -71,7 +71,7 @@ module ax_helm_xsmm
   implicit none
   private
 
-  type, public, extends(ax_t) :: ax_helm_xsmm_t
+  type, public, extends(ax_helm_t) :: ax_helm_xsmm_t
    contains
      procedure, nopass :: compute => ax_helm_xsmm_compute
   end type ax_helm_xsmm_t
@@ -84,7 +84,7 @@ contains
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-
+#ifdef HAVE_LIBXSMM
     real(kind=rp) :: dudr(Xh%lx,Xh%ly,Xh%lz)
     real(kind=rp) :: duds(Xh%lx,Xh%ly,Xh%lz)
     real(kind=rp) :: dudt(Xh%lx,Xh%ly,Xh%lz)
@@ -95,7 +95,6 @@ contains
     real(kind=rp) :: tm2(Xh%lx,Xh%ly,Xh%lz)
     real(kind=rp) :: tm3(Xh%lx,Xh%ly,Xh%lz)
     integer :: e, k, lxy, lxz, lyz, lxyz
-#ifdef HAVE_LIBXSMM
     type(libxsmm_dmmfunction), save :: ax_helm_xmm1
     type(libxsmm_dmmfunction), save :: ax_helm_xmm2
     type(libxsmm_dmmfunction), save :: ax_helm_xmm3

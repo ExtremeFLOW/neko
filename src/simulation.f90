@@ -60,7 +60,7 @@ contains
     real(kind=rp) :: t, cfl
     real(kind=dp) :: start_time_org, start_time, end_time
     character(len=LOG_SIZE) :: log_buf
-    integer :: tstep, i
+    integer :: tstep
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
     ! for variable_tsteping
@@ -123,6 +123,11 @@ contains
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%dt
        call neko_log%message(log_buf)
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
+
+       ! Run the preprocessing
+       call neko_log%section('Preprocessing')
+       call neko_simcomps%preprocess(t, tstep)
+       call neko_log%end_section()
 
        call neko_log%section('Fluid')
        call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
