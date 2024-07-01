@@ -18,11 +18,15 @@ module pnpn_res_stress_device
   implicit none
   private
 
+  !> Device implementation of the pressure residual for the PnPn fluid with
+  !! full viscous stress formulation.
   type, public, extends(pnpn_prs_res_stress_t) :: pnpn_prs_res_stress_device_t
    contains
      procedure, nopass :: compute => pnpn_prs_res_stress_device_compute
   end type pnpn_prs_res_stress_device_t
 
+  !> Device implementation of the velocity residual for the PnPn fluid with
+  !! full viscous stress formulation.
   type, public, extends(pnpn_vel_res_stress_t) :: pnpn_vel_res_stress_device_t
    contains
      procedure, nopass :: compute => pnpn_vel_res_stress_device_compute

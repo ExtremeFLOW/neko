@@ -11,15 +11,19 @@ module pnpn_res_stress_cpu
   use mesh, only : mesh_t
   use num_types, only : rp
   use space, only : space_t
-  use math, only : rzero, vdot3, cmult, sub2, col2
+  use math, only : rzero, vdot3, cmult, sub2, col2, copy, cfill, invers2, cmult2
   implicit none
   private
 
+  !> CPU implementation of the pressure residual for the PnPn fluid with
+  !! full viscous stress formulation.
   type, public, extends(pnpn_prs_res_stress_t) :: pnpn_prs_res_stress_cpu_t
    contains
      procedure, nopass :: compute => pnpn_prs_res_stress_cpu_compute
   end type pnpn_prs_res_stress_cpu_t
 
+  !> CPU implementation of the velocity residual for the PnPn fluid with
+  !! full viscous stress formulation.
   type, public, extends(pnpn_vel_res_stress_t) :: pnpn_vel_res_stress_cpu_t
    contains
      procedure, nopass :: compute => pnpn_vel_res_stress_cpu_compute
@@ -28,7 +32,7 @@ module pnpn_res_stress_cpu
 contains
 
   subroutine pnpn_prs_res_stress_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_x, &
-       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface,bc_sym_surface, Ax, bd, dt, mu, rho)
+       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -73,10 +77,8 @@ contains
     lxyz = c_Xh%Xh%lxyz
     nelv = c_Xh%msh%nelv
 
-    do i = 1, n
-       c_Xh%h1(i,1,1,1) = 1.0_rp / rho%x(i,1,1,1)
-       c_Xh%h2(i,1,1,1) = 0.0_rp
-    end do
+    call invers2(c_Xh%h1, rho%x, n)
+    call rzero(c_Xh%h2, n)
     c_Xh%ifh2 = .false.
 
     ! mu times the double curl of the velocity
@@ -205,10 +207,8 @@ contains
     integer, intent(in) :: n
     integer :: i
 
-    do i = 1, n
-       c_Xh%h1(i,1,1,1) = mu%x(i,1,1,1)
-       c_Xh%h2(i,1,1,1) = rho%x(i,1,1,1) * (bd / dt)
-    end do
+    call copy(c_Xh%h1, mu%x, n)
+    call cmult2(c_Xh%h2, rho%x, bd / dt, n)
     c_Xh%ifh2 = .true.
 
     ! Viscous stresses
