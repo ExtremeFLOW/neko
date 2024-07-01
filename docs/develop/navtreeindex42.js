@@ -1,5 +1,17 @@
 var NAVTREEINDEX42 =
 {
+"df/d88/interfacedevice__math_1_1hip__cadd.html#a23a6bfcbb4a87f7ebb0025dfcf4d901d":[4,0,49,5,0],
+"df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update.html":[4,0,48,2],
+"df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update.html#a8a0312ab9d3728450e692abe3cdeb6c2":[4,0,48,2,0],
+"df/d8e/interfacescalar__ic_1_1set__scalar__ic.html":[4,0,170,0],
+"df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aa53b59c1c405887a1b3408e21bbb4801":[4,0,170,0,1],
+"df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#acec97723c5e2c32e459b067fd352bf65":[4,0,170,0,0],
+"df/d8f/statistics-guide.html":[0,1,5],
+"df/d8f/statistics-guide.html#autotoc_md71":[0,1,5,0],
+"df/d8f/statistics-guide.html#autotoc_md72":[0,1,5,1],
+"df/d8f/statistics-guide.html#autotoc_md73":[0,1,5,2],
+"df/d8f/statistics-guide.html#autotoc_md74":[0,1,5,2,0],
+"df/d96/opr__lambda2_8cu.html":[5,0,2,12,0,1,0,18],
 "df/d96/opr__lambda2_8cu.html#a2866935c460d99727321a9f4a0c91949":[5,0,2,12,0,1,0,18,0],
 "df/d96/opr__lambda2_8cu.html#a391aacbd26da5922ec80e721035d44cc":[5,0,2,12,0,1,0,18,2],
 "df/d96/opr__lambda2_8cu.html#a706645ff08370f0954f66cb96382b9fd":[5,0,2,12,0,1,0,18,1],
@@ -237,17 +249,5 @@ var NAVTREEINDEX42 =
 "df/dec/namespacetuple.html#a99e25051bf65920f6081468a855afee7":[3,0,277,22],
 "df/dec/namespacetuple.html#aa39695b0ad1b70618478c0a20557bb56":[3,0,277,14],
 "df/dec/namespacetuple.html#ab123f582cfb7df91298d65a197a70288":[3,0,277,21],
-"df/dec/namespacetuple.html#acda28852fd50fc1126b2f21218ba6178":[3,0,277,18],
-"df/dec/namespacetuple.html#ad15ace35b88a4c6217ae8549bd923a72":[3,0,277,12],
-"df/dec/namespacetuple.html#ad2d1b5a0a3c21ad3c59e7eb6d792615b":[3,0,277,17],
-"df/dec/namespacetuple.html#ae35fe89bb5c59ad751ffc141e132531b":[3,0,277,11],
-"df/dec/namespacetuple.html#aefdf3623e60c6b7952ffac6ccdd0bbac":[3,0,277,16],
-"df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html":[4,0,166,3],
-"df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[4,0,166,3,1],
-"df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[4,0,166,3,0],
-"df/df1/structspalding_1_1spalding__t.html":[4,0,190,0],
-"df/df1/structspalding_1_1spalding__t.html#a14604e7370a62c6fe8a8eebc22295ad2":[4,0,190,0,25],
-"df/df1/structspalding_1_1spalding__t.html#a17145889bf2e9c8ac3daf68797f9a27a":[4,0,190,0,15],
-"df/df1/structspalding_1_1spalding__t.html#a1b45cba1c38c310c2cb3f84d3e31de79":[4,0,190,0,10],
-"df/df1/structspalding_1_1spalding__t.html#a1c9d28991f642e6234fc474235239f26":[4,0,190,0,21]
+"df/dec/namespacetuple.html#acda28852fd50fc1126b2f21218ba6178":[3,0,277,18]
 };

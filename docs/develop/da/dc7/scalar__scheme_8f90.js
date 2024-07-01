@@ -11,5 +11,6 @@ var scalar__scheme_8f90 =
     [ "scalar_scheme_precon_factory", "da/dc7/scalar__scheme_8f90.html#a9ab0bf4dfdd4312aef79f94f07faa1f8", null ],
     [ "scalar_scheme_set_user_bc", "da/dc7/scalar__scheme_8f90.html#a6517270e082d67db1bff9656832b4bf9", null ],
     [ "scalar_scheme_solver_factory", "da/dc7/scalar__scheme_8f90.html#ab1f435e3dbdfe423434dc4428b89553c", null ],
+    [ "scalar_scheme_update_material_properties", "da/dc7/scalar__scheme_8f90.html#a6efc05586b621fca40333f4f6b2d76a2", null ],
     [ "scalar_scheme_validate", "da/dc7/scalar__scheme_8f90.html#a6e4383936f487cdaaa5fffa09dc56155", null ]
 ];

@@ -1,5 +1,5 @@
 <map id="math::copy" name="math::copy">
-<area shape="rect" id="node1" title="Copy a vector ." alt="" coords="1067,651,1161,677"/>
+<area shape="rect" id="node1" title="Copy a vector ." alt="" coords="1067,709,1161,736"/>
 <area shape="rect" id="node2" href="$d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18" title=" " alt="" coords="795,5,1019,32"/>
 <area shape="rect" id="node3" href="$dd/d2f/namespacebicgstab.html#afdcb9c0f169349daf77759d283479c43" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="837,57,977,98"/>
 <area shape="rect" id="node4" href="$dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="834,122,979,163"/>
@@ -21,14 +21,16 @@
 <area shape="rect" id="node26" href="$d2/d1a/namespaceidentity.html#a32e4a4d8b76faa83b2c07af7c2032615" title="The (default) naive preconditioner ." alt="" coords="829,1039,984,1065"/>
 <area shape="rect" id="node27" href="$d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="807,1089,1006,1116"/>
 <area shape="rect" id="node28" href="$de/d49/namespacepipecg.html#ae519e8f58edbf66c6b746e28363de31f" title="Pipelined PCG solve." alt="" coords="827,1140,986,1167"/>
-<area shape="rect" id="node29" href="$da/dea/namespaceshear__stress.html#a361657d6037d7af0e52b6cbac1092ef9" title="Set the shear stress components." alt="" coords="833,1191,981,1233"/>
-<area shape="rect" id="node30" href="$d5/d0d/namespacespace.html#a5c41cc585bf24744ee74ef6a516cd3d7" title="Generate spectral tranform matrices." alt="" coords="811,1257,1002,1298"/>
-<area shape="rect" id="node32" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="829,1322,985,1363"/>
+<area shape="rect" id="node29" href="$da/d78/namespacescalar__residual__cpu.html#aa3d264e4caa57c16d5739df3ce56a738" title="Compute the residual." alt="" coords="827,1191,986,1247"/>
+<area shape="rect" id="node30" href="$d9/db6/namespacescalar__residual__sx.html#ae37bff172360fda59c8480a83f561183" title=" " alt="" coords="831,1271,982,1327"/>
+<area shape="rect" id="node31" href="$da/dea/namespaceshear__stress.html#a361657d6037d7af0e52b6cbac1092ef9" title="Set the shear stress components." alt="" coords="833,1351,981,1393"/>
+<area shape="rect" id="node32" href="$d5/d0d/namespacespace.html#a5c41cc585bf24744ee74ef6a516cd3d7" title="Generate spectral tranform matrices." alt="" coords="811,1417,1002,1458"/>
+<area shape="rect" id="node34" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="829,1482,985,1523"/>
 <area shape="rect" id="node5" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="579,122,722,163"/>
 <area shape="rect" id="node9" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="579,297,723,324"/>
 <area shape="rect" id="node11" href="$d0/d6c/interfacecpr_1_1cpr__init.html#a13d7775a54aa77d22ca967b13c0fbe64" title="Initialize cpr." alt="" coords="587,349,714,390"/>
 <area shape="rect" id="node13" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,440,507,467"/>
 <area shape="rect" id="node14" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,440,233,467"/>
 <area shape="rect" id="node24" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="585,937,716,964"/>
-<area shape="rect" id="node31" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="583,1264,718,1291"/>
+<area shape="rect" id="node33" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="583,1424,718,1451"/>
 </map>

@@ -1,10 +1,11 @@
 <map id="math::add2s2" name="math::add2s2">
-<area shape="rect" id="node1" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="504,151,615,178"/>
-<area shape="rect" id="node2" href="$dd/d2f/namespacebicgstab.html#afdcb9c0f169349daf77759d283479c43" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="289,5,429,47"/>
-<area shape="rect" id="node3" href="$d3/d4a/namespaceboussinesq__source__term__cpu.html#a5ce59ca22e2af735737cc2044a472aa5" title="Computes the Boussinesq source term on the cpu." alt="" coords="268,71,451,127"/>
-<area shape="rect" id="node5" href="$d3/d06/namespaceprojection.html#ac63a40c6adff939561cd8b6b8432d1e4" title=" " alt="" coords="263,151,456,178"/>
-<area shape="rect" id="node7" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update a mean field." alt="" coords="272,203,447,244"/>
-<area shape="rect" id="node8" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="281,268,437,309"/>
+<area shape="rect" id="node1" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="505,181,616,207"/>
+<area shape="rect" id="node2" href="$dd/d2f/namespacebicgstab.html#afdcb9c0f169349daf77759d283479c43" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="290,5,430,47"/>
+<area shape="rect" id="node3" href="$d3/d4a/namespaceboussinesq__source__term__cpu.html#a5ce59ca22e2af735737cc2044a472aa5" title="Computes the Boussinesq source term on the cpu." alt="" coords="269,71,451,127"/>
+<area shape="rect" id="node5" href="$d3/d06/namespaceprojection.html#ac63a40c6adff939561cd8b6b8432d1e4" title=" " alt="" coords="263,151,457,178"/>
+<area shape="rect" id="node7" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update a mean field." alt="" coords="273,203,447,244"/>
+<area shape="rect" id="node8" href="$da/de3/namespacescalar__scheme.html#a6efc05586b621fca40333f4f6b2d76a2" title="Update the values of lambda_field if necessary." alt="" coords="263,269,457,325"/>
+<area shape="rect" id="node9" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="282,349,438,391"/>
 <area shape="rect" id="node4" href="$d0/d10/namespaceboussinesq__source__term.html#a7fd0bdde632f857b2104d4cfe0a63cc1" title="Computes the source term and adds the result to fields." alt="" coords="15,71,205,127"/>
 <area shape="rect" id="node6" href="$d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6" title=" " alt="" coords="5,151,215,178"/>
 </map>

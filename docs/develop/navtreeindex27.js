@@ -1,5 +1,10 @@
 var NAVTREEINDEX27 =
 {
+"da/d79/structvorticity_1_1vorticity__t.html#a1ba845ff19b68d3e9966136c1b5a05b8":[4,0,220,0,0],
+"da/d79/structvorticity_1_1vorticity__t.html#a2bbf3d40e56198e1fde3d9577ad35856":[4,0,220,0,12],
+"da/d79/structvorticity_1_1vorticity__t.html#a3901e6b713930be0c693f1d3ebdfce6f":[4,0,220,0,8],
+"da/d79/structvorticity_1_1vorticity__t.html#a45232b7d63b83b47e43412b5dc52f82e":[4,0,220,0,10],
+"da/d79/structvorticity_1_1vorticity__t.html#a48765dd8f182cadd8bab4016068ba4dd":[4,0,220,0,2],
 "da/d79/structvorticity_1_1vorticity__t.html#a578872c533a4123d15ead883db9c9cc3":[4,0,220,0,6],
 "da/d79/structvorticity_1_1vorticity__t.html#a66d77b17ae3deb5c92cd896a3b37d282":[4,0,220,0,13],
 "da/d79/structvorticity_1_1vorticity__t.html#a6ef1b746eb32f3b94b137cabad8dc3e0":[4,0,220,0,1],
@@ -244,10 +249,5 @@ var NAVTREEINDEX27 =
 "da/dad/hip_2inflow__kernel_8h.html":[5,0,2,1,0,0,1,7],
 "da/dad/hip_2inflow__kernel_8h.html#a7867ff15e170718f169e421f37df417a":[5,0,2,1,0,0,1,7,0],
 "da/dad/hip_2inflow__kernel_8h_source.html":[5,0,2,1,0,0,1,7],
-"da/dae/namespaceadvection__fctry.html":[3,0,6],
-"da/dae/namespaceadvection__fctry.html#a79d602ec593010bf553b989bc97394ad":[3,0,6,0],
-"da/db0/interfacedevice_1_1device__map.html":[4,0,40,1],
-"da/db0/interfacedevice_1_1device__map.html#a4cf19244e0c4488482616c7463c7d541":[4,0,40,1,2],
-"da/db0/interfacedevice_1_1device__map.html#ab1886d1a491a6a865722981bb1672493":[4,0,40,1,0],
-"da/db0/interfacedevice_1_1device__map.html#aea9502d8994e14383cbaa31e5f69ba91":[4,0,40,1,1]
+"da/dae/namespaceadvection__fctry.html":[3,0,6]
 };

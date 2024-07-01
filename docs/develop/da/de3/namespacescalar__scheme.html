@@ -143,6 +143,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a6517270e082d67db1bff9656832b4bf9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a6517270e082d67db1bff9656832b4bf9">scalar_scheme_set_user_bc</a> (this, usr_eval)</td></tr>
 <tr class="memdesc:a6517270e082d67db1bff9656832b4bf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a user defined scalar bc.  <a href="../../da/de3/namespacescalar__scheme.html#a6517270e082d67db1bff9656832b4bf9">More...</a><br /></td></tr>
 <tr class="separator:a6517270e082d67db1bff9656832b4bf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6efc05586b621fca40333f4f6b2d76a2"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a6efc05586b621fca40333f4f6b2d76a2">scalar_scheme_update_material_properties</a> (this)</td></tr>
+<tr class="memdesc:a6efc05586b621fca40333f4f6b2d76a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the values of <code>lambda_field</code> if necessary.  <a href="../../da/de3/namespacescalar__scheme.html#a6efc05586b621fca40333f4f6b2d76a2">More...</a><br /></td></tr>
+<tr class="separator:a6efc05586b621fca40333f4f6b2d76a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Contains the <a class="el" href="../../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html" title="Base type for a scalar advection-diffusion solver.">scalar_scheme_t</a> type. </p>
@@ -189,7 +192,7 @@ Functions/Subroutines</h2></td></tr>
 </dl>
 <p>Check if user bc on this zone</p>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00222">222</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00236">236</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -231,7 +234,7 @@ Here is the caller graph for this function:</div>
 
 <p>Deallocate a scalar formulation. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00438">438</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00469">469</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -321,24 +324,29 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00291">291</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00305">305</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/de3/namespacescalar__scheme_a442e39894b529b2b2644ad3adba880ae_cgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_a442e39894b529b2b2644ad3adba880ae_cgraph" alt=""/></div>
 <map name="ada/de3/namespacescalar__scheme_a442e39894b529b2b2644ad3adba880ae_cgraph" id="ada/de3/namespacescalar__scheme_a442e39894b529b2b2644ad3adba880ae_cgraph">
-<area shape="rect" title="Initialize all related components of the current scheme." alt="" coords="5,98,172,139"/>
-<area shape="rect" href="../../d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="470,7,589,33"/>
-<area shape="rect" href="../../d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="472,61,587,88"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc" title="Initialize boundary conditions." alt="" coords="229,39,395,81"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a9ab0bf4dfdd4312aef79f94f07faa1f8" title="Initialize a Krylov preconditioner." alt="" coords="220,157,404,198"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#ab1f435e3dbdfe423434dc4428b89553c" title="Initialize a linear solver." alt="" coords="222,222,402,263"/>
-<area shape="rect" href="../../d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="672,61,792,88"/>
-<area shape="rect" href="../../dc/d51/namespaceprecon__fctry.html#a0aefd281124542ca1d4fb7468c1958d5" title="Create a preconditioner." alt="" coords="452,157,607,198"/>
-<area shape="rect" href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="659,207,805,249"/>
-<area shape="rect" href="../../dc/d51/namespaceprecon__fctry.html#afb99729cf63d194b6678502d515e0d48" title="Destroy a preconditioner." alt="" coords="655,142,809,183"/>
-<area shape="rect" href="../../d9/d77/namespacekrylov__fctry.html#afbaa64cc1a8ad32e985748ce4e32f7d2" title="Factory for Krylov solvers. Both creates and initializes the object." alt="" coords="455,222,603,263"/>
-<area shape="rect" href="../../d9/d77/namespacekrylov__fctry.html#a6aeb41860ae6067054a60c5ae6262d5f" title="Destroy an interative Krylov type_name." alt="" coords="658,273,806,314"/>
+<area shape="rect" title="Initialize all related components of the current scheme." alt="" coords="5,151,172,192"/>
+<area shape="rect" href="../../d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="470,20,589,46"/>
+<area shape="rect" href="../../d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="472,78,587,105"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="269,108,355,134"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612" title=" " alt="" coords="233,210,391,251"/>
+<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc" title="Initialize boundary conditions." alt="" coords="229,42,395,83"/>
+<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a9ab0bf4dfdd4312aef79f94f07faa1f8" title="Initialize a Krylov preconditioner." alt="" coords="220,275,404,316"/>
+<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#ab1f435e3dbdfe423434dc4428b89553c" title="Initialize a linear solver." alt="" coords="222,340,402,382"/>
+<area shape="rect" href="../../d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="672,78,792,105"/>
+<area shape="rect" href="../../de/d1e/math_8cu.html#acb4fe9bc0a09e3ef698a39bb71086356" title=" " alt="" coords="488,168,571,194"/>
+<area shape="rect" href="../../d6/da3/math_8c.html#ace53d8c6b37b7549d3d1c15a5bda29ca" title=" " alt="" coords="482,218,577,245"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="666,218,798,245"/>
+<area shape="rect" href="../../dc/d51/namespaceprecon__fctry.html#a0aefd281124542ca1d4fb7468c1958d5" title="Create a preconditioner." alt="" coords="452,275,607,316"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="659,338,805,379"/>
+<area shape="rect" href="../../dc/d51/namespaceprecon__fctry.html#afb99729cf63d194b6678502d515e0d48" title="Destroy a preconditioner." alt="" coords="655,272,809,314"/>
+<area shape="rect" href="../../d9/d77/namespacekrylov__fctry.html#afbaa64cc1a8ad32e985748ce4e32f7d2" title="Factory for Krylov solvers. Both creates and initializes the object." alt="" coords="455,340,603,382"/>
+<area shape="rect" href="../../d9/d77/namespacekrylov__fctry.html#a6aeb41860ae6067054a60c5ae6262d5f" title="Destroy an interative Krylov type_name." alt="" coords="658,403,806,444"/>
 </map>
 </div>
 
@@ -402,7 +410,7 @@ Here is the call graph for this function:</div>
 
 <p>Initialize a Krylov preconditioner. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00532">532</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00564">564</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -460,7 +468,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00569">569</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00601">601</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -511,7 +519,7 @@ Here is the caller graph for this function:</div>
 <p>Initialize a linear solver. </p>
 <dl class="section note"><dt>Note</dt><dd>Currently only supporting Krylov solvers </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00520">520</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00552">552</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -535,6 +543,45 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="a6efc05586b621fca40333f4f6b2d76a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6efc05586b621fca40333f4f6b2d76a2">&#9670;&nbsp;</a></span>scalar_scheme_update_material_properties()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine scalar_scheme::scalar_scheme_update_material_properties </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html">scalar_scheme_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Update the values of <code>lambda_field</code> if necessary. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00610">610</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/de3/namespacescalar__scheme_a6efc05586b621fca40333f4f6b2d76a2_cgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_a6efc05586b621fca40333f4f6b2d76a2_cgraph" alt=""/></div>
+<map name="ada/de3/namespacescalar__scheme_a6efc05586b621fca40333f4f6b2d76a2_cgraph" id="ada/de3/namespacescalar__scheme_a6efc05586b621fca40333f4f6b2d76a2_cgraph">
+<area shape="rect" title="Update the values of lambda_field if necessary." alt="" coords="5,71,200,127"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="271,5,382,32"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="283,56,370,83"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a3b9c190380a831ba86fa3fe155dae8f7" title=" " alt="" coords="248,107,405,149"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612" title=" " alt="" coords="248,173,405,214"/>
+<area shape="rect" href="../../de/d1e/math_8cu.html#a305b5c802852471c9a4ecc0ae078cedd" title=" " alt="" coords="459,71,566,97"/>
+<area shape="rect" href="../../d6/da3/math_8c.html#a299eb8d523ba1c7d895b2430c2c2726b" title=" " alt="" coords="453,121,572,148"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="620,172,752,199"/>
+<area shape="rect" href="../../de/d1e/math_8cu.html#acb4fe9bc0a09e3ef698a39bb71086356" title=" " alt="" coords="471,172,554,199"/>
+<area shape="rect" href="../../d6/da3/math_8c.html#ace53d8c6b37b7549d3d1c15a5bda29ca" title=" " alt="" coords="465,223,560,249"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="a6e4383936f487cdaaa5fffa09dc56155"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6e4383936f487cdaaa5fffa09dc56155">&#9670;&nbsp;</a></span>scalar_scheme_validate()</h2>
 
@@ -553,7 +600,7 @@ Here is the caller graph for this function:</div>
 
 <p>Validate that all fields, solvers etc necessary for performing time-stepping are defined. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00476">476</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00508">508</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -563,7 +610,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/de3/namespacescalar__scheme.html">scalar_scheme</a></li>
-    <li class="footer">Generated on Sun Jun 30 2024 03:34:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Mon Jul 1 2024 03:34:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
