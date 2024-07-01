@@ -55,7 +55,7 @@ extern "C" {
                                       (real *) wa2, (real *) wa3,
                                       (real *) f_u, (real *) f_v,
                                       (real *) f_w, (real *) B,
-                                      (real *) h1,  (real *) rho, *n);
+                                      (real *) rho, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
