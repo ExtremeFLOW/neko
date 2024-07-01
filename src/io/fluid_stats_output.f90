@@ -44,7 +44,7 @@ module fluid_stats_output
 
   type, public, extends(output_t) :: fluid_stats_output_t
      type(fluid_stats_t), pointer :: stats
-     type(map_1d_t), allocatable :: map_1d
+     type(map_1d_t) :: map_1d
      real(kind=rp) :: T_begin
    contains
      procedure, pass(this) :: sample => fluid_stats_output_sample
@@ -64,7 +64,6 @@ contains
     character(len=*), intent(in), optional :: path
     type(fluid_stats_output_t) :: this
     character(len=1024) :: fname
-    
     if (trim(hom_dir) .eq. 'none') then
        if (present(name) .and. present(path)) then
           fname = trim(path) // trim(name) // '.fld'
@@ -85,7 +84,6 @@ contains
        else
           fname = 'stats.csv'
        end if
-       allocate(this%map_1d)
        call this%map_1d%init_char(stats%coef, hom_dir,1e-7_rp)
     end if
 
@@ -110,7 +108,7 @@ contains
                   sync=(i .eq. size(out_fields))) ! Sync on last field
             end do
          end if
-         if (allocated(this%map_1d)) then
+         if (allocated(this%map_1d%pt_lvl)) then
             call this%map_1d%average_planes(avg_output_1d, this%stats%stat_fields)
             call this%file_%write(avg_output_1d, t)
          else
