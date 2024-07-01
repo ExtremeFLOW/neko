@@ -285,7 +285,7 @@ contains
 
   end subroutine map_1d_free
 
-  subroutine map_1d_average_field_list(this,avg_planes,field_list)
+  subroutine map_1d_average_field_list(this, avg_planes, field_list)
     class(map_1d_t), intent(inout) :: this
     type(field_list_t), intent(inout) :: field_list
     type(matrix_t), intent(inout) :: avg_planes
