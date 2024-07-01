@@ -36,8 +36,8 @@ module mean_flow_output
   use num_types, only : rp
   use device
   use output, only : output_t
-  use map_1d
-  use matrix
+  use map_1d, only : map_1d_t
+  use matrix, only : matrix_t
   implicit none
   private
 
