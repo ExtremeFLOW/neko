@@ -13,7 +13,7 @@ module map_1d
   use matrix
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
-  use math, only: glmax, glmin, glimax, glimin, relcmp
+  use math, only: glmax, glmin, glimax, glimin, relcmp, cmult, add2s1, col2
   use vector
   use neko_mpi_types
   use, intrinsic :: iso_c_binding
@@ -45,7 +45,7 @@ module map_1d
      !> Tolerance for the mesh
      real(kind=rp) :: tol = 1e-7
      !> Volume per level in the 1d grid
-     type(vector_t) :: volume_per_gll_lvl
+     real(kind=rp), allocatable :: volume_per_gll_lvl(:)
    contains
      !> Constructor
      procedure, pass(this) :: init_int => map_1d_init
@@ -75,6 +75,7 @@ contains
     real(kind=rp), allocatable :: min_temp(:,:,:,:)
     type(c_ptr) :: min_vals_d = c_null_ptr
     real(kind=rp) :: el_dim(3,3), glb_min, glb_max, el_min
+
     call this%free()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -100,15 +101,17 @@ contains
     else
         call neko_error('Invalid dir for geopmetric comm')
     end if
-    
     allocate(this%dir_el(nelv))
     allocate(this%el_lvl(nelv))
+    allocate(this%pt_lvl(lx, lx, lx, nelv))
     allocate(min_vals(lx, lx, lx, nelv))
     allocate(min_temp(lx, lx, lx, nelv))
-    allocate(this%pt_lvl(lx, lx, lx, nelv))
+    call MPI_BARRIER(NEKO_COMM)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(min_vals,min_vals_d,n)
+        
+            call device_map(min_vals,min_vals_d,n)
     end if
+    call MPI_BARRIER(NEKO_COMM)
 
     do i = 1, nelv
        !store which direction r,s,t corresponds to speciifed direction, x,y,z
@@ -180,8 +183,9 @@ contains
                              DEVICE_TO_HOST, sync=.true.)
       !Obtain average along boundary
       
-      min_vals = min_vals * coef%mult
-      min_vals = 2.00_rp*min_vals - min_temp
+      call col2(min_vals,coef%mult, n)
+      call cmult(min_temp,-1.0_rp,n)
+      call add2s1(min_vals, min_temp,2.0_rp,n) 
       
 
       !Checks the new minimum value on each element
@@ -230,16 +234,16 @@ contains
          end if
        end do
     end do
-    call device_deassociate(min_vals)
-    call device_free(min_vals_d)
-    deallocate(min_vals)
-    deallocate(min_temp)
-    call this%volume_per_gll_lvl%init(this%n_gll_lvls)
+    if(allocated(min_vals)) deallocate(min_vals)
+    if(c_associated(min_vals_d)) call device_free(min_vals_d)
+    if(allocated(min_temp)) deallocate(min_temp)
+    allocate(this%volume_per_gll_lvl(this%n_gll_lvls))
+    this%volume_per_gll_lvl =0.0_rp
     do i = 1, n
-       this%volume_per_gll_lvl%x(this%pt_lvl(i,1,1,1)) = &
-       this%volume_per_gll_lvl%x(this%pt_lvl(i,1,1,1)) + coef%B(i,1,1,1)
+       this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1)) = &
+       this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1)) + coef%B(i,1,1,1)
     end do
-    call MPI_Allreduce(MPI_IN_PLACE,this%volume_per_gll_lvl%x, this%n_gll_lvls, &
+    call MPI_Allreduce(MPI_IN_PLACE,this%volume_per_gll_lvl, this%n_gll_lvls, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
   
   end subroutine map_1d_init
@@ -273,8 +277,11 @@ contains
     if(allocated(this%pt_lvl)) deallocate(this%pt_lvl)
     if(associated(this%dof)) nullify(this%dof)
     if(associated(this%msh)) nullify(this%msh)
+    if(associated(this%coef)) nullify(this%coef)
+    if(allocated(this%volume_per_gll_lvl)) deallocate(this%volume_per_gll_lvl)
     this%dir = 0
     this%n_el_lvls = 0
+    this%n_gll_lvls = 0
 
   end subroutine map_1d_free
 
@@ -284,7 +291,6 @@ contains
     type(matrix_t), intent(inout) :: avg_planes
     integer :: n, ierr, j, i
     real(kind=rp) :: coord
-     
     call avg_planes%free() 
     call avg_planes%init(this%n_gll_lvls,field_list%size()+1)
     avg_planes = 0.0_rp
@@ -296,13 +302,13 @@ contains
        if (this%dir .eq. 3) coord = this%dof%z(i,1,1,1)
        avg_planes%x(this%pt_lvl(i,1,1,1),1) = &
        avg_planes%x(this%pt_lvl(i,1,1,1),1) + coord*this%coef%B(i,1,1,1) &
-       /this%volume_per_gll_lvl%x(this%pt_lvl(i,1,1,1))
+       /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
     end do
     do j = 2, field_list%size()+1
        do i = 1, n
           avg_planes%x(this%pt_lvl(i,1,1,1),j) = &
           avg_planes%x(this%pt_lvl(i,1,1,1),j) + field_list%items(j-1)%ptr%x(i,1,1,1)*this%coef%B(i,1,1,1) &
-          /this%volume_per_gll_lvl%x(this%pt_lvl(i,1,1,1))
+          /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
        end do
     end do 
     if (pe_size .gt. 1) then
@@ -333,13 +339,13 @@ contains
        if (this%dir .eq. 3) coord = this%dof%z(i,1,1,1)
        avg_planes%x(this%pt_lvl(i,1,1,1),1) = &
        avg_planes%x(this%pt_lvl(i,1,1,1),1) + coord*this%coef%B(i,1,1,1) &
-       /this%volume_per_gll_lvl%x(this%pt_lvl(i,1,1,1))
+       /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
     end do
     do j = 2, size(vector_ptr)+1
        do i = 1, n
           avg_planes%x(this%pt_lvl(i,1,1,1),j) = &
           avg_planes%x(this%pt_lvl(i,1,1,1),j) + vector_ptr(j-1)%ptr%x(i)*this%coef%B(i,1,1,1) &
-          /this%volume_per_gll_lvl%x(this%pt_lvl(i,1,1,1))
+          /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
        end do
     end do 
     call MPI_Allreduce(MPI_IN_PLACE,avg_planes%x, (size(vector_ptr)+1)*this%n_gll_lvls, &
