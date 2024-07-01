@@ -207,6 +207,10 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/device/pnpn_res_device.F90\
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
+	fluid/stress_formulation/pnpn_res_stress_fctry.f90\
+	fluid/stress_formulation/pnpn_res_stress.f90\
+	fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90\
+	fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90\
 	common/time_step_controller.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
@@ -373,6 +377,7 @@ libneko_a_SOURCES += \
 	common/bcknd/device/cuda/rhs_maker.cu\
 	common/bcknd/device/cuda/projection.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
+	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu
 endif
@@ -507,6 +512,7 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/projection_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
+	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
