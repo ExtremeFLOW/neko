@@ -660,12 +660,9 @@ contains
       call this%pc_vel%update()
 
       call profiler_start_region("Velocity solve", 4)
-      ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
-           c_Xh, this%bclst_du, gs_Xh)
-      ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
-           c_Xh, this%bclst_dv, gs_Xh)
-      ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
-           c_Xh, this%bclst_dw, gs_Xh)
+      ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax, du, dv, dw, &
+           u_res%x, v_res%x, w_res%x, n, c_Xh, &
+           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh)
       call profiler_end_region
 
       call this%proj_u%post_solving(du%x, Ax, c_Xh, &

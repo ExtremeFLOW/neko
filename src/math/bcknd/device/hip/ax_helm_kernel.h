@@ -722,4 +722,25 @@ __global__ void __launch_bounds__(LX*LX,3)
   }
 }
 
+template< typename T >
+__global__ void ax_helm_kernel_vector_part2(T * __restrict__ au,
+                                            T * __restrict__ av,
+                                            T * __restrict__ aw,
+                                            const T * __restrict__ u,
+                                            const T * __restrict__ v,
+                                            const T * __restrict__ w,
+                                            const T * __restrict__ h2,
+                                            const T * __restrict__ B,
+                                            const int n) {
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  
+  for (int i = idx; i < n; i += str) {
+    au[i] = au[i] + h2[i] * B[i] * u[i];
+    av[i] = av[i] + h2[i] * B[i] * v[i];
+    aw[i] = aw[i] + h2[i] * B[i] * w[i];
+  }
+  
+}
 #endif // __MATH_AX_HELM_KERNEL_H__
