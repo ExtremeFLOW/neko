@@ -292,7 +292,7 @@ contains
     integer :: n, ierr, j, i
     real(kind=rp) :: coord
     call avg_planes%free() 
-    call avg_planes%init(this%n_gll_lvls,field_list%size()+1)
+    call avg_planes%init(this%n_gll_lvls, field_list%size()+1)
     avg_planes = 0.0_rp
     !ugly way of getting coordinates, computes average
     n = this%dof%size()
