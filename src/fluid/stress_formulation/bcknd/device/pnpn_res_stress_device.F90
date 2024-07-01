@@ -267,9 +267,9 @@ contains
     call dudxyz(ta2%x, mu%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     call dudxyz(ta3%x, mu%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
 
-    call device_cmult(ta1%x, 2.0_rp, n)
-    call device_cmult(ta2%x, 2.0_rp, n)
-    call device_cmult(ta3%x, 2.0_rp, n)
+    call device_cmult(ta1%x_d, 2.0_rp, n)
+    call device_cmult(ta2%x_d, 2.0_rp, n)
+    call device_cmult(ta3%x_d, 2.0_rp, n)
 
     ! S^T grad \mu
     call device_vdot3 (work1%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
