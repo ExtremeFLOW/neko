@@ -46,7 +46,6 @@ __global__ void prs_stress_res_part1_kernel(T * __restrict__ ta1,
                                             const T * __restrict__ f_v,
                                             const T * __restrict__ f_w,
                                             const T * __restrict__ B,
-                                            T * __restrict__ h1,
                                             const T * __restrict__ rho,
                                             const int n) {
   
