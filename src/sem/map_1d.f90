@@ -183,9 +183,9 @@ contains
                              DEVICE_TO_HOST, sync=.true.)
       !Obtain average along boundary
       
-      call col2(min_vals,coef%mult, n)
-      call cmult(min_temp,-1.0_rp,n)
-      call add2s1(min_vals, min_temp,2.0_rp,n) 
+      call col2(min_vals, coef%mult, n)
+      call cmult(min_temp, -1.0_rp, n)
+      call add2s1(min_vals, min_temp, 2.0_rp, n) 
       
 
       !Checks the new minimum value on each element
