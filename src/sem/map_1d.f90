@@ -177,7 +177,7 @@ contains
          call device_memcpy(min_vals, min_vals_d, n,&
                             HOST_TO_DEVICE, sync=.false.)
       !Propagates the minumum value along the element boundary.
-      call coef%gs_h%op(min_vals,n,GS_OP_ADD)
+      call coef%gs_h%op(min_vals, n, GS_OP_ADD)
       if (NEKO_BCKND_DEVICE .eq. 1) &
           call device_memcpy(min_vals, min_vals_d, n,&
                              DEVICE_TO_HOST, sync=.true.)
