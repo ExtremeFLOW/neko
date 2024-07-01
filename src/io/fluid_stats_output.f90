@@ -84,7 +84,7 @@ contains
        else
           fname = 'stats.csv'
        end if
-       call this%map_1d%init_char(stats%coef, hom_dir,1e-7_rp)
+       call this%map_1d%init_char(stats%coef, hom_dir, 1e-7_rp)
     end if
 
     call this%init_base(fname)
