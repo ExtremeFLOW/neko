@@ -467,8 +467,6 @@ contains
     call params%get(simcomp_object)
     call params%info('', n_children=n_simcomps)
 
-    ! We need a separate loop to figure out the order, so that we can
-    ! apply the order to the initialization as well.
     found = .false.
     do i = 1, n_simcomps
        call json_extract_item(core, simcomp_object, i, comp_subdict)
