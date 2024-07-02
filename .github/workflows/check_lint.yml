@@ -104,6 +104,13 @@ jobs:
 
           git fetch --unshallow origin $target
           changes=($(git diff --name-only --diff-filter=d origin/$target))
+
+          printf "Detected fortran changes:\n"
+          for file in $changes; do
+            if [[ ${file: -4} != ".f90" ]]; then continue; fi
+            printf "\t- $file"
+          done
+
           echo "changed-files=${changes[@]}" >> $GITHUB_OUTPUT
 
       - name: Lint changed files
@@ -121,7 +128,7 @@ jobs:
           for file in $changed_files; do
 
             # If the file is not a Fortran file, skip it.
-            if [[ ! $file =~ \.f90$ ]]; then continue; fi
+            if [[ ${file: -4} != ".f90" ]]; then continue; fi
 
             printf "\t- $file"
             score=$(flint score -r flinter_rc.yml $(realpath $file) 2> /dev/null |
@@ -144,7 +151,7 @@ jobs:
           printf "\t${fails[@]}\n"
 
           if [ ${#fails[@]} -gt 0 ]; then
-            for fail in "${fails[@]}"; do
+            for fail in ${fails[@]}; do
               printf "%.s-" {1..80} && printf "\n"
               printf "Linting failed for \n\t$fail\n\n"
 
