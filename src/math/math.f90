@@ -982,7 +982,7 @@ contains
              j = j + j
           else
              j = ir + 1
-          endif
+          end if
        end do
        a(i) = aa
        ind(i) = ii
