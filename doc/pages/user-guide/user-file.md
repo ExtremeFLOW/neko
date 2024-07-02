@@ -447,7 +447,7 @@ the `case.fluid.inflow_condition.type` to `"user"`:
 ```
 
 See the [the relevant section](@ref case-file_fluid-if) in the 
-[case file page](@ref case-file.md) for more details. The associated user 
+[case file page](@ref case-file) for more details. The associated user 
 function for the fluid inflow condition can then be added to the user file.
 An example inspired from the 
 [lid-driven cavity example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/lid/lid.f90#L29-L53)
@@ -692,10 +692,10 @@ The arguments and their purpose are as follows:
 * `field_bc_list` is the list of the field that can be edited. It is a list 
 of `field_t` objects.
   * The field `i` contained in `field_bc_list` is accessed using 
-  `field_bc_list%%items(i)%%f` and will refer to a `field_t` object. 
+  `field_bc_list%%items(i)%%ptr` and will refer to a `field_t` object. 
   * If `which_solver = "fluid"`, it will contain the 4 fields `u,v,w,p`. They
   are retrieved in that order in `field_bc_list`, i.e. `u` corresponds to
-  `field_bc_list%%items(1)%%f`, etc.
+  `field_bc_list%%items(1)%%ptr`, etc.
   * If `which_solver = "scalar"`, it will only contain the scalar field `s`. 
  
 * `bc_bc_list` contains a list of the `bc_t` objects to help access the 
@@ -720,9 +720,7 @@ the fluid solver. It takes the value `"scalar"` when it is called in the scalar
 solver.
 
 Links to the documentation to learn more about what the types mentioned above
-contain and how to use them: [field_t type](https://neko.cfd/docs/d3/d5f/structfield_1_1field__t.html),
-[bc_t type](https://neko.cfd/docs/d6/db3/structbc_1_1bc__t.html),
-[coef_t type](https://neko.cfd/docs/d0/dea/structcoefs_1_1coef__t.html). 
+contain and how to use them: `src/field/field.f90`, `src/bc/bc.f90`, `src/sem/coef.f90`. 
 
 The user function should be registered in `user_setup` with the following line:
 
