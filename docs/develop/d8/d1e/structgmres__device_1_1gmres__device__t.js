@@ -6,6 +6,7 @@ var structgmres__device_1_1gmres__device__t =
     [ "ksp_init", "d8/d1e/structgmres__device_1_1gmres__device__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "set_pc", "d8/d1e/structgmres__device_1_1gmres__device__t.html#ac8461060f257f28e50083521e7079adc", null ],
     [ "solve", "d8/d1e/structgmres__device_1_1gmres__device__t.html#ac2e2edbe21011f47c83bfe2f9c9a8dce", null ],
+    [ "solve_coupled", "d8/d1e/structgmres__device_1_1gmres__device__t.html#a570280e1925d623608c1d79a2195618d", null ],
     [ "abs_tol", "d8/d1e/structgmres__device_1_1gmres__device__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
     [ "c", "d8/d1e/structgmres__device_1_1gmres__device__t.html#a4cc0215a4c95fdea815871f0d6d52c11", null ],
     [ "c_d", "d8/d1e/structgmres__device_1_1gmres__device__t.html#acdde93276f84c6fa3c69be5e7af5af63", null ],

@@ -247,6 +247,7 @@ var namespaces_dup =
     [ "fluid_stats_output", "d8/d92/namespacefluid__stats__output.html", "d8/d92/namespacefluid__stats__output" ],
     [ "fluid_user_source_term", "d9/d33/namespacefluid__user__source__term.html", "d9/d33/namespacefluid__user__source__term" ],
     [ "fluid_volflow", "d6/d21/namespacefluid__volflow.html", "d6/d21/namespacefluid__volflow" ],
+    [ "fusedcg_cpld_device", "d3/dbc/namespacefusedcg__cpld__device.html", "d3/dbc/namespacefusedcg__cpld__device" ],
     [ "fusedcg_device", "dd/d04/namespacefusedcg__device.html", "dd/d04/namespacefusedcg__device" ],
     [ "gather_scatter", "d0/d78/namespacegather__scatter.html", "d0/d78/namespacegather__scatter" ],
     [ "generic_file", "dc/d92/namespacegeneric__file.html", "dc/d92/namespacegeneric__file" ],

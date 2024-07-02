@@ -6,6 +6,7 @@ var structbicgstab_1_1bicgstab__t =
     [ "ksp_init", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "set_pc", "dc/dd5/structbicgstab_1_1bicgstab__t.html#ac8461060f257f28e50083521e7079adc", null ],
     [ "solve", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a0defdfdb3bdd0faae17685e8860c95c6", null ],
+    [ "solve_coupled", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a8bdb3b9eb82bc0d9a0358119b4518f59", null ],
     [ "abs_tol", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
     [ "m", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a919f46cedba40962024d26a886ab31f9", null ],
     [ "m_ident", "dc/dd5/structbicgstab_1_1bicgstab__t.html#aeec0dc845eecbf135d94945f24a937dd", null ],

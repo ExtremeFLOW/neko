@@ -6,6 +6,7 @@ var structcg__sx_1_1sx__cg__t =
     [ "ksp_init", "d5/d34/structcg__sx_1_1sx__cg__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "set_pc", "d5/d34/structcg__sx_1_1sx__cg__t.html#ac8461060f257f28e50083521e7079adc", null ],
     [ "solve", "d5/d34/structcg__sx_1_1sx__cg__t.html#a6bcaf6a536fcfd9e09ed0c9d0a368e08", null ],
+    [ "solve_coupled", "d5/d34/structcg__sx_1_1sx__cg__t.html#a8312c46bc8074884ed62d1b87f3a2890", null ],
     [ "abs_tol", "d5/d34/structcg__sx_1_1sx__cg__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
     [ "m", "d5/d34/structcg__sx_1_1sx__cg__t.html#a919f46cedba40962024d26a886ab31f9", null ],
     [ "m_ident", "d5/d34/structcg__sx_1_1sx__cg__t.html#aeec0dc845eecbf135d94945f24a937dd", null ],

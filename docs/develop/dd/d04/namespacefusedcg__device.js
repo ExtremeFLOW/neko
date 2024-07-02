@@ -10,5 +10,6 @@ var namespacefusedcg__device =
     [ "fusedcg_device_free", "dd/d04/namespacefusedcg__device.html#a239efd69a0c3289d4e1ede8b248ed9d4", null ],
     [ "fusedcg_device_init", "dd/d04/namespacefusedcg__device.html#a4d784f01d8bfad54bb9b002b25f97426", null ],
     [ "fusedcg_device_solve", "dd/d04/namespacefusedcg__device.html#a27124058cf4f65a010499b546c34c639", null ],
+    [ "fusedcg_device_solve_coupled", "dd/d04/namespacefusedcg__device.html#abfd5b743062632ce60e2da2de40bb4a9", null ],
     [ "device_fusedcg_p_space", "dd/d04/namespacefusedcg__device.html#a57400999ef9bfe9a038fd940583c5dd7", null ]
 ];

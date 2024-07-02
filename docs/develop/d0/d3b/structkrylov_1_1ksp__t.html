@@ -107,19 +107,20 @@ Inheritance diagram for krylov::ksp_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d2/d5b/structkrylov_1_1ksp__t__inherit__graph.png" border="0" usemap="#akrylov_1_1ksp__t_inherit__map" alt="Inheritance graph"/></div>
 <map name="akrylov_1_1ksp__t_inherit__map" id="akrylov_1_1ksp__t_inherit__map">
-<area shape="rect" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,296,111,323"/>
+<area shape="rect" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,332,111,359"/>
 <area shape="rect" href="../../dc/dd5/structbicgstab_1_1bicgstab__t.html" title="Standard preconditioned Bi&#45;Conjugate Gradient Stabilized method." alt="" coords="174,5,326,32"/>
 <area shape="rect" href="../../de/d56/structcacg_1_1cacg__t.html" title="S&#45;step communication avoiding preconditioned conjugate gradient method." alt="" coords="199,56,301,83"/>
 <area shape="rect" href="../../db/d98/structcg_1_1cg__t.html" title="Standard preconditioned conjugate gradient method." alt="" coords="214,107,286,133"/>
 <area shape="rect" href="../../dd/d8e/structcg__device_1_1cg__device__t.html" title="Device based preconditioned conjugate gradient method." alt="" coords="164,157,336,184"/>
 <area shape="rect" href="../../d5/d34/structcg__sx_1_1sx__cg__t.html" title="Standard preconditioned conjugate gradient method (SX version)" alt="" coords="192,208,308,235"/>
-<area shape="rect" href="../../dc/d03/structfusedcg__device_1_1fusedcg__device__t.html" title="Fused preconditioned conjugate gradient method." alt="" coords="159,259,341,301"/>
-<area shape="rect" href="../../df/db9/structgmres_1_1gmres__t.html" title="Standard preconditioned generalized minimal residual method." alt="" coords="188,325,312,352"/>
-<area shape="rect" href="../../d8/d1e/structgmres__device_1_1gmres__device__t.html" title="Standard preconditioned generalized minimal residual method." alt="" coords="169,377,331,418"/>
-<area shape="rect" href="../../d3/d41/structgmres__sx_1_1sx__gmres__t.html" title="Standard preconditioned generalized minimal residual method (SX version)" alt="" coords="166,443,334,469"/>
-<area shape="rect" href="../../d4/db4/structpipecg_1_1pipecg__t.html" title="Pipelined preconditioned conjugate gradient method." alt="" coords="186,493,314,520"/>
-<area shape="rect" href="../../dc/d01/structpipecg__device_1_1pipecg__device__t.html" title="Pipelined preconditioned conjugate gradient method." alt="" coords="167,545,333,586"/>
-<area shape="rect" href="../../d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html" title="Pipelined preconditioned conjugate gradient method for SX&#45;Aurora." alt="" coords="164,611,336,637"/>
+<area shape="rect" href="../../d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html" title="Fused preconditioned conjugate gradient method." alt="" coords="161,259,339,301"/>
+<area shape="rect" href="../../dc/d03/structfusedcg__device_1_1fusedcg__device__t.html" title="Fused preconditioned conjugate gradient method." alt="" coords="159,325,341,366"/>
+<area shape="rect" href="../../df/db9/structgmres_1_1gmres__t.html" title="Standard preconditioned generalized minimal residual method." alt="" coords="188,391,312,417"/>
+<area shape="rect" href="../../d8/d1e/structgmres__device_1_1gmres__device__t.html" title="Standard preconditioned generalized minimal residual method." alt="" coords="169,442,331,483"/>
+<area shape="rect" href="../../d3/d41/structgmres__sx_1_1sx__gmres__t.html" title="Standard preconditioned generalized minimal residual method (SX version)" alt="" coords="166,508,334,535"/>
+<area shape="rect" href="../../d4/db4/structpipecg_1_1pipecg__t.html" title="Pipelined preconditioned conjugate gradient method." alt="" coords="186,559,314,585"/>
+<area shape="rect" href="../../dc/d01/structpipecg__device_1_1pipecg__device__t.html" title="Pipelined preconditioned conjugate gradient method." alt="" coords="167,610,333,651"/>
+<area shape="rect" href="../../d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html" title="Pipelined preconditioned conjugate gradient method for SX&#45;Aurora." alt="" coords="164,676,336,703"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -137,6 +138,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:acfcd527d80374c8dcda44439c432b6ed"><td class="memItemLeft" align="right" valign="top">procedure(<a class="el" href="../../d2/d6e/interfacekrylov_1_1ksp__method.html">ksp_method</a>), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#acfcd527d80374c8dcda44439c432b6ed">solve</a></td></tr>
 <tr class="memdesc:acfcd527d80374c8dcda44439c432b6ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve the system.  <a href="../../d0/d3b/structkrylov_1_1ksp__t.html#acfcd527d80374c8dcda44439c432b6ed">More...</a><br /></td></tr>
 <tr class="separator:acfcd527d80374c8dcda44439c432b6ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae732647f494b89561cc33427d84cdd8e"><td class="memItemLeft" align="right" valign="top">procedure(<a class="el" href="../../d1/d3d/interfacekrylov_1_1ksp__method__coupled.html">ksp_method_coupled</a>), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#ae732647f494b89561cc33427d84cdd8e">solve_coupled</a></td></tr>
+<tr class="memdesc:ae732647f494b89561cc33427d84cdd8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve the system (coupled version).  <a href="../../d0/d3b/structkrylov_1_1ksp__t.html#ae732647f494b89561cc33427d84cdd8e">More...</a><br /></td></tr>
+<tr class="separator:ae732647f494b89561cc33427d84cdd8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4aea2d10a8a8157d0fc3ebaac830e8a2"><td class="memItemLeft" align="right" valign="top">procedure(<a class="el" href="../../d6/dc8/interfacekrylov_1_1ksp__t__free.html">ksp_t_free</a>), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a4aea2d10a8a8157d0fc3ebaac830e8a2">free</a></td></tr>
 <tr class="memdesc:a4aea2d10a8a8157d0fc3ebaac830e8a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d0/d3b/structkrylov_1_1ksp__t.html#a4aea2d10a8a8157d0fc3ebaac830e8a2">More...</a><br /></td></tr>
 <tr class="separator:a4aea2d10a8a8157d0fc3ebaac830e8a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -178,7 +182,7 @@ Public Attributes</h2></td></tr>
 
 <p>Destructor. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -251,6 +255,24 @@ Public Attributes</h2></td></tr>
 <p>Solve the system. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+
+</div>
+</div>
+<a id="ae732647f494b89561cc33427d84cdd8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae732647f494b89561cc33427d84cdd8e">&#9670;&nbsp;</a></span>solve_coupled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure(<a class="el" href="../../d1/d3d/interfacekrylov_1_1ksp__method__coupled.html">ksp_method_coupled</a>), deferred, pass krylov::ksp_t::solve_coupled</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Solve the system (coupled version). </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -354,7 +376,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d6d/namespacekrylov.html">krylov</a></li><li class="navelem"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a></li>
-    <li class="footer">Generated on Mon Jul 1 2024 03:34:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

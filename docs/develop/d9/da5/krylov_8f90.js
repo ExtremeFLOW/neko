@@ -3,6 +3,7 @@ var krylov_8f90 =
     [ "ksp_monitor_t", "d4/d33/structkrylov_1_1ksp__monitor__t.html", "d4/d33/structkrylov_1_1ksp__monitor__t" ],
     [ "ksp_t", "d0/d3b/structkrylov_1_1ksp__t.html", "d0/d3b/structkrylov_1_1ksp__t" ],
     [ "ksp_method", "d2/d6e/interfacekrylov_1_1ksp__method.html", "d2/d6e/interfacekrylov_1_1ksp__method" ],
+    [ "ksp_method_coupled", "d1/d3d/interfacekrylov_1_1ksp__method__coupled.html", "d1/d3d/interfacekrylov_1_1ksp__method__coupled" ],
     [ "ksp_t_free", "d6/dc8/interfacekrylov_1_1ksp__t__free.html", "d6/dc8/interfacekrylov_1_1ksp__t__free" ],
     [ "krylov_free", "d9/da5/krylov_8f90.html#a6b461bf26ab4402b452e62fd907103a7", null ],
     [ "krylov_init", "d9/da5/krylov_8f90.html#a9b0139e0cb27893180cca1fccd91b61b", null ],

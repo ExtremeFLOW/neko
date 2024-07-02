@@ -8,5 +8,6 @@ var pipecg__device_8F90 =
     [ "pipecg_device_free", "d5/d7f/pipecg__device_8F90.html#aeac2e2e47dadc8df22ea517657edae34", null ],
     [ "pipecg_device_init", "d5/d7f/pipecg__device_8F90.html#aaf543bffce512e5b03781224e38a9b7d", null ],
     [ "pipecg_device_solve", "d5/d7f/pipecg__device_8F90.html#a97a1fd422c4c03f238038a1d3e8154fe", null ],
+    [ "pipecg_device_solve_coupled", "d5/d7f/pipecg__device_8F90.html#abae46c2e5da74a3242fa35ba81ae9990", null ],
     [ "device_pipecg_p_space", "d5/d7f/pipecg__device_8F90.html#aa95763092ddf10f01691e2f8c7124a5d", null ]
 ];

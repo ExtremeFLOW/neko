@@ -8,5 +8,6 @@ var namespacepipecg__device =
     [ "pipecg_device_free", "da/d46/namespacepipecg__device.html#aeac2e2e47dadc8df22ea517657edae34", null ],
     [ "pipecg_device_init", "da/d46/namespacepipecg__device.html#aaf543bffce512e5b03781224e38a9b7d", null ],
     [ "pipecg_device_solve", "da/d46/namespacepipecg__device.html#a97a1fd422c4c03f238038a1d3e8154fe", null ],
+    [ "pipecg_device_solve_coupled", "da/d46/namespacepipecg__device.html#abae46c2e5da74a3242fa35ba81ae9990", null ],
     [ "device_pipecg_p_space", "da/d46/namespacepipecg__device.html#aa95763092ddf10f01691e2f8c7124a5d", null ]
 ];

@@ -5,6 +5,7 @@ var structkrylov_1_1ksp__t =
     [ "ksp_init", "d0/d3b/structkrylov_1_1ksp__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "set_pc", "d0/d3b/structkrylov_1_1ksp__t.html#ac8461060f257f28e50083521e7079adc", null ],
     [ "solve", "d0/d3b/structkrylov_1_1ksp__t.html#acfcd527d80374c8dcda44439c432b6ed", null ],
+    [ "solve_coupled", "d0/d3b/structkrylov_1_1ksp__t.html#ae732647f494b89561cc33427d84cdd8e", null ],
     [ "abs_tol", "d0/d3b/structkrylov_1_1ksp__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
     [ "m", "d0/d3b/structkrylov_1_1ksp__t.html#a919f46cedba40962024d26a886ab31f9", null ],
     [ "m_ident", "d0/d3b/structkrylov_1_1ksp__t.html#aeec0dc845eecbf135d94945f24a937dd", null ],

@@ -10,5 +10,6 @@ var fusedcg__device_8F90 =
     [ "fusedcg_device_free", "de/d66/fusedcg__device_8F90.html#a239efd69a0c3289d4e1ede8b248ed9d4", null ],
     [ "fusedcg_device_init", "de/d66/fusedcg__device_8F90.html#a4d784f01d8bfad54bb9b002b25f97426", null ],
     [ "fusedcg_device_solve", "de/d66/fusedcg__device_8F90.html#a27124058cf4f65a010499b546c34c639", null ],
+    [ "fusedcg_device_solve_coupled", "de/d66/fusedcg__device_8F90.html#abfd5b743062632ce60e2da2de40bb4a9", null ],
     [ "device_fusedcg_p_space", "de/d66/fusedcg__device_8F90.html#a57400999ef9bfe9a038fd940583c5dd7", null ]
 ];

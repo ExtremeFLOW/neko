@@ -741,47 +741,44 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;      <span class="keyword">call </span>this%pc_vel%update()</div>
 <div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160; </div>
 <div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;      <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&quot;Velocity solve&quot;</span>, 4)</div>
-<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;      ksp_results(2) = this%ksp_vel%solve(ax, du, u_res%x, n, &amp;</div>
-<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;           c_xh, this%bclst_du, gs_xh)</div>
-<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;      ksp_results(3) = this%ksp_vel%solve(ax, dv, v_res%x, n, &amp;</div>
-<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;           c_xh, this%bclst_dv, gs_xh)</div>
-<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;      ksp_results(4) = this%ksp_vel%solve(ax, dw, w_res%x, n, &amp;</div>
-<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;           c_xh, this%bclst_dw, gs_xh)</div>
-<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;      <span class="keyword">call </span>profiler_end_region</div>
-<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160; </div>
-<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;      <span class="keyword">call </span>this%proj_u%post_solving(du%x, ax, c_xh, &amp;</div>
-<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;                                 this%bclst_du, gs_xh, n, tstep, dt_controller)</div>
-<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;      <span class="keyword">call </span>this%proj_v%post_solving(dv%x, ax, c_xh, &amp;</div>
-<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;                                 this%bclst_dv, gs_xh, n, tstep, dt_controller)</div>
-<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;      <span class="keyword">call </span>this%proj_w%post_solving(dw%x, ax, c_xh, &amp;</div>
-<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;                                 this%bclst_dw, gs_xh, n, tstep, dt_controller)</div>
-<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160; </div>
-<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;         <span class="keyword">call </span>device_opadd2cm(u%x_d, v%x_d, w%x_d, &amp;</div>
-<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;              du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)</div>
-<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;      <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;         <span class="keyword">call </span>opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)</div>
-<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;<span class="keywordflow">      end if</span></div>
-<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160; </div>
-<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;      <span class="keywordflow">if</span> (this%forced_flow_rate) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;         <span class="keyword">call </span>this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &amp;</div>
-<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;              c_xh, gs_xh, ext_bdf, rho, mu,&amp;</div>
-<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &amp;</div>
-<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;              this%bclst_dw, this%bclst_vel_res, ax, this%ksp_prs, &amp;</div>
-<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;              this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &amp;</div>
-<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;              this%ksp_vel%max_iter)</div>
-<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;<span class="keywordflow">      end if</span></div>
-<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160; </div>
-<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;      <span class="keyword">call </span>fluid_step_info(tstep, t, dt, ksp_results)</div>
-<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160; </div>
-<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;      <span class="keyword">call </span>this%scratch%relinquish_field(temp_indices)</div>
-<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160; </div>
-<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;    <span class="keyword">end </span>associate</div>
-<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;    <span class="keyword">call </span>profiler_end_region</div>
-<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../dc/da3/namespacefluid__pnpn.html#a4e184cd1988892da656514f7d11efb53">fluid_pnpn_step</a></div>
-<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160; </div>
-<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160; </div>
-<div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160;<span class="keyword">end module </span><a class="code" href="../../dc/da3/namespacefluid__pnpn.html">fluid_pnpn</a></div>
+<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;      ksp_results(2:4) = this%ksp_vel%solve_coupled(ax, du, dv, dw, &amp;</div>
+<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;           u_res%x, v_res%x, w_res%x, n, c_xh, &amp;</div>
+<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_xh)</div>
+<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;      <span class="keyword">call </span>profiler_end_region</div>
+<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160; </div>
+<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;      <span class="keyword">call </span>this%proj_u%post_solving(du%x, ax, c_xh, &amp;</div>
+<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;                                 this%bclst_du, gs_xh, n, tstep, dt_controller)</div>
+<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;      <span class="keyword">call </span>this%proj_v%post_solving(dv%x, ax, c_xh, &amp;</div>
+<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;                                 this%bclst_dv, gs_xh, n, tstep, dt_controller)</div>
+<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;      <span class="keyword">call </span>this%proj_w%post_solving(dw%x, ax, c_xh, &amp;</div>
+<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;                                 this%bclst_dw, gs_xh, n, tstep, dt_controller)</div>
+<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160; </div>
+<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;         <span class="keyword">call </span>device_opadd2cm(u%x_d, v%x_d, w%x_d, &amp;</div>
+<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160;              du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)</div>
+<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;      <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;         <span class="keyword">call </span>opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)</div>
+<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;<span class="keywordflow">      end if</span></div>
+<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160; </div>
+<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;      <span class="keywordflow">if</span> (this%forced_flow_rate) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;         <span class="keyword">call </span>this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &amp;</div>
+<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;              c_xh, gs_xh, ext_bdf, rho, mu,&amp;</div>
+<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &amp;</div>
+<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;              this%bclst_dw, this%bclst_vel_res, ax, this%ksp_prs, &amp;</div>
+<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;              this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &amp;</div>
+<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;              this%ksp_vel%max_iter)</div>
+<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;<span class="keywordflow">      end if</span></div>
+<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160; </div>
+<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;      <span class="keyword">call </span>fluid_step_info(tstep, t, dt, ksp_results)</div>
+<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160; </div>
+<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;      <span class="keyword">call </span>this%scratch%relinquish_field(temp_indices)</div>
+<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160; </div>
+<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;    <span class="keyword">end </span>associate</div>
+<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;    <span class="keyword">call </span>profiler_end_region</div>
+<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../dc/da3/namespacefluid__pnpn.html#a4e184cd1988892da656514f7d11efb53">fluid_pnpn_step</a></div>
+<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160; </div>
+<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160; </div>
+<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;<span class="keyword">end module </span><a class="code" href="../../dc/da3/namespacefluid__pnpn.html">fluid_pnpn</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00051">device.F90:51</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00044">json_utils.f90:44</a></div></div>
 <div class="ttc" id="ainterfacepnpn__residual_1_1prs__res_html"><div class="ttname"><a href="../../dc/d18/interfacepnpn__residual_1_1prs__res.html">pnpn_residual::prs_res</a></div><div class="ttdef"><b>Definition:</b> <a href="../../da/d32/pnpn__res_8f90_source.html#l00059">pnpn_res.f90:59</a></div></div>
@@ -886,7 +883,7 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d7/db9/fluid__pnpn_8f90.html">fluid_pnpn.f90</a></li>
-    <li class="footer">Generated on Mon Jul 1 2024 03:34:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 2 2024 03:34:35 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

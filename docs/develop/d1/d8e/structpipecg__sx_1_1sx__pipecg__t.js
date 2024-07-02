@@ -6,6 +6,7 @@ var structpipecg__sx_1_1sx__pipecg__t =
     [ "ksp_init", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "set_pc", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html#ac8461060f257f28e50083521e7079adc", null ],
     [ "solve", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html#a771ab9fa1025fa97dee95f09dc64ac67", null ],
+    [ "solve_coupled", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html#a90252a8b5b631a801753adb09e09129b", null ],
     [ "abs_tol", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
     [ "m", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html#a919f46cedba40962024d26a886ab31f9", null ],
     [ "m_ident", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html#aeec0dc845eecbf135d94945f24a937dd", null ],

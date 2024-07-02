@@ -153,14 +153,14 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="d5/dc3/opr__opgrad_8hip.html#a391aacbd26da5922ec80e721035d44cc">opr_opgrad.hip</a>
 , <a class="el" href="d2/dfe/opr__lambda2_8hip.html#a391aacbd26da5922ec80e721035d44cc">opr_lambda2.hip</a>
 , <a class="el" href="d6/d27/opr__dudxyz_8hip.html#a391aacbd26da5922ec80e721035d44cc">opr_dudxyz.hip</a>
-, <a class="el" href="d3/d13/opr__dudxyz_8cu.html#a391aacbd26da5922ec80e721035d44cc">opr_dudxyz.cu</a>
 , <a class="el" href="d3/d39/opr__conv1_8hip.html#a391aacbd26da5922ec80e721035d44cc">opr_conv1.hip</a>
+, <a class="el" href="df/d96/opr__lambda2_8cu.html#a391aacbd26da5922ec80e721035d44cc">opr_lambda2.cu</a>
 , <a class="el" href="d9/d63/opr__cdtp_8hip.html#a391aacbd26da5922ec80e721035d44cc">opr_cdtp.hip</a>
 , <a class="el" href="d6/d68/opr__opgrad_8cu.html#a391aacbd26da5922ec80e721035d44cc">opr_opgrad.cu</a>
 , <a class="el" href="de/d11/ax__helm_8hip.html#a391aacbd26da5922ec80e721035d44cc">ax_helm.hip</a>
 , <a class="el" href="db/d49/ax__helm_8cu.html#a391aacbd26da5922ec80e721035d44cc">ax_helm.cu</a>
 , <a class="el" href="df/d14/opr__cdtp_8cu.html#a391aacbd26da5922ec80e721035d44cc">opr_cdtp.cu</a>
-, <a class="el" href="df/d96/opr__lambda2_8cu.html#a391aacbd26da5922ec80e721035d44cc">opr_lambda2.cu</a>
+, <a class="el" href="d3/d13/opr__dudxyz_8cu.html#a391aacbd26da5922ec80e721035d44cc">opr_dudxyz.cu</a>
 , <a class="el" href="d2/d79/opr__conv1_8cu.html#a391aacbd26da5922ec80e721035d44cc">opr_conv1.cu</a>
 </li>
 <li>CASE_KSTEP_PADDED
@@ -193,8 +193,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 , <a class="el" href="de/d11/ax__helm_8hip.html#a67f5732bcab636abc065fa25097dcdc0">ax_helm.hip</a>
 </li>
 <li>CASE_VECTOR_KSTEP_PADDED
-: <a class="el" href="db/d49/ax__helm_8cu.html#a0a518ac5ed01c1e0a089a94c4f549cde">ax_helm.cu</a>
-, <a class="el" href="de/d11/ax__helm_8hip.html#a0a518ac5ed01c1e0a089a94c4f549cde">ax_helm.hip</a>
+: <a class="el" href="de/d11/ax__helm_8hip.html#a0a518ac5ed01c1e0a089a94c4f549cde">ax_helm.hip</a>
+, <a class="el" href="db/d49/ax__helm_8cu.html#a0a518ac5ed01c1e0a089a94c4f549cde">ax_helm.cu</a>
 </li>
 <li>CASE_VECTOR_PADDED
 : <a class="el" href="db/d49/ax__helm_8cu.html#ac3318de6e7784e8415692b030bcf4d11">ax_helm.cu</a>
@@ -213,8 +213,8 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="d9/d50/cuda_2math__kernel_8h.html#a1db338ffc362ef6a4e9cbdd29e53ee27">math_kernel.h</a>
 </li>
 <li>cfl_d
-: <a class="el" href="d1/d38/opr__cfl_8hip.html#a24819eb9292bd7b4bfc0d18a0ce38c07">opr_cfl.hip</a>
-, <a class="el" href="da/d37/opr__cfl_8cu.html#a24819eb9292bd7b4bfc0d18a0ce38c07">opr_cfl.cu</a>
+: <a class="el" href="da/d37/opr__cfl_8cu.html#a24819eb9292bd7b4bfc0d18a0ce38c07">opr_cfl.cu</a>
+, <a class="el" href="d1/d38/opr__cfl_8hip.html#a24819eb9292bd7b4bfc0d18a0ce38c07">opr_cfl.hip</a>
 </li>
 <li>cfl_kernel()
 : <a class="el" href="d6/d9b/cuda_2cfl__kernel_8h.html#a0007a47cb62f063f2431f56c9ebf81d0">cfl_kernel.h</a>
@@ -247,7 +247,7 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 : <a class="el" href="d8/d17/hip_2math__kernel_8h.html#a6d7111b5670b9651b385bf199aec75c6">math_kernel.h</a>
 </li>
 <li>coef_generate_drst_kernel()
-: <a class="el" href="d0/d39/cuda_2coef__kernel_8h.html#a77009b648361e0d3028e6390054db600">coef_kernel.h</a>
+: <a class="el" href="d8/d34/hip_2coef__kernel_8h.html#a77009b648361e0d3028e6390054db600">coef_kernel.h</a>
 </li>
 <li>coef_generate_dxyz_kernel()
 : <a class="el" href="d0/d39/cuda_2coef__kernel_8h.html#a3a1e0ab0be41cdd5767d711b2d3ec05a">coef_kernel.h</a>
@@ -303,6 +303,9 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>cuda_ax_helm_vector()
 : <a class="el" href="db/d49/ax__helm_8cu.html#a631314811fe77d6c75fb2800ec1fe68f">ax_helm.cu</a>
 </li>
+<li>cuda_ax_helm_vector_part2()
+: <a class="el" href="db/d49/ax__helm_8cu.html#a26b268da8fda4b2f7433dc55d069a9cf">ax_helm.cu</a>
+</li>
 <li>cuda_cadd()
 : <a class="el" href="de/d1e/math_8cu.html#acb502d9ea006e450918004135eb025e6">math.cu</a>
 </li>
@@ -321,14 +324,12 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <li>cuda_cg_update_xp()
 : <a class="el" href="d8/d3b/pipecg__aux_8cu.html#a9461071765bd4e6b33049502f4cb1fc8">pipecg_aux.cu</a>
 </li>
-<li>cuda_check()
-: <a class="el" href="db/dac/check_8cu.html#aae0ba72accf90129e4e098341ca2f798">check.cu</a>
-</li>
 <li>CUDA_CHECK
 : <a class="el" href="d5/d08/cuda_2check_8h.html#a8e448e02bd4547864857b4de87a9deda">check.h</a>
 </li>
 <li>cuda_check()
 : <a class="el" href="d5/d08/cuda_2check_8h.html#aae0ba72accf90129e4e098341ca2f798">check.h</a>
+, <a class="el" href="db/dac/check_8cu.html#aae0ba72accf90129e4e098341ca2f798">check.cu</a>
 </li>
 <li>cuda_cmult()
 : <a class="el" href="de/d1e/math_8cu.html#a648456d6676ee2347f6b5cb6f4070d02">math.cu</a>
@@ -371,6 +372,18 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 </li>
 <li>cuda_fdm_do_fast()
 : <a class="el" href="d2/d4f/fdm_8cu.html#ad2dbfc107a2efddb25ecc479a8d4e70e">fdm.cu</a>
+</li>
+<li>cuda_fusedcg_cpld_part1()
+: <a class="el" href="d6/d7a/fusedcg__cpld__aux_8cu.html#a66de58f40a22421c383f9f469ca2a217">fusedcg_cpld_aux.cu</a>
+</li>
+<li>cuda_fusedcg_cpld_part2()
+: <a class="el" href="d6/d7a/fusedcg__cpld__aux_8cu.html#a7eb899723f69645a53a58f36f4430a0a">fusedcg_cpld_aux.cu</a>
+</li>
+<li>cuda_fusedcg_cpld_update_p()
+: <a class="el" href="d6/d7a/fusedcg__cpld__aux_8cu.html#af2cff745d71ecda683d264a91c22705f">fusedcg_cpld_aux.cu</a>
+</li>
+<li>cuda_fusedcg_cpld_update_x()
+: <a class="el" href="d6/d7a/fusedcg__cpld__aux_8cu.html#a08e2af4555a36393216891a7163f85ce">fusedcg_cpld_aux.cu</a>
 </li>
 <li>cuda_fusedcg_part2()
 : <a class="el" href="d2/dba/fusedcg__aux_8cu.html#a0d3d53e8ce39bb62fab78e6878ddbefa">fusedcg_aux.cu</a>
@@ -507,7 +520,7 @@ $(document).ready(function(){initNavTree('globals_c.html',''); initResizable(); 
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Mon Jul 1 2024 03:34:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 2 2024 03:34:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

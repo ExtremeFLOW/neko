@@ -13,6 +13,7 @@ var ax__helm_8cu =
     [ "CASE_VECTOR_PADDED", "db/d49/ax__helm_8cu.html#ac3318de6e7784e8415692b030bcf4d11", null ],
     [ "cuda_ax_helm", "db/d49/ax__helm_8cu.html#a5003f0c1ba26809010cac4cb6eddd907", null ],
     [ "cuda_ax_helm_vector", "db/d49/ax__helm_8cu.html#a631314811fe77d6c75fb2800ec1fe68f", null ],
+    [ "cuda_ax_helm_vector_part2", "db/d49/ax__helm_8cu.html#a26b268da8fda4b2f7433dc55d069a9cf", null ],
     [ "tune", "db/d49/ax__helm_8cu.html#a46768594af4a3a3b69bb8b9e72d18a81", null ],
     [ "tune_padded", "db/d49/ax__helm_8cu.html#ac18ad298df4b5740abfefdc9d9b737b8", null ]
 ];

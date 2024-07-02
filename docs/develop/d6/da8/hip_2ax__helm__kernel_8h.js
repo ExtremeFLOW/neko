@@ -3,6 +3,7 @@ var hip_2ax__helm__kernel_8h =
     [ "__launch_bounds__", "d6/da8/hip_2ax__helm__kernel_8h.html#ab4a9feb49dd2194486a87cb9bb9a5dab", null ],
     [ "__syncthreads", "d6/da8/hip_2ax__helm__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],
     [ "ax_helm_kernel_1d", "d6/da8/hip_2ax__helm__kernel_8h.html#a4a85bb452502bb7f5e989959bcd68179", null ],
+    [ "ax_helm_kernel_vector_part2", "d6/da8/hip_2ax__helm__kernel_8h.html#af15d604a7aa3d7fb54a15eadfa6a2e8c", null ],
     [ "for", "d6/da8/hip_2ax__helm__kernel_8h.html#a705bedcd4be856669ef2b973a02fa044", null ],
     [ "av", "d6/da8/hip_2ax__helm__kernel_8h.html#a8a6d6766590077039475e3b382141e55", null ],
     [ "aw", "d6/da8/hip_2ax__helm__kernel_8h.html#a1b9a8f75eaeaa8f313a88742c927c135", null ],

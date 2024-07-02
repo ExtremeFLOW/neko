@@ -376,6 +376,13 @@ var annotated_dup =
     [ "fluid_volflow", "d6/d21/namespacefluid__volflow.html", [
       [ "fluid_volflow_t", "d5/db8/structfluid__volflow_1_1fluid__volflow__t.html", "d5/db8/structfluid__volflow_1_1fluid__volflow__t" ]
     ] ],
+    [ "fusedcg_cpld_device", "d3/dbc/namespacefusedcg__cpld__device.html", [
+      [ "fusedcg_cpld_device_t", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t" ],
+      [ "cuda_fusedcg_cpld_part1", "d0/db6/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part1.html", "d0/db6/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part1" ],
+      [ "cuda_fusedcg_cpld_update_p", "d0/d09/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__p.html", "d0/d09/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__p" ],
+      [ "cuda_fusedcg_cpld_update_x", "de/d2a/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__x.html", "de/d2a/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__x" ],
+      [ "cuda_fusedcg_cpld_part2", "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2.html", "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2" ]
+    ] ],
     [ "fusedcg_device", "dd/d04/namespacefusedcg__device.html", [
       [ "fusedcg_device_t", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html", "dc/d03/structfusedcg__device_1_1fusedcg__device__t" ],
       [ "cuda_fusedcg_update_p", "d9/d8f/interfacefusedcg__device_1_1cuda__fusedcg__update__p.html", "d9/d8f/interfacefusedcg__device_1_1cuda__fusedcg__update__p" ],
@@ -520,6 +527,7 @@ var annotated_dup =
       [ "ksp_monitor_t", "d4/d33/structkrylov_1_1ksp__monitor__t.html", "d4/d33/structkrylov_1_1ksp__monitor__t" ],
       [ "ksp_t", "d0/d3b/structkrylov_1_1ksp__t.html", "d0/d3b/structkrylov_1_1ksp__t" ],
       [ "ksp_method", "d2/d6e/interfacekrylov_1_1ksp__method.html", "d2/d6e/interfacekrylov_1_1ksp__method" ],
+      [ "ksp_method_coupled", "d1/d3d/interfacekrylov_1_1ksp__method__coupled.html", "d1/d3d/interfacekrylov_1_1ksp__method__coupled" ],
       [ "ksp_t_free", "d6/dc8/interfacekrylov_1_1ksp__t__free.html", "d6/dc8/interfacekrylov_1_1ksp__t__free" ]
     ] ],
     [ "lambda2", "d0/d66/namespacelambda2.html", [

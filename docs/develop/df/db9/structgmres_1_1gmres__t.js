@@ -6,6 +6,7 @@ var structgmres_1_1gmres__t =
     [ "ksp_init", "df/db9/structgmres_1_1gmres__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "set_pc", "df/db9/structgmres_1_1gmres__t.html#ac8461060f257f28e50083521e7079adc", null ],
     [ "solve", "df/db9/structgmres_1_1gmres__t.html#a6d658ffefbf44d176c3e3eaf3b05e252", null ],
+    [ "solve_coupled", "df/db9/structgmres_1_1gmres__t.html#ada7bbef3e23bc8ab1a7ce508f44b2043", null ],
     [ "abs_tol", "df/db9/structgmres_1_1gmres__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
     [ "c", "df/db9/structgmres_1_1gmres__t.html#a8b20998ad7369f7b38a01f8351da0cca", null ],
     [ "gam", "df/db9/structgmres_1_1gmres__t.html#a26bde38e443524a43a7a14cd30b2e531", null ],

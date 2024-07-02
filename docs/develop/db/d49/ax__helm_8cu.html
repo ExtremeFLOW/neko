@@ -160,6 +160,8 @@ Functions</h2></td></tr>
 <tr class="separator:a5003f0c1ba26809010cac4cb6eddd907"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a631314811fe77d6c75fb2800ec1fe68f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d49/ax__helm_8cu.html#a631314811fe77d6c75fb2800ec1fe68f">cuda_ax_helm_vector</a> (void *au, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a8a6d6766590077039475e3b382141e55">av</a>, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a1b9a8f75eaeaa8f313a88742c927c135">aw</a>, void *<a class="el" href="../../dd/d9e/hip_2opgrad__kernel_8h.html#ac316a04a72dfe603113a67b4681e6e9f">u</a>, void *<a class="el" href="../../d8/dca/hip_2lambda2__kernel_8h.html#af0f5b6273fb70612c89045a51be35777">v</a>, void *<a class="el" href="../../d8/dca/hip_2lambda2__kernel_8h.html#aa28be0193eb50a20297229fe7a76e0b3">w</a>, void *<a class="el" href="../../dd/d9e/hip_2opgrad__kernel_8h.html#a19c5d1fba792872b4c8317d042b859ed">dx</a>, void *<a class="el" href="../../dd/d9e/hip_2opgrad__kernel_8h.html#aba7a2380df972fdb6e5c4561fcda0222">dy</a>, void *<a class="el" href="../../dd/d9e/hip_2opgrad__kernel_8h.html#a2b04ecfbeec16d9253df5411cd57aa36">dz</a>, void *<a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c">dxt</a>, void *<a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8">dyt</a>, void *<a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a">dzt</a>, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aeec1fbbab01c6ab2ed4fa664230071c5">h1</a>, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#ae8be462b7bbc2807f3edb2fda89ec0ac">g11</a>, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a21fc69f9ffb21a8e3d0a29ad569358b9">g22</a>, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aae43ad7913cc5a572de75b2d504e815d">g33</a>, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a665527ff65220152b8582c16cb16aa80">g12</a>, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a400f206370967224e27905c4451cd775">g13</a>, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a103f3d0c0c3bf8e6490f5363b43b20ac">g23</a>, int *nelv, int *lx)</td></tr>
 <tr class="separator:a631314811fe77d6c75fb2800ec1fe68f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26b268da8fda4b2f7433dc55d069a9cf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d49/ax__helm_8cu.html#a26b268da8fda4b2f7433dc55d069a9cf">cuda_ax_helm_vector_part2</a> (void *au, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a8a6d6766590077039475e3b382141e55">av</a>, void *<a class="el" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a1b9a8f75eaeaa8f313a88742c927c135">aw</a>, void *<a class="el" href="../../dd/d9e/hip_2opgrad__kernel_8h.html#ac316a04a72dfe603113a67b4681e6e9f">u</a>, void *<a class="el" href="../../d8/dca/hip_2lambda2__kernel_8h.html#af0f5b6273fb70612c89045a51be35777">v</a>, void *<a class="el" href="../../d8/dca/hip_2lambda2__kernel_8h.html#aa28be0193eb50a20297229fe7a76e0b3">w</a>, void *h2, void *<a class="el" href="../../dd/d72/hip_2cdtp__kernel_8h.html#a4c76a0e1c606287bbc11b730675dd3b0">B</a>, int *n)</td></tr>
+<tr class="separator:a26b268da8fda4b2f7433dc55d069a9cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a2866935c460d99727321a9f4a0c91949"></a>
@@ -737,6 +739,88 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="a26b268da8fda4b2f7433dc55d069a9cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26b268da8fda4b2f7433dc55d069a9cf">&#9670;&nbsp;</a></span>cuda_ax_helm_vector_part2()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void cuda_ax_helm_vector_part2 </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>au</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>av</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>aw</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>h2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>B</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Fortran wrapper for device CUDA Ax vector version part2 </p>
+
+<p class="definition">Definition at line <a class="el" href="../../db/d49/ax__helm_8cu_source.html#l00254">254</a> of file <a class="el" href="../../db/d49/ax__helm_8cu_source.html">ax_helm.cu</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d49/ax__helm_8cu_a26b268da8fda4b2f7433dc55d069a9cf_icgraph.png" border="0" usemap="#adb/d49/ax__helm_8cu_a26b268da8fda4b2f7433dc55d069a9cf_icgraph" alt=""/></div>
+<map name="adb/d49/ax__helm_8cu_a26b268da8fda4b2f7433dc55d069a9cf_icgraph" id="adb/d49/ax__helm_8cu_a26b268da8fda4b2f7433dc55d069a9cf_icgraph">
+<area shape="rect" title=" " alt="" coords="229,13,393,54"/>
+<area shape="rect" href="../../d7/d82/namespaceax__helm__device.html#aa120c225c884b1121d2fab691bcfe0e4" title=" " alt="" coords="5,5,181,61"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="a46768594af4a3a3b69bb8b9e72d18a81"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a46768594af4a3a3b69bb8b9e72d18a81">&#9670;&nbsp;</a></span>tune()</h2>
 
@@ -855,7 +939,7 @@ template&lt;const int &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d49/ax__helm_8cu_source.html#l00253">253</a> of file <a class="el" href="../../db/d49/ax__helm_8cu_source.html">ax_helm.cu</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d49/ax__helm_8cu_source.html#l00270">270</a> of file <a class="el" href="../../db/d49/ax__helm_8cu_source.html">ax_helm.cu</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -989,7 +1073,7 @@ template&lt;const int &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d49/ax__helm_8cu_source.html#l00331">331</a> of file <a class="el" href="../../db/d49/ax__helm_8cu_source.html">ax_helm.cu</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d49/ax__helm_8cu_source.html#l00348">348</a> of file <a class="el" href="../../db/d49/ax__helm_8cu_source.html">ax_helm.cu</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1011,7 +1095,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_4c3596ec6e7f8d381657f6ce7bbe76a2.html">cuda</a></li><li class="navelem"><a class="el" href="../../db/d49/ax__helm_8cu.html">ax_helm.cu</a></li>
-    <li class="footer">Generated on Mon Jul 1 2024 03:34:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 2 2024 03:34:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -122,6 +122,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a80e42458990a0deb009fbb169e722aa7"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d10/namespacecacg.html#a80e42458990a0deb009fbb169e722aa7">construct_basis_matrix</a> (Tt, s)</td></tr>
 <tr class="memdesc:a80e42458990a0deb009fbb169e722aa7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monomial matrix constuction, not sparse.  <a href="../../d2/d10/namespacecacg.html#a80e42458990a0deb009fbb169e722aa7">More...</a><br /></td></tr>
 <tr class="separator:a80e42458990a0deb009fbb169e722aa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4affb21f684f39ec9f2cfec49cf03b72"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) function, dimension(3)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d10/namespacecacg.html#a4affb21f684f39ec9f2cfec49cf03b72">cacg_solve_coupled</a> (this, Ax, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter)</td></tr>
+<tr class="memdesc:a4affb21f684f39ec9f2cfec49cf03b72"><td class="mdescLeft">&#160;</td><td class="mdescRight">S-step CA PCG coupled solve.  <a href="../../d2/d10/namespacecacg.html#a4affb21f684f39ec9f2cfec49cf03b72">More...</a><br /></td></tr>
+<tr class="separator:a4affb21f684f39ec9f2cfec49cf03b72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Defines a communication avoiding Conjugate Gradient method. </p>
@@ -152,7 +155,7 @@ Functions/Subroutines</h2></td></tr>
 
 <p>Deallocate a s-step CA PCG solver. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd0/cacg_8f90_source.html#l00104">104</a> of file <a class="el" href="../../d7/dd0/cacg_8f90_source.html">cacg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd0/cacg_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d7/dd0/cacg_8f90_source.html">cacg.f90</a>.</p>
 
 </div>
 </div>
@@ -214,7 +217,7 @@ Functions/Subroutines</h2></td></tr>
 
 <p>Initialise a s-step CA PCG solver. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd0/cacg_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d7/dd0/cacg_8f90_source.html">cacg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd0/cacg_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d7/dd0/cacg_8f90_source.html">cacg.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -305,7 +308,7 @@ Here is the call graph for this function:</div>
 
 <p>S-step CA PCG solve. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd0/cacg_8f90_source.html#l00127">127</a> of file <a class="el" href="../../d7/dd0/cacg_8f90_source.html">cacg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd0/cacg_8f90_source.html#l00128">128</a> of file <a class="el" href="../../d7/dd0/cacg_8f90_source.html">cacg.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -320,6 +323,124 @@ Here is the call graph for this function:</div>
 <area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="225,275,322,301"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="a4affb21f684f39ec9f2cfec49cf03b72"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4affb21f684f39ec9f2cfec49cf03b72">&#9670;&nbsp;</a></span>cacg_solve_coupled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) function, dimension(3) cacg::cacg_solve_coupled </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../de/d56/structcacg_1_1cacg__t.html">cacg_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">class(<a class="el" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>Ax</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(n), intent(inout)&#160;</td>
+          <td class="paramname"><em>fx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(n), intent(inout)&#160;</td>
+          <td class="paramname"><em>fy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(n), intent(inout)&#160;</td>
+          <td class="paramname"><em>fz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>blstx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>blsty</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>blstz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>gs_h</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in), optional&#160;</td>
+          <td class="paramname"><em>niter</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>S-step CA PCG coupled solve. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/dd0/cacg_8f90_source.html#l00340">340</a> of file <a class="el" href="../../d7/dd0/cacg_8f90_source.html">cacg.f90</a>.</p>
 
 </div>
 </div>
@@ -359,7 +480,7 @@ Here is the call graph for this function:</div>
 
 <p>Monomial matrix constuction, not sparse. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd0/cacg_8f90_source.html#l00324">324</a> of file <a class="el" href="../../d7/dd0/cacg_8f90_source.html">cacg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd0/cacg_8f90_source.html#l00325">325</a> of file <a class="el" href="../../d7/dd0/cacg_8f90_source.html">cacg.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -378,7 +499,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/d10/namespacecacg.html">cacg</a></li>
-    <li class="footer">Generated on Mon Jul 1 2024 03:34:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

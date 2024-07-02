@@ -6,6 +6,7 @@ var structpipecg__device_1_1pipecg__device__t =
     [ "ksp_init", "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "set_pc", "dc/d01/structpipecg__device_1_1pipecg__device__t.html#ac8461060f257f28e50083521e7079adc", null ],
     [ "solve", "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a3dabe74f473210efbf829794037c089e", null ],
+    [ "solve_coupled", "dc/d01/structpipecg__device_1_1pipecg__device__t.html#ad9a716e28788a41efd6ff605db0ba878", null ],
     [ "abs_tol", "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
     [ "alpha", "dc/d01/structpipecg__device_1_1pipecg__device__t.html#ae87eb3df593c12a23523808ef47488a6", null ],
     [ "alpha_d", "dc/d01/structpipecg__device_1_1pipecg__device__t.html#accc750a00ef70bd8a9233def0695504c", null ],

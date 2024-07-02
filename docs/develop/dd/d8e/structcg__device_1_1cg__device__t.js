@@ -6,6 +6,7 @@ var structcg__device_1_1cg__device__t =
     [ "ksp_init", "dd/d8e/structcg__device_1_1cg__device__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "set_pc", "dd/d8e/structcg__device_1_1cg__device__t.html#ac8461060f257f28e50083521e7079adc", null ],
     [ "solve", "dd/d8e/structcg__device_1_1cg__device__t.html#aa28687cb546e91b1d2fab3c96ca41992", null ],
+    [ "solve_coupled", "dd/d8e/structcg__device_1_1cg__device__t.html#a85ed3375e15f01d80a0f370754e57c1e", null ],
     [ "abs_tol", "dd/d8e/structcg__device_1_1cg__device__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
     [ "gs_event", "dd/d8e/structcg__device_1_1cg__device__t.html#a71850db584fa23d3ba44e4f301fc4449", null ],
     [ "m", "dd/d8e/structcg__device_1_1cg__device__t.html#a919f46cedba40962024d26a886ab31f9", null ],

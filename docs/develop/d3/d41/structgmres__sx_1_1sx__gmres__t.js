@@ -6,6 +6,7 @@ var structgmres__sx_1_1sx__gmres__t =
     [ "ksp_init", "d3/d41/structgmres__sx_1_1sx__gmres__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "set_pc", "d3/d41/structgmres__sx_1_1sx__gmres__t.html#ac8461060f257f28e50083521e7079adc", null ],
     [ "solve", "d3/d41/structgmres__sx_1_1sx__gmres__t.html#a9ea4c24580ad99ce493c8b3af3261313", null ],
+    [ "solve_coupled", "d3/d41/structgmres__sx_1_1sx__gmres__t.html#a1e1fcc25d42ed0326939f4b52900c060", null ],
     [ "abs_tol", "d3/d41/structgmres__sx_1_1sx__gmres__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
     [ "c", "d3/d41/structgmres__sx_1_1sx__gmres__t.html#a80fffe477c26795dd69c9c324ef08ca4", null ],
     [ "gam", "d3/d41/structgmres__sx_1_1sx__gmres__t.html#a9caa09c255eca7478b7f88797529712a", null ],

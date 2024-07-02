@@ -338,167 +338,182 @@ $(document).ready(function(){initNavTree('db/d49/ax__helm_8cu_source.html','../.
 <div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;        }</div>
 <div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;      }</div>
 <div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;  }</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;}</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160; </div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;<span class="keyword">template</span> &lt; const <span class="keywordtype">int</span> LX &gt;</div>
-<div class="line"><a name="l00253"></a><span class="lineno"><a class="line" href="../../db/d49/ax__helm_8cu.html#a46768594af4a3a3b69bb8b9e72d18a81">  253</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="../../db/d49/ax__helm_8cu.html#a46768594af4a3a3b69bb8b9e72d18a81">tune</a>(<span class="keywordtype">void</span> *<a class="code" href="../../de/d2d/cuda_2lambda2__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a837d27a547e9646295729177f7c088cc">dx</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#af75a9f85247c3fe380802cb95011d14f">dy</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#ae8a4facd6e76584baa922e805a39d146">dz</a>,</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;         <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c">dxt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8">dyt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a">dzt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aeec1fbbab01c6ab2ed4fa664230071c5">h1</a>,</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;         <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#ae8be462b7bbc2807f3edb2fda89ec0ac">g11</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a21fc69f9ffb21a8e3d0a29ad569358b9">g22</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aae43ad7913cc5a572de75b2d504e815d">g33</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a665527ff65220152b8582c16cb16aa80">g12</a>,</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;         <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a400f206370967224e27905c4451cd775">g13</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a103f3d0c0c3bf8e6490f5363b43b20ac">g23</a>, <span class="keywordtype">int</span> *nelv, <span class="keywordtype">int</span> *lx) {</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;  cudaEvent_t start,stop;</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;  <span class="keywordtype">float</span> time1,time2;</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;  <span class="keywordtype">int</span> retval;</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160; </div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;  <span class="keyword">const</span> dim3 nthrds_1d(1024, 1, 1);</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;  <span class="keyword">const</span> dim3 nblcks_1d((*nelv), 1, 1);</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;  <span class="keyword">const</span> dim3 nthrds_kstep((*lx), (*lx), 1);</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;  <span class="keyword">const</span> dim3 nblcks_kstep((*nelv), 1, 1);</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160; <span class="keyword">const</span> cudaStream_t stream = (cudaStream_t) <a class="code" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>;</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160; </div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;  <span class="keywordtype">char</span> *env_value = NULL;</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;  <span class="keywordtype">char</span> neko_log_buf[80];</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160; </div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;  env_value=getenv(<span class="stringliteral">&quot;NEKO_AUTOTUNE&quot;</span>);</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160; </div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;  sprintf(neko_log_buf, <span class="stringliteral">&quot;Autotune Ax helm (lx: %d)&quot;</span>, *lx);</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#ab1629da16eb42a5e01533232e6eff57e">log_section</a>(neko_log_buf);</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160; </div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;  <span class="keywordflow">if</span>(env_value) {</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keywordflow">if</span>( !strcmp(env_value,<span class="stringliteral">&quot;1D&quot;</span>) ) {</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;      <a class="code" href="../../db/d49/ax__helm_8cu.html#a706645ff08370f0954f66cb96382b9fd">CASE_1D</a>(LX);</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;      sprintf(neko_log_buf,<span class="stringliteral">&quot;Set by env : 1 (1D)&quot;</span>);</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;      <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    } <span class="keywordflow">else</span> <span class="keywordflow">if</span>( !strcmp(env_value,<span class="stringliteral">&quot;KSTEP&quot;</span>) ) {</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;      <a class="code" href="../../db/d49/ax__helm_8cu.html#a391aacbd26da5922ec80e721035d44cc">CASE_KSTEP</a>(LX);</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;      sprintf(neko_log_buf,<span class="stringliteral">&quot;Set by env : 2 (KSTEP)&quot;</span>);</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;      <span class="keywordflow">return</span> 2;</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;       sprintf(neko_log_buf, <span class="stringliteral">&quot;Invalid value set for NEKO_AUTOTUNE&quot;</span>);</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;       <a class="code" href="../../d4/d8d/neko__log_8h.html#a2eb7fca59244516787b0701a7011b1a3">log_error</a>(neko_log_buf);</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    }</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;  }</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160; </div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;  cudaEventCreate(&amp;start);</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;  cudaEventCreate(&amp;stop);</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160; </div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;  cudaEventRecord(start,0);</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160; </div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;  <span class="keywordflow">for</span>(<span class="keywordtype">int</span> <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> = 0; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> &lt; 100; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a>++) {</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <a class="code" href="../../db/d49/ax__helm_8cu.html#a706645ff08370f0954f66cb96382b9fd">CASE_1D</a>(LX);</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;  }</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160; </div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;  cudaEventRecord(stop,0);</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;  cudaEventSynchronize(stop);</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;  cudaEventElapsedTime(&amp;time1, start, stop);</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160; </div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;  cudaEventRecord(start,0);</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160; </div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;  <span class="keywordflow">for</span>(<span class="keywordtype">int</span> <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> = 0; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> &lt; 100; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a>++) {</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;     <a class="code" href="../../db/d49/ax__helm_8cu.html#a391aacbd26da5922ec80e721035d44cc">CASE_KSTEP</a>(LX);</div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;   }</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160; </div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;  cudaEventRecord(stop,0);</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;  cudaEventSynchronize(stop);</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;  cudaEventElapsedTime(&amp;time2, start, stop);</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160; </div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;  <span class="keywordflow">if</span>(time1 &lt; time2) {</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;     retval = 1;</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;  } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;    retval = 2;</div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;  }</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160; </div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;  sprintf(neko_log_buf, <span class="stringliteral">&quot;Chose      : %d (%s)&quot;</span>, retval,</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;          (retval &gt; 1 ? <span class="stringliteral">&quot;KSTEP&quot;</span> : <span class="stringliteral">&quot;1D&quot;</span>));</div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;  <span class="keywordflow">return</span> retval;</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;}</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160; </div>
+<div class="line"><a name="l00254"></a><span class="lineno"><a class="line" href="../../db/d49/ax__helm_8cu.html#a26b268da8fda4b2f7433dc55d069a9cf">  254</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="../../db/d49/ax__helm_8cu.html#a26b268da8fda4b2f7433dc55d069a9cf">cuda_ax_helm_vector_part2</a>(<span class="keywordtype">void</span> *au, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a8a6d6766590077039475e3b382141e55">av</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a1b9a8f75eaeaa8f313a88742c927c135">aw</a>,</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;                                 <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <span class="keywordtype">void</span> *<a class="code" href="../../de/d2d/cuda_2lambda2__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <span class="keywordtype">void</span> *<a class="code" href="../../de/d2d/cuda_2lambda2__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>,</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;                                 <span class="keywordtype">void</span> *h2, <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a4c76a0e1c606287bbc11b730675dd3b0">B</a>, <span class="keywordtype">int</span> *n) {</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160; </div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="keyword">const</span> dim3 nthrds(1024, 1, 1);</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <span class="keyword">const</span> dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="keyword">const</span> cudaStream_t stream = (cudaStream_t) <a class="code" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>;</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160; </div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    ax_helm_kernel_vector_part2&lt;real&gt;</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;      &lt;&lt;&lt;nblcks, nthrds, 0, stream&gt;&gt;&gt; ((<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) au, (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a8a6d6766590077039475e3b382141e55">av</a>, (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a1b9a8f75eaeaa8f313a88742c927c135">aw</a>,</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;                                       (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code" href="../../de/d2d/cuda_2lambda2__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code" href="../../de/d2d/cuda_2lambda2__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>,</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;                                       (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) h2, (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a4c76a0e1c606287bbc11b730675dd3b0">B</a>, *n);</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;  }</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;}</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160; </div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;<span class="keyword">template</span> &lt; const <span class="keywordtype">int</span> LX &gt;</div>
+<div class="line"><a name="l00270"></a><span class="lineno"><a class="line" href="../../db/d49/ax__helm_8cu.html#a46768594af4a3a3b69bb8b9e72d18a81">  270</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="../../db/d49/ax__helm_8cu.html#a46768594af4a3a3b69bb8b9e72d18a81">tune</a>(<span class="keywordtype">void</span> *<a class="code" href="../../de/d2d/cuda_2lambda2__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a837d27a547e9646295729177f7c088cc">dx</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#af75a9f85247c3fe380802cb95011d14f">dy</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#ae8a4facd6e76584baa922e805a39d146">dz</a>,</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;         <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c">dxt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8">dyt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a">dzt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aeec1fbbab01c6ab2ed4fa664230071c5">h1</a>,</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;         <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#ae8be462b7bbc2807f3edb2fda89ec0ac">g11</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a21fc69f9ffb21a8e3d0a29ad569358b9">g22</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aae43ad7913cc5a572de75b2d504e815d">g33</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a665527ff65220152b8582c16cb16aa80">g12</a>,</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;         <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a400f206370967224e27905c4451cd775">g13</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a103f3d0c0c3bf8e6490f5363b43b20ac">g23</a>, <span class="keywordtype">int</span> *nelv, <span class="keywordtype">int</span> *lx) {</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;  cudaEvent_t start,stop;</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;  <span class="keywordtype">float</span> time1,time2;</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;  <span class="keywordtype">int</span> retval;</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160; </div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;  <span class="keyword">const</span> dim3 nthrds_1d(1024, 1, 1);</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;  <span class="keyword">const</span> dim3 nblcks_1d((*nelv), 1, 1);</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;  <span class="keyword">const</span> dim3 nthrds_kstep((*lx), (*lx), 1);</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;  <span class="keyword">const</span> dim3 nblcks_kstep((*nelv), 1, 1);</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160; <span class="keyword">const</span> cudaStream_t stream = (cudaStream_t) <a class="code" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>;</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160; </div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;  <span class="keywordtype">char</span> *env_value = NULL;</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;  <span class="keywordtype">char</span> neko_log_buf[80];</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160; </div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;  env_value=getenv(<span class="stringliteral">&quot;NEKO_AUTOTUNE&quot;</span>);</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160; </div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;  sprintf(neko_log_buf, <span class="stringliteral">&quot;Autotune Ax helm (lx: %d)&quot;</span>, *lx);</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#ab1629da16eb42a5e01533232e6eff57e">log_section</a>(neko_log_buf);</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160; </div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;  <span class="keywordflow">if</span>(env_value) {</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="keywordflow">if</span>( !strcmp(env_value,<span class="stringliteral">&quot;1D&quot;</span>) ) {</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;      <a class="code" href="../../db/d49/ax__helm_8cu.html#a706645ff08370f0954f66cb96382b9fd">CASE_1D</a>(LX);</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;      sprintf(neko_log_buf,<span class="stringliteral">&quot;Set by env : 1 (1D)&quot;</span>);</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;      <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    } <span class="keywordflow">else</span> <span class="keywordflow">if</span>( !strcmp(env_value,<span class="stringliteral">&quot;KSTEP&quot;</span>) ) {</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;      <a class="code" href="../../db/d49/ax__helm_8cu.html#a391aacbd26da5922ec80e721035d44cc">CASE_KSTEP</a>(LX);</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;      sprintf(neko_log_buf,<span class="stringliteral">&quot;Set by env : 2 (KSTEP)&quot;</span>);</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;      <span class="keywordflow">return</span> 2;</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;       sprintf(neko_log_buf, <span class="stringliteral">&quot;Invalid value set for NEKO_AUTOTUNE&quot;</span>);</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;       <a class="code" href="../../d4/d8d/neko__log_8h.html#a2eb7fca59244516787b0701a7011b1a3">log_error</a>(neko_log_buf);</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    }</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;  }</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160; </div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;  cudaEventCreate(&amp;start);</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;  cudaEventCreate(&amp;stop);</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160; </div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;  cudaEventRecord(start,0);</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160; </div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;  <span class="keywordflow">for</span>(<span class="keywordtype">int</span> <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> = 0; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> &lt; 100; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a>++) {</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;    <a class="code" href="../../db/d49/ax__helm_8cu.html#a706645ff08370f0954f66cb96382b9fd">CASE_1D</a>(LX);</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;  }</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160; </div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;  cudaEventRecord(stop,0);</div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;  cudaEventSynchronize(stop);</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;  cudaEventElapsedTime(&amp;time1, start, stop);</div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160; </div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;  cudaEventRecord(start,0);</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160; </div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;  <span class="keywordflow">for</span>(<span class="keywordtype">int</span> <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> = 0; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> &lt; 100; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a>++) {</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;     <a class="code" href="../../db/d49/ax__helm_8cu.html#a391aacbd26da5922ec80e721035d44cc">CASE_KSTEP</a>(LX);</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;   }</div>
 <div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160; </div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;<span class="keyword">template</span> &lt; const <span class="keywordtype">int</span> LX &gt;</div>
-<div class="line"><a name="l00331"></a><span class="lineno"><a class="line" href="../../db/d49/ax__helm_8cu.html#ac18ad298df4b5740abfefdc9d9b737b8">  331</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="../../db/d49/ax__helm_8cu.html#ac18ad298df4b5740abfefdc9d9b737b8">tune_padded</a>(<span class="keywordtype">void</span> *<a class="code" href="../../de/d2d/cuda_2lambda2__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a837d27a547e9646295729177f7c088cc">dx</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#af75a9f85247c3fe380802cb95011d14f">dy</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#ae8a4facd6e76584baa922e805a39d146">dz</a>,</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;                <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c">dxt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8">dyt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a">dzt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aeec1fbbab01c6ab2ed4fa664230071c5">h1</a>,</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;                <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#ae8be462b7bbc2807f3edb2fda89ec0ac">g11</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a21fc69f9ffb21a8e3d0a29ad569358b9">g22</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aae43ad7913cc5a572de75b2d504e815d">g33</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a665527ff65220152b8582c16cb16aa80">g12</a>,</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;                <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a400f206370967224e27905c4451cd775">g13</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a103f3d0c0c3bf8e6490f5363b43b20ac">g23</a>, <span class="keywordtype">int</span> *nelv, <span class="keywordtype">int</span> *lx) {</div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;  cudaEvent_t start, stop;</div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;  <span class="keywordtype">float</span> time1, time2;</div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;  <span class="keywordtype">int</span> retval;</div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160; </div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;  <span class="keyword">const</span> dim3 nthrds_1d(1024, 1, 1);</div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;  <span class="keyword">const</span> dim3 nblcks_1d((*nelv), 1, 1);</div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;  <span class="keyword">const</span> dim3 nthrds_kstep((*lx), (*lx), 1);</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;  <span class="keyword">const</span> dim3 nblcks_kstep((*nelv), 1, 1);</div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160; <span class="keyword">const</span> cudaStream_t stream = (cudaStream_t) <a class="code" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>;</div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160; </div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;  <span class="keywordtype">char</span> *env_value = NULL;</div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;  <span class="keywordtype">char</span> neko_log_buf[80];</div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160; </div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;  env_value=getenv(<span class="stringliteral">&quot;NEKO_AUTOTUNE&quot;</span>);</div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160; </div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;  sprintf(neko_log_buf, <span class="stringliteral">&quot;Autotune Ax helm (lx: %d)&quot;</span>, *lx);</div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#ab1629da16eb42a5e01533232e6eff57e">log_section</a>(neko_log_buf);</div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160; </div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;  <span class="keywordflow">if</span>(env_value) {</div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;    <span class="keywordflow">if</span>( !strcmp(env_value,<span class="stringliteral">&quot;1D&quot;</span>) ) {</div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;      <a class="code" href="../../db/d49/ax__helm_8cu.html#a706645ff08370f0954f66cb96382b9fd">CASE_1D</a>(LX);</div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;      sprintf(neko_log_buf,<span class="stringliteral">&quot;Set by env : 1 (1D)&quot;</span>);</div>
-<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;      <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;     } <span class="keywordflow">else</span> <span class="keywordflow">if</span>( !strcmp(env_value,<span class="stringliteral">&quot;KSTEP&quot;</span>) ) {</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;      <a class="code" href="../../db/d49/ax__helm_8cu.html#a391aacbd26da5922ec80e721035d44cc">CASE_KSTEP</a>(LX);</div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;      sprintf(neko_log_buf,<span class="stringliteral">&quot;Set by env : 2 (KSTEP)&quot;</span>);</div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
-<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
-<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;      <span class="keywordflow">return</span> 2;</div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;      sprintf(neko_log_buf, <span class="stringliteral">&quot;Invalid value set for NEKO_AUTOTUNE&quot;</span>);</div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#a2eb7fca59244516787b0701a7011b1a3">log_error</a>(neko_log_buf);</div>
-<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;    }</div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;  }</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160; </div>
-<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;  cudaEventCreate(&amp;start);</div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;  cudaEventCreate(&amp;stop);</div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160; </div>
-<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;  cudaEventRecord(start,0);</div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160; </div>
-<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;  <span class="keywordflow">for</span>(<span class="keywordtype">int</span> <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> = 0; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> &lt; 100; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a>++) {</div>
-<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;    <a class="code" href="../../db/d49/ax__helm_8cu.html#a706645ff08370f0954f66cb96382b9fd">CASE_1D</a>(LX);</div>
-<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;  }</div>
-<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160; </div>
-<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;  cudaEventRecord(stop, 0);</div>
-<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;  cudaEventSynchronize(stop);</div>
-<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;  cudaEventElapsedTime(&amp;time1, start, stop);</div>
-<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160; </div>
-<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;  cudaEventRecord(start, 0);</div>
-<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160; </div>
-<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;  <span class="keywordflow">for</span>(<span class="keywordtype">int</span> <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> = 0; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> &lt; 100; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a>++) {</div>
-<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;    <a class="code" href="../../db/d49/ax__helm_8cu.html#a8394801dd34a9cab5e07803be5073d8b">CASE_KSTEP_PADDED</a>(LX);</div>
-<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;  }</div>
-<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160; </div>
-<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;  cudaEventRecord(stop, 0);</div>
-<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;  cudaEventSynchronize(stop);</div>
-<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;  cudaEventElapsedTime(&amp;time2, start, stop);</div>
-<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160; </div>
-<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;  <span class="keywordflow">if</span>(time1 &lt; time2) {</div>
-<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;    retval=1;</div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;  } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;    retval=2;</div>
-<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;  }</div>
-<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160; </div>
-<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;  sprintf(neko_log_buf, <span class="stringliteral">&quot;Chose      : %d (%s)&quot;</span>, retval,</div>
-<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;          (retval &gt; 1 ? <span class="stringliteral">&quot;KSTEP&quot;</span> : <span class="stringliteral">&quot;1D&quot;</span>));</div>
-<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
-<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;  <span class="keywordflow">return</span> retval;</div>
-<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;}</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;  cudaEventRecord(stop,0);</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;  cudaEventSynchronize(stop);</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;  cudaEventElapsedTime(&amp;time2, start, stop);</div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160; </div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;  <span class="keywordflow">if</span>(time1 &lt; time2) {</div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;     retval = 1;</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;    retval = 2;</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;  }</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160; </div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;  sprintf(neko_log_buf, <span class="stringliteral">&quot;Chose      : %d (%s)&quot;</span>, retval,</div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;          (retval &gt; 1 ? <span class="stringliteral">&quot;KSTEP&quot;</span> : <span class="stringliteral">&quot;1D&quot;</span>));</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;  <span class="keywordflow">return</span> retval;</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;}</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160; </div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;<span class="keyword">template</span> &lt; const <span class="keywordtype">int</span> LX &gt;</div>
+<div class="line"><a name="l00348"></a><span class="lineno"><a class="line" href="../../db/d49/ax__helm_8cu.html#ac18ad298df4b5740abfefdc9d9b737b8">  348</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="../../db/d49/ax__helm_8cu.html#ac18ad298df4b5740abfefdc9d9b737b8">tune_padded</a>(<span class="keywordtype">void</span> *<a class="code" href="../../de/d2d/cuda_2lambda2__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#a837d27a547e9646295729177f7c088cc">dx</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#af75a9f85247c3fe380802cb95011d14f">dy</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#ae8a4facd6e76584baa922e805a39d146">dz</a>,</div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;                <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c">dxt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8">dyt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a">dzt</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aeec1fbbab01c6ab2ed4fa664230071c5">h1</a>,</div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;                <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#ae8be462b7bbc2807f3edb2fda89ec0ac">g11</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a21fc69f9ffb21a8e3d0a29ad569358b9">g22</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aae43ad7913cc5a572de75b2d504e815d">g33</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a665527ff65220152b8582c16cb16aa80">g12</a>,</div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;                <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a400f206370967224e27905c4451cd775">g13</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a103f3d0c0c3bf8e6490f5363b43b20ac">g23</a>, <span class="keywordtype">int</span> *nelv, <span class="keywordtype">int</span> *lx) {</div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;  cudaEvent_t start, stop;</div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;  <span class="keywordtype">float</span> time1, time2;</div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;  <span class="keywordtype">int</span> retval;</div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160; </div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;  <span class="keyword">const</span> dim3 nthrds_1d(1024, 1, 1);</div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;  <span class="keyword">const</span> dim3 nblcks_1d((*nelv), 1, 1);</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;  <span class="keyword">const</span> dim3 nthrds_kstep((*lx), (*lx), 1);</div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;  <span class="keyword">const</span> dim3 nblcks_kstep((*nelv), 1, 1);</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160; <span class="keyword">const</span> cudaStream_t stream = (cudaStream_t) <a class="code" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>;</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160; </div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;  <span class="keywordtype">char</span> *env_value = NULL;</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;  <span class="keywordtype">char</span> neko_log_buf[80];</div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160; </div>
+<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;  env_value=getenv(<span class="stringliteral">&quot;NEKO_AUTOTUNE&quot;</span>);</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160; </div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;  sprintf(neko_log_buf, <span class="stringliteral">&quot;Autotune Ax helm (lx: %d)&quot;</span>, *lx);</div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#ab1629da16eb42a5e01533232e6eff57e">log_section</a>(neko_log_buf);</div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160; </div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;  <span class="keywordflow">if</span>(env_value) {</div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;    <span class="keywordflow">if</span>( !strcmp(env_value,<span class="stringliteral">&quot;1D&quot;</span>) ) {</div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;      <a class="code" href="../../db/d49/ax__helm_8cu.html#a706645ff08370f0954f66cb96382b9fd">CASE_1D</a>(LX);</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;      sprintf(neko_log_buf,<span class="stringliteral">&quot;Set by env : 1 (1D)&quot;</span>);</div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;      <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;     } <span class="keywordflow">else</span> <span class="keywordflow">if</span>( !strcmp(env_value,<span class="stringliteral">&quot;KSTEP&quot;</span>) ) {</div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;      <a class="code" href="../../db/d49/ax__helm_8cu.html#a391aacbd26da5922ec80e721035d44cc">CASE_KSTEP</a>(LX);</div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;      sprintf(neko_log_buf,<span class="stringliteral">&quot;Set by env : 2 (KSTEP)&quot;</span>);</div>
+<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
+<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
+<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;      <span class="keywordflow">return</span> 2;</div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;      sprintf(neko_log_buf, <span class="stringliteral">&quot;Invalid value set for NEKO_AUTOTUNE&quot;</span>);</div>
+<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;      <a class="code" href="../../d4/d8d/neko__log_8h.html#a2eb7fca59244516787b0701a7011b1a3">log_error</a>(neko_log_buf);</div>
+<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;    }</div>
+<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;  }</div>
+<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160; </div>
+<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;  cudaEventCreate(&amp;start);</div>
+<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;  cudaEventCreate(&amp;stop);</div>
+<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160; </div>
+<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;  cudaEventRecord(start,0);</div>
+<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160; </div>
+<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;  <span class="keywordflow">for</span>(<span class="keywordtype">int</span> <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> = 0; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> &lt; 100; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a>++) {</div>
+<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;    <a class="code" href="../../db/d49/ax__helm_8cu.html#a706645ff08370f0954f66cb96382b9fd">CASE_1D</a>(LX);</div>
+<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;  }</div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160; </div>
+<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;  cudaEventRecord(stop, 0);</div>
+<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;  cudaEventSynchronize(stop);</div>
+<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;  cudaEventElapsedTime(&amp;time1, start, stop);</div>
+<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160; </div>
+<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;  cudaEventRecord(start, 0);</div>
+<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160; </div>
+<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;  <span class="keywordflow">for</span>(<span class="keywordtype">int</span> <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> = 0; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a> &lt; 100; <a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a>++) {</div>
+<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;    <a class="code" href="../../db/d49/ax__helm_8cu.html#a8394801dd34a9cab5e07803be5073d8b">CASE_KSTEP_PADDED</a>(LX);</div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;  }</div>
+<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160; </div>
+<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;  cudaEventRecord(stop, 0);</div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;  cudaEventSynchronize(stop);</div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;  cudaEventElapsedTime(&amp;time2, start, stop);</div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160; </div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;  <span class="keywordflow">if</span>(time1 &lt; time2) {</div>
+<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;    retval=1;</div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;    retval=2;</div>
+<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;  }</div>
+<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160; </div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;  sprintf(neko_log_buf, <span class="stringliteral">&quot;Chose      : %d (%s)&quot;</span>, retval,</div>
+<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;          (retval &gt; 1 ? <span class="stringliteral">&quot;KSTEP&quot;</span> : <span class="stringliteral">&quot;1D&quot;</span>));</div>
+<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1">log_message</a>(neko_log_buf);</div>
+<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;  <a class="code" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580">log_end_section</a>();</div>
+<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;  <span class="keywordflow">return</span> retval;</div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;}</div>
 <div class="ttc" id="aax__helm_8cu_html_a0e633116639902b6dbb336d5ffd095e0"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a0e633116639902b6dbb336d5ffd095e0">CASE_VECTOR</a></div><div class="ttdeci">#define CASE_VECTOR(LX)</div></div>
+<div class="ttc" id="aax__helm_8cu_html_a26b268da8fda4b2f7433dc55d069a9cf"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a26b268da8fda4b2f7433dc55d069a9cf">cuda_ax_helm_vector_part2</a></div><div class="ttdeci">void cuda_ax_helm_vector_part2(void *au, void *av, void *aw, void *u, void *v, void *w, void *h2, void *B, int *n)</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d49/ax__helm_8cu_source.html#l00254">ax_helm.cu:254</a></div></div>
 <div class="ttc" id="aax__helm_8cu_html_a2866935c460d99727321a9f4a0c91949"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a2866935c460d99727321a9f4a0c91949">CASE</a></div><div class="ttdeci">#define CASE(LX)</div></div>
 <div class="ttc" id="aax__helm_8cu_html_a391aacbd26da5922ec80e721035d44cc"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a391aacbd26da5922ec80e721035d44cc">CASE_KSTEP</a></div><div class="ttdeci">#define CASE_KSTEP(LX)</div></div>
-<div class="ttc" id="aax__helm_8cu_html_a46768594af4a3a3b69bb8b9e72d18a81"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a46768594af4a3a3b69bb8b9e72d18a81">tune</a></div><div class="ttdeci">int tune(void *w, void *u, void *dx, void *dy, void *dz, void *dxt, void *dyt, void *dzt, void *h1, void *g11, void *g22, void *g33, void *g12, void *g13, void *g23, int *nelv, int *lx)</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d49/ax__helm_8cu_source.html#l00253">ax_helm.cu:253</a></div></div>
+<div class="ttc" id="aax__helm_8cu_html_a46768594af4a3a3b69bb8b9e72d18a81"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a46768594af4a3a3b69bb8b9e72d18a81">tune</a></div><div class="ttdeci">int tune(void *w, void *u, void *dx, void *dy, void *dz, void *dxt, void *dyt, void *dzt, void *h1, void *g11, void *g22, void *g33, void *g12, void *g13, void *g23, int *nelv, int *lx)</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d49/ax__helm_8cu_source.html#l00270">ax_helm.cu:270</a></div></div>
 <div class="ttc" id="aax__helm_8cu_html_a5003f0c1ba26809010cac4cb6eddd907"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a5003f0c1ba26809010cac4cb6eddd907">cuda_ax_helm</a></div><div class="ttdeci">void cuda_ax_helm(void *w, void *u, void *dx, void *dy, void *dz, void *dxt, void *dyt, void *dzt, void *h1, void *g11, void *g22, void *g33, void *g12, void *g13, void *g23, int *nelv, int *lx)</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d49/ax__helm_8cu_source.html#l00063">ax_helm.cu:63</a></div></div>
 <div class="ttc" id="aax__helm_8cu_html_a552b47049e2cb53a99b404632f295024"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a552b47049e2cb53a99b404632f295024">CASE_PADDED</a></div><div class="ttdeci">#define CASE_PADDED(LX)</div></div>
 <div class="ttc" id="aax__helm_8cu_html_a631314811fe77d6c75fb2800ec1fe68f"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a631314811fe77d6c75fb2800ec1fe68f">cuda_ax_helm_vector</a></div><div class="ttdeci">void cuda_ax_helm_vector(void *au, void *av, void *aw, void *u, void *v, void *w, void *dx, void *dy, void *dz, void *dxt, void *dyt, void *dzt, void *h1, void *g11, void *g22, void *g33, void *g12, void *g13, void *g23, int *nelv, int *lx)</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d49/ax__helm_8cu_source.html#l00184">ax_helm.cu:184</a></div></div>
@@ -506,8 +521,9 @@ $(document).ready(function(){initNavTree('db/d49/ax__helm_8cu_source.html','../.
 <div class="ttc" id="aax__helm_8cu_html_a706645ff08370f0954f66cb96382b9fd"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a706645ff08370f0954f66cb96382b9fd">CASE_1D</a></div><div class="ttdeci">#define CASE_1D(LX)</div></div>
 <div class="ttc" id="aax__helm_8cu_html_a8394801dd34a9cab5e07803be5073d8b"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#a8394801dd34a9cab5e07803be5073d8b">CASE_KSTEP_PADDED</a></div><div class="ttdeci">#define CASE_KSTEP_PADDED(LX)</div></div>
 <div class="ttc" id="aax__helm_8cu_html_aa24ef32d12b6f3f517255c7359977373"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#aa24ef32d12b6f3f517255c7359977373">CASE_LARGE_PADDED</a></div><div class="ttdeci">#define CASE_LARGE_PADDED(LX)</div></div>
-<div class="ttc" id="aax__helm_8cu_html_ac18ad298df4b5740abfefdc9d9b737b8"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#ac18ad298df4b5740abfefdc9d9b737b8">tune_padded</a></div><div class="ttdeci">int tune_padded(void *w, void *u, void *dx, void *dy, void *dz, void *dxt, void *dyt, void *dzt, void *h1, void *g11, void *g22, void *g33, void *g12, void *g13, void *g23, int *nelv, int *lx)</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d49/ax__helm_8cu_source.html#l00331">ax_helm.cu:331</a></div></div>
+<div class="ttc" id="aax__helm_8cu_html_ac18ad298df4b5740abfefdc9d9b737b8"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#ac18ad298df4b5740abfefdc9d9b737b8">tune_padded</a></div><div class="ttdeci">int tune_padded(void *w, void *u, void *dx, void *dy, void *dz, void *dxt, void *dyt, void *dzt, void *h1, void *g11, void *g22, void *g33, void *g12, void *g13, void *g23, int *nelv, int *lx)</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d49/ax__helm_8cu_source.html#l00348">ax_helm.cu:348</a></div></div>
 <div class="ttc" id="aax__helm_8cu_html_ac3318de6e7784e8415692b030bcf4d11"><div class="ttname"><a href="../../db/d49/ax__helm_8cu.html#ac3318de6e7784e8415692b030bcf4d11">CASE_VECTOR_PADDED</a></div><div class="ttdeci">#define CASE_VECTOR_PADDED(LX)</div></div>
+<div class="ttc" id="acuda_2cdtp__kernel_8h_html_a4c76a0e1c606287bbc11b730675dd3b0"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a4c76a0e1c606287bbc11b730675dd3b0">B</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ B</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00116">cdtp_kernel.h:116</a></div></div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_a516e79afaff41160487af846f7360b3d"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a></div><div class="ttdeci">const int i</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00132">cdtp_kernel.h:132</a></div></div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_ac074100bc8161312918795a55ed1fd6a"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a">dzt</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ dzt</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00115">cdtp_kernel.h:115</a></div></div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_af4dfdc19ce423df0d0e277a211ee34a8"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8">dyt</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ dyt</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00114">cdtp_kernel.h:114</a></div></div>
@@ -520,6 +536,7 @@ $(document).ready(function(){initNavTree('db/d49/ax__helm_8cu_source.html','../.
 <div class="ttc" id="acuda_2lambda2__kernel_8h_html_a43799c7789aa82c19649dc9f75f8a87f"><div class="ttname"><a href="../../de/d2d/cuda_2lambda2__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ const T *__restrict__ w</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d2d/cuda_2lambda2__kernel_8h_source.html#l00244">lambda2_kernel.h:244</a></div></div>
 <div class="ttc" id="acuda_2lambda2__kernel_8h_html_ad44828fa187c7f6962d8ef80a111c535"><div class="ttname"><a href="../../de/d2d/cuda_2lambda2__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ v</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d2d/cuda_2lambda2__kernel_8h_source.html#l00243">lambda2_kernel.h:243</a></div></div>
 <div class="ttc" id="adevice__config_8h_html"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html">device_config.h</a></div></div>
+<div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="adevice__config_8h_html_a470d6592467cf6e88606a04749c50d83"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a></div><div class="ttdeci">void * glb_cmd_queue</div></div>
 <div class="ttc" id="ahip_2ax__helm__kernel_8h_html"><div class="ttname"><a href="../../d6/da8/hip_2ax__helm__kernel_8h.html">ax_helm_kernel.h</a></div></div>
 <div class="ttc" id="ahip_2ax__helm__kernel_8h_html_a103f3d0c0c3bf8e6490f5363b43b20ac"><div class="ttname"><a href="../../d6/da8/hip_2ax__helm__kernel_8h.html#a103f3d0c0c3bf8e6490f5363b43b20ac">g23</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ g23</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/da8/hip_2ax__helm__kernel_8h_source.html#l00161">ax_helm_kernel.h:161</a></div></div>
@@ -542,7 +559,7 @@ $(document).ready(function(){initNavTree('db/d49/ax__helm_8cu_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_4c3596ec6e7f8d381657f6ce7bbe76a2.html">cuda</a></li><li class="navelem"><a class="el" href="../../db/d49/ax__helm_8cu.html">ax_helm.cu</a></li>
-    <li class="footer">Generated on Mon Jul 1 2024 03:34:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 2 2024 03:34:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
