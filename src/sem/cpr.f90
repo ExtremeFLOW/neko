@@ -269,15 +269,15 @@ contains
     real(kind=rp) :: vsort(cpr%Xh%lx * cpr%Xh%lx * cpr%Xh%lx)
     real(kind=rp) :: vtrunc(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: vtemp(cpr%Xh%lx * cpr%Xh%lx * cpr%Xh%lx)
-    real(kind=rp) :: errvec(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx) 
-    real(kind=rp) :: fx(cpr%Xh%lx, cpr%Xh%lx) 
-    real(kind=rp) :: fy(cpr%Xh%lx, cpr%Xh%lx) 
-    real(kind=rp) :: fz(cpr%Xh%lx, cpr%Xh%lx) 
+    real(kind=rp) :: errvec(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: fx(cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: fy(cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: fz(cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: l2norm, oldl2norm, targeterr
     integer :: isort(cpr%Xh%lx * cpr%Xh%lx * cpr%Xh%lx)
     integer :: i, j, k, e, nxyz, nelv
     integer :: kut, kutx, kuty, kutz, nx
-    character(len=LOG_SIZE) :: log_buf 
+    character(len=LOG_SIZE) :: log_buf
 
     ! define some constants
     nx = cpr%Xh%lx
@@ -400,10 +400,10 @@ contains
 
   end subroutine sortcoeff
 
-  !> create filter transfer function 
-  subroutine build_filter_tf(fx, fy, fz, kut, lx) 
-    integer, intent(in) :: lx      
-    integer, intent(in) :: kut      
+  !> create filter transfer function
+  subroutine build_filter_tf(fx, fy, fz, kut, lx)
+    integer, intent(in) :: lx
+    integer, intent(in) :: kut
     real(kind=rp), intent(inout) :: fx(lx,lx)
     real(kind=rp), intent(inout) :: fy(lx,lx)
     real(kind=rp), intent(inout) :: fz(lx,lx)
