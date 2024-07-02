@@ -43,9 +43,9 @@ module utils
   end interface neko_error
 
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
-            filename_suffix, filename_suffix_pos, filename_tslash_pos, &
-            linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
-            concat_string_array
+    filename_suffix, filename_suffix_pos, filename_tslash_pos, &
+    linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
+    concat_string_array
 
 
 contains
@@ -139,17 +139,17 @@ contains
 
     is_on = .false.
     select case(facet)
-    case(1)
+      case(1)
        if (i .eq. 1) is_on = .true.
-    case(2)
+      case(2)
        if (i .eq. lx) is_on = .true.
-    case(3)
+      case(3)
        if (j .eq. 1) is_on = .true.
-    case(4)
+      case(4)
        if (j .eq. ly) is_on = .true.
-    case(5)
+      case(5)
        if (k .eq. 1) is_on = .true.
-    case(6)
+      case(6)
        if (k .eq. lz) is_on = .true.
     end select
 
@@ -217,9 +217,9 @@ contains
     end do
 
     if (prepend .eqv. .true.) then
-      result = sep // result
+       result = sep // result
     end if
 
-   end function concat_string_array
+  end function concat_string_array
 
 end module utils
