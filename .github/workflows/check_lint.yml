@@ -49,6 +49,8 @@ jobs:
         run: |
           score=$(awk '$1==0{print $3}' flint.txt)
 
+          printf "Current score: $score\n"
+          printf "Minimum score: $global_min\n"
           if (( $(echo "$score < $global_min" | bc -l) )); then
             echo "Linting requirement not met, $score < $global_min"
             exit 1
