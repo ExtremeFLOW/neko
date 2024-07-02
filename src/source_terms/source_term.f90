@@ -41,7 +41,7 @@ module source_term
   private
 
   !> Base abstract type for source terms.
-  type, abstract, public :: source_term_t
+  type, abstract, public:: source_term_t
      !> The fields to be updated with the source term values
      type(field_list_t) :: fields
      !> Coefficients for the SEM.
@@ -134,7 +134,7 @@ contains
 
     ! A lot of attribute nesting here due to Fortran needing wrapper types
     ! but this is just pointer assignement for the fields.
-    do i = 1, n_fields
+    do i=1, n_fields
        call this%fields%assign(i, fields%get(i))
     end do
   end subroutine source_term_init_base

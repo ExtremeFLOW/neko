@@ -187,9 +187,9 @@ contains
       ylmax = glmax(c_Xh%dof%y, n)
       zlmin = glmin(c_Xh%dof%z, n)          !  for Z!
       zlmax = glmax(c_Xh%dof%z, n)
-      if (this%flow_dir .eq. 1) this%domain_length = xlmax - xlmin
-      if (this%flow_dir .eq. 2) this%domain_length = ylmax - ylmin
-      if (this%flow_dir .eq. 3) this%domain_length = zlmax - zlmin
+      if (this%flow_dir.eq.1) this%domain_length = xlmax - xlmin
+      if (this%flow_dir.eq.2) this%domain_length = ylmax - ylmin
+      if (this%flow_dir.eq.3) this%domain_length = zlmax - zlmin
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(c_Xh%h1_d, 1.0_rp/rho, n)
@@ -405,7 +405,7 @@ contains
          flow_rate = this%flow_rate*xsec
       else
          flow_rate = this%flow_rate
-      end if
+      endif
 
       delta_flow = flow_rate - current_flow
       scale = delta_flow / this%base_flow

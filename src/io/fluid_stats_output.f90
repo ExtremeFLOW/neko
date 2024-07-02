@@ -88,7 +88,7 @@ contains
             do i = 1, size(out_fields)
                call device_memcpy(out_fields(i)%ptr%x, out_fields(i)%ptr%x_d,&
                   out_fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                  sync = (i .eq. size(out_fields))) ! Sync on last field
+                  sync=(i .eq. size(out_fields))) ! Sync on last field
             end do
          end if
          call this%file_%write(this%stats%stat_fields, t)

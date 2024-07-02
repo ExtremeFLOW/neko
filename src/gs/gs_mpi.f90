@@ -194,7 +194,7 @@ contains
                 !> @todo Check size etc against status
                 src = this%recv_pe(i)
                 sp => this%recv_dof(src)%array()
-                select case (op)
+                select case(op)
                 case (GS_OP_ADD)
                    !NEC$ IVDEP
                    do j = 1, this%send_dof(src)%size()

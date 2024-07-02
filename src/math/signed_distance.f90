@@ -55,6 +55,7 @@ contains
   subroutine signed_distance_field(field_data, object, max_distance)
     use utils, only: neko_error
     implicit none
+
     type(field_t), intent(inout) :: field_data
     class(*), intent(in) :: object
     real(kind=dp), intent(in), optional :: max_distance
@@ -120,7 +121,7 @@ contains
 
        distance = tri_mesh_aabb_tree(search_tree, mesh%el, p, max_distance)
 
-       field_data%x(id, 1, 1, 1) = real(distance, kind = rp)
+       field_data%x(id, 1, 1, 1) = real(distance, kind=rp)
     end do
 
   end subroutine signed_distance_field_tri_mesh

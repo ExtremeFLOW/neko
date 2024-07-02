@@ -116,7 +116,7 @@ contains
 
     if (pe_rank .eq. 0 .or. this%serial) then
        ! Stop if the file does not exist
-       inquire(file = this%fname, exist = file_exists)
+       inquire(file=this%fname, exist=file_exists)
     end if
     if (.not. this%serial) then
        call MPI_Bcast(file_exists, 1, MPI_LOGICAL, 0, NEKO_COMM, neko_mpi_ierr)

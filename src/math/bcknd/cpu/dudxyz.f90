@@ -39,11 +39,11 @@ contains
 
   subroutine cpu_dudxyz_lx(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, lx)
     integer, intent(in) :: nel, lx
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
 
@@ -103,11 +103,11 @@ contains
   subroutine cpu_dudxyz_lx14(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 14
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -122,11 +122,11 @@ contains
                          + dx(i,7) * u(7,j,1,e) &
                          + dx(i,8) * u(8,j,1,e) &
                          + dx(i,9) * u(9,j,1,e) &
-                         + dx(i, 10) * u(10,j,1,e) &
-                         + dx(i, 11) * u(11,j,1,e) &
-                         + dx(i, 12) * u(12,j,1,e) &
-                         + dx(i, 13) * u(13,j,1,e) &
-                         + dx(i, 14) * u(14,j,1,e)
+                         + dx(i,10) * u(10,j,1,e) &
+                         + dx(i,11) * u(11,j,1,e) &
+                         + dx(i,12) * u(12,j,1,e) &
+                         + dx(i,13) * u(13,j,1,e) &
+                         + dx(i,14) * u(14,j,1,e)
           end do
        end do
 
@@ -146,11 +146,11 @@ contains
                             + dy(j,7) * u(i,7,k,e) &
                             + dy(j,8) * u(i,8,k,e) &
                             + dy(j,9) * u(i,9,k,e) &
-                            + dy(j, 10) * u(i, 10,k,e) &
-                            + dy(j, 11) * u(i, 11,k,e) &
-                            + dy(j, 12) * u(i, 12,k,e) &
-                            + dy(j, 13) * u(i, 13,k,e) &
-                            + dy(j, 14) * u(i, 14,k,e)
+                            + dy(j,10) * u(i,10,k,e) &
+                            + dy(j,11) * u(i,11,k,e) &
+                            + dy(j,12) * u(i,12,k,e) &
+                            + dy(j,13) * u(i,13,k,e) &
+                            + dy(j,14) * u(i,14,k,e)
              end do
           end do
        end do
@@ -170,11 +170,11 @@ contains
                          + dz(k,7) * u(i,1,7,e) &
                          + dz(k,8) * u(i,1,8,e) &
                          + dz(k,9) * u(i,1,9,e) &
-                         + dz(k, 10) * u(i,1, 10,e) &
-                         + dz(k, 11) * u(i,1, 11,e) &
-                         + dz(k, 12) * u(i,1, 12,e) &
-                         + dz(k, 13) * u(i,1, 13,e) &
-                         + dz(k, 14) * u(i,1, 14,e)
+                         + dz(k,10) * u(i,1,10,e) &
+                         + dz(k,11) * u(i,1,11,e) &
+                         + dz(k,12) * u(i,1,12,e) &
+                         + dz(k,13) * u(i,1,13,e) &
+                         + dz(k,14) * u(i,1,14,e)
           end do
        end do
 
@@ -193,11 +193,11 @@ contains
   subroutine cpu_dudxyz_lx13(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 13
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -212,10 +212,10 @@ contains
                          + dx(i,7) * u(7,j,1,e) &
                          + dx(i,8) * u(8,j,1,e) &
                          + dx(i,9) * u(9,j,1,e) &
-                         + dx(i, 10) * u(10,j,1,e) &
-                         + dx(i, 11) * u(11,j,1,e) &
-                         + dx(i, 12) * u(12,j,1,e) &
-                         + dx(i, 13) * u(13,j,1,e)
+                         + dx(i,10) * u(10,j,1,e) &
+                         + dx(i,11) * u(11,j,1,e) &
+                         + dx(i,12) * u(12,j,1,e) &
+                         + dx(i,13) * u(13,j,1,e)
           end do
        end do
 
@@ -235,10 +235,10 @@ contains
                             + dy(j,7) * u(i,7,k,e) &
                             + dy(j,8) * u(i,8,k,e) &
                             + dy(j,9) * u(i,9,k,e) &
-                            + dy(j, 10) * u(i, 10,k,e) &
-                            + dy(j, 11) * u(i, 11,k,e) &
-                            + dy(j, 12) * u(i, 12,k,e) &
-                            + dy(j, 13) * u(i, 13,k,e)
+                            + dy(j,10) * u(i,10,k,e) &
+                            + dy(j,11) * u(i,11,k,e) &
+                            + dy(j,12) * u(i,12,k,e) &
+                            + dy(j,13) * u(i,13,k,e)
              end do
           end do
        end do
@@ -258,10 +258,10 @@ contains
                          + dz(k,7) * u(i,1,7,e) &
                          + dz(k,8) * u(i,1,8,e) &
                          + dz(k,9) * u(i,1,9,e) &
-                         + dz(k, 10) * u(i,1, 10,e) &
-                         + dz(k, 11) * u(i,1, 11,e) &
-                         + dz(k, 12) * u(i,1, 12,e) &
-                         + dz(k, 13) * u(i,1, 13,e)
+                         + dz(k,10) * u(i,1,10,e) &
+                         + dz(k,11) * u(i,1,11,e) &
+                         + dz(k,12) * u(i,1,12,e) &
+                         + dz(k,13) * u(i,1,13,e)
           end do
        end do
 
@@ -280,11 +280,11 @@ contains
   subroutine cpu_dudxyz_lx12(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 12
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -299,9 +299,9 @@ contains
                          + dx(i,7) * u(7,j,1,e) &
                          + dx(i,8) * u(8,j,1,e) &
                          + dx(i,9) * u(9,j,1,e) &
-                         + dx(i, 10) * u(10,j,1,e) &
-                         + dx(i, 11) * u(11,j,1,e) &
-                         + dx(i, 12) * u(12,j,1,e)
+                         + dx(i,10) * u(10,j,1,e) &
+                         + dx(i,11) * u(11,j,1,e) &
+                         + dx(i,12) * u(12,j,1,e)
           end do
        end do
 
@@ -321,9 +321,9 @@ contains
                             + dy(j,7) * u(i,7,k,e) &
                             + dy(j,8) * u(i,8,k,e) &
                             + dy(j,9) * u(i,9,k,e) &
-                            + dy(j, 10) * u(i, 10,k,e) &
-                            + dy(j, 11) * u(i, 11,k,e) &
-                            + dy(j, 12) * u(i, 12,k,e)
+                            + dy(j,10) * u(i,10,k,e) &
+                            + dy(j,11) * u(i,11,k,e) &
+                            + dy(j,12) * u(i,12,k,e)
              end do
           end do
        end do
@@ -343,9 +343,9 @@ contains
                          + dz(k,7) * u(i,1,7,e) &
                          + dz(k,8) * u(i,1,8,e) &
                          + dz(k,9) * u(i,1,9,e) &
-                         + dz(k, 10) * u(i,1, 10,e) &
-                         + dz(k, 11) * u(i,1, 11,e) &
-                         + dz(k, 12) * u(i,1, 12,e)
+                         + dz(k,10) * u(i,1,10,e) &
+                         + dz(k,11) * u(i,1,11,e) &
+                         + dz(k,12) * u(i,1,12,e)
           end do
        end do
 
@@ -364,11 +364,11 @@ contains
   subroutine cpu_dudxyz_lx11(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 11
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -383,8 +383,8 @@ contains
                          + dx(i,7) * u(7,j,1,e) &
                          + dx(i,8) * u(8,j,1,e) &
                          + dx(i,9) * u(9,j,1,e) &
-                         + dx(i, 10) * u(10,j,1,e) &
-                         + dx(i, 11) * u(11,j,1,e)
+                         + dx(i,10) * u(10,j,1,e) &
+                         + dx(i,11) * u(11,j,1,e)
           end do
        end do
 
@@ -404,8 +404,8 @@ contains
                             + dy(j,7) * u(i,7,k,e) &
                             + dy(j,8) * u(i,8,k,e) &
                             + dy(j,9) * u(i,9,k,e) &
-                            + dy(j, 10) * u(i, 10,k,e) &
-                            + dy(j, 11) * u(i, 11,k,e)
+                            + dy(j,10) * u(i,10,k,e) &
+                            + dy(j,11) * u(i,11,k,e)
              end do
           end do
        end do
@@ -425,8 +425,8 @@ contains
                          + dz(k,7) * u(i,1,7,e) &
                          + dz(k,8) * u(i,1,8,e) &
                          + dz(k,9) * u(i,1,9,e) &
-                         + dz(k, 10) * u(i,1, 10,e) &
-                         + dz(k, 11) * u(i,1, 11,e)
+                         + dz(k,10) * u(i,1,10,e) &
+                         + dz(k,11) * u(i,1,11,e)
           end do
        end do
 
@@ -445,11 +445,11 @@ contains
   subroutine cpu_dudxyz_lx10(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 10
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -464,7 +464,7 @@ contains
                          + dx(i,7) * u(7,j,1,e) &
                          + dx(i,8) * u(8,j,1,e) &
                          + dx(i,9) * u(9,j,1,e) &
-                         + dx(i, 10) * u(10,j,1,e)
+                         + dx(i,10) * u(10,j,1,e)
           end do
        end do
 
@@ -484,7 +484,7 @@ contains
                             + dy(j,7) * u(i,7,k,e) &
                             + dy(j,8) * u(i,8,k,e) &
                             + dy(j,9) * u(i,9,k,e) &
-                            + dy(j, 10) * u(i, 10,k,e)
+                            + dy(j,10) * u(i,10,k,e)
              end do
           end do
        end do
@@ -504,7 +504,7 @@ contains
                          + dz(k,7) * u(i,1,7,e) &
                          + dz(k,8) * u(i,1,8,e) &
                          + dz(k,9) * u(i,1,9,e) &
-                         + dz(k, 10) * u(i,1, 10,e)
+                         + dz(k,10) * u(i,1,10,e)
           end do
        end do
 
@@ -523,11 +523,11 @@ contains
   subroutine cpu_dudxyz_lx9(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 9
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -598,11 +598,11 @@ contains
   subroutine cpu_dudxyz_lx8(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 8
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -670,11 +670,11 @@ contains
   subroutine cpu_dudxyz_lx7(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 7
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -739,11 +739,11 @@ contains
   subroutine cpu_dudxyz_lx6(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 6
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -805,11 +805,11 @@ contains
   subroutine cpu_dudxyz_lx5(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 5
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -868,11 +868,11 @@ contains
   subroutine cpu_dudxyz_lx4(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 4
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -928,11 +928,11 @@ contains
   subroutine cpu_dudxyz_lx3(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 3
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -985,11 +985,11 @@ contains
   subroutine cpu_dudxyz_lx2(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 2
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
     integer :: e, i, j, k
 
     do e = 1, nel

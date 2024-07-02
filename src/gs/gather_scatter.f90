@@ -64,7 +64,7 @@ module gather_scatter
      integer, allocatable :: shared_dof_gs(:)         !< Shared dof to gs map.
      integer, allocatable :: shared_gs_dof(:)         !< Shared gs to dof map.
      integer, allocatable :: shared_blk_len(:)        !< Shared non-facet blocks
-     type(dofmap_t), pointer :: dofmap                 !< Dofmap for gs-ops
+     type(dofmap_t), pointer ::dofmap                 !< Dofmap for gs-ops
      type(htable_i8_t) :: shared_dofs                 !< Htable of shared dofs
      integer :: nlocal                                !< Local gs-ops
      integer :: nshared                               !< Shared gs-ops
@@ -163,11 +163,11 @@ contains
     end if
 
     ! Setup Gather-scatter backend
-    select case (bcknd_)
-    case (GS_BCKND_CPU)
+    select case(bcknd_)
+    case(GS_BCKND_CPU)
        allocate(gs_cpu_t::gs%bcknd)
        bcknd_str = '         std'
-    case (GS_BCKND_DEV)
+    case(GS_BCKND_DEV)
        allocate(gs_device_t::gs%bcknd)
        if (NEKO_BCKND_HIP .eq. 1) then
           bcknd_str = '         hip'
@@ -176,7 +176,7 @@ contains
        else if (NEKO_BCKND_OPENCL .eq. 1) then
           bcknd_str = '      opencl'
        end if
-    case (GS_BCKND_SX)
+    case(GS_BCKND_SX)
        allocate(gs_sx_t::gs%bcknd)
        bcknd_str = '          sx'
     case default
@@ -196,7 +196,7 @@ contains
           b%shared_on_host = .false.
        end select
 
-       if (pe_size .gt. 1) then
+       if(pe_size .gt. 1) then
           ! Select fastest device MPI strategy at runtime
           select type(c => gs%comm)
           type is (gs_device_mpi_t)
@@ -206,7 +206,7 @@ contains
                 call device_map(tmp, tmp_d, dofmap%size())
                 tmp = 1.0_rp
                 call device_memcpy(tmp, tmp_d, dofmap%size(), &
-                                   HOST_TO_DEVICE, sync = .false.)
+                                   HOST_TO_DEVICE, sync=.false.)
                 call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
 
                 do i = 1, size(strtgy)
@@ -1096,7 +1096,7 @@ contains
 
       call blks%init()
       i = 1
-      do while ( i .lt. m)
+      do while( i .lt. m)
          id = dg(i)
          count = 1
          j = i
@@ -1140,7 +1140,7 @@ contains
     call it%init(gs%shared_dofs)
     allocate(send_buf(nshared_unique))
     i = 1
-    do while (it%next())
+    do while(it%next())
        send_buf(i) = it%key()
        i = i + 1
     end do

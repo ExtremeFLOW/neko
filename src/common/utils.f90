@@ -53,14 +53,14 @@ contains
   pure function filename_suffix_pos(fname) result(suffix_pos)
     character(len=*), intent(in) :: fname
     integer :: suffix_pos
-    suffix_pos = scan(trim(fname), '.', back = .true.)
+    suffix_pos = scan(trim(fname), '.', back=.true.)
   end function filename_suffix_pos
 
   !> Find position (in the string) of a filename's trailing slash
   pure function filename_tslash_pos(fname) result(tslash_pos)
     character(len=*), intent(in) :: fname
     integer :: tslash_pos
-    tslash_pos = scan(trim(fname), '/', back = .true.)
+    tslash_pos = scan(trim(fname), '/', back=.true.)
   end function filename_tslash_pos
 
   !> Extract a filename's suffix
@@ -83,12 +83,12 @@ contains
   end subroutine filename_chsuffix
 
   !> Split a string based on delimiter (tokenizer)
-  !! Todo: very hacky, this should really be improved, it is rather embarrasing code.
+  !! OBS: very hacky, this should really be improved, it is rather embarrasing code.
   function split_string(string, delimiter) result(split_str)
     character(len=*) :: string
     character(len=*) :: delimiter
     character(len=100), allocatable :: split_str(:)
-    integer :: length, i, i2, offset, j
+    integer :: length, i, i2,offset, j
     i = 0
     offset = 1
     length = 1
@@ -97,8 +97,8 @@ contains
        split_str(1) = trim(string)
        return
     end if
-    do while ( .true.)
-       i = scan(string(offset:), delimiter, back = .false.)
+    do while( .true.)
+       i = scan(string(offset:), delimiter, back=.false.)
        if (i .eq. 0) exit
        length = length + 1
        offset = offset + i
@@ -107,9 +107,9 @@ contains
     allocate(split_str(length))
     i = 0
     j = 1
-    offset = 1
-    do while ( .true.)
-       i2 = scan(trim(string(offset:)), delimiter, back = .false.)
+    offset=1
+    do while( .true.)
+       i2 = scan(trim(string(offset:)), delimiter, back=.false.)
        if (i2 .eq. 0) then
           split_str(j) = trim(string(offset:))
           exit
@@ -125,7 +125,7 @@ contains
 
   !> Compute the address of a (i,j,k,l) array
   !! with sizes (1:lx, 1:ly, 1:lz, :)
-  pure function linear_index(i, j, k, l, lx, ly, lz) result(index)
+  pure function linear_index(i,j,k,l,lx,ly,lz) result(index)
     integer, intent(in) :: i, j, k, l, lx, ly, lz
     integer :: index
 
@@ -137,18 +137,18 @@ contains
     logical :: is_on
 
     is_on = .false.
-    select case (facet)
-    case (1)
+    select case(facet)
+    case(1)
        if (i .eq. 1) is_on = .true.
-    case (2)
+    case(2)
        if (i .eq. lx) is_on = .true.
-    case (3)
+    case(3)
        if (j .eq. 1) is_on = .true.
-    case (4)
+    case(4)
        if (j .eq. ly) is_on = .true.
-    case (5)
+    case(5)
        if (k .eq. 1) is_on = .true.
-    case (6)
+    case(6)
        if (k .eq. lz) is_on = .true.
     end select
 
@@ -158,7 +158,7 @@ contains
 
   !> Compute (i,j,k,l) array given linear index
   !! with sizes (1:lx, 1:ly, 1:lz, :)
-  pure function nonlinear_index(linear_index, lx, ly, lz) result(index)
+  pure function nonlinear_index(linear_index,lx,ly,lz) result(index)
     integer, intent(in) :: linear_index, lx, ly, lz
     integer :: index(4)
     integer :: lin_idx

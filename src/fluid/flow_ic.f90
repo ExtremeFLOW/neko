@@ -129,11 +129,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, &
-                          HOST_TO_DEVICE, sync = .false.)
+                          HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(v%x, v%x_d, n, &
-                          HOST_TO_DEVICE, sync = .false.)
+                          HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(w%x, w%x_d, n, &
-                          HOST_TO_DEVICE, sync = .false.)
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -184,16 +184,16 @@ contains
     procedure(blasius_profile), pointer :: bla => null()
     integer :: i
 
-    select case (trim(type))
-    case ('linear')
+    select case(trim(type))
+    case('linear')
        bla => blasius_linear
-    case ('quadratic')
+    case('quadratic')
        bla => blasius_quadratic
-    case ('cubic')
+    case('cubic')
        bla => blasius_cubic
-    case ('quartic')
+    case('quartic')
        bla => blasius_quartic
-    case ('sin')
+    case('sin')
        bla => blasius_sin
     case default
        call neko_error('Invalid Blasius approximation')

@@ -255,7 +255,7 @@ contains
              do k = 1, size(this%u, 2)
                 kk = k
                 do j = 1, size(this%u, 1)
-                   jj = j
+                   jj =j
                    call this%compute_pw_(this%u(j,k,l,e), &
                                         this%v(j,k,l,e), &
                                         this%w(j,k,l,e), &

@@ -84,8 +84,8 @@ contains
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
 
-    do e = 1, coef%msh%nelv
-       do i = 1, coef%Xh%lxyz
+    do e=1, coef%msh%nelv
+       do i=1, coef%Xh%lxyz
           s_abs = sqrt(2.0_rp * (s11%x(i,1,1,e)*s11%x(i,1,1,e) + &
                                  s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
                                  s33%x(i,1,1,e)*s33%x(i,1,1,e)) + &

@@ -61,11 +61,11 @@ contains
     class(fld_file_data_t) :: this
     integer :: i
     i = 0
-    if (this%u%n .gt. 0) i = i + 1
-    if (this%v%n .gt. 0) i = i + 1
-    if (this%w%n .gt. 0) i = i + 1
-    if (this%p%n .gt. 0) i = i + 1
-    if (this%t%n .gt. 0) i = i + 1
+    if(this%u%n .gt. 0) i = i + 1
+    if(this%v%n .gt. 0) i = i + 1
+    if(this%w%n .gt. 0) i = i + 1
+    if(this%p%n .gt. 0) i = i + 1
+    if(this%t%n .gt. 0) i = i + 1
     i = i + this%n_scalars
 
   end function fld_file_data_size
@@ -77,23 +77,23 @@ contains
     integer :: i, j
     type(vector_ptr_t), intent(inout) :: ptr_list(n)
     i = 1
-    if (this%u%n .gt. 0) then
+    if(this%u%n .gt. 0) then
        ptr_list(i)%ptr => this%u
        i = i + 1
     end if
-    if (this%v%n .gt. 0) then
+    if(this%v%n .gt. 0) then
        ptr_list(i)%ptr => this%v
        i = i + 1
     end if
-    if (this%w%n .gt. 0) then
+    if(this%w%n .gt. 0) then
        ptr_list(i)%ptr => this%w
        i = i + 1
     end if
-    if (this%p%n .gt. 0) then
+    if(this%p%n .gt. 0) then
        ptr_list(i)%ptr => this%p
        i = i + 1
     end if
-    if (this%t%n .gt. 0) then
+    if(this%t%n .gt. 0) then
        ptr_list(i)%ptr => this%t
        i = i + 1
     end if
@@ -112,14 +112,14 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    if (this%u%n .gt. 0) call cmult(this%u%x, c, this%u%n)
-    if (this%v%n .gt. 0) call cmult(this%v%x, c, this%v%n)
-    if (this%w%n .gt. 0) call cmult(this%w%x, c, this%w%n)
-    if (this%p%n .gt. 0) call cmult(this%p%x, c, this%p%n)
-    if (this%t%n .gt. 0) call cmult(this%t%x, c, this%t%n)
+    if(this%u%n .gt. 0) call cmult(this%u%x,c,this%u%n)
+    if(this%v%n .gt. 0) call cmult(this%v%x,c,this%v%n)
+    if(this%w%n .gt. 0) call cmult(this%w%x,c,this%w%n)
+    if(this%p%n .gt. 0) call cmult(this%p%x,c,this%p%n)
+    if(this%t%n .gt. 0) call cmult(this%t%x,c,this%t%n)
 
     do i = 1, this%n_scalars
-       if (this%s(i)%n .gt. 0) call cmult(this%s(i)%x, c, this%s(i)%n)
+       if(this%s(i)%n .gt. 0) call cmult(this%s(i)%x,c,this%s(i)%n)
     end do
 
   end subroutine fld_file_data_scale
@@ -130,14 +130,14 @@ contains
     class(fld_file_data_t), intent(in) :: fld_data_add
     integer :: i
 
-    if (this%u%n .gt. 0) call add2(this%u%x, fld_data_add%u%x, this%u%n)
-    if (this%v%n .gt. 0) call add2(this%v%x, fld_data_add%v%x, this%v%n)
-    if (this%w%n .gt. 0) call add2(this%w%x, fld_data_add%w%x, this%w%n)
-    if (this%p%n .gt. 0) call add2(this%p%x, fld_data_add%p%x, this%p%n)
-    if (this%t%n .gt. 0) call add2(this%t%x, fld_data_add%t%x, this%t%n)
+    if(this%u%n .gt. 0) call add2(this%u%x,fld_data_add%u%x,this%u%n)
+    if(this%v%n .gt. 0) call add2(this%v%x,fld_data_add%v%x,this%v%n)
+    if(this%w%n .gt. 0) call add2(this%w%x,fld_data_add%w%x,this%w%n)
+    if(this%p%n .gt. 0) call add2(this%p%x,fld_data_add%p%x,this%p%n)
+    if(this%t%n .gt. 0) call add2(this%t%x,fld_data_add%t%x,this%t%n)
 
     do i = 1, this%n_scalars
-       if (this%s(i)%n .gt. 0) call add2(this%s(i)%x, fld_data_add%s(i)%x, this%s(i)%n)
+       if(this%s(i)%n .gt. 0) call add2(this%s(i)%x,fld_data_add%s(i)%x,this%s(i)%n)
     end do
   end subroutine fld_file_data_add
 

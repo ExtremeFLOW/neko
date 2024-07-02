@@ -123,7 +123,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer :: file_unit, ierr
 
-    open(file = trim(f%fname), position = "append", iostat = ierr, newunit = file_unit)
+    open(file=trim(f%fname), position="append", iostat=ierr, newunit=file_unit)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! write header if not empty and if not already written
@@ -133,9 +133,9 @@ contains
     end if
 
     ! Add time at the beginning if specified
-    if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
+    if (present(t)) write (file_unit, '(g0,",")', advance="no") t
 
-    write (file_unit, '(*(g0,","))', advance = "no") data%x(1:data%n-1)
+    write (file_unit, '(*(g0,","))', advance="no") data%x(1:data%n-1)
     write(file_unit,'(g0)') data%x(data%n)
 
     close(file_unit)
@@ -153,7 +153,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer :: file_unit, i, ierr
 
-    open(file = trim(f%fname), position = "append", iostat = ierr, newunit = file_unit)
+    open(file=trim(f%fname), position="append", iostat=ierr, newunit=file_unit)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! write header if not empty and if not already written
@@ -163,9 +163,9 @@ contains
     end if
 
     do i = 1, data%nrows
-       if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
-       write (file_unit, '(*(g0,","))', advance = "no") data%x(i,1:data%ncols-1)
-       write (file_unit, '(g0)') data%x(i, data%ncols)
+       if (present(t)) write (file_unit, '(g0,",")', advance="no") t
+       write (file_unit, '(*(g0,","))', advance="no") data%x(i,1:data%ncols-1)
+       write (file_unit, '(g0)') data%x(i,data%ncols)
     end do
 
     close(file_unit)
@@ -238,7 +238,7 @@ contains
 
     n_lines = f%count_lines()
 
-    open(file = trim(f%fname), status = 'old', newunit = file_unit, iostat = ierr)
+    open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! If there is more than 1 line, assume that means there is a header
@@ -248,7 +248,7 @@ contains
     end if
 
     read (file_unit,*) vec%x
-    close(unit = file_unit)
+    close(unit=file_unit)
 
 
   end subroutine csv_file_read_vector
@@ -266,7 +266,7 @@ contains
 
     n_lines = f%count_lines()
 
-    open(file = trim(f%fname), status = 'old', newunit = file_unit, iostat = ierr)
+    open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! If the number of lines is larger than the number of rows in the
@@ -276,10 +276,10 @@ contains
        f%header = trim(tmp)
     end if
 
-    do i = 1, mat%nrows
+    do i=1, mat%nrows
        read (file_unit,*) mat%x(i,:)
     end do
-    close(unit = file_unit)
+    close(unit=file_unit)
 
   end subroutine csv_file_read_matrix
 
@@ -303,19 +303,19 @@ contains
     integer :: n
     integer :: ierr, file_unit
 
-    open(file = trim(this%fname), status = 'old', newunit = file_unit)
+    open(file=trim(this%fname), status='old', newunit=file_unit)
     rewind(file_unit)
 
     n = 0
 
     ! Keep reading (ierr = 0) until we reach the end (ierr != 0)
     do
-       read (file_unit, *, iostat = ierr)
+       read (file_unit,*,iostat=ierr)
        if (ierr .ne. 0) exit
        n = n + 1
     end do
     rewind(file_unit)
-    close(unit = file_unit)
+    close(unit=file_unit)
 
   end function csv_file_count_lines
 

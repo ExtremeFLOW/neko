@@ -12,7 +12,7 @@ contains
   subroutine tnsr2d_el_sx(v, nv, u, nu, A, Bt)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv), u(nu*nu)
-    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu,nv)
     real(kind=rp) :: work(0:nu**2*nv)
 
     call mxm(A, nv, u, nu, work, nu)
@@ -23,7 +23,7 @@ contains
   subroutine tnsr3d_el_sx(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
-    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
+    real(kind=rp), intent(inout) :: A(nv,nu),Bt(nu, nv),Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
     real(kind=rp) :: tmp
     integer :: i, j, k, l, nunu, nvnu, nvnv
@@ -73,8 +73,8 @@ contains
 
   subroutine tnsr3d_sx(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv), u(nu*nu*nu, nelv)
-    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
 
     if (nu .eq. 2 .and. nv .eq. 4) then
        call tnsr3d_nu2nv4_sx(v, u, A, Bt, Ct, nelv)
@@ -88,8 +88,8 @@ contains
 
   subroutine tnsr3d_nvnu_sx(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv), u(nu*nu*nu, nelv)
-    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
     integer :: nunu, nvnu, nvnv
@@ -146,9 +146,9 @@ contains
     integer, parameter :: nvnu = 8
     integer, parameter :: nvnv = 16
     integer, intent(in) :: nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv), u(nu*nu*nu, nelv)
-    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
-    real(kind=rp) :: work(nu**2*nv, nelv), work2(nu*nv**2, nelv), tmp
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp) :: work(nu**2*nv,nelv), work2(nu*nv**2,nelv), tmp
     integer :: ie, i, j, k, l, ii, jj
 
 
@@ -171,7 +171,7 @@ contains
                 !NEC$ unroll_completely
                 do k = 1, nu
                    jj = l + nv * (k - 1) + nvnu * (i - 1)
-                   tmp = tmp + work(jj, ie) * Bt(k,j)
+                   tmp = tmp + work(jj,ie) * Bt(k,j)
                 end do
                 work2(ii, ie) = tmp
              end do
@@ -183,8 +183,8 @@ contains
        do i = 1, nvnv
           do ie = 1, nelv
              jj = i + nvnv * (j - 1)
-             v(jj, ie) = work2(i + nvnv * (1 - 1), ie) * Ct(1, j) &
-                       + work2(i + nvnv * (2 - 1), ie) * Ct(2, j)
+             v(jj, ie) = work2(i + nvnv * (1 - 1),ie) * Ct(1, j) &
+                       + work2(i + nvnv * (2 - 1),ie) * Ct(2, j)
           end do
        end do
     end do
@@ -195,8 +195,8 @@ contains
     integer, parameter :: nu = 4
     integer, parameter :: nunu = 16
     integer, intent(in) :: nv, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv), u(nu*nu*nu, nelv)
-    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv, nelv), work2(nu*nv**2, nelv), tmp
     integer :: ie, i, j, k, l, ii, jj
     integer :: nvnu, nvnv
@@ -225,7 +225,7 @@ contains
                 !NEC$ unroll_completely
                 do k = 1, nu
                    jj = l + nv * (k - 1) + nvnu * (i - 1)
-                   tmp = tmp + work(jj, ie) * Bt(k,j)
+                   tmp = tmp + work(jj,ie) * Bt(k,j)
                 end do
                 work2(ii, ie) = tmp
              end do
@@ -237,10 +237,10 @@ contains
        do i = 1, nvnv
           do ie = 1, nelv
              jj = i + nvnv * (j - 1)
-             v(jj, ie) = work2(i + nvnv * (1 - 1), ie) * Ct(1, j) &
-                       + work2(i + nvnv * (2 - 1), ie) * Ct(2, j) &
-                       + work2(i + nvnv * (3 - 1), ie) * Ct(3, j) &
-                       + work2(i + nvnv * (4 - 1), ie) * Ct(4, j)
+             v(jj, ie) = work2(i + nvnv * (1 - 1),ie) * Ct(1, j) &
+                       + work2(i + nvnv * (2 - 1),ie) * Ct(2, j) &
+                       + work2(i + nvnv * (3 - 1),ie) * Ct(3, j) &
+                       + work2(i + nvnv * (4 - 1),ie) * Ct(4, j)
           end do
        end do
     end do
@@ -250,7 +250,7 @@ contains
   subroutine tnsr1_3d_sx(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
-    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
 
 
     if (nu .eq. 4 .and. nv .eq. 2) then
@@ -264,7 +264,7 @@ contains
   subroutine tnsr1_3d_nvnu_sx(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
-    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
     integer :: e, e0, ee, es, iu, iv, nu3, nv3
     integer :: i, j, k, l, ii, jj, kk
@@ -279,16 +279,16 @@ contains
     es = 1
     ee = nelv
 
-    if (nv .gt. nu) then
+    if (nv.gt.nu) then
        e0 = nelv
        es = -1
        ee = 1
-    end if
+    endif
 
     nu3 = nu**3
     nv3 = nv**3
 
-    do e = e0, ee, es
+    do e = e0,ee,es
        iu = (e-1)*nu3
        iv = (e-1)*nv3
 
@@ -343,8 +343,8 @@ contains
     integer, parameter :: nvnvnv = 8
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
-    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
-    real(kind=rp) :: work(nu**2*nv, nelv), work2(nu*nv**2, nelv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp) :: work(nu**2*nv,nelv), work2(nu*nv**2,nelv)
     integer :: ie, iu, iv
     integer :: i, j, k, l, ii, jj
     real(kind=rp) :: tmp
@@ -371,9 +371,9 @@ contains
                 !NEC$ unroll_completely
                 do k = 1, nu
                    jj = l + nv * (k - 1) + nvnu * (i - 1)
-                   tmp = tmp + work(jj, ie) * Bt(k,j)
+                   tmp = tmp + work(jj,ie) * Bt(k,j)
                 end do
-                work2(ii, ie) = tmp
+                work2(ii,ie) = tmp
              end do
           end do
        end do
@@ -384,10 +384,10 @@ contains
           do ie = 1, nelv
              iv = (ie-1)*nvnvnv
              jj = i + nvnv * (j - 1) + iv
-             v(jj) = work2(i + nvnv * (1 - 1), ie) * Ct(1, j) &
-                   + work2(i + nvnv * (2 - 1), ie) * Ct(2, j) &
-                   + work2(i + nvnv * (3 - 1), ie) * Ct(3, j) &
-                   + work2(i + nvnv * (4 - 1), ie) * Ct(4, j)
+             v(jj) = work2(i + nvnv * (1 - 1),ie) * Ct(1, j) &
+                   + work2(i + nvnv * (2 - 1),ie) * Ct(2, j) &
+                   + work2(i + nvnv * (3 - 1),ie) * Ct(3, j) &
+                   + work2(i + nvnv * (4 - 1),ie) * Ct(4, j)
           end do
        end do
     end do

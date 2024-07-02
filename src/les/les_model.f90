@@ -147,16 +147,16 @@ contains
     real(kind=rp) :: di, dj, dk
 
 
-    do e = 1, this%coef%msh%nelv
-       do k = 1, this%coef%Xh%lz
+    do e=1, this%coef%msh%nelv
+       do k=1, this%coef%Xh%lz
          km = max(1, k-1)
          kp = min(this%coef%Xh%lz, k+1)
 
-         do j = 1, this%coef%Xh%ly
+         do j=1, this%coef%Xh%ly
            jm = max(1, j-1)
            jp = min(this%coef%Xh%ly, j+1)
 
-           do i = 1, this%coef%Xh%lx
+           do i=1, this%coef%Xh%lx
              im = max(1, i-1)
              ip = min(this%coef%Xh%lx, i+1)
 
@@ -164,29 +164,29 @@ contains
                 + (this%coef%dof%y(ip,j,k,e) - this%coef%dof%y(im,j,k,e))**2 &
                 + (this%coef%dof%z(ip,j,k,e) - this%coef%dof%z(im,j,k,e))**2
 
-             dj = (this%coef%dof%x(i, jp,k,e) - this%coef%dof%x(i, jm,k,e))**2 &
-                + (this%coef%dof%y(i, jp,k,e) - this%coef%dof%y(i, jm,k,e))**2 &
-                + (this%coef%dof%z(i, jp,k,e) - this%coef%dof%z(i, jm,k,e))**2
+             dj = (this%coef%dof%x(i,jp,k,e) - this%coef%dof%x(i,jm,k,e))**2 &
+                + (this%coef%dof%y(i,jp,k,e) - this%coef%dof%y(i,jm,k,e))**2 &
+                + (this%coef%dof%z(i,jp,k,e) - this%coef%dof%z(i,jm,k,e))**2
 
-             dk = (this%coef%dof%x(i,j, kp,e) - this%coef%dof%x(i,j, km,e))**2 &
-                + (this%coef%dof%y(i,j, kp,e) - this%coef%dof%y(i,j, km,e))**2 &
-                + (this%coef%dof%z(i,j, kp,e) - this%coef%dof%z(i,j, km,e))**2
+             dk = (this%coef%dof%x(i,j,kp,e) - this%coef%dof%x(i,j,km,e))**2 &
+                + (this%coef%dof%y(i,j,kp,e) - this%coef%dof%y(i,j,km,e))**2 &
+                + (this%coef%dof%z(i,j,kp,e) - this%coef%dof%z(i,j,km,e))**2
 
              di = sqrt(di) / (ip - im)
              dj = sqrt(dj) / (jp - jm)
              dk = sqrt(dk) / (kp - km)
              this%delta%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
 
-           end do
-         end do
-       end do
-    end do
+           enddo
+         enddo
+       enddo
+    enddo
 
     call this%coef%gs_h%op(this%delta, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(), &
-                          HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine les_model_compute_delta

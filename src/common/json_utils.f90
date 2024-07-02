@@ -51,7 +51,7 @@ module json_utils
   !> Retrieves a parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json
   interface json_get_or_default
-     module procedure json_get_or_default_real, json_get_or_default_double, &
+     module procedure json_get_or_default_real,json_get_or_default_double, &
        json_get_or_default_integer, &
        json_get_or_default_string, json_get_or_default_logical
   end interface json_get_or_default
@@ -230,7 +230,7 @@ contains
     if (.not. json%valid_path(name)) then
        call neko_error("Parameter "//name//" missing from the case file")
     end if
-    call json%info(name, n_children = n_children)
+    call json%info(name, n_children=n_children)
 
     if (.not. allocated(value)) then
        allocate(value(n_children))
@@ -248,7 +248,7 @@ contains
 
        if (len(string_value) .gt. 0) then
           value(i) = string_value
-       else if (present(filler)) then
+       else if(present(filler)) then
           value(i) = filler
        end if
     end do

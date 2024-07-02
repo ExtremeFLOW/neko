@@ -41,30 +41,30 @@ contains
   subroutine sx_lambda2_lx(lambda2, u, v, w, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n, lx)
     integer, intent(in) :: n, lx
-    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
-    real(kind=rp) :: grad(lx*lx*lx, 3, 3)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
+    real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -220,30 +220,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 18
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -399,30 +399,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 17
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -578,30 +578,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 16
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -757,30 +757,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 15
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -936,30 +936,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 14
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -1115,30 +1115,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 13
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -1294,30 +1294,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 12
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -1473,30 +1473,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 11
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -1652,30 +1652,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 10
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -1831,30 +1831,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 9
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -2010,30 +2010,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 8
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -2189,30 +2189,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 7
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -2368,30 +2368,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 6
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -2547,30 +2547,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 5
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -2726,30 +2726,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 4
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -2905,30 +2905,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 3
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     
@@ -3084,30 +3084,30 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, cB, n)
     integer, parameter :: lx = 2
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx, lx, lx,n), intent(inout) :: lambda2
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: u    
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: v
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: w
-    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx, lx, lx,n), intent(in) :: cB
-    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: lambda2
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u    
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: v
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: w
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: cB
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: grad(lx*lx*lx,3,3)
     real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
-    real(kind=rp) :: ur(lx, lx, lx)
-    real(kind=rp) :: vr(lx, lx, lx)
-    real(kind=rp) :: wr(lx, lx, lx)
-    real(kind=rp) :: us(lx, lx, lx)
-    real(kind=rp) :: vs(lx, lx, lx)
-    real(kind=rp) :: ws(lx, lx, lx)
-    real(kind=rp) :: ut(lx, lx, lx)
-    real(kind=rp) :: vt(lx, lx, lx)
-    real(kind=rp) :: wt(lx, lx, lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: vr(lx,lx,lx)
+    real(kind=rp) :: wr(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: vs(lx,lx,lx)
+    real(kind=rp) :: ws(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: vt(lx,lx,lx)
+    real(kind=rp) :: wt(lx,lx,lx)
     real(kind=rp) :: tmp1, tmp2, tmp3
     integer :: e, i, j, k, l
     

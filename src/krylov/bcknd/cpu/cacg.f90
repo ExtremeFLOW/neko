@@ -91,9 +91,9 @@ contains
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol = rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
        call this%ksp_init(max_iter)
     end if
@@ -139,10 +139,10 @@ contains
     real(kind=rp) :: rnorm, rtr, rtz1, tmp
     real(kind=rp) :: beta(this%s+1), alpha(this%s+1), alpha1, alpha2, norm_fac
     real(kind=rp), dimension(4*this%s+1,4*this%s+1) :: Tt, G, GTt, temp, temp2
-    real(kind=rp) :: p_c(4*this%s+1, this%s+1)
-    real(kind=rp) :: r_c(4*this%s+1, this%s+1)
-    real(kind=rp) :: z_c(4*this%s+1, this%s+1)
-    real(kind=rp) :: x_c(4*this%s+1, this%s+1)
+    real(kind=rp) :: p_c(4*this%s+1,this%s+1)
+    real(kind=rp) :: r_c(4*this%s+1,this%s+1)
+    real(kind=rp) :: z_c(4*this%s+1,this%s+1)
+    real(kind=rp) :: x_c(4*this%s+1,this%s+1)
 
     associate(PR => this%PR, r => this%r, p => this%p)
       s = this%s
@@ -164,7 +164,7 @@ contains
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       iter = 0
-      if (abscmp(rnorm, 0.0_rp)) return
+      if(abscmp(rnorm, 0.0_rp)) return
       do while (iter < max_iter)
 
          call copy(PR,p, n)
@@ -236,13 +236,13 @@ contains
             end do
          end do
 
-         call mxm(G, 4*s+1, Tt, 4*s+1, GTt, 4*s+1)
+         call mxm(G,4*s+1, Tt, 4*s+1,GTt,4*s+1)
 
          do j = 1, s
             iter = iter + 1
 
-            call mxm(G, 4*s+1, r_c(1,j), 4*s+1, temp, 1)
-            call mxm(GTt, 4*s+1, p_c(1,j), 4*s+1, temp2, 1)
+            call mxm(G, 4*s+1, r_c(1,j), 4*s+1,temp, 1)
+            call mxm(GTt, 4*s+1, p_c(1,j), 4*s+1,temp2, 1)
             alpha1 = 0.0_rp
             alpha2 = 0.0_rp
             do i = 1,4*s+1
@@ -265,7 +265,7 @@ contains
                z_c(i,j+1) = tmp
             end do
 
-            call mxm(G, 4*s+1, r_c(1, j+1), 4*s+1, temp2, 1)
+            call mxm(G,4*s+1,r_c(1,j+1),4*s+1,temp2,1)
             alpha2 = 0.0_rp
             do i = 1,4*s+1
                alpha2 = alpha2 + temp2(i,1)*z_c(i,j+1)
@@ -310,7 +310,7 @@ contains
          call MPI_Allreduce(rtr, tmp, 1, &
               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
          rnorm = norm_fac*sqrt(tmp)
-         if ( rnorm <= this%abs_tol) exit
+         if( rnorm <= this%abs_tol) exit
       end do
 
       ksp_results%res_final = rnorm
@@ -326,7 +326,7 @@ contains
     real(kind=rp), intent(inout) :: Tt(4*s+1,4*s+1)
     integer :: mlen, i
     mlen = (4*s+1)*(4*s+1)
-    call rzero(Tt, mlen)
+    call rzero(Tt,mlen)
     do i = 1, 2*s
        Tt(i+1,i) = 1.0_rp
     end do

@@ -75,7 +75,7 @@ contains
 
     allocate(this%w(n))
     allocate(this%r(n))
-    allocate(this%p(n, CG_P_SPACE))
+    allocate(this%p(n,CG_P_SPACE))
     allocate(this%z(n))
     allocate(this%alpha(CG_P_SPACE))
 
@@ -86,9 +86,9 @@ contains
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol = rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
        call this%ksp_init(max_iter)
     end if
@@ -153,7 +153,7 @@ contains
 
       rtz1 = 1.0_rp
       call rzero(x%x, n)
-      call rzero(p(1, CG_P_SPACE), n)
+      call rzero(p(1,CG_P_SPACE), n)
       call copy(r, f, n)
 
       rtr = glsc3(r, coef%mult, r, n)
@@ -163,7 +163,7 @@ contains
       ksp_results%iter = 0
       p_prev = CG_P_SPACE
       p_cur = 1
-      if (abscmp(rnorm, 0.0_rp)) return
+      if(abscmp(rnorm, 0.0_rp)) return
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
          rtz2 = rtz1
@@ -172,14 +172,14 @@ contains
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
          do i = 1, n
-            p(i, p_cur) = z(i) + beta * p(i, p_prev)
+            p(i,p_cur) = z(i) + beta * p(i,p_prev)
          end do
 
-         call Ax%compute(w, p(1, p_cur), coef, x%msh, x%Xh)
+         call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
          call bc_list_apply(blst, w, n)
 
-         pap = glsc3(w, coef%mult, p(1, p_cur), n)
+         pap = glsc3(w, coef%mult, p(1,p_cur), n)
 
          alpha(p_cur) = rtz1 / pap
          call second_cg_part(rtr, r, coef%mult, w, alpha(p_cur), n)
@@ -228,7 +228,7 @@ contains
   subroutine second_cg_part(rtr, r, mult, w, alpha, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: r(n), rtr
-    real(kind=rp), intent(in) :: mult(n), w(n), alpha
+    real(kind=rp), intent(in) ::mult(n), w(n), alpha
     integer :: i, ierr
 
     rtr = 0.0_rp

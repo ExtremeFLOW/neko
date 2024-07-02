@@ -80,11 +80,11 @@ contains
     type(dofmap_t), pointer :: dof
     type(space_t), pointer :: Xh
     real(kind=dp) :: time
-    character(len= 132) :: hdr
+    character(len=132) :: hdr
     character :: rdcode(10)
     character(len=6) :: id_str
-    character(len= 1024) :: fname
-    character(len= 1024) :: start_field
+    character(len=1024) :: fname
+    character(len=1024) :: start_field
     integer :: i, ierr, n, suffix_pos, tslash_pos
     integer :: lx, ly, lz, lxyz, gdim, glb_nelv, nelv, offset_el
     integer, allocatable :: idx(:)
@@ -97,7 +97,7 @@ contains
     integer :: FLD_DATA_SIZE, n_scalar_fields
 
     if (present(t)) then
-       time = real(t, dp)
+       time = real(t,dp)
     else
        time = 0d0
     end if
@@ -182,7 +182,7 @@ contains
           tem%ptr => data%items(5)%ptr%x(:,1,1,1)
           n_scalar_fields = data%size() - 5
           allocate(scalar_fields(n_scalar_fields))
-          do i = 1, n_scalar_fields
+          do i = 1,n_scalar_fields
              scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
           end do
           write_pressure = .true.
@@ -291,10 +291,10 @@ contains
     end if
 
     !> @todo fix support for single precision output?
-    write(hdr, 1) FLD_DATA_SIZE, lx, ly, lz, glb_nelv, glb_nelv, &
-         time, this%counter, 1, 1, (rdcode(i),i= 1, 10)
-1   format('#std', 1x, i1, 1x, i2, 1x, i2, 1x, i2, 1x, i10, 1x, i10, 1x, e20.13,&
-         1x, i9, 1x, i6, 1x, i6, 1x, 10a)
+    write(hdr, 1) FLD_DATA_SIZE, lx, ly, lz,glb_nelv,glb_nelv,&
+         time, this%counter, 1, 1, (rdcode(i),i=1,10)
+1   format('#std',1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
+         1x,i9,1x,i6,1x,i6,1x,10a)
 
     ! Change to NEKTON's fld file format
     suffix_pos = filename_suffix_pos(this%fname)
@@ -304,7 +304,7 @@ contains
     call MPI_File_open(NEKO_COMM, trim(fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
 
-    call MPI_File_write_all(fh, hdr, 132, MPI_CHARACTER, status, ierr)
+    call MPI_File_write_all(fh, hdr, 132, MPI_CHARACTER,  status, ierr)
     mpi_offset = 132 * MPI_CHARACTER_SIZE
 
     call MPI_File_write_all(fh, test_pattern, 1, MPI_REAL, status, ierr)
@@ -367,15 +367,15 @@ contains
     do i = 1, n_scalar_fields
        !Without this redundant if statement, Cray optimizes this loop to Oblivion
        if (i .eq. 2) then
-          mpi_offset = int(temp_offset, i8) + int(1_i8*glb_nelv, i8) * &
+          mpi_offset = int(temp_offset,i8) + int(1_i8*glb_nelv, i8) * &
                            (int(lxyz, i8) * &
                        int(FLD_DATA_SIZE, i8))
        end if
-       byte_offset = int(mpi_offset, i8) + int(offset_el, i8) * &
+       byte_offset = int(mpi_offset,i8) + int(offset_el, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
        call fld_file_write_field(this, fh, byte_offset, scalar_fields(i)%ptr, n)
-       mpi_offset = int(mpi_offset, i8) + int(glb_nelv, i8) * &
+       mpi_offset = int(mpi_offset,i8) + int(glb_nelv, i8) * &
             (int(lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
     end do
@@ -384,13 +384,13 @@ contains
     !> Include metadata with bounding boxes (Just copying from nek5000)
     if (write_mesh) then
        !The offset is: mpioff + element_off*2(min max value)*4(single precision)*gdim(dimensions)
-       byte_offset = int(mpi_offset, i8) + &
+       byte_offset = int(mpi_offset,i8) + &
                      int(offset_el, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8) * &
                      int(gdim, i8)
        call fld_file_write_metadata_vector(this, fh, byte_offset, x%ptr, y%ptr, z%ptr, gdim, lxyz, nelv)
-       mpi_offset = int(mpi_offset, i8) + &
+       mpi_offset = int(mpi_offset,i8) + &
                      int(glb_nelv, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8) * &
@@ -398,13 +398,13 @@ contains
     end if
 
     if (write_velocity) then
-       byte_offset = int(mpi_offset, i8) + &
+       byte_offset = int(mpi_offset,i8) + &
                      int(offset_el, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8) * &
                      int(gdim, i8)
        call fld_file_write_metadata_vector(this, fh, byte_offset, u%ptr, v%ptr, w%ptr, gdim, lxyz, nelv)
-       mpi_offset = int(mpi_offset, i8) + &
+       mpi_offset = int(mpi_offset,i8) + &
                      int(glb_nelv, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8) * &
@@ -413,12 +413,12 @@ contains
     end if
 
     if (write_pressure) then
-       byte_offset = int(mpi_offset, i8) + &
+       byte_offset = int(mpi_offset,i8) + &
                      int(offset_el, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8)
        call fld_file_write_metadata_scalar(this, fh, byte_offset, p%ptr, lxyz, nelv)
-       mpi_offset = int(mpi_offset, i8) + &
+       mpi_offset = int(mpi_offset,i8) + &
                      int(glb_nelv, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8)
@@ -426,12 +426,12 @@ contains
     end if
 
     if (write_temperature) then
-       byte_offset = int(mpi_offset, i8) + &
+       byte_offset = int(mpi_offset,i8) + &
                      int(offset_el, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8)
        call fld_file_write_metadata_scalar(this, fh, byte_offset, tem%ptr, lxyz, nelv)
-       mpi_offset = int(mpi_offset, i8) + &
+       mpi_offset = int(mpi_offset,i8) + &
                      int(glb_nelv, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8)
@@ -445,18 +445,18 @@ contains
     do i = 1, n_scalar_fields
        !Without this redundant if statement, Cray optimizes this loop to Oblivion
        if (i .eq. 2) then
-          mpi_offset = int(temp_offset, i8) + &
+          mpi_offset = int(temp_offset,i8) + &
                        int(1_i8*glb_nelv, i8) * &
                        int(2, i8) * &
                        int(MPI_REAL_SIZE, i8)
        end if
 
-       byte_offset = int(mpi_offset, i8) + &
+       byte_offset = int(mpi_offset,i8) + &
                      int(offset_el, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8)
        call fld_file_write_metadata_scalar(this, fh, byte_offset, scalar_fields(i)%ptr, lxyz, nelv)
-       mpi_offset = int(mpi_offset, i8) + &
+       mpi_offset = int(mpi_offset,i8) + &
                      int(glb_nelv, i8) * &
                      int(2, i8) * &
                      int(MPI_REAL_SIZE, i8)
@@ -469,14 +469,14 @@ contains
     ! Write metadata file
     if (pe_rank .eq. 0) then
        tslash_pos = filename_tslash_pos(this%fname)
-       write(start_field,"(I5,A8)") this%start_counter, '.nek5000'
-       open(unit = 9, file = trim(this%fname(1:suffix_pos-1))//trim(adjustl(start_field)), &
-            status = 'replace')
-       write(9, fmt = '(A,A,A)') 'filetemplate:         ', &
+       write(start_field,"(I5,A8)") this%start_counter,'.nek5000'
+       open(unit=9, file=trim(this%fname(1:suffix_pos-1))//trim(adjustl(start_field)), &
+            status='replace')
+       write(9, fmt='(A,A,A)') 'filetemplate:         ', &
             this%fname(tslash_pos+1:suffix_pos-1),'%01d.f%05d'
-       write(9, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
-       write(9, fmt = '(A,i5)') 'numtimesteps: ', (this%counter + 1)-this%start_counter
-       write(9, fmt = '(A)') 'type: binary'
+       write(9, fmt='(A,i5)') 'firsttimestep: ', this%start_counter
+       write(9, fmt='(A,i5)') 'numtimesteps: ', (this%counter + 1)-this%start_counter
+       write(9, fmt='(A)') 'type: binary'
        close(9)
     end if
 
@@ -490,23 +490,23 @@ contains
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
     integer, intent(in) :: gdim, lxyz, nelv
-    real(kind=rp), intent(in) :: x(lxyz, nelv), y(lxyz, nelv), z(lxyz, nelv)
+    real(kind=rp), intent(in) :: x(lxyz,nelv), y(lxyz,nelv), z(lxyz,nelv)
     integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
     integer :: el, j, ierr, nout
     type(MPI_Status) :: status
     real(kind=sp) :: buffer(2*gdim*nelv)
 
      j = 1
-     do el = 1, nelv
-        buffer(j+0) = real(vlmin(x(1, el), lxyz), sp)
-        buffer(j+1) = real(vlmax(x(1, el), lxyz), sp)
-        buffer(j+2) = real(vlmin(y(1, el), lxyz) , sp)
-        buffer(j+3) = real(vlmax(y(1, el), lxyz), sp)
+     do el=1,nelv
+        buffer(j+0) = real(vlmin(x(1,el),lxyz),sp)
+        buffer(j+1) = real(vlmax(x(1,el),lxyz),sp)
+        buffer(j+2) = real(vlmin(y(1,el),lxyz) ,sp)
+        buffer(j+3) = real(vlmax(y(1,el),lxyz),sp)
         j = j + 4
-        buffer(j+0) = real(vlmin(z(1, el), lxyz) , sp)
-        buffer(j+1) = real(vlmax(z(1, el), lxyz), sp)
+        buffer(j+0) = real(vlmin(z(1,el),lxyz) ,sp)
+        buffer(j+1) = real(vlmax(z(1,el),lxyz),sp)
         j = j + 2
-     end do
+     enddo
 
      ! write out data
      nout = 2*gdim*nelv
@@ -520,18 +520,18 @@ contains
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
     integer, intent(in) :: lxyz, nelv
-    real(kind=rp), intent(in) :: x(lxyz, nelv)
+    real(kind=rp), intent(in) :: x(lxyz,nelv)
     integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
     integer :: el, j, ierr, nout
     type(MPI_Status) :: status
     real(kind=sp) :: buffer(2*nelv)
 
      j = 1
-     do el = 1, nelv
-        buffer(j+0) = real(vlmin(x(1, el), lxyz), sp)
-        buffer(j+1) = real(vlmax(x(1, el), lxyz), sp)
+     do el=1,nelv
+        buffer(j+0) = real(vlmin(x(1,el),lxyz),sp)
+        buffer(j+1) = real(vlmax(x(1,el),lxyz),sp)
         j = j + 2
-     end do
+     enddo
 
      ! write out data
      nout = 2*nelv
@@ -552,14 +552,14 @@ contains
 
     if ( this%dp_precision) then
        do i = 1, n
-          tmp_dp(i) = real(p(i), dp)
+          tmp_dp(i) = real(p(i),dp)
        end do
 
        call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
             MPI_DOUBLE_PRECISION, status, ierr)
     else
        do i = 1, n
-          tmp_sp(i) = real(p(i), sp)
+          tmp_sp(i) = real(p(i),sp)
        end do
        call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
             MPI_REAL, status, ierr)
@@ -571,7 +571,7 @@ contains
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
     integer, intent(in) :: n, gdim, lxyz, nelv
-    real(kind=rp), intent(in) :: x(lxyz, nelv), y(lxyz, nelv), z(lxyz, nelv)
+    real(kind=rp), intent(in) :: x(lxyz,nelv), y(lxyz,nelv), z(lxyz,nelv)
     integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
     integer :: i, el, j, ierr
     type(MPI_Status) :: status
@@ -580,16 +580,16 @@ contains
        i = 1
        do el = 1, nelv
           do j = 1, lxyz
-             tmp_dp(i) = real(x(j, el), dp)
+             tmp_dp(i) = real(x(j,el),dp)
              i = i +1
           end do
           do j = 1, lxyz
-             tmp_dp(i) = real(y(j, el), dp)
+             tmp_dp(i) = real(y(j,el),dp)
              i = i +1
           end do
           if (gdim .eq. 3) then
              do j = 1, lxyz
-                tmp_dp(i) = real(z(j, el), dp)
+                tmp_dp(i) = real(z(j,el),dp)
                 i = i +1
              end do
           end if
@@ -600,16 +600,16 @@ contains
        i = 1
        do el = 1, nelv
           do j = 1, lxyz
-             tmp_sp(i) = real(x(j, el), sp)
+             tmp_sp(i) = real(x(j,el),sp)
              i = i +1
           end do
           do j = 1, lxyz
-             tmp_sp(i) = real(y(j, el), sp)
+             tmp_sp(i) = real(y(j,el),sp)
              i = i +1
           end do
           if (gdim .eq. 3) then
              do j = 1, lxyz
-                tmp_sp(i) = real(z(j, el), sp)
+                tmp_sp(i) = real(z(j,el),sp)
                 i = i +1
              end do
           end if
@@ -625,11 +625,11 @@ contains
   subroutine fld_file_read(this, data)
     class(fld_file_t) :: this
     class(*), target, intent(inout) :: data
-    character(len= 132) :: hdr
+    character(len=132) :: hdr
     integer :: ierr, suffix_pos, i, j
     type(MPI_File) :: fh
     type(MPI_Status) :: status
-    character(len= 1024) :: fname, meta_fname, string
+    character(len=1024) :: fname, meta_fname, string
     logical :: meta_file, read_mesh, read_velocity, read_pressure
     logical :: read_temp
     character(len=6) :: id_str
@@ -640,25 +640,25 @@ contains
     real(kind=sp) :: temp
     type(linear_dist_t) :: dist
     real(kind=sp), parameter :: test_pattern = 6.54321
-    character :: rdcode(10), temp_str(4)
+    character :: rdcode(10),temp_str(4)
 
     select type(data)
     type is (fld_file_data_t)
        call filename_chsuffix(this%fname, meta_fname,'nek5000')
 
-       inquire(file = trim(meta_fname), exist = meta_file)
+       inquire(file=trim(meta_fname), exist=meta_file)
        if (meta_file .and. data%meta_nsamples .eq. 0) then
           if (pe_rank .eq. 0) then
-             open(unit = 9, file = trim(meta_fname))
-             read(9, fmt = '(A)') string
-             read(string(14:), fmt = '(A)') string
+             open(unit=9, file=trim(meta_fname))
+             read(9, fmt='(A)') string
+             read(string(14:),fmt='(A)') string
              string = trim(string)
              data%fld_series_fname = string(:scan(trim(string), '%')-1)
              data%fld_series_fname = trim(data%fld_series_fname)//'0'
-             read(9, fmt = '(A)') string
-             read(string(scan(string, ':')+1:),*) data%meta_start_counter
-             read(9, fmt = '(A)') string
-             read(string(scan(string, ':')+1:),*) data%meta_nsamples
+             read(9, fmt='(A)') string
+             read(string(scan(string,':')+1:),*) data%meta_start_counter
+             read(9, fmt='(A)') string
+             read(string(scan(string,':')+1:),*) data%meta_nsamples
 
              close(9)
              write(*,*) 'Reading meta file for fld series'
@@ -668,7 +668,7 @@ contains
           call MPI_Bcast(data%fld_series_fname, 1024, MPI_CHARACTER, 0, NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_start_counter, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-          if (this%counter .eq. 0) this%counter = data%meta_start_counter
+          if(this%counter .eq. 0) this%counter = data%meta_start_counter
        end if
 
        if (meta_file) then
@@ -690,10 +690,10 @@ contains
        call MPI_File_read_all(fh, hdr, 132, MPI_CHARACTER,  status, ierr)
        !This read can prorbably be done wihtout the temp variables, temp_str, i, j
 
-       read(hdr, 1) temp_str, FLD_DATA_SIZE, lx, ly, lz, glb_nelv, glb_nelv,&
-          time, counter, i, j, (rdcode(i), i = 1, 10)
-1      format(4a, 1x, i1, 1x, i2, 1x, i2, 1x, i2, 1x, i10, 1x, i10, 1x, e20.13,&
-         1x, i9, 1x, i6, 1x, i6, 1x, 10a)
+       read(hdr, 1) temp_str,FLD_DATA_SIZE, lx, ly, lz, glb_nelv, glb_nelv,&
+          time, counter, i, j, (rdcode(i),i=1,10)
+1      format(4a,1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
+         1x,i9,1x,i6,1x,i6,1x,10a)
        if (data%nelv .eq. 0) then
           dist = linear_dist_t(glb_nelv, pe_rank, pe_size, NEKO_COMM)
           data%nelv = dist%num_local()

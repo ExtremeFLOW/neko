@@ -70,7 +70,7 @@ contains
     t = 0d0
     tstep = 0
     call neko_log%section('Starting simulation')
-    write(log_buf, '(A, E15.7,A,E15.7,A)') 'T  : [', 0d0, ',', C%end_time, ')'
+    write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%end_time,')'
     call neko_log%message(log_buf)
     call dt_controller%init(C%params)
     if (.not. dt_controller%if_variable_dt) then

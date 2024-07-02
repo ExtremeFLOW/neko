@@ -69,9 +69,9 @@ contains
   !! @param coef The SEM coefficients.
   subroutine dudxyz (du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv), &
+    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
          intent(inout) ::  du
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv), &
+    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
          intent(in) ::  u, dr, ds, dt
 
     if (NEKO_BCKND_SX .eq. 1) then
@@ -94,9 +94,9 @@ contains
   !! @param coef The SEM coefficients.
   subroutine div(res, ux, uy, uz, coef)
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv), &
+    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
          intent(inout) :: res
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv), &
+    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
          intent(in) ::  ux, uy, uz
     type(field_t), pointer :: work
     integer :: ind
@@ -139,10 +139,10 @@ contains
   !! @param coef The SEM coefficients.
   subroutine grad(ux, uy, uz, u, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
 
     call dudxyz(ux, u, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz(uy, u, coef%drdy, coef%dsdy, coef%dtdy, coef)
@@ -164,10 +164,10 @@ contains
   !! @note Equals wgradm1 in Nek5000, the weak form of the gradient.
   subroutine opgrad(ux, uy, uz, u, coef, es, ee)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
     integer, optional :: es, ee
     integer :: eblk_start, eblk_end
 
@@ -221,11 +221,11 @@ contains
   !! unesccssary
   subroutine cdtp (dtx, x, dr, ds, dt, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dr
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: ds
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
@@ -252,11 +252,11 @@ contains
   subroutine conv1(du, u, vx, vy, vz, Xh, coef, es, ee)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: du(Xh%lxyz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: du(Xh%lxyz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: vx(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: vy(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: vz(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
     integer, optional :: es, ee
     integer :: eblk_end, eblk_start
 
@@ -333,7 +333,7 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) ::  u, v, w
+    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv), intent(in) ::  u, v, w
     real(kind=rp) :: cfl
     integer :: ierr
 
@@ -385,7 +385,7 @@ contains
        s12_d = device_get_ptr(s12)
        s23_d = device_get_ptr(s23)
        s13_d = device_get_ptr(s13)
-    end if
+    endif
 
     nelv = u%msh%nelv
     lxyz = u%Xh%lxyz
@@ -397,7 +397,7 @@ contains
        call device_add2(s12_d, s11_d, nelv*lxyz)
     else
        call add2(s12, s11, nelv*lxyz)
-    end if
+    endif
 
     call dudxyz (s13, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
     call dudxyz (s11, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
@@ -405,7 +405,7 @@ contains
        call device_add2(s13_d, s11_d, nelv*lxyz)
     else
        call add2(s13, s11, nelv*lxyz)
-    end if
+    endif
 
     call dudxyz (s23, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
     call dudxyz (s11, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
@@ -413,7 +413,7 @@ contains
        call device_add2(s23_d, s11_d, nelv*lxyz)
     else
        call add2(s23, s11, nelv*lxyz)
-    end if
+    endif
 
     call dudxyz (s11, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (s22, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
@@ -427,7 +427,7 @@ contains
        call cmult(s12, 0.5_rp, nelv*lxyz)
        call cmult(s13, 0.5_rp, nelv*lxyz)
        call cmult(s23, 0.5_rp, nelv*lxyz)
-    end if
+    endif
 
   end subroutine strain_rate
 

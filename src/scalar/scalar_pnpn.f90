@@ -220,20 +220,20 @@ contains
     call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+                          n, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+                          n, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+                          n, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+                          n, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+                          n, HOST_TO_DEVICE, sync=.false.)
     end if
 
-    call this%gs_Xh%op(this%s, GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+    call this%gs_Xh%op(this%s,GS_OP_ADD)
+    call this%gs_Xh%op(this%slag%lf(1),GS_OP_ADD)
+    call this%gs_Xh%op(this%slag%lf(2),GS_OP_ADD)
 
   end subroutine scalar_pnpn_restart
 
@@ -290,7 +290,7 @@ contains
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, lambda => this%lambda, rho => this%rho, &
          ds => this%ds, &
-         s_res => this%s_res, &
+         s_res =>this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
@@ -301,14 +301,14 @@ contains
          dt_last_change => dt_controller%dt_last_change)
 
       if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
-         write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug', &
-              ' l2norm s', glsc2(this%s%x, this%s%x, n), &
-              ' slag1', glsc2(this%slag%lf(1)%x, this%slag%lf(1)%x, n), &
-              ' slag2', glsc2(this%slag%lf(2)%x, this%slag%lf(2)%x, n)
+         write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
+              ' l2norm s', glsc2(this%s%x,this%s%x,n),&
+              ' slag1', glsc2(this%slag%lf(1)%x,this%slag%lf(1)%x,n),&
+              ' slag2', glsc2(this%slag%lf(2)%x,this%slag%lf(2)%x,n)
          call neko_log%message(log_buf)
-         write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2', &
-              ' l2norm abx1', glsc2(this%abx1%x, this%abx1%x, n), &
-              ' abx2', glsc2(this%abx2%x, this%abx2%x, n)
+         write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2',&
+              ' l2norm abx1', glsc2(this%abx1%x,this%abx1%x,n),&
+              ' abx2', glsc2(this%abx2%x,this%abx2%x,n)
          call neko_log%message(log_buf)
       end if
 

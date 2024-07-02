@@ -195,14 +195,14 @@ contains
       if (c_associated(adv_coeffs_d)) then
          if (maxval(abs(adv_coeffs - adv_coeffs_old)) .gt. 1e-10_rp) then
             call device_memcpy(adv_coeffs, adv_coeffs_d, 4, &
-                               HOST_TO_DEVICE, sync = .false.)
+                               HOST_TO_DEVICE, sync=.false.)
          end if
       end if
 
       if (c_associated(diff_coeffs_d)) then
          if (maxval(abs(diff_coeffs - diff_coeffs_old)) .gt. 1e-10_rp) then
             call device_memcpy(diff_coeffs, diff_coeffs_d, 4, &
-                               HOST_TO_DEVICE, sync = .false.)
+                               HOST_TO_DEVICE, sync=.false.)
          end if
       end if
     end associate

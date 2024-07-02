@@ -106,8 +106,8 @@ contains
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    do e = 1, coef%msh%nelv
-       do i = 1, coef%Xh%lxyz
+    do e=1, coef%msh%nelv
+       do i=1, coef%Xh%lxyz
           ! beta_ij = alpha_mi alpha_mj
           beta11 = a11%x(i,1,1,e)**2 + a21%x(i,1,1,e)**2 + a31%x(i,1,1,e)**2
           beta22 = a12%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 + a32%x(i,1,1,e)**2

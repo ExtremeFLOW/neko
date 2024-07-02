@@ -91,7 +91,7 @@ contains
 
     if (case%params%valid_path('case.simulation_components')) then
 
-       call case%params%info('case.simulation_components', n_children = n_simcomps)
+       call case%params%info('case.simulation_components', n_children=n_simcomps)
        allocate(this%simcomps(n_simcomps))
        allocate(this%order(n_simcomps))
        allocate(read_order(n_simcomps))
@@ -103,7 +103,7 @@ contains
 
        ! We need a separate loop to figure out the order, so that we can
        ! apply the order to the initialization as well.
-       do i = 1, n_simcomps
+       do i=1, n_simcomps
           ! Create a new json containing just the subdict for this simcomp
           call json_extract_item(core, simcomp_object, i, comp_subdict)
           call json_get_or_default(comp_subdict, "order", read_order(i), i)
@@ -112,14 +112,14 @@ contains
        ! Figure out the execution order using a poor man's argsort.
        ! Searches for the location of the min value, each time masking out the
        ! found location prior to the next search.
-       do i = 1, n_simcomps
-         loc = minloc(read_order, mask = mask)
+       do i= 1, n_simcomps
+         loc = minloc(read_order, mask=mask)
          this%order(i) = loc(1)
          mask(loc) = .false.
        end do
 
        ! Init in the determined order.
-       do i = 1, n_simcomps
+       do i=1, n_simcomps
           call json_extract_item(core, simcomp_object, this%order(i),&
                                     comp_subdict)
           ! Have to add, the simcomp constructor expects it.
@@ -140,7 +140,7 @@ contains
     if (allocated(this%order)) deallocate(this%order)
 
     if (allocated(this%simcomps)) then
-       do i = 1, size(this%simcomps)
+       do i=1, size(this%simcomps)
           call this%simcomps(i)%simcomp%free
        end do
        deallocate(this%simcomps)
@@ -157,7 +157,7 @@ contains
     integer :: i
 
     if (allocated(this%simcomps)) then
-       do i = 1, size(this%simcomps)
+       do i=1, size(this%simcomps)
           call this%simcomps(this%order(i))%simcomp%compute(t, tstep)
        end do
     end if
@@ -172,7 +172,7 @@ contains
     integer :: i
 
     if (allocated(this%simcomps)) then
-       do i = 1, size(this%simcomps)
+       do i=1, size(this%simcomps)
           call this%simcomps(this%order(i))%simcomp%restart(t)
        end do
     end if

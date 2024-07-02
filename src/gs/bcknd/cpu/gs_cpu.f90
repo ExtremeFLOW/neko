@@ -79,7 +79,7 @@ contains
     integer, intent(in) :: op
     logical, intent(in) :: shrd
 
-    select case (op)
+    select case(op)
     case (GS_OP_ADD)
        call gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b)
     case (GS_OP_MUL)

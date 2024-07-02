@@ -274,20 +274,20 @@ contains
 
     !Initialize bcs for u, v, w velocity components
     call bc_list_init(this%bclst_du)
-    call bc_list_add(this%bclst_du, this%bc_sym%bc_x)
-    call bc_list_add(this%bclst_du, this%bc_vel_res_non_normal%bc_x)
+    call bc_list_add(this%bclst_du,this%bc_sym%bc_x)
+    call bc_list_add(this%bclst_du,this%bc_vel_res_non_normal%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res)
     call bc_list_add(this%bclst_du, this%bc_field_dirichlet_u)
 
     call bc_list_init(this%bclst_dv)
-    call bc_list_add(this%bclst_dv, this%bc_sym%bc_y)
-    call bc_list_add(this%bclst_dv, this%bc_vel_res_non_normal%bc_y)
+    call bc_list_add(this%bclst_dv,this%bc_sym%bc_y)
+    call bc_list_add(this%bclst_dv,this%bc_vel_res_non_normal%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res)
     call bc_list_add(this%bclst_dv, this%bc_field_dirichlet_v)
 
     call bc_list_init(this%bclst_dw)
-    call bc_list_add(this%bclst_dw, this%bc_sym%bc_z)
-    call bc_list_add(this%bclst_dw, this%bc_vel_res_non_normal%bc_z)
+    call bc_list_add(this%bclst_dw,this%bc_sym%bc_z)
+    call bc_list_add(this%bclst_dw,this%bc_vel_res_non_normal%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
     call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
 
@@ -314,7 +314,7 @@ contains
 
   end subroutine fluid_pnpn_init
 
-  subroutine fluid_pnpn_restart(this, dtlag, tlag)
+  subroutine fluid_pnpn_restart(this,dtlag, tlag)
     class(fluid_pnpn_t), target, intent(inout) :: this
     real(kind=rp) :: dtlag(10), tlag(10)
     type(field_t) :: u_temp, v_temp, w_temp
@@ -324,67 +324,67 @@ contains
     ! Make sure that continuity is maintained (important for interpolation)
     ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
-    call col2(this%u%x, this%c_Xh%mult, this%u%dof%size())
-    call col2(this%v%x, this%c_Xh%mult, this%u%dof%size())
-    call col2(this%w%x, this%c_Xh%mult, this%u%dof%size())
-    call col2(this%p%x, this%c_Xh%mult, this%u%dof%size())
+    call col2(this%u%x,this%c_Xh%mult,this%u%dof%size())
+    call col2(this%v%x,this%c_Xh%mult,this%u%dof%size())
+    call col2(this%w%x,this%c_Xh%mult,this%u%dof%size())
+    call col2(this%p%x,this%c_Xh%mult,this%u%dof%size())
     do i = 1, this%ulag%size()
-       call col2(this%ulag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
-       call col2(this%vlag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
-       call col2(this%wlag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
+       call col2(this%ulag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
+       call col2(this%vlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
+       call col2(this%wlag%lf(i)%x,this%c_Xh%mult,this%u%dof%size())
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       associate(u => this%u, v => this%v, w => this%w, &
-            ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
-            p => this%p)
+       associate(u=>this%u, v=>this%v, w=>this%w, &
+            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag,&
+            p=>this%p)
          call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+                            HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+                            HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+                            HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(p%x, p%x_d, p%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+                            HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
-                            u%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            u%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
-                            u%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            u%dof%size(), HOST_TO_DEVICE, sync=.false.)
 
          call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
-                            v%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            v%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
-                            v%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            v%dof%size(), HOST_TO_DEVICE, sync=.false.)
 
          call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%aby1%x, this%aby1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%aby2%x, this%aby2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abz1%x, this%abz1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(this%abz2%x, this%abz2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+                            w%dof%size(), HOST_TO_DEVICE, sync=.false.)
        end associate
     end if
 
 
-    call this%gs_Xh%op(this%u, GS_OP_ADD)
-    call this%gs_Xh%op(this%v, GS_OP_ADD)
-    call this%gs_Xh%op(this%w, GS_OP_ADD)
-    call this%gs_Xh%op(this%p, GS_OP_ADD)
+    call this%gs_Xh%op(this%u,GS_OP_ADD)
+    call this%gs_Xh%op(this%v,GS_OP_ADD)
+    call this%gs_Xh%op(this%w,GS_OP_ADD)
+    call this%gs_Xh%op(this%p,GS_OP_ADD)
 
     do i = 1, this%ulag%size()
-       call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
-       call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
-       call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
+       call this%gs_Xh%op(this%ulag%lf(i),GS_OP_ADD)
+       call this%gs_Xh%op(this%vlag%lf(i),GS_OP_ADD)
+       call this%gs_Xh%op(this%wlag%lf(i),GS_OP_ADD)
     end do
 
     !! If we would decide to only restart from lagged fields instead of asving abx1, aby1 etc.
@@ -528,7 +528,7 @@ contains
     call profiler_start_region('Fluid', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
-         u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
+         u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax => this%Ax, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &

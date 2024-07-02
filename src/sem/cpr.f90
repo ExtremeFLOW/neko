@@ -108,27 +108,27 @@ contains
   subroutine cpr_free(cpr)
     type(cpr_t), intent(inout) :: cpr
 
-    if (allocated(cpr%v)) then
+    if(allocated(cpr%v)) then
        deallocate(cpr%v)
     end if
 
-    if (allocated(cpr%vt)) then
+    if(allocated(cpr%vt)) then
        deallocate(cpr%vt)
     end if
 
-    if (allocated(cpr%vinv)) then
+    if(allocated(cpr%vinv)) then
        deallocate(cpr%vinv)
     end if
 
-    if (allocated(cpr%vinvt)) then
+    if(allocated(cpr%vinvt)) then
        deallocate(cpr%vinvt)
     end if
 
-    if (allocated(cpr%w)) then
+    if(allocated(cpr%w)) then
        deallocate(cpr%w)
     end if
 
-    if (allocated(cpr%fldhat)) then
+    if(allocated(cpr%fldhat)) then
        deallocate(cpr%fldhat)
     end if
 
@@ -219,10 +219,10 @@ contains
   !the result of the transform is given in fldhat
   subroutine cpr_goto_space(cpr, space)
     type(cpr_t), intent(inout) :: cpr
-    real(kind=rp) :: w2(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
-    real(kind=rp) :: w1(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
-    real(kind=rp) :: specmat(cpr%Xh%lx, cpr%Xh%lx)
-    real(kind=rp) :: specmatt(cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: w2(cpr%Xh%lx,cpr%Xh%lx,cpr%Xh%lx)
+    real(kind=rp) :: w1(cpr%Xh%lx,cpr%Xh%lx,cpr%Xh%lx)
+    real(kind=rp) :: specmat(cpr%Xh%lx,cpr%Xh%lx)
+    real(kind=rp) :: specmatt(cpr%Xh%lx,cpr%Xh%lx)
     integer :: k, e, nxyz, nelv
     character(len=4) :: space
 
@@ -234,29 +234,29 @@ contains
     if (space .eq. 'spec') then
        call copy(specmat, cpr%vinv, cpr%Xh%lx*cpr%Xh%lx)
        call copy(specmatt, cpr%vinvt, cpr%Xh%lx*cpr%Xh%lx)
-    end if
+    endif
     if (space .eq. 'phys') then
        call copy(specmat, cpr%v, cpr%Xh%lx*cpr%Xh%lx)
        call copy(specmatt, cpr%vt, cpr%Xh%lx*cpr%Xh%lx)
-    end if
+    endif
 
     ! Apply the operator (transform to given space)
-    do e = 1, nelv
+    do e=1,nelv
        if (space .eq. 'spec') then
           call copy(w2, cpr%fld%x(1,1,1,e), nxyz) ! start from phys field
        else
           call copy(w2, cpr%fldhat(1,1,1,e), nxyz) ! start from spec coeff
-       end if
+       endif
        ! apply the operator to the x direction, result in w1
        call mxm(specmat, cpr%Xh%lx, w2, cpr%Xh%lx, w1, cpr%Xh%lx*cpr%Xh%lx)
        ! apply matrix to y direction, result in w2
-       do k = 1, cpr%Xh%lx
-          call mxm(w1(1,1,k), cpr%Xh%lx, specmatt, cpr%Xh%lx, w2(1,1,k), cpr%Xh%lx)
-       end do
+       do k=1,cpr%Xh%lx
+          call mxm(w1(1,1,k),cpr%Xh%lx,specmatt,cpr%Xh%lx,w2(1,1,k),cpr%Xh%lx)
+       enddo
        ! apply matrix to z direction, result always in fldhat
        call mxm (w2, cpr%Xh%lx*cpr%Xh%lx, specmatt, cpr%Xh%lx,&
             cpr%fldhat(1,1,1,e), cpr%Xh%lx)
-    end do
+    enddo
 
   end subroutine cpr_goto_space
 
@@ -312,9 +312,9 @@ contains
           ! apply the operator to the x direction, result in w1
           call mxm(fx, nx, w2, nx, w1, nx*nx)
           ! apply matrix to y direction, result in w2
-          do k = 1, nx
+          do k=1,nx
              call mxm(w1(1,1,k), nx, fy, nx, w2(1,1,k), nx)
-          end do
+          enddo
           ! apply matrix to z direction, result in vtemp
           call mxm (w2, nx*nx, fz, nx, vtemp, nx)
 
@@ -339,10 +339,10 @@ contains
        !just to check that all is good, resort vsort
        if (e .eq. 50) then
           write(log_buf, '(A)') &
-               'Debugging info for e = 50. Do not forget to delete'
+               'Debugging info for e=50. Do not forget to delete'
           call neko_log%message(log_buf)
 
-          call reord(vsort, isort, nxyz)
+          call reord(vsort,isort,nxyz)
 
           write(log_buf, '(A)') &
                'Norm'
@@ -382,7 +382,7 @@ contains
     integer :: i
 
     ! copy absolute values to sort by magnitude
-    do i = 1, nxyz
+    do i =1, nxyz
        vsort(i) = abs(v(i))
        isort(i) = i
     end do
@@ -430,11 +430,11 @@ contains
     integer :: i, jj
 
     do i = 1, n
-       temp(i) = b(i)
+       temp(i)=b(i)
     end do
     do i = 1, n
-       jj = ind(i)
-       b(i) = temp(jj)
+       jj=ind(i)
+       b(i)=temp(jj)
     end do
 
   end subroutine swap
@@ -461,9 +461,9 @@ contains
   subroutine build_filter_tf(fx, fy, fz, kut, lx)
     integer, intent(in) :: lx
     integer, intent(in) :: kut
-    real(kind=rp), intent(inout) :: fx(lx, lx)
-    real(kind=rp), intent(inout) :: fy(lx, lx)
-    real(kind=rp), intent(inout) :: fz(lx, lx)
+    real(kind=rp), intent(inout) :: fx(lx,lx)
+    real(kind=rp), intent(inout) :: fy(lx,lx)
+    real(kind=rp), intent(inout) :: fz(lx,lx)
     integer :: i, j, k, k0, kk, kutx, kuty, kutz
 
     ! set the values acording to kut
@@ -532,7 +532,7 @@ contains
 
     ! Get the volume of the element
     nxyz = coef%Xh%lx*coef%Xh%lx*coef%Xh%lx
-    vole = 0
+    vole=0
     do i = 1, nxyz
        vole = vole+coef%B(i,1,1,e)
     end do

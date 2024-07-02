@@ -141,10 +141,10 @@ contains
     ! Select which constructor should be called
 
     call json%get('objects', json_object_list)
-    call json%info('objects', n_children = n_regions)
+    call json%info('objects', n_children=n_regions)
     call json%get_core(core)
 
-    do i = 1, n_regions
+    do i=1, n_regions
        call json_extract_item(core, json_object_list, i, object_settings)
        call json_get_or_default(object_settings, 'type', object_type, 'none')
 
@@ -322,7 +322,7 @@ contains
     select case (distance_transform)
       case ('smooth_step')
        call json_get(json, 'distance_transform.value', scalar_d)
-       scalar_r = real(scalar_d, kind = rp)
+       scalar_r = real(scalar_d, kind=rp)
 
        call signed_distance_field(temp_field, boundary_mesh, scalar_d)
        call smooth_step_field(temp_field, scalar_r, 0.0_rp)

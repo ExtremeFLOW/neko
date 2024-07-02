@@ -70,7 +70,7 @@ contains
     if (present(field_name)) then
        name = field_name
     else
-       write(name, '(A,A)') 'mean_', trim(f%name)
+       write(name, '(A,A)') 'mean_',trim(f%name)
     end if
 
     call this%mf%init(f%dof, name)

@@ -64,7 +64,7 @@ contains
        end if
     else if (pctype(1:4) .eq. 'hsmg') then
        allocate(hsmg_t::pc)
-    else if (trim(pctype) .eq. 'ident') then
+    else if(trim(pctype) .eq. 'ident') then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(device_ident_t::pc)
        else
