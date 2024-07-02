@@ -30,25 +30,20 @@ regexp-rules:
     replacement: \1 \2
     active: true
 
-  missing-spaces-around-separator:
-    message: Missing spaces around separator
-    regexp: (\S)::(\S)
-    replacement: '\1 :: \2'
-    active: true
-
   missing-spaces-before-separator:
     message: Missing space before separator
-    regexp: '(\S)::'
+    regexp: '(?<!_t|.\s)(::)'
     replacement: '\1 ::'
     active: true
 
   missing-spaces-after-separator:
     message: Missing space after separator
-    regexp: ::(\S)
+    regexp: (?<!_t)(::)(?!\s)
     replacement: ':: \1'
     active: true
 
   # Look through the list of punctuation, but skip if inside format string '()'
+  # However, we do allow a single letter variable to be used without spaces.
   missing-spaces-after-punctuation:
     message: Missing space after punctuation
     regexp: (?<!'\([.*])(,)(\w\w)(?!.*\)')
@@ -68,7 +63,7 @@ regexp-rules:
     replacement: \1 (
     active: true
 
-  prepend-with-!$:
+  prepend-openmp-with-!$:
     message: Should prepend with "!$"
     regexp: ^(\s*)use omp_lib
     replacement: '\1!$ use omp_lib'
@@ -80,7 +75,7 @@ regexp-rules:
   #   replacement: null
   #   active: true
 
-  tabulation-insteadof-twospaces:
+  tabulation-instead-of-two-spaces:
     message: Should use 2 spaces instead of tabulation
     regexp: \t
     replacement: "  "
@@ -92,9 +87,10 @@ regexp-rules:
     replacement: \1(\2)
     active: true
 
+  # Exception: ´!` is allowed at the end of a string.
   one-space-before-comment:
     message: At least one space before comment
-    regexp: (\w)\!
+    regexp: (\S+)\!(?!'|")
     replacement: \1 !
     active: true
 
