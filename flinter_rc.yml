@@ -48,9 +48,10 @@ regexp-rules:
     replacement: ':: \1'
     active: true
 
+  # Look through the list of punctuation, but skip if inside format string '()'
   missing-spaces-after-punctuation:
     message: Missing space after punctuation
-    regexp: ({punctuations})(\w\w)
+    regexp: (?<!'\([.*])(,)(\w{2,})(?!.*\)')
     replacement: \1 \2
     active: true
 
@@ -82,7 +83,7 @@ regexp-rules:
   tabulation-insteadof-twospaces:
     message: Should use 2 spaces instead of tabulation
     regexp: \t
-    replacement: '  '
+    replacement: "  "
     active: true
 
   use-new-syntax-type:
@@ -130,7 +131,7 @@ regexp-rules:
   trailing-white-spaces:
     message: Trailing white-spaces
     regexp: (\w\s+)$
-    replacement: ''
+    replacement: ""
     active: true
 
   recommended-use-of-sp-dp:
@@ -232,43 +233,43 @@ structure-rules:
 # A priori there is no need to edit, but Fortran is so vast in time...
 fortran-syntax:
   types:
-      - real
-      - character
-      - logical
-      - integer
-      - complex
-      - double precision
+    - real
+    - character
+    - logical
+    - integer
+    - complex
+    - double precision
 
   operators:
-      - '\.eq\.'
-      - '=='
-      - '\.neq\.'
-      - '/='
-      - '\.gt\.'
-      - '>'
-      - '\.lt\.'
-      - '<'
-      - '\.geq\.'
-      - '>='
-      - '\.leq\.'
-      - '<='
-      - '\.le\.'
-      - '\.ge\.'
-      - '\.and\.'
-      - '\.or\.'
+    - '\.eq\.'
+    - "=="
+    - '\.neq\.'
+    - "/="
+    - '\.gt\.'
+    - ">"
+    - '\.lt\.'
+    - "<"
+    - '\.geq\.'
+    - ">="
+    - '\.leq\.'
+    - "<="
+    - '\.le\.'
+    - '\.ge\.'
+    - '\.and\.'
+    - '\.or\.'
 
   structs:
-      - 'if'
-      - 'select'
-      - 'case'
-      - 'while'
-      - 'is'
-      - 'select type'
+    - "if"
+    - "select"
+    - "case"
+    - "while"
+    - "is"
+    - "select type"
 
   punctuations:
-    - ','
+    - ","
     - '\)'
-    - ';'
+    - ";"
 
   blocks:
     - "program"
