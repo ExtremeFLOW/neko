@@ -930,7 +930,7 @@ contains
        a(i) = aa
        ind(i) = ii
     end do
-  end subroutine sortdp
+  end subroutine sortrp
 
   !> Heap Sort for single integer arrays
   !! @details Following p 231 Num. Rec., 1st Ed.
