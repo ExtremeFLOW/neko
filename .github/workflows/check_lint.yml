@@ -155,9 +155,9 @@ jobs:
               printf "%.s-" {1..80} && printf "\n"
               printf "Linting failed for \n\t$fail\n\n"
 
-              report=$(flint lint -r flinter_rc.yml $file)
+              report=$(flint lint -r flinter_rc.yml $fail)
               if [ -z "$report" ]; then
-                report=$(flint stats -r flinter_rc.yml $file)
+                report=$(flint stats -r flinter_rc.yml $fail)
               fi
               echo "$report"
             done
