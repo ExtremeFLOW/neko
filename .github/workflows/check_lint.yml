@@ -103,7 +103,7 @@ jobs:
           fi
 
           git fetch --unshallow origin $target
-          changes=($(git diff --name-only --diff-filter=d origin/$target)
+          changes=($(git diff --name-only --diff-filter=d origin/$target))
           echo "changed-files=${changes[@]}" >> $GITHUB_OUTPUT
 
       - name: Lint changed files
