@@ -77,7 +77,7 @@ module math
   end interface abscmp
 
   interface sort
-     module procedure sortdp, sorti4
+     module procedure sortrp, sorti4
   end interface sort
 
   interface swap
