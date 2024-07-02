@@ -5,19 +5,19 @@ module opr_sx
   use sx_conv1
   use sx_cdtp
   use sx_cfl
+  use sx_lambda2
   use gather_scatter
   use num_types, only : rp
   use space, only : space_t
   use coefs, only : coef_t
   use math
-  use mesh, only : mesh_t
   use field, only : field_t
   use mathops
   implicit none
   private
 
   public :: opr_sx_dudxyz, opr_sx_opgrad, opr_sx_cdtp, opr_sx_conv1, &
-       opr_sx_curl, opr_sx_cfl
+       opr_sx_curl, opr_sx_cfl, opr_sx_lambda2
 
 contains
 
@@ -75,8 +75,8 @@ contains
 
   end subroutine opr_sx_dudxyz
 
-  subroutine opr_sx_opgrad(ux,uy,uz,u,coef) 
-    type(coef_t), intent(in) :: coef  
+  subroutine opr_sx_opgrad(ux,uy,uz,u,coef)
+    type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
@@ -286,10 +286,10 @@ contains
 
   end subroutine opr_sx_cdtp
 
-  subroutine opr_sx_conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)  
+  subroutine opr_sx_conv1(du,u, vx, vy, vz, Xh, coef, nelv)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    integer, intent(in) :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(inout) ::  du(Xh%lxyz,nelv)
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
@@ -302,85 +302,85 @@ contains
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(13)
        call sx_conv1_lx13(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)   
+            coef%jacinv, nelv)
     case(12)
        call sx_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(11)
        call sx_conv1_lx11(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(10)
        call sx_conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(9)
        call sx_conv1_lx9(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(8)
        call sx_conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(7)
        call sx_conv1_lx7(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(6)
        call sx_conv1_lx6(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(5)
        call sx_conv1_lx5(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(4)
        call sx_conv1_lx4(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(3)
        call sx_conv1_lx3(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case(2)
        call sx_conv1_lx2(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%jacinv, nelv)
     case default
        call sx_conv1_lx(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim, Xh%lx)
+            coef%jacinv, nelv, Xh%lx)
     end select
 
   end subroutine opr_sx_conv1
@@ -425,122 +425,260 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
-    call c_Xh%gs_h%op(w1, GS_OP_ADD) 
-    call c_Xh%gs_h%op(w2, GS_OP_ADD) 
-    call c_Xh%gs_h%op(w3, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w1, GS_OP_ADD)
+    call c_Xh%gs_h%op(w2, GS_OP_ADD)
+    call c_Xh%gs_h%op(w3, GS_OP_ADD)
     call opcolv(w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
 
   end subroutine opr_sx_curl
 
-  function opr_sx_cfl(dt, u, v, w, Xh, coef, nelv, gdim) result(cfl)
+  function opr_sx_cfl(dt, u, v, w, Xh, coef, nelv) result(cfl)
     type(space_t) :: Xh
     type(coef_t) :: coef
-    integer :: nelv, gdim
-    real(kind=rp) :: dt
+    integer, intent(in) :: nelv
+    real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
     real(kind=rp) :: cfl
 
-   select case(Xh%lx)
-   case (14)
-      cfl = sx_cfl_lx14(dt, u, v, w, &
+    select case(Xh%lx)
+    case (14)
+       cfl = sx_cfl_lx14(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (13)
-      cfl = sx_cfl_lx13(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (13)
+       cfl = sx_cfl_lx13(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (12)
-      cfl = sx_cfl_lx12(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (12)
+       cfl = sx_cfl_lx12(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (11)
-      cfl = sx_cfl_lx11(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (11)
+       cfl = sx_cfl_lx11(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (10)
-      cfl = sx_cfl_lx10(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (10)
+       cfl = sx_cfl_lx10(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (9)
-      cfl = sx_cfl_lx9(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (9)
+       cfl = sx_cfl_lx9(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (8)
-      cfl = sx_cfl_lx8(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (8)
+       cfl = sx_cfl_lx8(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (7)
-      cfl = sx_cfl_lx7(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (7)
+       cfl = sx_cfl_lx7(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (6)
-      cfl = sx_cfl_lx6(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (6)
+       cfl = sx_cfl_lx6(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (5)
-      cfl = sx_cfl_lx5(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (5)
+       cfl = sx_cfl_lx5(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (4)
-      cfl = sx_cfl_lx4(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (4)
+       cfl = sx_cfl_lx4(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (3)
-      cfl = sx_cfl_lx3(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (3)
+       cfl = sx_cfl_lx3(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case (2)
-      cfl = sx_cfl_lx2(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case (2)
+       cfl = sx_cfl_lx2(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim)
-   case default
-      cfl = sx_cfl_lx(dt, u, v, w, &
+           coef%jacinv, nelv)
+    case default
+       cfl = sx_cfl_lx(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
            coef%drdy, coef%dsdy, coef%dtdy, &
            coef%drdz, coef%dsdz, coef%dtdz, &
            Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
-           coef%jacinv, nelv, gdim, Xh%lx)
-   end select
+           coef%jacinv, nelv, Xh%lx)
+    end select
 
   end function opr_sx_cfl
+
+  subroutine opr_sx_lambda2(lambda2, u, v, w, coef)
+    type(coef_t), intent(in) :: coef
+    type(field_t), intent(inout) :: lambda2
+    type(field_t), intent(in) :: u, v, w
+
+    associate(Xh => coef%Xh, msh => coef%msh)
+      select case(Xh%lx)
+      case (18)
+         call sx_lambda2_lx18(lambda2%x, u%x, v%x, w%x, &
+                              Xh%dx, Xh%dy, Xh%dz, &
+                              coef%drdx, coef%dsdx, coef%dtdx, &
+                              coef%drdy, coef%dsdy, coef%dtdy, &
+                              coef%drdz, coef%dsdz, coef%dtdz, &
+                              Xh%w3, coef%B, msh%nelv)
+      case (17)
+         call sx_lambda2_lx17(lambda2%x, u%x, v%x, w%x, &
+                              Xh%dx, Xh%dy, Xh%dz, &
+                              coef%drdx, coef%dsdx, coef%dtdx, &
+                              coef%drdy, coef%dsdy, coef%dtdy, &
+                              coef%drdz, coef%dsdz, coef%dtdz, &
+                              Xh%w3, coef%B, msh%nelv)
+      case (16)
+         call sx_lambda2_lx16(lambda2%x, u%x, v%x, w%x, &
+                              Xh%dx, Xh%dy, Xh%dz, &
+                              coef%drdx, coef%dsdx, coef%dtdx, &
+                              coef%drdy, coef%dsdy, coef%dtdy, &
+                              coef%drdz, coef%dsdz, coef%dtdz, &
+                              Xh%w3, coef%B, msh%nelv)
+      case (15)
+         call sx_lambda2_lx15(lambda2%x, u%x, v%x, w%x, &
+                              Xh%dx, Xh%dy, Xh%dz, &
+                              coef%drdx, coef%dsdx, coef%dtdx, &
+                              coef%drdy, coef%dsdy, coef%dtdy, &
+                              coef%drdz, coef%dsdz, coef%dtdz, &
+                              Xh%w3, coef%B, msh%nelv)
+      case (14)
+         call sx_lambda2_lx14(lambda2%x, u%x, v%x, w%x, &
+                              Xh%dx, Xh%dy, Xh%dz, &
+                              coef%drdx, coef%dsdx, coef%dtdx, &
+                              coef%drdy, coef%dsdy, coef%dtdy, &
+                              coef%drdz, coef%dsdz, coef%dtdz, &
+                              Xh%w3, coef%B, msh%nelv)
+      case (13)
+         call sx_lambda2_lx13(lambda2%x, u%x, v%x, w%x, &
+                              Xh%dx, Xh%dy, Xh%dz, &
+                              coef%drdx, coef%dsdx, coef%dtdx, &
+                              coef%drdy, coef%dsdy, coef%dtdy, &
+                              coef%drdz, coef%dsdz, coef%dtdz, &
+                              Xh%w3, coef%B, msh%nelv)
+      case (12)
+         call sx_lambda2_lx12(lambda2%x, u%x, v%x, w%x, &
+                              Xh%dx, Xh%dy, Xh%dz, &
+                              coef%drdx, coef%dsdx, coef%dtdx, &
+                              coef%drdy, coef%dsdy, coef%dtdy, &
+                              coef%drdz, coef%dsdz, coef%dtdz, &
+                              Xh%w3, coef%B, msh%nelv)
+      case (11)
+         call sx_lambda2_lx11(lambda2%x, u%x, v%x, w%x, &
+                              Xh%dx, Xh%dy, Xh%dz, &
+                              coef%drdx, coef%dsdx, coef%dtdx, &
+                              coef%drdy, coef%dsdy, coef%dtdy, &
+                              coef%drdz, coef%dsdz, coef%dtdz, &
+                              Xh%w3, coef%B, msh%nelv)
+      case (10)
+         call sx_lambda2_lx10(lambda2%x, u%x, v%x, w%x, &
+                              Xh%dx, Xh%dy, Xh%dz, &
+                              coef%drdx, coef%dsdx, coef%dtdx, &
+                              coef%drdy, coef%dsdy, coef%dtdy, &
+                              coef%drdz, coef%dsdz, coef%dtdz, &
+                              Xh%w3, coef%B, msh%nelv)
+      case (9)
+         call sx_lambda2_lx9(lambda2%x, u%x, v%x, w%x, &
+                             Xh%dx, Xh%dy, Xh%dz, &
+                             coef%drdx, coef%dsdx, coef%dtdx, &
+                             coef%drdy, coef%dsdy, coef%dtdy, &
+                             coef%drdz, coef%dsdz, coef%dtdz, &
+                             Xh%w3, coef%B, msh%nelv)
+      case (8)
+         call sx_lambda2_lx8(lambda2%x, u%x, v%x, w%x, &
+                             Xh%dx, Xh%dy, Xh%dz, &
+                             coef%drdx, coef%dsdx, coef%dtdx, &
+                             coef%drdy, coef%dsdy, coef%dtdy, &
+                             coef%drdz, coef%dsdz, coef%dtdz, &
+                             Xh%w3, coef%B, msh%nelv)
+      case (7)
+         call sx_lambda2_lx7(lambda2%x, u%x, v%x, w%x, &
+                             Xh%dx, Xh%dy, Xh%dz, &
+                             coef%drdx, coef%dsdx, coef%dtdx, &
+                             coef%drdy, coef%dsdy, coef%dtdy, &
+                             coef%drdz, coef%dsdz, coef%dtdz, &
+                             Xh%w3, coef%B, msh%nelv)
+      case (6)
+         call sx_lambda2_lx6(lambda2%x, u%x, v%x, w%x, &
+                             Xh%dx, Xh%dy, Xh%dz, &
+                             coef%drdx, coef%dsdx, coef%dtdx, &
+                             coef%drdy, coef%dsdy, coef%dtdy, &
+                             coef%drdz, coef%dsdz, coef%dtdz, &
+                             Xh%w3, coef%B, msh%nelv)
+      case (5)
+         call sx_lambda2_lx5(lambda2%x, u%x, v%x, w%x, &
+                             Xh%dx, Xh%dy, Xh%dz, &
+                             coef%drdx, coef%dsdx, coef%dtdx, &
+                             coef%drdy, coef%dsdy, coef%dtdy, &
+                             coef%drdz, coef%dsdz, coef%dtdz, &
+                             Xh%w3, coef%B, msh%nelv)
+      case (4)
+         call sx_lambda2_lx4(lambda2%x, u%x, v%x, w%x, &
+                             Xh%dx, Xh%dy, Xh%dz, &
+                             coef%drdx, coef%dsdx, coef%dtdx, &
+                             coef%drdy, coef%dsdy, coef%dtdy, &
+                             coef%drdz, coef%dsdz, coef%dtdz, &
+                             Xh%w3, coef%B, msh%nelv)
+      case (3)
+         call sx_lambda2_lx3(lambda2%x, u%x, v%x, w%x, &
+                             Xh%dx, Xh%dy, Xh%dz, &
+                             coef%drdx, coef%dsdx, coef%dtdx, &
+                             coef%drdy, coef%dsdy, coef%dtdy, &
+                             coef%drdz, coef%dsdz, coef%dtdz, &
+                             Xh%w3, coef%B, msh%nelv)
+      case (2)
+         call sx_lambda2_lx2(lambda2%x, u%x, v%x, w%x, &
+                             Xh%dx, Xh%dy, Xh%dz, &
+                             coef%drdx, coef%dsdx, coef%dtdx, &
+                             coef%drdy, coef%dsdy, coef%dtdy, &
+                             coef%drdz, coef%dsdz, coef%dtdz, &
+                             Xh%w3, coef%B, msh%nelv)
+      case default
+         call sx_lambda2_lx(lambda2%x, u%x, v%x, w%x, &
+                            Xh%dx, Xh%dy, Xh%dz, &
+                            coef%drdx, coef%dsdx, coef%dtdx, &
+                            coef%drdy, coef%dsdy, coef%dtdy, &
+                            coef%drdz, coef%dsdz, coef%dtdz, &
+                            Xh%w3, coef%B, msh%nelv, Xh%lx)
+      end select
+    end associate
+    
+  end subroutine opr_sx_lambda2  
 
 end module opr_sx

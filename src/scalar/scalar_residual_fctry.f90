@@ -41,23 +41,25 @@ module scalar_residual_fctry
 
 contains
 
-  
-  subroutine scalar_residual_factory(scalar_res)
-    class(scalar_residual_t), allocatable, intent(inout) :: scalar_res
+  !> Factory for the scalar advection-diffusion residual.
+  !! @details Only selects the compute backend.
+  !! @param object The object to be allocated by the factory.
+  subroutine scalar_residual_factory(object)
+    class(scalar_residual_t), allocatable, intent(inout) :: object
 
-    if (allocated(scalar_res)) then
-       deallocate(scalar_res)
+    if (allocated(object)) then
+       deallocate(object)
     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
-       allocate(scalar_residual_sx_t::scalar_res)
+       allocate(scalar_residual_sx_t::object)
     else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(scalar_residual_device_t::scalar_res)
+       allocate(scalar_residual_device_t::object)
     else
-       allocate(scalar_residual_cpu_t::scalar_res)
+       allocate(scalar_residual_cpu_t::object)
     end if
-       
-    
+
+
   end subroutine scalar_residual_factory
 end module scalar_residual_fctry

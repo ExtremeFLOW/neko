@@ -40,23 +40,34 @@ module simulation_component
   use json_module, only : json_file
   use case, only : case_t
   use time_based_controller, only : time_based_controller_t
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_get
   implicit none
   private
-  
+
   !> Base abstract class for simulation components.
   type, abstract, public :: simulation_component_t
      !> Pointer to the simulation case.
      type(case_t), pointer :: case
+     !> Controller for when to run `preprocess`.
+     type(time_based_controller_t) :: preprocess_controller
      !> Controller for when to run `compute`.
      type(time_based_controller_t) :: compute_controller
      !> Controller for when to do output.
      type(time_based_controller_t) :: output_controller
+     !> The execution order, lowest excutes first.
+     integer :: order
    contains
      !> Constructor for the simulation_component_t (base) class.
      procedure, pass(this) :: init_base => simulation_component_init_base
      !> Destructor for the simulation_component_t (base) class.
      procedure, pass(this) :: free_base => simulation_component_free_base
+     !> Wrapper for calling `set_counter` for the time based controllers.
+     !! Serves as the public interface.
+     procedure, pass(this) :: restart => simulation_component_restart_wrapper
+     !> Wrapper for calling `preprocess_` based on the `preprocess_controller`.
+     !! Serves as the public interface.
+     procedure, pass(this) :: preprocess => &
+       simulation_component_preprocess_wrapper
      !> Wrapper for calling `compute_` based on the `compute_controller`.
      !! Serves as the public interface.
      procedure, pass(this) :: compute => simulation_component_compute_wrapper
@@ -64,61 +75,59 @@ module simulation_component
      procedure(simulation_component_init), pass(this), deferred :: init
      !> Destructor.
      procedure(simulation_component_free), pass(this), deferred :: free
+     !> The preprocessing function to be executed during the run.
+     procedure, pass(this) :: preprocess_
      !> The main function to be executed during the run.
-     procedure(simulation_component_compute), pass(this), deferred :: compute_
+     procedure, pass(this) :: compute_
   end type simulation_component_t
-  
+
   !> A helper type that is needed to have an array of polymorphic objects
   type, public :: simulation_component_wrapper_t
-    class(simulation_component_t), allocatable :: simcomp
+     class(simulation_component_t), allocatable :: simcomp
   end type simulation_component_wrapper_t
 
-  
+
   abstract interface
      !> The common constructor using a JSON dictionary.
      !! @param json The JSON with properties.
-     !! @param case The case_t object. 
-     subroutine simulation_component_init(this, json, case)  
+     !! @param case The case_t object.
+     subroutine simulation_component_init(this, json, case)
        import simulation_component_t, json_file, case_t
        class(simulation_component_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
        class(case_t), intent(inout), target :: case
-     end subroutine
+     end subroutine simulation_component_init
   end interface
 
   abstract interface
      !> Destructor.
-     subroutine simulation_component_free(this)  
+     subroutine simulation_component_free(this)
        import simulation_component_t
        class(simulation_component_t), intent(inout) :: this
-     end subroutine
-  end interface
-
-  abstract interface
-     !> The main function to be executed during the run.
-     !! @param t The time value.
-     !! @param tstep The current time-step
-     subroutine simulation_component_compute(this, t, tstep)  
-       import simulation_component_t, rp
-       class(simulation_component_t), intent(inout) :: this
-       real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
-     end subroutine
+     end subroutine simulation_component_free
   end interface
 
 contains
   !> Constructor for the `simulation_component_t` (base) class.
-  subroutine simulation_component_init_base(this, json, case)  
+  subroutine simulation_component_init_base(this, json, case)
     class(simulation_component_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: compute_control, output_control
-    real(kind=rp) :: compute_value, output_value
+    character(len=:), allocatable :: preprocess_control, compute_control, output_control
+    real(kind=rp) :: preprocess_value, compute_value, output_value
+    integer :: order
 
     this%case => case
+
+    ! We default to preprocess every time-step
+    call json_get_or_default(json, "preprocess_control", preprocess_control, &
+                             "tsteps")
+    call json_get_or_default(json, "preprocess_value", preprocess_value, 1.0_rp)
+
+    ! We default to compute every time-step
     call json_get_or_default(json, "compute_control", compute_control, &
                              "tsteps")
-    call json_get_or_default(json, "compute_value", compute_value, 1.0_rp) 
+    call json_get_or_default(json, "compute_value", compute_value, 1.0_rp)
 
     ! We default to output whenever we execute
     call json_get_or_default(json, "output_control", output_control, &
@@ -126,34 +135,94 @@ contains
     call json_get_or_default(json, "output_value", output_value, &
                              compute_value)
 
+
+    if (output_control == "global") then
+       call json_get(this%case%params, 'case.fluid.output_control', &
+                     output_control)
+       call json_get(this%case%params, 'case.fluid.output_value', &
+                     output_value)
+    end if
+
+    call json_get(json, "order", order)
+    this%order = order
+
+    call this%preprocess_controller%init(case%end_time, preprocess_control, &
+                                         preprocess_value)
     call this%compute_controller%init(case%end_time, compute_control, &
-                                        compute_value)
+                                      compute_value)
     call this%output_controller%init(case%end_time, output_control, &
                                      output_value)
 
   end subroutine simulation_component_init_base
 
   !> Destructor for the `simulation_component_t` (base) class.
-  subroutine simulation_component_free_base(this)  
+  subroutine simulation_component_free_base(this)
     class(simulation_component_t), intent(inout) :: this
 
     nullify(this%case)
   end subroutine simulation_component_free_base
 
+  !> Wrapper for calling `preprocess_` based on the `preprocess_controller`.
+  !! Serves as the public interface.
+  !! @param t The time value.
+  !! @param tstep The current time-step
+  subroutine simulation_component_preprocess_wrapper(this, t, tstep)
+    class(simulation_component_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    if (this%preprocess_controller%check(t, tstep)) then
+       call this%preprocess_(t, tstep)
+       call this%preprocess_controller%register_execution()
+    end if
+  end subroutine simulation_component_preprocess_wrapper
+
   !> Wrapper for calling `compute_` based on the `compute_controller`.
   !! Serves as the public interface.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine simulation_component_compute_wrapper(this, t, tstep)  
+  subroutine simulation_component_compute_wrapper(this, t, tstep)
     class(simulation_component_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
     if (this%compute_controller%check(t, tstep)) then
-      call this%compute_(t, tstep)
-      call this%compute_controller%register_execution()
+       call this%compute_(t, tstep)
+       call this%compute_controller%register_execution()
     end if
   end subroutine simulation_component_compute_wrapper
 
-  
+  !> Wrapper for calling `set_counter_` based for the controllers.
+  !! Serves as the public interface.
+  !! @param t The time value.
+  subroutine simulation_component_restart_wrapper(this, t)
+    class(simulation_component_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+
+    call this%compute_controller%set_counter(t)
+    call this%output_controller%set_counter(t)
+
+  end subroutine simulation_component_restart_wrapper
+
+  !> Dummy preprocessing function.
+  !! @param t The time value.
+  !! @param tstep The current time-step
+  subroutine preprocess_(this, t, tstep)
+    class(simulation_component_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    ! Do nothing
+  end subroutine preprocess_
+
+  !> Dummy compute function.
+  !! @param t The time value.
+  !! @param tstep The current time-step
+  subroutine compute_(this, t, tstep)
+    class(simulation_component_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    ! Do nothing
+  end subroutine compute_
 end module simulation_component

@@ -52,6 +52,33 @@ extern "C" {
                                (cudaStream_t) glb_cmd_queue));
   }
 
+  /** Fortran wrapper for masked copy
+   * Copy a vector \f$ a(mask) = b(mask) \f$
+   */
+  void cuda_masked_copy(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    masked_copy_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real*) b,(int*) mask, *n, *m);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  /** Fortran wrapper for cfill_mask
+   * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
+   */
+  void cuda_cfill_mask(void* a, real* c, int* size, int* mask, int* mask_size) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*mask_size) + 1024 - 1) / 1024, 1, 1);
+
+    cfill_mask_kernel<real><<<nblcks, nthrds, 0, (cudaStream_t)glb_cmd_queue>>>(
+        (real*)a, *c, *size, mask, *mask_size);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
   /** Fortran wrapper for rzero
    * Zero a real vector
    */
@@ -370,6 +397,40 @@ extern "C" {
   int red_s = 0;
   real * bufred = NULL;
   real * bufred_d = NULL;
+
+  /**
+   * Fortran wrapper vlsc3
+   * Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
+   */
+  real cuda_vlsc3(void *u, void *v, void *w, int *n) {
+        
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
+    
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        CUDA_CHECK(cudaFreeHost(bufred));
+        CUDA_CHECK(cudaFree(bufred_d));        
+      }
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+    }
+     
+    glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
+      ((real *) u, (real *) v, (real *) w, bufred_d, *n);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
+    CUDA_CHECK(cudaGetLastError());
+
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+
+    return bufred[0];
+  }
 
   /**
    * Fortran wrapper glsc3

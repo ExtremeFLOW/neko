@@ -74,6 +74,7 @@ contains
     
     call msh%add_element(2, p(2), p(5), p(6), p(4), &
          p(8), p(11), p(12), p(9))
+    call msh%generate_conn()
     
   end subroutine test_mean_sqr_field_gen_msh
   
@@ -89,6 +90,8 @@ contains
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
     call test_mean_sqr_field_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     
@@ -126,7 +129,8 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), DEVICE_TO_HOST)
+       call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), &
+                          DEVICE_TO_HOST, sync=.true.)
     end if
 
     @assertEqual(maxval(mf%mf%x), 1764.0_rp)
@@ -140,7 +144,8 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(mf2%mf%x, mf2%mf%x_d, size(mf2%mf%x), DEVICE_TO_HOST)
+       call device_memcpy(mf2%mf%x, mf2%mf%x_d, size(mf2%mf%x), &
+                          DEVICE_TO_HOST, sync=.true.)
     end if
 
     @assertEqual(maxval(mf2%mf%x), 38.5_rp)

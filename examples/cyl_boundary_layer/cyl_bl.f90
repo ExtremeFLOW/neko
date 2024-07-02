@@ -25,8 +25,7 @@ contains
     type(user_t), intent(inout) :: u
     u%fluid_user_ic => user_ic
     u%fluid_user_if => user_inflow_eval
-    !u%user_check => user_do_stuff
-    u%user_mesh_setup => cylinder_deform
+    u%user_dirichlet_update => dirichlet_update
   end subroutine user_setup
  
   subroutine cylinder_deform(msh)
@@ -148,5 +147,85 @@ contains
        w%x(i,1,1,1) = 0.0
     end do
   end subroutine user_ic
+
+  ! Initial example of using user specified dirichlet bcs
+  ! Note: This subroutine will be called two times, once in the fluid solver, and once
+  ! in the scalar solver (if enabled).
+  !! Parameters:
+  !! -----------
+  !! field_bc_list:     List of fields from which the BC conditions zill be extracted.
+  !!                    If which_solver = "fluid", contains (u,v,w,p).
+  !!                    If which_solver = "scalar", contains (s).
+  !! bc_bc_list:        List of BCs containing field_dirichlet_t BC objects only.
+  !!                    If which_solver = "fluid", contains the bc objects
+  !!                    (d_vel_u, d_vel_v, d_vel_w, d_pres).
+  !!                    If which_solver = "scalar", contains the bc object (d_s).
+  !! coef:              Coef object.
+  !! t:                 Current time.
+  !! tstep:             Current time step.
+  !! which_solver:      Indicates wether the fields provided come from "fluid" or "scalar".
+  subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)
+    type(field_list_t), intent(inout) :: field_bc_list
+    type(bc_list_t), intent(inout) :: bc_bc_list
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    character(len=*), intent(in) :: which_solver
+
+    integer :: i
+    real(kind=rp) :: y,z
+
+    ! Only do this at the first time step since our BCs are constants.
+    if (tstep .ne. 1) return
+
+    ! Check that we are being called by `fluid`
+    if (trim(which_solver) .eq. "fluid") then
+
+       associate(u => field_bc_list%fields(1)%f, &
+            v => field_bc_list%fields(2)%f, &
+            w => field_bc_list%fields(3)%f, &
+            p => field_bc_list%fields(4)%f)
+
+         !
+         ! Perform operations on u%x, v%x, w%x and p%x here
+         ! Note that we are checking if fields are allocated. If the
+         ! boundary type only contains e.g. "d_vel_u/d_pres", the fields
+         ! v%x and w%x will not be allocated.
+         !
+         ! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)
+         ! and nonsensical pressure outlet of p = -1
+         !
+         if (allocated(u%x)) u = 1.0_rp
+         if (allocated(v%x)) v = 0.0_rp
+         if (allocated(w%x)) w = 0.0_rp
+         if (allocated(p%x)) p = -1.0_rp
+
+       end associate
+
+    ! Check that we are being called by `scalar`
+    else if (trim(which_solver) .eq. "scalar") then
+
+       associate( s => field_bc_list%fields(1)%f, &
+            s_bc => bc_bc_list%bc(1)%bcp)
+
+         !
+         ! Perform operations on the scalar field here
+         ! Note that we are checking if the field is allocated, in
+         ! case the boundary is empty.
+         !
+         if (allocated(s%x)) then
+
+            do i = 1, s_bc%msk(0)
+               y = s_bc%dof%y(s_bc%msk(i), 1, 1, 1)
+               z = s_bc%dof%z(s_bc%msk(i), 1, 1, 1)
+               s%x(s_bc%msk(i), 1, 1, 1) = sin(y)*sin(z)
+            end do
+
+         end if
+       end associate
+
+    end if
+
+  end subroutine dirichlet_update
 
 end module user

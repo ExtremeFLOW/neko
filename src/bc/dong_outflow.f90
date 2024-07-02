@@ -42,22 +42,24 @@ module dong_outflow
   use coefs
   use utils
   use device_dong_outflow
+  use field_registry, only : neko_field_registry
   use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof
+  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default
   implicit none
   private
 
   !> Dong outflow condition
-  !! Follows 
+  !! Follows
   !! "A Convective-like Energy-Stable Open Boundary Condition for
   !! Simulations of Incompressible Flows"
   !! by S. Dong
-  type, public, extends(dirichlet_t) :: dong_outflow_t
+  type, public, extends(bc_t) :: dong_outflow_t
      type(field_t), pointer :: u
      type(field_t), pointer :: v
      type(field_t), pointer :: w
-     type(coef_t), pointer :: c_Xh
-     real(kind=rp) :: delta 
-     real(kind=rp) :: uinf  
+     real(kind=rp) :: delta
+     real(kind=rp) :: uinf
      type(c_ptr) :: normal_x_d
      type(c_ptr) :: normal_y_d
      type(c_ptr) :: normal_z_d
@@ -66,59 +68,61 @@ module dong_outflow
      procedure, pass(this) :: apply_vector => dong_outflow_apply_vector
      procedure, pass(this) :: apply_scalar_dev => dong_outflow_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => dong_outflow_apply_vector_dev
-     procedure, pass(this) :: set_vars => dong_outflow_set_vars
+     procedure, pass(this) :: init => dong_outflow_init
+     !> Destructor.
+     procedure, pass(this) :: free => dong_outflow_free
   end type dong_outflow_t
 
 contains
-    subroutine dong_outflow_set_vars(this, c_Xh, u, v, w, uinf, delta)
-      class(dong_outflow_t), intent(inout) :: this
-      type(coef_t), target, intent(in) :: c_Xh
-      type(field_t), target, intent(in) :: u, v, w
-      real(kind=rp), intent(in) :: uinf
-      real(kind=rp), optional, intent(in) :: delta
-      real(kind=rp), allocatable :: temp_x(:)
-      real(kind=rp), allocatable :: temp_y(:)
-      real(kind=rp), allocatable :: temp_z(:)
-      real(c_rp) :: dummy
-      integer :: i, m, k, facet, idx(4)
-      real(kind=rp) :: normal_xyz(3)
-      
+  subroutine dong_outflow_init(this, coef, json)
+    class(dong_outflow_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) :: json
+    real(kind=rp), allocatable :: temp_x(:)
+    real(kind=rp), allocatable :: temp_y(:)
+    real(kind=rp), allocatable :: temp_z(:)
+    real(c_rp) :: dummy
+    integer :: i, m, k, facet, idx(4)
+    real(kind=rp) :: normal_xyz(3)
 
-      if (present(delta)) then
-         this%delta = delta
-      else 
-         this%delta = 0.01_rp
-      end if
-      this%uinf = uinf
-      this%u => u
-      this%v => v
-      this%c_Xh=> c_Xh
-      this%w => w
-      if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
-         call device_alloc(this%normal_x_d,c_sizeof(dummy)*this%msk(0))
-         call device_alloc(this%normal_y_d,c_sizeof(dummy)*this%msk(0))
-         call device_alloc(this%normal_z_d,c_sizeof(dummy)*this%msk(0))
-         m = this%msk(0)
-         allocate(temp_x(m))
-         allocate(temp_y(m))
-         allocate(temp_z(m))
-         do i = 1, m
-            k = this%msk(i)
-            facet = this%facet(i)
-            idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
-            normal_xyz = &
-                 this%c_Xh%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
+!    call this%dirichlet_t%init
+
+    call json_get_or_default(json, 'case.fluid.outflow_condition.delta', &
+                             this%delta, 0.01_rp)
+    call json_get_or_default(json, 'case.fluid.outflow_condition.velocity_scale', &
+                             this%uinf, 1.0_rp)
+
+    this%u => neko_field_registry%get_field("u")
+    this%v => neko_field_registry%get_field("v")
+    this%w => neko_field_registry%get_field("w")
+
+    if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
+       call device_alloc(this%normal_x_d, c_sizeof(dummy)*this%msk(0))
+       call device_alloc(this%normal_y_d, c_sizeof(dummy)*this%msk(0))
+       call device_alloc(this%normal_z_d, c_sizeof(dummy)*this%msk(0))
+       m = this%msk(0)
+       allocate(temp_x(m))
+       allocate(temp_y(m))
+       allocate(temp_z(m))
+       do i = 1, m
+          k = this%msk(i)
+          facet = this%facet(i)
+          idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
+          normal_xyz = &
+                 this%coef%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
             temp_x(i) = normal_xyz(1)
             temp_y(i) = normal_xyz(2)
             temp_z(i) = normal_xyz(3)
          end do
-         call device_memcpy(temp_x, this%normal_x_d, m, HOST_TO_DEVICE)
-         call device_memcpy(temp_y, this%normal_y_d, m, HOST_TO_DEVICE)
-         call device_memcpy(temp_z, this%normal_z_d, m, HOST_TO_DEVICE)
+         call device_memcpy(temp_x, this%normal_x_d, m, &
+                            HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(temp_y, this%normal_y_d, m, &
+                            HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(temp_z, this%normal_z_d, m, &
+                            HOST_TO_DEVICE, sync=.true.)
          deallocate( temp_x, temp_y, temp_z)
       end if
-
-  end subroutine dong_outflow_set_vars
+  end subroutine dong_outflow_init
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x
@@ -139,13 +143,13 @@ contains
        uy = this%v%x(k,1,1,1)
        uz = this%w%x(k,1,1,1)
        idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
-       normal_xyz = this%c_Xh%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
-       vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3) 
+       normal_xyz = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
+       vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)
        S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
-                                     
+
        x(k)=-0.5*(ux*ux+uy*uy+uz*uz)*S0
     end do
-end subroutine dong_outflow_apply_scalar
+  end subroutine dong_outflow_apply_scalar
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z
@@ -157,7 +161,7 @@ end subroutine dong_outflow_apply_scalar
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    
+
   end subroutine dong_outflow_apply_vector
 
   !> Boundary condition apply for a generic Dirichlet condition
@@ -173,10 +177,10 @@ end subroutine dong_outflow_apply_scalar
                                           this%u%x_d, this%v%x_d, this%w%x_d,&
                                           this%uinf, this%delta,&
                                           this%msk(0))
-    
+
   end subroutine dong_outflow_apply_scalar_dev
-  
-  !> Boundary condition apply for a generic Dirichlet condition 
+
+  !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine dong_outflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(dong_outflow_t), intent(inout), target :: this
@@ -188,7 +192,15 @@ end subroutine dong_outflow_apply_scalar
 
     !call device_dong_outflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
     !                                   this%g, size(this%msk))
-    
+
   end subroutine dong_outflow_apply_vector_dev
+
+  !> Destructor
+  subroutine dong_outflow_free(this)
+    class(dong_outflow_t), target, intent(inout) :: this
+
+    call this%free_base
+
+  end subroutine dong_outflow_free
 
 end module dong_outflow

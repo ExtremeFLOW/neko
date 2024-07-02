@@ -7,7 +7,7 @@ neko_fortran_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
-        common/log.f90\
+	common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
@@ -18,11 +18,13 @@ neko_fortran_SOURCES = \
 	common/system.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
+	qoi/drag_torque.f90\
 	sem/local_interpolation.f90 \
 	math/math.f90\
 	math/mathops.f90\
 	math/fast3d.f90\
 	sem/space.f90\
+	sem/map_1d.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
 	sem/cpr.f90\
@@ -52,9 +54,17 @@ neko_fortran_SOURCES = \
 	adt/uset.f90\
 	adt/stack.f90\
 	adt/tuple.f90\
-	mesh/zone.f90\
+	mesh/facet_zone.f90\
+	mesh/point_zone.f90\
+	mesh/point_zones/sphere_point_zone.f90\
+	mesh/point_zones/box_point_zone.f90\
+	mesh/point_zones/cylinder_point_zone.f90\
+	mesh/point_zone_fctry.f90\
+	mesh/point_zone_registry.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
+	mesh/search_tree/aabb.f90\
+	mesh/aabb_tree.f90\
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	field/field_registry.f90\
@@ -75,6 +85,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/sx/sx_dudxyz.f90\
 	math/bcknd/sx/sx_opgrad.f90\
 	math/bcknd/sx/sx_cfl.f90\
+	math/bcknd/sx/sx_lambda2.f90\
 	math/operators.f90\
 	math/bcknd/cpu/opr_cpu.f90\
 	math/bcknd/sx/opr_sx.f90\
@@ -91,6 +102,7 @@ neko_fortran_SOURCES = \
 	math/schwarz.f90\
 	math/vector.f90\
 	math/matrix.f90\
+	math/signed_distance.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -103,9 +115,11 @@ neko_fortran_SOURCES = \
 	io/nmsh_file.f90\
 	io/chkp_file.f90\
 	io/csv_file.f90\
+	io/hdf5_file.F90\
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
+	io/fld_file_output.f90\
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
 	io/fluid_stats_output.f90\
@@ -117,15 +131,20 @@ neko_fortran_SOURCES = \
 	common/craypat.F90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
+	bc/neumann.f90\
 	bc/dong_outflow.f90\
 	bc/wall.f90\
 	bc/inflow.f90\
+	bc/field_dirichlet.f90\
+	bc/field_dirichlet_vector.f90\
 	bc/usr_inflow.f90\
 	bc/usr_scalar.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
 	bc/non_normal.f90\
 	bc/blasius.f90\
+	bc/shear_stress.f90\
+	bc/wall_model_bc.f90\
 	krylov/precon.f90\
 	krylov/krylov.f90\
 	krylov/pc_identity.f90\
@@ -143,6 +162,8 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	krylov/bcknd/device/cg_device.f90\
 	krylov/bcknd/device/pipecg_device.F90\
+	krylov/bcknd/device/fusedcg_device.F90\
+	krylov/bcknd/device/fusedcg_cpld_device.F90\
 	krylov/bcknd/device/gmres_device.F90\
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
@@ -157,6 +178,7 @@ neko_fortran_SOURCES = \
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
+	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
@@ -177,14 +199,21 @@ neko_fortran_SOURCES = \
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
+	fluid/advection_fctry.f90\
+        fluid/bcknd/advection/adv_dealias.f90\
+        fluid/bcknd/advection/adv_no_dealias.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
+	common/time_step_controller.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
-	math/bcknd/cpu/ax_helm.f90\
+	math/ax_helm.f90\
+	math/ax_helm_full.f90\
+	math/bcknd/cpu/ax_helm_cpu.f90\
+	math/bcknd/cpu/ax_helm_full_cpu.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
 	math/bcknd/device/ax_helm_device.F90\
@@ -221,19 +250,49 @@ neko_fortran_SOURCES = \
 	scalar/scalar_aux.f90\
 	scalar/scalar_residual.f90\
 	scalar/scalar_residual_fctry.f90\
+	scalar/scalar_ic.f90\
+	scalar/scalar_source_term.f90\
+	scalar/scalar_user_source_term.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\
 	simulation_components/simulation_component.f90\
-	simulation_components/simulation_component_global.f90\
+	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
-	simulation_components/simulation_component_factory.f90\
+	simulation_components/weak_grad.f90\
+	simulation_components/derivative.f90\
+	simulation_components/les_simcomp.f90\
+	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
 	source_terms/bcknd/device/const_source_term_device.f90\
-	source_terms/source_term_factory.f90\
+	source_terms/boussinesq_source_term.f90\
+	source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90\
+	source_terms/bcknd/device/boussinesq_source_term_device.f90\
+	source_terms/source_term_fctry.f90\
+	source_terms/brinkman_source_term.f90\
+	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
+	source_terms/bcknd/device/brinkman_source_term_device.f90\
+	source_terms/brinkman/filters.f90\
+	source_terms/bcknd/cpu/filters_cpu.f90\
+	les/les_model.f90\
+	les/les_model_fctry.f90\
+	les/vreman.f90\
+	les/bcknd/cpu/vreman_cpu.f90\
+	les/smagorinsky.f90\
+	les/bcknd/cpu/smagorinsky_cpu.f90\
+	les/dynamic_smagorinsky.f90\
+	les/bcknd/cpu/dynamic_smagorinsky_cpu.f90\
+	les/elementwise_filter.f90\
+	les/bcknd/cpu/elementwise_filter_cpu.f90\
+	les/sigma.f90\
+	les/bcknd/cpu/sigma_cpu.f90\
+	wall_models/rough_log_law.f90\
+	wall_models/spalding.f90\
+	wall_models/wall_model.f90\
+	wall_models/wall_model_fctry.f90\
 	neko.f90
 
 neko_c_SOURCES = comm/comm_wrapper.c\
@@ -266,6 +325,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/ax_helm.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	krylov/bcknd/device/hip/pipecg_aux.hip\
+	krylov/bcknd/device/hip/fusedcg_aux.hip\
 	krylov/bcknd/device/hip/gmres_aux.hip\
 	gs/bcknd/device/hip/gs.hip\
 	bc/bcknd/device/hip/dirichlet.hip\
@@ -299,6 +359,8 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/ax_helm.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
+	krylov/bcknd/device/cuda/fusedcg_aux.cu\
+	krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu\
 	krylov/bcknd/device/cuda/gmres_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
@@ -476,6 +538,9 @@ EXTRA_DIST = \
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
+	krylov/bcknd/device/cuda/fusedcg_kernel.h\
+	krylov/bcknd/device/hip/fusedcg_kernel.h\
+	krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\

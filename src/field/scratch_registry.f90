@@ -35,48 +35,46 @@
 !! often and you don't want to create temporary fields (work arrays) inside
 !! it on each call.
 module scratch_registry
-  use num_types, only : rp
   use field, only : field_t, field_ptr_t
   use dofmap, only : dofmap_t
-  use utils, only : neko_error
   implicit none
   private
-  
-  
+
+
   type, public :: scratch_registry_t
-     !> list of scratch fields 
-     type(field_ptr_t), private, allocatable :: fields(:) 
+     !> list of scratch fields
+     type(field_ptr_t), private, allocatable :: fields(:)
      !> Tracks which fields are used
-     logical, private, allocatable :: inuse(:) 
+     logical, private, allocatable :: inuse(:)
      !> number of registered fields
-     integer, private :: nfields                      
+     integer, private :: nfields
      !> number of fields in use
-     integer, private :: nfields_inuse                
+     integer, private :: nfields_inuse
      !> the size the fields array is increased by upon reallocation
-     integer, private :: expansion_size               
+     integer, private :: expansion_size
      !> Dofmap
-     type(dofmap_t), pointer :: dof                   
+     type(dofmap_t), pointer :: dof
    contains
      procedure, private, pass(this) :: expand
      !> destructor
-     procedure, pass(this) :: free => scratch_registry_free 
-     !> getter for nfields  
-     procedure, pass(this) :: get_nfields 
-     !> getter for nfields_inuse 
-     procedure, pass(this) :: get_nfields_inuse 
+     procedure, pass(this) :: free => scratch_registry_free
+     !> getter for nfields
+     procedure, pass(this) :: get_nfields
+     !> getter for nfields_inuse
+     procedure, pass(this) :: get_nfields_inuse
      !> getter for expansion_size
-     procedure, pass(this) :: get_expansion_size 
+     procedure, pass(this) :: get_expansion_size
      !> return size of allocated fields
-     procedure, pass(this) :: get_size 
+     procedure, pass(this) :: get_size
      !> get value of inuse for a given index
-     procedure, pass(this) :: get_inuse 
+     procedure, pass(this) :: get_inuse
      !> get a new scratch field
-     procedure, pass(this) :: request_field 
+     procedure, pass(this) :: request_field
      procedure, pass(this) :: relinquish_field_single
      procedure, pass(this) :: relinquish_field_multiple
      !> free a field for later reuse
      generic :: relinquish_field => relinquish_field_single, &
-          relinquish_field_multiple 
+          relinquish_field_multiple
   end type scratch_registry_t
 
   interface scratch_registry_t
@@ -87,7 +85,7 @@ module scratch_registry
   type(scratch_registry_t), public, target :: neko_scratch_registry
 
 contains
-  
+
   !> Constructor, optionally taking initial registry and expansion
   !! size as argument
   type(scratch_registry_t) function init(dof, size, expansion_size) result(this)
@@ -95,13 +93,13 @@ contains
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
     integer :: i
-    
+
     this%dof => dof
 
     if (present(size)) then
        allocate (this%fields(size))
        do i= 1, size
-         allocate(this%fields(i)%f)
+          allocate(this%fields(i)%ptr)
        end do
        allocate (this%inuse(size))
     else
@@ -127,16 +125,16 @@ contains
 
     if (allocated(this%fields)) then
        do i=1, this%nfields
-          call this%fields(i)%f%free()
-          deallocate(this%fields(i)%f)
+          call this%fields(i)%ptr%free()
+          deallocate(this%fields(i)%ptr)
        end do
-    
+
        deallocate(this%fields)
        deallocate(this%inuse)
     end if
 
     nullify(this%dof)
-    
+
   end subroutine scratch_registry_free
 
 
@@ -145,7 +143,7 @@ contains
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
-    n = this%nfields  
+    n = this%nfields
   end function get_nfields
 
   pure function get_nfields_inuse(this) result(n)
@@ -154,7 +152,7 @@ contains
 
     n = 0
     do i=1,this%get_size()
-      if (this%inuse(i)) n = n + 1
+       if (this%inuse(i)) n = n + 1
     end do
   end function get_nfields_inuse
 
@@ -176,15 +174,15 @@ contains
 
   subroutine expand(this)
     class(scratch_registry_t), intent(inout) :: this
-    type(field_ptr_t), allocatable :: temp(:)  
-    logical, allocatable :: temp2(:)  
+    type(field_ptr_t), allocatable :: temp(:)
+    logical, allocatable :: temp2(:)
     integer :: i
 
     allocate(temp(this%get_size() + this%expansion_size))
     temp(1:this%nfields) = this%fields(1:this%nfields)
-    
+
     do i=this%nfields +1, size(temp)
-      allocate(temp(i)%f)
+       allocate(temp(i)%ptr)
     enddo
 
     call move_alloc(temp, this%fields)
@@ -203,18 +201,18 @@ contains
     integer, intent(inout) :: index !< The index of the field in the inuse array
     character(len=10) :: name
 
-    
-    associate(nfields => this%nfields, nfields_inuse => this%nfields_inuse) 
+
+    associate(nfields => this%nfields, nfields_inuse => this%nfields_inuse)
 
       do index=1,this%get_size()
          if (this%inuse(index) .eqv. .false.) then
             write (name, "(A3,I0.3)") "wrk", index
-            
-            if (.not. allocated(this%fields(index)%f%x)) then
-               call this%fields(index)%f%init(this%dof, trim(name))
+
+            if (.not. allocated(this%fields(index)%ptr%x)) then
+               call this%fields(index)%ptr%init(this%dof, trim(name))
                nfields = nfields + 1
             end if
-            f => this%fields(index)%f
+            f => this%fields(index)%ptr
             this%inuse(index) = .true.
             this%nfields_inuse = this%nfields_inuse + 1
             return
@@ -227,17 +225,17 @@ contains
       nfields_inuse = nfields_inuse + 1
       this%inuse(nfields) = .true.
       write (name, "(A3,I0.3)") "wrk", index
-      call this%fields(nfields)%f%init(this%dof, trim(name))
-      f => this%fields(nfields)%f
+      call this%fields(nfields)%ptr%init(this%dof, trim(name))
+      f => this%fields(nfields)%ptr
 
     end associate
   end subroutine request_field
-  
+
   !> Relinquish the use of a field in the registry
   subroutine relinquish_field_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index !< The index of the field to free
-    
+
     this%inuse(index) = .false.
     this%nfields_inuse = this%nfields_inuse - 1
   end subroutine relinquish_field_single
@@ -248,15 +246,15 @@ contains
     integer :: i
 
     do i=1, size(indices)
-      this%inuse(indices(i)) = .false.
+       this%inuse(indices(i)) = .false.
     end do
-    this%nfields_inuse = this%nfields_inuse - size(indices) 
+    this%nfields_inuse = this%nfields_inuse - size(indices)
   end subroutine relinquish_field_multiple
 
   logical function get_inuse(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the field to check 
-    
+    integer, intent(inout) :: index !< The index of the field to check
+
     get_inuse = this%inuse(index)
   end function get_inuse
 

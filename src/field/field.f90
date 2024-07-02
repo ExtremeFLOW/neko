@@ -32,20 +32,20 @@
 !
 !> Defines a field
 module field
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use device_math
   use num_types, only : rp
   use device
-  use math
+  use math, only : add2, copy, cadd
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
   implicit none
   private
-  
+
   type, public :: field_t
      real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
-     
+
      type(space_t), pointer :: Xh   !< Function space \f$ X_h \f$
      type(mesh_t), pointer :: msh   !< Mesh
      type(dofmap_t), pointer :: dof !< Dofmap
@@ -62,8 +62,10 @@ module field
      procedure, private, pass(this) :: assign_field => field_assign_field
      procedure, private, pass(this) :: assign_scalar => field_assign_scalar
      procedure, private, pass(this) :: add_field => field_add_field
-     procedure, private, pass(this) :: add_Scalar => field_add_scalar
+     procedure, private, pass(this) :: add_scalar => field_add_scalar
      procedure, pass(this) :: free => field_free
+     !> Return the size of the field.
+     procedure, pass(this) :: size => field_size
      !> Initialise a field
      generic :: init => init_external_dof, init_internal_dof
      !> Assignemnt to current field
@@ -76,7 +78,7 @@ module field
 
   !> field_ptr_t, To easily obtain a pointer to a field
   type, public ::  field_ptr_t
-     type(field_t), pointer :: f => null()
+     type(field_t), pointer :: ptr => null()
   end type field_ptr_t
 
 contains
@@ -96,13 +98,13 @@ contains
     allocate(this%dof)
     this%dof = dofmap_t(this%msh, this%Xh)
     this%internal_dofmap = .true.
-    
+
     if (present(fld_name)) then
        call this%init_common(fld_name)
     else
        call this%init_common()
     end if
-    
+
   end subroutine field_init_internal_dof
 
   !> Initialize a field @a this on the mesh @a msh using an internal dofmap
@@ -122,7 +124,7 @@ contains
     else
        call this%init_common()
     end if
-    
+
   end subroutine field_init_external_dof
 
   !> Initialize a field @a this
@@ -134,9 +136,9 @@ contains
 
     associate(lx => this%Xh%lx, ly => this%Xh%ly, &
          lz => this%Xh%lz, nelv => this%msh%nelv)
-    
+
       if (.not. allocated(this%x)) then
-         allocate(this%x(lx, ly, lz, nelv), stat = ierr)        
+         allocate(this%x(lx, ly, lz, nelv), stat = ierr)
          this%x = 0d0
       end if
 
@@ -147,17 +149,17 @@ contains
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         n = lx * ly * lz * nelv           
+         n = lx * ly * lz * nelv
          call device_map(this%x, this%x_d, n)
       end if
     end associate
-    
+
   end subroutine field_init_common
 
   !> Deallocate a field @a f
   subroutine field_free(this)
     class(field_t), intent(inout) :: this
-    
+
     if (allocated(this%x)) then
        deallocate(this%x)
     end if
@@ -166,7 +168,7 @@ contains
        deallocate(this%dof)
        this%internal_dofmap = .false.
     end if
-    
+
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%dof)
@@ -183,38 +185,38 @@ contains
   subroutine field_assign_field(this, g)
     class(field_t), intent(inout) :: this
     type(field_t), intent(in) :: g
-    
+
     if (allocated(this%x)) then
        if (this%Xh .ne. g%Xh) then
           call this%free()
        end if
     end if
-    
+
     this%Xh => g%Xh
     this%msh => g%msh
     this%dof => g%dof
-    
-    
+
+
     this%Xh%lx = g%Xh%lx
     this%Xh%ly = g%Xh%ly
     this%Xh%lz = g%Xh%lz
-        
+
     if (.not. allocated(this%x)) then
-       
+
        allocate(this%x(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
-       
+
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(this%x, this%x_d, this%dof%size())
+          call device_map(this%x, this%x_d, this%size())
        end if
-       
+
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(this%x_d, g%x_d, this%dof%size())
+       call device_copy(this%x_d, g%x_d, this%size())
     else
        call copy(this%x, g%x, this%dof%size())
     end if
-    
+
   end subroutine field_assign_field
 
   !> Assignment \f$ this = a \f$
@@ -224,7 +226,7 @@ contains
     integer :: i, j, k, l
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(this%x_d, a, this%dof%size())
+       call device_cfill(this%x_d, a, this%size())
     else
        do i = 1, this%msh%nelv
           do l = 1, this%Xh%lz
@@ -236,9 +238,9 @@ contains
           end do
        end do
     end if
-    
+
   end subroutine field_assign_scalar
-  
+
   !> Add \f$ this(u_1, u_2, ... , u_n) =
   !! this(u_1, u_2, ... , u_n) + G(u_1, u_2, ... , u_n) \f$
   !! @note Component wise
@@ -247,9 +249,9 @@ contains
     type(field_t), intent(in) :: g
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add2(this%x_d, g%x_d, this%dof%size())
+       call device_add2(this%x_d, g%x_d, this%size())
     else
-       call add2(this%x, g%x, this%dof%size())
+       call add2(this%x, g%x, this%size())
     end if
 
   end subroutine field_add_field
@@ -262,12 +264,20 @@ contains
     real(kind=rp), intent(in) :: a
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd(this%x_d, a, this%dof%size())
+       call device_cadd(this%x_d, a, this%size())
     else
-       call cadd(this%x, a, this%dof%size())
+       call cadd(this%x, a, this%size())
     end if
 
   end subroutine field_add_scalar
+
+  !> Return the size of the field based on the underlying dofmap.
+  pure function field_size(this) result(size)
+    class(field_t), intent(in) :: this
+    integer :: size
+
+    size = this%dof%size()
+  end function field_size
 
 end module field
 

@@ -32,12 +32,19 @@
 !
 !> Defines a pipelined Conjugate Gradient methods SX-Aurora backend
 module pipecg_sx
-  use krylov
-  use math
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, abscmp
   use comm
   implicit none
   private
-  
+
   !> Pipelined preconditioned conjugate gradient method for SX-Aurora
   type, public, extends(ksp_t) :: sx_pipecg_t
      real(kind=rp), allocatable :: p(:)
@@ -53,20 +60,22 @@ module pipecg_sx
      procedure, pass(this) :: init => sx_pipecg_init
      procedure, pass(this) :: free => sx_pipecg_free
      procedure, pass(this) :: solve => sx_pipecg_solve
+     procedure, pass(this) :: solve_coupled => sx_pipecg_solve_coupled
   end type sx_pipecg_t
 
 contains
 
   !> Initialise a pipelined PCG solver
-  subroutine sx_pipecg_init(this, n, M, rel_tol, abs_tol)
+  subroutine sx_pipecg_init(this, n, max_iter, M, rel_tol, abs_tol)
     class(sx_pipecg_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
+    integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-        
+
     call this%free()
-    
+
     allocate(this%p(n))
     allocate(this%q(n))
     allocate(this%r(n))
@@ -76,20 +85,20 @@ contains
     allocate(this%z(n))
     allocate(this%mi(n))
     allocate(this%ni(n))
-    if (present(M)) then 
+    if (present(M)) then
        this%M => M
     end if
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(max_iter)
     end if
-          
+
   end subroutine sx_pipecg_init
 
   !> Deallocate a pipelined PCG solver
@@ -130,7 +139,7 @@ contains
 
 
   end subroutine sx_pipecg_free
-  
+
   !> Pipelined PCG solve
   function sx_pipecg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(sx_pipecg_t), intent(inout) :: this
@@ -144,16 +153,16 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, i, ierr
-    real(kind=rp) :: rnorm, rtr, reduction(3), norm_fac 
+    real(kind=rp) :: rnorm, rtr, reduction(3), norm_fac
     real(kind=rp) :: alpha, beta, gamma1, gamma2, delta
     real(kind=rp) :: tmp1, tmp2, tmp3
     type(MPI_Request) :: request
     type(MPI_Status) :: status
-    
+
     if (present(niter)) then
        max_iter = niter
     else
-       max_iter = KSP_MAX_ITER
+       max_iter = this%max_iter
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
@@ -170,16 +179,16 @@ contains
     call Ax%compute(this%w, this%u, coef, x%msh, x%Xh)
     call gs_h%op(this%w, n, GS_OP_ADD)
     call bc_list_apply(blst, this%w, n)
-    
+
     rtr = glsc3(this%r, coef%mult, this%r, n)
     rnorm = sqrt(rtr)*norm_fac
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(rnorm .eq. 0.0_rp) return
+    if(abscmp(rnorm, 0.0_rp)) return
 
     gamma1 = 0.0_rp
-      
+
     do iter = 1, max_iter
 
        tmp1 = 0.0_rp
@@ -193,34 +202,34 @@ contains
        reduction(1) = tmp1
        reduction(2) = tmp2
        reduction(3) = tmp3
-       
+
        call MPI_Iallreduce(MPI_IN_PLACE, reduction, 3, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, request, ierr)
-       
+
        call this%M%solve(this%mi, this%w, n)
        call Ax%compute(this%ni, this%mi, coef, x%msh, x%Xh)
        call gs_h%op(this%ni, n, GS_OP_ADD)
        call bc_list_apply(blst, this%ni, n)
 
        call MPI_Wait(request, status, ierr)
-       gamma2 = gamma1       
+       gamma2 = gamma1
        gamma1 = reduction(1)
        delta = reduction(2)
        rtr = reduction(3)
-       
+
        rnorm = sqrt(rtr)*norm_fac
        if (rnorm .lt. this%abs_tol) then
           exit
        end if
-       
+
        if (iter .gt. 1) then
           beta = gamma1 / gamma2
           alpha = gamma1 / (delta - (beta * gamma1/alpha))
-       else 
+       else
           beta = 0.0_rp
           alpha = gamma1/delta
        end if
-       
+
        do i = 1, n
           this%z(i) = beta * this%z(i) + this%ni(i)
           this%q(i) = beta * this%q(i) + this%mi(i)
@@ -234,14 +243,40 @@ contains
           this%u(i) = this%u(i) - alpha * this%q(i)
           this%w(i) = this%w(i) - alpha * this%z(i)
        end do
-       
+
     end do
-    
+
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
-    
+
   end function sx_pipecg_solve
-   
+
+  !> Pipelined PCG coupled solve
+  function sx_pipecg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+    class(sx_pipecg_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: fx
+    real(kind=rp), dimension(n), intent(inout) :: fy
+    real(kind=rp), dimension(n), intent(inout) :: fz
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t), dimension(3) :: ksp_results
+    integer, optional, intent(in) :: niter
+
+    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+
+  end function sx_pipecg_solve_coupled
+
 end module pipecg_sx
-  
+
 

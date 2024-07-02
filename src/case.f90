@@ -32,36 +32,39 @@
 !
 !> Defines a simulation case
 module case
-  use num_types
-  use fluid_fctry
-  use fluid_output
-  use chkp_output
-  use mean_sqr_flow_output
-  use mean_flow_output
-  use fluid_stats_output
-  use mpi_types
+  use num_types, only : rp, sp, dp
+  use fluid_fctry, only : fluid_scheme_factory
+  use fluid_pnpn, only : fluid_pnpn_t
+  use fluid_scheme, only : fluid_scheme_t
+  use fluid_output, only : fluid_output_t
+  use chkp_output, only : chkp_output_t
+  use mean_sqr_flow_output, only : mean_sqr_flow_output_t
+  use mean_flow_output, only : mean_flow_output_t
+  use fluid_stats_output, only : fluid_stats_output_t
   use mpi_f08
-  use mesh_field
-  use parmetis
-  use redist
-  use sampler
-  use flow_ic    
-  use stats
-  use file
-  use utils
-  use mesh
+  use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
+  use parmetis, only : parmetis_partmeshkway
+  use redist, only : redist_mesh
+  use sampler, only : sampler_t
+  use flow_ic, only : set_flow_ic
+  use scalar_ic, only : set_scalar_ic
+  use stats, only : stats_t
+  use file, only : file_t
+  use utils, only : neko_error
+  use mesh, only : mesh_t
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
-  use logger
-  use jobctrl
-  use user_intf  
-  use scalar_pnpn ! todo directly load the pnpn? can we have other
+  use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
+  use jobctrl, only :  jobctrl_set_time_limit
+  use user_intf, only : user_t
+  use scalar_pnpn, only : scalar_pnpn_t
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
+  use point_zone_registry, only: neko_point_zone_registry
   use material_properties, only : material_properties_t
   implicit none
-  
+
   type :: case_t
      type(mesh_t) :: msh
      type(json_file) :: params
@@ -76,15 +79,15 @@ module case
      type(chkp_output_t) :: f_chkp
      type(mean_flow_output_t) :: f_mf
      type(mean_sqr_flow_output_t) :: f_msqrf
-     type(stats_t) :: q   
+     type(stats_t) :: q
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
-     type(scalar_pnpn_t), allocatable :: scalar 
+     type(scalar_pnpn_t), allocatable :: scalar
      type(material_properties_t):: material_properties
   end type case_t
 
   interface case_init
-     module procedure case_init_from_file
+     module procedure case_init_from_file, case_init_from_json
   end interface case_init
 
   private :: case_init_from_file, case_init_from_json, case_init_common
@@ -97,14 +100,15 @@ contains
     character(len=*), intent(in) :: case_file
     integer :: ierr, integer_val
     character(len=:), allocatable :: json_buffer
-   
+
     call neko_log%section('Case')
-    call neko_log%message('Reading case file ' // trim(case_file))
-    
+    call neko_log%message('Reading case file ' // trim(case_file), &
+                          NEKO_LOG_QUIET)
+
     if (pe_rank .eq. 0) then
-      call C%params%load_file(filename=trim(case_file))
-      call C%params%print_to_string(json_buffer)
-      integer_val = len(json_buffer)
+       call C%params%load_file(filename=trim(case_file))
+       call C%params%print_to_string(json_buffer)
+       integer_val = len(json_buffer)
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
@@ -115,7 +119,7 @@ contains
     deallocate(json_buffer)
 
     call case_init_common(C)
-    
+
   end subroutine case_init_from_file
 
   !> Initialize a case from a JSON object describing a case
@@ -124,12 +128,12 @@ contains
     type(json_file), intent(in) :: case_json
 
     call neko_log%section('Case')
-    call neko_log%message('Creating case from JSON object')
+    call neko_log%message('Creating case from JSON object', NEKO_LOG_QUIET)
 
     C%params = case_json
 
     call case_init_common(C)
-    
+
   end subroutine case_init_from_json
 
   !> Initialize a case from its (loaded) params object
@@ -145,21 +149,18 @@ contains
     real(kind=rp) :: real_val
     character(len=:), allocatable :: string_val
     real(kind=rp) :: stats_start_time, stats_output_val
-    integer ::  stats_sampling_interval 
+    integer ::  stats_sampling_interval
     integer :: output_dir_len
-    integer :: n_simcomps, i
-    type(json_core) :: core
-    type(json_value), pointer :: json_val1, json_val2 
-    type(json_file) :: json_subdict
+    integer :: precision
 
     !
     ! Load mesh
     !
     call json_get(C%params, 'case.mesh_file', string_val)
     msh_file = file_t(string_val)
-    
+
     call msh_file%read(C%msh)
-    
+
     !
     ! Load Balancing
     !
@@ -170,18 +171,29 @@ contains
        call neko_log%section('Load Balancing')
        call parmetis_partmeshkway(C%msh, parts)
        call redist_mesh(C%msh, parts)
-       call neko_log%end_section()       
+       call neko_log%end_section()
     end if
 
     !
     ! Time step
     !
-    call json_get(C%params, 'case.timestep', C%dt)
+    call C%params%get('case.variable_timestep', logical_val, found)
+    if (.not. logical_val) then
+       call json_get(C%params, 'case.timestep', C%dt)
+    else
+       ! randomly set an initial dt to get cfl when dt is variable
+       C%dt = 1.0_rp
+    end if
 
     !
     ! End time
     !
     call json_get(C%params, 'case.end_time', C%end_time)
+
+    !
+    ! Initialize point_zones registry
+    !
+    call neko_point_zone_registry%init(C%params, C%msh)
 
     !
     ! Setup user defined functions
@@ -194,7 +206,7 @@ contains
     ! Material properties
     !
     call C%material_properties%init(C%params, C%usr)
-    
+
     !
     ! Setup fluid scheme
     !
@@ -204,8 +216,19 @@ contains
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get poly order
     call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
+    C%fluid%chkp%tlag => C%tlag
+    C%fluid%chkp%dtlag => C%dtlag
+    select type(f => C%fluid)
+    type is(fluid_pnpn_t)
+       f%chkp%abx1 => f%abx1
+       f%chkp%abx2 => f%abx2
+       f%chkp%aby1 => f%aby1
+       f%chkp%aby2 => f%aby2
+       f%chkp%abz1 => f%abz1
+       f%chkp%abz2 => f%abz2
+    end select
 
-    
+
     !
     ! Setup scratch registry
     !
@@ -225,6 +248,9 @@ contains
        call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
                           C%material_properties)
        call C%fluid%chkp%add_scalar(C%scalar%s)
+       C%fluid%chkp%abs1 => C%scalar%abx1
+       C%fluid%chkp%abs2 => C%scalar%abx2
+       C%fluid%chkp%slag => C%scalar%slag
     end if
 
     !
@@ -237,29 +263,15 @@ contains
           call C%fluid%set_usr_inflow(C%usr%fluid_user_if)
        end if
     end if
-    
-    ! Setup source term for the scalar
-    ! @todo should be expanded for user sources etc. Now copies the fluid one
-    if (scalar) then
-       logical_val = C%params%valid_path('case.scalar.source_term')
-       call json_get_or_default(C%params, 'case.scalar.source_term.type',&
-                                string_val, 'noforce')
-       if (trim(string_val) .eq. 'user') then
-          call C%scalar%set_source(trim(string_val), &
-               usr_f=C%usr%scalar_user_f)
-       else if (trim(string_val) .eq. 'user_vector') then
-          call C%scalar%set_source(trim(string_val), &
-               usr_f_vec=C%usr%scalar_user_f_vector)
-       else
-          call C%scalar%set_source(trim(string_val))
-       end if
 
+    ! Setup user boundary conditions for the scalar.
+    if (scalar) then
        call C%scalar%set_user_bc(C%usr%scalar_user_bc)
     end if
 
     !
     ! Setup initial conditions
-    ! 
+    !
     call json_get(C%params, 'case.fluid.initial_condition.type',&
                   string_val)
     if (trim(string_val) .ne. 'user') then
@@ -270,6 +282,17 @@ contains
             C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
     end if
 
+    if (scalar) then
+       call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
+       if (trim(string_val) .ne. 'user') then
+          call set_scalar_ic(C%scalar%s, &
+            C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
+       else
+          call set_scalar_ic(C%scalar%s, &
+            C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
+       end if
+    end if
+
     ! Add initial conditions to BDF scheme (if present)
     select type(f => C%fluid)
     type is(fluid_pnpn_t)
@@ -277,7 +300,6 @@ contains
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
     end select
-
 
     !
     ! Validate that the case is properly setup for time-stepping
@@ -310,10 +332,10 @@ contains
           end if
        end if
     end if
-    
+
     !
     ! Save boundary markings for fluid (if requested)
-    ! 
+    !
     call json_get_or_default(C%params, 'case.output_boundary',&
                              logical_val, .false.)
     if (logical_val) then
@@ -335,13 +357,27 @@ contains
     end if
 
     !
+    ! Setup output precision of the field files
+    !
+    call json_get_or_default(C%params, 'case.output_precision', string_val,&
+         'single')
+
+    if (trim(string_val) .eq. 'double') then
+       precision = dp
+    else
+       precision = sp
+    end if
+
+    !
     ! Setup sampler
     !
     call C%s%init(C%end_time)
     if (scalar) then
-       C%f_out = fluid_output_t(C%fluid, C%scalar, path=trim(output_directory))
+       C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
+            path=trim(output_directory))
     else
-       C%f_out = fluid_output_t(C%fluid, path=trim(output_directory))
+       C%f_out = fluid_output_t(precision, C%fluid, &
+            path=trim(output_directory))
     end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
@@ -353,28 +389,35 @@ contains
        call C%s%add(C%f_out, real_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
        ! Fix a dummy 0.0 output_value
+       call json_get_or_default(C%params, 'case.fluid.output_value', real_val, &
+                                0.0_rp)
        call C%s%add(C%f_out, 0.0_rp, string_val)
-    else 
+    else
        call json_get(C%params, 'case.fluid.output_value', real_val)
        call C%s%add(C%f_out, real_val, string_val)
-    end if   
+    end if
 
     !
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
     call json_get_or_default(C%params, 'case.output_checkpoints',&
-                             logical_val, .false.)
+                             logical_val, .true.)
     if (logical_val) then
-       C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory)
-       call json_get(C%params, 'case.checkpoint_control', string_val)
-       call json_get(C%params, 'case.checkpoint_value', real_val)
+       call json_get_or_default(C%params, 'case.checkpoint_format', &
+            string_val, "chkp")
+       C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory, &
+            fmt=trim(string_val))
+       call json_get_or_default(C%params, 'case.checkpoint_control', &
+            string_val, "simulationtime")
+       call json_get_or_default(C%params, 'case.checkpoint_value', real_val,&
+            1e10_rp)
        call C%s%add(C%f_chkp, real_val, string_val)
     end if
 
     !
     ! Setup statistics
     !
-    
+
     ! Always init, so that we can call eval in simulation.f90 with no if.
     ! Note, don't use json_get_or_default here, because that will break the
     ! valid_path if statement below (the path will become valid always).
@@ -405,7 +448,7 @@ contains
                         string_val)
           call json_get(C%params, 'case.statistics.output_value', &
                         stats_output_val)
-       
+
           call C%s%add(C%f_mf, stats_output_val, string_val)
           call C%q%add(C%fluid%stats)
 
@@ -439,10 +482,10 @@ contains
     end if
 
     call neko_log%end_section()
-    
+
   end subroutine case_init_common
-  
-  !> Deallocate a case 
+
+  !> Deallocate a case
   subroutine case_free(C)
     type(case_t), intent(inout) :: C
 
@@ -461,7 +504,7 @@ contains
     call C%s%free()
 
     call C%q%free()
-    
+
   end subroutine case_free
-  
+
 end module case

@@ -32,11 +32,11 @@
 !
 !> Defines an output for a mean flow field
 module fluid_stats_output
-  use fluid_stats
-  use neko_config
-  use num_types
+  use fluid_stats, only : fluid_stats_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
   use device
-  use output
+  use output, only : output_t
   implicit none
   private
 
@@ -52,7 +52,7 @@ module fluid_stats_output
   end interface fluid_stats_output_t
 
 contains
-  
+
   function fluid_stats_output_init(stats, T_begin, name, path) result(this)
     type(fluid_stats_t), intent(in), target :: stats
     real(kind=rp), intent(in) :: T_begin
@@ -71,7 +71,7 @@ contains
        fname = 'stats.fld'
     end if
 
-    call output_init(this, fname)
+    call this%init_base(fname)
     this%stats => stats
     this%T_begin = T_begin
   end function fluid_stats_output_init
@@ -81,21 +81,22 @@ contains
     class(fluid_stats_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
-    associate (out_fields => this%stats%stat_fields%fields)
-    if (t .ge. this%T_begin) then
-       call this%stats%make_strong_grad() 
-       if ( NEKO_BCKND_DEVICE .eq. 1) then
-          do i = 1, size(out_fields)
-             call device_memcpy(out_fields(i)%f%x, out_fields(i)%f%x_d,&
-                  out_fields(i)%f%dof%size(), DEVICE_TO_HOST)
-          end do
-       end if
-       call this%file_%write(this%stats%stat_fields, t)
-       call this%stats%reset()
-    end if
+    associate (out_fields => this%stats%stat_fields%items)
+      if (t .ge. this%T_begin) then
+         call this%stats%make_strong_grad()
+         if ( NEKO_BCKND_DEVICE .eq. 1) then
+            do i = 1, size(out_fields)
+               call device_memcpy(out_fields(i)%ptr%x, out_fields(i)%ptr%x_d,&
+                  out_fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
+                  sync=(i .eq. size(out_fields))) ! Sync on last field
+            end do
+         end if
+         call this%file_%write(this%stats%stat_fields, t)
+         call this%stats%reset()
+      end if
     end associate
   end subroutine fluid_stats_output_sample
-  
+
 end module fluid_stats_output
 
 

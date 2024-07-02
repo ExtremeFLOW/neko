@@ -54,7 +54,7 @@ module rhs_maker_device
   end type rhs_maker_bdf_device_t
 
 #ifdef HAVE_HIP
-    interface
+  interface
      subroutine rhs_maker_sumab_hip(u_d, v_d, w_d, uu_d, vv_d, ww_d, &
           uulag1, uulag2, vvlag1, vvlag2, wwlag1, wwlag2, ab1, ab2, ab3, nab, n)&
           bind(c, name='rhs_maker_sumab_hip')
@@ -75,7 +75,7 @@ module rhs_maker_device
                                   bind(c, name='rhs_maker_ext_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: abx1_d, aby1_d, abz1_d 
+       type(c_ptr), value :: abx1_d, aby1_d, abz1_d
        type(c_ptr), value :: abx2_d, aby2_d, abz2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d
        real(c_rp) :: rho, ab1, ab2, ab3
@@ -95,7 +95,7 @@ module rhs_maker_device
        reaL(c_rp) :: rho, dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_hip
-  end interface 
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine rhs_maker_sumab_cuda(u_d, v_d, w_d, uu_d, vv_d, ww_d, &
@@ -118,7 +118,7 @@ module rhs_maker_device
                                    bind(c, name='rhs_maker_ext_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: abx1_d, aby1_d, abz1_d 
+       type(c_ptr), value :: abx1_d, aby1_d, abz1_d
        type(c_ptr), value :: abx2_d, aby2_d, abz2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d
        real(c_rp) :: rho, ab1, ab2, ab3
@@ -138,7 +138,7 @@ module rhs_maker_device
        reaL(c_rp) :: rho, dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_cuda
-  end interface  
+  end interface
 #elif HAVE_OPENCL
   interface
      subroutine rhs_maker_sumab_opencl(u_d, v_d, w_d, uu_d, vv_d, ww_d, &
@@ -161,7 +161,7 @@ module rhs_maker_device
                                      bind(c, name='rhs_maker_ext_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: abx1_d, aby1_d, abz1_d 
+       type(c_ptr), value :: abx1_d, aby1_d, abz1_d
        type(c_ptr), value :: abx2_d, aby2_d, abz2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d
        real(c_rp) :: rho, ab1, ab2, ab3
@@ -181,12 +181,12 @@ module rhs_maker_device
        reaL(c_rp) :: rho, dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_opencl
-  end interface 
+  end interface
 #endif
 
 contains
 
-    subroutine rhs_maker_sumab_device(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
+  subroutine rhs_maker_sumab_device(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
     type(field_t), intent(inout) :: u,v, w
     type(field_t), intent(inout) :: uu, vv, ww
     type(field_series_t), intent(inout) :: uulag, vvlag, wwlag
@@ -198,7 +198,7 @@ contains
          uulag%lf(1)%x_d, uulag%lf(2)%x_d, vvlag%lf(1)%x_d, vvlag%lf(2)%x_d, &
          wwlag%lf(1)%x_d, wwlag%lf(2)%x_d, ab(1), ab(2), ab(3), nab, &
          uu%dof%size())
-#elif HAVE_CUDA    
+#elif HAVE_CUDA
     call rhs_maker_sumab_cuda(u%x_d, v%x_d, w%x_d, uu%x_d, vv%x_d, ww%x_d, &
          uulag%lf(1)%x_d, uulag%lf(2)%x_d, vvlag%lf(1)%x_d, vvlag%lf(2)%x_d, &
          wwlag%lf(1)%x_d, wwlag%lf(2)%x_d, ab(1), ab(2), ab(3), nab, &
@@ -209,7 +209,7 @@ contains
          wwlag%lf(1)%x_d, wwlag%lf(2)%x_d, ab(1), ab(2), ab(3), nab, &
          uu%dof%size())
 #endif
-    
+
   end subroutine rhs_maker_sumab_device
 
   subroutine rhs_maker_ext_device(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
@@ -243,17 +243,17 @@ contains
                               fx_d, fy_d, fz_d, rho, &
                               ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #endif
-    
+
   end subroutine rhs_maker_ext_device
 
   subroutine rhs_maker_bdf_device(ta1, ta2, ta3, tb1, tb2, tb3, &
                                ulag, vlag, wlag, bfx, bfy, bfz, &
-                               u, v, w, B, rho, dt, bd, nbd, n)    
+                               u, v, w, B, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(inout) :: ta1, ta2, ta3
     type(field_t), intent(in) :: u, v, w
     type(field_t), intent(inout) :: tb1, tb2, tb3
-    type(field_series_t), intent(in) :: ulag, vlag, wlag        
+    type(field_series_t), intent(in) :: ulag, vlag, wlag
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(10)
@@ -263,7 +263,7 @@ contains
     bfy_d = device_get_ptr(bfy)
     bfz_d = device_get_ptr(bfz)
     B_d = device_get_ptr(B)
-    
+
 #ifdef HAVE_HIP
     call rhs_maker_bdf_hip(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
                            vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
@@ -285,5 +285,5 @@ contains
 #endif
 
   end subroutine rhs_maker_bdf_device
-  
+
 end module rhs_maker_device

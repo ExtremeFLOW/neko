@@ -33,15 +33,15 @@
 !> Defines a mean field
 !
 module mean_field
-  use neko_config
-  use stats_quant
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use stats_quant, only : stats_quant_t
   use num_types, only : rp
   use field, only : field_t
   use math, only : add2s2
   use device_math, only : device_cmult, device_add2s2
   implicit none
   private
-  
+
   type, public, extends(stats_quant_t) ::  mean_field_t
      type(field_t), pointer :: f => null()
      type(field_t) :: mf
@@ -61,15 +61,15 @@ contains
     type(field_t), intent(inout), target :: f
     character(len=*), optional, intent(in) :: field_name
     character(len=80) :: name
-    
-    
+
+
     call this%free()
 
     this%f => f
     this%time = 0.0_rp
     if (present(field_name)) then
        name = field_name
-    else 
+    else
        write(name, '(A,A)') 'mean_',trim(f%name)
     end if
 
@@ -91,9 +91,9 @@ contains
   !> Resets a mean field
   subroutine mean_field_reset(this)
     class(mean_field_t), intent(inout) :: this
-    
+
     this%time = 0.0
-    this%mf = 0.0_rp  
+    this%mf = 0.0_rp
   end subroutine mean_field_reset
 
 
@@ -113,8 +113,8 @@ contains
        this%time = this%time + k
        this%mf%x = this%mf%x / this%time
     end if
-       
+
   end subroutine mean_field_update
-  
+
 end module mean_field
 

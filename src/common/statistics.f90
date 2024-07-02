@@ -32,11 +32,12 @@
 !
 !> Defines a container for all statistics
 module stats
-  use num_types
-  use stats_quant
-  use logger
+  use num_types, only : rp, dp
+  use stats_quant, only : stats_quant_t
+  use logger, only : LOG_SIZE, neko_log
   use comm
   implicit none
+  private
 
   !> Pointer to an arbitrary quantitiy
   type, private :: quantp_t
@@ -44,7 +45,7 @@ module stats
   end type quantp_t
 
   !> Statistics backend
-  type :: stats_t
+  type, public :: stats_t
      type(quantp_t), allocatable :: quant_list(:)
      integer :: n
      integer :: size
@@ -67,7 +68,7 @@ contains
     integer, intent(in) :: samp_interval
     integer, intent(inout), optional ::size
     integer :: n, i
-    
+
     call this%free()
 
     if (present(size)) then
@@ -87,7 +88,7 @@ contains
     this%T_begin = T_begin
     this%samp_interval = samp_interval
     this%t_diff = 0.0
-    
+
   end subroutine stats_init
 
   !> Deallocate
@@ -99,7 +100,7 @@ contains
     end if
 
     this%n = 0
-    this%size = 0    
+    this%size = 0
   end subroutine stats_free
 
   !> Add a statistic quantitiy @a quant to the backend
@@ -126,7 +127,7 @@ contains
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: tstep
     integer :: i, ierr
-    character(len=LOG_SIZE) :: log_buf    
+    character(len=LOG_SIZE) :: log_buf
     real(kind=rp) :: sample_start_time, sample_end_time
     real(kind=dp) :: sample_time
 

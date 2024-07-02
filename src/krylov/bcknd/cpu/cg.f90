@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,21 @@
 !
 !> Defines various Conjugate Gradient methods
 module cg
-  use krylov
-  use math
+  use num_types, only: rp
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, rzero, copy, abscmp
   use comm
   implicit none
   private
 
   integer, parameter :: CG_P_SPACE = 7
-  
+
   !> Standard preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_t
      real(kind=rp), allocatable :: w(:)
@@ -51,18 +58,20 @@ module cg
      procedure, pass(this) :: init => cg_init
      procedure, pass(this) :: free => cg_free
      procedure, pass(this) :: solve => cg_solve
+     procedure, pass(this) :: solve_coupled => cg_solve_coupled
   end type cg_t
 
 contains
 
   !> Initialise a standard PCG solver
-  subroutine cg_init(this, n, M, rel_tol, abs_tol)
+  subroutine cg_init(this, n, max_iter, M, rel_tol, abs_tol)
     class(cg_t), intent(inout), target :: this
+    integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-        
+
     call this%free()
 
     allocate(this%w(n))
@@ -70,21 +79,21 @@ contains
     allocate(this%p(n,CG_P_SPACE))
     allocate(this%z(n))
     allocate(this%alpha(CG_P_SPACE))
-    
-    if (present(M)) then 
+
+    if (present(M)) then
        this%M => M
     end if
 
     if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(rel_tol, abs_tol)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(max_iter)
     end if
-          
+
   end subroutine cg_init
 
   !> Deallocate a standard PCG solver
@@ -104,11 +113,11 @@ contains
     if (allocated(this%p)) then
        deallocate(this%p)
     end if
-    
+
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
-    
+
     if (allocated(this%alpha)) then
        deallocate(this%alpha)
     end if
@@ -116,7 +125,7 @@ contains
     nullify(this%M)
 
   end subroutine cg_free
-  
+
   !> Standard PCG solve
   function cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(cg_t), intent(inout) :: this
@@ -132,11 +141,11 @@ contains
     integer :: iter, max_iter, i, j, k, p_cur, p_prev
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: beta, pap, norm_fac
-    
+
     if (present(niter)) then
        max_iter = niter
     else
-       max_iter = KSP_MAX_ITER
+       max_iter = this%max_iter
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
@@ -155,24 +164,24 @@ contains
       ksp_results%iter = 0
       p_prev = CG_P_SPACE
       p_cur = 1
-      if(rnorm .eq. 0.0_rp) return
+      if(abscmp(rnorm, 0.0_rp)) return
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
          rtz2 = rtz1
          rtz1 = glsc3(r, coef%mult, z, n)
-      
+
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
          do i = 1, n
             p(i,p_cur) = z(i) + beta * p(i,p_prev)
          end do
-       
+
          call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
          call bc_list_apply(blst, w, n)
-         
+
          pap = glsc3(w, coef%mult, p(1,p_cur), n)
-         
+
          alpha(p_cur) = rtz1 / pap
          call second_cg_part(rtr, r, coef%mult, w, alpha(p_cur), n)
          rnorm = sqrt(rtr) * norm_fac
@@ -192,7 +201,7 @@ contains
                   do k = 1, NEKO_BLK_SIZE
                      x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                   end do
-               else 
+               else
                   do k = 1, n-i
                      x_plus(1) = 0.0_rp
                      do j = 1, p_cur
@@ -220,7 +229,7 @@ contains
   subroutine second_cg_part(rtr, r, mult, w, alpha, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: r(n), rtr
-    real(kind=rp), intent(in) ::mult(n), w(n), alpha 
+    real(kind=rp), intent(in) ::mult(n), w(n), alpha
     integer :: i, ierr
 
     rtr = 0.0_rp
@@ -231,8 +240,34 @@ contains
     call MPI_Allreduce(MPI_IN_PLACE, rtr, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
-  end subroutine second_cg_part 
+  end subroutine second_cg_part
+
+  !> Standard PCG coupled solve
+  function cg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+    class(cg_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: fx
+    real(kind=rp), dimension(n), intent(inout) :: fy
+    real(kind=rp), dimension(n), intent(inout) :: fz
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t), dimension(3) :: ksp_results
+    integer, optional, intent(in) :: niter
+
+    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+
+  end function cg_solve_coupled
 
 end module cg
-  
+
 

@@ -32,14 +32,15 @@
 !
 !> Job control
 module jobctrl
-  use num_types
-  use signal
-  use utils
+  use num_types, only : rp, dp
+  use signal, only : signal_timeout, signal_usr, signal_trap_usr, &
+                     signal_set_timeout, signal_trap_cpulimit
+  use utils, onlY : neko_error
   use comm
   use logger
   implicit none
   private
-  
+
   interface jobctrl_set_time_limit
      module procedure jobctrl_set_time_limit_sec, jobctrl_set_time_limit_str
   end interface jobctrl_set_time_limit
@@ -70,7 +71,7 @@ contains
     integer :: str_len, sep_h, h, m, s
 
     str_len = len_trim(limit_str)
-    
+
     if (str_len .lt. 8) then
        call neko_error('Invalid job limit')
     end if
@@ -86,9 +87,9 @@ contains
     read(limit_str(sep_h+4:str_len), *) s
 
     call jobctrl_set_time_limit_sec(h*3600 + m * 60 + s)
-    
+
   end subroutine jobctrl_set_time_limit_str
-  
+
   !> Set a job's time limit (in seconds)
   subroutine jobctrl_set_time_limit_sec(sec)
     integer :: sec
@@ -98,9 +99,9 @@ contains
        jstop_sec = sec - jobctrl_jobtime()
        call signal_set_timeout(jstop_sec)
     end if
-    
+
   end subroutine jobctrl_set_time_limit_sec
-  
+
   !> Check if the job's time limit has been reached
   function jobctrl_time_limit() result(jstop)
     logical :: jstop
@@ -110,13 +111,14 @@ contains
     jstop = (signal_timeout() .or. signal_usr(1))
 
     if (jstop) then
+       ! Todo: This might be a warning instead of a message?
        write(log_buf, '(A)') '! stop at job limit >>>'
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
     end if
 
     ! Let rank zero decide if we should stop
     call MPI_Bcast(jstop, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
-    
+
   end function jobctrl_time_limit
 
   !> Returns a job's time in seconds relative to the first call
@@ -124,13 +126,13 @@ contains
     real(kind=rp), save :: stime
     real(kind=rp) :: jobtime
     logical, save :: init = .false.
-    
+
     if (.not. init) then
        stime = MPI_WTIME()
        init = .true.
     end if
-    
+
     jobtime = MPI_WTIME() - stime
   end function jobctrl_jobtime
-  
+
 end module jobctrl

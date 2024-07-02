@@ -32,7 +32,7 @@
 !
 !> Defines Pressure and velocity residuals in the Pn-Pn formulation
 module pnpn_residual
-  use gather_scatter, only : gs_t  
+  use gather_scatter, only : gs_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
@@ -40,14 +40,13 @@ module pnpn_residual
   use space, only : space_t
   use mesh, only : mesh_t
   use num_types, only : rp
-  use scratch_registry, only : scratch_registry_t
   implicit none
   private
-  
+
   !> Abstract type to compute pressure residual
   type, public, abstract :: pnpn_prs_res_t
    contains
-     procedure(prs_res), nopass, deferred :: compute     
+     procedure(prs_res), nopass, deferred :: compute
   end type pnpn_prs_res_t
 
   !> Abstract type to compute velocity residual
@@ -55,7 +54,7 @@ module pnpn_residual
    contains
      procedure(vel_res), nopass, deferred :: compute
   end type pnpn_vel_res_t
-    
+
   abstract interface
      subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_xh,&
           gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
@@ -89,13 +88,13 @@ module pnpn_residual
        import Ax_t
        import gs_t
        import facet_normal_t
-       import space_t              
+       import space_t
        import coef_t
        import mesh_t
        import rp
        class(ax_t), intent(in) :: Ax
        type(mesh_t), intent(inout) :: msh
-       type(space_t), intent(inout) :: Xh    
+       type(space_t), intent(inout) :: Xh
        type(field_t), intent(inout) :: p, u, v, w
        type(field_t), intent(inout) :: u_res, v_res, w_res
        type(field_t), intent(inout) :: f_x, f_y, f_z
@@ -108,5 +107,5 @@ module pnpn_residual
      end subroutine vel_res
 
   end interface
- 
+
 end module pnpn_residual

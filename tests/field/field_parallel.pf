@@ -73,6 +73,7 @@ contains
     
     call msh%add_element(2, p(2), p(5), p(6), p(4), &
          p(8), p(11), p(12), p(9))
+    call msh%generate_conn()
     
   end subroutine test_field_gen_msh
   
@@ -88,6 +89,8 @@ contains
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
     call test_field_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     
@@ -150,7 +153,7 @@ contains
 
     f = 42.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
+       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if          
     @assertEqual(maxval(f%x), 42.0_rp)
     
@@ -176,11 +179,11 @@ contains
 
     f = 42.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
+       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if          
     g = f
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(g%x, g%x_d, size(f%x), DEVICE_TO_HOST)
+       call device_memcpy(g%x, g%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if          
     @assertEqual(maxval(g%x), maxval(f%x))
     
@@ -208,7 +211,7 @@ contains
     a = 17.0_rp
     call f%add(a)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
+       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if
     @assertEqual(maxval(f%x), 42.0_rp + a)
     
@@ -236,7 +239,7 @@ contains
     g = 17.0_rp
     call f%add(g)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
+       call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if
     @assertEqual(maxval(f%x), 42.0_rp + 17.0_rp)
     

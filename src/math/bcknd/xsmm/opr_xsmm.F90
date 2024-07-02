@@ -1,4 +1,4 @@
-! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC. 
+! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -21,40 +21,40 @@
 ! may be used to endorse or promote products derived from this software
 ! without specific prior written permission.
 !
-! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF 
-! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF
+! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 ! Additional BSD Notice
 ! ---------------------
 ! 1. This notice is required to be provided under our contract with
 ! the U.S. Department of Energy (DOE). This work was produced at
-! Argonne National Laboratory under Contract 
+! Argonne National Laboratory under Contract
 ! No. DE-AC02-06CH11357 with the DOE.
 !
-! 2. Neither the United States Government nor UCHICAGO ARGONNE, 
-! LLC nor any of their employees, makes any warranty, 
+! 2. Neither the United States Government nor UCHICAGO ARGONNE,
+! LLC nor any of their employees, makes any warranty,
 ! express or implied, or assumes any liability or responsibility for the
 ! accuracy, completeness, or usefulness of any information, apparatus,
 ! product, or process disclosed, or represents that its use would not
 ! infringe privately-owned rights.
 !
-! 3. Also, reference herein to any specific commercial products, process, 
-! or services by trade name, trademark, manufacturer or otherwise does 
-! not necessarily constitute or imply its endorsement, recommendation, 
-! or favoring by the United States Government or UCHICAGO ARGONNE LLC. 
-! The views and opinions of authors expressed 
-! herein do not necessarily state or reflect those of the United States 
-! Government or UCHICAGO ARGONNE, LLC, and shall 
+! 3. Also, reference herein to any specific commercial products, process,
+! or services by trade name, trademark, manufacturer or otherwise does
+! not necessarily constitute or imply its endorsement, recommendation,
+! or favoring by the United States Government or UCHICAGO ARGONNE LLC.
+! The views and opinions of authors expressed
+! herein do not necessarily state or reflect those of the United States
+! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
 !> Operators libxsmm backend
@@ -77,29 +77,29 @@ module opr_xsmm
   public :: opr_xsmm_dudxyz, opr_xsmm_opgrad, opr_xsmm_cdtp, opr_xsmm_conv1, opr_xsmm_curl
 
 #ifdef HAVE_LIBXSMM
-    type(libxsmm_dmmfunction), private :: lgrad_xmm1
-    type(libxsmm_dmmfunction), private :: lgrad_xmm2
-    type(libxsmm_dmmfunction), private :: lgrad_xmm3
+  type(libxsmm_dmmfunction), private :: lgrad_xmm1
+  type(libxsmm_dmmfunction), private :: lgrad_xmm2
+  type(libxsmm_dmmfunction), private :: lgrad_xmm3
 #endif
-    
+
 contains
 
   subroutine opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
+#ifdef HAVE_LIBXSMM
     real(kind=rp) :: drst(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz)
-    type(space_t), pointer :: Xh 
+    type(space_t), pointer :: Xh
     type(mesh_t), pointer :: msh
     integer :: e, k, lxy, lyz, lxyz
-#ifdef HAVE_LIBXSMM
     type(libxsmm_dmmfunction), save :: dudxyz_xmm1
     type(libxsmm_dmmfunction), save :: dudxyz_xmm2
     type(libxsmm_dmmfunction), save :: dudxyz_xmm3
     logical, save :: dudxyz_xsmm_init = .false.
-  
+
     Xh => coef%Xh
-    msh => coef%msh 
+    msh => coef%msh
     lxy  = Xh%lx*Xh%ly
     lyz  = Xh%ly*Xh%lz
     lxyz = Xh%lx*Xh%ly*Xh%lz
@@ -133,15 +133,16 @@ contains
     end do
     call col2(du, coef%jacinv, coef%dof%n_dofs)
 
-#endif    
+#endif
   end subroutine opr_xsmm_dudxyz
 
-  subroutine opr_xsmm_opgrad(ux, uy, uz, u, coef) 
-    type(coef_t), intent(in) :: coef  
+  subroutine opr_xsmm_opgrad(ux, uy, uz, u, coef)
+    type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+#ifdef HAVE_LIBXSMM
     real(kind=rp) :: ur(coef%Xh%lxyz)
     real(kind=rp) :: us(coef%Xh%lxyz)
     real(kind=rp) :: ut(coef%Xh%lxyz)
@@ -150,7 +151,7 @@ contains
     integer :: e, i, N
     N = coef%Xh%lx - 1
 
-#ifdef HAVE_LIBXSMM
+
     if ((.not. lgrad_xsmm_init) .or. &
          (init_size .gt. 0 .and. init_size .ne. N)) then
        call libxsmm_dispatch(lgrad_xmm1, (N+1), (N+1)**2, (N+1), &
@@ -162,7 +163,7 @@ contains
        lgrad_xsmm_init = .true.
        init_size = N
     end if
-#endif
+
 
     do e=1,coef%msh%nelv
        if(coef%msh%gdim .eq. 3) then
@@ -190,6 +191,7 @@ contains
           end do
        endif
     end do
+#endif
   end subroutine opr_xsmm_opgrad
 
   subroutine local_grad3_xsmm(ur, us, ut, u, n, D, Dt)
@@ -200,11 +202,12 @@ contains
     real(kind=rp), intent(in) :: u(0:n, 0:n, 0:n)
     real(kind=rp), intent(in) :: D(0:n, 0:n)
     real(kind=rp), intent(in) :: Dt(0:n, 0:n)
+#ifdef HAVE_LIBXSMM
     integer :: m1, m2, k
 
     m1 = n + 1
     m2 = m1*m1
-#ifdef HAVE_LIBXSMM
+
     call libxsmm_mmcall(lgrad_xmm1, D, u, ur)
     do k=0,n
        call libxsmm_mmcall(lgrad_xmm2, u(0,0,k), Dt, us(0,0,k))
@@ -215,13 +218,13 @@ contains
   end subroutine local_grad3_xsmm
 
   subroutine local_grad2(ur, us, u, n, D, Dt)
-    integer, intent(in) :: n    
+    integer, intent(in) :: n
     real(kind=rp), intent(inout) :: ur(0:n, 0:n)
     real(kind=rp), intent(inout) :: us(0:n, 0:n)
     real(kind=rp), intent(in) :: u(0:n, 0:n)
     real(kind=rp), intent(in) :: D(0:n, 0:n)
     real(kind=rp), intent(in) :: Dt(0:n, 0:n)
-    integer :: m1, m2, k
+    integer :: m1
 
     m1 = n + 1
 
@@ -237,13 +240,14 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+#ifdef HAVE_LIBXSMM
     real(kind=rp) :: wx(coef%Xh%lxyz)
     real(kind=rp) :: ta1(coef%Xh%lxyz)
     real(kind=rp) :: ta2(coef%Xh%lxyz)
     real(kind=rp) :: ta3(coef%Xh%lxyz)
     integer :: e, i1, i2, n1, n2, iz
     type(space_t), pointer :: Xh
-#ifdef HAVE_LIBXSMM
+
     type(libxsmm_dmmfunction), save :: cdtp_xmm1
     type(libxsmm_dmmfunction), save :: cdtp_xmm2
     type(libxsmm_dmmfunction), save :: cdtp_xmm3
@@ -284,7 +288,7 @@ contains
 #endif
   end subroutine opr_xsmm_cdtp
 
-  subroutine opr_xsmm_conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)  
+  subroutine opr_xsmm_conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
@@ -293,15 +297,16 @@ contains
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
+#ifdef HAVE_LIBXSMM
     !   Store the inverse jacobian to speed this operation up
     real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz) :: dudr, duds, dudt
     integer :: ie, iz, i
-#ifdef HAVE_LIBXSMM
+
     type(libxsmm_dmmfunction), save :: conv1_xmm1
     type(libxsmm_dmmfunction), save :: conv1_xmm2
     type(libxsmm_dmmfunction), save :: conv1_xmm3
     logical, save :: conv1_xsmm_init = .false.
-    
+
     if (.not. conv1_xsmm_init) then
        call libxsmm_dispatch(conv1_xmm1, Xh%lx, Xh%ly*Xh%lx, Xh%lx, &
             alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
@@ -352,7 +357,7 @@ contains
     end do
 
 #endif
-    
+
   end subroutine opr_xsmm_conv1
 
   subroutine opr_xsmm_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
@@ -395,9 +400,9 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
-    call c_Xh%gs_h%op(w1, GS_OP_ADD) 
-    call c_Xh%gs_h%op(w2, GS_OP_ADD) 
-    call c_Xh%gs_h%op(w3, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w1, GS_OP_ADD)
+    call c_Xh%gs_h%op(w2, GS_OP_ADD)
+    call c_Xh%gs_h%op(w3, GS_OP_ADD)
     call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
 
   end subroutine opr_xsmm_curl

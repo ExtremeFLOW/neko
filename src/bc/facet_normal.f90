@@ -35,22 +35,24 @@ module facet_normal
   use device_facet_normal
   use num_types
   use math
-  use coefs, only : coef_t    
-  use dirichlet, only : dirichlet_t    
+  use coefs, only : coef_t
+  use bc, only : bc_t
   use utils
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
   !> Dirichlet condition in facet normal direction
-  type, public, extends(dirichlet_t) :: facet_normal_t
-     type(coef_t), pointer :: c => null()
+  type, public, extends(bc_t) :: facet_normal_t
    contains
      procedure, pass(this) :: apply_scalar => facet_normal_apply_scalar
+     procedure, pass(this) :: apply_scalar_dev => facet_normal_apply_scalar_dev
      procedure, pass(this) :: apply_vector => facet_normal_apply_vector
+     procedure, pass(this) :: apply_vector_dev => facet_normal_apply_vector_dev
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
      procedure, pass(this) :: apply_surfvec_dev => facet_normal_apply_surfvec_dev
-     procedure, pass(this) :: set_coef => facet_normal_set_coef
+     !> Destructor.
+     procedure, pass(this) :: free => facet_normal_free
   end type facet_normal_t
 
 contains
@@ -63,6 +65,26 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
   end subroutine facet_normal_apply_scalar
+
+  !> No-op scalar apply on device
+  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep)
+    class(facet_normal_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+
+  end subroutine facet_normal_apply_scalar_dev
+
+  !> No-op vector apply on device
+  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+    class(facet_normal_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+    type(c_ptr) :: y_d
+    type(c_ptr) :: z_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+
+  end subroutine facet_normal_apply_vector_dev
 
   !> No-op vector apply
   subroutine facet_normal_apply_vector(this, x, y, z, n, t, tstep)
@@ -88,18 +110,15 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     integer :: i, m, k, idx(4), facet
-    
-    if (.not. associated(this%c)) then
-       call neko_error('No coefficients assigned')
-    end if
-    associate(c => this%c)
+
+    associate(c => this%coef)
       m = this%msk(0)
       do i = 1, m
          k = this%msk(i)
          facet = this%facet(i)
          idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
          select case(facet)
-         case(1,2)          
+         case(1,2)
             x(k) = u(k) * c%nx(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
             y(k) = v(k) * c%ny(idx(2), idx(3), facet, idx(4)) &
@@ -112,7 +131,7 @@ contains
             y(k) = v(k) * c%ny(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
             z(k) = w(k) * c%nz(idx(1), idx(3), facet, idx(4)) &
-                 * c%area(idx(1), idx(3), facet, idx(4))          
+                 * c%area(idx(1), idx(3), facet, idx(4))
          case(5,6)
             x(k) = u(k) * c%nx(idx(1), idx(2), facet, idx(4)) &
                  * c%area(idx(1), idx(2), facet, idx(4))
@@ -123,15 +142,8 @@ contains
          end select
       end do
     end associate
-    
+
   end subroutine facet_normal_apply_surfvec
-  
-  !> Assign coefficients (facet normals etc)
-  subroutine facet_normal_set_coef(this, c)
-    class(facet_normal_t), intent(inout) :: this
-    type(coef_t), target, intent(inout) :: c
-    this%c => c
-  end subroutine facet_normal_set_coef
 
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
@@ -141,16 +153,21 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
-    if (.not. associated(this%c)) then
-       call neko_error('No coefficients assigned')
-    end if
-    associate(c => this%c)
+    associate(c => this%coef)
       call device_facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
                                              x_d, y_d, z_d, u_d, v_d, w_d, &
                                              c%nx_d, c%ny_d, c%nz_d, c%area_d, &
                                              c%Xh%lx, size(this%msk))
     end associate
-         
+
   end subroutine facet_normal_apply_surfvec_dev
-  
+
+  !> Destructor
+  subroutine facet_normal_free(this)
+    class(facet_normal_t), target, intent(inout) :: this
+
+    call this%free_base()
+
+  end subroutine facet_normal_free
+
 end module facet_normal

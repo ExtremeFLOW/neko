@@ -32,7 +32,7 @@
 !
 !> Defines a statistical quantity
 module stats_quant
-  use num_types
+  use num_types, only : rp
   implicit none
   private
 
@@ -51,5 +51,5 @@ module stats_quant
        real(kind=rp), intent(in) :: k
      end subroutine stats_quant_update
   end interface
-  
+
 end module stats_quant

@@ -34,8 +34,9 @@
 module chkp_output
   use checkpoint, only : chkp_t
   use output
-  use num_types, only : rp    
+  use num_types, only : rp
   implicit none
+  private
 
   type, public, extends(output_t) :: chkp_output_t
      type(chkp_t), pointer :: chkp
@@ -46,27 +47,36 @@ module chkp_output
   interface chkp_output_t
      module procedure chkp_output_init
   end interface chkp_output_t
-  
+
 contains
 
-  function chkp_output_init(chkp, name, path) result(this)
+  function chkp_output_init(chkp, name, path, fmt) result(this)
     type(chkp_t), intent(in), target :: chkp
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
+    character(len=*), intent(in), optional :: fmt
     type(chkp_output_t) :: this
     character(len=1024) :: fname
+    character(len=10) :: suffix
 
-    if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // '.chkp'
-    else if (present(name)) then
-       fname = trim(name) // '.chkp'
-    else if (present(path)) then
-       fname = trim(path) // 'fluid.chkp'
-    else
-       fname = 'fluid.chkp'
+    suffix = '.chkp'
+    if (present(fmt)) then
+       if (fmt .eq. 'hdf5') then
+          suffix = '.h5'
+       end if
     end if
 
-    call output_init(this, fname)
+    if (present(name) .and. present(path)) then
+       fname = trim(path) // trim(name) // trim(suffix)
+    else if (present(name)) then
+       fname = trim(name) // trim(suffix)
+    else if (present(path)) then
+       fname = trim(path) // 'fluid' // trim(suffix)
+    else
+       fname= 'fluid' // trim(suffix)
+    end if
+
+    call this%init_base(fname)
     this%chkp => chkp
   end function chkp_output_init
 
@@ -79,5 +89,5 @@ contains
     call this%file_%write(this%chkp, t)
 
   end subroutine chkp_output_sample
-  
+
 end module chkp_output

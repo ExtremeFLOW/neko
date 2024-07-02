@@ -1,0 +1,26 @@
+diff --git a/src/simulation_components/probes.F90 b/src/simulation_components/probes.F90
+index 3ad6a6c6cf..be6c1a86c9 100644
+--- a/src/simulation_components/probes.F90
++++ b/src/simulation_components/probes.F90
+@@ -193,7 +193,7 @@ contains
+           call this%read_point_zone(json_point, case%fluid%dm_Xh)
+ 
+          case ('none')
+-          call json_point%print()
++!          call json_point%print()
+           call neko_error('No point type specified.')
+          case default
+           call neko_error('Unknown region type ' // point_type)
+diff --git a/src/source_terms/brinkman_source_term.f90 b/src/source_terms/brinkman_source_term.f90
+index 6f24167f44..df8249dccc 100644
+--- a/src/source_terms/brinkman_source_term.f90
++++ b/src/source_terms/brinkman_source_term.f90
+@@ -155,7 +155,7 @@ contains
+           call this%init_point_zone(object_settings)
+ 
+          case ('none')
+-          call object_settings%print()
++!          call object_settings%print()
+           call neko_error('Brinkman source term objects require a region type')
+          case default
+           call neko_error('Brinkman source term unknown region type')

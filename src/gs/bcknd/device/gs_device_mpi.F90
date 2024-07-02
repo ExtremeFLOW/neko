@@ -65,7 +65,7 @@ module gs_device_mpi
      type(c_ptr), allocatable :: stream(:)
      type(c_ptr), allocatable :: event(:)
      integer :: nb_strtgy
-     type(c_ptr) :: send_event = C_NULL_PTR          
+     type(c_ptr) :: send_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
      procedure, pass(this) :: free => gs_device_mpi_free
@@ -94,7 +94,7 @@ module gs_device_mpi
        type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine hip_gs_unpack
   end interface
-#elif HAVE_CUDA  
+#elif HAVE_CUDA
   interface
      subroutine cuda_gs_pack(u_d, buf_d, dof_d, offset, n, stream) &
           bind(c, name='cuda_gs_pack')
@@ -230,28 +230,28 @@ contains
        ! %array() breaks on cray
        select type (arr => dof_stack(pe_order(i))%data)
        type is (integer)
-         do j = 1, this%ndofs(i)
-            k = this%offset(i) + j
-            if (mark_dupes) then
-               if (doftable%get(arr(j), dupe) .eq. 0) then
-                  if (dofs(dupe) .gt. 0) then
-                     dofs(dupe) = -dofs(dupe)
-                     marked = marked + 1
-                  end if
-                  dofs(k) = -arr(j)
-                  marked = marked + 1
-               else
-                  call doftable%set(arr(j), k)
-                  dofs(k) = arr(j)
-               end if
-            else
-               dofs(k) = arr(j)
-            end if
-         end do
+          do j = 1, this%ndofs(i)
+             k = this%offset(i) + j
+             if (mark_dupes) then
+                if (doftable%get(arr(j), dupe) .eq. 0) then
+                   if (dofs(dupe) .gt. 0) then
+                      dofs(dupe) = -dofs(dupe)
+                      marked = marked + 1
+                   end if
+                   dofs(k) = -arr(j)
+                   marked = marked + 1
+                else
+                   call doftable%set(arr(j), k)
+                   dofs(k) = arr(j)
+                end if
+             else
+                dofs(k) = arr(j)
+             end if
+          end do
        end select
     end do
 
-    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE)
+    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.false.)
 
     deallocate(dofs)
     call doftable%free()
@@ -268,7 +268,7 @@ contains
 
     if (c_associated(this%buf_d)) call device_free(this%buf_d)
     if (c_associated(this%dof_d)) call device_free(this%dof_d)
-  end subroutine
+  end subroutine gs_device_mpi_buf_free
 
   !> Initialise MPI based communication method
   subroutine gs_device_mpi_init(this, send_pe, recv_pe)
@@ -319,7 +319,7 @@ contains
        deallocate(this%stream)
     end if
 #endif
-    
+
   end subroutine gs_device_mpi_free
 
   !> Post non-blocking send operations
@@ -353,16 +353,16 @@ contains
 #endif
 
        call device_sync(strm)
-       
+
        do i = 1, size(this%send_pe)
           call device_mpi_isend(this%send_buf%buf_d, &
                                 rp*this%send_buf%offset(i), &
                                 rp*this%send_buf%ndofs(i), this%send_pe(i), &
                                 this%send_buf%reqs, i)
        end do
-       
+
     else
-       
+
        do i = 1, size(this%send_pe)
           call device_stream_wait_event(this%stream(i), deps, 0)
 #ifdef HAVE_HIP
@@ -383,7 +383,7 @@ contains
           call neko_error('gs_device_mpi: no backend')
 #endif
        end do
-   
+
        ! Consider adding a poll loop here once we have device_query in place
        do i = 1, size(this%send_pe)
           call device_sync(this%stream(i))
@@ -393,7 +393,7 @@ contains
                                 this%send_buf%reqs, i)
        end do
     end if
-    
+
   end subroutine gs_device_mpi_nbsend
 
   !> Post non-blocking receive operations
@@ -443,12 +443,12 @@ contains
 
        ! Syncing here seems to prevent some race condition
        call device_sync(strm)
-       
+
     else
 
        do while(device_mpi_waitany(size(this%recv_pe), &
                                   this%recv_buf%reqs, done_req) .ne. 0)
-       
+
 #ifdef HAVE_HIP
           call hip_gs_unpack(u_d, op, &
                              this%recv_buf%buf_d, &
@@ -456,7 +456,7 @@ contains
                              this%recv_buf%offset(done_req), &
                              this%recv_buf%ndofs(done_req), &
                              this%stream(done_req))
-#elif HAVE_CUDA    
+#elif HAVE_CUDA
           call cuda_gs_unpack(u_d, op, &
                               this%recv_buf%buf_d, &
                               this%recv_buf%dof_d, &
@@ -468,7 +468,7 @@ contains
 #endif
           call device_event_record(this%event(done_req), this%stream(done_req))
        end do
-    
+
        call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
        ! Sync non-blocking streams
@@ -476,7 +476,7 @@ contains
           call device_stream_wait_event(strm, &
                this%event(done_req), 0)
        end do
-       
+
     end if
 
   end subroutine gs_device_mpi_nbwait
