@@ -161,8 +161,8 @@ values:
    condition.
 
 * Advanced boundary conditions
-  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a `
-  "/"`), a Dirichlet boundary for more complex velocity profiles. This boundary
+  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a 
+  `"/"`), a Dirichlet boundary for more complex velocity profiles. This boundary
   condition uses a [more advanced user
   interface](#user-file_field-dirichlet-update).
   * `d_pres`, a boundary for specified non-uniform pressure profiles, similar in
