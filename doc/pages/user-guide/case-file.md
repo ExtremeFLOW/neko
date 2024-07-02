@@ -161,12 +161,13 @@ values:
    condition.
 
 * Advanced boundary conditions
-  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a `"/"`), a
-  Dirichlet boundary for more complex velocity profiles. This boundary condition uses a
-  [more advanced user interface](#user-file_field-dirichlet-update).
+  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a `
+  "/"`), a Dirichlet boundary for more complex velocity profiles. This boundary
+  condition uses a [more advanced user
+  interface](#user-file_field-dirichlet-update).
   * `d_pres`, a boundary for specified non-uniform pressure profiles, similar in
   essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other
-  complex Dirichlet coonditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
+  complex Dirichlet conditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
   * `o+dong`, outlet boundary using the Dong condition.
   * `on+dong`, an `on` boundary using the Dong condition, ensuring that the
    wall-normal velocity is directed outwards.
@@ -209,6 +210,10 @@ The means of prescribing the values are controlled via the `type` keyword:
    keyword.
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
    in the `case.fluid.blasius` object, see below.
+4. `point_zone`, the values are set to a constant base value, supplied under the
+   `base_value` keyword, and then assigned a zone value inside a point zone. The
+   point zone is specified by the `name` keyword, and should be defined in the
+   `case.point_zones` object. See more about point zones @ref point-zones.md.
 
 ### Blasius profile
 The `blasius` object is used to specify the Blasius profile that can be used for the
@@ -463,16 +468,16 @@ example case.
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
-| Name                      | Description                                              | Admissible values              | Default value |
-| ------------------------- | -------------------------------------------------------- | ------------------------------ | ------------- |
-| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`              | `true`        |
-| `Pe`                      | The Peclet number.                                       | Positive real                  | -             |
-| `cp`                      | Specific heat cpacity.                                   | Positive real                  | -             |
-| `lambda`                  | Thermal conductivity.                                    | Positive real                  | -             |
-| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings               | -             |
-| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`              | -             |
-| `initial_condition.value` | Value of the velocity initial condition.                 | Real                           | -             |
-| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above | -             |
+| Name                      | Description                                              | Admissible values               | Default value |
+| ------------------------- | -------------------------------------------------------- | ------------------------------- | ------------- |
+| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`               | `true`        |
+| `Pe`                      | The Peclet number.                                       | Positive real                   | -             |
+| `cp`                      | Specific heat cpacity.                                   | Positive real                   | -             |
+| `lambda`                  | Thermal conductivity.                                    | Positive real                   | -             |
+| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings                | -             |
+| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`, `point_zone` | -             |
+| `initial_condition.value` | Value of the velocity initial condition.                 | Real                            | -             |
+| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above  | -             |
 
 ## Statistics
 

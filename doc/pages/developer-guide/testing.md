@@ -21,7 +21,7 @@ The following configuration is given here as an example, where again you need to
 Make sure that in the output you see it says `pFUnit ... yes` at some point.
 
 ## Running the tests
-To run the tests you should execute 
+To run the tests you should execute
 ```bash
 make check
 ```
@@ -70,6 +70,6 @@ The instructions will differ somewhat depending on whether you test uses MPI or 
       Again, you can use `field_test` as an example.
 7. Finally, open the `configure.ac` file in the root folder of `neko`.
    Find `# Config tests` line and the `AC_CONFIG_FILES` list below it.
-   Add the path to a `Makefile` (note, no `.in`!!) in your test folder. 
+   Add the path to a `Makefile` (note, no `.in`!!) in your test folder.
 8. Please also add the compilation products of your test to the  `tests/.gitignore` file.
    This helps keeps the version controlled file list unpolluted.
