@@ -556,7 +556,7 @@ contains
     character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, abstol)
+    call krylov_solver_factory(ksp, n, solver, max_iter, abstol) 
 
   end subroutine scalar_scheme_solver_factory
 
