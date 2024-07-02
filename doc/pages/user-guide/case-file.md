@@ -72,6 +72,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_checkpoints`       | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
 | `checkpoint_control`       | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
 | `checkpoint_value`         | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
+| `checkpoint_format`        | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
 | `restart_file`             | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `timestep`                 | Time-step size                                                                                        | Positive reals                                  | -             |
 | `variable_timestep`        | Whether to use variable dt                                                                            | `true` or `false`                               | `false`       |
@@ -150,23 +151,23 @@ Periodic boundary conditions are *always* defined inside the mesh file.
 The value of the keyword is an array of strings, with the following possible
 values:
 
-* Standard boundary conditions 
+* Standard boundary conditions
   * `w`, a no-slip wall.
   * `v`, a velocity Dirichlet boundary.
   * `sym`, a symmetry boundary.
-  * `o`, outlet boundary. 
+  * `o`, outlet boundary.
   * `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
    the wall-normal. The wall-parallel velocity is defined by the initial
-   condition. 
+   condition.
 
 * Advanced boundary conditions
-  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a `"/"`), a 
-  Dirichlet boundary for more complex velocity profiles. This boundary condition uses a 
-  [more advanced user interface](#user-file_field-dirichlet-update). 
-  * `d_pres`, a boundary for specified non-uniform pressure profiles, similar in 
-  essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other 
+  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a `"/"`), a
+  Dirichlet boundary for more complex velocity profiles. This boundary condition uses a
+  [more advanced user interface](#user-file_field-dirichlet-update).
+  * `d_pres`, a boundary for specified non-uniform pressure profiles, similar in
+  essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other
   complex Dirichlet coonditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
-  * `o+dong`, outlet boundary using the Dong condition. 
+  * `o+dong`, outlet boundary using the Dong condition.
   * `on+dong`, an `on` boundary using the Dong condition, ensuring that the
    wall-normal velocity is directed outwards.
 
@@ -476,7 +477,7 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 ## Statistics
 
 This object adds the collection of statistics for the fluid fields. For
-additional details on the workflow, see the 
+additional details on the workflow, see the
 [corresponding page](@ref statistics-guide) in the user manual.
 
 | Name                | Description                                                          | Admissible values | Default value |
