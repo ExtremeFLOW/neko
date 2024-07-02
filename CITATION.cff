@@ -8,6 +8,8 @@ type: software
 authors:
   - family-names: Alekseenko
     given-names: Andrey
+  - family-names: Andersson
+    given-names: Måns
   - family-names: Baconnet
     given-names: Victor
   - family-names: Chien

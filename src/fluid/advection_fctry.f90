@@ -48,14 +48,14 @@ module advection_fctry
 
 contains
 
-  !> A factory for \ref advection_t decendants.
-  !! @param this Polymorphic object of class \ref advection_t.
+  !> A factory for \ref advection_t decendants. Both creates and initializes the
+  !! object.
+  !! @param object The object allocated by the factory.
   !! @param json The parameter file.
   !! @param coef The coefficients of the (space, mesh) pair.
-  !! @note The factory both allocates and initializes `this`.
-  subroutine advection_factory(this, json, coef)
+  subroutine advection_factory(object, json, coef)
     implicit none
-    class(advection_t), allocatable, intent(inout) :: this
+    class(advection_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(coef_t), target :: coef
     logical :: dealias
@@ -69,18 +69,18 @@ contains
                              lxd, ( 3 * (order + 1) ) / 2)
 
     ! Free allocatables if necessary
-    if (allocated(this)) then
-       call this%free
-       deallocate(this)
+    if (allocated(object)) then
+       call object%free
+       deallocate(object)
     end if
 
     if (dealias) then
-       allocate(adv_dealias_t::this)
+       allocate(adv_dealias_t::object)
     else
-       allocate(adv_no_dealias_t::this)
+       allocate(adv_no_dealias_t::object)
     end if
 
-    select type(adv => this)
+    select type(adv => object)
       type is(adv_dealias_t)
        call adv%init(lxd, coef)
       type is(adv_no_dealias_t)
