@@ -44,10 +44,13 @@ jobs:
       - name: Lint repository
         run: |
           flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
+
+      - name: Check the score
+        run: |
           score=$(awk '$1==0{print $3}' flint.txt)
 
           if (( $(echo "$score < $global_min" | bc -l) )); then
-            echo "Linting requirement not met, $score < $global_min" >&2
+            echo "Linting requirement not met, $score < $global_min"
             exit 1
           fi
 
