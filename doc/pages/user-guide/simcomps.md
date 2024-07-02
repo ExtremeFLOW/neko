@@ -178,7 +178,7 @@ irrelevant.
    "output_value" : 1.0
  }
  ~~~~~~~~~~~~~~~
-    
+
 ### derivative
 Computes the derivative of field along a chosen direction (x, y, or z). The
 field to derivate is controlled by the `field` keyword and the direction by the
