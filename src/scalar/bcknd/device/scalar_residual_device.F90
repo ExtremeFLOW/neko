@@ -95,13 +95,13 @@ contains
     type(field_t), intent(inout) :: s_res
     type(field_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: lambda
+    type(field_t), intent(in) :: lambda
     real(kind=rp), intent(in) :: rhocp
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
 
-    call device_cfill(c_Xh%h1_d, lambda, n)
+    call device_copy(c_Xh%h1_d, lambda%x_d, n)
     call device_cfill(c_Xh%h2_d, rhocp * (bd / dt), n)
     c_Xh%ifh2 = .true.
 

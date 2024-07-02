@@ -34,6 +34,8 @@
 module mean_flow
   use mean_field, only : mean_field_t
   use field, only : field_t
+  use coefs
+  use field_list
   implicit none
   private
 
@@ -42,6 +44,8 @@ module mean_flow
      type(mean_field_t) :: v
      type(mean_field_t) :: w
      type(mean_field_t) :: p
+     type(field_list_t) :: list
+     type(coef_t), pointer :: coef
    contains
      procedure, pass(this) :: init => mean_flow_init
      procedure, pass(this) :: free => mean_flow_free
@@ -51,12 +55,13 @@ module mean_flow
 contains
 
   !> Initialize a mean flow field
-  subroutine mean_flow_init(this, u, v, w, p)
+  subroutine mean_flow_init(this, u, v, w, p, coef)
     class(mean_flow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
+    type(coef_t), target, intent(inout) :: coef
 
     call this%free()
 
@@ -64,6 +69,14 @@ contains
     call this%v%init(v)
     call this%w%init(w)
     call this%p%init(p)
+    this%coef => coef
+
+    allocate(this%list%items(4))
+
+    call this%list%assign_to_field(1, this%p%mf)
+    call this%list%assign_to_field(2, this%u%mf)
+    call this%list%assign_to_field(3, this%v%mf)
+    call this%list%assign_to_field(4, this%w%mf)
 
   end subroutine mean_flow_init
 

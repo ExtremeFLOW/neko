@@ -16,10 +16,12 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - name: Setup env.
+      id: setup-env
       run: |
         sudo apt-get update
         sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
             automake autotools-dev libopenblas-dev make makedepf90 git gfortran
+        echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -31,7 +33,7 @@ jobs:
       uses: ./.github/actions/setup_json-fortran
       with:
         version: ${{ inputs.json-fortran-version }}
-        os: ${{ runner.os }}
+        os: ${{ steps.setup-env.outputs.os-version }}
         compiler: gfortran
 
     - name: Add JSON-Fortran to environment
