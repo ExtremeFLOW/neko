@@ -143,7 +143,7 @@ contains
                      output_value)
     end if
 
-    call json_get(json, "order", order)
+    call json_get_or_default(json, "order", order, -1)
     this%order = order
 
     call this%preprocess_controller%init(case%end_time, preprocess_control, &
