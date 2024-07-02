@@ -126,7 +126,6 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-opencl=DIR`             | Compile with OpenCL backend                   |
 | `--with-nvtx=DIR`               | Compile with support for NVTX                 |
 | `--with-roctx=DIR`              | Compile with support for ROCTX                |
-| `--with-hdf5`                   | Compile with support for HDF5                 |
 | `--with-pfunit=DIR`             | Directory for pFUnit (see \subpage testing)   |
 
 @note Accelerators backends are not enabled as a feature in Neko, but rather via optional packages.

@@ -1,5 +1,7 @@
-
 # Point zones {#point-zones}
+
+\tableofcontents
+
 ## What are point zones?
 
 Point zones are subsections of the computational domain which are 

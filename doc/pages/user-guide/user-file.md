@@ -1,5 +1,7 @@
 # User File {#user-file}
 
+\tableofcontents
+
 The user file is a fortran file where the user can implement their own functions
 to extend the capabilities of the default Neko executable. The user file can be
 used for setting advanced initial/boundary conditions, source terms, I/O
@@ -690,18 +692,18 @@ The arguments and their purpose are as follows:
 * `field_bc_list` is the list of the field that can be edited. It is a list 
 of `field_t` objects.
   * The field `i` contained in `field_bc_list` is accessed using 
-  `field_bc_list%fields(i)%f` and will refer to a `field_t` object. 
+  `field_bc_list%%items(i)%%f` and will refer to a `field_t` object. 
   * If `which_solver = "fluid"`, it will contain the 4 fields `u,v,w,p`. They
   are retrieved in that order in `field_bc_list`, i.e. `u` corresponds to
-  `field_bc_list%fields(1)%f`, etc.
+  `field_bc_list%%items(1)%%f`, etc.
   * If `which_solver = "scalar"`, it will only contain the scalar field `s`. 
  
 * `bc_bc_list` contains a list of the `bc_t` objects to help access the 
   boundary indices through the boundary `mask`.
   * The boundary `i` contained in `bc_bc_list` is accessed with 
-  `bc_bc_list%bc(i)%bcp`.
+  `bc_bc_list%%bc(i)%%bcp`.
   * The boundary mask of the `i`-th `bc_t` object contained in `bc_bc_list` is accessed
-  with `bc_bc_list%bc(i)%bcp%msk`. It contains the linear indices of each GLL point on 
+  with `bc_bc_list%%bc(i)%%bcp%%msk`. It contains the linear indices of each GLL point on 
   the `i`-th boundary facets.
   @note `msk(0)` contains the size of the array. The first boundary index is `msk(1)`.
   * If `which_solver = "fluid"`, it will contain the 4 `bc_t` objects 
@@ -761,12 +763,12 @@ A very simple example illustrating the above is shown below, which is taken from
 
          !
          ! Perform operations on u%x, v%x, w%x and p%x here
-         ! Note that we are checking if fields are allocated. If the
+         ! Note that we are checking if fields are allocated. If a
          ! boundary type only contains e.g. "d_vel_u/d_pres", the fields
          ! v%x and w%x will not be allocated.
          !
          ! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)
-         ! and nonsensical pressure outlet of p = -1
+         ! and pressure outlet of p = -1
          !
          if (allocated(u%x)) u = 1.0_rp
          if (allocated(v%x)) v = 0.0_rp
@@ -822,7 +824,7 @@ components or pressure are given in `case.fluid.boundary_types`. Fields in the
 lists are only allocated if they are present in the case file.For
 example, if we removed the `d_pres` condition in the JSON case file code snippet
 above, the pressure field for our boundary condition would not be allocated (
-in the example above, `allocated(p%x)` would never be `true`). `"boundary_types": ["d_vel_u", "d_vel_v"]` will allocate the two first 
+in the example above, `allocated(p%%x)` would never be `true`). `"boundary_types": ["d_vel_u", "d_vel_v"]` will allocate the two first 
 fields in `field_bc_list`, which is the same behaviour as
 `"boundary_types": ["d_vel_u/d_vel_v", ""]`.
 

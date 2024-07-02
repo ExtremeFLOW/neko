@@ -1,5 +1,7 @@
 # Programming patterns and conventions {#dev_patterns}
 
+\tableofcontents
+
 This section aims to summarize the programming conventions in Neko to guide all
 developers into writing code with good style and facilitate the reuse of the
 same programming patterns throughout the code base. It is a good idea to check
