@@ -142,24 +142,24 @@ contains
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
     integer :: i, j, temp
-    type(point_t), pointer :: p1, p2, p3
+    type(point_t), pointer :: p1,p2,p3
 
     p1 => this%p(face_nodes(1, side))
     p2 => this%p(face_nodes(2, side))
     p3 => this%p(face_nodes(3, side))
 
     select type(t)
-    type is (tuple3_i4_t)
+    type is(tuple3_i4_t)
        t%x = (/ p1%id(), p2%id(), p3%id() /)
        do i = 1, 2
           do j = i+1,3
-             if (t%x(j) .lt. t%x(i)) then
+             if(t%x(j) .lt. t%x(i)) then
                 temp = t%x(i)
                 t%x(i) = t%x(j)
                 t%x(j) = temp
-             end if
-          end do
-       end do
+             endif
+          enddo
+       enddo
     end select
 
   end subroutine tet_facet_id
@@ -169,14 +169,14 @@ contains
     class(tet_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    type(point_t), pointer :: p1, p2, p3
+    type(point_t), pointer :: p1,p2,p3
 
     p1 => this%p(face_nodes(1, side))
     p2 => this%p(face_nodes(2, side))
     p3 => this%p(face_nodes(3, side))
 
     select type(t)
-    type is (tuple3_i4_t)
+    type is(tuple3_i4_t)
        t%x = (/ p1%id(), p2%id(), p3%id() /)
     end select
 
@@ -188,18 +188,18 @@ contains
     class(tet_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    type(point_t), pointer :: p1, p2
+    type(point_t), pointer :: p1,p2
 
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
     select type(t)
-    type is (tuple_i4_t)
+    type is(tuple_i4_t)
        if (p1%id() .lt. p2%id()) then
           t%x = (/ p1%id(), p2%id() /)
        else
           t%x = (/ p2%id(), p1%id() /)
-       end if
+       endif
 
     end select
 

@@ -430,23 +430,23 @@ contains
           u = this%elements(e)%e%pts(2)%p%x - this%elements(e)%e%pts(1)%p%x
           v = this%elements(e)%e%pts(3)%p%x - this%elements(e)%e%pts(1)%p%x
           temp = u(1)*v(1) + u(2)*v(2)
-          if (.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
+          if(.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
        else
           this%dfrmd_el(e) = .false.
           u = this%elements(e)%e%pts(2)%p%x - this%elements(e)%e%pts(1)%p%x
           v = this%elements(e)%e%pts(3)%p%x - this%elements(e)%e%pts(1)%p%x
           w = this%elements(e)%e%pts(5)%p%x - this%elements(e)%e%pts(1)%p%x
           temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
-          if (.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
+          if(.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
           temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
-          if (.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
+          if(.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
           u = this%elements(e)%e%pts(7)%p%x - this%elements(e)%e%pts(8)%p%x
           v = this%elements(e)%e%pts(6)%p%x - this%elements(e)%e%pts(8)%p%x
           w = this%elements(e)%e%pts(4)%p%x - this%elements(e)%e%pts(8)%p%x
           temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
-          if (.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
+          if(.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
           temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
-          if (.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
+          if(.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
        end if
     end do
   end subroutine mesh_generate_flags
@@ -550,15 +550,15 @@ contains
                    !if element is already recognized on face
                    if (facet_data%x(1) .eq. el_glb_idx ) then
                       this%facet_neigh(j, i) = facet_data%x(2)
-                   else if ( facet_data%x(2) .eq. el_glb_idx) then
+                   else if( facet_data%x(2) .eq. el_glb_idx) then
                       this%facet_neigh(j, i) = facet_data%x(1)
                       !if this is the second element, arrange so low id is first
-                   else if (facet_data%x(1) .gt. el_glb_idx) then
+                   else if(facet_data%x(1) .gt. el_glb_idx) then
                       facet_data%x(2) = facet_data%x(1)
                       facet_data%x(1) = el_glb_idx
                       this%facet_neigh(j, i) = facet_data%x(2)
                       call fmp%set(edge, facet_data)
-                   else if (facet_data%x(1) .lt. el_glb_idx) then
+                   else if(facet_data%x(1) .lt. el_glb_idx) then
                       facet_data%x(2) = el_glb_idx
                       this%facet_neigh(j, i) = facet_data%x(1)
                       call fmp%set(edge, facet_data)
@@ -593,15 +593,15 @@ contains
                          this%facet_neigh(j, i) = facet_data%x(1)
                          call fmp%set(face, facet_data)
                       end if
-                   else if ( facet_data%x(2) .eq. el_glb_idx) then
+                   else if( facet_data%x(2) .eq. el_glb_idx) then
                       this%facet_neigh(j, i) = facet_data%x(1)
                       !if this is the second element, arrange so low id is first
-                   else if (facet_data%x(1) .gt. el_glb_idx) then
+                   else if(facet_data%x(1) .gt. el_glb_idx) then
                       facet_data%x(2) = facet_data%x(1)
                       facet_data%x(1) = el_glb_idx
                       this%facet_neigh(j, i) = facet_data%x(2)
                       call fmp%set(face, facet_data)
-                   else if (facet_data%x(1) .lt. el_glb_idx) then
+                   else if(facet_data%x(1) .lt. el_glb_idx) then
                       facet_data%x(2) = el_glb_idx
                       this%facet_neigh(j, i) = facet_data%x(1)
                       call fmp%set(face, facet_data)
@@ -760,7 +760,7 @@ contains
                    !Check which side is connected
                    do l = 1, n_sides
                       call this%elements(element)%e%facet_id(edge2, l)
-                      if (edge2 .eq. edge) then
+                      if(edge2 .eq. edge) then
                          facet = l
                          exit
                       end if
@@ -799,7 +799,7 @@ contains
                    element = facet_data%x(1) - this%offset_el
                    do l = 1, 6
                       call this%elements(element)%e%facet_id(face2, l)
-                      if (face2 .eq. face) then
+                      if(face2 .eq. face) then
                          facet = l
                          exit
                       end if
@@ -951,7 +951,7 @@ contains
     call non_shared_edges%init(this%hte%num_entries())
 
     call it%init(this%hte)
-    do while (it%next())
+    do while(it%next())
        edge => it%key()
        call it%data(id)
 
@@ -1026,7 +1026,7 @@ contains
           ! We should use the %array() procedure, which works great for
           ! GNU, Intel and NEC, but it breaks horribly on Cray when using
           ! certain data types
-          select type(sbarray => send_buff%data)
+          select type(sbarray=>send_buff%data)
           type is (integer(i8))
              call MPI_Isend(sbarray, send_buff%size(), MPI_INTEGER8, &
                   dst, 0, NEKO_COMM, send_req, ierr)
@@ -1111,7 +1111,7 @@ contains
           ! We should use the %array() procedure, which works great for
           ! GNU, Intel and NEC, but it breaks horribly on Cray when using
           ! certain data types
-          select type(sbarray => send_buff%data)
+          select type(sbarray=>send_buff%data)
           type is (integer(i8))
              call MPI_Isend(sbarray, send_buff%size(), MPI_INTEGER8, &
                   dst, 0, NEKO_COMM, send_req, ierr)
@@ -1543,7 +1543,7 @@ contains
   subroutine mesh_mark_curve_element(this, e, curve_data, curve_type)
     class(mesh_t), intent(inout) :: this
     integer, intent(in) :: e
-    real(kind=dp), dimension(5, 12), intent(in) :: curve_data
+    real(kind=dp), dimension(5,12), intent(in) :: curve_data
     integer, dimension(12), intent(in) :: curve_type
 
     if (e .gt. this%nelv) then
@@ -1775,14 +1775,14 @@ contains
           L = 0d0
           do i = 1, 4
              L = L + ele%pts(face_nodes(i,f))%p%x(1:3) - &
-               elp%pts(face_nodes(i, pf))%p%x(1:3)
+               elp%pts(face_nodes(i,pf))%p%x(1:3)
           end do
           L = L/4
           do i = 1, 4
              pi => ele%pts(face_nodes(i,f))%p
              match = 0
              do j = 1, 4
-                pj => elp%pts(face_nodes(j, pf))%p
+                pj => elp%pts(face_nodes(j,pf))%p
                 if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
                    id = min(pi%id(), pj%id())
                    call pi%set_id(id)
@@ -1804,13 +1804,13 @@ contains
           L = 0d0
           do i = 1, 2
              L = L + ele%pts(edge_nodes(i,f))%p%x(1:3) - &
-               elp%pts(edge_nodes(i, pf))%p%x(1:3)
+               elp%pts(edge_nodes(i,pf))%p%x(1:3)
           end do
           L = L/2
           do i = 1, 2
              pi => ele%pts(edge_nodes(i,f))%p
              do j = 1, 2
-                pj => elp%pts(edge_nodes(j, pf))%p
+                pj => elp%pts(edge_nodes(j,pf))%p
                 !whatabout thie tolerance?
                 if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
                    id = min(pi%id(), pj%id())
