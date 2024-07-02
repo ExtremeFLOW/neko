@@ -51,7 +51,7 @@ regexp-rules:
   # Look through the list of punctuation, but skip if inside format string '()'
   missing-spaces-after-punctuation:
     message: Missing space after punctuation
-    regexp: (?<!'\([.*])(,)(\w{2,})(?!.*\)')
+    regexp: (?<!'\([.*])(,)(\w\w)(?!.*\)')
     replacement: \1 \2
     active: true
 
