@@ -176,22 +176,22 @@ contains
   end function nonlinear_index
 
   subroutine neko_error_plain(error_code)
-    integer, optional :: error_code
+    integer, optional, intent(in) :: error_code
 
     if (present(error_code)) then
        write(*,*) '*** ERROR ***', error_code
-       error stop
+       error stop error_code
     else
-       write(*,*) '*** ERROR ***'
        error stop
     end if
 
   end subroutine neko_error_plain
 
   subroutine neko_error_msg(error_msg)
-    character(len=*) :: error_msg
+    character(len=*), intent(in) :: error_msg
+
     write(*,*) '*** ERROR: ', error_msg,' ***'
-    error stop
+    error stop error_msg
   end subroutine neko_error_msg
 
   subroutine neko_warning(warning_msg)
