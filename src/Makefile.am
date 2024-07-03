@@ -200,8 +200,8 @@ neko_fortran_SOURCES = \
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
 	fluid/advection_fctry.f90\
-        fluid/bcknd/advection/adv_dealias.f90\
-        fluid/bcknd/advection/adv_no_dealias.f90\
+	fluid/bcknd/advection/adv_dealias.f90\
+	fluid/bcknd/advection/adv_no_dealias.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
@@ -232,6 +232,7 @@ neko_fortran_SOURCES = \
 	device/opencl/prgm_lib.F90\
 	device/dummy_device.F90\
 	device/device.F90\
+	math/bcknd/field_math.f90\
 	math/bcknd/device/device_math.F90\
 	math/bcknd/device/device_schwarz.F90\
 	math/bcknd/device/tensor_device.F90\
@@ -273,8 +274,6 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/boussinesq_source_term_device.f90\
 	source_terms/source_term_fctry.f90\
 	source_terms/brinkman_source_term.f90\
-	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
-	source_terms/bcknd/device/brinkman_source_term_device.f90\
 	source_terms/brinkman/filters.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
 	les/les_model.f90\
@@ -295,14 +294,16 @@ neko_fortran_SOURCES = \
 	wall_models/wall_model_fctry.f90\
 	neko.f90
 
-neko_c_SOURCES = comm/comm_wrapper.c\
-		 common/sighdl.c\
-		 common/cpuid.c\
-                 gs/bcknd/device/device_mpi.c\
-                 math/bcknd/device/device_mpi_reduce.c
+neko_c_SOURCES = \
+	comm/comm_wrapper.c\
+	common/sighdl.c\
+	common/cpuid.c\
+	gs/bcknd/device/device_mpi.c\
+	math/bcknd/device/device_mpi_reduce.c
 
-libneko_a_SOURCES = $(neko_fortran_SOURCES)\
-                    $(neko_c_SOURCES)
+libneko_a_SOURCES = \
+	$(neko_fortran_SOURCES)\
+	$(neko_c_SOURCES)
 
 if ENABLE_PARMETIS
 libneko_a_SOURCES += comm/parmetis_wrapper.c
@@ -445,9 +446,10 @@ endif
 bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
-pkginclude_HEADERS = $(wildcard *.mod)\
-		     device/device_config.h\
-		     common/neko_log.h
+pkginclude_HEADERS = \
+	$(wildcard *.mod)\
+	device/device_config.h\
+	common/neko_log.h
 
 if ENABLE_HIP
 pkginclude_HEADERS += device/hip/check.h
@@ -465,13 +467,14 @@ endif
 CLEANFILES = *.mod
 
 if ENABLE_OPENCL
-CLEANFILES += math/bcknd/device/opencl/*.cl.h\
-	      gs/bcknd/device/opencl/*.cl.h\
-	      bc/bcknd/device/opencl/*.cl.h\
-	      krylov/bcknd/device/opencl/*.cl.h\
-	      fluid/bcknd/device/opencl/*.cl.h\
-	      scalar/bcknd/device/opencl/*.cl.h\
-	      sem/bcknd/device/opencl/*.cl.h
+CLEANFILES += \
+	math/bcknd/device/opencl/*.cl.h\
+	gs/bcknd/device/opencl/*.cl.h\
+	bc/bcknd/device/opencl/*.cl.h\
+	krylov/bcknd/device/opencl/*.cl.h\
+	fluid/bcknd/device/opencl/*.cl.h\
+	scalar/bcknd/device/opencl/*.cl.h\
+	sem/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
