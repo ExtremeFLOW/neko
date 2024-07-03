@@ -68,46 +68,60 @@ contains
     select case(Xh%lx)
     case (14)
        call ax_helm_lx14(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
     case (13)
        call ax_helm_lx13(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
     case (12)
        call ax_helm_lx12(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
     case (11)
        call ax_helm_lx11(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(10)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (10)
        call ax_helm_lx10(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(9)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (9)
        call ax_helm_lx9(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(8)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (8)
        call ax_helm_lx8(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(7)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (7)
        call ax_helm_lx7(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(6)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (6)
        call ax_helm_lx6(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(5)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (5)
        call ax_helm_lx5(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(4)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (4)
        call ax_helm_lx4(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(3)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (3)
        call ax_helm_lx3(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(2)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (2)
        call ax_helm_lx2(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
     case default
        call ax_helm_lx(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, &
-            coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv, Xh%lx)
+            coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, &
+            msh%nelv, Xh%lx)
     end select
 
     if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%size())

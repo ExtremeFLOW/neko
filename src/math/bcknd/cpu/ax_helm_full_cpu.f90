@@ -61,7 +61,8 @@ contains
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh, Xh)
+  subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh,&
+                                         Xh)
     class(ax_helm_full_cpu_t), intent(in) :: this
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
@@ -73,80 +74,80 @@ contains
     real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    select case(Xh%lx)
-    case(14)
+    select case (Xh%lx)
+    case (14)
        call ax_helm_stress_lx14(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(13)
+    case (13)
        call ax_helm_stress_lx13(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(12)
+    case (12)
        call ax_helm_stress_lx12(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(11)
+    case (11)
        call ax_helm_stress_lx11(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(10)
+    case (10)
        call ax_helm_stress_lx10(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(9)
+    case (9)
        call ax_helm_stress_lx9(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(8)
+    case (8)
        call ax_helm_stress_lx8(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(7)
+    case (7)
        call ax_helm_stress_lx7(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(6)
+    case (6)
        call ax_helm_stress_lx6(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(5)
+    case (5)
        call ax_helm_stress_lx5(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(4)
+    case (4)
        call ax_helm_stress_lx4(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(3)
+    case (3)
        call ax_helm_stress_lx3(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
             coef%dtdx, coef%dtdy, coef%dtdz, &
             coef%jacinv, Xh%w3, msh%nelv)
-    case(2)
+    case (2)
        call ax_helm_stress_lx2(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
             Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, coef%h2, &
             coef%drdx, coef%drdy, coef%drdz, coef%dsdx, coef%dsdy, coef%dsdz, &
@@ -191,12 +192,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -389,12 +390,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -771,8 +772,8 @@ contains
 
   end subroutine ax_helm_stress_lx14
 
-  subroutine ax_helm_stress_lx13(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+  subroutine ax_helm_stress_lx13(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
+       Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 13
     integer, intent(in) :: n
@@ -794,12 +795,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -1157,8 +1158,8 @@ contains
 
   end subroutine ax_helm_stress_lx13
 
-  subroutine ax_helm_stress_lx12(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+  subroutine ax_helm_stress_lx12(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
+       Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 12
     integer, intent(in) :: n
@@ -1180,12 +1181,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -1548,12 +1549,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -1897,12 +1898,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -2205,8 +2206,8 @@ contains
 
   end subroutine ax_helm_stress_lx10
 
-  subroutine ax_helm_stress_lx9(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+  subroutine ax_helm_stress_lx9(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt,  &
+       Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 9
     integer, intent(in) :: n
@@ -2228,12 +2229,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -2518,8 +2519,8 @@ contains
 
   end subroutine ax_helm_stress_lx9
 
-  subroutine ax_helm_stress_lx8(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+  subroutine ax_helm_stress_lx8(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
+       Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 8
     integer, intent(in) :: n
@@ -2541,12 +2542,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -2814,8 +2815,8 @@ contains
 
   end subroutine ax_helm_stress_lx8
 
-  subroutine ax_helm_stress_lx7(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+  subroutine ax_helm_stress_lx7(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
+       Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 7
     integer, intent(in) :: n
@@ -2837,12 +2838,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -3093,8 +3094,8 @@ contains
 
   end subroutine ax_helm_stress_lx7
 
-  subroutine ax_helm_stress_lx6(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+  subroutine ax_helm_stress_lx6(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
+       Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 6
     integer, intent(in) :: n
@@ -3116,12 +3117,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -3352,8 +3353,8 @@ contains
 
   end subroutine ax_helm_stress_lx6
 
-  subroutine ax_helm_stress_lx5(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+  subroutine ax_helm_stress_lx5(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
+       Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 5
     integer, intent(in) :: n
@@ -3375,12 +3376,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -3594,8 +3595,8 @@ contains
 
   end subroutine ax_helm_stress_lx5
 
-  subroutine ax_helm_stress_lx4(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+  subroutine ax_helm_stress_lx4(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
+       Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 4
     integer, intent(in) :: n
@@ -3617,12 +3618,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -3817,8 +3818,8 @@ contains
 
   end subroutine ax_helm_stress_lx4
 
-  subroutine ax_helm_stress_lx3(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+  subroutine ax_helm_stress_lx3(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
+       Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 3
     integer, intent(in) :: n
@@ -3840,12 +3841,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
@@ -4022,8 +4023,8 @@ contains
 
   end subroutine ax_helm_stress_lx3
 
-  subroutine ax_helm_stress_lx2(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+  subroutine ax_helm_stress_lx2(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
+       Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 2
     integer, intent(in) :: n
@@ -4045,12 +4046,12 @@ contains
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     real(kind=rp), intent(in) :: weights3(lx, lx, lx)
 
     real(kind=rp) :: wur(lx, lx, lx)
