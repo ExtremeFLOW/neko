@@ -73,12 +73,11 @@ module case
      real(kind=rp), dimension(10) :: dtlag
      real(kind=rp) :: dt
      real(kind=rp) :: end_time
+     character(len=:), allocatable :: output_directory
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
      type(fluid_stats_output_t) :: f_stats_output
      type(chkp_output_t) :: f_chkp
-     type(mean_flow_output_t) :: f_mf
-     type(mean_sqr_flow_output_t) :: f_msqrf
      type(stats_t) :: q
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
@@ -139,7 +138,6 @@ contains
   !> Initialize a case from its (loaded) params object
   subroutine case_init_common(C)
     type(case_t), target, intent(inout) :: C
-    character(len=:), allocatable :: output_directory
     integer :: lx = 0
     logical :: scalar = .false.
     type(file_t) :: msh_file, bdry_file, part_file
@@ -321,14 +319,14 @@ contains
     ! Get and process output directory
     !
     call json_get_or_default(C%params, 'case.output_directory',&
-                             output_directory, '')
+                             C%output_directory, '')
 
-    output_dir_len = len(trim(output_directory))
+    output_dir_len = len(trim(C%output_directory))
     if (output_dir_len .gt. 0) then
-       if (output_directory(output_dir_len:output_dir_len) .ne. "/") then
-          output_directory = trim(output_directory)//"/"
+       if (C%output_directory(output_dir_len:output_dir_len) .ne. "/") then
+          C%output_directory = trim(C%output_directory)//"/"
           if (pe_rank .eq. 0) then
-             call execute_command_line('mkdir -p '//output_directory)
+             call execute_command_line('mkdir -p '//C%output_directory)
           end if
        end if
     end if
@@ -339,7 +337,7 @@ contains
     call json_get_or_default(C%params, 'case.output_boundary',&
                              logical_val, .false.)
     if (logical_val) then
-       bdry_file = file_t(trim(output_directory)//'bdry.fld')
+       bdry_file = file_t(trim(C%output_directory)//'bdry.fld')
        call bdry_file%write(C%fluid%bdry)
     end if
 
@@ -351,7 +349,7 @@ contains
     if (logical_val) then
        call mesh_field_init(msh_part, C%msh, 'MPI_Rank')
        msh_part%data = pe_rank
-       part_file = file_t(trim(output_directory)//'partitions.vtk')
+       part_file = file_t(trim(C%output_directory)//'partitions.vtk')
        call part_file%write(msh_part)
        call mesh_field_free(msh_part)
     end if
@@ -374,10 +372,10 @@ contains
     call C%s%init(C%end_time)
     if (scalar) then
        C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
-            path=trim(output_directory))
+            path=trim(C%output_directory))
     else
        C%f_out = fluid_output_t(precision, C%fluid, &
-            path=trim(output_directory))
+            path=trim(C%output_directory))
     end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
@@ -405,7 +403,7 @@ contains
     if (logical_val) then
        call json_get_or_default(C%params, 'case.checkpoint_format', &
             string_val, "chkp")
-       C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory, &
+       C%f_chkp = chkp_output_t(C%fluid%chkp, path=C%output_directory, &
             fmt=trim(string_val))
        call json_get_or_default(C%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
@@ -436,26 +434,19 @@ contains
        call json_get_or_default(C%params, 'case.statistics.enabled',&
                                 logical_val, .true.)
        if (logical_val) then
-          call C%q%add(C%fluid%mean%u)
-          call C%q%add(C%fluid%mean%v)
-          call C%q%add(C%fluid%mean%w)
-          call C%q%add(C%fluid%mean%p)
 
           call json_get_or_default(C%params, 'case.statistics.avg_direction', &
                hom_dir, 'none')
-          C%f_mf = mean_flow_output_t(C%fluid%mean, stats_start_time, hom_dir,&
-                                      path=output_directory)
 
           call json_get(C%params, 'case.statistics.output_control', &
                         string_val)
           call json_get(C%params, 'case.statistics.output_value', &
                         stats_output_val)
 
-          call C%s%add(C%f_mf, stats_output_val, string_val)
           call C%q%add(C%fluid%stats)
 
           C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
-            stats_start_time, hom_dir=hom_dir, path=output_directory)
+            stats_start_time, hom_dir=hom_dir, path=C%output_directory)
           call C%s%add(C%f_stats_output, stats_output_val, string_val)
        end if
     end if

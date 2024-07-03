@@ -45,18 +45,20 @@ module simulation_component_fctry
   use field_writer, only : field_writer_t
   use weak_grad, only : weak_grad_t
   use derivative, only : derivative_t
+  use fluid_stats_simcomp, only : fluid_stats_simcomp_t
   implicit none
   private
 
   public :: simulation_component_factory
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(5) = [character(len=20) :: &
+  character(len=20) :: KNOWN_TYPES(6) = [character(len=20) :: &
      "vorticity", &
      "lambda2", &
      "probes", &
      "les_model", &
-     "field_writer"]
+     "field_writer", &
+     "fluid_stats"]
 
 contains
 
@@ -87,6 +89,8 @@ contains
        allocate(weak_grad_t::object)
     else if (trim(type_name) .eq. "derivative") then
        allocate(derivative_t::object)
+    else if (trim(type_name) .eq. "fluid_stats") then
+       allocate(fluid_stats_simcomp_t::object)
     else
        type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
                                           .true.)

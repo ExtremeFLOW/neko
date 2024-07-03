@@ -63,10 +63,10 @@ module fluid_stats
      type(field_t), pointer :: w !< w
      type(field_t), pointer :: p !< p
 
-     type(field_t), pointer :: u_mean !< <u>
-     type(field_t), pointer :: v_mean !< <v>
-     type(field_t), pointer :: w_mean !< <w>
-     type(field_t), pointer :: p_mean !< <p>
+     type(mean_field_t) :: u_mean !< <u>
+     type(mean_field_t) :: v_mean !< <v>
+     type(mean_field_t) :: w_mean !< <w>
+     type(mean_field_t) :: p_mean !< <p>
      !> Velocity squares
      type(mean_field_t) :: uu !< <uu>
      type(mean_field_t) :: vv !< <vv>
@@ -128,7 +128,7 @@ module fluid_stats
      type(field_t) :: dwdz
 
      type(coef_t), pointer :: coef
-     integer :: n_stats = 40
+     integer :: n_stats = 44
      !> Used to write stats output
      !! pressure=pp
      !! x-vel=uu
@@ -151,20 +151,18 @@ module fluid_stats
 contains
 
   !> Initialize the fields associated with fluid_stats
-  subroutine fluid_stats_init(this, coef, u_mf,v_mf,w_mf,p_mf)
+  subroutine fluid_stats_init(this, coef, u,v,w,p)
     class(fluid_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
-    type(mean_field_t), target, intent(inout) :: u_mf, v_mf, w_mf, p_mf
+    type(field_t), target, intent(inout) :: u, v, w, p
+   
+    call this%free()
     this%coef => coef
 
-    this%u_mean => u_mf%mf
-    this%v_mean => v_mf%mf
-    this%w_mean => w_mf%mf
-    this%p_mean => p_mf%mf
-    this%u => u_mf%f
-    this%v => v_mf%f
-    this%w => w_mf%f
-    this%p => p_mf%f
+    this%u => u
+    this%v => v
+    this%w => w
+    this%p => p
 
     call this%stats_work%init(this%u%dof, 'stats')
     call this%stats_u%init(this%u%dof, 'u temp')
@@ -182,6 +180,10 @@ contains
     call this%dwdy%init(this%u%dof, 'dwdy')
     call this%dwdz%init(this%u%dof, 'dwdz')
 
+    call this%u_mean%init(this%u)
+    call this%v_mean%init(this%v)
+    call this%w_mean%init(this%w)
+    call this%p_mean%init(this%p)
     call this%uu%init(this%stats_u, 'uu')
     call this%vv%init(this%stats_v, 'vv')
     call this%ww%init(this%stats_w, 'ww')
@@ -229,47 +231,51 @@ contains
 
     allocate(this%stat_fields%items(this%n_stats))
 
-    call this%stat_fields%assign_to_field(1, this%pp%mf)
-    call this%stat_fields%assign_to_field(2, this%uu%mf)
-    call this%stat_fields%assign_to_field(3, this%vv%mf)
-    call this%stat_fields%assign_to_field(4, this%ww%mf)
-    call this%stat_fields%assign_to_field(5, this%uv%mf)
-    call this%stat_fields%assign_to_field(6, this%uw%mf)
-    call this%stat_fields%assign_to_field(7, this%vw%mf)
-    call this%stat_fields%assign_to_field(8, this%uuu%mf) !< <uuu>
-    call this%stat_fields%assign_to_field(9, this%vvv%mf) !< <vvv>
-    call this%stat_fields%assign_to_field(10, this%www%mf) !< <www>
-    call this%stat_fields%assign_to_field(11, this%uuv%mf) !< <uuv>
-    call this%stat_fields%assign_to_field(12, this%uuw%mf) !< <uuw>
-    call this%stat_fields%assign_to_field(13, this%uvv%mf) !< <uvv>
-    call this%stat_fields%assign_to_field(14, this%uvw%mf) !< <uvv>
-    call this%stat_fields%assign_to_field(15, this%vvw%mf) !< <vvw>
-    call this%stat_fields%assign_to_field(16, this%uww%mf) !< <uww>
-    call this%stat_fields%assign_to_field(17, this%vww%mf) !< <vww>
-    call this%stat_fields%assign_to_field(18, this%uuuu%mf) !< <uuuu>
-    call this%stat_fields%assign_to_field(19, this%vvvv%mf) !< <vvvv>
-    call this%stat_fields%assign_to_field(20, this%wwww%mf) !< <wwww>
-    call this%stat_fields%assign_to_field(21, this%ppp%mf)
-    call this%stat_fields%assign_to_field(22, this%pppp%mf)
-    call this%stat_fields%assign_to_field(23, this%pu%mf)
-    call this%stat_fields%assign_to_field(24, this%pv%mf)
-    call this%stat_fields%assign_to_field(25, this%pw%mf)
+    call this%stat_fields%assign_to_field(1, this%p_mean%mf)
+    call this%stat_fields%assign_to_field(2, this%u_mean%mf)
+    call this%stat_fields%assign_to_field(3, this%v_mean%mf)
+    call this%stat_fields%assign_to_field(4, this%w_mean%mf)
+    call this%stat_fields%assign_to_field(5, this%pp%mf)
+    call this%stat_fields%assign_to_field(6, this%uu%mf)
+    call this%stat_fields%assign_to_field(7, this%vv%mf)
+    call this%stat_fields%assign_to_field(8, this%ww%mf)
+    call this%stat_fields%assign_to_field(9, this%uv%mf)
+    call this%stat_fields%assign_to_field(10, this%uw%mf)
+    call this%stat_fields%assign_to_field(11, this%vw%mf)
+    call this%stat_fields%assign_to_field(12, this%uuu%mf) !< <uuu>
+    call this%stat_fields%assign_to_field(13, this%vvv%mf) !< <vvv>
+    call this%stat_fields%assign_to_field(14, this%www%mf) !< <www>
+    call this%stat_fields%assign_to_field(15, this%uuv%mf) !< <uuv>
+    call this%stat_fields%assign_to_field(16, this%uuw%mf) !< <uuw>
+    call this%stat_fields%assign_to_field(17, this%uvv%mf) !< <uvv>
+    call this%stat_fields%assign_to_field(18, this%uvw%mf) !< <uvv>
+    call this%stat_fields%assign_to_field(19, this%vvw%mf) !< <vvw>
+    call this%stat_fields%assign_to_field(20, this%uww%mf) !< <uww>
+    call this%stat_fields%assign_to_field(21, this%vww%mf) !< <vww>
+    call this%stat_fields%assign_to_field(22, this%uuuu%mf) !< <uuuu>
+    call this%stat_fields%assign_to_field(23, this%vvvv%mf) !< <vvvv>
+    call this%stat_fields%assign_to_field(24, this%wwww%mf) !< <wwww>
+    call this%stat_fields%assign_to_field(25, this%ppp%mf)
+    call this%stat_fields%assign_to_field(26, this%pppp%mf)
+    call this%stat_fields%assign_to_field(27, this%pu%mf)
+    call this%stat_fields%assign_to_field(28, this%pv%mf)
+    call this%stat_fields%assign_to_field(29, this%pw%mf)
 
-    call this%stat_fields%assign_to_field(26, this%pdudx%mf)
-    call this%stat_fields%assign_to_field(27, this%pdudy%mf)
-    call this%stat_fields%assign_to_field(28, this%pdudz%mf)
-    call this%stat_fields%assign_to_field(29, this%pdvdx%mf)
-    call this%stat_fields%assign_to_field(30, this%pdvdy%mf)
-    call this%stat_fields%assign_to_field(31, this%pdvdz%mf)
-    call this%stat_fields%assign_to_field(32, this%pdwdx%mf)
-    call this%stat_fields%assign_to_field(33, this%pdwdy%mf)
-    call this%stat_fields%assign_to_field(34, this%pdwdz%mf)
-    call this%stat_fields%assign_to_field(35, this%e11%mf)
-    call this%stat_fields%assign_to_field(36, this%e22%mf)
-    call this%stat_fields%assign_to_field(37, this%e33%mf)
-    call this%stat_fields%assign_to_field(38, this%e12%mf)
-    call this%stat_fields%assign_to_field(39, this%e13%mf)
-    call this%stat_fields%assign_to_field(40, this%e23%mf)
+    call this%stat_fields%assign_to_field(30, this%pdudx%mf)
+    call this%stat_fields%assign_to_field(31, this%pdudy%mf)
+    call this%stat_fields%assign_to_field(32, this%pdudz%mf)
+    call this%stat_fields%assign_to_field(33, this%pdvdx%mf)
+    call this%stat_fields%assign_to_field(34, this%pdvdy%mf)
+    call this%stat_fields%assign_to_field(35, this%pdvdz%mf)
+    call this%stat_fields%assign_to_field(36, this%pdwdx%mf)
+    call this%stat_fields%assign_to_field(37, this%pdwdy%mf)
+    call this%stat_fields%assign_to_field(38, this%pdwdz%mf)
+    call this%stat_fields%assign_to_field(39, this%e11%mf)
+    call this%stat_fields%assign_to_field(40, this%e22%mf)
+    call this%stat_fields%assign_to_field(41, this%e33%mf)
+    call this%stat_fields%assign_to_field(42, this%e12%mf)
+    call this%stat_fields%assign_to_field(43, this%e13%mf)
+    call this%stat_fields%assign_to_field(44, this%e23%mf)
 
 
   end subroutine fluid_stats_init
@@ -288,6 +294,11 @@ contains
 
       !> U%f is u and U%mf is <u>
       if (NEKO_BCKND_DEVICE .eq. 1) then
+
+         call this%u_mean%update(k)
+         call this%v_mean%update(k)
+         call this%w_mean%update(k)
+         call this%p_mean%update(k)
 
          call device_col3(stats_u%x_d,this%u%x_d, this%u%x_d,n)
          call device_col3(stats_v%x_d,this%v%x_d, this%v%x_d,n)
@@ -348,6 +359,10 @@ contains
 
       else
 
+         call this%u_mean%update(k)
+         call this%v_mean%update(k)
+         call this%w_mean%update(k)
+         call this%p_mean%update(k)
          call col3(stats_u%x,this%u%x, this%u%x,n)
          call col3(stats_v%x,this%v%x, this%v%x,n)
          call col3(stats_w%x,this%w%x, this%w%x,n)
@@ -514,6 +529,11 @@ contains
     call this%stats_v%free()
     call this%stats_w%free()
 
+    call this%u_mean%free()
+    call this%v_mean%free()
+    call this%w_mean%free()
+    call this%p_mean%free()
+
     call this%uu%free()
     call this%vv%free()
     call this%ww%free()
@@ -537,6 +557,11 @@ contains
   !> Initialize a mean flow field
   subroutine fluid_stats_reset(this)
     class(fluid_stats_t), intent(inout), target:: this
+
+    call this%p_mean%reset()
+    call this%u_mean%reset()
+    call this%v_mean%reset()
+    call this%w_mean%reset()
 
     call this%uu%reset()
     call this%vv%reset()
@@ -649,34 +674,34 @@ contains
 
     if (present(mean)) then
        n = mean%item_size(1)
-       call copy(mean%items(1)%ptr%x, this%u_mean%x, n)
-       call copy(mean%items(2)%ptr%x, this%v_mean%x, n)
-       call copy(mean%items(3)%ptr%x, this%w_mean%x, n)
-       call copy(mean%items(4)%ptr%x, this%p_mean%x, n)
+       call copy(mean%items(1)%ptr%x, this%u_mean%mf%x, n)
+       call copy(mean%items(2)%ptr%x, this%v_mean%mf%x, n)
+       call copy(mean%items(3)%ptr%x, this%w_mean%mf%x, n)
+       call copy(mean%items(4)%ptr%x, this%p_mean%mf%x, n)
     end if
 
     if (present(reynolds)) then
        n = reynolds%item_size(1)
        call copy(reynolds%items(1)%ptr%x, this%pp%mf%x, n)
-       call subcol3(reynolds%items(1)%ptr%x, this%p_mean%x, this%p_mean%x, n)
+       call subcol3(reynolds%items(1)%ptr%x, this%p_mean%mf%x, this%p_mean%mf%x, n)
 
        call copy(reynolds%items(2)%ptr%x, this%uu%mf%x, n)
-       call subcol3(reynolds%items(2)%ptr%x, this%u_mean%x, this%u_mean%x, n)
+       call subcol3(reynolds%items(2)%ptr%x, this%u_mean%mf%x, this%u_mean%mf%x, n)
 
        call copy(reynolds%items(3)%ptr%x, this%vv%mf%x, n)
-       call subcol3(reynolds%items(3)%ptr%x, this%v_mean%x,this%v_mean%x,n)
+       call subcol3(reynolds%items(3)%ptr%x, this%v_mean%mf%x,this%v_mean%mf%x,n)
 
        call copy(reynolds%items(4)%ptr%x, this%ww%mf%x, n)
-       call subcol3(reynolds%items(4)%ptr%x, this%w_mean%x,this%w_mean%x,n)
+       call subcol3(reynolds%items(4)%ptr%x, this%w_mean%mf%x,this%w_mean%mf%x,n)
 
        call copy(reynolds%items(5)%ptr%x, this%uv%mf%x, n)
-       call subcol3(reynolds%items(5)%ptr%x, this%u_mean%x, this%v_mean%x, n)
+       call subcol3(reynolds%items(5)%ptr%x, this%u_mean%mf%x, this%v_mean%mf%x, n)
 
        call copy(reynolds%items(6)%ptr%x, this%uw%mf%x, n)
-       call subcol3(reynolds%items(6)%ptr%x, this%u_mean%x, this%w_mean%x, n)
+       call subcol3(reynolds%items(6)%ptr%x, this%u_mean%mf%x, this%w_mean%mf%x, n)
 
        call copy(reynolds%items(7)%ptr%x, this%vw%mf%x, n)
-       call subcol3(reynolds%items(7)%ptr%x, this%v_mean%x, this%w_mean%x, n)
+       call subcol3(reynolds%items(7)%ptr%x, this%v_mean%mf%x, this%w_mean%mf%x, n)
     end if
     if (present(pressure_skewness)) then
 
@@ -697,18 +722,18 @@ contains
        !Compute gradient of mean flow
        n = mean_vel_grad%item_size(1)
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(this%u_mean%x, this%u_mean%x_d, n, &
+          call device_memcpy(this%u_mean%mf%x, this%u_mean%mf%x_d, n, &
                              HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(this%v_mean%x, this%v_mean%x_d, n, &
+          call device_memcpy(this%v_mean%mf%x, this%v_mean%mf%x_d, n, &
                              HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(this%w_mean%x, this%w_mean%x_d, n, &
+          call device_memcpy(this%w_mean%mf%x, this%w_mean%mf%x_d, n, &
                              HOST_TO_DEVICE, sync=.false.)
           call opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &
-                      this%u_mean%x, this%coef)
+                      this%u_mean%mf%x, this%coef)
           call opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &
-                      this%v_mean%x, this%coef)
+                      this%v_mean%mf%x, this%coef)
           call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &
-                      this%w_mean%x, this%coef)
+                      this%w_mean%mf%x, this%coef)
           call device_memcpy(this%dudx%x, this%dudx%x_d, n, &
                              DEVICE_TO_HOST, sync=.false.)
           call device_memcpy(this%dvdx%x, this%dvdx%x_d, n, &
@@ -728,9 +753,9 @@ contains
           call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &
                              DEVICE_TO_HOST, sync=.true.)
        else
-          call opgrad(this%dudx%x,this%dudy%x, this%dudz%x, this%u_mean%x,this%coef)
-          call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x, this%v_mean%x,this%coef)
-          call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x, this%w_mean%x,this%coef)
+          call opgrad(this%dudx%x,this%dudy%x, this%dudz%x, this%u_mean%mf%x,this%coef)
+          call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x, this%v_mean%mf%x,this%coef)
+          call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x, this%w_mean%mf%x,this%coef)
        end if
        call invers2(this%stats_work%x, this%coef%B,n)
        call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, this%stats_work%x, n)

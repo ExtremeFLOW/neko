@@ -59,7 +59,7 @@ contains
   function fluid_stats_output_init(stats, T_begin, hom_dir, name, path) result(this)
     type(fluid_stats_t), intent(inout), target :: stats
     real(kind=rp), intent(in) :: T_begin
-    character(len=*), intent(inout) :: hom_dir
+    character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     type(fluid_stats_output_t) :: this
@@ -70,9 +70,9 @@ contains
        else if (present(name)) then
           fname = trim(name) // '.fld'
        else if (present(path)) then
-          fname = trim(path) // 'stats.fld'
+          fname = trim(path) // 'fluid_stats.fld'
        else
-          fname = 'stats.fld'
+          fname = 'fluid_stats.fld'
        end if
     else 
        if (present(name) .and. present(path)) then
@@ -80,9 +80,9 @@ contains
        else if (present(name)) then
           fname = trim(name) // '.csv'
        else if (present(path)) then
-          fname = trim(path) // 'stats.csv'
+          fname = trim(path) // 'fluid_stats.csv'
        else
-          fname = 'stats.csv'
+          fname = 'fluid_stats.csv'
        end if
        call this%map_1d%init_char(stats%coef, hom_dir, 1e-7_rp)
     end if
