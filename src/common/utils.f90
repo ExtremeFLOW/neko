@@ -44,7 +44,8 @@ module utils
 
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
             filename_suffix, filename_suffix_pos, filename_tslash_pos, &
-            linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet
+            linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
+            concat_string_array
 
 
 contains
@@ -197,5 +198,28 @@ contains
     character(len=*) :: warning_msg
     write(*,*) '*** WARNING: ', warning_msg,' ***'
   end subroutine neko_warning
+
+  !> Concatenate an array of strings into one string with array items
+  !! separated by spaces.
+  !! @param array The array of strings.
+  !! @param sep The separator put between the strings in the array.
+  !! @param prepend Whether to also prepend the string with the separator.
+  function concat_string_array(array, sep, prepend) result(result)
+    character(len=*), intent(in) :: array(:)
+    character(len=*), intent(in) :: sep
+    logical, intent(in) :: prepend
+    character(:), allocatable :: result
+    integer :: i
+
+    result = trim(array(1))
+    do i=2, size(array)
+       result = result // sep // trim(array(i))
+    end do
+
+    if (prepend .eqv. .true.) then
+      result = sep // result
+    end if
+
+   end function concat_string_array
 
 end module utils

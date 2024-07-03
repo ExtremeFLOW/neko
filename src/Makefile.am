@@ -143,6 +143,8 @@ neko_fortran_SOURCES = \
 	bc/symmetry.f90\
 	bc/non_normal.f90\
 	bc/blasius.f90\
+	bc/shear_stress.f90\
+	bc/wall_model_bc.f90\
 	krylov/precon.f90\
 	krylov/krylov.f90\
 	krylov/pc_identity.f90\
@@ -161,6 +163,7 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/device/cg_device.f90\
 	krylov/bcknd/device/pipecg_device.F90\
 	krylov/bcknd/device/fusedcg_device.F90\
+	krylov/bcknd/device/fusedcg_cpld_device.F90\
 	krylov/bcknd/device/gmres_device.F90\
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
@@ -280,8 +283,16 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/vreman_cpu.f90\
 	les/smagorinsky.f90\
 	les/bcknd/cpu/smagorinsky_cpu.f90\
+	les/dynamic_smagorinsky.f90\
+	les/bcknd/cpu/dynamic_smagorinsky_cpu.f90\
+	les/elementwise_filter.f90\
+	les/bcknd/cpu/elementwise_filter_cpu.f90\
 	les/sigma.f90\
 	les/bcknd/cpu/sigma_cpu.f90\
+	wall_models/rough_log_law.f90\
+	wall_models/spalding.f90\
+	wall_models/wall_model.f90\
+	wall_models/wall_model_fctry.f90\
 	neko.f90
 
 neko_c_SOURCES = comm/comm_wrapper.c\
@@ -349,6 +360,7 @@ libneko_a_SOURCES += \
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
 	krylov/bcknd/device/cuda/fusedcg_aux.cu\
+	krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu\
 	krylov/bcknd/device/cuda/gmres_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
@@ -528,6 +540,7 @@ EXTRA_DIST = \
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/fusedcg_kernel.h\
 	krylov/bcknd/device/hip/fusedcg_kernel.h\
+	krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\

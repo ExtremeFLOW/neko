@@ -124,6 +124,11 @@ contains
        call neko_log%message(log_buf)
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 
+       ! Run the preprocessing
+       call neko_log%section('Preprocessing')
+       call neko_simcomps%preprocess(t, tstep)
+       call neko_log%end_section()
+
        call neko_log%section('Fluid')
        call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
        end_time = MPI_WTIME()
