@@ -6,6 +6,12 @@
 # All are regexp rules, meaning you can add new rules simply by editing this
 # file test your rule on https://regex101.com/ if needed
 regexp-rules:
+  line-too-long:
+    message: Line too long
+    regexp: "(?<=^)(.{{80}}.+)"
+    replacement: null
+    active: true
+
   missing-spaces-on-do:
     message: Missing spaces
     regexp: do (\w+)=(\S+),(\S+)
