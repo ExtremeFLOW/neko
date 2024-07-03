@@ -293,6 +293,15 @@ module opencl_intf
   end interface
 
   interface
+     integer (c_int) function clGetDeviceCount(count) &
+          bind(c, name='clGetDeviceCount')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: count
+     end function clGetDeviceCount
+  end interface
+
+  interface
      integer (c_int) function clGetDeviceInfo(device, param_name, &
           param_value_size, param_value, param_value_size_ret) &
           bind(c, name='clGetDeviceInfo')
@@ -390,6 +399,14 @@ contains
     if (clGetPlatformIDs(1, c_loc(platform_id), &
          num_platforms) .ne. CL_SUCCESS) then
        call neko_error('Failed to get a platform id')
+    end if
+
+    if (clGetDeviceCount(num_devices) .ne. CL_SUCCESS) then
+       call neko_error('Failed to get device count')
+    end if
+
+    if (num_devices .ne. 1) then
+        call neko_error('Only one device is supported per MPI node')
     end if
 
     if (clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &
