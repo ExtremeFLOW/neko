@@ -195,7 +195,7 @@ contains
 
     ! amplitude for secondary instability TS wave:
     TS_amp_2D = 3e-2_rp
-    TS_amp_3D = 1e-4_rp
+    TS_amp_3D = 5e-4_rp
 
     alpha = 1.12_rp
     beta = 2.1_rp
