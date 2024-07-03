@@ -272,7 +272,7 @@ contains
   subroutine hip_init
     integer(c_int) :: num_devices
 
-    if (hipDeviceGetCount(num_devices) .ne. hipSuccess) then
+    if (hipGetDeviceCount(num_devices) .ne. hipSuccess) then
        call neko_error('Failed to query device count')
     end if
 
