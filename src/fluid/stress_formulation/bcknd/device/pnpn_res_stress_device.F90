@@ -289,19 +289,12 @@ contains
     call device_sub2(wa2%x_d, work2%x_d, n)
     call device_sub2(wa3%x_d, work3%x_d, n)
 
-#ifdef HAVE_HIP
-!    call pnpn_prs_stress_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
-!         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
-!         c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
-
-#elif HAVE_CUDA
+#if HAVE_CUDA
     call pnpn_prs_stress_res_part1_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
-#elif HAVE_OPENCL
-!    call pnpn_prs_stress_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
-!         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_z%x_d, f_z%x_d, &
-!         c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
+#else
+    call neko_error('No device backend configured')
 #endif
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -344,15 +337,11 @@ contains
     call bc_prs_surface%apply_surfvec_dev(ta1%x_d, ta2%x_d, ta3%x_d, &
                                           u%x_D, v%x_d, w%x_d)
 
-#ifdef HAVE_HIP
-!    call pnpn_prs_stress_res_part3_hip(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d,  &
-!                                       wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
-#elif HAVE_CUDA
+#if HAVE_CUDA
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
                                         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
-#elif HAVE_OPENCL
-!    call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-!                                          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+#else
+    call neko_error('No device backend configured')
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
