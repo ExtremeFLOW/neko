@@ -349,17 +349,19 @@ contains
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 
-      ! Compute the grandient jump penalty term
-      if (this%if_gradient_jump_penalty .eqv. .true.) then
-         call this%gradient_jump_penalty%compute(u, v, w, s)
-         call this%gradient_jump_penalty%perform(f_Xh)
-      end if
+      
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda, rho * cp, &
           ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
+
+      ! Compute the grandient jump penalty term
+      if (this%if_gradient_jump_penalty .eqv. .true.) then
+         call this%gradient_jump_penalty%compute(u, v, w, s)
+         call this%gradient_jump_penalty%perform(s_res)
+      end if
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
