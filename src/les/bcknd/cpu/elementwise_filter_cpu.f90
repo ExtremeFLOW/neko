@@ -46,7 +46,7 @@ module elementwise_filter_cpu
 contains
 
   !> Build the 1d filter for an element on the CPU.
-  !> Suppose field x is filtered into x_hat by x_hat = fh*x. 
+  !> Suppose field x is filtered into x_hat by x_hat = fh*x.
   !! @param fh The 1D filter operator.
   !! @param fht The transpose of fh.
   !! @param trnfr The transfer function containing weights for different modes.
@@ -61,7 +61,7 @@ contains
     integer :: n, i, j, k
     real(kind=rp) :: z
     character(len=*), intent(in) :: filter_type
-    
+
     call phi%init(nx, nx)
     call pht%init(nx, nx)
 
