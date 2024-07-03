@@ -95,6 +95,23 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 <div class="title">Simulation components </div>  </div>
 </div><!--header-->
 <div class="contents">
+<div class="toc"><h3>Table of Contents</h3>
+<ul><li class="level1"><a href="#autotoc_md59">What are simulation components?</a></li>
+<li class="level1"><a href="#autotoc_md60">Adding simulation components to the case</a></li>
+<li class="level1"><a href="#autotoc_md61">List of simulation components</a></li>
+<li class="level1"><a href="#autotoc_md62">Controling execution and file output</a><ul><li class="level2"><a href="#simcomp_vorticity">vorticity</a></li>
+<li class="level2"><a href="#simcomp_lambda2">lambda2</a></li>
+<li class="level2"><a href="#simcomp_probes">probes</a><ul><li class="level3"><a href="#autotoc_md63">Supported types:</a></li>
+<li class="level3"><a href="#autotoc_md64">Example usage:</a></li>
+</ul>
+</li>
+<li class="level2"><a href="#simcomp_field_writer">field_writer</a></li>
+<li class="level2"><a href="#simcomp_derivative">derivative</a></li>
+<li class="level2"><a href="#simcomp_weak_grad">weak_grad</a></li>
+</ul>
+</li>
+</ul>
+</div>
 <div class="textblock"><p><a class="anchor" id="md_pages_user_guide_simcomps"></a></p>
 <h1><a class="anchor" id="autotoc_md59"></a>
 What are simulation components?</h1>
@@ -104,6 +121,18 @@ What are simulation components?</h1>
 Adding simulation components to the case</h1>
 <p>Each simcomp is defined as a single JSON object at are added to an array of objects called <code>simulation_components</code>, which resides directly under the <code>case</code> object.</p>
 <h1><a class="anchor" id="autotoc_md61"></a>
+List of simulation components</h1>
+<p>The following is a list of simulation components that are currently available in Neko. The list will be updated as new simcomps are added.</p>
+<ul>
+<li>Computation of vorticity field <a class="el" href="../../d3/d84/simcomps.html#simcomp_vorticity">vorticity</a></li>
+<li>Computation of \( \lambda_2 \) <a class="el" href="../../d3/d84/simcomps.html#simcomp_lambda2">lambda2</a></li>
+<li>Probing of fields at selected points <a class="el" href="../../d3/d84/simcomps.html#simcomp_probes">probes</a></li>
+<li>Output of registered fields to an <code>.fld</code> file <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a></li>
+<li>Computation of the derivative of a field <a class="el" href="../../d3/d84/simcomps.html#simcomp_derivative">derivative</a></li>
+<li>Computation of the weak gradient of a field <a class="el" href="../../d3/d84/simcomps.html#simcomp_weak_grad">weak_grad</a></li>
+<li>User defined components <a class="el" href="../../d6/def/user-file.html#user-file_simcomps">User defined simulation components</a></li>
+</ul>
+<h1><a class="anchor" id="autotoc_md62"></a>
 Controling execution and file output</h1>
 <p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <code>compute_control</code> and <code>compute_value</code> parameters for the computation and the <code>output_control and</code> and <code>output_value</code> for the output to disk. The parameters for the <code>_control</code> values are the same as for the fluid and checkpointing. Additionally, one can set <code>output_control</code> to <code>global</code> and <code>never</code>. The former will sync the <code>output_</code> parameter to that of the fluid. Choosing <code>never</code> will suppress output all together. If no parameters for the <code>output_</code> parameters are provided, they are set to be the same as for <code>compute_</code>.</p>
 <p>For simcomps that compute 3D fields, the output can be either added to the main <code>.fld</code> file, containing velocity and pressure, or saved to a separate file. For the latter, the <code>output_filename</code> keyword should be provided. One can additionally provide the <code>precision</code> keyword, which can be set to either <code>single</code> or <code>double</code> to control the precision of the written data.</p>
@@ -112,18 +141,16 @@ Controling execution and file output</h1>
 <div class="line">    &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">    &quot;compute_value&quot;: 50</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md62"></a>
-List of simulation components</h1>
-<h2><a class="anchor" id="autotoc_md63"></a>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_vorticity"></a>
 vorticity</h2>
 <p>Computes the vorticity field an stores in the field registry as <code>omega_x</code>, <code>omega_y</code> and <code>omega_z</code>. Currently produces no output.</p>
-<h2><a class="anchor" id="autotoc_md64"></a>
+<h2><a class="anchor" id="simcomp_lambda2"></a>
 lambda2</h2>
 <p>Computes \( \lambda_2 \) for the velocity field and stores it in the normal output files as the first unused field. This means that \( \lambda_2 \) can be found in the temperature field in then fld files if running without a scalar and s1 if neko is run with one scalar.</p>
-<h2><a class="anchor" id="autotoc_md65"></a>
+<h2><a class="anchor" id="simcomp_probes"></a>
 probes</h2>
 <p>Probes selected solution fields at a list of points. This list of points can be generated in a variety of ways, but the most common is to use the <code>csv</code> type.</p>
-<h3><a class="anchor" id="autotoc_md66"></a>
+<h3><a class="anchor" id="autotoc_md63"></a>
 Supported types:</h3>
 <ul>
 <li><code>csv</code>: Reads a list of points from a CSV file. The file should have the following format: <div class="fragment"><div class="line">x_0, y_0, z_0</div>
@@ -164,7 +191,7 @@ Supported types:</h3>
 <div class="line">0.0, -1.0, 0.0</div>
 </div><!-- fragment --></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md67"></a>
+<h3><a class="anchor" id="autotoc_md64"></a>
 Example usage:</h3>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;probes&quot;,</div>
@@ -194,7 +221,7 @@ Example usage:</h3>
 <div class="line">time_1, p_1_field_0, p_1_field_1, ..., p_1_field_N_f-1</div>
 <div class="line">...</div>
 <div class="line">time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md68"></a>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_field_writer"></a>
 field_writer</h2>
 <p>Outputs registered 3D fields to an <code>.fld</code> file. Requires a list of field names in the <code>fields</code> keyword. Primarily to be used for outputting new fields defined in the user file. The fields are added to then <code>neko_field_registry</code> object and are expected to be updated in the user file, or, perhaps, by other simcomps. Since this simcomp does not compute anything <code>compute_</code> configuration is irrelevant. </p><div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;field_writer&quot;,</div>
@@ -204,7 +231,7 @@ field_writer</h2>
 <div class="line">  &quot;output_control&quot; : &quot;simulation_time&quot;,</div>
 <div class="line">  &quot;output_value&quot; : 1.0</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md69"></a>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_derivative"></a>
 derivative</h2>
 <p>Computes the derivative of field along a chosen direction (x, y, or z). The field to derivate is controlled by the <code>field</code> keyword and the direction by the <code>direction</code> keyword. The simcomp will register the computed derivatives in the registry as <code>d[field]_d[direction]</code>, where the values in the brackets correspond to the choice of the user keywords. Supports writing the computed fields to disk via the usual common keywords.</p>
 <div class="fragment"><div class="line">{</div>
@@ -214,7 +241,7 @@ derivative</h2>
 <div class="line">  &quot;output_control&quot; : &quot;simulation_time&quot;,</div>
 <div class="line">  &quot;output_value&quot; : 1.0</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md70"></a>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_weak_grad"></a>
 weak_grad</h2>
 <p>Computes the weak gradient of a field. The weak gradient is value of the gradeint multiplied by the local value of the mass matrix. This is how a gradient term appears in the weak formulation of the governing equations The field to derivate is controlled by the <code>field</code> keyword. The simcomp will register the computed components of the gradients in the registry as <code>weak_grad_[field]_x</code>, <code>weak_grad_[field]_y</code>, <code>weak_grad_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword. Supports writing the computed fields to disk via the usual common keywords.</p>
 <div class="fragment"><div class="line">{</div>
@@ -229,7 +256,7 @@ weak_grad</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

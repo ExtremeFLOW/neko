@@ -99,7 +99,7 @@ $(document).ready(function(){initNavTree('d4/def/namespacesigned__distance.html'
 <div class="contents">
 
 <p>Module containing Signed Distance Functions.  
-<a href="../../d4/def/namespacesigned__distance.html#details">More...</a></p>
+</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
@@ -125,9 +125,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a17f21d3dcb101646672edad1ed6c3b01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute cross product of two vectors.  <a href="../../d4/def/namespacesigned__distance.html#a17f21d3dcb101646672edad1ed6c3b01">More...</a><br /></td></tr>
 <tr class="separator:a17f21d3dcb101646672edad1ed6c3b01"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Module containing Signed Distance Functions. </p>
-</div><h2 class="groupheader">Function/Subroutine Documentation</h2>
+<h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a17f21d3dcb101646672edad1ed6c3b01"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a17f21d3dcb101646672edad1ed6c3b01">&#9670;&nbsp;</a></span>cross()</h2>
 
@@ -153,8 +151,6 @@ Functions/Subroutines</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Compute cross product of two vectors. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">a</td><td>First vector </td></tr>
@@ -223,8 +219,6 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Main interface for the signed distance function for an element. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../da/d14/signed__distance_8f90_source.html#l00308">308</a> of file <a class="el" href="../../da/d14/signed__distance_8f90_source.html">signed_distance.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
@@ -291,8 +285,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Signed distance function for a triangle. </p>
 <p>This routine computes the signed distance function for the current triangle. We compute the barycentric coordinate of the point projected onto the triangle. If the projection is inside the triangle, the distance is the distance to the plane. If the projection is outside the triangle, the distance is the distance to the nearest edge or vertex.</p>
 <p>In order to improve precision of the sign estimation, we also compute the weighted sign, which is the perpendicular distance to the plane divided by the distance to the nearest point.</p>
 <p>@Note The returned distance is signed if the weighted_sign is not present.</p>
@@ -367,8 +359,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Signed distance field. </p>
 <p>This routine computes the signed distance field for a given object.</p>
 <p>Currently supported objects are:</p><ul>
 <li>Triangular mesh (tri_mesh_t)</li>
@@ -441,8 +431,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Signed distance field for a triangular mesh. </p>
 <p>This routine computes the signed distance field for a given triangular mesh. The algorithm utilizes an AABB tree to accelerate the earch for potential elements. The signed distance is computed using the brute force approach, where we compute the signed distance to each element found through the AABB tree, and return the minimum distance.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -518,8 +506,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Signed distance function using an AABB tree. </p>
 <p>This routine computes the signed distance function for the boundary mesh, to a given point (x, y, z). The algorithm utilizes an AABB tree to accelerate the search for potential elements. The signed distance is computed using the brute force approach, where we compute the signed distance to each element found through the AABB tree, and return the minimum distance.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -591,8 +577,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Signed distance function. </p>
 <dl class="deprecated"><dt><b><a class="el" href="../../da/d58/deprecated.html#_deprecated000001">Deprecated:</a></b></dt><dd>This routine is deprecated and will be removed in the future. </dd></dl>
 <p>This routine computes the signed distance function for the boundary mesh, to a given point (x, y, z). The algorithm is a brute force approach, where we compute the signed distance to each element in the mesh, and return the minimum distance.</p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -625,7 +609,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d4/def/namespacesigned__distance.html">signed_distance</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -113,6 +113,9 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d4e/interfaceuser__intf_1_1user__initialize__modules.html">user_intf::user_initialize_modules</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for initilialization of modules.  <a href="../../de/d4e/interfaceuser__intf_1_1user__initialize__modules.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d93/interfaceuser__intf_1_1user__simcomp__init.html">user_intf::user_simcomp_init</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for adding user defined simulation components.  <a href="../../de/d93/interfaceuser__intf_1_1user__simcomp__init.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd1/interfaceuser__intf_1_1usermsh.html">user_intf::usermsh</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for user defined mesh deformation functions.  <a href="../../da/dd1/interfaceuser__intf_1_1usermsh.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -168,12 +171,17 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:ad01a005b829c6abedb4505dc54395951"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef0a1bc778a373b2cf32deb12bb122ac"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#aef0a1bc778a373b2cf32deb12bb122ac">user_intf::dummy_user_init_no_modules</a> (t, u, v, w, p, coef, params)</td></tr>
 <tr class="separator:aef0a1bc778a373b2cf32deb12bb122ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ffc13c21ed377643aaeee96b2b783b7"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a3ffc13c21ed377643aaeee96b2b783b7">user_intf::dummy_user_init_no_simcomp</a> (params)</td></tr>
+<tr class="separator:a3ffc13c21ed377643aaeee96b2b783b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ff23f9ded60c7baa061293cd4371827"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a2ff23f9ded60c7baa061293cd4371827">user_intf::dummy_user_final_no_modules</a> (t, params)</td></tr>
 <tr class="separator:a2ff23f9ded60c7baa061293cd4371827"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa388fba1203e963d142ea27b2395e4d6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#aa388fba1203e963d142ea27b2395e4d6">user_intf::dirichlet_do_nothing</a> (dirichlet_field_list, dirichlet_bc_list, coef, t, tstep, which_solver)</td></tr>
 <tr class="separator:aa388fba1203e963d142ea27b2395e4d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba0d51dec107387f593759651232a314"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#aba0d51dec107387f593759651232a314">user_intf::dummy_user_material_properties</a> (t, tstep, rho, mu, cp, lambda, params)</td></tr>
 <tr class="separator:aba0d51dec107387f593759651232a314"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c5bf9291ff09efe1642fc8bd0991cfd"><td class="memItemLeft" align="right" valign="top">type(json_file) function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a2c5bf9291ff09efe1642fc8bd0991cfd">user_intf::simulation_component_user_settings</a> (name, params)</td></tr>
+<tr class="memdesc:a2c5bf9291ff09efe1642fc8bd0991cfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON extraction helper function for simulation components.  <a href="../../d9/dbc/namespaceuser__intf.html#a2c5bf9291ff09efe1642fc8bd0991cfd">More...</a><br /></td></tr>
+<tr class="separator:a2c5bf9291ff09efe1642fc8bd0991cfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -181,7 +189,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d7/d30/user__intf_8f90.html">user_intf.f90</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

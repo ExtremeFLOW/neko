@@ -101,7 +101,7 @@ $(document).ready(function(){initNavTree('d2/d78/namespacesimcomp__executor.html
 <div class="contents">
 
 <p>Contains the <code><a class="el" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html" title="Singleton type that serves as a driver for the simulation components. Stores all the components in th...">simcomp_executor_t</a></code> type.  
-<a href="../../d2/d78/namespacesimcomp__executor.html#details">More...</a></p>
+</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Types</h2></td></tr>
@@ -111,12 +111,18 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:acee7b1825e87d5b61781fd1c718158b0"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html#acee7b1825e87d5b61781fd1c718158b0">simcomp_executor_init</a> (this, case)</td></tr>
-<tr class="memdesc:acee7b1825e87d5b61781fd1c718158b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../d2/d78/namespacesimcomp__executor.html#acee7b1825e87d5b61781fd1c718158b0">More...</a><br /></td></tr>
-<tr class="separator:acee7b1825e87d5b61781fd1c718158b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f5ec92ba565c1a0002e25412f94229e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">simcomp_executor_init</a> (this, case, simcomp_root)</td></tr>
+<tr class="memdesc:a7f5ec92ba565c1a0002e25412f94229e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">More...</a><br /></td></tr>
+<tr class="separator:a7f5ec92ba565c1a0002e25412f94229e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac04c01763880b52b482bd6bd9c629359"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">simcomp_executor_free</a> (this)</td></tr>
 <tr class="memdesc:ac04c01763880b52b482bd6bd9c629359"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">More...</a><br /></td></tr>
 <tr class="separator:ac04c01763880b52b482bd6bd9c629359"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22119bff74d9d2b826cc1fb0d7d6a3cd"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">simcomp_executor_add</a> (this, object, settings)</td></tr>
+<tr class="memdesc:a22119bff74d9d2b826cc1fb0d7d6a3cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appending a new simcomp to the executor.  <a href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">More...</a><br /></td></tr>
+<tr class="separator:a22119bff74d9d2b826cc1fb0d7d6a3cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f263de2f72e5a0711505f7077c6122e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">simcomp_executor_finalize</a> (this)</td></tr>
+<tr class="memdesc:a6f263de2f72e5a0711505f7077c6122e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the initialization. Sorts the simcomps based on the order property. Additionally we check that the order is unique, contiguous, starts at 1 and within bounds.  <a href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">More...</a><br /></td></tr>
+<tr class="separator:a6f263de2f72e5a0711505f7077c6122e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad27c97db67ec3ab5ccf27633b48dd0d4"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html#ad27c97db67ec3ab5ccf27633b48dd0d4">simcomp_executor_preprocess</a> (this, t, tstep)</td></tr>
 <tr class="memdesc:ad27c97db67ec3ab5ccf27633b48dd0d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute preprocess_ for all simcomps.  <a href="../../d2/d78/namespacesimcomp__executor.html#ad27c97db67ec3ab5ccf27633b48dd0d4">More...</a><br /></td></tr>
 <tr class="separator:ad27c97db67ec3ab5ccf27633b48dd0d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -133,9 +139,58 @@ Variables</h2></td></tr>
 <tr class="memdesc:a6decea84913b87ccf3589176c83538ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global variable for the simulation component driver.  <a href="../../d2/d78/namespacesimcomp__executor.html#a6decea84913b87ccf3589176c83538ab">More...</a><br /></td></tr>
 <tr class="separator:a6decea84913b87ccf3589176c83538ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Contains the <code><a class="el" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html" title="Singleton type that serves as a driver for the simulation components. Stores all the components in th...">simcomp_executor_t</a></code> type. </p>
-</div><h2 class="groupheader">Function/Subroutine Documentation</h2>
+<h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a22119bff74d9d2b826cc1fb0d7d6a3cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22119bff74d9d2b826cc1fb0d7d6a3cd">&#9670;&nbsp;</a></span>simcomp_executor_add()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine simcomp_executor::simcomp_executor_add </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">class(<a class="el" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html">simulation_component_t</a>), intent(in)&#160;</td>
+          <td class="paramname"><em>object</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), intent(inout)&#160;</td>
+          <td class="paramname"><em>settings</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">new_object</td><td>The simcomp to append. </td></tr>
+    <tr><td class="paramname">settings</td><td>The settings for the simcomp. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00207">207</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+
+</div>
+</div>
 <a id="a86e7c125f09650b29116fe9100f8058b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a86e7c125f09650b29116fe9100f8058b">&#9670;&nbsp;</a></span>simcomp_executor_compute()</h2>
 
@@ -175,8 +230,6 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Execute compute_ for all simcomps. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">t</td><td>The time value. </td></tr>
@@ -185,7 +238,35 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00172">172</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00347">347</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+
+</div>
+</div>
+<a id="a6f263de2f72e5a0711505f7077c6122e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f263de2f72e5a0711505f7077c6122e">&#9670;&nbsp;</a></span>simcomp_executor_finalize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine simcomp_executor::simcomp_executor_finalize </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00253">253</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -213,14 +294,12 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Destructor. </p>
-
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00138">138</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00192">192</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
-<a id="acee7b1825e87d5b61781fd1c718158b0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acee7b1825e87d5b61781fd1c718158b0">&#9670;&nbsp;</a></span>simcomp_executor_init()</h2>
+<a id="a7f5ec92ba565c1a0002e25412f94229e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f5ec92ba565c1a0002e25412f94229e">&#9670;&nbsp;</a></span>simcomp_executor_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -238,7 +317,13 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), intent(inout), target&#160;</td>
-          <td class="paramname"><em>case</em>&#160;</td>
+          <td class="paramname"><em>case</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in), optional&#160;</td>
+          <td class="paramname"><em>simcomp_root</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -252,15 +337,20 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">case</td><td>The case. </td></tr>
+    <tr><td class="paramname">simcomp_root</td><td>The root name of the simulation components in the case. If not provided, the default is 'case.simulation_components'. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Constructor. </p>
-
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d2/d78/namespacesimcomp__executor_acee7b1825e87d5b61781fd1c718158b0_cgraph.png" border="0" usemap="#ad2/d78/namespacesimcomp__executor_acee7b1825e87d5b61781fd1c718158b0_cgraph" alt=""/></div>
-<map name="ad2/d78/namespacesimcomp__executor_acee7b1825e87d5b61781fd1c718158b0_cgraph" id="ad2/d78/namespacesimcomp__executor_acee7b1825e87d5b61781fd1c718158b0_cgraph">
+<div class="center"><img src="../../d2/d78/namespacesimcomp__executor_a7f5ec92ba565c1a0002e25412f94229e_cgraph.png" border="0" usemap="#ad2/d78/namespacesimcomp__executor_a7f5ec92ba565c1a0002e25412f94229e_cgraph" alt=""/></div>
+<map name="ad2/d78/namespacesimcomp__executor_a7f5ec92ba565c1a0002e25412f94229e_cgraph" id="ad2/d78/namespacesimcomp__executor_a7f5ec92ba565c1a0002e25412f94229e_cgraph">
 <area shape="rect" title="Constructor." alt="" coords="5,31,219,73"/>
 <area shape="rect" href="../../d8/da8/namespacejson__utils.html#a404867bed8c9c4d90f419dfa5f7d3a0e" title="Extract ith item from a JSON array as a separate JSON object." alt="" coords="269,5,479,32"/>
 <area shape="rect" href="../../d0/d8e/namespacesimulation__component__fctry.html#aa53c26cd517ee64cb5af95132301431c" title="Simulation component factory. Both constructs and initializes the object." alt="" coords="267,56,481,112"/>
@@ -309,8 +399,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Execute preprocess_ for all simcomps. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">t</td><td>The time value. </td></tr>
@@ -319,7 +407,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00155">155</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00330">330</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -356,8 +444,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Execute restart for all simcomps. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">t</td><td>The time value. </td></tr>
@@ -365,7 +451,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00188">188</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00363">363</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -382,9 +468,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Global variable for the simulation component driver. </p>
-
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -394,7 +478,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html">simcomp_executor</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

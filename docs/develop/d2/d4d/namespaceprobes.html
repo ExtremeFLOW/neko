@@ -156,8 +156,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:af7a450bd62c2b6a1ed7175e31c4edd67"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Implements probes. </p>
-<dl class="section note"><dt>Note</dt><dd>This modules uses functions from <code>gslib</code>, namely <code>findpts_setup</code>, <code>findpts</code>, and <code>findpts_eval</code>. A full description of these subroutines can be found at <a href="https://github.com/Nek5000/gslib/blob/master/src/findpts.c">https://github.com/Nek5000/gslib/blob/master/src/findpts.c</a> </dd></dl>
+<div class="textblock"><dl class="section note"><dt>Note</dt><dd>This modules uses functions from <code>gslib</code>, namely <code>findpts_setup</code>, <code>findpts</code>, and <code>findpts_eval</code>. A full description of these subroutines can be found at <a href="https://github.com/Nek5000/gslib/blob/master/src/findpts.c">https://github.com/Nek5000/gslib/blob/master/src/findpts.c</a> </dd></dl>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a27da5032a894e076ade6b945085a2164"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a27da5032a894e076ade6b945085a2164">&#9670;&nbsp;</a></span>add_points()</h2>
@@ -192,8 +191,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Append a new list of points to the exsiting list. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">this</td><td>The probes object. </td></tr>
@@ -229,8 +226,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Show the status of processor/element owner and error code for each point. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00597">597</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
@@ -275,8 +270,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Interpolate each probe from its <code>r,s,t</code> coordinates. </p>
 <dl class="section note"><dt>Note</dt><dd>The final interpolated field is only available on rank 0. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -314,8 +307,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Destructor. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00536">536</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
@@ -360,8 +351,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Initialize without json things. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dof</td><td>Dofmap to probe @output_file Name of output file, current must be CSV </td></tr>
@@ -409,8 +398,6 @@ Functions/Subroutines</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Constructor from json. </p>
 <p>Read from case file</p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00124">124</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
@@ -453,8 +440,6 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Setup offset for rank 0. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00613">613</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
@@ -482,8 +467,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Print current probe status, with number of probes and coordinates. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00570">570</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 <div class="dynheader">
@@ -531,8 +514,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Construct a list of points from a circle. </p>
 <p>The general structure of the circle is defined by a center point, a radius and a normal to the plane it lies on. The circle is then discretized into a number of points, based on the <code>amount</code> parameter. The points are added clockwise starting from a chosen axis, which is defined by the <code>axis</code> parameter. </p><dl class="section note"><dt>Note</dt><dd>The axis must be one of the following: <code>x</code>, <code>y</code>, or <code>z</code>. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -579,8 +560,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Read a list of points from a csv file. </p>
 <dl class="section note"><dt>Note</dt><dd>The points are expected to be in the form of a list of coordinates. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -637,8 +616,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Construct a list of points from a line. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">this</td><td>The probes object. </td></tr>
@@ -684,8 +661,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Read a list of points from the json file. </p>
 <dl class="section note"><dt>Note</dt><dd>The points are expected to be in the form of a list of coordinates. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -738,8 +713,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Construct a list of points from a point zone. </p>
 <p>The GLL points are read from the point zone and added to the probe list. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">this</td><td>The probes object. </td></tr>
@@ -812,8 +785,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Initialize the physical coordinates from a <code>csv</code> input file. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">points_file</td><td>A csv file containing probes. </td></tr>
@@ -892,8 +863,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Read and initialize the number of probes from a <code>csv</code> input file. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">xyz</td><td>xyz coordinates of the probes </td></tr>
@@ -925,7 +894,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/d4d/namespaceprobes.html">probes</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

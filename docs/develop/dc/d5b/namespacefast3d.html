@@ -99,7 +99,7 @@ $(document).ready(function(){initNavTree('dc/d5b/namespacefast3d.html','../../')
 <div class="contents">
 
 <p>Fast diagonalization methods from NEKTON.  
-<a href="../../dc/d5b/namespacefast3d.html#details">More...</a></p>
+</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
@@ -113,9 +113,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:aaf25d1aac3262e9adea18d25b10b2ddc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute interpolation weights for points <code>z_to</code> using values at points <code>z_from</code>.  <a href="../../dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc">More...</a><br /></td></tr>
 <tr class="separator:aaf25d1aac3262e9adea18d25b10b2ddc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Fast diagonalization methods from NEKTON. </p>
-</div><h2 class="groupheader">Function/Subroutine Documentation</h2>
+<h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a8cf69d1d964e71a541204bd6c2fc41c4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8cf69d1d964e71a541204bd6c2fc41c4">&#9670;&nbsp;</a></span>fd_weights_full()</h2>
 
@@ -159,8 +157,6 @@ Functions/Subroutines</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Compute finite-difference stencil weights for evaluating derivatives up to order \(m\) at a point. </p>
 <p>This routine comes from the Appendix C of "A Practical Guide to Pseudospectral Methods" by B. Fornberg, Cambridge University Press, 1996.</p>
 <p>Given gridpoints \( x_0, x_1, \dots x_n \) and some point \(\xi\) (not necessarily a grid point!) find weights \( c_{j, k} \), such that the expansions \( \frac{d^k f}{d x^k}|_{x=\xi} \approx \sum_{j=0}^n c_{j,k} f(x_j)\), \(k=0, \dots m\) are optimal. Note that finite-difference stencils are exactly such type of expansions. For the derivation of the algorithm, refer to 3.1 in the reference above.</p>
 <dl class="section note"><dt>Note</dt><dd>- Setting \(m=0\) makes this a polynomial interpolation routine. It is the fastest such routine possible for a single interpolation point, according to the above reference. </dd>
@@ -298,8 +294,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convection operator b*d d = derivative matrix dgll = derivative matrix, mapping from pressure nodes to velocity jgll = interpolation matrix, mapping from pressure nodes to velocity z = GLL points. </p>
 <p>zgl = GL points bgl = diagonal mass matrix on GL dgl = derivative matrix, mapping from velocity nodes to pressure jgl = interpolation matrix, mapping from velocity nodes to pressure</p>
 <p>n = polynomial degree (velocity space) w = work array of size 2*n+2</p>
 <p>Currently, this is set up for pressure nodes on the interior GLL pts. </p>
@@ -396,8 +390,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Compute interpolation weights for points <code>z_to</code> using values at points <code>z_from</code>. </p>
 <p>This is essentially a wrapper for calling <a class="el" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4" title="Compute finite-difference stencil weights for evaluating derivatives up to order  at a point.">fd_weights_full()</a> for several points. For each point in <code>z_to</code>, we get a set of interpolation weights of size <code>n_from</code>. The result is thus a matrix of weights, each row corresponding to a point in <code>z_to</code> and each column the weight of a point in <code>z_from</code>.</p>
 <p>This routine is used for interpolating between elements of different polynomial order. In other words, belonging to different <a class="el" href="../../da/d99/structspace_1_1space__t.html">space::space_t</a> . The points are then GL, GLL, etc., depending on the space.</p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -442,7 +434,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/d5b/namespacefast3d.html">fast3d</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

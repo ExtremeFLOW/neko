@@ -1,0 +1,4 @@
+<map id="user_intf::simulation_component_user_settings" name="user_intf::simulation_component_user_settings">
+<area shape="rect" id="node1" title="JSON extraction helper function for simulation components." alt="" coords="5,5,201,47"/>
+<area shape="rect" id="node2" href="$d8/da8/namespacejson__utils.html#a404867bed8c9c4d90f419dfa5f7d3a0e" title="Extract ith item from a JSON array as a separate JSON object." alt="" coords="249,13,459,39"/>
+</map>

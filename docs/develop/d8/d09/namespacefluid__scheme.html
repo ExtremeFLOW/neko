@@ -100,7 +100,7 @@ $(document).ready(function(){initNavTree('d8/d09/namespacefluid__scheme.html','.
 <div class="contents">
 
 <p>Fluid formulations.  
-<a href="../../d8/d09/namespacefluid__scheme.html#details">More...</a></p>
+</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Types</h2></td></tr>
@@ -156,9 +156,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a1f22a47782aa9ed193e551870ec02e2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set boundary types for the diagnostic output.  <a href="../../d8/d09/namespacefluid__scheme.html#a1f22a47782aa9ed193e551870ec02e2c">More...</a><br /></td></tr>
 <tr class="separator:a1f22a47782aa9ed193e551870ec02e2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Fluid formulations. </p>
-</div><h2 class="groupheader">Function/Subroutine Documentation</h2>
+<h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a2275b69b1d1959f4c8cf29b011dee8e8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2275b69b1d1959f4c8cf29b011dee8e8">&#9670;&nbsp;</a></span>fluid_compute_cfl()</h2>
 
@@ -184,8 +182,6 @@ Functions/Subroutines</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Compute CFL. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00856">856</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 <div class="dynheader">
@@ -231,8 +227,6 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Apply all boundary conditions defined for pressure. </p>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000007">Todo:</a></b></dt><dd>Why can't we call the interface here? </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00782">782</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
@@ -279,8 +273,6 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Apply all boundary conditions defined for velocity Here we perform additional gs operations to take care of shared points between elements that have different BCs, as done in Nek5000. </p>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000006">Todo:</a></b></dt><dd>Why can't we call the interface here? </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00770">770</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
@@ -311,8 +303,6 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Deallocate a fluid formulation. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00617">617</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 <div class="dynheader">
@@ -396,8 +386,6 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Initialize all components of the current scheme. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00518">518</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 <div class="dynheader">
@@ -494,8 +482,6 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Initialize common data for the current scheme. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00214">214</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
@@ -585,8 +571,6 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Initialize a Krylov preconditioner. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00806">806</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
@@ -639,8 +623,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Set boundary types for the diagnostic output. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">params</td><td>The JSON case file. </td></tr>
@@ -689,8 +671,6 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Initialize a user defined inflow condition. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00843">843</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
@@ -738,8 +718,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Initialize a linear solver. </p>
 <dl class="section note"><dt>Note</dt><dd>Currently only supporting Krylov solvers </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00794">794</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
@@ -785,8 +763,6 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Validate that all fields, solvers etc necessary for performing time-stepping are defined. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00708">708</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
@@ -797,7 +773,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d09/namespacefluid__scheme.html">fluid_scheme</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -242,8 +242,7 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a873684d8f07bea63547ec90d203bba15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The function space for the SEM solution fields. </p>
-<p>In SEM, the solution fields are represented as a linear combination of basis functions for a particular function space. Thus, the properties of the space define that of the solution. The global SEM basis is never build, but is implictly defined by the local basis for each element. The latter is polynomial, and is therefore defined by the order of the polys and the selected locations of the nodes for storing the solution. In SEM, the latter coincides with a Gaussian quadrature (GL, GLL, etc.) </p><dl class="section note"><dt>Note</dt><dd>The standard variable name for the <code><a class="el" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields.">space_t</a></code> type in Neko is <code>Xh</code>. </dd></dl>
+<div class="textblock"><p>In SEM, the solution fields are represented as a linear combination of basis functions for a particular function space. Thus, the properties of the space define that of the solution. The global SEM basis is never build, but is implictly defined by the local basis for each element. The latter is polynomial, and is therefore defined by the order of the polys and the selected locations of the nodes for storing the solution. In SEM, the latter coincides with a Gaussian quadrature (GL, GLL, etc.) </p><dl class="section note"><dt>Note</dt><dd>The standard variable name for the <code><a class="el" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields.">space_t</a></code> type in Neko is <code>Xh</code>. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Although the type has separate members for the poly orders in x, y, and z, in the current implementation these are forced to be equal. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
@@ -293,8 +292,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>1/dist quadrature points </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -326,8 +323,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>1/dist quadrature points </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
@@ -361,8 +356,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>1/dist quadrature points </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -394,8 +387,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Derivative operator \( D_1 \). </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
@@ -429,8 +420,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Transposed derivative operator \( D_1^T \). </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -462,8 +451,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Derivative operator \( D_2 \). </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
@@ -497,8 +484,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Transposed derivative operator \( D_2^T \). </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -530,8 +515,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Derivative operator \( D_3 \). </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
@@ -565,8 +548,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Transposed derivative operator \( D_3^T \). </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -599,8 +580,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Polynomial dimension in x-direction. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -616,8 +595,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Number of points in xy-plane. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
@@ -635,8 +612,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Number of points in xyz-block. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -652,8 +627,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Number of points in xz-plane. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
@@ -671,8 +644,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Polynomial dimension in y-direction. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -688,8 +659,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Number of points in yz-plane. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
@@ -707,8 +676,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Polynomial dimension in z-direction. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -725,8 +692,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Space type (GL, GLL, GJ, ...) </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -742,8 +707,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Legendre transformation matrices. </p>
 <p>legendre to physical </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
@@ -778,8 +741,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Physical to legendre. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -811,8 +772,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Physical to legendre t. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
@@ -846,8 +805,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>legendre to physical t </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -879,8 +836,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Legendre weights in matrix form. </p>
 <p>Legendre weights </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00104">104</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
@@ -898,8 +853,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>wx * wy * wz </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
@@ -949,8 +902,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Quadrature weights. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -982,8 +933,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Quadrature weights. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
@@ -1017,8 +966,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Quadrature weights. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -1051,8 +998,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Quadrature points. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d0/da4/space_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d0/da4/space_8f90_source.html">space.f90</a>.</p>
 
 </div>
@@ -1082,7 +1027,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d5/d0d/namespacespace.html">space</a></li><li class="navelem"><a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

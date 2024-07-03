@@ -100,7 +100,7 @@ $(document).ready(function(){initNavTree('d0/dc0/namespacebc.html','../../'); in
 <div class="contents">
 
 <p>Defines a boundary condition.  
-<a href="../../d0/dc0/namespacebc.html#details">More...</a></p>
+</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Types</h2></td></tr>
@@ -170,9 +170,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a1f087abac946e8ecf412faf1e715dd42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a list of boundary conditions to a vector field.  <a href="../../d0/dc0/namespacebc.html#a1f087abac946e8ecf412faf1e715dd42">More...</a><br /></td></tr>
 <tr class="separator:a1f087abac946e8ecf412faf1e715dd42"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Defines a boundary condition. </p>
-</div><h2 class="groupheader">Function/Subroutine Documentation</h2>
+<h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a204e045362bcbf89e2f26eba6c91980d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a204e045362bcbf89e2f26eba6c91980d">&#9670;&nbsp;</a></span>bc_finalize()</h2>
 
@@ -196,8 +194,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Finalize the construction of the bc by populting the <code>msk</code> and <code>facet</code> arrays. </p>
 <p>This will linearize the marked facet's indicies in the msk array. </p>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000002">Todo:</a></b></dt><dd>add 2D case </dd></dl>
 
@@ -237,8 +233,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Destructor for the base type, <code><a class="el" href="../../d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition.">bc_t</a></code>. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00217">217</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 <div class="dynheader">
@@ -286,8 +280,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Constructor. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dof</td><td>Map of degrees of freedom. </td></tr>
@@ -324,8 +316,6 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Add a condition to a list of boundary conditions. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">bc</td><td>The boundary condition to add. </td></tr>
@@ -397,8 +387,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Apply a list of boundary conditions to a scalar field. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x</td><td>The field to apply the boundary conditions to. </td></tr>
@@ -481,8 +469,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Apply a list of boundary conditions to a vector field. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x</td><td>The x comp of the field for which to apply the bcs. </td></tr>
@@ -524,8 +510,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Destructor for a list of boundary conditions. </p>
 <dl class="section note"><dt>Note</dt><dd>This will only nullify all pointers, not deallocate any conditions pointed to by the list </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00486">486</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
@@ -577,8 +561,6 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Constructor for a list of boundary conditions. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">size</td><td>The size of the list to allocate. </td></tr>
@@ -654,8 +636,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Mark <em>facet</em> on element <em>el</em> as part of the boundary condition. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">facet</td><td>The index of the facet. </td></tr>
@@ -701,8 +681,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Mark all facets from a (facet, el) tuple list. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">facet_list</td><td>The list of tuples. </td></tr>
@@ -747,8 +725,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Mark all facets from a zone. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">bc_zone</td><td>Boundary zone to be marked. </td></tr>
@@ -814,8 +790,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Mark all facets from a list of zones, also marks type of bc in the mesh. The facet_type in mesh is because of the fdm from Nek5000... That is a hack that should be removed at some point... </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">bc_zone</td><td>Array of boundary zones. </td></tr>
@@ -845,7 +819,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/dc0/namespacebc.html">bc</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

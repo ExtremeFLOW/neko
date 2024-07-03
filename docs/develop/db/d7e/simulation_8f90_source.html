@@ -227,8 +227,8 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;       <span class="keyword">call </span>c%fluid%step(t, tstep, c%dt, c%ext_bdf, dt_controller)</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;       end_time = mpi_wtime()</div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,E15.7,A,E15.7)&#39;</span>) &amp;</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;            <span class="stringliteral">&#39;Elapsed time (s):&#39;</span>, end_time-start_time_org, <span class="stringliteral">&#39; Step time:&#39;</span>, &amp;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;            end_time-start_time</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;         <span class="stringliteral">&#39;Elapsed time (s):&#39;</span>, end_time-start_time_org, <span class="stringliteral">&#39; Step time:&#39;</span>, &amp;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;         end_time-start_time</div>
 <div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section(log_buf)</div>
 <div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160; </div>
 <div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;       <span class="comment">! Scalar step</span></div>
@@ -238,8 +238,8 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;          <span class="keyword">call </span>c%scalar%step(t, tstep, c%dt, c%ext_bdf, dt_controller)</div>
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;          end_time = mpi_wtime()</div>
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;          <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,E15.7,A,E15.7)&#39;</span>) &amp;</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;               <span class="stringliteral">&#39;Elapsed time (s):&#39;</span>, end_time-start_time_org, <span class="stringliteral">&#39; Step time:&#39;</span>, &amp;</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;               end_time-start_time</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;            <span class="stringliteral">&#39;Elapsed time (s):&#39;</span>, end_time-start_time_org, <span class="stringliteral">&#39; Step time:&#39;</span>, &amp;</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;            end_time-start_time</div>
 <div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section(log_buf)</div>
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;<span class="keywordflow">       end if</span></div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160; </div>
@@ -257,8 +257,8 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;                                      c%material_properties%lambda, &amp;</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;                                      c%params)</div>
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160; </div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;       <span class="keyword">call </span>c%usr%user_check(t, tstep,&amp;</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;            c%fluid%u, c%fluid%v, c%fluid%w, c%fluid%p, c%fluid%c_Xh, c%params)</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;       <span class="keyword">call </span>c%usr%user_check(t, tstep, c%fluid%u, c%fluid%v, c%fluid%w, &amp;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;                             c%fluid%p, c%fluid%c_Xh, c%params)</div>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160; </div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160; </div>
@@ -334,7 +334,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;                      found)</div>
 <div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160; </div>
 <div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keywordflow">if</span> (found) c%fluid%chkp%mesh2mesh_tol = tol</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    </div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160; </div>
 <div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    chkpf = <a class="code" href="../../d6/dae/structfile_1_1file__t.html">file_t</a>(trim(restart_file))</div>
 <div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <span class="keyword">call </span>chkpf%read(c%fluid%chkp)</div>
 <div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    c%dtlag = c%fluid%chkp%dtlag</div>
@@ -352,7 +352,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    t = c%fluid%chkp%restart_time()</div>
 <div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%section(<span class="stringliteral">&#39;Restarting from checkpoint&#39;</span>)</div>
 <div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    <span class="keyword">write</span>(log_buf,<span class="stringliteral">&#39;(A,A)&#39;</span>) <span class="stringliteral">&#39;File :   &#39;</span>, &amp;</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;         trim(restart_file)</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;      trim(restart_file)</div>
 <div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
 <div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="keyword">write</span>(log_buf,<span class="stringliteral">&#39;(A,E15.7)&#39;</span>) <span class="stringliteral">&#39;Time : &#39;</span>, t</div>
 <div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
@@ -370,7 +370,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="keywordtype">character(len=10)</span> :: format_str</div>
 <div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    <span class="keywordtype">logical</span> :: found</div>
 <div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160; </div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="keyword">call </span>c%params%get(<span class="stringliteral">&#39;case.checkpoint_format&#39;</span>, chkp_format, found)   </div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="keyword">call </span>c%params%get(<span class="stringliteral">&#39;case.checkpoint_format&#39;</span>, chkp_format, found)</div>
 <div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    <span class="keyword">call </span>c%fluid%chkp%sync_host()</div>
 <div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    format_str = <span class="stringliteral">&#39;.chkp&#39;</span></div>
 <div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="keywordflow">if</span> (found) <span class="keywordflow">then</span></div>
@@ -401,14 +401,14 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="ttc" id="anamespacelogger_html"><div class="ttname"><a href="../../d8/da0/namespacelogger.html">logger</a></div><div class="ttdoc">Logging routines.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d53/log_8f90_source.html#l00034">log.f90:34</a></div></div>
 <div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d53/log_8f90_source.html#l00061">log.f90:61</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
-<div class="ttc" id="anamespacemath_html_aa4aff8f68518460c91d81c9f905b2e2b"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b">math::col2</a></div><div class="ttdeci">subroutine, public col2(a, b, n)</div><div class="ttdoc">Vector multiplication .</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00659">math.f90:660</a></div></div>
+<div class="ttc" id="anamespacemath_html_aa4aff8f68518460c91d81c9f905b2e2b"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b">math::col2</a></div><div class="ttdeci">subroutine, public col2(a, b, n)</div><div class="ttdoc">Vector multiplication .</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00676">math.f90:677</a></div></div>
 <div class="ttc" id="anamespaceprofiler_html"><div class="ttname"><a href="../../dc/dfc/namespaceprofiler.html">profiler</a></div><div class="ttdoc">Profiling interface.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d64/profiler_8F90_source.html#l00034">profiler.F90:34</a></div></div>
 <div class="ttc" id="anamespaceprofiler_html_a80393e8359dfb47f6aea6abfc78ca54d"><div class="ttname"><a href="../../dc/dfc/namespaceprofiler.html#a80393e8359dfb47f6aea6abfc78ca54d">profiler::profiler_start</a></div><div class="ttdeci">subroutine, public profiler_start</div><div class="ttdoc">Start profiling.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d64/profiler_8F90_source.html#l00049">profiler.F90:50</a></div></div>
 <div class="ttc" id="anamespaceprofiler_html_ab75ba79eb99446464f54c2138c88b883"><div class="ttname"><a href="../../dc/dfc/namespaceprofiler.html#ab75ba79eb99446464f54c2138c88b883">profiler::profiler_end_region</a></div><div class="ttdeci">subroutine, public profiler_end_region</div><div class="ttdoc">End the most recently started profiler region.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d64/profiler_8F90_source.html#l00094">profiler.F90:95</a></div></div>
 <div class="ttc" id="anamespaceprofiler_html_acc799d92dd19a73b36500a4ddd021101"><div class="ttname"><a href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler::profiler_start_region</a></div><div class="ttdeci">subroutine, public profiler_start_region(name, region_id)</div><div class="ttdoc">Started a named (name) profiler region.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d64/profiler_8F90_source.html#l00075">profiler.F90:76</a></div></div>
 <div class="ttc" id="anamespaceprofiler_html_afd3dc3a9ab67bfba7e27c560e6339be0"><div class="ttname"><a href="../../dc/dfc/namespaceprofiler.html#afd3dc3a9ab67bfba7e27c560e6339be0">profiler::profiler_stop</a></div><div class="ttdeci">subroutine, public profiler_stop</div><div class="ttdoc">Stop profiling.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d64/profiler_8F90_source.html#l00062">profiler.F90:63</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html">simcomp_executor</a></div><div class="ttdoc">Contains the simcomp_executor_t type.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00035">simcomp_executor.f90:35</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html_a6decea84913b87ccf3589176c83538ab"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a6decea84913b87ccf3589176c83538ab">simcomp_executor::neko_simcomps</a></div><div class="ttdeci">type(simcomp_executor_t), public neko_simcomps</div><div class="ttdoc">Global variable for the simulation component driver.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00072">simcomp_executor.f90:72</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html">simcomp_executor</a></div><div class="ttdoc">Contains the simcomp_executor_t type.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00034">simcomp_executor.f90:34</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html_a6decea84913b87ccf3589176c83538ab"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a6decea84913b87ccf3589176c83538ab">simcomp_executor::neko_simcomps</a></div><div class="ttdeci">type(simcomp_executor_t), public neko_simcomps</div><div class="ttdoc">Global variable for the simulation component driver.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00077">simcomp_executor.f90:77</a></div></div>
 <div class="ttc" id="anamespacesimulation_html"><div class="ttname"><a href="../../d1/d2d/namespacesimulation.html">simulation</a></div><div class="ttdoc">Simulation driver.</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d7e/simulation_8f90_source.html#l00034">simulation.f90:34</a></div></div>
 <div class="ttc" id="anamespacesimulation_html_a111609fb01cc2ce135762498895b0515"><div class="ttname"><a href="../../d1/d2d/namespacesimulation.html#a111609fb01cc2ce135762498895b0515">simulation::simulation_settime</a></div><div class="ttdeci">subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d7e/simulation_8f90_source.html#l00190">simulation.f90:191</a></div></div>
 <div class="ttc" id="anamespacesimulation_html_a922046c7d91b325e798d76659a20eef5"><div class="ttname"><a href="../../d1/d2d/namespacesimulation.html#a922046c7d91b325e798d76659a20eef5">simulation::neko_solve</a></div><div class="ttdeci">subroutine, public neko_solve(C)</div><div class="ttdoc">Main driver to solve a case C.</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d7e/simulation_8f90_source.html#l00058">simulation.f90:59</a></div></div>
@@ -427,7 +427,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../db/d7e/simulation_8f90.html">simulation.f90</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

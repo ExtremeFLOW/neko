@@ -1,4 +1,6 @@
 <map id="user_intf::user_t::init" name="user_intf::user_t::init">
-<area shape="rect" id="node1" title=" " alt="" coords="5,13,160,39"/>
-<area shape="rect" id="node2" href="$d9/dbc/namespaceuser__intf.html#aba0d51dec107387f593759651232a314" title=" " alt="" coords="208,5,379,47"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,46,160,73"/>
+<area shape="rect" id="node2" href="$d9/dbc/namespaceuser__intf.html#aba0d51dec107387f593759651232a314" title=" " alt="" coords="221,5,391,47"/>
+<area shape="rect" id="node3" href="$d9/dbc/namespaceuser__intf.html#a2c5bf9291ff09efe1642fc8bd0991cfd" title="JSON extraction helper function for simulation components." alt="" coords="208,71,404,112"/>
+<area shape="rect" id="node4" href="$d8/da8/namespacejson__utils.html#a404867bed8c9c4d90f419dfa5f7d3a0e" title="Extract ith item from a JSON array as a separate JSON object." alt="" coords="452,78,661,105"/>
 </map>

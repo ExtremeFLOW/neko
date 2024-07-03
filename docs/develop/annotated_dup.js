@@ -563,6 +563,10 @@ var annotated_dup =
     ] ],
     [ "math", "dd/d47/namespacemath.html", [
       [ "abscmp", "de/d34/interfacemath_1_1abscmp.html", "de/d34/interfacemath_1_1abscmp" ],
+      [ "sort", "d1/dc3/interfacemath_1_1sort.html", "d1/dc3/interfacemath_1_1sort" ],
+      [ "swap", "d7/d0d/interfacemath_1_1swap.html", "d7/d0d/interfacemath_1_1swap" ],
+      [ "reord", "d6/d4c/interfacemath_1_1reord.html", "d6/d4c/interfacemath_1_1reord" ],
+      [ "flipv", "d2/db7/interfacemath_1_1flipv.html", "d2/db7/interfacemath_1_1flipv" ],
       [ "relcmp", "d9/d4d/interfacemath_1_1relcmp.html", "d9/d4d/interfacemath_1_1relcmp" ]
     ] ],
     [ "matrix", "d0/de4/namespacematrix.html", [
@@ -972,6 +976,7 @@ var annotated_dup =
       [ "useric", "d1/daa/interfaceuser__intf_1_1useric.html", "d1/daa/interfaceuser__intf_1_1useric" ],
       [ "useric_scalar", "d7/d69/interfaceuser__intf_1_1useric__scalar.html", "d7/d69/interfaceuser__intf_1_1useric__scalar" ],
       [ "user_initialize_modules", "de/d4e/interfaceuser__intf_1_1user__initialize__modules.html", "de/d4e/interfaceuser__intf_1_1user__initialize__modules" ],
+      [ "user_simcomp_init", "de/d93/interfaceuser__intf_1_1user__simcomp__init.html", "de/d93/interfaceuser__intf_1_1user__simcomp__init" ],
       [ "usermsh", "da/dd1/interfaceuser__intf_1_1usermsh.html", "da/dd1/interfaceuser__intf_1_1usermsh" ],
       [ "usercheck", "d3/d11/interfaceuser__intf_1_1usercheck.html", "d3/d11/interfaceuser__intf_1_1usercheck" ],
       [ "user_final_modules", "d9/dfa/interfaceuser__intf_1_1user__final__modules.html", "d9/dfa/interfaceuser__intf_1_1user__final__modules" ],

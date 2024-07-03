@@ -1,0 +1,8 @@
+<map id="field_math::field_vdot3" name="field_math::field_vdot3">
+<area shape="rect" id="node1" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="5,60,176,87"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a62afd65bc6fb07e354fde87dad4d7c8c" title=" " alt="" coords="224,23,381,65"/>
+<area shape="rect" id="node6" href="$dd/d47/namespacemath.html#ac6b1aa1e5e708afa691fde3c54956283" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="252,89,353,116"/>
+<area shape="rect" id="node3" href="$de/d1e/math_8cu.html#a5088cf1d6ee092b07ba008457a7a86f8" title=" " alt="" coords="435,5,533,32"/>
+<area shape="rect" id="node4" href="$d6/da3/math_8c.html#ae027b835301b8c2ab4f4bd5c808899a4" title=" " alt="" coords="429,56,539,83"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="587,56,719,83"/>
+</map>

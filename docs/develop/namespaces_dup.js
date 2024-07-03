@@ -33,12 +33,6 @@ var namespaces_dup =
     ] ],
     [ "box_point_zone", "d0/d03/namespacebox__point__zone.html", "d0/d03/namespacebox__point__zone" ],
     [ "brinkman_source_term", "d0/d7b/namespacebrinkman__source__term.html", "d0/d7b/namespacebrinkman__source__term" ],
-    [ "brinkman_source_term_cpu", "d8/d36/namespacebrinkman__source__term__cpu.html", [
-      [ "brinkman_source_term_compute_cpu", "d8/d36/namespacebrinkman__source__term__cpu.html#ae921b7d334f87d8dc2ddfe4d9825dd44", null ]
-    ] ],
-    [ "brinkman_source_term_device", "d5/d38/namespacebrinkman__source__term__device.html", [
-      [ "brinkman_source_term_compute_device", "d5/d38/namespacebrinkman__source__term__device.html#aefd93bd19a253a44586c96325e503859", null ]
-    ] ],
     [ "cacg", "d2/d10/namespacecacg.html", "d2/d10/namespacecacg" ],
     [ "case", "dd/da8/namespacecase.html", "dd/da8/namespacecase" ],
     [ "cg", "d9/df6/namespacecg.html", "d9/df6/namespacecg" ],
@@ -211,6 +205,30 @@ var namespaces_dup =
     [ "field_dirichlet", "db/d5b/namespacefield__dirichlet.html", "db/d5b/namespacefield__dirichlet" ],
     [ "field_dirichlet_vector", "d0/d1c/namespacefield__dirichlet__vector.html", "d0/d1c/namespacefield__dirichlet__vector" ],
     [ "field_list", "df/d2b/namespacefield__list.html", "df/d2b/namespacefield__list" ],
+    [ "field_math", "d5/de6/namespacefield__math.html", [
+      [ "field_add2", "d5/de6/namespacefield__math.html#a20edced83ac66ad60879136f30fe8bc7", null ],
+      [ "field_add2s1", "d5/de6/namespacefield__math.html#ae1526f9a2d0b7e9a137dbbd8af189186", null ],
+      [ "field_add2s2", "d5/de6/namespacefield__math.html#a9d12eb56bef2dbc2f43e28be9bb33868", null ],
+      [ "field_add3s2", "d5/de6/namespacefield__math.html#a0f463a9ced5a3e251c44620aebdad7ad", null ],
+      [ "field_addcol3", "d5/de6/namespacefield__math.html#ab83ccf41685084309be40a9bd5f484d9", null ],
+      [ "field_addcol4", "d5/de6/namespacefield__math.html#a394536d0b8aeacdc3fa7e7beb74bbd43", null ],
+      [ "field_addsqr2s2", "d5/de6/namespacefield__math.html#a177f0e2b7a41c5c9c75fe02fb2fe79df", null ],
+      [ "field_cadd", "d5/de6/namespacefield__math.html#ac9cb1f32993acbe1e4e5d25c384617eb", null ],
+      [ "field_cfill", "d5/de6/namespacefield__math.html#ab942dad9301185a1f5f58ccc0920648a", null ],
+      [ "field_cmult", "d5/de6/namespacefield__math.html#a062248329e52881a86cf7bf03c655169", null ],
+      [ "field_cmult2", "d5/de6/namespacefield__math.html#a94ce8d17ad07efe27f4775ebd11c3d0a", null ],
+      [ "field_col2", "d5/de6/namespacefield__math.html#ae0242a24209bcecbacb9c1667230fdef", null ],
+      [ "field_col3", "d5/de6/namespacefield__math.html#ac5997f112188d80991e906e241912f24", null ],
+      [ "field_copy", "d5/de6/namespacefield__math.html#a827ca5aacb7eef8e1b2bba7792c1c610", null ],
+      [ "field_invcol1", "d5/de6/namespacefield__math.html#aeca03449216092a3a058f7f868cdb6b3", null ],
+      [ "field_invcol2", "d5/de6/namespacefield__math.html#a1aaf9912567a3daf14fb19d6ec8f954e", null ],
+      [ "field_rone", "d5/de6/namespacefield__math.html#a467d801b2a260f4bb21e94b45a0fd1db", null ],
+      [ "field_rzero", "d5/de6/namespacefield__math.html#ae229a2cf7d037365965e02e6036c3acf", null ],
+      [ "field_sub2", "d5/de6/namespacefield__math.html#a1315637f5d940fe048f49c6aecf71b2c", null ],
+      [ "field_sub3", "d5/de6/namespacefield__math.html#a1919b390c9e58da282ac507d1a544eb6", null ],
+      [ "field_subcol3", "d5/de6/namespacefield__math.html#a116e9eebb5e22b54d78794f16bc78336", null ],
+      [ "field_vdot3", "d5/de6/namespacefield__math.html#a46ed9eebaaafc201257988607f5baf4d", null ]
+    ] ],
     [ "field_registry", "d1/dc4/namespacefield__registry.html", "d1/dc4/namespacefield__registry" ],
     [ "field_series", "d6/d32/namespacefield__series.html", "d6/d32/namespacefield__series" ],
     [ "field_writer", "d9/dde/namespacefield__writer.html", "d9/dde/namespacefield__writer" ],

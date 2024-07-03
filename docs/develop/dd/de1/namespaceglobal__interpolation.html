@@ -140,8 +140,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:a73584112440598ad7dbbed3cfa9ee2d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Implements <a class="el" href="../../dd/de1/namespaceglobal__interpolation.html" title="Implements global_interpolation given a dofmap.">global_interpolation</a> given a dofmap. </p>
-<dl class="section note"><dt>Note</dt><dd>This modules uses functions from <code>gslib</code>, namely <code>findpts_setup</code>, <code>findpts</code>, and <code>findpts_eval</code>. A full description of these subroutines can be found at <a href="https://github.com/Nek5000/gslib/blob/master/src/findpts.c">https://github.com/Nek5000/gslib/blob/master/src/findpts.c</a> </dd></dl>
+<div class="textblock"><dl class="section note"><dt>Note</dt><dd>This modules uses functions from <code>gslib</code>, namely <code>findpts_setup</code>, <code>findpts</code>, and <code>findpts_eval</code>. A full description of these subroutines can be found at <a href="https://github.com/Nek5000/gslib/blob/master/src/findpts.c">https://github.com/Nek5000/gslib/blob/master/src/findpts.c</a> </dd></dl>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a73584112440598ad7dbbed3cfa9ee2d9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a73584112440598ad7dbbed3cfa9ee2d9">&#9670;&nbsp;</a></span>global_interpolation_evaluate()</h2>
@@ -182,8 +181,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Evalute the interpolated value in the points given a field on the dofmap. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">interp_values</td><td>Array of values in the given points. </td></tr>
@@ -235,8 +232,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again. </p>
 <ul>
 <li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
 <li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
@@ -290,8 +285,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Common routine for finding the points. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00191">191</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 <div class="dynheader">
@@ -359,8 +352,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again. </p>
 <ul>
 <li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
 <li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
@@ -428,8 +419,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again. </p>
 <ul>
 <li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
 <li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
@@ -482,8 +471,6 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Destructor. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00152">152</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 
 </div>
@@ -511,8 +498,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Destructor for point arrays. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00171">171</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 
@@ -549,8 +534,6 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Evaluate only local points. </p>
 <p>Initialize user defined variables. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dof</td><td>Dofmap on which the interpolation is to be carried out. </td></tr>
@@ -659,7 +642,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html">global_interpolation</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

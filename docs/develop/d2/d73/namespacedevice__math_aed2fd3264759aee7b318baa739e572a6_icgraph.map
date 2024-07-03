@@ -1,6 +1,7 @@
 <map id="device_math::device_addcol4" name="device_math::device_addcol4">
-<area shape="rect" id="node1" title=" " alt="" coords="235,79,392,120"/>
-<area shape="rect" id="node2" href="$d7/d82/namespaceax__helm__device.html#ac67c05cb2d7d26b14add945cfdd6639d" title=" " alt="" coords="8,5,184,47"/>
-<area shape="rect" id="node3" href="$d7/d82/namespaceax__helm__device.html#aa120c225c884b1121d2fab691bcfe0e4" title=" " alt="" coords="8,71,184,127"/>
-<area shape="rect" id="node4" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="5,152,187,193"/>
+<area shape="rect" id="node1" title=" " alt="" coords="239,112,396,153"/>
+<area shape="rect" id="node2" href="$d7/d82/namespaceax__helm__device.html#ac67c05cb2d7d26b14add945cfdd6639d" title=" " alt="" coords="10,5,186,47"/>
+<area shape="rect" id="node3" href="$d7/d82/namespaceax__helm__device.html#aa120c225c884b1121d2fab691bcfe0e4" title=" " alt="" coords="10,71,186,127"/>
+<area shape="rect" id="node4" href="$d5/de6/namespacefield__math.html#a394536d0b8aeacdc3fa7e7beb74bbd43" title="Returns ." alt="" coords="5,151,191,178"/>
+<area shape="rect" id="node5" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="7,203,189,244"/>
 </map>

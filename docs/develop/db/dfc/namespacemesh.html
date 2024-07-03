@@ -101,7 +101,7 @@ $(document).ready(function(){initNavTree('db/dfc/namespacemesh.html','../../'); 
 <div class="contents">
 
 <p>Defines a mesh.  
-<a href="../../db/dfc/namespacemesh.html#details">More...</a></p>
+</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Types</h2></td></tr>
@@ -235,9 +235,7 @@ Variables</h2></td></tr>
 <tr class="memdesc:a6174f191806cc80974be1c3d763e5151"><td class="mdescLeft">&#160;</td><td class="mdescRight">Max length of a zone label.  <a href="../../db/dfc/namespacemesh.html#a6174f191806cc80974be1c3d763e5151">More...</a><br /></td></tr>
 <tr class="separator:a6174f191806cc80974be1c3d763e5151"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Defines a mesh. </p>
-</div><h2 class="groupheader">Function/Subroutine Documentation</h2>
+<h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a3948f376c1d300474de09c3983bf63e6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3948f376c1d300474de09c3983bf63e6">&#9670;&nbsp;</a></span>mesh_add_edge()</h2>
 
@@ -271,8 +269,6 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Add a unique edge represented as a 2-tuple to the mesh. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01511">1511</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -311,8 +307,6 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Add a unique face represented as a 4-tuple to the mesh. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01498">1498</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -400,8 +394,6 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Add a hexahedral element to the mesh <em>this</em>. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01434">1434</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -445,8 +437,6 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Add a unique point to the mesh. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01474">1474</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -510,8 +500,6 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Add a quadrilateral element to the mesh <em>this</em>. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01398">1398</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -539,8 +527,6 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Set all elements as if they are deformed. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l00455">455</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -604,8 +590,6 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Replaces the periodic point's id with a common id for matching periodic points. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01829">1829</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -661,8 +645,6 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Creates common ids for matching periodic points. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01747">1747</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -740,8 +722,6 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Deallocate a mesh <em>this</em>. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l00324">324</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
@@ -778,8 +758,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Generate element-to-element connectivity. </p>
 <dl class="section note"><dt>Note</dt><dd>We have to sweep through the facet map twice to make sure that both odd and even sides are marked </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000039">Todo:</a></b></dt><dd>These loop nests needs a lot of love... </dd></dl>
 
@@ -837,8 +815,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Generate element-element connectivity via edges both between internal and between PEs. </p>
 <dl class="section attention"><dt>Attention</dt><dd>only for elements where facet .ne. edges </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000040">Todo:</a></b></dt><dd>move this into distdata </dd></dl>
 
@@ -890,8 +866,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Generate element-element connectivity via facets between PEs. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l00675">675</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
@@ -940,8 +914,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Generate element-element connectivity via points between PEs. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l00842">842</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
@@ -988,8 +960,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Generate a unique facet numbering. </p>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000041">Todo:</a></b></dt><dd>move this into distdata </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000042">Todo:</a></b></dt><dd>Move this into distdata as a method... </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000043">Todo:</a></b></dt><dd>Since we now the neigh. we can actually do p2p here... </dd></dl>
@@ -1100,8 +1070,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Get original ids of periodic points. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01673">1673</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -1139,8 +1107,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Return the global id of an edge <em>e</em>. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01901">1901</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -1180,8 +1146,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Return the local id of a face <em>f</em>. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01921">1921</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -1219,8 +1183,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Return the local id of an edge <em>e</em>. </p>
 <dl class="section attention"><dt>Attention</dt><dd>only defined for gdim .ne. 2 </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01877">1877</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
@@ -1261,8 +1223,6 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Return the local id of a face <em>f</em>. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01889">1889</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -1300,8 +1260,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Return the local id of a point <em>p</em>. </p>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000044">Todo:</a></b></dt><dd>why do we still need to do this? </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01860">1860</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
@@ -1341,8 +1299,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Check if the mesh has a point given its global index. </p>
 <dl class="section return"><dt>Returns</dt><dd>The local id of the point (if present) otherwise -1 </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000045">Todo:</a></b></dt><dd>Consider moving this to distdata </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -1446,8 +1402,6 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Initialise a mesh <em>this</em> based on a distribution <em>dist</em>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">this</td><td>Mesh </td></tr>
@@ -1512,8 +1466,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Initialise a mesh <em>this</em> with <em>nelv</em> elements. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">this</td><td>Mesh </td></tr>
@@ -1572,8 +1524,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Check if an edge is shared. </p>
 <dl class="section attention"><dt>Attention</dt><dd>only defined for gdim .ne. 2 </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01965">1965</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
@@ -1614,8 +1564,6 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Check if a facet is shared. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01979">1979</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -1653,8 +1601,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Check if a point is shared. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01951">1951</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -1706,8 +1652,6 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Mark element <em>e</em> as a curve element. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01543">1543</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -1751,8 +1695,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Mark facet <em>f</em> in element <em>e</em> as an inlet. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01561">1561</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -1804,8 +1746,6 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Mark facet <em>f</em> in element <em>e</em> with label. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01580">1580</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -1850,8 +1790,6 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Mark facet <em>f</em> in element <em>e</em> as an outlet. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01621">1621</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -1895,8 +1833,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Mark facet <em>f</em> in element <em>e</em> as an outlet normal. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01601">1601</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -1960,8 +1896,6 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Mark facet <em>f</em> in element <em>e</em> as periodic with (<em>pf</em>, <em>pe</em>) </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01659">1659</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -2005,8 +1939,6 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Mark facet <em>f</em> in element <em>e</em> as a symmetry plane. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01640">1640</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
@@ -2052,8 +1984,6 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Mark facet <em>f</em> in element <em>e</em> as a wall. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01524">1524</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -2082,8 +2012,6 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p>Reset ids of periodic points to their original ids. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l01696">1696</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -2101,8 +2029,6 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Max length of a zone label. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l00058">58</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -2119,8 +2045,6 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Max num. zone labels. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../de/d0a/mesh_8f90_source.html#l00056">56</a> of file <a class="el" href="../../de/d0a/mesh_8f90_source.html">mesh.f90</a>.</p>
 
 </div>
@@ -2131,7 +2055,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/dfc/namespacemesh.html">mesh</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -100,7 +100,7 @@ $(document).ready(function(){initNavTree('dc/da9/namespacefield.html','../../');
 <div class="contents">
 
 <p>Defines a field.  
-<a href="../../dc/da9/namespacefield.html#details">More...</a></p>
+</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Types</h2></td></tr>
@@ -140,9 +140,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a26d0338a478ed4544c8a7029d9e9d171"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the size of the field based on the underlying dofmap.  <a href="../../dc/da9/namespacefield.html#a26d0338a478ed4544c8a7029d9e9d171">More...</a><br /></td></tr>
 <tr class="separator:a26d0338a478ed4544c8a7029d9e9d171"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Defines a field. </p>
-</div><h2 class="groupheader">Function/Subroutine Documentation</h2>
+<h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a2052dd88093303cd5967ac815cb7290f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2052dd88093303cd5967ac815cb7290f">&#9670;&nbsp;</a></span>field_add_field()</h2>
 
@@ -176,8 +174,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Add \( this(u_1, u_2, ... , u_n) = this(u_1, u_2, ... , u_n) + G(u_1, u_2, ... , u_n) \). </p>
 <dl class="section note"><dt>Note</dt><dd>Component wise </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../d3/dc1/field_8f90_source.html#l00247">247</a> of file <a class="el" href="../../d3/dc1/field_8f90_source.html">field.f90</a>.</p>
@@ -218,8 +214,6 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Add \( this(u_1, u_2, ... , u_n) = this(u_1, u_2, ... , u_n) + a \). </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d3/dc1/field_8f90_source.html#l00262">262</a> of file <a class="el" href="../../d3/dc1/field_8f90_source.html">field.f90</a>.</p>
 
 </div>
@@ -257,8 +251,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Assignment \( this = G \). </p>
 <dl class="section note"><dt>Note</dt><dd><em>this</em> will be initialized if it has a different size than <em>G</em> or it's not allocated </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../d3/dc1/field_8f90_source.html#l00185">185</a> of file <a class="el" href="../../d3/dc1/field_8f90_source.html">field.f90</a>.</p>
@@ -299,8 +291,6 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Assignment \( this = a \). </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d3/dc1/field_8f90_source.html#l00223">223</a> of file <a class="el" href="../../d3/dc1/field_8f90_source.html">field.f90</a>.</p>
 
 </div>
@@ -328,8 +318,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Deallocate a field <em>f</em>. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d3/dc1/field_8f90_source.html#l00160">160</a> of file <a class="el" href="../../d3/dc1/field_8f90_source.html">field.f90</a>.</p>
 
@@ -368,8 +356,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Initialize a field <em>this</em>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">this</td><td>Field to be initialized </td></tr>
@@ -421,8 +407,6 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Initialize a field <em>this</em> on the mesh <em>msh</em> using an internal dofmap. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">this</td><td>Field to be initialized </td></tr>
@@ -473,8 +457,6 @@ Functions/Subroutines</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Initialize a field <em>this</em> on the mesh <em>msh</em> using an internal dofmap. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">this</td><td>Field to be initialized </td></tr>
@@ -513,8 +495,6 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Return the size of the field based on the underlying dofmap. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d3/dc1/field_8f90_source.html#l00275">275</a> of file <a class="el" href="../../d3/dc1/field_8f90_source.html">field.f90</a>.</p>
 
 </div>
@@ -525,7 +505,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/da9/namespacefield.html">field</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

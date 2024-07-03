@@ -107,6 +107,14 @@ $(document).ready(function(){initNavTree('d6/ddb/math_8f90.html','../../'); init
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d34/interfacemath_1_1abscmp.html">math::abscmp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dc3/interfacemath_1_1sort.html">math::sort</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d0d/interfacemath_1_1swap.html">math::swap</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d4c/interfacemath_1_1reord.html">math::reord</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/db7/interfacemath_1_1flipv.html">math::flipv</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d4d/interfacemath_1_1relcmp.html">math::relcmp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -281,9 +289,30 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:a22f2f98aad6feae117b800fa20fa43ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53095ab0beb34895f90c0e0fef2c8901"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) function, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a53095ab0beb34895f90c0e0fef2c8901">math::glsc4</a> (a, b, c, d, n)</td></tr>
 <tr class="separator:a53095ab0beb34895f90c0e0fef2c8901"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaa9a768f3914ce165382873aaa17b9af"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#aaa9a768f3914ce165382873aaa17b9af">math::sort</a> (a, ind, n)</td></tr>
-<tr class="memdesc:aaa9a768f3914ce165382873aaa17b9af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Use Heap Sort (p 231 Num. Rec., 1st Ed.)  <a href="../../dd/d47/namespacemath.html#aaa9a768f3914ce165382873aaa17b9af">More...</a><br /></td></tr>
-<tr class="separator:aaa9a768f3914ce165382873aaa17b9af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5678dc65ca69cf3de8171744a14d5a1"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#ae5678dc65ca69cf3de8171744a14d5a1">math::sortrp</a> (a, ind, n)</td></tr>
+<tr class="memdesc:ae5678dc65ca69cf3de8171744a14d5a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Heap Sort for double precision arrays.  <a href="../../dd/d47/namespacemath.html#ae5678dc65ca69cf3de8171744a14d5a1">More...</a><br /></td></tr>
+<tr class="separator:ae5678dc65ca69cf3de8171744a14d5a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98ae12afcf20c241fe14d6fd02bc5aa5"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a98ae12afcf20c241fe14d6fd02bc5aa5">math::sorti4</a> (a, ind, n)</td></tr>
+<tr class="memdesc:a98ae12afcf20c241fe14d6fd02bc5aa5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Heap Sort for single integer arrays.  <a href="../../dd/d47/namespacemath.html#a98ae12afcf20c241fe14d6fd02bc5aa5">More...</a><br /></td></tr>
+<tr class="separator:a98ae12afcf20c241fe14d6fd02bc5aa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c7a47c70c8eeca9fe9c7b221847d58f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a5c7a47c70c8eeca9fe9c7b221847d58f">math::swapdp</a> (b, ind, n)</td></tr>
+<tr class="memdesc:a5c7a47c70c8eeca9fe9c7b221847d58f"><td class="mdescLeft">&#160;</td><td class="mdescRight">sort double precision array acording to ind vector  <a href="../../dd/d47/namespacemath.html#a5c7a47c70c8eeca9fe9c7b221847d58f">More...</a><br /></td></tr>
+<tr class="separator:a5c7a47c70c8eeca9fe9c7b221847d58f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79336cea28e5e7af083d1d5daf92f2b6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a79336cea28e5e7af083d1d5daf92f2b6">math::swapi4</a> (b, ind, n)</td></tr>
+<tr class="memdesc:a79336cea28e5e7af083d1d5daf92f2b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">sort single integer array acording to ind vector  <a href="../../dd/d47/namespacemath.html#a79336cea28e5e7af083d1d5daf92f2b6">More...</a><br /></td></tr>
+<tr class="separator:a79336cea28e5e7af083d1d5daf92f2b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45c75c49f5ca92b6ceac45d61d8a8e47"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a45c75c49f5ca92b6ceac45d61d8a8e47">math::reorddp</a> (b, ind, n)</td></tr>
+<tr class="memdesc:a45c75c49f5ca92b6ceac45d61d8a8e47"><td class="mdescLeft">&#160;</td><td class="mdescRight">reorder double precision array - inverse of swap  <a href="../../dd/d47/namespacemath.html#a45c75c49f5ca92b6ceac45d61d8a8e47">More...</a><br /></td></tr>
+<tr class="separator:a45c75c49f5ca92b6ceac45d61d8a8e47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9feeaa7f010049caa25da1f7ea1d569"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#af9feeaa7f010049caa25da1f7ea1d569">math::reordi4</a> (b, ind, n)</td></tr>
+<tr class="memdesc:af9feeaa7f010049caa25da1f7ea1d569"><td class="mdescLeft">&#160;</td><td class="mdescRight">reorder single integer array - inverse of swap  <a href="../../dd/d47/namespacemath.html#af9feeaa7f010049caa25da1f7ea1d569">More...</a><br /></td></tr>
+<tr class="separator:af9feeaa7f010049caa25da1f7ea1d569"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6aa2ed6eaca7993ffc58b78d5558fe66"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a6aa2ed6eaca7993ffc58b78d5558fe66">math::flipvdp</a> (b, ind, n)</td></tr>
+<tr class="memdesc:a6aa2ed6eaca7993ffc58b78d5558fe66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flip double precision vector b and ind.  <a href="../../dd/d47/namespacemath.html#a6aa2ed6eaca7993ffc58b78d5558fe66">More...</a><br /></td></tr>
+<tr class="separator:a6aa2ed6eaca7993ffc58b78d5558fe66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cac807e77679b68a1eaa206a9ec4ea8"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a5cac807e77679b68a1eaa206a9ec4ea8">math::flipvi4</a> (b, ind, n)</td></tr>
+<tr class="memdesc:a5cac807e77679b68a1eaa206a9ec4ea8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flip single integer vector b and ind.  <a href="../../dd/d47/namespacemath.html#a5cac807e77679b68a1eaa206a9ec4ea8">More...</a><br /></td></tr>
+<tr class="separator:a5cac807e77679b68a1eaa206a9ec4ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -303,7 +332,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../d6/ddb/math_8f90.html">math.f90</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

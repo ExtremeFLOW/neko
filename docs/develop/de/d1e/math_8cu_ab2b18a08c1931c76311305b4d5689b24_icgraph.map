@@ -1,5 +1,6 @@
 <map id="cuda_invcol2" name="cuda_invcol2">
-<area shape="rect" id="node1" title=" " alt="" coords="440,13,547,39"/>
-<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#af5ef1d1c47be4988b595aca1db11e883" title=" " alt="" coords="235,5,392,47"/>
-<area shape="rect" id="node3" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="5,5,187,47"/>
+<area shape="rect" id="node1" title=" " alt="" coords="440,35,547,61"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#af5ef1d1c47be4988b595aca1db11e883" title=" " alt="" coords="235,27,392,69"/>
+<area shape="rect" id="node3" href="$d5/de6/namespacefield__math.html#a1aaf9912567a3daf14fb19d6ec8f954e" title="Vector division ." alt="" coords="5,5,187,32"/>
+<area shape="rect" id="node4" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="5,57,187,98"/>
 </map>

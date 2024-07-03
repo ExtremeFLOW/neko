@@ -150,8 +150,7 @@ Public Attributes</h2></td></tr>
 <tr class="separator:aa8cbc26ff0f3e4b877ba1c8713db1215"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Field interpolator to arbitrary points within an element. Tailored for experimentation, and convenience, not performance Does all interpolation on the CPU. Only considers one element If performant interpolation on many elements is required Look at local_interpolator_t, similar but with less functionality. </p>
-
+<div class="textblock">
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="abb8fdcf781cd4f15d3bd9feb321eed42"></a>
@@ -165,8 +164,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Computes interpolation weights \( w_r, w_s, w_t \) for a list of points. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 
@@ -184,8 +181,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Destructor. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 
 </div>
@@ -202,8 +197,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Constructor. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00060">60</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 
 </div>
@@ -219,8 +212,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Interpolates a scalar or vector field on a set of points. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 <div class="dynheader">
@@ -249,8 +240,6 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Constructs the Jacobian for a point \( (r,s,t) \). </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
@@ -278,8 +267,6 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Constructs the Jacobian at a single point. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 
 </div>
@@ -295,8 +282,6 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Interpolates a scalar field \( X \) on a set of points. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 
@@ -314,8 +299,6 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Interpolates a vector field \( \vec f = (X,Y,Z) \) on a set of points. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 
 </div>
@@ -331,8 +314,6 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Interpolates a vector field and builds the Jacobian at a single point. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 
@@ -351,8 +332,6 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>First space. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d6/dfa/point__interpolator_8f90_source.html">point_interpolator.f90</a>.</p>
 
 </div>
@@ -366,7 +345,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../df/d77/namespacepoint__interpolator.html">point_interpolator</a></li><li class="navelem"><a class="el" href="../../d6/d23/structpoint__interpolator_1_1point__interpolator__t.html">point_interpolator_t</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

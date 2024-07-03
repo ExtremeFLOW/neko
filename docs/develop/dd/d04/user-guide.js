@@ -26,22 +26,23 @@ var user_guide =
       [ "Point zones", "dd/d33/case-file.html#autotoc_md36", null ]
     ] ],
     [ "User File", "d6/def/user-file.html", [
-      [ "Compiling and running", "d6/def/user-file.html#autotoc_md75", null ],
-      [ "High-level structure", "d6/def/user-file.html#autotoc_md76", null ],
-      [ "Default user functions", "d6/def/user-file.html#autotoc_md77", [
+      [ "Compiling and running", "d6/def/user-file.html#autotoc_md69", null ],
+      [ "High-level structure", "d6/def/user-file.html#autotoc_md70", null ],
+      [ "Default user functions", "d6/def/user-file.html#autotoc_md71", [
         [ "Initializing and finalizing", "d6/def/user-file.html#user-file_init-and-final", null ],
         [ "Computing at every time step", "d6/def/user-file.html#user-file_user-check", null ],
         [ "Setting material properties", "d6/def/user-file.html#user-file_mat-prop", null ],
         [ "Runtime mesh deformation", "d6/def/user-file.html#user-file_user-mesh-setup", null ],
-        [ "Scalar boundary conditions", "d6/def/user-file.html#user-file_scalar-bc", null ]
+        [ "Scalar boundary conditions", "d6/def/user-file.html#user-file_scalar-bc", null ],
+        [ "User defined simulation components", "d6/def/user-file.html#user-file_simcomps", null ]
       ] ],
-      [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md78", [
+      [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md72", [
         [ "Fluid and Scalar initial conditions", "d6/def/user-file.html#user-file_user-ic", null ],
         [ "Fluid inflow condition", "d6/def/user-file.html#user-file_fluid-user-if", null ],
         [ "Fluid and scalar source terms", "d6/def/user-file.html#user-file_user-f", null ],
         [ "Complex fluid and/or scalar boundary conditions", "d6/def/user-file.html#user-file_field-dirichlet-update", null ]
       ] ],
-      [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md79", [
+      [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md73", [
         [ "Running on GPUs", "d6/def/user-file.html#user-file_tips_running-on-gpus", null ],
         [ "Registries", "d6/def/user-file.html#user-file_tips_registries", null ]
       ] ]
@@ -49,17 +50,17 @@ var user_guide =
     [ "Simulation components", "d3/d84/simcomps.html", [
       [ "What are simulation components?", "d3/d84/simcomps.html#autotoc_md59", null ],
       [ "Adding simulation components to the case", "d3/d84/simcomps.html#autotoc_md60", null ],
-      [ "Controling execution and file output", "d3/d84/simcomps.html#autotoc_md61", null ],
-      [ "List of simulation components", "d3/d84/simcomps.html#autotoc_md62", [
-        [ "vorticity", "d3/d84/simcomps.html#autotoc_md63", null ],
-        [ "lambda2", "d3/d84/simcomps.html#autotoc_md64", null ],
-        [ "probes", "d3/d84/simcomps.html#autotoc_md65", [
-          [ "Supported types:", "d3/d84/simcomps.html#autotoc_md66", null ],
-          [ "Example usage:", "d3/d84/simcomps.html#autotoc_md67", null ]
+      [ "List of simulation components", "d3/d84/simcomps.html#autotoc_md61", null ],
+      [ "Controling execution and file output", "d3/d84/simcomps.html#autotoc_md62", [
+        [ "vorticity", "d3/d84/simcomps.html#simcomp_vorticity", null ],
+        [ "lambda2", "d3/d84/simcomps.html#simcomp_lambda2", null ],
+        [ "probes", "d3/d84/simcomps.html#simcomp_probes", [
+          [ "Supported types:", "d3/d84/simcomps.html#autotoc_md63", null ],
+          [ "Example usage:", "d3/d84/simcomps.html#autotoc_md64", null ]
         ] ],
-        [ "field_writer", "d3/d84/simcomps.html#autotoc_md68", null ],
-        [ "derivative", "d3/d84/simcomps.html#autotoc_md69", null ],
-        [ "weak_grad", "d3/d84/simcomps.html#autotoc_md70", null ]
+        [ "field_writer", "d3/d84/simcomps.html#simcomp_field_writer", null ],
+        [ "derivative", "d3/d84/simcomps.html#simcomp_derivative", null ],
+        [ "weak_grad", "d3/d84/simcomps.html#simcomp_weak_grad", null ]
       ] ]
     ] ],
     [ "Point zones", "da/dd0/point-zones.html", [
@@ -73,10 +74,10 @@ var user_guide =
       [ "Using point zones", "da/dd0/point-zones.html#point-zones_using-point-zones", null ]
     ] ],
     [ "Statistics guide", "df/d8f/statistics-guide.html", [
-      [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md71", null ],
-      [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md72", null ],
-      [ "Postprocessing", "df/d8f/statistics-guide.html#autotoc_md73", [
-        [ "Notes on the statistics calculation in Neko", "df/d8f/statistics-guide.html#autotoc_md74", null ]
+      [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md65", null ],
+      [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md66", null ],
+      [ "Postprocessing", "df/d8f/statistics-guide.html#autotoc_md67", [
+        [ "Notes on the statistics calculation in Neko", "df/d8f/statistics-guide.html#autotoc_md68", null ]
       ] ]
     ] ],
     [ "Input-output", "d7/d7f/io.html", [

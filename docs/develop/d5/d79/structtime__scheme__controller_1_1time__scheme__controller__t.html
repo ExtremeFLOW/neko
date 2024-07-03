@@ -162,8 +162,7 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a2ff0de2e5851fb197f743eb199b428d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Implements the logic to compute the time coefficients for the advection and diffusion operators in a transport equation. </p>
-<p>Uses the BDF scheme for the diffusion, where as the term for advection the scheme depends on the orders of the BDF and advection schemes.</p><ul>
+<div class="textblock"><p>Uses the BDF scheme for the diffusion, where as the term for advection the scheme depends on the orders of the BDF and advection schemes.</p><ul>
 <li>Order 1 advection<ul>
 <li>BDF1 for diffusion -&gt; Adam-Bashforth scheme.</li>
 </ul>
@@ -196,8 +195,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Destructor. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
 </div>
@@ -214,8 +211,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Constructor. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
 </div>
@@ -231,8 +226,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Set the time coefficients. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
@@ -267,8 +260,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Time coefficients for the advection operator. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
 </div>
@@ -285,8 +276,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Device pointer for <code>advection_coeffs</code> </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
 </div>
@@ -302,8 +291,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Order of the advection scheme. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
@@ -337,8 +324,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Time coefficients for the diffusion operator. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
 </div>
@@ -355,8 +340,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Device pointer for <code>diffusion_coeffs</code> </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
 </div>
@@ -372,8 +355,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Order of the diffusion scheme. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
@@ -407,8 +388,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Controls the actual order of the advection scheme, e.g. 1 at the first time-step. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
 </div>
@@ -425,8 +404,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Controls the actual order of the diffusion scheme, e.g. 1 at the first time-step. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d6/d67/time__scheme__controller_8f90_source.html">time_scheme_controller.f90</a>.</p>
 
 </div>
@@ -440,7 +417,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/dfb/namespacetime__scheme__controller.html">time_scheme_controller</a></li><li class="navelem"><a class="el" href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller_t</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

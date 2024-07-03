@@ -211,8 +211,7 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a2fa44c29c3d13f3ef0bb08560db851a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A source-term for the scalar, with procedure pointers pointing to the actual implementation in the user file. </p>
-<p>The user source term can be applied either pointiwse or acting on the whole array in a single call, which is referred to as "vector" application. </p><dl class="section warning"><dt>Warning</dt><dd>The user source term does not support init from JSON and should instead be directly initialized from components. </dd></dl>
+<div class="textblock"><p>The user source term can be applied either pointiwse or acting on the whole array in a single call, which is referred to as "vector" application. </p><dl class="section warning"><dt>Warning</dt><dd>The user source term does not support init from JSON and should instead be directly initialized from components. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html#l00060">60</a> of file <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html">scalar_user_source_term.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
@@ -236,8 +235,6 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Executes <code>compute_</code> based on time conditions. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00059">59</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
 
 </div>
@@ -254,8 +251,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Computes the source term and adds the result to <code>fields</code>. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html#l00083">83</a> of file <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html">scalar_user_source_term.f90</a>.</p>
 
 </div>
@@ -271,8 +266,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Destructor. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html#l00081">81</a> of file <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html">scalar_user_source_term.f90</a>.</p>
 
@@ -298,8 +291,6 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Destructor for the source_term_t (base) type. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00057">57</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
 
 </div>
@@ -315,8 +306,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Constructor from JSON (will throw!). </p>
 
 <p class="definition">Definition at line <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html#l00076">76</a> of file <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html">scalar_user_source_term.f90</a>.</p>
 
@@ -342,8 +331,6 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Constructor for the source_term_t (base) type. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00055">55</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
 
 </div>
@@ -359,8 +346,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Constructor from components. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html#l00078">78</a> of file <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html">scalar_user_source_term.f90</a>.</p>
 
@@ -387,8 +372,6 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Coefficients for the SEM. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00048">48</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
 
 </div>
@@ -404,8 +387,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Compute the source term for a single point. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html#l00069">69</a> of file <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html">scalar_user_source_term.f90</a>.</p>
 
@@ -423,8 +404,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Compute the source term for the entire boundary. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html#l00072">72</a> of file <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html">scalar_user_source_term.f90</a>.</p>
 
 </div>
@@ -440,8 +419,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Pointer to the dofmap of the right-hand-side fields. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html#l00062">62</a> of file <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html">scalar_user_source_term.f90</a>.</p>
 
@@ -467,8 +444,6 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>End time for adding the source term. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00052">52</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
 
 </div>
@@ -493,8 +468,6 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>The fields to be updated with the source term values. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00046">46</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
 
 </div>
@@ -511,8 +484,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The source term. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html#l00064">64</a> of file <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html">scalar_user_source_term.f90</a>.</p>
 
 </div>
@@ -528,8 +499,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Device pointer for <code>s</code>. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html#l00067">67</a> of file <a class="el" href="../../dc/d9d/scalar__user__source__term_8f90_source.html">scalar_user_source_term.f90</a>.</p>
 
@@ -555,8 +524,6 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Start time for adding the source term. </p>
-
 <p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00050">50</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
 
 </div>
@@ -570,7 +537,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d19/namespacescalar__user__source__term.html">scalar_user_source_term</a></li><li class="navelem"><a class="el" href="../../dd/d0f/structscalar__user__source__term_1_1scalar__user__source__term__t.html">scalar_user_source_term_t</a></li>
-    <li class="footer">Generated on Tue Jul 2 2024 03:34:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 3 2024 03:34:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
