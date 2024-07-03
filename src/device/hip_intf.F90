@@ -147,12 +147,12 @@ module hip_intf
   end interface
 
   interface
-     integer (c_int) function hipDeviceGetCount(count) &
-          bind(c, name='hipDeviceGetCount')
+     integer (c_int) function hipGetDeviceCount(count) &
+          bind(c, name='hipGetDeviceCount')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: count
-     end function hipDeviceGetCount
+     end function hipGetDeviceCount
   end interface
 
   interface
