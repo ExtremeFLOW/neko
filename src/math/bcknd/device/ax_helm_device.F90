@@ -107,6 +107,17 @@ module ax_helm_device
        integer(c_int) :: nel, lx
      end subroutine cuda_ax_helm_vector
   end interface
+
+  interface
+     subroutine cuda_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+          h2_d, B_d, n) bind(c, name='cuda_ax_helm_vector_part2')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: au_d, av_d, aw_d
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: h2_d, B_d
+       integer(c_int) :: n
+     end subroutine cuda_ax_helm_vector_part2
+  end interface
 #elif HAVE_OPENCL
   interface
      subroutine opencl_ax_helm(w_d, u_d, &
@@ -216,9 +227,14 @@ contains
 #endif
 
     if (coef%ifh2) then
+#ifdef HAVE_CUDA
+       call cuda_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, & 
+                                      coef%h2_d, coef%B_d, coef%dof%size())
+#else
        call device_addcol4(au_d ,coef%h2_d, coef%B_d, u_d, coef%dof%size())
        call device_addcol4(av_d ,coef%h2_d, coef%B_d, v_d, coef%dof%size())
        call device_addcol4(aw_d ,coef%h2_d, coef%B_d, w_d, coef%dof%size())
+#endif
     end if
     
   end subroutine ax_helm_device_compute_vector

@@ -8,7 +8,7 @@ n_probes = 200
 
 
 # %% read data
-data = np.genfromtxt(join(DATA_PATH, "output.csv"), skip_header=n_probes+1, delimiter=",")
+data = np.genfromtxt(join(DATA_PATH, "./output.csv"), skip_header=n_probes+1, delimiter=",")
 
 
 x = np.linspace(0, np.pi * 2, n_probes)

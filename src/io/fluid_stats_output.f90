@@ -35,13 +35,16 @@ module fluid_stats_output
   use fluid_stats, only : fluid_stats_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
+  use map_1d
   use device
   use output, only : output_t
+  use matrix
   implicit none
   private
 
   type, public, extends(output_t) :: fluid_stats_output_t
      type(fluid_stats_t), pointer :: stats
+     type(map_1d_t) :: map_1d
      real(kind=rp) :: T_begin
    contains
      procedure, pass(this) :: sample => fluid_stats_output_sample
@@ -53,22 +56,35 @@ module fluid_stats_output
 
 contains
 
-  function fluid_stats_output_init(stats, T_begin, name, path) result(this)
-    type(fluid_stats_t), intent(in), target :: stats
+  function fluid_stats_output_init(stats, T_begin, hom_dir, name, path) result(this)
+    type(fluid_stats_t), intent(inout), target :: stats
     real(kind=rp), intent(in) :: T_begin
+    character(len=*), intent(inout) :: hom_dir
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     type(fluid_stats_output_t) :: this
     character(len=1024) :: fname
-
-    if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // '.fld'
-    else if (present(name)) then
-       fname = trim(name) // '.fld'
-    else if (present(path)) then
-       fname = trim(path) // 'stats.fld'
-    else
-       fname = 'stats.fld'
+    if (trim(hom_dir) .eq. 'none') then
+       if (present(name) .and. present(path)) then
+          fname = trim(path) // trim(name) // '.fld'
+       else if (present(name)) then
+          fname = trim(name) // '.fld'
+       else if (present(path)) then
+          fname = trim(path) // 'stats.fld'
+       else
+          fname = 'stats.fld'
+       end if
+    else 
+       if (present(name) .and. present(path)) then
+          fname = trim(path) // trim(name) // '.csv'
+       else if (present(name)) then
+          fname = trim(name) // '.csv'
+       else if (present(path)) then
+          fname = trim(path) // 'stats.csv'
+       else
+          fname = 'stats.csv'
+       end if
+       call this%map_1d%init_char(stats%coef, hom_dir, 1e-7_rp)
     end if
 
     call this%init_base(fname)
@@ -81,6 +97,7 @@ contains
     class(fluid_stats_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
+    type(matrix_t) :: avg_output_1d
     associate (out_fields => this%stats%stat_fields%items)
       if (t .ge. this%T_begin) then
          call this%stats%make_strong_grad()
@@ -91,7 +108,12 @@ contains
                   sync=(i .eq. size(out_fields))) ! Sync on last field
             end do
          end if
-         call this%file_%write(this%stats%stat_fields, t)
+         if (allocated(this%map_1d%pt_lvl)) then
+            call this%map_1d%average_planes(avg_output_1d, this%stats%stat_fields)
+            call this%file_%write(avg_output_1d, t)
+         else
+            call this%file_%write(this%stats%stat_fields, t)
+         end if
          call this%stats%reset()
       end if
     end associate
