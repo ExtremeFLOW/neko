@@ -33,10 +33,8 @@
 !> Fluid formulations
 module fluid_scheme
   use gather_scatter
-  use mean_sqr_flow, only : mean_sqr_flow_t
   use neko_config
   use checkpoint, only : chkp_t
-  use mean_flow, only : mean_flow_t
   use num_types
   use comm
   use fluid_user_source_term, only: fluid_user_source_term_t
@@ -125,9 +123,7 @@ module fluid_scheme
      type(json_file), pointer :: params        !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
-     type(mean_flow_t) :: mean                 !< Mean flow field
      type(fluid_stats_t) :: stats              !< Fluid statistics
-     type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
      !> Dynamic viscosity
@@ -749,15 +745,14 @@ contains
     call this%chkp%init(this%u, this%v, this%w, this%p)
 
     !
-    ! Setup mean flow fields if requested
+    ! Setup statistics fields if requested
     !
     if (this%params%valid_path('case.statistics')) then
        call json_get_or_default(this%params, 'case.statistics.enabled',&
                                 logical_val, .true.)
        if (logical_val) then
-          call this%mean%init(this%u, this%v, this%w, this%p, this%c_xh)
-          call this%stats%init(this%c_Xh, this%mean%u, &
-               this%mean%v, this%mean%w, this%mean%p)
+          call this%stats%init(this%c_Xh, this%u, &
+               this%v, this%w, this%p)
        end if
     end if
 
