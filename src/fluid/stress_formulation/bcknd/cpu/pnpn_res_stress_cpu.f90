@@ -106,9 +106,9 @@ contains
 
     ! S^T grad \mu
     do e=1, nelv
-       call vdot3 (work1%x(:, :, :, e), &
-                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :,  e), &
-                   s11%x(:, :, :, e), s12%x(:, :, :, e), s13%x(:, :, :, e), lxyz)
+       call vdot3(work1%x(:, :, :, e), &
+                  ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
+                  s11%x(:, :, :, e), s12%x(:, :, :, e), s13%x(:, :, :, e), lxyz)
 
        call vdot3 (work2%x(:, :, :, e), &
                    ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :,  e), &
