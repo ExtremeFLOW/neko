@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       flint-global-minimum: ${{ steps.store.outputs.flint-global-minimum }}
-      flint-changed-minimum: ${{ steps.store.outputs.flint-global-minimum }}
+      flint-changed-minimum: ${{ steps.store.outputs.flint-changed-minimum }}
       pfunit-version: ${{ steps.store.outputs.pfunit-version }}
       json-fortran-version: ${{ steps.store.outputs.json-fortran-version }}
 
