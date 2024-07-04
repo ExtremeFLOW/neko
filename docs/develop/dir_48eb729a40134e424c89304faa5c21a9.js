@@ -1,6 +1,7 @@
 var dir_48eb729a40134e424c89304faa5c21a9 =
 [
     [ "bcknd", "dir_b5f65a6530fedb7f0e07af7fc099c44b.html", "dir_b5f65a6530fedb7f0e07af7fc099c44b" ],
+    [ "stress_formulation", "dir_e89cd453da7b2ecbcc42802e174538f2.html", "dir_e89cd453da7b2ecbcc42802e174538f2" ],
     [ "advection.f90", "d8/d71/advection_8f90.html", [
       [ "advection_t", "d4/d2a/structadvection_1_1advection__t.html", "d4/d2a/structadvection_1_1advection__t" ],
       [ "compute_adv", "d5/d12/interfaceadvection_1_1compute__adv.html", "d5/d12/interfaceadvection_1_1compute__adv" ],

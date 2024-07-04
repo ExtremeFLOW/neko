@@ -1,0 +1,4 @@
+<map id="pnpn_res_stress_device::pnpn_vel_res_stress_device_t" name="pnpn_res_stress_device::pnpn_vel_res_stress_device_t">
+<area shape="rect" id="node1" title="Device implementation of the velocity residual for the PnPn fluid with full viscous stress formulatio..." alt="" coords="5,95,183,151"/>
+<area shape="rect" id="node2" href="$d4/de6/structpnpn__residual__stress_1_1pnpn__vel__res__stress__t.html" title="Abstract type to compute the velocity residual for the PnPn fluid with full viscous stress formulatio..." alt="" coords="7,5,181,47"/>
+</map>

@@ -1,7 +1,7 @@
 <map id="ax_helm_cpu::ax_helm_compute" name="ax_helm_cpu::ax_helm_compute">
 <area shape="rect" id="node1" title="Compute the product." alt="" coords="5,353,177,394"/>
 <area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a7addeb46379b324b5c69d5ec07cef0bd" title="Returns ." alt="" coords="271,5,386,32"/>
-<area shape="rect" id="node3" href="$d5/de3/namespaceax__helm__cpu.html#a39b72db45e1e8cec5b9803cf073e4723" title="Generic CPU kernel for the Helmholtz matrix&#45;vector product." alt="" coords="233,56,424,83"/>
+<area shape="rect" id="node3" href="$d5/de3/namespaceax__helm__cpu.html#a39b72db45e1e8cec5b9803cf073e4723" title="Generic CPU kernel for the Helmholz matrix&#45;vector product." alt="" coords="233,56,424,83"/>
 <area shape="rect" id="node4" href="$d5/de3/namespaceax__helm__cpu.html#a47d667ad18923c5d64e0295e1824c94d" title=" " alt="" coords="225,107,432,133"/>
 <area shape="rect" id="node5" href="$d5/de3/namespaceax__helm__cpu.html#a369d40b72e804bc53677eb0db5f25f14" title=" " alt="" coords="225,157,432,184"/>
 <area shape="rect" id="node6" href="$d5/de3/namespaceax__helm__cpu.html#aaf164cbad5ed8953e4a4a47c41994c8d" title=" " alt="" coords="225,208,432,235"/>

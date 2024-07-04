@@ -37,6 +37,7 @@ var namespaces_dup =
     [ "case", "dd/da8/namespacecase.html", "dd/da8/namespacecase" ],
     [ "cg", "d9/df6/namespacecg.html", "d9/df6/namespacecg" ],
     [ "cg_device", "d6/d60/namespacecg__device.html", "d6/d60/namespacecg__device" ],
+    [ "cg_stress", "df/de3/namespacecg__stress.html", "df/de3/namespacecg__stress" ],
     [ "cg_sx", "d4/d31/namespacecg__sx.html", "d4/d31/namespacecg__sx" ],
     [ "checkpoint", "d3/d51/namespacecheckpoint.html", "d3/d51/namespacecheckpoint" ],
     [ "chkp_file", "dc/dcb/namespacechkp__file.html", "dc/dcb/namespacechkp__file" ],
@@ -494,8 +495,15 @@ var namespaces_dup =
       [ "pnpn_prs_res_factory", "d4/da7/namespacepnpn__res__fctry.html#a2a05588361ac357333932972572221b4", null ],
       [ "pnpn_vel_res_factory", "d4/da7/namespacepnpn__res__fctry.html#adb02732e6d139064729ed73e5f4f4a94", null ]
     ] ],
+    [ "pnpn_res_stress_cpu", "de/d0d/namespacepnpn__res__stress__cpu.html", "de/d0d/namespacepnpn__res__stress__cpu" ],
+    [ "pnpn_res_stress_device", "dd/d1f/namespacepnpn__res__stress__device.html", "dd/d1f/namespacepnpn__res__stress__device" ],
+    [ "pnpn_res_stress_fctry", "d5/d01/namespacepnpn__res__stress__fctry.html", [
+      [ "pnpn_prs_res_stress_factory", "d5/d01/namespacepnpn__res__stress__fctry.html#aa92ec12815281b000874ea091916f4bd", null ],
+      [ "pnpn_vel_res_stress_factory", "d5/d01/namespacepnpn__res__stress__fctry.html#af27d4267b7f2a53512ba525e308df8a4", null ]
+    ] ],
     [ "pnpn_res_sx", "d4/da3/namespacepnpn__res__sx.html", "d4/da3/namespacepnpn__res__sx" ],
     [ "pnpn_residual", "db/dea/namespacepnpn__residual.html", "db/dea/namespacepnpn__residual" ],
+    [ "pnpn_residual_stress", "d0/d56/namespacepnpn__residual__stress.html", "d0/d56/namespacepnpn__residual__stress" ],
     [ "point", "d8/dbc/namespacepoint.html", "d8/dbc/namespacepoint" ],
     [ "point_interpolator", "df/d77/namespacepoint__interpolator.html", "df/d77/namespacepoint__interpolator" ],
     [ "point_zone", "dc/d5f/namespacepoint__zone.html", "dc/d5f/namespacepoint__zone" ],

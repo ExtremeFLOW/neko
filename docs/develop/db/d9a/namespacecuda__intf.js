@@ -20,6 +20,7 @@ var namespacecuda__intf =
     [ "cudaEventCreateWithFlags", "d2/d4b/interfacecuda__intf_1_1cudaEventCreateWithFlags.html", "d2/d4b/interfacecuda__intf_1_1cudaEventCreateWithFlags" ],
     [ "cudaEventRecord", "d0/d6e/interfacecuda__intf_1_1cudaEventRecord.html", "d0/d6e/interfacecuda__intf_1_1cudaEventRecord" ],
     [ "cudaEventSynchronize", "d2/d2d/interfacecuda__intf_1_1cudaEventSynchronize.html", "d2/d2d/interfacecuda__intf_1_1cudaEventSynchronize" ],
+    [ "cudaGetDeviceCount", "dd/d59/interfacecuda__intf_1_1cudaGetDeviceCount.html", "dd/d59/interfacecuda__intf_1_1cudaGetDeviceCount" ],
     [ "cudaGetDevice", "d1/d5c/interfacecuda__intf_1_1cudaGetDevice.html", "d1/d5c/interfacecuda__intf_1_1cudaGetDevice" ],
     [ "cudaSetDevice", "de/d62/interfacecuda__intf_1_1cudaSetDevice.html", "de/d62/interfacecuda__intf_1_1cudaSetDevice" ],
     [ "cuda_device_name", "db/d9a/namespacecuda__intf.html#a05388b77b2bea0507b51694ea4bceb1f", null ],

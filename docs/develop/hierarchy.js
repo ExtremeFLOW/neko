@@ -103,6 +103,7 @@ var hierarchy =
     [ "cuda_intf::cudaEventSynchronize", "d2/d2d/interfacecuda__intf_1_1cudaEventSynchronize.html", null ],
     [ "cuda_intf::cudaFree", "d2/dde/interfacecuda__intf_1_1cudaFree.html", null ],
     [ "cuda_intf::cudaGetDevice", "d1/d5c/interfacecuda__intf_1_1cudaGetDevice.html", null ],
+    [ "cuda_intf::cudaGetDeviceCount", "dd/d59/interfacecuda__intf_1_1cudaGetDeviceCount.html", null ],
     [ "cuda_intf::cudaGetDeviceProperties", "df/d36/interfacecuda__intf_1_1cudaGetDeviceProperties.html", null ],
     [ "cuda_intf::cudaMalloc", "da/da7/interfacecuda__intf_1_1cudaMalloc.html", null ],
     [ "cuda_intf::cudaMemcpy", "d8/d48/interfacecuda__intf_1_1cudaMemcpy.html", null ],
@@ -226,6 +227,7 @@ var hierarchy =
     [ "device_math::hip_addsqr2s2", "d2/dc5/interfacedevice__math_1_1hip__addsqr2s2.html", null ],
     [ "ax_helm_device::hip_ax_helm", "da/dff/interfaceax__helm__device_1_1hip__ax__helm.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector.html", null ],
+    [ "ax_helm_device::hip_ax_helm_vector_part2", "d2/dae/interfaceax__helm__device_1_1hip__ax__helm__vector__part2.html", null ],
     [ "device_math::hip_cadd", "df/d88/interfacedevice__math_1_1hip__cadd.html", null ],
     [ "opr_device::hip_cdtp", "db/d39/interfaceopr__device_1_1hip__cdtp.html", null ],
     [ "device_math::hip_cfill", "df/d7e/interfacedevice__math_1_1hip__cfill.html", null ],
@@ -293,6 +295,7 @@ var hierarchy =
     [ "hip_intf::hipEventRecord", "d2/d17/interfacehip__intf_1_1hipEventRecord.html", null ],
     [ "hip_intf::hipEventSynchronize", "dd/dfb/interfacehip__intf_1_1hipEventSynchronize.html", null ],
     [ "hip_intf::hipFree", "d8/d3c/interfacehip__intf_1_1hipFree.html", null ],
+    [ "hip_intf::hipGetDeviceCount", "d7/d47/interfacehip__intf_1_1hipGetDeviceCount.html", null ],
     [ "hip_intf::hipMalloc", "d0/dee/interfacehip__intf_1_1hipMalloc.html", null ],
     [ "hip_intf::hipMemcpy", "d8/d3d/interfacehip__intf_1_1hipMemcpy.html", null ],
     [ "hip_intf::hipMemcpyAsync", "d7/d9d/interfacehip__intf_1_1hipMemcpyAsync.html", null ],
@@ -334,6 +337,7 @@ var hierarchy =
       [ "cacg::cacg_t", "de/d56/structcacg_1_1cacg__t.html", null ],
       [ "cg::cg_t", "db/d98/structcg_1_1cg__t.html", null ],
       [ "cg_device::cg_device_t", "dd/d8e/structcg__device_1_1cg__device__t.html", null ],
+      [ "cg_stress::cg_stress_t", "d3/da1/structcg__stress_1_1cg__stress__t.html", null ],
       [ "cg_sx::sx_cg_t", "d5/d34/structcg__sx_1_1sx__cg__t.html", null ],
       [ "fusedcg_cpld_device::fusedcg_cpld_device_t", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html", null ],
       [ "fusedcg_device::fusedcg_device_t", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html", null ],
@@ -409,12 +413,23 @@ var hierarchy =
     ] ],
     [ "precon::pc_update", "d0/d0b/interfaceprecon_1_1pc__update.html", null ],
     [ "pnpn_res_device::pnpn_prs_res_part1_hip", "d9/d08/interfacepnpn__res__device_1_1pnpn__prs__res__part1__hip.html", null ],
+    [ "pnpn_res_stress_device::pnpn_prs_res_part1_hip", "da/d09/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part1__hip.html", null ],
     [ "pnpn_res_device::pnpn_prs_res_part2_hip", "d6/df7/interfacepnpn__res__device_1_1pnpn__prs__res__part2__hip.html", null ],
+    [ "pnpn_res_stress_device::pnpn_prs_res_part2_hip", "d5/d4c/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part2__hip.html", null ],
     [ "pnpn_res_device::pnpn_prs_res_part3_hip", "dd/d12/interfacepnpn__res__device_1_1pnpn__prs__res__part3__hip.html", null ],
+    [ "pnpn_res_stress_device::pnpn_prs_res_part3_hip", "d8/d2b/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part3__hip.html", null ],
+    [ "pnpn_residual_stress::pnpn_prs_res_stress_t", "db/d04/structpnpn__residual__stress_1_1pnpn__prs__res__stress__t.html", [
+      [ "pnpn_res_stress_cpu::pnpn_prs_res_stress_cpu_t", "d2/d9c/structpnpn__res__stress__cpu_1_1pnpn__prs__res__stress__cpu__t.html", null ],
+      [ "pnpn_res_stress_device::pnpn_prs_res_stress_device_t", "de/d52/structpnpn__res__stress__device_1_1pnpn__prs__res__stress__device__t.html", null ]
+    ] ],
     [ "pnpn_residual::pnpn_prs_res_t", "d2/dc3/structpnpn__residual_1_1pnpn__prs__res__t.html", [
       [ "pnpn_res_cpu::pnpn_prs_res_cpu_t", "dc/d63/structpnpn__res__cpu_1_1pnpn__prs__res__cpu__t.html", null ],
       [ "pnpn_res_device::pnpn_prs_res_device_t", "dd/dd2/structpnpn__res__device_1_1pnpn__prs__res__device__t.html", null ],
       [ "pnpn_res_sx::pnpn_prs_res_sx_t", "dd/d92/structpnpn__res__sx_1_1pnpn__prs__res__sx__t.html", null ]
+    ] ],
+    [ "pnpn_residual_stress::pnpn_vel_res_stress_t", "d4/de6/structpnpn__residual__stress_1_1pnpn__vel__res__stress__t.html", [
+      [ "pnpn_res_stress_cpu::pnpn_vel_res_stress_cpu_t", "dd/db5/structpnpn__res__stress__cpu_1_1pnpn__vel__res__stress__cpu__t.html", null ],
+      [ "pnpn_res_stress_device::pnpn_vel_res_stress_device_t", "d1/d0c/structpnpn__res__stress__device_1_1pnpn__vel__res__stress__device__t.html", null ]
     ] ],
     [ "pnpn_residual::pnpn_vel_res_t", "d9/d51/structpnpn__residual_1_1pnpn__vel__res__t.html", [
       [ "pnpn_res_cpu::pnpn_vel_res_cpu_t", "d6/d0d/structpnpn__res__cpu_1_1pnpn__vel__res__cpu__t.html", null ],
@@ -422,6 +437,7 @@ var hierarchy =
       [ "pnpn_res_sx::pnpn_vel_res_sx_t", "d0/d28/structpnpn__res__sx_1_1pnpn__vel__res__sx__t.html", null ]
     ] ],
     [ "pnpn_res_device::pnpn_vel_res_update_hip", "d1/d79/interfacepnpn__res__device_1_1pnpn__vel__res__update__hip.html", null ],
+    [ "pnpn_res_stress_device::pnpn_vel_res_update_hip", "d3/d91/interfacepnpn__res__stress__device_1_1pnpn__vel__res__update__hip.html", null ],
     [ "point_interpolator::point_interpolator_t", "d6/d23/structpoint__interpolator_1_1point__interpolator__t.html", null ],
     [ "point::point_ptr", "d7/d33/structpoint_1_1point__ptr.html", null ],
     [ "point_zone::point_zone_criterion", "d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html", null ],
@@ -436,6 +452,7 @@ var hierarchy =
     [ "point_zone::point_zone_wrapper_t", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html", null ],
     [ "projection::projection_t", "d5/dcf/structprojection_1_1projection__t.html", null ],
     [ "pnpn_residual::prs_res", "dc/d18/interfacepnpn__residual_1_1prs__res.html", null ],
+    [ "pnpn_residual_stress::prs_res_stress", "d1/dd1/interfacepnpn__residual__stress_1_1prs__res__stress.html", null ],
     [ "stats::quantp_t", "d3/de2/structstats_1_1quantp__t.html", null ],
     [ "re2::re2v1_bc_t", "db/db1/structre2_1_1re2v1__bc__t.html", null ],
     [ "re2::re2v1_curve_t", "de/db0/structre2_1_1re2v1__curve__t.html", null ],
@@ -616,6 +633,7 @@ var hierarchy =
     [ "vector::vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", null ],
     [ "vector::vector_t", "d3/d5b/structvector_1_1vector__t.html", null ],
     [ "pnpn_residual::vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", null ],
+    [ "pnpn_residual_stress::vel_res_stress", "df/d83/interfacepnpn__residual__stress_1_1vel__res__stress.html", null ],
     [ "wall_model::wall_model_compute", "dc/dae/interfacewall__model_1_1wall__model__compute.html", null ],
     [ "wall_model::wall_model_free", "dd/d3e/interfacewall__model_1_1wall__model__free.html", null ],
     [ "wall_model::wall_model_init", "d5/db1/interfacewall__model_1_1wall__model__init.html", null ],

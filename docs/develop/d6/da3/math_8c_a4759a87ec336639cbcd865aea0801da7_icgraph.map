@@ -1,6 +1,6 @@
 <map id="opencl_rzero" name="opencl_rzero">
-<area shape="rect" id="node1" title=" " alt="" coords="475,334,580,361"/>
-<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title=" " alt="" coords="269,327,427,368"/>
+<area shape="rect" id="node1" title=" " alt="" coords="475,371,580,398"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title=" " alt="" coords="269,364,427,405"/>
 <area shape="rect" id="node3" href="$d6/d60/namespacecg__device.html#a6e1d10056d59ba4295673097d13ac0f4" title="Standard PCG solve." alt="" coords="33,5,193,47"/>
 <area shape="rect" id="node4" href="$d9/de3/namespaceadv__no__dealias.html#a0519c67dcd52d06a7d573563d262b3a5" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="19,71,207,112"/>
 <area shape="rect" id="node5" href="$d9/de3/namespaceadv__no__dealias.html#a9d79f1ebd827a5a7376b09d5cfc879a4" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="5,136,221,177"/>
@@ -10,6 +10,7 @@
 <area shape="rect" id="node9" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="23,400,204,441"/>
 <area shape="rect" id="node10" href="$da/d46/namespacepipecg__device.html#a97a1fd422c4c03f238038a1d3e8154fe" title="Pipelined PCG solve." alt="" coords="30,465,197,507"/>
 <area shape="rect" id="node11" href="$d8/dea/namespacepnpn__res__device.html#a59d926fd1cfc56254cdd2575d4b977ac" title=" " alt="" coords="18,531,209,572"/>
-<area shape="rect" id="node12" href="$d3/d06/namespaceprojection.html#a023ff9fc7cf5e43567c4414b4a30bdbc" title=" " alt="" coords="19,597,207,623"/>
-<area shape="rect" id="node13" href="$de/dcb/namespacesource__scalar.html#a49611bac6e580ca2b4fb3194e2e885d9" title="Eval routine for zero forcing." alt="" coords="32,648,195,689"/>
+<area shape="rect" id="node12" href="$dd/d1f/namespacepnpn__res__stress__device.html#ad79870e59f983bbe89231d1581579827" title=" " alt="" coords="25,597,202,653"/>
+<area shape="rect" id="node13" href="$d3/d06/namespaceprojection.html#a023ff9fc7cf5e43567c4414b4a30bdbc" title=" " alt="" coords="19,677,207,703"/>
+<area shape="rect" id="node14" href="$de/dcb/namespacesource__scalar.html#a49611bac6e580ca2b4fb3194e2e885d9" title="Eval routine for zero forcing." alt="" coords="32,728,195,769"/>
 </map>

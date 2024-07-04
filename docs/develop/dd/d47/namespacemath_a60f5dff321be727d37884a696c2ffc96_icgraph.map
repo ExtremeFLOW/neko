@@ -1,5 +1,6 @@
 <map id="math::add2s1" name="math::add2s1">
-<area shape="rect" id="node1" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="235,31,345,57"/>
-<area shape="rect" id="node2" href="$d5/de6/namespacefield__math.html#ae1526f9a2d0b7e9a137dbbd8af189186" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="5,5,187,32"/>
-<area shape="rect" id="node3" href="$d4/d31/namespacecg__sx.html#ad95ff640cfe7fb8cf4e04e7d05ff8434" title="Standard PCG solve." alt="" coords="23,56,169,83"/>
+<area shape="rect" id="node1" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="235,71,345,98"/>
+<area shape="rect" id="node2" href="$df/de3/namespacecg__stress.html#af906996bacd1e533213d934e5dc9b61a" title=" " alt="" coords="20,5,172,47"/>
+<area shape="rect" id="node3" href="$d5/de6/namespacefield__math.html#ae1526f9a2d0b7e9a137dbbd8af189186" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="5,71,187,98"/>
+<area shape="rect" id="node4" href="$d4/d31/namespacecg__sx.html#ad95ff640cfe7fb8cf4e04e7d05ff8434" title="Standard PCG solve." alt="" coords="23,122,169,149"/>
 </map>

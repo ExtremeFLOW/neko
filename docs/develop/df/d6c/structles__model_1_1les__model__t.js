@@ -8,5 +8,6 @@ var structles__model_1_1les__model__t =
     [ "init_base", "df/d6c/structles__model_1_1les__model__t.html#a4d2fcb3ad26566f9f6a6138724108dc8", null ],
     [ "coef", "df/d6c/structles__model_1_1les__model__t.html#a88e74cf930a38609615150c732fe7eb4", null ],
     [ "delta", "df/d6c/structles__model_1_1les__model__t.html#adff7913e3ddb4366ee27f42da74ee6c0", null ],
+    [ "delta_type", "df/d6c/structles__model_1_1les__model__t.html#a9193cd6c9259713e475e5810b4962a07", null ],
     [ "nut", "df/d6c/structles__model_1_1les__model__t.html#aa6fa550431995384eb358694987218ef", null ]
 ];

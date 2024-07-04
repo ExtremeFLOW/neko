@@ -6,6 +6,7 @@ var hip__intf_8F90 =
     [ "hipMemcpyAsync", "d7/d9d/interfacehip__intf_1_1hipMemcpyAsync.html", "d7/d9d/interfacehip__intf_1_1hipMemcpyAsync" ],
     [ "hipDeviceSynchronize", "d3/de8/interfacehip__intf_1_1hipDeviceSynchronize.html", "d3/de8/interfacehip__intf_1_1hipDeviceSynchronize" ],
     [ "hipDeviceGetName", "d1/da4/interfacehip__intf_1_1hipDeviceGetName.html", "d1/da4/interfacehip__intf_1_1hipDeviceGetName" ],
+    [ "hipGetDeviceCount", "d7/d47/interfacehip__intf_1_1hipGetDeviceCount.html", "d7/d47/interfacehip__intf_1_1hipGetDeviceCount" ],
     [ "hipStreamCreate", "de/d87/interfacehip__intf_1_1hipStreamCreate.html", "de/d87/interfacehip__intf_1_1hipStreamCreate" ],
     [ "hipStreamCreateWithFlags", "d0/d1f/interfacehip__intf_1_1hipStreamCreateWithFlags.html", "d0/d1f/interfacehip__intf_1_1hipStreamCreateWithFlags" ],
     [ "hipStreamCreateWithPriority", "d3/d66/interfacehip__intf_1_1hipStreamCreateWithPriority.html", "d3/d66/interfacehip__intf_1_1hipStreamCreateWithPriority" ],

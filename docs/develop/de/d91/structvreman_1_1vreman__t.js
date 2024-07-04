@@ -10,5 +10,6 @@ var structvreman_1_1vreman__t =
     [ "c", "de/d91/structvreman_1_1vreman__t.html#a069e98ff7819a74b39a1b818b5d40bcd", null ],
     [ "coef", "de/d91/structvreman_1_1vreman__t.html#a88e74cf930a38609615150c732fe7eb4", null ],
     [ "delta", "de/d91/structvreman_1_1vreman__t.html#adff7913e3ddb4366ee27f42da74ee6c0", null ],
+    [ "delta_type", "de/d91/structvreman_1_1vreman__t.html#a9193cd6c9259713e475e5810b4962a07", null ],
     [ "nut", "de/d91/structvreman_1_1vreman__t.html#aa6fa550431995384eb358694987218ef", null ]
 ];

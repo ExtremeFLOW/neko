@@ -1,7 +1,9 @@
 <map id="operators::strain_rate" name="operators::strain_rate">
-<area shape="rect" id="node1" title="Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i." alt="" coords="523,57,685,84"/>
+<area shape="rect" id="node1" title="Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i." alt="" coords="523,140,685,167"/>
 <area shape="rect" id="node2" href="$da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6" title="Compute eddy viscosity on the CPU." alt="" coords="258,5,465,61"/>
-<area shape="rect" id="node4" href="$dd/d73/namespacesmagorinsky__cpu.html#a4c7509e1ca11400eb45a26eaa7ce4de8" title="Compute eddy viscosity on the CPU." alt="" coords="248,86,475,127"/>
+<area shape="rect" id="node4" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a65abda9efa01dca34d23bec127576d73" title=" " alt="" coords="280,85,443,141"/>
+<area shape="rect" id="node5" href="$dd/d1f/namespacepnpn__res__stress__device.html#ad79870e59f983bbe89231d1581579827" title=" " alt="" coords="273,165,450,221"/>
+<area shape="rect" id="node6" href="$dd/d73/namespacesmagorinsky__cpu.html#a4c7509e1ca11400eb45a26eaa7ce4de8" title="Compute eddy viscosity on the CPU." alt="" coords="248,246,475,287"/>
 <area shape="rect" id="node3" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="15,5,191,61"/>
-<area shape="rect" id="node5" href="$d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="5,86,200,127"/>
+<area shape="rect" id="node7" href="$d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="5,246,200,287"/>
 </map>

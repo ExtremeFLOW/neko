@@ -33,7 +33,8 @@ var annotated_dup =
     [ "ax_helm_device", "d7/d82/namespaceax__helm__device.html", [
       [ "ax_helm_device_t", "d7/d68/structax__helm__device_1_1ax__helm__device__t.html", "d7/d68/structax__helm__device_1_1ax__helm__device__t" ],
       [ "hip_ax_helm", "da/dff/interfaceax__helm__device_1_1hip__ax__helm.html", "da/dff/interfaceax__helm__device_1_1hip__ax__helm" ],
-      [ "hip_ax_helm_vector", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector.html", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector" ]
+      [ "hip_ax_helm_vector", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector.html", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector" ],
+      [ "hip_ax_helm_vector_part2", "d2/dae/interfaceax__helm__device_1_1hip__ax__helm__vector__part2.html", "d2/dae/interfaceax__helm__device_1_1hip__ax__helm__vector__part2" ]
     ] ],
     [ "ax_helm_full", "d5/d19/namespaceax__helm__full.html", [
       [ "ax_helm_full_t", "d8/d81/structax__helm__full_1_1ax__helm__full__t.html", "d8/d81/structax__helm__full_1_1ax__helm__full__t" ]
@@ -94,6 +95,9 @@ var annotated_dup =
     [ "cg_device", "d6/d60/namespacecg__device.html", [
       [ "cg_device_t", "dd/d8e/structcg__device_1_1cg__device__t.html", "dd/d8e/structcg__device_1_1cg__device__t" ]
     ] ],
+    [ "cg_stress", "df/de3/namespacecg__stress.html", [
+      [ "cg_stress_t", "d3/da1/structcg__stress_1_1cg__stress__t.html", "d3/da1/structcg__stress_1_1cg__stress__t" ]
+    ] ],
     [ "cg_sx", "d4/d31/namespacecg__sx.html", [
       [ "sx_cg_t", "d5/d34/structcg__sx_1_1sx__cg__t.html", "d5/d34/structcg__sx_1_1sx__cg__t" ]
     ] ],
@@ -143,6 +147,7 @@ var annotated_dup =
       [ "cudaEventCreateWithFlags", "d2/d4b/interfacecuda__intf_1_1cudaEventCreateWithFlags.html", "d2/d4b/interfacecuda__intf_1_1cudaEventCreateWithFlags" ],
       [ "cudaEventRecord", "d0/d6e/interfacecuda__intf_1_1cudaEventRecord.html", "d0/d6e/interfacecuda__intf_1_1cudaEventRecord" ],
       [ "cudaEventSynchronize", "d2/d2d/interfacecuda__intf_1_1cudaEventSynchronize.html", "d2/d2d/interfacecuda__intf_1_1cudaEventSynchronize" ],
+      [ "cudaGetDeviceCount", "dd/d59/interfacecuda__intf_1_1cudaGetDeviceCount.html", "dd/d59/interfacecuda__intf_1_1cudaGetDeviceCount" ],
       [ "cudaGetDevice", "d1/d5c/interfacecuda__intf_1_1cudaGetDevice.html", "d1/d5c/interfacecuda__intf_1_1cudaGetDevice" ],
       [ "cudaSetDevice", "de/d62/interfacecuda__intf_1_1cudaSetDevice.html", "de/d62/interfacecuda__intf_1_1cudaSetDevice" ]
     ] ],
@@ -466,6 +471,7 @@ var annotated_dup =
       [ "hipMemcpyAsync", "d7/d9d/interfacehip__intf_1_1hipMemcpyAsync.html", "d7/d9d/interfacehip__intf_1_1hipMemcpyAsync" ],
       [ "hipDeviceSynchronize", "d3/de8/interfacehip__intf_1_1hipDeviceSynchronize.html", "d3/de8/interfacehip__intf_1_1hipDeviceSynchronize" ],
       [ "hipDeviceGetName", "d1/da4/interfacehip__intf_1_1hipDeviceGetName.html", "d1/da4/interfacehip__intf_1_1hipDeviceGetName" ],
+      [ "hipGetDeviceCount", "d7/d47/interfacehip__intf_1_1hipGetDeviceCount.html", "d7/d47/interfacehip__intf_1_1hipGetDeviceCount" ],
       [ "hipStreamCreate", "de/d87/interfacehip__intf_1_1hipStreamCreate.html", "de/d87/interfacehip__intf_1_1hipStreamCreate" ],
       [ "hipStreamCreateWithFlags", "d0/d1f/interfacehip__intf_1_1hipStreamCreateWithFlags.html", "d0/d1f/interfacehip__intf_1_1hipStreamCreateWithFlags" ],
       [ "hipStreamCreateWithPriority", "d3/d66/interfacehip__intf_1_1hipStreamCreateWithPriority.html", "d3/d66/interfacehip__intf_1_1hipStreamCreateWithPriority" ],
@@ -688,6 +694,18 @@ var annotated_dup =
       [ "pnpn_prs_res_part3_hip", "dd/d12/interfacepnpn__res__device_1_1pnpn__prs__res__part3__hip.html", "dd/d12/interfacepnpn__res__device_1_1pnpn__prs__res__part3__hip" ],
       [ "pnpn_vel_res_update_hip", "d1/d79/interfacepnpn__res__device_1_1pnpn__vel__res__update__hip.html", "d1/d79/interfacepnpn__res__device_1_1pnpn__vel__res__update__hip" ]
     ] ],
+    [ "pnpn_res_stress_cpu", "de/d0d/namespacepnpn__res__stress__cpu.html", [
+      [ "pnpn_prs_res_stress_cpu_t", "d2/d9c/structpnpn__res__stress__cpu_1_1pnpn__prs__res__stress__cpu__t.html", "d2/d9c/structpnpn__res__stress__cpu_1_1pnpn__prs__res__stress__cpu__t" ],
+      [ "pnpn_vel_res_stress_cpu_t", "dd/db5/structpnpn__res__stress__cpu_1_1pnpn__vel__res__stress__cpu__t.html", "dd/db5/structpnpn__res__stress__cpu_1_1pnpn__vel__res__stress__cpu__t" ]
+    ] ],
+    [ "pnpn_res_stress_device", "dd/d1f/namespacepnpn__res__stress__device.html", [
+      [ "pnpn_prs_res_stress_device_t", "de/d52/structpnpn__res__stress__device_1_1pnpn__prs__res__stress__device__t.html", "de/d52/structpnpn__res__stress__device_1_1pnpn__prs__res__stress__device__t" ],
+      [ "pnpn_vel_res_stress_device_t", "d1/d0c/structpnpn__res__stress__device_1_1pnpn__vel__res__stress__device__t.html", "d1/d0c/structpnpn__res__stress__device_1_1pnpn__vel__res__stress__device__t" ],
+      [ "pnpn_prs_res_part1_hip", "da/d09/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part1__hip.html", "da/d09/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part1__hip" ],
+      [ "pnpn_prs_res_part2_hip", "d5/d4c/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part2__hip.html", "d5/d4c/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part2__hip" ],
+      [ "pnpn_prs_res_part3_hip", "d8/d2b/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part3__hip.html", "d8/d2b/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part3__hip" ],
+      [ "pnpn_vel_res_update_hip", "d3/d91/interfacepnpn__res__stress__device_1_1pnpn__vel__res__update__hip.html", "d3/d91/interfacepnpn__res__stress__device_1_1pnpn__vel__res__update__hip" ]
+    ] ],
     [ "pnpn_res_sx", "d4/da3/namespacepnpn__res__sx.html", [
       [ "pnpn_prs_res_sx_t", "dd/d92/structpnpn__res__sx_1_1pnpn__prs__res__sx__t.html", "dd/d92/structpnpn__res__sx_1_1pnpn__prs__res__sx__t" ],
       [ "pnpn_vel_res_sx_t", "d0/d28/structpnpn__res__sx_1_1pnpn__vel__res__sx__t.html", "d0/d28/structpnpn__res__sx_1_1pnpn__vel__res__sx__t" ]
@@ -697,6 +715,12 @@ var annotated_dup =
       [ "pnpn_vel_res_t", "d9/d51/structpnpn__residual_1_1pnpn__vel__res__t.html", "d9/d51/structpnpn__residual_1_1pnpn__vel__res__t" ],
       [ "prs_res", "dc/d18/interfacepnpn__residual_1_1prs__res.html", "dc/d18/interfacepnpn__residual_1_1prs__res" ],
       [ "vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", "dd/d55/interfacepnpn__residual_1_1vel__res" ]
+    ] ],
+    [ "pnpn_residual_stress", "d0/d56/namespacepnpn__residual__stress.html", [
+      [ "pnpn_prs_res_stress_t", "db/d04/structpnpn__residual__stress_1_1pnpn__prs__res__stress__t.html", "db/d04/structpnpn__residual__stress_1_1pnpn__prs__res__stress__t" ],
+      [ "pnpn_vel_res_stress_t", "d4/de6/structpnpn__residual__stress_1_1pnpn__vel__res__stress__t.html", "d4/de6/structpnpn__residual__stress_1_1pnpn__vel__res__stress__t" ],
+      [ "prs_res_stress", "d1/dd1/interfacepnpn__residual__stress_1_1prs__res__stress.html", "d1/dd1/interfacepnpn__residual__stress_1_1prs__res__stress" ],
+      [ "vel_res_stress", "df/d83/interfacepnpn__residual__stress_1_1vel__res__stress.html", "df/d83/interfacepnpn__residual__stress_1_1vel__res__stress" ]
     ] ],
     [ "point", "d8/dbc/namespacepoint.html", [
       [ "point_t", "db/d6f/structpoint_1_1point__t.html", "db/d6f/structpoint_1_1point__t" ],

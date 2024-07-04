@@ -10,5 +10,6 @@ var structsigma_1_1sigma__t =
     [ "c", "d2/dae/structsigma_1_1sigma__t.html#a8c56e99a13876d4cdcc7cbd22317140d", null ],
     [ "coef", "d2/dae/structsigma_1_1sigma__t.html#a88e74cf930a38609615150c732fe7eb4", null ],
     [ "delta", "d2/dae/structsigma_1_1sigma__t.html#adff7913e3ddb4366ee27f42da74ee6c0", null ],
+    [ "delta_type", "d2/dae/structsigma_1_1sigma__t.html#a9193cd6c9259713e475e5810b4962a07", null ],
     [ "nut", "d2/dae/structsigma_1_1sigma__t.html#aa6fa550431995384eb358694987218ef", null ]
 ];

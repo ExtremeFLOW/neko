@@ -111,7 +111,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a718fc14929c63ea835feada5f0f152b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the product.  <a href="../../d5/de3/namespaceax__helm__cpu.html#a718fc14929c63ea835feada5f0f152b3">More...</a><br /></td></tr>
 <tr class="separator:a718fc14929c63ea835feada5f0f152b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39b72db45e1e8cec5b9803cf073e4723"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/de3/namespaceax__helm__cpu.html#a39b72db45e1e8cec5b9803cf073e4723">ax_helm_lx</a> (w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, h1, G11, G22, G33, G12, G13, G23, n, lx)</td></tr>
-<tr class="memdesc:a39b72db45e1e8cec5b9803cf073e4723"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic CPU kernel for the Helmholtz matrix-vector product.  <a href="../../d5/de3/namespaceax__helm__cpu.html#a39b72db45e1e8cec5b9803cf073e4723">More...</a><br /></td></tr>
+<tr class="memdesc:a39b72db45e1e8cec5b9803cf073e4723"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic CPU kernel for the Helmholz matrix-vector product.  <a href="../../d5/de3/namespaceax__helm__cpu.html#a39b72db45e1e8cec5b9803cf073e4723">More...</a><br /></td></tr>
 <tr class="separator:a39b72db45e1e8cec5b9803cf073e4723"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab3918202afa427b37a99ec8b7a6eb045"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/de3/namespaceax__helm__cpu.html#ab3918202afa427b37a99ec8b7a6eb045">ax_helm_lx14</a> (w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, h1, G11, G22, G33, G12, G13, G23, n)</td></tr>
 <tr class="separator:ab3918202afa427b37a99ec8b7a6eb045"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -204,7 +204,7 @@ Here is the call graph for this function:</div>
 <map name="ad5/de3/namespaceax__helm__cpu_a718fc14929c63ea835feada5f0f152b3_cgraph" id="ad5/de3/namespaceax__helm__cpu_a718fc14929c63ea835feada5f0f152b3_cgraph">
 <area shape="rect" title="Compute the product." alt="" coords="5,353,177,394"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#a7addeb46379b324b5c69d5ec07cef0bd" title="Returns ." alt="" coords="271,5,386,32"/>
-<area shape="rect" href="../../d5/de3/namespaceax__helm__cpu.html#a39b72db45e1e8cec5b9803cf073e4723" title="Generic CPU kernel for the Helmholtz matrix&#45;vector product." alt="" coords="233,56,424,83"/>
+<area shape="rect" href="../../d5/de3/namespaceax__helm__cpu.html#a39b72db45e1e8cec5b9803cf073e4723" title="Generic CPU kernel for the Helmholz matrix&#45;vector product." alt="" coords="233,56,424,83"/>
 <area shape="rect" href="../../d5/de3/namespaceax__helm__cpu.html#a47d667ad18923c5d64e0295e1824c94d" title=" " alt="" coords="225,107,432,133"/>
 <area shape="rect" href="../../d5/de3/namespaceax__helm__cpu.html#a369d40b72e804bc53677eb0db5f25f14" title=" " alt="" coords="225,157,432,184"/>
 <area shape="rect" href="../../d5/de3/namespaceax__helm__cpu.html#aaf164cbad5ed8953e4a4a47c41994c8d" title=" " alt="" coords="225,208,432,235"/>
@@ -346,14 +346,30 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">w</td><td>Result. </td></tr>
+    <tr><td class="paramname">u</td><td>Velocity field. </td></tr>
+    <tr><td class="paramname">Dx</td><td>Derivative operator in first dimension. </td></tr>
+    <tr><td class="paramname">Dy</td><td>Derivative operator in second dimension. </td></tr>
+    <tr><td class="paramname">Dz</td><td>Derivative operator in third dimension. </td></tr>
+    <tr><td class="paramname">Dxt</td><td>Derivative operator transpose in first dimension. </td></tr>
+    <tr><td class="paramname">Dyt</td><td>Derivative operator transpose in second dimension. </td></tr>
+    <tr><td class="paramname">Dzt</td><td>Derivative operator transpose in third dimension. </td></tr>
+    <tr><td class="paramname">G11</td><td>Geometric factor. </td></tr>
+    <tr><td class="paramname">n</td><td>Number of elements. </td></tr>
+    <tr><td class="paramname">lx</td><td>Polynomial order. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00119">119</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00144">144</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d5/de3/namespaceax__helm__cpu_a39b72db45e1e8cec5b9803cf073e4723_icgraph.png" border="0" usemap="#ad5/de3/namespaceax__helm__cpu_a39b72db45e1e8cec5b9803cf073e4723_icgraph" alt=""/></div>
 <map name="ad5/de3/namespaceax__helm__cpu_a39b72db45e1e8cec5b9803cf073e4723_icgraph" id="ad5/de3/namespaceax__helm__cpu_a39b72db45e1e8cec5b9803cf073e4723_icgraph">
-<area shape="rect" title="Generic CPU kernel for the Helmholtz matrix&#45;vector product." alt="" coords="225,13,416,39"/>
+<area shape="rect" title="Generic CPU kernel for the Helmholz matrix&#45;vector product." alt="" coords="225,13,416,39"/>
 <area shape="rect" href="../../d5/de3/namespaceax__helm__cpu.html#a718fc14929c63ea835feada5f0f152b3" title="Compute the product." alt="" coords="5,5,177,47"/>
 </map>
 </div>
@@ -478,7 +494,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00858">858</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00883">883</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -609,7 +625,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00710">710</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00735">735</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -740,7 +756,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00556">556</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00581">581</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -871,7 +887,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00395">395</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00420">420</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1002,7 +1018,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00229">229</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l00254">254</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1133,7 +1149,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01826">1826</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01851">1851</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1264,7 +1280,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01726">1726</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01751">1751</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1395,7 +1411,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01620">1620</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01645">1645</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1526,7 +1542,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01508">1508</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01533">1533</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1657,7 +1673,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01390">1390</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01415">1415</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1788,7 +1804,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01266">1266</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01291">1291</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1919,7 +1935,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01136">1136</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01161">1161</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2050,7 +2066,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01000">1000</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html#l01025">1025</a> of file <a class="el" href="../../dd/da6/ax__helm__cpu_8f90_source.html">ax_helm_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2069,7 +2085,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d5/de3/namespaceax__helm__cpu.html">ax_helm_cpu</a></li>
-    <li class="footer">Generated on Wed Jul 3 2024 03:34:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Thu Jul 4 2024 03:34:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

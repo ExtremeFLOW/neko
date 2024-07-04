@@ -1,5 +1,6 @@
 <map id="math::vdot3" name="math::vdot3">
-<area shape="rect" id="node1" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="224,42,325,69"/>
+<area shape="rect" id="node1" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="224,71,325,98"/>
 <area shape="rect" id="node2" href="$d9/df7/namespaceadv__dealias.html#aa8bd4106a15ecc382579a2712d33bdf2" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="8,5,173,47"/>
 <area shape="rect" id="node3" href="$d5/de6/namespacefield__math.html#a46ed9eebaaafc201257988607f5baf4d" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="5,71,176,98"/>
+<area shape="rect" id="node4" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a65abda9efa01dca34d23bec127576d73" title=" " alt="" coords="9,122,172,178"/>
 </map>

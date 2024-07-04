@@ -9,6 +9,7 @@ var structdynamic__smagorinsky_1_1dynamic__smagorinsky__t =
     [ "c_dyn", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#adc301c10d0f6627209dc3d507f4f2378", null ],
     [ "coef", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#a88e74cf930a38609615150c732fe7eb4", null ],
     [ "delta", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#adff7913e3ddb4366ee27f42da74ee6c0", null ],
+    [ "delta_type", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#a9193cd6c9259713e475e5810b4962a07", null ],
     [ "den", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#a04d10acd7fd5ccdf00393679e8202070", null ],
     [ "lij", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#a9c69c5762e2b7a5859ced3849bef191f", null ],
     [ "mij", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#ab884cb37bd08d64f60f53e1ed93b92d9", null ],
