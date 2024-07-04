@@ -97,12 +97,12 @@ module math
   end interface relcmp
 
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
-       glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
-       vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
-       add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
-       add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
-       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv
+    glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
+    vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
+    add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
+    add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
+    glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
+    swap, reord, flipv
 
 contains
 
@@ -142,10 +142,11 @@ contains
     real(kind=sp), intent(in) :: y
     real(kind=sp), intent(in), optional :: eps
     logical :: srelcmp
+
     if (present(eps)) then
-       srelcmp = abs(x - y) .le. eps*abs(y)
+       srelcmp = abs(x - y) .le. abs(y) * eps
     else
-       srelcmp = abs(x - y) .le. NEKO_EPS*abs(y)
+       srelcmp = abs(x - y) .le. abs(y) * NEKO_EPS
     end if
 
   end function srelcmp
@@ -156,10 +157,11 @@ contains
     real(kind=dp), intent(in) :: y
     real(kind=dp), intent(in), optional :: eps
     logical :: drelcmp
+
     if (present(eps)) then
-       drelcmp = abs(x - y) .le. eps*abs(y)
+       drelcmp = abs(x - y) .le. abs(y) * eps
     else
-       drelcmp = abs(x - y) .le. NEKO_EPS*abs(y)
+       drelcmp = abs(x - y) .le. abs(y) * NEKO_EPS
     end if
 
   end function drelcmp
@@ -172,9 +174,9 @@ contains
     real(kind=qp), intent(in), optional :: eps
     logical :: qrelcmp
     if (present(eps)) then
-       qrelcmp = abs(x - y)/abs(y) .lt. eps
+       qrelcmp = abs(x - y) .le. abs(y) * eps
     else
-       qrelcmp = abs(x - y)/abs(y) .lt. NEKO_EPS
+       qrelcmp = abs(x - y) .le. abs(y) * NEKO_EPS
     end if
 
   end function qrelcmp
@@ -183,22 +185,18 @@ contains
   subroutine rzero(a, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    integer :: i
 
-    do i = 1, n
-       a(i) = 0.0_rp
-    end do
+    a = 0.0_rp
+
   end subroutine rzero
 
   !> Zero an integer vector
   subroutine izero(a, n)
     integer, intent(in) :: n
     integer, dimension(n), intent(inout) :: a
-    integer :: i
 
-    do i = 1, n
-       a(i) = 0
-    end do
+    a = 0
+
   end subroutine izero
 
   !> Sets row e to 0 in matrix a
@@ -207,7 +205,7 @@ contains
     real(kind=rp), intent(inout) :: a(m,n)
     integer :: j
 
-    do j = 1,n
+    do j = 1, n
        a(e,j) = 0.0_rp
     end do
   end subroutine row_zero
@@ -216,23 +214,18 @@ contains
   subroutine rone(a, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    integer :: i
 
-    do i = 1, n
-       a(i) = 1.0_rp
-    end do
+    a = 1.0_rp
+
   end subroutine rone
 
   !> Copy a vector \f$ a = b \f$
   subroutine copy(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(inout) :: a
-    integer :: i
+    real(kind=rp), dimension(n), intent(out) :: a
 
-    do i = 1, n
-       a(i) = b(i)
-    end do
+    a = b
 
   end subroutine copy
 
@@ -246,7 +239,7 @@ contains
   subroutine masked_copy(a, b, mask, n, m)
     integer, intent(in) :: n, m
     real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(out) :: a
     integer, dimension(0:m) :: mask
     integer :: i, j
 
@@ -278,11 +271,9 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: c
-    integer :: i
 
-    do i = 1, n
-       a(i) = c * a(i)
-    end do
+    a = c * a
+
   end subroutine cmult
 
   !> Add a scalar to vector \f$ a = \sum a_i + s \f$
@@ -290,94 +281,81 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: s
-    integer :: i
 
-    do i = 1, n
-       a(i) = a(i) + s
-    end do
+    a = a + s
+
   end subroutine cadd
 
   !> Set all elements to a constant c \f$ a = c \f$
   subroutine cfill(a, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(out) :: a
     real(kind=rp), intent(in) :: c
-    integer :: i
 
-    do i = 1, n
-       a(i) = c
-    end do
+    a = c
+
   end subroutine cfill
 
-  !>Sum a vector of length n
+  !> Sum a vector of length n
   function glsum(a, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n) :: a
+    real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp) :: tmp, glsum
-    integer :: i, ierr
-    tmp = 0.0_rp
-    do i = 1, n
-       tmp = tmp + a(i)
-    end do
+    integer :: ierr
+
+    tmp = sum(a)
     call MPI_Allreduce(tmp, glsum, 1, &
                        MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsum
 
-  !>Max of a vector of length n
+  !> Max of a vector of length n
   function glmax(a, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n) :: a
+    real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp) :: tmp, glmax
-    integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
-       tmp = max(tmp,a(i))
-    end do
+    integer :: ierr
+
+    tmp = maxval(a)
     call MPI_Allreduce(tmp, glmax, 1, &
                        MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
   end function glmax
 
-  !>Max of an integer vector of length n
+  !> Max of an integer vector of length n
   function glimax(a, n)
     integer, intent(in) :: n
-    integer, dimension(n) :: a
+    integer, dimension(n), intent(in) :: a
     integer :: tmp, glimax
-    integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
-       tmp = max(tmp,a(i))
-    end do
+    integer :: ierr
+
+    tmp = maxval(a)
     call MPI_Allreduce(tmp, glimax, 1, &
                        MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
   end function glimax
 
-  !>Min of a vector of length n
+  !> Min of a vector of length n
   function glmin(a, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n) :: a
+    real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp) :: tmp, glmin
-    integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
-       tmp = min(tmp,a(i))
-    end do
+    integer :: ierr
+
+    tmp = minval(a)
     call MPI_Allreduce(tmp, glmin, 1, &
                        MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
   end function glmin
 
-  !>Min of an integer vector of length n
+  !> Min of an integer vector of length n
   function glimin(a, n)
     integer, intent(in) :: n
-    integer, dimension(n) :: a
+    integer, dimension(n), intent(in) :: a
     integer :: tmp, glimin
-    integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
-       tmp = min(tmp,a(i))
-    end do
+    integer :: ierr
+
+    tmp = minval(a)
     call MPI_Allreduce(tmp, glimin, 1, &
                        MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
+
   end function glimin
 
 
@@ -389,33 +367,28 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
-       a(i) = -a(i)
-    end do
+    a = -a
 
   end subroutine chsign
 
   !> maximum value of a vector of length @a n
-  function vlmax(vec,n) result(tmax)
+  function vlmax(vec, n) result(tmax)
     integer :: n, i
     real(kind=rp), intent(in) :: vec(n)
     real(kind=rp) :: tmax
-    tmax = real(-99d20, rp)
-    do i =1,n
-       tmax = max(tmax,vec(i))
-    end do
+
+    tmax = maxval(vec)
+
   end function vlmax
 
   !> minimun value of a vector of length @a n
-  function vlmin(vec,n) result(tmin)
+  function vlmin(vec, n) result(tmin)
     integer, intent(in) :: n
     real(kind=rp), intent(in) :: vec(n)
     real(kind=rp) :: tmin
-    integer :: i
-    tmin = real(99.0e20, rp)
-    do i =1,n
-       tmin = min(tmin,vec(i))
-    end do
+
+    tmin = minval(vec)
+
   end function vlmin
 
   !> Invert a vector \f$ a = 1 / a \f$
@@ -424,35 +397,27 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
-       a(i) = 1.0_rp / a(i)
-    end do
+    a = 1.0_rp / a
 
   end subroutine invcol1
 
   !> Invert a vector \f$ a = b / c \f$
   subroutine invcol3(a, b, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b,c
-    integer :: i
+    real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(in) :: b, c
 
-    do i = 1, n
-       a(i) = b(i) / c(i)
-    end do
+    a = b / c
 
   end subroutine invcol3
 
   !> Compute inverted vector \f$ a = 1 / b \f$
   subroutine invers2(a, b, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(out) :: a
     real(kind=rp), dimension(n), intent(in) :: b
-    integer :: i
 
-    do i = 1, n
-       a(i) = 1.0_rp / b(i)
-    end do
+    a = 1.0_rp / b
 
   end subroutine invers2
 
@@ -465,11 +430,9 @@ contains
     real(kind=rp), dimension(n), intent(out) :: u1, u2, u3
     integer :: i
 
-    do i = 1, n
-       u1(i) = v2(i)*w3(i) - v3(i)*w2(i)
-       u2(i) = v3(i)*w1(i) - v1(i)*w3(i)
-       u3(i) = v1(i)*w2(i) - v2(i)*w1(i)
-    end do
+    u1 = v2 * w3 - v3 * w2
+    u2 = v3 * w1 - v1 * w3
+    u3 = v1 * w2 - v2 * w1
 
   end subroutine vcross
 
@@ -480,10 +443,8 @@ contains
     real(kind=rp), dimension(n), intent(in) :: u1, u2
     real(kind=rp), dimension(n), intent(in) :: v1, v2
     real(kind=rp), dimension(n), intent(out) :: dot
-    integer :: i
-    do i = 1, n
-       dot(i) = u1(i)*v1(i) + u2(i)*v2(i)
-    end do
+
+    dot = u1 * v1 + u2 * v2
 
   end subroutine vdot2
 
@@ -494,11 +455,8 @@ contains
     real(kind=rp), dimension(n), intent(in) :: u1, u2, u3
     real(kind=rp), dimension(n), intent(in) :: v1, v2, v3
     real(kind=rp), dimension(n), intent(out) :: dot
-    integer :: i
 
-    do i = 1, n
-       dot(i) = u1(i)*v1(i) + u2(i)*v2(i) + u3(i)*v3(i)
-    end do
+    dot = u1 * v1 + u2 * v2 + u3 * v3
 
   end subroutine vdot3
 
@@ -507,12 +465,8 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: u, v, w
     real(kind=rp) :: s
-    integer :: i
 
-    s = 0.0_rp
-    do i = 1, n
-       s = s + u(i)*v(i)*w(i)
-    end do
+    s = sum(u * v * w)
 
   end function vlsc3
 
@@ -523,10 +477,7 @@ contains
     real(kind=rp) :: s
     integer :: i
 
-    s = 0.0_rp
-    do i = 1, n
-       s = s + u(i)*v(i)
-    end do
+    s = sum(u * v)
 
   end function vlsc2
 
@@ -535,40 +486,28 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
-    integer :: i
 
-    do i = 1, n
-       a(i) = a(i) + b(i)
-    end do
+    a = a + b
 
   end subroutine add2
 
   !> Vector addition \f$ a = b + c \f$
   subroutine add3(a, b, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
     real(kind=rp), dimension(n), intent(out) :: a
-    integer :: i
+    real(kind=rp), dimension(n), intent(in) :: b, c
 
-    do i = 1, n
-       a(i) = b(i) + c(i)
-    end do
+    a = b + c
 
   end subroutine add3
 
   !> Vector addition \f$ a = b + c + d\f$
   subroutine add4(a, b, c, d, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: d
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
     real(kind=rp), dimension(n), intent(out) :: a
-    integer :: i
+    real(kind=rp), dimension(n), intent(in) :: b, c, d
 
-    do i = 1, n
-       a(i) = b(i) + c(i) + d(i)
-    end do
+    a = b + c + d
 
   end subroutine add4
 
@@ -576,26 +515,19 @@ contains
   subroutine sub2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
-    integer :: i
+    real(kind=rp), dimension(n), intent(in) :: b
 
-    do i = 1, n
-       a(i) = a(i) - b(i)
-    end do
+    a = a - b
 
   end subroutine sub2
 
   !> Vector subtraction \f$ a = b - c \f$
   subroutine sub3(a, b, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
     real(kind=rp), dimension(n), intent(out) :: a
-    integer :: i
+    real(kind=rp), dimension(n), intent(in) :: b, c
 
-    do i = 1, n
-       a(i) = b(i) - c(i)
-    end do
+    a = b - c
 
   end subroutine sub3
 
@@ -605,56 +537,44 @@ contains
   subroutine add2s1(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c1
-    integer :: i
 
-    do i = 1, n
-       a(i) = c1 * a(i) + b(i)
-    end do
+    a = c1 * a + b
 
   end subroutine add2s1
 
-  !> Vector addition with scalar multiplication  \f$ a = a + c_1 b \f$
+  !> Vector addition with scalar multiplication \f$ a = a + c_1 b \f$
   !! (multiplication on second argument)
   subroutine add2s2(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c1
-    integer :: i
 
-    do i = 1, n
-       a(i) = a(i) + c1 * b(i)
-    end do
+    a = a + c1 * b
 
   end subroutine add2s2
 
-  !> Returns \f$ a = a + c1 * (b * b )\f$
+  !> Returns \f$ a = a + c1 * (b * b)\f$
   subroutine addsqr2s2(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c1
-    integer :: i
 
-    do i = 1,n
-       a(i) = a(i) + c1 * ( b(i) * b(i) )
-    end do
+    a = a + c1 * (b * b)
 
   end subroutine addsqr2s2
 
   !> Multiplication by constant c \f$ a = c \cdot b \f$
   subroutine cmult2(a, b, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(out) :: a
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c
-    integer :: i
 
-    do i = 1, n
-       a(i) = c * b(i)
-    end do
+    a = c * b
 
   end subroutine cmult2
 
@@ -663,11 +583,8 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
-    integer :: i
 
-    do i = 1, n
-       a(i) = a(i) /b(i)
-    end do
+    a = a / b
 
   end subroutine invcol2
 
@@ -677,25 +594,18 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
-    integer :: i
 
-    do i = 1, n
-       a(i) = a(i) * b(i)
-    end do
+    a = a * b
 
   end subroutine col2
 
-  !> Vector multiplication with 3 vectors \f$ a =  b \cdot c \f$
+  !> Vector multiplication with 3 vectors \f$ a = b \cdot c \f$
   subroutine col3(a, b, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
-    integer :: i
+    real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(in) :: b, c
 
-    do i = 1, n
-       a(i) = b(i) * c(i)
-    end do
+    a = b * c
 
   end subroutine col3
 
@@ -703,28 +613,20 @@ contains
   subroutine subcol3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
-    integer :: i
+    real(kind=rp), dimension(n), intent(in) :: b, c
 
-    do i = 1,n
-       a(i) = a(i) - b(i) * c(i)
-    end do
+    a = a - b * c
 
   end subroutine subcol3
 
   !> Returns \f$ a = c1 * b + c2 * c \f$
   subroutine add3s2(a, b, c, c1, c2 ,n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(in) :: b, c
     real(kind=rp), intent(in) :: c1, c2
-    integer :: i
 
-    do i = 1,n
-       a(i) = c1 * b(i) + c2 * c(i)
-    end do
+    a = c1 * b + c2 * c
 
   end subroutine add3s2
 
@@ -733,14 +635,9 @@ contains
   subroutine subcol4(a, b, c, d, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
-    real(kind=rp), dimension(n), intent(in) :: d
-    integer :: i
+    real(kind=rp), dimension(n), intent(in) :: b, c, d
 
-    do i = 1,n
-       a(i) = a(i) - b(i) * c(i) * d(i)
-    end do
+    a = a - b * c * d
 
   end subroutine subcol4
 
@@ -748,13 +645,9 @@ contains
   subroutine addcol3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
-    integer :: i
+    real(kind=rp), dimension(n), intent(in) :: b, c
 
-    do i = 1,n
-       a(i) = a(i) + b(i) * c(i)
-    end do
+    a = a + b * c
 
   end subroutine addcol3
 
@@ -762,75 +655,52 @@ contains
   subroutine addcol4(a, b, c, d, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
-    real(kind=rp), dimension(n), intent(in) :: d
-    integer :: i
+    real(kind=rp), dimension(n), intent(in) :: b, c, d
 
-    do i = 1,n
-       a(i) = a(i) + b(i) * c(i) * d(i)
-    end do
+    a = a + b * c * d
 
   end subroutine addcol4
 
   !> Returns \f$ a = b \dot c - d \cdot e \f$
   subroutine ascol5(a, b, c, d, e, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
-    real(kind=rp), dimension(n), intent(in) :: d
-    real(kind=rp), dimension(n), intent(in) :: e
-    integer :: i
+    real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(in) :: b, c, d, e
 
-    do i = 1,n
-       a(i) = b(i)*c(i)-d(i)*e(i)
-    end do
+    a = b * c - d * e
 
   end subroutine ascol5
 
-  !> Returns \f$ a = b \dot c1 ( a - c2 \cdot c )\f$
+  !> Returns \f$ a = b \dot c1 (a - c2 \cdot c)\f$
   subroutine p_update(a, b, c, c1, c2, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: b, c
     real(kind=rp), intent(in) :: c1, c2
-    integer :: i
 
-    do i = 1,n
-       a(i) = b(i) + c1*(a(i)-c2*c(i))
-    end do
+    a = b + c1 * (a - c2 * c)
 
   end subroutine p_update
 
-  !> Returns \f$ a = b \dot c1 ( a - c2 \cdot c )\f$
+  !> Returns \f$ a = b \dot c1 (a - c2 \cdot c)\f$
   subroutine x_update(a, b, c, c1, c2, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: b, c
     real(kind=rp), intent(in) :: c1, c2
-    integer :: i
 
-    do i = 1,n
-       a(i) = a(i) + c1*b(i)+c2*c(i)
-    end do
+    a = a + c1 * b + c2 * c
 
   end subroutine x_update
 
   !> Weighted inner product \f$ a^T b c \f$
   function glsc2(a, b, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(in) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: a, b
     real(kind=rp) :: glsc2, tmp
-    integer :: i, ierr
+    integer :: ierr
 
-    tmp = 0.0_rp
-    do i = 1, n
-       tmp = tmp + a(i) * b(i)
-    end do
+    tmp = sum(a * b)
 
     call MPI_Allreduce(tmp, glsc2, 1, &
                        MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -840,34 +710,25 @@ contains
   !> Weighted inner product \f$ a^T b c \f$
   function glsc3(a, b, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(in) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: a, b, c
     real(kind=rp) :: glsc3, tmp
-    integer :: i, ierr
+    integer :: ierr
 
-    tmp = 0.0_rp
-    do i = 1, n
-       tmp = tmp + a(i) * b(i) * c(i)
-    end do
+    tmp = sum(a * b * c)
 
     call MPI_Allreduce(tmp, glsc3, 1, &
                        MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc3
+
+  !> Weighted inner product \f$ a^T b c d \f$
   function glsc4(a, b, c, d, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(in) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(n), intent(in) :: c
-    real(kind=rp), dimension(n), intent(in) :: d
+    real(kind=rp), dimension(n), intent(in) :: a, b, c, d
     real(kind=rp) :: glsc4, tmp
-    integer :: i, ierr
+    integer :: ierr
 
-    tmp = 0.0_rp
-    do i = 1, n
-       tmp = tmp + a(i) * b(i) * c(i) * d(i)
-    end do
+    tmp = sum(a * b * c * d)
 
     call MPI_Allreduce(tmp, glsc4, 1, &
                        MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -876,9 +737,9 @@ contains
 
   !> Heap Sort for double precision arrays
   !! @details Following p 231 Num. Rec., 1st Ed.
-  !! @param[inout]   a     vector to be sorted
-  !! @param[out]     ind   permutation array
-  !! @param[in]      n     array size
+  !! @param[inout]  a   vector to be sorted
+  !! @param[out]   ind  permutation array
+  !! @param[in]   n   array size
   subroutine sortrp(a, ind, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: a(n)
@@ -890,14 +751,13 @@ contains
        ind(j) = j
     end do
 
-    if (n.le.1) return
+    if (n .le. 1) return
 
-
-    l = n/2+1
+    l = n / 2 + 1
     ir = n
     do while (.true.)
-       if (l.gt.1) then
-          l = l-1
+       if (l .gt. 1) then
+          l = l - 1
           aa = a(l)
           ii = ind(l)
        else
@@ -905,27 +765,25 @@ contains
           ii = ind(ir)
           a(ir) = a(1)
           ind(ir) = ind(1)
-          ir = ir-1
-          if (ir.eq.1) then
+          ir = ir - 1
+          if (ir .eq. 1) then
              a(1) = aa
              ind(1) = ii
              return
-          endif
-       endif
+          end if
+       end if
        i = l
        j = l+l
        do while (j .le. ir)
-          if (j.lt.ir) then
-             if ( a(j).lt.a(j+1) ) j = j+1
-          endif
-          if (aa.lt.a(j)) then
+          if (j .lt. ir .and. a(j) .lt. a(j + 1)) j = j + 1
+          if (aa .lt. a(j)) then
              a(i) = a(j)
              ind(i) = ind(j)
              i = j
-             j = j+j
+             j = j + j
           else
-             j = ir+1
-          endif
+             j = ir + 1
+          end if
        end do
        a(i) = aa
        ind(i) = ii
@@ -934,9 +792,9 @@ contains
 
   !> Heap Sort for single integer arrays
   !! @details Following p 231 Num. Rec., 1st Ed.
-  !! @param[inout]   a     vector to be sorted
-  !! @param[out]     ind   permutation array
-  !! @param[in]      n     array size
+  !! @param[inout]  a   vector to be sorted
+  !! @param[out]   ind  permutation array
+  !! @param[in]   n   array size
   subroutine sorti4(a, ind, n)
     integer, intent(in) :: n
     integer(i4), intent(inout) :: a(n)
@@ -950,31 +808,29 @@ contains
 
     if (n .le. 1) return
 
-    l = n/2+1
+    l = n / 2 + 1
     ir = n
     do while (.true.)
-       if (l.gt.1) then
+       if (l .gt. 1) then
           l = l - 1
-          aa  = a  (l)
-          ii  = ind(l)
+          aa = a (l)
+          ii = ind(l)
        else
-          aa =   a(ir)
+          aa = a(ir)
           ii = ind(ir)
-          a(ir) =   a( 1)
-          ind(ir) = ind( 1)
+          a(ir) = a(1)
+          ind(ir) = ind(1)
           ir = ir - 1
           if (ir .eq. 1) then
              a(1) = aa
              ind(1) = ii
              return
-          endif
-       endif
+          end if
+       end if
        i = l
        j = l + l
        do while (j .le. ir)
-          if (j.lt.ir) then
-             if ( a(j) .lt. a(j + 1) ) j = j + 1
-          end if
+          if (j .lt. ir .and. a(j) .lt. a(j + 1)) j = j + 1
           if (aa.lt.a(j)) then
              a(i) = a(j)
              ind(i) = ind(j)
@@ -990,9 +846,9 @@ contains
   end subroutine sorti4
 
   !> sort double precision array acording to ind vector
-  !! @param[inout]   b     vector to be reordered
-  !! @param[in]      ind   permutation array
-  !! @param[in]      n     array size
+  !! @param[inout]  b   vector to be reordered
+  !! @param[in]   ind  permutation array
+  !! @param[in]   n   array size
   subroutine swapdp(b, ind, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: b(n)
@@ -1000,19 +856,17 @@ contains
     real(kind=rp) :: temp(n)
     integer :: i, jj
 
+    temp = b
     do i = 1, n
-       temp(i)=b(i)
-    end do
-    do i = 1, n
-       jj=ind(i)
-       b(i)=temp(jj)
+       jj = ind(i)
+       b(i) = temp(jj)
     end do
   end subroutine swapdp
 
   !> sort single integer array acording to ind vector
-  !! @param[inout]   b     vector to be reordered
-  !! @param[in]      ind   permutation array
-  !! @param[in]      n     array size
+  !! @param[inout]  b   vector to be reordered
+  !! @param[in]   ind  permutation array
+  !! @param[in]   n   array size
   subroutine swapi4(b, ind, n)
     integer, intent(in) :: n
     integer(i4), intent(inout) :: b(n)
@@ -1020,19 +874,17 @@ contains
     integer(i4) :: temp(n)
     integer :: i, jj
 
+    temp = b
     do i = 1, n
-       temp(i)=b(i)
-    end do
-    do i = 1, n
-       jj=ind(i)
-       b(i)=temp(jj)
+       jj = ind(i)
+       b(i) = temp(jj)
     end do
   end subroutine swapi4
 
   !> reorder double precision array - inverse of swap
-  !! @param[inout]   b     vector to be reordered
-  !! @param[in]      ind   permutation array
-  !! @param[in]      n     array size
+  !! @param[inout]  b   vector to be reordered
+  !! @param[in]   ind  permutation array
+  !! @param[in]   n   array size
   subroutine reorddp(b, ind, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: b(n)
@@ -1040,9 +892,7 @@ contains
     real(kind=rp) :: temp(n)
     integer :: i, jj
 
-    do i = 1, n
-       temp(i) = b(i)
-    end do
+    temp = b
     do i = 1, n
        jj = ind(i)
        b(jj) = temp(i)
@@ -1050,9 +900,9 @@ contains
   end subroutine reorddp
 
   !> reorder single integer array - inverse of swap
-  !! @param[inout]   b     vector to be reordered
-  !! @param[in]      ind   permutation array
-  !! @param[in]      n     array size
+  !! @param[inout]  b   vector to be reordered
+  !! @param[in]   ind  permutation array
+  !! @param[in]   n   array size
   subroutine reordi4(b, ind, n)
     integer, intent(in) :: n
     integer(i4), intent(inout) :: b(n)
@@ -1060,19 +910,17 @@ contains
     integer(i4) :: temp(n)
     integer :: i, jj
 
+    temp = b
     do i = 1, n
-       temp(i)=b(i)
-    end do
-    do i = 1, n
-       jj=ind(i)
-       b(jj)=temp(i)
+       jj = ind(i)
+       b(jj) = temp(i)
     end do
   end subroutine reordi4
 
   !> Flip double precision vector b and ind
-  !! @param[inout]   b     vector to be reordered
-  !! @param[inout]   ind   permutation array
-  !! @param[in]      n     array size
+  !! @param[inout]  b   vector to be reordered
+  !! @param[inout]  ind  permutation array
+  !! @param[in]   n   array size
   subroutine flipvdp(b, ind, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: b(n)
@@ -1093,9 +941,9 @@ contains
   end subroutine flipvdp
 
   !> Flip single integer vector b and ind
-  !! @param[inout]   b     vector to be reordered
-  !! @param[inout]   ind   permutation array
-  !! @param[in]      n     array size
+  !! @param[inout]  b   vector to be reordered
+  !! @param[inout]  ind  permutation array
+  !! @param[in]   n   array size
   subroutine flipvi4(b, ind, n)
     integer, intent(in) :: n
     integer(i4), intent(inout) :: b(n)
@@ -1105,11 +953,11 @@ contains
     integer :: i, jj
 
     do i = 1, n
-       jj = n+1-i
+       jj = n + 1 - i
        temp(jj) = b(i)
        tempind(jj) = ind(i)
     end do
-    do i = 1,n
+    do i = 1, n
        b(i) = temp(i)
        ind(i) = tempind(i)
     end do
