@@ -942,14 +942,14 @@ contains
     integer :: i, jj
 
     do i = 1, n
-       jj = n+1-i
+       jj = n + 1 - i
        temp(jj) = b(i)
        tempind(jj) = ind(i)
     end do
-    do i = 1,n
-       b(i) = temp(i)
-       ind(i) = tempind(i)
-    end do
+
+    b = temp
+    ind = tempind
+
   end subroutine flipvdp
 
   !> Flip single integer vector b and ind
@@ -969,10 +969,9 @@ contains
        temp(jj) = b(i)
        tempind(jj) = ind(i)
     end do
-    do i = 1, n
-       b(i) = temp(i)
-       ind(i) = tempind(i)
-    end do
+
+    b = temp
+    ind = tempind
   end subroutine flipvi4
 
 end module math
