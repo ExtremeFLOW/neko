@@ -84,7 +84,10 @@ contains
     character(len=1024) :: start_field
     integer :: i, ierr, n, suffix_pos, tslash_pos
     integer :: lx, ly, lz, lxyz, gdim, glb_nelv, nelv, offset_el
+    integer :: npar
     integer, allocatable :: idx(:)
+    type(array_ptr_t), allocatable :: scalar_fields(:)
+    integer :: n_scalar_fields
     logical :: write_mesh, write_velocity, write_pressure, write_temperature
     integer :: adios2_type, layout
     type(adios2_engine)   :: bpWriter
@@ -101,7 +104,7 @@ contains
     nullify(msh)
     nullify(dof)
     nullify(Xh)
-    !n_scalar_fields = 0
+    n_scalar_fields = 0
     write_velocity = .false.
     write_pressure = .false.
     write_temperature = .false.
@@ -109,6 +112,7 @@ contains
     !> @todo support for other input data types like in fld_file
     select type(data)
     type is (field_list_t)
+       npar = data%size()
        select case (data%size())
        case (1)
           p%ptr => data%items(1)%ptr%x(:,1,1,1)
@@ -136,13 +140,16 @@ contains
           v%ptr => data%items(3)%ptr%x(:,1,1,1)
           w%ptr => data%items(4)%ptr%x(:,1,1,1)
           tem%ptr => data%items(5)%ptr%x(:,1,1,1)
-          !> @todo incorporate scalar fields again (see below)
+          n_scalar_fields = data%size() - 5
+          allocate(scalar_fields(n_scalar_fields))
+          do i = 1,n_scalar_fields
+             scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
+          end do
           write_pressure = .true.
           write_velocity = .true.
           write_temperature = .true.
        case default
-          !> @todo incorporate scalar fields again (see above)
-          !call neko_error('This many fields not supported yet, bp_file')
+          call neko_error('This many fields not supported yet, bp_file')
        end select
        dof => data%dof(1)
     class default
@@ -197,7 +204,7 @@ contains
        call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
        layout = 2
     type is (buffer_4d_npar_t)
-       call outbuf_npar%init(this%dp_precision, 5, glb_nelv, offset_el, nelv, lx, ly, lz)
+       call outbuf_npar%init(this%dp_precision, npar, glb_nelv, offset_el, nelv, lx, ly, lz)
        layout = 4
     class default
        call neko_error('Invalid buffer')
@@ -229,14 +236,14 @@ contains
        rdcode(i) = 'T'
        i = i + 1
     end if
-    !if (n_scalar_fields .gt. 0 ) then
-       !rdcode(i) = 'S'
-       !i = i + 1
-       !write(rdcode(i), '(i1)') (n_scalar_fields)/10
-       !i = i + 1
-       !write(rdcode(i), '(i1)') (n_scalar_fields) - 10*((n_scalar_fields)/10)
-       !i = i + 1
-    !end if
+    if (n_scalar_fields .gt. 0 ) then
+       rdcode(i) = 'S'
+       i = i + 1
+       write(rdcode(i), '(i1)') (n_scalar_fields)/10
+       i = i + 1
+       write(rdcode(i), '(i1)') (n_scalar_fields) - 10*((n_scalar_fields)/10)
+       i = i + 1
+    end if
 
     ! Create binary header information
     write(hdr, 1) adios2_type, lx, ly, lz, layout, glb_nelv,&
@@ -330,6 +337,15 @@ contains
           call outbuf_npar%write(bpWriter, variable, ierr)
        endif
     end if
+
+    do i = 1, n_scalar_fields
+       call outbuf_npar%fill(scalar_fields(i)%ptr, n)
+       if (layout .le. 3) then
+          write(id_str, '(a,i1,i1)') 's', i/10, i-10*(i/10)
+          call outbuf_npar%define(variable, ioWriter, trim(id_str), ierr)
+          call outbuf_npar%write(bpWriter, variable, ierr)
+       endif
+    end do
 
     if (layout .gt. 3) then
        call outbuf_npar%define(variable, ioWriter, 'fields', ierr)
