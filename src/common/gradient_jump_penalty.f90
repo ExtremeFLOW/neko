@@ -37,6 +37,7 @@ module gradient_jump_penalty
   use speclib, only : pnleg, pndleg
   use utils, only : neko_error
   use math
+  use point, only : point_t
   use field, only : field_t
   use dofmap , only : dofmap_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -78,7 +79,7 @@ module gradient_jump_penalty
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
      !> Length scale for element regarding a facet
-     real(kind=rp), allocatable :: h(:)
+     real(kind=rp), allocatable :: h(:,:)
      !> Polynomial evaluated at collocation points
      real(kind=rp), allocatable :: phi(:,:)
      !> The first derivative of polynomial at two ends of the interval
@@ -114,15 +115,13 @@ contains
 
     this%p = dofmap%xh%lx - 1
     if (this%p .gt. 1) then
-       this%tau = -0.8_rp * (this%p + 1) ** (-4.0_rp)
+       this%tau = -0.8_rp * (this%p + 1) ** (-4.0_rp) * 30
     else
        this%tau = -0.02_rp
     end if
 
     this%coef => coef
 
-   !  allocate(this%penalty(this%p + 1, this%p + 1 , this%p + 1 , this%coef%msh%nelv))
-    call neko_scratch_registry%request_field(this%penalty, temp_indices(1))
     allocate(this%penalty_el(this%p + 1, this%p + 1 , this%p + 1))
     
     allocate(this%n_facet(this%coef%msh%nelv))
@@ -137,12 +136,12 @@ contains
     end do
     this%n_facet_max = maxval(this%n_facet)
 
-    allocate(this%h(this%coef%msh%nelv))
+    allocate(this%h(this%n_facet_max, this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
        select type(ep)
        type is (hex_t)
-          call eval_h_hex(this%h(i), ep)
+          call eval_h_hex(this%h(:, i), ep)
        type is (quad_t)
           call neko_error("Gradient jump penalty error: mesh size evaluation is not supported for quad_t")
        end select
@@ -155,11 +154,11 @@ contains
     zg = dofmap%xh%zg(:,1)
     do i = 1, dofmap%xh%lx
        do j = 1, dofmap%xh%lx
-          this%phi(j,i) = pnleg(zg(j),i-1)
-          this%dphidxi(j,i) = pndleg(zg(j),i-1)
+          this%dphidxi(j,i) = this%coef%Xh%dx(j,i)
        end do
     end do
 
+    call neko_scratch_registry%request_field(this%penalty, temp_indices(1))
     call neko_scratch_registry%request_field(this%G, temp_indices(2))
     call neko_scratch_registry%request_field(this%flux1, temp_indices(3))
     call neko_scratch_registry%request_field(this%flux2, temp_indices(4))
@@ -189,11 +188,39 @@ contains
   
   !> Evaluate h for each element
   subroutine eval_h_hex(h_el, ep)
-    real(kind=rp), intent(inout) :: h_el
+    real(kind=rp), intent(inout) :: h_el(6)
     type(hex_t), pointer, intent(in) :: ep
     
+    integer :: i
+    type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
+
     !! todo: estimation of the length scale of the mesh could be more elegant
-    h_el = ep%diameter()
+    !! strategy 1: use the diameter of the hexahedral
+    do i = 1, 6
+       h_el(i) = ep%diameter()
+    end do
+
+    !! strategy 2: hard code it, only works for cuboid mesh
+    p1 => ep%p(1)
+    p2 => ep%p(2)
+    p3 => ep%p(3)
+    p4 => ep%p(4)
+    p5 => ep%p(5)
+    p6 => ep%p(6)
+    p7 => ep%p(7)
+    p8 => ep%p(8)
+    h_el(:) = 0.0_rp
+    do i = 1, NEKO_HEX_GDIM
+       h_el(1) = h_el(1) + (p1%x(i) - p2%x(i))**2
+       h_el(2) = h_el(2) + (p1%x(i) - p2%x(i))**2
+       h_el(3) = h_el(3) + (p1%x(i) - p3%x(i))**2
+       h_el(4) = h_el(4) + (p1%x(i) - p3%x(i))**2
+       h_el(5) = h_el(5) + (p1%x(i) - p5%x(i))**2
+       h_el(6) = h_el(6) + (p1%x(i) - p5%x(i))**2
+    end do
+    do i = 1, 6
+       h_el(i) = sqrt(h_el(i))
+    end do
 
   end subroutine eval_h_hex
 
@@ -203,12 +230,19 @@ contains
     real(kind=rp), intent(inout) :: n1_el(lx, lx, lx)
     real(kind=rp), intent(in) :: coefnx_el(lx, lx, 6)
 
-    n1_el(1,:,:) = coefnx_el(:,:,1)
-    n1_el(lx,:,:) = coefnx_el(:,:,2)
-    n1_el(:,1,:) = coefnx_el(:,:,3)
-    n1_el(:,lx,:) = coefnx_el(:,:,4)
-    n1_el(:,:,1) = coefnx_el(:,:,5)
-    n1_el(:,:,lx) = coefnx_el(:,:,6)
+   !  n1_el(1, :, :) = coefnx_el(:, :, 1)
+   !  n1_el(lx, :, :) = coefnx_el(:, :, 2)
+   !  n1_el(:, 1, :) = coefnx_el(:, :, 3)
+   !  n1_el(:, lx, :) = coefnx_el(:, :, 4)
+   !  n1_el(:, :, 1) = coefnx_el(:, :, 5)
+   !  n1_el(:, :, lx) = coefnx_el(:, :, 6)
+
+    n1_el(1, 2:lx-1, 2:lx-1) = coefnx_el(2:lx-1, 2:lx-1, 1)
+    n1_el(lx, 2:lx-1, 2:lx-1) = coefnx_el(2:lx-1, 2:lx-1, 2)
+    n1_el(2:lx-1, 1, 2:lx-1) = coefnx_el(2:lx-1, 2:lx-1, 3)
+    n1_el(2:lx-1, lx, 2:lx-1) = coefnx_el(2:lx-1, 2:lx-1, 4)
+    n1_el(2:lx-1, 2:lx-1, 1) = coefnx_el(2:lx-1, 2:lx-1, 5)
+    n1_el(2:lx-1, 2:lx-1, lx) = coefnx_el(2:lx-1, 2:lx-1, 6)
 
   end subroutine expand_normal_hex_el
 
@@ -308,10 +342,10 @@ contains
           do k = 1, this%p + 1
              this%penalty_el(i, j, k) = 0.0_rp
              do l = 1, 6
-                integrant_facet = 0.0_rp
-                call generate_integrant_facet(this, integrant_facet, i, j, k, l, i_el)
+               !  integrant_facet = 0.0_rp
+               !  call generate_integrant_facet(this, integrant_facet, i, j, k, l, i_el)
                 this%penalty_el(i, j, k) = this%penalty_el(i, j, k) + &
-                                  integrate_over_facet(this, integrant_facet, l, i_el)
+                                  integrate_over_facet(this, i, j, k, l, i_el)
              end do
           end do
        end do  
@@ -365,102 +399,61 @@ contains
 
   end subroutine absvolflux_compute
 
-  !> Generate the integrant of the corresponding term
-  !! @param f The integrant in the gradient jump penalty term
-  !! @param i The order of the test function on r direction
-  !! @param j The order of the test function on s direction
-  !! @param k The order of the test function on t direction
-  !! @param l The facet index
-  !! @param i_el The index of the element
-  subroutine generate_integrant_facet(this, f, i, j, k, l, i_el)
-    class(gradient_jump_penalty_t), intent(in) :: this
-    real(kind=rp), intent(inout) :: f(this%p + 1, this%p + 1)
-    integer, intent(in) :: i, j, k, l, i_el
-
-    integer :: i_pt, j_pt
-    !!! tau * h^2 * abs(u .dot. n) * G * phij * phik * dphi_idxi * dxidn
-    select case (l) ! Identify the facet indexing
-    case(1)
-       do i_pt = 1, this%p + 1
-          do j_pt = 1, this%p + 1
-             f(i_pt, j_pt) = this%absvolflux%x(1, i_pt, j_pt, i_el) * &
-                       this%G%x(1, i_pt, j_pt, i_el) * &
-                       this%dphidxi(1, i) * &
-                       this%coef%drdx(1, i_pt, j_pt, i_el) * &
-                       this%phi(i_pt, j) * this%phi(j_pt, k)
-          end do
-       end do
-    case(2)
-       do i_pt = 1, this%p + 1
-          do j_pt = 1, this%p + 1
-             f(i_pt, j_pt) = this%absvolflux%x(this%p + 1, i_pt, j_pt, i_el) * &
-                       this%G%x(this%p + 1, i_pt, j_pt, i_el) * &
-                       this%dphidxi(2, i) * &
-                       this%coef%drdx(this%p + 1, i_pt, j_pt, i_el) * &
-                       this%phi(i_pt, j) * this%phi(j_pt, k)
-          end do
-       end do
-    case(3)
-       do i_pt = 1, this%p + 1
-          do j_pt = 1, this%p + 1
-             f(i_pt, j_pt) = this%absvolflux%x(i_pt, 1, j_pt, i_el) * &
-                       this%G%x(i_pt, 1, j_pt, i_el) * &
-                       this%dphidxi(1, j) * &
-                       this%coef%dsdy(i_pt, 1, j_pt, i_el) * &
-                       this%phi(i_pt, i) * this%phi(j_pt, k)
-          end do
-       end do
-    case(4)
-       do i_pt = 1, this%p + 1
-          do j_pt = 1, this%p + 1
-             f(i_pt, j_pt) = this%absvolflux%x(i_pt, this%p + 1, j_pt, i_el) * &
-                       this%G%x(i_pt, this%p + 1, j_pt, i_el) * &
-                       this%dphidxi(2, j) * &
-                       this%coef%dsdy(i_pt, this%p + 1, j_pt, i_el) * &
-                       this%phi(i_pt, i) * this%phi(j_pt, k)
-          end do
-       end do
-    case(5)
-       do i_pt = 1, this%p + 1
-          do j_pt = 1, this%p + 1
-             f(i_pt, j_pt) = this%absvolflux%x(i_pt, j_pt, 1, i_el) * &
-                       this%G%x(i_pt, j_pt, 1, i_el) * &
-                       this%dphidxi(1, k) * &
-                       this%coef%dtdz(i_pt, j_pt, 1, i_el) * &
-                       this%phi(i_pt, i) * this%phi(j_pt, j)
-          end do
-       end do
-    case(6)
-       do i_pt = 1, this%p + 1
-          do j_pt = 1, this%p + 1
-             f(i_pt, j_pt) = this%absvolflux%x(i_pt, j_pt, this%p + 1, i_el) * &
-                       this%G%x(i_pt, j_pt, this%p + 1, i_el) * &
-                       this%dphidxi(2, k) * &
-                       this%coef%dtdz(i_pt, j_pt, this%p + 1, i_el) * &
-                       this%phi(i_pt, i) * this%phi(j_pt, j)
-          end do
-       end do
-    end select
-    f = f * this%tau * this%h(i_el) ** 2
-
-  end subroutine generate_integrant_facet
-
   !> Integrate over a facet
   !! @param f Integrant
-  pure function integrate_over_facet(this, f, facet_index, i_el) result(f_int)
+  pure function integrate_over_facet(this, i, j, k, facet_index, i_el) result(f_int)
     class(gradient_jump_penalty_t), intent(in) :: this
-    real(kind=rp), intent(in) :: f(this%p + 1, this%p + 1)
-    integer, intent(in) :: facet_index, i_el
+   !  real(kind=rp), intent(in) :: f(this%p + 1, this%p + 1)
+    integer, intent(in) :: i, j, k, facet_index, i_el
     real(kind=rp) :: f_int
+    
+    real(kind=rp) :: f(this%p + 1, this%p + 1)
+    integer :: i_pt, j_pt
 
-    integer :: i, j
-
-    f_int = 0.0_rp
-    do i = 1, this%p + 1
-       do j = 1, this%p + 1
-          f_int = f_int + f(i, j) * this%coef%area(i, j, facet_index, i_el)
-       end do
-    end do
+   select case (facet_index) ! Identify the facet indexing
+    case(1)
+        f_int = this%absvolflux%x(1, j, k, i_el) * &
+                this%G%x(1, j, k, i_el) * &
+                this%dphidxi(1, i) * &
+                this%coef%drdx(1, j, k, i_el) ! For generality: drdx into sum(drdx_i)
+        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
+        f_int = f_int * this%coef%area(j, k, facet_index, i_el)
+    case(2)
+        f_int = this%absvolflux%x(this%p + 1, j, k, i_el) * &
+                this%G%x(this%p + 1, j, k, i_el) * &
+                this%dphidxi(this%p + 1, i) * &
+                this%coef%drdx(this%p + 1, j, k, i_el)
+        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
+        f_int = f_int * this%coef%area(j, k, facet_index, i_el)
+    case(3)
+        f_int = this%absvolflux%x(i, 1, k, i_el) * &
+                this%G%x(i, 1, k, i_el) * &
+                this%dphidxi(1, j) * &
+                this%coef%dsdy(i, 1, k, i_el)
+        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
+        f_int = f_int * this%coef%area(i, k, facet_index, i_el)
+    case(4)
+        f_int = this%absvolflux%x(i, this%p + 1, k, i_el) * &
+                this%G%x(i, this%p + 1, k, i_el) * &
+                this%dphidxi(this%p + 1, j) * &
+                this%coef%dsdy(i, this%p + 1, k, i_el)
+        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
+        f_int = f_int * this%coef%area(i, k, facet_index, i_el)
+    case(5)
+        f_int = this%absvolflux%x(i, j, 1, i_el) * &
+                this%G%x(i, j, 1, i_el) * &
+                this%dphidxi(1, k) * &
+                this%coef%dtdz(i, j, 1, i_el)
+        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
+        f_int = f_int * this%coef%area(i, j, facet_index, i_el)
+    case(6)
+        f_int = this%absvolflux%x(i, j, this%p + 1, i_el) * &
+                this%G%x(i, j, this%p + 1, i_el) * &
+                this%dphidxi(this%p + 1, k) * &
+                this%coef%dtdz(i, j, this%p + 1, i_el)
+        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
+        f_int = f_int * this%coef%area(i, j, facet_index, i_el)
+    end select
 
   end function integrate_over_facet
 
