@@ -247,9 +247,9 @@ contains
 
     ! Create binary header information
     write(hdr, 1) adios2_type, lx, ly, lz, layout, glb_nelv,&
-         time, this%counter, 1, 1, (rdcode(i),i=1,10)
+         time, this%counter, npar, (rdcode(i),i=1,10)
 1   format('#std',1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
-         1x,i9,1x,i6,1x,i6,1x,10a)
+         1x,i9,1x,i6,1x,10a)
 
     ! Adapt filename with counter
     !> @todo write into single file with multiple steps
@@ -386,7 +386,8 @@ contains
     logical :: read_temp
     character(len=8) :: id_str
     integer :: lx, ly, lz, glb_nelv, counter, lxyz
-    integer :: adios2_type, n, layout
+    integer :: layout, npar
+    integer :: adios2_type, n_scalars, n
     real(kind=rp) :: time
     type(linear_dist_t) :: dist
     character :: rdcode(10), temp_str(4)
@@ -461,9 +462,9 @@ contains
        call adios2_get(bpReader, variable_hdr, hdr, adios2_mode_sync, ierr)
 
        read(hdr, 1) temp_str, adios2_type, lx, ly, lz, layout, glb_nelv,&
-          time, counter, i, j, (rdcode(i),i=1,10)
+          time, counter, npar, (rdcode(i),i=1,10)
 1      format(4a,1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
-         1x,i9,1x,i6,1x,i6,1x,10a)
+         1x,i9,1x,i6,1x,10a)
        if (data%nelv .eq. 0) then
           dist = linear_dist_t(glb_nelv, pe_rank, pe_size, NEKO_COMM)
           data%nelv = dist%num_local()
@@ -511,8 +512,7 @@ contains
           call inpbuf%init(this%dp_precision, data%gdim, data%glb_nelv, data%offset_el, &
                data%nelv, lx, ly, lz)
        type is (buffer_4d_npar_t)
-          !> @todo unhack hardcoded number of parameters
-          call inpbuf%init(this%dp_precision, 5, data%glb_nelv, data%offset_el, &
+          call inpbuf%init(this%dp_precision, npar, data%glb_nelv, data%offset_el, &
                data%nelv, lx, ly, lz)
        class default
           call neko_error('Invalid buffer')
@@ -545,6 +545,36 @@ contains
        if (rdcode(i) .eq. 'T') then
           read_temp = .true.
           if (data%t%n .ne. n) call data%t%init(n)
+          i = i + 1
+       end if
+       n_scalars = 0
+       if (rdcode(i) .eq. 'S') then
+          i = i + 1
+          read(rdcode(i),*) n_scalars
+          n_scalars = n_scalars*10
+          i = i + 1
+          read(rdcode(i),*) j
+          n_scalars = n_scalars+j
+          i = i + 1
+          if (allocated(data%s)) then
+             if (data%n_scalars .ne. n_scalars) then
+                do j = 1, data%n_scalars
+                   call data%s(j)%free()
+                end do
+                deallocate(data%s)
+                data%n_scalars = n_scalars
+                allocate(data%s(n_scalars))
+                do j = 1, data%n_scalars
+                   call data%s(j)%init(n)
+                end do
+             end if
+          else
+             data%n_scalars = n_scalars
+             allocate(data%s(data%n_scalars))
+             do j = 1, data%n_scalars
+                call data%s(j)%init(n)
+             end do
+          end if
           i = i + 1
        end if
 
@@ -617,6 +647,15 @@ contains
           endif
           call inpbuf%copy(data%t)
        end if
+
+       do i = 1, n_scalars
+          if (layout .le. 3) then
+             write(id_str, '(a,i1,i1)') 's', i/10, i-10*(i/10)
+             call inpbuf%inquire(variable, ioReader, trim(id_str), ierr)
+             call inpbuf%read(bpReader, variable, ierr)
+          endif
+          call inpbuf%copy(data%s(i))
+       end do
 
        call adios2_end_step(bpReader, ierr)
        call adios2_close(bpReader, ierr)
