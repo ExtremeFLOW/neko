@@ -137,11 +137,11 @@ contains
     integer :: i
     real(kind=rp) :: tol
 
-    tol = 1e-7_rp
+    tol = 1e-4_rp
     is_in = .false.
 
     do i = 1, num_ygll
-       if (abs(y-y_list(i)) .le. tol) then
+       if (relcmp( y, y_list(i), tol)) then
           is_in = .true.
           exit
        end if
@@ -155,19 +155,21 @@ contains
     real(kind=rp) :: tol
     integer :: i
     logical :: found
+    real(kind=rp) :: dist
     
-    tol = 1e-14_rp
+    tol = 1e-4_rp
     found = .false.
+    dist = 100
     do i = 1, num_ygll
-       if (abs(y_target-y_source(i)) .le. tol) then
+       if (relcmp(y_target,y_source(i),tol)) then
           Pt_target = Pt_source(i)
-          found = .true.
-          exit
+          dist = abs(y_target-y_source(i))
        end if
     end do
+    if ( dist .le. tol ) found = .true.
     
     if (.not. found) then
-       write (*,*) 'tolerence too small for picking points!!!!!!'
+       write (*,*) 'tolerence too small for picking points! dist:', dist
     end if
 
   end function pick_pt
