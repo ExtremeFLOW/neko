@@ -1,5 +1,7 @@
 # User File {#user-file}
 
+\tableofcontents
+
 The user file is a fortran file where the user can implement their own functions
 to extend the capabilities of the default Neko executable. The user file can be
 used for setting advanced initial/boundary conditions, source terms, I/O
@@ -486,7 +488,7 @@ the `case.fluid.inflow_condition.type` to `"user"`:
 ```
 
 See the [the relevant section](@ref case-file_fluid-if) in the 
-[case file page](@ref case-file.md) for more details. The associated user 
+[case file page](@ref case-file) for more details. The associated user 
 function for the fluid inflow condition can then be added to the user file.
 An example inspired from the 
 [lid-driven cavity example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/lid/lid.f90#L29-L53)
@@ -731,18 +733,18 @@ The arguments and their purpose are as follows:
 * `field_bc_list` is the list of the field that can be edited. It is a list 
 of `field_t` objects.
   * The field `i` contained in `field_bc_list` is accessed using 
-  `field_bc_list%fields(i)%f` and will refer to a `field_t` object. 
+  `field_bc_list%%items(i)%%ptr` and will refer to a `field_t` object. 
   * If `which_solver = "fluid"`, it will contain the 4 fields `u,v,w,p`. They
   are retrieved in that order in `field_bc_list`, i.e. `u` corresponds to
-  `field_bc_list%fields(1)%f`, etc.
+  `field_bc_list%%items(1)%%ptr`, etc.
   * If `which_solver = "scalar"`, it will only contain the scalar field `s`. 
  
 * `bc_bc_list` contains a list of the `bc_t` objects to help access the 
   boundary indices through the boundary `mask`.
   * The boundary `i` contained in `bc_bc_list` is accessed with 
-  `bc_bc_list%bc(i)%bcp`.
+  `bc_bc_list%%bc(i)%%bcp`.
   * The boundary mask of the `i`-th `bc_t` object contained in `bc_bc_list` is accessed
-  with `bc_bc_list%bc(i)%bcp%msk`. It contains the linear indices of each GLL point on 
+  with `bc_bc_list%%bc(i)%%bcp%%msk`. It contains the linear indices of each GLL point on 
   the `i`-th boundary facets.
   @note `msk(0)` contains the size of the array. The first boundary index is `msk(1)`.
   * If `which_solver = "fluid"`, it will contain the 4 `bc_t` objects 
@@ -759,9 +761,7 @@ the fluid solver. It takes the value `"scalar"` when it is called in the scalar
 solver.
 
 Links to the documentation to learn more about what the types mentioned above
-contain and how to use them: [field_t type](https://neko.cfd/docs/d3/d5f/structfield_1_1field__t.html),
-[bc_t type](https://neko.cfd/docs/d6/db3/structbc_1_1bc__t.html),
-[coef_t type](https://neko.cfd/docs/d0/dea/structcoefs_1_1coef__t.html). 
+contain and how to use them: `src/field/field.f90`, `src/bc/bc.f90`, `src/sem/coef.f90`. 
 
 The user function should be registered in `user_setup` with the following line:
 
@@ -786,21 +786,24 @@ A very simple example illustrating the above is shown below, which is taken from
     integer, intent(in) :: tstep
     character(len=*), intent(in) :: which_solver
 
+    integer :: i
+    real(kind=rp) :: y,z
+
     ! Only do this at the first time step since our BCs are constants.
     if (tstep .ne. 1) return
 
     ! Check that we are being called by `fluid`
     if (trim(which_solver) .eq. "fluid") then
 
-       associate(u => field_bc_list%fields(1)%f, &
-            v => field_bc_list%fields(2)%f, &
-            w => field_bc_list%fields(3)%f, &
-            p => field_bc_list%fields(4)%f)
+       associate(u => field_bc_list%items(1)%ptr, &
+            v => field_bc_list%items(2)%ptr, &
+            w => field_bc_list%items(3)%ptr, &
+            p => field_bc_list%items(4)%ptr)
 
          !
          ! Perform operations on u%x, v%x, w%x and p%x here
-         ! Note that we are checking if fields are allocated. If the
-         ! boundary types only contains e.g. "d_vel_u/d_pres", the fields
+         ! Note that we are checking if fields are allocated. If a
+         ! boundary type only contains e.g. "d_vel_u/d_pres", the fields
          ! v%x and w%x will not be allocated.
          !
          ! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)
@@ -816,7 +819,8 @@ A very simple example illustrating the above is shown below, which is taken from
     ! Check that we are being called by `scalar`
     else if (trim(which_solver) .eq. "scalar") then
 
-       associate( s => field_bc_list%fields(1)%f )
+       associate( s => field_bc_list%items(1)%ptr, &
+            s_bc => bc_bc_list%bc(1)%bcp)
 
          !
          ! Perform operations on the scalar field here
@@ -832,8 +836,6 @@ A very simple example illustrating the above is shown below, which is taken from
             end do
 
          end if
-       end associate
-
        end associate
 
     end if
@@ -861,7 +863,7 @@ components or pressure are given in `case.fluid.boundary_types`. Fields in the
 lists are only allocated if they are present in the case file.For
 example, if we removed the `d_pres` condition in the JSON case file code snippet
 above, the pressure field for our boundary condition would not be allocated (
-in the example above, `allocated(p%x)` would never be `true`). `"boundary_types": ["d_vel_u", "d_vel_v"]` will allocate the two first 
+in the example above, `allocated(p%%x)` would never be `true`). `"boundary_types": ["d_vel_u", "d_vel_v"]` will allocate the two first 
 fields in `field_bc_list`, which is the same behaviour as
 `"boundary_types": ["d_vel_u/d_vel_v", ""]`.
 
