@@ -34,14 +34,14 @@
 module dynamic_smagorinsky_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS
+  use math, only : cadd, NEKO_EPS, col2, add3s2, sub2, col3, cmult
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : strain_rate
   use coefs, only : coef_t
-  use math
   use elementwise_filter, only : elementwise_filter_t
+  use gs_ops, only : GS_OP_ADD
   implicit none
   private
 
@@ -101,6 +101,20 @@ contains
 
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
+
+    call coef%gs_h%op(s11%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s22%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s33%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s12%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
+
+    call col2(s11%x, coef%mult, s11%dof%size())
+    call col2(s22%x, coef%mult, s11%dof%size())
+    call col2(s33%x, coef%mult, s11%dof%size())
+    call col2(s12%x, coef%mult, s11%dof%size())
+    call col2(s13%x, coef%mult, s11%dof%size())
+    call col2(s23%x, coef%mult, s11%dof%size())
 
     do i=1, u%dof%size()
        s_abs%x(i,1,1,1) = sqrt(2.0_rp * (s11%x(i,1,1,1)*s11%x(i,1,1,1) + &

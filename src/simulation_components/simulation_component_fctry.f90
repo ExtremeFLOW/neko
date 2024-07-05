@@ -40,7 +40,7 @@ module simulation_component_fctry
   use les_simcomp, only : les_simcomp_t
   use json_module, only : json_file
   use case, only : case_t
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_default
   use utils, only : concat_string_array, neko_error
   use field_writer, only : field_writer_t
   use weak_grad, only : weak_grad_t
@@ -72,6 +72,11 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: type_name
     character(len=:), allocatable :: type_string
+    logical :: is_user
+
+    ! Check if this is a user-defined component
+    call json_get_or_default(json, "is_user", is_user, .false.)
+    if (is_user) return
 
     call json_get(json, "type", type_name)
 

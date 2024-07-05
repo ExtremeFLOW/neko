@@ -44,10 +44,15 @@ jobs:
       - name: Lint repository
         run: |
           flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
+
+      - name: Check the score
+        run: |
           score=$(awk '$1==0{print $3}' flint.txt)
 
+          printf "Current score: $score\n"
+          printf "Minimum score: $global_min\n"
           if (( $(echo "$score < $global_min" | bc -l) )); then
-            echo "Linting requirement not met, $score < $global_min" >&2
+            echo "Linting requirement not met, $score < $global_min"
             exit 1
           fi
 
@@ -98,8 +103,14 @@ jobs:
           fi
 
           git fetch --unshallow origin $target
-          changes=($(git diff --name-only --diff-filter=d \
-            `git merge-base $current origin/$target`))
+          changes=($(git diff --name-only --diff-filter=d origin/$target))
+
+          printf "Detected fortran changes:\n"
+          for file in $changes; do
+            if [[ ${file: -4} != ".f90" ]]; then continue; fi
+            printf "\t- $file"
+          done
+
           echo "changed-files=${changes[@]}" >> $GITHUB_OUTPUT
 
       - name: Lint changed files
@@ -117,7 +128,7 @@ jobs:
           for file in $changed_files; do
 
             # If the file is not a Fortran file, skip it.
-            if [[ ! $file =~ \.f90$ ]]; then continue; fi
+            if [[ ${file: -4} != ".f90" ]]; then continue; fi
 
             printf "\t- $file"
             score=$(flint score -r flinter_rc.yml $(realpath $file) 2> /dev/null |
@@ -140,13 +151,13 @@ jobs:
           printf "\t${fails[@]}\n"
 
           if [ ${#fails[@]} -gt 0 ]; then
-            for fail in "${fails[@]}"; do
+            for fail in ${fails[@]}; do
               printf "%.s-" {1..80} && printf "\n"
               printf "Linting failed for \n\t$fail\n\n"
 
-              report=$(flint lint -r flinter_rc.yml $file)
+              report=$(flint lint -r flinter_rc.yml $fail)
               if [ -z "$report" ]; then
-                report=$(flint stats -r flinter_rc.yml $file)
+                report=$(flint stats -r flinter_rc.yml $fail)
               fi
               echo "$report"
             done
