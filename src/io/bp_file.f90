@@ -111,6 +111,42 @@ contains
 
     !> @todo support for other input data types like in fld_file
     select type(data)
+    type is (fld_file_data_t)
+       npar = data%size()
+       if (data%x%n .gt. 0) x%ptr => data%x%x
+       if (data%y%n .gt. 0) y%ptr => data%y%x
+       if (data%z%n .gt. 0) z%ptr => data%z%x
+       if (data%u%n .gt. 0) then
+          u%ptr => data%u%x
+          write_velocity = .true.
+       end if
+       if (data%v%n .gt. 0) v%ptr => data%v%x
+       if (data%w%n .gt. 0) w%ptr => data%w%x
+       if (data%p%n .gt. 0) then
+          p%ptr => data%p%x
+          write_pressure = .true.
+       end if
+       if (data%t%n .gt. 0) then
+          write_temperature = .true.
+          tem%ptr => data%t%x
+       end if
+       n_scalar_fields = data%n_scalars
+       allocate(scalar_fields(n_scalar_fields))
+       do i = 1, n_scalar_fields
+          scalar_fields(i)%ptr => data%s(i)%x
+       end do
+       nelv = data%nelv
+       lx = data%lx
+       ly = data%ly
+       lz = data%lz
+       gdim = data%gdim
+       glb_nelv = data%glb_nelv
+       offset_el = data%offset_el
+
+       allocate(idx(nelv))
+       do i = 1, nelv
+          idx(i) = data%idx(i)
+       end do
     type is (field_list_t)
        npar = data%size()
        select case (data%size())
