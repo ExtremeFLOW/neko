@@ -297,6 +297,9 @@ contains
     if (.not. adios%valid) then
        !> @todo enable parsing XML filename
        call adios2_init(adios, 'adios2.xml', NEKO_COMM%mpi_val, ierr)
+    end if
+
+    if (.not. ioWriter%valid) then
        call adios2_declare_io(ioWriter, adios, 'writer', ierr)
        call adios2_set_engine(ioWriter, 'BP5', ierr)
     end if
