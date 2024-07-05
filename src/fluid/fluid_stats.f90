@@ -128,7 +128,7 @@ module fluid_stats
      type(field_t) :: dwdz
 
      type(coef_t), pointer :: coef
-     integer, parameter :: n_stats = 44
+     integer :: n_stats = 44
      !> Used to write stats output
      !! pressure=pp
      !! x-vel=uu
