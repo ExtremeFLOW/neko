@@ -95,7 +95,33 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 <div class="title">Case File </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md_pages_user_guide_case_file"></a> The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is heirarchical and, and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
+<div class="toc"><h3>Table of Contents</h3>
+<ul><li class="level1"><a href="#autotoc_md23">High-level structure</a></li>
+<li class="level1"><a href="#autotoc_md24">Output frequency control</a></li>
+<li class="level1"><a href="#autotoc_md25">The case object</a></li>
+<li class="level1"><a href="#autotoc_md26">Numerics</a></li>
+<li class="level1"><a href="#autotoc_md27">Fluid</a><ul><li class="level2"><a href="#autotoc_md28">Material properties</a></li>
+<li class="level2"><a href="#case-file_boundary-types">Boundary types</a></li>
+<li class="level2"><a href="#case-file_fluid-if">Inflow boundary conditions</a></li>
+<li class="level2"><a href="#case-file_fluid-ic">Initial conditions</a></li>
+<li class="level2"><a href="#autotoc_md29">Blasius profile</a></li>
+<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md30">Brinkman</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="level1"><a href="#autotoc_md31">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md32">Flow rate forcing</a></li>
+<li class="level2"><a href="#autotoc_md33">Full parameter table</a></li>
+</ul>
+</li>
+<li class="level1"><a href="#case-file_scalar">Scalar</a></li>
+<li class="level1"><a href="#autotoc_md34">Statistics</a></li>
+<li class="level1"><a href="#autotoc_md35">Simulation components</a></li>
+<li class="level1"><a href="#autotoc_md36">Point zones</a></li>
+</ul>
+</div>
+<div class="textblock"><p><a class="anchor" id="md_pages_user_guide_case_file"></a></p>
+<p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is heirarchical and, and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
 <h1><a class="anchor" id="autotoc_md23"></a>
 High-level structure</h1>
 <p>The current high-level structure of the case file is shown below.</p>
@@ -517,7 +543,7 @@ Point zones</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Jul 5 2024 03:34:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jul 6 2024 03:34:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -95,7 +95,31 @@ $(document).ready(function(){initNavTree('d6/def/user-file.html','../../'); init
 <div class="title">User File </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md_pages_user_guide_user_file"></a> The user file is a fortran file where the user can implement their own functions to extend the capabilities of the default Neko executable. The user file can be used for setting advanced initial/boundary conditions, source terms, I/O operations, and interactions with the Neko framework.</p>
+<div class="toc"><h3>Table of Contents</h3>
+<ul><li class="level1"><a href="#autotoc_md69">Compiling and running</a></li>
+<li class="level1"><a href="#autotoc_md70">High-level structure</a></li>
+<li class="level1"><a href="#autotoc_md71">Default user functions</a><ul><li class="level2"><a href="#user-file_init-and-final">Initializing and finalizing</a></li>
+<li class="level2"><a href="#user-file_user-check">Computing at every time step</a></li>
+<li class="level2"><a href="#user-file_mat-prop">Setting material properties</a></li>
+<li class="level2"><a href="#user-file_user-mesh-setup">Runtime mesh deformation</a></li>
+<li class="level2"><a href="#user-file_scalar-bc">Scalar boundary conditions</a></li>
+<li class="level2"><a href="#user-file_simcomps">User defined simulation components</a></li>
+</ul>
+</li>
+<li class="level1"><a href="#autotoc_md72">Case-specific user functions</a><ul><li class="level2"><a href="#user-file_user-ic">Fluid and Scalar initial conditions</a></li>
+<li class="level2"><a href="#user-file_fluid-user-if">Fluid inflow condition</a></li>
+<li class="level2"><a href="#user-file_user-f">Fluid and scalar source terms</a></li>
+<li class="level2"><a href="#user-file_field-dirichlet-update">Complex fluid and/or scalar boundary conditions</a></li>
+</ul>
+</li>
+<li class="level1"><a href="#autotoc_md73">Additional remarks and tips</a><ul><li class="level2"><a href="#user-file_tips_running-on-gpus">Running on GPUs</a></li>
+<li class="level2"><a href="#user-file_tips_registries">Registries</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="textblock"><p><a class="anchor" id="md_pages_user_guide_user_file"></a></p>
+<p>The user file is a fortran file where the user can implement their own functions to extend the capabilities of the default Neko executable. The user file can be used for setting advanced initial/boundary conditions, source terms, I/O operations, and interactions with the Neko framework.</p>
 <h1><a class="anchor" id="autotoc_md69"></a>
 Compiling and running</h1>
 <p>The user file is a regular Fortran <code>.f90</code> file that needs to be compiled with <code>makeneko</code>, located in the <code>bin</code> folder of your neko installation. To compile a user file <code>user.f90</code>, run:</p>
@@ -397,7 +421,7 @@ Fluid inflow condition</h2>
 <div class="line">        }</div>
 <div class="line">    }</div>
 <div class="line">}</div>
-</div><!-- fragment --><p>See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-if">the relevant section</a> in the <a class="el" href="../../d1/d79/case-file_8md.html">case file page</a> for more details. The associated user function for the fluid inflow condition can then be added to the user file. An example inspired from the <a href="https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/lid/lid.f90#L29-L53">lid-driven cavity example</a> is shown below.</p>
+</div><!-- fragment --><p>See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-if">the relevant section</a> in the <a class="el" href="../../dd/d33/case-file.html">case file page</a> for more details. The associated user function for the fluid inflow condition can then be added to the user file. An example inspired from the <a href="https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/lid/lid.f90#L29-L53">lid-driven cavity example</a> is shown below.</p>
 <div class="fragment"><div class="line"><span class="comment">! user-defined boundary condition</span></div>
 <div class="line"> <span class="keyword">subroutine </span>user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)</div>
 <div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: u</div>
@@ -543,14 +567,14 @@ Complex fluid and/or scalar boundary conditions</h2>
 </div><!-- fragment --><p>The arguments and their purpose are as follows:</p>
 <ul>
 <li><code>field_bc_list</code> is the list of the field that can be edited. It is a list of <code>field_t</code> objects.<ul>
-<li>The field <code>i</code> contained in <code>field_bc_list</code> is accessed using <code>field_bc_listfields(i)f</code> and will refer to a <code>field_t</code> object.</li>
-<li>If <code>which_solver = "fluid"</code>, it will contain the 4 fields <code>u,v,w,p</code>. They are retrieved in that order in <code>field_bc_list</code>, i.e. <code>u</code> corresponds to <code>field_bc_listfields(1)f</code>, etc.</li>
+<li>The field <code>i</code> contained in <code>field_bc_list</code> is accessed using <code>field_bc_list%items(i)%ptr</code> and will refer to a <code>field_t</code> object.</li>
+<li>If <code>which_solver = "fluid"</code>, it will contain the 4 fields <code>u,v,w,p</code>. They are retrieved in that order in <code>field_bc_list</code>, i.e. <code>u</code> corresponds to <code>field_bc_list%items(1)%ptr</code>, etc.</li>
 <li>If <code>which_solver = "scalar"</code>, it will only contain the scalar field <code>s</code>.</li>
 </ul>
 </li>
 <li><code>bc_bc_list</code> contains a list of the <code>bc_t</code> objects to help access the boundary indices through the boundary <code>mask</code>.<ul>
-<li>The boundary <code>i</code> contained in <code>bc_bc_list</code> is accessed with <code>bc_bc_listbc(i)bcp</code>.</li>
-<li>The boundary mask of the <code>i</code>-th <code>bc_t</code> object contained in <code>bc_bc_list</code> is accessed with <code>bc_bc_listbc(i)bcpmsk</code>. It contains the linear indices of each GLL point on the <code>i</code>-th boundary facets. <dl class="section note"><dt>Note</dt><dd><code>msk(0)</code> contains the size of the array. The first boundary index is <code>msk(1)</code>.</dd></dl>
+<li>The boundary <code>i</code> contained in <code>bc_bc_list</code> is accessed with <code>bc_bc_list%bc(i)%bcp</code>.</li>
+<li>The boundary mask of the <code>i</code>-th <code>bc_t</code> object contained in <code>bc_bc_list</code> is accessed with <code>bc_bc_list%bc(i)%bcp%msk</code>. It contains the linear indices of each GLL point on the <code>i</code>-th boundary facets. <dl class="section note"><dt>Note</dt><dd><code>msk(0)</code> contains the size of the array. The first boundary index is <code>msk(1)</code>.</dd></dl>
 </li>
 <li>If <code>which_solver = "fluid"</code>, it will contain the 4 <code>bc_t</code> objects corresponding to <code>d_vel_u</code>, <code>d_vel_v</code>, <code>d_vel_w</code>, and <code>d_pres</code>. They can be retrieved in that order, in the same way as for <code>field_bc_list</code>.</li>
 <li>If <code>which_solver = "scalar"</code>, it will only the 1 <code>bc_t</code> object corresponding to <code>d_s</code>.</li>
@@ -560,7 +584,7 @@ Complex fluid and/or scalar boundary conditions</h2>
 <li><code>t</code>, <code>tstep</code> are self-explanatory.</li>
 <li><code>which_solver</code> takes the value <code>"fluid"</code> when the user function is called in the fluid solver. It takes the value <code>"scalar"</code> when it is called in the scalar solver.</li>
 </ul>
-<p>Links to the documentation to learn more about what the types mentioned above contain and how to use them: <a href="https://neko.cfd/docs/d3/d5f/structfield_1_1field__t.html">field_t type</a>, <a href="https://neko.cfd/docs/d6/db3/structbc_1_1bc__t.html">bc_t type</a>, <a href="https://neko.cfd/docs/d0/dea/structcoefs_1_1coef__t.html">coef_t type</a>.</p>
+<p>Links to the documentation to learn more about what the types mentioned above contain and how to use them: <code><a class="el" href="../../d3/dc1/field_8f90.html">src/field/field.f90</a></code>, <code><a class="el" href="../../df/df6/bc_8f90.html">src/bc/bc.f90</a></code>, <code><a class="el" href="../../db/d85/coef_8f90.html">src/sem/coef.f90</a></code>.</p>
 <p>The user function should be registered in <code>user_setup</code> with the following line:</p>
 <div class="fragment"><div class="line">u%user_dirichlet_update =&gt; dirichlet_update</div>
 </div><!-- fragment --><p>A very simple example illustrating the above is shown below, which is taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/feature/field_bcs/examples/cyl_boundary_layer/cyl_bl.f90">cyl_boundary_layer example</a></p>
@@ -577,21 +601,24 @@ Complex fluid and/or scalar boundary conditions</h2>
 <div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
 <div class="line">  <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: which_solver</div>
 <div class="line"> </div>
+<div class="line">  <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: y,z</div>
+<div class="line"> </div>
 <div class="line">  <span class="comment">! Only do this at the first time step since our BCs are constants.</span></div>
 <div class="line">  <span class="keywordflow">if</span> (tstep .ne. 1) <span class="keywordflow">return</span></div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">! Check that we are being called by `fluid`</span></div>
 <div class="line">  <span class="keywordflow">if</span> (trim(which_solver) .eq. <span class="stringliteral">&quot;fluid&quot;</span>) <span class="keywordflow">then</span></div>
 <div class="line"> </div>
-<div class="line">     associate(u =&gt; field_bc_list%fields(1)%f, &amp;</div>
-<div class="line">          v =&gt; field_bc_list%fields(2)%f, &amp;</div>
-<div class="line">          w =&gt; field_bc_list%fields(3)%f, &amp;</div>
-<div class="line">          p =&gt; field_bc_list%fields(4)%f)</div>
+<div class="line">     associate(u =&gt; field_bc_list%items(1)%ptr, &amp;</div>
+<div class="line">          v =&gt; field_bc_list%items(2)%ptr, &amp;</div>
+<div class="line">          w =&gt; field_bc_list%items(3)%ptr, &amp;</div>
+<div class="line">          p =&gt; field_bc_list%items(4)%ptr)</div>
 <div class="line"> </div>
 <div class="line">       <span class="comment">!</span></div>
 <div class="line">       <span class="comment">! Perform operations on u%x, v%x, w%x and p%x here</span></div>
-<div class="line">       <span class="comment">! Note that we are checking if fields are allocated. If the</span></div>
-<div class="line">       <span class="comment">! boundary types only contains e.g. &quot;d_vel_u/d_pres&quot;, the fields</span></div>
+<div class="line">       <span class="comment">! Note that we are checking if fields are allocated. If a</span></div>
+<div class="line">       <span class="comment">! boundary type only contains e.g. &quot;d_vel_u/d_pres&quot;, the fields</span></div>
 <div class="line">       <span class="comment">! v%x and w%x will not be allocated.</span></div>
 <div class="line">       <span class="comment">!</span></div>
 <div class="line">       <span class="comment">! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)</span></div>
@@ -607,7 +634,8 @@ Complex fluid and/or scalar boundary conditions</h2>
 <div class="line">  <span class="comment">! Check that we are being called by `scalar`</span></div>
 <div class="line">  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(which_solver) .eq. <span class="stringliteral">&quot;scalar&quot;</span>) <span class="keywordflow">then</span></div>
 <div class="line"> </div>
-<div class="line">     associate( s =&gt; field_bc_list%fields(1)%f )</div>
+<div class="line">     associate( s =&gt; field_bc_list%items(1)%ptr, &amp;</div>
+<div class="line">          s_bc =&gt; bc_bc_list%bc(1)%bcp)</div>
 <div class="line"> </div>
 <div class="line">       <span class="comment">!</span></div>
 <div class="line">       <span class="comment">! Perform operations on the scalar field here</span></div>
@@ -625,15 +653,13 @@ Complex fluid and/or scalar boundary conditions</h2>
 <div class="line"><span class="keywordflow">       end if</span></div>
 <div class="line">     <span class="keyword">end </span>associate</div>
 <div class="line"> </div>
-<div class="line">     <span class="keyword">end </span>associate</div>
-<div class="line"> </div>
 <div class="line"><span class="keywordflow">  end if</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end subroutine </span>dirichlet_update</div>
 </div><!-- fragment --><p>This example is applying constant dirichlet values at the selected boundaries for the velocity components and presure. The scalar is applied a function <code>s(y,z) = sin(y)*sin(z)</code> to demonstrate the usage of boundary masks.</p>
 <dl class="section attention"><dt>Attention</dt><dd>The notation <code>u = 1.0_rp</code> is only possible because of the overloading of the assignement operator <code>=</code> in <code>field_t</code>. In general, a field's array should be accessed and modified with <code>u%x</code>.</dd></dl>
 <p>Note that we are only applying our boundary values at the first timestep, which is done simply with the line <code>if (tstep .ne. 1) return</code>. This is a trick that can be used for time independent boundary profiles that require some kind of time consuming operation like interpolation or reading from a file, which would add overhead if executed at every time step.</p>
-<p>Observe that we always check if the fields are allocated before manipulating them. This is to prevent accidental memory access if only part of the velocity components or pressure are given in <code>case.fluid.boundary_types</code>. Fields in the lists are only allocated if they are present in the case file.For example, if we removed the <code>d_pres</code> condition in the JSON case file code snippet above, the pressure field for our boundary condition would not be allocated ( in the example above, <code>allocated(px)</code> would never be <code>true</code>). <code>"boundary_types": ["d_vel_u", "d_vel_v"]</code> will allocate the two first fields in <code>field_bc_list</code>, which is the same behaviour as <code>"boundary_types": ["d_vel_u/d_vel_v", ""]</code>.</p>
+<p>Observe that we always check if the fields are allocated before manipulating them. This is to prevent accidental memory access if only part of the velocity components or pressure are given in <code>case.fluid.boundary_types</code>. Fields in the lists are only allocated if they are present in the case file.For example, if we removed the <code>d_pres</code> condition in the JSON case file code snippet above, the pressure field for our boundary condition would not be allocated ( in the example above, <code>allocated(p%x)</code> would never be <code>true</code>). <code>"boundary_types": ["d_vel_u", "d_vel_v"]</code> will allocate the two first fields in <code>field_bc_list</code>, which is the same behaviour as <code>"boundary_types": ["d_vel_u/d_vel_v", ""]</code>.</p>
 <dl class="section attention"><dt>Attention</dt><dd>All the rules for <a class="el" href="../../d6/def/user-file.html#user-file_tips_running-on-gpus">Running on GPUs</a> apply when working on field arrays. Use <code>device_memcpy</code> to make sure the device arrays are also updated.</dd></dl>
 <h1><a class="anchor" id="autotoc_md73"></a>
 Additional remarks and tips</h1>
@@ -705,7 +731,7 @@ Registries</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Jul 5 2024 03:34:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jul 6 2024 03:34:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
