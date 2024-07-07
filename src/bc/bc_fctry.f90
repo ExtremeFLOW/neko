@@ -70,11 +70,6 @@ contains
        ! Note, the bc is now in the list even if the mask is zero.
        allocate(usr_scalar_t::object)
        call object%init(coef, json)
-       call object%mark_zone(coef%msh%wall)
-       call object%mark_zone(coef%msh%inlet)
-       call object%mark_zone(coef%msh%outlet)
-       call object%mark_zone(coef%msh%outlet_normal)
-       call object%mark_zone(coef%msh%sympln)
        call object%finalize()
 
        select type(obj => object)

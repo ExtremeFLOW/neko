@@ -49,15 +49,18 @@ module neumann
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
      real(kind=rp), allocatable, private :: flux_(:)
+     real(kind=rp), private ::  init_flux_
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
      procedure, pass(this) :: apply_vector => neumann_apply_vector
      procedure, pass(this) :: apply_scalar_dev => neumann_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
-     procedure, pass(this) :: finalize_neumann => neumann_finalize_neumann
      procedure, pass(this) :: flux => neumann_flux
      !> Constructor
      procedure, pass(this) :: init => neumann_init
+     !> Constructor from components
+     procedure, pass(this) :: init_from_components => &
+        neumann_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => neumann_free
      !> Finalize.
@@ -79,8 +82,20 @@ contains
     this%strong = .false.
 
     call json_get(json, "value", flux)
-    this%flux_ = flux
+    this%init_flux_ = flux
   end subroutine neumann_init
+
+  !> Constructor from components.
+  !! @param[in] coef The SEM coefficients.
+  !! @param[in] g The value to apply at the boundary.
+  subroutine neumann_init_from_components(this, coef, flux)
+    class(neumann_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), intent(in) :: flux
+
+    call this%init_base(coef)
+    this%init_flux_ = flux
+  end subroutine neumann_init_from_components
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x
@@ -161,15 +176,13 @@ contains
   end subroutine neumann_free
 
   !> Finalize by setting the flux.
-  !> @param flux The desired flux.
-  subroutine neumann_finalize(this, flux)
+  subroutine neumann_finalize(this)
     class(neumann_t), target, intent(inout) :: this
-    real(kind=rp), intent(in) :: flux
 
     call this%finalize_base()
     allocate(this%flux_(this%msk(0)))
 
-    call cfill(this%flux_, flux, this%msk(0))
+    call cfill(this%flux_, this%init_flux_, this%msk(0))
   end subroutine neumann_finalize
 
   !> Get the flux.
