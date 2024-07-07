@@ -2,6 +2,8 @@ module perturb
   use pcs_f
   use logger
   use num_types
+  use comm
+  use math
   use device
   use iso_c_binding
   implicit none
@@ -47,6 +49,12 @@ module perturb
        opts%fpopts%round = CPFLOAT_RND_NE !Round toward +infinity.
 
     end if
+    opts%fpopts%flip=CPFLOAT_SOFTERR_NO !> bitflips not
+    opts%fpopts%subnormal=CPFLOAT_SUBN_USE !> use subnormal
+    !> Uestion whether this is correct, I think this eliminates the impoartance of teh emax and emin...
+    opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
+    opts%fpopts%saturation=CPFLOAT_SAT_NO !> use staturation arithmetic
+
 
 
   end subroutine perturb_init_opts_char
@@ -70,7 +78,6 @@ module perturb
     type(pcs_struct), intent(in) :: opts
     real(kind=rp), dimension(n), intent(inout) :: temp
     integer :: ierr
-
     if ((opts%fpopts%precision .ne. 52)) then 
        call device_memcpy(temp, y_d, n, DEVICE_TO_HOST, sync=.true.)
        ierr = pcs(temp, temp,int(n,8),opts)
