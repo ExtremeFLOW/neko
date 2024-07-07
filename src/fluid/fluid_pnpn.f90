@@ -630,7 +630,6 @@ contains
 
       call field_add2(p, dp, n)
       else
-      end if
 
 
       ! Compute velocity.
