@@ -82,6 +82,7 @@ module fluid_scheme
   use material_properties, only : material_properties_t
   use field_series
   use time_step_controller
+  use field_math, only : field_cfill
   implicit none
 
   !> Base type of all fluid formulations
@@ -269,6 +270,10 @@ contains
     else
        this%nut_field_name = ""
     end if
+
+    ! Fill mu field with the physical value
+    call this%mu_field%init(this%dm_Xh, "mu")
+    call field_cfill(this%mu_field, this%mu, this%mu_field%size())
 
 
     ! Projection spaces
@@ -740,6 +745,8 @@ contains
     nullify(this%f_x)
     nullify(this%f_y)
     nullify(this%f_z)
+
+    call this%mu_field%free()
 
 
   end subroutine fluid_scheme_free
