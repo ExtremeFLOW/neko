@@ -38,7 +38,7 @@ module device
   use hip_intf
   use htable, only : htable_cptr_t, h_cptr_t
   use utils, only : neko_error
-  use dummy_device  
+  use dummy_device
   use opencl_prgm_lib
   use, intrinsic :: iso_c_binding
   implicit none
@@ -76,7 +76,7 @@ module device
      module procedure device_deassociate_r1, device_deassociate_r2, &
           device_deassociate_r3, device_deassociate_r4
   end interface device_deassociate
-  
+
   !> Return the device pointer for an associated Fortran array
   interface device_get_ptr
      module procedure device_get_ptr_r1, device_get_ptr_r2, &
@@ -87,7 +87,7 @@ module device
   interface device_sync
      module procedure device_sync_device, device_sync_stream
   end interface device_sync
-      
+
   !> Table of host to device address mappings
   type(htable_cptr_t), private :: device_addrtbl
 
@@ -100,7 +100,7 @@ module device
        device_stream_wait_event
 
   private :: device_memcpy_common
-  
+
 contains
 
   subroutine device_init
@@ -115,7 +115,7 @@ contains
     call opencl_init
 #endif
 
-#endif    
+#endif
   end subroutine device_init
 
   subroutine device_finalize
@@ -145,7 +145,7 @@ contains
     call opencl_device_name(name)
 #endif
   end subroutine device_name
-  
+
   !> Allocate memory on the device
   subroutine device_alloc(x_d, s)
     type(c_ptr), intent(inout) :: x_d
@@ -192,21 +192,10 @@ contains
     class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s
-    logical :: sync_device
-
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
 
     if (present(strm)) then
        copy_stream = strm
@@ -218,7 +207,7 @@ contains
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -231,8 +220,8 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
-    
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
+
   end subroutine device_memcpy_r1
 
   !> Copy data between host and device (rank 2 arrays)
@@ -241,21 +230,10 @@ contains
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s
-    logical :: sync_device
-    
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
 
     if (present(strm)) then
        copy_stream = strm
@@ -267,7 +245,7 @@ contains
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -280,8 +258,8 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
-    
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
+
   end subroutine device_memcpy_r2
 
   !> Copy data between host and device (rank 3 arrays)
@@ -290,33 +268,22 @@ contains
     class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
     integer(c_size_t) :: s
-    logical :: sync_device
-
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
 
     if (present(strm)) then
        copy_stream = strm
     else
        copy_stream = glb_cmd_queue
     end if
-    
+
     select type(x)
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -329,8 +296,8 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
-    
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
+
   end subroutine device_memcpy_r3
 
   !> Copy data between host and device (rank 4 arrays)
@@ -339,33 +306,22 @@ contains
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
-    logical, optional :: sync
+    logical :: sync
     type(c_ptr), optional :: strm
     type(c_ptr) :: ptr_h, copy_stream
-    integer(c_size_t) :: s    
-    logical :: sync_device
-
-    if (present(sync)) then
-       sync_device = sync
-    else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
-       sync_device = .false.
-#else
-       sync_device = .true.
-#endif
-    end if
+    integer(c_size_t) :: s
 
     if (present(strm)) then
        copy_stream = strm
     else
        copy_stream = glb_cmd_queue
     end if
-    
+
     select type(x)
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -378,8 +334,8 @@ contains
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_memcpy_common(ptr_h, x_d, s, dir, sync_device, copy_stream)
-    
+    call device_memcpy_common(ptr_h, x_d, s, dir, sync, copy_stream)
+
   end subroutine device_memcpy_r4
 
   !> Copy data between host and device (or device and device) (c-pointers)
@@ -398,11 +354,7 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
-#if defined(HAVE_CUDA) || defined (HAVE_HIP)
        sync_device = .false.
-#else
-       sync_device = .true.
-#endif
     end if
 
     if (present(strm)) then
@@ -412,9 +364,9 @@ contains
     end if
 
     call device_memcpy_common(dst, src, s, dir, sync_device, copy_stream)
-    
+
   end subroutine device_memcpy_cptr
-  
+
   !> Copy data between host and device
   !! @note For device to device copies, @a ptr_h is assumed
   !! to be the dst device pointer
@@ -431,12 +383,12 @@ contains
             hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
           call neko_error('Device memcpy async (host-to-device) failed')
        end if
-    else if (dir .eq. DEVICE_TO_HOST) then       
+    else if (dir .eq. DEVICE_TO_HOST) then
        if (hipMemcpyAsync(ptr_h, x_d, s, &
             hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
           call neko_error('Device memcpy async (device-to-host) failed')
        end if
-    else if (dir .eq. DEVICE_TO_DEVICE) then       
+    else if (dir .eq. DEVICE_TO_DEVICE) then
        if (hipMemcpyAsync(ptr_h, x_d, s, &
             hipMemcpyDeviceToDevice, stream) .ne. hipSuccess) then
           call neko_error('Device memcpy async (device-to-device) failed')
@@ -453,12 +405,12 @@ contains
             cudaMemcpyHostToDevice, stream) .ne. cudaSuccess) then
           call neko_error('Device memcpy async (host-to-device) failed')
        end if
-    else if (dir .eq. DEVICE_TO_HOST) then       
+    else if (dir .eq. DEVICE_TO_HOST) then
        if (cudaMemcpyAsync(ptr_h, x_d, s, &
             cudaMemcpyDeviceToHost, stream) .ne. cudaSuccess) then
           call neko_error('Device memcpy async (device-to-host) failed')
        end if
-    else if (dir .eq. DEVICE_TO_DEVICE) then       
+    else if (dir .eq. DEVICE_TO_DEVICE) then
        if (cudaMemcpyAsync(ptr_h, x_d, s, &
             cudaMemcpyDeviceToDevice, stream) .ne. cudaSuccess) then
           call neko_error('Device memcpy async (device-to-device) failed')
@@ -479,7 +431,7 @@ contains
        else if (dir .eq. DEVICE_TO_HOST) then
           if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
-             call neko_error('Device memcpy (host-to-device) failed')
+             call neko_error('Device memcpy (device-to-host) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
           if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_i8, 0_i8, s, &
@@ -498,7 +450,7 @@ contains
        else if (dir .eq. DEVICE_TO_HOST) then
           if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
-             call neko_error('Device memcpy (host-to-device) failed')
+             call neko_error('Device memcpy (device-to-host) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
           if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_i8, 0_i8, s, &
@@ -521,7 +473,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -532,7 +484,7 @@ contains
     end select
 
     htbl_ptr_d%ptr = x_d
-    
+
     call device_addrtbl%set(htbl_ptr_h, htbl_ptr_d)
 
   end subroutine device_associate_r1
@@ -546,7 +498,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -557,7 +509,7 @@ contains
     end select
 
     htbl_ptr_d%ptr = x_d
-    
+
     call device_addrtbl%set(htbl_ptr_h, htbl_ptr_d)
 
   end subroutine device_associate_r2
@@ -571,7 +523,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -582,7 +534,7 @@ contains
     end select
 
     htbl_ptr_d%ptr = x_d
-    
+
     call device_addrtbl%set(htbl_ptr_h, htbl_ptr_d)
 
   end subroutine device_associate_r3
@@ -596,7 +548,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -607,7 +559,7 @@ contains
     end select
 
     htbl_ptr_d%ptr = x_d
-    
+
     call device_addrtbl%set(htbl_ptr_h, htbl_ptr_d)
 
   end subroutine device_associate_r4
@@ -620,7 +572,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -644,7 +596,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -653,7 +605,7 @@ contains
     class default
        call neko_error('Unknown Fortran type')
     end select
-    
+
     if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
        call device_addrtbl%remove(htbl_ptr_h)
     end if
@@ -668,7 +620,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -692,7 +644,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(i8))       
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -707,7 +659,7 @@ contains
     end if
 
   end subroutine device_deassociate_r4
-  
+
   !> Map a Fortran rank 1 array to a device (allocate and associate)
   subroutine device_map_r1(x, x_d, n)
     integer, intent(in) :: n
@@ -846,9 +798,9 @@ contains
     if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
        assoc = .true.
     else
-       assoc = .false.       
+       assoc = .false.
     end if
-    
+
   end function device_associated_r1
 
   !> Check if a Fortran rank 2 array is assoicated with a device pointer
@@ -873,9 +825,9 @@ contains
     if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
        assoc = .true.
     else
-       assoc = .false.       
+       assoc = .false.
     end if
-    
+
   end function device_associated_r2
 
   !> Check if a Fortran rank 3 array is assoicated with a device pointer
@@ -900,9 +852,9 @@ contains
     if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
        assoc = .true.
     else
-       assoc = .false.       
+       assoc = .false.
     end if
-    
+
   end function device_associated_r3
 
   !> Check if a Fortran rank 4 array is assoicated with a device pointer
@@ -927,9 +879,9 @@ contains
     if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
        assoc = .true.
     else
-       assoc = .false.       
+       assoc = .false.
     end if
-    
+
   end function device_associated_r4
 
   !> Return the device pointer for an associated Fortran rank 1 array
@@ -1043,7 +995,7 @@ contains
        call neko_error('Array not associated with device')
     end if
   end function device_get_ptr_r4
-  
+
   !> Synchronize the device
   subroutine device_sync_device()
 #ifdef HAVE_HIP
@@ -1108,7 +1060,7 @@ contains
     stream = clCreateCommandQueue(glb_ctx, glb_device_id, 0_i8, ierr)
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Error during stream create')
-    end if       
+    end if
 #endif
   end subroutine device_stream_create
 
@@ -1141,7 +1093,7 @@ contains
        call neko_error('Error during stream destroy')
     end if
 #elif HAVE_OPENCL
-    if (clReleaseCommandQueue(stream) .eq. CL_SUCCESS) then
+    if (clReleaseCommandQueue(stream) .ne. CL_SUCCESS) then
        call neko_error('Error during stream destroy')
     end if
 #endif
@@ -1166,7 +1118,7 @@ contains
 !    end if
 #endif
   end subroutine device_stream_wait_event
-  
+
   !> Start device profiling
   subroutine device_profiler_start()
 #if HAVE_CUDA
@@ -1175,7 +1127,7 @@ contains
     end if
 #endif
   end subroutine device_profiler_start
-  
+
   !> Stop device profiling
   subroutine device_profiler_stop()
 #if HAVE_CUDA
@@ -1232,7 +1184,7 @@ contains
     end if
 #endif
   end subroutine device_event_destroy
-  
+
   !> Record a device event
   subroutine device_event_record(event, stream)
     type(c_ptr), intent(in) :: event
@@ -1264,11 +1216,11 @@ contains
        call neko_error('Error during event sync')
     end if
 #elif HAVE_OPENCL
-    if (clWaitForEvents(1, event) .eq. CL_SUCCESS) then
+    if (clWaitForEvents(1, event) .ne. CL_SUCCESS) then
        call neko_error('Error during event sync')
     end if
 #endif
   end subroutine device_event_sync
 
-  
+
 end module device

@@ -37,7 +37,7 @@ module device_schwarz
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
-  
+
 #ifdef HAVE_HIP
   interface
      subroutine hip_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx, nelv, stream) &
@@ -55,7 +55,7 @@ module device_schwarz
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       type(c_ptr), value :: a_d, b_d, stream 
+       type(c_ptr), value :: a_d, b_d, stream
        integer(c_int) :: nx, nelv
      end subroutine hip_schwarz_toext3d
      subroutine hip_schwarz_toreg3d(b_d,a_d,nx, nelv, stream) &
@@ -63,7 +63,7 @@ module device_schwarz
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       type(c_ptr), value :: a_d, b_d, stream 
+       type(c_ptr), value :: a_d, b_d, stream
        integer(c_int) :: nx, nelv
      end subroutine hip_schwarz_toreg3d
   end interface
@@ -74,7 +74,7 @@ module device_schwarz
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       type(c_ptr), value :: arr1_d, arr2_d, stream 
+       type(c_ptr), value :: arr1_d, arr2_d, stream
 
        integer(c_int) :: l1, l2, nx, nelv
        real(c_rp) :: f1, f2
@@ -92,35 +92,35 @@ module device_schwarz
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       type(c_ptr), value :: a_d, b_d, stream 
+       type(c_ptr), value :: a_d, b_d, stream
        integer(c_int) :: nx, nelv
      end subroutine cuda_schwarz_toreg3d
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx, nelv) &
+     subroutine opencl_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx, nelv, stream) &
           bind(c, name='opencl_schwarz_extrude')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       type(c_ptr), value :: arr1_d, arr2_d
+       type(c_ptr), value :: arr1_d, arr2_d, stream
        integer(c_int) :: l1, l2, nx, nelv
        real(c_rp) :: f1, f2
      end subroutine opencl_schwarz_extrude
-     subroutine opencl_schwarz_toext3d(a_d,b_d,nx, nelv) &
+     subroutine opencl_schwarz_toext3d(a_d,b_d,nx, nelv, stream) &
           bind(c, name='opencl_schwarz_toext3d')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       type(c_ptr), value :: a_d, b_d
+       type(c_ptr), value :: a_d, b_d, stream
        integer(c_int) :: nx, nelv
      end subroutine opencl_schwarz_toext3d
-     subroutine opencl_schwarz_toreg3d(b_d,a_d,nx, nelv) &
+     subroutine opencl_schwarz_toreg3d(b_d,a_d,nx, nelv, stream) &
           bind(c, name='opencl_schwarz_toreg3d')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       type(c_ptr), value :: a_d, b_d
+       type(c_ptr), value :: a_d, b_d, stream
        integer(c_int) :: nx, nelv
      end subroutine opencl_schwarz_toreg3d
   end interface
@@ -128,7 +128,7 @@ module device_schwarz
 
   public :: device_schwarz_extrude, device_schwarz_toext3d, &
        device_schwarz_toreg3d
-  
+
 contains
   subroutine device_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,ny,nz, nelv, stream)
     integer, intent(in) :: l1,l2,nx,ny,nz, nelv
@@ -143,7 +143,7 @@ contains
 #elif HAVE_CUDA
     call cuda_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,nelv, stream)
 #elif HAVE_OPENCL
-    call opencl_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,nelv)
+    call opencl_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,nelv, stream)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -162,7 +162,7 @@ contains
 #elif HAVE_CUDA
     call cuda_schwarz_toext3d(a_d,b_d,nx,nelv, stream)
 #elif HAVE_OPENCL
-    call opencl_schwarz_toext3d(a_d,b_d,nx,nelv)
+    call opencl_schwarz_toext3d(a_d,b_d,nx,nelv, stream)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -180,7 +180,7 @@ contains
 #elif HAVE_CUDA
     call cuda_schwarz_toreg3d(b_d,a_d,nx,nelv, stream)
 #elif HAVE_OPENCL
-    call opencl_schwarz_toreg3d(b_d,a_d,nx,nelv)
+    call opencl_schwarz_toreg3d(b_d,a_d,nx,nelv, stream)
 #else
     call neko_error('No device backend configured')
 #endif

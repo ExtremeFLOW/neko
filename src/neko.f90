@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2023, The Neko Authors
+! Copyright (c) 2019-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ module neko
   use mxm_wrapper
   use global_interpolation
   use file
-  use field, only : field_t
+  use field, only : field_t, field_ptr_t
   use neko_mpi_types
   use gather_scatter
   use coefs
@@ -76,19 +76,23 @@ module neko
   use jobctrl
   use device
   use device_math
+  use map_1d
   use cpr
   use fluid_stats
   use field_list, only : field_list_t
   use fluid_user_source_term
+  use scalar_user_source_term
   use vector
+  use matrix
   use tensor
   use simulation_component
   use probes
   use spectral_error_indicator
   use system
+  use drag_torque
   use field_registry, only : neko_field_registry
   use scratch_registry, only : neko_scratch_registry
-  use simulation_component_global, only : simcomps_global_init
+  use simcomp_executor, only : neko_simcomps
   use data_streamer
   use time_interpolator
   use point_interpolator, only : point_interpolator_t
@@ -111,7 +115,7 @@ contains
     character(8) :: date
     integer :: argc, nthrds, rw, sw
 
-    call date_and_time(time=time, date=date)           
+    call date_and_time(time=time, date=date)
 
     call comm_init
     call neko_mpi_types_init
@@ -153,12 +157,12 @@ contains
        !
        ! Job information
        !
-       call neko_log%section("Job Information")       
+       call neko_log%section("Job Information")
        write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
             time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
        write(log_buf, '(a)') 'Running on: '
-       sw = 10 
+       sw = 10
        if (pe_size .lt. 1e1)  then
           write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
           if (pe_size .eq. 1) then
@@ -184,7 +188,7 @@ contains
           write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
           rw = 6
        end if
-       
+
        nthrds = 1
        !$omp parallel
        !$omp master
@@ -193,7 +197,7 @@ contains
        !$omp end parallel
 
        if (nthrds .gt. 1) then
-          if (nthrds .lt. 1e1) then                
+          if (nthrds .lt. 1e1) then
              write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
                   nthrds, ' thrds each'
           else if (nthrds .lt. 1e2) then
@@ -207,11 +211,11 @@ contains
                   nthrds, ' thrds each'
           end if
        end if
-       call neko_log%message(log_buf)      
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
        write(log_buf, '(a)') 'CPU type  : '
        call system_cpu_name(log_buf(13:))
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
        write(log_buf, '(a)') 'Bcknd type: '
        if (NEKO_BCKND_SX .eq. 1) then
@@ -227,13 +231,13 @@ contains
        else
           write(log_buf(13:), '(a)') 'CPU'
        end if
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
        if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
             NEKO_BCKND_OPENCL .eq. 1) then
           write(log_buf, '(a)') 'Dev. name : '
           call device_name(log_buf(13:))
-          call neko_log%message(log_buf)
+          call neko_log%message(log_buf, NEKO_LOG_QUIET)
        end if
 
        write(log_buf, '(a)') 'Real type : '
@@ -245,7 +249,7 @@ contains
        case (real128)
           write(log_buf(13:), '(a)') 'quad precision'
        end select
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
        call neko_log%end()
 
@@ -257,10 +261,10 @@ contains
        !
        ! Create simulation components
        !
-       call simcomps_global_init(C)
-       
+       call neko_simcomps%init(C)
+
     end if
-    
+
   end subroutine neko_init
 
   subroutine neko_finalize(C)
@@ -269,7 +273,7 @@ contains
     if (present(C)) then
        call case_free(C)
     end if
-    
+
     call neko_field_registry%free()
     call neko_scratch_registry%free()
     call device_finalize

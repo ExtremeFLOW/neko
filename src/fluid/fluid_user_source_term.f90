@@ -36,7 +36,6 @@ module fluid_user_source_term
   use num_types, only : rp
   use utils, only : neko_error
   use source_term, only : source_term_t
-  use field, only : field_t
   use json_module, only : json_file
   use field_list, only : field_list_t
   use coefs, only : coef_t
@@ -54,13 +53,13 @@ module fluid_user_source_term
   !! actual implementation in the user file.
   !! @details The user source term can be applied either pointiwse or acting
   !! on the whole array in a single call, which is referred to as "vector"
-  !! application. 
+  !! application.
   !! @warning
   !! The user source term does not support init from JSON and should instead be
   !! directly initialized from components.
   type, public, extends(source_term_t) :: fluid_user_source_term_t
      !> Pointer to the dofmap of the right-hand-side fields.
-     type(dofmap_t), pointer :: dm 
+     type(dofmap_t), pointer :: dm
      !> x-component of source term.
      real(kind=rp), allocatable :: u(:, :, :, :)
      !> y-component of source term.
@@ -78,7 +77,7 @@ module fluid_user_source_term
      procedure(fluid_source_compute_pointwise), nopass, pointer :: compute_pw_ &
        => null()
      !> Compute the source term for the entire boundary
-     procedure(fluid_source_compute_vector), nopass, pointer :: compute_ & 
+     procedure(fluid_source_compute_vector), nopass, pointer :: compute_vector_&
        => null()
    contains
      !> Constructor from JSON (will throw!).
@@ -89,14 +88,14 @@ module fluid_user_source_term
      !> Destructor.
      procedure, pass(this) :: free => fluid_user_source_term_free
      !> Computes the source term and adds the result to `fields`.
-     procedure, pass(this) :: compute => fluid_user_source_term_compute
+     procedure, pass(this) :: compute_ => fluid_user_source_term_compute
   end type fluid_user_source_term_t
 
   abstract interface
      !> Computes the source term and adds the result to `fields`.
      !! @param t The time value.
      !! @param tstep The current time-step.
-     subroutine fluid_source_compute_vector(this, t)  
+     subroutine fluid_source_compute_vector(this, t)
        import fluid_user_source_term_t, rp
        class(fluid_user_source_term_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
@@ -111,7 +110,7 @@ module fluid_user_source_term
      !! @param j The x-index of GLL point.
      !! @param k The y-index of GLL point.
      !! @param l The z-index of GLL point.
-     !! @param e The index of element. 
+     !! @param e The index of element.
      !! @param t The time value.
      subroutine fluid_source_compute_pointwise(u, v, w, j, k, l, e, t)
        import rp
@@ -145,7 +144,7 @@ contains
   !> Costructor from components.
   !! @param fields A list of 3 fields for adding the source values.
   !! @param coef The SEM coeffs.
-  !! @param sourc_termtype The type of the user source term, "user_vector" or 
+  !! @param sourc_termtype The type of the user source term, "user_vector" or
   !! "user_pointwise".
   !! @param eval_vector The procedure to vector-compute the source term.
   !! @param eval_pointwise The procedure to pointwise-compute the source term.
@@ -159,7 +158,7 @@ contains
     procedure(fluid_source_compute_pointwise), optional :: eval_pointwise
 
     call this%free()
-    call this%init_base(fields, coef)
+    call this%init_base(fields, coef, 0.0_rp, huge(0.0_rp))
 
     this%dm => fields%fields(1)%f%dof
 
@@ -186,11 +185,11 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_error('Pointwise source terms not supported on accelerators')
        end if
-       this%compute_ => pointwise_eval_driver
+       this%compute_vector_ => pointwise_eval_driver
        this%compute_pw_ => eval_pointwise
     else if (trim(source_term_type) .eq. 'user_vector' .and. &
              present(eval_vector)) then
-       this%compute_ => eval_vector
+       this%compute_vector_ => eval_vector
     else
        call neko_error('Invalid fluid source term '//source_term_type)
     end if
@@ -208,7 +207,7 @@ contains
     if (c_associated(this%v_d)) call device_free(this%v_d)
     if (c_associated(this%w_d)) call device_free(this%w_d)
 
-    nullify(this%compute_)
+    nullify(this%compute_vector_)
     nullify(this%compute_pw_)
     nullify(this%dm)
 
@@ -224,14 +223,14 @@ contains
     integer, intent(in) :: tstep
     integer :: n
 
-    call this%compute_(this, t)
+    call this%compute_vector_(this, t)
     n = this%fields%fields(1)%f%dof%size()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(this%fields%fields(1)%f%x_d, this%u_d, n)
        call device_add2(this%fields%fields(2)%f%x_d, this%v_d, n)
        call device_add2(this%fields%fields(3)%f%x_d, this%w_d, n)
-    else 
+    else
        call add2(this%fields%fields(1)%f%x, this%u, n)
        call add2(this%fields%fields(2)%f%x, this%v, n)
        call add2(this%fields%fields(3)%f%x, this%w, n)
@@ -249,26 +248,26 @@ contains
 
     select type (this)
     type is (fluid_user_source_term_t)
-      do e = 1, size(this%u, 4)
-         ee = e
-         do l = 1, size(this%u, 3)
-            ll = l
-            do k = 1, size(this%u, 2)
-               kk = k
-               do j = 1, size(this%u, 1)
-                  jj =j
-                  call this%compute_pw_(this%u(j,k,l,e), &
+       do e = 1, size(this%u, 4)
+          ee = e
+          do l = 1, size(this%u, 3)
+             ll = l
+             do k = 1, size(this%u, 2)
+                kk = k
+                do j = 1, size(this%u, 1)
+                   jj =j
+                   call this%compute_pw_(this%u(j,k,l,e), &
                                         this%v(j,k,l,e), &
                                         this%w(j,k,l,e), &
                                         jj, kk, ll, ee, t)
-               end do
-            end do
-         end do
-      end do
+                end do
+             end do
+          end do
+       end do
     class default
        call neko_error('Incorrect source type in pointwise eval driver!')
     end select
-    
+
   end subroutine pointwise_eval_driver
-  
+
 end module fluid_user_source_term

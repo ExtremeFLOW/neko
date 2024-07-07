@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[0.7.2])
+AC_INIT([neko],[0.8.0])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -70,6 +70,10 @@ AC_LANG_POP([C])
 
 # Set necessary flags to fix issues with various compilers
 if test "x$ax_cv_fc_compiler_vendor" = xportland; then
+   FCFLAGS="$FCFLAGS  -Mbackslash"
+fi
+
+if test "x$ax_cv_fc_compiler_vendor" = xnvhpc; then
    FCFLAGS="$FCFLAGS  -Mbackslash"
 fi
 
@@ -261,6 +265,7 @@ AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
+AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
 
 # Set device dependent flags
 AC_SUBST(CUDA_ARCH)
@@ -327,8 +332,10 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
 		    contrib/average_fields_in_time/Makefile\
+		    contrib/calc_lift_from_field/Makefile\
 		    contrib/postprocess_fluid_stats/Makefile\
 		    contrib/average_field_in_space/Makefile\
+		    contrib/map_to_equidistant_1d/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen

@@ -5,7 +5,7 @@ module scalar_residual_sx
   use operators
   implicit none
   private
-  
+
   type, public, extends(scalar_residual_t) :: scalar_residual_sx_t
    contains
      procedure, nopass :: compute => scalar_residual_sx_compute
@@ -17,10 +17,10 @@ contains
       lambda, rhocp, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh    
+    type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: s
     type(field_t), intent(inout) :: s_res
-    type(source_scalar_t), intent(inout) :: f_Xh
+    type(field_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     real(kind=rp), intent(in) :: lambda
     real(kind=rp), intent(in) :: rhocp
@@ -39,9 +39,9 @@ contains
     call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
 
     do i = 1, n
-       s_res%x(i,1,1,1) = (-s_res%x(i,1,1,1)) + f_Xh%s(i,1,1,1)
+       s_res%x(i,1,1,1) = (-s_res%x(i,1,1,1)) + f_Xh%x(i,1,1,1)
     end do
-    
-  end subroutine scalar_residual_sx_compute  
-     
+
+  end subroutine scalar_residual_sx_compute
+
 end module scalar_residual_sx

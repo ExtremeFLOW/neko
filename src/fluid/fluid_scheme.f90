@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ module fluid_scheme
   use checkpoint, only : chkp_t
   use mean_flow, only : mean_flow_t
   use num_types
+  use comm
   use fluid_user_source_term, only: fluid_user_source_term_t
   use fluid_source_term, only: fluid_source_term_t
   use field_list, only : field_list_t
@@ -54,6 +55,8 @@ module fluid_scheme
   use dong_outflow, only : dong_outflow_t
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
+  use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
+  use field_dirichlet_vector, only: field_dirichlet_vector_t
   use krylov_fctry
   use precon_fctry
   use fluid_stats, only : fluid_stats_t
@@ -68,20 +71,20 @@ module fluid_scheme
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
-  use source_term, only : source_term_wrapper_t
-  use source_term_fctry, only : source_term_factory
-  use const_source_term, only : const_source_term_t
   use user_intf, only : user_t
   use utils, only : neko_warning, neko_error
   use material_properties, only : material_properties_t
+  use field_series
+  use time_step_controller
   implicit none
-  
+
   !> Base type of all fluid formulations
   type, abstract :: fluid_scheme_t
      type(field_t), pointer :: u => null() !< x-component of Velocity
      type(field_t), pointer :: v => null() !< y-component of Velocity
      type(field_t), pointer :: w => null() !< z-component of Velocity
      type(field_t), pointer :: p => null() !< Pressure
+     type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
@@ -98,19 +101,28 @@ module fluid_scheme
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
      class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
-     integer :: ksp_vel_maxiter                !< Max iterations in ksp_vel
-     integer :: ksp_pr_maxiter                 !< Max iterattions in ksp_pr
      integer :: vel_projection_dim         !< Size of the projection space for ksp_vel
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
+     integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
+     integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+
+     ! Attributes for field dirichlet BCs
+     type(field_dirichlet_vector_t) :: bc_field_vel   !< Field Dirichlet velocity condition
+     type(field_dirichlet_t) :: bc_field_prs   !< Field Dirichlet pressure condition
+     procedure(field_dirichlet_update), nopass, pointer :: dirichlet_update_ &
+          => null() !< Pointer to user_dirichlet_update to be called in fluid_scheme_step
+     type(bc_list_t) :: field_dirichlet_bcs       !< List of BC objects to pass to user_dirichlet_update
+     type(field_list_t) :: field_dirichlet_fields !< List of fields to pass to user_dirichlet_update
+
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
-     type(field_t) :: bdry                     !< Boundary markings     
-     type(json_file), pointer :: params        !< Parameters          
+     type(field_t) :: bdry                     !< Boundary markings
+     type(json_file), pointer :: params        !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
      type(mean_flow_t) :: mean                 !< Mean flow field
@@ -119,12 +131,12 @@ module fluid_scheme
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
      !> Dynamic viscosity
-     real(kind=rp), pointer :: mu
+     real(kind=rp), pointer :: mu => null()
      !> Density
-     real(kind=rp), pointer :: rho
+     real(kind=rp), pointer :: rho => null()
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
-     character(len=20), allocatable :: bc_labels(:)
+     character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -155,7 +167,7 @@ module fluid_scheme
        integer, intent(inout) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), intent(in) :: user
-       type(material_properties_t), intent(inout) :: material_properties
+       type(material_properties_t), target, intent(inout) :: material_properties
      end subroutine fluid_scheme_init_intrf
   end interface
 
@@ -166,18 +178,20 @@ module fluid_scheme
        class(fluid_scheme_t), intent(inout) :: this
      end subroutine fluid_scheme_free_intrf
   end interface
-  
+
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf)
+     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
        import fluid_scheme_t
        import time_scheme_controller_t
+       import time_step_controller_t
        import rp
-       class(fluid_scheme_t), intent(inout) :: this
+       class(fluid_scheme_t), target, intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
        real(kind=rp), intent(in) :: dt
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
+       type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine fluid_scheme_step_intrf
   end interface
 
@@ -191,7 +205,6 @@ module fluid_scheme
 
      end subroutine fluid_scheme_restart_intrf
   end interface
-
 
 contains
 
@@ -211,11 +224,11 @@ contains
     real(kind=rp), allocatable :: real_vec(:)
     real(kind=rp) :: real_val
     logical :: logical_val
-    integer :: integer_val
+    integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
     ! A local pointer that is needed to make Intel happy
 
-    
+
     call neko_log%section('Fluid')
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
     call neko_log%message(log_buf)
@@ -270,12 +283,6 @@ contains
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
 
-    call json_get_or_default(params, &
-                            'case.fluid.velocity_solver.max_iterations', &
-                            this%ksp_vel_maxiter, 800)
-    call json_get_or_default(params, &
-                            'case.fluid.pressure_solver.max_iterations', &
-                            this%ksp_pr_maxiter, 800)
 
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
@@ -283,12 +290,19 @@ contains
     call json_get_or_default(params, &
                             'case.fluid.pressure_solver.projection_space_size',&
                             this%pr_projection_dim, 20)
+    call json_get_or_default(params, &
+                            'case.fluid.velocity_solver.projection_hold_steps',&
+                            this%vel_projection_activ_step, 5)
+    call json_get_or_default(params, &
+                            'case.fluid.pressure_solver.projection_hold_steps',&
+                            this%pr_projection_activ_step, 5)
+
 
     call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
 
-   if (params%valid_path("case.fluid.flow_rate_force")) then
-      this%forced_flow_rate = .true.
-   end if
+    if (params%valid_path("case.fluid.flow_rate_force")) then
+       this%forced_flow_rate = .true.
+    end if
 
     if (msh%gdim .eq. 2) then
        call this%Xh%init(GLL, lx, lx)
@@ -306,12 +320,12 @@ contains
 
     call this%c_Xh%init(this%gs_Xh)
 
-    
+
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
     allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
     this%bc_labels = "not"
-    
+
     !
     ! Setup velocity boundary conditions
     !
@@ -320,19 +334,19 @@ contains
                                   'case.fluid.boundary_types', &
                                   this%bc_labels)
     end if
-    
+
     call bc_list_init(this%bclst_vel)
 
-    call this%bc_sym%init(this%dm_Xh)
+    call this%bc_sym%init(this%c_Xh)
     call this%bc_sym%mark_zone(msh%sympln)
     call this%bc_sym%mark_zones_from_list(msh%labeled_zones,&
                         'sym', this%bc_labels)
     call this%bc_sym%finalize()
-    call this%bc_sym%init_msk(this%c_Xh)    
+    call this%bc_sym%init_msk()
     call bc_list_add(this%bclst_vel, this%bc_sym)
 
     !
-    ! Inflow 
+    ! Inflow
     !
     if (params%valid_path('case.fluid.inflow_condition')) then
        call json_get(params, 'case.fluid.inflow_condition.type', string_val1)
@@ -346,7 +360,7 @@ contains
           call neko_error('Invalid inflow condition '//string_val1)
        end if
 
-       call this%bc_inflow%init(this%dm_Xh)
+       call this%bc_inflow%init(this%c_Xh)
        call this%bc_inflow%mark_zone(msh%inlet)
        call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
                         'v', this%bc_labels)
@@ -354,8 +368,8 @@ contains
        call bc_list_add(this%bclst_vel, this%bc_inflow)
 
        if (trim(string_val1) .eq. "uniform") then
-           call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
-           call this%bc_inflow%set_inflow(real_vec)
+          call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
+          call this%bc_inflow%set_inflow(real_vec)
        else if (trim(string_val1) .eq. "blasius") then
           select type(bc_if => this%bc_inflow)
           type is(blasius_t)
@@ -372,26 +386,97 @@ contains
           end select
        else if (trim(string_val1) .eq. "user") then
           select type(bc_if => this%bc_inflow)
-             type is(usr_inflow_t)
+          type is(usr_inflow_t)
              call bc_if%set_coef(this%C_Xh)
           end select
        end if
     end if
-    
-    call this%bc_wall%init(this%dm_Xh)
+
+    call this%bc_wall%init(this%c_Xh)
     call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%mark_zones_from_list(msh%labeled_zones,&
                         'w', this%bc_labels)
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
-       
+
+    ! Setup field dirichlet bc for u-velocity
+    call this%bc_field_vel%field_dirichlet_u%init(this%c_Xh)
+    call this%bc_field_vel%field_dirichlet_u%mark_zones_from_list(msh%labeled_zones,&
+                        'd_vel_u', this%bc_labels)
+    call this%bc_field_vel%field_dirichlet_u%finalize()
+
+    call MPI_Allreduce(this%bc_field_vel%field_dirichlet_u%msk(0), integer_val, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_u%init_field('d_vel_u')
+
+    ! Setup field dirichlet bc for v-velocity
+    call this%bc_field_vel%field_dirichlet_v%init(this%c_Xh)
+    call this%bc_field_vel%field_dirichlet_v%mark_zones_from_list(msh%labeled_zones,&
+                        'd_vel_v', this%bc_labels)
+    call this%bc_field_vel%field_dirichlet_v%finalize()
+
+    call MPI_Allreduce(this%bc_field_vel%field_dirichlet_v%msk(0), integer_val, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_v%init_field('d_vel_v')
+
+    ! Setup field dirichlet bc for w-velocity
+    call this%bc_field_vel%field_dirichlet_w%init(this%c_Xh)
+    call this%bc_field_vel%field_dirichlet_w%mark_zones_from_list(msh%labeled_zones,&
+                        'd_vel_w', this%bc_labels)
+    call this%bc_field_vel%field_dirichlet_w%finalize()
+
+    call MPI_Allreduce(this%bc_field_vel%field_dirichlet_w%msk(0), integer_val, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    if (integer_val .gt. 0)  call this%bc_field_vel%field_dirichlet_w%init_field('d_vel_w')
+
+    ! Setup our global field dirichlet bc
+    call this%bc_field_vel%init(this%c_Xh)
+    call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
+                        'd_vel_u', this%bc_labels)
+    call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
+                        'd_vel_v', this%bc_labels)
+    call this%bc_field_vel%mark_zones_from_list(msh%labeled_zones,&
+                        'd_vel_w', this%bc_labels)
+    call this%bc_field_vel%finalize()
+
+    ! Add the field bc to velocity bcs
+    call bc_list_add(this%bclst_vel, this%bc_field_vel)
+
+    !
+    ! Associate our field dirichlet update to the user one.
+    !
+    this%dirichlet_update_ => user%user_dirichlet_update
+
+    !
+    ! Initialize field list and bc list for user_dirichlet_update
+    !
+    allocate(this%field_dirichlet_fields%fields(4))
+
+    this%field_dirichlet_fields%fields(1)%f => &
+         this%bc_field_vel%field_dirichlet_u%field_bc
+    this%field_dirichlet_fields%fields(2)%f => &
+         this%bc_field_vel%field_dirichlet_v%field_bc
+    this%field_dirichlet_fields%fields(3)%f => &
+         this%bc_field_vel%field_dirichlet_w%field_bc
+    this%field_dirichlet_fields%fields(4)%f => &
+         this%bc_field_prs%field_bc
+
+    call bc_list_init(this%field_dirichlet_bcs, size=4)
+    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_u)
+    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_v)
+    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_vel%field_dirichlet_w)
+
+    !
+    ! Check if we need to output boundaries
+    !
     call json_get_or_default(params, 'case.output_boundary', logical_val,&
                              .false.)
+
     if (logical_val) then
        call this%bdry%init(this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
-       
-       call bdry_mask%init(this%dm_Xh)
+
+       call bdry_mask%init(this%c_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'w', this%bc_labels)
@@ -400,17 +485,16 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%init(this%c_Xh)
        call bdry_mask%mark_zone(msh%inlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'v', this%bc_labels)
-
        call bdry_mask%finalize()
        call bdry_mask%set_g(2.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%init(this%c_Xh)
        call bdry_mask%mark_zone(msh%outlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'o', this%bc_labels)
@@ -419,7 +503,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%init(this%c_Xh)
        call bdry_mask%mark_zone(msh%sympln)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'sym', this%bc_labels)
@@ -428,14 +512,14 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%init(this%c_Xh)
        call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
        call bdry_mask%set_g(5.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
-       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%init(this%c_Xh)
        call bdry_mask%mark_zone(msh%outlet_normal)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'on', this%bc_labels)
@@ -475,14 +559,14 @@ contains
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
     ! Variables for extracting json
-    logical :: found, logical_val
     real(kind=rp) :: abs_tol
     character(len=:), allocatable :: solver_type, precon_type
+    integer :: ksp_vel_maxiter
 
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
                                   material_properties)
-    
+
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
     call neko_field_registry%add_field(this%dm_Xh, 'w')
@@ -497,8 +581,11 @@ contains
                   abs_tol)
 
     if (kspv_init) then
+      call json_get_or_default(params, &
+                              'case.fluid.velocity_solver.max_iterations', &
+                              ksp_vel_maxiter, 800)
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            solver_type, abs_tol)
+            solver_type, ksp_vel_maxiter, abs_tol)
        call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, precon_type)
     end if
@@ -521,7 +608,7 @@ contains
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: real_val, dong_delta, dong_uchar
     real(kind=rp), allocatable :: real_vec(:)
-    integer :: integer_val
+    integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
@@ -536,15 +623,33 @@ contains
     this%w => neko_field_registry%get_field('w')
     this%p => neko_field_registry%get_field('p')
 
+    !! lag fields
+    call this%ulag%init(this%u, 2)
+    call this%vlag%init(this%v, 2)
+    call this%wlag%init(this%w, 2)
+
+
     !
     ! Setup pressure boundary conditions
     !
     call bc_list_init(this%bclst_prs)
-    call this%bc_prs%init(this%dm_Xh)
+    call this%bc_prs%init(this%c_Xh)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
                         'o', this%bc_labels)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
                         'on', this%bc_labels)
+
+    ! Field dirichlet pressure bc
+    call this%bc_field_prs%init(this%c_Xh)
+    call this%bc_field_prs%mark_zones_from_list(msh%labeled_zones,&
+                        'd_pres', this%bc_labels)
+    call this%bc_field_prs%finalize()
+    call MPI_Allreduce(this%bc_field_prs%msk(0), integer_val, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    if (integer_val .gt. 0)  call this%bc_field_prs%init_field('d_pres')
+    call bc_list_add(this%bclst_prs, this%bc_field_prs)
+    call bc_list_add(this%field_dirichlet_bcs, this%bc_field_prs)
 
     if (msh%outlet%size .gt. 0) then
        call this%bc_prs%mark_zone(msh%outlet)
@@ -556,7 +661,7 @@ contains
     call this%bc_prs%finalize()
     call this%bc_prs%set_g(0.0_rp)
     call bc_list_add(this%bclst_prs, this%bc_prs)
-    call this%bc_dong%init(this%dm_Xh)
+    call this%bc_dong%init(this%c_Xh)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
                         'o+dong', this%bc_labels)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
@@ -568,13 +673,16 @@ contains
     call json_get_or_default(params, 'case.fluid.outflow_condition.velocity_scale',&
                              dong_uchar, 1.0_rp)
 
-    call this%bc_dong%set_vars(this%c_Xh, this%u, this%v, this%w,&
-         dong_uchar, dong_delta)
+
+    call this%bc_dong%set_vars(dong_uchar, dong_delta)
 
     call bc_list_add(this%bclst_prs, this%bc_dong)
 
 
     if (kspv_init) then
+       call json_get_or_default(params, &
+                                'case.fluid.velocity_solver.max_iterations', &
+                                integer_val, 800)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
        call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
                      string_val2)
@@ -582,12 +690,15 @@ contains
                      real_val)
 
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            string_val1, real_val)
+            string_val1, integer_val, real_val)
        call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, string_val2)
     end if
 
     if (kspp_init) then
+       call json_get_or_default(params, &
+                               'case.fluid.pressure_solver.max_iterations', &
+                               integer_val, 800)
        call json_get(params, 'case.fluid.pressure_solver.type', string_val1)
        call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
                      string_val2)
@@ -595,20 +706,19 @@ contains
                      real_val)
 
        call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-            string_val1, real_val)
+            string_val1, integer_val, real_val)
        call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, string_val2)
     end if
 
 
     call neko_log%end_section()
-    
+
   end subroutine fluid_scheme_init_all
 
   !> Deallocate a fluid formulation
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
-    integer :: i
 
     call this%bdry%free()
 
@@ -618,6 +728,22 @@ contains
 
     call this%bc_wall%free()
     call this%bc_sym%free()
+
+    !
+    ! Free everything related to field_dirichlet BCs
+    !
+    call this%bc_field_prs%field_bc%free()
+    call this%bc_field_prs%free()
+    call this%bc_field_vel%field_dirichlet_u%field_bc%free()
+    call this%bc_field_vel%field_dirichlet_v%field_bc%free()
+    call this%bc_field_vel%field_dirichlet_w%field_bc%free()
+    call this%bc_field_vel%free()
+
+    call this%field_dirichlet_fields%free()
+    call bc_list_free(this%field_dirichlet_bcs)
+    if (associated(this%dirichlet_update_)) then
+       this%dirichlet_update_ => null()
+    end if
 
     call this%Xh%free()
 
@@ -652,7 +778,7 @@ contains
     call this%c_Xh%free()
 
     call bc_list_free(this%bclst_vel)
-    
+
     call this%scratch%free()
 
     nullify(this%params)
@@ -662,23 +788,28 @@ contains
     nullify(this%w)
     nullify(this%p)
 
+    call this%ulag%free()
+    call this%vlag%free()
+    call this%wlag%free()
+
+
     if (associated(this%f_x)) then
-      call this%f_x%free()
+       call this%f_x%free()
     end if
 
     if (associated(this%f_y)) then
-      call this%f_y%free()
+       call this%f_y%free()
     end if
 
     if (associated(this%f_z)) then
-      call this%f_z%free()
+       call this%f_z%free()
     end if
 
     nullify(this%f_x)
     nullify(this%f_y)
     nullify(this%f_z)
-    
-    
+
+
   end subroutine fluid_scheme_free
 
   !> Validate that all fields, solvers etc necessary for
@@ -686,7 +817,7 @@ contains
   subroutine fluid_scheme_validate(this)
     class(fluid_scheme_t), target, intent(inout) :: this
     ! Variables for retrieving json parameters
-    logical :: found, logical_val
+    logical :: logical_val
 
     if ( (.not. associated(this%u)) .or. &
          (.not. associated(this%v)) .or. &
@@ -694,7 +825,7 @@ contains
          (.not. associated(this%p))) then
        call neko_error('Fields are not registered')
     end if
-    
+
     if ( (.not. allocated(this%u%x)) .or. &
          (.not. allocated(this%v%x)) .or. &
          (.not. allocated(this%w%x)) .or. &
@@ -705,7 +836,7 @@ contains
     if (.not. allocated(this%ksp_vel)) then
        call neko_error('No Krylov solver for velocity defined')
     end if
-    
+
     if (.not. allocated(this%ksp_prs)) then
        call neko_error('No Krylov solver for pressure defined')
     end if
@@ -714,10 +845,12 @@ contains
        call neko_error('No parameters defined')
     end if
 
-    select type(ip => this%bc_inflow)
-    type is(usr_inflow_t)
-       call ip%validate
-    end select
+    if (allocated(this%bc_inflow)) then
+       select type(ip => this%bc_inflow)
+       type is(usr_inflow_t)
+          call ip%validate
+       end select
+    end if
 
     !
     ! Setup checkpoint structure (if everything is fine)
@@ -744,35 +877,42 @@ contains
   end subroutine fluid_scheme_validate
 
   !> Apply all boundary conditions defined for velocity
+  !! Here we perform additional gs operations to take care of
+  !! shared points between elements that have different BCs, as done in Nek5000.
   !! @todo Why can't we call the interface here?
   subroutine fluid_scheme_bc_apply_vel(this, t, tstep)
     class(fluid_scheme_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+
     call bc_list_apply_vector(this%bclst_vel,&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
+
   end subroutine fluid_scheme_bc_apply_vel
-  
+
   !> Apply all boundary conditions defined for pressure
   !! @todo Why can't we call the interface here?
   subroutine fluid_scheme_bc_apply_prs(this, t, tstep)
     class(fluid_scheme_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+
     call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
                               this%p%dof%size(), t, tstep)
+
   end subroutine fluid_scheme_bc_apply_prs
-  
+
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine fluid_scheme_solver_factory(ksp, n, solver, abstol)
+  subroutine fluid_scheme_solver_factory(ksp, n, solver, max_iter, abstol)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=*), intent(in) :: solver
+    integer, intent(in) :: max_iter
     real(kind=rp), intent(in) :: abstol
-    
-    call krylov_solver_factory(ksp, n, solver, abstol)
-    
+
+    call krylov_solver_factory(ksp, n, solver, max_iter, abstol)
+
   end subroutine fluid_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
@@ -784,9 +924,9 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
-    
+
     call precon_factory(pc, pctype)
-    
+
     select type(pcp => pc)
     type is(jacobi_t)
        call pcp%init(coef, dof, gs)
@@ -808,7 +948,7 @@ contains
     end select
 
     call ksp%set_pc(pc)
-    
+
   end subroutine fluid_scheme_precon_factory
 
   !> Initialize a user defined inflow condition
@@ -818,9 +958,9 @@ contains
 
     select type(bc_if => this%bc_inflow)
     type is(usr_inflow_t)
-      call bc_if%set_eval(usr_eval)
+       call bc_if%set_eval(usr_eval)
     class default
-      call neko_error("Not a user defined inflow condition")
+       call neko_error("Not a user defined inflow condition")
     end select
   end subroutine fluid_scheme_set_usr_inflow
 
@@ -832,7 +972,7 @@ contains
 
     c = cfl(dt, this%u%x, this%v%x, this%w%x, &
          this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
-    
+
   end function fluid_compute_cfl
-      
+
 end module fluid_scheme

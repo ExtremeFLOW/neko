@@ -13,21 +13,21 @@ module field_list
      procedure, pass(this) :: free => field_list_free
   end type field_list_t
 
-  contains
+contains
   !> Append a field to the list.
-  !! @param field The field to append.
-  subroutine field_list_append(this, field)
+  !! @param f The field to append.
+  subroutine field_list_append(this, f)
     class(field_list_t), intent(inout) :: this
-    class(field_t), intent(inout), target :: field
+    class(field_t), intent(in), target :: f
     type(field_ptr_t), allocatable :: tmp(:)
     integer :: len
-    
+
     len = size(this%fields)
 
     allocate(tmp(len+1))
     tmp(1:len) = this%fields
     call move_alloc(tmp, this%fields)
-    this%fields(len+1)%f => field
+    this%fields(len+1)%f => f
 
   end subroutine field_list_append
 
@@ -35,7 +35,7 @@ module field_list
   subroutine field_list_free(this)
     class(field_list_t), intent(inout) :: this
     integer :: i, n_fields
-    
+
     if (allocated(this%fields)) then
        n_fields = size(this%fields)
        do i=1, n_fields
@@ -48,5 +48,5 @@ module field_list
   end subroutine field_list_free
 
 
-  
+
 end module field_list

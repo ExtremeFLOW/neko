@@ -43,7 +43,7 @@ module precon_fctry
   implicit none
 
 contains
-  
+
   !> Create a preconditioner
   subroutine precon_factory(pc, pctype)
     class(pc_t), target, allocatable, intent(inout) :: pc
@@ -73,7 +73,7 @@ contains
     else
        call neko_error('Unknown preconditioner '//trim(pctype))
     end if
-    
+
   end subroutine precon_factory
 
   !> Destroy a preconditioner
@@ -90,9 +90,9 @@ contains
           call pcp%free()
        type is (hsmg_t)
           call pcp%free()
-       end select                 
+       end select
     end if
-    
+
   end subroutine precon_destroy
-  
+
 end module precon_fctry

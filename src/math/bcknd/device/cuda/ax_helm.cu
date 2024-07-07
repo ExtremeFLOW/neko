@@ -137,16 +137,21 @@ extern "C" {
       CASE_KSTEP(LX);                                                           \
       break
 
+#define CASE_LARGE_PADDED(LX)                                                   \
+    case LX:                                                                    \
+      CASE_KSTEP_PADDED(LX);                                                    \
+      break
+
 
     if ((*lx) < 12) {      
       switch(*lx) {
         CASE(2);
         CASE(3);
-        CASE(4);
+        CASE_PADDED(4);
         CASE(5);
         CASE(6);
         CASE(7);
-        CASE(8);
+        CASE_PADDED(8);
         CASE(9);
         CASE(10);
         CASE(11);
@@ -163,7 +168,7 @@ extern "C" {
         CASE_LARGE(13);
         CASE_LARGE(14);
         CASE_LARGE(15);
-        CASE_LARGE(16);
+        CASE_LARGE_PADDED(16);
       default:
         {
           fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);

@@ -86,7 +86,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
 
     call gs_h%op(x%x, n, GS_OP_ADD)
@@ -175,7 +175,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
     
     call gs_h%op(x%x, n, GS_OP_ADD)
@@ -263,7 +263,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
     
     call gs_h%op(x%x, n, GS_OP_ADD)
@@ -351,7 +351,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
     
     call gs_h%op(x%x, n, GS_OP_ADD)
@@ -439,7 +439,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
     
     call gs_h%op(x%x, n, GS_OP_ADD)
@@ -527,7 +527,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
     
     call gs_h%op(x%x, n, GS_OP_ADD)
@@ -615,7 +615,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
     
     call gs_h%op(x%x, n, GS_OP_ADD)

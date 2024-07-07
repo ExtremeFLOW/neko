@@ -84,7 +84,7 @@ module gather_scatter
   end type gs_t
 
   public :: GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
-  
+
 contains
 
   !> Initialize a gather-scatter kernel
@@ -107,9 +107,9 @@ contains
     call gs%free()
 
     call neko_log%section('Gather-Scatter')
-    
+
     gs%dofmap => dofmap
-    
+
     ! Here one could use some heuristic or autotuning to select comm method,
     ! such as only using device MPI when there is enough data.
     !use_device_mpi = NEKO_DEVICE_MPI .and. gs%nshared .gt. 20000
@@ -130,17 +130,17 @@ contains
 
     glb_nlocal = int(gs%nlocal, i8)
     glb_nshared = int(gs%nshared, i8)
-    
+
     if (pe_rank .eq. 0) then
        call MPI_Reduce(MPI_IN_PLACE, glb_nlocal, 1, &
             MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
-       
+
        call MPI_Reduce(MPI_IN_PLACE, glb_nshared, 1, &
             MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
     else
        call MPI_Reduce(glb_nlocal, glb_nlocal, 1, &
             MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
-       
+
        call MPI_Reduce(glb_nshared, glb_nshared, 1, &
             MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
     end if
@@ -149,7 +149,7 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A,I12)') 'Avg. external: ', glb_nshared/pe_size
     call neko_log%message(log_buf)
-    
+
     if (present(bcknd)) then
        bcknd_ = bcknd
     else
@@ -185,7 +185,7 @@ contains
 
     write(log_buf, '(A)') 'Backend      : ' // trim(bcknd_str)
     call neko_log%message(log_buf)
-    
+
 
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
@@ -201,14 +201,15 @@ contains
           select type(c => gs%comm)
           type is (gs_device_mpi_t)
              call get_environment_variable("NEKO_GS_STRTGY", env_strtgy, env_len)
-             if (env_len .eq. 0) then             
+             if (env_len .eq. 0) then
                 allocate(tmp(dofmap%size()))
                 call device_map(tmp, tmp_d, dofmap%size())
                 tmp = 1.0_rp
-                call device_memcpy(tmp, tmp_d, dofmap%size(), HOST_TO_DEVICE)
+                call device_memcpy(tmp, tmp_d, dofmap%size(), &
+                                   HOST_TO_DEVICE, sync=.false.)
                 call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
-                   
-                do i = 1, size(strtgy)          
+
+                do i = 1, size(strtgy)
                    c%nb_strtgy = strtgy(i)
                    call device_sync
                    call MPI_Barrier(NEKO_COMM)
@@ -218,13 +219,13 @@ contains
                    end do
                    strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
                 end do
-                
+
                 call device_deassociate(tmp)
                 call device_free(tmp_d)
                 deallocate(tmp)
-                
+
                 c%nb_strtgy = strtgy(minloc(strtgy_time, 1))
-             
+
                 avg_strtgy = minloc(strtgy_time, 1)
                 call MPI_Allreduce(MPI_IN_PLACE, avg_strtgy, 1, &
                                    MPI_INTEGER, MPI_SUM, NEKO_COMM)
@@ -239,22 +240,22 @@ contains
                 if (i .lt. 1 .or. i .gt. 4) then
                    call neko_error('Invalid gs sync strtgy')
                 end if
-                
+
                 c%nb_strtgy = strtgy(i)
                 avg_strtgy = i
 
                 write(log_buf, '(A,B0.2,A)') 'Env. strtgy  :         [', &
                      strtgy(avg_strtgy),']'
              end if
-             
-             call neko_log%message(log_buf)             
+
+             call neko_log%message(log_buf)
 
           end select
        end if
     end if
 
     call neko_log%end_section()
-    
+
   end subroutine gs_init
 
   !> Deallocate a gather-scatter kernel
@@ -266,7 +267,7 @@ contains
     if (allocated(gs%local_gs)) then
        deallocate(gs%local_gs)
     end if
-    
+
     if (allocated(gs%local_dof_gs)) then
        deallocate(gs%local_dof_gs)
     end if
@@ -282,7 +283,7 @@ contains
     if (allocated(gs%shared_gs)) then
        deallocate(gs%shared_gs)
     end if
-    
+
     if (allocated(gs%shared_dof_gs)) then
        deallocate(gs%shared_dof_gs)
     end if
@@ -311,7 +312,7 @@ contains
        call gs%comm%free()
        deallocate(gs%comm)
     end if
-    
+
   end subroutine gs_free
 
   !> Setup mapping of dofs to gather-scatter operations
@@ -339,24 +340,24 @@ contains
     !>@note this might be a bit overkill,
     !!but having many collisions makes the init take too long.
     call sdm%init(dofmap%size(), i)
-    
+
 
     call local_dof%init()
     call dof_local%init()
 
     call local_face_dof%init()
-    call face_dof_local%init()   
-    
+    call face_dof_local%init()
+
     call shared_dof%init()
     call dof_shared%init()
-    
+
     call shared_face_dof%init()
-    call face_dof_shared%init()   
+    call face_dof_shared%init()
 
     !
     ! Setup mapping for dofs points
     !
-    
+
     max_id = 0
     max_sid = 0
     do i = 1, msh%nelv
@@ -496,7 +497,7 @@ contains
                 id = linear_index(j, ly, 1, i, lx, ly, lz)
                 call dof_shared%push(id)
              end do
-             
+
           else
              do j = 2, lx - 1
                 id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, 1, i), max_id)
@@ -595,7 +596,7 @@ contains
                 id = linear_index(1, 1, l, i, lx, ly, lz)
                 call dof_shared%push(id)
              end do
-          else          
+          else
              do l = 2, lz - 1
                 id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, l, i), max_id)
                 call local_dof%push(id)
@@ -603,7 +604,7 @@ contains
                 call dof_local%push(id)
              end do
           end if
-       
+
           if (dofmap%shared_dof(lx, 1, 2, i)) then
              do l = 2, lz - 1
                 id = gs_mapping_add_dof(sdm, dofmap%dof(lx, 1, l, i), max_sid)
@@ -635,14 +636,14 @@ contains
                 call dof_local%push(id)
              end do
           end if
-          
+
           if (dofmap%shared_dof(lx, ly, 2, i)) then
              do l = 2, lz - 1
                 id = gs_mapping_add_dof(sdm, dofmap%dof(lx, ly, l, i), max_sid)
                 call shared_dof%push(id)
                 id = linear_index(lx, ly, l, i, lx, ly, lz)
                 call dof_shared%push(id)
-             end do       
+             end do
           else
              do l = 2, lz - 1
                 id = gs_mapping_add_dof(dm, dofmap%dof(lx, ly, l, i), max_id)
@@ -688,7 +689,7 @@ contains
                    id = linear_index(j, ly, 1, i, lx, ly, lz)
                    call face_dof_shared%push(id)
                 end do
-                
+
              else
                 do j = 2, lx - 1
                    id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, 1, i), max_id)
@@ -738,7 +739,7 @@ contains
              end if
           end if
        end do
-    else 
+    else
        do i = 1, msh%nelv
 
           ! Facets in x-direction (s, t)-plane
@@ -785,7 +786,7 @@ contains
                 end do
              end if
           end if
-             
+
           ! Facets in y-direction (r, t)-plane
           if (msh%facet_neigh(3, i) .ne. 0) then
              if (dofmap%shared_dof(2, 1, 2, i)) then
@@ -830,7 +831,7 @@ contains
                 end do
              end if
           end if
-          
+
           ! Facets in z-direction (r, s)-plane
           if (msh%facet_neigh(5, i) .ne. 0) then
              if (dofmap%shared_dof(2, 2, 1, i)) then
@@ -877,13 +878,13 @@ contains
           end if
        end do
     end if
-       
+
 
     call dm%free()
-    
+
     gs%nlocal = local_dof%size() + local_face_dof%size()
     gs%local_facet_offset = local_dof%size() + 1
-    
+
     ! Finalize local dof to gather-scatter index
     allocate(gs%local_dof_gs(gs%nlocal))
 
@@ -941,15 +942,15 @@ contains
        end do
     end select
     call face_dof_local%free()
-       
+
     call gs_qsort_dofmap(gs%local_dof_gs, gs%local_gs_dof, &
          gs%nlocal, 1, gs%nlocal)
-    
+
     call gs_find_blks(gs%local_dof_gs, gs%local_blk_len, &
          gs%nlocal_blks, gs%nlocal, gs%local_facet_offset)
-    
+
     ! Allocate buffer for local gs-ops
-    allocate(gs%local_gs(gs%nlocal))   
+    allocate(gs%local_gs(gs%nlocal))
 
     gs%nshared = shared_dof%size() + shared_face_dof%size()
     gs%shared_facet_offset = shared_dof%size() + 1
@@ -983,11 +984,11 @@ contains
        end do
     end select
     call shared_face_dof%free()
-    
+
     ! Finalize shared gather-scatter index to dof
     allocate(gs%shared_gs_dof(gs%nshared))
 
-    ! Add dofs on points and edges 
+    ! Add dofs on points and edges
 
     ! We should use the %array() procedure, which works great for
     ! GNU, Intel and NEC, but it breaks horribly on Cray when using
@@ -1022,9 +1023,9 @@ contains
        call gs_find_blks(gs%shared_dof_gs, gs%shared_blk_len, &
             gs%nshared_blks, gs%nshared, gs%shared_facet_offset)
     end if
-    
+
   contains
-    
+
     !> Register a unique dof
     function gs_mapping_add_dof(map_, dof, max_id) result(id)
       type(htable_i8_t), intent(inout) :: map_
@@ -1037,7 +1038,7 @@ contains
          call map_%set(dof, max_id)
          id = max_id
       end if
-      
+
     end function gs_mapping_add_dof
 
     !> Sort the dof lists based on the dof to gather-scatter list
@@ -1052,16 +1053,16 @@ contains
       j = hi + 1
       pivot = dg((lo + hi) / 2)
       do
-         do 
+         do
             i = i + 1
             if (dg(i) .ge. pivot) exit
          end do
-         
-         do 
+
+         do
             j = j - 1
             if (dg(j) .le. pivot) exit
          end do
-         
+
          if (i .lt. j) then
             tmp = dg(i)
             dg(i) = dg(j)
@@ -1076,10 +1077,10 @@ contains
          else
             exit
          end if
-      end do      
+      end do
       if (lo .lt. j) call gs_qsort_dofmap(dg, gd, n, lo, j)
       if (i .lt. hi) call gs_qsort_dofmap(dg, gd, n, i, hi)
-      
+
     end subroutine gs_qsort_dofmap
 
     !> Find blocks sharing dofs in non-facet data
@@ -1092,7 +1093,7 @@ contains
       integer :: i, j
       integer :: id, count
       type(stack_i4_t), target :: blks
-      
+
       call blks%init()
       i = 1
       do while( i .lt. m)
@@ -1116,7 +1117,7 @@ contains
          end do
       end select
       call blks%free()
-      
+
     end subroutine gs_find_blks
 
   end subroutine gs_init_mapping
@@ -1135,7 +1136,7 @@ contains
     integer :: nshared_unique
 
     nshared_unique = gs%shared_dofs%num_entries()
-    
+
     call it%init(gs%shared_dofs)
     allocate(send_buf(nshared_unique))
     i = 1
@@ -1146,7 +1147,7 @@ contains
 
     call send_pe%init()
     call recv_pe%init()
-    
+
 
     !
     ! Schedule exchange of shared dofs
@@ -1163,7 +1164,7 @@ contains
     do i = 1, size(gs%dofmap%msh%neigh_order)
        src = modulo(pe_rank - gs%dofmap%msh%neigh_order(i) + pe_size, pe_size)
        dst = modulo(pe_rank + gs%dofmap%msh%neigh_order(i), pe_size)
-       
+
        if (gs%dofmap%msh%neigh(src)) then
           call MPI_Irecv(recv_buf, max_recv, MPI_INTEGER8, &
                src, 0, NEKO_COMM, recv_req, ierr)
@@ -1177,7 +1178,7 @@ contains
        if (gs%dofmap%msh%neigh(src)) then
           call MPI_Wait(recv_req, status, ierr)
           call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
-          
+
           do j = 1, n_recv
              shared_flg(j) = gs%shared_dofs%get(recv_buf(j), shared_gs_id)
              if (shared_flg(j) .eq. 0) then
@@ -1185,7 +1186,7 @@ contains
                 call gs%comm%recv_dof(src)%push(shared_gs_id)
              end if
           end do
-          
+
           if (gs%comm%recv_dof(src)%size() .gt. 0) then
              call recv_pe%push(src)
           end if
@@ -1194,7 +1195,7 @@ contains
        if (gs%dofmap%msh%neigh(dst)) then
           call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
           call MPI_Irecv(recv_flg, max_recv, MPI_INTEGER2, &
-               dst, 0, NEKO_COMM, recv_req, ierr)          
+               dst, 0, NEKO_COMM, recv_req, ierr)
        end if
 
        if (gs%dofmap%msh%neigh(src)) then
@@ -1205,10 +1206,10 @@ contains
        if (gs%dofmap%msh%neigh(dst)) then
           call MPI_Wait(recv_req, status, ierr)
           call MPI_Get_count(status, MPI_INTEGER2, n_recv, ierr)
-       
+
           do j = 1, n_recv
              if (recv_flg(j) .eq. 0) then
-                tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id) 
+                tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id)
                 !> @todo don't touch others data...
                 call gs%comm%send_dof(dst)%push(shared_gs_id)
              end if
@@ -1222,18 +1223,18 @@ contains
        if (gs%dofmap%msh%neigh(src)) then
           call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
        end if
-       
+
     end do
 
     call gs%comm%init(send_pe, recv_pe)
-    
+
     call send_pe%free()
     call recv_pe%free()
 
     deallocate(send_buf)
     deallocate(recv_flg)
     deallocate(shared_flg)
-    !This arrays seems to take massive amounts of memory... 
+    !This arrays seems to take massive amounts of memory...
     call gs%shared_dofs%free()
 
   end subroutine gs_schedule
@@ -1244,21 +1245,21 @@ contains
     type(field_t), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
     integer :: n, op
-    
+
     n = u%msh%nelv * u%Xh%lx * u%Xh%ly * u%Xh%lz
     if (present(event)) then
        call gs_op_vector(gs, u%x, n, op, event)
     else
        call gs_op_vector(gs, u%x, n, op)
     end if
-    
+
   end subroutine gs_op_fld
-  
+
   !> Gather-scatter operation on a rank 4 array
   subroutine gs_op_r4(gs, u, n, op, event)
     class(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
-    real(kind=rp), dimension(:,:,:,:), intent(inout) :: u
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
     integer :: op
 
@@ -1267,9 +1268,9 @@ contains
     else
        call gs_op_vector(gs, u, n, op)
     end if
-    
+
   end subroutine gs_op_r4
-  
+
   !> Gather-scatter operation on a vector @a u with op @a op
   subroutine gs_op_vector(gs, u, n, op, event)
     class(gs_t), intent(inout) :: gs
@@ -1277,31 +1278,31 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
     integer :: m, l, op, lo, so
-    
+
     lo = gs%local_facet_offset
     so = -gs%shared_facet_offset
     m = gs%nlocal
     l = gs%nshared
 
-    call profiler_start_region("gather-scatter")
+    call profiler_start_region("gather-scatter", 5)
     ! Gather shared dofs
     if (pe_size .gt. 1) then
-       call profiler_start_region("gs_nbrecv")
+       call profiler_start_region("gs_nbrecv", 13)
        call gs%comm%nbrecv()
        call profiler_end_region
-       call profiler_start_region("gs_gather_shared")
+       call profiler_start_region("gs_gather_shared", 14)
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
        call profiler_end_region
-       call profiler_start_region("gs_nbsend")
+       call profiler_start_region("gs_nbsend", 6)
        call gs%comm%nbsend(gs%shared_gs, l, &
             gs%bcknd%gather_event, gs%bcknd%gs_stream)
        call profiler_end_region
-       
+
     end if
-    
+
     ! Gather-scatter local dofs
-    call profiler_start_region("gs_local")
+    call profiler_start_region("gs_local", 12)
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
@@ -1309,10 +1310,10 @@ contains
     call profiler_end_region
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
-       call profiler_start_region("gs_nbwait")
+       call profiler_start_region("gs_nbwait", 7)
        call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
        call profiler_end_region
-       call profiler_start_region("gs_scatter_shared")
+       call profiler_start_region("gs_scatter_shared", 15)
        if (present(event)) then
           call gs%bcknd%scatter(gs%shared_gs, l,&
                                 gs%shared_dof_gs, u, n, &
@@ -1328,7 +1329,7 @@ contains
     end if
 
     call profiler_end_region
-    
+
   end subroutine gs_op_vector
-  
+
 end module gather_scatter

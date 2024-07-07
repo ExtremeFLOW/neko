@@ -40,6 +40,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include <device/opencl/check.h>
 
 #define CL_ERR_STR(err) case err: return #err

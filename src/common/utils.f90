@@ -40,23 +40,23 @@ module utils
   interface neko_error
      module procedure neko_error_plain, neko_error_msg
   end interface neko_error
-  
+
 contains
-  
+
   !> Find position (in the string) of a filename's suffix
   pure function filename_suffix_pos(fname) result(suffix_pos)
     character(len=*), intent(in) :: fname
     integer :: suffix_pos
-    suffix_pos = scan(trim(fname), '.', back=.true.)    
+    suffix_pos = scan(trim(fname), '.', back=.true.)
   end function filename_suffix_pos
 
   !> Find position (in the string) of a filename's trailing slash
   pure function filename_tslash_pos(fname) result(tslash_pos)
     character(len=*), intent(in) :: fname
     integer :: tslash_pos
-    tslash_pos = scan(trim(fname), '/', back=.true.)    
+    tslash_pos = scan(trim(fname), '/', back=.true.)
   end function filename_tslash_pos
-  
+
   !> Extract a filename's suffix
   subroutine filename_suffix(fname, suffix)
     character(len=*) :: fname
@@ -76,12 +76,53 @@ contains
 
   end subroutine filename_chsuffix
 
+  !> Split a string based on delimiter (tokenizer)
+  !! OBS: very hacky, this should really be improved, it is rather embarrasing code.
+  function split_string(string, delimiter) result(split_str)
+    character(len=*) :: string
+    character(len=*) :: delimiter
+    character(len=100), allocatable :: split_str(:)
+    integer :: length, i, i2,offset, j
+    i = 0
+    offset = 1
+    length = 1
+    if (len(trim(string)) .eq. 0) then 
+       allocate(split_str(1))
+       split_str(1) = trim(string)
+       return
+    end if
+    do while( .true.)
+       i = scan(string(offset:), delimiter, back=.false.) 
+       if (i .eq. 0) exit
+       length = length + 1
+       offset = offset + i
+    end do
+
+    allocate(split_str(length))
+    i = 0
+    j = 1
+    offset=1
+    do while( .true.)
+       i2 = scan(trim(string(offset:)), delimiter, back=.false.) 
+       if (i2 .eq. 0) then
+          split_str(j) = trim(string(offset:)) 
+          exit
+       end if
+       split_str(j) = trim(string(offset:offset+i2-2))
+       offset = offset+i2
+       j = j + 1
+    end do
+  end function split_string
+
+
+
+
   !> Compute the address of a (i,j,k,l) array
   !! with sizes (1:lx, 1:ly, 1:lz, :)
   pure function linear_index(i,j,k,l,lx,ly,lz) result(index)
     integer, intent(in) :: i, j, k, l, lx, ly, lz
     integer :: index
-    
+
     index = (i + lx * ((j - 1) + ly * ((k - 1) + lz * ((l - 1)))))
   end function linear_index
 
@@ -104,11 +145,11 @@ contains
     case(6)
        if (k .eq. lz) is_on = .true.
     end select
-  
+
 
   end function index_is_on_facet
-  
- 
+
+
   !> Compute (i,j,k,l) array given linear index
   !! with sizes (1:lx, 1:ly, 1:lz, :)
   pure function nonlinear_index(linear_index,lx,ly,lz) result(index)
@@ -116,7 +157,7 @@ contains
     integer :: index(4)
     integer :: lin_idx
     lin_idx = linear_index -1
-    index(4) = lin_idx/(lx*ly*lz) 
+    index(4) = lin_idx/(lx*ly*lz)
     index(3) = (lin_idx-(lx*ly*lz)*index(4))/(lx*ly)
     index(2) = (lin_idx-(lx*ly*lz)*index(4)-(lx*ly)*index(3))/lx
     index(1) = (lin_idx-(lx*ly*lz)*index(4)-(lx*ly)*index(3)-lx*index(2))
@@ -150,5 +191,5 @@ contains
     character(len=*) :: warning_msg
     write(*,*) '*** WARNING: ', warning_msg,' ***'
   end subroutine neko_warning
-    
+
 end module utils

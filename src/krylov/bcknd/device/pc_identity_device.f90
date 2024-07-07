@@ -35,14 +35,14 @@ module device_identity
   use device
   use device_math
   use precon, only : pc_t
-  use num_types, only : rp    
+  use num_types, only : rp
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
-  
+
   !> Defines a canonical Krylov preconditioner for accelerators
   type, public, extends(pc_t) :: device_ident_t
-  contains
+   contains
      procedure, pass(this) :: solve => device_ident_solve
      procedure, pass(this) :: update => device_ident_update
   end type device_ident_t
@@ -56,17 +56,17 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
-    
+
     z_d = device_get_ptr(z)
     r_d = device_get_ptr(r)
-    
+
     call device_copy(z_d, r_d, n)
-    
+
   end subroutine device_ident_solve
-  
+
   !> Mandatory update routine (NOP)
   subroutine device_ident_update(this)
     class(device_ident_t), intent(inout) :: this
   end subroutine device_ident_update
-  
+
 end module device_identity

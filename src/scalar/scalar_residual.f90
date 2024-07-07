@@ -32,7 +32,7 @@
 !
 !> Defines the residual for the scalar transport equation
 module scalar_residual
-  use gather_scatter, only : gs_t  
+  use gather_scatter, only : gs_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
@@ -42,14 +42,27 @@ module scalar_residual
   use mesh, only : mesh_t
   use num_types, only : rp
   implicit none
-  
+
   !> Abstract type to compute scalar residual
   type, abstract :: scalar_residual_t
    contains
      procedure(scalar_residual_interface), nopass, deferred :: compute
   end type scalar_residual_t
-    
+
   abstract interface
+     !> Interface for computing the residual of a scalar transport equation.
+     !! @param Ax The Helmholtz operator.
+     !! @param s The values of the scalar.
+     !! @param s_res The values of the scalar residual.
+     !! @param f_xH The right hand side.
+     !! @param c_xH The SEM coefficients.
+     !! @param msh The mesh.
+     !! @param Xh The SEM function space.
+     !! @param lambda The thermal conductivity.
+     !! @param rhocp The density multiplied by the specific heat capacity.
+     !! @param bd The coefficeints from the BDF differencing scheme.
+     !! @param dt The timestep.
+     !! @param n The total number of degrees of freedom.
      subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
                                           lambda, rhocp, bd, dt, n)
        import field_t
@@ -57,16 +70,16 @@ module scalar_residual
        import gs_t
        import facet_normal_t
        import source_scalar_t
-       import space_t              
+       import space_t
        import coef_t
        import mesh_t
        import rp
        class(ax_t), intent(in) :: Ax
        type(mesh_t), intent(inout) :: msh
-       type(space_t), intent(inout) :: Xh    
+       type(space_t), intent(inout) :: Xh
        type(field_t), intent(inout) :: s
        type(field_t), intent(inout) :: s_res
-       type(source_scalar_t), intent(inout) :: f_Xh
+       type(field_t), intent(inout) :: f_Xh
        type(coef_t), intent(inout) :: c_Xh
        real(kind=rp), intent(in) :: lambda
        real(kind=rp), intent(in) :: rhocp
@@ -75,5 +88,5 @@ module scalar_residual
        integer, intent(in) :: n
      end subroutine scalar_residual_interface
   end interface
- 
+
 end module scalar_residual

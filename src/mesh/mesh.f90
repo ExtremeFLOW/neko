@@ -43,15 +43,18 @@ module mesh
   use htable
   use datadist
   use distdata
-  use comm    
+  use comm
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t
   use math
   use uset, only : uset_i8_t
   use curve, only : curve_t
   implicit none
   private
-  
-  integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20 !< Max num. zone labels
+
+  !> Max num. zone labels
+  integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20
+  !> Max length of a zone label
+  integer, public, parameter :: NEKO_MSH_MAX_ZLBL_LEN = 40
 
   type, private :: mesh_element_t
      class(element_t), allocatable :: e
@@ -69,14 +72,14 @@ module mesh
      integer :: glb_mpts        !< Global number of unique points
      integer :: glb_mfcs        !< Global number of unique faces
      integer :: glb_meds        !< Global number of unique edges
-     
+
      integer :: offset_el       !< Element offset
      integer :: max_pts_id      !< Max local point id
-     
+
      type(point_t), allocatable :: points(:) !< list of points
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      logical, allocatable :: dfrmd_el(:) !< List of elements
-     
+
      type(htable_i4_t) :: htp   !< Table of unique points (global->local)
      type(htable_i4t4_t) :: htf !< Table of unique faces (facet->local id)
      type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
@@ -86,15 +89,15 @@ module mesh
      !> Facet to element's id tuple and the mapping of the
      !! points between lower id element and higher
      !! \f$ t=(low_id element, element with higher global id) \f$
-     class(htable_t), allocatable :: facet_map 
+     class(htable_t), allocatable :: facet_map
      type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
 
      type(distdata_t) :: ddata            !< Mesh distributed data
      logical, allocatable :: neigh(:)     !< Neighbouring ranks
      integer, allocatable :: neigh_order(:) !< Neighbour order
 
-     integer(2), allocatable :: facet_type(:,:) !< Facet type     
-     
+     integer(2), allocatable :: facet_type(:,:) !< Facet type
+
      type(facet_zone_t) :: wall                 !< Zone of wall facets
      type(facet_zone_t) :: inlet                !< Zone of inlet facets
      type(facet_zone_t) :: outlet               !< Zone of outlet facets
@@ -162,7 +165,7 @@ module mesh
 
   abstract interface
      subroutine mesh_deform(msh, x, y, z, lx, ly, lz)
-       import mesh_t       
+       import mesh_t
        import rp
        class(mesh_t) :: msh
        integer, intent(in) :: lx, ly, lz
@@ -173,8 +176,8 @@ module mesh
   end interface
 
   public :: mesh_deform
-  
-contains 
+
+contains
 
   !> Initialise a mesh @a this with @a nelv elements
   subroutine mesh_init_nelv(this, gdim, nelv)
@@ -182,7 +185,7 @@ contains
     integer, intent(in) :: gdim          !< Geometric dimension
     integer, intent(in) :: nelv          !< Local number of elements
     integer :: ierr
-    
+
     call this%free()
 
     this%nelv = nelv
@@ -196,7 +199,7 @@ contains
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call mesh_init_common(this)
-    
+
   end subroutine mesh_init_nelv
 
   !> Initialise a mesh @a this based on a distribution @a dist
@@ -206,14 +209,14 @@ contains
     type(linear_dist_t), intent(in) :: dist !< Data distribution
 
     call this%free()
-    
+
     this%nelv = dist%num_local()
     this%glb_nelv = dist%num_global()
     this%offset_el = dist%start_idx()
     this%gdim = gdim
 
     call mesh_init_common(this)
-    
+
   end subroutine mesh_init_dist
 
   subroutine mesh_init_common(this)
@@ -222,7 +225,7 @@ contains
     type(tuple_i4_t) :: facet_data
 
     this%max_pts_id = 0
-    
+
     allocate(this%elements(this%nelv))
     allocate(this%dfrmd_el(this%nelv))
     if (this%gdim .eq. 3) then
@@ -249,7 +252,7 @@ contains
        end do
        this%npts = NEKO_QUAD_NPTS
        if (this%lgenc) then
-          allocate(htable_i4t2_t::this%facet_map)       
+          allocate(htable_i4t2_t::this%facet_map)
           select type (fmp => this%facet_map)
           type is(htable_i4t2_t)
              call fmp%init(this%nelv, facet_data)
@@ -277,7 +280,7 @@ contains
 
     allocate(this%facet_type(2 * this%gdim, this%nelv))
     this%facet_type = 0
-    
+
     call this%htp%init(this%npts*this%nelv, i)
 
     call this%wall%init(this%nelv)
@@ -293,31 +296,29 @@ contains
     end do
 
     call this%curve%init(this%nelv)
-   
+
     call distdata_init(this%ddata)
 
     allocate(this%neigh(0:pe_size-1))
     this%neigh = .false.
-    
+
     this%mpts = 0
     this%mfcs = 0
     this%meds = 0
 
   end subroutine mesh_init_common
-  
+
   !> Deallocate a mesh @a this
   subroutine mesh_free(this)
     class(mesh_t), intent(inout) :: this
     integer :: i
-    
+
     call this%htp%free()
     call this%htf%free()
     call this%hte%free()
     call distdata_free(this%ddata)
-    
-    if (allocated(this%points)) then
-       deallocate(this%points)
-    end if
+
+
     if (allocated(this%dfrmd_el)) then
        deallocate(this%dfrmd_el)
     end if
@@ -369,20 +370,27 @@ contains
        deallocate(this%neigh_order)
     end if
 
+    if (allocated(this%points)) then
+       deallocate(this%points)
+    end if
+
     call this%wall%free()
     call this%inlet%free()
     call this%outlet%free()
     call this%outlet_normal%free()
     call this%sympln%free()
     call this%periodic%free()
-    
+    this%lconn = .false.
+    this%lnumr = .false.
+    this%ldist = .false.
+    this%lgenc = .true.
+
   end subroutine mesh_free
 
   subroutine mesh_finalize(this)
     class(mesh_t), target, intent(inout) :: this
     integer :: i
-
-
+    
     call mesh_generate_flags(this)
     call mesh_generate_conn(this)
 
@@ -436,7 +444,7 @@ contains
     class(mesh_t), intent(inout) :: this
     this%dfrmd_el = .true.
   end subroutine mesh_all_deformed
-  
+
   !> Generate element-to-element connectivity
   subroutine mesh_generate_conn(this)
     class(mesh_t), target, intent(inout) :: this
@@ -444,12 +452,56 @@ contains
     type(tuple4_i4_t) :: face, face_comp
     type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: neigh_order
-
+    class(element_t), pointer :: ep
+    type(tuple_i4_t) :: e
+    type(tuple4_i4_t) :: f
+    integer :: p_local_idx, res
+    integer :: el, id
     integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, src, dst
 
     if (this%lconn) return
 
     if (.not. this%lgenc) return
+ 
+    !If we generate connectivity, we do that here.
+    do el = 1, this%nelv
+       ep => this%elements(el)%e
+       select type(ep)
+       type is (hex_t)
+          do i = 1, NEKO_HEX_NPTS
+             !Only for getting the id
+             call this%add_point(ep%pts(i)%p, id)
+             p_local_idx = this%get_local(this%points(id))
+             !should stack have inout on what we push? would be neat with in
+             id = ep%id()
+             call this%point_neigh(p_local_idx)%push(id)
+         end do
+         do i = 1, NEKO_HEX_NFCS
+             call ep%facet_id(f, i)
+             call this%add_face(f)
+          end do
+
+          do i = 1, NEKO_HEX_NEDS
+             call ep%edge_id(e, i)
+             call this%add_edge(e)
+          end do
+       type is (quad_t)
+          do i = 1, NEKO_QUAD_NPTS
+             !Only for getting the id
+             call this%add_point(ep%pts(i)%p, id)
+             p_local_idx = this%get_local(this%points(id))
+             !should stack have inout on what we push? would be neat with in
+             id = ep%id()
+             call this%point_neigh(p_local_idx)%push(id)
+          end do
+
+          do i = 1, NEKO_QUAD_NEDS
+             call ep%facet_id(e, i)
+             call this%add_edge(e)
+          end do
+       end select
+    end do
+
 
     if (this%gdim .eq. 2) then
        n_sides = 4
@@ -466,90 +518,90 @@ contains
     !
     ! Find all (local) boundaries
     !
-    
+
     !> @note We have to sweep through the facet map twice to make sure
     !! that both odd and even sides are marked
     !! @todo These loop nests needs a lot of love...
     select type (fmp => this%facet_map)
     type is(htable_i4t2_t)
-       do k = 1, 2              
+       do k = 1, 2
           do i = 1, this%nelv
              el_glb_idx = i + this%offset_el
              do j = 1, n_sides
                 call this%elements(i)%e%facet_id(edge, j)
-                
+
                 ! Assume that all facets are on the exterior
                 facet_data%x = (/  0, 0/)
-                
+
                 !check it this face has shown up earlier
                 if (fmp%get(edge, facet_data) .eq. 0) then
-                  !if element is already recognized on face
-                  if (facet_data%x(1) .eq. el_glb_idx ) then
-                     this%facet_neigh(j, i) = facet_data%x(2)
-                  else if( facet_data%x(2) .eq. el_glb_idx) then
-                     this%facet_neigh(j, i) = facet_data%x(1)
-                  !if this is the second element, arrange so low id is first
-                  else if(facet_data%x(1) .gt. el_glb_idx) then 
-                    facet_data%x(2) = facet_data%x(1)
-                    facet_data%x(1) = el_glb_idx
-                    this%facet_neigh(j, i) = facet_data%x(2)
-                    call fmp%set(edge, facet_data)                             
-                  else if(facet_data%x(1) .lt. el_glb_idx) then 
-                    facet_data%x(2) = el_glb_idx
-                    this%facet_neigh(j, i) = facet_data%x(1)
-                    call fmp%set(edge, facet_data)
-                 end if
+                   !if element is already recognized on face
+                   if (facet_data%x(1) .eq. el_glb_idx ) then
+                      this%facet_neigh(j, i) = facet_data%x(2)
+                   else if( facet_data%x(2) .eq. el_glb_idx) then
+                      this%facet_neigh(j, i) = facet_data%x(1)
+                      !if this is the second element, arrange so low id is first
+                   else if(facet_data%x(1) .gt. el_glb_idx) then
+                      facet_data%x(2) = facet_data%x(1)
+                      facet_data%x(1) = el_glb_idx
+                      this%facet_neigh(j, i) = facet_data%x(2)
+                      call fmp%set(edge, facet_data)
+                   else if(facet_data%x(1) .lt. el_glb_idx) then
+                      facet_data%x(2) = el_glb_idx
+                      this%facet_neigh(j, i) = facet_data%x(1)
+                      call fmp%set(edge, facet_data)
+                   end if
                 else
                    facet_data%x(1) = el_glb_idx
                    this%facet_neigh(j, i) = facet_data%x(2)
-                   call fmp%set(edge, facet_data)               
+                   call fmp%set(edge, facet_data)
                 end if
              end do
           end do
        end do
     type is(htable_i4t4_t)
-        
-        do k = 1, 2
+
+       do k = 1, 2
           do i = 1, this%nelv
              el_glb_idx = i + this%offset_el
              do j = 1, n_sides
                 call this%elements(i)%e%facet_id(face, j)
-               
+
                 facet_data%x = (/ 0, 0/)
 
                 !check it this face has shown up earlier
                 if (fmp%get(face, facet_data) .eq. 0) then
-                  !if element is already recognized on face
-                  if (facet_data%x(1) .eq. el_glb_idx ) then
-                     this%facet_neigh(j, i) = facet_data%x(2)
-                     call this%elements(i)%e%facet_id(face_comp, &
-                                                      j+(2*mod(j,2)-1)) 
-                     if (face_comp .eq. face) then
-                       facet_data%x(2) = el_glb_idx
-                       this%facet_neigh(j, i) = facet_data%x(1)
-                       call fmp%set(face, facet_data)
-                    end if
-                  else if( facet_data%x(2) .eq. el_glb_idx) then
-                    this%facet_neigh(j, i) = facet_data%x(1)
-                  !if this is the second element, arrange so low id is first
-                  else if(facet_data%x(1) .gt. el_glb_idx) then 
-                    facet_data%x(2) = facet_data%x(1)
-                    facet_data%x(1) = el_glb_idx
-                    this%facet_neigh(j, i) = facet_data%x(2)
-                    call fmp%set(face, facet_data)                             
-                  else if(facet_data%x(1) .lt. el_glb_idx) then 
-                    facet_data%x(2) = el_glb_idx
-                    this%facet_neigh(j, i) = facet_data%x(1)
-                    call fmp%set(face, facet_data)
-                 end if
+                   !if element is already recognized on face
+                   if (facet_data%x(1) .eq. el_glb_idx ) then
+                      this%facet_neigh(j, i) = facet_data%x(2)
+                      call this%elements(i)%e%facet_id(face_comp, &
+                                                      j+(2*mod(j,2)-1))
+                      if (face_comp .eq. face) then
+                         facet_data%x(2) = el_glb_idx
+                         this%facet_neigh(j, i) = facet_data%x(1)
+                         call fmp%set(face, facet_data)
+                      end if
+                   else if( facet_data%x(2) .eq. el_glb_idx) then
+                      this%facet_neigh(j, i) = facet_data%x(1)
+                      !if this is the second element, arrange so low id is first
+                   else if(facet_data%x(1) .gt. el_glb_idx) then
+                      facet_data%x(2) = facet_data%x(1)
+                      facet_data%x(1) = el_glb_idx
+                      this%facet_neigh(j, i) = facet_data%x(2)
+                      call fmp%set(face, facet_data)
+                   else if(facet_data%x(1) .lt. el_glb_idx) then
+                      facet_data%x(2) = el_glb_idx
+                      this%facet_neigh(j, i) = facet_data%x(1)
+                      call fmp%set(face, facet_data)
+                   end if
                 else
                    facet_data%x(1) = el_glb_idx
                    this%facet_neigh(j, i) = 0
-                   call fmp%set(face, facet_data)               
+                   call fmp%set(face, facet_data)
                 end if
+             end do
           end do
        end do
-    end do
     class default
        call neko_error('Invalid facet map')
     end select
@@ -559,20 +611,20 @@ contains
     ! Find all external (between PEs) boundaries
     !
     if (pe_size .gt. 1) then
-       
+
        call mesh_generate_external_point_conn(this)
 
        !
        ! Generate neighbour exchange order
        !
        call neigh_order%init(pe_size)
-              
+
        do i = 1, pe_size - 1
           src = modulo(pe_rank - i + pe_size, pe_size)
           dst = modulo(pe_rank + i, pe_size)
           if (this%neigh(src) .or. this%neigh(dst)) then
              j = i ! adhere to standards...
-             call neigh_order%push(j)      
+             call neigh_order%push(j)
           end if
        end do
 
@@ -584,7 +636,7 @@ contains
           end do
        end select
        call neigh_order%free()
-       
+
        call mesh_generate_external_facet_conn(this)
     else
        allocate(this%neigh_order(1))
@@ -599,14 +651,14 @@ contains
     if (this%gdim .eq. 3) then
        call mesh_generate_edge_conn(this)
     end if
-    
+
 
     call mesh_generate_facet_numbering(this)
-    
+
     this%lconn = .true.
-    
+
   end subroutine mesh_generate_conn
- 
+
   !> Generate element-element connectivity via facets between PEs
   subroutine mesh_generate_external_facet_conn(this)
     type(mesh_t), intent(inout) :: this
@@ -630,7 +682,7 @@ contains
     end if
 
     call buffer%init()
-        
+
     ! Build send buffers containing
     ! [el_glb_idx, side number, facet_id (global ids of points)]
     do i = 1, this%nelv
@@ -639,7 +691,7 @@ contains
           facet = j             ! Adhere to standards...
           if (this%facet_neigh(j, i) .eq. 0) then
              if (n_nodes .eq. 2) then
-                call this%elements(i)%e%facet_id(edge, j)                
+                call this%elements(i)%e%facet_id(edge, j)
                 call buffer%push(el_glb_idx)
                 call buffer%push(facet)
                 do k = 1, n_nodes
@@ -662,7 +714,7 @@ contains
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
     allocate(recv_buffer(max_recv))
-    
+
     do i = 1, size(this%neigh_order)
        src = modulo(pe_rank - this%neigh_order(i) + pe_size, pe_size)
        dst = modulo(pe_rank + this%neigh_order(i), pe_size)
@@ -741,7 +793,7 @@ contains
                       end if
                    end do
                    this%facet_neigh(facet, element) = -neigh_el
-                   facet_data%x(2) = -neigh_el                   
+                   facet_data%x(2) = -neigh_el
 
                    ! Update facet map
                    call fmp%set(face, facet_data)
@@ -764,10 +816,10 @@ contains
        if (this%neigh(dst)) then
           call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
        end if
-       
+
     end do
 
-       
+
     deallocate(recv_buffer)
 
     call buffer%free()
@@ -783,13 +835,13 @@ contains
     integer :: i, j, k
     integer :: max_recv, ierr, src, dst, n_recv, neigh_el
     integer :: pt_glb_idx, pt_loc_idx, num_neigh
-    integer, pointer :: neighs(:)
+    integer, contiguous, pointer :: neighs(:)
 
-    
+
     call send_buffer%init(this%mpts * 2)
-    
+
     ! Build send buffers containing
-    ! [pt_glb_idx, #neigh, neigh id_1 ....neigh_id_n] 
+    ! [pt_glb_idx, #neigh, neigh id_1 ....neigh_id_n]
     do i = 1, this%mpts
        pt_glb_idx = this%points(i)%id() ! Adhere to standards...
        num_neigh = this%point_neigh(i)%size()
@@ -805,7 +857,7 @@ contains
     call MPI_Allreduce(send_buffer%size(), max_recv, 1, &
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
     allocate(recv_buffer(max_recv))
-       
+
     do i = 1, pe_size - 1
        src = modulo(pe_rank - i + pe_size, pe_size)
        dst = modulo(pe_rank + i, pe_size)
@@ -830,14 +882,14 @@ contains
                 call distdata_set_shared_point(this%ddata, pt_loc_idx)
              end do
           end if
-          j = j + (2 + num_neigh)          
+          j = j + (2 + num_neigh)
        end do
-       
+
     end do
 
     deallocate(recv_buffer)
     call send_buffer%free()
-    
+
   end subroutine mesh_generate_external_point_conn
 
   !> Generate element-element connectivity via edges
@@ -852,7 +904,7 @@ contains
     type(htable_i8_t) :: glb_to_loc
     type(MPI_Status) :: status
     type(MPI_Request) :: send_req, recv_req
-    integer, pointer :: p1(:), p2(:), ns_id(:)
+    integer, contiguous, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
     integer(kind=i8) :: C, glb_max, glb_id
@@ -874,7 +926,7 @@ contains
 
     !
     ! Determine/ constants used to generate unique global edge numbers
-    ! for shared edges 
+    ! for shared edges
     !
     C = int(this%glb_nelv, i8) * int(NEKO_HEX_NEDS, i8)
 
@@ -887,7 +939,7 @@ contains
     call non_shared_edges%init(this%hte%num_entries())
 
     call it%init(this%hte)
-    do while(it%next())       
+    do while(it%next())
        edge => it%key()
        call it%data(id)
 
@@ -897,8 +949,8 @@ contains
        p2 => this%point_neigh(l)%array()
 
        shared_edge = .false.
-       
-       ! Find edge neighbor from point neighbors 
+
+       ! Find edge neighbor from point neighbors
        do i = 1, this%point_neigh(k)%size()
           do j = 1, this%point_neigh(l)%size()
              if ((p1(i) .eq. p2(j)) .and. &
@@ -911,7 +963,7 @@ contains
 
        ! Generate a unique id for the shared edge as,
        ! ((e1 * C) + e2 )) + glb_max if e1 > e2
-       ! ((e2 * C) + e1 )) + glb_max if e2 > e1     
+       ! ((e2 * C) + e1 )) + glb_max if e2 > e1
        if (shared_edge) then
           glb_id = ((int(edge%x(1), i8)) + int(edge%x(2), i8)*C) + glb_max
           call glb_to_loc%set(glb_id, id)
@@ -934,14 +986,14 @@ contains
     ns_id => non_shared_edges%array()
     do i = 1, non_shared_edges%size()
        call distdata_set_local_to_global_edge(this%ddata, ns_id(i), edge_offset)
-       edge_offset = edge_offset + 1          
+       edge_offset = edge_offset + 1
     end do
     nullify(ns_id)
-    
+
     !
     ! Renumber shared edges into integer range
     !
-    
+
     call MPI_Allreduce(send_buff%size(), max_recv, 1, &
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
@@ -972,7 +1024,7 @@ contains
        if (this%neigh(src)) then
           call MPI_Wait(recv_req, status, ierr)
           call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
-          
+
           do j = 1, n_recv
              if ((edge_idx%element(recv_buff(j))) .and. (src .lt. pe_rank)) then
                 call ghost%add(recv_buff(j))
@@ -986,7 +1038,7 @@ contains
        end if
     end do
 
-   
+
     ! Determine start offset for global numbering of shared edges
     glb_nshared = num_edge_loc
     call MPI_Allreduce(MPI_IN_PLACE, glb_nshared, 1, &
@@ -996,7 +1048,7 @@ contains
     call MPI_Exscan(owner%size(), shared_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     shared_offset = shared_offset + glb_nshared + 1
-    
+
     ! Renumber locally owned set of shared edges
     call send_buff%clear()
     call owner%iter_init()
@@ -1016,12 +1068,12 @@ contains
        end if
     end do
     nullify(glb_ptr)
-       
+
     ! Determine total number of unique edges in the mesh
     ! (This can probably be done in a clever way...)
-    this%glb_meds = shared_offset -1 
+    this%glb_meds = shared_offset -1
     call MPI_Allreduce(MPI_IN_PLACE, this%glb_meds, 1, &
-         MPI_INTEGER, MPI_MAX, NEKO_COMM, IERR)    
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, IERR)
 
     !
     ! Update ghosted edges with new global id
@@ -1053,11 +1105,11 @@ contains
                   dst, 0, NEKO_COMM, send_req, ierr)
           end select
        end if
-       
+
        if (this%neigh(src)) then
           call MPI_Wait(recv_req, status, ierr)
           call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
-          
+
           do j = 1, n_recv, 2
              if (ghost%element(recv_buff(j))) then
                 if (glb_to_loc%get(recv_buff(j), id) .eq. 0) then
@@ -1104,7 +1156,7 @@ contains
     type(MPI_Status) :: status
     type(MPI_Request) :: send_req, recv_req
     integer, allocatable :: recv_buff(:)
-    integer :: non_shared_facets, shared_facets, facet_offset    
+    integer :: non_shared_facets, shared_facets, facet_offset
     integer :: id, glb_nshared, shared_offset, owned_facets
     integer :: i, j, ierr, max_recv, src, dst, n_recv
 
@@ -1114,29 +1166,29 @@ contains
     if (this%gdim .eq. 2) then
        allocate(this%ddata%local_to_global_facet(this%meds))
        call edge_owner%init(this%meds)
-       call edge_ghost%init(64, i)       
+       call edge_ghost%init(64, i)
        non_shared_facets = this%hte%num_entries() - shared_facets
     else
        allocate(this%ddata%local_to_global_facet(this%mfcs))
        call face_owner%init(this%mfcs)
-       call face_ghost%init(64, i)       
+       call face_ghost%init(64, i)
        non_shared_facets = this%htf%num_entries() - shared_facets
     end if
-    
+
     !> @todo Move this into distdata as a method...
-    
+
     facet_offset = 0
     call MPI_Exscan(non_shared_facets, facet_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     facet_offset = facet_offset + 1
-    
+
     ! Determine ownership of shared facets
     if (this%gdim .eq. 2) then
        call edge_it%init(this%hte)
        do while (edge_it%next())
           call edge_it%data(id)
           edge => edge_it%key()
-          if (.not. this%ddata%shared_facet%element(id)) then       
+          if (.not. this%ddata%shared_facet%element(id)) then
              call distdata_set_local_to_global_facet(this%ddata, &
                   id, facet_offset)
              facet_offset = facet_offset + 1
@@ -1163,7 +1215,7 @@ contains
        do while (face_it%next())
           call face_it%data(id)
           face => face_it%key()
-          if (.not. this%ddata%shared_facet%element(id)) then       
+          if (.not. this%ddata%shared_facet%element(id)) then
              call distdata_set_local_to_global_facet(this%ddata, &
                   id, facet_offset)
              facet_offset = facet_offset + 1
@@ -1186,50 +1238,50 @@ contains
        end do
        owned_facets = face_owner%size()
     end if
-    
+
     ! Determine start offset for global numbering of shared facets
     glb_nshared = non_shared_facets
     call MPI_Allreduce(MPI_IN_PLACE, glb_nshared, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    
+
     shared_offset = 0
     call MPI_Exscan(owned_facets, shared_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     shared_offset = shared_offset + glb_nshared + 1
 
     if (this%gdim .eq. 2) then
-       
+
        if (owned_facets .gt. 32)  then
           call send_buff%init(owned_facets)
        else
           call send_buff%init()
        end if
-       
+
        ed => edge_owner%array()
        do i = 1, edge_owner%size()
           if (this%hte%get(ed(i), id) .eq. 0) then
              call distdata_set_local_to_global_facet(this%ddata, id, &
                                                      shared_offset)
-             
+
              ! Add new number to send buffer
              ! [edge id1 ... edge idn new_glb_id]
              do j = 1, 2
                 call send_buff%push(ed(i)%x(j))
              end do
              call send_buff%push(shared_offset)
-             
+
              shared_offset = shared_offset + 1
           end if
        end do
-       
+
     else
-       
+
        if (owned_facets .gt. 32)  then
           call send_buff%init(owned_facets)
        else
           call send_buff%init()
        end if
-           
+
        fd => face_owner%array()
        do i = 1, face_owner%size()
           if (this%htf%get(fd(i), id) .eq. 0) then
@@ -1242,28 +1294,28 @@ contains
                 call send_buff%push(fd(i)%x(j))
              end do
              call send_buff%push(shared_offset)
-             
+
              shared_offset = shared_offset + 1
           end if
        end do
        nullify(fd)
-       
+
     end if
 
     ! Determine total number of unique facets in the mesh
     ! (This can probably be done in a clever way...)
     this%glb_mfcs = shared_offset - 1
     call MPI_Allreduce(MPI_IN_PLACE, this%glb_mfcs, 1, &
-         MPI_INTEGER, MPI_MAX, NEKO_COMM, IERR)    
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, IERR)
 
     !
     ! Update ghosted facets with new global id
     !
-    
+
     call MPI_Allreduce(send_buff%size(), max_recv, 1, &
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
-    allocate(recv_buff(max_recv))    
+    allocate(recv_buff(max_recv))
 
     !> @todo Since we now the neigh. we can actually do p2p here...
     do i = 1, size(this%neigh_order)
@@ -1279,28 +1331,28 @@ contains
           call MPI_Isend(send_buff%array(), send_buff%size(), MPI_INTEGER, &
                dst, 0, NEKO_COMM, send_req, ierr)
        end if
-       
+
        if (this%neigh(src)) then
           call MPI_Wait(recv_req, status, ierr)
           call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
-          
+
           if (this%gdim .eq. 2) then
              do j = 1, n_recv, 3
-             
+
                 recv_edge = (/recv_buff(j), recv_buff(j+1)/)
-             
+
                 ! Check if the PE has the shared edge
                 if (edge_ghost%get(recv_edge, id) .eq. 0) then
                    call distdata_set_local_to_global_facet(this%ddata, &
                         id, recv_buff(j+2))
                 end if
              end do
-          else             
+          else
              do j = 1, n_recv, 5
-                
+
                 recv_face = (/recv_buff(j), recv_buff(j+1), &
                      recv_buff(j+2), recv_buff(j+3) /)
-                
+
                 ! Check if the PE has the shared face
                 if (face_ghost%get(recv_face, id) .eq. 0) then
                    call distdata_set_local_to_global_facet(this%ddata, &
@@ -1313,7 +1365,7 @@ contains
        if (this%neigh(dst)) then
           call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
        end if
-       
+
     end do
 
     if (this%gdim .eq. 2) then
@@ -1323,28 +1375,28 @@ contains
        call face_owner%free()
        call face_ghost%free()
     end if
-    
+
     call send_buff%free()
     deallocate(recv_buff)
-       
+
   end subroutine mesh_generate_facet_numbering
-  
-  
+
+
   !> Add a quadrilateral element to the mesh @a this
   subroutine mesh_add_quad(this, el, p1, p2, p3, p4)
     class(mesh_t), target, intent(inout) :: this
     integer, value :: el
-    type(point_t), intent(inout) :: p1, p2, p3, p4
+    type(point_t), target, intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
     integer :: p(4), el_glb_idx, i, p_local_idx
     type(tuple_i4_t) :: e
 
-    ! Connectivity invalidated if a new element is added        
+    ! Connectivity invalidated if a new element is added
     this%lconn = .false.
 
     ! Numbering invalidated if a new element is added
     this%lnumr = .false.
-    
+
     call this%add_point(p1, p(1))
     call this%add_point(p2, p(2))
     call this%add_point(p3, p(3))
@@ -1353,44 +1405,35 @@ contains
     ep => this%elements(el)%e
     el_glb_idx = el + this%offset_el
 
-    do i = 1, NEKO_QUAD_NPTS
-       p_local_idx = this%get_local(this%points(p(i)))
-       call this%point_neigh(p_local_idx)%push(el_glb_idx)
-    end do
-    
     select type(ep)
     type is (quad_t)
        call ep%init(el_glb_idx, &
             this%points(p(1)), this%points(p(2)), &
             this%points(p(3)), this%points(p(4)))
 
-       do i = 1, NEKO_QUAD_NEDS
-          call ep%facet_id(e, i)
-          call this%add_edge(e)
-       end do
 
     class default
        call neko_error('Invalid element type')
     end select
-        
+
   end subroutine mesh_add_quad
 
   !> Add a hexahedral element to the mesh @a this
   subroutine mesh_add_hex(this, el, p1, p2, p3, p4, p5, p6, p7, p8)
     class(mesh_t), target, intent(inout) :: this
     integer, value :: el
-    type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
+    type(point_t), target, intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
     integer :: p(8), el_glb_idx, i, p_local_idx
     type(tuple4_i4_t) :: f
     type(tuple_i4_t) :: e
 
-    ! Connectivity invalidated if a new element is added        
+    ! Connectivity invalidated if a new element is added
     this%lconn = .false.
 
     ! Numbering invalidated if a new element is added
     this%lnumr = .false.
-    
+
     call this%add_point(p1, p(1))
     call this%add_point(p2, p(2))
     call this%add_point(p3, p(3))
@@ -1402,12 +1445,6 @@ contains
 
     ep => this%elements(el)%e
     el_glb_idx = el + this%offset_el
-    if (this%lgenc) then
-       do i = 1, NEKO_HEX_NPTS
-          p_local_idx = this%get_local(this%points(p(i)))
-          call this%point_neigh(p_local_idx)%push(el_glb_idx)
-       end do
-    end if
     select type(ep)
     type is (hex_t)
        call ep%init(el_glb_idx, &
@@ -1415,19 +1452,6 @@ contains
             this%points(p(3)), this%points(p(4)), &
             this%points(p(5)), this%points(p(6)), &
             this%points(p(7)), this%points(p(8)))
-       
-       if (this%lgenc) then
-          do i = 1, NEKO_HEX_NFCS
-             call ep%facet_id(f, i)
-             call this%add_face(f)
-          end do
-
-          do i = 1, NEKO_HEX_NEDS
-             call ep%edge_id(e, i)
-             call this%add_edge(e)
-          end do
-       end if
-       
     class default
        call neko_error('Invalid element type')
     end select
@@ -1440,11 +1464,11 @@ contains
     type(point_t), intent(inout) :: p
     integer, intent(inout) :: idx
     integer :: tmp
-   
+
     tmp = p%id()
 
     this%max_pts_id = max(this%max_pts_id, tmp)
-    
+
     if (tmp .le. 0) then
        call neko_error("Invalid point id")
     end if
@@ -1455,7 +1479,7 @@ contains
        this%points(this%mpts) = p
        idx = this%mpts
     end if
-    
+
   end subroutine mesh_add_point
 
   !> Add a unique face represented as a 4-tuple to the mesh
@@ -1468,9 +1492,9 @@ contains
        this%mfcs = this%mfcs + 1
        call this%htf%set(f, this%mfcs)
     end if
-    
+
   end subroutine mesh_add_face
-  
+
   !> Add a unique edge represented as a 2-tuple to the mesh
   subroutine mesh_add_edge(this, e)
     class(mesh_t), intent(inout) :: this
@@ -1481,7 +1505,7 @@ contains
        this%meds = this%meds + 1
        call this%hte%set(e, this%meds)
     end if
-    
+
   end subroutine mesh_add_edge
 
   !> Mark facet @a f in element @a e as a wall
@@ -1500,15 +1524,15 @@ contains
     end if
     this%facet_type(f, e) = 2
     call this%wall%add_facet(f, e)
-    
+
   end subroutine mesh_mark_wall_facet
 
   !> Mark element @a e as a curve element
   subroutine mesh_mark_curve_element(this, e, curve_data, curve_type)
     class(mesh_t), intent(inout) :: this
     integer, intent(in) :: e
-    real(kind=dp), dimension(5,12), intent(in) :: curve_data 
-    integer, dimension(12), intent(in) :: curve_type 
+    real(kind=dp), dimension(5,12), intent(in) :: curve_data
+    integer, dimension(12), intent(in) :: curve_type
 
     if (e .gt. this%nelv) then
        call neko_error('Invalid element index')
@@ -1517,7 +1541,7 @@ contains
        call neko_error('Invalid curve element')
     end if
     call this%curve%add_element(e, curve_data, curve_type)
-    
+
   end subroutine mesh_mark_curve_element
 
 
@@ -1537,10 +1561,10 @@ contains
     end if
     this%facet_type(f, e) = 2
     call this%inlet%add_facet(f, e)
-    
+
   end subroutine mesh_mark_inlet_facet
- 
-  !> Mark facet @a f in element @a e with label 
+
+  !> Mark facet @a f in element @a e with label
   subroutine mesh_mark_labeled_facet(this, f, e, label)
     class(mesh_t), intent(inout) :: this
     integer, intent(in) :: f
@@ -1557,10 +1581,10 @@ contains
     end if
     call this%labeled_zones(label)%add_facet(f, e)
     this%facet_type(f,e) = -label
-    
+
   end subroutine mesh_mark_labeled_facet
 
- 
+
   !> Mark facet @a f in element @a e as an outlet normal
   subroutine mesh_mark_outlet_normal_facet(this, f, e)
     class(mesh_t), intent(inout) :: this
@@ -1577,7 +1601,7 @@ contains
     end if
     this%facet_type(f, e) = 1
     call this%outlet_normal%add_facet(f, e)
-    
+
   end subroutine mesh_mark_outlet_normal_facet
 
 
@@ -1597,7 +1621,7 @@ contains
     end if
     this%facet_type(f, e) = 1
     call this%outlet%add_facet(f, e)
-    
+
   end subroutine mesh_mark_outlet_facet
 
   !> Mark facet @a f in element @a e as a symmetry plane
@@ -1616,7 +1640,7 @@ contains
     end if
     this%facet_type(f, e) = 2
     call this%sympln%add_facet(f, e)
-    
+
   end subroutine mesh_mark_sympln_facet
 
   !> Mark facet @a f in element @a e as periodic with (@a pf, @a pe)
@@ -1628,7 +1652,7 @@ contains
     integer, intent(in) :: pe
     integer, intent(inout) :: pids(4)
     integer, dimension(4) :: org_ids
-    
+
     call this%get_facet_ids(f, e, org_ids)
     call this%periodic%add_periodic_facet(f, e, pf, pe, pids, org_ids)
   end subroutine mesh_mark_periodic_facet
@@ -1656,7 +1680,7 @@ contains
        pids(4) = 0
     end select
   end subroutine mesh_get_facet_ids
-  
+
   !> Reset ids of periodic points to their original ids
   subroutine mesh_reset_periodic_ids(this)
     class(mesh_t), intent(inout) :: this
@@ -1679,9 +1703,9 @@ contains
                                                        1,2,&
                                                        3,4 /),&
                                                        (/2,4/))
- 
+
     do i = 1, this%periodic%size
-       e = this%periodic%facet_el(i)%x(2) 
+       e = this%periodic%facet_el(i)%x(2)
        f = this%periodic%facet_el(i)%x(1)
        pe = this%periodic%p_facet_el(i)%x(2)
        pf = this%periodic%p_facet_el(i)%x(1)
@@ -1690,24 +1714,24 @@ contains
        this%periodic%p_ids(i)%x = pids
     end do
     do i = 1, this%periodic%size
-       e = this%periodic%facet_el(i)%x(2) 
+       e = this%periodic%facet_el(i)%x(2)
        f = this%periodic%facet_el(i)%x(1)
        org_ids = this%periodic%org_ids(i)%x
        select type(ele => this%elements(e)%e)
        type is(hex_t)
-       do j = 1, 4
-          pi => ele%pts(face_nodes(j,f))%p
-          call pi%set_id(org_ids(j))
-       end do
+          do j = 1, 4
+             pi => ele%pts(face_nodes(j,f))%p
+             call pi%set_id(org_ids(j))
+          end do
        type is(quad_t)
-       do j = 1, 2
-          pi => ele%pts(edge_nodes(j,f))%p
-          call pi%set_id(org_ids(j))
-       end do
+          do j = 1, 2
+             pi => ele%pts(edge_nodes(j,f))%p
+             call pi%set_id(org_ids(j))
+          end do
        end select
     end do
   end subroutine mesh_reset_periodic_ids
-  
+
   !> Creates common ids for matching periodic points.
   subroutine mesh_create_periodic_ids(this, f, e, pf, pe)
     class(mesh_t), intent(inout) :: this
@@ -1717,7 +1741,7 @@ contains
     integer, intent(in) :: pe
     type(point_t), pointer :: pi, pj
     real(kind=dp) :: L(3)
-    integer :: i, j, id, p_local_idx
+    integer :: i, j, id, p_local_idx, match
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
     integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
@@ -1732,89 +1756,60 @@ contains
                                                        1,2,&
                                                        3,4 /),&
                                                       (/2,4/))
-  
+
     select type(ele => this%elements(e)%e)
     type is(hex_t)
-    select type(elp => this%elements(pe)%e)
-    type is(hex_t)
-       L = 0d0
-       do i = 1, 4
-          L = L + ele%pts(face_nodes(i,f))%p%x(1:3) - &
+       select type(elp => this%elements(pe)%e)
+       type is(hex_t)
+          L = 0d0
+          do i = 1, 4
+             L = L + ele%pts(face_nodes(i,f))%p%x(1:3) - &
                elp%pts(face_nodes(i,pf))%p%x(1:3)
-       end do
-       L = L/4
-       do i = 1, 4
-          pi => ele%pts(face_nodes(i,f))%p
-          do j = 1, 4
-             pj => elp%pts(face_nodes(j,pf))%p
-             if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
-                id = min(pi%id(), pj%id())
-                call pi%set_id(id)
-                call pj%set_id(id)
-                p_local_idx = this%get_local(this%points(id))
-                if (this%lgenc) then
-                   id = ele%id()
-                   call this%point_neigh(p_local_idx)%push(id)
-                   id = elp%id()
-                   call this%point_neigh(p_local_idx)%push(id)
+          end do
+          L = L/4
+          do i = 1, 4
+             pi => ele%pts(face_nodes(i,f))%p
+             match = 0
+             do j = 1, 4
+                pj => elp%pts(face_nodes(j,pf))%p
+                if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
+                   id = min(pi%id(), pj%id())
+                   call pi%set_id(id)
+                   call pj%set_id(id)
+                   p_local_idx = this%get_local(this%points(id))
+                   match = match + 1
                 end if
+             end do
+             if ( match .gt. 1) then
+                call neko_error('Multiple matches when creating periodic ids')
+             else if (match .eq. 0) then
+                call neko_error('Cannot find matching periodic point')
              end if
           end do
-       end do
-
-       if (this%lgenc) then
-          do i = 1, NEKO_HEX_NFCS
-             call ele%facet_id(ft, i)
-             call this%add_face(ft)
-             call elp%facet_id(ft, i)
-             call this%add_face(ft)
-          end do
-
-          do i = 1, NEKO_HEX_NEDS
-             call ele%edge_id(et, i)
-             call this%add_edge(et)
-             call elp%edge_id(et, i)
-             call this%add_edge(et)
-          end do
-       end if
-    end select
+       end select
     type is(quad_t)
-    select type(elp => this%elements(pe)%e)
-    type is(quad_t)
-       L = 0d0
-       do i = 1, 2
-          L = L + ele%pts(edge_nodes(i,f))%p%x(1:3) - &
+       select type(elp => this%elements(pe)%e)
+       type is(quad_t)
+          L = 0d0
+          do i = 1, 2
+             L = L + ele%pts(edge_nodes(i,f))%p%x(1:3) - &
                elp%pts(edge_nodes(i,pf))%p%x(1:3)
-       end do
-       L = L/2
-       do i = 1, 2
-          pi => ele%pts(edge_nodes(i,f))%p
-          do j = 1, 2
-             pj => elp%pts(edge_nodes(j,pf))%p
-             !whatabout thie tolerance?
-             if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
-                id = min(pi%id(), pj%id())
-                call pi%set_id(id)
-                call pj%set_id(id)
-                p_local_idx = this%get_local(this%points(id))
-                if (this%lgenc) then
-                   id = ele%id()
-                   call this%point_neigh(p_local_idx)%push(id)
-                   id = elp%id()
-                   call this%point_neigh(p_local_idx)%push(id)
+          end do
+          L = L/2
+          do i = 1, 2
+             pi => ele%pts(edge_nodes(i,f))%p
+             do j = 1, 2
+                pj => elp%pts(edge_nodes(j,pf))%p
+                !whatabout thie tolerance?
+                if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
+                   id = min(pi%id(), pj%id())
+                   call pi%set_id(id)
+                   call pj%set_id(id)
+                   p_local_idx = this%get_local(this%points(id))
                 end if
-             end if
+             end do
           end do
-       end do
-       if (this%lgenc) then
-          do i = 1, NEKO_QUAD_NEDS
-             call ele%facet_id(et, i)
-             call this%add_edge(et)
-             call elp%facet_id(et, i)
-             call this%add_edge(et)
-          end do
-       end if
-    end select
+       end select
     end select
   end subroutine mesh_create_periodic_ids
 
@@ -1838,7 +1833,6 @@ contains
                                                        1,2,4,3,&
                                                        5,6,8,7/),&
                                                        (/4,6/))
-  
     select type(ele => this%elements(e)%e)
     type is(hex_t)
        do i = 1, 4
@@ -1846,22 +1840,7 @@ contains
           call pi%set_id(pids(i))
           call this%add_point(pi, id)
           p_local_idx = this%get_local(this%points(id))
-          id = ele%id()
-          if (this%lgenc) then
-             call this%point_neigh(p_local_idx)%push(id)
-          end if
        end do
-       if (this%lgenc) then
-          do i = 1, NEKO_HEX_NFCS
-             call ele%facet_id(ft, i)
-             call this%add_face(ft)
-          end do
-
-          do i = 1, NEKO_HEX_NEDS
-             call ele%edge_id(et, i)
-             call this%add_edge(et)
-          end do
-       end if
     end select
 
   end subroutine mesh_apply_periodic_facet
@@ -1879,7 +1858,7 @@ contains
     if (this%htp%get(tmp, local_id) .gt. 0) then
        call neko_error('Invalid global id (local point)')
     end if
-    
+
   end function mesh_get_local_point
 
   !> Return the local id of an edge @a e
@@ -1892,7 +1871,7 @@ contains
     if (this%hte%get(e, local_id) .gt. 0) then
        call neko_error('Invalid global id (local edge)')
     end if
-    
+
   end function mesh_get_local_edge
 
   !> Return the local id of a face @a f
@@ -1904,7 +1883,7 @@ contains
     if (this%htf%get(f, local_id) .gt. 0) then
        call neko_error('Invalid global id (local facet)')
     end if
-    
+
   end function mesh_get_local_facet
 
   !> Return the global id of an edge @a e
@@ -1919,7 +1898,7 @@ contains
        if (pe_size .gt. 1) then
           global_id = this%ddata%local_to_global_facet(global_id)
        end if
-    else 
+    else
        if (pe_size .gt. 1) then
           global_id = this%ddata%local_to_global_edge(global_id)
        end if
@@ -1934,26 +1913,26 @@ contains
     integer :: global_id
 
     global_id = this%get_local_facet(f)
-    
+
     if (pe_size .gt. 1) then
        global_id = this%ddata%local_to_global_facet(global_id)
     end if
-    
+
   end function mesh_get_global_facet
 
-  
+
   !> Check if the mesh has a point given its global index
   !! @return The local id of the point (if present) otherwise -1
   !! @todo Consider moving this to distdata
   function mesh_have_point_glb_idx(this, index) result(local_id)
-    class(mesh_t), intent(inout) :: this 
+    class(mesh_t), intent(inout) :: this
     integer, intent(inout) :: index  !< Global index
     integer :: local_id
 
     if (this%htp%get(index, local_id) .eq. 1) then
        local_id = -1
     end if
-        
+
   end function mesh_have_point_glb_idx
 
 
@@ -1966,9 +1945,9 @@ contains
 
     local_index = this%get_local(p)
     shared = this%ddata%shared_point%element(local_index)
-    
+
   end function mesh_is_shared_point
-  
+
 
   !> Check if an edge is shared
   !! @attention only defined for gdim .ne. 2
@@ -1980,7 +1959,7 @@ contains
     local_index = this%get_local(e)
     if (this%gdim .eq. 2) then
        shared = this%ddata%shared_facet%element(local_index)
-    else 
+    else
        shared = this%ddata%shared_edge%element(local_index)
     end if
   end function mesh_is_shared_edge
@@ -1994,7 +1973,7 @@ contains
 
     local_index = this%get_local(f)
     shared = this%ddata%shared_facet%element(local_index)
-    
+
   end function mesh_is_shared_facet
 
 end module mesh

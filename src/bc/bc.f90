@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,16 +36,17 @@ module bc
   use num_types
   use device
   use dofmap, only : dofmap_t
+  use coefs, only : coef_t
   use space, only : space_t
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
-  use utils, only : neko_error, linear_index
+  use utils, only : neko_error, linear_index, split_string
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
-  
+
   !> Base type for a boundary condition
   type, public, abstract :: bc_t
      !> The linear index of each node in each boundary facet
@@ -54,6 +55,8 @@ module bc
      integer, allocatable :: facet(:)
      !> Map of degrees of freedom
      type(dofmap_t), pointer :: dof
+     !> SEM coefficients
+     type(coef_t), pointer :: coef
      !> The mesh
      type(mesh_t), pointer :: msh
      !> The function space
@@ -64,7 +67,7 @@ module bc
      type(c_ptr) :: msk_d = C_NULL_PTR
      !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
-   contains     
+   contains
      !> Constructor
      procedure, pass(this) :: init => bc_init
      !> Destructor
@@ -94,14 +97,16 @@ module bc
   type, private :: bcp_t
      class(bc_t), pointer :: bcp
   end type bcp_t
-  
+
   !> A list of boundary conditions
   type, public :: bc_list_t
      type(bcp_t), allocatable :: bc(:)
+     !> Number of items.
      integer :: n
+     !> Capacity.
      integer :: size
   end type bc_list_t
-    
+
   abstract interface
      !> Apply the boundary condition to a scalar field
      !! @param x The field for which to apply the boundary condition.
@@ -139,12 +144,12 @@ module bc
        integer, intent(in), optional :: tstep
      end subroutine bc_apply_vector
   end interface
-  
+
   abstract interface
      !> Apply the boundary condition to a scalar field on the device
      !! @param x_d Device pointer to the field.
      subroutine bc_apply_scalar_dev(this, x_d, t, tstep)
-       import :: c_ptr       
+       import :: c_ptr
        import :: bc_t
        import :: rp
        class(bc_t), intent(inout), target :: this
@@ -175,23 +180,24 @@ module bc
   interface bc_list_apply
      module procedure bc_list_apply_scalar, bc_list_apply_vector
   end interface bc_list_apply
-  
+
   public :: bc_list_init, bc_list_free, bc_list_add, &
   bc_list_apply_scalar, bc_list_apply_vector, bc_list_apply
-  
+
 contains
 
   !> Constructor
   !! @param dof Map of degrees of freedom.
-  subroutine bc_init(this, dof)
+  subroutine bc_init(this, coef)
     class(bc_t), intent(inout) :: this
-    type(dofmap_t), target, intent(in) :: dof
+    type(coef_t), target, intent(in) :: coef
 
     call bc_free(this)
 
-    this%dof => dof
-    this%Xh => dof%Xh
-    this%msh => dof%msh
+    this%dof => coef%dof
+    this%coef => coef
+    this%Xh => this%dof%Xh
+    this%msh => this%dof%msh
 
     call this%marked_facet%init()
 
@@ -202,9 +208,9 @@ contains
     class(bc_t), intent(inout) :: this
 
     call this%marked_facet%free()
-    
+
     nullify(this%Xh)
-    nullify(this%msh)    
+    nullify(this%msh)
     nullify(this%dof)
 
     if (allocated(this%msk)) then
@@ -224,7 +230,7 @@ contains
        call device_free(this%facet_d)
        this%facet_d = C_NULL_PTR
     end if
-    
+
   end subroutine bc_free
 
   !> Mark @a facet on element @a el as part of the boundary condition
@@ -238,7 +244,7 @@ contains
 
     t%x = (/facet, el/)
     call this%marked_facet%push(t)
-    
+
   end subroutine bc_mark_facet
 
   !> Mark all facets from a (facet, el) tuple list
@@ -253,7 +259,7 @@ contains
     do i = 1, facet_list%size()
        call this%marked_facet%push(fp(i))
     end do
-       
+
   end subroutine bc_mark_facets
 
   !> Mark all facets from a zone
@@ -277,31 +283,59 @@ contains
     class(bc_t), intent(inout) :: this
     class(facet_zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
-    character(len=20) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
-    integer :: i, j, k, msh_bc_type 
-    
+    character(len=100), allocatable :: split_key(:)
+    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
+    integer :: i, j, k, l, msh_bc_type
+
     msh_bc_type = 0
     if(trim(bc_key) .eq. 'o' .or. trim(bc_key) .eq. 'on' &
        .or. trim(bc_key) .eq. 'o+dong' .or. trim(bc_key) .eq. 'on+dong') then
        msh_bc_type = 1
+    else if(trim(bc_key) .eq. 'd_pres') then
+       msh_bc_type = 1
     else if(trim(bc_key) .eq. 'w') then
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'v') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_vel_u') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_vel_v') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'd_vel_w') then
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'sym') then
        msh_bc_type = 2
     end if
 
     do i = 1, NEKO_MSH_MAX_ZLBLS
-       if (trim(bc_key) .eq. trim(bc_labels(i))) then
-          call bc_mark_zone(this, bc_zones(i))
-          ! Loop across all faces in the mesh
-          do j = 1,this%msh%nelv
-             do k = 1, 2 * this%msh%gdim
-                if (this%msh%facet_type(k,j) .eq. -i) then
-                   this%msh%facet_type(k,j) = msh_bc_type
-                end if
+       !Check if several bcs are defined for this zone
+       !bcs are seperated by /, but we could use something else
+       if (index(trim(bc_labels(i)), '/') .eq. 0) then
+          if (trim(bc_key) .eq. trim(bc_labels(i))) then
+             call bc_mark_zone(this, bc_zones(i))
+             ! Loop across all faces in the mesh
+             do j = 1,this%msh%nelv
+                do k = 1, 2 * this%msh%gdim
+                   if (this%msh%facet_type(k,j) .eq. -i) then
+                      this%msh%facet_type(k,j) = msh_bc_type
+                   end if
+                end do
              end do
+          end if
+       else
+          split_key = split_string(trim(bc_labels(i)),'/')
+          do l = 1, size(split_key)
+             if (trim(split_key(l)) .eq. trim(bc_key)) then
+                call bc_mark_zone(this, bc_zones(i))
+                ! Loop across all faces in the mesh
+                do j = 1,this%msh%nelv
+                   do k = 1, 2 * this%msh%gdim
+                      if (this%msh%facet_type(k,j) .eq. -i) then
+                         this%msh%facet_type(k,j) = msh_bc_type
+                      end if
+                   end do
+                end do
+             end if
           end do
        end if
     end do
@@ -324,7 +358,7 @@ contains
     lz = this%Xh%lz
 
     !>@todo add 2D case
-    
+
     ! Note we assume that lx = ly = lz
     facet_size = lx**2
     allocate(this%msk(0:facet_size * this%marked_facet%size()))
@@ -332,10 +366,10 @@ contains
 
     msk_c = 0
     bfp => this%marked_facet%array()
-    
+
     ! Loop through each (facet, element) id tuple
     ! Then loop over all the nodes of the face and compute their linear index
-    ! This index goes into This%msk, whereas the corresponding face id goes into
+    ! This index goes into this%msk, whereas the corresponding face id goes into
     ! this%facet
     do i = 1, this%marked_facet%size()
        bc_facet = bfp(i)
@@ -395,14 +429,16 @@ contains
 
     this%msk(0) = msk_c
     this%facet(0) = msk_c
-    
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = facet_size * this%marked_facet%size() + 1
        call device_map(this%msk, this%msk_d, n)
        call device_map(this%facet, this%facet_d, n)
 
-       call device_memcpy(this%msk, this%msk_d, n, HOST_TO_DEVICE)
-       call device_memcpy(this%facet, this%facet_d, n, HOST_TO_DEVICE)
+       call device_memcpy(this%msk, this%msk_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%facet, this%facet_d, n, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine bc_finalize
@@ -430,7 +466,7 @@ contains
 
     bclst%n = 0
     bclst%size = n
-        
+
   end subroutine bc_list_init
 
   !> Destructor for a list of boundary conditions
@@ -445,7 +481,7 @@ contains
 
     bclst%n = 0
     bclst%size = 0
-    
+
   end subroutine bc_list_free
 
   !> Add a condition to a list of boundary conditions
@@ -467,7 +503,7 @@ contains
 
     bclst%n = bclst%n + 1
     bclst%bc(bclst%n)%bcp => bc
-    
+
   end subroutine bc_list_add
 
   !> Apply a list of boundary conditions to a scalar field
@@ -587,6 +623,6 @@ contains
     end if
 
   end subroutine bc_list_apply_vector
-  
-  
+
+
 end module bc

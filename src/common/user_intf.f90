@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,14 +33,18 @@
 !> Interfaces for user interaction with NEKO
 module user_intf
   use field
+  use field_list, only : field_list_t
   use fluid_user_source_term
-  use source_scalar
+  use scalar_user_source_term
   use coefs
+  use bc, only: bc_list_t
   use mesh
   use usr_inflow
   use usr_scalar
+  use field_dirichlet, only: field_dirichlet_update
   use num_types
   use json_module, only : json_file
+  use utils, only : neko_error,  neko_warning
   implicit none
   private
 
@@ -55,6 +59,16 @@ module user_intf
        type(field_t), intent(inout) :: p
        type(json_file), intent(inout) :: params
      end subroutine useric
+  end interface
+
+  !> Abstract interface for user defined scalar initial conditions
+  abstract interface
+     subroutine useric_scalar(s, params)
+       import field_t
+       import json_file
+       type(field_t), intent(inout) :: s
+       type(json_file), intent(inout) :: params
+     end subroutine useric_scalar
   end interface
 
   !> Abstract interface for initilialization of modules
@@ -131,15 +145,17 @@ module user_intf
 
   type, public :: user_t
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
+     procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
      procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
      procedure(fluid_source_compute_pointwise), nopass, pointer :: fluid_user_f => null()
      procedure(fluid_source_compute_vector), nopass, pointer :: fluid_user_f_vector => null()
-     procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
-     procedure(source_scalar_term), nopass, pointer :: scalar_user_f_vector => null()
+     procedure(scalar_source_compute_pointwise), nopass, pointer :: scalar_user_f => null()
+     procedure(scalar_source_compute_vector), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
+     procedure(field_dirichlet_update), nopass, pointer :: user_dirichlet_update => null()
      procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
      !> Routine to set material properties
      procedure(user_material_properties), nopass, pointer :: material_properties => null()
@@ -147,10 +163,10 @@ module user_intf
      procedure, pass(u) :: init => user_intf_init
   end type user_t
 
-  public :: useric, user_initialize_modules, usermsh, &
+  public :: useric, useric_scalar, user_initialize_modules, usermsh, &
             dummy_user_material_properties, user_material_properties
 contains
-  
+
   !> User interface initialization
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
@@ -159,10 +175,14 @@ contains
        u%fluid_user_ic => dummy_user_ic
     end if
 
+    if (.not. associated(u%scalar_user_ic)) then
+       u%scalar_user_ic => dummy_user_ic_scalar
+    end if
+
     if (.not. associated(u%fluid_user_f)) then
        u%fluid_user_f => dummy_user_f
     end if
-    
+
     if (.not. associated(u%fluid_user_f_vector)) then
        u%fluid_user_f_vector => dummy_user_f_vector
     end if
@@ -170,13 +190,17 @@ contains
     if (.not. associated(u%scalar_user_f)) then
        u%scalar_user_f => dummy_scalar_user_f
     end if
-    
+
     if (.not. associated(u%scalar_user_f_vector)) then
        u%scalar_user_f_vector => dummy_user_scalar_f_vector
     end if
 
     if (.not. associated(u%scalar_user_bc)) then
        u%scalar_user_bc => dummy_scalar_user_bc
+    end if
+
+    if (.not. associated(u%user_dirichlet_update)) then
+       u%user_dirichlet_update => dirichlet_do_nothing
     end if
     
     if (.not. associated(u%user_mesh_setup)) then
@@ -200,7 +224,7 @@ contains
     end if
   end subroutine user_intf_init
 
-  
+
   !
   ! Below is the dummy user interface
   ! when running in pure turboNEKO mode
@@ -213,14 +237,23 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(json_file), intent(inout) :: params
-    call neko_error('Dummy user defined initial condition set')    
+    call neko_error('Dummy user defined initial condition set')
   end subroutine dummy_user_ic
+
+  !> Dummy user initial condition for scalar field
+  !! @param s Scalar field.
+  !! @param params JSON parameters.
+  subroutine dummy_user_ic_scalar(s, params)
+    type(field_t), intent(inout) :: s
+    type(json_file), intent(inout) :: params
+    call neko_error('Dummy user defined scalar initial condition set')
+  end subroutine dummy_user_ic_scalar
 
   !> Dummy user (fluid) forcing
   subroutine dummy_user_f_vector(f, t)
     class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined vector valued forcing set')    
+    call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_f_vector
 
   !> Dummy user (fluid) forcing
@@ -233,14 +266,14 @@ contains
     integer, intent(in) :: l
     integer, intent(in) :: e
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined forcing set')    
+    call neko_error('Dummy user defined forcing set')
   end subroutine dummy_user_f
 
   !> Dummy user (scalar) forcing
   subroutine dummy_user_scalar_f_vector(f, t)
-    class(source_scalar_t), intent(inout) :: f
+    class(scalar_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined vector valued forcing set')    
+    call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_scalar_f_vector
 
   !> Dummy user (scalar) forcing
@@ -251,9 +284,9 @@ contains
     integer, intent(in) :: l
     integer, intent(in) :: e
     real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined forcing set')    
+    call neko_error('Dummy user defined forcing set')
   end subroutine dummy_scalar_user_f
- 
+
   !> Dummy user boundary condition for scalar
   subroutine dummy_scalar_user_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
@@ -269,17 +302,17 @@ contains
     integer, intent(in) :: ie
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    call neko_warning('Dummy scalar user bc set, applied on all non-labeled zones')    
+    call neko_warning('Dummy scalar user bc set, applied on all non-labeled zones')
   end subroutine dummy_scalar_user_bc
- 
+
   !> Dummy user mesh apply
   subroutine dummy_user_mesh_setup(msh)
     type(mesh_t), intent(inout) :: msh
   end subroutine dummy_user_mesh_setup
-  
+
   !> Dummy user check
   subroutine dummy_user_check(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t    
+    real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
@@ -304,6 +337,16 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
+  subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc_list, &
+       coef, t, tstep, which_solver)
+    type(field_list_t), intent(inout) :: dirichlet_field_list
+    type(bc_list_t), intent(inout) :: dirichlet_bc_list
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    character(len=*), intent(in) :: which_solver
+  end subroutine dirichlet_do_nothing
+  
   subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
                                             params)
     real(kind=rp), intent(in) :: t

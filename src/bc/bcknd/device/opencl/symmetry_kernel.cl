@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __BC_SYMETRY_KERNEL__
+#define __BC_SYMETRY_KERNEL__
+
 /**
  * Device kernel for vector apply for a symmetry condition
  */
@@ -64,3 +67,5 @@ __kernel void symmetry_apply_vector_kernel(__global const int *xmsk,
   }
   
 }
+
+#endif // ___BC_SYMETRY_KERNEL___

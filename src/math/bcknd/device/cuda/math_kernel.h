@@ -1,3 +1,5 @@
+#ifndef __MATH_MATH_KERNEL_H__
+#define __MATH_MATH_KERNEL_H__
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -47,6 +49,25 @@ __global__ void cmult_kernel(T * __restrict__ a,
     a[i] = c * a[i];
   }
 }
+
+/**
+ * Device kernel for masked copy
+ */
+template< typename T >
+__global__ void masked_copy_kernel(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,                    
+                                   const int n,
+                                   const int m) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < m; i += str) {
+    a[mask[i+1]-1] = b[mask[i+1]-1];
+  }
+}
+
 
 /**
  * Device kernel for cmult2
@@ -424,7 +445,6 @@ __global__ void reduce_kernel(T * bufred, const int n) {
     bufred[blockIdx.x] = sum;
 }
 
-
 /**
  * Reduction kernel for glsc3
  */
@@ -606,3 +626,5 @@ __global__ void glsum_kernel(const T * a,
     buf_h[blockIdx.x] = sum;
   
 }
+
+#endif // __MATH_MATH_KERNEL_H__

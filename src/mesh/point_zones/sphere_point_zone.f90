@@ -39,9 +39,9 @@ module sphere_point_zone
   use math, only: abscmp
   implicit none
   private
-  
+
   !> A sphere-shaped point zone.
-  !! @details As defined here, a sphere is described by its center of 
+  !! @details As defined here, a sphere is described by its center of
   !! coordinates `x0,y0,z0` and its radius, specified in the json file
   !! as e.g. `"center": [<x0>, <y0>, <z0>]", "radius": <r>`.
   type, public, extends(point_zone_t) :: sphere_point_zone_t
@@ -85,7 +85,7 @@ contains
          y0, z0, radius)
 
   end subroutine sphere_point_zone_init_from_json
-  
+
   !> Initializes a sphere point zone from its center coordinates and radius.
   !! @param size Size of the scratch stack.
   !! @param name Name of the sphere point zone.
@@ -125,7 +125,7 @@ contains
   end subroutine sphere_point_zone_free
 
   !> Defines the criterion of selection of a GLL point in the sphere point zone.
-  !! A GLL point of coordinates \f$ \vec{X} = (x, y, z) \f$ is considered as being 
+  !! A GLL point of coordinates \f$ \vec{X} = (x, y, z) \f$ is considered as being
   !! inside the zone if:
   !! \f{eqnarray*}{
   !!    |\vec{X} - \vec{X_0}|^2 \le r

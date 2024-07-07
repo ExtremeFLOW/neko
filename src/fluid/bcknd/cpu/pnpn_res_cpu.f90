@@ -13,7 +13,7 @@ module pnpn_res_cpu
   use space, only : space_t
   implicit none
   private
-  
+
   type, public, extends(pnpn_prs_res_t) :: pnpn_prs_res_cpu_t
    contains
      procedure, nopass :: compute => pnpn_prs_res_cpu_compute
@@ -36,7 +36,7 @@ contains
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(inout) :: bc_prs_surface
     type(facet_normal_t), intent(inout) :: bc_sym_surface
-    class(Ax_t), intent(inout) :: Ax
+    class(ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(in) :: dt
     real(kind=rp), intent(in) :: mu
@@ -63,11 +63,11 @@ contains
        c_Xh%h2(i,1,1,1) = 0.0_rp
     end do
     c_Xh%ifh2 = .false.
-    
+
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho &
             - ((wa1%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1))
        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho &
@@ -75,12 +75,12 @@ contains
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho &
             - ((wa3%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1))
     end do
-     
-    call gs_Xh%op(ta1, GS_OP_ADD) 
-    call gs_Xh%op(ta2, GS_OP_ADD) 
-    call gs_Xh%op(ta3, GS_OP_ADD) 
 
-    do i = 1, n
+    call gs_Xh%op(ta1, GS_OP_ADD)
+    call gs_Xh%op(ta2, GS_OP_ADD)
+    call gs_Xh%op(ta3, GS_OP_ADD)
+
+    do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
@@ -92,7 +92,7 @@ contains
 
     call Ax%compute(p_res%x,p%x,c_Xh,p%msh,p%Xh)
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
                         + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
     end do
@@ -100,29 +100,29 @@ contains
     !
     ! Surface velocity terms
     !
-    do i = 1, n
+    do concurrent (i = 1:n)
        wa1%x(i,1,1,1) = 0.0_rp
        wa2%x(i,1,1,1) = 0.0_rp
        wa3%x(i,1,1,1) = 0.0_rp
     end do
-    
+
     call bc_sym_surface%apply_surfvec(wa1%x,wa2%x,wa3%x,ta1%x, ta2%x, ta3%x, n)
 
     dtbd = bd / dt
-    do i = 1, n
+    do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = 0.0_rp
        ta2%x(i,1,1,1) = 0.0_rp
        ta3%x(i,1,1,1) = 0.0_rp
     end do
-    
+
     call bc_prs_surface%apply_surfvec(ta1%x, ta2%x, ta3%x, u%x, v%x, w%x, n)
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        p_res%x(i,1,1,1) = p_res%x(i,1,1,1) &
             - (dtbd * (ta1%x(i,1,1,1) + ta2%x(i,1,1,1) + ta3%x(i,1,1,1)))&
             - (wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1))
     end do
-    
+
     call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine pnpn_prs_res_cpu_compute
@@ -131,7 +131,7 @@ contains
        p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh    
+    type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
     type(field_t), intent(inout) :: f_x, f_y, f_z
@@ -161,14 +161,14 @@ contains
 
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1)
        v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
        w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1)
     end do
-    
+
     call neko_scratch_registry%relinquish_field(temp_indices)
-  
-   end subroutine pnpn_vel_res_cpu_compute  
+
+  end subroutine pnpn_vel_res_cpu_compute
 
 end module pnpn_res_cpu

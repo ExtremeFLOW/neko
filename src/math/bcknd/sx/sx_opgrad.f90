@@ -45,8 +45,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -62,11 +62,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
@@ -92,7 +92,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -104,7 +104,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -112,7 +112,7 @@ contains
        end do
     end do
   end subroutine sx_opgrad_lx
-  
+
   subroutine sx_opgrad_lx18(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 18
@@ -122,8 +122,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -139,11 +139,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
@@ -169,7 +169,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -181,7 +181,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -189,7 +189,7 @@ contains
        end do
     end do
   end subroutine sx_opgrad_lx18
-  
+
   subroutine sx_opgrad_lx17(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 17
@@ -199,8 +199,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -216,11 +216,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
@@ -246,7 +246,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -258,7 +258,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -266,7 +266,7 @@ contains
        end do
     end do
   end subroutine sx_opgrad_lx17
-  
+
   subroutine sx_opgrad_lx16(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 16
@@ -276,8 +276,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -293,11 +293,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
@@ -323,7 +323,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -335,7 +335,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -343,7 +343,7 @@ contains
        end do
     end do
   end subroutine sx_opgrad_lx16
-  
+
   subroutine sx_opgrad_lx15(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 15
@@ -353,8 +353,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -370,11 +370,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
@@ -400,7 +400,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -412,7 +412,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -420,7 +420,7 @@ contains
        end do
     end do
   end subroutine sx_opgrad_lx15
-  
+
   subroutine sx_opgrad_lx14(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 14
@@ -430,8 +430,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -447,11 +447,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
@@ -477,7 +477,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -489,7 +489,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -497,7 +497,7 @@ contains
        end do
     end do
   end subroutine sx_opgrad_lx14
-  
+
   subroutine sx_opgrad_lx13(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 13
@@ -507,8 +507,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -524,11 +524,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
@@ -554,7 +554,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -566,7 +566,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -584,8 +584,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -601,11 +601,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
@@ -631,7 +631,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -643,7 +643,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -661,8 +661,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -678,11 +678,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -708,7 +708,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -720,7 +720,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -738,8 +738,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -755,11 +755,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -785,7 +785,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -797,7 +797,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -815,8 +815,8 @@ contains
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -832,11 +832,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -862,7 +862,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -874,7 +874,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -882,7 +882,7 @@ contains
        end do
     end do
   end subroutine sx_opgrad_lx9
-  
+
   subroutine sx_opgrad_lx8(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 8
@@ -892,8 +892,8 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -909,11 +909,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -939,7 +939,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -951,7 +951,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -960,7 +960,7 @@ contains
     end do
   end subroutine sx_opgrad_lx8
 
-    subroutine sx_opgrad_lx7(ux, uy, uz, u, dx, dy, dz, &
+  subroutine sx_opgrad_lx7(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 7
     integer, intent(in) :: n
@@ -969,8 +969,8 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -986,11 +986,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -1016,7 +1016,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -1028,7 +1028,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -1036,7 +1036,7 @@ contains
        end do
     end do
   end subroutine sx_opgrad_lx7
-  
+
   subroutine sx_opgrad_lx6(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 6
@@ -1046,8 +1046,8 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -1063,11 +1063,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -1093,7 +1093,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -1105,7 +1105,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -1123,8 +1123,8 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -1140,11 +1140,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -1170,7 +1170,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -1182,7 +1182,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -1200,8 +1200,8 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -1217,11 +1217,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -1247,7 +1247,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -1259,7 +1259,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -1267,7 +1267,7 @@ contains
        end do
     end do
   end subroutine sx_opgrad_lx4
-  
+
   subroutine sx_opgrad_lx3(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 3
@@ -1277,8 +1277,8 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -1294,11 +1294,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -1324,7 +1324,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -1336,7 +1336,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -1354,8 +1354,8 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
-    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
     real(kind=rp) :: ur(lx,lx,lx, n)
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
@@ -1371,11 +1371,11 @@ contains
           ur(i,jj,1,1) = wr
        end do
     end do
- 
+
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, n  
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
@@ -1401,7 +1401,7 @@ contains
           end do
        end do
     end do
-    
+
     do i = 1, lx * lx * lx
        do e = 1, n
           ux(i,1,1,e) = w3(i,1,1) * &
@@ -1413,7 +1413,7 @@ contains
                ( dsdy(i,1,1,e) * us(i,1,1,e) &
                + drdy(i,1,1,e) * ur(i,1,1,e) &
                + dtdy(i,1,1,e) * ut(i,1,1,e) )
-          
+
           uz(i,1,1,e) = w3(i,1,1) * &
                ( dtdz(i,1,1,e) * ut(i,1,1,e) &
                + drdz(i,1,1,e) * ur(i,1,1,e) &
@@ -1421,5 +1421,5 @@ contains
        end do
     end do
   end subroutine sx_opgrad_lx2
-  
+
 end module sx_opgrad
