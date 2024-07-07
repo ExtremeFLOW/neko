@@ -628,7 +628,6 @@ contains
       call this%proj_prs%post_solving(dp%x, Ax, c_Xh, &
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
-      if (NEKO_BCKND_DEVICE .eq. 1) then
       call field_add2(p, dp, n)
       else
          call add2(p%x, dp%x, n)
