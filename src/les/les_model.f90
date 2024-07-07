@@ -152,31 +152,36 @@ contains
     integer :: e, i, j, k
     integer ::  im, ip, jm, jp, km, kp
     real(kind=rp) :: di, dj, dk, ndim_inv
+    integer :: lx_half, ly_half, lz_half
+
+    lx_half = this%coef%Xh%lx / 2
+    ly_half = this%coef%Xh%ly / 2
+    lz_half = this%coef%Xh%lz / 2
 
     if (this%delta_type .eq. "elementwise") then
        ! use a same length scale throughout an entire element
        ! the length scale is based on maximum GLL spacing
-       do e=1, this%coef%msh%nelv  
-          di = (this%coef%dof%x(int(this%coef%Xh%lx/2),1,1,e) &
-              - this%coef%dof%x(int(this%coef%Xh%lx/2)+1,1,1,e))**2 &
-             + (this%coef%dof%y(int(this%coef%Xh%lx/2),1,1,e) &
-              - this%coef%dof%y(int(this%coef%Xh%lx/2)+1,1,1,e))**2 &
-             + (this%coef%dof%z(int(this%coef%Xh%lx/2),1,1,e) &
-              - this%coef%dof%z(int(this%coef%Xh%lx/2)+1,1,1,e))**2
+       do e=1, this%coef%msh%nelv
+          di = (this%coef%dof%x(lx_half,1,1,e) &
+              - this%coef%dof%x(lx_half + 1,1,1,e))**2 &
+             + (this%coef%dof%y(lx_half,1,1,e) &
+              - this%coef%dof%y(lx_half + 1,1,1,e))**2 &
+             + (this%coef%dof%z(lx_half,1,1,e) &
+              - this%coef%dof%z(lx_half + 1,1,1,e))**2
 
-          dj = (this%coef%dof%x(1,int(this%coef%Xh%ly/2),1,e) &
-              - this%coef%dof%x(1,int(this%coef%Xh%ly/2)+1,1,e))**2 &
-             + (this%coef%dof%y(1,int(this%coef%Xh%ly/2),1,e) &
-              - this%coef%dof%y(1,int(this%coef%Xh%ly/2)+1,1,e))**2 &
-             + (this%coef%dof%z(1,int(this%coef%Xh%ly/2),1,e) &
-              - this%coef%dof%z(1,int(this%coef%Xh%ly/2)+1,1,e))**2
+          dj = (this%coef%dof%x(1,ly_half,1,e) &
+              - this%coef%dof%x(1,ly_half + 1,1,e))**2 &
+             + (this%coef%dof%y(1,ly_half,1,e) &
+              - this%coef%dof%y(1,ly_half + 1,1,e))**2 &
+             + (this%coef%dof%z(1,ly_half,1,e) &
+              - this%coef%dof%z(1,ly_half + 1,1,e))**2
 
-          dk = (this%coef%dof%x(1,1,int(this%coef%Xh%lz/2),e) &
-              - this%coef%dof%x(1,1,int(this%coef%Xh%lz/2)+1,e))**2 &
-             + (this%coef%dof%y(1,1,int(this%coef%Xh%lz/2),e) &
-              - this%coef%dof%y(1,1,int(this%coef%Xh%lz/2)+1,e))**2 &
-             + (this%coef%dof%z(1,1,int(this%coef%Xh%lz/2),e) &
-              - this%coef%dof%z(1,1,int(this%coef%Xh%lz/2)+1,e))**2
+          dk = (this%coef%dof%x(1,1,lz_half,e) &
+              - this%coef%dof%x(1,1,lz_half + 1,e))**2 &
+             + (this%coef%dof%y(1,1,lz_half,e) &
+              - this%coef%dof%y(1,1,lz_half + 1,e))**2 &
+             + (this%coef%dof%z(1,1,lz_half,e) &
+              - this%coef%dof%z(1,1,lz_half + 1,e))**2
           di = sqrt(di)
           dj = sqrt(dj)
           dk = sqrt(dk)
@@ -219,7 +224,7 @@ contains
           end do
        end do
     end if
-    
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
                           HOST_TO_DEVICE, sync=.false.)

@@ -155,7 +155,6 @@ contains
     if (filter_1d%nx .le. 2) then
         call neko_error("Dynamic Smagorinsky model error: test filter is not defined for the current polynomial order")
     end if
-    
     if (mod(filter_1d%nx,2) .eq. 0) then ! number of grid spacing is odd
        ! cutoff at polynomial order int((filter_1d%nx)/2)
        filter_1d%trnsfr(int((filter_1d%nx)/2)) = 0.95_rp

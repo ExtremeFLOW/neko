@@ -88,7 +88,6 @@ contains
 
     end if
     call object%init(dofmap, coef, json)
-
   end subroutine les_model_factory
 
 end module les_model_fctry
