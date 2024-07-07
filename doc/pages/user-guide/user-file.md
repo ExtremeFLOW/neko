@@ -1,5 +1,7 @@
 # User File {#user-file}
 
+\tableofcontents
+
 The user file is a fortran file where the user can implement their own functions
 to extend the capabilities of the default Neko executable. The user file can be
 used for setting advanced initial/boundary conditions, source terms, I/O
@@ -97,7 +99,7 @@ to initialize/finalize any user defined variables, external objects, or
 processes. They are respectively executed right before/after the simulation time
 loop.
 
-```.f90
+```fortran
 
   ! Initialize user variables or external objects
   subroutine initialize(t, u, v, w, p, coef, params)
@@ -127,7 +129,7 @@ In the example above, the subroutines `initialize` and `finalize` contain the
 actual implementations. They must also be interfaced to the internal procedures
 `user_init_modules` and `user_finalize_modules` in `user_setup`:
 
-```.f90
+```fortran
 
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
@@ -148,7 +150,7 @@ other. Using one does not require the use of the other.
 The subroutine `user_check` is executed at the end of every time step. It can be
 used for computing and/or outputting your own variables/quantities at every time
 step.
-```.f90
+```fortran
   ! This is called at the end of every time step
   subroutine usercheck(t, tstep, u, v, w, p, coef, param)
     real(kind=rp), intent(in) :: t
@@ -169,7 +171,7 @@ step.
 In the example above, the subroutine `usercheck` contains the actual
 implementation, and needs to be registered by adding:
 
-```.f90
+```fortran
 u%user_check => usercheck
 ```
 
@@ -183,7 +185,7 @@ various material properties, such as `rho`, `mu` for the fluid and `cp`,
 [rayleigh-benard-cylinder
 example](https://github.com/ExtremeFLOW/neko/blob/564686b127ff75a362a06126c6b23e9b4e21879e/examples/rayleigh-benard-cylinder/rayleigh.f90#L22C1-L38C41).
 
-```.f90
+```fortran
 
   subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
     real(kind=rp), intent(in) :: t
@@ -207,7 +209,7 @@ example](https://github.com/ExtremeFLOW/neko/blob/564686b127ff75a362a06126c6b23e
 And of course not forgetting to register our function in `user_setup` by adding
 the following line:
 
-```.f90
+```fortran
 u%material_properties => set_material_properties
 ```
 
@@ -219,7 +221,7 @@ only called once before the simulation time loop. The example below is taken
 from the [tgv
 example](https://github.com/ExtremeFLOW/neko/blob/a0613606360240e5059e65d6d98f4a57cf73e237/examples/tgv/tgv.f90#L27-L42).
 
-```.f90
+```fortran
   ! Rescale mesh
   subroutine user_mesh_scale(msh)
     type(mesh_t), intent(inout) :: msh
@@ -242,8 +244,8 @@ example](https://github.com/ExtremeFLOW/neko/blob/a0613606360240e5059e65d6d98f4a
 
 The registering of the above function in `user_setup` should then be done as follows:
 
-```.f90
-u%user_mesh_setup => user_mesh_scale
+```fortran
+    u%user_mesh_setup => user_mesh_scale
 ```
 
 ### Scalar boundary conditions {#user-file_scalar-bc}
@@ -256,7 +258,7 @@ sets the scalar boundary condition values to be a linear function of the `z`
 coordinate (taken from the 
 [rayleigh-benard example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh-benard-cylinder/rayleigh.f90#L41-L63)).
 
-```.f90
+```fortran
 
   subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
@@ -283,9 +285,50 @@ coordinate (taken from the
 This function will be called on all the points on the relevant boundaries. The
 registering of the above function in `user_setup` should be done as follows:
 
-```.f90
-u%scalar_user_bc => set_scalar_boundary_conditions
+```fortran
+    u%scalar_user_bc => set_scalar_boundary_conditions
 ```
+
+### User defined simulation components {#user-file_simcomps}
+
+In addition to the case-specific user functions, the user can also define their
+own simulation components. This can be done by writing a new type which extends
+the \ref simulation_component_t type, and implementing the necessary functions
+for the new type. The user can then specify the component in the list of
+simulation components in the case file. The setting `is_user` should be set to
+`true` in the JSON object for the new simulation component. The typename is used
+to extract the settings for the simulation component from the JSON file.
+
+```json
+{
+    "type": "my_comp",
+    "is_user": true,
+    // other settings
+}
+```
+```fortran
+  subroutine user_simcomp(params)
+    type(json_file), intent(inout) :: params
+    type(user_simcomp_t), allocatable :: my_simcomp
+    type(json_file) :: simcomp_settings
+
+    ! Allocate a simulation component
+    allocate(my_simcomp)
+    simcomp_settings = simulation_component_user_settings("my_comp", params)
+    call neko_simcomps%add_user_simcomp(my_simcomp, simcomp_settings)
+ 
+  end subroutine user_simcomp
+```
+
+In the example above, the subroutine `user_simcomp` contains the actual
+implementation, and needs to be registered by adding:
+
+```fortran
+    u%init_user_simcomp => user_simcomp
+```
+
+A full example of a user-defined simulation component can be found in the
+examples.
 
 ## Case-specific user functions
 
@@ -293,15 +336,15 @@ As explained in the [case file](case-file.md) page, certain components of the
 simulation can be set to be user defined. These components and their associated
 user functions are:
 
-| Description                     | User function                                              | JSON Object in the case file     |
-|---------------------------------|------------------------------------------------------------|----------------------------------|
-| Fluid initial condition         | [fluid_user_ic](@ref user-file_user-ic)                        | `case.fluid.initial_condition`   |
-| Scalar initial condition        | [scalar_user_ic](@ref user-file_user-ic)                       | `case.scalar.initial_condition`  |
-| Fluid inflow boundary condition | [fluid_user_if](@ref user-file_fluid-user-if)                  | `case.fluid.inflow_condition`    |
-| Scalar boundary conditions      | [scalar_user_bc](@ref user-file_scalar-bc)                     | (user function is always called) |
-| Fluid source term               | [fluid_user_f_vector or fluid_user_f](@ref user-file_user-f)   | `case.fluid.source_terms`        |
-| Scalar source term              | [scalar_user_f_vector or scalar_user_f](@ref user-file_user-f) | `case.scalar.source_terms`       |
-| Fluid and Scalar boundary conditions | [field_dirichlet_update](@ref user-file_field-dirichlet-update) | `case.fluid.boundary_types` and/or `case.scalar.boundary_types`       |
+| Description                          | User function                                                   | JSON Object in the case file                                    |
+| ------------------------------------ | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| Fluid initial condition              | [fluid_user_ic](@ref user-file_user-ic)                         | `case.fluid.initial_condition`                                  |
+| Scalar initial condition             | [scalar_user_ic](@ref user-file_user-ic)                        | `case.scalar.initial_condition`                                 |
+| Fluid inflow boundary condition      | [fluid_user_if](@ref user-file_fluid-user-if)                   | `case.fluid.inflow_condition`                                   |
+| Scalar boundary conditions           | [scalar_user_bc](@ref user-file_scalar-bc)                      | (user function is always called)                                |
+| Fluid source term                    | [fluid_user_f_vector or fluid_user_f](@ref user-file_user-f)    | `case.fluid.source_terms`                                       |
+| Scalar source term                   | [scalar_user_f_vector or scalar_user_f](@ref user-file_user-f)  | `case.scalar.source_terms`                                      |
+| Fluid and Scalar boundary conditions | [field_dirichlet_update](@ref user-file_field-dirichlet-update) | `case.fluid.boundary_types` and/or `case.scalar.boundary_types` |
 
 Note that `scalar_user_bc` is included for completeness but is technically not case-specific.
 
@@ -331,7 +374,7 @@ then be added to the user file. An example for the fluid taken from the
 [advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L48-L75),
 is shown below.
 
-```.f90
+```fortran
 
   !> Set the advecting velocity field.
   subroutine set_velocity(u, v, w, p, params)
@@ -375,7 +418,7 @@ The same can be done for the scalar, with the example below also inspired from
 the 
 [advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L14-L45):
 
-```.f90
+```fortran
 
   !> User initial condition for the scalar
   subroutine set_s_ic(s, params)
@@ -423,7 +466,7 @@ We should also add of the following lines in `user_setup`, registering our user
 functions `set_velocity` and `set_s_ic` to be used as the fluid and scalar
 initial conditions:
 
-```.f90
+```fortran
 u%fluid_user_ic => set_velocity
 u%scalar_user_ic => set_s_ic
 ```
@@ -445,13 +488,13 @@ the `case.fluid.inflow_condition.type` to `"user"`:
 ```
 
 See the [the relevant section](@ref case-file_fluid-if) in the 
-[case file page](@ref case-file.md) for more details. The associated user 
+[case file page](@ref case-file) for more details. The associated user 
 function for the fluid inflow condition can then be added to the user file.
 An example inspired from the 
 [lid-driven cavity example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/lid/lid.f90#L29-L53)
 is shown below.
 
-```.f90
+```fortran
  ! user-defined boundary condition
   subroutine user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: u
@@ -483,7 +526,7 @@ is shown below.
 We should also add of the following line in `user_setup`, registering our user
 function `user_bc` to be used as the fluid inflow conditions:
 
-```.f90
+```fortran
 u%fluid_user_if => user_bc
 ```
 
@@ -524,7 +567,7 @@ be added to the user file. An example for the fluid, taken from the
 [rayleigh-benard-cylinder example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard-cylinder/rayleigh.f90#L101C1-L121C44),
 is shown below.
 
-```.f90
+```fortran
   ! Sets the z-component of the fluid forcing term = scalar
   subroutine set_bousinesq_forcing_term(f, t)
     class(fluid_user_source_term_t), intent(inout) :: f
@@ -559,7 +602,7 @@ how this works.
 The same can be done for the scalar, with the example below also taken from the
 [scalar_mms example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/scalar_mms/scalar_mms.f90#L28-L47):
 
-```.f90
+```fortran
 
   !> Set source term
   subroutine set_source(f, t)
@@ -594,7 +637,7 @@ We should also add of the following lines in `user_setup`, registering our user
 functions `set_boussinesq_forcing_term` and `set_source` to be used as the fluid
 and scalar source terms:
 
-```.f90
+```fortran
 u%fluid_user_f_vector => set_boussinesq_forcing_term
 u%scalar_user_f_vector => set_source
 ```
@@ -675,7 +718,7 @@ are copied onto the solution field boundaries.
 
 The header of the user function is given in the code snippet below.
 
-```.f90
+```fortran
   subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)
     type(field_list_t), intent(inout) :: field_bc_list
     type(bc_list_t), intent(inout) :: bc_bc_list
@@ -690,18 +733,18 @@ The arguments and their purpose are as follows:
 * `field_bc_list` is the list of the field that can be edited. It is a list 
 of `field_t` objects.
   * The field `i` contained in `field_bc_list` is accessed using 
-  `field_bc_list%fields(i)%f` and will refer to a `field_t` object. 
+  `field_bc_list%%items(i)%%ptr` and will refer to a `field_t` object. 
   * If `which_solver = "fluid"`, it will contain the 4 fields `u,v,w,p`. They
   are retrieved in that order in `field_bc_list`, i.e. `u` corresponds to
-  `field_bc_list%fields(1)%f`, etc.
+  `field_bc_list%%items(1)%%ptr`, etc.
   * If `which_solver = "scalar"`, it will only contain the scalar field `s`. 
  
 * `bc_bc_list` contains a list of the `bc_t` objects to help access the 
   boundary indices through the boundary `mask`.
   * The boundary `i` contained in `bc_bc_list` is accessed with 
-  `bc_bc_list%bc(i)%bcp`.
+  `bc_bc_list%%bc(i)%%bcp`.
   * The boundary mask of the `i`-th `bc_t` object contained in `bc_bc_list` is accessed
-  with `bc_bc_list%bc(i)%bcp%msk`. It contains the linear indices of each GLL point on 
+  with `bc_bc_list%%bc(i)%%bcp%%msk`. It contains the linear indices of each GLL point on 
   the `i`-th boundary facets.
   @note `msk(0)` contains the size of the array. The first boundary index is `msk(1)`.
   * If `which_solver = "fluid"`, it will contain the 4 `bc_t` objects 
@@ -718,20 +761,18 @@ the fluid solver. It takes the value `"scalar"` when it is called in the scalar
 solver.
 
 Links to the documentation to learn more about what the types mentioned above
-contain and how to use them: [field_t type](https://neko.cfd/docs/d3/d5f/structfield_1_1field__t.html),
-[bc_t type](https://neko.cfd/docs/d6/db3/structbc_1_1bc__t.html),
-[coef_t type](https://neko.cfd/docs/d0/dea/structcoefs_1_1coef__t.html). 
+contain and how to use them: `src/field/field.f90`, `src/bc/bc.f90`, `src/sem/coef.f90`. 
 
 The user function should be registered in `user_setup` with the following line:
 
-```.f90
+```fortran
 u%user_dirichlet_update => dirichlet_update
 ```
 
 A very simple example illustrating the above is shown below, which is taken from the 
 [cyl_boundary_layer example](https://github.com/ExtremeFLOW/neko/blob/feature/field_bcs/examples/cyl_boundary_layer/cyl_bl.f90)
 
-```.f90
+```fortran
   ! Initial example of using user specified dirichlet bcs
   ! Note: This subroutine will be called two times, once in the fluid solver, and once
   ! in the scalar solver (if enabled).
@@ -745,21 +786,24 @@ A very simple example illustrating the above is shown below, which is taken from
     integer, intent(in) :: tstep
     character(len=*), intent(in) :: which_solver
 
+    integer :: i
+    real(kind=rp) :: y,z
+
     ! Only do this at the first time step since our BCs are constants.
     if (tstep .ne. 1) return
 
     ! Check that we are being called by `fluid`
     if (trim(which_solver) .eq. "fluid") then
 
-       associate(u => field_bc_list%fields(1)%f, &
-            v => field_bc_list%fields(2)%f, &
-            w => field_bc_list%fields(3)%f, &
-            p => field_bc_list%fields(4)%f)
+       associate(u => field_bc_list%items(1)%ptr, &
+            v => field_bc_list%items(2)%ptr, &
+            w => field_bc_list%items(3)%ptr, &
+            p => field_bc_list%items(4)%ptr)
 
          !
          ! Perform operations on u%x, v%x, w%x and p%x here
-         ! Note that we are checking if fields are allocated. If the
-         ! boundary types only contains e.g. "d_vel_u/d_pres", the fields
+         ! Note that we are checking if fields are allocated. If a
+         ! boundary type only contains e.g. "d_vel_u/d_pres", the fields
          ! v%x and w%x will not be allocated.
          !
          ! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)
@@ -775,7 +819,8 @@ A very simple example illustrating the above is shown below, which is taken from
     ! Check that we are being called by `scalar`
     else if (trim(which_solver) .eq. "scalar") then
 
-       associate( s => field_bc_list%fields(1)%f )
+       associate( s => field_bc_list%items(1)%ptr, &
+            s_bc => bc_bc_list%bc(1)%bcp)
 
          !
          ! Perform operations on the scalar field here
@@ -791,8 +836,6 @@ A very simple example illustrating the above is shown below, which is taken from
             end do
 
          end if
-       end associate
-
        end associate
 
     end if
@@ -820,7 +863,7 @@ components or pressure are given in `case.fluid.boundary_types`. Fields in the
 lists are only allocated if they are present in the case file.For
 example, if we removed the `d_pres` condition in the JSON case file code snippet
 above, the pressure field for our boundary condition would not be allocated (
-in the example above, `allocated(p%x)` would never be `true`). `"boundary_types": ["d_vel_u", "d_vel_v"]` will allocate the two first 
+in the example above, `allocated(p%%x)` would never be `true`). `"boundary_types": ["d_vel_u", "d_vel_v"]` will allocate the two first 
 fields in `field_bc_list`, which is the same behaviour as
 `"boundary_types": ["d_vel_u/d_vel_v", ""]`.
 
@@ -854,7 +897,7 @@ or the
 To illustrate this, let us have a look at the 
 [fluid initial condition code snippet](@ref user-file_user-ic):
 
-```.f90
+```fortran
 
   !> Set the advecting velocity field.
   subroutine set_velocity(u, v, w, p, params)

@@ -45,8 +45,10 @@ module user_intf
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use field_dirichlet, only: field_dirichlet_update
   use num_types, only : rp
-  use json_module, only : json_file
-  use utils, only : neko_error,  neko_warning
+  use json_module, only : json_file, json_core, json_value
+  use json_utils, only : json_extract_item, json_get, json_get_or_default
+  use utils, only : neko_error, neko_warning
+  use logger, only : neko_log
   implicit none
   private
 
@@ -90,6 +92,13 @@ module user_intf
      end subroutine user_initialize_modules
   end interface
 
+  !> Abstract interface for adding user defined simulation components
+  abstract interface
+     subroutine user_simcomp_init(params)
+       import json_file
+       type(json_file), intent(inout) :: params
+     end subroutine user_simcomp_init
+  end interface
 
   !> Abstract interface for user defined mesh deformation functions
   abstract interface
@@ -146,9 +155,11 @@ module user_intf
   end interface
 
   type, public :: user_t
+     !> Logical to indicate if the code have been extended by the user.
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
+     procedure(user_simcomp_init), nopass, pointer :: init_user_simcomp => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
      procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
@@ -166,64 +177,136 @@ module user_intf
   end type user_t
 
   public :: useric, useric_scalar, user_initialize_modules, usermsh, &
-            dummy_user_material_properties, user_material_properties
+    dummy_user_material_properties, user_material_properties, &
+    user_simcomp_init, simulation_component_user_settings
 contains
 
   !> User interface initialization
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
+    logical :: user_extended = .false.
+    character(len=256), dimension(13) :: extensions
+    integer :: i, n
 
+    n = 0
     if (.not. associated(u%fluid_user_ic)) then
        u%fluid_user_ic => dummy_user_ic
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Fluid initial condition'
     end if
 
     if (.not. associated(u%scalar_user_ic)) then
        u%scalar_user_ic => dummy_user_ic_scalar
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar initial condition'
     end if
 
     if (.not. associated(u%fluid_user_f)) then
        u%fluid_user_f => dummy_user_f
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Fluid source term'
     end if
 
     if (.not. associated(u%fluid_user_f_vector)) then
        u%fluid_user_f_vector => dummy_user_f_vector
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Fluid source term vector'
     end if
 
     if (.not. associated(u%scalar_user_f)) then
        u%scalar_user_f => dummy_scalar_user_f
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar source term'
     end if
 
     if (.not. associated(u%scalar_user_f_vector)) then
        u%scalar_user_f_vector => dummy_user_scalar_f_vector
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar source term vector'
     end if
 
     if (.not. associated(u%scalar_user_bc)) then
        u%scalar_user_bc => dummy_scalar_user_bc
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Scalar boundary condition'
     end if
 
     if (.not. associated(u%user_dirichlet_update)) then
        u%user_dirichlet_update => dirichlet_do_nothing
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Dirichlet boundary condition'
     end if
 
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Mesh setup'
     end if
 
     if (.not. associated(u%user_check)) then
        u%user_check => dummy_user_check
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- User check'
     end if
 
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Initialize modules'
+    end if
+
+    if (.not. associated(u%init_user_simcomp)) then
+       u%init_user_simcomp => dummy_user_init_no_simcomp
     end if
 
     if (.not. associated(u%user_finalize_modules)) then
        u%user_finalize_modules => dummy_user_final_no_modules
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Finalize modules'
     end if
 
     if (.not. associated(u%material_properties)) then
        u%material_properties => dummy_user_material_properties
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Material properties'
     end if
+
+    if (user_extended) then
+       call neko_log%section('User defined extensions')
+
+       do i = 1, n
+          call neko_log%message(extensions(i))
+       end do
+
+       call neko_log%end_section()
+    end if
+
   end subroutine user_intf_init
 
 
@@ -334,13 +417,17 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
 
+  subroutine dummy_user_init_no_simcomp(params)
+    type(json_file), intent(inout) :: params
+  end subroutine dummy_user_init_no_simcomp
+
   subroutine dummy_user_final_no_modules(t, params)
     real(kind=rp) :: t
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
   subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc_list, &
-       coef, t, tstep, which_solver)
+                                  coef, t, tstep, which_solver)
     type(field_list_t), intent(inout) :: dirichlet_field_list
     type(bc_list_t), intent(inout) :: dirichlet_bc_list
     type(coef_t), intent(inout) :: coef
@@ -357,4 +444,54 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_material_properties
 
+  ! ========================================================================== !
+  ! Helper functions for user defined interfaces
+
+  !> JSON extraction helper function for simulation components
+  !! @param name The name of the object to be created.
+  !! @param params The JSON object containing the user-defined component.
+  !! @return The JSON object for initializing the simulation component.
+  function simulation_component_user_settings(name, params) result(comp_subdict)
+    character(len=*), intent(in) :: name
+    type(json_file), intent(inout) :: params
+    type(json_file) :: comp_subdict
+
+    type(json_core) :: core
+    type(json_value), pointer :: simcomp_object
+    character(len=:), allocatable :: current_type
+    integer :: n_simcomps
+    integer :: i
+    logical :: found, is_user
+
+    call params%get_core(core)
+    call params%get(simcomp_object)
+    call params%info('', n_children=n_simcomps)
+
+    found = .false.
+    do i = 1, n_simcomps
+       call json_extract_item(core, simcomp_object, i, comp_subdict)
+       call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
+       if (.not. is_user) cycle
+
+       call json_get(comp_subdict, "type", current_type)
+       if (trim(current_type) .eq. trim(name)) then
+          found = .true.
+          exit
+       end if
+    end do
+
+    if (.not. found) then
+       call neko_error("User-defined simulation component " &
+                       // trim(name) // " not found in case file.")
+    end if
+
+  end function simulation_component_user_settings
+
+
+  !> @example simulation_components/user_simcomp.f90
+  !! @brief User defined simulation components.
+  !! @details
+  !! Example of how to use the simcomp_executor to add a user defined
+  !! simulation component to the list.
+  !! @include simulation_components/user_simcomp.case
 end module user_intf

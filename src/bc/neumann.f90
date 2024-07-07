@@ -39,6 +39,7 @@ module neumann
   use coefs, only : coef_t
   use json_module, only : json_file
   use json_utils, only : json_get
+  use math, only : cfill
   implicit none
   private
 
@@ -47,13 +48,13 @@ module neumann
   !! @note The condition is imposed weekly by adding an appropriate source term
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
-     real(kind=rp), private :: flux_
+     real(kind=rp), allocatable, private :: flux_(:)
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
      procedure, pass(this) :: apply_vector => neumann_apply_vector
      procedure, pass(this) :: apply_scalar_dev => neumann_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
-     procedure, pass(this) :: init_neumann => neumann_init_neumann
+     procedure, pass(this) :: finalize_neumann => neumann_finalize_neumann
      procedure, pass(this) :: flux => neumann_flux
      !> Constructor
      procedure, pass(this) :: init => neumann_init
@@ -101,11 +102,11 @@ contains
                              this%coef%Xh%lx)
        select case(facet)
        case(1,2)
-          x(k) = x(k) + this%flux_*this%coef%area(idx(2), idx(3), facet, idx(4))
+          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
        case(3,4)
-          x(k) = x(k) + this%flux_*this%coef%area(idx(1), idx(3), facet, idx(4))
+          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
        case(5,6)
-          x(k) = x(k) + this%flux_*this%coef%area(idx(1), idx(2), facet, idx(4))
+          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
        end select
     end do
   end subroutine neumann_apply_scalar
@@ -151,37 +152,32 @@ contains
 
   end subroutine neumann_apply_vector_dev
 
-  !> Constructor
-  !> @param flux The desired flux.
-  !> @param coef The SEM coefficients.
-  subroutine neumann_init_neumann(this, flux)
-    class(neumann_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: flux
-
-    this%flux_ = flux
-  end subroutine neumann_init_neumann
-
-  !> Get the set flux.
-  pure function neumann_flux(this) result(flux)
-    class(neumann_t), intent(in) :: this
-    real(kind=rp) :: flux
-
-    flux = this%flux_
-  end function neumann_flux
-
   !> Destructor
   subroutine neumann_free(this)
     class(neumann_t), target, intent(inout) :: this
 
-    call this%free_base
+    call this%free_base()
 
   end subroutine neumann_free
 
-  !> Finalize
-  subroutine neumann_finalize(this)
+  !> Finalize by setting the flux.
+  !> @param flux The desired flux.
+  subroutine neumann_finalize(this, flux)
     class(neumann_t), target, intent(inout) :: this
+    real(kind=rp), intent(in) :: flux
 
     call this%finalize_base()
+    allocate(this%flux_(this%msk(0)))
+
+    call cfill(this%flux_, flux, this%msk(0))
   end subroutine neumann_finalize
+
+  !> Get the flux.
+  pure function neumann_flux(this) result(flux)
+    class(neumann_t), intent(in) :: this
+    real(kind=rp) :: flux(this%msk(0))
+
+    flux = this%flux_
+  end function neumann_flux
 
 end module neumann

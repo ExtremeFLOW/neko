@@ -153,7 +153,7 @@ contains
   subroutine wall_model_init_base(this, coef, msk, facet, nu, index)
     class(wall_model_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
-    integer, target, intent(in) :: msk(:)
+    integer, target, intent(in) :: msk(0:)
     integer, target, intent(in) :: facet(:)
     real(kind=rp), intent(in) :: nu
     integer, intent(in) :: index
