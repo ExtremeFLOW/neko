@@ -630,7 +630,6 @@ contains
 
       call field_add2(p, dp, n)
       else
-         call add2(p%x, dp%x, n)
       end if
 
 
