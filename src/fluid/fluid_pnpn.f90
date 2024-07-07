@@ -72,6 +72,7 @@ module fluid_pnpn
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
                 bc_list_apply_scalar, bc_list_apply_vector
   use utils, only : neko_error
+  use field_math, only : field_add2
   implicit none
   private
 
