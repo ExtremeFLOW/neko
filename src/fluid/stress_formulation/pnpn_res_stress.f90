@@ -30,7 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines Pressure and velocity residuals in the Pn-Pn formulation
+!> Defines Pressure and velocity residuals in the Pn-Pn formulation an full
+!! viscous stress term formulation.
 module pnpn_residual_stress
   use gather_scatter, only : gs_t
   use ax_product, only : ax_t
@@ -43,21 +44,48 @@ module pnpn_residual_stress
   implicit none
   private
 
-  !> Abstract type to compute pressure residual
+  !> Abstract type to compute the pressure residual for the PnPn fluid with
+  !! full viscous stress formulation.
+  !! @details Descendants correspond to implementations for different compute
+  !! backends.
   type, public, abstract :: pnpn_prs_res_stress_t
    contains
      procedure(prs_res_stress), nopass, deferred :: compute
   end type pnpn_prs_res_stress_t
 
-  !> Abstract type to compute velocity residual
+  !> Abstract type to compute the velocity residual for the PnPn fluid with
+  !! full viscous stress formulation.
+  !! @details Descendants correspond to implementations for different compute
+  !! backends.
   type, public, abstract :: pnpn_vel_res_stress_t
    contains
      procedure(vel_res_stress), nopass, deferred :: compute
   end type pnpn_vel_res_stress_t
 
   abstract interface
-     subroutine prs_res_stress(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_xh,&
-          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
+     !> Compute the residual of the pressure equation.
+     !! @param p The pressure field.
+     !! @param p_res The output residual field.
+     !! @param u The x component of velocity.
+     !! @param v The y component of velocity.
+     !! @param w The z component of velocity.
+     !! @param u_e The x component of the explicitly time-extrapolated velocity.
+     !! @param v_e The y component of the explicitly time-extrapolated velocity.
+     !! @param w_e The z component of the explicitly time-extrapolated velocity.
+     !! @param f_x The x component of the right-hand side.
+     !! @param f_y The y component of the right-hand side.
+     !! @param f_z The z component of the right-hand side.
+     !! @param c_Xh The SEM coefficients.
+     !! @param gs_Xh The gather-scatter.
+     !! @param bcs_prs_surface Pressure boundary condition.
+     !! @param bcs_sym_surface Symmetry boundary conditions.
+     !! @param Ax The implicit laplacian operator kernel.
+     !! @param bd The first coefficient of the BDF scheme.
+     !! @param dt The time step.
+     !! @param mu The dynamic viscosity.
+     !! @param rho The density.
+     subroutine prs_res_stress(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z,&
+       c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
        import field_t
        import Ax_t
        import gs_t
@@ -82,6 +110,24 @@ module pnpn_residual_stress
   end interface
 
   abstract interface
+     !> Compute the residual of the velocity equation.
+     !! @param Ax The implicit viscous stress operator kernel.
+     !! @param u The x component of velocity.
+     !! @param v The y component of velocity.
+     !! @param w The z component of velocity.
+     !! @param u_res The x component of the output residual field.
+     !! @param v_res The y component of the output residual field.
+     !! @param w_res The z component of the output residual field.
+     !! @param f_x The x component of the right-hand side.
+     !! @param f_y The y component of the right-hand side.
+     !! @param f_z The z component of the right-hand side.
+     !! @param c_Xh The SEM coefficients.
+     !! @param msh The mesh.
+     !! @param Xh The SEM space.
+     !! @param mu The dynamic viscosity.
+     !! @param rho The density.
+     !! @param bd The first coefficient of the BDF scheme.
+     !! @param dt The time step.
      subroutine vel_res_stress(Ax, u, v, w, u_res, v_res, w_res, &
           p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
        import field_t

@@ -213,6 +213,10 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/device/pnpn_res_device.F90\
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
+	fluid/stress_formulation/pnpn_res_stress_fctry.f90\
+	fluid/stress_formulation/pnpn_res_stress.f90\
+	fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90\
+	fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90\
 	common/time_step_controller.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\

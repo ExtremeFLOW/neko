@@ -47,39 +47,41 @@ module pnpn_res_stress_fctry
 
 contains
 
-  subroutine pnpn_prs_res_stress_factory(prs_res)
-    class(pnpn_prs_res_stress_t), allocatable, intent(inout) :: prs_res
+  !> Factory for the pressure residual computation routine for the PnPn fluid
+  !! scheme with full viscous stress forumlation.
+  !! @details Only selects the compute backend.
+  !! @param object The object to be allocated by the factory.
+  subroutine pnpn_prs_res_stress_factory(object)
+    class(pnpn_prs_res_stress_t), allocatable, intent(inout) :: object
 
-    if (allocated(prs_res)) then
-       deallocate(prs_res)
+    if (allocated(object)) then
+       deallocate(object)
     end if
 
-
-!    if (NEKO_BCKND_SX .eq. 1) then
-!       allocate(pnpn_prs_res_sx_t::prs_res)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       allocate(pnpn_prs_res_stress_device_t::prs_res)
-    else       
-       allocate(pnpn_prs_res_stress_cpu_t::prs_res)
+       allocate(pnpn_prs_res_stress_device_t::object)
+    else
+       allocate(pnpn_prs_res_stress_cpu_t::object)
     end if
 
   end subroutine pnpn_prs_res_stress_factory
 
-  subroutine pnpn_vel_res_stress_factory(vel_res)
-    class(pnpn_vel_res_stress_t), allocatable, intent(inout) :: vel_res
+  !> Factory for the velocity residual computation routine for the PnPn fluid
+  !! scheme with full viscous stress forumlation.
+  !! @details Only selects the compute backend.
+  !! @param object The object to be allocated by the factory.
+  subroutine pnpn_vel_res_stress_factory(object)
+    class(pnpn_vel_res_stress_t), allocatable, intent(inout) :: object
 
-    if (allocated(vel_res)) then
-       deallocate(vel_res)
+    if (allocated(object)) then
+       deallocate(object)
     end if
 
-!    if (NEKO_BCKND_SX .eq. 1) then
-!       allocate(pnpn_vel_res_sx_t::vel_res)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       allocate(pnpn_vel_res_stress_device_t::vel_res)
+       allocate(pnpn_vel_res_stress_device_t::object)
     else
-       allocate(pnpn_vel_res_stress_cpu_t::vel_res)
+       allocate(pnpn_vel_res_stress_cpu_t::object)
     end if
-
 
   end subroutine pnpn_vel_res_stress_factory
 

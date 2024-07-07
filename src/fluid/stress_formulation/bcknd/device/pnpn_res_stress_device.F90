@@ -1,6 +1,7 @@
 !> Residuals in the Pn-Pn formulation (device version)
 module pnpn_res_stress_device
   use gather_scatter, only : gs_t, GS_OP_ADD
+  use utils, only : neko_error
   use operators
   use field, only : field_t
   use ax_product, only : ax_t
@@ -18,11 +19,15 @@ module pnpn_res_stress_device
   implicit none
   private
 
+  !> Device implementation of the pressure residual for the PnPn fluid with
+  !! full viscous stress formulation.
   type, public, extends(pnpn_prs_res_stress_t) :: pnpn_prs_res_stress_device_t
    contains
      procedure, nopass :: compute => pnpn_prs_res_stress_device_compute
   end type pnpn_prs_res_stress_device_t
 
+  !> Device implementation of the velocity residual for the PnPn fluid with
+  !! full viscous stress formulation.
   type, public, extends(pnpn_vel_res_stress_t) :: pnpn_vel_res_stress_device_t
    contains
      procedure, nopass :: compute => pnpn_vel_res_stress_device_compute
@@ -252,16 +257,20 @@ contains
     call device_col2(wa3%x_d, mu%x_d, n)
 
 
-    ! Double the strain rate tensor
+    ! The strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
                      u_e, v_e, w_e, c_Xh)
 
 
-    ! Gradient of viscosity
+    ! Gradient of viscosity * 2
     !call opgrad(ta1%x, ta2%x, ta3%x, mu%x, c_Xh)
     call dudxyz(ta1%x, mu%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call dudxyz(ta2%x, mu%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     call dudxyz(ta3%x, mu%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+
+    call device_cmult(ta1%x_d, 2.0_rp, n)
+    call device_cmult(ta2%x_d, 2.0_rp, n)
+    call device_cmult(ta3%x_d, 2.0_rp, n)
 
     ! S^T grad \mu
     call device_vdot3 (work1%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
@@ -281,19 +290,12 @@ contains
     call device_sub2(wa2%x_d, work2%x_d, n)
     call device_sub2(wa3%x_d, work3%x_d, n)
 
-#ifdef HAVE_HIP
-    call pnpn_prs_stress_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
-
-#elif HAVE_CUDA
+#if HAVE_CUDA
     call pnpn_prs_stress_res_part1_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
-#elif HAVE_OPENCL
-    call pnpn_prs_stress_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_z%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
+#else
+    call neko_error('No device backend configured')
 #endif
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -336,15 +338,11 @@ contains
     call bc_prs_surface%apply_surfvec_dev(ta1%x_d, ta2%x_d, ta3%x_d, &
                                           u%x_D, v%x_d, w%x_d)
 
-#ifdef HAVE_HIP
-    call pnpn_prs_stress_res_part3_hip(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d,  &
-                                       wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
-#elif HAVE_CUDA
+#if HAVE_CUDA
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
                                         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
-#elif HAVE_OPENCL
-    call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                                          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+#else
+    call neko_error('No device backend configured')
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
