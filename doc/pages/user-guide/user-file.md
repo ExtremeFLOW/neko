@@ -720,9 +720,7 @@ the fluid solver. It takes the value `"scalar"` when it is called in the scalar
 solver.
 
 Links to the documentation to learn more about what the types mentioned above
-contain and how to use them: [field_t type](https://neko.cfd/docs/d3/d5f/structfield_1_1field__t.html),
-[bc_t type](https://neko.cfd/docs/d6/db3/structbc_1_1bc__t.html),
-[coef_t type](https://neko.cfd/docs/d0/dea/structcoefs_1_1coef__t.html). 
+contain and how to use them: field::field_t, bc::bc_t, coefs::coef_t.
 
 The user function should be registered in `user_setup` with the following line:
 
@@ -840,8 +838,7 @@ When running on GPUs, special care must be taken when using certain user
 functions. The short explanation is that the device (GPU) has its own memory and
 cannot directly access the memory on the host (CPU). This means that data and
 more specifically arrays must be copied manually from the host to the device
-(see
-[device_memcpy](https://neko.cfd/docs/d6/dac/interfacedevice_1_1device__memcpy.html)).
+(see device::device_memcpy).
 
 @attention In some cases, data transfer via `device_memcpy` is avoidable. Neko
 has some device math functions implemented that operate directly on device
@@ -948,7 +945,7 @@ example:
 - If running with `simulation_components.lambda2` enabled, the field `lambda2`
   will be accessible in the registry.
 
-@note You can add your own fields to the registry with [neko_field_registry%%add_field](https://neko.cfd/docs/d1/dc4/namespacefield__registry.html#a10e4570d0cae94f110c9b0eacbb56769).
+@note You can add your own fields to the registry with `neko_field_registry%%add_field` (see field_registry::add_field).
 
 The point zone registry, `neko_point_zone_registry`, can be used to retrieve
 pointers to `point_zone_t` objects defined in the case file. See 
