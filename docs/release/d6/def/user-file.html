@@ -561,7 +561,7 @@ Complex fluid and/or scalar boundary conditions</h2>
 <li><code>t</code>, <code>tstep</code> are self-explanatory.</li>
 <li><code>which_solver</code> takes the value <code>"fluid"</code> when the user function is called in the fluid solver. It takes the value <code>"scalar"</code> when it is called in the scalar solver.</li>
 </ul>
-<p>Links to the documentation to learn more about what the types mentioned above contain and how to use them: <a href="https://neko.cfd/docs/d3/d5f/structfield_1_1field__t.html">field_t type</a>, <a href="https://neko.cfd/docs/d6/db3/structbc_1_1bc__t.html">bc_t type</a>, <a href="https://neko.cfd/docs/d0/dea/structcoefs_1_1coef__t.html">coef_t type</a>.</p>
+<p>Links to the documentation to learn more about what the types mentioned above contain and how to use them: <a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition.">bc::bc_t</a>, <a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...">coefs::coef_t</a>.</p>
 <p>The user function should be registered in <code>user_setup</code> with the following line:</p>
 <div class="fragment"><div class="line">u%user_dirichlet_update =&gt; dirichlet_update</div>
 </div><!-- fragment --><p>A very simple example illustrating the above is shown below, which is taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/feature/field_bcs/examples/cyl_boundary_layer/cyl_bl.f90">cyl_boundary_layer example</a></p>
@@ -642,7 +642,7 @@ Complex fluid and/or scalar boundary conditions</h2>
 Additional remarks and tips</h1>
 <h2><a class="anchor" id="user-file_tips_running-on-gpus"></a>
 Running on GPUs</h2>
-<p>When running on GPUs, special care must be taken when using certain user functions. The short explanation is that the device (GPU) has its own memory and cannot directly access the memory on the host (CPU). This means that data and more specifically arrays must be copied manually from the host to the device (see <a href="https://neko.cfd/docs/d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>).</p>
+<p>When running on GPUs, special care must be taken when using certain user functions. The short explanation is that the device (GPU) has its own memory and cannot directly access the memory on the host (CPU). This means that data and more specifically arrays must be copied manually from the host to the device (see <a class="el" href="../../d6/dac/interfacedevice_1_1device__memcpy.html" title="Copy data between host and device (or device and device)">device::device_memcpy</a>).</p>
 <dl class="section attention"><dt>Attention</dt><dd>In some cases, data transfer via <code>device_memcpy</code> is avoidable. Neko has some device math functions implemented that operate directly on device arrays. If you can decompose whatever operations you are performing in a user function into a set of instructions from the <code>math</code> module (e.g. <code>cadd</code>, <code>cfill</code>, <code>sub2</code>, ...), you may use the corresponding <code><a class="el" href="../../d2/d73/namespacedevice__math.html">device_math</a></code> functions to <a class="el" href="../../de/d06/accelerators.html#accelerators_offload-work">offload work to the GPU</a>. See the <a class="el" href="../../d6/def/user-file.html#user-file_user-f">fluid forcing code snippet</a> for a simple example. For more advanced examples, see the <a href="https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard/rayleigh.f90#L96-119">rayleigh-benard example</a> or the <a href="https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/tgv/tgv.f90#L146-172">tgv example</a>.</dd></dl>
 <p>To illustrate this, let us have a look at the <a class="el" href="../../d6/def/user-file.html#user-file_user-ic">fluid initial condition code snippet</a>:</p>
 <div class="fragment"><div class="line"> </div>
@@ -699,7 +699,7 @@ Registries</h2>
 <li>If running with <code>simulation_components.vorticity</code> enabled, the fields <code>omega_x, omega_y, omega_z</code> will be accessible in the registry.</li>
 <li>If running with <code>simulation_components.lambda2</code> enabled, the field <code><a class="el" href="../../d0/d66/namespacelambda2.html" title="A simulation component that computes lambda2 The values are stored in the field registry under the na...">lambda2</a></code> will be accessible in the registry.</li>
 </ul>
-<dl class="section note"><dt>Note</dt><dd>You can add your own fields to the registry with <a href="https://neko.cfd/docs/d1/dc4/namespacefield__registry.html#a10e4570d0cae94f110c9b0eacbb56769">neko_field_registry%add_field</a>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>You can add your own fields to the registry with <code>neko_field_registry%add_field</code> (see <a class="el" href="../../d1/dc4/namespacefield__registry.html#af9ca5bbdaa677a3db9694136627df9c4" title="Add a field to the registry.">field_registry::add_field</a>).</dd></dl>
 <p>The point zone registry, <code>neko_point_zone_registry</code>, can be used to retrieve pointers to <code>point_zone_t</code> objects defined in the case file. See <a href="../../#point-zones_using-point-zones">using point zones</a> for detailed instructions. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
@@ -708,7 +708,7 @@ Registries</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Jul 5 2024 19:58:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Jul 7 2024 13:55:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
