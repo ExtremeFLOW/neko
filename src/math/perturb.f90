@@ -16,6 +16,19 @@ module perturb
 
     opts%fpopts_ptr = c_loc(opts%fpopts)
 
+    opts%fpopts%round = CPFLOAT_RND_NE 
+    opts%fpopts%flip=CPFLOAT_SOFTERR_NO !> bitflips not
+    opts%fpopts%subnormal=CPFLOAT_SUBN_USE !> use subnormal
+    !> Uestion whether this is correct, I think this eliminates the impoartance of teh emax and emin...
+    opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
+    !opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use exponent from target format
+    opts%fpopts%saturation=CPFLOAT_SAT_NO !> use staturation arithmetic
+    !opts%fpopts%saturation=CPFLOAT_SAT_USE !> use staturation arithmetic
+    opts%fpopts%format = c_null_char
+    opts%fpopts%bitseed = c_null_ptr
+    opts%fpopts%randseedf = c_null_ptr
+    opts%fpopts%randseed= c_null_ptr
+
     if (trim(inputchar) .eq. 'fp64') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 52
@@ -24,38 +37,23 @@ module perturb
        opts%fpopts%precision = 24 !Bits in the significand + 1.
        opts%fpopts%emax = 127
        opts%fpopts%emin = -126
-       opts%fpopts%round = CPFLOAT_RND_NE !Round toward +infinity.
-
-
     else if (trim(inputchar) .eq. 'fp16') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 11 !Bits in the significand + 1.
        opts%fpopts%emax = 15
        opts%fpopts%emin = -14
-       opts%fpopts%round = CPFLOAT_RND_NE !Round toward +infinity.
-
     else if (trim(inputchar) .eq. 'e4m3') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 4 !Bits in the significand + 1.
        opts%fpopts%emax = 7
        opts%fpopts%emin = -6
-       opts%fpopts%round = CPFLOAT_RND_NE !Round toward +infinity.
-
     else if (trim(inputchar) .eq. 'e5m2') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 3 !Bits in the significand + 1.
        opts%fpopts%emax = 15
        opts%fpopts%emin = -14
-       opts%fpopts%round = CPFLOAT_RND_NE !Round toward +infinity.
-
     end if
-    opts%fpopts%flip=CPFLOAT_SOFTERR_NO !> bitflips not
-    opts%fpopts%subnormal=CPFLOAT_SUBN_USE !> use subnormal
-    !> Uestion whether this is correct, I think this eliminates the impoartance of teh emax and emin...
-    opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
-    opts%fpopts%saturation=CPFLOAT_SAT_NO !> use staturation arithmetic
-
-
+    
 
   end subroutine perturb_init_opts_char
 
