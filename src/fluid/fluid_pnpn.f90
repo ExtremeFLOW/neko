@@ -629,8 +629,6 @@ contains
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       call field_add2(p, dp, n)
-      else
-
 
       ! Compute velocity.
       call profiler_start_region('Velocity residual', 19)
