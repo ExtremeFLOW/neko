@@ -142,7 +142,7 @@ bc/facet_normal.o : bc/facet_normal.f90 common/utils.o bc/bc.o sem/coef.o math/m
 bc/symmetry.o : bc/symmetry.f90 bc/zero_dirichlet.o sem/coef.o adt/tuple.o adt/stack.o common/utils.o math/math.o bc/bc.o bc/dirichlet.o config/num_types.o config/neko_config.o bc/bcknd/device/device_symmetry.o 
 bc/non_normal.o : bc/non_normal.f90 adt/stack.o common/utils.o math/math.o sem/coef.o device/device.o adt/tuple.o bc/dirichlet.o config/num_types.o config/neko_config.o bc/symmetry.o 
 bc/blasius.o : bc/blasius.f90 common/json_utils.o bc/bc.o fluid/flow_profile.o bc/bcknd/device/device_inhom_dirichlet.o device/device.o common/utils.o sem/coef.o config/num_types.o 
-bc/shear_stress.o : bc/shear_stress.f90 math/bcknd/device/device_math.o math/math.o bc/neumann.o bc/dirichlet.o sem/coef.o common/utils.o bc/bc.o config/num_types.o 
+bc/shear_stress.o : bc/shear_stress.f90 common/json_utils.o math/bcknd/device/device_math.o math/math.o bc/neumann.o bc/dirichlet.o sem/coef.o common/utils.o bc/bc.o config/num_types.o 
 bc/wall_model_bc.o : bc/wall_model_bc.f90 bc/shear_stress.o wall_models/spalding.o wall_models/rough_log_law.o wall_models/wall_model.o sem/coef.o common/utils.o bc/bc.o config/num_types.o 
 krylov/precon.o : krylov/precon.f90 config/num_types.o 
 krylov/krylov.o : krylov/krylov.f90 config/neko_config.o krylov/bcknd/device/pc_identity_device.o krylov/pc_identity.o bc/bc_list.o common/utils.o field/field.o mesh/mesh.o sem/coef.o krylov/precon.o config/num_types.o math/ax.o gs/gather_scatter.o 
