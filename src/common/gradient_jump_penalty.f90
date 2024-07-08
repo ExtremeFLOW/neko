@@ -48,6 +48,7 @@ module gradient_jump_penalty
   use quad
   use operators, only : dudxyz
   use gs_ops, only : GS_OP_ADD
+  use tuple, only : tuple_i4_t
 
   implicit none
   private
@@ -83,11 +84,13 @@ module gradient_jump_penalty
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
      !> Length scale for element regarding a facet
-     real(kind=rp), allocatable :: h(:,:)
+     real(kind=rp), allocatable :: h(:, :)
      !> Polynomial evaluated at collocation points
-     real(kind=rp), allocatable :: phi(:,:)
+     real(kind=rp), allocatable :: phi(:, :)
      !> The first derivative of polynomial at two ends of the interval
-     real(kind=rp), allocatable :: dphidxi(:,:)
+     real(kind=rp), allocatable :: dphidxi(:, :)
+     !> could be build at initialisation as a tuple_i4_t. (facet, nelv) -> (neigh_facet, neigh_el)
+     type(tuple_i4_t), allocatable, dimension(:, :) :: facet_neigh_index
 
   contains
      !> Constructor.
@@ -120,7 +123,7 @@ contains
     this%p = dofmap%xh%lx - 1
     this%lx = dofmap%xh%lx
     if (this%p .gt. 1) then
-       this%tau = -0.8_rp * (this%p + 1) ** (-4.0_rp) * 10
+       this%tau = -0.8_rp * (this%p + 1) ** (-4.0_rp)
     else
        this%tau = -0.02_rp
     end if
@@ -177,13 +180,52 @@ contains
     allocate(this%volflux3(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
     allocate(this%absvolflux(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
 
-   this%n1 => this%coef%nx
-   this%n2 => this%coef%ny
-   this%n3 => this%coef%nz
+    this%n1 => this%coef%nx
+    this%n2 => this%coef%ny
+    this%n3 => this%coef%nz
+
+    ! build an 2d array to find the neighbouring facet of a specified facet
+    allocate(this%facet_neigh_index(this%n_facet_max, this%coef%msh%nelv))
+    do i = 1, this%coef%msh%nelv
+       ep => this%coef%msh%elements(i)%e
+       select type(ep)
+       type is (hex_t)
+          call facet_matching_hex(this, i)
+       type is (quad_t)
+          call neko_error("Gradient jump penalty error: neighbouring facet matching is not supported for quad_t")
+       end select 
+    end do
 
   end subroutine gradient_jump_penalty_init
   
-  !> Evaluate h for each element
+  !> Matching neighbouring facet for hexahedral mesh
+  !!!!! Now only works for 1-core run, MPI needs more discussion
+  !! @param i The local index of element
+  subroutine facet_matching_hex(this, i)
+     class(gradient_jump_penalty_t), intent(inout) :: this
+     integer, intent(in) :: i
+
+     integer :: j, k, glb_neigh_el_id, local_neigh_el_id
+
+     do j = 1, 6
+        glb_neigh_el_id = this%coef%msh%facet_neigh(j, i)
+        if (glb_neigh_el_id .gt. this%coef%msh%nelv) then
+           call neko_error("facet matching is not implemented for MPI")
+        end if
+        local_neigh_el_id = glb_neigh_el_id - this%coef%msh%offset_el
+        do k = 1, 6
+           if (this%coef%msh%facet_neigh(k, local_neigh_el_id) &
+              .eq. i + this%coef%msh%offset_el) then
+              this%facet_neigh_index(j, i)%x = (/  k, local_neigh_el_id/)
+           end if
+        end do
+     end do
+
+  end subroutine facet_matching_hex
+  
+  !> Evaluate h for each element for hexahedral mesh
+  !! @param h_el The length scale of an element
+  !! @param ep The pointer to the element
   subroutine eval_h_hex(h_el, ep)
     real(kind=rp), intent(inout) :: h_el(6)
     type(hex_t), pointer, intent(in) :: ep
@@ -333,8 +375,6 @@ contains
           do k = 1, this%p + 1
              this%penalty_el(i, j, k) = 0.0_rp
              do l = 1, 6
-               !  integrant_facet = 0.0_rp
-               !  call generate_integrant_facet(this, integrant_facet, i, j, k, l, i_el)
                 this%penalty_el(i, j, k) = this%penalty_el(i, j, k) + &
                                   weak_integrate_over_facet(this, i, j, k, l, i_el)
              end do
@@ -350,13 +390,9 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: s
 
-    !!!!!!!! TO DO: 
-    !! 1. dudxyz for gradient
-    !! 2. get values across elementary interface
-    !!    --- this%coef%msh%facet_neigh(facet_order, i_el_local)) -- return a global index
-    !!    --- go to the neighbouring elements, loop over all facet to confirm the one.
-    !!    --- could be build at initialisation as a tuple_i4_t. (facet, nelv) -> (neigh_facet, neigh_el)
-    !! 3. add together 
+    integer :: i, j
+    real(kind=rp) :: tmp(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv)
+    type(tuple_i4_t) :: i_neigh
 
     call dudxyz(this%grad_1%x, s%x, this%coef%drdx, this%coef%dsdx, this%coef%dtdx, this%coef)
     call dudxyz(this%grad_2%x, s%x, this%coef%drdy, this%coef%dsdy, this%coef%dtdy, this%coef)
@@ -370,12 +406,16 @@ contains
     call col2(this%flux2, this%n2, size(this%n1))
     call col2(this%flux3, this%n3, size(this%n1))
 
-   !  call this%coef%gs_h%op(this%flux1%x, this%coef%dof%size(), GS_OP_ADD)
-   !  call this%coef%gs_h%op(this%flux2%x, this%coef%dof%size(), GS_OP_ADD)
-   !  call this%coef%gs_h%op(this%flux3%x, this%coef%dof%size(), GS_OP_ADD)
-
     call add3(this%G, this%flux1, this%flux2, size(this%n1))
     call add2(this%G, this%flux3, size(this%n1))
+    
+    do i = 1, this%coef%msh%nelv
+       do j = 1, this%n_facet_max
+          i_neigh = this%facet_neigh_index(j, i)
+          tmp(:, :, j, i) = this%G(:, :, j, i) + this%G(:, :, i_neigh%x(1), i_neigh%x(2))
+       end do
+    end do
+    this%G = tmp
 
   end subroutine G_compute
 
