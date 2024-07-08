@@ -67,17 +67,6 @@ module gradient_jump_penalty
      real(kind=rp), allocatable :: penalty_el(:, :, :)
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
-     !!!!!!! Change the following field_t into array of size (lx, lx, 6, nelv)
-   !   !> Gradient jump on the elementary interface (zero inside each element)
-   !   type(field_t), pointer :: G
-   !   !> 3 parts of the flux of the quantity
-   !   type(field_t), pointer :: flux1, flux2, flux3
-   !   !> 3 parts of the flux of the volumetric flow
-   !   type(field_t), pointer :: volflux1, volflux2, volflux3
-   !   !> The absolute flux of the volumetric flow (volflux1 + volflux2 + volflux3)
-   !   type(field_t), pointer :: absvolflux
-   !   !> Expanded array of facet normal (zero inside each element)
-   !   type(field_t), pointer :: n1, n2, n3
      !> Gradient of the quatity of interest
      type(field_t), pointer :: grad_1, grad_2, grad_3 
      !> Gradient jump on the elementary interface (zero inside each element)
@@ -131,7 +120,7 @@ contains
     this%p = dofmap%xh%lx - 1
     this%lx = dofmap%xh%lx
     if (this%p .gt. 1) then
-       this%tau = -0.8_rp * (this%p + 1) ** (-4.0_rp)
+       this%tau = -0.8_rp * (this%p + 1) ** (-4.0_rp) * 10
     else
        this%tau = -0.02_rp
     end if
@@ -202,13 +191,13 @@ contains
     integer :: i
     type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
 
-    !! todo: estimation of the length scale of the mesh could be more elegant
-    !! strategy 1: use the diameter of the hexahedral
-    do i = 1, 6
-       h_el(i) = ep%diameter()
-    end do
+   !  !! strategy 1: use the diameter of the hexahedral
+   !  do i = 1, 6
+   !     h_el(i) = ep%diameter()
+   !  end do
 
     !! strategy 2: hard code it, only works for cuboid mesh
+    !! should be refined for distorted mesh as well
     p1 => ep%p(1)
     p2 => ep%p(2)
     p3 => ep%p(3)
@@ -402,14 +391,14 @@ contains
     call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
     call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
 
-   !  call col3(this%volflux1%x, u%x, this%n1%x, this%coef%dof%size())
-   !  call col3(this%volflux2%x, v%x, this%n2%x, this%coef%dof%size())
-   !  call col3(this%volflux3%x, w%x, this%n3%x, this%coef%dof%size())
+    call col3(this%volflux1, u%x, this%n1, size(this%n1))
+    call col3(this%volflux2, v%x, this%n2, size(this%n1))
+    call col3(this%volflux3, w%x, this%n3, size(this%n1))
 
     call add3(this%absvolflux, this%volflux1, this%volflux2, size(this%n1))
     call add2(this%absvolflux, this%volflux3, size(this%n1))
 
-    do i = 1, this%coef%dof%size()
+    do i = 1, size(this%n1)
        this%absvolflux(i, 1, 1, 1) = abs(this%absvolflux(i, 1, 1, 1))
     end do
 
