@@ -39,7 +39,7 @@ module fusedcg_cpld_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2
   use device
@@ -67,7 +67,7 @@ module fusedcg_cpld_device
      real(kind=rp), allocatable :: alpha(:)
      type(c_ptr) :: w1_d = C_NULL_PTR
      type(c_ptr) :: w2_d = C_NULL_PTR
-     type(c_ptr) :: w3_d = C_NULL_PTR     
+     type(c_ptr) :: w3_d = C_NULL_PTR
      type(c_ptr) :: r1_d = C_NULL_PTR
      type(c_ptr) :: r2_d = C_NULL_PTR
      type(c_ptr) :: r3_d = C_NULL_PTR
@@ -261,10 +261,10 @@ contains
     do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE+1
        this%p1_d(i) = C_NULL_PTR
        call device_map(this%p1(:,i), this%p1_d(i), n)
-       
+
        this%p2_d(i) = C_NULL_PTR
        call device_map(this%p2(:,i), this%p2_d(i), n)
-       
+
        this%p3_d(i) = C_NULL_PTR
        call device_map(this%p3(:,i), this%p3_d(i), n)
     end do
@@ -281,7 +281,7 @@ contains
                       HOST_TO_DEVICE, sync=.false.)
     ptr = c_loc(this%p3_d)
     call device_memcpy(ptr, this%p3_d_d, p_size, &
-                       HOST_TO_DEVICE, sync=.false.)   
+                       HOST_TO_DEVICE, sync=.false.)
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
@@ -308,11 +308,11 @@ contains
     if (allocated(this%w1)) then
        deallocate(this%w1)
     end if
-    
+
     if (allocated(this%w2)) then
        deallocate(this%w2)
     end if
-    
+
     if (allocated(this%w3)) then
        deallocate(this%w3)
     end if
@@ -438,7 +438,7 @@ contains
     if (c_associated(this%gs_event2)) then
        call device_event_destroy(this%gs_event2)
     end if
-    
+
     if (c_associated(this%gs_event3)) then
        call device_event_destroy(this%gs_event3)
     end if
@@ -495,8 +495,8 @@ contains
       rtz1 = 1.0_rp
       p_prev = DEVICE_FUSEDCG_CPLD_P_SPACE
       p_cur = 1
-          
- 
+
+
       call device_rzero(x%x_d, n)
       call device_rzero(y%x_d, n)
       call device_rzero(z%x_d, n)
@@ -511,7 +511,7 @@ contains
                                      r2_d, r3_d, tmp_d, n)
 
       rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
-      
+
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -531,7 +531,7 @@ contains
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
-         
+
          call device_fusedcg_cpld_update_p(p1_d(p_cur), p2_d(p_cur), p3_d(p_cur), &
               z1_d, z2_d, z3_d, p1_d(p_prev), p2_d(p_prev), p3_d(p_prev), beta, n)
 
@@ -543,15 +543,15 @@ contains
          call device_event_sync(this%gs_event1)
          call device_event_sync(this%gs_event2)
          call device_event_sync(this%gs_event3)
-         call bc_list_apply(blstx, w1, n)
-         call bc_list_apply(blsty, w2, n)
-         call bc_list_apply(blstz, w3, n)
+         call blstx%apply(w1, n)
+         call blsty%apply(w2, n)
+         call blstz%apply(w3, n)
 
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d,  p1_d(p_cur), &
                                         p2_d(p_cur), p3_d(p_cur), tmp_d, n)
 
          pap = device_glsc2(tmp_d, coef%mult_d, n)
-                  
+
          alpha(p_cur) = rtz1 / pap
          rtr = device_fusedcg_cpld_part2(r1_d, r2_d, r3_d, coef%mult_d, &
               w1_d, w2_d, w3_d, alpha_d, alpha(p_cur), p_cur, n)
@@ -595,9 +595,9 @@ contains
 
     ksp_results%res_final = 0.0
     ksp_results%iter = 0
-    
+
   end function fusedcg_cpld_device_solve
-  
+
 end module fusedcg_cpld_device
 
 

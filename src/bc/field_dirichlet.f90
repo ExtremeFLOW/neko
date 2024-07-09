@@ -30,12 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines inflow dirichlet conditions
+!> Defines user dirichlet condition for a scalar field.
 module field_dirichlet
   use num_types, only: rp
   use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
-  use bc, only: bc_list_t, bc_t
+  use bc, only: bc_t
+  use bc_list, only : bc_list_t
   use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
@@ -44,6 +45,7 @@ module field_dirichlet
   use device_math, only: device_masked_copy
   use dofmap, only : dofmap_t
   use utils, only: neko_error
+  use json_module, only : json_file
   use field_list, only : field_list_t
   implicit none
   private
@@ -68,8 +70,8 @@ module field_dirichlet
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
    contains
-     !> Constructor.
-     procedure, pass(this) :: init_field => field_dirichlet_init
+     !> Constructor for the field.
+     procedure, pass(this) :: init_field => field_dirichlet_init_field
      !> Apply scalar by performing a masked copy.
      procedure, pass(this) :: apply_scalar => field_dirichlet_apply_scalar
      !> (No-op) Apply vector.
@@ -78,8 +80,12 @@ module field_dirichlet
      procedure, pass(this) :: apply_vector_dev => field_dirichlet_apply_vector_dev
      !> Apply scalar (device).
      procedure, pass(this) :: apply_scalar_dev => field_dirichlet_apply_scalar_dev
-     !> Destructor
+     !> Constructor.
+     procedure, pass(this) :: init => field_dirichlet_init
+     !> Destructor.
      procedure, pass(this) :: free => field_dirichlet_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => field_dirichlet_finalize
 
   end type field_dirichlet_t
 
@@ -110,10 +116,20 @@ module field_dirichlet
   public :: field_dirichlet_update
 
 contains
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine field_dirichlet_init(this, coef, json)
+    class(field_dirichlet_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine field_dirichlet_init
 
   !> Initializes this%field_bc.
   !! @param bc_name Name of this%field_bc
-  subroutine field_dirichlet_init(this, bc_name)
+  subroutine field_dirichlet_init_field(this, bc_name)
     class(field_dirichlet_t), target, intent(inout) :: this
     character(len=*), intent(in) :: bc_name
 
@@ -121,7 +137,7 @@ contains
     call this%field_list%init(1)
     call this%field_list%assign_to_field(1, this%field_bc)
 
-  end subroutine field_dirichlet_init
+  end subroutine field_dirichlet_init_field
 
   !> Destructor. Currently this%field_bc is being freed in `fluid_scheme::free`
   subroutine field_dirichlet_free(this)
@@ -212,4 +228,10 @@ contains
 
   end subroutine field_dirichlet_apply_vector_dev
 
+  !> Finalize
+  subroutine field_dirichlet_finalize(this)
+    class(field_dirichlet_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine field_dirichlet_finalize
 end module field_dirichlet

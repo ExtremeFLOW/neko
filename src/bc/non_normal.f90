@@ -42,38 +42,51 @@ module non_normal
   use math
   use utils
   use stack
+  use json_module, only : json_file
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  !> Dirichlet condition in non normal direction of a plane
+  !> Dirichlet condition in non normal direction of a plane.
+  !! @warning Only works for axis-aligned plane boundaries.
   type, public, extends(symmetry_t) :: non_normal_t
    contains
      !> Constructor.
      procedure, pass(this) :: init => non_normal_init
      !> Destructor.
      procedure, pass(this) :: free => non_normal_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => non_normal_finalize
   end type non_normal_t
 
 contains
 
-  !> Constructor.
-  subroutine non_normal_init(this, coef)
-    class(non_normal_t), intent(inout) :: this
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine non_normal_init(this, coef, json)
+    class(non_normal_t), target, intent(inout) :: this
     type(coef_t), intent(in) :: coef
-    integer :: i, j, l
+    type(json_file), intent(inout) ::json
+
+    call this%free()
+
+    call this%init_base(coef)
+    call this%bc_x%init(this%coef, json)
+    call this%bc_y%init(this%coef, json)
+    call this%bc_z%init(this%coef, json)
+
+  end subroutine non_normal_init
+
+  !> Finalize
+  subroutine non_normal_finalize(this)
+    class(non_normal_t), target, intent(inout) :: this
+    integer :: i, j, k, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
-
-    call this%free()
-
-    call this%init_base(coef)
-    call this%bc_x%init_base(this%coef)
-    call this%bc_y%init_base(this%coef)
-    call this%bc_z%init_base(this%coef)
 
     associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
@@ -82,38 +95,7 @@ contains
          bc_facet = bfp(i)
          facet = bc_facet%x(1)
          el = bc_facet%x(2)
-         sx = 0d0
-         sy = 0d0
-         sz = 0d0
-         select case (facet)
-         case(1,2)
-            do l = 2, c%Xh%lx - 1
-               do j = 2, c%Xh%lx -1
-                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
-               end do
-            end do
-         case(3,4)
-            do l = 2, c%Xh%lx - 1
-               do j = 2, c%Xh%lx - 1
-                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
-               end do
-            end do
-         case(5,6)
-            do l = 2, c%Xh%lx - 1
-               do j = 2, c%Xh%lx - 1
-                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
-               end do
-            end do
-         end select
-         sx = sx / (c%Xh%lx - 2)**2
-         sy = sy / (c%Xh%lx - 2)**2
-         sz = sz / (c%Xh%lx - 2)**2
+         call this%get_normal_axis(sx, sy, sz, facet, el)
 
          if (sx .lt. TOL) then
             call this%bc_y%mark_facet(facet, el)
@@ -132,12 +114,11 @@ contains
       end do
     end associate
     call this%bc_x%finalize()
-    call this%bc_x%set_g(0.0_rp)
     call this%bc_y%finalize()
-    call this%bc_y%set_g(0.0_rp)
     call this%bc_z%finalize()
-    call this%bc_z%set_g(0.0_rp)
-  end subroutine non_normal_init
+
+    call this%finalize_base()
+  end subroutine non_normal_finalize
 
   !> Destructor
   subroutine non_normal_free(this)

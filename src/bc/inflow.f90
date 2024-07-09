@@ -36,6 +36,9 @@ module inflow
   use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
+  use coefs, only : coef_t
+  use json_module, only : json_file
+  use json_utils, only : json_get
   implicit none
   private
 
@@ -47,12 +50,29 @@ module inflow
      procedure, pass(this) :: apply_vector => inflow_apply_vector
      procedure, pass(this) :: apply_scalar_dev => inflow_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => inflow_apply_vector_dev
-     procedure, pass(this) :: set_inflow => inflow_set_vector
+     !> Constructor
+     procedure, pass(this) :: init => inflow_init
      !> Destructor.
      procedure, pass(this) :: free => inflow_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => inflow_finalize
   end type inflow_t
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine inflow_init(this, coef, json)
+    class(inflow_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+    real(kind=rp), allocatable :: x(:)
+
+    call this%init_base(coef)
+    call json_get(json, 'case.fluid.inflow_condition.value', x)
+    this%x = x
+  end subroutine inflow_init
 
   !> No-op scalar apply
   subroutine inflow_apply_scalar(this, x, n, t, tstep)
@@ -105,20 +125,19 @@ contains
 
   end subroutine inflow_apply_vector_dev
 
-  !> Set inflow vector
-  subroutine inflow_set_vector(this, x)
-    class(inflow_t), intent(inout) :: this
-    real(kind=rp), dimension(3), intent(inout) :: x
-    this%x = x
-  end subroutine inflow_set_vector
-
   !> Destructor
   subroutine inflow_free(this)
     class(inflow_t), target, intent(inout) :: this
 
     call this%free_base()
-
   end subroutine inflow_free
+
+  !> Finalize
+  subroutine inflow_finalize(this)
+    class(inflow_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine inflow_finalize
 
 
 end module inflow

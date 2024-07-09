@@ -65,7 +65,7 @@ module projection
   use math
   use coefs, only : coef_t
   use ax_product, only : ax_t
-  use bc, only : bc_list_t, bc_list_apply_scalar
+  use bc_list, only : bc_list_t
   use comm
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -75,6 +75,7 @@ module projection
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : LOG_SIZE, neko_log
   use, intrinsic :: iso_c_binding
+  use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
 
   implicit none
@@ -317,7 +318,7 @@ contains
 
     call Ax%compute(this%bb(1,this%m), x, coef, coef%msh, coef%Xh)
     call gs_h%gs_op_vector(this%bb(1,this%m), n, GS_OP_ADD)
-    call bc_list_apply_scalar(bclst, this%bb(1,this%m), n)
+    call bclst%apply_scalar(this%bb(1, this%m), n)
 
     if (NEKO_BCKND_DEVICE .eq. 1)  then
        call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)

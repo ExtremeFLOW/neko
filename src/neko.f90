@@ -56,7 +56,7 @@ module neko
   use gather_scatter
   use coefs
   use bc
-  use wall
+  use zero_dirichlet
   use dirichlet
   use krylov_fctry
   use precon_fctry
