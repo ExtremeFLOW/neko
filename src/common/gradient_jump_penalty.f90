@@ -48,6 +48,7 @@ module gradient_jump_penalty
   use quad
   use operators, only : dudxyz
   use gs_ops, only : GS_OP_ADD
+  use tuple, only : tuple_i4_t
 
   implicit none
   private
@@ -59,31 +60,37 @@ module gradient_jump_penalty
      real(kind=rp) :: tau
      !> Polynomial order
      integer :: p
+     !> Collocation point per dimension (p + 1)
+     integer :: lx
      !> Penalty terms
      type(field_t), pointer :: penalty
      !> Work array to store penalty terms on each element
      real(kind=rp), allocatable :: penalty_el(:, :, :)
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
+     !> Gradient of the quatity of interest
+     type(field_t), pointer :: grad_1, grad_2, grad_3 
      !> Gradient jump on the elementary interface (zero inside each element)
-     type(field_t), pointer :: G
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: G
      !> 3 parts of the flux of the quantity
-     type(field_t), pointer :: flux1, flux2, flux3
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: flux1, flux2, flux3
      !> 3 parts of the flux of the volumetric flow
-     type(field_t), pointer :: volflux1, volflux2, volflux3
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: volflux1, volflux2, volflux3
      !> The absolute flux of the volumetric flow (volflux1 + volflux2 + volflux3)
-     type(field_t), pointer :: absvolflux
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: absvolflux
      !> Expanded array of facet normal (zero inside each element)
-     type(field_t), pointer :: n1, n2, n3
+     real(kind=rp), pointer, dimension(:, :, :, :) :: n1, n2, n3
      !> Number of facet in elements and its maximum
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
      !> Length scale for element regarding a facet
-     real(kind=rp), allocatable :: h(:,:)
+     real(kind=rp), allocatable :: h(:, :)
      !> Polynomial evaluated at collocation points
-     real(kind=rp), allocatable :: phi(:,:)
+     real(kind=rp), allocatable :: phi(:, :)
      !> The first derivative of polynomial at two ends of the interval
-     real(kind=rp), allocatable :: dphidxi(:,:)
+     real(kind=rp), allocatable :: dphidxi(:, :)
+     !> could be build at initialisation as a tuple_i4_t. (facet, nelv) -> (neigh_facet, neigh_el)
+     type(tuple_i4_t), allocatable, dimension(:, :) :: facet_neigh_index
 
   contains
      !> Constructor.
@@ -114,8 +121,9 @@ contains
     call this%free()
 
     this%p = dofmap%xh%lx - 1
+    this%lx = dofmap%xh%lx
     if (this%p .gt. 1) then
-       this%tau = -0.8_rp * (this%p + 1) ** (-4.0_rp) * 30
+       this%tau = -0.8_rp * (this%p + 1) ** (-4.0_rp)
     else
        this%tau = -0.02_rp
     end if
@@ -147,7 +155,7 @@ contains
        end select
     end do
     
-    allocate(zg(dofmap%xh%lx))
+    allocate(zg(this%lx))
     allocate(this%phi(this%p + 1, this%p + 1))
     allocate(this%dphidxi(this%p + 1, this%p + 1))
 
@@ -159,34 +167,65 @@ contains
     end do
 
     call neko_scratch_registry%request_field(this%penalty, temp_indices(1))
-    call neko_scratch_registry%request_field(this%G, temp_indices(2))
-    call neko_scratch_registry%request_field(this%flux1, temp_indices(3))
-    call neko_scratch_registry%request_field(this%flux2, temp_indices(4))
-    call neko_scratch_registry%request_field(this%flux3, temp_indices(5))
-    call neko_scratch_registry%request_field(this%n1, temp_indices(6))
-    call neko_scratch_registry%request_field(this%n2, temp_indices(7))
-    call neko_scratch_registry%request_field(this%n3, temp_indices(8))
-    call neko_scratch_registry%request_field(this%volflux1, temp_indices(9))
-    call neko_scratch_registry%request_field(this%volflux2, temp_indices(10))
-    call neko_scratch_registry%request_field(this%volflux3, temp_indices(11))
-    call neko_scratch_registry%request_field(this%absvolflux, temp_indices(12))
-    
-    ! formulate n1, n2 and n3
+    call neko_scratch_registry%request_field(this%grad_1, temp_indices(2))
+    call neko_scratch_registry%request_field(this%grad_2, temp_indices(3))
+    call neko_scratch_registry%request_field(this%grad_3, temp_indices(4))
+
+    allocate(this%G(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
+    allocate(this%flux1(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
+    allocate(this%flux2(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
+    allocate(this%flux3(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
+    allocate(this%volflux1(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
+    allocate(this%volflux2(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
+    allocate(this%volflux3(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
+    allocate(this%absvolflux(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
+
+    this%n1 => this%coef%nx
+    this%n2 => this%coef%ny
+    this%n3 => this%coef%nz
+
+    ! build an 2d array to find the neighbouring facet of a specified facet
+    allocate(this%facet_neigh_index(this%n_facet_max, this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
        select type(ep)
        type is (hex_t)
-          call expand_normal_hex_el(this%n1%x(:, :, :, i), this%coef%nx(:, :, :, i), this%p + 1)
-          call expand_normal_hex_el(this%n2%x(:, :, :, i), this%coef%ny(:, :, :, i), this%p + 1)
-          call expand_normal_hex_el(this%n3%x(:, :, :, i), this%coef%nz(:, :, :, i), this%p + 1)
+          call facet_matching_hex(this, i)
        type is (quad_t)
-          call neko_error("Gradient jump penalty error: mesh size evaluation is not supported for quad_t")
-       end select
+          call neko_error("Gradient jump penalty error: neighbouring facet matching is not supported for quad_t")
+       end select 
     end do
 
   end subroutine gradient_jump_penalty_init
   
-  !> Evaluate h for each element
+  !> Matching neighbouring facet for hexahedral mesh
+  !!!!! Now only works for 1-core run, MPI needs more discussion
+  !! @param i The local index of element
+  subroutine facet_matching_hex(this, i)
+     class(gradient_jump_penalty_t), intent(inout) :: this
+     integer, intent(in) :: i
+
+     integer :: j, k, glb_neigh_el_id, local_neigh_el_id
+
+     do j = 1, 6
+        glb_neigh_el_id = this%coef%msh%facet_neigh(j, i)
+        if (glb_neigh_el_id .gt. this%coef%msh%nelv) then
+           call neko_error("facet matching is not implemented for MPI")
+        end if
+        local_neigh_el_id = glb_neigh_el_id - this%coef%msh%offset_el
+        do k = 1, 6
+           if (this%coef%msh%facet_neigh(k, local_neigh_el_id) &
+              .eq. i + this%coef%msh%offset_el) then
+              this%facet_neigh_index(j, i)%x = (/  k, local_neigh_el_id/)
+           end if
+        end do
+     end do
+
+  end subroutine facet_matching_hex
+  
+  !> Evaluate h for each element for hexahedral mesh
+  !! @param h_el The length scale of an element
+  !! @param ep The pointer to the element
   subroutine eval_h_hex(h_el, ep)
     real(kind=rp), intent(inout) :: h_el(6)
     type(hex_t), pointer, intent(in) :: ep
@@ -194,13 +233,13 @@ contains
     integer :: i
     type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
 
-    !! todo: estimation of the length scale of the mesh could be more elegant
-    !! strategy 1: use the diameter of the hexahedral
-    do i = 1, 6
-       h_el(i) = ep%diameter()
-    end do
+   !  !! strategy 1: use the diameter of the hexahedral
+   !  do i = 1, 6
+   !     h_el(i) = ep%diameter()
+   !  end do
 
     !! strategy 2: hard code it, only works for cuboid mesh
+    !! should be refined for distorted mesh as well
     p1 => ep%p(1)
     p2 => ep%p(2)
     p3 => ep%p(3)
@@ -224,36 +263,11 @@ contains
 
   end subroutine eval_h_hex
 
-  !> Expanding facet normal array into a field of (lx, lx, lx) for each element
-  subroutine expand_normal_hex_el(n1_el, coefnx_el, lx)
-    integer :: lx
-    real(kind=rp), intent(inout) :: n1_el(lx, lx, lx)
-    real(kind=rp), intent(in) :: coefnx_el(lx, lx, 6)
-
-   !  n1_el(1, :, :) = coefnx_el(:, :, 1)
-   !  n1_el(lx, :, :) = coefnx_el(:, :, 2)
-   !  n1_el(:, 1, :) = coefnx_el(:, :, 3)
-   !  n1_el(:, lx, :) = coefnx_el(:, :, 4)
-   !  n1_el(:, :, 1) = coefnx_el(:, :, 5)
-   !  n1_el(:, :, lx) = coefnx_el(:, :, 6)
-
-    n1_el(1, 2:lx-1, 2:lx-1) = coefnx_el(2:lx-1, 2:lx-1, 1)
-    n1_el(lx, 2:lx-1, 2:lx-1) = coefnx_el(2:lx-1, 2:lx-1, 2)
-    n1_el(2:lx-1, 1, 2:lx-1) = coefnx_el(2:lx-1, 2:lx-1, 3)
-    n1_el(2:lx-1, lx, 2:lx-1) = coefnx_el(2:lx-1, 2:lx-1, 4)
-    n1_el(2:lx-1, 2:lx-1, 1) = coefnx_el(2:lx-1, 2:lx-1, 5)
-    n1_el(2:lx-1, 2:lx-1, lx) = coefnx_el(2:lx-1, 2:lx-1, 6)
-
-  end subroutine expand_normal_hex_el
-
   !> Destructor for the gradient_jump_penalty_t class.
   subroutine gradient_jump_penalty_free(this)
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
-    
-   !  if (allocated(this%penalty)) then
-   !     deallocate(this%penalty)
-   !  end if
+
     nullify(this%penalty)
     if (allocated(this%penalty_el)) then
        deallocate(this%penalty_el)
@@ -270,18 +284,37 @@ contains
     if (allocated(this%dphidxi)) then
        deallocate(this%dphidxi)
     end if
+    if (allocated(this%G)) then
+       deallocate(this%G)
+    end if
+    if (allocated(this%flux1)) then
+       deallocate(this%flux1)
+    end if
+    if (allocated(this%flux2)) then
+       deallocate(this%flux2)
+    end if
+    if (allocated(this%flux3)) then
+       deallocate(this%flux3)
+    end if
+     if (allocated(this%volflux1)) then
+       deallocate(this%volflux1)
+    end if
+    if (allocated(this%volflux2)) then
+       deallocate(this%volflux2)
+    end if
+    if (allocated(this%volflux3)) then
+       deallocate(this%volflux3)
+    end if
+    if (allocated(this%absvolflux)) then
+       deallocate(this%absvolflux)
+    end if
     nullify(this%coef)
-    nullify(this%G)
-    nullify(this%flux1)
-    nullify(this%flux2)
-    nullify(this%flux3)
+    nullify(this%grad_1)
+    nullify(this%grad_2)
+    nullify(this%grad_3)
     nullify(this%n1)
     nullify(this%n2)
     nullify(this%n3)
-    nullify(this%volflux1)
-    nullify(this%volflux2)
-    nullify(this%volflux3)
-    nullify(this%absvolflux)
 
   end subroutine gradient_jump_penalty_free
 
@@ -328,7 +361,7 @@ contains
   !! @param v y-velocity
   !! @param w z-velocity
   !! @param s The quantity of interest
-  !! @param i_el index of the element
+  !! @param i_el The index of the element
   subroutine gradient_jump_penalty_compute_hex_el(this, u, v, w, s, i_el)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: u, v, w, s
@@ -336,16 +369,14 @@ contains
 
     real(kind=rp) :: integrant_facet(this%p + 1, this%p + 1)
     integer :: i, j, k, l
-
+    
+    this%penalty_el = 0.0_rp
     do i = 1, this%p + 1
        do j = 1, this%p + 1
           do k = 1, this%p + 1
-             this%penalty_el(i, j, k) = 0.0_rp
              do l = 1, 6
-               !  integrant_facet = 0.0_rp
-               !  call generate_integrant_facet(this, integrant_facet, i, j, k, l, i_el)
                 this%penalty_el(i, j, k) = this%penalty_el(i, j, k) + &
-                                  integrate_over_facet(this, i, j, k, l, i_el)
+                                  weak_integrate_over_facet(this, i, j, k, l, i_el)
              end do
           end do
        end do  
@@ -359,22 +390,32 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: s
 
-    !!! to do: need more love to the interface cross-section point
+    integer :: i, j
+    real(kind=rp) :: tmp(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv)
+    type(tuple_i4_t) :: i_neigh
 
-    call dudxyz(this%flux1%x, s%x, this%coef%drdx, this%coef%dsdx, this%coef%dtdx, this%coef)
-    call dudxyz(this%flux2%x, s%x, this%coef%drdy, this%coef%dsdy, this%coef%dtdy, this%coef)
-    call dudxyz(this%flux3%x, s%x, this%coef%drdz, this%coef%dsdz, this%coef%dtdz, this%coef)
+    call dudxyz(this%grad_1%x, s%x, this%coef%drdx, this%coef%dsdx, this%coef%dtdx, this%coef)
+    call dudxyz(this%grad_2%x, s%x, this%coef%drdy, this%coef%dsdy, this%coef%dtdy, this%coef)
+    call dudxyz(this%grad_3%x, s%x, this%coef%drdz, this%coef%dsdz, this%coef%dtdz, this%coef)
 
-    call col2(this%flux1%x, this%n1%x, this%coef%dof%size())
-    call col2(this%flux2%x, this%n2%x, this%coef%dof%size())
-    call col2(this%flux3%x, this%n3%x, this%coef%dof%size())
+    call pick_facet_value_hex(this%flux1, this%grad_1%x, this%lx, this%coef%msh%nelv)
+    call pick_facet_value_hex(this%flux2, this%grad_2%x, this%lx, this%coef%msh%nelv)
+    call pick_facet_value_hex(this%flux3, this%grad_3%x, this%lx, this%coef%msh%nelv)
 
-    call this%coef%gs_h%op(this%flux1%x, this%coef%dof%size(), GS_OP_ADD)
-    call this%coef%gs_h%op(this%flux2%x, this%coef%dof%size(), GS_OP_ADD)
-    call this%coef%gs_h%op(this%flux3%x, this%coef%dof%size(), GS_OP_ADD)
+    call col2(this%flux1, this%n1, size(this%n1))
+    call col2(this%flux2, this%n2, size(this%n1))
+    call col2(this%flux3, this%n3, size(this%n1))
 
-    call add3(this%G%x, this%flux1%x, this%flux2%x, this%coef%dof%size())
-    call add2(this%G%x, this%flux3%x, this%coef%dof%size())
+    call add3(this%G, this%flux1, this%flux2, size(this%n1))
+    call add2(this%G, this%flux3, size(this%n1))
+    
+    do i = 1, this%coef%msh%nelv
+       do j = 1, this%n_facet_max
+          i_neigh = this%facet_neigh_index(j, i)
+          tmp(:, :, j, i) = this%G(:, :, j, i) + this%G(:, :, i_neigh%x(1), i_neigh%x(2))
+       end do
+    end do
+    this%G = tmp
 
   end subroutine G_compute
 
@@ -385,76 +426,116 @@ contains
     type(field_t), intent(in) :: u, v, w
 
     integer :: i
+    
+    call pick_facet_value_hex(this%volflux1, u%x, this%lx, this%coef%msh%nelv)
+    call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
+    call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
 
-    call col3(this%volflux1%x, u%x, this%n1%x, this%coef%dof%size())
-    call col3(this%volflux2%x, v%x, this%n2%x, this%coef%dof%size())
-    call col3(this%volflux3%x, w%x, this%n3%x, this%coef%dof%size())
+    call col2(this%volflux1, this%n1, size(this%n1))
+    call col2(this%volflux2, this%n2, size(this%n1))
+    call col2(this%volflux3, this%n3, size(this%n1))
 
-    call add3(this%absvolflux%x, this%volflux1%x, this%volflux2%x, this%coef%dof%size())
-    call add2(this%absvolflux%x, this%volflux3%x, this%coef%dof%size())
+    call add3(this%absvolflux, this%volflux1, this%volflux2, size(this%n1))
+    call add2(this%absvolflux, this%volflux3, size(this%n1))
 
-    do i = 1, this%coef%dof%size()
-       this%absvolflux%x(i, 1, 1, 1) = abs(this%absvolflux%x(i, 1, 1, 1))
+    do i = 1, size(this%n1)
+       this%absvolflux(i, 1, 1, 1) = abs(this%absvolflux(i, 1, 1, 1))
     end do
 
   end subroutine absvolflux_compute
 
-  !> Integrate over a facet
+  !> Pick facet values of a field
+  !! @param f_facet The data on facets
+  !! @param f_field A particular field
+  !! @param lx      The number of collocation points on one dimension
+  !! @param nelv    The number of element
+  subroutine pick_facet_value_hex(f_facet, f_field, lx, nelv)
+    integer, intent(in) :: lx, nelv
+    real(kind=rp), intent(in) :: f_field(lx, lx, lx, nelv)
+    real(kind=rp), intent(inout) :: f_facet(lx, lx, 6, nelv)
+
+    f_facet(:, :, 1, :) = f_field(1, :, :, :)
+    f_facet(:, :, 2, :) = f_field(lx, :, :, :)
+    f_facet(:, :, 3, :) = f_field(:, 1, :, :)
+    f_facet(:, :, 4, :) = f_field(:, lx, :, :)
+    f_facet(:, :, 5, :) = f_field(:, :, 1, :)
+    f_facet(:, :, 6, :) = f_field(:, :, lx, :)
+
+  end subroutine pick_facet_value_hex
+
+  !> Integrate over a facet in weak from
   !! @param f Integrant
-  pure function integrate_over_facet(this, i, j, k, facet_index, i_el) result(f_int)
+  pure function weak_integrate_over_facet(this, i, j, k, facet_index, i_el) result(f_int)
     class(gradient_jump_penalty_t), intent(in) :: this
-   !  real(kind=rp), intent(in) :: f(this%p + 1, this%p + 1)
     integer, intent(in) :: i, j, k, facet_index, i_el
     real(kind=rp) :: f_int
     
-    real(kind=rp) :: f(this%p + 1, this%p + 1)
-    integer :: i_pt, j_pt
+    real(kind=rp) :: f(this%p + 1, this%p + 1), dphidxi, dxidn, jacinv_pt
+    integer :: i_pt, j_pt, n_facet
 
    select case (facet_index) ! Identify the facet indexing
     case(1)
-        f_int = this%absvolflux%x(1, j, k, i_el) * &
-                this%G%x(1, j, k, i_el) * &
-                this%dphidxi(1, i) * &
-                this%coef%drdx(1, j, k, i_el) ! For generality: drdx into sum(drdx_i)
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(j, k, facet_index, i_el)
+        i_pt = j
+        j_pt = k
+        dphidxi = this%dphidxi(1, i)
+        dxidn = this%coef%drdx(1, j, k, i_el) + &
+                this%coef%drdy(1, j, k, i_el) + &
+                this%coef%drdz(1, j, k, i_el)
+        jacinv_pt = this%coef%jacinv(1, j, k, i_el)
+        n_facet = -1
     case(2)
-        f_int = this%absvolflux%x(this%p + 1, j, k, i_el) * &
-                this%G%x(this%p + 1, j, k, i_el) * &
-                this%dphidxi(this%p + 1, i) * &
-                this%coef%drdx(this%p + 1, j, k, i_el)
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(j, k, facet_index, i_el)
+        i_pt = j
+        j_pt = k
+        dphidxi = this%dphidxi(this%p + 1, i)
+        dxidn = this%coef%drdx(this%p + 1, j, k, i_el) + &
+                this%coef%drdy(this%p + 1, j, k, i_el) + &
+                this%coef%drdz(this%p + 1, j, k, i_el)
+        jacinv_pt = this%coef%jacinv(this%p + 1, j, k, i_el)
+        n_facet = 1
     case(3)
-        f_int = this%absvolflux%x(i, 1, k, i_el) * &
-                this%G%x(i, 1, k, i_el) * &
-                this%dphidxi(1, j) * &
-                this%coef%dsdy(i, 1, k, i_el)
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(i, k, facet_index, i_el)
+        i_pt = i
+        j_pt = k
+        dphidxi = this%dphidxi(1, j)
+        dxidn = this%coef%dsdx(i, 1, k, i_el) + &
+                this%coef%dsdy(i, 1, k, i_el) + &
+                this%coef%dsdz(i, 1, k, i_el)
+        jacinv_pt = this%coef%jacinv(i, 1, k, i_el)
+        n_facet = -1
     case(4)
-        f_int = this%absvolflux%x(i, this%p + 1, k, i_el) * &
-                this%G%x(i, this%p + 1, k, i_el) * &
-                this%dphidxi(this%p + 1, j) * &
-                this%coef%dsdy(i, this%p + 1, k, i_el)
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(i, k, facet_index, i_el)
+        i_pt = i
+        j_pt = k
+        dphidxi = this%dphidxi(this%p + 1, j)
+        dxidn = this%coef%dsdx(i, this%p + 1, k, i_el) + &
+                this%coef%dsdy(i, this%p + 1, k, i_el) + &
+                this%coef%dsdz(i, this%p + 1, k, i_el)
+        jacinv_pt = this%coef%jacinv(i, this%p + 1, k, i_el)
+        n_facet = 1
     case(5)
-        f_int = this%absvolflux%x(i, j, 1, i_el) * &
-                this%G%x(i, j, 1, i_el) * &
-                this%dphidxi(1, k) * &
+        i_pt = i
+        j_pt = j
+        dphidxi = this%dphidxi(1, k)
+        dxidn = this%coef%dtdx(i, j, 1, i_el) + &
+                this%coef%dtdy(i, j, 1, i_el) + &
                 this%coef%dtdz(i, j, 1, i_el)
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(i, j, facet_index, i_el)
+        jacinv_pt = this%coef%jacinv(i, j, 1, i_el)
+        n_facet = -1
     case(6)
-        f_int = this%absvolflux%x(i, j, this%p + 1, i_el) * &
-                this%G%x(i, j, this%p + 1, i_el) * &
-                this%dphidxi(this%p + 1, k) * &
+        i_pt = i
+        j_pt = j
+        dphidxi = this%dphidxi(this%p + 1, k)
+        dxidn = this%coef%dtdx(i, j, this%p + 1, i_el) + &
+                this%coef%dtdy(i, j, this%p + 1, i_el) + &
                 this%coef%dtdz(i, j, this%p + 1, i_el)
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(i, j, facet_index, i_el)
+        jacinv_pt = this%coef%jacinv(i, j, this%p + 1, i_el)
+        n_facet = 1
     end select
 
-  end function integrate_over_facet
+    f_int = this%absvolflux(i_pt, j_pt, facet_index, i_el) * &
+            this%G(i_pt, j_pt, facet_index, i_el) * &
+            dphidxi * dxidn * jacinv_pt
+    f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
+    f_int = f_int * this%coef%area(i_pt, j_pt, facet_index, i_el) * n_facet
+
+  end function weak_integrate_over_facet
 
 end module gradient_jump_penalty

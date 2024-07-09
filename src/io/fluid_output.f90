@@ -77,7 +77,7 @@ contains
     call this%init_base(fname, precision)
 
     if (present(scalar)) then
-       call this%fluid%init(6)
+       call this%fluid%init(5)
     else
        call this%fluid%init(4)
     end if
@@ -89,18 +89,6 @@ contains
 
     if (present(scalar)) then
        call this%fluid%assign(5, scalar%s)
-      !  call this%fluid%assign(6, scalar%gradient_jump_penalty%n1)
-      !  call this%fluid%assign(7, scalar%gradient_jump_penalty%n2)
-      !  call this%fluid%assign(8, scalar%gradient_jump_penalty%n3)
-      !  call this%fluid%assign(9, scalar%gradient_jump_penalty%flux1)
-      !  call this%fluid%assign(10, scalar%gradient_jump_penalty%flux2)
-      !  call this%fluid%assign(11, scalar%gradient_jump_penalty%flux3)
-      !  call this%fluid%assign(12, scalar%gradient_jump_penalty%volflux1)
-      !  call this%fluid%assign(13, scalar%gradient_jump_penalty%volflux2)
-      !  call this%fluid%assign(14, scalar%gradient_jump_penalty%volflux3)
-       call this%fluid%assign(6, scalar%gradient_jump_penalty%penalty)
-      !  call this%fluid%assign(7, scalar%gradient_jump_penalty%G)
-      !  call this%fluid%assign(8, scalar%gradient_jump_penalty%absvolflux)
     end if
 
   end function fluid_output_init
