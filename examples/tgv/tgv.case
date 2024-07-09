@@ -7,7 +7,6 @@
   "output_checkpoints": false,
   "output_at_end": true,
   "load_balance": false,
-  "job_timelimit": "00:01:00",
   "end_time": 3.0,
   "timestep": 1e-2,
   "numerics": {
