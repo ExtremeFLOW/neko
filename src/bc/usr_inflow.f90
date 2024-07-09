@@ -162,7 +162,8 @@ contains
        tstep_ = 1
     end if
 
-    associate(xc => this%coef%dof%x, yc => this%coef%dof%y, zc => this%coef%dof%z, &
+    associate(&
+         xc => this%coef%dof%x, yc => this%coef%dof%y, zc => this%coef%dof%z, &
          nx => this%coef%nx, ny => this%coef%ny, nz => this%coef%nz, &
          lx => this%coef%Xh%lx)
       m = this%msk(0)
@@ -170,8 +171,8 @@ contains
          k = this%msk(i)
          facet = this%facet(i)
          idx = nonlinear_index(k, lx, lx, lx)
-         select case(facet)
-         case(1,2)
+         select case (facet)
+         case (1,2)
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -181,7 +182,7 @@ contains
                  nz(idx(2), idx(3), facet, idx(4)), &
                  idx(1), idx(2), idx(3), idx(4), &
                  t_, tstep_)
-         case(3,4)
+         case (3,4)
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -191,7 +192,7 @@ contains
                  nz(idx(1), idx(3), facet, idx(4)), &
                  idx(1), idx(2), idx(3), idx(4), &
                  t_, tstep_)
-         case(5,6)
+         case (5,6)
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -233,10 +234,11 @@ contains
        tstep_ = 1
     end if
 
-    associate(xc => this%coef%dof%x, yc => this%coef%dof%y, zc => this%coef%dof%z, &
+    associate(&
+         xc => this%coef%dof%x, yc => this%coef%dof%y, zc => this%coef%dof%z, &
          nx => this%coef%nx, ny => this%coef%ny, nz => this%coef%nz, &
-         lx => this%coef%Xh%lx, usr_x_d => this%usr_x_d, usr_y_d => this%usr_y_d, &
-         usr_z_d => this%usr_z_d)
+         lx => this%coef%Xh%lx, usr_x_d => this%usr_x_d, &
+         usr_y_d => this%usr_y_d, usr_z_d => this%usr_z_d)
 
       m = this%msk(0)
 
@@ -251,15 +253,16 @@ contains
          call device_alloc(usr_y_d, s)
          call device_alloc(usr_z_d, s)
 
-         associate(xc => this%coef%dof%x, yc => this%coef%dof%y, zc => this%coef%dof%z, &
-                   nx => this%coef%nx, ny => this%coef%ny, nz => this%coef%nz, &
-                   lx => this%coef%Xh%lx)
+         associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
+              zc => this%coef%dof%z, &
+              nx => this%coef%nx, ny => this%coef%ny, nz => this%coef%nz, &
+              lx => this%coef%Xh%lx)
            do i = 1, m
               k = this%msk(i)
               facet = this%facet(i)
               idx = nonlinear_index(k, lx, lx, lx)
-              select case(facet)
-              case(1,2)
+              select case (facet)
+              case (1,2)
                  call this%eval(x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -269,7 +272,7 @@ contains
                       nz(idx(2), idx(3), facet, idx(4)), &
                       idx(1), idx(2), idx(3), idx(4), &
                       t_, tstep_)
-              case(3,4)
+              case (3,4)
                  call this%eval(x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -279,7 +282,7 @@ contains
                       nz(idx(1), idx(3), facet, idx(4)), &
                       idx(1), idx(2), idx(3), idx(4), &
                       t_, tstep_)
-              case(5,6)
+              case (5,6)
                  call this%eval(x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -293,9 +296,9 @@ contains
            end do
          end associate
 
-         call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE, sync=.true.)
+         call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE, sync = .true.)
 
          deallocate(x, y, z)
       end if
