@@ -183,7 +183,8 @@ module fluid_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
+     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf, &
+          dt_controller)
        import fluid_scheme_t
        import time_scheme_controller_t
        import time_step_controller_t
@@ -356,13 +357,13 @@ contains
 
        if (trim(string_val1) .eq. "uniform") then
           call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
-          select type(bc_if => this%bc_inflow)
-          type is(inflow_t)
+          select type (bc_if => this%bc_inflow)
+          type is (inflow_t)
              call bc_if%set_inflow(real_vec)
           end select
        else if (trim(string_val1) .eq. "blasius") then
-          select type(bc_if => this%bc_inflow)
-          type is(blasius_t)
+          select type (bc_if => this%bc_inflow)
+          type is (blasius_t)
              call json_get(params, 'case.fluid.blasius.delta', real_val)
              call json_get(params, 'case.fluid.blasius.approximation',&
                            string_val2)
@@ -373,8 +374,8 @@ contains
 
           end select
        else if (trim(string_val1) .eq. "user") then
-          select type(bc_if => this%bc_inflow)
-          type is(usr_inflow_t)
+          select type (bc_if => this%bc_inflow)
+          type is (usr_inflow_t)
              call bc_if%set_coef(this%C_Xh)
           end select
        end if
@@ -395,7 +396,8 @@ contains
 
     call MPI_Allreduce(this%user_field_bc_vel%bc_u%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%user_field_bc_vel%bc_u%init_field('d_vel_u')
+    if (integer_val .gt. 0)  &
+         call this%user_field_bc_vel%bc_u%init_field('d_vel_u')
 
     ! Setup field dirichlet bc for v-velocity
     call this%user_field_bc_vel%bc_v%init_base(this%c_Xh)
@@ -405,7 +407,8 @@ contains
 
     call MPI_Allreduce(this%user_field_bc_vel%bc_v%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%user_field_bc_vel%bc_v%init_field('d_vel_v')
+    if (integer_val .gt. 0) &
+         call this%user_field_bc_vel%bc_v%init_field('d_vel_v')
 
     ! Setup field dirichlet bc for w-velocity
     call this%user_field_bc_vel%bc_w%init_base(this%c_Xh)
@@ -415,7 +418,8 @@ contains
 
     call MPI_Allreduce(this%user_field_bc_vel%bc_w%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%user_field_bc_vel%bc_w%init_field('d_vel_w')
+    if (integer_val .gt. 0) &
+         call this%user_field_bc_vel%bc_w%init_field('d_vel_w')
 
     ! Setup our global field dirichlet bc
     call this%user_field_bc_vel%init_base(this%c_Xh)
@@ -450,11 +454,14 @@ contains
     call this%user_field_bc_vel%field_list%assign_to_field(4, &
             this%user_field_bc_prs%field_bc)
 
-    call bc_list_init(this%user_field_bc_vel%bc_list, size=4)
+    call bc_list_init(this%user_field_bc_vel%bc_list, size = 4)
     ! Note, bc_list_add only adds if the bc is not empty
-    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_u)
-    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_v)
-    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_w)
+    call bc_list_add(this%user_field_bc_vel%bc_list, &
+         this%user_field_bc_vel%bc_u)
+    call bc_list_add(this%user_field_bc_vel%bc_list, &
+         this%user_field_bc_vel%bc_v)
+    call bc_list_add(this%user_field_bc_vel%bc_list, &
+         this%user_field_bc_vel%bc_w)
 
     !
     ! Check if we need to output boundary types to a separate field
@@ -466,9 +473,9 @@ contains
     allocate(this%f_x)
     allocate(this%f_y)
     allocate(this%f_z)
-    call this%f_x%init(this%dm_Xh, fld_name="fluid_rhs_x")
-    call this%f_y%init(this%dm_Xh, fld_name="fluid_rhs_y")
-    call this%f_z%init(this%dm_Xh, fld_name="fluid_rhs_z")
+    call this%f_x%init(this%dm_Xh, fld_name = "fluid_rhs_x")
+    call this%f_y%init(this%dm_Xh, fld_name = "fluid_rhs_y")
+    call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
 
     ! Initialize the source term
     call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
@@ -741,8 +748,8 @@ contains
     end if
 
     if (allocated(this%bc_inflow)) then
-       select type(ip => this%bc_inflow)
-       type is(usr_inflow_t)
+       select type (ip => this%bc_inflow)
+       type is (usr_inflow_t)
           call ip%validate
        end select
     end if
@@ -819,14 +826,14 @@ contains
 
     call precon_factory(pc, pctype)
 
-    select type(pcp => pc)
-    type is(jacobi_t)
+    select type (pcp => pc)
+    type is (jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
-    type is(hsmg_t)
+    type is (hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
              call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
@@ -848,8 +855,8 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     procedure(usr_inflow_eval) :: usr_eval
 
-    select type(bc_if => this%bc_inflow)
-    type is(usr_inflow_t)
+    select type (bc_if => this%bc_inflow)
+    type is (usr_inflow_t)
        call bc_if%set_eval(usr_eval)
     class default
        call neko_error("Not a user defined inflow condition")
