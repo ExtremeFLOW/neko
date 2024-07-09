@@ -32,6 +32,7 @@ contains
     llx = 4.*pi
     llz = 4./3.*pi
 
+    ! rescale mesh
     el_in_y = 18
     el_in_visc_lay = 2
     viscous_layer = 0.0888889
@@ -100,9 +101,10 @@ contains
          (1.0 - exp(-yp/11.0) - yp/11*exp(-yp/3.0))
     ux  = ux * Re_tau/Re_b
 
-    ! actually, we do not use the turbulent profile, but
+    ! actually, sometimes one may not use the turbulent profile, but
     ! rather the parabolic lamianr one
-    ux = 1.5*(1-y**2)
+    ! ux = 1.5*(1-y**2)
+    
     ! add perturbations to trigger turbulence
     ! base flow
     uvw(1)  = ux
