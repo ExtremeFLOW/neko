@@ -94,8 +94,6 @@ contains
     type(json_file) :: source_subdict
     ! Source type
     character(len=:), allocatable :: type
-    ! Dummy source strenth values
-    real(kind=rp) :: values(3)
     logical :: found
     integer :: n_sources, i
 
@@ -108,10 +106,10 @@ contains
 
     if (json%valid_path('case.fluid.source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
-       allocate(rhs_fields%fields(3))
-       rhs_fields%fields(1)%f => f_x
-       rhs_fields%fields(2)%f => f_y
-       rhs_fields%fields(3)%f => f_z
+       call rhs_fields%init(3)
+       call rhs_fields%assign(1, f_x)
+       call rhs_fields%assign(2, f_y)
+       call rhs_fields%assign(3, f_z)
 
        call json%get_core(core)
        call json%get('case.fluid.source_terms', source_object, found)
@@ -198,7 +196,7 @@ contains
     class(fluid_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    integer :: i, n
+    integer :: i
 
     this%f_x = 0.0_rp
     this%f_y = 0.0_rp

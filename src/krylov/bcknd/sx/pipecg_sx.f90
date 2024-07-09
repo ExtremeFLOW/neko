@@ -40,7 +40,7 @@ module pipecg_sx
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3
+  use math, only : glsc3, abscmp
   use comm
   implicit none
   private
@@ -60,6 +60,7 @@ module pipecg_sx
      procedure, pass(this) :: init => sx_pipecg_init
      procedure, pass(this) :: free => sx_pipecg_free
      procedure, pass(this) :: solve => sx_pipecg_solve
+     procedure, pass(this) :: solve_coupled => sx_pipecg_solve_coupled
   end type sx_pipecg_t
 
 contains
@@ -184,7 +185,7 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(rnorm .eq. 0.0_rp) return
+    if(abscmp(rnorm, 0.0_rp)) return
 
     gamma1 = 0.0_rp
 
@@ -249,6 +250,32 @@ contains
     ksp_results%iter = iter
 
   end function sx_pipecg_solve
+
+  !> Pipelined PCG coupled solve
+  function sx_pipecg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+    class(sx_pipecg_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: fx
+    real(kind=rp), dimension(n), intent(inout) :: fy
+    real(kind=rp), dimension(n), intent(inout) :: fz
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t), dimension(3) :: ksp_results
+    integer, optional, intent(in) :: niter
+
+    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+
+  end function sx_pipecg_solve_coupled
 
 end module pipecg_sx
 

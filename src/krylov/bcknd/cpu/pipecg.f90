@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ module pipecg
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, rzero, copy
+  use math, only : glsc3, rzero, copy, abscmp
   use comm
   implicit none
   private
@@ -65,6 +65,8 @@ module pipecg
      procedure, pass(this) :: free => pipecg_free
      !> Solve the linear system.
      procedure, pass(this) :: solve => pipecg_solve
+     !> Solve the coupled linear system.
+     procedure, pass(this) :: solve_coupled => pipecg_solve_coupled
   end type pipecg_t
 
 contains
@@ -193,7 +195,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(rnorm .eq. 0.0_rp) return
+      if(abscmp(rnorm, 0.0_rp)) return
 
       gamma1 = 0.0_rp
       tmp1 = 0.0_rp
@@ -353,6 +355,32 @@ contains
     end associate
 
   end function pipecg_solve
+
+  !> Pipelined PCG coupled solve
+  function pipecg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
+       n, coef, blstx, blsty, blstz,  gs_h, niter) result(ksp_results)
+    class(pipecg_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: fx
+    real(kind=rp), dimension(n), intent(inout) :: fy
+    real(kind=rp), dimension(n), intent(inout) :: fz
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t), dimension(3) :: ksp_results
+    integer, optional, intent(in) :: niter
+
+    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+
+  end function pipecg_solve_coupled
 
 end module pipecg
 

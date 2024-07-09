@@ -30,64 +30,79 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Fluid abbdf factory for the Pn-Pn formulation
+!> Fluid right-hand-side factory for the Pn-Pn formulation
 module rhs_maker_fctry
-  use rhs_maker
-  use rhs_maker_cpu
-  use rhs_maker_sx
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t
+  use rhs_maker_cpu, only : rhs_maker_bdf_cpu_t, rhs_maker_ext_cpu_t, &
+                            rhs_maker_sumab_cpu_t
+  use rhs_maker_sx, only : rhs_maker_bdf_sx_t, rhs_maker_ext_sx_t, &
+                           rhs_maker_sumab_sx_t
   use rhs_maker_device
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
   implicit none
+  private
+
+  public :: rhs_maker_sumab_fctry, rhs_maker_ext_fctry, rhs_maker_bdf_fctry
 
 contains
 
-  subroutine rhs_maker_sumab_fctry(sumab)
-    class(rhs_maker_sumab_t), allocatable, intent(inout) :: sumab
+  !> Factory routine for computing the extrapolated velocity values used in
+  !! the pressure equation for the PnPn fluid scheme.
+  !! @details Only selects the compute backend.
+  !! @param object The object to be allocated by the factory.
+  subroutine rhs_maker_sumab_fctry(object)
+    class(rhs_maker_sumab_t), allocatable, intent(inout) :: object
 
-    if (allocated(sumab)) then
-       deallocate(sumab)
+    if (allocated(object)) then
+       deallocate(object)
     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
-       allocate(rhs_maker_sumab_sx_t::sumab)
+       allocate(rhs_maker_sumab_sx_t::object)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       allocate(rhs_maker_sumab_device_t::sumab)
+       allocate(rhs_maker_sumab_device_t::object)
     else
-       allocate(rhs_maker_sumab_cpu_t::sumab)
+       allocate(rhs_maker_sumab_cpu_t::object)
     end if
 
   end subroutine rhs_maker_sumab_fctry
 
-  subroutine rhs_maker_ext_fctry(makeabf)
-    class(rhs_maker_ext_t), allocatable, intent(inout) :: makeabf
+  !> Factory routine for computing the explicit-in-time contribution to the RHS.
+  !! @details Only selects the compute backend.
+  !! @param object The object to be allocated by the factory.
+  subroutine rhs_maker_ext_fctry(object)
+    class(rhs_maker_ext_t), allocatable, intent(inout) :: object
 
-    if (allocated(makeabf)) then
-       deallocate(makeabf)
+    if (allocated(object)) then
+       deallocate(object)
     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
-       allocate(rhs_maker_ext_sx_t::makeabf)
+       allocate(rhs_maker_ext_sx_t::object)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       allocate(rhs_maker_ext_device_t::makeabf)
+       allocate(rhs_maker_ext_device_t::object)
     else
-       allocate(rhs_maker_ext_cpu_t::makeabf)
+       allocate(rhs_maker_ext_cpu_t::object)
     end if
 
   end subroutine rhs_maker_ext_fctry
 
-  subroutine rhs_maker_bdf_fctry(makebdf)
-    class(rhs_maker_bdf_t), allocatable, intent(inout) :: makebdf
+  !> Factory routine for computing the RHS contributions from the BDF scheme.
+  !! @details Only selects the compute backend.
+  !! @param object The object to be allocated by the factory.
+  subroutine rhs_maker_bdf_fctry(object)
+    class(rhs_maker_bdf_t), allocatable, intent(inout) :: object
 
-    if (allocated(makebdf)) then
-       deallocate(makebdf)
+    if (allocated(object)) then
+       deallocate(object)
     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
-       allocate(rhs_maker_bdf_sx_t::makebdf)
+       allocate(rhs_maker_bdf_sx_t::object)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       allocate(rhs_maker_bdf_device_t::makebdf)
+       allocate(rhs_maker_bdf_device_t::object)
     else
-       allocate(rhs_maker_bdf_cpu_t::makebdf)
+       allocate(rhs_maker_bdf_cpu_t::object)
     end if
 
   end subroutine rhs_maker_bdf_fctry

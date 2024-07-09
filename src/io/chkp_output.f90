@@ -36,6 +36,7 @@ module chkp_output
   use output
   use num_types, only : rp
   implicit none
+  private
 
   type, public, extends(output_t) :: chkp_output_t
      type(chkp_t), pointer :: chkp
@@ -49,21 +50,30 @@ module chkp_output
 
 contains
 
-  function chkp_output_init(chkp, name, path) result(this)
+  function chkp_output_init(chkp, name, path, fmt) result(this)
     type(chkp_t), intent(in), target :: chkp
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
+    character(len=*), intent(in), optional :: fmt
     type(chkp_output_t) :: this
     character(len=1024) :: fname
+    character(len=10) :: suffix
+
+    suffix = '.chkp'
+    if (present(fmt)) then
+       if (fmt .eq. 'hdf5') then
+          suffix = '.h5'
+       end if
+    end if
 
     if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // '.chkp'
+       fname = trim(path) // trim(name) // trim(suffix)
     else if (present(name)) then
-       fname = trim(name) // '.chkp'
+       fname = trim(name) // trim(suffix)
     else if (present(path)) then
-       fname = trim(path) // 'fluid.chkp'
+       fname = trim(path) // 'fluid' // trim(suffix)
     else
-       fname = 'fluid.chkp'
+       fname= 'fluid' // trim(suffix)
     end if
 
     call this%init_base(fname)

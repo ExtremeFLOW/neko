@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ module bicgstab
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
   use math, only : glsc3, rzero, copy, NEKO_EPS, add2s2, x_update, &
-                   p_update
+                   p_update, abscmp
   use utils, only : neko_error
   implicit none
   private
@@ -62,6 +62,8 @@ module bicgstab
      procedure, pass(this) :: free => bicgstab_free
      !> Solve the system.
      procedure, pass(this) :: solve => bicgstab_solve
+     !> Solve the coupled system.
+     procedure, pass(this) :: solve_coupled => bicgstab_solve_coupled
   end type bicgstab_t
 
 contains
@@ -175,7 +177,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(rnorm .eq. 0.0_rp) return
+      if(abscmp(rnorm, 0.0_rp)) return
       do iter = 1, max_iter
 
          rho_1 = glsc3(r, coef%mult, f ,n)
@@ -231,6 +233,32 @@ contains
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
   end function bicgstab_solve
+
+  !> Standard BiCGSTAB coupled solve
+  function bicgstab_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+    class(bicgstab_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: fx
+    real(kind=rp), dimension(n), intent(inout) :: fy
+    real(kind=rp), dimension(n), intent(inout) :: fz
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t), dimension(3) :: ksp_results
+    integer, optional, intent(in) :: niter
+
+    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+
+  end function bicgstab_solve_coupled
 
 end module bicgstab
 

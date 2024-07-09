@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,8 @@ contains
 
   function sx_cfl_lx(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim, lx) result(cfl)
-    integer :: nelv, gdim, lx
+       jacinv, nelv, lx) result(cfl)
+    integer, intent(in) :: nelv, lx
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -89,9 +89,9 @@ contains
 
   function sx_cfl_lx14(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx =14
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -134,9 +134,9 @@ contains
 
   function sx_cfl_lx13(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 13
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -179,9 +179,9 @@ contains
 
   function sx_cfl_lx12(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 12
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -224,9 +224,9 @@ contains
 
   function sx_cfl_lx11(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 11
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -269,9 +269,9 @@ contains
 
   function sx_cfl_lx10(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 10
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -314,9 +314,9 @@ contains
 
   function sx_cfl_lx9(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 9
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -359,9 +359,9 @@ contains
 
   function sx_cfl_lx8(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 8
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -404,9 +404,9 @@ contains
 
   function sx_cfl_lx7(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 7
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -449,9 +449,9 @@ contains
 
   function sx_cfl_lx6(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 6
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -494,9 +494,9 @@ contains
 
   function sx_cfl_lx5(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 5
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -539,9 +539,9 @@ contains
 
   function sx_cfl_lx4(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 4
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -584,9 +584,9 @@ contains
 
   function sx_cfl_lx3(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 3
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
@@ -629,9 +629,9 @@ contains
 
   function sx_cfl_lx2(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
-       jacinv,nelv, gdim) result(cfl)
+       jacinv, nelv) result(cfl)
     integer, parameter :: lx = 2
-    integer :: nelv, gdim
+    integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
     real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx

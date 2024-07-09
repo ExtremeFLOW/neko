@@ -32,9 +32,13 @@
 !
 !> Interface to signal handler
 module signal
-  use utils
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
+  private
+
+  public :: signal_timeout, signal_set_timeout, signal_trap_cpulimit,&
+            signal_trap_usr, signal_usr
 
   interface
      integer (c_int8_t) function sighdl_timeout() &

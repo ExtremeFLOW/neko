@@ -44,6 +44,7 @@ math/bcknd/device/cuda/fdm.o : math/bcknd/device/cuda/fdm.cu math/bcknd/device/c
 krylov/bcknd/device/cuda/pc_jacobi.o : krylov/bcknd/device/cuda/pc_jacobi.cu
 krylov/bcknd/device/cuda/pipecg_aux.o : krylov/bcknd/device/cuda/pipecg_aux.cu krylov/bcknd/device/cuda/pipecg_kernel.h
 krylov/bcknd/device/cuda/fusedcg_aux.o : krylov/bcknd/device/cuda/fusedcg_aux.cu krylov/bcknd/device/cuda/fusedcg_kernel.h
+krylov/bcknd/device/cuda/fusedcg_cpld_aux.o : krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h
 krylov/bcknd/device/cuda/gmres_aux.o : krylov/bcknd/device/cuda/gmres_aux.cu krylov/bcknd/device/cuda/gmres_kernel.h
 gs/bcknd/device/cuda/gs.o : gs/bcknd/device/cuda/gs.cu gs/bcknd/device/cuda/gs_kernels.h 
 bc/bcknd/device/cuda/dirichlet.o : bc/bcknd/device/cuda/dirichlet.cu bc/bcknd/device/cuda/dirichlet_kernel.h

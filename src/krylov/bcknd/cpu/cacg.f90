@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ module cacg
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply, bc_list_apply_scalar
-  use math, only : glsc3, rzero, copy, x_update
+  use math, only : glsc3, rzero, copy, x_update, abscmp
   use utils, only : neko_warning
   use comm
   use mxm_wrapper
@@ -57,6 +57,7 @@ module cacg
      procedure, pass(this) :: init => cacg_init
      procedure, pass(this) :: free => cacg_free
      procedure, pass(this) :: solve => cacg_solve
+     procedure, pass(this) :: solve_coupled => cacg_solve_coupled
   end type cacg_t
 
 contains
@@ -164,7 +165,7 @@ contains
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       iter = 0
-      if(rnorm .eq. 0.0_rp) return
+      if(abscmp(rnorm, 0.0_rp)) return
       do while (iter < max_iter)
 
          call copy(PR,p, n)
@@ -334,6 +335,32 @@ contains
        Tt(2*s+2+i,2*s+1+i) = 1.0_rp
     end do
   end subroutine construct_basis_matrix
+
+  !> S-step CA PCG coupled solve
+  function cacg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+    class(cacg_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: fx
+    real(kind=rp), dimension(n), intent(inout) :: fy
+    real(kind=rp), dimension(n), intent(inout) :: fz
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t), dimension(3) :: ksp_results
+    integer, optional, intent(in) :: niter
+
+    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+
+  end function cacg_solve_coupled
 
 end module cacg
 

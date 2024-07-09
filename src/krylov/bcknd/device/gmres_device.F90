@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ module gmres_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
   use device_identity, only : device_ident_t
-  use math, only : rone, rzero
+  use math, only : rone, rzero, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, &
                           device_add2s2, device_add2s1, device_rone, &
                           device_cmult2, device_add2s2_many, device_glsc3_many,&
@@ -77,6 +77,7 @@ module gmres_device
      procedure, pass(this) :: init => gmres_device_init
      procedure, pass(this) :: free => gmres_device_free
      procedure, pass(this) :: solve => gmres_device_solve
+     procedure, pass(this) :: solve_coupled => gmres_device_solve_coupled
   end type gmres_device_t
 
 #ifdef HAVE_HIP
@@ -357,7 +358,7 @@ contains
          else
             call device_copy(r_d, f_d, n)
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
-            call gs_h%op(w, n, GS_OP_ADD)
+            call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
             call device_event_sync(this%gs_event)
             call bc_list_apply(blst, w, n)
             call device_sub2(r_d, w_d, n)
@@ -368,7 +369,7 @@ contains
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
-         if (gam(1) .eq. 0) return
+         if (abscmp(gam(1), 0.0_rp)) return
 
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)
@@ -379,7 +380,7 @@ contains
             call this%M%solve(z(1,j), v(1,j), n)
 
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
-            call gs_h%op(w, n, GS_OP_ADD)
+            call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
             call device_event_sync(this%gs_event)
             call bc_list_apply(blst, w, n)
 
@@ -409,7 +410,7 @@ contains
             end do
 
             rnorm = 0.0_rp
-            if(alpha .eq. 0.0_rp) then
+            if(abscmp(alpha, 0.0_rp)) then
                conv = .true.
                exit
             end if
@@ -464,6 +465,32 @@ contains
     ksp_results%iter = iter
 
   end function gmres_device_solve
+
+  !> Standard GMRES coupled solve
+  function gmres_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+    class(gmres_device_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: fx
+    real(kind=rp), dimension(n), intent(inout) :: fy
+    real(kind=rp), dimension(n), intent(inout) :: fz
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t), dimension(3) :: ksp_results
+    integer, optional, intent(in) :: niter
+
+    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+
+  end function gmres_device_solve_coupled
 
 end module gmres_device
 

@@ -42,7 +42,7 @@ module const_source_term_cpu
 
 contains
 
-  !> Computs the constant source term on the cpu.
+  !> Computes the constant source term on the cpu.
   !! @param fields The right-hand side.
   !! @param values The values of the source components.
   subroutine const_source_term_compute_cpu(fields, values)
@@ -50,11 +50,11 @@ contains
     real(kind=rp), intent(in) :: values(:)
     integer :: n_fields, i, n
 
-    n_fields = size(fields%fields)
-    n = fields%fields(1)%f%dof%size()
+    n_fields = fields%size()
+    n = fields%item_size(1)
 
     do i=1, n_fields
-       call cadd(fields%fields(i)%f%x, values(i), n)
+       call cadd(fields%items(i)%ptr%x, values(i), n)
     end do
   end subroutine const_source_term_compute_cpu
 

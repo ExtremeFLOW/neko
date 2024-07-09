@@ -1,13 +1,17 @@
-
-# Flinter configuation file.
-
+# Flinter configuration file.
 
 # These are all the regexp rules
 
-# Set active to false is you want to skip  rule
-# All are regexp rules, meaning you can add new rules simply by editong this file
-# test your rule on https://regex101.com/ if needed
+# Set active to false is you want to skip the rule.
+# All are regexp rules, meaning you can add new rules simply by editing this
+# file test your rule on https://regex101.com/ if needed
 regexp-rules:
+  line-too-long:
+    message: Line too long
+    regexp: "(?<=^)(.{{80}}.+)"
+    replacement: null
+    active: true
+
   missing-spaces-on-do:
     message: Missing spaces
     regexp: do (\w+)=(\S+),(\S+)
@@ -32,35 +36,32 @@ regexp-rules:
     replacement: \1 \2
     active: true
 
-  missing-spaces-around-separator:
-    message: Missing spaces around separator
-    regexp: (\S)::(\S)
-    replacement: '\1 :: \2'
-    active: true
-
   missing-spaces-before-separator:
     message: Missing space before separator
-    regexp: '(\S)::'
+    regexp: '(?<!_t|.\s)(::)'
     replacement: '\1 ::'
     active: true
 
   missing-spaces-after-separator:
     message: Missing space after separator
-    regexp: ::(\S)
+    regexp: (?<!_t)(::)(?!\s)
     replacement: ':: \1'
     active: true
 
-  missing-spaces-after-ponctuation:
-    message: Missing space after ponctuation
-    regexp: ({ponctuations})(\w)
+  # Look through the list of punctuation, but skip if inside format string '()'
+  # However, we do allow a single letter variable to be used without spaces.
+  missing-spaces-after-punctuation:
+    message: Missing space after punctuation
+    regexp: (?<!'\([.*])(,)(\w\w)(?!.*\)')
     replacement: \1 \2
     active: true
 
+  # Todo: This rule is not working as expected.
   types-should-be-lowercased:
     message: Types should be lowercased
     regexp: \b({types_upper})\b
     replacement: null
-    active: true
+    active: false
 
   missing-space-before-parenthesis:
     message: Missing space before parenthesis
@@ -68,7 +69,7 @@ regexp-rules:
     replacement: \1 (
     active: true
 
-  prepend-with-!$:
+  prepend-openmp-with-!$:
     message: Should prepend with "!$"
     regexp: ^(\s*)use omp_lib
     replacement: '\1!$ use omp_lib'
@@ -80,10 +81,10 @@ regexp-rules:
   #   replacement: null
   #   active: true
 
-  tabulation-insteadof-twospaces:
+  tabulation-instead-of-two-spaces:
     message: Should use 2 spaces instead of tabulation
     regexp: \t
-    replacement: '  '
+    replacement: "  "
     active: true
 
   use-new-syntax-type:
@@ -92,9 +93,10 @@ regexp-rules:
     replacement: \1(\2)
     active: true
 
+  # Exception: ´!` is allowed at the end of a string.
   one-space-before-comment:
     message: At least one space before comment
-    regexp: (\w)\!
+    regexp: (\S+)\!(?!'|")
     replacement: \1 !
     active: true
 
@@ -104,7 +106,7 @@ regexp-rules:
     replacement: '! \1'
     active: true
 
-  useless-eol-dotcomma:
+  useless-eol-semicolon:
     message: Useless ";" at end of line
     regexp: ;\s*$
     replacement: \n
@@ -128,25 +130,25 @@ regexp-rules:
     replacement: ' = \2'
     active: true
 
-  trailing-whitespaces:
-    message: Trailing whitespaces
-    regexp: ( \t)+$
-    replacement: ''
+  trailing-white-spaces:
+    message: Trailing white-spaces
+    regexp: (\w\s+)$
+    replacement: ""
     active: true
 
-  reommended-use-of-sp-dp:
+  recommended-use-of-sp-dp:
     message: You should use "sp" or "dp" instead
     regexp: \(kind\s*=\s*\d\s*\)
     replacement: null
     active: true
 
-  reommended-use-of-brackets:
+  recommended-use-of-brackets:
     message: You should use "[]" instead
     regexp: \(\\([^\)]*)\\\)
     replacement: '[\1]'
     active: true
 
-  reommended-use-mpi_f08:
+  recommended-use-mpi_f08:
     message: Should use `use mpi_f08` instead (or `use mpi` if not available)
     regexp: include ["\']mpif.h[\'"]
     replacement: null
@@ -154,16 +156,16 @@ regexp-rules:
 
   not-recommended-bare-end:
     message: Bare end statement not recommended
-    regexp: ^end$
+    regexp: \s^end$
     replacement: null
     active: true
-  
+
   not-recommended-bare-stop:
     message: Bare stop statement not recommended
-    regexp: ^stop$
+    regexp: \s^stop$
     replacement: null
     active: true
-  
+
   not-recommended-use-exit:
     message: exit is an extension and should be avoided
     regexp: ^exit$
@@ -175,25 +177,25 @@ regexp-rules:
     regexp: ^goto.*$
     replacement: null
     active: true
-  
+
   not-recommended-use-double-precision:
     message: double precision is discouraged; use real instead.
     regexp: ^double precision.*$
     replacement: null
     active: true
-  
+
   not-recommended-use-pause:
     message: pause is discouraged.
     regexp: ^pause.*$
     replacement: null
     active: true
-  
+
   not-recommended-use-include:
     message: include is discouraged, prefer use.
     regexp: ^include.*$
     replacement: null
     active: true
-  
+
   # AD : I did not understood what was tried there
   problem-kind:
     message: null
@@ -218,58 +220,59 @@ regexp-rules:
 # - ask us.
 # - fork the code.
 structure-rules:
-  file-line-lenght: 80
+  file-line-length: 80
   file-line-number: 2000
-  max-statements-in-context: 300   # Subroutine of function
+  max-statements-in-context: 800 # Subroutine of function
   max-declared-locals: 35
   min-varlen: 1
   max-varlen: 30
-  max-arguments: 10
+  max-arguments: 20
   min-arglen: 1
   max-arglen: 70
   max-nesting-levels: 8
 
-
 # These are the fortran syntax we use to parse the source
 # A priori there is no need to edit, but Fortran is so vast in time...
 fortran-syntax:
-  types: 
-      - real
-      - character
-      - logical
-      - integer
-      - complex
-      - double precision
+  types:
+    - real
+    - character
+    - logical
+    - integer
+    - complex
+    - double precision
 
   operators:
-      - '\.eq\.'
-      - '=='
-      - '\.neq\.'
-      - '/='
-      - '\.gt\.'
-      - '>'
-      - '\.lt\.'
-      - '<'
-      - '\.geq\.'
-      - '>='
-      - '\.leq\.'
-      - '<='
-      - '\.le\.'
-      - '\.ge\.'
-      - '\.and\.'
-      - '\.or\.'
+    - '\.eq\.'
+    - "=="
+    - '\.neq\.'
+    - "/="
+    - '\.gt\.'
+    - ">"
+    - '\.lt\.'
+    - "<"
+    - '\.geq\.'
+    - ">="
+    - '\.leq\.'
+    - "<="
+    - '\.le\.'
+    - '\.ge\.'
+    - '\.and\.'
+    - '\.or\.'
 
   structs:
-      - 'if'
-      - 'select'
-      - 'case'
-      - 'while'
+    - "if"
+    - "select"
+    - "case"
+    - "while"
+    - "is"
+    - "select type"
 
-  ponctuations:
-    - ','
+  punctuations:
+    - ","
     - '\)'
-    - ';'
-  
+    - ";"
+
   blocks:
     - "program"
     - "subroutine"

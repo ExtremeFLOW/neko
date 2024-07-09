@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ module gmres
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, rzero, rone, copy, sub2, cmult2
+  use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp
   use comm
   implicit none
   private
@@ -61,6 +61,7 @@ module gmres
      procedure, pass(this) :: init => gmres_init
      procedure, pass(this) :: free => gmres_free
      procedure, pass(this) :: solve => gmres_solve
+     procedure, pass(this) :: solve_coupled => gmres_solve_coupled
   end type gmres_t
 
 contains
@@ -214,7 +215,7 @@ contains
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
-         if (gam(1) .eq. 0) return
+         if (abscmp(gam(1), 0.0_rp)) return
 
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)
@@ -292,7 +293,7 @@ contains
             end do
 
             rnorm = 0.0_rp
-            if(alpha .eq. 0.0_rp) then
+            if(abscmp(alpha, 0.0_rp)) then
                conv = .true.
                exit
             end if
@@ -360,6 +361,32 @@ contains
     ksp_results%iter = iter
 
   end function gmres_solve
+
+  !> Standard GMRES coupled solve
+  function gmres_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+    class(gmres_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: fx
+    real(kind=rp), dimension(n), intent(inout) :: fy
+    real(kind=rp), dimension(n), intent(inout) :: fz
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t), dimension(3) :: ksp_results
+    integer, optional, intent(in) :: niter
+
+    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+
+  end function gmres_solve_coupled
 
 end module gmres
 

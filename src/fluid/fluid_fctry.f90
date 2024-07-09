@@ -33,25 +33,34 @@
 !> Factory for all fluid schemes
 module fluid_fctry
   use fluid_scheme, only : fluid_scheme_t
-!  use fluid_plan1, only : fluid_plan1_t
   use fluid_pnpn, only : fluid_pnpn_t
-  use utils, only : neko_error
-  use neko_config
+  use utils, only : concat_string_array, neko_error
   implicit none
+  private
+
+  public :: fluid_scheme_factory
+
+  ! List of all possible types created by the factory routine
+  character(len=20) :: KNOWN_TYPES(1) = [character(len=20) :: &
+     "pnpn"]
 
 contains
 
   !> Initialise a fluid scheme
-  subroutine fluid_scheme_factory(fluid, fluid_scheme)
-    class(fluid_scheme_t), intent(inout), allocatable :: fluid
-    character(len=*) :: fluid_scheme
+  subroutine fluid_scheme_factory(object, type_name)
+    class(fluid_scheme_t), intent(inout), allocatable :: object
+    character(len=*) :: type_name
+    character(len=:), allocatable :: type_string
 
-    if (trim(fluid_scheme) .eq. 'plan1') then
-!       allocate(fluid_plan1_t::fluid)
-    else if (trim(fluid_scheme) .eq. 'pnpn') then
-       allocate(fluid_pnpn_t::fluid)
+
+    if (trim(type_name) .eq. 'pnpn') then
+       allocate(fluid_pnpn_t::object)
     else
-       call neko_error('Invalid fluid scheme')
+       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+                                          .true.)
+       call neko_error("Unknown fluid scheme type: " &
+                       // trim(type_name) // ".  Known types are: " &
+                       // type_string)
     end if
 
   end subroutine fluid_scheme_factory
