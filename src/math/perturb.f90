@@ -20,9 +20,8 @@ module perturb
     opts%fpopts%flip=CPFLOAT_SOFTERR_NO !> bitflips not
     opts%fpopts%subnormal=CPFLOAT_SUBN_USE !> use subnormal
     !> Uestion whether this is correct, I think this eliminates the impoartance of teh emax and emin...
-    opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
-    !opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use exponent from target format
-    opts%fpopts%saturation=CPFLOAT_SAT_NO !> use staturation arithmetic
+    opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use exponent from target format
+    opts%fpopts%saturation=CPFLOAT_SAT_NO !> if use staturation arithmetic
     !opts%fpopts%saturation=CPFLOAT_SAT_USE !> use staturation arithmetic
     opts%fpopts%format = c_null_char
     opts%fpopts%bitseed = c_null_ptr
@@ -37,21 +36,68 @@ module perturb
        opts%fpopts%precision = 24 !Bits in the significand + 1.
        opts%fpopts%emax = 127
        opts%fpopts%emin = -126
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use emax and emin
     else if (trim(inputchar) .eq. 'fp16') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 11 !Bits in the significand + 1.
        opts%fpopts%emax = 15
        opts%fpopts%emin = -14
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use emax and emin
     else if (trim(inputchar) .eq. 'e4m3') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 4 !Bits in the significand + 1.
        opts%fpopts%emax = 7
        opts%fpopts%emin = -6
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use emax and emin
     else if (trim(inputchar) .eq. 'e5m2') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 3 !Bits in the significand + 1.
        opts%fpopts%emax = 15
        opts%fpopts%emin = -14
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use emax and emin
+    else if (trim(inputchar) .eq. 'fp64_stor') then
+       opts%oper = PCS_CPFLOAT
+       opts%fpopts%precision = 52
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
+    else if (trim(inputchar) .eq. 'fp32_stor') then
+       opts%oper = PCS_CPFLOAT
+       opts%fpopts%precision = 24 !Bits in the significand + 1.
+       opts%fpopts%emax = 127
+       opts%fpopts%emin = -126
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
+    else if (trim(inputchar) .eq. 'fp16_stor') then
+       opts%oper = PCS_CPFLOAT
+       opts%fpopts%precision = 11 !Bits in the significand + 1.
+       opts%fpopts%emax = 15
+       opts%fpopts%emin = -14
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
+    else if (trim(inputchar) .eq. 'e4m3_stor') then
+       opts%oper = PCS_CPFLOAT
+       opts%fpopts%precision = 4 !Bits in the significand + 1.
+       opts%fpopts%emax = 7
+       opts%fpopts%emin = -6
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
+    else if (trim(inputchar) .eq. 'e5m2_stor') then
+       opts%oper = PCS_CPFLOAT
+       opts%fpopts%precision = 3 !Bits in the significand + 1.
+       opts%fpopts%emax = 15
+       opts%fpopts%emin = -14
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
+    end if
+
+
+    if (pe_rank .eq. 0) then
+       write(*,*) 'PCS validate', validate_pcs_struct(opts)
+       write(*,*) 'PCSSettings operations', opts%oper
+
+       write(*,*) 'PCS rounding',opts%fpopts%round  
+       write(*,*)'PCS precision', opts%fpopts%precision !Bits in the significand + 1.
+       write(*,*)'PCS emax', opts%fpopts%emax
+       write(*,*)'PCS emin', opts%fpopts%emin
+       write(*,*) 'PCS flip',opts%fpopts%flip !> bitflips not
+       write(*,*) 'PCS subnormal',opts%fpopts%subnormal !> use subnormal
+       write(*,*) 'PCS explim ',opts%fpopts%explim  !> use exponent from storage format
+       write(*,*) 'PCS saturation',opts%fpopts%saturation !> if use s
     end if
     
 
