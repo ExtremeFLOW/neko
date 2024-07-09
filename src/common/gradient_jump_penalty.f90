@@ -64,7 +64,6 @@ module gradient_jump_penalty
      integer :: lx
      !> Penalty terms
      type(field_t), pointer :: penalty
-     type(field_t), pointer :: checkout
      !> Work array to store penalty terms on each element
      real(kind=rp), allocatable :: penalty_el(:, :, :)
      !> SEM coefficients.
@@ -171,7 +170,6 @@ contains
     call neko_scratch_registry%request_field(this%grad_1, temp_indices(2))
     call neko_scratch_registry%request_field(this%grad_2, temp_indices(3))
     call neko_scratch_registry%request_field(this%grad_3, temp_indices(4))
-    call neko_scratch_registry%request_field(this%checkout, temp_indices(5))
 
     allocate(this%G(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
     allocate(this%flux1(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv))
@@ -317,7 +315,6 @@ contains
     nullify(this%n1)
     nullify(this%n2)
     nullify(this%n3)
-    nullify(this%checkout)
 
   end subroutine gradient_jump_penalty_free
 
@@ -345,7 +342,6 @@ contains
           call neko_error("Only Hexahedral element is supported now for gradient jump penalty")
        end select
     end do
-    call checkout_assign(this)
 
   end subroutine gradient_jump_penalty_compute
 
@@ -373,11 +369,11 @@ contains
 
     real(kind=rp) :: integrant_facet(this%p + 1, this%p + 1)
     integer :: i, j, k, l
-
+    
+    this%penalty_el = 0.0_rp
     do i = 1, this%p + 1
        do j = 1, this%p + 1
           do k = 1, this%p + 1
-             this%penalty_el(i, j, k) = 0.0_rp
              do l = 1, 6
                 this%penalty_el(i, j, k) = this%penalty_el(i, j, k) + &
                                   weak_integrate_over_facet(this, i, j, k, l, i_el)
@@ -475,7 +471,7 @@ contains
     real(kind=rp) :: f_int
     
     real(kind=rp) :: f(this%p + 1, this%p + 1), dphidxi, dxidn, jacinv_pt
-    integer :: i_pt, j_pt
+    integer :: i_pt, j_pt, n_facet
 
    select case (facet_index) ! Identify the facet indexing
     case(1)
@@ -486,6 +482,7 @@ contains
                 this%coef%drdy(1, j, k, i_el) + &
                 this%coef%drdz(1, j, k, i_el)
         jacinv_pt = this%coef%jacinv(1, j, k, i_el)
+        n_facet = -1
     case(2)
         i_pt = j
         j_pt = k
@@ -494,6 +491,7 @@ contains
                 this%coef%drdy(this%p + 1, j, k, i_el) + &
                 this%coef%drdz(this%p + 1, j, k, i_el)
         jacinv_pt = this%coef%jacinv(this%p + 1, j, k, i_el)
+        n_facet = 1
     case(3)
         i_pt = i
         j_pt = k
@@ -501,7 +499,8 @@ contains
         dxidn = this%coef%dsdx(i, 1, k, i_el) + &
                 this%coef%dsdy(i, 1, k, i_el) + &
                 this%coef%dsdz(i, 1, k, i_el)
-        jacinv_pt = this%coef%jacinv(i, 1, k, i_el)
+        jacinv_pt = - this%coef%jacinv(i, 1, k, i_el)
+        n_facet = -1
     case(4)
         i_pt = i
         j_pt = k
@@ -510,6 +509,7 @@ contains
                 this%coef%dsdy(i, this%p + 1, k, i_el) + &
                 this%coef%dsdz(i, this%p + 1, k, i_el)
         jacinv_pt = this%coef%jacinv(i, this%p + 1, k, i_el)
+        n_facet = 1
     case(5)
         i_pt = i
         j_pt = j
@@ -517,7 +517,8 @@ contains
         dxidn = this%coef%dtdx(i, j, 1, i_el) + &
                 this%coef%dtdy(i, j, 1, i_el) + &
                 this%coef%dtdz(i, j, 1, i_el)
-        jacinv_pt = this%coef%jacinv(i, j, 1, i_el)
+        jacinv_pt = - this%coef%jacinv(i, j, 1, i_el)
+        n_facet = -1
     case(6)
         i_pt = i
         j_pt = j
@@ -526,26 +527,15 @@ contains
                 this%coef%dtdy(i, j, this%p + 1, i_el) + &
                 this%coef%dtdz(i, j, this%p + 1, i_el)
         jacinv_pt = this%coef%jacinv(i, j, this%p + 1, i_el)
+        n_facet = 1
     end select
 
     f_int = this%absvolflux(i_pt, j_pt, facet_index, i_el) * &
             this%G(i_pt, j_pt, facet_index, i_el) * &
             dphidxi * dxidn * jacinv_pt
     f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-    f_int = f_int * this%coef%area(i_pt, j_pt, facet_index, i_el)
+    f_int = f_int * this%coef%area(i_pt, j_pt, facet_index, i_el) * n_facet
 
   end function weak_integrate_over_facet
-
-  !> Assign the checkout field as a output to debug
-  subroutine checkout_assign(this)
-    class(gradient_jump_penalty_t), intent(in) :: this
-    integer :: i, j, k
-
-   !  do i = 1, this%coef%msh%nelv
-   !     this%checkout%x(1, :, :, i) = this%coef%area(:, :, 1, i)
-   !     this%checkout%x(this%lx, :, :, i) = this%coef%area(:, :, 2, i)
-   !  end do
-     call col3(this%checkout%x, this%coef%jacinv, this%coef%drdx, this%coef%dof%size())
-  end subroutine checkout_assign
 
 end module gradient_jump_penalty
