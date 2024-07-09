@@ -254,7 +254,6 @@ contains
        allocate(tmp_sp(gdim*n))
     end if
 
-
     !
     ! Create fld header for NEKTON's multifile output
     !
@@ -503,9 +502,11 @@ contains
         buffer(j+2) = real(vlmin(y(1,el),lxyz) ,sp)
         buffer(j+3) = real(vlmax(y(1,el),lxyz),sp)
         j = j + 4
-        buffer(j+0) = real(vlmin(z(1,el),lxyz) ,sp)
-        buffer(j+1) = real(vlmax(z(1,el),lxyz),sp)
-        j = j + 2
+        if (gdim .eq. 3) then
+           buffer(j+0) = real(vlmin(z(1,el),lxyz) ,sp)
+           buffer(j+1) = real(vlmax(z(1,el),lxyz),sp)
+           j = j + 2
+        end if
      enddo
 
      ! write out data
