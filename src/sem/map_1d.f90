@@ -19,7 +19,7 @@ module map_1d
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  !> Type that encapsulates a mapping from each gll point in the mesh 
+  !> Type that encapsulates a mapping from each gll point in the mesh
   !! to its corresponding (global) GLL point index in one direction.
   !! @remark Could also be rather easily extended to say polar coordinates as well.
   type, public :: map_1d_t
@@ -28,7 +28,7 @@ module map_1d
      !> Checks which level an element belongs to.
      integer, allocatable :: el_lvl(:)
      !> Checks which level or id in the 1D GLL mapping each point in the dofmap is.
-     integer, allocatable :: pt_lvl(:,:,:,:) 
+     integer, allocatable :: pt_lvl(:,:,:,:)
      !> Number of elements stacked on top of eachother in the specified direction
      integer :: n_el_lvls
      !> Number of total gll levels
@@ -49,7 +49,7 @@ module map_1d
    contains
      !> Constructor
      procedure, pass(this) :: init_int => map_1d_init
-     
+
      procedure, pass(this) :: init_char => map_1d_init_char
      generic :: init => init_int, init_char
      !> Destructor
@@ -60,10 +60,10 @@ module map_1d
      procedure, pass(this) :: average_planes_vec_ptr =>  map_1d_average_vector_ptr
      generic :: average_planes => average_planes_fld_lst, average_planes_vec_ptr
   end type map_1d_t
-  
+
 
 contains
-  
+
   subroutine map_1d_init(this, coef,  dir, tol)
     class(map_1d_t) :: this
     type(coef_t), intent(inout), target :: coef
@@ -79,11 +79,11 @@ contains
     call this%free()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        if (pe_rank .eq. 0) then
-           call neko_warning('map_1d does not copy indices to device, but ok if used on cpu')
-        end if
+       if (pe_rank .eq. 0) then
+          call neko_warning('map_1d does not copy indices to device, but ok if used on cpu')
+       end if
     end if
-    
+
     this%dir = dir
     this%dof => coef%dof
     this%coef => coef
@@ -91,15 +91,15 @@ contains
     nelv = this%msh%nelv
     lx = this%dof%Xh%lx
     n = this%dof%size()
-  
+
     if (dir .eq. 1) then
-        line => this%dof%x
+       line => this%dof%x
     else if (dir .eq. 2) then
-        line => this%dof%y
+       line => this%dof%y
     else if(dir .eq. 3) then
-        line => this%dof%z
+       line => this%dof%z
     else
-        call neko_error('Invalid dir for geopmetric comm')
+       call neko_error('Invalid dir for geopmetric comm')
     end if
     allocate(this%dir_el(nelv))
     allocate(this%el_lvl(nelv))
@@ -108,8 +108,8 @@ contains
     allocate(min_temp(lx, lx, lx, nelv))
     call MPI_BARRIER(NEKO_COMM)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        
-            call device_map(min_vals,min_vals_d,n)
+
+       call device_map(min_vals,min_vals_d,n)
     end if
     call MPI_BARRIER(NEKO_COMM)
 
@@ -137,7 +137,7 @@ contains
     do e = 1, nelv
        el_min = minval(line(:,:,:,e))
        min_vals(:,:,:,e) = el_min
-       ! Check if this element is on the bottom, in this case assign el_lvl = i = 1 
+       ! Check if this element is on the bottom, in this case assign el_lvl = i = 1
        if (relcmp(el_min, glb_min, this%tol)) then
           if(this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
        end if
@@ -146,59 +146,59 @@ contains
     ! When the minumum value has propagated to the highest level this stops.
     ! Only works when the bottom plate of the domain is flat.
     do while (.not. relcmp(glmax(min_vals,n), glb_min, this%tol))
-      i = i + 1
-      do e = 1, nelv
-         !Sets the value at the bottom of each element to glb_max
-         if (this%dir_el(e) .eq. 1) then
-            if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
-               min_vals(lx,:,:,e) = glb_max
-            else
-               min_vals(1,:,:,e) = glb_max
-            end if
-         end if
-         if (this%dir_el(e) .eq. 2) then
-            if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
-               min_vals(:,lx,:,e) = glb_max
-            else
-               min_vals(:,1,:,e) = glb_max
-            end if
-         end if
-         if (this%dir_el(e) .eq. 3) then
-            if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
-               min_vals(:,:,lx,e) = glb_max
-            else
-               min_vals(:,:,1,e) = glb_max
-            end if
-         end if
-      end do
-      !Make sketchy min as GS_OP_MIN is not supported with device mpi
-      min_temp = min_vals
-      if (NEKO_BCKND_DEVICE .eq. 1) &
+       i = i + 1
+       do e = 1, nelv
+          !Sets the value at the bottom of each element to glb_max
+          if (this%dir_el(e) .eq. 1) then
+             if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
+                min_vals(lx,:,:,e) = glb_max
+             else
+                min_vals(1,:,:,e) = glb_max
+             end if
+          end if
+          if (this%dir_el(e) .eq. 2) then
+             if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
+                min_vals(:,lx,:,e) = glb_max
+             else
+                min_vals(:,1,:,e) = glb_max
+             end if
+          end if
+          if (this%dir_el(e) .eq. 3) then
+             if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
+                min_vals(:,:,lx,e) = glb_max
+             else
+                min_vals(:,:,1,e) = glb_max
+             end if
+          end if
+       end do
+       !Make sketchy min as GS_OP_MIN is not supported with device mpi
+       min_temp = min_vals
+       if (NEKO_BCKND_DEVICE .eq. 1) &
          call device_memcpy(min_vals, min_vals_d, n,&
                             HOST_TO_DEVICE, sync=.false.)
-      !Propagates the minumum value along the element boundary.
-      call coef%gs_h%op(min_vals, n, GS_OP_ADD)
-      if (NEKO_BCKND_DEVICE .eq. 1) &
+       !Propagates the minumum value along the element boundary.
+       call coef%gs_h%op(min_vals, n, GS_OP_ADD)
+       if (NEKO_BCKND_DEVICE .eq. 1) &
           call device_memcpy(min_vals, min_vals_d, n,&
                              DEVICE_TO_HOST, sync=.true.)
-      !Obtain average along boundary
-      
-      call col2(min_vals, coef%mult, n)
-      call cmult(min_temp, -1.0_rp, n)
-      call add2s1(min_vals, min_temp, 2.0_rp, n) 
-      
+       !Obtain average along boundary
 
-      !Checks the new minimum value on each element
-      !Assign this value to all points in this element in min_val
-      !If the element has not already been assinged a level, 
-      !and it has obtained the minval, set el_lvl = i
-      do e = 1, nelv
-         el_min = minval(min_vals(:,:,:,e))
-         min_vals(:,:,:,e) = el_min
-         if (relcmp(el_min, glb_min, this%tol)) then
-            if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
-         end if
-      end do
+       call col2(min_vals, coef%mult, n)
+       call cmult(min_temp, -1.0_rp, n)
+       call add2s1(min_vals, min_temp, 2.0_rp, n)
+
+
+       !Checks the new minimum value on each element
+       !Assign this value to all points in this element in min_val
+       !If the element has not already been assinged a level,
+       !and it has obtained the minval, set el_lvl = i
+       do e = 1, nelv
+          el_min = minval(min_vals(:,:,:,e))
+          min_vals(:,:,:,e) = el_min
+          if (relcmp(el_min, glb_min, this%tol)) then
+             if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
+          end if
+       end do
     end do
     this%n_el_lvls = glimax(this%el_lvl,nelv)
     this%n_gll_lvls = this%n_el_lvls*lx
@@ -210,28 +210,28 @@ contains
     !and its orientation
     do e = 1, nelv
        do i = 1, lx
-         lvl = lx * (this%el_lvl(e) - 1) + i
-         if (this%dir_el(e) .eq. 1) then
-            if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
-               this%pt_lvl(lx-i+1,:,:,e) = lvl
-            else
-               this%pt_lvl(i,:,:,e) = lvl
-            end if
-         end if
-         if (this%dir_el(e) .eq. 2) then
-            if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
-               this%pt_lvl(:,lx-i+1,:,e) = lvl
-            else
-               this%pt_lvl(:,i,:,e) = lvl
-            end if
-         end if
-         if (this%dir_el(e) .eq. 3) then
-            if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
-               this%pt_lvl(:,:,lx-i+1,e) = lvl
-            else
-               this%pt_lvl(:,:,i,e) = lvl
-            end if
-         end if
+          lvl = lx * (this%el_lvl(e) - 1) + i
+          if (this%dir_el(e) .eq. 1) then
+             if (line(1,1,1,e) .gt. line(lx,1,1,e)) then
+                this%pt_lvl(lx-i+1,:,:,e) = lvl
+             else
+                this%pt_lvl(i,:,:,e) = lvl
+             end if
+          end if
+          if (this%dir_el(e) .eq. 2) then
+             if (line(1,1,1,e) .gt. line(1,lx,1,e)) then
+                this%pt_lvl(:,lx-i+1,:,e) = lvl
+             else
+                this%pt_lvl(:,i,:,e) = lvl
+             end if
+          end if
+          if (this%dir_el(e) .eq. 3) then
+             if (line(1,1,1,e) .gt. line(1,1,lx,e)) then
+                this%pt_lvl(:,:,lx-i+1,e) = lvl
+             else
+                this%pt_lvl(:,:,i,e) = lvl
+             end if
+          end if
        end do
     end do
     if(allocated(min_vals)) deallocate(min_vals)
@@ -245,7 +245,7 @@ contains
     end do
     call MPI_Allreduce(MPI_IN_PLACE,this%volume_per_gll_lvl, this%n_gll_lvls, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-  
+
   end subroutine map_1d_init
 
   subroutine map_1d_init_char(this, coef,  dir, tol)
@@ -254,7 +254,7 @@ contains
     character(len=*), intent(in) :: dir
     real(kind=rp), intent(in) :: tol
     integer :: idir
-    
+
     if (trim(dir) .eq. 'yz' .or. trim(dir) .eq. 'zy') then
        idir = 1
     else if (trim(dir) .eq. 'xz' .or. trim(dir) .eq. 'zx') then
@@ -291,7 +291,7 @@ contains
     type(matrix_t), intent(inout) :: avg_planes
     integer :: n, ierr, j, i
     real(kind=rp) :: coord
-    call avg_planes%free() 
+    call avg_planes%free()
     call avg_planes%init(this%n_gll_lvls, field_list%size()+1)
     avg_planes = 0.0_rp
     !ugly way of getting coordinates, computes average
@@ -310,7 +310,7 @@ contains
           avg_planes%x(this%pt_lvl(i,1,1,1),j) + field_list%items(j-1)%ptr%x(i,1,1,1)*this%coef%B(i,1,1,1) &
           /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
        end do
-    end do 
+    end do
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, avg_planes%x, (field_list%size()+1)*this%n_gll_lvls, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -326,8 +326,8 @@ contains
     type(matrix_t), intent(inout) :: avg_planes
     integer :: n, ierr, j, i
     real(kind=rp) :: coord
-  
-    call avg_planes%free() 
+
+    call avg_planes%free()
     call avg_planes%init(this%n_gll_lvls,size(vector_ptr)+1)
     !ugly way of getting coordinates, computes average
     avg_planes = 0.0_rp
@@ -347,7 +347,7 @@ contains
           avg_planes%x(this%pt_lvl(i,1,1,1),j) + vector_ptr(j-1)%ptr%x(i)*this%coef%B(i,1,1,1) &
           /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
        end do
-    end do 
+    end do
     call MPI_Allreduce(MPI_IN_PLACE,avg_planes%x, (size(vector_ptr)+1)*this%n_gll_lvls, &
        MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 

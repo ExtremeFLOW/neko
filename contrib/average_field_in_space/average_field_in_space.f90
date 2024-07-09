@@ -132,8 +132,8 @@ program average_field_in_space
   call map_1d%init(coef,  dir, 1e-7_rp)
   n_levels = map_1d%n_el_lvls
   n = u%dof%size()
-  
-  if ( .not. avg_to_1d) then 
+
+  if ( .not. avg_to_1d) then
      nelv_2d = 0
      do i = 1, msh%nelv
         if (map_1d%el_lvl(i) .eq. 1) then
@@ -169,16 +169,16 @@ program average_field_in_space
      call output_data%y%init(n_2d)
      j = 0
      if(dir .eq. 1) then
-       x_ptr => dof%z
-       y_ptr => dof%y
+        x_ptr => dof%z
+        y_ptr => dof%y
      end if
      if(dir .eq. 2) then
-       x_ptr => dof%x
-       y_ptr => dof%z
+        x_ptr => dof%x
+        y_ptr => dof%z
      end if
      if(dir .eq. 3) then
-       x_ptr => dof%x
-       y_ptr => dof%y
+        x_ptr => dof%x
+        y_ptr => dof%y
      end if
 
      do e = 1, msh%nelv
@@ -210,7 +210,7 @@ program average_field_in_space
      output_data%p = 1.3_rp
      output_file = file_t(trim(output_fname))
      call output_file%write(output_data,13.2_rp)
-  end if  
+  end if
   stop
   call field_data%init(msh%nelv,msh%offset_el)
   !allocate array with pointers to all vectors in the file
@@ -222,10 +222,10 @@ program average_field_in_space
      call field_data%get_list(fields,field_data%size())
      if (pe_rank .eq. 0) write(*,*) 'Averaging field:', tstep
      if (avg_to_1d) then
-        call map_1d%average_planes(avg_matrix, fields)       
+        call map_1d%average_planes(avg_matrix, fields)
         call output_file%write(avg_matrix,field_data%time)
-     ! Compute averages in 1 direction and store in a 3d field (lots of redundant data, sorry)
-     ! Should output a 2d field in principle
+        ! Compute averages in 1 direction and store in a 3d field (lots of redundant data, sorry)
+        ! Should output a 2d field in principle
      else
         do i = 1, msh%nelv
            !find height in hom-dir
@@ -241,7 +241,7 @@ program average_field_in_space
         end do
         !Need to compute mapping for 3d to 2d
         !Does order matter? Think its ok as long as values written in same order
-      
+
         call copy(u%x,el_heights%x,n)
         call copy(old_u%x,el_heights%x,n)
         call copy(avg_u%x,el_heights%x,n)
@@ -259,7 +259,7 @@ program average_field_in_space
            call perform_global_summation(u, avg_u, old_u, n_levels, &
                 map_1d%dir_el,gs_h, coef%mult, msh%nelv, lx)
            call copy(fields(i)%ptr%x,u%x,n)
-        end do 
+        end do
 
         call output_file%write(field_data,field_data%time)
      end if

@@ -74,7 +74,7 @@ contains
        else
           fname = 'mean_field.fld'
        end if
-    else 
+    else
        if (present(name) .and. present(path)) then
           fname = trim(path) // trim(name) // '.csv'
        else if (present(name)) then
@@ -109,8 +109,8 @@ contains
        call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), &
                           DEVICE_TO_HOST, sync=.true.)
        if (allocated(this%map_1d%pt_lvl)) then
-            call this%map_1d%average_planes(avg_output_1d, this%mf%list)
-            call this%file_%write(avg_output_1d, t)
+          call this%map_1d%average_planes(avg_output_1d, this%mf%list)
+          call this%file_%write(avg_output_1d, t)
        else
           call this%file_%write(this%mf, t)
        end if

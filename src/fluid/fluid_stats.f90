@@ -155,7 +155,7 @@ contains
     class(fluid_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
     type(field_t), target, intent(inout) :: u, v, w, p
-   
+
     call this%free()
     this%coef => coef
 

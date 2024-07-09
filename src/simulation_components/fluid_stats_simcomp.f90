@@ -49,7 +49,10 @@ module fluid_stats_simcomp
   implicit none
   private
 
-  !> A simulation component that writes a 3d field to a file.
+  !> A simulation component that computes the statistics needed for various budgets
+  !> See Turbulence Statistics in a Spectral-Element Code: A Toolbox for High-Fidelity Simulations
+  !> or the origin KTH NEk500 framework for details. 
+  !> Also documented in the Neko documentation
   type, public, extends(simulation_component_t) :: fluid_stats_simcomp_t
      !> Output writer.
      type(fluid_stats_t) :: stats              !< Fluid statistics
@@ -92,7 +95,7 @@ contains
          hom_dir, 'none')
     call json_get_or_default(json, 'start_time', &
          start_time, 0.0_rp)
-    
+
     u => neko_field_registry%get_field("u")
     v => neko_field_registry%get_field("v")
     w => neko_field_registry%get_field("w")
@@ -111,7 +114,7 @@ contains
   !! @param hom_dir directions to average in
   subroutine fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, start_time, hom_dir)
     class(fluid_stats_simcomp_t), intent(inout) :: this
-    character(len=*), intent(in) :: hom_dir 
+    character(len=*), intent(in) :: hom_dir
     real(kind=rp), intent(in) :: start_time
     type(field_t), intent(inout) :: u, v, w, p !>Should really be intent in I think
     type(coef_t), intent(in) :: coef
