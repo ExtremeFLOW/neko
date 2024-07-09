@@ -374,10 +374,6 @@ contains
 
           end select
        else if (trim(string_val1) .eq. "user") then
-          select type (bc_if => this%bc_inflow)
-          type is (usr_inflow_t)
-             call bc_if%set_coef(this%C_Xh)
-          end select
        end if
     end if
 
