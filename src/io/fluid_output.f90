@@ -77,7 +77,11 @@ contains
     call this%init_base(fname, precision)
 
     if (present(scalar)) then
-       call this%fluid%init(6)
+       if (scalar%if_gradient_jump_penalty .eqv. .true.) then
+          call this%fluid%init(6)
+       else
+          call this%fluid%init(5)
+       end if
     else
        call this%fluid%init(4)
     end if
@@ -89,7 +93,9 @@ contains
 
     if (present(scalar)) then
        call this%fluid%assign(5, scalar%s)
-       call this%fluid%assign(6, scalar%gradient_jump_penalty%penalty)
+       if (scalar%if_gradient_jump_penalty .eqv. .true.) then
+          call this%fluid%assign(6, scalar%gradient_jump_penalty%penalty)
+       end if
     end if
 
   end function fluid_output_init
