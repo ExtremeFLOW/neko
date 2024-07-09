@@ -499,7 +499,7 @@ contains
         dxidn = this%coef%dsdx(i, 1, k, i_el) + &
                 this%coef%dsdy(i, 1, k, i_el) + &
                 this%coef%dsdz(i, 1, k, i_el)
-        jacinv_pt = - this%coef%jacinv(i, 1, k, i_el)
+        jacinv_pt = this%coef%jacinv(i, 1, k, i_el)
         n_facet = -1
     case(4)
         i_pt = i
@@ -517,7 +517,7 @@ contains
         dxidn = this%coef%dtdx(i, j, 1, i_el) + &
                 this%coef%dtdy(i, j, 1, i_el) + &
                 this%coef%dtdz(i, j, 1, i_el)
-        jacinv_pt = - this%coef%jacinv(i, j, 1, i_el)
+        jacinv_pt = this%coef%jacinv(i, j, 1, i_el)
         n_facet = -1
     case(6)
         i_pt = i
