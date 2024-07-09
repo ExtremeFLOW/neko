@@ -255,6 +255,30 @@ contains
 
 
     !
+    ! SEM simulation fundamentals
+    !
+
+    this%msh => msh
+
+    if (msh%gdim .eq. 2) then
+       call this%Xh%init(GLL, lx, lx)
+    else
+       call this%Xh%init(GLL, lx, lx, lx)
+    end if
+
+    this%dm_Xh = dofmap_t(msh, this%Xh)
+
+    call this%gs_Xh%init(this%dm_Xh)
+
+    call this%c_Xh%init(this%gs_Xh)
+
+    ! Local scratch registry
+    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
+
+    ! Case parameters
+    this%params => params
+
+    !
     ! Material properties
     !
 
@@ -272,6 +296,7 @@ contains
     end if
 
     ! Fill mu field with the physical value
+
     call this%mu_field%init(this%dm_Xh, "mu")
     call field_cfill(this%mu_field, this%mu, this%mu_field%size())
 
@@ -297,19 +322,6 @@ contains
        this%forced_flow_rate = .true.
     end if
 
-    if (msh%gdim .eq. 2) then
-       call this%Xh%init(GLL, lx, lx)
-    else
-       call this%Xh%init(GLL, lx, lx, lx)
-    end if
-
-    this%dm_Xh = dofmap_t(msh, this%Xh)
-
-    this%params => params
-
-    this%msh => msh
-
-    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
     !
     ! First section of fluid log
@@ -343,9 +355,6 @@ contains
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
 
-    call this%gs_Xh%init(this%dm_Xh)
-
-    call this%c_Xh%init(this%gs_Xh)
 
     !
     ! Setup velocity boundary conditions
