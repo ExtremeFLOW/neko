@@ -43,13 +43,17 @@
         "output_control": "simulationtime",
         "output_value": 20
     },
-    "statistics": {
-        "enabled": true,
-        "output_control": "simulationtime",
-        "output_value": 20,
-        "start_time": 70.0,
-        "sampling_interval": 10
-  }
-
+  "simulation_components": 
+  [
+    {
+      "type": "fluid_stats",
+      "compute_control": "tsteps",
+      "compute_value": 10,
+      "output_control": "simulationtime",
+      "output_value": 20,
+      "start_time":70,
+      "avg_direction":"xz"
+    }
+  ]
 }
 }
