@@ -211,7 +211,7 @@ contains
     integer, intent(in) :: n
     type(field_t), intent(inout) :: c
     type(field_t), intent(inout) :: b
-    type(field_t), intent(out) :: a
+    type(field_t), intent(inout) :: a
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_sub3(a%x_d, b%x_d, c%x_d, n)
