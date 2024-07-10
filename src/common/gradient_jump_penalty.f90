@@ -77,8 +77,9 @@ module gradient_jump_penalty
      !> 3 parts of the flux of the quantity
      real(kind=rp), allocatable, dimension(:, :, :, :) :: flux1, flux2, flux3
      !> 3 parts of the flux of the volumetric flow
-     real(kind=rp), allocatable, dimension(:, :, :, :) :: volflux1, volflux2, volflux3
-     !> The absolute flux of the volumetric flow (volflux1 + volflux2 + volflux3)
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: volflux1, &
+                                                          volflux2, volflux3
+     !> The absolute flux of the volumetric flow
      real(kind=rp), allocatable, dimension(:, :, :, :) :: absvolflux
      !> Expanded array of facet normal (zero inside each element)
      real(kind=rp), allocatable, dimension(:, :, :, :) :: n1, n2, n3
@@ -87,12 +88,8 @@ module gradient_jump_penalty
      integer :: n_facet_max
      !> Length scale for element regarding a facet
      real(kind=rp), allocatable :: h(:, :)
-     !> Polynomial evaluated at collocation points
-     real(kind=rp), allocatable :: phi(:, :)
      !> The first derivative of polynomial at two ends of the interval
      real(kind=rp), allocatable :: dphidxi(:, :)
-     !> could be build at initialisation as a tuple_i4_t. (facet, nelv) -> (neigh_facet, neigh_el)
-     type(tuple_i4_t), allocatable, dimension(:, :) :: facet_neigh_index
      !> gather-scattering operation related variables
      type(space_t) :: Xh_GJP !< needed to init gs
      type(dofmap_t) :: dm_GJP !< needed to init gs
@@ -136,8 +133,7 @@ contains
 
     this%coef => coef
 
-    allocate(this%penalty_el(this%p + 1, this%p + 1 , this%p + 1))
-    
+    allocate(this%penalty_el(this%lx, this%lx, this%lx))
     allocate(this%n_facet(this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
@@ -145,7 +141,8 @@ contains
        type is (hex_t)
           this%n_facet(i) = 6
        type is (quad_t)
-          call neko_error("Only Hexahedral element is supported now for gradient jump penalty")
+          call neko_error("Only Hexahedral element is &
+                           supported now for gradient jump penalty")
        end select
     end do
     this%n_facet_max = maxval(this%n_facet)
@@ -157,13 +154,13 @@ contains
        type is (hex_t)
           call eval_h_hex(this%h(:, i), ep)
        type is (quad_t)
-          call neko_error("Gradient jump penalty error: mesh size evaluation is not supported for quad_t")
+          call neko_error("Gradient jump penalty error: mesh size &
+                            evaluation is not supported for quad_t")
        end select
     end do
     
     allocate(zg(this%lx))
-    allocate(this%phi(this%p + 1, this%p + 1))
-    allocate(this%dphidxi(this%p + 1, this%p + 1))
+    allocate(this%dphidxi(this%lx, this%lx))
 
     zg = dofmap%xh%zg(:,1)
     do i = 1, dofmap%xh%lx
@@ -177,41 +174,61 @@ contains
     call neko_scratch_registry%request_field(this%grad_2, temp_indices(3))
     call neko_scratch_registry%request_field(this%grad_3, temp_indices(4))
 
-    allocate(this%G(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
-    allocate(this%flux1(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
-    allocate(this%flux2(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
-    allocate(this%flux3(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
-    allocate(this%volflux1(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
-    allocate(this%volflux2(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
-    allocate(this%volflux3(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
-    allocate(this%absvolflux(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
-    allocate(this%n1(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
-    allocate(this%n2(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
-    allocate(this%n3(this%lx + 2, this%lx + 2, this%lx + 2, this%coef%msh%nelv))
+    allocate(this%G(this%lx + 2, this%lx + 2, &
+                    this%lx + 2, this%coef%msh%nelv))
+    allocate(this%flux1(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+    allocate(this%flux2(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+    allocate(this%flux3(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+    allocate(this%volflux1(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+    allocate(this%volflux2(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+    allocate(this%volflux3(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+    allocate(this%absvolflux(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+    allocate(this%n1(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+    allocate(this%n2(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+    allocate(this%n3(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
 
     this%n1(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%nx(:, :, 1, :)
     this%n2(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%ny(:, :, 1, :)
     this%n3(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%nz(:, :, 1, :)
 
-    this%n1(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%nx(:, :, 2, :)
-    this%n2(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%ny(:, :, 2, :)
-    this%n3(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%nz(:, :, 2, :)
+    this%n1(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = &
+                                                    this%coef%nx(:, :, 2, :)
+    this%n2(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = &
+                                                    this%coef%ny(:, :, 2, :)
+    this%n3(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = &
+                                                    this%coef%nz(:, :, 2, :)
 
     this%n1(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%nx(:, :, 3, :)
     this%n2(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%ny(:, :, 3, :)
     this%n3(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%nz(:, :, 3, :)
 
-    this%n1(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = this%coef%nx(:, :, 4, :)
-    this%n2(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = this%coef%ny(:, :, 4, :)
-    this%n3(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = this%coef%nz(:, :, 4, :)
+    this%n1(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &  
+                                                    this%coef%nx(:, :, 4, :)
+    this%n2(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &
+                                                    this%coef%ny(:, :, 4, :)
+    this%n3(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &
+                                                    this%coef%nz(:, :, 4, :)
 
     this%n1(2: this%lx + 1, 2: this%lx + 1, 1, :) = this%coef%nx(:, :, 5, :)
     this%n2(2: this%lx + 1, 2: this%lx + 1, 1, :) = this%coef%ny(:, :, 5, :)
     this%n3(2: this%lx + 1, 2: this%lx + 1, 1, :) = this%coef%nz(:, :, 5, :)
 
-    this%n1(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = this%coef%nx(:, :, 6, :)
-    this%n2(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = this%coef%ny(:, :, 6, :)
-    this%n3(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = this%coef%nz(:, :, 6, :)
+    this%n1(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = &
+                                                    this%coef%nx(:, :, 6, :)
+    this%n2(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = &
+                                                    this%coef%ny(:, :, 6, :)
+    this%n3(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = &
+                                                    this%coef%nz(:, :, 6, :)
 
     call this%Xh_GJP%init(GLL, this%lx+2, this%lx+2, this%lx+2)
     this%dm_GJP = dofmap_t(this%coef%msh, this%Xh_GJP)
@@ -273,9 +290,6 @@ contains
     end if
     if (allocated(this%n_facet)) then
        deallocate(this%n_facet)
-    end if
-    if (allocated(this%phi)) then
-       deallocate(this%phi)
     end if
     if (allocated(this%dphidxi)) then
        deallocate(this%dphidxi)
@@ -344,7 +358,8 @@ contains
           call gradient_jump_penalty_compute_hex_el(this, u, v, w, s, i)
           this%penalty%x(:, :, :, i) = this%penalty_el
        type is (quad_t)
-          call neko_error("Only Hexahedral element is supported now for gradient jump penalty")
+          call neko_error("Only Hexahedral element is supported &
+                                       now for gradient jump penalty")
        end select
     end do
 
@@ -372,16 +387,17 @@ contains
     type(field_t), intent(in) :: u, v, w, s
     integer, intent(in) :: i_el
 
-    real(kind=rp) :: integrant_facet(this%p + 1, this%p + 1)
+    real(kind=rp) :: integrant_facet(this%lx, this%lx)
     integer :: i, j, k, l
     
     this%penalty_el = 0.0_rp
-    do i = 1, this%p + 1
-       do j = 1, this%p + 1
-          do k = 1, this%p + 1
+    do i = 1, this%lx
+       do j = 1, this%lx
+          do k = 1, this%lx
              do l = 1, 6
                 this%penalty_el(i, j, k) = this%penalty_el(i, j, k) + &
-                                  weak_integrate_over_facet(this, i, j, k, l, i_el)
+                                  weak_integrate_over_facet(this, i, j, &
+                                                            k, l, i_el)
              end do
           end do
        end do  
@@ -395,17 +411,19 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: s
 
-    integer :: i, j
-    real(kind=rp) :: tmp(this%lx, this%lx, this%n_facet_max, this%coef%msh%nelv)
-    type(tuple_i4_t) :: i_neigh
+    call dudxyz(this%grad_1%x, s%x, this%coef%drdx, &
+                this%coef%dsdx, this%coef%dtdx, this%coef)
+    call dudxyz(this%grad_2%x, s%x, this%coef%drdy, &
+                this%coef%dsdy, this%coef%dtdy, this%coef)
+    call dudxyz(this%grad_3%x, s%x, this%coef%drdz, &
+                this%coef%dsdz, this%coef%dtdz, this%coef)
 
-    call dudxyz(this%grad_1%x, s%x, this%coef%drdx, this%coef%dsdx, this%coef%dtdx, this%coef)
-    call dudxyz(this%grad_2%x, s%x, this%coef%drdy, this%coef%dsdy, this%coef%dtdy, this%coef)
-    call dudxyz(this%grad_3%x, s%x, this%coef%drdz, this%coef%dsdz, this%coef%dtdz, this%coef)
-
-    call pick_facet_value_hex(this%flux1, this%grad_1%x, this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux2, this%grad_2%x, this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux3, this%grad_3%x, this%lx, this%coef%msh%nelv)
+    call pick_facet_value_hex(this%flux1, this%grad_1%x, &
+                              this%lx, this%coef%msh%nelv)
+    call pick_facet_value_hex(this%flux2, this%grad_2%x, &
+                              this%lx, this%coef%msh%nelv)
+    call pick_facet_value_hex(this%flux3, this%grad_3%x, &
+                              this%lx, this%coef%msh%nelv)
 
     call col2(this%flux1, this%n1, size(this%n1))
     call col2(this%flux2, this%n2, size(this%n1))
@@ -451,7 +469,6 @@ contains
   subroutine pick_facet_value_hex(f_facet, f_field, lx, nelv)
     integer, intent(in) :: lx, nelv
     real(kind=rp), intent(in) :: f_field(lx, lx, lx, nelv)
-   !  real(kind=rp), intent(inout) :: f_facet(lx, lx, 6, nelv)
     real(kind=rp), intent(inout) :: f_facet(lx + 2, lx + 2, lx + 2, nelv)
 
     f_facet(1, 2: lx + 1, 2: lx + 1, :) = f_field(1, :, :, :)
@@ -465,13 +482,14 @@ contains
 
   !> Integrate over a facet in weak from
   !! @param f Integrant
-  pure function weak_integrate_over_facet(this, i, j, k, facet_index, i_el) result(f_int)
+  pure function weak_integrate_over_facet(this, i, j, k, &
+                                          facet_index, i_el) result(f_int)
     class(gradient_jump_penalty_t), intent(in) :: this
     integer, intent(in) :: i, j, k, facet_index, i_el
+
     real(kind=rp) :: f_int
-    
-    real(kind=rp) :: f(this%p + 1, this%p + 1), dphidxi, dxidn, jacinv_pt
-    integer :: i_pt, j_pt, n_facet
+    real(kind=rp) :: f(this%lx, this%lx), dphidxi, dxidn, jacinv_pt
+    integer :: n_facet
 
    select case (facet_index) ! Identify the facet indexing
     case(1)
@@ -489,11 +507,11 @@ contains
         f_int = f_int * this%coef%area(j, k, facet_index, i_el) * n_facet
 
     case(2)
-        dphidxi = this%dphidxi(this%p + 1, i)
-        dxidn = this%coef%drdx(this%p + 1, j, k, i_el) + &
-                this%coef%drdy(this%p + 1, j, k, i_el) + &
-                this%coef%drdz(this%p + 1, j, k, i_el)
-        jacinv_pt = this%coef%jacinv(this%p + 1, j, k, i_el)
+        dphidxi = this%dphidxi(this%lx, i)
+        dxidn = this%coef%drdx(this%lx, j, k, i_el) + &
+                this%coef%drdy(this%lx, j, k, i_el) + &
+                this%coef%drdz(this%lx, j, k, i_el)
+        jacinv_pt = this%coef%jacinv(this%lx, j, k, i_el)
         n_facet = 1
 
         f_int = this%absvolflux(this%lx + 2, j + 1, k + 1, i_el) * &
@@ -517,13 +535,11 @@ contains
         f_int = f_int * this%coef%area(i, k, facet_index, i_el) * n_facet
 
     case(4)
-        i_pt = i
-        j_pt = k
-        dphidxi = this%dphidxi(this%p + 1, j)
-        dxidn = this%coef%dsdx(i, this%p + 1, k, i_el) + &
-                this%coef%dsdy(i, this%p + 1, k, i_el) + &
-                this%coef%dsdz(i, this%p + 1, k, i_el)
-        jacinv_pt = this%coef%jacinv(i, this%p + 1, k, i_el)
+        dphidxi = this%dphidxi(this%lx, j)
+        dxidn = this%coef%dsdx(i, this%lx, k, i_el) + &
+                this%coef%dsdy(i, this%lx, k, i_el) + &
+                this%coef%dsdz(i, this%lx, k, i_el)
+        jacinv_pt = this%coef%jacinv(i, this%lx, k, i_el)
         n_facet = 1
 
         f_int = this%absvolflux(i + 1, this%lx + 2, k + 1, i_el) * &
@@ -547,13 +563,11 @@ contains
         f_int = f_int * this%coef%area(i, k, facet_index, i_el) * n_facet
 
     case(6)
-        i_pt = i
-        j_pt = j
-        dphidxi = this%dphidxi(this%p + 1, k)
-        dxidn = this%coef%dtdx(i, j, this%p + 1, i_el) + &
-                this%coef%dtdy(i, j, this%p + 1, i_el) + &
-                this%coef%dtdz(i, j, this%p + 1, i_el)
-        jacinv_pt = this%coef%jacinv(i, j, this%p + 1, i_el)
+        dphidxi = this%dphidxi(this%lx, k)
+        dxidn = this%coef%dtdx(i, j, this%lx, i_el) + &
+                this%coef%dtdy(i, j, this%lx, i_el) + &
+                this%coef%dtdz(i, j, this%lx, i_el)
+        jacinv_pt = this%coef%jacinv(i, j, this%lx, i_el)
         n_facet = 1
 
         f_int = this%absvolflux(i + 1, j + 1, this%lx + 2, i_el) * &
