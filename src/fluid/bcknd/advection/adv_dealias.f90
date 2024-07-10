@@ -249,9 +249,6 @@ contains
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call perturb_vector_device(this%temp_d, this%temp_d,this%temp, n, this%pcs_thing)
-         call device_sub2(fz%x_d, this%temp_d, n)
          call this%GLL_to_GL%map(this%w_conv%x, this%tbf, nel, this%Xh_GLL)
          call perturb_vector_device(this%w_convfp%x_d, this%w_conv%x_d,this%temp, n, this%pcs_thing)
          call device_sub2(fz%x_d, this%w_convfp%x_d, n)
