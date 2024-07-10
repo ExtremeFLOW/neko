@@ -4,6 +4,7 @@ module perturb
   use num_types
   use comm
   use math
+  use device_math, only: device_copy
   use device
   use iso_c_binding
   implicit none
@@ -22,7 +23,7 @@ module perturb
     !> Uestion whether this is correct, I think this eliminates the impoartance of teh emax and emin...
     opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use exponent from target format
     opts%fpopts%saturation=CPFLOAT_SAT_NO !> if use staturation arithmetic
-    !opts%fpopts%saturation=CPFLOAT_SAT_USE !> use staturation arithmetic
+    opts%fpopts%saturation=CPFLOAT_SAT_USE !> use staturation arithmetic
     opts%fpopts%format = c_null_char
     opts%fpopts%bitseed = c_null_ptr
     opts%fpopts%randseedf = c_null_ptr
@@ -112,6 +113,8 @@ module perturb
 
     if ((opts%fpopts%precision .ne. 52)) then 
         ierr = pcs(x,y,int(n,8),opts)
+    else
+        call copy(x,y,n) 
     end if
 
   end subroutine perturb_vector
@@ -126,7 +129,9 @@ module perturb
        call device_memcpy(temp, y_d, n, DEVICE_TO_HOST, sync=.true.)
        ierr = pcs(temp, temp,int(n,8),opts)
        call device_memcpy(temp, x_d, n, HOST_TO_DEVICE, sync=.true.)
-    end if
+   else
+       call device_copy(x_d,y_d,n)
+   end if
 
   end subroutine perturb_vector_device
 
