@@ -71,7 +71,7 @@ field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o
 field/field_list.o : field/field_list.f90 common/utils.o mesh/mesh.o sem/dofmap.o sem/space.o config/num_types.o field/field.o 
 field/field_series.o : field/field_series.f90 field/field.o config/num_types.o 
 field/mesh_field.o : field/mesh_field.f90 mesh/mesh.o 
-field/mean_field.o : field/mean_field.f90 math/field_math.o field/field.o config/num_types.o common/stats_quant.o config/neko_config.o 
+field/mean_field.o : field/mean_field.f90 math/bcknd/field_math.o field/field.o config/num_types.o common/stats_quant.o config/neko_config.o 
 field/mean_sqr_field.o : field/mean_sqr_field.f90 math/math.o math/bcknd/device/device_math.o field/mean_field.o config/neko_config.o config/num_types.o 
 io/format/rea.o : io/format/rea.f90 mesh/mesh.o config/num_types.o 
 math/bcknd/cpu/cdtp.o : math/bcknd/cpu/cdtp.f90 config/num_types.o 
@@ -142,12 +142,14 @@ bc/facet_normal.o : bc/facet_normal.f90 common/utils.o bc/bc.o sem/coef.o math/m
 bc/symmetry.o : bc/symmetry.f90 sem/coef.o adt/tuple.o bc/bc.o config/num_types.o bc/dirichlet.o bc/bcknd/device/device_symmetry.o 
 bc/non_normal.o : bc/non_normal.f90 sem/coef.o adt/tuple.o config/num_types.o bc/symmetry.o 
 bc/blasius.o : bc/blasius.f90 bc/bc.o fluid/flow_profile.o bc/bcknd/device/device_inhom_dirichlet.o device/device.o common/utils.o sem/coef.o config/num_types.o 
+bc/shear_stress.o : bc/shear_stress.f90 math/bcknd/device/device_math.o math/math.o bc/neumann.o bc/dirichlet.o sem/coef.o common/utils.o bc/bc.o config/num_types.o 
 bc/wall_model_bc.o : bc/wall_model_bc.f90 bc/shear_stress.o wall_models/spalding.o wall_models/rough_log_law.o wall_models/wall_model.o sem/coef.o common/utils.o bc/bc.o config/num_types.o 
 krylov/precon.o : krylov/precon.f90 config/num_types.o 
 krylov/krylov.o : krylov/krylov.f90 config/neko_config.o krylov/bcknd/device/pc_identity_device.o krylov/pc_identity.o bc/bc.o common/utils.o field/field.o mesh/mesh.o sem/coef.o krylov/precon.o config/num_types.o math/ax.o gs/gather_scatter.o 
 krylov/pc_identity.o : krylov/pc_identity.f90 config/num_types.o krylov/precon.o math/math.o 
 krylov/precon_fctry.o : krylov/precon_fctry.f90 config/neko_config.o common/utils.o krylov/pc_hsmg.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o krylov/bcknd/device/pc_identity_device.o krylov/pc_identity.o krylov/precon.o 
 krylov/krylov_fctry.o : krylov/krylov_fctry.f90 config/neko_config.o common/utils.o krylov/precon.o krylov/krylov.o config/num_types.o krylov/bcknd/device/gmres_device.o krylov/bcknd/sx/gmres_sx.o krylov/bcknd/device/cheby_device.o krylov/bcknd/cpu/cheby.o krylov/bcknd/cpu/gmres.o krylov/bcknd/cpu/bicgstab.o krylov/bcknd/device/fusedcg_cpld_device.o krylov/bcknd/device/fusedcg_device.o krylov/bcknd/device/pipecg_device.o krylov/bcknd/sx/pipecg_sx.o krylov/bcknd/cpu/pipecg.o krylov/bcknd/cpu/cacg.o krylov/bcknd/device/cg_device.o krylov/bcknd/cpu/cg_coupled.o krylov/bcknd/sx/cg_sx.o krylov/bcknd/cpu/cg.o 
+krylov/krylov_fctry.o : krylov/krylov_fctry.f90 config/neko_config.o common/utils.o krylov/precon.o krylov/krylov.o config/num_types.o krylov/bcknd/device/gmres_device.o krylov/bcknd/sx/gmres_sx.o krylov/bcknd/cpu/gmres.o krylov/bcknd/cpu/bicgstab.o krylov/bcknd/device/fusedcg_cpld_device.o krylov/bcknd/device/fusedcg_device.o krylov/bcknd/device/pipecg_device.o krylov/bcknd/sx/pipecg_sx.o krylov/bcknd/cpu/pipecg.o krylov/bcknd/cpu/cacg.o krylov/bcknd/device/cg_device.o krylov/bcknd/sx/cg_sx.o krylov/bcknd/cpu/cg.o 
 krylov/bcknd/cpu/cg.o : krylov/bcknd/cpu/cg.f90 comm/comm.o math/math.o bc/bc.o gs/gather_scatter.o sem/coef.o field/field.o math/ax.o krylov/precon.o krylov/krylov.o config/num_types.o 
 krylov/bcknd/cpu/cacg.o : krylov/bcknd/cpu/cacg.f90 math/mxm_wrapper.o comm/comm.o common/utils.o math/math.o bc/bc.o gs/gather_scatter.o sem/coef.o field/field.o math/ax.o krylov/precon.o krylov/krylov.o config/num_types.o 
 krylov/bcknd/cpu/cheby.o : krylov/bcknd/cpu/cheby.f90 comm/comm.o math/math.o bc/bc.o gs/gather_scatter.o sem/space.o mesh/mesh.o sem/coef.o field/field.o config/num_types.o math/ax.o krylov/precon.o krylov/krylov.o 
@@ -211,6 +213,10 @@ fluid/bcknd/sx/pnpn_res_sx.o : fluid/bcknd/sx/pnpn_res_sx.f90 math/math.o sem/sp
 fluid/bcknd/device/pnpn_res_device.o : fluid/bcknd/device/pnpn_res_device.F90 field/scratch_registry.o fluid/pnpn_res.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o sem/space.o config/num_types.o mesh/mesh.o bc/facet_normal.o sem/coef.o math/ax.o field/field.o math/operators.o gs/gather_scatter.o 
 fluid/fluid_user_source_term.o : fluid/fluid_user_source_term.f90 sem/dofmap.o math/math.o math/bcknd/device/device_math.o device/device.o sem/coef.o field/field_list.o source_terms/source_term.o common/utils.o config/num_types.o config/neko_config.o 
 fluid/fluid_source_term.o : fluid/fluid_source_term.f90 common/utils.o common/user_intf.o sem/coef.o common/json_utils.o field/field_list.o field/field.o source_terms/source_term_fctry.o source_terms/source_term.o fluid/fluid_user_source_term.o config/num_types.o config/neko_config.o 
+fluid/stress_formulation/pnpn_res_stress_fctry.o : fluid/stress_formulation/pnpn_res_stress_fctry.f90 fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.o fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.o fluid/stress_formulation/pnpn_res_stress.o common/utils.o config/neko_config.o 
+fluid/stress_formulation/pnpn_res_stress.o : fluid/stress_formulation/pnpn_res_stress.f90 config/num_types.o mesh/mesh.o sem/space.o bc/facet_normal.o sem/coef.o field/field.o math/ax.o gs/gather_scatter.o 
+fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.o : fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90 math/math.o sem/space.o config/num_types.o mesh/mesh.o field/scratch_registry.o fluid/stress_formulation/pnpn_res_stress.o bc/facet_normal.o sem/coef.o math/ax.o field/field.o math/operators.o gs/gather_scatter.o 
+fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.o : fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90 math/bcknd/device/device_math.o math/bcknd/device/device_mathops.o sem/space.o config/num_types.o mesh/mesh.o field/scratch_registry.o fluid/stress_formulation/pnpn_res_stress.o bc/facet_normal.o sem/coef.o math/ax.o field/field.o math/operators.o common/utils.o gs/gather_scatter.o 
 common/time_step_controller.o : common/time_step_controller.f90 common/json_utils.o common/log.o config/num_types.o 
 common/gradient_jump_penalty.o : common/gradient_jump_penalty.f90 gs/gather_scatter.o sem/space.o adt/tuple.o gs/gs_ops.o math/operators.o mesh/quad.o mesh/hex.o mesh/element.o field/scratch_registry.o sem/coef.o config/neko_config.o sem/dofmap.o field/field.o mesh/point.o math/math.o common/utils.o sem/speclib.o config/num_types.o 
 simulation.o : simulation.f90 common/time_step_controller.o common/json_utils.o simulation_components/simcomp_executor.o common/profiler.o field/field.o common/jobctrl.o math/bcknd/device/device_math.o device/device.o common/log.o math/math.o io/file.o time_schemes/time_scheme_controller.o gs/gather_scatter.o case.o 
@@ -238,6 +244,7 @@ device/opencl/prgm_lib.o : device/opencl/prgm_lib.F90 common/utils.o device/open
 device/dummy_device.o : device/dummy_device.F90 
 device/device.o : device/device.F90 device/opencl/prgm_lib.o device/dummy_device.o common/utils.o adt/htable.o device/hip_intf.o device/cuda_intf.o device/opencl_intf.o config/num_types.o 
 math/field_math.o : math/field_math.f90 math/bcknd/device/device_math.o math/math.o field/field.o config/num_types.o config/neko_config.o 
+math/bcknd/field_math.o : math/bcknd/field_math.f90 math/bcknd/device/device_math.o math/math.o field/field.o config/num_types.o config/neko_config.o 
 math/bcknd/device/device_math.o : math/bcknd/device/device_math.F90 config/num_types.o common/utils.o comm/comm.o 
 math/bcknd/device/device_schwarz.o : math/bcknd/device/device_schwarz.F90 device/device.o common/utils.o config/num_types.o 
 math/bcknd/device/tensor_device.o : math/bcknd/device/tensor_device.F90 common/utils.o 
