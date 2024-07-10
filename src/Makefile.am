@@ -123,6 +123,7 @@ neko_fortran_SOURCES = \
 	io/fld_file_output.f90\
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
+	io/mean_field_output.f90\
 	io/fluid_stats_output.f90\
 	io/mean_sqr_flow_output.f90\
 	io/data_streamer.F90\
@@ -180,6 +181,7 @@ neko_fortran_SOURCES = \
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
 	simulation_components/fluid_stats_simcomp.f90\
+	simulation_components/user_statistics.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
