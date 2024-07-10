@@ -1,5 +1,7 @@
 # Input-output {#io}
 
+\tableofcontents
+
 ## Mesh
 
 Neko has it's own mesh format, `.nmsh`. All meshes should be 3D and consist of

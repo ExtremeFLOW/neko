@@ -84,6 +84,20 @@ contains
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
 
+    call coef%gs_h%op(s11%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s22%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s33%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s12%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
+
+    call col2(s11%x, coef%mult, s11%dof%size())
+    call col2(s22%x, coef%mult, s11%dof%size())
+    call col2(s33%x, coef%mult, s11%dof%size())
+    call col2(s12%x, coef%mult, s11%dof%size())
+    call col2(s13%x, coef%mult, s11%dof%size())
+    call col2(s23%x, coef%mult, s11%dof%size())
+
     do e=1, coef%msh%nelv
        do i=1, coef%Xh%lxyz
           s_abs = sqrt(2.0_rp * (s11%x(i,1,1,e)*s11%x(i,1,1,e) + &
