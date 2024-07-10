@@ -106,6 +106,26 @@ contains
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
+    call coef%gs_h%op(a11%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a12%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a13%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a21%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a22%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a23%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a31%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a32%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a33%x, a11%dof%size(), GS_OP_ADD)
+
+    call col2(a11%x, coef%mult, a11%dof%size())
+    call col2(a12%x, coef%mult, a11%dof%size())
+    call col2(a13%x, coef%mult, a11%dof%size())
+    call col2(a21%x, coef%mult, a11%dof%size())
+    call col2(a22%x, coef%mult, a11%dof%size())
+    call col2(a23%x, coef%mult, a11%dof%size())
+    call col2(a31%x, coef%mult, a11%dof%size())
+    call col2(a32%x, coef%mult, a11%dof%size())
+    call col2(a33%x, coef%mult, a11%dof%size())
+
     do e=1, coef%msh%nelv
        do i=1, coef%Xh%lxyz
           ! beta_ij = alpha_mi alpha_mj

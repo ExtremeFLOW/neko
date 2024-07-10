@@ -74,7 +74,7 @@ contains
        else
           fname = 'fluid_stats.fld'
        end if
-    else 
+    else
        if (present(name) .and. present(path)) then
           fname = trim(path) // trim(name) // '.csv'
        else if (present(name)) then

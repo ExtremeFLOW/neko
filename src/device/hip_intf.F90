@@ -147,6 +147,15 @@ module hip_intf
   end interface
 
   interface
+     integer (c_int) function hipGetDeviceCount(count) &
+          bind(c, name='hipGetDeviceCount')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: count
+     end function hipGetDeviceCount
+  end interface
+
+  interface
      integer (c_int) function hipStreamCreate(stream) &
           bind(c, name='hipStreamCreate')
        use, intrinsic :: iso_c_binding
@@ -261,6 +270,15 @@ module hip_intf
 contains
 
   subroutine hip_init
+    integer(c_int) :: num_devices
+
+    if (hipGetDeviceCount(num_devices) .ne. hipSuccess) then
+       call neko_error('Failed to query device count')
+    end if
+
+    if (num_devices .ne. 1) then
+        call neko_error('Only one device is supported per MPI node')
+    end if
 
     if (hipDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
          .ne. hipSuccess) then

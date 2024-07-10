@@ -9,8 +9,9 @@ program average_field_in_space
   real(kind=rp) :: start_time, el_h, el_dim(3,3), domain_height
   real(kind=rp), allocatable :: temp_el(:,:,:)
   type(fld_file_data_t) :: field_data
+  type(fld_file_data_t) :: output_data
   type(coef_t) :: coef
-  type(dofmap_t) :: dof
+  type(dofmap_t), target :: dof
   type(space_t) :: Xh
   type(mesh_t) :: msh
   type(gs_t) :: gs_h
@@ -19,8 +20,10 @@ program average_field_in_space
   type(vector_ptr_t), allocatable :: fields(:)
   type(matrix_t) :: avg_matrix
   type(vector_t) :: volume_per_gll_lvl
-  integer :: argc, i, n, lx, j, e, n_levels, dir, ierr, n_1d, tstep
+  integer :: argc, i, n, lx, j, e, n_levels, dir, ierr, n_1d, tstep, k
   logical :: avg_to_1d = .false.
+  integer :: nelv_2d, glb_nelv_2d, offset_el_2d, lxy, n_2d
+  real(kind=rp), pointer, dimension(:,:,:,:) :: x_ptr, y_ptr
   real(kind=rp) :: coord
 
   argc = command_argument_count()
@@ -57,7 +60,6 @@ program average_field_in_space
 
   call mesh_file%read(msh)
 
-  call field_data%init(msh%nelv,msh%offset_el)
   call field_file%read(field_data)
 
   lx = field_data%lx
@@ -131,6 +133,86 @@ program average_field_in_space
   n_levels = map_1d%n_el_lvls
   n = u%dof%size()
 
+  if ( .not. avg_to_1d) then
+     nelv_2d = 0
+     do i = 1, msh%nelv
+        if (map_1d%el_lvl(i) .eq. 1) then
+           nelv_2d = nelv_2d + 1
+        end if
+     end do
+     print *, nelv_2d
+     glb_nelv_2d = 0
+     call MPI_Allreduce(nelv_2d, glb_nelv_2d, 1, &
+          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+     offset_el_2d = 0
+     call MPI_Exscan(nelv_2d, offset_el_2d, 1, &
+          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+     print *, map_1d%n_el_lvls*glb_nelv_2d
+     call output_data%init(nelv_2d,offset_el_2d)
+     print *, 'bro1'
+     allocate(output_data%idx(nelv_2d))
+     print *, 'bro2'
+     output_data%gdim = 2
+     output_data%lx = dof%Xh%lx
+     output_data%ly = dof%Xh%ly
+     output_data%lz = 1
+     output_Data%glb_nelv = glb_nelv_2d
+     do i = 1, nelv_2d
+        output_data%idx(i) = offset_el_2d + i
+     end do
+     print *, 'bro3'
+     lxy = output_data%lx*output_data%ly
+     n_2d = lxy*nelv_2d
+     call output_data%x%init(n_2d)
+     call output_data%y%init(n_2d)
+     j = 0
+     if(dir .eq. 1) then
+        x_ptr => dof%z
+        y_ptr => dof%y
+     end if
+     if(dir .eq. 2) then
+        x_ptr => dof%x
+        y_ptr => dof%z
+     end if
+     if(dir .eq. 3) then
+        x_ptr => dof%x
+        y_ptr => dof%y
+     end if
+
+     do e = 1, msh%nelv
+        if (map_1d%el_lvl(e) .eq. 1) then
+           if (map_1d%dir_el(e) .eq. 1) then
+              do i = 1, lxy
+                 output_data%x%x(j*lxy+i) = x_ptr(1,i,1,e)
+                 output_data%y%x(j*lxy+i) = y_ptr(1,i,1,e)
+              end do
+           end if
+           if (map_1d%dir_el(e) .eq. 2) then
+              do i = 1, lx
+                 do k = 1, lx
+                    output_data%x%x(j*lxy+k+lx*(i-1)) = x_ptr(k,1,i,e)
+                    output_data%y%x(j*lxy+k+lx*(i-1)) = y_ptr(k,1,i,e)
+                 end do
+              end do
+           end if
+           if (map_1d%dir_el(e) .eq. 3) then
+              do i = 1, lxy
+                 output_data%x%x(j*lxy+i) = x_ptr(i,1,1,e)
+                 output_data%y%x(j*lxy+i) = y_ptr(i,1,1,e)
+              end do
+           end if
+           j = j +1
+        end if
+     end do
+     call output_data%p%init(n_2d)
+     output_data%p = 1.3_rp
+     output_file = file_t(trim(output_fname))
+     call output_file%write(output_data,13.2_rp)
+  end if
+  stop
+  call field_data%init(msh%nelv,msh%offset_el)
   !allocate array with pointers to all vectors in the file
   allocate(fields(field_data%size()))
   ! Compute average in two direction directly and store in a csv file
@@ -140,10 +222,10 @@ program average_field_in_space
      call field_data%get_list(fields,field_data%size())
      if (pe_rank .eq. 0) write(*,*) 'Averaging field:', tstep
      if (avg_to_1d) then
-        call map_1d%average_planes(avg_matrix, fields)       
+        call map_1d%average_planes(avg_matrix, fields)
         call output_file%write(avg_matrix,field_data%time)
-     ! Compute averages in 1 direction and store in a 3d field (lots of redundant data, sorry)
-     ! Should output a 2d field in principle
+        ! Compute averages in 1 direction and store in a 3d field (lots of redundant data, sorry)
+        ! Should output a 2d field in principle
      else
         do i = 1, msh%nelv
            !find height in hom-dir
@@ -157,7 +239,9 @@ program average_field_in_space
            el_h = el_dim(map_1d%dir_el(i),dir)
            el_heights%x(:,:,:,i) = el_h
         end do
-      
+        !Need to compute mapping for 3d to 2d
+        !Does order matter? Think its ok as long as values written in same order
+
         call copy(u%x,el_heights%x,n)
         call copy(old_u%x,el_heights%x,n)
         call copy(avg_u%x,el_heights%x,n)
@@ -175,13 +259,12 @@ program average_field_in_space
            call perform_global_summation(u, avg_u, old_u, n_levels, &
                 map_1d%dir_el,gs_h, coef%mult, msh%nelv, lx)
            call copy(fields(i)%ptr%x,u%x,n)
-        end do 
+        end do
 
         call output_file%write(field_data,field_data%time)
      end if
   end do
   if (pe_rank .eq. 0) write(*,*) 'Done'
-  
   call neko_finalize
 
 end program average_field_in_space

@@ -1,5 +1,7 @@
 # Case File {#case-file}
 
+\tableofcontents
+
 The case file defines all the parameters of a simulation.
 The format of the file is JSON, making it easy to read and write case files
 using the majority of the popular programming languages.
@@ -159,7 +161,7 @@ values:
    condition.
 
 * Advanced boundary conditions
-  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a
+  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a 
   `"/"`), a Dirichlet boundary for more complex velocity profiles. This boundary
   condition uses a [more advanced user
   interface](#user-file_field-dirichlet-update).

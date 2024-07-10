@@ -74,11 +74,13 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c_s
+    character(len=:), allocatable :: delta_type
 
     call json_get(json, "nut_field", nut_name)
+    call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_s", c_s, 0.17_rp)
 
-    call smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name)
+    call smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name, delta_type)
   end subroutine smagorinsky_init
 
   !> Constructor from components.
@@ -86,16 +88,17 @@ contains
   !! @param coef SEM coefficients.
   !! @param c_s The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name)
+  subroutine smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name, delta_type)
     class(smagorinsky_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     real(kind=rp) :: c_s
     character(len=*), intent(in) :: nut_name
+    character(len=*), intent(in) :: delta_type
 
     call this%free()
 
-    call this%init_base(dofmap, coef, nut_name)
+    call this%init_base(dofmap, coef, nut_name, delta_type)
     this%c_s = c_s
 
   end subroutine smagorinsky_init_from_components

@@ -92,7 +92,6 @@ contains
 
     !> Call stats, samplers and user-init before time loop
     call neko_log%section('Postprocessing')
-    call C%q%eval(t, C%dt, tstep)
     call C%s%sample(t, tstep)
 
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
@@ -133,8 +132,8 @@ contains
        call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7,A,E15.7)') &
-            'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
-            end_time-start_time
+         'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
+         end_time-start_time
        call neko_log%end_section(log_buf)
 
        ! Scalar step
@@ -144,8 +143,8 @@ contains
           call C%scalar%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7,A,E15.7)') &
-               'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
-               end_time-start_time
+            'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
+            end_time-start_time
           call neko_log%end_section(log_buf)
        end if
 
@@ -153,7 +152,6 @@ contains
        ! Execute all simulation components
        call neko_simcomps%compute(t, tstep)
 
-       call C%q%eval(t, C%dt, tstep)
        call C%s%sample(t, tstep)
 
        ! Update material properties
@@ -163,8 +161,8 @@ contains
                                       C%material_properties%lambda, &
                                       C%params)
 
-       call C%usr%user_check(t, tstep,&
-            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+       call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
+                             C%fluid%p, C%fluid%c_Xh, C%params)
 
        call neko_log%end_section()
 
@@ -241,7 +239,7 @@ contains
                       found)
 
     if (found) C%fluid%chkp%mesh2mesh_tol = tol
-    
+
     chkpf = file_t(trim(restart_file))
     call chkpf%read(C%fluid%chkp)
     C%dtlag = C%fluid%chkp%dtlag
@@ -259,7 +257,7 @@ contains
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
     write(log_buf,'(A,A)') 'File :   ', &
-         trim(restart_file)
+      trim(restart_file)
     call neko_log%message(log_buf)
     write(log_buf,'(A,E15.7)') 'Time : ', t
     call neko_log%message(log_buf)
@@ -278,7 +276,7 @@ contains
     character(len=10) :: format_str
     logical :: found
 
-    call C%params%get('case.checkpoint_format', chkp_format, found)   
+    call C%params%get('case.checkpoint_format', chkp_format, found)
     call C%fluid%chkp%sync_host()
     format_str = '.chkp'
     if (found) then

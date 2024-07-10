@@ -38,9 +38,6 @@ module case
   use fluid_scheme, only : fluid_scheme_t
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
-  use mean_sqr_flow_output, only : mean_sqr_flow_output_t
-  use mean_flow_output, only : mean_flow_output_t
-  use fluid_stats_output, only : fluid_stats_output_t
   use mpi_f08
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
   use parmetis, only : parmetis_partmeshkway
@@ -76,9 +73,7 @@ module case
      character(len=:), allocatable :: output_directory
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
-     type(fluid_stats_output_t) :: f_stats_output
      type(chkp_output_t) :: f_chkp
-     type(stats_t) :: q
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
@@ -412,63 +407,6 @@ contains
        call C%s%add(C%f_chkp, real_val, string_val)
     end if
 
-    !
-    ! Setup statistics
-    !
-
-    ! Always init, so that we can call eval in simulation.f90 with no if.
-    ! Note, don't use json_get_or_default here, because that will break the
-    ! valid_path if statement below (the path will become valid always).
-    call C%params%get('case.statistics.start_time', stats_start_time,&
-                           found)
-    if (.not. found) stats_start_time = 0.0_rp
-
-    call C%params%get('case.statistics.sampling_interval', &
-                           stats_sampling_interval, found)
-    if (.not. found) stats_sampling_interval = 10
-
-    call C%q%init(stats_start_time, stats_sampling_interval)
-
-    found = C%params%valid_path('case.statistics')
-    if (found) then
-       call json_get_or_default(C%params, 'case.statistics.enabled',&
-                                logical_val, .true.)
-       if (logical_val) then
-
-          call json_get_or_default(C%params, 'case.statistics.avg_direction', &
-               hom_dir, 'none')
-
-          call json_get(C%params, 'case.statistics.output_control', &
-                        string_val)
-          call json_get(C%params, 'case.statistics.output_value', &
-                        stats_output_val)
-
-          call C%q%add(C%fluid%stats)
-
-          C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
-            stats_start_time, hom_dir=hom_dir, path=C%output_directory)
-          call C%s%add(C%f_stats_output, stats_output_val, string_val)
-       end if
-    end if
-
-!    if (C%params%stats_mean_sqr_flow) then
-!       call C%q%add(C%fluid%mean_sqr%uu)
-!       call C%q%add(C%fluid%mean_sqr%vv)
-!       call C%q%add(C%fluid%mean_sqr%ww)
-!       call C%q%add(C%fluid%mean_sqr%pp)
-
-!       if (C%params%output_mean_sqr_flow) then
-!          C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
-!                                             C%params%stats_begin, &
-!                                             path=output_directory)
-!          call C%s%add(C%f_msqrf, C%params%stats_write_par, &
-!               C%params%stats_write_control)
-!       end if
-!    end if
-
-    !
-    ! Setup joblimit
-    !
     if (C%params%valid_path('case.job_timelimit')) then
        call json_get(C%params, 'case.job_timelimit', string_val)
        call jobctrl_set_time_limit(string_val)
@@ -496,7 +434,6 @@ contains
 
     call C%s%free()
 
-    call C%q%free()
 
   end subroutine case_free
 

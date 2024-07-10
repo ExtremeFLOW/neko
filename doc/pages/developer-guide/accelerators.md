@@ -1,5 +1,7 @@
 # Accelerators {#accelerators}
 
+\tableofcontents
+
 ## Device abstraction layer
 
 Neko has a device abstraction layer (device.F90) to manage device memory, data transfer and kernel invocations directly from a familiar Fortran interface, targeting all supported accelerator backends.

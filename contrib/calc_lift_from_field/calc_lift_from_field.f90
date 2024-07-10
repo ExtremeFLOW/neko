@@ -9,7 +9,7 @@ program calc_lift_from_field
   use mean_flow
   use matrix
   implicit none
-  
+
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname, field_fname, hom_dir, output_fname
   type(file_t) :: field_file, mesh_file, output_file
   real(kind=rp) :: start_time
@@ -28,46 +28,46 @@ program calc_lift_from_field
   real(kind=rp), pointer :: line(:,:,:,:)
   integer :: argc, i, j, k, n, lx, e, zone_id, dir, f, glb_n_gll_pts, ierr, mem, t
   real(kind=rp) :: visc, nv(3), dgtq(12)
-  
+
   argc = command_argument_count()
 
   if ((argc .lt. 6) .or. (argc .gt. 6)) then
      if (pe_rank .eq. 0) then
-        write(*,*) 'Usage: ./calc_lift_from_field mesh.nmsh field.fld zone_number viscosity function_of_coord output.csv' 
+        write(*,*) 'Usage: ./calc_lift_from_field mesh.nmsh field.fld zone_number viscosity function_of_coord output.csv'
         write(*,*) 'Example command: ./calc_lift_from_field mesh.nmsh fieldblabla.fld 5 0.04 y out.csv'
         write(*,*) 'Outputs the total force and torque on zone 5 using velocity values from fieldblabla.fld'
         write(*,*)  'as well as writes the distribution of the force and torque across y to output.csv'
      end if
      stop
   end if
-  
-  call neko_init 
 
-  call get_command_argument(1, inputchar) 
+  call neko_init
+
+  call get_command_argument(1, inputchar)
   read(inputchar, *) mesh_fname
   mesh_file = file_t(trim(mesh_fname))
-  call get_command_argument(2, inputchar) 
+  call get_command_argument(2, inputchar)
   read(inputchar, *) field_fname
   field_file = file_t(trim(field_fname))
-  call get_command_argument(3, inputchar) 
+  call get_command_argument(3, inputchar)
   read(inputchar, *) zone_id
-  call get_command_argument(4, inputchar) 
+  call get_command_argument(4, inputchar)
   read(inputchar, *) visc
-  call get_command_argument(5, inputchar) 
+  call get_command_argument(5, inputchar)
   read(inputchar, *) hom_dir
-  call get_command_argument(6, inputchar) 
+  call get_command_argument(6, inputchar)
   read(inputchar, *) output_fname
   output_file = file_t(trim(output_fname))
 
   call mesh_file%read(msh)
-   
+
   call field_data%init(msh%nelv,msh%offset_el)
   call field_file%read(field_data)
-  
+
   lx = field_data%lx
   !To make sure any deformation made in the user file is passed onto here as well
   do i = 1,msh%nelv
-     msh%elements(i)%e%pts(1)%p%x(1) = field_data%x%x(linear_index(1,1,1,i,lx,lx,lx))  
+     msh%elements(i)%e%pts(1)%p%x(1) = field_data%x%x(linear_index(1,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(2)%p%x(1) = field_data%x%x(linear_index(lx,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(3)%p%x(1) = field_data%x%x(linear_index(1,lx,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(4)%p%x(1) = field_data%x%x(linear_index(lx,lx,1,i,lx,lx,lx))
@@ -76,7 +76,7 @@ program calc_lift_from_field
      msh%elements(i)%e%pts(7)%p%x(1) = field_data%x%x(linear_index(1,lx,lx,i,lx,lx,lx))
      msh%elements(i)%e%pts(8)%p%x(1) = field_data%x%x(linear_index(lx,lx,lx,i,lx,lx,lx))
 
-     msh%elements(i)%e%pts(1)%p%x(2) = field_data%y%x(linear_index(1,1,1,i,lx,lx,lx))  
+     msh%elements(i)%e%pts(1)%p%x(2) = field_data%y%x(linear_index(1,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(2)%p%x(2) = field_data%y%x(linear_index(lx,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(3)%p%x(2) = field_data%y%x(linear_index(1,lx,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(4)%p%x(2) = field_data%y%x(linear_index(lx,lx,1,i,lx,lx,lx))
@@ -85,7 +85,7 @@ program calc_lift_from_field
      msh%elements(i)%e%pts(7)%p%x(2) = field_data%y%x(linear_index(1,lx,lx,i,lx,lx,lx))
      msh%elements(i)%e%pts(8)%p%x(2) = field_data%y%x(linear_index(lx,lx,lx,i,lx,lx,lx))
 
-     msh%elements(i)%e%pts(1)%p%x(3) = field_data%z%x(linear_index(1,1,1,i,lx,lx,lx))  
+     msh%elements(i)%e%pts(1)%p%x(3) = field_data%z%x(linear_index(1,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(2)%p%x(3) = field_data%z%x(linear_index(lx,1,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(3)%p%x(3) = field_data%z%x(linear_index(1,lx,1,i,lx,lx,lx))
      msh%elements(i)%e%pts(4)%p%x(3) = field_data%z%x(linear_index(lx,lx,1,i,lx,lx,lx))
@@ -113,7 +113,7 @@ program calc_lift_from_field
   else if (trim(hom_dir) .eq. 'z') then
      dir = 3
      line => dof%z
-  else 
+  else
      call neko_error('The homogeneous direction should be "x", "y"or "z"')
   end if
   call map_1d%init(coef, dir, 1e-7_rp)
@@ -132,8 +132,8 @@ program calc_lift_from_field
   glb_n_gll_pts = map_1d%n_el_lvls*lx
   call drag_torq%init(glb_n_gll_pts, 14)
   if (pe_rank .eq. 0) call output_file%set_header('time, coord, forcepx, forcepy, &
-             & forcepz, forcevx, forcevy, forcevz, torqpx, torqpy, &
-             & torqpz, torqvx, torqvy, torqvz')
+  & forcepz, forcevx, forcevy, forcevz, torqpx, torqpy, &
+  & torqpz, torqvx, torqvy, torqvz')
 
   do t = 1, field_data%meta_nsamples
      if (t .ne. 1) call field_file%read(field_data)
@@ -146,19 +146,19 @@ program calc_lift_from_field
      drag_torq = 0.0_rp
      !set coords to somoething big
      drag_torq%x(:,2) = 1e15
-   
-   
+
+
      if(pe_rank .eq. 0) write(*,*) 'Total drag'
-   
-     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef) 
+
+     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
      call drag_torque_zone(dgtq,field_data%t_counter, msh%labeled_zones(zone_id), center,&
                            s11%x, s22%x, s33%x, s12%x, s13%x, s23%x,&
                            p, coef, visc)
      if (pe_rank .eq. 0) then
-         write(*,*) field_data%t_counter,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),'dragx'
-         write(*,*) field_data%t_counter,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),'dragy'
-         write(*,*) field_data%t_counter,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),'dragz'
-      end if
+        write(*,*) field_data%t_counter,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),'dragx'
+        write(*,*) field_data%t_counter,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),'dragy'
+        write(*,*) field_data%t_counter,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),'dragz'
+     end if
 
 
      do mem  = 1,msh%labeled_zones(zone_id)%size
@@ -187,7 +187,7 @@ program calc_lift_from_field
            end do
         end do
      end do
-   
+
      call MPI_Allreduce(MPI_IN_PLACE,drag_torq%x(1,3), 12*glb_n_gll_pts, &
         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
      call MPI_Allreduce(MPI_IN_PLACE,drag_torq%x(1,2), glb_n_gll_pts, &
@@ -197,7 +197,7 @@ program calc_lift_from_field
         call output_file%write(drag_torq)
      end if
   end do
-     
+
   call neko_finalize
 
 end program calc_lift_from_field

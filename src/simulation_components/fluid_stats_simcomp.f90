@@ -39,16 +39,20 @@ module fluid_stats_simcomp
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
-  use operators, only : curl
   use fluid_stats
   use fluid_stats_output, only : fluid_stats_output_t
-  use fluid_scheme
   use case, only : case_t
+  use coefs, only : coef_t
+  use comm
+  use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default
   implicit none
   private
 
-  !> A simulation component that writes a 3d field to a file.
+  !> A simulation component that computes the statistics needed for various budgets
+  !> See Turbulence Statistics in a Spectral-Element Code: A Toolbox for High-Fidelity Simulations
+  !> or the origin KTH NEk500 framework for details. 
+  !> Also documented in the Neko documentation
   type, public, extends(simulation_component_t) :: fluid_stats_simcomp_t
      !> Output writer.
      type(fluid_stats_t) :: stats              !< Fluid statistics
@@ -83,36 +87,45 @@ contains
     character(len=20), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
     real(kind=rp) :: start_time
+    type(field_t), pointer :: u, v, w, p
+    type(coef_t), pointer :: coef
 
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
     call json_get_or_default(json, 'start_time', &
          start_time, 0.0_rp)
-   
-    call fluid_stats_simcomp_init_from_attributes(this, case%fluid, start_time, hom_dir)
+
+    u => neko_field_registry%get_field("u")
+    v => neko_field_registry%get_field("v")
+    w => neko_field_registry%get_field("w")
+    p => neko_field_registry%get_field("p")
+    coef => case%fluid%c_Xh
+    call fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, start_time, hom_dir)
 
   end subroutine fluid_stats_simcomp_init_from_json
 
   !> Actual constructor.
-  !! @param fields Array of field names to be sampled.
-  !! @param filename The name of the file save the fields to. Optional, if not
-  !! provided, fields are added to the main output file.
-  !! @param precision The real precision of the output data. Optional, defaults
-  !! to single precision.
-  subroutine fluid_stats_simcomp_init_from_attributes(this, fluid, start_time, hom_dir)
+  !! @param u x-velocity
+  !! @param v x-velocity
+  !! @param w x-velocity
+  !! @param coef sem coefs
+  !! @param start_time time to start sampling stats
+  !! @param hom_dir directions to average in
+  subroutine fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, start_time, hom_dir)
     class(fluid_stats_simcomp_t), intent(inout) :: this
-    class(fluid_scheme_t), intent(in) :: fluid
-    character(len=*), intent(in) :: hom_dir 
+    character(len=*), intent(in) :: hom_dir
     real(kind=rp), intent(in) :: start_time
+    type(field_t), intent(inout) :: u, v, w, p !>Should really be intent in I think
+    type(coef_t), intent(in) :: coef
 
-    call this%stats%init(fluid%c_Xh, fluid%u, &
-         fluid%v, fluid%w, fluid%p)
+    call this%stats%init(coef, u, &
+         v, w, p)
     this%start_time = start_time
     this%time = start_time
 
     this%stats_output = fluid_stats_output_t(this%stats, &
-            this%start_time, hom_dir=hom_dir, path="sup")!this%case%output_directory)
+            this%start_time, hom_dir=hom_dir, path=this%case%output_directory)
     call this%case%s%add(this%stats_output,&
                         this%output_controller%control_value,&
                         this%output_controller%control_mode)
@@ -129,7 +142,8 @@ contains
     real(kind=rp), intent(in) :: t
     if(t .gt. this%time) this%time = t
   end subroutine fluid_stats_simcomp_restart
-  !> fluid_stats stuff
+
+  !> fluid_stats, called depending on compute_control and compute_value
   !! @param t The time value.
   !! @param tstep The current time-step
   subroutine fluid_stats_simcomp_compute(this, t, tstep)
@@ -137,11 +151,31 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     real(kind=rp) :: deltaT
+    real(kind=rp) :: sample_start_time, sample_time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: ierr
 
     if (t .ge. this%start_time) then
        deltaT = t - this%time
+
+       call MPI_Barrier(NEKO_COMM, ierr)
+
+       sample_start_time = MPI_WTIME()
+
        call this%stats%update(deltaT)
+       call MPI_Barrier(NEKO_COMM, ierr)
        this%time = t
+
+       sample_time = MPI_WTIME() - sample_start_time
+
+       call neko_log%section('Fluid stats')
+       write(log_buf,'(A,E15.7)') 'Sampling at time:', t
+       call neko_log%message(log_buf)
+       write(log_buf,'(A33,E15.7)') 'Simulationtime since last sample:', deltaT
+       call neko_log%message(log_buf)
+       write(log_buf,'(A,E15.7)') 'Sampling time (s):', sample_time
+       call neko_log%message(log_buf)
+       call neko_log%end_section()
     end if
 
   end subroutine fluid_stats_simcomp_compute

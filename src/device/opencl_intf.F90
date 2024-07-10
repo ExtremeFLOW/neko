@@ -397,6 +397,10 @@ contains
        call neko_error('Failed to get a device id')
     end if
 
+    if (num_devices .ne. 1) then
+        call neko_error('Only one device is supported per MPI node')
+    end if
+
     if (c_associated(glb_ctx)) then
        if (clReleaseContext(glb_ctx) .ne. CL_SUCCESS) then
           call neko_error('Failed to release context')

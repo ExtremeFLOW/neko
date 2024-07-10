@@ -256,6 +256,15 @@ module cuda_intf
   end interface
 
   interface
+     integer (c_int) function cudaGetDeviceCount(device_count) &
+          bind(c, name='cudaGetDeviceCount')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: device_count
+     end function cudaGetDeviceCount
+  end interface
+
+  interface
      integer (c_int) function cudaGetDevice(device) &
           bind(c, name='cudaGetDevice')
        use, intrinsic :: iso_c_binding
@@ -278,12 +287,21 @@ contains
   subroutine cuda_init
     integer(c_int) :: device_id
     integer :: nthrds = 1
+    integer(c_int) :: num_devices
 
     !$omp parallel
     !$omp master
     !$ nthrds = omp_get_num_threads()
     !$omp end master
     !$omp end parallel
+
+    if (cudaGetDeviceCount(num_devices) .ne. cudaSuccess) then
+       call neko_error('Error retrieving device count')
+    end if
+
+    if (num_devices .ne. 1) then
+        call neko_error('Only one device is supported per MPI node')
+    end if
 
     ! Ensure that all threads are assigned to the same device
     if (nthrds .gt. 1) then

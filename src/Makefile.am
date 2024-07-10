@@ -202,13 +202,17 @@ neko_fortran_SOURCES = \
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
 	fluid/advection_fctry.f90\
-        fluid/bcknd/advection/adv_dealias.f90\
-        fluid/bcknd/advection/adv_no_dealias.f90\
+	fluid/bcknd/advection/adv_dealias.f90\
+	fluid/bcknd/advection/adv_no_dealias.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
+	fluid/stress_formulation/pnpn_res_stress_fctry.f90\
+	fluid/stress_formulation/pnpn_res_stress.f90\
+	fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90\
+	fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90\
 	common/time_step_controller.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
@@ -234,6 +238,7 @@ neko_fortran_SOURCES = \
 	device/opencl/prgm_lib.F90\
 	device/dummy_device.F90\
 	device/device.F90\
+	math/bcknd/field_math.f90\
 	math/bcknd/device/device_math.F90\
 	math/bcknd/device/device_schwarz.F90\
 	math/bcknd/device/tensor_device.F90\
@@ -275,8 +280,6 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/boussinesq_source_term_device.f90\
 	source_terms/source_term_fctry.f90\
 	source_terms/brinkman_source_term.f90\
-	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
-	source_terms/bcknd/device/brinkman_source_term_device.f90\
 	source_terms/brinkman/filters.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
 	les/les_model.f90\
@@ -297,14 +300,16 @@ neko_fortran_SOURCES = \
 	wall_models/wall_model_fctry.f90\
 	neko.f90
 
-neko_c_SOURCES = comm/comm_wrapper.c\
-		 common/sighdl.c\
-		 common/cpuid.c\
-                 gs/bcknd/device/device_mpi.c\
-                 math/bcknd/device/device_mpi_reduce.c
+neko_c_SOURCES = \
+	comm/comm_wrapper.c\
+	common/sighdl.c\
+	common/cpuid.c\
+	gs/bcknd/device/device_mpi.c\
+	math/bcknd/device/device_mpi_reduce.c
 
-libneko_a_SOURCES = $(neko_fortran_SOURCES)\
-                    $(neko_c_SOURCES)
+libneko_a_SOURCES = \
+	$(neko_fortran_SOURCES)\
+	$(neko_c_SOURCES)
 
 if ENABLE_PARMETIS
 libneko_a_SOURCES += comm/parmetis_wrapper.c
@@ -375,6 +380,7 @@ libneko_a_SOURCES += \
 	common/bcknd/device/cuda/rhs_maker.cu\
 	common/bcknd/device/cuda/projection.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
+	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu
 endif
@@ -447,9 +453,10 @@ endif
 bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
-pkginclude_HEADERS = $(wildcard *.mod)\
-		     device/device_config.h\
-		     common/neko_log.h
+pkginclude_HEADERS = \
+	$(wildcard *.mod)\
+	device/device_config.h\
+	common/neko_log.h
 
 if ENABLE_HIP
 pkginclude_HEADERS += device/hip/check.h
@@ -467,13 +474,14 @@ endif
 CLEANFILES = *.mod
 
 if ENABLE_OPENCL
-CLEANFILES += math/bcknd/device/opencl/*.cl.h\
-	      gs/bcknd/device/opencl/*.cl.h\
-	      bc/bcknd/device/opencl/*.cl.h\
-	      krylov/bcknd/device/opencl/*.cl.h\
-	      fluid/bcknd/device/opencl/*.cl.h\
-	      scalar/bcknd/device/opencl/*.cl.h\
-	      sem/bcknd/device/opencl/*.cl.h
+CLEANFILES += \
+	math/bcknd/device/opencl/*.cl.h\
+	gs/bcknd/device/opencl/*.cl.h\
+	bc/bcknd/device/opencl/*.cl.h\
+	krylov/bcknd/device/opencl/*.cl.h\
+	fluid/bcknd/device/opencl/*.cl.h\
+	scalar/bcknd/device/opencl/*.cl.h\
+	sem/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
@@ -509,6 +517,7 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/projection_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
+	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
