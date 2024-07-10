@@ -37,6 +37,7 @@ module adv_dealias
   use math, only: vdot3, sub2, copy
   use space, only: space_t, GL
   use field, only: field_t
+  use field_math, only: field_sub3
   use coefs, only: coef_t
   use device_math, only: device_vdot3, device_sub2
   use neko_config, only: NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
@@ -45,6 +46,7 @@ module adv_dealias
   use interpolation, only: interpolator_t
   use device, only: device_map, device_get_ptr
   use perturb
+  use field_registry
   implicit none
   private
 
@@ -84,6 +86,10 @@ module adv_dealias
      !> pcs partub thingy
      type(pcs_struct), allocatable :: pcs_thing
      real(kind=rp), allocatable :: pcs_temp1(:), pcs_temp2(:), pcs_temp3(:)
+     type(field_t), pointer :: u_conv, v_conv, w_conv
+     type(field_t), pointer :: u_convfp, v_convfp, w_convfp
+     type(field_t), pointer :: u_epsconvfp, v_epsconvfp, w_epsconvfp
+     
    contains
      !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
      !! the RHS.
@@ -164,6 +170,24 @@ contains
        call device_map(this%vt, this%vt_d, n_GL)
     end if
 
+    call neko_field_registry%add_field(this%coef_GLL%dof, 'u_conv')
+    call neko_field_registry%add_field(this%coef_GLL%dof, 'v_conv')
+    call neko_field_registry%add_field(this%coef_GLL%dof, 'w_conv')
+    this%u_conv => neko_field_registry%get_field('u_conv')
+    this%v_conv => neko_field_registry%get_field('v_conv')
+    this%w_conv => neko_field_registry%get_field('w_conv')
+    call neko_field_registry%add_field(this%coef_GLL%dof, 'u_convfp')
+    call neko_field_registry%add_field(this%coef_GLL%dof, 'v_convfp')
+    call neko_field_registry%add_field(this%coef_GLL%dof, 'w_convfp')
+    this%u_convfp => neko_field_registry%get_field('u_convfp')
+    this%v_convfp => neko_field_registry%get_field('v_convfp')
+    this%w_convfp => neko_field_registry%get_field('w_convfp')
+    call neko_field_registry%add_field(this%coef_GLL%dof, 'u_epsconvfp')
+    call neko_field_registry%add_field(this%coef_GLL%dof, 'v_epsconvfp')
+    call neko_field_registry%add_field(this%coef_GLL%dof, 'w_epsconvfp')
+    this%u_epsconvfp => neko_field_registry%get_field('u_epsconvfp')
+    this%v_epsconvfp => neko_field_registry%get_field('v_epsconvfp')
+    this%w_epsconvfp => neko_field_registry%get_field('w_epsconvfp')
   end subroutine init_dealias
 
   !> Destructor
@@ -210,17 +234,17 @@ contains
          call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call perturb_vector_device(this%temp_d, this%temp_d,this%temp, n, this%pcs_thing)
-         call device_sub2(fx%x_d, this%temp_d, n)
+         call this%GLL_to_GL%map(this%u_conv%x, this%tbf, nel, this%Xh_GLL)
+         call perturb_vector_device(this%u_convfp%x_d, this%u_conv%x_d,this%temp, n, this%pcs_thing)
+         call device_sub2(fx%x_d, this%u_convfp%x_d, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-         call perturb_vector_device(this%temp_d, this%temp_d,this%temp, n, this%pcs_thing)
-         call device_sub2(fy%x_d, this%temp_d, n)
+         call this%GLL_to_GL%map(this%v_conv%x, this%tbf, nel, this%Xh_GLL)
+         call perturb_vector_device(this%v_convfp%x_d, this%v_conv%x_d,this%temp, n, this%pcs_thing)
+         call device_sub2(fy%x_d, this%v_convfp%x_d, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
@@ -228,6 +252,10 @@ contains
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call perturb_vector_device(this%temp_d, this%temp_d,this%temp, n, this%pcs_thing)
          call device_sub2(fz%x_d, this%temp_d, n)
+         call this%GLL_to_GL%map(this%w_conv%x, this%tbf, nel, this%Xh_GLL)
+         call perturb_vector_device(this%w_convfp%x_d, this%w_conv%x_d,this%temp, n, this%pcs_thing)
+         call device_sub2(fz%x_d, this%w_convfp%x_d, n)
+
 
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
 
@@ -281,18 +309,21 @@ contains
             call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
 
             idx = (e-1)*this%Xh_GLL%lxyz+1
-            call copy(this%pcs_temp1(idx), tempx, this%Xh_GLL%lxyz)
-            call copy(this%pcs_temp2(idx), tempy, this%Xh_GLL%lxyz)
-            call copy(this%pcs_temp3(idx), tempz, this%Xh_GLL%lxyz)
+            call copy(this%u_conv%x(idx,1,1,1), tempx, this%Xh_GLL%lxyz)
+            call copy(this%v_conv%x(idx,1,1,1), tempy, this%Xh_GLL%lxyz)
+            call copy(this%w_conv%x(idx,1,1,1), tempz, this%Xh_GLL%lxyz)
          end do
-         call perturb_vector(this%pcs_temp1, this%pcs_temp1,n , this%pcs_thing)
-         call perturb_vector(this%pcs_temp2, this%pcs_temp2,n , this%pcs_thing)
-         call perturb_vector(this%pcs_temp3, this%pcs_temp3,n , this%pcs_thing)
-         call sub2(fx%x, this%pcs_temp1, n)
-         call sub2(fy%x, this%pcs_temp2, n)
-         call sub2(fz%x, this%pcs_temp3, n)
+         call perturb_vector(this%u_convfp%x, this%u_conv%x,n , this%pcs_thing)
+         call perturb_vector(this%v_convfp%x, this%v_conv%x,n , this%pcs_thing)
+         call perturb_vector(this%w_convfp%x, this%w_conv%x,n , this%pcs_thing)
+         call sub2(fx%x, this%u_convfp%x, n)
+         call sub2(fy%x, this%v_convfp%x, n)
+         call sub2(fz%x, this%w_convfp%x, n)
       end if
     end associate
+    call field_sub3(this%u_epsconvfp, this%u_conv,this%u_convfp, n)
+    call field_sub3(this%v_epsconvfp, this%v_conv,this%v_convfp, n)
+    call field_sub3(this%w_epsconvfp, this%w_conv,this%w_convfp, n)
 
   end subroutine compute_advection_dealias
 
