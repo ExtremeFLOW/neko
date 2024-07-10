@@ -11,7 +11,7 @@
     "timestep": 0.003,
     "numerics": {
         "time_order": 3,
-        "polynomial_order": 7,
+        "polynomial_order": 3,
         "dealias": true
     },
     "fluid": {
@@ -29,10 +29,10 @@
         },
         "pressure_solver": {
             "type": "gmres",
-            "preconditioner": "hsmg",
+            "preconditioner": "jacobi",
             "projection_space_size": 20,
             "absolute_tolerance": 1e-5,
-            "max_iterations": 800
+            "max_iterations": 8
         },
         "flow_rate_force": {
             "direction": 1,
@@ -40,20 +40,33 @@
             "use_averaged_flow": true
         },
         "boundary_types": ["", "", "w", "w"],
-        "output_control": "simulationtime",
+        "output_control": "tsteps",
         "output_value": 20
     },
-  "simulation_components": 
-  [
-    {
-      "type": "fluid_stats",
+    "simulation_components":[
+ {     "type": "fluid_stats",
       "compute_control": "tsteps",
       "compute_value": 10,
       "output_control": "simulationtime",
       "output_value": 20,
       "start_time":70,
       "avg_direction":"xz"
-    }
-  ]
+   },
+    {  "type": "field_writer",
+      "compute_control": "tsteps",
+      "compute_value": 10,
+      "output_control": "tsteps",
+      "output_value": 20,
+      "fields": ["u_conv","v_conv","w_conv"]
+},{
+      "type": "user_stats",
+      "compute_control": "tsteps",
+      "compute_value": 10,
+      "output_control": "tsteps",
+      "output_value": 20,
+      "start_time":0,
+      "fields": ["u_conv","v_conv","w_conv"]
+}
+]
 }
 }
