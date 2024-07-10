@@ -119,6 +119,7 @@ io/fluid_output.o : io/fluid_output.f90 io/output.o device/device.o config/neko_
 io/fld_file_output.o : io/fld_file_output.f90 io/output.o device/device.o config/neko_config.o field/field_list.o config/num_types.o 
 io/chkp_output.o : io/chkp_output.f90 config/num_types.o io/output.o common/checkpoint.o 
 io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o device/device.o config/num_types.o fluid/mean_flow.o 
+io/mean_field_output.o : io/mean_field_output.f90 io/output.o device/device.o config/neko_config.o field/field_list.o scalar/scalar_scheme.o fluid/fluid_scheme.o config/num_types.o 
 io/fluid_stats_output.o : io/fluid_stats_output.f90 io/output.o device/device.o config/num_types.o config/neko_config.o fluid/fluid_stats.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
 io/data_streamer.o : io/data_streamer.F90 config/neko_config.o comm/mpi_types.o comm/comm.o device/device.o common/utils.o sem/coef.o field/field.o config/num_types.o 
@@ -175,6 +176,7 @@ common/statistics.o : common/statistics.f90 comm/comm.o common/log.o common/stat
 common/rhs_maker.o : common/rhs_maker.f90 field/field.o field/field_series.o config/num_types.o 
 common/rhs_maker_fctry.o : common/rhs_maker_fctry.f90 config/neko_config.o common/bcknd/device/rhs_maker_device.o common/bcknd/sx/rhs_maker_sx.o common/bcknd/cpu/rhs_maker_cpu.o common/rhs_maker.o 
 simulation_components/probes.o : simulation_components/probes.F90 case.o io/csv_file.o io/file.o device/device.o comm/comm.o mesh/point_zone_registry.o mesh/point_zone.o math/tensor.o common/global_interpolation.o common/json_utils.o sem/dofmap.o field/field_registry.o simulation_components/simulation_component.o field/field_list.o common/utils.o common/log.o math/matrix.o config/num_types.o 
+simulation_components/user_statistics.o : simulation_components/user_statistics.f90 field/mean_field.o common/json_utils.o io/mean_field_output.o case.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
 simulation_components/field_writer.o : simulation_components/field_writer.f90 common/json_utils.o io/fld_file_output.o case.o math/operators.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
 common/bcknd/cpu/rhs_maker_cpu.o : common/bcknd/cpu/rhs_maker_cpu.f90 field/scratch_registry.o config/num_types.o field/field.o field/field_series.o common/rhs_maker.o 
 common/bcknd/sx/rhs_maker_sx.o : common/bcknd/sx/rhs_maker_sx.f90 field/scratch_registry.o config/num_types.o field/field.o field/field_series.o common/rhs_maker.o 

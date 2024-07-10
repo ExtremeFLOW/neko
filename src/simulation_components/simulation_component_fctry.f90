@@ -37,6 +37,7 @@ module simulation_component_fctry
   use vorticity, only : vorticity_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
+  use user_stats, only : user_stats_t
   use les_simcomp, only : les_simcomp_t
   use json_module, only : json_file
   use case, only : case_t
@@ -51,11 +52,12 @@ module simulation_component_fctry
   public :: simulation_component_factory
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(5) = [character(len=20) :: &
+  character(len=20) :: KNOWN_TYPES(6) = [character(len=20) :: &
      "vorticity", &
      "lambda2", &
      "probes", &
      "les_model", &
+     "user_stats",&
      "field_writer"]
 
 contains
@@ -90,6 +92,8 @@ contains
        allocate(field_writer_t::object)
     else if (trim(type_name) .eq. "weak_grad") then
        allocate(weak_grad_t::object)
+    else if (trim(type_name) .eq. "user_stats") then
+       allocate(user_stats_t::object)
     else if (trim(type_name) .eq. "derivative") then
        allocate(derivative_t::object)
     else

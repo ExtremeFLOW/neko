@@ -33,14 +33,14 @@
 !
 !> Implements the `vorticity_t` type.
 
-module user_statistics
+module user_stats
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use case, only : case_t
-  use fld_file_output, only : fld_file_output_t
+  use mean_field_output, only : mean_field_output_t
   use json_utils, only : json_get, json_get_or_default
   use mean_field, only : mean_field_t
 
@@ -49,35 +49,36 @@ module user_statistics
   private
 
   !> A simulation component that computes the averages of fields in the registry.
-  type, public, extends(simulation_component_t) :: user_statistics_t
+  type, public, extends(simulation_component_t) :: user_stats_t
 
      !> Variables
-     real(kind=rp) :: average_starting_t
-     real(kind=rp) :: average_last_t
-     type(mean_field_t), allocatable :: mean_fields(:)
-     integer :: n_fields_in_registry = 0
-     character(len=20), allocatable  :: field_in_registry_name(:)
+     real(kind=rp) :: start_time !<When to start average
+     real(kind=rp) :: time !< current time
+     type(mean_field_t), allocatable :: mean_fields(:) !<mean fields
+     integer :: n_avg_fields = 0 !< NUmber of fields to average
+     character(len=20), allocatable  :: field_names(:) !< field names
 
      !> Output writer.
-     type(fld_file_output_t), private :: output
+     type(mean_field_output_t), private :: output
 
    contains
      !> Constructor from json, wrapping the actual constructor.
-     procedure, pass(this) :: init => user_statistics_init_from_json
+     procedure, pass(this) :: init => user_stats_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_attributes => &
-        user_statistics_init_from_attributes
+        user_stats_init_from_attributes
      !> Destructor.
-     procedure, pass(this) :: free => user_statistics_free
-     !> Compute the vorticity field.
-     procedure, pass(this) :: compute_ => user_statistics_compute
-  end type vorticity_t
+     procedure, pass(this) :: free => user_stats_free
+     !> Compute the means
+     procedure, pass(this) :: compute_ => user_stats_compute
+     procedure, pass(this) :: restart_ => user_stats_restart
+  end type user_stats_t
 
 contains
 
   !> Constructor from json.
-  subroutine user_statistics_init_from_json(this, json, case)
-    class(vorticity_t), intent(inout) :: this
+  subroutine user_stats_init_from_json(this, json, case)
+    class(user_stats_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
@@ -86,89 +87,96 @@ contains
     call this%init_base(json, case)
 
     !> Get the number of stat fields and their names
-    call json%info('fields', n_children=this%n_fields_in_registry)
-    call json_get(json, 'fields', this%field_in_registry_name)
+    call json%info('fields', n_children=this%n_avg_fields)
+    call json_get(json, 'fields', this%field_names)
+    call json_get_or_default(json, 'start_time', &
+         this%start_time, 0.0_rp)
+    this%time = this%start_time
+    call user_stats_init_from_attributes(this,this%start_time,filename="user_stats")
+   ! if (json%valid_path("output_filename")) then
+   !    call json_get_or_default(json, "output_filename", filename,'user_stats')
+   !    if (json%valid_path("output_precision")) then
+   !        call json_get_or_default(json, "output_precision", precision,"single")
+   !        if (precision == "double") then
+   !           call user_stats_init_from_attributes(this, filename, dp)
+   !        else
+   !           call user_stats_init_from_attributes(this, filename, sp)
+   !        end if
+   !    else
+   !        call user_stats_init_from_attributes(this, filename)
+   !    end if
+   ! else
+   !    call user_stats_init_from_attributes(this)
+   ! end if
+  end subroutine user_stats_init_from_json
 
-    if (json%valid_path("output_filename")) then
-       call json_get(json, "output_filename", filename)
-       if (json%valid_path("output_precision")) then
-           call json_get(json, "output_precision", precision)
-           if (precision == "double") then
-              call user_statistics_init_from_attributes(this, filename, dp)
-           else
-              call user_statistics_init_from_attributes(this, filename, sp)
-           end if
-       else
-           call user_statistics_init_from_attributes(this, filename)
-       end if
-    else
-       call user_statistics_init_from_attributes(this)
-    end if
-  end subroutine user_statistics_init_from_json
+  subroutine user_stats_restart(this, t)
+    class(user_stats_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    if(t .gt. this%time) this%time = t
+  end subroutine user_stats_restart
+
 
   !> Actual constructor.
-  subroutine user_statistics_init_from_attributes(this, filename, precision)
-    class(user_statistics_t), intent(inout) :: this
-    character(len=*), intent(in), optional :: filename
+  subroutine user_stats_init_from_attributes(this,start_time, filename, precision)
+    class(user_stats_t), intent(inout) :: this
+    character(len=*), intent(in) :: filename
     integer, intent(in), optional :: precision
-    type(fld_file_output_t) :: output
+    real(kind=rp), intent(in) :: start_time
     integer :: i
+    type(field_t), pointer :: field_to_avg
 
-
+    this%start_time = start_time
+    this%time = start_time
     !> Allocate and initialize the mean fields
-    allocate(this%mean_fields(this%n_fields_in_registry))
-    do i = 1, this%n_fields_in_registry
-       call this%mean_fields(i)%init(neko_field_registry%get_field(&
-                                     trim(this%field_in_registry_name(i))))
+    allocate(this%mean_fields(this%n_avg_fields))
+    do i = 1, this%n_avg_fields
+       field_to_avg => neko_field_registry%get_field(&
+                                     trim(this%field_names(i)))
+       call this%mean_fields(i)%init(field_to_avg)
     end do
 
-    if (present(filename)) then
-       if (present(precision)) then
-          call this%output%init(precision, filename, this%n_fields_in_registry)
-       else
-          call this%output%init(sp, filename, this%n_fields_in_registry)
-       end if
-        
-       do i = 1, this%n_fields_in_registry
-          this%output%fields%fields(i)%f => this%mean_fields(i)%mf
-       end if
+    call this%output%init(this%mean_fields, this%n_avg_fields,this%start_time, sp, name=filename)
+    call this%case%s%add(this%output, this%output_controller%control_value, &
+                         this%output_controller%control_mode)
 
-       call this%case%s%add(this%output, this%output_controller%control_value, &
-                            this%output_controller%control_mode)
-    else
 
-       do i = 1, this%n_fields_in_registry
-          call this%case%f_out%fluid%append(this%mean_fields(i)%mf)
-       end if
-
-    end if
-
-  end subroutine user_statistics_init_from_attributes
+  end subroutine user_stats_init_from_attributes
 
   !> Destructor.
-  subroutine user_statistics_free(this)
-    class(user_statistics_t), intent(inout) :: this
+  subroutine user_stats_free(this)
+    class(user_stats_t), intent(inout) :: this
     integer :: i
     call this%free_base()
-    do i = 1, this%n_fields_in_registry
-       call this%mean_fields(i)%free
+    if (allocated(this%mean_fields)) then
+       do i = 1, this%n_avg_fields
+          call this%mean_fields(i)%free()
+       end do
+       deallocate(this%mean_fields)
     end if
-  end subroutine user_statistics_free
+    if (allocated(this%field_names)) then
+       deallocate(this%field_names)
+    end if
+
+  end subroutine user_stats_free
 
   !> Compute the vorticity field.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine user_statistics_compute(this, t, tstep)
-    class(vorticity_t), intent(inout) :: this
+  subroutine user_stats_compute(this, t, tstep)
+    class(user_stats_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    integer :: i
  
     !> Update the running average of the fields
-    do i = 1, this%n_fields_in_registry
-       call this%mean_fields(i)%update(t-this%average_last_t) 
-    end do
-    this%average_last_t = t
+    if (t .ge. this%start_time) then
+       do i = 1, this%n_avg_fields
+          call this%mean_fields(i)%update(t-this%time) 
+       end do
+       this%time= t
+    end if
 
-  end subroutine user_statistics_compute
+  end subroutine user_stats_compute
 
-end module user_statistics
+end module user_stats
