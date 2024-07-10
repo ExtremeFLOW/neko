@@ -79,6 +79,8 @@ module simulation_component
      procedure, pass(this) :: preprocess_
      !> The main function to be executed during the run.
      procedure, pass(this) :: compute_
+     !> The restart function
+     procedure, pass(this) :: restart_
   end type simulation_component_t
 
   !> A helper type that is needed to have an array of polymorphic objects
@@ -201,9 +203,17 @@ contains
 
     call this%compute_controller%set_counter(t)
     call this%output_controller%set_counter(t)
+    
+    call this%restart_(t) 
 
   end subroutine simulation_component_restart_wrapper
 
+  subroutine restart_(this, t)
+    class(simulation_component_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+
+    ! Do nothing
+  end subroutine restart_
   !> Dummy preprocessing function.
   !! @param t The time value.
   !! @param tstep The current time-step

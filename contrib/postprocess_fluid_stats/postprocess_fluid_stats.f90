@@ -2,14 +2,12 @@
 !! Martin Karp 27/01-23
 program postprocess_fluid_stats
   use neko
-  use mean_flow
   implicit none
 
-  character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname, stats_fname, mean_fname
-  type(file_t) :: mean_file, stats_file, output_file, mesh_file
+  character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname, stats_fname
+  type(file_t) :: stats_file, output_file, mesh_file
   real(kind=rp) :: start_time
-  type(fld_file_data_t) :: stats_data, mean_data
-  type(mean_flow_t) :: avg_flow
+  type(fld_file_data_t) :: stats_data
   type(fluid_stats_t) :: fld_stats
   type(coef_t) :: coef
   type(dofmap_t) :: dof
@@ -25,9 +23,9 @@ program postprocess_fluid_stats
 
   if ((argc .lt. 3) .or. (argc .gt. 3)) then
      if (pe_rank .eq. 0) then
-        write(*,*) 'Usage: ./postprocess_fluid_stats mesh.nmsh mean_field.fld stats.fld'
-        write(*,*) 'Example command: ./postprocess_fluid_stats mesh.nmsh mean_fieldblabla.fld statsblabla.fld'
-        write(*,*) 'Computes the statstics from the fld files described in mean_fielblabla.nek5000 statsblabla.nek5000'
+        write(*,*) 'Usage: ./postprocess_fluid_stats mesh.nmsh stats.fld'
+        write(*,*) 'Example command: ./postprocess_fluid_stats mesh.nmsh statsblabla.fld'
+        write(*,*) 'Computes the statstics from the fld files described in statsblabla.nek5000'
         write(*,*) 'Currently we output two new fld files reynolds and mean_vei_grad'
         write(*,*) 'In Reynolds the fields are ordered as:'
         write(*,*) 'x-velocity=<u`u`>'
@@ -57,50 +55,45 @@ program postprocess_fluid_stats
   read(inputchar, *) mesh_fname
   mesh_file = file_t(trim(mesh_fname))
   call get_command_argument(2, inputchar)
-  read(inputchar, *) mean_fname
-  mean_file = file_t(trim(mean_fname))
-  call get_command_argument(3, inputchar)
   read(inputchar, *) stats_fname
   stats_file = file_t(trim(stats_fname))
 
   call mesh_file%read(msh)
 
-  call mean_data%init(msh%nelv,msh%offset_el)
   call stats_data%init(msh%nelv,msh%offset_el)
-  call mean_file%read(mean_data)
   call stats_file%read(stats_data)
 
   do i = 1,msh%nelv
-     lx = mean_data%lx
-     msh%elements(i)%e%pts(1)%p%x(1) = mean_data%x%x(linear_index(1,1,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(2)%p%x(1) = mean_data%x%x(linear_index(lx,1,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(3)%p%x(1) = mean_data%x%x(linear_index(1,lx,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(4)%p%x(1) = mean_data%x%x(linear_index(lx,lx,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(5)%p%x(1) = mean_data%x%x(linear_index(1,1,lx,i,lx,lx,lx))
-     msh%elements(i)%e%pts(6)%p%x(1) = mean_data%x%x(linear_index(lx,1,lx,i,lx,lx,lx))
-     msh%elements(i)%e%pts(7)%p%x(1) = mean_data%x%x(linear_index(1,lx,lx,i,lx,lx,lx))
-     msh%elements(i)%e%pts(8)%p%x(1) = mean_data%x%x(linear_index(lx,lx,lx,i,lx,lx,lx))
+     lx = stats_data%lx
+     msh%elements(i)%e%pts(1)%p%x(1) = stats_data%x%x(linear_index(1,1,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(2)%p%x(1) = stats_data%x%x(linear_index(lx,1,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(3)%p%x(1) = stats_data%x%x(linear_index(1,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(4)%p%x(1) = stats_data%x%x(linear_index(lx,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(5)%p%x(1) = stats_data%x%x(linear_index(1,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(6)%p%x(1) = stats_data%x%x(linear_index(lx,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(7)%p%x(1) = stats_data%x%x(linear_index(1,lx,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(8)%p%x(1) = stats_data%x%x(linear_index(lx,lx,lx,i,lx,lx,lx))
 
-     msh%elements(i)%e%pts(1)%p%x(2) = mean_data%y%x(linear_index(1,1,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(2)%p%x(2) = mean_data%y%x(linear_index(lx,1,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(3)%p%x(2) = mean_data%y%x(linear_index(1,lx,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(4)%p%x(2) = mean_data%y%x(linear_index(lx,lx,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(5)%p%x(2) = mean_data%y%x(linear_index(1,1,lx,i,lx,lx,lx))
-     msh%elements(i)%e%pts(6)%p%x(2) = mean_data%y%x(linear_index(lx,1,lx,i,lx,lx,lx))
-     msh%elements(i)%e%pts(7)%p%x(2) = mean_data%y%x(linear_index(1,lx,lx,i,lx,lx,lx))
-     msh%elements(i)%e%pts(8)%p%x(2) = mean_data%y%x(linear_index(lx,lx,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(1)%p%x(2) = stats_data%y%x(linear_index(1,1,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(2)%p%x(2) = stats_data%y%x(linear_index(lx,1,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(3)%p%x(2) = stats_data%y%x(linear_index(1,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(4)%p%x(2) = stats_data%y%x(linear_index(lx,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(5)%p%x(2) = stats_data%y%x(linear_index(1,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(6)%p%x(2) = stats_data%y%x(linear_index(lx,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(7)%p%x(2) = stats_data%y%x(linear_index(1,lx,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(8)%p%x(2) = stats_data%y%x(linear_index(lx,lx,lx,i,lx,lx,lx))
 
-     msh%elements(i)%e%pts(1)%p%x(3) = mean_data%z%x(linear_index(1,1,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(2)%p%x(3) = mean_data%z%x(linear_index(lx,1,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(3)%p%x(3) = mean_data%z%x(linear_index(1,lx,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(4)%p%x(3) = mean_data%z%x(linear_index(lx,lx,1,i,lx,lx,lx))
-     msh%elements(i)%e%pts(5)%p%x(3) = mean_data%z%x(linear_index(1,1,lx,i,lx,lx,lx))
-     msh%elements(i)%e%pts(6)%p%x(3) = mean_data%z%x(linear_index(lx,1,lx,i,lx,lx,lx))
-     msh%elements(i)%e%pts(7)%p%x(3) = mean_data%z%x(linear_index(1,lx,lx,i,lx,lx,lx))
-     msh%elements(i)%e%pts(8)%p%x(3) = mean_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(1)%p%x(3) = stats_data%z%x(linear_index(1,1,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(2)%p%x(3) = stats_data%z%x(linear_index(lx,1,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(3)%p%x(3) = stats_data%z%x(linear_index(1,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(4)%p%x(3) = stats_data%z%x(linear_index(lx,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(5)%p%x(3) = stats_data%z%x(linear_index(1,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(6)%p%x(3) = stats_data%z%x(linear_index(lx,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(7)%p%x(3) = stats_data%z%x(linear_index(1,lx,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(8)%p%x(3) = stats_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
   end do
 
-  call Xh%init(GLL, mean_data%lx, mean_data%ly, mean_data%lz)
+  call Xh%init(GLL, stats_data%lx, stats_data%ly, stats_data%lz)
 
   dof = dofmap_t(msh, Xh)
   call gs_h%init(dof)
@@ -116,13 +109,8 @@ program postprocess_fluid_stats
   w => neko_field_registry%get_field('w')
   p => neko_field_registry%get_field('p')
 
-  call avg_flow%init(u, v, w, p)
-  call fld_stats%init(coef,avg_flow%u,avg_flow%v,avg_flow%w,avg_flow%p)
-  n = mean_data%u%n
-  call copy(avg_flow%u%mf%x,mean_data%u%x,n)
-  call copy(avg_flow%v%mf%x,mean_data%v%x,n)
-  call copy(avg_flow%w%mf%x,mean_data%w%x,n)
-  call copy(avg_flow%p%mf%x,mean_data%p%x,n)
+  call fld_stats%init(coef,u,v,w,p)
+  n = stats_data%u%n
 
   call copy(fld_stats%stat_fields%items(1)%ptr%x, stats_data%p%x,n)
   call copy(fld_stats%stat_fields%items(2)%ptr%x, stats_data%u%x,n)

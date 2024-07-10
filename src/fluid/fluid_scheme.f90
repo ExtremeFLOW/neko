@@ -33,10 +33,8 @@
 !> Fluid formulations
 module fluid_scheme
   use gather_scatter
-  use mean_sqr_flow, only : mean_sqr_flow_t
   use neko_config
   use checkpoint, only : chkp_t
-  use mean_flow, only : mean_flow_t
   use num_types
   use comm
   use fluid_user_source_term, only: fluid_user_source_term_t
@@ -125,9 +123,7 @@ module fluid_scheme
      type(json_file), pointer :: params        !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
-     type(mean_flow_t) :: mean                 !< Mean flow field
      type(fluid_stats_t) :: stats              !< Fluid statistics
-     type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
      !> Dynamic viscosity
@@ -749,15 +745,14 @@ contains
     call this%chkp%init(this%u, this%v, this%w, this%p)
 
     !
-    ! Setup mean flow fields if requested
+    ! Setup statistics fields if requested
     !
     if (this%params%valid_path('case.statistics')) then
        call json_get_or_default(this%params, 'case.statistics.enabled',&
                                 logical_val, .true.)
        if (logical_val) then
-          call this%mean%init(this%u, this%v, this%w, this%p)
-          call this%stats%init(this%c_Xh, this%mean%u, &
-               this%mean%v, this%mean%w, this%mean%p)
+          call this%stats%init(this%c_Xh, this%u, &
+               this%v, this%w, this%p)
        end if
     end if
 
@@ -877,60 +872,60 @@ contains
     call json_get_or_default(params, 'case.output_boundary', found, .false.)
 
     if (found) then
-      call this%bdry%init(this%dm_Xh, 'bdry')
-      this%bdry = 0.0_rp
+       call this%bdry%init(this%dm_Xh, 'bdry')
+       this%bdry = 0.0_rp
 
-      call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%wall)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%mark_zone(this%msh%wall)
+       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
                      'w', this%bc_labels)
-      call bdry_mask%finalize()
-      call bdry_mask%set_g(1.0_rp)
-      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
-      call bdry_mask%free()
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(1.0_rp)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
 
-      call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%inlet)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%mark_zone(this%msh%inlet)
+       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
                      'v', this%bc_labels)
-      call bdry_mask%finalize()
-      call bdry_mask%set_g(2.0_rp)
-      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
-      call bdry_mask%free()
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(2.0_rp)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
 
-      call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%outlet)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%mark_zone(this%msh%outlet)
+       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
                      'o', this%bc_labels)
-      call bdry_mask%finalize()
-      call bdry_mask%set_g(3.0_rp)
-      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
-      call bdry_mask%free()
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(3.0_rp)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
 
-      call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%sympln)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%mark_zone(this%msh%sympln)
+       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
                      'sym', this%bc_labels)
-      call bdry_mask%finalize()
-      call bdry_mask%set_g(4.0_rp)
-      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
-      call bdry_mask%free()
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(4.0_rp)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
 
-      call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%outlet_normal)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%mark_zone(this%msh%outlet_normal)
+       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
                      'on', this%bc_labels)
-      call bdry_mask%finalize()
-      call bdry_mask%set_g(5.0_rp)
-      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
-      call bdry_mask%free()
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(5.0_rp)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
 
-      call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%periodic)
-      call bdry_mask%finalize()
-      call bdry_mask%set_g(6.0_rp)
-      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
-      call bdry_mask%free()
+       call bdry_mask%init_base(this%c_Xh)
+       call bdry_mask%mark_zone(this%msh%periodic)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(6.0_rp)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+       call bdry_mask%free()
     end if
 
   end subroutine fluid_scheme_set_bc_type_output

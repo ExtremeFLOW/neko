@@ -35,78 +35,76 @@ Statistics are enable in the the case file as the following:
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
 | `enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`        |
 | `start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0             |
-| `sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10            |
+| `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommendwe with every 50 timesteps or so         |
 
 In addition to the usual controls for the output, which then outputs the averages computes from the last time the statistics were written to file.
 
 For example, if one wants to sample the fields every 4 time steps and compute the averages in time intervals of 20 and write the output every 20 time units, and start collecting statistics after an initial transient of 50 time units the following would work:
 
 ~~~~~~~~~~~~~~~{.json}
-"statistics": {
-        "enabled": true,
-        "start_time": 50.0,
-        "sampling_interval": 4,
-        "output_control": "simulationtime",
-        "output_value": 20,
-  }
+"simulation\_components": 
+  [
+    {
+      "type": "fluid_stats",
+      "compute_control": "tsteps",
+      "compute_value": 4,
+      "output_control": "simulationtime",
+      "output_value": 20,
+      "start_time":50.0,
+      "avg_direction":"xz"
+    }1
+  ]
 ~~~~~~~~~~~~~~~
-When the output is written one obtains two .fld files called mean_field and stats. 
+The argument "avg\_direction" is optional and if ignored we output 3d fields. the valid arguments currently are xy, xz, yz to compress the stats to a 1d array in a csv file.
 
 ## List of fields in output files 
-In `mean_field` the following averages are stored. The stored in variable column is which field one finds the computed statistic if one opens the file in paraview or visit.
 
-| Number | Statistic | Stored in variable |
+| Number | Statistic | Stored in variable (for fld files) |
 | ------ | --------- | ------------------ |
 | 1 | \f$ \langle p \rangle \f$ | Pressure|
 | 2 | \f$ \langle u \rangle \f$ | X-Velocity|
 | 3 | \f$ \langle v \rangle \f$ | Y-Velocity|
 | 4 | \f$ \langle w \rangle \f$ | Z-Velocity|
-
-In `stats` several other statistics are stored, and while not all might be interesting to your specific use case, with them most different budgets and quantities of interest can be computed. They are stored as the following:
-
-
-| Number | Statistic | Stored in variable |
-| ------ | --------- | ------------------ |
-| 1 | \f$ \langle pp \rangle \f$ | Pressure|
-| 2 | \f$ \langle uu \rangle \f$ | X-Velocity|
-| 3 | \f$ \langle vv \rangle \f$ | Y-Velocity|
-| 4 | \f$ \langle ww \rangle \f$ | Z-Velocity|
-| 5 | \f$ \langle uv \rangle \f$ | Temperature|
-| 6 | \f$ \langle uw \rangle \f$ | Scalar 1 (s1)|
-| 7 | \f$ \langle vw \rangle \f$ | Scalar 2 (s2)|
-| 8 | \f$ \langle uuu \rangle \f$ | s3|
-| 9 | \f$ \langle vvv \rangle \f$ | s4|
-| 10 | \f$ \langle www \rangle \f$ | s5|
-| 11 | \f$ \langle  uuv   \rangle \f$ | s6 |
-| 12 | \f$ \langle  uuw   \rangle \f$ | s7 |
-| 13 | \f$ \langle  uvv   \rangle \f$ | s8 |
-| 14 | \f$ \langle  uvw   \rangle \f$ | s9 |
-| 15 | \f$ \langle  vvw   \rangle \f$ | s10 |
-| 16 | \f$ \langle  uww   \rangle \f$ | s11 |
-| 17 | \f$ \langle  vww   \rangle \f$ | s12 |
-| 18 | \f$ \langle  uuuu  \rangle \f$ | s13 |
-| 19 | \f$ \langle  vvvv  \rangle \f$ | s14 |
-| 20 | \f$ \langle wwww   \rangle \f$ | s15 |
-| 21 | \f$ \langle  ppp   \rangle \f$ | s16 |
-| 22 | \f$ \langle  pppp  \rangle \f$ | s17 |
-| 23 | \f$ \langle  pu    \rangle \f$ | s18 |
-| 24 | \f$ \langle  pv    \rangle \f$ | s19 |
-| 25 | \f$ \langle  pw    \rangle \f$ | s20 |
-| 26 | \f$ \langle  p \frac{\partial u} {\partial x} \rangle \f$ | s21 |
-| 27 | \f$ \langle  p \frac{\partial u} {\partial y}\rangle \f$ | s22 |
-| 28 | \f$ \langle  p \frac{\partial u} {\partial z}\rangle \f$ | s23 |
-| 29 | \f$ \langle  p \frac{\partial v} {\partial x}\rangle \f$ | s24 |
-| 30 | \f$ \langle  p \frac{\partial v} {\partial y}\rangle \f$ | s25 |
-| 31 | \f$ \langle  p \frac{\partial v} {\partial z}\rangle \f$ | s26 |
-| 32 | \f$ \langle  p \frac{\partial w} {\partial x}\rangle \f$ | s27 |
-| 33 | \f$ \langle  p \frac{\partial w} {\partial y}\rangle \f$ | s28 |
-| 34 | \f$ \langle  p \frac{\partial w} {\partial z}\rangle \f$ | s29 |
-| 35 | \f$ \langle  e11   \rangle \f$ | s30 |
-| 36 | \f$ \langle  e22   \rangle \f$ | s31 |
-| 37 | \f$ \langle  e33   \rangle \f$ | s32 |
-| 38 | \f$ \langle  e12   \rangle \f$ | s33 |
-| 39 | \f$ \langle  e13   \rangle \f$ | s34 |
-| 40 | \f$ \langle  e23   \rangle \f$ | s35 |
+| 5 | \f$ \langle pp \rangle \f$ | Temperature|
+| 6 | \f$ \langle uu \rangle \f$ | Scalar 1 (s1)|
+| 7 | \f$ \langle vv \rangle \f$ | Scalar 2 (s2)|
+| 8 | \f$ \langle ww \rangle \f$ | s3|
+| 9 | \f$ \langle uv \rangle \f$ | s4|
+|10 | \f$ \langle uw \rangle \f$ | s5|
+| 11 | \f$ \langle vw \rangle \f$ | s6|
+| 12| \f$ \langle uuu \rangle \f$ | s7|
+| 13| \f$ \langle vvv \rangle \f$ | s8|
+| 14 | \f$ \langle www \rangle \f$ | s9|
+| 15 | \f$ \langle  uuv   \rangle \f$ | s10 |
+| 16 | \f$ \langle  uuw   \rangle \f$ | s11 |
+| 17 | \f$ \langle  uvv   \rangle \f$ | s12 |
+| 18 | \f$ \langle  uvw   \rangle \f$ | s13 |
+| 19 | \f$ \langle  vvw   \rangle \f$ | s14 |
+| 20 | \f$ \langle  uww   \rangle \f$ | s15 |
+| 21 | \f$ \langle  vww   \rangle \f$ | s16 |
+| 22 | \f$ \langle  uuuu  \rangle \f$ | s17 |
+| 23 | \f$ \langle  vvvv  \rangle \f$ | s18 |
+| 24 | \f$ \langle wwww   \rangle \f$ | s19 |
+| 25 | \f$ \langle  ppp   \rangle \f$ | s20 |
+| 26 | \f$ \langle  pppp  \rangle \f$ | s21 |
+| 27 | \f$ \langle  pu    \rangle \f$ | s22 |
+| 28 | \f$ \langle  pv    \rangle \f$ | s23 |
+| 29 | \f$ \langle  pw    \rangle \f$ | s24 |
+| 30 | \f$ \langle  p \frac{\partial u} {\partial x} \rangle \f$ | s25 |
+| 31 | \f$ \langle  p \frac{\partial u} {\partial y}\rangle \f$ | s26 |
+| 32 | \f$ \langle  p \frac{\partial u} {\partial z}\rangle \f$ | s27 |
+| 33 | \f$ \langle  p \frac{\partial v} {\partial x}\rangle \f$ | s28 |
+| 34 | \f$ \langle  p \frac{\partial v} {\partial y}\rangle \f$ | s29 |
+| 35 | \f$ \langle  p \frac{\partial v} {\partial z}\rangle \f$ | s30 |
+| 36 | \f$ \langle  p \frac{\partial w} {\partial x}\rangle \f$ | s31 |
+| 37 | \f$ \langle  p \frac{\partial w} {\partial y}\rangle \f$ | s32 |
+| 38 | \f$ \langle  p \frac{\partial w} {\partial z}\rangle \f$ | s33 |
+| 39 | \f$ \langle  e11   \rangle \f$ | s34 |
+| 40 | \f$ \langle  e22   \rangle \f$ | s35 |
+| 41 | \f$ \langle  e33   \rangle \f$ | s36 |
+| 42 | \f$ \langle  e12   \rangle \f$ | s37 |
+| 43 | \f$ \langle  e13   \rangle \f$ | s38 |
+| 44 | \f$ \langle  e23   \rangle \f$ | s39 |
 
 where \f$e11,e22...\f$ is computed as:
 $$
