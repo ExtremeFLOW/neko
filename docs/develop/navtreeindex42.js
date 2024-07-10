@@ -1,9 +1,5 @@
 var NAVTREEINDEX42 =
 {
-"de/ded/opencl__intf_8F90.html#aee12cf4342dc45314952c10ac3fd261b":[5,0,2,5,8,27],
-"de/ded/opencl__intf_8F90_source.html":[5,0,2,5,8],
-"de/df2/namespacegmres__device.html":[3,0,121],
-"de/df2/namespacegmres__device.html#a0a158df824f0f1613e4f18806ea3a81e":[3,0,121,2],
 "de/df2/namespacegmres__device.html#a3d1f074e8e4ff202a95e86f16386fafa":[3,0,121,5],
 "de/df2/namespacegmres__device.html#a757cd046c3628773cdc189474c1d04b0":[3,0,121,6],
 "de/df2/namespacegmres__device.html#ae22b087c0b4a1f8189d29fefe812cc6a":[3,0,121,3],
@@ -249,5 +245,9 @@ var NAVTREEINDEX42 =
 "df/d69/namespacetri.html":[3,0,280],
 "df/d69/namespacetri.html#a227fb3d93cb7cc45b02a4b700fcc6f07":[3,0,280,10],
 "df/d69/namespacetri.html#a5a37e086ad86bd0bb7e903905adcf3a2":[3,0,280,8],
-"df/d69/namespacetri.html#a70f41ce6e78709a269c085c237c39970":[3,0,280,2]
+"df/d69/namespacetri.html#a70f41ce6e78709a269c085c237c39970":[3,0,280,2],
+"df/d69/namespacetri.html#a795a5722dc6525a23b5afbdc6055e4cd":[3,0,280,5],
+"df/d69/namespacetri.html#a7d35c2faa36dc9f851815b4d3815da9e":[3,0,280,9],
+"df/d69/namespacetri.html#a8b5ec5b4522a4c520efa8b47a766cc91":[3,0,280,4],
+"df/d69/namespacetri.html#a8f0ad861a08d2b0e45e9af6400847ebb":[3,0,280,1]
 };

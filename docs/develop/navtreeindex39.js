@@ -1,9 +1,5 @@
 var NAVTREEINDEX39 =
 {
-"dd/df0/namespacespeclib.html#a8ea904df70dd360b7048d4c072d86d0f":[3,0,250,24],
-"dd/df0/namespacespeclib.html#a942a971b52385e6f104302b9e566b9f9":[3,0,250,17],
-"dd/df0/namespacespeclib.html#a9ee1e072e870bf038b4e82af82f8e696":[3,0,250,13],
-"dd/df0/namespacespeclib.html#a9f09a37ceba1bda3ba6d0bcb3a7c8ad5":[3,0,250,10],
 "dd/df0/namespacespeclib.html#aa155dec8c72ae730ff1df0b63ccf95e2":[3,0,250,5],
 "dd/df0/namespacespeclib.html#aa417242e861205a649681dfffda171d4":[3,0,250,18],
 "dd/df0/namespacespeclib.html#aa7131d3661c26a9ca06d8e48043480d9":[3,0,250,12],
@@ -249,5 +245,9 @@ var NAVTREEINDEX39 =
 "de/d2d/cuda_2lambda2__kernel_8h.html#a4ead2802d7dd0a548d154c3dc3abe493":[5,0,2,12,0,1,0,8,5],
 "de/d2d/cuda_2lambda2__kernel_8h.html#a516e79afaff41160487af846f7360b3d":[5,0,2,12,0,1,0,8,19],
 "de/d2d/cuda_2lambda2__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7":[5,0,2,12,0,1,0,8,20],
-"de/d2d/cuda_2lambda2__kernel_8h.html#a5c67ff26ee4de50ffc1ed0dff75f34c9":[5,0,2,12,0,1,0,8,0]
+"de/d2d/cuda_2lambda2__kernel_8h.html#a5c67ff26ee4de50ffc1ed0dff75f34c9":[5,0,2,12,0,1,0,8,0],
+"de/d2d/cuda_2lambda2__kernel_8h.html#a657f8438fc998178dd56e49b89071722":[5,0,2,12,0,1,0,8,27],
+"de/d2d/cuda_2lambda2__kernel_8h.html#a6e0e07d1f1c10033a04375b9d2ff4768":[5,0,2,12,0,1,0,8,14],
+"de/d2d/cuda_2lambda2__kernel_8h.html#a705bedcd4be856669ef2b973a02fa044":[5,0,2,12,0,1,0,8,3],
+"de/d2d/cuda_2lambda2__kernel_8h.html#a7864dfdce45135d56697dc77fde22d17":[5,0,2,12,0,1,0,8,15]
 };

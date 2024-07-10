@@ -1,9 +1,5 @@
 var NAVTREEINDEX36 =
 {
-"dd/d26/namespaceelementwise__filter__cpu.html":[3,0,77],
-"dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f":[3,0,77,0],
-"dd/d2f/namespacebicgstab.html":[3,0,18],
-"dd/d2f/namespacebicgstab.html#a30d5cb93845aec013b13e782b2fdd2e0":[3,0,18,4],
 "dd/d2f/namespacebicgstab.html#a3d021165e58f0e0e74cf3a503b36bfa3":[3,0,18,2],
 "dd/d2f/namespacebicgstab.html#a50fc62ca44c0a20bee7c08309b2078c7":[3,0,18,1],
 "dd/d2f/namespacebicgstab.html#afdcb9c0f169349daf77759d283479c43":[3,0,18,3],
@@ -249,5 +245,9 @@ var NAVTREEINDEX36 =
 "dd/d72/hip_2cdtp__kernel_8h.html#afa9cbc42a68a37ff6512f049d907f0a7":[5,0,2,12,0,1,1,2,20],
 "dd/d72/hip_2cdtp__kernel_8h.html#affe49acdcc940652feb93cb3438eaa9c":[5,0,2,12,0,1,1,2,8],
 "dd/d72/hip_2cdtp__kernel_8h_source.html":[5,0,2,12,0,1,1,2],
-"dd/d73/namespacesmagorinsky__cpu.html":[3,0,244]
+"dd/d73/namespacesmagorinsky__cpu.html":[3,0,244],
+"dd/d73/namespacesmagorinsky__cpu.html#a4c7509e1ca11400eb45a26eaa7ce4de8":[3,0,244,0],
+"dd/d79/pnpn__res_8hip.html":[5,0,2,7,0,2,1,0],
+"dd/d79/pnpn__res_8hip.html#a14669718af3049b2ec2c9273ce631d26":[5,0,2,7,0,2,1,0,1],
+"dd/d79/pnpn__res_8hip.html#a224090e29bda77d5becaf4d71740a946":[5,0,2,7,0,2,1,0,3]
 };

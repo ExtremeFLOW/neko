@@ -1,9 +1,5 @@
 var NAVTREEINDEX44 =
 {
-"df/dc4/schwarz_8f90.html#ae614e2a33b051d6843ac45bcff07c6b6":[5,0,2,12,12,4],
-"df/dc4/schwarz_8f90.html#aed04e84332557d214a95921525db8443":[5,0,2,12,12,3],
-"df/dc4/schwarz_8f90_source.html":[5,0,2,12,12],
-"df/dc5/prs__stress__res__kernel_8h.html":[5,0,2,7,1,0,1,0,1],
 "df/dc5/prs__stress__res__kernel_8h.html#a8860dec7ddf0c5584b439a0430160aea":[5,0,2,7,1,0,1,0,1,1],
 "df/dc5/prs__stress__res__kernel_8h.html#a99b32f591ed7004e52f9408a3e4352da":[5,0,2,7,1,0,1,0,1,0],
 "df/dc5/prs__stress__res__kernel_8h_source.html":[5,0,2,7,1,0,1,0,1],
@@ -95,8 +91,8 @@ var NAVTREEINDEX44 =
 "df/dec/namespacetuple.html#ae35fe89bb5c59ad751ffc141e132531b":[3,0,282,11],
 "df/dec/namespacetuple.html#aefdf3623e60c6b7952ffac6ccdd0bbac":[3,0,282,16],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html":[4,0,171,3],
-"df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[4,0,171,3,1],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[4,0,171,3,0],
+"df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[4,0,171,3,1],
 "df/df1/structspalding_1_1spalding__t.html":[4,0,195,0],
 "df/df1/structspalding_1_1spalding__t.html#a14604e7370a62c6fe8a8eebc22295ad2":[4,0,195,0,25],
 "df/df1/structspalding_1_1spalding__t.html#a17145889bf2e9c8ac3daf68797f9a27a":[4,0,195,0,15],
@@ -249,5 +245,9 @@ var NAVTREEINDEX44 =
 "dir_f1f26b6a678699e1bc545555832794f2.html":[5,0,2,6],
 "dir_f29f3b6717a4b6a9986233b23bcaba6e.html":[5,0,2,8,0,0],
 "dir_f48359d827d7566deae6b1b647b520e2.html":[5,0,2,12,0,1,1],
-"dir_f4fb3012579bf14a8223705ee59e13f0.html":[5,0,2,15,0,1,2]
+"dir_f4fb3012579bf14a8223705ee59e13f0.html":[5,0,2,15,0,1,2],
+"dir_f5a4111523313e46236546ef578dd60e.html":[5,0,2,7,0,1],
+"dir_f78281b1c34bcc0755a021d618b2178e.html":[5,0,2,3,0,1,2],
+"dir_fdedb0aba14d44ce9d99bc100e026e6a.html":[5,0,2,3],
+"examples.html":[6]
 };
