@@ -34,12 +34,12 @@
 module adv_dealias
   use advection, only: advection_t
   use num_types, only: rp
-  use math, only: vdot3, sub2, copy
+  use math
   use space, only: space_t, GL
   use field, only: field_t
-  use field_math, only: field_sub3
+  use field_math
   use coefs, only: coef_t
-  use device_math, only: device_vdot3, device_sub2
+  use device_math
   use neko_config, only: NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
     NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
   use operators, only: opgrad
@@ -89,6 +89,7 @@ module adv_dealias
      type(field_t), pointer :: u_conv, v_conv, w_conv
      type(field_t), pointer :: u_convfp, v_convfp, w_convfp
      type(field_t), pointer :: u_epsconvfp, v_epsconvfp, w_epsconvfp
+     type(field_t) :: binv
      
    contains
      !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
@@ -188,6 +189,14 @@ contains
     this%u_epsconvfp => neko_field_registry%get_field('u_epsconvfp')
     this%v_epsconvfp => neko_field_registry%get_field('v_epsconvfp')
     this%w_epsconvfp => neko_field_registry%get_field('w_epsconvfp')
+    call    this%binv%init(this%coef_Gll%dof)
+    this%binv = 1.0_rp
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+        call device_invcol2(this%binv%x_d,this%coef_GLL%B_d,n)
+    else
+        call invcol2(this%binv%x,this%coef_GLL%B,n)
+    end if
+
   end subroutine init_dealias
 
   !> Destructor
@@ -235,23 +244,26 @@ contains
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%u_conv%x, this%tbf, nel, this%Xh_GLL)
+         call field_col2(this%u_conv,this%binv,n)
          call perturb_vector_device(this%u_convfp%x_d, this%u_conv%x_d,this%temp, n, this%pcs_thing)
-         call device_sub2(fx%x_d, this%u_convfp%x_d, n)
+         call device_subcol3(fx%x_d, this%u_convfp%x_d,this%coef_GLL%B_d, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%v_conv%x, this%tbf, nel, this%Xh_GLL)
+         call field_col2(this%v_conv,this%binv,n)
          call perturb_vector_device(this%v_convfp%x_d, this%v_conv%x_d,this%temp, n, this%pcs_thing)
-         call device_sub2(fy%x_d, this%v_convfp%x_d, n)
 
+         call device_subcol3(fy%x_d, this%v_convfp%x_d,this%coef_GLL%B_d, n)
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
                            this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%w_conv%x, this%tbf, nel, this%Xh_GLL)
+         call field_col2(this%w_conv,this%binv,n)
          call perturb_vector_device(this%w_convfp%x_d, this%w_conv%x_d,this%temp, n, this%pcs_thing)
-         call device_sub2(fz%x_d, this%w_convfp%x_d, n)
+         call device_subcol3(fz%x_d, this%w_convfp%x_d,this%coef_GLL%B_d, n)
 
 
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
