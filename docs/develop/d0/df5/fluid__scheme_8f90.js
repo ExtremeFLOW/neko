@@ -15,5 +15,6 @@ var fluid__scheme_8f90 =
     [ "fluid_scheme_set_bc_type_output", "d0/df5/fluid__scheme_8f90.html#a1f22a47782aa9ed193e551870ec02e2c", null ],
     [ "fluid_scheme_set_usr_inflow", "d0/df5/fluid__scheme_8f90.html#a6561f8852ca35ecee87cf24c92abc5ff", null ],
     [ "fluid_scheme_solver_factory", "d0/df5/fluid__scheme_8f90.html#a5fb59358d3639df4c60c471642d27e1f", null ],
+    [ "fluid_scheme_update_material_properties", "d0/df5/fluid__scheme_8f90.html#a17447dcd8f1416c9e71540d16be95a6b", null ],
     [ "fluid_scheme_validate", "d0/df5/fluid__scheme_8f90.html#ab37cf7d940c2ae123b80872660bf07fe", null ]
 ];
