@@ -673,14 +673,12 @@ contains
     call json_get_or_default(params, &
                             'case.fluid.gradient_jump_penalty',&
                             this%if_gradient_jump_penalty, .false.)
-    write(*,*) "CHECK1"
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
        call this%gradient_jump_penalty_u%init(this%dm_Xh, this%c_Xh)
        call this%gradient_jump_penalty_v%init(this%dm_Xh, this%c_Xh)
        call this%gradient_jump_penalty_w%init(this%dm_Xh, this%c_Xh)
     end if
-    write(*,*) "CHECK2"
 
     call neko_log%end_section()
 
