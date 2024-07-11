@@ -39,7 +39,7 @@ module flow_ic
     blasius_quadratic, blasius_quartic, blasius_sin
   use device, only: device_memcpy, HOST_TO_DEVICE
   use field, only : field_t
-  use utils, only : neko_error
+  use utils, only : neko_error, filename_suffix, filename_chsuffix
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
   use device_math, only : device_col2, device_cfill, device_cfill_mask
@@ -48,6 +48,8 @@ module flow_ic
   use json_utils, only: json_get
   use point_zone, only: point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
+  use fld_file_data, only: fld_file_data_t
+  use file, only: file_t
   implicit none
   private
 
@@ -72,8 +74,10 @@ contains
     real(kind=rp) :: delta
     real(kind=rp), allocatable :: uinf(:)
     real(kind=rp), allocatable :: zone_value(:)
-    character(len=:), allocatable :: blasius_approximation
-    character(len=:), allocatable :: zone_name
+    character(len=:), allocatable :: read_str
+    character(len=80) :: suffix
+    character(len=1024) :: new_fname
+    integer :: n_sample
 
     if (trim(type) .eq. 'uniform') then
        call json_get(params, 'case.fluid.initial_condition.value', uinf)
@@ -81,16 +85,30 @@ contains
     else if (trim(type) .eq. 'blasius') then
        call json_get(params, 'case.fluid.blasius.delta', delta)
        call json_get(params, 'case.fluid.blasius.approximation', &
-                     blasius_approximation)
+                     read_str)
        call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
-       call set_flow_ic_blasius(u, v, w, delta, uinf, blasius_approximation)
+       call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
     else if (trim(type) .eq. 'point_zone') then
        call json_get(params, 'case.fluid.initial_condition.base_value', uinf)
        call json_get(params, 'case.fluid.initial_condition.zone_name', &
-                     zone_name)
+                     read_str)
        call json_get(params, 'case.fluid.initial_condition.zone_value', &
                      zone_value)
-       call set_flow_ic_point_zone(u, v, w, uinf, zone_name, zone_value)
+       call set_flow_ic_point_zone(u, v, w, uinf, read_str, zone_value)
+    else if (trim(type) .eq. 'field') then
+       call json_get(params, 'case.fluid.initial_condition.filename', read_str)
+
+       call filename_suffix(read_str, suffix)
+
+       if (trim(suffix) .eq. "nek5000") then
+          call filename_chsuffix(read_str, new_fname, 'fld')
+       end if
+
+       if (trim(suffix) .eq. "fld") then
+          call json_get_or_default(params, &
+               'case.fluid.initial_condition.sample', n_sample, -1)
+       end if
+
     else
        call neko_error('Invalid initial condition')
     end if
