@@ -34,7 +34,6 @@
 !> Implements `gradient_jump_penalty_t`.
 module gradient_jump_penalty
   use num_types, only : rp
-  use speclib, only : pnleg, pndleg
   use utils, only : neko_error
   use math
   use point, only : point_t
@@ -42,13 +41,11 @@ module gradient_jump_penalty
   use dofmap , only : dofmap_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use coefs, only : coef_t
-  use scratch_registry, only : neko_scratch_registry
   use element, only : element_t
   use hex
   use quad
   use operators, only : dudxyz
   use gs_ops, only : GS_OP_ADD
-  use tuple, only : tuple_i4_t
   use space
   use gather_scatter, only : gs_t
 
@@ -65,13 +62,14 @@ module gradient_jump_penalty
      !> Collocation point per dimension (p + 1)
      integer :: lx
      !> Penalty terms
-     type(field_t), pointer :: penalty
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: penalty
      !> Work array to store penalty terms on each element
      real(kind=rp), allocatable :: penalty_el(:, :, :)
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
      !> Gradient of the quatity of interest
-     type(field_t), pointer :: grad_1, grad_2, grad_3
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: grad_1, &
+                                                          grad_2, grad_3
      !> Gradient jump on the elementary interface (zero inside each element)
      real(kind=rp), allocatable, dimension(:, :, :, :) :: G
      !> 3 parts of the flux of the quantity
@@ -118,7 +116,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     
     class(element_t), pointer :: ep
-    integer :: temp_indices(4), i, j
+    integer :: i, j
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
     
     call this%free()
@@ -169,10 +167,10 @@ contains
        end do
     end do
 
-    call neko_scratch_registry%request_field(this%penalty, temp_indices(1))
-    call neko_scratch_registry%request_field(this%grad_1, temp_indices(2))
-    call neko_scratch_registry%request_field(this%grad_2, temp_indices(3))
-    call neko_scratch_registry%request_field(this%grad_3, temp_indices(4))
+    allocate(this%penalty(this%lx, this%lx, this%lx, this%coef%msh%nelv))
+    allocate(this%grad_1(this%lx, this%lx, this%lx, this%coef%msh%nelv))
+    allocate(this%grad_2(this%lx, this%lx, this%lx, this%coef%msh%nelv))
+    allocate(this%grad_3(this%lx, this%lx, this%lx, this%coef%msh%nelv))
 
     allocate(this%G(this%lx + 2, this%lx + 2, &
                     this%lx + 2, this%coef%msh%nelv))
@@ -281,7 +279,18 @@ contains
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
 
-    nullify(this%penalty)
+    if (allocated(this%penalty)) then
+       deallocate(this%penalty)
+    end if
+    if (allocated(this%grad_1)) then
+       deallocate(this%grad_1)
+    end if
+    if (allocated(this%grad_2)) then
+       deallocate(this%grad_2)
+    end if
+    if (allocated(this%grad_3)) then
+       deallocate(this%grad_3)
+    end if
     if (allocated(this%penalty_el)) then
        deallocate(this%penalty_el)
     end if
@@ -327,13 +336,10 @@ contains
     if (allocated(this%n3)) then
        deallocate(this%n3)
     end if
-    nullify(this%coef)
-    nullify(this%grad_1)
-    nullify(this%grad_2)
-    nullify(this%grad_3)
 
-   call this%Xh_GJP%free()
-   call this%gs_GJP%free()
+    nullify(this%coef)
+    call this%Xh_GJP%free()
+    call this%gs_GJP%free()
 
   end subroutine gradient_jump_penalty_free
 
@@ -356,7 +362,7 @@ contains
        select type(ep)
        type is (hex_t)
           call gradient_jump_penalty_compute_hex_el(this, u, v, w, s, i)
-          this%penalty%x(:, :, :, i) = this%penalty_el
+          this%penalty(:, :, :, i) = this%penalty_el
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported &
                                        now for gradient jump penalty")
@@ -371,7 +377,7 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(inout) :: f
 
-    call add2(f%x, this%penalty%x, this%coef%dof%size())
+    call add2(f%x, this%penalty, this%coef%dof%size())
 
   end subroutine gradient_jump_penalty_perform
 
@@ -411,18 +417,18 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: s
 
-    call dudxyz(this%grad_1%x, s%x, this%coef%drdx, &
+    call dudxyz(this%grad_1, s%x, this%coef%drdx, &
                 this%coef%dsdx, this%coef%dtdx, this%coef)
-    call dudxyz(this%grad_2%x, s%x, this%coef%drdy, &
+    call dudxyz(this%grad_2, s%x, this%coef%drdy, &
                 this%coef%dsdy, this%coef%dtdy, this%coef)
-    call dudxyz(this%grad_3%x, s%x, this%coef%drdz, &
+    call dudxyz(this%grad_3, s%x, this%coef%drdz, &
                 this%coef%dsdz, this%coef%dtdz, this%coef)
 
-    call pick_facet_value_hex(this%flux1, this%grad_1%x, &
+    call pick_facet_value_hex(this%flux1, this%grad_1, &
                               this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux2, this%grad_2%x, &
+    call pick_facet_value_hex(this%flux2, this%grad_2, &
                               this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux3, this%grad_3%x, &
+    call pick_facet_value_hex(this%flux3, this%grad_3, &
                               this%lx, this%coef%msh%nelv)
 
     call col2(this%flux1, this%n1, size(this%n1))
