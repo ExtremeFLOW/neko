@@ -80,6 +80,7 @@ module fluid_scheme
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
+  use gradient_jump_penalty
   implicit none
   private
 
@@ -112,6 +113,11 @@ module fluid_scheme
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+     !> Gradient jump panelty
+     logical :: if_gradient_jump_penalty
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
@@ -701,6 +707,18 @@ contains
 
     end if
 
+    ! Initiate gradient jump penalty
+    call json_get_or_default(params, &
+                            'case.fluid.gradient_jump_penalty',&
+                            this%if_gradient_jump_penalty, .false.)
+    write(*,*) "CHECK1"
+
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty_u%init(this%dm_Xh, this%c_Xh)
+       call this%gradient_jump_penalty_v%init(this%dm_Xh, this%c_Xh)
+       call this%gradient_jump_penalty_w%init(this%dm_Xh, this%c_Xh)
+    end if
+    write(*,*) "CHECK2"
 
     call neko_log%end_section()
 
@@ -794,6 +812,13 @@ contains
     nullify(this%f_z)
 
     call this%mu_field%free()
+
+    ! Free gradient jump penalty
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty_u%free()
+       call this%gradient_jump_penalty_v%free()
+       call this%gradient_jump_penalty_w%free()
+    end if
 
 
   end subroutine fluid_scheme_free
