@@ -48,6 +48,8 @@ module gradient_jump_penalty
   use gs_ops, only : GS_OP_ADD
   use space
   use gather_scatter, only : gs_t
+  use device
+  use device_math
 
   implicit none
   private
@@ -63,24 +65,39 @@ module gradient_jump_penalty
      integer :: lx
      !> Penalty terms
      real(kind=rp), allocatable, dimension(:, :, :, :) :: penalty
+     type(c_ptr) :: penalty_d = C_NULL_PTR
      !> Work array to store penalty terms on each element
      real(kind=rp), allocatable :: penalty_el(:, :, :)
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
      !> Gradient of the quatity of interest
-     real(kind=rp), allocatable, dimension(:, :, :, :) :: grad_1, &
-                                                          grad_2, grad_3
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: grad1, &
+                                                          grad2, grad3
+     type(c_ptr) :: grad1_d = C_NULL_PTR
+     type(c_ptr) :: grad2_d = C_NULL_PTR
+     type(c_ptr) :: grad3_d = C_NULL_PTR
      !> Gradient jump on the elementary interface (zero inside each element)
      real(kind=rp), allocatable, dimension(:, :, :, :) :: G
+     type(c_ptr) :: G_d = C_NULL_PTR
      !> 3 parts of the flux of the quantity
      real(kind=rp), allocatable, dimension(:, :, :, :) :: flux1, flux2, flux3
+     type(c_ptr) :: flux1_d = C_NULL_PTR
+     type(c_ptr) :: flux2_d = C_NULL_PTR
+     type(c_ptr) :: flux3_d = C_NULL_PTR
      !> 3 parts of the flux of the volumetric flow
      real(kind=rp), allocatable, dimension(:, :, :, :) :: volflux1, &
                                                           volflux2, volflux3
+     type(c_ptr) :: volflux1_d = C_NULL_PTR
+     type(c_ptr) :: volflux2_d = C_NULL_PTR
+     type(c_ptr) :: volflux3_d = C_NULL_PTR
      !> The absolute flux of the volumetric flow
      real(kind=rp), allocatable, dimension(:, :, :, :) :: absvolflux
+     type(c_ptr) :: absvolflux_d = C_NULL_PTR
      !> Expanded array of facet normal (zero inside each element)
      real(kind=rp), allocatable, dimension(:, :, :, :) :: n1, n2, n3
+     type(c_ptr) :: n1_d = C_NULL_PTR
+     type(c_ptr) :: n2_d = C_NULL_PTR
+     type(c_ptr) :: n3_d = C_NULL_PTR
      !> Number of facet in elements and its maximum
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
@@ -116,7 +133,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     
     class(element_t), pointer :: ep
-    integer :: i, j
+    integer :: i, j, n, n_large
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
     
     call this%free()
@@ -168,9 +185,9 @@ contains
     end do
 
     allocate(this%penalty(this%lx, this%lx, this%lx, this%coef%msh%nelv))
-    allocate(this%grad_1(this%lx, this%lx, this%lx, this%coef%msh%nelv))
-    allocate(this%grad_2(this%lx, this%lx, this%lx, this%coef%msh%nelv))
-    allocate(this%grad_3(this%lx, this%lx, this%lx, this%coef%msh%nelv))
+    allocate(this%grad1(this%lx, this%lx, this%lx, this%coef%msh%nelv))
+    allocate(this%grad2(this%lx, this%lx, this%lx, this%coef%msh%nelv))
+    allocate(this%grad3(this%lx, this%lx, this%lx, this%coef%msh%nelv))
 
     allocate(this%G(this%lx + 2, this%lx + 2, &
                     this%lx + 2, this%coef%msh%nelv))
@@ -232,6 +249,29 @@ contains
     this%dm_GJP = dofmap_t(this%coef%msh, this%Xh_GJP)
     call this%gs_GJP%init(this%dm_GJP)
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       n = (this%lx) ** 3 * this%coef%msh%nelv
+       n_large = (this%lx + 2) ** 3 * this%coef%msh%nelv
+
+       call device_map(this%penalty, this%penalty_d, n)
+       call device_map(this%grad1, this%grad1_d, n)
+       call device_map(this%grad2, this%grad2_d, n)
+       call device_map(this%grad3, this%grad3_d, n)
+
+       call device_map(this%G, this%G_d, n_large)
+       call device_map(this%flux1, this%flux1_d, n_large)
+       call device_map(this%flux2, this%flux2_d, n_large)
+       call device_map(this%flux3, this%flux3_d, n_large)
+       call device_map(this%volflux1, this%volflux1_d, n_large)
+       call device_map(this%volflux2, this%volflux2_d, n_large)
+       call device_map(this%volflux3, this%volflux3_d, n_large)
+       call device_map(this%absvolflux, this%absvolflux_d, n_large)
+       call device_map(this%n1, this%n1_d, n_large)
+       call device_map(this%n2, this%n2_d, n_large)
+       call device_map(this%n3, this%n3_d, n_large)
+
+    end if
+
   end subroutine gradient_jump_penalty_init
   
   !> Evaluate h for each element for hexahedral mesh
@@ -279,17 +319,63 @@ contains
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
 
+    if (c_associated(this%penalty_d)) then
+       call device_free(this%penalty_d)
+    end if
+    if (c_associated(this%grad1_d)) then
+       call device_free(this%grad1_d)
+    end if
+    if (c_associated(this%grad2_d)) then
+       call device_free(this%grad2_d)
+    end if
+    if (c_associated(this%grad3_d)) then
+       call device_free(this%grad3_d)
+    end if
+    if (c_associated(this%G_d)) then
+       call device_free(this%G_d)
+    end if
+    if (c_associated(this%flux1_d)) then
+       call device_free(this%flux1_d)
+    end if
+    if (c_associated(this%flux2_d)) then
+       call device_free(this%flux2_d)
+    end if
+    if (c_associated(this%flux3_d)) then
+       call device_free(this%flux3_d)
+    end if
+    if (c_associated(this%volflux1_d)) then
+       call device_free(this%volflux1_d)
+    end if
+    if (c_associated(this%volflux2_d)) then
+       call device_free(this%volflux2_d)
+    end if
+    if (c_associated(this%volflux3_d)) then
+       call device_free(this%volflux3_d)
+    end if
+    if (c_associated(this%absvolflux_d)) then
+       call device_free(this%absvolflux_d)
+    end if
+    if (c_associated(this%n1_d)) then
+       call device_free(this%n1_d)
+    end if
+    if (c_associated(this%n2_d)) then
+       call device_free(this%n2_d)
+    end if
+    if (c_associated(this%n3_d)) then
+       call device_free(this%n3_d)
+    end if
+
     if (allocated(this%penalty)) then
        deallocate(this%penalty)
     end if
-    if (allocated(this%grad_1)) then
-       deallocate(this%grad_1)
+    if (allocated(this%grad1)) then
+       deallocate(this%grad1)
     end if
-    if (allocated(this%grad_2)) then
-       deallocate(this%grad_2)
+    if (allocated(this%grad2)) then
+       deallocate(this%grad2)
     end if
-    if (allocated(this%grad_3)) then
-       deallocate(this%grad_3)
+    if (allocated(this%grad3)) then
+       deallocate(this%grad3)
     end if
     if (allocated(this%penalty_el)) then
        deallocate(this%penalty_el)
@@ -417,18 +503,18 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: s
 
-    call dudxyz(this%grad_1, s%x, this%coef%drdx, &
+    call dudxyz(this%grad1, s%x, this%coef%drdx, &
                 this%coef%dsdx, this%coef%dtdx, this%coef)
-    call dudxyz(this%grad_2, s%x, this%coef%drdy, &
+    call dudxyz(this%grad2, s%x, this%coef%drdy, &
                 this%coef%dsdy, this%coef%dtdy, this%coef)
-    call dudxyz(this%grad_3, s%x, this%coef%drdz, &
+    call dudxyz(this%grad3, s%x, this%coef%drdz, &
                 this%coef%dsdz, this%coef%dtdz, this%coef)
 
-    call pick_facet_value_hex(this%flux1, this%grad_1, &
+    call pick_facet_value_hex(this%flux1, this%grad1, &
                               this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux2, this%grad_2, &
+    call pick_facet_value_hex(this%flux2, this%grad2, &
                               this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux3, this%grad_3, &
+    call pick_facet_value_hex(this%flux3, this%grad3, &
                               this%lx, this%coef%msh%nelv)
 
     call col2(this%flux1, this%n1, size(this%n1))
