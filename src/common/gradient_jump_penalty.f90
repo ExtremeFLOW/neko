@@ -66,8 +66,6 @@ module gradient_jump_penalty
      !> Penalty terms
      real(kind=rp), allocatable, dimension(:, :, :, :) :: penalty
      type(c_ptr) :: penalty_d = C_NULL_PTR
-     !> Work array to store penalty terms on each element
-     real(kind=rp), allocatable :: penalty_el(:, :, :)
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
      !> Gradient of the quatity of interest
@@ -150,7 +148,6 @@ contains
 
     this%coef => coef
 
-    allocate(this%penalty_el(this%lx, this%lx, this%lx))
     allocate(this%n_facet(this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
@@ -437,9 +434,6 @@ contains
     if (allocated(this%grad3)) then
        deallocate(this%grad3)
     end if
-    if (allocated(this%penalty_el)) then
-       deallocate(this%penalty_el)
-    end if
     if (allocated(this%h)) then
        deallocate(this%h)
     end if
@@ -522,7 +516,6 @@ contains
        select type(ep)
        type is (hex_t)
           call gradient_jump_penalty_compute_hex_el(this, wa, u, v, w, s, i)
-          this%penalty(:, :, :, i) = this%penalty_el
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported &
                                        now for gradient jump penalty")
@@ -562,7 +555,7 @@ contains
     associate(lx => this%lx, nelv => this%coef%msh%nelv, &
               absvolflux => this%absvolflux, G => this%G, &
               facet_factor => this%facet_factor, tau => this%tau, &
-              penalty_el => this%penalty_el, dphidxi => this%dphidxi, &
+              penalty => this%penalty, dphidxi => this%dphidxi, &
               h => this%h)
     
     n_large = (lx + 2) * (lx + 2) * (lx + 2) * nelv
@@ -570,7 +563,7 @@ contains
     do i = 1, lx
        do j = 1, lx
           do k = 1, lx
-             penalty_el(i, j, k) = & 
+             penalty(i, j, k, i_el) = & 
                wa(1, j + 1, k + 1, i_el) * &
                   dphidxi(1, i) * h(1, i_el) ** 2 + &
                wa(lx + 2, j + 1, k + 1, i_el) * &
