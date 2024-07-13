@@ -267,6 +267,7 @@ contains
        call device_map(this%flux1, this%flux1_d, n_large)
        call device_map(this%flux2, this%flux2_d, n_large)
        call device_map(this%flux3, this%flux3_d, n_large)
+
        call device_map(this%volflux1, this%volflux1_d, n_large)
        call device_map(this%volflux2, this%volflux2_d, n_large)
        call device_map(this%volflux3, this%volflux3_d, n_large)
@@ -289,13 +290,6 @@ contains
     integer :: i
     type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
 
-   !  !! strategy 1: use the diameter of the hexahedral
-   !  do i = 1, 6
-   !     h_el(i) = ep%diameter()
-   !  end do
-
-    !! strategy 2: hard code it, only works for cuboid mesh
-    !! should be refined for distorted mesh as well
     p1 => ep%p(1)
     p2 => ep%p(2)
     p3 => ep%p(3)
@@ -305,19 +299,93 @@ contains
     p7 => ep%p(7)
     p8 => ep%p(8)
     h_el(:) = 0.0_rp
-    do i = 1, NEKO_HEX_GDIM
-       h_el(1) = h_el(1) + (p1%x(i) - p2%x(i))**2
-       h_el(2) = h_el(2) + (p1%x(i) - p2%x(i))**2
-       h_el(3) = h_el(3) + (p1%x(i) - p3%x(i))**2
-       h_el(4) = h_el(4) + (p1%x(i) - p3%x(i))**2
-       h_el(5) = h_el(5) + (p1%x(i) - p5%x(i))**2
-       h_el(6) = h_el(6) + (p1%x(i) - p5%x(i))**2
-    end do
-    do i = 1, 6
-       h_el(i) = sqrt(h_el(i))
-    end do
+    
+    h_el(1) = dist_facets_hex(p1, p5, p7, p3, p2, p6, p8, p4)
+    h_el(2) = h_el(1)
+    h_el(3) = dist_facets_hex(p1, p2, p6, p5, p3, p4, p8, p7)
+    h_el(4) = h_el(3)
+    h_el(5) = dist_facets_hex(p1, p2, p4, p3, p5, p6, p8, p7)
+    h_el(6) = h_el(5)
 
   end subroutine eval_h_hex
+
+  !> "Distrance" of two facets of a hexahedral element
+  !! @param p11, p12, p13, p14 Vertices defining facet 1
+  !! @param p21, p22, p23, p24 Vertices defining facet 2
+  function dist_facets_hex(p11, p12, p13, p14, &
+                           p21, p22, p23, p24) result(dist)
+  type(point_t), intent(in) :: p11, p12, p13, p14
+  type(point_t), intent(in) :: p21, p22, p23, p24
+  real(kind=rp) :: dist
+
+  dist = 0.0
+
+  dist = dist + dist_vertex_to_plane_3d(p11, p21, p22, p23)
+  dist = dist + dist_vertex_to_plane_3d(p11, p21, p22, p24)
+  dist = dist + dist_vertex_to_plane_3d(p11, p21, p23, p24)
+  dist = dist + dist_vertex_to_plane_3d(p11, p22, p23, p24)
+
+  dist = dist + dist_vertex_to_plane_3d(p12, p21, p22, p23)
+  dist = dist + dist_vertex_to_plane_3d(p12, p21, p22, p24)
+  dist = dist + dist_vertex_to_plane_3d(p12, p21, p23, p24)
+  dist = dist + dist_vertex_to_plane_3d(p12, p22, p23, p24)
+
+  dist = dist + dist_vertex_to_plane_3d(p13, p21, p22, p23)
+  dist = dist + dist_vertex_to_plane_3d(p13, p21, p22, p24)
+  dist = dist + dist_vertex_to_plane_3d(p13, p21, p23, p24)
+  dist = dist + dist_vertex_to_plane_3d(p13, p22, p23, p24)
+
+  dist = dist + dist_vertex_to_plane_3d(p14, p21, p22, p23)
+  dist = dist + dist_vertex_to_plane_3d(p14, p21, p22, p24)
+  dist = dist + dist_vertex_to_plane_3d(p14, p21, p23, p24)
+  dist = dist + dist_vertex_to_plane_3d(p14, p22, p23, p24)
+
+  dist = dist / 16.0_rp
+
+  end function dist_facets_hex
+
+  !> Distance from a vertex to a plane in a 3d space
+  !! @param pv The vertex
+  !! @param p1, p2, p3 Points defining a plane
+  function dist_vertex_to_plane_3d(pv, p1, p2, p3) result(dist)
+  type(point_t), intent(in) :: pv, p1, p2, p3
+  !> Vectors connecting p1&p2, p1&p3 and pv&p1
+  real(kind=rp), dimension(3) :: u12, u13, uv1
+  real(kind=rp) :: norm_u12, norm_u13
+  !> The vector normal to the plane
+  real(kind=rp) :: un(3)
+  !> The result of this function
+  real(kind=rp) :: dist
+  integer :: i
+  
+  ! Set up u12 and u13
+  norm_u12 = 0.0_rp
+  norm_u13 = 0.0_rp
+  do i = 1, 3
+     u12(i) = p2%x(i) - p1%x(i)
+     norm_u12 = norm_u12 + u12(i) * u12(i)
+     u13(i) = p3%x(i) - p1%x(i)
+     norm_u13 = norm_u13 + u13(i) * u13(i)
+     uv1(i) = pv%x(i) - p1%x(i)
+  end do
+  norm_u12 = sqrt(norm_u12)
+  norm_u13 = sqrt(norm_u13)
+
+  ! Normalized cross product of u12 and u13 to get un
+  un(1) = u12(2) * u13(3) - u12(3) * u13(2)
+  un(2) = - u12(1) * u13(3) + u12(3) * u13(1)
+  un(3) = u12(1) * u13(2) - u12(2) * u13(1)
+  do i = 1, 3
+     un(i) = un(i) / norm_u12 / norm_u13
+  end do
+
+  ! Project of uv1 onto un, noting un is a unit vector
+  dist = 0.0_rp
+  do i = 1, 3
+     dist = dist + uv1(i) * un(i)
+  end do
+
+  end function dist_vertex_to_plane_3d
 
   !> Initialize the facet factor array
   subroutine facet_factor_init(this)
