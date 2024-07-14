@@ -6,7 +6,7 @@ module user
 
   integer, parameter :: num_rows = 1500 ! resolution of TS wave in Cheb points
   integer, parameter :: num_columns = 7 ! y, real and imag part of TS wave in Cheb points
-  integer, parameter :: num_ygll = 8*8 ! number of GLL points in the y direction
+  integer, parameter :: num_ygll = 8 * 8 ! number of GLL points in the y direction
   real (kind=rp) :: Re = 5000.0_rp
   real (kind=rp), parameter :: pi_rp = 4.0_rp * atan (1.0_rp)
 contains
@@ -29,8 +29,9 @@ contains
     integer :: i
 
     do i = 1, size(msh%points)
-       msh%points(i)%x(1) = pi_rp*msh%points(i)%x(1)/1.12_rp
-       msh%points(i)%x(3) = pi_rp*msh%points(i)%x(3)*2.0_rp/2.1_rp
+       msh%points(i)%x(1) = pi_rp * msh%points(i)%x(1) / 1.12_rp
+       msh%points(i)%x(3) = pi_rp * (msh%points(i)%x(3) - 0.5_rp) &
+                                  * 2.0_rp / 2.1_rp
     end do
 
   end subroutine user_mesh_scale
