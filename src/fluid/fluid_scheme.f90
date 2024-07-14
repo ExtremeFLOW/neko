@@ -66,6 +66,7 @@ module fluid_scheme
   use bc
   use mesh
   use math
+  use device_math, only : device_cfill, device_add2s2
   use time_scheme_controller, only : time_scheme_controller_t
   use mathops
   use operators, only : cfl
@@ -79,6 +80,7 @@ module fluid_scheme
   use material_properties, only : material_properties_t
   use field_series
   use time_step_controller
+  use field_math, only : field_cfill
   implicit none
 
   !> Base type of all fluid formulations
@@ -128,27 +130,47 @@ module fluid_scheme
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
      !> Dynamic viscosity
      real(kind=rp), pointer :: mu => null()
+     !> The variable mu field
+     type(field_t) :: mu_field
+     !> The turbulent kinematic viscosity field name
+     character(len=:), allocatable :: nut_field_name
+     !> Is mu varying in time? Currently only due to LES models.
+     logical :: variable_material_properties = .false.
      !> Density
      real(kind=rp), pointer :: rho => null()
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
    contains
+     !> Constructor for the base type
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_common
-     procedure, pass(this) :: scheme_free => fluid_scheme_free
-     procedure, pass(this) :: validate => fluid_scheme_validate
-     procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
-     procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
-     procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
-     procedure, pass(this) :: compute_cfl => fluid_compute_cfl
-     procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
-     procedure(fluid_scheme_free_intrf), pass(this), deferred :: free
-     procedure(fluid_scheme_step_intrf), pass(this), deferred :: step
-     procedure(fluid_scheme_restart_intrf), pass(this), deferred :: restart
      generic :: scheme_init => fluid_scheme_init_all, fluid_scheme_init_common
+     !> Destructor for the base type
+     procedure, pass(this) :: scheme_free => fluid_scheme_free
+     !> Validate that all components are properly allocated
+     procedure, pass(this) :: validate => fluid_scheme_validate
+     !> Apply pressure boundary conditions
+     procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
+     !> Apply velocity boundary conditions
+     procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
+     !> Set the user inflow procedure
+     procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
+     !> Compute the CFL number
+     procedure, pass(this) :: compute_cfl => fluid_compute_cfl
+     !> Constructor
+     procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
+     !> Destructor
+     procedure(fluid_scheme_free_intrf), pass(this), deferred :: free
+     !> Advance one step in time
+     procedure(fluid_scheme_step_intrf), pass(this), deferred :: step
+     !> Restart from a checkpoint
+     procedure(fluid_scheme_restart_intrf), pass(this), deferred :: restart
      procedure, private, pass(this) :: set_bc_type_output => &
        fluid_scheme_set_bc_type_output
+     !> Update variable material properties
+     procedure, pass(this) :: update_material_properties => &
+       fluid_scheme_update_material_properties
   end type fluid_scheme_t
 
   !> Abstract interface to initialize a fluid formulation
@@ -179,7 +201,8 @@ module fluid_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
+     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf, &
+                                        dt_controller)
        import fluid_scheme_t
        import time_scheme_controller_t
        import time_step_controller_t
@@ -228,11 +251,50 @@ contains
 
 
     !
+    ! SEM simulation fundamentals
+    !
+
+    this%msh => msh
+
+    if (msh%gdim .eq. 2) then
+       call this%Xh%init(GLL, lx, lx)
+    else
+       call this%Xh%init(GLL, lx, lx, lx)
+    end if
+
+    this%dm_Xh = dofmap_t(msh, this%Xh)
+
+    call this%gs_Xh%init(this%dm_Xh)
+
+    call this%c_Xh%init(this%gs_Xh)
+
+    ! Local scratch registry
+    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
+
+    ! Case parameters
+    this%params => params
+
+    !
     ! Material properties
     !
 
     this%rho => material_properties%rho
     this%mu => material_properties%mu
+
+    !
+    ! Turbulence modelling and variable material properties
+    !
+    if (params%valid_path('case.fluid.nut_field')) then
+       call json_get(params, 'case.fluid.nut_field', this%nut_field_name)
+       this%variable_material_properties = .true.
+    else
+       this%nut_field_name = ""
+    end if
+
+    ! Fill mu field with the physical value
+
+    call this%mu_field%init(this%dm_Xh, "mu")
+    call field_cfill(this%mu_field, this%mu, this%mu_field%size())
 
 
     ! Projection spaces
@@ -256,19 +318,6 @@ contains
        this%forced_flow_rate = .true.
     end if
 
-    if (msh%gdim .eq. 2) then
-       call this%Xh%init(GLL, lx, lx)
-    else
-       call this%Xh%init(GLL, lx, lx, lx)
-    end if
-
-    this%dm_Xh = dofmap_t(msh, this%Xh)
-
-    this%params => params
-
-    this%msh => msh
-
-    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
     !
     ! First section of fluid log
@@ -302,9 +351,6 @@ contains
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
 
-    call this%gs_Xh%init(this%dm_Xh)
-
-    call this%c_Xh%init(this%gs_Xh)
 
     !
     ! Setup velocity boundary conditions
@@ -352,13 +398,13 @@ contains
 
        if (trim(string_val1) .eq. "uniform") then
           call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
-          select type(bc_if => this%bc_inflow)
-          type is(inflow_t)
+          select type (bc_if => this%bc_inflow)
+          type is (inflow_t)
              call bc_if%set_inflow(real_vec)
           end select
        else if (trim(string_val1) .eq. "blasius") then
-          select type(bc_if => this%bc_inflow)
-          type is(blasius_t)
+          select type (bc_if => this%bc_inflow)
+          type is (blasius_t)
              call json_get(params, 'case.fluid.blasius.delta', real_val)
              call json_get(params, 'case.fluid.blasius.approximation',&
                            string_val2)
@@ -387,7 +433,9 @@ contains
 
     call MPI_Allreduce(this%user_field_bc_vel%bc_u%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%user_field_bc_vel%bc_u%init_field('d_vel_u')
+    if (integer_val .gt. 0)  then
+      call this%user_field_bc_vel%bc_u%init_field('d_vel_u')
+    end if
 
     ! Setup field dirichlet bc for v-velocity
     call this%user_field_bc_vel%bc_v%init_base(this%c_Xh)
@@ -397,7 +445,9 @@ contains
 
     call MPI_Allreduce(this%user_field_bc_vel%bc_v%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%user_field_bc_vel%bc_v%init_field('d_vel_v')
+    if (integer_val .gt. 0)  then
+      call this%user_field_bc_vel%bc_v%init_field('d_vel_v')
+    end if
 
     ! Setup field dirichlet bc for w-velocity
     call this%user_field_bc_vel%bc_w%init_base(this%c_Xh)
@@ -407,7 +457,9 @@ contains
 
     call MPI_Allreduce(this%user_field_bc_vel%bc_w%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0)  call this%user_field_bc_vel%bc_w%init_field('d_vel_w')
+    if (integer_val .gt. 0)  then
+      call this%user_field_bc_vel%bc_w%init_field('d_vel_w')
+    end if
 
     ! Setup our global field dirichlet bc
     call this%user_field_bc_vel%init_base(this%c_Xh)
@@ -442,11 +494,14 @@ contains
     call this%user_field_bc_vel%field_list%assign_to_field(4, &
             this%user_field_bc_prs%field_bc)
 
-    call bc_list_init(this%user_field_bc_vel%bc_list, size=4)
+    call bc_list_init(this%user_field_bc_vel%bc_list, size = 4)
     ! Note, bc_list_add only adds if the bc is not empty
-    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_u)
-    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_v)
-    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_vel%bc_w)
+    call bc_list_add(this%user_field_bc_vel%bc_list, &
+                     this%user_field_bc_vel%bc_u)
+    call bc_list_add(this%user_field_bc_vel%bc_list,&
+                     this%user_field_bc_vel%bc_v)
+    call bc_list_add(this%user_field_bc_vel%bc_list,&
+                     this%user_field_bc_vel%bc_w)
 
     !
     ! Check if we need to output boundary types to a separate field
@@ -458,9 +513,9 @@ contains
     allocate(this%f_x)
     allocate(this%f_y)
     allocate(this%f_z)
-    call this%f_x%init(this%dm_Xh, fld_name="fluid_rhs_x")
-    call this%f_y%init(this%dm_Xh, fld_name="fluid_rhs_y")
-    call this%f_z%init(this%dm_Xh, fld_name="fluid_rhs_z")
+    call this%f_x%init(this%dm_Xh, fld_name = "fluid_rhs_x")
+    call this%f_y%init(this%dm_Xh, fld_name = "fluid_rhs_y")
+    call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
 
     ! Initialize the source term
     call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
@@ -696,6 +751,8 @@ contains
     nullify(this%f_y)
     nullify(this%f_z)
 
+    call this%mu_field%free()
+
 
   end subroutine fluid_scheme_free
 
@@ -733,8 +790,8 @@ contains
     end if
 
     if (allocated(this%bc_inflow)) then
-       select type(ip => this%bc_inflow)
-       type is(usr_inflow_t)
+       select type (ip => this%bc_inflow)
+       type is (usr_inflow_t)
           call ip%validate
        end select
     end if
@@ -810,14 +867,14 @@ contains
 
     call precon_factory(pc, pctype)
 
-    select type(pcp => pc)
-    type is(jacobi_t)
+    select type (pcp => pc)
+    type is (jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
-    type is(hsmg_t)
+    type is (hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
              call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
@@ -839,8 +896,8 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     procedure(usr_inflow_eval) :: usr_eval
 
-    select type(bc_if => this%bc_inflow)
-    type is(usr_inflow_t)
+    select type (bc_if => this%bc_inflow)
+    type is (usr_inflow_t)
        call bc_if%set_eval(usr_eval)
     class default
        call neko_error("Not a user defined inflow condition")
@@ -929,5 +986,26 @@ contains
     end if
 
   end subroutine fluid_scheme_set_bc_type_output
+
+  !> Update the values of `mu_field` if necessary.
+  subroutine fluid_scheme_update_material_properties(this)
+    class(fluid_scheme_t), intent(inout) :: this
+    type(field_t), pointer :: nut
+    integer :: n
+
+    if (this%variable_material_properties) then
+      nut => neko_field_registry%get_field(this%nut_field_name)
+      n = nut%size()
+
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_cfill(this%mu_field%x_d, this%mu, n)
+         call device_add2s2(this%mu_field%x_d, nut%x_d, this%rho, n)
+      else
+         call cfill(this%mu_field%x, this%mu, n)
+         call add2s2(this%mu_field%x, nut%x, this%rho, n)
+      end if
+    end if
+
+  end subroutine fluid_scheme_update_material_properties
 
 end module fluid_scheme
