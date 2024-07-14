@@ -62,8 +62,8 @@ contains
     real(kind=rp) :: ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D
 
     ! data reading
-    open(unit=10, file='TSwave_cheb_2D.csv', status='old', &
-                  action='read', iostat=ios)
+    open(unit = 10, file = 'TSwave_cheb_2D.csv', status = 'old', &
+                  action = 'read', iostat = ios)
        if (ios /= 0) then
           print *, "2D TS wave: Error opening the file!"
           stop
@@ -75,8 +75,8 @@ contains
     y_GLC = data_mode_cheb_2D(:,1)
     TS2D_GLC = data_mode_cheb_2D(:,2:num_columns)
 
-    open(unit=10, file='TSwave_cheb_3D.csv', status='old', &
-                  action='read', iostat=ios)
+    open(unit = 10, file = 'TSwave_cheb_3D.csv', status = 'old', &
+                  action = 'read', iostat = ios)
        if (ios /= 0) then
           print *, "3D TS wave: Error opening the file!"
           stop
@@ -162,7 +162,7 @@ contains
     found = .false.
     dist = 100
     do i = 1, num_ygll
-       if (relcmp(y_target,y_source(i),tol)) then
+       if (relcmp(y_target, y_source(i), tol)) then
           Pt_target = Pt_source(i)
           dist = abs(y_target-y_source(i))
        end if
@@ -170,7 +170,7 @@ contains
     if ( dist .le. tol ) found = .true.
     
     if (.not. found) then
-       write (*,*) 'tolerence too small for picking points! dist:', dist
+       write (*,*) 'tolerence too small for picking points. dist:', dist
     end if
 
   end function pick_pt
