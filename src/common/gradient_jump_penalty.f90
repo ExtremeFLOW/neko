@@ -66,6 +66,9 @@ module gradient_jump_penalty
      !> Penalty terms
      real(kind=rp), allocatable, dimension(:, :, :, :) :: penalty
      type(c_ptr) :: penalty_d = C_NULL_PTR
+     !> work array storing integrant of the penalty
+     real(kind=rp), allocatable, dimension(:, :, :, :):: penalty_facet
+     type(c_ptr) :: penalty_facet_d = C_NULL_PTR
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
      !> Gradient of the quatity of interest
@@ -98,6 +101,7 @@ module gradient_jump_penalty
      type(c_ptr) :: n3_d = C_NULL_PTR
      !> Facet factor: collect polynomials and integral weights on facets
      real(kind=rp), allocatable, dimension(:, :, :, :) :: facet_factor
+     type(c_ptr) :: facet_factor_d = C_NULL_PTR
      !> Number of facet in elements and its maximum
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
@@ -188,6 +192,8 @@ contains
     allocate(this%grad2(this%lx, this%lx, this%lx, this%coef%msh%nelv))
     allocate(this%grad3(this%lx, this%lx, this%lx, this%coef%msh%nelv))
 
+    allocate(this%penalty_facet(this%lx + 2, this%lx + 2, &
+                    this%lx + 2, this%coef%msh%nelv))
     allocate(this%G(this%lx + 2, this%lx + 2, &
                     this%lx + 2, this%coef%msh%nelv))
     allocate(this%flux1(this%lx + 2, this%lx + 2, &
@@ -262,7 +268,8 @@ contains
        call device_map(this%grad1, this%grad1_d, n)
        call device_map(this%grad2, this%grad2_d, n)
        call device_map(this%grad3, this%grad3_d, n)
-
+       
+       call device_map(this%penalty_facet, this%penalty_facet_d, n_large)
        call device_map(this%G, this%G_d, n_large)
        call device_map(this%flux1, this%flux1_d, n_large)
        call device_map(this%flux2, this%flux2_d, n_large)
@@ -272,9 +279,20 @@ contains
        call device_map(this%volflux2, this%volflux2_d, n_large)
        call device_map(this%volflux3, this%volflux3_d, n_large)
        call device_map(this%absvolflux, this%absvolflux_d, n_large)
+
        call device_map(this%n1, this%n1_d, n_large)
        call device_map(this%n2, this%n2_d, n_large)
        call device_map(this%n3, this%n3_d, n_large)
+       call device_map(this%facet_factor, this%facet_factor_d, n_large)
+
+       call device_memcpy(this%n1, this%n1_d, n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%n2, this%n2_d, n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%n3, this%n3_d, n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%facet_factor, this%facet_factor_d, n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
 
     end if
 
@@ -318,7 +336,7 @@ contains
   type(point_t), intent(in) :: p21, p22, p23, p24
   real(kind=rp) :: dist
 
-  dist = 0.0
+  dist = 0.0_rp
 
   dist = dist + dist_vertex_to_plane_3d(p11, p21, p22, p23)
   dist = dist + dist_vertex_to_plane_3d(p11, p21, p22, p24)
@@ -456,6 +474,9 @@ contains
     if (c_associated(this%grad3_d)) then
        call device_free(this%grad3_d)
     end if
+    if (c_associated(this%penalty_facet_d)) then
+       call device_free(this%penalty_facet_d)
+    end if
     if (c_associated(this%G_d)) then
        call device_free(this%G_d)
     end if
@@ -489,6 +510,9 @@ contains
     if (c_associated(this%n3_d)) then
        call device_free(this%n3_d)
     end if
+    if (c_associated(this%facet_factor_d)) then
+       call device_free(this%facet_factor_d)
+    end if
 
     if (allocated(this%penalty)) then
        deallocate(this%penalty)
@@ -510,6 +534,9 @@ contains
     end if
     if (allocated(this%dphidxi)) then
        deallocate(this%dphidxi)
+    end if
+    if (allocated(this%penalty_facet)) then
+       deallocate(this%penalty_facet)
     end if
     if (allocated(this%G)) then
        deallocate(this%G)
@@ -566,24 +593,21 @@ contains
 
     class(element_t), pointer :: ep
     integer :: i, n_large
-    !> work array
-    real(kind=rp) :: wa(this%lx + 2, this%lx + 2, &
-                        this%lx + 2, this%coef%msh%nelv)
 
     n_large = (this%lx + 2) ** 3 * this%coef%msh%nelv
 
     call G_compute(this, s)
     call absvolflux_compute(this, u, v, w)
 
-    call col3(wa, this%absvolflux, this%G, n_large)
-    call col2(wa, this%facet_factor, n_large)
-    call cmult(wa, this%tau, n_large)
+    call col3(this%penalty_facet, this%absvolflux, this%G, n_large)
+    call col2(this%penalty_facet, this%facet_factor, n_large)
+    call cmult(this%penalty_facet, this%tau, n_large)
     
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
        select type(ep)
        type is (hex_t)
-          call gradient_jump_penalty_compute_hex_el(this, wa, u, v, w, s, i)
+          call gradient_jump_penalty_compute_hex_el(this, this%penalty_facet, u, v, w, s, i)
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported &
                                        now for gradient jump penalty")
@@ -719,12 +743,18 @@ contains
     real(kind=rp), intent(in) :: f_field(lx, lx, lx, nelv)
     real(kind=rp), intent(inout) :: f_facet(lx + 2, lx + 2, lx + 2, nelv)
 
-    f_facet(1, 2: lx + 1, 2: lx + 1, :) = f_field(1, :, :, :)
-    f_facet(lx + 2, 2: lx + 1, 2: lx + 1, :) = f_field(lx, :, :, :)
-    f_facet(2: lx + 1, 1, 2: lx + 1, :) = f_field(:, 1, :, :)
-    f_facet(2: lx + 1, lx + 2, 2: lx + 1, :) = f_field(:, lx, :, :)
-    f_facet(2: lx + 1, 2: lx + 1, 1, :) = f_field(:, :, 1, :)
-    f_facet(2: lx + 1, 2: lx + 1, lx + 2, :) = f_field(:, :, lx, :)
+    call copy(f_facet(1, 2: lx + 1, 2: lx + 1, :), &
+              f_field(1, :, :, :), lx * lx * nelv)
+    call copy(f_facet(lx + 2, 2: lx + 1, 2: lx + 1, :), &
+              f_field(lx, :, :, :), lx * lx * nelv)
+    call copy(f_facet(2: lx + 1, 1, 2: lx + 1, :), &
+              f_field(:, 1, :, :), lx * lx * nelv)
+    call copy(f_facet(2: lx + 1, lx + 2, 2: lx + 1, :), &
+              f_field(:, lx, :, :), lx * lx * nelv)
+    call copy(f_facet(2: lx + 1, 2: lx + 1, 1, :), &
+              f_field(:, :, 1, :), lx * lx * nelv)
+    call copy(f_facet(2: lx + 1, 2: lx + 1, lx + 2, :), &
+              f_field(:, :, lx, :), lx * lx * nelv)
 
   end subroutine pick_facet_value_hex
 
