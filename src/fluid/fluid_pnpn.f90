@@ -45,6 +45,7 @@ module fluid_pnpn
   use field_series, only : field_series_t
   use device_math, only : device_add2, device_col2
   use device_mathops, only : device_opcolv, device_opadd2cm
+  use perturb
   use fluid_aux, only : fluid_step_info
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
@@ -55,6 +56,7 @@ module fluid_pnpn
   use json_utils, only : json_get
   use json_module, only : json_file
   use material_properties, only : material_properties_t
+  use field_math
   use advection_fctry, only : advection_factory
   use ax_product, only : ax_t
   use field, only : field_t
@@ -64,6 +66,7 @@ module fluid_pnpn
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use coefs, only : coef_t
+  use field_registry
   use time_step_controller, only : time_step_controller_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -127,6 +130,14 @@ module fluid_pnpn
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
 
+     !> pcs partub thingy
+     type(pcs_struct), allocatable :: pcs_thing
+     type(field_t), pointer :: u_conv, v_conv, w_conv
+     type(field_t), pointer :: up_conv, vp_conv, wp_conv
+     type(field_t), pointer :: up, vp, wp
+     type(field_t) :: temp
+     type(field_t) :: binv
+     
    contains
      procedure, pass(this) :: init => fluid_pnpn_init
      procedure, pass(this) :: free => fluid_pnpn_free
@@ -144,6 +155,7 @@ contains
     type(user_t), intent(in) :: user
     type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
+    character(len=80) :: inputchar
 
     call this%free()
 
@@ -318,6 +330,37 @@ contains
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
+    end if
+
+    call get_command_argument(2, inputchar)
+    allocate(this%pcs_thing)
+    call perturb_init_opts_char(this%pcs_thing,inputchar)
+
+    call neko_field_registry%add_field(this%c_Xh%dof, 'u_conv')
+    call neko_field_registry%add_field(this%c_Xh%dof, 'v_conv')
+    call neko_field_registry%add_field(this%c_Xh%dof, 'w_conv')
+    this%u_conv => neko_field_registry%get_field('u_conv')
+    this%v_conv => neko_field_registry%get_field('v_conv')
+    this%w_conv => neko_field_registry%get_field('w_conv')
+    call neko_field_registry%add_field(this%c_Xh%dof, 'up_conv')
+    call neko_field_registry%add_field(this%c_Xh%dof, 'vp_conv')
+    call neko_field_registry%add_field(this%c_Xh%dof, 'wp_conv')
+    this%up_conv => neko_field_registry%get_field('up_conv')
+    this%vp_conv => neko_field_registry%get_field('vp_conv')
+    this%wp_conv => neko_field_registry%get_field('wp_conv')
+    call neko_field_registry%add_field(this%c_Xh%dof, 'up')
+    call neko_field_registry%add_field(this%c_Xh%dof, 'vp')
+    call neko_field_registry%add_field(this%c_Xh%dof, 'wp')
+    this%up => neko_field_registry%get_field('up')
+    this%vp => neko_field_registry%get_field('vp')
+    this%wp => neko_field_registry%get_field('wp')
+    call this%temp%init(this%dm_Xh, "temp")
+    call this%binv%init(this%c_Xh%dof)
+    this%binv = 1.0_rp
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+        call device_invcol2(this%binv%x_d,this%c_Xh%B_d,this%dm_xh%size())
+    else
+        call invcol2(this%binv%x,this%c_Xh%B,this%dm_xh%size())
     end if
 
   end subroutine fluid_pnpn_init
@@ -561,17 +604,51 @@ contains
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
 
-      ! Pre-multiply the source terms with the mass matrix.
+      ! Add the advection operators to the right-hand-side.
+      this%u_conv = 0.0_rp
+      this%v_conv = 0.0_rp
+      this%w_conv = 0.0_rp
+      call this%adv%compute(u, v, w, &
+                            this%u_conv, this%v_conv, this%w_conv, &
+                            Xh, this%c_Xh, dm_Xh%size())
+      call field_cmult(this%u_conv,-1.0_rp,n)
+      call field_cmult(this%v_conv,-1.0_rp,n)
+      call field_cmult(this%w_conv,-1.0_rp,n)
+      call field_col2(this%u_conv,this%binv,n)
+      call field_col2(this%v_conv,this%binv,n)
+      call field_col2(this%w_conv,this%binv,n)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call perturb_vector_device(this%up%x_d, this%u%x_d,this%temp%x, n, this%pcs_thing)
+         call perturb_vector_device(this%vp%x_d, this%v%x_d,this%temp%x, n, this%pcs_thing)
+         call perturb_vector_device(this%wp%x_d, this%w%x_d,this%temp%x, n, this%pcs_thing)
+      else
+         call perturb_vector(this%up%x, this%u%x,n , this%pcs_thing)
+         call perturb_vector(this%vp%x, this%v%x,n , this%pcs_thing)
+         call perturb_vector(this%wp%x, this%w%x,n , this%pcs_thing)
+      end if
+      this%up_conv = 0.0_rp
+      this%vp_conv = 0.0_rp
+      this%wp_conv = 0.0_rp
+      call this%adv%compute(this%up, this%vp, this%wp, &
+                            this%up_conv, this%vp_conv, this%wp_conv, &
+                            Xh, this%c_Xh, dm_Xh%size())
+
+      call field_cmult(this%up_conv,-1.0_rp,n)
+      call field_cmult(this%vp_conv,-1.0_rp,n)
+      call field_cmult(this%wp_conv,-1.0_rp,n)
+      call field_col2(this%up_conv,this%binv,n)
+      call field_col2(this%vp_conv,this%binv,n)
+      call field_col2(this%wp_conv,this%binv,n)
+      call field_sub2(f_x, this%up_conv, n) 
+      call field_sub2(f_y, this%vp_conv, n) 
+      call field_sub2(f_z, this%wp_conv, n) 
+
+      ! Multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_x%x_d, f_y%x_d, f_z%x_d, c_Xh%B_d, msh%gdim, n)
       else
          call opcolv(f_x%x, f_y%x, f_z%x, c_Xh%B, msh%gdim, n)
       end if
-
-      ! Add the advection operators to the right-hand-side.
-      call this%adv%compute(u, v, w, &
-                            f_x, f_y, f_z, &
-                            Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator and
       ! additional source terms, evaluated using the velocity field from the
