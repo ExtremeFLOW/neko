@@ -113,6 +113,10 @@ module gradient_jump_penalty
      type(space_t) :: Xh_GJP !< needed to init gs
      type(dofmap_t) :: dm_GJP !< needed to init gs
      type(gs_t) :: gs_GJP
+     !> Size of fields of size lx ** 3 * nelv
+     integer :: n
+     !> Size of fields of size lx ** 3 * nelv
+     integer :: n_large
 
   contains
      !> Constructor.
@@ -151,6 +155,8 @@ contains
     end if
 
     this%coef => coef
+    this%n = this%lx ** 3 * this%coef%msh%nelv
+    this%n_large = (this%lx + 2) ** 3 * this%coef%msh%nelv
 
     allocate(this%n_facet(this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
@@ -261,37 +267,34 @@ contains
 
     ! Initialize pointers for GPU
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       n = (this%lx) ** 3 * this%coef%msh%nelv
-       n_large = (this%lx + 2) ** 3 * this%coef%msh%nelv
-
-       call device_map(this%penalty, this%penalty_d, n)
-       call device_map(this%grad1, this%grad1_d, n)
-       call device_map(this%grad2, this%grad2_d, n)
-       call device_map(this%grad3, this%grad3_d, n)
+       call device_map(this%penalty, this%penalty_d, this%n)
+       call device_map(this%grad1, this%grad1_d, this%n)
+       call device_map(this%grad2, this%grad2_d, this%n)
+       call device_map(this%grad3, this%grad3_d, this%n)
        
-       call device_map(this%penalty_facet, this%penalty_facet_d, n_large)
-       call device_map(this%G, this%G_d, n_large)
-       call device_map(this%flux1, this%flux1_d, n_large)
-       call device_map(this%flux2, this%flux2_d, n_large)
-       call device_map(this%flux3, this%flux3_d, n_large)
+       call device_map(this%penalty_facet, this%penalty_facet_d, this%n_large)
+       call device_map(this%G, this%G_d, this%n_large)
+       call device_map(this%flux1, this%flux1_d, this%n_large)
+       call device_map(this%flux2, this%flux2_d, this%n_large)
+       call device_map(this%flux3, this%flux3_d, this%n_large)
 
-       call device_map(this%volflux1, this%volflux1_d, n_large)
-       call device_map(this%volflux2, this%volflux2_d, n_large)
-       call device_map(this%volflux3, this%volflux3_d, n_large)
-       call device_map(this%absvolflux, this%absvolflux_d, n_large)
+       call device_map(this%volflux1, this%volflux1_d, this%n_large)
+       call device_map(this%volflux2, this%volflux2_d, this%n_large)
+       call device_map(this%volflux3, this%volflux3_d, this%n_large)
+       call device_map(this%absvolflux, this%absvolflux_d, this%n_large)
 
-       call device_map(this%n1, this%n1_d, n_large)
-       call device_map(this%n2, this%n2_d, n_large)
-       call device_map(this%n3, this%n3_d, n_large)
-       call device_map(this%facet_factor, this%facet_factor_d, n_large)
+       call device_map(this%n1, this%n1_d, this%n_large)
+       call device_map(this%n2, this%n2_d, this%n_large)
+       call device_map(this%n3, this%n3_d, this%n_large)
+       call device_map(this%facet_factor, this%facet_factor_d, this%n_large)
 
-       call device_memcpy(this%n1, this%n1_d, n_large, &
+       call device_memcpy(this%n1, this%n1_d, this%n_large, &
                           HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%n2, this%n2_d, n_large, &
+       call device_memcpy(this%n2, this%n2_d, this%n_large, &
                           HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%n3, this%n3_d, n_large, &
+       call device_memcpy(this%n3, this%n3_d, this%n_large, &
                           HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%facet_factor, this%facet_factor_d, n_large, &
+       call device_memcpy(this%facet_factor, this%facet_factor_d, this%n_large, &
                           HOST_TO_DEVICE, sync=.false.)
 
     end if
@@ -410,7 +413,6 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     !> work array
     real(kind=rp) :: wa(this%lx, this%lx, this%lx, this%coef%msh%nelv)
-    integer :: n
 
     allocate(this%facet_factor(this%lx + 2, this%lx + 2, &
                                this%lx + 2, this%coef%msh%nelv))
@@ -418,9 +420,7 @@ contains
     associate(facet_factor => this%facet_factor, &
               lx => this%lx, area => this%coef%area, &
               nelv => this%coef%msh%nelv, &
-              jacinv => this%coef%jacinv)
-
-    n = lx * lx * lx * nelv
+              jacinv => this%coef%jacinv, n => this%n)
     
     ! Assemble facet_factor for facet 1 and 2
     call add4(wa, this%coef%drdx, this%coef%drdy, this%coef%drdz, n)
@@ -592,27 +592,42 @@ contains
     type(field_t), intent(in) :: u, v, w, s
 
     class(element_t), pointer :: ep
-    integer :: i, n_large
-
-    n_large = (this%lx + 2) ** 3 * this%coef%msh%nelv
+    integer :: i
 
     call G_compute(this, s)
     call absvolflux_compute(this, u, v, w)
 
-    call col3(this%penalty_facet, this%absvolflux, this%G, n_large)
-    call col2(this%penalty_facet, this%facet_factor, n_large)
-    call cmult(this%penalty_facet, this%tau, n_large)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, this%n_large)
+       call device_col2(this%penalty_facet_d, this%facet_factor_d, this%n_large)
+       call device_cmult(this%penalty_facet_d, this%tau, this%n_large)
+    else
+       call col3(this%penalty_facet, this%absvolflux, this%G, this%n_large)
+       call col2(this%penalty_facet, this%facet_factor, this%n_large)
+       call cmult(this%penalty_facet, this%tau, this%n_large)
+    end if
     
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%penalty_facet, this%penalty_facet_d, this%n_large, &
+                          DEVICE_TO_HOST, sync=.true.)
+    end if
+
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
        select type(ep)
        type is (hex_t)
-          call gradient_jump_penalty_compute_hex_el(this, this%penalty_facet, u, v, w, s, i)
+          call gradient_jump_penalty_compute_hex_el(this, &
+                                    this%penalty_facet, u, v, w, s, i)
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported &
                                        now for gradient jump penalty")
        end select
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%penalty, this%penalty_d, this%n, &
+                          HOST_TO_DEVICE, sync=.true.)
+    end if
 
   end subroutine gradient_jump_penalty_compute
 
@@ -622,7 +637,11 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(inout) :: f
 
-    call add2(f%x, this%penalty, this%coef%dof%size())
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(f%x_d, this%penalty_d, this%coef%dof%size())
+    else
+       call add2(f%x, this%penalty, this%coef%dof%size())
+    end if
 
   end subroutine gradient_jump_penalty_perform
 
@@ -642,15 +661,13 @@ contains
                         this%lx + 2, this%coef%msh%nelv)
 
     real(kind=rp) :: integrant_facet(this%lx, this%lx)
-    integer :: i, j, k, l, n_large
+    integer :: i, j, k, l
 
     associate(lx => this%lx, nelv => this%coef%msh%nelv, &
               absvolflux => this%absvolflux, G => this%G, &
               facet_factor => this%facet_factor, tau => this%tau, &
               penalty => this%penalty, dphidxi => this%dphidxi, &
               h => this%h)
-    
-    n_large = (lx + 2) * (lx + 2) * (lx + 2) * nelv
 
     do i = 1, lx
        do j = 1, lx
@@ -688,21 +705,46 @@ contains
     call dudxyz(this%grad3, s%x, this%coef%drdz, &
                 this%coef%dsdz, this%coef%dtdz, this%coef)
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%grad1, this%grad1_d, this%n, &
+                          DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%grad2, this%grad2_d, this%n, &
+                          DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%grad3, this%grad3_d, this%n, &
+                          DEVICE_TO_HOST, sync=.true.)
+    end if
+
     call pick_facet_value_hex(this%flux1, this%grad1, &
                               this%lx, this%coef%msh%nelv)
     call pick_facet_value_hex(this%flux2, this%grad2, &
                               this%lx, this%coef%msh%nelv)
     call pick_facet_value_hex(this%flux3, this%grad3, &
                               this%lx, this%coef%msh%nelv)
-
-    call col2(this%flux1, this%n1, size(this%n1))
-    call col2(this%flux2, this%n2, size(this%n1))
-    call col2(this%flux3, this%n3, size(this%n1))
-
-    call add3(this%G, this%flux1, this%flux2, size(this%n1))
-    call add2(this%G, this%flux3, size(this%n1))
     
-    call this%gs_GJP%op(this%G, size(this%n1), GS_OP_ADD)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%flux1, this%flux1_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%flux2, this%flux2_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%flux3, this%flux3_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.true.)
+    end if
+     
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col2(this%flux1_d, this%n1_d, this%n_large)
+       call device_col2(this%flux2_d, this%n2_d, this%n_large)
+       call device_col2(this%flux3_d, this%n3_d, this%n_large)
+       call device_add3(this%G_d, this%flux1_d, this%flux2_d, this%n_large)
+       call device_add2(this%G_d, this%flux3_d, this%n_large)
+    else
+       call col2(this%flux1, this%n1, this%n_large)
+       call col2(this%flux2, this%n2, this%n_large)
+       call col2(this%flux3, this%n3, this%n_large)
+       call add3(this%G, this%flux1, this%flux2, this%n_large)
+       call add2(this%G, this%flux3, this%n_large)
+    end if
+    
+    call this%gs_GJP%op(this%G, this%n_large, GS_OP_ADD)
 
   end subroutine G_compute
 
@@ -720,16 +762,40 @@ contains
     call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
     call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
 
-    call col2(this%volflux1, this%n1, size(this%n1))
-    call col2(this%volflux2, this%n2, size(this%n1))
-    call col2(this%volflux3, this%n3, size(this%n1))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%volflux1, this%volflux1_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%volflux2, this%volflux2_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%volflux3, this%volflux3_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.true.)
+    end if
+    
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col2(this%volflux1_d, this%n1_d, this%n_large)
+       call device_col2(this%volflux2_d, this%n2_d, this%n_large)
+       call device_col2(this%volflux3_d, this%n3_d, this%n_large)
+       call device_add3(this%absvolflux_d, this%volflux1_d, this%volflux2_d, this%n_large)
+       call device_add2(this%absvolflux_d, this%volflux3_d, this%n_large)
+    else
+       call col2(this%volflux1, this%n1, this%n_large)
+       call col2(this%volflux2, this%n2, this%n_large)
+       call col2(this%volflux3, this%n3, this%n_large)
+       call add3(this%absvolflux, this%volflux1, this%volflux2, this%n_large)
+       call add2(this%absvolflux, this%volflux3, this%n_large)
+    end if
 
-    call add3(this%absvolflux, this%volflux1, this%volflux2, size(this%n1))
-    call add2(this%absvolflux, this%volflux3, size(this%n1))
-
-    do i = 1, size(this%n1)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
+                          DEVICE_TO_HOST, sync=.true.)
+    end if
+    do i = 1, this%n_large
        this%absvolflux(i, 1, 1, 1) = abs(this%absvolflux(i, 1, 1, 1))
     end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.true.)
+    end if
 
   end subroutine absvolflux_compute
 
