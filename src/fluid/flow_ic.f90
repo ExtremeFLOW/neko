@@ -95,19 +95,24 @@ contains
        call json_get(params, 'case.fluid.initial_condition.zone_value', &
                      zone_value)
        call set_flow_ic_point_zone(u, v, w, uinf, read_str, zone_value)
-    else if (trim(type) .eq. 'field') then
-       call json_get(params, 'case.fluid.initial_condition.filename', read_str)
 
+    else if (trim(type) .eq. 'field') then
+
+       call json_get(params, 'case.fluid.initial_condition.filename', read_str)
        call filename_suffix(read_str, suffix)
 
-       if (trim(suffix) .eq. "nek5000") then
-          call filename_chsuffix(read_str, new_fname, 'fld')
-       end if
+       if (trim(suffix) .eq. "chkp") then
+          call set_flow_ic_chkp(u, v, w, p, read_str)
+       else
 
-       if (trim(suffix) .eq. "fld") then
+          ! If it's not chkp or fld assume it's .nek5000 or .fld
+          if (trim(suffix) .ne. "fld") call filename_chsuffix(read_str, new_fname, 'fld')
+
           call json_get_or_default(params, &
                'case.fluid.initial_condition.sample', n_sample, -1)
        end if
+
+       call set_flow_ic_fld(u, v, w, p, read_str, n_sample)
 
     else
        call neko_error('Invalid initial condition')
@@ -273,5 +278,36 @@ contains
     call cfill_mask(w%x, zone_value(3), size, zone%mask, zone%size)
 
   end subroutine set_flow_ic_point_zone
+
+  !> Set the initial condition of the flow based on a point zone.
+  !! @details The initial condition is set to the base value and then the
+  !! zone is filled with the zone value.
+  !! @param u The x-component of the velocity field.
+  !! @param v The y-component of the velocity field.
+  !! @param w The z-component of the velocity field.
+  !! @param zone_name The name of the point zone.
+  subroutine set_flow_ic_fld(u, v, w, file_name, sample_idx)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    character(len=*), intent(in) :: file_name
+    integer, intent(in) :: sample_idx
+
+  end subroutine set_flow_ic_fld
+
+  !> Set the initial condition of the flow based on a point zone.
+  !! @details The initial condition is set to the base value and then the
+  !! zone is filled with the zone value.
+  !! @param u The x-component of the velocity field.
+  !! @param v The y-component of the velocity field.
+  !! @param w The z-component of the velocity field.
+  !! @param zone_name The name of the point zone.
+  subroutine set_flow_ic_chkp(u, v, w, file_name)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    character(len=*), intent(in) :: file_name
+
+  end subroutine set_flow_ic_chkp
 
 end module flow_ic
