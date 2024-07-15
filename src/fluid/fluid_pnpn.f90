@@ -664,12 +664,6 @@ contains
             call perturb_vector(this%vp_conv%x, this%v_conv%x,n , this%pcs_thing)
             call perturb_vector(this%wp_conv%x, this%w_conv%x,n , this%pcs_thing)
          end if
-         call field_cmult(this%up_conv,-1.0_rp,n)
-         call field_cmult(this%vp_conv,-1.0_rp,n)
-         call field_cmult(this%wp_conv,-1.0_rp,n)
-         call field_col2(this%up_conv,this%binv,n)
-         call field_col2(this%vp_conv,this%binv,n)
-         call field_col2(this%wp_conv,this%binv,n)
       end if
    
       call field_sub2(f_x, this%up_conv, n) 
