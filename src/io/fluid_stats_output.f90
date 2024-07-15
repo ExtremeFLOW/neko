@@ -36,6 +36,8 @@ module fluid_stats_output
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use map_1d
+  use map_2d
+  use fld_file_data
   use device
   use output, only : output_t
   use matrix
@@ -45,7 +47,9 @@ module fluid_stats_output
   type, public, extends(output_t) :: fluid_stats_output_t
      type(fluid_stats_t), pointer :: stats
      type(map_1d_t) :: map_1d
+     type(map_2d_t) :: map_2d
      real(kind=rp) :: T_begin
+     integer :: output_dim
    contains
      procedure, pass(this) :: sample => fluid_stats_output_sample
   end type fluid_stats_output_t
@@ -64,7 +68,11 @@ contains
     character(len=*), intent(in), optional :: path
     type(fluid_stats_output_t) :: this
     character(len=1024) :: fname
-    if (trim(hom_dir) .eq. 'none') then
+    if (trim(hom_dir) .eq. 'none' .or. &
+        trim(hom_dir) .eq. 'x' .or.&
+        trim(hom_dir) .eq. 'y' .or.&
+        trim(hom_dir) .eq. 'z'&
+       ) then
        if (present(name) .and. present(path)) then
           fname = trim(path) // trim(name) // '.fld'
        else if (present(name)) then
@@ -73,6 +81,13 @@ contains
           fname = trim(path) // 'fluid_stats.fld'
        else
           fname = 'fluid_stats.fld'
+       end if
+       this%output_dim = 3
+       if (trim(hom_dir) .eq. 'x' .or.&
+           trim(hom_dir) .eq. 'y' .or.&
+           trim(hom_dir) .eq. 'z' ) then
+          call this%map_2d%init_char(stats%coef, hom_dir, 1e-7_rp)
+          this%output_dim = 2
        end if
     else
        if (present(name) .and. present(path)) then
@@ -85,6 +100,7 @@ contains
           fname = 'fluid_stats.csv'
        end if
        call this%map_1d%init_char(stats%coef, hom_dir, 1e-7_rp)
+       this%output_dim = 1
     end if
 
     call this%init_base(fname)
@@ -98,6 +114,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer :: i
     type(matrix_t) :: avg_output_1d
+    type(fld_file_data_t) :: output_2d
     associate (out_fields => this%stats%stat_fields%items)
       if (t .ge. this%T_begin) then
          call this%stats%make_strong_grad()
@@ -108,9 +125,12 @@ contains
                   sync=(i .eq. size(out_fields))) ! Sync on last field
             end do
          end if
-         if (allocated(this%map_1d%pt_lvl)) then
+         if (this%output_dim .eq. 1) then
             call this%map_1d%average_planes(avg_output_1d, this%stats%stat_fields)
             call this%file_%write(avg_output_1d, t)
+         else if (this%output_dim .eq. 2) then
+            call this%map_2d%average(output_2d,this%stats%stat_fields)
+            call this%file_%write(output_2d, t)
          else
             call this%file_%write(this%stats%stat_fields, t)
          end if

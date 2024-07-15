@@ -43,6 +43,8 @@ module fld_file_data
      procedure, pass(this) :: add => fld_file_data_add
      procedure, pass(this) :: size => fld_file_data_size
      procedure, pass(this) :: get_list => fld_file_get_list
+     procedure, pass(this) :: init_same => fld_file_init_same
+     procedure, pass(this) :: init_n_fields => fld_file_init_n_fields
   end type fld_file_data_t
 
 contains
@@ -69,6 +71,71 @@ contains
     i = i + this%n_scalars
 
   end function fld_file_data_size
+
+  !> Genereate same fields as in another fld_file
+  subroutine fld_file_init_same(this, fld_file, n)
+    class(fld_file_data_t), target, intent(inout) :: this
+    class(fld_file_data_t), target, intent(in) :: fld_file
+    integer, intent(in) :: n
+    integer :: i, j
+    
+    if(fld_file%u%n .gt. 0) then
+       call this%u%init(n)
+    end if
+    if(fld_file%v%n .gt. 0) then
+       call this%v%init(n)
+    end if
+    if(fld_file%w%n .gt. 0) then
+       call this%w%init(n)
+    end if
+    if(fld_file%p%n .gt. 0) then
+       call this%p%init(n)
+    end if
+    if(fld_file%t%n .gt. 0) then
+       call this%t%init(n)
+    end if
+    this%n_scalars = fld_file%n_scalars
+    allocate(this%s(fld_file%n_scalars))
+    do j = 1, fld_file%n_scalars
+       call this%s(j)%init(n)
+    end do
+
+  end subroutine fld_file_init_same
+
+  !> Genereate same fields as in another fld_file
+  subroutine fld_file_init_n_fields(this, n_fields, n)
+    class(fld_file_data_t), target, intent(inout) :: this
+    integer, intent(in) :: n, n_fields
+    integer :: i, j
+    
+     
+    if(n_fields .gt. 0) then
+       call this%u%init(n)
+    end if
+    if(n_fields .gt. 1) then
+       call this%v%init(n)
+    end if
+    if(n_fields .gt. 2) then
+       call this%w%init(n)
+    end if
+    if(n_fields .gt. 3) then
+       call this%p%init(n)
+    end if
+    if(n_fields .gt. 4) then
+       call this%t%init(n)
+    end if 
+    if (n_fields .gt. 5) then
+       this%n_scalars = n_fields-4
+       allocate(this%s(this%n_scalars))
+       do j = 1, this%n_scalars
+          call this%s(j)%init(n)
+       end do
+    end if
+
+  end subroutine fld_file_init_n_fields
+
+
+
 
   !> Get a list with pointers to the fields in the fld file
   subroutine fld_file_get_list(this, ptr_list, n)
@@ -157,7 +224,9 @@ contains
        do i = 1, this%n_scalars
           call this%s(i)%free()
        end do
+       deallocate(this%s)
     end if
+   
     this%n_scalars = 0
     this%time = 0.0
     this%glb_nelv = 0
@@ -169,6 +238,7 @@ contains
     this%t_counter = 0
     this%meta_nsamples = 0
     this%meta_start_counter = 0
+    if(allocated(this%idx)) deallocate(this%idx)
   end subroutine fld_file_data_free
 
 end module fld_file_data

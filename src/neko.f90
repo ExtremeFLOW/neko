@@ -77,6 +77,7 @@ module neko
   use device
   use device_math
   use map_1d
+  use map_2d
   use cpr
   use fluid_stats
   use field_list, only : field_list_t
