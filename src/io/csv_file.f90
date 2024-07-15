@@ -271,7 +271,7 @@ contains
 
     ! If the number of lines is larger than the number of rows in the
     ! matrix, assume that means there is a header
-    if (n_lines .lt. mat%nrows) then
+    if (n_lines .gt. mat%nrows) then
        read (file_unit, '(A)') tmp
        f%header = trim(tmp)
     end if
