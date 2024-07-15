@@ -242,7 +242,7 @@ contains
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! If there is more than 1 line, assume that means there is a header
-    if (n_lines .lt. 1) then
+    if (n_lines .gt. 1) then
        read (file_unit, '(A)') tmp
        f%header = trim(tmp)
     end if
