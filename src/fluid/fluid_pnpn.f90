@@ -43,7 +43,7 @@ module fluid_pnpn
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme, only : fluid_scheme_t
   use field_series, only : field_series_t
-  use device_math, only : device_add2, device_col2
+  use device_math, only : device_add2, device_col2, device_glsc2
   use device_mathops, only : device_opcolv, device_opadd2cm
   use perturb
   use fluid_aux, only : fluid_step_info
@@ -626,7 +626,6 @@ contains
       call field_cmult(this%u_conv,-1.0_rp,n)
       call field_cmult(this%v_conv,-1.0_rp,n)
       call field_cmult(this%w_conv,-1.0_rp,n)
-      print *, device_glsc2(u_conv%x_d, u_conv%x_d,n), '1'
       call field_col2(this%u_conv,this%binv,n)
       call field_col2(this%v_conv,this%binv,n)
       call field_col2(this%w_conv,this%binv,n)
@@ -654,6 +653,9 @@ contains
          call field_col2(this%up_conv,this%binv,n)
          call field_col2(this%vp_conv,this%binv,n)
          call field_col2(this%wp_conv,this%binv,n)
+      call field_sub2(f_x, this%up_conv, n) 
+      call field_sub2(f_y, this%vp_conv, n) 
+      call field_sub2(f_z, this%wp_conv, n) 
       ! round after advection
       else if (this%round_location .eq. 0) then 
          if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -665,12 +667,16 @@ contains
             call perturb_vector(this%vp_conv%x, this%v_conv%x,n , this%pcs_thing)
             call perturb_vector(this%wp_conv%x, this%w_conv%x,n , this%pcs_thing)
          end if
-      end if
-      print *, device_glsc2(up_conv%x_d, up_conv%x_d,n), '1'
-   
       call field_sub2(f_x, this%up_conv, n) 
       call field_sub2(f_y, this%vp_conv, n) 
       call field_sub2(f_z, this%wp_conv, n) 
+      else 
+      call field_sub2(f_x, this%u_conv, n) 
+      call field_sub2(f_y, this%v_conv, n) 
+      call field_sub2(f_z, this%w_conv, n) 
+
+      end if
+   
 
       ! Multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then
