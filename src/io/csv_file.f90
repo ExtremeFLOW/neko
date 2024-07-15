@@ -76,7 +76,7 @@ contains
     select type (data)
     type is (vector_t)
        if (.not. allocated(data%x)) then
-          call neko_error("Vector is not allocated! Use &
+          call neko_error("Vector is not allocated. Use &
 &vector%init() to associate your array &
 &with a vector_t object")
        end if
@@ -84,7 +84,7 @@ contains
 
     type is (matrix_t)
        if (.not. allocated(data%x)) then
-          call neko_error("Matrix is not allocated! Use &
+          call neko_error("Matrix is not allocated. Use &
 &matrix%init() to associate your array &
 &with a matrix_t object")
        end if
@@ -166,8 +166,9 @@ contains
 
     do i = 1, data%nrows
        if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
-       write (file_unit, '(*(g0,","))', advance = "no") data%x(i, 1:data%ncols-1)
-       write (file_unit, '(g0)') data%x(i,data%ncols)
+       write (file_unit, '(*(g0,","))', advance = "no") &
+            data%x(i, 1:data%ncols-1)
+       write (file_unit, '(g0)') data%x(i, data%ncols)
     end do
 
     close(file_unit)
@@ -192,7 +193,7 @@ contains
     type is (vector_t)
        vec => data
        if (.not. allocated(data%x)) then
-          call neko_error("Vector is not allocated! Use &
+          call neko_error("Vector is not allocated. Use &
 &vector%init() to associate your array &
 &with a vector_t object")
        end if
@@ -200,7 +201,7 @@ contains
     type is (matrix_t)
        mat => data
        if (.not. allocated(data%x)) then
-          call neko_error("Matrix is not allocated! Use &
+          call neko_error("Matrix is not allocated. Use &
 &matrix%init() to associate your array &
 &with a matrix_t object")
        end if
@@ -240,7 +241,8 @@ contains
 
     n_lines = f%count_lines()
 
-    open(file = trim(f%fname), status = 'old', newunit = file_unit, iostat = ierr)
+    open(file = trim(f%fname), status = 'old', newunit = file_unit, &
+         iostat = ierr)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! If there is more than 1 line, assume that means there is a header
@@ -268,7 +270,8 @@ contains
 
     n_lines = f%count_lines()
 
-    open(file = trim(f%fname), status = 'old', newunit = file_unit, iostat = ierr)
+    open(file = trim(f%fname), status = 'old', newunit = file_unit, &
+         iostat = ierr)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! If the number of lines is larger than the number of rows in the
@@ -278,7 +281,7 @@ contains
        f%header = trim(tmp)
     end if
 
-    do i=1, mat%nrows
+    do i = 1, mat%nrows
        read (file_unit,*) mat%x(i,:)
     end do
     close(unit = file_unit)
