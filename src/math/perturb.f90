@@ -42,7 +42,7 @@ module perturb
        opts%fpopts%emax = 127
        opts%fpopts%emin = -126
        opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use emax and emin
-    else if (trim(inputchar) .eq. 'bloaft16') then
+    else if (trim(inputchar) .eq. 'bfloat16') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 8 !Bits in the significand + 1.
        opts%fpopts%emax = 127
@@ -76,7 +76,7 @@ module perturb
        opts%fpopts%emax = 127
        opts%fpopts%emin = -126
        opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
-    else if (trim(inputchar) .eq. 'bloaft16') then
+    else if (trim(inputchar) .eq. 'bfloat16') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 8 !Bits in the significand + 1.
        opts%fpopts%emax = 127
