@@ -626,6 +626,7 @@ contains
       call field_cmult(this%u_conv,-1.0_rp,n)
       call field_cmult(this%v_conv,-1.0_rp,n)
       call field_cmult(this%w_conv,-1.0_rp,n)
+      print *, device_glsc2(u_conv%x_d, u_conv%x_d,n), '1'
       call field_col2(this%u_conv,this%binv,n)
       call field_col2(this%v_conv,this%binv,n)
       call field_col2(this%w_conv,this%binv,n)
@@ -665,6 +666,7 @@ contains
             call perturb_vector(this%wp_conv%x, this%w_conv%x,n , this%pcs_thing)
          end if
       end if
+      print *, device_glsc2(up_conv%x_d, up_conv%x_d,n), '1'
    
       call field_sub2(f_x, this%up_conv, n) 
       call field_sub2(f_y, this%vp_conv, n) 
