@@ -208,7 +208,6 @@ contains
     allocate(fields2D(fld_data3D%size()))
 
     call fld_data2D%init_n_fields(fld_data3D%size(),n_2d)
-    
     do i = 1, fld_data3D%size()
        call copy(this%old_u%x,fld_data3D%items(i)%ptr%x,n)
        call perform_local_summation(this%u,this%old_u, this%el_heights, this%domain_height, &
@@ -284,6 +283,7 @@ contains
        call copy(this%avg_u%x,this%u%x,n)
        call perform_global_summation(this%u, this%avg_u, this%old_u, this%map_1d%n_el_lvls, &
             this%map_1d%dir_el,this%coef%gs_h, this%coef%mult, this%msh%nelv, lx)
+       print *, 'hey2'
        call copy(fields3D(i)%ptr%x,this%u%x,n)
     end do
     call fld_data2D%get_list(fields2d,fld_data2D%size())
@@ -303,6 +303,7 @@ contains
     real(kind=rp), intent(in) :: mult(nelv*lx**3)
     real(kind=rp) :: temp_el(lx,lx,lx)
     integer :: n, i, j, e, k
+    type(c_ptr) :: ptr
   
     n = u%dof%size()
   
@@ -310,8 +311,10 @@ contains
        !compute average
        if (NEKO_BCKND_DEVICE .eq. 1) &
             call device_memcpy(u%x, u%x_d, n, &
-                               HOST_TO_DEVICE, sync=.false.)
+                               HOST_TO_DEVICE, sync=.true.)
+       print *, 'hey1'
        call gs_h%op(u,GS_OP_ADD)
+       print *, 'hey3'
        if (NEKO_BCKND_DEVICE .eq. 1) &
             call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST, sync=.true.)
        call col2(u%x,mult,n)

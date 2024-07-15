@@ -52,21 +52,19 @@ module fluid_stats_output
      integer :: output_dim
    contains
      procedure, pass(this) :: sample => fluid_stats_output_sample
+     procedure, pass(this) :: init => fluid_stats_output_init
   end type fluid_stats_output_t
 
-  interface fluid_stats_output_t
-     module procedure fluid_stats_output_init
-  end interface fluid_stats_output_t
 
 contains
 
-  function fluid_stats_output_init(stats, T_begin, hom_dir, name, path) result(this)
+  subroutine fluid_stats_output_init(this, stats, T_begin, hom_dir, name, path)
     type(fluid_stats_t), intent(inout), target :: stats
     real(kind=rp), intent(in) :: T_begin
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
-    type(fluid_stats_output_t) :: this
+    class(fluid_stats_output_t), intent(inout) :: this
     character(len=1024) :: fname
     if (trim(hom_dir) .eq. 'none' .or. &
         trim(hom_dir) .eq. 'x' .or.&
@@ -106,7 +104,7 @@ contains
     call this%init_base(fname)
     this%stats => stats
     this%T_begin = T_begin
-  end function fluid_stats_output_init
+  end subroutine fluid_stats_output_init
 
   !> Sample a mean flow field at time @a t
   subroutine fluid_stats_output_sample(this, t)
