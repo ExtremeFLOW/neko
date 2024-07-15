@@ -68,9 +68,12 @@ module scalar_scheme
   use utils, only : neko_error
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
+  use math, only : cfill, add2s2
+  use device_math, only : device_cfill, device_add2s2
+  use neko_config, only : NEKO_BCKND_DEVICE
   use field_series
-  use time_step_controller
   use gradient_jump_penalty
+  use time_step_controller, only : time_step_controller_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -133,10 +136,18 @@ module scalar_scheme
      type(chkp_t) :: chkp
      !> Thermal diffusivity.
      real(kind=rp), pointer :: lambda
+     !> The variable lambda field
+     type(field_t) :: lambda_field
+     !> The turbulent kinematic viscosity field name
+     character(len=:), allocatable :: nut_field_name
      !> Density.
      real(kind=rp), pointer :: rho
      !> Specific heat capacity.
      real(kind=rp), pointer :: cp
+     !> Turbulent Prandtl number.
+     real(kind=rp) :: pr_turb
+     !> Is lambda varying in time? Currently only due to LES models.
+     logical :: variable_material_properties = .false.
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
      !> Gradient jump panelty
@@ -149,8 +160,11 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
-     !> Assings the evaluation function for  `user_bc`.
+     !> Assigns the evaluation function for  `user_bc`.
      procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
+     !> Update variable material properties
+     procedure, pass(this) :: update_material_properties => &
+       scalar_scheme_update_material_properties
      !> Constructor.
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      !> Destructor.
@@ -321,20 +335,6 @@ contains
     call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
                   solver_abstol)
 
-    !
-    ! Material properties
-    !
-    this%rho => material_properties%rho
-    this%lambda => material_properties%lambda
-    this%cp => material_properties%cp
-
-    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
-    call neko_log%message(log_buf)
-
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
                             this%projection_dim, 20)
@@ -364,6 +364,39 @@ contains
     this%gs_Xh => gs_Xh
     this%c_Xh => c_Xh
 
+    !
+    ! Material properties
+    !
+    this%rho => material_properties%rho
+    this%lambda => material_properties%lambda
+    this%cp => material_properties%cp
+
+    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
+    call neko_log%message(log_buf)
+
+    !
+    ! Turbulence modelling and variable material properties
+    !
+    if (params%valid_path('case.scalar.nut_field')) then
+       call json_get(params, 'case.scalar.Pr_t', this%pr_turb)
+       call json_get(params, 'case.scalar.nut_field', this%nut_field_name)
+       this%variable_material_properties = .true.
+    else
+       this%nut_field_name = ""
+    end if
+
+    ! Fill lambda field with the physical value
+    call this%lambda_field%init(this%dm_Xh, "lambda")
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cfill(this%lambda_field%x_d, this%lambda, &
+                         this%lambda_field%size())
+    else
+       call cfill(this%lambda_field%x, this%lambda, this%lambda_field%size())
+    end if
 
     !
     ! Setup scalar boundary conditions
@@ -378,11 +411,9 @@ contains
     this%bc_labels = "not"
 
     if (params%valid_path('case.scalar.boundary_types')) then
-       call json_get(params, &
-                     'case.scalar.boundary_types', &
-                     this%bc_labels)
+       call json_get(params, 'case.scalar.boundary_types', this%bc_labels,&
+                     'not')
     end if
-
 
     !
     ! Setup right-hand side field.
@@ -476,6 +507,7 @@ contains
     call bc_list_free(this%bclst_dirichlet)
     call bc_list_free(this%bclst_neumann)
 
+    call this%lambda_field%free()
     call this%slag%free()
 
     ! Free everything related to field dirichlet BCs
@@ -591,6 +623,31 @@ contains
     call this%user_bc%set_eval(usr_eval)
 
   end subroutine scalar_scheme_set_user_bc
+
+  !> Update the values of `lambda_field` if necessary.
+  subroutine scalar_scheme_update_material_properties(this)
+    class(scalar_scheme_t), intent(inout) :: this
+    type(field_t), pointer :: nut
+    integer :: n
+    ! Factor to transform nu_t to lambda_t
+    real(kind=rp) :: lambda_factor
+
+    lambda_factor = this%rho*this%cp/this%pr_turb
+
+    if (this%variable_material_properties) then
+      nut => neko_field_registry%get_field(this%nut_field_name)
+      n = nut%size()
+
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_cfill(this%lambda_field%x_d, this%lambda, n)
+         call device_add2s2(this%lambda_field%x_d, nut%x_d, lambda_factor, n)
+      else
+         call cfill(this%lambda_field%x, this%lambda, n)
+         call add2s2(this%lambda_field%x, nut%x, lambda_factor, n)
+      end if
+    end if
+
+  end subroutine scalar_scheme_update_material_properties
 
 
 end module scalar_scheme

@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  FLINT_GLOBAL_MINIMUM: 8.0
-  FLINT_CHANGED_FILES_MINIMUM: 8.0
+  FLINT_GLOBAL_MINIMUM: 9.0
+  FLINT_CHANGED_FILES_MINIMUM: 10.0
   PFUNIT_VERSION: v4.4.2
   JSON_FORTRAN_VERSION: 8.3.0
 
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       flint-global-minimum: ${{ steps.store.outputs.flint-global-minimum }}
-      flint-changed-minimum: ${{ steps.store.outputs.flint-global-minimum }}
+      flint-changed-minimum: ${{ steps.store.outputs.flint-changed-minimum }}
       pfunit-version: ${{ steps.store.outputs.pfunit-version }}
       json-fortran-version: ${{ steps.store.outputs.json-fortran-version }}
 

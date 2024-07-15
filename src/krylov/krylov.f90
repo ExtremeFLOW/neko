@@ -77,6 +77,8 @@ module krylov
      procedure, pass(this) :: set_pc => krylov_set_pc
      !> Solve the system.
      procedure(ksp_method), pass(this), deferred :: solve
+     !> Solve the system (coupled version).
+     procedure(ksp_method_coupled), pass(this), deferred :: solve_coupled
      !> Destructor.
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
@@ -113,6 +115,50 @@ module krylov
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results
      end function ksp_method
+  end interface
+
+  !> Abstract interface for a Krylov method's coupled solve routine
+  !!
+  !! @param x field to solve for
+  !! @param y field to solve for
+  !! @param z field to solve for
+  !! @param fx right hand side
+  !! @param fy right hand side
+  !! @param fz right hand side
+  !! @param n integer, size of vectors
+  !! @param coef Coefficients
+  !! @param blst list of  boundary conditions
+  !! @param gs_h Gather-scatter handle
+  !! @param niter iteration trip count
+  abstract interface
+     function ksp_method_coupled(this, Ax, x, y, z, fx, fy, fz, &
+          n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       import :: bc_list_t
+       import :: field_t
+       import :: ksp_t
+       import :: coef_t
+       import :: gs_t
+       import :: ax_t
+       import :: ksp_monitor_t
+       import rp
+       implicit none
+       class(ksp_t), intent(inout) :: this
+       class(ax_t), intent(inout) :: Ax
+       type(field_t), intent(inout) :: x
+       type(field_t), intent(inout) :: y
+       type(field_t), intent(inout) :: z
+       integer, intent(in) :: n
+       real(kind=rp), dimension(n), intent(inout) :: fx
+       real(kind=rp), dimension(n), intent(inout) :: fy
+       real(kind=rp), dimension(n), intent(inout) :: fz
+       type(coef_t), intent(inout) :: coef
+       type(bc_list_t), intent(inout) :: blstx
+       type(bc_list_t), intent(inout) :: blsty
+       type(bc_list_t), intent(inout) :: blstz
+       type(gs_t), intent(inout) :: gs_h
+       integer, optional, intent(in) :: niter
+       type(ksp_monitor_t), dimension(3) :: ksp_results
+     end function ksp_method_coupled
   end interface
 
   !> Abstract interface for deallocating a Krylov method

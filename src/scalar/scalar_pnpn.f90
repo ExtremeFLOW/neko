@@ -68,7 +68,8 @@ module scalar_pnpn
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use time_step_controller
+  use time_step_controller, only : time_step_controller_t
+  use scratch_registry, only: neko_scratch_registry
   implicit none
   private
 
@@ -288,12 +289,13 @@ contains
 
     call profiler_start_region('Scalar', 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
-         cp => this%cp, lambda => this%lambda, rho => this%rho, &
+         cp => this%cp, rho => this%rho, &
          ds => this%ds, &
          s_res =>this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
+         lambda_field => this%lambda_field, &
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf, &
@@ -355,11 +357,13 @@ contains
          call this%gradient_jump_penalty%perform(f_Xh)
       end if
 
+      ! Update material properties if necessary
+      call this%update_material_properties()
+
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda, rho * cp, &
-          ext_bdf%diffusion_coeffs(1), dt, &
-          dm_Xh%size())
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda_field, rho*cp,&
+          ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 

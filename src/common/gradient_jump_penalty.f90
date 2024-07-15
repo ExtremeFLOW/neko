@@ -34,7 +34,6 @@
 !> Implements `gradient_jump_penalty_t`.
 module gradient_jump_penalty
   use num_types, only : rp
-  use speclib, only : pnleg, pndleg
   use utils, only : neko_error
   use math
   use point, only : point_t
@@ -42,15 +41,15 @@ module gradient_jump_penalty
   use dofmap , only : dofmap_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use coefs, only : coef_t
-  use scratch_registry, only : neko_scratch_registry
   use element, only : element_t
   use hex
   use quad
   use operators, only : dudxyz
   use gs_ops, only : GS_OP_ADD
-  use tuple, only : tuple_i4_t
   use space
   use gather_scatter, only : gs_t
+  use device
+  use device_math
 
   implicit none
   private
@@ -65,24 +64,44 @@ module gradient_jump_penalty
      !> Collocation point per dimension (p + 1)
      integer :: lx
      !> Penalty terms
-     type(field_t), pointer :: penalty
-     !> Work array to store penalty terms on each element
-     real(kind=rp), allocatable :: penalty_el(:, :, :)
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: penalty
+     type(c_ptr) :: penalty_d = C_NULL_PTR
+     !> work array storing integrant of the penalty
+     real(kind=rp), allocatable, dimension(:, :, :, :):: penalty_facet
+     type(c_ptr) :: penalty_facet_d = C_NULL_PTR
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
      !> Gradient of the quatity of interest
-     type(field_t), pointer :: grad_1, grad_2, grad_3
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: grad1, &
+                                                          grad2, grad3
+     type(c_ptr) :: grad1_d = C_NULL_PTR
+     type(c_ptr) :: grad2_d = C_NULL_PTR
+     type(c_ptr) :: grad3_d = C_NULL_PTR
      !> Gradient jump on the elementary interface (zero inside each element)
      real(kind=rp), allocatable, dimension(:, :, :, :) :: G
+     type(c_ptr) :: G_d = C_NULL_PTR
      !> 3 parts of the flux of the quantity
      real(kind=rp), allocatable, dimension(:, :, :, :) :: flux1, flux2, flux3
+     type(c_ptr) :: flux1_d = C_NULL_PTR
+     type(c_ptr) :: flux2_d = C_NULL_PTR
+     type(c_ptr) :: flux3_d = C_NULL_PTR
      !> 3 parts of the flux of the volumetric flow
      real(kind=rp), allocatable, dimension(:, :, :, :) :: volflux1, &
                                                           volflux2, volflux3
+     type(c_ptr) :: volflux1_d = C_NULL_PTR
+     type(c_ptr) :: volflux2_d = C_NULL_PTR
+     type(c_ptr) :: volflux3_d = C_NULL_PTR
      !> The absolute flux of the volumetric flow
      real(kind=rp), allocatable, dimension(:, :, :, :) :: absvolflux
+     type(c_ptr) :: absvolflux_d = C_NULL_PTR
      !> Expanded array of facet normal (zero inside each element)
      real(kind=rp), allocatable, dimension(:, :, :, :) :: n1, n2, n3
+     type(c_ptr) :: n1_d = C_NULL_PTR
+     type(c_ptr) :: n2_d = C_NULL_PTR
+     type(c_ptr) :: n3_d = C_NULL_PTR
+     !> Facet factor: collect polynomials and integral weights on facets
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: facet_factor
+     type(c_ptr) :: facet_factor_d = C_NULL_PTR
      !> Number of facet in elements and its maximum
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
@@ -94,6 +113,10 @@ module gradient_jump_penalty
      type(space_t) :: Xh_GJP !< needed to init gs
      type(dofmap_t) :: dm_GJP !< needed to init gs
      type(gs_t) :: gs_GJP
+     !> Size of fields of size lx ** 3 * nelv
+     integer :: n
+     !> Size of fields of size lx ** 3 * nelv
+     integer :: n_large
 
   contains
      !> Constructor.
@@ -118,7 +141,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     
     class(element_t), pointer :: ep
-    integer :: temp_indices(4), i, j
+    integer :: i, j, n, n_large
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
     
     call this%free()
@@ -132,8 +155,9 @@ contains
     end if
 
     this%coef => coef
+    this%n = this%lx ** 3 * this%coef%msh%nelv
+    this%n_large = (this%lx + 2) ** 3 * this%coef%msh%nelv
 
-    allocate(this%penalty_el(this%lx, this%lx, this%lx))
     allocate(this%n_facet(this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
@@ -169,11 +193,13 @@ contains
        end do
     end do
 
-    call neko_scratch_registry%request_field(this%penalty, temp_indices(1))
-    call neko_scratch_registry%request_field(this%grad_1, temp_indices(2))
-    call neko_scratch_registry%request_field(this%grad_2, temp_indices(3))
-    call neko_scratch_registry%request_field(this%grad_3, temp_indices(4))
+    allocate(this%penalty(this%lx, this%lx, this%lx, this%coef%msh%nelv))
+    allocate(this%grad1(this%lx, this%lx, this%lx, this%coef%msh%nelv))
+    allocate(this%grad2(this%lx, this%lx, this%lx, this%coef%msh%nelv))
+    allocate(this%grad3(this%lx, this%lx, this%lx, this%coef%msh%nelv))
 
+    allocate(this%penalty_facet(this%lx + 2, this%lx + 2, &
+                    this%lx + 2, this%coef%msh%nelv))
     allocate(this%G(this%lx + 2, this%lx + 2, &
                     this%lx + 2, this%coef%msh%nelv))
     allocate(this%flux1(this%lx + 2, this%lx + 2, &
@@ -197,6 +223,7 @@ contains
     allocate(this%n3(this%lx + 2, this%lx + 2, &
                         this%lx + 2, this%coef%msh%nelv))
 
+    ! Extract facets' normals
     this%n1(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%nx(:, :, 1, :)
     this%n2(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%ny(:, :, 1, :)
     this%n3(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%nz(:, :, 1, :)
@@ -230,9 +257,47 @@ contains
     this%n3(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = &
                                                     this%coef%nz(:, :, 6, :)
 
+    ! Assemble facet factor
+    call facet_factor_init(this)
+
+    ! Initialize Gather-Scatter
     call this%Xh_GJP%init(GLL, this%lx+2, this%lx+2, this%lx+2)
     this%dm_GJP = dofmap_t(this%coef%msh, this%Xh_GJP)
     call this%gs_GJP%init(this%dm_GJP)
+
+    ! Initialize pointers for GPU
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%penalty, this%penalty_d, this%n)
+       call device_map(this%grad1, this%grad1_d, this%n)
+       call device_map(this%grad2, this%grad2_d, this%n)
+       call device_map(this%grad3, this%grad3_d, this%n)
+       
+       call device_map(this%penalty_facet, this%penalty_facet_d, this%n_large)
+       call device_map(this%G, this%G_d, this%n_large)
+       call device_map(this%flux1, this%flux1_d, this%n_large)
+       call device_map(this%flux2, this%flux2_d, this%n_large)
+       call device_map(this%flux3, this%flux3_d, this%n_large)
+
+       call device_map(this%volflux1, this%volflux1_d, this%n_large)
+       call device_map(this%volflux2, this%volflux2_d, this%n_large)
+       call device_map(this%volflux3, this%volflux3_d, this%n_large)
+       call device_map(this%absvolflux, this%absvolflux_d, this%n_large)
+
+       call device_map(this%n1, this%n1_d, this%n_large)
+       call device_map(this%n2, this%n2_d, this%n_large)
+       call device_map(this%n3, this%n3_d, this%n_large)
+       call device_map(this%facet_factor, this%facet_factor_d, this%n_large)
+
+       call device_memcpy(this%n1, this%n1_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%n2, this%n2_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%n3, this%n3_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%facet_factor, this%facet_factor_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+
+    end if
 
   end subroutine gradient_jump_penalty_init
   
@@ -246,13 +311,6 @@ contains
     integer :: i
     type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
 
-   !  !! strategy 1: use the diameter of the hexahedral
-   !  do i = 1, 6
-   !     h_el(i) = ep%diameter()
-   !  end do
-
-    !! strategy 2: hard code it, only works for cuboid mesh
-    !! should be refined for distorted mesh as well
     p1 => ep%p(1)
     p2 => ep%p(2)
     p3 => ep%p(3)
@@ -262,28 +320,211 @@ contains
     p7 => ep%p(7)
     p8 => ep%p(8)
     h_el(:) = 0.0_rp
-    do i = 1, NEKO_HEX_GDIM
-       h_el(1) = h_el(1) + (p1%x(i) - p2%x(i))**2
-       h_el(2) = h_el(2) + (p1%x(i) - p2%x(i))**2
-       h_el(3) = h_el(3) + (p1%x(i) - p3%x(i))**2
-       h_el(4) = h_el(4) + (p1%x(i) - p3%x(i))**2
-       h_el(5) = h_el(5) + (p1%x(i) - p5%x(i))**2
-       h_el(6) = h_el(6) + (p1%x(i) - p5%x(i))**2
-    end do
-    do i = 1, 6
-       h_el(i) = sqrt(h_el(i))
-    end do
+    
+    h_el(1) = dist_facets_hex(p1, p5, p7, p3, p2, p6, p8, p4)
+    h_el(2) = h_el(1)
+    h_el(3) = dist_facets_hex(p1, p2, p6, p5, p3, p4, p8, p7)
+    h_el(4) = h_el(3)
+    h_el(5) = dist_facets_hex(p1, p2, p4, p3, p5, p6, p8, p7)
+    h_el(6) = h_el(5)
 
   end subroutine eval_h_hex
+
+  !> "Distrance" of two facets of a hexahedral element
+  !! @param p11, p12, p13, p14 Vertices defining facet 1
+  !! @param p21, p22, p23, p24 Vertices defining facet 2
+  function dist_facets_hex(p11, p12, p13, p14, &
+                           p21, p22, p23, p24) result(dist)
+  type(point_t), intent(in) :: p11, p12, p13, p14
+  type(point_t), intent(in) :: p21, p22, p23, p24
+  real(kind=rp) :: dist
+
+  dist = 0.0_rp
+
+  dist = dist + dist_vertex_to_plane_3d(p11, p21, p22, p23)
+  dist = dist + dist_vertex_to_plane_3d(p11, p21, p22, p24)
+  dist = dist + dist_vertex_to_plane_3d(p11, p21, p23, p24)
+  dist = dist + dist_vertex_to_plane_3d(p11, p22, p23, p24)
+
+  dist = dist + dist_vertex_to_plane_3d(p12, p21, p22, p23)
+  dist = dist + dist_vertex_to_plane_3d(p12, p21, p22, p24)
+  dist = dist + dist_vertex_to_plane_3d(p12, p21, p23, p24)
+  dist = dist + dist_vertex_to_plane_3d(p12, p22, p23, p24)
+
+  dist = dist + dist_vertex_to_plane_3d(p13, p21, p22, p23)
+  dist = dist + dist_vertex_to_plane_3d(p13, p21, p22, p24)
+  dist = dist + dist_vertex_to_plane_3d(p13, p21, p23, p24)
+  dist = dist + dist_vertex_to_plane_3d(p13, p22, p23, p24)
+
+  dist = dist + dist_vertex_to_plane_3d(p14, p21, p22, p23)
+  dist = dist + dist_vertex_to_plane_3d(p14, p21, p22, p24)
+  dist = dist + dist_vertex_to_plane_3d(p14, p21, p23, p24)
+  dist = dist + dist_vertex_to_plane_3d(p14, p22, p23, p24)
+
+  dist = dist / 16.0_rp
+
+  end function dist_facets_hex
+
+  !> Distance from a vertex to a plane in a 3d space
+  !! @param pv The vertex
+  !! @param p1, p2, p3 Points defining a plane
+  function dist_vertex_to_plane_3d(pv, p1, p2, p3) result(dist)
+  type(point_t), intent(in) :: pv, p1, p2, p3
+  !> Vectors connecting p1&p2, p1&p3 and pv&p1
+  real(kind=rp), dimension(3) :: u12, u13, uv1
+  real(kind=rp) :: norm_u12, norm_u13
+  !> The vector normal to the plane
+  real(kind=rp) :: un(3)
+  !> The result of this function
+  real(kind=rp) :: dist
+  integer :: i
+  
+  ! Set up u12 and u13
+  norm_u12 = 0.0_rp
+  norm_u13 = 0.0_rp
+  do i = 1, 3
+     u12(i) = p2%x(i) - p1%x(i)
+     norm_u12 = norm_u12 + u12(i) * u12(i)
+     u13(i) = p3%x(i) - p1%x(i)
+     norm_u13 = norm_u13 + u13(i) * u13(i)
+     uv1(i) = pv%x(i) - p1%x(i)
+  end do
+  norm_u12 = sqrt(norm_u12)
+  norm_u13 = sqrt(norm_u13)
+
+  ! Normalized cross product of u12 and u13 to get un
+  un(1) = u12(2) * u13(3) - u12(3) * u13(2)
+  un(2) = - u12(1) * u13(3) + u12(3) * u13(1)
+  un(3) = u12(1) * u13(2) - u12(2) * u13(1)
+  do i = 1, 3
+     un(i) = un(i) / norm_u12 / norm_u13
+  end do
+
+  ! Project of uv1 onto un, noting un is a unit vector
+  dist = 0.0_rp
+  do i = 1, 3
+     dist = dist + uv1(i) * un(i)
+  end do
+
+  end function dist_vertex_to_plane_3d
+
+  !> Initialize the facet factor array
+  subroutine facet_factor_init(this)
+    class(gradient_jump_penalty_t), intent(inout) :: this
+    !> work array
+    real(kind=rp) :: wa(this%lx, this%lx, this%lx, this%coef%msh%nelv)
+
+    allocate(this%facet_factor(this%lx + 2, this%lx + 2, &
+                               this%lx + 2, this%coef%msh%nelv))
+
+    associate(facet_factor => this%facet_factor, &
+              lx => this%lx, area => this%coef%area, &
+              nelv => this%coef%msh%nelv, &
+              jacinv => this%coef%jacinv, n => this%n)
+    
+    ! Assemble facet_factor for facet 1 and 2
+    call add4(wa, this%coef%drdx, this%coef%drdy, this%coef%drdz, n)
+    call col2(wa, jacinv, n)
+    facet_factor(1, 2: lx + 1, 2: lx + 1, :) = -1.0_rp * wa(1, :, :, :)
+    facet_factor(lx + 2, 2: lx + 1, 2: lx + 1, :) = wa(lx, :, :, :)
+
+    ! Assemble facet_factor for facet 3 and 4
+    call add4(wa, this%coef%dsdx, this%coef%dsdy, this%coef%dsdz, n)
+    call col2(wa, jacinv, n)
+    facet_factor(2: lx + 1, 1, 2: lx + 1, :) = -1.0_rp * wa(:, 1, :, :)
+    facet_factor(2: lx + 1, lx + 2, 2: lx + 1, :) = wa(:, lx, :, :)
+
+    ! Assemble facet_factor for facet 5 and 6
+    call add4(wa, this%coef%dsdx, this%coef%dsdy, this%coef%dsdz, n)
+    call col2(wa, jacinv, n)
+    facet_factor(2: lx + 1, 2: lx + 1, 1, :) = -1.0_rp * wa(:, :, 1, :)
+    facet_factor(2: lx + 1, 2: lx + 1, lx + 2, :) = wa(:, :, lx, :)
+
+    ! Multiplied by the quadrant weight
+    call col2(facet_factor(1, 2: lx + 1, 2: lx + 1, :), &
+              area(:, :, 1, :), lx * lx * nelv)
+    call col2(facet_factor(lx + 2, 2: lx + 1, 2: lx + 1, :), &
+              area(:, :, 2, :), lx * lx * nelv)
+    call col2(facet_factor(2: lx + 1, 1, 2: lx + 1, :), &
+              area(:, :, 3, :), lx * lx * nelv)
+    call col2(facet_factor(2: lx + 1, lx + 2, 2: lx + 1, :), &
+              area(:, :, 4, :), lx * lx * nelv)
+    call col2(facet_factor(2: lx + 1, 2: lx + 1, 1, :), &
+              area(:, :, 5, :), lx * lx * nelv)
+    call col2(facet_factor(2: lx + 1, 2: lx + 1, lx + 2, :), &
+              area(:, :, 6, :), lx * lx * nelv)
+
+    end associate
+  end subroutine facet_factor_init
 
   !> Destructor for the gradient_jump_penalty_t class.
   subroutine gradient_jump_penalty_free(this)
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
 
-    nullify(this%penalty)
-    if (allocated(this%penalty_el)) then
-       deallocate(this%penalty_el)
+    if (c_associated(this%penalty_d)) then
+       call device_free(this%penalty_d)
+    end if
+    if (c_associated(this%grad1_d)) then
+       call device_free(this%grad1_d)
+    end if
+    if (c_associated(this%grad2_d)) then
+       call device_free(this%grad2_d)
+    end if
+    if (c_associated(this%grad3_d)) then
+       call device_free(this%grad3_d)
+    end if
+    if (c_associated(this%penalty_facet_d)) then
+       call device_free(this%penalty_facet_d)
+    end if
+    if (c_associated(this%G_d)) then
+       call device_free(this%G_d)
+    end if
+    if (c_associated(this%flux1_d)) then
+       call device_free(this%flux1_d)
+    end if
+    if (c_associated(this%flux2_d)) then
+       call device_free(this%flux2_d)
+    end if
+    if (c_associated(this%flux3_d)) then
+       call device_free(this%flux3_d)
+    end if
+    if (c_associated(this%volflux1_d)) then
+       call device_free(this%volflux1_d)
+    end if
+    if (c_associated(this%volflux2_d)) then
+       call device_free(this%volflux2_d)
+    end if
+    if (c_associated(this%volflux3_d)) then
+       call device_free(this%volflux3_d)
+    end if
+    if (c_associated(this%absvolflux_d)) then
+       call device_free(this%absvolflux_d)
+    end if
+    if (c_associated(this%n1_d)) then
+       call device_free(this%n1_d)
+    end if
+    if (c_associated(this%n2_d)) then
+       call device_free(this%n2_d)
+    end if
+    if (c_associated(this%n3_d)) then
+       call device_free(this%n3_d)
+    end if
+    if (c_associated(this%facet_factor_d)) then
+       call device_free(this%facet_factor_d)
+    end if
+
+    if (allocated(this%penalty)) then
+       deallocate(this%penalty)
+    end if
+    if (allocated(this%grad1)) then
+       deallocate(this%grad1)
+    end if
+    if (allocated(this%grad2)) then
+       deallocate(this%grad2)
+    end if
+    if (allocated(this%grad3)) then
+       deallocate(this%grad3)
     end if
     if (allocated(this%h)) then
        deallocate(this%h)
@@ -293,6 +534,9 @@ contains
     end if
     if (allocated(this%dphidxi)) then
        deallocate(this%dphidxi)
+    end if
+    if (allocated(this%penalty_facet)) then
+       deallocate(this%penalty_facet)
     end if
     if (allocated(this%G)) then
        deallocate(this%G)
@@ -327,13 +571,14 @@ contains
     if (allocated(this%n3)) then
        deallocate(this%n3)
     end if
-    nullify(this%coef)
-    nullify(this%grad_1)
-    nullify(this%grad_2)
-    nullify(this%grad_3)
+    if (allocated(this%facet_factor)) then
+       deallocate(this%facet_factor)
+    end if
 
-   call this%Xh_GJP%free()
-   call this%gs_GJP%free()
+    nullify(this%coef)
+    
+    call this%Xh_GJP%free()
+    call this%gs_GJP%free()
 
   end subroutine gradient_jump_penalty_free
 
@@ -351,17 +596,38 @@ contains
 
     call G_compute(this, s)
     call absvolflux_compute(this, u, v, w)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, this%n_large)
+       call device_col2(this%penalty_facet_d, this%facet_factor_d, this%n_large)
+       call device_cmult(this%penalty_facet_d, this%tau, this%n_large)
+    else
+       call col3(this%penalty_facet, this%absvolflux, this%G, this%n_large)
+       call col2(this%penalty_facet, this%facet_factor, this%n_large)
+       call cmult(this%penalty_facet, this%tau, this%n_large)
+    end if
+    
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%penalty_facet, this%penalty_facet_d, this%n_large, &
+                          DEVICE_TO_HOST, sync=.true.)
+    end if
+
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
        select type(ep)
        type is (hex_t)
-          call gradient_jump_penalty_compute_hex_el(this, u, v, w, s, i)
-          this%penalty%x(:, :, :, i) = this%penalty_el
+          call gradient_jump_penalty_compute_hex_el(this, &
+                                    this%penalty_facet, u, v, w, s, i)
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported &
                                        now for gradient jump penalty")
        end select
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%penalty, this%penalty_d, this%n, &
+                          HOST_TO_DEVICE, sync=.true.)
+    end if
 
   end subroutine gradient_jump_penalty_compute
 
@@ -371,38 +637,59 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(inout) :: f
 
-    call add2(f%x, this%penalty%x, this%coef%dof%size())
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(f%x_d, this%penalty_d, this%coef%dof%size())
+    else
+       call add2(f%x, this%penalty, this%coef%dof%size())
+    end if
 
   end subroutine gradient_jump_penalty_perform
 
   !> Compute the gradient jump penalty term for a single hexatedral element.
-  !> <tau * h^2 * abs(u .dot. n) * G * phij * phik * dphi_idxi * dxidn>
+  !> <tau * h^2 * absvolflux * G * phij * phik * dphi_idxi * dxidn>
+  !! @param wa work array containing tau * absvolflux * G * dxidn
   !! @param u x-velocity
   !! @param v y-velocity
   !! @param w z-velocity
   !! @param s The quantity of interest
   !! @param i_el The index of the element
-  subroutine gradient_jump_penalty_compute_hex_el(this, u, v, w, s, i_el)
+  subroutine gradient_jump_penalty_compute_hex_el(this, wa, u, v, w, s, i_el)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: u, v, w, s
     integer, intent(in) :: i_el
+    real(kind=rp), intent(in) :: wa(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv)
 
     real(kind=rp) :: integrant_facet(this%lx, this%lx)
     integer :: i, j, k, l
-    
-    this%penalty_el = 0.0_rp
-    do i = 1, this%lx
-       do j = 1, this%lx
-          do k = 1, this%lx
-             do l = 1, 6
-                this%penalty_el(i, j, k) = this%penalty_el(i, j, k) + &
-                                  weak_integrate_over_facet(this, i, j, &
-                                                            k, l, i_el)
-             end do
+
+    associate(lx => this%lx, nelv => this%coef%msh%nelv, &
+              absvolflux => this%absvolflux, G => this%G, &
+              facet_factor => this%facet_factor, tau => this%tau, &
+              penalty => this%penalty, dphidxi => this%dphidxi, &
+              h => this%h)
+
+    do i = 1, lx
+       do j = 1, lx
+          do k = 1, lx
+             penalty(i, j, k, i_el) = & 
+               wa(1, j + 1, k + 1, i_el) * &
+                  dphidxi(1, i) * h(1, i_el) ** 2 + &
+               wa(lx + 2, j + 1, k + 1, i_el) * &
+                  dphidxi(lx, i) * h(2, i_el) ** 2 + &
+               wa(i + 1, 1, k + 1, i_el) * &
+                  dphidxi(1, j) * h(3, i_el) ** 2 + &
+               wa(i + 1, lx + 2, k + 1, i_el) * &
+                  dphidxi(lx, j) * h(4, i_el) ** 2 + &
+               wa(i + 1, j + 1, 1, i_el) * &
+                  dphidxi(1, k) * h(5, i_el) ** 2 + &
+               wa(i + 1, j + 1, lx + 2, i_el) * &
+                  dphidxi(lx, k) * h(6, i_el) ** 2
           end do
        end do  
     end do
 
+    end associate
   end subroutine gradient_jump_penalty_compute_hex_el
 
   !> Compute the average of the flux over facets
@@ -411,33 +698,61 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: s
 
-    call dudxyz(this%grad_1%x, s%x, this%coef%drdx, &
+    call dudxyz(this%grad1, s%x, this%coef%drdx, &
                 this%coef%dsdx, this%coef%dtdx, this%coef)
-    call dudxyz(this%grad_2%x, s%x, this%coef%drdy, &
+    call dudxyz(this%grad2, s%x, this%coef%drdy, &
                 this%coef%dsdy, this%coef%dtdy, this%coef)
-    call dudxyz(this%grad_3%x, s%x, this%coef%drdz, &
+    call dudxyz(this%grad3, s%x, this%coef%drdz, &
                 this%coef%dsdz, this%coef%dtdz, this%coef)
 
-    call pick_facet_value_hex(this%flux1, this%grad_1%x, &
-                              this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux2, this%grad_2%x, &
-                              this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux3, this%grad_3%x, &
-                              this%lx, this%coef%msh%nelv)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%grad1, this%grad1_d, this%n, &
+                          DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%grad2, this%grad2_d, this%n, &
+                          DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%grad3, this%grad3_d, this%n, &
+                          DEVICE_TO_HOST, sync=.true.)
+    end if
 
-    call col2(this%flux1, this%n1, size(this%n1))
-    call col2(this%flux2, this%n2, size(this%n1))
-    call col2(this%flux3, this%n3, size(this%n1))
-
-    call add3(this%G, this%flux1, this%flux2, size(this%n1))
-    call add2(this%G, this%flux3, size(this%n1))
+    call pick_facet_value_hex(this%flux1, this%grad1, &
+                              this%lx, this%coef%msh%nelv)
+    call pick_facet_value_hex(this%flux2, this%grad2, &
+                              this%lx, this%coef%msh%nelv)
+    call pick_facet_value_hex(this%flux3, this%grad3, &
+                              this%lx, this%coef%msh%nelv)
     
-    call this%gs_GJP%op(this%G, size(this%n1), GS_OP_ADD)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%flux1, this%flux1_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%flux2, this%flux2_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%flux3, this%flux3_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.true.)
+    end if
+     
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col2(this%flux1_d, this%n1_d, this%n_large)
+       call device_col2(this%flux2_d, this%n2_d, this%n_large)
+       call device_col2(this%flux3_d, this%n3_d, this%n_large)
+       call device_add3s2(this%G_d, this%flux1_d, this%flux2_d, &
+                          1.0_rp, 1.0_rp, this%n_large)
+       call device_add2(this%G_d, this%flux3_d, this%n_large)
+    else
+       call col2(this%flux1, this%n1, this%n_large)
+       call col2(this%flux2, this%n2, this%n_large)
+       call col2(this%flux3, this%n3, this%n_large)
+       call add3(this%G, this%flux1, this%flux2, this%n_large)
+       call add2(this%G, this%flux3, this%n_large)
+    end if
+    
+    call this%gs_GJP%op(this%G, this%n_large, GS_OP_ADD)
 
   end subroutine G_compute
 
-  !> Compute the average of the flux over facets
-  !! @param s The quantity of interest
+  !> Compute the average of the volumetric flux over facets
+  !! @param u x-velocity
+  !! @param v y-velocity
+  !! @param w z-velocity
   subroutine absvolflux_compute(this, u, v, w)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(in) :: u, v, w
@@ -448,16 +763,41 @@ contains
     call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
     call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
 
-    call col2(this%volflux1, this%n1, size(this%n1))
-    call col2(this%volflux2, this%n2, size(this%n1))
-    call col2(this%volflux3, this%n3, size(this%n1))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%volflux1, this%volflux1_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%volflux2, this%volflux2_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%volflux3, this%volflux3_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.true.)
+    end if
+    
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col2(this%volflux1_d, this%n1_d, this%n_large)
+       call device_col2(this%volflux2_d, this%n2_d, this%n_large)
+       call device_col2(this%volflux3_d, this%n3_d, this%n_large)
+       call device_add3s2(this%absvolflux_d, this%volflux1_d, this%volflux2_d, &
+                          1.0_rp, 1.0_rp, this%n_large)
+       call device_add2(this%absvolflux_d, this%volflux3_d, this%n_large)
+    else
+       call col2(this%volflux1, this%n1, this%n_large)
+       call col2(this%volflux2, this%n2, this%n_large)
+       call col2(this%volflux3, this%n3, this%n_large)
+       call add3(this%absvolflux, this%volflux1, this%volflux2, this%n_large)
+       call add2(this%absvolflux, this%volflux3, this%n_large)
+    end if
 
-    call add3(this%absvolflux, this%volflux1, this%volflux2, size(this%n1))
-    call add2(this%absvolflux, this%volflux3, size(this%n1))
-
-    do i = 1, size(this%n1)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
+                          DEVICE_TO_HOST, sync=.true.)
+    end if
+    do i = 1, this%n_large
        this%absvolflux(i, 1, 1, 1) = abs(this%absvolflux(i, 1, 1, 1))
     end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
+                          HOST_TO_DEVICE, sync=.true.)
+    end if
 
   end subroutine absvolflux_compute
 
@@ -471,113 +811,19 @@ contains
     real(kind=rp), intent(in) :: f_field(lx, lx, lx, nelv)
     real(kind=rp), intent(inout) :: f_facet(lx + 2, lx + 2, lx + 2, nelv)
 
-    f_facet(1, 2: lx + 1, 2: lx + 1, :) = f_field(1, :, :, :)
-    f_facet(lx + 2, 2: lx + 1, 2: lx + 1, :) = f_field(lx, :, :, :)
-    f_facet(2: lx + 1, 1, 2: lx + 1, :) = f_field(:, 1, :, :)
-    f_facet(2: lx + 1, lx + 2, 2: lx + 1, :) = f_field(:, lx, :, :)
-    f_facet(2: lx + 1, 2: lx + 1, 1, :) = f_field(:, :, 1, :)
-    f_facet(2: lx + 1, 2: lx + 1, lx + 2, :) = f_field(:, :, lx, :)
+    call copy(f_facet(1, 2: lx + 1, 2: lx + 1, :), &
+              f_field(1, :, :, :), lx * lx * nelv)
+    call copy(f_facet(lx + 2, 2: lx + 1, 2: lx + 1, :), &
+              f_field(lx, :, :, :), lx * lx * nelv)
+    call copy(f_facet(2: lx + 1, 1, 2: lx + 1, :), &
+              f_field(:, 1, :, :), lx * lx * nelv)
+    call copy(f_facet(2: lx + 1, lx + 2, 2: lx + 1, :), &
+              f_field(:, lx, :, :), lx * lx * nelv)
+    call copy(f_facet(2: lx + 1, 2: lx + 1, 1, :), &
+              f_field(:, :, 1, :), lx * lx * nelv)
+    call copy(f_facet(2: lx + 1, 2: lx + 1, lx + 2, :), &
+              f_field(:, :, lx, :), lx * lx * nelv)
 
   end subroutine pick_facet_value_hex
-
-  !> Integrate over a facet in weak from
-  !! @param f Integrant
-  pure function weak_integrate_over_facet(this, i, j, k, &
-                                          facet_index, i_el) result(f_int)
-    class(gradient_jump_penalty_t), intent(in) :: this
-    integer, intent(in) :: i, j, k, facet_index, i_el
-
-    real(kind=rp) :: f_int
-    real(kind=rp) :: f(this%lx, this%lx), dphidxi, dxidn, jacinv_pt
-    integer :: n_facet
-
-   select case (facet_index) ! Identify the facet indexing
-    case(1)
-        dphidxi = this%dphidxi(1, i)
-        dxidn = this%coef%drdx(1, j, k, i_el) + &
-                this%coef%drdy(1, j, k, i_el) + &
-                this%coef%drdz(1, j, k, i_el)
-        jacinv_pt = this%coef%jacinv(1, j, k, i_el)
-        n_facet = -1
-
-        f_int = this%absvolflux(1, j + 1, k + 1, i_el) * &
-                this%G(1, j + 1, k + 1, i_el) * &
-                dphidxi * dxidn * jacinv_pt
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(j, k, facet_index, i_el) * n_facet
-
-    case(2)
-        dphidxi = this%dphidxi(this%lx, i)
-        dxidn = this%coef%drdx(this%lx, j, k, i_el) + &
-                this%coef%drdy(this%lx, j, k, i_el) + &
-                this%coef%drdz(this%lx, j, k, i_el)
-        jacinv_pt = this%coef%jacinv(this%lx, j, k, i_el)
-        n_facet = 1
-
-        f_int = this%absvolflux(this%lx + 2, j + 1, k + 1, i_el) * &
-                this%G(this%lx + 2, j + 1, k + 1, i_el) * &
-                dphidxi * dxidn * jacinv_pt
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(j, k, facet_index, i_el) * n_facet
-
-    case(3)
-        dphidxi = this%dphidxi(1, j)
-        dxidn = this%coef%dsdx(i, 1, k, i_el) + &
-                this%coef%dsdy(i, 1, k, i_el) + &
-                this%coef%dsdz(i, 1, k, i_el)
-        jacinv_pt = this%coef%jacinv(i, 1, k, i_el)
-        n_facet = -1
-
-        f_int = this%absvolflux(i + 1, 1, k + 1, i_el) * &
-                this%G(i + 1, 1, k + 1, i_el) * &
-                dphidxi * dxidn * jacinv_pt
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(i, k, facet_index, i_el) * n_facet
-
-    case(4)
-        dphidxi = this%dphidxi(this%lx, j)
-        dxidn = this%coef%dsdx(i, this%lx, k, i_el) + &
-                this%coef%dsdy(i, this%lx, k, i_el) + &
-                this%coef%dsdz(i, this%lx, k, i_el)
-        jacinv_pt = this%coef%jacinv(i, this%lx, k, i_el)
-        n_facet = 1
-
-        f_int = this%absvolflux(i + 1, this%lx + 2, k + 1, i_el) * &
-                this%G(i + 1, this%lx + 2, k + 1, i_el) * &
-                dphidxi * dxidn * jacinv_pt
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(i, k, facet_index, i_el) * n_facet
-
-    case(5)
-        dphidxi = this%dphidxi(1, k)
-        dxidn = this%coef%dtdx(i, j, 1, i_el) + &
-                this%coef%dtdy(i, j, 1, i_el) + &
-                this%coef%dtdz(i, j, 1, i_el)
-        jacinv_pt = this%coef%jacinv(i, j, 1, i_el)
-        n_facet = -1
-
-        f_int = this%absvolflux(i + 1, j + 1, 1, i_el) * &
-                this%G(i + 1, j + 1, 1, i_el) * &
-                dphidxi * dxidn * jacinv_pt
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(i, k, facet_index, i_el) * n_facet
-
-    case(6)
-        dphidxi = this%dphidxi(this%lx, k)
-        dxidn = this%coef%dtdx(i, j, this%lx, i_el) + &
-                this%coef%dtdy(i, j, this%lx, i_el) + &
-                this%coef%dtdz(i, j, this%lx, i_el)
-        jacinv_pt = this%coef%jacinv(i, j, this%lx, i_el)
-        n_facet = 1
-
-        f_int = this%absvolflux(i + 1, j + 1, this%lx + 2, i_el) * &
-                this%G(i + 1, j + 1, this%lx + 2, i_el) * &
-                dphidxi * dxidn * jacinv_pt
-        f_int = f_int * this%tau * this%h(facet_index, i_el) ** 2
-        f_int = f_int * this%coef%area(i, k, facet_index, i_el) * n_facet
-
-    end select
-
-  end function weak_integrate_over_facet
 
 end module gradient_jump_penalty

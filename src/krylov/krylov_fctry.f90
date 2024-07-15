@@ -39,6 +39,7 @@ module krylov_fctry
   use pipecg_sx, only : sx_pipecg_t
   use pipecg_device, only : pipecg_device_t
   use fusedcg_device, only : fusedcg_device_t
+  use fusedcg_cpld_device, only : fusedcg_cpld_device_t
   use bicgstab, only : bicgstab_t
   use gmres, only : gmres_t
   use gmres_sx, only : sx_gmres_t
@@ -113,6 +114,15 @@ contains
        else
           call neko_error('FusedCG only supported for CUDA/HIP')
        end if
+    else if (trim(type_name) .eq. 'fcpldcg') then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (NEKO_BCKND_OPENCL .eq. 1) then
+             call neko_error('Coupled FusedCG not supported for OpenCL')
+          end if
+          allocate(fusedcg_cpld_device_t::object)
+       else
+          call neko_error('Coupled FusedCG only supported for CUDA/HIP')
+       end if
     else if (trim(type_name) .eq. 'cacg') then
        allocate(cacg_t::object)
     else if (trim(type_name) .eq. 'gmres') then
@@ -153,6 +163,8 @@ contains
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is(fusedcg_device_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is(fusedcg_cpld_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is(cacg_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is(gmres_t)
@@ -179,6 +191,8 @@ contains
        type is (pipecg_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        type is (fusedcg_device_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is (fusedcg_cpld_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        type is(cacg_t)
           call obj%init(n, max_iter, abs_tol = abstol)
@@ -207,6 +221,8 @@ contains
           call obj%init(n, max_iter, M = M)
        type is (fusedcg_device_t)
           call obj%init(n, max_iter, M = M)
+       type is (fusedcg_cpld_device_t)
+          call obj%init(n, max_iter, M = M)
        type is(cacg_t)
           call obj%init(n, max_iter, M = M)
        type is(gmres_t)
@@ -233,6 +249,8 @@ contains
        type is (pipecg_device_t)
           call obj%init(n, max_iter)
        type is (fusedcg_device_t)
+          call obj%init(n, max_iter)
+       type is (fusedcg_cpld_device_t)
           call obj%init(n, max_iter)
        type is(cacg_t)
           call obj%init(n, max_iter)
@@ -268,6 +286,8 @@ contains
        type is (pipecg_device_t)
           call obj%free()
        type is (fusedcg_device_t)
+          call obj%free()
+       type is (fusedcg_cpld_device_t)
           call obj%free()
        type is(cacg_t)
           call obj%free()
