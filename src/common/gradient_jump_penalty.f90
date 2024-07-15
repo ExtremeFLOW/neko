@@ -734,7 +734,8 @@ contains
        call device_col2(this%flux1_d, this%n1_d, this%n_large)
        call device_col2(this%flux2_d, this%n2_d, this%n_large)
        call device_col2(this%flux3_d, this%n3_d, this%n_large)
-       call device_add3(this%G_d, this%flux1_d, this%flux2_d, this%n_large)
+       call device_add3s2(this%G_d, this%flux1_d, this%flux2_d, &
+                          1.0_rp, 1.0_rp, this%n_large)
        call device_add2(this%G_d, this%flux3_d, this%n_large)
     else
        call col2(this%flux1, this%n1, this%n_large)
@@ -775,7 +776,8 @@ contains
        call device_col2(this%volflux1_d, this%n1_d, this%n_large)
        call device_col2(this%volflux2_d, this%n2_d, this%n_large)
        call device_col2(this%volflux3_d, this%n3_d, this%n_large)
-       call device_add3(this%absvolflux_d, this%volflux1_d, this%volflux2_d, this%n_large)
+       call device_add3s2(this%absvolflux_d, this%volflux1_d, this%volflux2_d, &
+                          1.0_rp, 1.0_rp, this%n_large)
        call device_add2(this%absvolflux_d, this%volflux3_d, this%n_large)
     else
        call col2(this%volflux1, this%n1, this%n_large)
