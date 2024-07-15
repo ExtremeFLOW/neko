@@ -124,7 +124,7 @@ contains
     this%start_time = start_time
     this%time = start_time
 
-    this%stats_output = fluid_stats_output_t(this%stats, &
+    call this%stats_output%init(this%stats, &
             this%start_time, hom_dir=hom_dir, path=this%case%output_directory)
     call this%case%s%add(this%stats_output,&
                         this%output_controller%control_value,&
