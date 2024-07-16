@@ -166,7 +166,7 @@ contains
           this%n_facet(i) = 6
        type is (quad_t)
           call neko_error("Only Hexahedral element is &
-                           supported now for gradient jump penalty")
+                           &supported now for gradient jump penalty")
        end select
     end do
     this%n_facet_max = maxval(this%n_facet)
