@@ -638,7 +638,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%penalty, this%penalty_d, this%n, &
-                          HOST_TO_DEVICE, sync=.true.)
+                          HOST_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine gradient_jump_penalty_compute
