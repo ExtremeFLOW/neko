@@ -141,7 +141,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     
     class(element_t), pointer :: ep
-    integer :: i, j, n, n_large
+    integer :: i, j
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
     
     call this%free()
