@@ -214,6 +214,25 @@ The means of prescribing the values are controlled via the `type` keyword:
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
    `case.point_zones` object. See more about point zones @ref point-zones.md.
+5. `field`, where the initial condition is retrieved from an output field file
+   provided by the `file_name` keyword. Supported
+   file types are:
+   - `.chkp`, with mesh to mesh interpolation where the mesh from which to
+   interpolate is given by the `previous_mesh` keyword (and tolerance for 
+   interpolation by the keyword `tolerance`).
+   - `.fld`, `.nek5000` that refer to a series of `.f*****` files, where the 
+   index of the file to use is provided by the `sample_index` keyword. For
+   example, in a series of 3 files `field0.f00000, field0.f00001, 
+   field0.f00002`, `sample_index` can take values `0`,`1` or `2`. In this 
+   case we would set `"file_name" = "field0.fld"`. If no `sample_index` is
+   provided, and a `field0.nek5000` file exists, the last field file in the
+   series will be used by default.
+   - `.f*****` which refers to a single `field0.f*****` file. In this case 
+   the sample index will be extracted from the file extension, e.g. `f00012`
+   means a sample index of `12`.
+   
+@note Currently interpolation is only supported with `chkp` files. `fld` files
+that are loaded must match with the mesh that you are using.
 
 ### Blasius profile
 The `blasius` object is used to specify the Blasius profile that can be used for the
@@ -423,8 +442,12 @@ that can be described concisely directly in the table.
 | `output_value`                          | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                         | -             |
 | `inflow_condition.type`                 | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                     | -             |
 | `inflow_condition.value`                | Value of the inflow velocity.                                                                     | Vector of 3 reals                                | -             |
-| `initial_condition.type`                | Initial condition type.                                                                           | `user`, `uniform`, `blasius`                     | -             |
+| `initial_condition.type`                | Initial condition type.                                                                           | `user`, `uniform`, `blasius`, `field`            | -             |
 | `initial_condition.value`               | Value of the velocity initial condition.                                                          | Vector of 3 reals                                | -             |
+| `initial_condition.file_name`           | If `"type" = "field"`, the path to the field file to read from.                                   | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`.  | -             |
+| `initial_condition.sample_index`        | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled.     | Positive integer.                                | -1            |
+| `initial_condition.previous_mesh`       | If `"type" = "field"`, and file type is `chkp`, the previous mesh from which to interpolate.      | String ending with `.nmsh`.                      | -             |
+| `initial_condition.tolerance`           | If `"type" = "field"`, and file type is `chkp`, tolerance to use for mesh interpolation.          | Positive real.                                   | 1e-6          |
 | `blasius.delta`                         | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                    | -             |
 | `blasius.freestream_velocity`           | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                | -             |
 | `blasius.approximation`                 | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin` | -             |
@@ -474,18 +497,22 @@ example case.
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
-| Name                      | Description                                              | Admissible values               | Default value |
-| ------------------------- | -------------------------------------------------------- | ------------------------------- | ------------- |
-| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`               | `true`        |
-| `Pe`                      | The Peclet number.                                       | Positive real                   | -             |
-| `cp`                      | Specific heat cpacity.                                   | Positive real                   | -             |
-| `lambda`                  | Thermal conductivity.                                    | Positive real                   | -             |
-| `nut_field`               | Name of the turbulent kinematic viscosity field.         | String                          | Empty string  |
-| `Pr_t`                    | Turbulent Prandtl number                                 | Positive real                   | -             |
-| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings                | -             |
-| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`, `point_zone` | -             |
-| `initial_condition.value` | Value of the velocity initial condition.                 | Real                            | -             |
-| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above  | -             |
+| Name                              | Description                                                                                   | Admissible values                        | Default value |
+| --------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------- | ------------- |
+| `enabled`                         | Whether to enable the scalar computation.                                                     | `true` or `false`                        | `true`        |
+| `Pe`                              | The Peclet number.                                                                            | Positive real                            | -             |
+| `cp`                              | Specific heat cpacity.                                                                        | Positive real                            | -             |
+| `lambda`                          | Thermal conductivity.                                                                         | Positive real                            | -             |
+| `nut_field`                       | Name of the turbulent kinematic viscosity field.                                              | String                                   | Empty string  |
+| `Pr_t`                            | Turbulent Prandtl number                                                                      | Positive real                            | -             |
+| `boundary_types`                  | Boundary types/conditions labels.                                                             | Array of strings                         | -             |
+| `initial_condition.type`          | Initial condition type.                                                                       | `user`, `uniform`, `point_zone`, `field` | -             |
+| `initial_condition.value`         | Value of the velocity initial condition.                                                      | Real                                     | -             |
+| `initial_condition.file_name`     | If `"type" = "field"`, the path to the field file to read from.                               | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`.  | -             |
+| `initial_condition.sample_index`  | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled. | Positive integer.                        | -1            |
+| `initial_condition.previous_mesh` | If `"type" = "field"`, and file type is `chkp`, the previous mesh from which to interpolate.  | String ending with `.nmsh`.              | -             |
+| `initial_condition.tolerance`     | If `"type" = "field"`, and file type is `chkp`, tolerance to use for mesh interpolation.      | Positive real.                           | 1e-6          |
+| `source_terms`                    | Array of JSON objects, defining additional source terms.                                      | See list of source terms above           | -             |
 
 ## Statistics
 
