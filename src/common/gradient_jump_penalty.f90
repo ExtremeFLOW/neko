@@ -50,6 +50,7 @@ module gradient_jump_penalty
   use gather_scatter, only : gs_t
   use device
   use device_math
+  use device_gradient_jump_penalty
 
   implicit none
   private
@@ -267,7 +268,7 @@ contains
     this%dm_GJP = dofmap_t(this%coef%msh, this%Xh_GJP)
     call this%gs_GJP%init(this%dm_GJP)
 
-    ! Initialize pointers for GPU
+    ! Initialize pointers for device
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%penalty, this%penalty_d, this%n)
        call device_map(this%grad1, this%grad1_d, this%n)
@@ -709,28 +710,19 @@ contains
                 this%coef%dsdz, this%coef%dtdz, this%coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%grad1, this%grad1_d, this%n, &
-                          DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(this%grad2, this%grad2_d, this%n, &
-                          DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(this%grad3, this%grad3_d, this%n, &
-                          DEVICE_TO_HOST, sync = .true.)
-    end if
-
-    call pick_facet_value_hex(this%flux1, this%grad1, &
-                              this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux2, this%grad2, &
-                              this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux3, this%grad3, &
-                              this%lx, this%coef%msh%nelv)
-    
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%flux1, this%flux1_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%flux2, this%flux2_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%flux3, this%flux3_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .true.)
+       call device_pick_facet_value_hex(this%flux1_d, this%grad1_d, &
+                                 this%lx, this%coef%msh%nelv)
+       call device_pick_facet_value_hex(this%flux2_d, this%grad2_d, &
+                                 this%lx, this%coef%msh%nelv)
+       call device_pick_facet_value_hex(this%flux3_d, this%grad3_d, &
+                                 this%lx, this%coef%msh%nelv)
+    else
+       call pick_facet_value_hex(this%flux1, this%grad1, &
+                                 this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%flux2, this%grad2, &
+                                 this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%flux3, this%grad3, &
+                                 this%lx, this%coef%msh%nelv)
     end if
      
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -761,18 +753,15 @@ contains
     type(field_t), intent(in) :: u, v, w
 
     integer :: i
-    
-    call pick_facet_value_hex(this%volflux1, u%x, this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%volflux1, this%volflux1_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%volflux2, this%volflux2_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%volflux3, this%volflux3_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .true.)
+       call device_pick_facet_value_hex(this%volflux1_d, u%x_d, this%lx, this%coef%msh%nelv)
+       call device_pick_facet_value_hex(this%volflux2_d, v%x_d, this%lx, this%coef%msh%nelv)
+       call device_pick_facet_value_hex(this%volflux3_d, w%x_d, this%lx, this%coef%msh%nelv)
+    else
+       call pick_facet_value_hex(this%volflux1, u%x, this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
     end if
     
     if (NEKO_BCKND_DEVICE .eq. 1) then
