@@ -724,7 +724,7 @@ contains
        call device_memcpy(this%flux1, this%flux1_d, this%n_large, &
                           HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%flux2, this%flux2_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%flux3, this%flux3_d, this%n_large, &
                           HOST_TO_DEVICE, sync=.true.)
     end if
