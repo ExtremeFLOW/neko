@@ -99,14 +99,14 @@ module gradient_jump_penalty
      type(c_ptr) :: n1_d = C_NULL_PTR
      type(c_ptr) :: n2_d = C_NULL_PTR
      type(c_ptr) :: n3_d = C_NULL_PTR
-     !> Facet factor: collect polynomials and integral weights on facets
+     !> Facet factor: quantities in the integrant fix with time stepping
      real(kind=rp), allocatable, dimension(:, :, :, :) :: facet_factor
      type(c_ptr) :: facet_factor_d = C_NULL_PTR
      !> Number of facet in elements and its maximum
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
      !> Length scale for element regarding a facet
-     real(kind=rp), allocatable :: h(:, :)
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: h2
      !> The first derivative of polynomial at two ends of the interval
      real(kind=rp), allocatable :: dphidxi(:, :)
      !> gather-scattering operation related variables
@@ -171,18 +171,20 @@ contains
     end do
     this%n_facet_max = maxval(this%n_facet)
 
-    allocate(this%h(this%n_facet_max, this%coef%msh%nelv))
+    allocate(this%h2(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
        select type(ep)
        type is (hex_t)
-          call eval_h_hex(this%h(:, i), ep)
+          call eval_h2_hex(this%h2(:, :, :, i), this%lx, ep)
        type is (quad_t)
           call neko_error("Gradient jump penalty error: mesh size &
                             evaluation is not supported for quad_t")
        end select
     end do
-    
+
     allocate(zg(this%lx))
     allocate(this%dphidxi(this%lx, this%lx))
 
@@ -301,11 +303,12 @@ contains
 
   end subroutine gradient_jump_penalty_init
   
-  !> Evaluate h for each element for hexahedral mesh
-  !! @param h_el The length scale of an element
+  !> Evaluate h^2 for each element for hexahedral mesh
+  !! @param h2_el The sqaure of the length scale of an element
   !! @param ep The pointer to the element
-  subroutine eval_h_hex(h_el, ep)
-    real(kind=rp), intent(inout) :: h_el(6)
+  subroutine eval_h2_hex(h2_el, n, ep)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: h2_el(n + 2, n + 2, n + 2)
     type(hex_t), pointer, intent(in) :: ep
     
     integer :: i
@@ -319,51 +322,57 @@ contains
     p6 => ep%p(6)
     p7 => ep%p(7)
     p8 => ep%p(8)
-    h_el(:) = 0.0_rp
+    h2_el = 0.0_rp
     
-    h_el(1) = dist_facets_hex(p1, p5, p7, p3, p2, p6, p8, p4)
-    h_el(2) = h_el(1)
-    h_el(3) = dist_facets_hex(p1, p2, p6, p5, p3, p4, p8, p7)
-    h_el(4) = h_el(3)
-    h_el(5) = dist_facets_hex(p1, p2, p4, p3, p5, p6, p8, p7)
-    h_el(6) = h_el(5)
+    h2_el(1, 2 : n + 1, 2 : n + 1) = dist2_facets_hex(p1, p5, p7, p3, &
+                                                     p2, p6, p8, p4)
+    h2_el(n + 2, 2 : n + 1, 2 : n + 1) = h2_el(1, 2, 2)
 
-  end subroutine eval_h_hex
+    h2_el(2 : n + 1, 1, 2 : n + 1) = dist2_facets_hex(p1, p2, p6, p5, &
+                                                     p3, p4, p8, p7)
+    h2_el(2 : n + 1, n + 2, 2 : n + 1) = h2_el(2, 1, 2)
+
+    h2_el(2 : n + 1, 2 : n + 1, 1) = dist2_facets_hex(p1, p2, p4, p3, &
+                                                     p5, p6, p8, p7)
+    h2_el(2 : n + 1, 2 : n + 1, n + 2) = h2_el(2, 2, 1)
+
+  end subroutine eval_h2_hex
 
   !> "Distrance" of two facets of a hexahedral element
   !! @param p11, p12, p13, p14 Vertices defining facet 1
   !! @param p21, p22, p23, p24 Vertices defining facet 2
-  function dist_facets_hex(p11, p12, p13, p14, &
-                           p21, p22, p23, p24) result(dist)
+  function dist2_facets_hex(p11, p12, p13, p14, &
+                           p21, p22, p23, p24) result(dist2)
   type(point_t), intent(in) :: p11, p12, p13, p14
   type(point_t), intent(in) :: p21, p22, p23, p24
-  real(kind=rp) :: dist
+  real(kind=rp) :: dist2
 
-  dist = 0.0_rp
+  dist2 = 0.0_rp
 
-  dist = dist + dist_vertex_to_plane_3d(p11, p21, p22, p23)
-  dist = dist + dist_vertex_to_plane_3d(p11, p21, p22, p24)
-  dist = dist + dist_vertex_to_plane_3d(p11, p21, p23, p24)
-  dist = dist + dist_vertex_to_plane_3d(p11, p22, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p21, p22, p23)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p21, p22, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p21, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p22, p23, p24)
 
-  dist = dist + dist_vertex_to_plane_3d(p12, p21, p22, p23)
-  dist = dist + dist_vertex_to_plane_3d(p12, p21, p22, p24)
-  dist = dist + dist_vertex_to_plane_3d(p12, p21, p23, p24)
-  dist = dist + dist_vertex_to_plane_3d(p12, p22, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p21, p22, p23)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p21, p22, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p21, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p22, p23, p24)
 
-  dist = dist + dist_vertex_to_plane_3d(p13, p21, p22, p23)
-  dist = dist + dist_vertex_to_plane_3d(p13, p21, p22, p24)
-  dist = dist + dist_vertex_to_plane_3d(p13, p21, p23, p24)
-  dist = dist + dist_vertex_to_plane_3d(p13, p22, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p21, p22, p23)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p21, p22, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p21, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p22, p23, p24)
 
-  dist = dist + dist_vertex_to_plane_3d(p14, p21, p22, p23)
-  dist = dist + dist_vertex_to_plane_3d(p14, p21, p22, p24)
-  dist = dist + dist_vertex_to_plane_3d(p14, p21, p23, p24)
-  dist = dist + dist_vertex_to_plane_3d(p14, p22, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p21, p22, p23)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p21, p22, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p21, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p22, p23, p24)
 
-  dist = dist / 16.0_rp
+  dist2 = dist2 / 16.0_rp
+  dist2 = dist2 * dist2
 
-  end function dist_facets_hex
+  end function dist2_facets_hex
 
   !> Distance from a vertex to a plane in a 3d space
   !! @param pv The vertex
@@ -420,7 +429,9 @@ contains
     associate(facet_factor => this%facet_factor, &
               lx => this%lx, area => this%coef%area, &
               nelv => this%coef%msh%nelv, &
-              jacinv => this%coef%jacinv, n => this%n)
+              jacinv => this%coef%jacinv, n => this%n, &
+              n_large => this%n_large, h2 => this%h2, &
+              tau => this%tau)
     
     ! Assemble facet_factor for facet 1 and 2
     call add4(wa, this%coef%drdx, this%coef%drdy, this%coef%drdz, n)
@@ -439,6 +450,10 @@ contains
     call col2(wa, jacinv, n)
     facet_factor(2: lx + 1, 2: lx + 1, 1, :) = -1.0_rp * wa(:, :, 1, :)
     facet_factor(2: lx + 1, 2: lx + 1, lx + 2, :) = wa(:, :, lx, :)
+
+    ! Multiplied by h^2 * tau
+    call col2(facet_factor, h2, n_large)
+    call cmult(facet_factor, tau, this%n_large)
 
     ! Multiplied by the quadrant weight
     call col2(facet_factor(1, 2: lx + 1, 2: lx + 1, :), &
@@ -526,8 +541,8 @@ contains
     if (allocated(this%grad3)) then
        deallocate(this%grad3)
     end if
-    if (allocated(this%h)) then
-       deallocate(this%h)
+    if (allocated(this%h2)) then
+       deallocate(this%h2)
     end if
     if (allocated(this%n_facet)) then
        deallocate(this%n_facet)
@@ -600,11 +615,9 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, this%n_large)
        call device_col2(this%penalty_facet_d, this%facet_factor_d, this%n_large)
-       call device_cmult(this%penalty_facet_d, this%tau, this%n_large)
     else
        call col3(this%penalty_facet, this%absvolflux, this%G, this%n_large)
        call col2(this%penalty_facet, this%facet_factor, this%n_large)
-       call cmult(this%penalty_facet, this%tau, this%n_large)
     end if
     
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -616,8 +629,7 @@ contains
        ep => this%coef%msh%elements(i)%e
        select type(ep)
        type is (hex_t)
-          call gradient_jump_penalty_compute_hex_el(this, &
-                                    this%penalty_facet, u, v, w, s, i)
+          call gradient_jump_penalty_compute_hex_el(this, this%penalty_facet, i)
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported &
                                        now for gradient jump penalty")
@@ -648,14 +660,9 @@ contains
   !> Compute the gradient jump penalty term for a single hexatedral element.
   !> <tau * h^2 * absvolflux * G * phij * phik * dphi_idxi * dxidn>
   !! @param wa work array containing tau * absvolflux * G * dxidn
-  !! @param u x-velocity
-  !! @param v y-velocity
-  !! @param w z-velocity
-  !! @param s The quantity of interest
   !! @param i_el The index of the element
-  subroutine gradient_jump_penalty_compute_hex_el(this, wa, u, v, w, s, i_el)
+  subroutine gradient_jump_penalty_compute_hex_el(this, wa, i_el)
     class(gradient_jump_penalty_t), intent(inout) :: this
-    type(field_t), intent(in) :: u, v, w, s
     integer, intent(in) :: i_el
     real(kind=rp), intent(in) :: wa(this%lx + 2, this%lx + 2, &
                         this%lx + 2, this%coef%msh%nelv)
@@ -663,28 +670,25 @@ contains
     real(kind=rp) :: integrant_facet(this%lx, this%lx)
     integer :: i, j, k, l
 
-    associate(lx => this%lx, nelv => this%coef%msh%nelv, &
-              absvolflux => this%absvolflux, G => this%G, &
-              facet_factor => this%facet_factor, tau => this%tau, &
-              penalty => this%penalty, dphidxi => this%dphidxi, &
-              h => this%h)
+    associate(lx => this%lx, &
+              penalty => this%penalty, dphidxi => this%dphidxi)
 
     do i = 1, lx
        do j = 1, lx
           do k = 1, lx
              penalty(i, j, k, i_el) = & 
                wa(1, j + 1, k + 1, i_el) * &
-                  dphidxi(1, i) * h(1, i_el) ** 2 + &
+                  dphidxi(1, i) + &
                wa(lx + 2, j + 1, k + 1, i_el) * &
-                  dphidxi(lx, i) * h(2, i_el) ** 2 + &
+                  dphidxi(lx, i) + &
                wa(i + 1, 1, k + 1, i_el) * &
-                  dphidxi(1, j) * h(3, i_el) ** 2 + &
+                  dphidxi(1, j) + &
                wa(i + 1, lx + 2, k + 1, i_el) * &
-                  dphidxi(lx, j) * h(4, i_el) ** 2 + &
+                  dphidxi(lx, j) + &
                wa(i + 1, j + 1, 1, i_el) * &
-                  dphidxi(1, k) * h(5, i_el) ** 2 + &
+                  dphidxi(1, k) + &
                wa(i + 1, j + 1, lx + 2, i_el) * &
-                  dphidxi(lx, k) * h(6, i_el) ** 2
+                  dphidxi(lx, k)
           end do
        end do  
     end do
