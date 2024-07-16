@@ -730,7 +730,7 @@ contains
        call device_memcpy(this%flux2, this%flux2_d, this%n_large, &
                           HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%flux3, this%flux3_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.true.)
+                          HOST_TO_DEVICE, sync = .true.)
     end if
      
     if (NEKO_BCKND_DEVICE .eq. 1) then
