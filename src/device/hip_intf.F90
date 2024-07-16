@@ -318,7 +318,7 @@ contains
 
   integer function hip_device_count()
     type(c_ptr) :: device_count_ptr
-    integer, pointer :: device_count
+    integer, pointer, dimension(:) :: device_count
     integer(c_int) :: num_devices, count_error
 
     device_count_ptr = hipGetDeviceCount()
