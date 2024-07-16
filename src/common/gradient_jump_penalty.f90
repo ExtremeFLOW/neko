@@ -685,7 +685,7 @@ contains
                wa(i + 1, j + 1, lx + 2, i_el) * &
                   dphidxi(lx, k) * h(6, i_el) ** 2
           end do
-       end do  
+       end do
     end do
 
     end associate
