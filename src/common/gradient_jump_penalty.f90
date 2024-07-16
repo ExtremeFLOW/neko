@@ -296,8 +296,8 @@ contains
                           HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%n3, this%n3_d, this%n_large, &
                           HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%facet_factor, this%facet_factor_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%facet_factor, this%facet_factor_d, this%n_large,&
+                          HOST_TO_DEVICE, sync = .false.)
 
     end if
 
