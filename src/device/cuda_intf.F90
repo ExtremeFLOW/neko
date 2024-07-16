@@ -69,8 +69,8 @@ module cuda_intf
   end enum
 
   interface
-     integer (c_int) function cudaMalloc(ptr_d, s) &
-          bind(c, name='cudaMalloc')
+     integer(c_int) function cudaMalloc(ptr_d, s) &
+       bind(c, name='cudaMalloc')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: ptr_d
@@ -79,8 +79,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaFree(ptr_d) &
-          bind(c, name='cudaFree')
+     integer(c_int) function cudaFree(ptr_d) &
+       bind(c, name='cudaFree')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: ptr_d
@@ -88,8 +88,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaMemcpy(ptr_dst, ptr_src, s, dir) &
-          bind(c, name='cudaMemcpy')
+     integer(c_int) function cudaMemcpy(ptr_dst, ptr_src, s, dir) &
+       bind(c, name='cudaMemcpy')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: ptr_dst, ptr_src
@@ -99,8 +99,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaMemcpyAsync(ptr_dst, ptr_src, s, dir, stream) &
-          bind(c, name='cudaMemcpyAsync')
+     integer(c_int) function cudaMemcpyAsync(ptr_dst, ptr_src, s, dir, stream) &
+       bind(c, name='cudaMemcpyAsync')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: ptr_dst, ptr_src, stream
@@ -110,16 +110,16 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaDeviceSynchronize() &
-          bind(c, name='cudaDeviceSynchronize')
+     integer(c_int) function cudaDeviceSynchronize() &
+       bind(c, name='cudaDeviceSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
      end function cudaDeviceSynchronize
   end interface
 
   interface
-     integer (c_int) function cudaGetDeviceProperties(prop, device) &
-          bind(c, name='cudaGetDeviceProperties')
+     integer(c_int) function cudaGetDeviceProperties(prop, device) &
+       bind(c, name='cudaGetDeviceProperties')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: prop
@@ -128,8 +128,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaStreamCreate(stream) &
-          bind(c, name='cudaStreamCreate')
+     integer(c_int) function cudaStreamCreate(stream) &
+       bind(c, name='cudaStreamCreate')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: stream
@@ -137,8 +137,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaStreamCreateWithFlags(stream, flags) &
-          bind(c, name='cudaStreamCreateWithFlags')
+     integer(c_int) function cudaStreamCreateWithFlags(stream, flags) &
+       bind(c, name='cudaStreamCreateWithFlags')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: stream
@@ -147,8 +147,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaStreamCreateWithPriority(stream, flags, prio) &
-          bind(c, name='cudaStreamCreateWithPriority')
+     integer(c_int) function cudaStreamCreateWithPriority(stream, flags, prio) &
+       bind(c, name='cudaStreamCreateWithPriority')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: stream
@@ -157,8 +157,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaStreamDestroy(steam) &
-          bind(c, name='cudaStreamDestroy')
+     integer(c_int) function cudaStreamDestroy(steam) &
+       bind(c, name='cudaStreamDestroy')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: steam
@@ -166,8 +166,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaStreamSynchronize(stream) &
-          bind(c, name='cudaStreamSynchronize')
+     integer(c_int) function cudaStreamSynchronize(stream) &
+       bind(c, name='cudaStreamSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: stream
@@ -175,8 +175,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaStreamWaitEvent(stream, event, flags) &
-          bind(c, name='cudaStreamWaitEvent')
+     integer(c_int) function cudaStreamWaitEvent(stream, event, flags) &
+       bind(c, name='cudaStreamWaitEvent')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: stream, event
@@ -185,8 +185,9 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaDeviceGetStreamPriorityRange(low_prio, high_prio) &
-          bind(c, name='cudaDeviceGetStreamPriorityRange')
+     integer(c_int) function cudaDeviceGetStreamPriorityRange &
+       (low_prio, high_prio) &
+       bind(c, name='cudaDeviceGetStreamPriorityRange')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: low_prio, high_prio
@@ -194,24 +195,24 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaProfilerStart() &
-          bind(c, name='cudaProfilerStart')
+     integer(c_int) function cudaProfilerStart() &
+       bind(c, name='cudaProfilerStart')
        use, intrinsic :: iso_c_binding
        implicit none
      end function cudaProfilerStart
   end interface
 
   interface
-     integer (c_int) function cudaProfilerStop() &
-          bind(c, name='cudaProfilerStop')
+     integer(c_int) function cudaProfilerStop() &
+       bind(c, name='cudaProfilerStop')
        use, intrinsic :: iso_c_binding
        implicit none
      end function cudaProfilerStop
   end interface
 
   interface
-     integer (c_int) function cudaEventCreate(event) &
-          bind(c, name='cudaEventCreate')
+     integer(c_int) function cudaEventCreate(event) &
+       bind(c, name='cudaEventCreate')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: event
@@ -219,8 +220,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaEventDestroy(event) &
-          bind(c, name='cudaEventDestroy')
+     integer(c_int) function cudaEventDestroy(event) &
+       bind(c, name='cudaEventDestroy')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event
@@ -228,8 +229,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaEventCreateWithFlags(event, flags) &
-          bind(c, name='cudaEventCreateWithFlags')
+     integer(c_int) function cudaEventCreateWithFlags(event, flags) &
+       bind(c, name='cudaEventCreateWithFlags')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: event
@@ -238,8 +239,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaEventRecord(event, stream) &
-          bind(c, name='cudaEventRecord')
+     integer(c_int) function cudaEventRecord(event, stream) &
+       bind(c, name='cudaEventRecord')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event, stream
@@ -247,8 +248,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaEventSynchronize(event) &
-          bind(c, name='cudaEventSynchronize')
+     integer(c_int) function cudaEventSynchronize(event) &
+       bind(c, name='cudaEventSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event
@@ -256,8 +257,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaGetDeviceCount(device_count) &
-          bind(c, name='cudaGetDeviceCount')
+     integer(c_int) function cudaGetDeviceCount(device_count) &
+       bind(c, name='cudaGetDeviceCount')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: device_count
@@ -265,8 +266,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaGetDevice(device) &
-          bind(c, name='cudaGetDevice')
+     integer(c_int) function cudaGetDevice(device) &
+       bind(c, name='cudaGetDevice')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: device
@@ -274,8 +275,8 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaSetDevice(device) &
-          bind(c, name='cudaSetDevice')
+     integer(c_int) function cudaSetDevice(device) &
+       bind(c, name='cudaSetDevice')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: device
@@ -300,7 +301,7 @@ contains
     end if
 
     if (num_devices .ne. 1) then
-        call neko_error('Only one device is supported per MPI node')
+       call neko_error('Only one device is supported per MPI node')
     end if
 
     ! Ensure that all threads are assigned to the same device
@@ -317,17 +318,17 @@ contains
     end if
 
     if (cudaDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
-         .ne. cudaSuccess) then
+        .ne. cudaSuccess) then
        call neko_error('Error retrieving stream priority range')
     end if
 
-    if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO)  &
-         .ne. cudaSuccess) then
+    if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO) &
+        .ne. cudaSuccess) then
        call neko_error('Error creating main stream')
     end if
 
     if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
-         .ne. cudaSuccess) then
+        .ne. cudaSuccess) then
        call neko_error('Error creating aux stream')
     end if
   end subroutine cuda_init
@@ -365,6 +366,17 @@ contains
        name(1:end_pos-1) = prop(1:end_pos-1)
     endif
   end subroutine cuda_device_name
+
+  !> Return the number of avaialble CUDA devices
+  integer function cuda_device_count()
+    integer(c_int) :: num_devices
+
+    if (cudaGetDeviceCount(num_devices) .ne. cudaSuccess) then
+       call neko_error('Error retrieving device count')
+    end if
+
+    cuda_device_count = num_devices
+  end function cuda_device_count
 
 #endif
 
