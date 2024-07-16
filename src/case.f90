@@ -274,6 +274,10 @@ contains
     !
     call json_get(C%params, 'case.fluid.initial_condition.type',&
                   string_val)
+
+    call neko_log%section("Fluid initial condition ")
+    call neko_log%message("Type: " // trim(string_val))
+
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
             C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
@@ -282,7 +286,13 @@ contains
             C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
     end if
 
+    call neko_log%end_section()
+
     if (scalar) then
+
+       call neko_log%section("Scalar initial condition ")
+       call neko_log%message("Type: " // trim(string_val))
+
        call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(C%scalar%s, &
@@ -291,6 +301,9 @@ contains
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
        end if
+
+       call neko_log%end_section()
+
     end if
 
     ! Add initial conditions to BDF scheme (if present)
