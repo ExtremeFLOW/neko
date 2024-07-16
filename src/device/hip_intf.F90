@@ -282,16 +282,16 @@ contains
 
   integer function hip_device_count()
     type(c_ptr) :: hip_count_ptr
-    integer, dimension(2), pointer :: count_ptr
+    integer, dimension(0:1), pointer :: count_ptr
 
     hip_count_ptr = hipGetDeviceCount()
     call c_f_pointer(hip_count_ptr, count_ptr, 2)
 
-    if (count_ptr(1) .ne. hipSuccess) then
+    if (count_ptr(0) .ne. hipSuccess) then
        call neko_error('Failed to query device count')
     end if
 
-    hip_device_count = count_ptr(2)
+    hip_device_count = count_ptr(1)
   end function hip_device_count
 
 #endif
