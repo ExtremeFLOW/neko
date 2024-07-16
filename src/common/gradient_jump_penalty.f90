@@ -614,7 +614,7 @@ contains
 
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
-       select type(ep)
+       select type (ep)
        type is (hex_t)
           call gradient_jump_penalty_compute_hex_el(this, &
                                     this%penalty_facet, u, v, w, s, i)
