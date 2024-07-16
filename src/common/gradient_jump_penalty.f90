@@ -710,7 +710,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%grad1, this%grad1_d, this%n, &
-                          DEVICE_TO_HOST, sync=.false.)
+                          DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%grad2, this%grad2_d, this%n, &
                           DEVICE_TO_HOST, sync=.false.)
        call device_memcpy(this%grad3, this%grad3_d, this%n, &
