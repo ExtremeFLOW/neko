@@ -174,7 +174,7 @@ contains
     allocate(this%h(this%n_facet_max, this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
-       select type(ep)
+       select type (ep)
        type is (hex_t)
           call eval_h_hex(this%h(:, i), ep)
        type is (quad_t)
