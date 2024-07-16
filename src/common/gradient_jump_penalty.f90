@@ -631,7 +631,7 @@ contains
           call gradient_jump_penalty_compute_hex_el(this, this%penalty_facet, i)
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported &
-                                       now for gradient jump penalty")
+                                       &now for gradient jump penalty")
        end select
     end do
 
