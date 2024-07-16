@@ -770,7 +770,7 @@ contains
        call device_memcpy(this%volflux1, this%volflux1_d, this%n_large, &
                           HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%volflux2, this%volflux2_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%volflux3, this%volflux3_d, this%n_large, &
                           HOST_TO_DEVICE, sync=.true.)
     end if
