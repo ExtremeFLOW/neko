@@ -660,7 +660,6 @@ contains
     real(kind=rp), intent(in) :: wa(this%lx + 2, this%lx + 2, &
                         this%lx + 2, this%coef%msh%nelv)
 
-    real(kind=rp) :: integrant_facet(this%lx, this%lx)
     integer :: i, j, k
 
     associate(lx => this%lx, nelv => this%coef%msh%nelv, &
