@@ -10,6 +10,7 @@ on:
       - reopened
       - ready_for_review
   workflow_dispatch:
+  push:
 
 env:
   FLINT_GLOBAL_MINIMUM: 8.55
