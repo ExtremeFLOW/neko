@@ -520,6 +520,7 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/makeext_kernel.h\
 	common/bcknd/device/cuda/makebdf_kernel.h\
 	common/bcknd/device/cuda/projection_kernel.h\
+	common/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
@@ -549,6 +550,7 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/makeext_kernel.h\
 	common/bcknd/device/hip/makebdf_kernel.h\
 	common/bcknd/device/hip/projection_kernel.h\
+	common/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
