@@ -464,7 +464,8 @@ contains
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_dirichlet, solver_precon)
+                                      this%c_Xh, this%dm_Xh, this%gs_Xh, &
+                                      this%bclst_dirichlet, solver_precon)
    
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
