@@ -33,24 +33,29 @@
 !> NEKTON fld file format
 !! @details this module defines interface to write NEKTON's fld fields
 module fld_file
-  use generic_file
-  use field
-  use field_list
-  use dofmap
-  use space
+  use num_types, only: dp, sp, rp, i8
+  use generic_file, only: generic_file_t
+  use field, only: field_t
+  use field_list, only: field_list_t
+  use dofmap, only: dofmap_t
+  use space, only: space_t
   use structs, only: array_ptr_t
-  use vector
-  use fld_file_data
-  use mean_flow
-  use mean_sqr_flow
+  use vector, only: vector_t
+  use fld_file_data, only: fld_file_data_t
+  use mean_flow, only: mean_flow_t
+  use mean_sqr_flow, only: mean_sqr_flow_t
   use vector, only : vector_t
   use space, only : space_t
   use mesh, only : mesh_t
-  use utils
-  use comm
-  use datadist
+  use utils, only: neko_error, filename_chsuffix, filename_suffix_pos, &
+       filename_tslash_pos
+  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
+  use mpi_f08
+  use datadist, only: linear_dist_t
+  use logger, only: neko_log, LOG_SIZE
   use math, only : vlmin, vlmax
-  use neko_mpi_types
+  use neko_mpi_types, only: MPI_DOUBLE_PRECISION_SIZE, MPI_REAL_SIZE, &
+       MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE
   implicit none
   private
 
@@ -626,10 +631,11 @@ contains
     class(fld_file_t) :: this
     class(*), target, intent(inout) :: data
     character(len=132) :: hdr
-    integer :: ierr, suffix_pos, i, j
+    integer :: ierr, suffix_pos, slsh_pos, i, j, leading_space_pos
     type(MPI_File) :: fh
     type(MPI_Status) :: status
-    character(len=1024) :: fname, meta_fname, string
+    character(len=1024) :: fname, meta_fname, string, path
+    character(len=LOG_SIZE) :: log_buf
     logical :: meta_file, read_mesh, read_velocity, read_pressure
     logical :: read_temp
     character(len=6) :: id_str
@@ -646,13 +652,24 @@ contains
     type is (fld_file_data_t)
        call filename_chsuffix(this%fname, meta_fname,'nek5000')
 
+       ! Extract file path
+       slsh_pos = filename_tslash_pos(this%fname)
+       path = "none"
+       if (slsh_pos .ne. 0) path = this%fname(1:slsh_pos)
+
        inquire(file=trim(meta_fname), exist=meta_file)
        if (meta_file .and. data%meta_nsamples .eq. 0) then
           if (pe_rank .eq. 0) then
              open(unit=9, file=trim(meta_fname))
              read(9, fmt='(A)') string
              read(string(14:),fmt='(A)') string
-             string = trim(string)
+
+             ! Remove leading whitespaces
+             ! from something like "      field%01d.f%05d" to
+             ! "field%01d.f%05d"
+             leading_space_pos = scan(trim(string), " ", back = .true.)
+             string = trim(string(leading_space_pos + 1:))
+
              data%fld_series_fname = string(:scan(trim(string), '%')-1)
              data%fld_series_fname = trim(data%fld_series_fname)//'0'
              read(9, fmt='(A)') string
@@ -661,14 +678,18 @@ contains
              read(string(scan(string,':')+1:),*) data%meta_nsamples
 
              close(9)
-             write(*,*) 'Reading meta file for fld series'
-             write(*,*) 'Name: ', trim(data%fld_series_fname)
-             write(*,*) 'Start counter: ', data%meta_start_counter, 'Nsamples: ', data%meta_nsamples
+             call neko_log%message('Reading meta file for fld series')
+             call neko_log%message('Name: ' // trim(data%fld_series_fname))
+             write (log_buf,'(A,I7)') 'Start counter    : ', data%meta_start_counter
+             call neko_log%message(log_buf)
+             write (log_buf,'(A,I7)') 'Number of samples: ', data%meta_nsamples
+             call neko_log%message(log_buf)
+
           end if
           call MPI_Bcast(data%fld_series_fname, 1024, MPI_CHARACTER, 0, NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_start_counter, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-          if(this%counter .eq. 0) this%counter = data%meta_start_counter
+          if (this%counter .eq. 0) this%counter = data%meta_start_counter
        end if
 
        if (meta_file) then
@@ -677,15 +698,22 @@ contains
           if (this%counter .ge. data%meta_nsamples+data%meta_start_counter) then
              call neko_error('Trying to read more fld files than exist')
           end if
+
+       ! Reappend path to the file series name since we lose it during the meta
+       ! file reading
+       if (trim(path) .ne. "none") fname = trim(path) // trim(fname)
        else
           suffix_pos = filename_suffix_pos(this%fname)
           write(id_str, '(a,i5.5)') 'f', this%counter
           fname = trim(this%fname(1:suffix_pos-1))//'.'//id_str
        end if
+
        call MPI_File_open(NEKO_COMM, trim(fname), &
            MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
        if (ierr .ne. 0) call neko_error("Could not read "//trim(fname))
+
+       call neko_log%message("Reading fld file " // trim(fname))
 
        call MPI_File_read_all(fh, hdr, 132, MPI_CHARACTER,  status, ierr)
        !This read can prorbably be done wihtout the temp variables, temp_str, i, j
