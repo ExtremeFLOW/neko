@@ -176,7 +176,7 @@ contains
 
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
-       select type(ep)
+       select type (ep)
        type is (hex_t)
           call eval_h2_hex(this%h2(:, :, :, i), this%lx, ep)
        type is (quad_t)
