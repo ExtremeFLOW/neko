@@ -317,20 +317,17 @@ contains
   end subroutine hip_device_name
 
   integer function hip_device_count()
-    type(c_ptr) :: device_count_ptr
-    integer, pointer, dimension(:) :: device_count
-    integer(c_int) :: num_devices, count_error
+    type(c_ptr) :: hip_count_ptr
+    integer, dimension(2), pointer :: count_ptr
 
-    device_count_ptr = hipGetDeviceCount()
-    call c_f_pointer(device_count_ptr, device_count)
-    count_error = device_count(1)
-    num_devices = device_count(2)
+    hip_count_ptr = hipGetDeviceCount()
+    call c_f_pointer(hip_count_ptr, count_ptr, 2)
 
-    if (count_error .ne. hipSuccess) then
+    if (count_ptr(1) .ne. hipSuccess) then
        call neko_error('Failed to query device count')
     end if
 
-    hip_device_count = num_devices
+    hip_device_count = count_ptr(2)
   end function hip_device_count
 
 #endif
