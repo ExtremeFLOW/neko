@@ -161,7 +161,7 @@ contains
     allocate(this%n_facet(this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
-       select type(ep)
+       select type (ep)
        type is (hex_t)
           this%n_facet(i) = 6
        type is (quad_t)
