@@ -97,10 +97,10 @@ contains
                      read_str)
        call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
 
-       write (log_buf, '(A,F10.6)') "delta               : ", delta
+       write (log_buf, '(A,F10.6)') "delta       : ", delta
        call neko_log%message(log_buf)
-       call neko_log%message(      "Approximation       : " // trim(read_str))
-       write (log_buf, '(A,F10.6)') "Free-stream velocity: ", uinf
+       call neko_log%message(      "Approximation: " // trim(read_str))
+       write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", uinf(1), uinf(2), uinf(3)
        call neko_log%message(log_buf)
 
        call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
@@ -116,7 +116,8 @@ contains
        write (log_buf, '(A,F10.6)') "Base value: ", uinf
        call neko_log%message(log_buf)
        call neko_log%message(      "Zone name : " // trim(read_str))
-       write (log_buf, '(A,F10.6)') "Zone value: ", zone_value
+       write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", &
+            zone_value(1), zone_value(2), zone_value(3)
        call neko_log%message(log_buf)
 
        call set_flow_ic_point_zone(u, v, w, uinf, read_str, zone_value)
