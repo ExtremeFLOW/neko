@@ -157,6 +157,7 @@ contains
     type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     character(len=80) :: inputchar
+    integer :: n
 
     call this%free()
 
@@ -332,7 +333,7 @@ contains
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
     end if
-
+    n = this%dm_xh%size()
     call get_command_argument(3, inputchar)
     allocate(this%pcs_thing)
     call perturb_init_opts_char(this%pcs_thing,inputchar)
@@ -343,6 +344,8 @@ contains
     else if (trim(inputchar) .eq. 'after_conv') then
        this%round_location = 0
     else if (trim(inputchar) .eq. 'state') then
+        this%round_location=2
+    else if (trim(inputchar) .eq. 'Ax') then
         this%round_location=2
     else
        call neko_warning('invalid round location, ./neko before_conv/after_conv fp64/fp32... no rounding performed')
@@ -371,9 +374,89 @@ contains
     this%binv = 1.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
         call device_invcol2(this%binv%x_d,this%c_Xh%B_d,this%dm_xh%size())
-    else
+       if (this%round_location .eq. 2) then 
+          call perturb_vector_device(this%c_Xh%drdx_d, this%c_xh%drdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%drdy_d, this%c_xh%drdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%drdz_d, this%c_xh%drdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdx_d, this%c_xh%dsdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdy_d, this%c_xh%dsdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdz_d, this%c_xh%dsdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdx_d, this%c_xh%dtdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdy_d, this%c_xh%dtdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdz_d, this%c_xh%dtdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G11_d, this%c_xh%G11_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G22_d, this%c_xh%G22_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G33_d, this%c_xh%G33_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G12_d, this%c_xh%G12_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G13_d, this%c_xh%G13_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G23_d, this%c_xh%G23_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dxdr_d, this%c_xh%dxdr_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dydr_d, this%c_xh%dydr_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dzdr_d, this%c_xh%dzdr_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dxds_d, this%c_xh%dxds_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dyds_d, this%c_xh%dyds_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dzds_d, this%c_xh%dzds_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dxdt_d, this%c_xh%dxdt_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dydt_d, this%c_xh%dydt_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dzdt_d, this%c_xh%dzdt_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%drdx_d, this%c_xh%drdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%drdy_d, this%c_xh%drdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%drdz_d, this%c_xh%drdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdx_d, this%c_xh%dsdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdy_d, this%c_xh%dsdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdz_d, this%c_xh%dsdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdx_d, this%c_xh%dtdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdy_d, this%c_xh%dtdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdz_d, this%c_xh%dtdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%jac_d, this%c_xh%jac_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%jacinv_d, this%c_xh%jacinv_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%B_d, this%c_xh%B_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%Binv_d, this%c_xh%Binv_d, this%temp%x, n, this%pcs_thing)
+        end if
+     else
         call invcol2(this%binv%x,this%c_Xh%B,this%dm_xh%size())
+        if (this%round_location .eq. 2) then
+          call perturb_vector(this%c_Xh%drdx, this%c_xh%drdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%drdy, this%c_xh%drdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%drdz, this%c_xh%drdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdx, this%c_xh%dsdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdy, this%c_xh%dsdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdz, this%c_xh%dsdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdx, this%c_xh%dtdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdy, this%c_xh%dtdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdz, this%c_xh%dtdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G11, this%c_xh%G11, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G22, this%c_xh%G22, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G33, this%c_xh%G33, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G12, this%c_xh%G12, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G13, this%c_xh%G13, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G23, this%c_xh%G23, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dxdr, this%c_xh%dxdr, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dydr, this%c_xh%dydr, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dzdr, this%c_xh%dzdr, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dxds, this%c_xh%dxds, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dyds, this%c_xh%dyds, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dzds, this%c_xh%dzds, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dxdt, this%c_xh%dxdt, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dydt, this%c_xh%dydt, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dzdt, this%c_xh%dzdt, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%drdx, this%c_xh%drdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%drdy, this%c_xh%drdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%drdz, this%c_xh%drdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdx, this%c_xh%dsdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdy, this%c_xh%dsdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdz, this%c_xh%dsdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdx, this%c_xh%dtdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdy, this%c_xh%dtdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdz, this%c_xh%dtdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%jac, this%c_xh%jac, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%jacinv, this%c_xh%jacinv, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%B, this%c_xh%B, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%Binv, this%c_xh%Binv, n, this%pcs_thing)
+       end if
+
     end if
+
 
   end subroutine fluid_pnpn_init
 
