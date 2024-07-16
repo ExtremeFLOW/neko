@@ -346,7 +346,7 @@ contains
     else if (trim(inputchar) .eq. 'state') then
         this%round_location=2
     else if (trim(inputchar) .eq. 'Ax') then
-        this%round_location=2
+        this%round_location=3
     else
        call neko_warning('invalid round location, ./neko before_conv/after_conv fp64/fp32... no rounding performed')
     end if
@@ -374,7 +374,7 @@ contains
     this%binv = 1.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
         call device_invcol2(this%binv%x_d,this%c_Xh%B_d,this%dm_xh%size())
-       if (this%round_location .eq. 2) then 
+       if (this%round_location .eq. 3) then 
           call perturb_vector_device(this%c_Xh%drdx_d, this%c_xh%drdx_d, this%temp%x, n, this%pcs_thing)
           call perturb_vector_device(this%c_Xh%drdy_d, this%c_xh%drdy_d, this%temp%x, n, this%pcs_thing)
           call perturb_vector_device(this%c_Xh%drdz_d, this%c_xh%drdz_d, this%temp%x, n, this%pcs_thing)
@@ -415,7 +415,7 @@ contains
         end if
      else
         call invcol2(this%binv%x,this%c_Xh%B,this%dm_xh%size())
-        if (this%round_location .eq. 2) then
+        if (this%round_location .eq. 3) then
           call perturb_vector(this%c_Xh%drdx, this%c_xh%drdx, n, this%pcs_thing)
           call perturb_vector(this%c_Xh%drdy, this%c_xh%drdy, n, this%pcs_thing)
           call perturb_vector(this%c_Xh%drdz, this%c_xh%drdz, n, this%pcs_thing)
