@@ -181,7 +181,7 @@ contains
           call eval_h2_hex(this%h2(:, :, :, i), this%lx, ep)
        type is (quad_t)
           call neko_error("Gradient jump penalty error: mesh size &
-                            evaluation is not supported for quad_t")
+                            &evaluation is not supported for quad_t")
        end select
     end do
 
