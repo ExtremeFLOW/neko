@@ -6,7 +6,7 @@
 !! Martin Karp 1/2-2023
 module fld_file_data
   use num_types, only : rp
-  use math
+  use math, only: cmult, add2
   use vector, only : vector_t, vector_ptr_t
   implicit none
   private
