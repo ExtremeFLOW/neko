@@ -281,6 +281,7 @@ contains
 
   end subroutine hip_device_name
 
+  !> Return the number of available HIP devices
   integer function hip_device_count()
     type(c_ptr) :: hip_count_ptr
     integer, pointer :: count_ptr(:)
