@@ -619,7 +619,7 @@ contains
                                     this%penalty_facet, u, v, w, s, i)
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported &
-                                       now for gradient jump penalty")
+                                       &now for gradient jump penalty")
        end select
     end do
 
