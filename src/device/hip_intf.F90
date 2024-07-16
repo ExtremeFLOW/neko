@@ -282,7 +282,7 @@ contains
 
   integer function hip_device_count()
     type(c_ptr) :: hip_count_ptr
-    integer, dimension(0:1), pointer :: count_ptr
+    integer, pointer :: count_ptr(0:1)
 
     hip_count_ptr = hipGetDeviceCount()
     call c_f_pointer(hip_count_ptr, count_ptr, 2)
