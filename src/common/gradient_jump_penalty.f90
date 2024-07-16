@@ -714,7 +714,7 @@ contains
        call device_memcpy(this%grad2, this%grad2_d, this%n, &
                           DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%grad3, this%grad3_d, this%n, &
-                          DEVICE_TO_HOST, sync=.true.)
+                          DEVICE_TO_HOST, sync = .true.)
     end if
 
     call pick_facet_value_hex(this%flux1, this%grad1, &
