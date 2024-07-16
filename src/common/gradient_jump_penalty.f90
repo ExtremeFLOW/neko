@@ -67,7 +67,7 @@ module gradient_jump_penalty
      real(kind=rp), allocatable, dimension(:, :, :, :) :: penalty
      type(c_ptr) :: penalty_d = C_NULL_PTR
      !> work array storing integrant of the penalty
-     real(kind=rp), allocatable, dimension(:, :, :, :):: penalty_facet
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: penalty_facet
      type(c_ptr) :: penalty_facet_d = C_NULL_PTR
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
@@ -141,7 +141,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     
     class(element_t), pointer :: ep
-    integer :: i, j, n, n_large
+    integer :: i, j
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
     
     call this%free()
@@ -161,12 +161,12 @@ contains
     allocate(this%n_facet(this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
-       select type(ep)
+       select type (ep)
        type is (hex_t)
           this%n_facet(i) = 6
        type is (quad_t)
           call neko_error("Only Hexahedral element is &
-                           supported now for gradient jump penalty")
+                           &supported now for gradient jump penalty")
        end select
     end do
     this%n_facet_max = maxval(this%n_facet)
@@ -176,12 +176,12 @@ contains
 
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
-       select type(ep)
+       select type (ep)
        type is (hex_t)
           call eval_h2_hex(this%h2(:, :, :, i), this%lx, ep)
        type is (quad_t)
           call neko_error("Gradient jump penalty error: mesh size &
-                            evaluation is not supported for quad_t")
+                            &evaluation is not supported for quad_t")
        end select
     end do
 
@@ -291,13 +291,13 @@ contains
        call device_map(this%facet_factor, this%facet_factor_d, this%n_large)
 
        call device_memcpy(this%n1, this%n1_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%n2, this%n2_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%n3, this%n3_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%facet_factor, this%facet_factor_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%facet_factor, this%facet_factor_d, this%n_large,&
+                          HOST_TO_DEVICE, sync = .false.)
 
     end if
 
@@ -613,32 +613,32 @@ contains
     call absvolflux_compute(this, u, v, w)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, this%n_large)
+       call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, &
+                        this%n_large)
        call device_col2(this%penalty_facet_d, this%facet_factor_d, this%n_large)
     else
        call col3(this%penalty_facet, this%absvolflux, this%G, this%n_large)
        call col2(this%penalty_facet, this%facet_factor, this%n_large)
     end if
-    
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%penalty_facet, this%penalty_facet_d, this%n_large, &
-                          DEVICE_TO_HOST, sync=.true.)
+       call device_memcpy(this%penalty_facet, this%penalty_facet_d, &
+                          this%n_large, DEVICE_TO_HOST, sync = .true.)
     end if
 
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
-       select type(ep)
+       select type (ep)
        type is (hex_t)
           call gradient_jump_penalty_compute_hex_el(this, this%penalty_facet, i)
        type is (quad_t)
           call neko_error("Only Hexahedral element is supported &
-                                       now for gradient jump penalty")
+                                       &now for gradient jump penalty")
        end select
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%penalty, this%penalty_d, this%n, &
-                          HOST_TO_DEVICE, sync=.true.)
+                          HOST_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine gradient_jump_penalty_compute
@@ -667,8 +667,7 @@ contains
     real(kind=rp), intent(in) :: wa(this%lx + 2, this%lx + 2, &
                         this%lx + 2, this%coef%msh%nelv)
 
-    real(kind=rp) :: integrant_facet(this%lx, this%lx)
-    integer :: i, j, k, l
+    integer :: i, j, k
 
     associate(lx => this%lx, &
               penalty => this%penalty, dphidxi => this%dphidxi)
@@ -690,7 +689,7 @@ contains
                wa(i + 1, j + 1, lx + 2, i_el) * &
                   dphidxi(lx, k)
           end do
-       end do  
+       end do
     end do
 
     end associate
@@ -711,11 +710,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%grad1, this%grad1_d, this%n, &
-                          DEVICE_TO_HOST, sync=.false.)
+                          DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%grad2, this%grad2_d, this%n, &
-                          DEVICE_TO_HOST, sync=.false.)
+                          DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%grad3, this%grad3_d, this%n, &
-                          DEVICE_TO_HOST, sync=.true.)
+                          DEVICE_TO_HOST, sync = .true.)
     end if
 
     call pick_facet_value_hex(this%flux1, this%grad1, &
@@ -727,11 +726,11 @@ contains
     
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%flux1, this%flux1_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%flux2, this%flux2_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%flux3, this%flux3_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.true.)
+                          HOST_TO_DEVICE, sync = .true.)
     end if
      
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -769,11 +768,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%volflux1, this%volflux1_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%volflux2, this%volflux2_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%volflux3, this%volflux3_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.true.)
+                          HOST_TO_DEVICE, sync = .true.)
     end if
     
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -793,14 +792,14 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
-                          DEVICE_TO_HOST, sync=.true.)
+                          DEVICE_TO_HOST, sync = .true.)
     end if
     do i = 1, this%n_large
        this%absvolflux(i, 1, 1, 1) = abs(this%absvolflux(i, 1, 1, 1))
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.true.)
+                          HOST_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine absvolflux_compute
