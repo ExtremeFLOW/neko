@@ -792,7 +792,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
-                          DEVICE_TO_HOST, sync=.true.)
+                          DEVICE_TO_HOST, sync = .true.)
     end if
     do i = 1, this%n_large
        this%absvolflux(i, 1, 1, 1) = abs(this%absvolflux(i, 1, 1, 1))
