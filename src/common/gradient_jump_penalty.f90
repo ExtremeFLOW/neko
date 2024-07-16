@@ -661,7 +661,7 @@ contains
                         this%lx + 2, this%coef%msh%nelv)
 
     real(kind=rp) :: integrant_facet(this%lx, this%lx)
-    integer :: i, j, k, l
+    integer :: i, j, k
 
     associate(lx => this%lx, nelv => this%coef%msh%nelv, &
               absvolflux => this%absvolflux, G => this%G, &
