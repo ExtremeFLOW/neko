@@ -135,11 +135,11 @@ module hip_intf
        integer(c_int), value :: device
      end function hipDeviceGetName
 
-     integer(c_int) function hipGetDeviceCount(count) &
+     integer(c_int) function hipGetDeviceCount(amount) &
        bind(c, name='hipGetDeviceCount')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: count
+       integer(c_int) :: amount
      end function hipGetDeviceCount
 
      integer(c_int) function hipStreamCreate(stream) &
@@ -283,13 +283,13 @@ contains
   !> Return the number of available HIP devices
   integer function hip_device_count()
     type(c_ptr) :: hip_count_ptr
-    integer :: count
+    integer :: amount
 
-    if (hipGetDeviceCount(count) .ne. hipSuccess) then
+    if (hipGetDeviceCount(amount) .ne. hipSuccess) then
        call neko_error('Failed to query device count')
     end if
 
-    hip_device_count = count
+    hip_device_count = amount
   end function hip_device_count
 
 #endif
