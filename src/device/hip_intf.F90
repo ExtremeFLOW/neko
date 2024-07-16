@@ -38,6 +38,8 @@ module hip_intf
 
 #ifdef HAVE_HIP
 
+  private :: hipGetDeviceCount
+
   !> Global HIP command queue
   type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
 
@@ -233,7 +235,6 @@ module hip_intf
 contains
 
   subroutine hip_init
-
     if (hip_device_count() .ne. 1) then
        call neko_error('Only one device is supported per MPI node')
     end if
