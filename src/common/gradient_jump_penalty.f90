@@ -795,7 +795,7 @@ contains
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
-                          HOST_TO_DEVICE, sync=.true.)
+                          HOST_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine absvolflux_compute
