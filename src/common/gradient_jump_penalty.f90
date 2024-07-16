@@ -608,8 +608,8 @@ contains
     end if
     
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%penalty_facet, this%penalty_facet_d, this%n_large, &
-                          DEVICE_TO_HOST, sync=.true.)
+       call device_memcpy(this%penalty_facet, this%penalty_facet_d, &
+                          this%n_large, DEVICE_TO_HOST, sync = .true.)
     end if
 
     do i = 1, this%coef%msh%nelv
