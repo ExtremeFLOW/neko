@@ -406,11 +406,15 @@ contains
        call neko_error("The fld file must match the current mesh")
     end if
 
-    ! Note: we do not copy on the GPU since `set_flow_ic_common` does the copy for us
+    ! Note: we do not copy on the GPU since `set_flow_ic_common` does the
+    ! copy for us, except for the pressure
     call copy(u%x, fld_data%u%x, u%dof%size())
     call copy(v%x, fld_data%v%x, v%dof%size())
     call copy(w%x, fld_data%w%x, w%dof%size())
     call copy(p%x, fld_data%p%x, p%dof%size())
+
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_memcpy(p%x, p%x_d, p%dof%size(), &
+         HOST_TO_DEVICE, sync = .false.)
 
     call fld_data%free
 
