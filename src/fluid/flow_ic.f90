@@ -463,6 +463,9 @@ contains
     call copy(w%x, chkp_data%w%x, w%dof%size())
     call copy(p%x, chkp_data%p%x, p%dof%size())
 
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_memcpy(p%x, p%x_d, p%dof%size(), &
+         HOST_TO_DEVICE, sync = .false.)
+
   end subroutine set_flow_ic_chkp
 
 end module flow_ic
