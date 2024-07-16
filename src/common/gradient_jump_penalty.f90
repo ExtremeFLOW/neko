@@ -598,7 +598,8 @@ contains
     call absvolflux_compute(this, u, v, w)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, this%n_large)
+       call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, &
+                        this%n_large)
        call device_col2(this%penalty_facet_d, this%facet_factor_d, this%n_large)
        call device_cmult(this%penalty_facet_d, this%tau, this%n_large)
     else
