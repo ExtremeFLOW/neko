@@ -67,7 +67,7 @@ module gradient_jump_penalty
      real(kind=rp), allocatable, dimension(:, :, :, :) :: penalty
      type(c_ptr) :: penalty_d = C_NULL_PTR
      !> work array storing integrant of the penalty
-     real(kind=rp), allocatable, dimension(:, :, :, :):: penalty_facet
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: penalty_facet
      type(c_ptr) :: penalty_facet_d = C_NULL_PTR
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
