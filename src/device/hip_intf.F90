@@ -38,8 +38,6 @@ module hip_intf
 
 #ifdef HAVE_HIP
 
-  private :: hipGetDeviceCount
-
   !> Global HIP command queue
   type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
 
@@ -137,10 +135,11 @@ module hip_intf
        integer(c_int), value :: device
      end function hipDeviceGetName
 
-     type (c_ptr) function hipGetDeviceCount() &
+     integer(c_int) function hipGetDeviceCount(count) &
        bind(c, name='hipGetDeviceCount')
        use, intrinsic :: iso_c_binding
        implicit none
+       integer(c_int) :: count
      end function hipGetDeviceCount
 
      integer(c_int) function hipStreamCreate(stream) &
@@ -284,16 +283,13 @@ contains
   !> Return the number of available HIP devices
   integer function hip_device_count()
     type(c_ptr) :: hip_count_ptr
-    integer, pointer :: count_ptr(:)
+    integer :: count
 
-    hip_count_ptr = hipGetDeviceCount()
-    call c_f_pointer(hip_count_ptr, count_ptr, [2])
-
-    if (count_ptr(0) .ne. hipSuccess) then
+    if (hipGetDeviceCount(count) .ne. hipSuccess) then
        call neko_error('Failed to query device count')
     end if
 
-    hip_device_count = count_ptr(1)
+    hip_device_count = count
   end function hip_device_count
 
 #endif
