@@ -113,6 +113,7 @@ contains
     integer :: i
     type(matrix_t) :: avg_output_1d
     type(fld_file_data_t) :: output_2d
+    real(kind=rp) :: u, v, w, p
     associate (out_fields => this%stats%stat_fields%items)
       if (t .ge. this%T_begin) then
          call this%stats%make_strong_grad()
@@ -128,6 +129,29 @@ contains
             call this%file_%write(avg_output_1d, t)
          else if (this%output_dim .eq. 2) then
             call this%map_2d%average(output_2d,this%stats%stat_fields)
+            !Switch around fields to get correct orders
+            !Put average direction mean_vel in scalar45
+            do i = 1, this%map_2d%n_2d
+               u = output_2d%v%x(i)
+               v = output_2d%w%x(i)
+               w = output_2d%p%x(i)
+               p = output_2d%u%x(i)
+               output_2d%p%x(i) = p
+               if (this%map_2d%dir .eq. 1) then
+                  output_2d%u%x(i) = w
+                  output_2d%v%x(i) = v
+                  output_2d%w%x(i) = u
+               else if (this%map_2d%dir .eq. 2) then
+                  output_2d%u%x(i) = u
+                  output_2d%v%x(i) = w
+                  output_2d%w%x(i) = v
+               else if (this%map_2d%dir .eq. 3) then
+                  output_2d%u%x(i) = u
+                  output_2d%v%x(i) = v
+                  output_2d%w%x(i) = w
+               end if
+            end do
+            
             call this%file_%write(output_2d, t)
          else
             call this%file_%write(this%stats%stat_fields, t)
