@@ -629,6 +629,7 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue; 
 
     absval_kernel<real>
     <<<nblcks, nthrds,0, stream>>>((real *) a, * nx);  

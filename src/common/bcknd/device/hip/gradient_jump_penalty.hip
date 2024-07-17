@@ -40,12 +40,12 @@
 
 extern "C" {
 
-  void hip_pick_facet_value_hex(void *b, void *a,int * nx, int * nel, hipStream_t stream){
+  void hip_pick_facet_value_hex(void *b, void *a,int * nx, int * nel){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
     hipLaunchKernelGGL(HIP_KERNEL_NAME(pick_facet_value_hex_kernel<real>),
-                                       nblcks, nthrds, 0, stream,
+                                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                                        (real *) b,(real *) a, * nx);
     HIP_CHECK(hipGetLastError());
   } 
@@ -53,11 +53,11 @@ extern "C" {
   void hip_gradient_jump_penalty_finalize(void * penalty_d,
                                           void * penalty_facet_d,
                                           void * dphidxi_d,
-                                          int * nx, int * nel, hipStream_t stream){
+                                          int * nx, int * nel){
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
     hipLaunchKernelGGL(HIP_KERNEL_NAME(gradient_jump_penalty_finalize_kernel<real>),
-                                       nblcks, nthrds, 0, stream,
+                                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                                        (real *) penalty_d,
                                        (real *) penalty_facet_d,
                                        (real *) dphidxi_d,

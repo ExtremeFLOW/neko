@@ -40,11 +40,12 @@
 
 extern "C" {
 
-  void cuda_pick_facet_value_hex(void *b, void *a,int * nx, int * nel, cudaStream_t stream){
+  void cuda_pick_facet_value_hex(void *b, void *a,int * nx, int * nel){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-  
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue; 
+    
     pick_facet_value_hex_kernel<real>
     <<<nblcks, nthrds,0, stream>>>((real *) b,(real *) a, * nx);  
     CUDA_CHECK(cudaGetLastError());
@@ -53,9 +54,11 @@ extern "C" {
   void cuda_gradient_jump_penalty_finalize(void * penalty_d,
                                           void * penalty_facet_d,
                                           void * dphidxi_d,
-                                          int * nx, int * nel, hipStream_t stream){
+                                          int * nx, int * nel){
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue; 
+
     gradient_jump_penalty_finalize_kernel<real>
      <<<nblcks, nthrds,0, stream>>>(nblcks, nthrds, 0, stream,
                                        (real *) penalty_d,
