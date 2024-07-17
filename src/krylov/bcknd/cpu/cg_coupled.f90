@@ -41,6 +41,7 @@ module cg_cpld
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
   use math, only : glsc3, glsc2, add2s1
+  use utils, only : neko_error
   implicit none
   private
 
@@ -183,6 +184,12 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
+
+    ! Throw and error
+    call neko_error('Only defined for coupled solves')
+
+    ksp_results%res_final = 0.0
+    ksp_results%iter = 0
   end function cg_cpld_nop
 
   !> Coupled PCG solve
