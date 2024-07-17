@@ -1212,7 +1212,7 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-  end subroutine device_b3
+  end subroutine device_add3
 
   subroutine device_add3s2(a_d, b_d, c_d, c1, c2 ,n)
     type(c_ptr) :: a_d, b_d, c_d
