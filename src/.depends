@@ -97,7 +97,7 @@ math/bcknd/cpu/fdm_cpu.o : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.
 math/bcknd/sx/fdm_sx.o : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.o config/num_types.o 
 math/bcknd/xsmm/fdm_xsmm.o : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.o config/num_types.o 
 math/schwarz.o : math/schwarz.f90 config/neko_config.o device/device.o math/fdm.o math/bcknd/device/device_math.o math/bcknd/device/device_schwarz.o gs/gather_scatter.o bc/bc.o sem/dofmap.o sem/space.o mesh/mesh.o math/math.o config/num_types.o 
-math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
+math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o math/bcknd/device/device_mathops.o device/device.o config/num_types.o math/math.o config/neko_config.o 
 math/matrix.o : math/matrix.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
 math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/aabb.o mesh/point.o common/utils.o mesh/aabb_tree.o mesh/tri_mesh.o mesh/tri.o field/field.o config/num_types.o 
 common/checkpoint.o : common/checkpoint.f90 mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
