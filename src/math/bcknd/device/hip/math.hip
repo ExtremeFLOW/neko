@@ -319,7 +319,7 @@ extern "C" {
                        (real *) a, (real *) b, *n);
     HIP_CHECK(hipGetLastError());
   }
- 
+
   /**
    * Fortran wrapper for sub3
    * Vector subtraction \f$ a = b - c \f$
@@ -531,6 +531,21 @@ extern "C" {
                        (real *) x, (const real **) p, (real *) alpha, *j, *n);
     HIP_CHECK(hipGetLastError());
 
+  }
+
+  /**
+   * Fortran wrapper for add3
+   * Vector subtraction \f$ a = b + c \f$
+   */
+  void hip_add3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add3_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (real *) c, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
   /**

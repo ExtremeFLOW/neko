@@ -264,6 +264,16 @@ module device_math
   end interface
 
   interface
+     subroutine hip_add3(a_d, b_d, c_d, n) &
+          bind(c, name='hip_add3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine hip_add3
+  end interface
+
+  interface
      subroutine hip_addcol3(a_d, b_d, c_d, n) &
           bind(c, name='hip_addcol3')
        use, intrinsic :: iso_c_binding
@@ -561,6 +571,16 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine cuda_sub3
+  end interface
+
+  interface
+     subroutine cuda_add3(a_d, b_d, c_d, n) &
+          bind(c, name='cuda_add3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine cuda_add3
   end interface
 
   interface
@@ -893,6 +913,16 @@ module device_math
   end interface
 
   interface
+     subroutine opencl_add3(a_d, b_d, c_d, n) &
+          bind(c, name='opencl_add3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine opencl_add3
+  end interface
+
+  interface
      subroutine opencl_addcol3(a_d, b_d, c_d, n) &
           bind(c, name='opencl_addcol3')
        use, intrinsic :: iso_c_binding
@@ -974,7 +1004,7 @@ module device_math
        device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
        device_addcol3, device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
-       device_masked_copy, device_cfill_mask
+       device_masked_copy, device_cfill_mask, device_add3
   
 contains
 
@@ -1169,6 +1199,20 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_addsqr2s2
+
+  subroutine device_add3(a_d, b_d, c_d, n)
+    type(c_ptr) :: a_d, b_d, c_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_add3(a_d, b_d, c_d, n)
+#elif HAVE_CUDA
+    call cuda_add3(a_d, b_d, c_d, n)
+#elif HAVE_OPENCL
+    call opencl_add3(a_d, b_d, c_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_b3
 
   subroutine device_add3s2(a_d, b_d, c_d, c1, c2 ,n)
     type(c_ptr) :: a_d, b_d, c_d

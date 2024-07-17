@@ -150,6 +150,23 @@ __global__ void add2_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for add3
+ */
+template< typename T >
+__global__ void add3_kernel(T * __restrict__ a,
+                            const T * __restrict__ b,
+                            const T * __restrict__ c,
+                            const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i] + c[i];
+  }
+}
+
+/**
  * Device kernel for add2s1
  */
 template< typename T >

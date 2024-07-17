@@ -158,7 +158,22 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
     
   }
-  
+
+  /**
+   * Fortran wrapper for add3
+   * Vector subtraction \f$ a = b + c \f$
+   */
+  void cuda_add3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    add3_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b,
+                                            (real *) c, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
   /**
    * Fortran wrapper for add2s1
    * Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
