@@ -46,6 +46,7 @@ module fld_file
   use vector, only : vector_t
   use space, only : space_t
   use mesh, only : mesh_t
+  use math
   use utils
   use comm
   use datadist
@@ -109,6 +110,8 @@ contains
     write_pressure = .false.
     write_velocity = .false.
     write_temperature = .false.
+    p%ptr => NULL()
+    print*, 'in writer'
 
     select type(data)
     type is (fld_file_data_t)
@@ -119,6 +122,7 @@ contains
        gdim = data%gdim
        glb_nelv = data%glb_nelv
        offset_el = data%offset_el
+
        if (data%x%n .gt. 0) x%ptr => data%x%x
        if (data%y%n .gt. 0) y%ptr => data%y%x
        if (data%z%n .gt. 0) z%ptr => data%z%x
@@ -145,12 +149,12 @@ contains
           scalar_fields(n_scalar_fields)%ptr => data%w%x
        else 
           n_scalar_fields = data%n_scalars 
-          allocate(scalar_fields(n_scalar_fields))
+          allocate(scalar_fields(n_scalar_fields+1))
           do i = 1, n_scalar_fields 
              scalar_fields(i)%ptr => data%s(i)%x
           end do
+          scalar_fields(n_scalar_fields+1)%ptr => data%w%x
        end if
-
        allocate(idx(nelv))
        do i = 1, nelv
           idx(i) = data%idx(i)
@@ -242,6 +246,7 @@ contains
        end do
     end if
 
+
     if (associated(Xh)) then
        lx = Xh%lx
        ly = Xh%ly
@@ -275,8 +280,10 @@ contains
     call MPI_Allreduce(MPI_IN_PLACE,write_velocity,1,MPI_LOGICAL,MPI_LOR,NEKO_COMM) 
     call MPI_Allreduce(MPI_IN_PLACE,write_pressure,1,MPI_LOGICAL,MPI_LOR,NEKO_COMM) 
     call MPI_Allreduce(MPI_IN_PLACE,write_temperature,1,MPI_LOGICAL,MPI_LOR,NEKO_COMM) 
+    call MPI_Allreduce(MPI_IN_PLACE,n_scalar_fields,1,MPI_INTEGER,MPI_MAX,NEKO_COMM) 
     rdcode = ' '
     i = 1
+    print *,n_scalar_fields
     if (write_mesh) then
        rdcode(i) = 'X'
        i = i + 1
@@ -348,16 +355,22 @@ contains
             int(FLD_DATA_SIZE, i8))
        call fld_file_write_vector_field(this, fh, byte_offset, u%ptr, v%ptr, w%ptr, n, gdim, lxyz, nelv)
 
-       mpi_offset = mpi_offset + int(glb_nelv, i8) * &
+       temp_offset = mpi_offset + int(glb_nelv, i8) * &
             (int(gdim * (lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
 
     end if
 
+
     if (write_pressure) then
+        mpi_offset = temp_offset
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
+          mpi_offset = int(temp_offset,i8) + int(1_i8*glb_nelv, i8) * &
+                           (int(lxyz, i8) * &
+                       int(FLD_DATA_SIZE, i8))
+       
        call fld_file_write_field(this, fh, byte_offset, p%ptr, n)
        mpi_offset = mpi_offset + int(glb_nelv, i8) * &
             (int((lxyz), i8) * &
