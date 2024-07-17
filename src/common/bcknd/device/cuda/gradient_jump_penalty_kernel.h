@@ -94,17 +94,17 @@ __global__ void gradient_jump_penalty_finalize_kernel(T * __restrict__ penalty_d
     const int k = jk / nx;
     const int j = jk - k * nx;
     penalty_d[i+j*nx+k*nx*nx+el] = penalty_facet_d[0+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
-                                  *dphidxi_d[0,i] + \
+                                  *dphidxi_d[0+i*nx] + \
                                    penalty_facet_d[nx+1+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
-                                  *dphidxi_d[nx+1,i] + \
+                                  *dphidxi_d[nx+1+i*nx] + \
                                    penalty_facet_d[i+0*nx2+(k+1)*nx2*nx2+el2] \
-                                  *dphidxi_d[0,j] + \
+                                  *dphidxi_d[0+j*nx] + \
                                    penalty_facet_d[i+(nx+1)*nx2+(k+1)*nx2*nx2+el2] \
-                                  *dphidxi_d[nx+1,j] + \
+                                  *dphidxi_d[nx+1+j*nx] + \
                                    penalty_facet_d[i+(j+1)*nx2+0*nx2*nx2+el2] \
-                                  *dphidxi_d[0,k] + \
+                                  *dphidxi_d[0+k*nx] + \
                                    penalty_facet_d[i+(j+1)*nx2+(nx+1)*nx2*nx2+el2] \
-                                  *dphidxi_d[nx+1,k]
+                                  *dphidxi_d[nx+1+k*nx];
                                   
   }
 }
