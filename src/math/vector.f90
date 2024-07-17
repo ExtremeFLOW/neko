@@ -32,11 +32,14 @@
 !
 !> Defines a vector
 module vector
-  use neko_config
-  use num_types
-  use device
-  use device_math, only : device_copy, device_cfill
-  use utils
+  use neko_config, only: NEKO_BCKND_DEVICE
+  use math, only: cadd, cfill, sub3, copy, chsign, add3, cmult, cmult2
+  use num_types, only: rp
+  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use device_mathops, only: device_opchsign
+  use device_math, only: device_copy, device_cfill, device_cadd, device_add2, &
+       device_cmult, device_add2s1, device_cmult2
+  use utils, only: neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -51,8 +54,21 @@ module vector
      procedure, pass(v) :: size => vector_size
      procedure, pass(v) :: vector_assign_vector
      procedure, pass(v) :: vector_assign_scalar
+     procedure, pass(a) :: vector_add_scalar_left
+     procedure, pass(a) :: vector_add_scalar_right
+     procedure, pass(a) :: vector_add_vector
+     procedure, pass(a) :: vector_sub_scalar_left
+     procedure, pass(a) :: vector_sub_scalar_right
+     procedure, pass(a) :: vector_sub_vector
+     procedure, pass(a) :: vector_cmult_left
+     procedure, pass(a) :: vector_cmult_right
      generic :: assignment(=) => vector_assign_vector, &
           vector_assign_scalar
+     generic :: operator(+) => vector_add_vector, &
+          vector_add_scalar_left, vector_add_scalar_right
+     generic :: operator(-) => vector_sub_vector, &
+          vector_sub_scalar_left, vector_sub_scalar_right
+     generic :: operator(*) => vector_cmult_left, vector_cmult_right
   end type vector_t
 
   type, public :: vector_ptr_t
@@ -148,5 +164,191 @@ contains
 
   end subroutine vector_assign_scalar
 
+  !> Vector addition \f$ v = a + b \f$.
+  function vector_add_vector(a, b) result(v)
+    class(vector_t), intent(in) :: a, b
+    type(vector_t) :: v
+
+    if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = a%n
+       allocate(v%x(v%n))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_copy(v%x_d, a%x_d, v%n)
+       call device_add2(v%x_d, b%x_d, v%n)
+    else
+       call add3(v%x, a%x, b%x, v%n)
+    end if
+
+  end function vector_add_vector
+
+  !> Assignment \f$ v = a + c \f$.
+  function vector_add_scalar_left(a, c) result(v)
+    class(vector_t), intent(in) :: a
+    real(kind=rp), intent(in) :: c
+    type(vector_t) :: v
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = a%n
+       allocate(v%x(v%n))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+
+    end if
+
+    v = a
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cadd(v%x_d, c, v%n)
+    else
+       call cadd(v%x, c, a%n)
+    end if
+
+  end function vector_add_scalar_left
+
+  !> Assignment \f$ v = c + a \f$.
+  function vector_add_scalar_right(c, a) result(v)
+    real(kind=rp), intent(in) :: c
+    class(vector_t), intent(in) :: a
+    type(vector_t) :: v
+
+    v = vector_add_scalar_left(a, c)
+
+  end function vector_add_scalar_right
+
+  !> Vector addition \f$ v = a - b \f$.
+  function vector_sub_vector(a, b) result(v)
+    class(vector_t), intent(in) :: a, b
+    type(vector_t) :: v
+
+    if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = a%n
+       allocate(v%x(v%n))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_sub3(v%x_d, a%x_d, b%x_d, v%n)
+    else
+       call sub3(v%x, a%x, b%x, v%n)
+    end if
+
+  end function vector_sub_vector
+
+  !> Assignment \f$ v = a - c \f$.
+  function vector_sub_scalar_left(a, c) result(v)
+    class(vector_t), intent(in) :: a
+    real(kind=rp), intent(in) :: c
+    type(vector_t) :: v
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = a%n
+       allocate(v%x(v%n))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+
+    end if
+
+    v = a
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cadd(v%x_d, -1.0_rp*c, v%n)
+    else
+       call cadd(v%x, -1.0_rp*c, a%n)
+    end if
+
+  end function vector_sub_scalar_left
+
+  !> Assignment \f$ v = c - a \f$.
+  function vector_sub_scalar_right(c, a) result(v)
+    real(kind=rp), intent(in) :: c
+    class(vector_t), intent(in) :: a
+    type(vector_t) :: v
+
+    v = vector_sub_scalar_left(a, c)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cmult(v%x_d, -1.0_rp, v%n)
+    else
+       call chsign(v%x, v%n)
+    end if
+
+  end function vector_sub_scalar_right
+
+    !> Assignment \f$ v = a*c \f$.
+  function vector_cmult_left(a, c) result(v)
+    class(vector_t), intent(in) :: a
+    real(kind=rp), intent(in) :: c
+    type(vector_t) :: v
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = a%n
+       allocate(v%x(v%n))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cmult2(v%x_d, a%x_d, c, v%n)
+    else
+       call cmult2(v%x, a%x, c, v%n)
+    end if
+
+
+  end function vector_cmult_left
+
+  !> Assignment \f$ v = c*a \f$.
+  function vector_cmult_right(c, a) result(v)
+    real(kind=rp), intent(in) :: c
+    class(vector_t), intent(in) :: a
+    type(vector_t) :: v
+
+    v = vector_cmult_left(a, c)
+
+  end function vector_cmult_right
 
 end module vector
