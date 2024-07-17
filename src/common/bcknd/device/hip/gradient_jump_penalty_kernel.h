@@ -51,12 +51,24 @@ __global__ void pick_facet_value_hex_kernel(T * __restrict__ b,
     const int i = ijk - jk * nx;
     const int k = jk / nx;
     const int j = jk - k * nx;
-    b[0+(j+1)*nx2+(k+1)*nx2*nx2+el2] = a[0+j*nx+k*nx*nx+el];
-    b[nx-1+(j+1)*nx2+(k+1)*nx2*nx2+el2] = a[nx-1+j*nx+k*nx*nx+el];
-    b[(i+1)+0*nx2+(k+1)*nx2*nx2+el2] = a[i+0*nx+k*nx*nx+el];
-    b[(i+1)+(nx-1)*nx2+(k+1)*nx2*nx2+el2] = a[i+(nx-1)*nx+k*nx*nx+el];
-    b[(i+1)+(j+1)*nx2+0*nx2*nx2+el2] = a[i+j*nx+0*nx*nx+el];
-    b[(i+1)+(j+1)*nx2+(nx-1)*nx2*nx2+el2] = a[i+j*nx+(nx-1)*nx*nx+el];
+    if(i == 0){
+      b[0+(j+1)*nx2+(k+1)*nx2*nx2+el2] = a[ijk+el];
+    }
+    if(i == nx-1){
+      b[nx2-1+(j+1)*nx2+(k+1)*nx2*nx2+el2] = a[ijk+el];
+    }
+    if(j == 0){
+      b[(i+1)+0*nx2+(k+1)*nx2*nx2+el2] = a[ijk+el];
+    }
+    if(j == nx-1){
+      b[(i+1)+(nx2-1)*nx2+(k+1)*nx2*nx2+el2] = a[ijk+el];
+    }
+    if(k == 0){
+      b[(i+1)+(j+1)*nx2+0*nx2*nx2+el2] = a[ijk+el];
+    }
+    if(k == nx-1){
+      b[(i+1)+(j+1)*nx2+(nx2-1)*nx2*nx2+el2] = a[ijk+el];
+    }
   }
 }
 
@@ -93,18 +105,18 @@ __global__ void gradient_jump_penalty_finalize_kernel(T * __restrict__ penalty_d
     const int i = ijk - jk * nx;
     const int k = jk / nx;
     const int j = jk - k * nx;
-    penalty_d[i+j*nx+k*nx*nx+el] = penalty_facet_d[0+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
-                                  *dphidxi_d[0+i*nx] + \
-                                   penalty_facet_d[nx+1+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
-                                  *dphidxi_d[nx+1+i*nx] + \
-                                   penalty_facet_d[i+0*nx2+(k+1)*nx2*nx2+el2] \
-                                  *dphidxi_d[0+j*nx] + \
-                                   penalty_facet_d[i+(nx+1)*nx2+(k+1)*nx2*nx2+el2] \
-                                  *dphidxi_d[nx+1+j*nx] + \
-                                   penalty_facet_d[i+(j+1)*nx2+0*nx2*nx2+el2] \
-                                  *dphidxi_d[0+k*nx] + \
-                                   penalty_facet_d[i+(j+1)*nx2+(nx+1)*nx2*nx2+el2] \
-                                  *dphidxi_d[nx+1+k*nx];
+    penalty_d[ijk+el] = penalty_facet_d[0+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
+                      * dphidxi_d[0+i*nx] + \
+                        penalty_facet_d[nx+1+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
+                      * dphidxi_d[nx-1+i*nx] + \
+                        penalty_facet_d[i+0*nx2+(k+1)*nx2*nx2+el2] \
+                      * dphidxi_d[0+j*nx] + \
+                        penalty_facet_d[i+(nx+1)*nx2+(k+1)*nx2*nx2+el2] \
+                      * dphidxi_d[nx-1+j*nx] + \
+                        penalty_facet_d[i+(j+1)*nx2+0*nx2*nx2+el2] \
+                      * dphidxi_d[0+k*nx] + \
+                        penalty_facet_d[i+(j+1)*nx2+(nx+1)*nx2*nx2+el2] \
+                      * dphidxi_d[nx-1+k*nx];
                                   
   }
 }
