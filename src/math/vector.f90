@@ -38,7 +38,7 @@ module vector
   use device, only: device_map, device_free, c_ptr, C_NULL_PTR
   use device_mathops, only: device_opchsign
   use device_math, only: device_copy, device_cfill, device_cadd, device_add2, &
-       device_cmult, device_add2s1, device_cmult2, device_add3
+       device_cmult, device_sub3, device_add2s1, device_cmult2, device_add3
   use utils, only: neko_error
   use, intrinsic :: iso_c_binding
   implicit none
