@@ -209,11 +209,12 @@ contains
 
              if (found_previous_mesh) then
                 call set_flow_ic_fld(u, v, w, p, read_str, sample_idx, &
-                     prev_mesh, tol)
+                     interpolate, prev_mesh, tol)
              else
                 ! In this case no mesh interpolation but potential for interpolation
                 ! between different polynomial orders
-                call set_flow_ic_fld(u, v, w, p, read_str, sample_idx)
+                call set_flow_ic_fld(u, v, w, p, read_str, sample_idx, &
+                     interpolate, tolerance=tol)
              end if
           end if
        end if
@@ -468,15 +469,15 @@ contains
 
        ! These are the coordinates of our current mesh
        ! that we use for the interpolation
-       allocate(x_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
-       allocate(y_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
-       allocate(z_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
+       allocate(x_coords(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
+       allocate(y_coords(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
+       allocate(z_coords(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
 
        if (present(previous_mesh_fname)) then ! Interpolate based on previous mesh
 
           meshf = file_t(trim(previous_mesh_fname))
           call meshf%read(prev_mesh)
-          dof = dofmap_t(msh, this%chkp_Xh)
+          dof = dofmap_t(prev_mesh, u%Xh)
 
           !> To ensure that each point is within an element
           !! Remedies issue with points on the boundary
@@ -495,13 +496,13 @@ contains
              center_y = center_y/u%Xh%lxyz
              center_z = center_z/u%Xh%lxyz
              do i = 1,u%dof%Xh%lxyz
-                x_coord(i,1,1,e) = u%dof%x(i,1,1,e) - tol*(u%dof%x(i,1,1,e)-center_x)
-                y_coord(i,1,1,e) = u%dof%y(i,1,1,e) - tol*(u%dof%y(i,1,1,e)-center_y)
-                z_coord(i,1,1,e) = u%dof%z(i,1,1,e) - tol*(u%dof%z(i,1,1,e)-center_z)
+                x_coords(i,1,1,e) = u%dof%x(i,1,1,e) - tol*(u%dof%x(i,1,1,e)-center_x)
+                y_coords(i,1,1,e) = u%dof%y(i,1,1,e) - tol*(u%dof%y(i,1,1,e)-center_y)
+                z_coords(i,1,1,e) = u%dof%z(i,1,1,e) - tol*(u%dof%z(i,1,1,e)-center_z)
              end do
           end do
           call global_interp%init(dof,tol=tol)
-          call global_interp%find_points(x_coord,y_coord,z_coord,u%dof%size())
+          call global_interp%find_points(x_coords,y_coords,z_coords,u%dof%size())
 
           call global_interp%evaluate(u%x, fld_data%u%x)
           call global_interp%evaluate(v%x, fld_data%v%x)
@@ -514,9 +515,9 @@ contains
 
        end if
 
-       deallocate(x_coord)
-       deallocate(y_coord)
-       deallocate(z_coord)
+       deallocate(x_coords)
+       deallocate(y_coords)
+       deallocate(z_coords)
        call global_interp%free
 
     else ! No interpolation
