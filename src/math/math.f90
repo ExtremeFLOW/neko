@@ -546,9 +546,9 @@ contains
   !> Vector addition \f$ a = b + c \f$
   subroutine add3(a, b, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
-    real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
     do i = 1, n
@@ -588,9 +588,9 @@ contains
   !> Vector subtraction \f$ a = b - c \f$
   subroutine sub3(a, b, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
-    real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
     do i = 1, n
