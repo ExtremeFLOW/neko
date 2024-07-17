@@ -32,11 +32,14 @@
 !
 !> Defines a matrix
 module matrix
-  use neko_config
-  use num_types
-  use device
-  use device_math
-  use utils
+  use neko_config, only: NEKO_BCKND_DEVICE
+  use math, only: cadd, cfill, sub3, copy, chsign, add3, cmult, cmult2
+  use num_types, only: rp
+  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use device_mathops, only: device_opchsign
+  use device_math, only: device_copy, device_cfill, device_cadd, device_add2, &
+       device_cmult, device_add2s1, device_cmult2
+  use utils, only: neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -58,10 +61,23 @@ module matrix
      procedure, pass(m) :: matrix_assign_matrix
      !> Assignment \f$ m = s \f$.
      procedure, pass(m) :: matrix_assign_scalar
+     procedure, pass(m) :: matrix_add_scalar_left
+     procedure, pass(m) :: matrix_add_scalar_right
+     procedure, pass(m) :: matrix_add_matrix
+     procedure, pass(m) :: matrix_sub_scalar_left
+     procedure, pass(m) :: matrix_sub_scalar_right
+     procedure, pass(m) :: matrix_sub_matrix
+     procedure, pass(m) :: matrix_cmult_left
+     procedure, pass(m) :: matrix_cmult_right
      !> Inverse a matrix.
      procedure, pass(m) :: inverse => matrix_bcknd_inverse
      generic :: assignment(=) => matrix_assign_matrix, &
           matrix_assign_scalar
+     generic :: operator(+) => matrix_add_matrix, &
+          matrix_add_scalar_left, matrix_add_scalar_right
+     generic :: operator(-) => matrix_sub_matrix, &
+          matrix_sub_scalar_left, matrix_sub_scalar_right
+     generic :: operator(*) => matrix_cmult_left, matrix_cmult_right
   end type matrix_t
 
 contains
@@ -160,6 +176,204 @@ contains
     end if
 
   end subroutine matrix_assign_scalar
+
+  !> Vector addition \f$ v = m + b \f$.
+  function matrix_add_matrix(m, b) result(v)
+    class(matrix_t), intent(in) :: m, b
+    type(matrix_t) :: v
+
+    if (m%n .ne. b%n) call neko_error("matrices must be the same length!")
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = m%n
+       v%nrows = m%nrows
+       v%ncols = m%ncols
+       allocate(v%x(v%nrows, v%ncols))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_copy(v%x_d, m%x_d, v%n)
+       call device_add2(v%x_d, b%x_d, v%n)
+    else
+       call add3(v%x, m%x, b%x, v%n)
+    end if
+
+  end function matrix_add_matrix
+
+  !> Matrix-scalar addition \f$ v = m + c \f$.
+  function matrix_add_scalar_left(m, c) result(v)
+    class(matrix_t), intent(in) :: m
+    real(kind=rp), intent(in) :: c
+    type(matrix_t) :: v
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = m%n
+       v%nrows = m%nrows
+       v%ncols = m%ncols
+       allocate(v%x(v%nrows, v%ncols))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+
+    end if
+
+    v = m
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cadd(v%x_d, c, v%n)
+    else
+       call cadd(v%x, c, m%n)
+    end if
+
+  end function matrix_add_scalar_left
+
+  !> Scalar-Matrix addition \f$ v = c + m \f$.
+  function matrix_add_scalar_right(c, m) result(v)
+    real(kind=rp), intent(in) :: c
+    class(matrix_t), intent(in) :: m
+    type(matrix_t) :: v
+
+    v = matrix_add_scalar_left(m, c)
+
+  end function matrix_add_scalar_right
+
+  !> matrix-matrix subtraction \f$ v = m - b \f$.
+  function matrix_sub_matrix(m, b) result(v)
+    class(matrix_t), intent(in) :: m, b
+    type(matrix_t) :: v
+
+    if (m%n .ne. b%n) call neko_error("matrices must be the same length!")
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = m%n
+       v%nrows = m%nrows
+       v%ncols = m%ncols
+       allocate(v%x(v%nrows, v%ncols))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_sub3(v%x_d, m%x_d, b%x_d, v%n)
+    else
+       call sub3(v%x, m%x, b%x, v%n)
+    end if
+
+  end function matrix_sub_matrix
+
+  !> Scalar-Matrix subtraction \f$ v = m - c \f$.
+  function matrix_sub_scalar_left(m, c) result(v)
+    class(matrix_t), intent(in) :: m
+    real(kind=rp), intent(in) :: c
+    type(matrix_t) :: v
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = m%n
+       v%nrows = m%nrows
+       v%ncols = m%ncols
+       allocate(v%x(v%nrows, v%ncols))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+
+    end if
+
+    v = m
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cadd(v%x_d, -1.0_rp*c, v%n)
+    else
+       call cadd(v%x, -1.0_rp*c, m%n)
+    end if
+
+  end function matrix_sub_scalar_left
+
+  !> Scalar-matrix subtraction \f$ v = c - m \f$.
+  function matrix_sub_scalar_right(c, m) result(v)
+    real(kind=rp), intent(in) :: c
+    class(matrix_t), intent(in) :: m
+    type(matrix_t) :: v
+
+    v = matrix_sub_scalar_left(m, c)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cmult(v%x_d, -1.0_rp, v%n)
+    else
+       call chsign(v%x, v%n)
+    end if
+
+  end function matrix_sub_scalar_right
+
+  !> Matrix-scalar multiplication \f$ v = m*c \f$.
+  function matrix_cmult_left(m, c) result(v)
+    class(matrix_t), intent(in) :: m
+    real(kind=rp), intent(in) :: c
+    type(matrix_t) :: v
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = m%n
+       v%nrows = m%nrows
+       v%ncols = m%ncols
+       allocate(v%x(v%nrows, v%ncols))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cmult2(v%x_d, m%x_d, c, v%n)
+    else
+       call cmult2(v%x, m%x, c, v%n)
+    end if
+
+
+  end function matrix_cmult_left
+
+  !> Scalar-matrix multiplication \f$ v = c*m \f$.
+  function matrix_cmult_right(c, m) result(v)
+    real(kind=rp), intent(in) :: c
+    class(matrix_t), intent(in) :: m
+    type(matrix_t) :: v
+
+    v = matrix_cmult_left(m, c)
+
+  end function matrix_cmult_right
+
 
   subroutine matrix_bcknd_inverse(m)
     class(matrix_t), intent(inout) :: m
