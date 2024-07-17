@@ -61,16 +61,25 @@ module matrix
      procedure, pass(m) :: matrix_assign_matrix
      !> Assignment \f$ m = s \f$.
      procedure, pass(m) :: matrix_assign_scalar
-     procedure, pass(m) :: matrix_add_scalar_left
-     procedure, pass(m) :: matrix_add_scalar_right
+     !> Matrix-matrix addition \f$ v = m + b \f$.
      procedure, pass(m) :: matrix_add_matrix
-     procedure, pass(m) :: matrix_sub_scalar_left
-     procedure, pass(m) :: matrix_sub_scalar_right
+     !> Matrix-scalar addition \f$ v = m + c \f$.
+     procedure, pass(m) :: matrix_add_scalar_left
+     !> Scalar-matrix addition \f$ v = c + m \f$.
+     procedure, pass(m) :: matrix_add_scalar_right
+     !> Matrix-matrix subtraction \f$ v = m - b \f$.
      procedure, pass(m) :: matrix_sub_matrix
+     !> Matrix-scalar subtraction \f$ v = m - c \f$.
+     procedure, pass(m) :: matrix_sub_scalar_left
+     !> Scalar-matrix subtraction \f$ v = c - m \f$.
+     procedure, pass(m) :: matrix_sub_scalar_right
+     !> Matrix-scalar multiplication \f$ v = m*c \f$.
      procedure, pass(m) :: matrix_cmult_left
+     !> Scalar-matrix multiplication \f$ v = c*m \f$.
      procedure, pass(m) :: matrix_cmult_right
      !> Inverse a matrix.
      procedure, pass(m) :: inverse => matrix_bcknd_inverse
+
      generic :: assignment(=) => matrix_assign_matrix, &
           matrix_assign_scalar
      generic :: operator(+) => matrix_add_matrix, &
@@ -177,7 +186,7 @@ contains
 
   end subroutine matrix_assign_scalar
 
-  !> Vector addition \f$ v = m + b \f$.
+  !> Matrix-matrix addition \f$ v = m + b \f$.
   function matrix_add_matrix(m, b) result(v)
     class(matrix_t), intent(in) :: m, b
     type(matrix_t) :: v
@@ -242,7 +251,7 @@ contains
 
   end function matrix_add_scalar_left
 
-  !> Scalar-Matrix addition \f$ v = c + m \f$.
+  !> Scalar-matrix addition \f$ v = c + m \f$.
   function matrix_add_scalar_right(c, m) result(v)
     real(kind=rp), intent(in) :: c
     class(matrix_t), intent(in) :: m
@@ -252,7 +261,7 @@ contains
 
   end function matrix_add_scalar_right
 
-  !> matrix-matrix subtraction \f$ v = m - b \f$.
+  !> Matrix-matrix subtraction \f$ v = m - b \f$.
   function matrix_sub_matrix(m, b) result(v)
     class(matrix_t), intent(in) :: m, b
     type(matrix_t) :: v
@@ -284,7 +293,7 @@ contains
 
   end function matrix_sub_matrix
 
-  !> Scalar-Matrix subtraction \f$ v = m - c \f$.
+  !> Matrix-scalar subtraction \f$ v = m - c \f$.
   function matrix_sub_scalar_left(m, c) result(v)
     class(matrix_t), intent(in) :: m
     real(kind=rp), intent(in) :: c
@@ -374,7 +383,6 @@ contains
 
   end function matrix_cmult_right
 
-
   subroutine matrix_bcknd_inverse(m)
     class(matrix_t), intent(inout) :: m
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -383,19 +391,19 @@ contains
        call cpu_matrix_inverse(m)
     end if
   end subroutine matrix_bcknd_inverse
-  
+
   subroutine cpu_matrix_inverse(m)
     ! Gauss-Jordan matrix inversion with full pivoting
     ! Num. Rec. p. 30, 2nd Ed., Fortran
     ! m%x     is an sqaure matrix
-    ! rmult is a  work array of length nrows = ncols
+    ! rmult is m  work array of length nrows = ncols
     class(matrix_t), intent(inout) :: m
     integer :: indr(m%nrows), indc(m%ncols), ipiv(m%ncols)
     real(kind=rp) ::  rmult(m%nrows), amx, tmp, piv, eps
     integer :: i, j, k, ir, jc
-    
+
     if (.not. (m%ncols .eq. m%nrows)) then
-       call neko_error("Fatal error: trying to invert a matrix that is not square")
+       call neko_error("Fatal error: trying to invert m matrix that is not square")
     end if
 
     eps = 1e-9_rp
@@ -426,7 +434,7 @@ contains
              tmp       = m%x(ir,j)
              m%x(ir,j) = m%x(jc,j)
              m%x(jc,j) = tmp
-           end do
+          end do
        end if
        indr(k) = ir
        indc(k) = jc

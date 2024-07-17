@@ -45,23 +45,40 @@ module vector
   private
 
   type, public ::  vector_t
-     real(kind=rp), allocatable :: x(:) !< Vector entries.
-     type(c_ptr) :: x_d = C_NULL_PTR    !< Device pointer.
-     integer :: n  = 0                  !< Size of vector.
+     !< Vector entries.
+     real(kind=rp), allocatable :: x(:)
+     !< Device pointer.
+     type(c_ptr) :: x_d = C_NULL_PTR
+     !< Size of vector.
+     integer :: n  = 0
    contains
+     !> Initialise a vector of size `n`.
      procedure, pass(v) :: init => vector_init
+     !> Deallocate a vector.
      procedure, pass(v) :: free => vector_free
+     !> Returns the number of entries in the vector.
      procedure, pass(v) :: size => vector_size
+     !> Assignment \f$ v = w \f$
      procedure, pass(v) :: vector_assign_vector
+     !> Assignment \f$ v = s \f$.
      procedure, pass(v) :: vector_assign_scalar
-     procedure, pass(a) :: vector_add_scalar_left
-     procedure, pass(a) :: vector_add_scalar_right
+     !> Vector-vector addition \f$ v = a + b \f$.
      procedure, pass(a) :: vector_add_vector
-     procedure, pass(a) :: vector_sub_scalar_left
-     procedure, pass(a) :: vector_sub_scalar_right
+     !> Vector-scalar addition \f$ v = a + c \f$.
+     procedure, pass(a) :: vector_add_scalar_left
+     !> Scalar-vector addition \f$ v = c + a \f$.
+     procedure, pass(a) :: vector_add_scalar_right
+     !> Vector-vector subtraction \f$ v = a - b \f$.
      procedure, pass(a) :: vector_sub_vector
+     !> Vector-scalar subtraction \f$ v = a - c \f$.
+     procedure, pass(a) :: vector_sub_scalar_left
+     !> Scalar-vector subtraction \f$ v = c - a \f$.
+     procedure, pass(a) :: vector_sub_scalar_right
+     !> Vector-scalar multiplication \f$ v = a*c \f$.
      procedure, pass(a) :: vector_cmult_left
+     !> Scalar-vector multiplication \f$ v = c*a \f$.
      procedure, pass(a) :: vector_cmult_right
+
      generic :: assignment(=) => vector_assign_vector, &
           vector_assign_scalar
      generic :: operator(+) => vector_add_vector, &
@@ -164,7 +181,7 @@ contains
 
   end subroutine vector_assign_scalar
 
-  !> Vector addition \f$ v = a + b \f$.
+  !> Vector-vector addition \f$ v = a + b \f$.
   function vector_add_vector(a, b) result(v)
     class(vector_t), intent(in) :: a, b
     type(vector_t) :: v
@@ -195,7 +212,7 @@ contains
 
   end function vector_add_vector
 
-  !> Assignment \f$ v = a + c \f$.
+  !> Vector-scalar addition \f$ v = a + c \f$.
   function vector_add_scalar_left(a, c) result(v)
     class(vector_t), intent(in) :: a
     real(kind=rp), intent(in) :: c
@@ -225,7 +242,7 @@ contains
 
   end function vector_add_scalar_left
 
-  !> Assignment \f$ v = c + a \f$.
+  !> Scalar-vector addition \f$ v = c + a \f$.
   function vector_add_scalar_right(c, a) result(v)
     real(kind=rp), intent(in) :: c
     class(vector_t), intent(in) :: a
@@ -235,7 +252,7 @@ contains
 
   end function vector_add_scalar_right
 
-  !> Vector addition \f$ v = a - b \f$.
+  !> Vector-vector subtraction \f$ v = a - b \f$.
   function vector_sub_vector(a, b) result(v)
     class(vector_t), intent(in) :: a, b
     type(vector_t) :: v
@@ -265,7 +282,7 @@ contains
 
   end function vector_sub_vector
 
-  !> Assignment \f$ v = a - c \f$.
+  !> Vector-scalar subtraction \f$ v = a - c \f$.
   function vector_sub_scalar_left(a, c) result(v)
     class(vector_t), intent(in) :: a
     real(kind=rp), intent(in) :: c
@@ -295,7 +312,7 @@ contains
 
   end function vector_sub_scalar_left
 
-  !> Assignment \f$ v = c - a \f$.
+  !> Scalar-vector subtraction \f$ v = c - a \f$.
   function vector_sub_scalar_right(c, a) result(v)
     real(kind=rp), intent(in) :: c
     class(vector_t), intent(in) :: a
@@ -311,7 +328,7 @@ contains
 
   end function vector_sub_scalar_right
 
-    !> Assignment \f$ v = a*c \f$.
+  !> Vector-scalar multiplication \f$ v = a*c \f$.
   function vector_cmult_left(a, c) result(v)
     class(vector_t), intent(in) :: a
     real(kind=rp), intent(in) :: c
@@ -338,10 +355,9 @@ contains
        call cmult2(v%x, a%x, c, v%n)
     end if
 
-
   end function vector_cmult_left
 
-  !> Assignment \f$ v = c*a \f$.
+  !> Scalar-vector multiplication \f$ v = c*a \f$.
   function vector_cmult_right(c, a) result(v)
     real(kind=rp), intent(in) :: c
     class(vector_t), intent(in) :: a
