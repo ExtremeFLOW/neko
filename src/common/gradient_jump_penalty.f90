@@ -119,6 +119,8 @@ module gradient_jump_penalty
      integer :: n
      !> Size of fields of size lx ** 3 * nelv
      integer :: n_large
+     !> For device use
+     type(c_ptr) :: event
 
   contains
      !> Constructor.
@@ -305,6 +307,8 @@ contains
                           HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%facet_factor, this%facet_factor_d, this%n_large,&
                           HOST_TO_DEVICE, sync = .false.)
+       
+       call device_event_create(this%event, 2)
 
     end if
 
@@ -626,18 +630,17 @@ contains
        call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, &
                         this%n_large)
        call device_col2(this%penalty_facet_d, this%facet_factor_d, this%n_large)
-    else
-       call col3(this%penalty_facet, this%absvolflux, this%G, this%n_large)
-       call col2(this%penalty_facet, this%facet_factor, this%n_large)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_event_record(this%event, glb_cmd_queue)
+       call device_stream_wait_event(aux_cmd_queue, this%event, 0)
        call device_gradient_jump_penalty_finalize(this%penalty_d, &
                                            this%penalty_facet_d, &
                                            this%dphidxi_d, &
                                            this%lx, this%coef%msh%nelv, &
                                            aux_cmd_queue)
+       call device_stream_wait_event(aux_cmd_queue, this%event, 0)
     else
+       call col3(this%penalty_facet, this%absvolflux, this%G, this%n_large)
+       call col2(this%penalty_facet, this%facet_factor, this%n_large)
        call gradient_jump_penalty_finalize(this%penalty, this%penalty_facet, &
                                            this%dphidxi, &
                                            this%lx, this%coef%msh%nelv)
@@ -733,16 +736,6 @@ contains
                                  this%lx, this%coef%msh%nelv, aux_cmd_queue)
        call device_pick_facet_value_hex(this%flux3_d, this%grad3_d, &
                                  this%lx, this%coef%msh%nelv, aux_cmd_queue)
-    else
-       call pick_facet_value_hex(this%flux1, this%grad1, &
-                                 this%lx, this%coef%msh%nelv)
-       call pick_facet_value_hex(this%flux2, this%grad2, &
-                                 this%lx, this%coef%msh%nelv)
-       call pick_facet_value_hex(this%flux3, this%grad3, &
-                                 this%lx, this%coef%msh%nelv)
-    end if
-     
-    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(this%flux1_d, this%n1_d, this%n_large)
        call device_col2(this%flux2_d, this%n2_d, this%n_large)
        call device_col2(this%flux3_d, this%n3_d, this%n_large)
@@ -750,13 +743,19 @@ contains
                           1.0_rp, 1.0_rp, this%n_large)
        call device_add2(this%G_d, this%flux3_d, this%n_large)
     else
+       call pick_facet_value_hex(this%flux1, this%grad1, &
+                                 this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%flux2, this%grad2, &
+                                 this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%flux3, this%grad3, &
+                                 this%lx, this%coef%msh%nelv)
        call col2(this%flux1, this%n1, this%n_large)
        call col2(this%flux2, this%n2, this%n_large)
        call col2(this%flux3, this%n3, this%n_large)
        call add3(this%G, this%flux1, this%flux2, this%n_large)
        call add2(this%G, this%flux3, this%n_large)
     end if
-    
+
     call this%gs_GJP%op(this%G, this%n_large, GS_OP_ADD)
 
   end subroutine G_compute
@@ -778,30 +777,22 @@ contains
                                         this%coef%msh%nelv, aux_cmd_queue)
        call device_pick_facet_value_hex(this%volflux3_d, w%x_d, this%lx, &
                                         this%coef%msh%nelv, aux_cmd_queue)
-    else
-       call pick_facet_value_hex(this%volflux1, u%x, this%lx, this%coef%msh%nelv)
-       call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
-       call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
-    end if
-    
-    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(this%volflux1_d, this%n1_d, this%n_large)
        call device_col2(this%volflux2_d, this%n2_d, this%n_large)
        call device_col2(this%volflux3_d, this%n3_d, this%n_large)
        call device_add3s2(this%absvolflux_d, this%volflux1_d, this%volflux2_d, &
                           1.0_rp, 1.0_rp, this%n_large)
        call device_add2(this%absvolflux_d, this%volflux3_d, this%n_large)
+       call device_absval(this%absvolflux_d, this%n_large)
     else
+       call pick_facet_value_hex(this%volflux1, u%x, this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
        call col2(this%volflux1, this%n1, this%n_large)
        call col2(this%volflux2, this%n2, this%n_large)
        call col2(this%volflux3, this%n3, this%n_large)
        call add3(this%absvolflux, this%volflux1, this%volflux2, this%n_large)
        call add2(this%absvolflux, this%volflux3, this%n_large)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_absval(this%absvolflux_d, this%n_large)
-    else
        call absval(this%absvolflux, this%n_large)
     end if
 
