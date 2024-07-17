@@ -110,6 +110,7 @@ module gradient_jump_penalty
      real(kind=rp), allocatable, dimension(:, :, :, :) :: h2
      !> The first derivative of polynomial at two ends of the interval
      real(kind=rp), allocatable :: dphidxi(:, :)
+     type(c_ptr) :: dphidxi_d = C_NULL_PTR
      !> gather-scattering operation related variables
      type(space_t) :: Xh_GJP !< needed to init gs
      type(dofmap_t) :: dm_GJP !< needed to init gs
@@ -270,6 +271,8 @@ contains
 
     ! Initialize pointers for device
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%dphidxi, this%dphidxi_d, &
+                       this%lx * this%lx)
        call device_map(this%penalty, this%penalty_d, this%n)
        call device_map(this%grad1, this%grad1_d, this%n)
        call device_map(this%grad2, this%grad2_d, this%n)
@@ -291,6 +294,9 @@ contains
        call device_map(this%n3, this%n3_d, this%n_large)
        call device_map(this%facet_factor, this%facet_factor_d, this%n_large)
 
+       call device_memcpy(this%dphidxi, this%dphidxi_d, &
+                       this%lx * this%lx, &
+                       HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%n1, this%n1_d, this%n_large, &
                           HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%n2, this%n2_d, this%n_large, &
@@ -477,7 +483,10 @@ contains
   subroutine gradient_jump_penalty_free(this)
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
-
+    
+    if (c_associated(this%dphidxi_d)) then
+       call device_free(this%dphidxi_d)
+    end if
     if (c_associated(this%penalty_d)) then
        call device_free(this%penalty_d)
     end if
@@ -621,25 +630,17 @@ contains
        call col3(this%penalty_facet, this%absvolflux, this%G, this%n_large)
        call col2(this%penalty_facet, this%facet_factor, this%n_large)
     end if
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%penalty_facet, this%penalty_facet_d, &
-                          this%n_large, DEVICE_TO_HOST, sync = .true.)
-    end if
-
-    do i = 1, this%coef%msh%nelv
-       ep => this%coef%msh%elements(i)%e
-       select type (ep)
-       type is (hex_t)
-          call gradient_jump_penalty_compute_hex_el(this, this%penalty_facet, i)
-       type is (quad_t)
-          call neko_error("Only Hexahedral element is supported &
-                                       &now for gradient jump penalty")
-       end select
-    end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%penalty, this%penalty_d, this%n, &
-                          HOST_TO_DEVICE, sync = .true.)
+       call device_gradient_jump_penalty_finalize(this%penalty_d, &
+                                           this%penalty_facet_d, &
+                                           this%dphidxi_d, &
+                                           this%lx, this%coef%msh%nelv, &
+                                           aux_cmd_queue)
+    else
+       call gradient_jump_penalty_finalize(this%penalty, this%penalty_facet, &
+                                           this%dphidxi, &
+                                           this%lx, this%coef%msh%nelv)
     end if
 
   end subroutine gradient_jump_penalty_compute
@@ -658,43 +659,59 @@ contains
 
   end subroutine gradient_jump_penalty_perform
 
-  !> Compute the gradient jump penalty term for a single hexatedral element.
+  !> Interface of finalizing the gradient jump penalty term.
   !> <tau * h^2 * absvolflux * G * phij * phik * dphi_idxi * dxidn>
-  !! @param wa work array containing tau * absvolflux * G * dxidn
-  !! @param i_el The index of the element
-  subroutine gradient_jump_penalty_compute_hex_el(this, wa, i_el)
-    class(gradient_jump_penalty_t), intent(inout) :: this
-    integer, intent(in) :: i_el
-    real(kind=rp), intent(in) :: wa(this%lx + 2, this%lx + 2, &
-                        this%lx + 2, this%coef%msh%nelv)
+  !! @param penalty Gradient Jump Penalty array
+  !! @param wa Work array containing tau * absvolflux * G * dxidn
+  !! @param dphidxi The first derivative of polynomial
+  !! @param lx Order of polynomial plus one
+  !! @param nelv Number of elements 
+  subroutine gradient_jump_penalty_finalize(penalty, wa, dphidxi, lx, nelv)
+    integer, intent(in) :: lx, nelv
+    real(kind=rp), intent(inout) :: penalty(lx, lx, lx, nelv)
+    real(kind=rp), intent(in) :: wa(lx + 2, lx + 2, lx + 2, nelv)
+    real(kind=rp), intent(in) :: dphidxi(lx, lx)
+
+    call gradient_jump_penalty_finalize_hex(penalty, wa, dphidxi, lx, nelv)
+
+  end subroutine gradient_jump_penalty_finalize
+
+  !> Finalizinge the gradient jump penalty term for hexahedral elements.
+  !> <tau * h^2 * absvolflux * G * phij * phik * dphi_idxi * dxidn>
+  !! @param penalty Gradient Jump Penalty array
+  !! @param wa Work array containing tau * absvolflux * G * dxidn
+  !! @param dphidxi The first derivative of polynomial
+  !! @param lx Order of polynomial plus one
+  !! @param nelv Number of elements
+  subroutine gradient_jump_penalty_finalize_hex(penalty, wa, dphidxi, lx, nelv)
+    real(kind=rp), intent(inout) :: penalty(lx, lx, lx, nelv)
+    integer, intent(in) :: lx, nelv
+    real(kind=rp), intent(in) :: wa(lx + 2, lx + 2, lx + 2, nelv)
+    real(kind=rp), intent(in) :: dphidxi(lx, lx)
 
     integer :: i, j, k
-
-    associate(lx => this%lx, &
-              penalty => this%penalty, dphidxi => this%dphidxi)
 
     do i = 1, lx
        do j = 1, lx
           do k = 1, lx
-             penalty(i, j, k, i_el) = & 
-               wa(1, j + 1, k + 1, i_el) * &
+             penalty(i, j, k, :) = & 
+               wa(1, j + 1, k + 1, :) * &
                   dphidxi(1, i) + &
-               wa(lx + 2, j + 1, k + 1, i_el) * &
+               wa(lx + 2, j + 1, k + 1, :) * &
                   dphidxi(lx, i) + &
-               wa(i + 1, 1, k + 1, i_el) * &
+               wa(i + 1, 1, k + 1, :) * &
                   dphidxi(1, j) + &
-               wa(i + 1, lx + 2, k + 1, i_el) * &
+               wa(i + 1, lx + 2, k + 1, :) * &
                   dphidxi(lx, j) + &
-               wa(i + 1, j + 1, 1, i_el) * &
+               wa(i + 1, j + 1, 1, :) * &
                   dphidxi(1, k) + &
-               wa(i + 1, j + 1, lx + 2, i_el) * &
+               wa(i + 1, j + 1, lx + 2, :) * &
                   dphidxi(lx, k)
           end do
        end do
     end do
 
-    end associate
-  end subroutine gradient_jump_penalty_compute_hex_el
+  end subroutine gradient_jump_penalty_finalize_hex
 
   !> Compute the average of the flux over facets
   !! @param s The quantity of interest

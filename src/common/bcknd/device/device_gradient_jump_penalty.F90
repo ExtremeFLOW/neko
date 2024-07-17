@@ -59,6 +59,21 @@ module device_gradient_jump_penalty
        integer(c_int) :: n
      end subroutine hip_abs_value
   end interface
+  interface
+     subroutine hip_gradient_jump_penalty_finalize(penalty_d, &
+                                           penalty_facet_d, &
+                                           dphidxi_d, &
+                                           nx, nelv, stream) &
+          bind(c, name = 'hip_gradient_jump_penalty_finalize')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: penalty_d, &
+                             penalty_facet_d, dphidxi_d, &
+                             stream
+       integer(c_int) :: nx, nelv
+     end subroutine hip_gradient_jump_penalty_finalize
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_pick_facet_value_hex(b_d, a_d, nx, nelv, stream) &
@@ -80,11 +95,27 @@ module device_gradient_jump_penalty
        integer(c_int) :: n
      end subroutine cuda_abs_value
   end interface
+  interface
+     subroutine cuda_gradient_jump_penalty_finalize(penalty_d, &
+                                           penalty_facet_d, &
+                                           dphidxi_d, &
+                                           nx, nelv, stream) &
+          bind(c, name = 'cuda_gradient_jump_penalty_finalize')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: penalty_d, &
+                             penalty_facet_d, dphidxi_d, &
+                             stream
+       integer(c_int) :: nx, nelv
+     end subroutine cuda_gradient_jump_penalty_finalize
+  end interface
 #elif HAVE_OPENCL
 
 #endif
 
-  public :: device_pick_facet_value_hex, device_abs_value
+  public :: device_pick_facet_value_hex, device_abs_value, &
+            device_gradient_jump_penalty_finalize
 
 contains
 
@@ -125,5 +156,33 @@ contains
 #endif
 
   end subroutine device_abs_value
+
+  subroutine device_gradient_jump_penalty_finalize(penalty_d, &
+                                           penalty_facet_d, &
+                                           dphidxi_d, &
+                                           nx, nelv, stream)
+    integer, intent(in) :: nx, nelv
+    type(c_ptr) :: penalty_d, penalty_facet_d, dphidxi_d
+    type(c_ptr), optional :: stream
+    if (.not. present(stream)) then
+       stream = glb_cmd_queue
+    end if
+#ifdef HAVE_HIP
+    call hip_gradient_jump_penalty_finalize(penalty_d, &
+                                           penalty_facet_d, &
+                                           dphidxi_d, &
+                                           nx, nelv, stream)
+#elif HAVE_CUDA
+    call cuda_gradient_jump_penalty_finalize(penalty_d, &
+                                           penalty_facet_d, &
+                                           dphidxi_d, &
+                                           nx, nelv, stream)
+#elif HAVE_OPENCL
+    call neko_error('OPENCL is not implemented for gradient jump penalty')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_gradient_jump_penalty_finalize
 
 end module device_gradient_jump_penalty

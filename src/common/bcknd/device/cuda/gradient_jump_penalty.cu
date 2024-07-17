@@ -61,4 +61,19 @@ extern "C" {
     
   }
 
+  void cuda_gradient_jump_penalty_finalize(void * penalty_d,
+                                          void * penalty_facet_d,
+                                          void * dphidxi_d,
+                                          int * nx, int * nel, hipStream_t stream){
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks((*nel), 1, 1);
+    gradient_jump_penalty_finalize_kernel<real>
+     <<<nblcks, nthrds,0, stream>>>(nblcks, nthrds, 0, stream,
+                                       (real *) penalty_d,
+                                       (real *) penalty_facet_d,
+                                       (real *) dphidxi_d,
+                                       * nx);
+    HIP_CHECK(hipGetLastError());
+  } 
+
 }

@@ -75,4 +75,38 @@ __global__ void abs_value_kernel(T * __restrict__ a,
   }
 }
 
+/**
+ * Device kernel for gradient_jump_penalty_finalize
+ */
+template< typename T>
+__global__ void gradient_jump_penalty_finalize_kernel(T * __restrict__ penalty_d,
+                                       T *__restrict__ penalty_facet_d,
+                                       T *__restrict__ dphidxi_d,
+                                       const int nx) {
+
+  const int idx = threadIdx.x;
+  const int nx2 = nx+2;
+  const int el2 = blockIdx.x*nx2*nx2*nx2;
+  const int el = blockIdx.x*nx*nx*nx;
+  for(int ijk = idx; ijk < nx*nx*nx; ijk += blockDim.x){
+    const int jk = ijk / nx;
+    const int i = ijk - jk * nx;
+    const int k = jk / nx;
+    const int j = jk - k * nx;
+    penalty_d[i+j*nx+k*nx*nx+el] = penalty_facet_d[0+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
+                                  *dphidxi_d[0,i] + \
+                                   penalty_facet_d[nx+1+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
+                                  *dphidxi_d[nx+1,i] + \
+                                   penalty_facet_d[i+0*nx2+(k+1)*nx2*nx2+el2] \
+                                  *dphidxi_d[0,j] + \
+                                   penalty_facet_d[i+(nx+1)*nx2+(k+1)*nx2*nx2+el2] \
+                                  *dphidxi_d[nx+1,j] + \
+                                   penalty_facet_d[i+(j+1)*nx2+0*nx2*nx2+el2] \
+                                  *dphidxi_d[0,k] + \
+                                   penalty_facet_d[i+(j+1)*nx2+(nx+1)*nx2*nx2+el2] \
+                                  *dphidxi_d[nx+1,k]
+                                  
+  }
+}
+
 #endif // __COMMON_GRADIENT_JUMP_PENALTY_KERNEL_H__
