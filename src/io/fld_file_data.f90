@@ -125,7 +125,7 @@ contains
        call this%t%init(n)
     end if 
     if (n_fields .gt. 5) then
-       this%n_scalars = n_fields-4
+       this%n_scalars = n_fields-5
        allocate(this%s(this%n_scalars))
        do j = 1, this%n_scalars
           call this%s(j)%init(n)
