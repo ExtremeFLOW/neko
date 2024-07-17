@@ -401,8 +401,8 @@ contains
     real(kind=rp), intent(in) :: vec(n)
     real(kind=rp) :: tmax
     tmax = real(-99d20, rp)
-    do i =1,n
-       tmax = max(tmax,vec(i))
+    do i = 1,n
+       tmax = max(tmax, vec(i))
     end do
   end function vlmax
 
@@ -413,8 +413,8 @@ contains
     real(kind=rp) :: tmin
     integer :: i
     tmin = real(99.0e20, rp)
-    do i =1,n
-       tmin = min(tmin,vec(i))
+    do i = 1,n
+       tmin = min(tmin, vec(i))
     end do
   end function vlmin
 
@@ -890,13 +890,13 @@ contains
        ind(j) = j
     end do
 
-    if (n.le.1) return
+    if (n .le. 1) return
 
 
     l = n/2+1
     ir = n
     do while (.true.)
-       if (l.gt.1) then
+       if (l .gt. 1) then
           l = l-1
           aa = a(l)
           ii = ind(l)
@@ -906,26 +906,26 @@ contains
           a(ir) = a(1)
           ind(ir) = ind(1)
           ir = ir-1
-          if (ir.eq.1) then
+          if (ir .eq. 1) then
              a(1) = aa
              ind(1) = ii
              return
-          endif
-       endif
+          end if
+       end if
        i = l
        j = l+l
        do while (j .le. ir)
-          if (j.lt.ir) then
-             if ( a(j).lt.a(j+1) ) j = j+1
-          endif
-          if (aa.lt.a(j)) then
+          if (j .lt. ir) then
+             if ( a(j) .lt. a(j+1) ) j = j+1
+          end if
+          if (aa .lt. a(j)) then
              a(i) = a(j)
              ind(i) = ind(j)
              i = j
              j = j+j
           else
              j = ir+1
-          endif
+          end if
        end do
        a(i) = aa
        ind(i) = ii
@@ -953,7 +953,7 @@ contains
     l = n/2+1
     ir = n
     do while (.true.)
-       if (l.gt.1) then
+       if (l .gt. 1) then
           l = l - 1
           aa  = a  (l)
           ii  = ind(l)
@@ -967,15 +967,15 @@ contains
              a(1) = aa
              ind(1) = ii
              return
-          endif
-       endif
+          end if
+       end if
        i = l
        j = l + l
        do while (j .le. ir)
-          if (j.lt.ir) then
+          if (j .lt. ir) then
              if ( a(j) .lt. a(j + 1) ) j = j + 1
           end if
-          if (aa.lt.a(j)) then
+          if (aa .lt. a(j)) then
              a(i) = a(j)
              ind(i) = ind(j)
              i = j
@@ -1001,11 +1001,11 @@ contains
     integer :: i, jj
 
     do i = 1, n
-       temp(i)=b(i)
+       temp(i) = b(i)
     end do
     do i = 1, n
-       jj=ind(i)
-       b(i)=temp(jj)
+       jj = ind(i)
+       b(i) = temp(jj)
     end do
   end subroutine swapdp
 
@@ -1021,11 +1021,11 @@ contains
     integer :: i, jj
 
     do i = 1, n
-       temp(i)=b(i)
+       temp(i) = b(i)
     end do
     do i = 1, n
-       jj=ind(i)
-       b(i)=temp(jj)
+       jj = ind(i)
+       b(i) = temp(jj)
     end do
   end subroutine swapi4
 
@@ -1061,11 +1061,11 @@ contains
     integer :: i, jj
 
     do i = 1, n
-       temp(i)=b(i)
+       temp(i) = b(i)
     end do
     do i = 1, n
-       jj=ind(i)
-       b(jj)=temp(i)
+       jj = ind(i)
+       b(jj) = temp(i)
     end do
   end subroutine reordi4
 
