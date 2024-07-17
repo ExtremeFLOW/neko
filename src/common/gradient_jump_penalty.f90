@@ -141,11 +141,11 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), target, intent(in) :: coef
-    
+
     class(element_t), pointer :: ep
     integer :: i, j
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
-    
+
     call this%free()
 
     this%p = dofmap%xh%lx - 1
@@ -243,7 +243,7 @@ contains
     this%n2(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%ny(:, :, 3, :)
     this%n3(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%nz(:, :, 3, :)
 
-    this%n1(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &  
+    this%n1(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &
                                                     this%coef%nx(:, :, 4, :)
     this%n2(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &
                                                     this%coef%ny(:, :, 4, :)
@@ -277,7 +277,7 @@ contains
        call device_map(this%grad1, this%grad1_d, this%n)
        call device_map(this%grad2, this%grad2_d, this%n)
        call device_map(this%grad3, this%grad3_d, this%n)
-       
+
        call device_map(this%penalty_facet, this%penalty_facet_d, this%n_large)
        call device_map(this%G, this%G_d, this%n_large)
        call device_map(this%flux1, this%flux1_d, this%n_large)
@@ -309,7 +309,7 @@ contains
     end if
 
   end subroutine gradient_jump_penalty_init
-  
+
   !> Evaluate h^2 for each element for hexahedral mesh
   !! @param h2_el The sqaure of the length scale of an element
   !! @param ep The pointer to the element
@@ -317,7 +317,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: h2_el(n + 2, n + 2, n + 2)
     type(hex_t), pointer, intent(in) :: ep
-    
+
     integer :: i
     type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
 
@@ -330,7 +330,7 @@ contains
     p7 => ep%p(7)
     p8 => ep%p(8)
     h2_el = 0.0_rp
-    
+
     h2_el(1, 2 : n + 1, 2 : n + 1) = dist2_facets_hex(p1, p5, p7, p3, &
                                                      p2, p6, p8, p4)
     h2_el(n + 2, 2 : n + 1, 2 : n + 1) = h2_el(1, 2, 2)
@@ -394,7 +394,7 @@ contains
   !> The result of this function
   real(kind=rp) :: dist
   integer :: i
-  
+
   ! Set up u12 and u13
   norm_u12 = 0.0_rp
   norm_u13 = 0.0_rp
@@ -439,7 +439,7 @@ contains
               jacinv => this%coef%jacinv, n => this%n, &
               n_large => this%n_large, h2 => this%h2, &
               tau => this%tau)
-    
+
     ! Assemble facet_factor for facet 1 and 2
     call add4(wa, this%coef%drdx, this%coef%drdy, this%coef%drdz, n)
     call col2(wa, jacinv, n)
@@ -483,7 +483,7 @@ contains
   subroutine gradient_jump_penalty_free(this)
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
-    
+
     if (c_associated(this%dphidxi_d)) then
        call device_free(this%dphidxi_d)
     end if
@@ -601,7 +601,7 @@ contains
     end if
 
     nullify(this%coef)
-    
+
     call this%Xh_GJP%free()
     call this%gs_GJP%free()
 
@@ -660,7 +660,7 @@ contains
   !! @param wa Work array containing tau * absvolflux * G * dxidn
   !! @param dphidxi The first derivative of polynomial
   !! @param lx Order of polynomial plus one
-  !! @param nelv Number of elements 
+  !! @param nelv Number of elements
   subroutine gradient_jump_penalty_finalize(penalty, wa, dphidxi, lx, nelv)
     integer, intent(in) :: lx, nelv
     real(kind=rp), intent(inout) :: penalty(lx, lx, lx, nelv)
@@ -689,7 +689,7 @@ contains
     do i = 1, lx
        do j = 1, lx
           do k = 1, lx
-             penalty(i, j, k, :) = & 
+             penalty(i, j, k, :) = &
                wa(1, j + 1, k + 1, :) * &
                   dphidxi(1, i) + &
                wa(lx + 2, j + 1, k + 1, :) * &
