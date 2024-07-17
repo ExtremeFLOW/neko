@@ -112,6 +112,13 @@ contains
 
     select type(data)
     type is (fld_file_data_t)
+       nelv = data%nelv
+       lx = data%lx
+       ly = data%ly
+       lz = data%lz
+       gdim = data%gdim
+       glb_nelv = data%glb_nelv
+       offset_el = data%offset_el
        if (data%x%n .gt. 0) x%ptr => data%x%x
        if (data%y%n .gt. 0) y%ptr => data%y%x
        if (data%z%n .gt. 0) z%ptr => data%z%x
@@ -129,18 +136,20 @@ contains
           write_temperature = .true.
           tem%ptr => data%t%x
        end if
-       n_scalar_fields = data%n_scalars
-       allocate(scalar_fields(n_scalar_fields))
-       do i = 1, n_scalar_fields
-          scalar_fields(i)%ptr => data%s(i)%x
-       end do
-       nelv = data%nelv
-       lx = data%lx
-       ly = data%ly
-       lz = data%lz
-       gdim = data%gdim
-       glb_nelv = data%glb_nelv
-       offset_el = data%offset_el
+       if (gdim .eq. 2 .and. data%w%n .gt. 0) then
+          n_scalar_fields = data%n_scalars + 1
+          allocate(scalar_fields(n_scalar_fields))
+          do i = 1, n_scalar_fields -1
+             scalar_fields(i)%ptr => data%s(i)%x
+          end do
+          scalar_fields(n_scalar_fields)%ptr => data%w%x
+       else 
+          n_scalar_fields = data%n_scalars 
+          allocate(scalar_fields(n_scalar_fields))
+          do i = 1, n_scalar_fields 
+             scalar_fields(i)%ptr => data%s(i)%x
+          end do
+       end if
 
        allocate(idx(nelv))
        do i = 1, nelv
@@ -262,6 +271,10 @@ contains
 
     ! Build rdcode note that for field_t, we only support scalar
     ! fields at the moment
+    call MPI_Allreduce(MPI_IN_PLACE,write_mesh,1,MPI_LOGICAL,MPI_LOR,NEKO_COMM) 
+    call MPI_Allreduce(MPI_IN_PLACE,write_velocity,1,MPI_LOGICAL,MPI_LOR,NEKO_COMM) 
+    call MPI_Allreduce(MPI_IN_PLACE,write_pressure,1,MPI_LOGICAL,MPI_LOR,NEKO_COMM) 
+    call MPI_Allreduce(MPI_IN_PLACE,write_temperature,1,MPI_LOGICAL,MPI_LOR,NEKO_COMM) 
     rdcode = ' '
     i = 1
     if (write_mesh) then
@@ -279,7 +292,7 @@ contains
     if (write_temperature) then
        rdcode(i) = 'T'
        i = i + 1
-    end if
+    end if 
     if (n_scalar_fields .gt. 0 ) then
        rdcode(i) = 'S'
        i = i + 1
@@ -379,7 +392,7 @@ contains
             int(FLD_DATA_SIZE, i8))
     end do
 
-
+    if(gdim .eq. 3) then
     !> Include metadata with bounding boxes (Just copying from nek5000)
     if (write_mesh) then
        !The offset is: mpioff + element_off*2(min max value)*4(single precision)*gdim(dimensions)
@@ -461,7 +474,7 @@ contains
                      int(MPI_REAL_SIZE, i8)
     end do
 
-
+    end if
     call MPI_File_sync(fh, ierr)
     call MPI_File_close(fh, ierr)
 
