@@ -190,7 +190,7 @@ contains
     n = this%dof%size()
     call fld_data2D%x%init(n_2d)
     call fld_data2D%y%init(n_2d)
-    allocate(fld_data2D%idx(n_2d))
+    allocate(fld_data2D%idx(this%nelv_2d))
 
     if (this%dir .eq. 1) then
        x_ptr => this%dof%z
