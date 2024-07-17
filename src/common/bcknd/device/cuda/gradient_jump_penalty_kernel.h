@@ -73,21 +73,6 @@ __global__ void pick_facet_value_hex_kernel(T * __restrict__ b,
 }
 
 /**
- * Device kernel for abs_value
- */
-template< typename T >
-__global__ void abs_value_kernel(T * __restrict__ a,
-                             const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    a[i] = fabs(a[i]);
-  }
-}
-
-/**
  * Device kernel for gradient_jump_penalty_finalize
  */
 template< typename T>
@@ -107,15 +92,15 @@ __global__ void gradient_jump_penalty_finalize_kernel(T * __restrict__ penalty_d
     const int j = jk - k * nx;
     penalty_d[ijk+el] = penalty_facet_d[0+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
                       * dphidxi_d[0+i*nx] + \
-                        penalty_facet_d[nx+1+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
+                        penalty_facet_d[(nx2-1)+(j+1)*nx2+(k+1)*nx2*nx2+el2] \
                       * dphidxi_d[nx-1+i*nx] + \
-                        penalty_facet_d[i+0*nx2+(k+1)*nx2*nx2+el2] \
+                        penalty_facet_d[(i+1)+0*nx2+(k+1)*nx2*nx2+el2] \
                       * dphidxi_d[0+j*nx] + \
-                        penalty_facet_d[i+(nx+1)*nx2+(k+1)*nx2*nx2+el2] \
+                        penalty_facet_d[(i+1)+(nx2-1)*nx2+(k+1)*nx2*nx2+el2] \
                       * dphidxi_d[nx-1+j*nx] + \
-                        penalty_facet_d[i+(j+1)*nx2+0*nx2*nx2+el2] \
+                        penalty_facet_d[(i+1)+(j+1)*nx2+0*nx2*nx2+el2] \
                       * dphidxi_d[0+k*nx] + \
-                        penalty_facet_d[i+(j+1)*nx2+(nx+1)*nx2*nx2+el2] \
+                        penalty_facet_d[(i+1)+(j+1)*nx2+(nx2-1)*nx2*nx2+el2] \
                       * dphidxi_d[nx-1+k*nx];
                                   
   }

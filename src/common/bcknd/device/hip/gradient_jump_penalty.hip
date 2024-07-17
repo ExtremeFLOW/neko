@@ -50,18 +50,6 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   } 
 
-  void hip_abs_value(void *a, int *n) {
-
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(abs_value_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) a, *n);
-    HIP_CHECK(hipGetLastError());
-    
-  }
-
   void hip_gradient_jump_penalty_finalize(void * penalty_d,
                                           void * penalty_facet_d,
                                           void * dphidxi_d,

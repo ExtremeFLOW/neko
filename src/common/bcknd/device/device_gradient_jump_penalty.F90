@@ -50,16 +50,6 @@ module device_gradient_jump_penalty
      end subroutine hip_pick_facet_value_hex
   end interface
   interface
-     subroutine hip_abs_value(a_d, n, stream) &
-          bind(c, name = 'hip_abs_value')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: a_d, stream
-       integer(c_int) :: n
-     end subroutine hip_abs_value
-  end interface
-  interface
      subroutine hip_gradient_jump_penalty_finalize(penalty_d, &
                                            penalty_facet_d, &
                                            dphidxi_d, &
@@ -86,16 +76,6 @@ module device_gradient_jump_penalty
      end subroutine cuda_pick_facet_value_hex
   end interface
   interface
-     subroutine cuda_abs_value(a_d, n, stream) &
-          bind(c, name = 'cuda_abs_value')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: a_d, stream
-       integer(c_int) :: n
-     end subroutine cuda_abs_value
-  end interface
-  interface
      subroutine cuda_gradient_jump_penalty_finalize(penalty_d, &
                                            penalty_facet_d, &
                                            dphidxi_d, &
@@ -114,7 +94,7 @@ module device_gradient_jump_penalty
 
 #endif
 
-  public :: device_pick_facet_value_hex, device_abs_value, &
+  public :: device_pick_facet_value_hex, &
             device_gradient_jump_penalty_finalize
 
 contains
@@ -137,25 +117,6 @@ contains
 #endif
 
   end subroutine device_pick_facet_value_hex
-
-  subroutine device_abs_value(a_d, n, stream)
-    integer, intent(in) :: n
-    type(c_ptr) :: a_d
-    type(c_ptr), optional :: stream
-    if (.not. present(stream)) then
-       stream = glb_cmd_queue
-    end if
-#ifdef HAVE_HIP
-    call hip_abs_value(a_d, n, stream)
-#elif HAVE_CUDA
-    call cuda_abs_value(a_d, n, stream)
-#elif HAVE_OPENCL
-    call neko_error('OPENCL is not implemented for gradient jump penalty')
-#else
-    call neko_error('No device backend configured')
-#endif
-
-  end subroutine device_abs_value
 
   subroutine device_gradient_jump_penalty_finalize(penalty_d, &
                                            penalty_facet_d, &
