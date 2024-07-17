@@ -33,6 +33,7 @@
 module krylov_fctry
   use cg, only : cg_t
   use cg_sx, only : sx_cg_t
+  use cg_cpld, only : cg_cpld_t
   use cg_device, only : cg_device_t
   use cacg, only : cacg_t
   use pipecg, only : pipecg_t
@@ -94,6 +95,11 @@ contains
        else
           allocate(cg_t::object)
        end if
+    else if (trim(type_name) .eq. 'cpldcg') then
+       allocate(cg_cpld_t::object)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call neko_error('Coupled CG only supported for CPU')
+       end if
     else if (trim(type_name) .eq. 'pipecg') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_pipecg_t::object)
@@ -153,6 +159,8 @@ contains
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is(sx_cg_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is(cg_cpld_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is(cg_device_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is(pipecg_t)
@@ -181,6 +189,8 @@ contains
        type is(cg_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        type is(sx_cg_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is(cg_cpld_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        type is(cg_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
@@ -211,6 +221,8 @@ contains
           call obj%init(n, max_iter, M = M)
        type is(sx_cg_t)
           call obj%init(n, max_iter, M = M)
+       type is(cg_cpld_t)
+          call obj%init(n, max_iter, M = M)
        type is(cg_device_t)
           call obj%init(n, max_iter, M = M)
        type is(pipecg_t)
@@ -239,6 +251,8 @@ contains
        type is(cg_t)
           call obj%init(n, max_iter)
        type is(sx_cg_t)
+          call obj%init(n, max_iter)
+       type is(cg_cpld_t)
           call obj%init(n, max_iter)
        type is(cg_device_t)
           call obj%init(n, max_iter)
@@ -276,6 +290,8 @@ contains
        type is(cg_t)
           call obj%free()
        type is(sx_cg_t)
+          call obj%free()
+       type is(cg_cpld_t)
           call obj%free()
        type is(cg_device_t)
           call obj%free()
