@@ -44,10 +44,22 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(hip_pick_facet_value_hex<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(pick_facet_value_hex_kernel<real>),
                                        nblcks, nthrds, 0, stream,
                                        (real *) b,(real *) a, * nx);
     HIP_CHECK(hipGetLastError());
   } 
+
+  void hip_abs_value(void *a, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(abs_value_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, *n);
+    HIP_CHECK(hipGetLastError());
+    
+  }
 
 }

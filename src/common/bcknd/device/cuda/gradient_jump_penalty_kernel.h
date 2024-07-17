@@ -34,8 +34,11 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+/**
+ * Device kernel for pick_facet_value_hex
+ */
 template< typename T>
-__global__ void hip_pick_facet_value_hex(T * __restrict__ b,
+__global__ void pick_facet_value_hex_kernel(T * __restrict__ b,
                                        T *__restrict__ a,
                                        const int nx) {
 
@@ -48,7 +51,27 @@ __global__ void hip_pick_facet_value_hex(T * __restrict__ b,
     const int i = ijk - jk * nx;
     const int k = jk / nx;
     const int j = jk - k * nx;
-    b[ijk+el] = a[(i+1)+(j+1)*nx2+(k+1)*nx2*nx2+el2];
+    b[0+(j+1)*nx2+(k+1)*nx2*nx2+el2] = a[0+j*nx+k*nx*nx+el];
+    b[nx-1+(j+1)*nx2+(k+1)*nx2*nx2+el2] = a[nx-1+j*nx+k*nx*nx+el];
+    b[(i+1)+0*nx2+(k+1)*nx2*nx2+el2] = a[i+0*nx+k*nx*nx+el];
+    b[(i+1)+(nx-1)*nx2+(k+1)*nx2*nx2+el2] = a[i+(nx-1)*nx+k*nx*nx+el];
+    b[(i+1)+(j+1)*nx2+0*nx2*nx2+el2] = a[i+j*nx+0*nx*nx+el];
+    b[(i+1)+(j+1)*nx2+(nx-1)*nx2*nx2+el2] = a[i+j*nx+(nx-1)*nx*nx+el];
+  }
+}
+
+/**
+ * Device kernel for abs_value
+ */
+template< typename T >
+__global__ void abs_value_kernel(T * __restrict__ a,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = fabs(a[i]);
   }
 }
 
