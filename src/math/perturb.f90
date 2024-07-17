@@ -8,6 +8,10 @@ module perturb
   use device
   use iso_c_binding
   implicit none
+  
+  interface generic_pcs
+     module procedure generic_pcs_sp, generic_pcs_dp 
+  end interface generic_pcs
 
   contains
 
@@ -35,6 +39,12 @@ module perturb
     else if (trim(inputchar) .eq. 'fp32') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 24 !Bits in the significand + 1.
+       opts%fpopts%emax = 127
+       opts%fpopts%emin = -126
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use emax and emin
+    else if (trim(inputchar) .eq. 'bfloat16') then
+       opts%oper = PCS_CPFLOAT
+       opts%fpopts%precision = 8 !Bits in the significand + 1.
        opts%fpopts%emax = 127
        opts%fpopts%emin = -126
        opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use emax and emin
@@ -66,6 +76,12 @@ module perturb
        opts%fpopts%emax = 127
        opts%fpopts%emin = -126
        opts%fpopts%explim = CPFLOAT_EXPRANGE_STOR !> use exponent from storage format
+    else if (trim(inputchar) .eq. 'bfloat16') then
+       opts%oper = PCS_CPFLOAT
+       opts%fpopts%precision = 8 !Bits in the significand + 1.
+       opts%fpopts%emax = 127
+       opts%fpopts%emin = -126
+       opts%fpopts%explim = CPFLOAT_EXPRANGE_TARG !> use emax and emin
     else if (trim(inputchar) .eq. 'fp16_stor') then
        opts%oper = PCS_CPFLOAT
        opts%fpopts%precision = 11 !Bits in the significand + 1.
@@ -106,18 +122,40 @@ module perturb
 
   subroutine perturb_vector(x, y, n, opts )
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(in) :: y  
-    real(kind=rp), dimension(n), intent(out) :: x
-    type(pcs_struct), target,  intent(inout) :: opts
-    integer :: ierr
+    real(kind=rp), dimension(n), intent(inout) :: y  
+    real(kind=rp), dimension(n), intent(inout) :: x
+    type(pcs_struct), target,  intent(in) :: opts
+    integer :: ierr, i
 
     if ((opts%fpopts%precision .ne. 52)) then 
-        ierr = pcs(x,y,int(n,8),opts)
+       ierr = generic_pcs(x,y,n,opts)
     else
-        call copy(x,y,n) 
+        do i = 1, n
+           x(i) = y(i)
+        end do
     end if
 
   end subroutine perturb_vector
+
+  function generic_pcs_sp(x, y, n, opts ) result(ierr)
+    integer, intent(in) :: n
+    real(kind=sp), dimension(n), intent(inout) :: y  
+    real(kind=sp), dimension(n), intent(inout) :: x
+    type(pcs_struct), target,  intent(in) :: opts
+    integer :: ierr
+    call neko_error("pcs not supported for single precision")
+
+  end function generic_pcs_sp
+
+  function generic_pcs_dp(x, y, n, opts ) result(ierr)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: y  
+    real(kind=dp), dimension(n), intent(inout) :: x
+    type(pcs_struct), target,  intent(in) :: opts
+    integer :: ierr
+
+    ierr = pcs(x,y,int(n,8),opts)
+  end function generic_pcs_dp
 
   subroutine perturb_vector_device(x_d, y_d,temp, n, opts )
     integer, intent(in) :: n
@@ -127,7 +165,7 @@ module perturb
     integer :: ierr
     if ((opts%fpopts%precision .ne. 52)) then 
        call device_memcpy(temp, y_d, n, DEVICE_TO_HOST, sync=.true.)
-       ierr = pcs(temp, temp,int(n,8),opts)
+       ierr = generic_pcs(temp, temp,n,opts)
        call device_memcpy(temp, x_d, n, HOST_TO_DEVICE, sync=.true.)
    else
        call device_copy(x_d,y_d,n)

@@ -43,7 +43,7 @@ module fluid_pnpn
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme, only : fluid_scheme_t
   use field_series, only : field_series_t
-  use device_math, only : device_add2, device_col2
+  use device_math, only : device_add2, device_col2, device_glsc2
   use device_mathops, only : device_opcolv, device_opadd2cm
   use perturb
   use fluid_aux, only : fluid_step_info
@@ -74,7 +74,7 @@ module fluid_pnpn
   use mathops, only : opadd2cm, opcolv
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
                 bc_list_apply_scalar, bc_list_apply_vector
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use field_math, only : field_add2
   implicit none
   private
@@ -137,6 +137,7 @@ module fluid_pnpn
      type(field_t), pointer :: up, vp, wp
      type(field_t) :: temp
      type(field_t) :: binv
+     integer :: round_location
      
    contains
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -156,6 +157,7 @@ contains
     type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     character(len=80) :: inputchar
+    integer :: n
 
     call this%free()
 
@@ -331,10 +333,23 @@ contains
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
     end if
-
-    call get_command_argument(2, inputchar)
+    n = this%dm_xh%size()
+    call get_command_argument(3, inputchar)
     allocate(this%pcs_thing)
     call perturb_init_opts_char(this%pcs_thing,inputchar)
+    call get_command_argument(2, inputchar)
+    if (pe_rank .eq. 0 ) write (*,*) 'round location:  ', trim(inputchar)
+    if (trim(inputchar) .eq. 'before_conv') then
+       this%round_location = 1
+    else if (trim(inputchar) .eq. 'after_conv') then
+       this%round_location = 0
+    else if (trim(inputchar) .eq. 'state') then
+        this%round_location=2
+    else if (trim(inputchar) .eq. 'Ax') then
+        this%round_location=3
+    else
+       call neko_warning('invalid round location, ./neko before_conv/after_conv fp64/fp32... no rounding performed')
+    end if
 
     call neko_field_registry%add_field(this%c_Xh%dof, 'u_conv')
     call neko_field_registry%add_field(this%c_Xh%dof, 'v_conv')
@@ -359,9 +374,89 @@ contains
     this%binv = 1.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
         call device_invcol2(this%binv%x_d,this%c_Xh%B_d,this%dm_xh%size())
-    else
+       if (this%round_location .eq. 3) then 
+          call perturb_vector_device(this%c_Xh%drdx_d, this%c_xh%drdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%drdy_d, this%c_xh%drdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%drdz_d, this%c_xh%drdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdx_d, this%c_xh%dsdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdy_d, this%c_xh%dsdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdz_d, this%c_xh%dsdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdx_d, this%c_xh%dtdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdy_d, this%c_xh%dtdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdz_d, this%c_xh%dtdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G11_d, this%c_xh%G11_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G22_d, this%c_xh%G22_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G33_d, this%c_xh%G33_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G12_d, this%c_xh%G12_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G13_d, this%c_xh%G13_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%G23_d, this%c_xh%G23_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dxdr_d, this%c_xh%dxdr_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dydr_d, this%c_xh%dydr_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dzdr_d, this%c_xh%dzdr_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dxds_d, this%c_xh%dxds_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dyds_d, this%c_xh%dyds_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dzds_d, this%c_xh%dzds_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dxdt_d, this%c_xh%dxdt_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dydt_d, this%c_xh%dydt_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dzdt_d, this%c_xh%dzdt_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%drdx_d, this%c_xh%drdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%drdy_d, this%c_xh%drdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%drdz_d, this%c_xh%drdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdx_d, this%c_xh%dsdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdy_d, this%c_xh%dsdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dsdz_d, this%c_xh%dsdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdx_d, this%c_xh%dtdx_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdy_d, this%c_xh%dtdy_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%dtdz_d, this%c_xh%dtdz_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%jac_d, this%c_xh%jac_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%jacinv_d, this%c_xh%jacinv_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%B_d, this%c_xh%B_d, this%temp%x, n, this%pcs_thing)
+          call perturb_vector_device(this%c_Xh%Binv_d, this%c_xh%Binv_d, this%temp%x, n, this%pcs_thing)
+        end if
+     else
         call invcol2(this%binv%x,this%c_Xh%B,this%dm_xh%size())
+        if (this%round_location .eq. 3) then
+          call perturb_vector(this%c_Xh%drdx, this%c_xh%drdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%drdy, this%c_xh%drdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%drdz, this%c_xh%drdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdx, this%c_xh%dsdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdy, this%c_xh%dsdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdz, this%c_xh%dsdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdx, this%c_xh%dtdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdy, this%c_xh%dtdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdz, this%c_xh%dtdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G11, this%c_xh%G11, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G22, this%c_xh%G22, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G33, this%c_xh%G33, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G12, this%c_xh%G12, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G13, this%c_xh%G13, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%G23, this%c_xh%G23, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dxdr, this%c_xh%dxdr, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dydr, this%c_xh%dydr, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dzdr, this%c_xh%dzdr, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dxds, this%c_xh%dxds, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dyds, this%c_xh%dyds, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dzds, this%c_xh%dzds, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dxdt, this%c_xh%dxdt, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dydt, this%c_xh%dydt, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dzdt, this%c_xh%dzdt, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%drdx, this%c_xh%drdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%drdy, this%c_xh%drdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%drdz, this%c_xh%drdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdx, this%c_xh%dsdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdy, this%c_xh%dsdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dsdz, this%c_xh%dsdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdx, this%c_xh%dtdx, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdy, this%c_xh%dtdy, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%dtdz, this%c_xh%dtdz, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%jac, this%c_xh%jac, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%jacinv, this%c_xh%jacinv, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%B, this%c_xh%B, n, this%pcs_thing)
+          call perturb_vector(this%c_Xh%Binv, this%c_xh%Binv, n, this%pcs_thing)
+       end if
+
     end if
+
 
   end subroutine fluid_pnpn_init
 
@@ -617,31 +712,54 @@ contains
       call field_col2(this%u_conv,this%binv,n)
       call field_col2(this%v_conv,this%binv,n)
       call field_col2(this%w_conv,this%binv,n)
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call perturb_vector_device(this%up%x_d, this%u%x_d,this%temp%x, n, this%pcs_thing)
-         call perturb_vector_device(this%vp%x_d, this%v%x_d,this%temp%x, n, this%pcs_thing)
-         call perturb_vector_device(this%wp%x_d, this%w%x_d,this%temp%x, n, this%pcs_thing)
-      else
-         call perturb_vector(this%up%x, this%u%x,n , this%pcs_thing)
-         call perturb_vector(this%vp%x, this%v%x,n , this%pcs_thing)
-         call perturb_vector(this%wp%x, this%w%x,n , this%pcs_thing)
-      end if
-      this%up_conv = 0.0_rp
-      this%vp_conv = 0.0_rp
-      this%wp_conv = 0.0_rp
-      call this%adv%compute(this%up, this%vp, this%wp, &
-                            this%up_conv, this%vp_conv, this%wp_conv, &
-                            Xh, this%c_Xh, dm_Xh%size())
+      ! round before advection
+      if (this%round_location .eq. 1) then 
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            call perturb_vector_device(this%up%x_d, this%u%x_d,this%temp%x, n, this%pcs_thing)
+            call perturb_vector_device(this%vp%x_d, this%v%x_d,this%temp%x, n, this%pcs_thing)
+            call perturb_vector_device(this%wp%x_d, this%w%x_d,this%temp%x, n, this%pcs_thing)
+         else
+            call perturb_vector(this%up%x, this%u%x,n , this%pcs_thing)
+            call perturb_vector(this%vp%x, this%v%x,n , this%pcs_thing)
+            call perturb_vector(this%wp%x, this%w%x,n , this%pcs_thing)
+         end if
+         this%up_conv = 0.0_rp
+         this%vp_conv = 0.0_rp
+         this%wp_conv = 0.0_rp
+         call this%adv%compute(this%up, this%vp, this%wp, &
+                               this%up_conv, this%vp_conv, this%wp_conv, &
+                               Xh, this%c_Xh, dm_Xh%size())
 
-      call field_cmult(this%up_conv,-1.0_rp,n)
-      call field_cmult(this%vp_conv,-1.0_rp,n)
-      call field_cmult(this%wp_conv,-1.0_rp,n)
-      call field_col2(this%up_conv,this%binv,n)
-      call field_col2(this%vp_conv,this%binv,n)
-      call field_col2(this%wp_conv,this%binv,n)
+         call field_cmult(this%up_conv,-1.0_rp,n)
+         call field_cmult(this%vp_conv,-1.0_rp,n)
+         call field_cmult(this%wp_conv,-1.0_rp,n)
+         call field_col2(this%up_conv,this%binv,n)
+         call field_col2(this%vp_conv,this%binv,n)
+         call field_col2(this%wp_conv,this%binv,n)
       call field_sub2(f_x, this%up_conv, n) 
       call field_sub2(f_y, this%vp_conv, n) 
       call field_sub2(f_z, this%wp_conv, n) 
+      ! round after advection
+      else if (this%round_location .eq. 0) then 
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            call perturb_vector_device(this%up_conv%x_d, this%u_conv%x_d,this%temp%x, n, this%pcs_thing)
+            call perturb_vector_device(this%vp_conv%x_d, this%v_conv%x_d,this%temp%x, n, this%pcs_thing)
+            call perturb_vector_device(this%wp_conv%x_d, this%w_conv%x_d,this%temp%x, n, this%pcs_thing)
+         else
+            call perturb_vector(this%up_conv%x, this%u_conv%x,n , this%pcs_thing)
+            call perturb_vector(this%vp_conv%x, this%v_conv%x,n , this%pcs_thing)
+            call perturb_vector(this%wp_conv%x, this%w_conv%x,n , this%pcs_thing)
+         end if
+      call field_sub2(f_x, this%up_conv, n) 
+      call field_sub2(f_y, this%vp_conv, n) 
+      call field_sub2(f_z, this%wp_conv, n) 
+      else 
+      call field_sub2(f_x, this%u_conv, n) 
+      call field_sub2(f_y, this%v_conv, n) 
+      call field_sub2(f_z, this%w_conv, n) 
+
+      end if
+   
 
       ! Multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -776,6 +894,26 @@ contains
       call fluid_step_info(tstep, t, dt, ksp_results)
 
       call this%scratch%relinquish_field(temp_indices)
+ 
+
+      !round state
+      if (this%round_location .eq. 2) then
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            call perturb_vector_device(this%u%x_d, this%u%x_d,this%temp%x, n, this%pcs_thing)
+            call perturb_vector_device(this%v%x_d, this%v%x_d,this%temp%x, n, this%pcs_thing)
+            call perturb_vector_device(this%w%x_d, this%w%x_d,this%temp%x, n, this%pcs_thing)
+            call perturb_vector_device(this%p%x_d, this%p%x_d,this%temp%x, n, this%pcs_thing)
+         else
+            call perturb_vector(this%u%x, this%u%x,n , this%pcs_thing)
+            call perturb_vector(this%v%x, this%v%x,n , this%pcs_thing)
+            call perturb_vector(this%w%x, this%w%x,n , this%pcs_thing)
+            call perturb_vector(this%p%x, this%p%x,n , this%pcs_thing)
+         end if
+      end if
+      !up stores delta_u=u^i-u^-1
+      call field_sub3(this%up,u,ulag%lf(1),n)
+      call field_sub3(this%vp,v,vlag%lf(1),n)
+      call field_sub3(this%wp,w,wlag%lf(1),n)
 
     end associate
     call profiler_end_region
