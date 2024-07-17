@@ -26,7 +26,11 @@ module map_2d
   private
   
   type, public :: map_2d_t
-     integer :: nelv_2d, glb_nelv_2d, offset_el_2d, lxy, n_2d
+     integer :: nelv_2d = 0
+     integer ::  glb_nelv_2d = 0
+     integer :: offset_el_2d = 0
+     integer :: lxy = 0
+     integer :: n_2d = 0
      integer, allocatable :: idx_2d(:)
      integer, allocatable :: el_idx_2d(:)
      real(kind=rp), pointer, dimension(:,:,:,:) :: x_ptr, y_ptr
@@ -138,7 +142,7 @@ contains
     call perform_global_summation(this%u, this%avg_u, this%old_u, this%map_1d%n_el_lvls, &
          this%map_1d%dir_el,this%coef%gs_h, this%coef%mult, this%msh%nelv, lx)
     this%domain_height = this%u%x(1,1,1,1)
-
+    print *,'done'
 
   end subroutine map_2d_init
    
@@ -200,14 +204,19 @@ contains
         x_ptr => this%dof%x
         y_ptr => this%dof%y
     end if
+    do j = 1, this%nelv_2d
+       fld_data2d%idx(j) = this%el_idx_2d(j)
+    end do
     do j = 1, n_2d
-       fld_data2d%idx(j) = this%idx_2d(j)
        fld_data2d%x%x(j) = x_ptr(this%idx_2d(j),1,1,1)
        fld_data2d%y%x(j) = y_ptr(this%idx_2d(j),1,1,1)
     end do
     allocate(fields2D(fld_data3D%size()))
 
     call fld_data2D%init_n_fields(fld_data3D%size(),n_2d)
+    this%u = 0.0_rp
+    this%old_u = 0.0_rp
+    this%avg_u = 0.0_rp
     do i = 1, fld_data3D%size()
        call copy(this%old_u%x,fld_data3D%items(i)%ptr%x,n)
        call perform_local_summation(this%u,this%old_u, this%el_heights, this%domain_height, &
@@ -275,6 +284,9 @@ contains
     call fld_data2D%init_n_fields(fld_data3D%size(),n_2d)
     call fld_data3D%get_list(fields3D,fld_data3D%size())
     
+    this%u = 0.0_rp
+    this%old_u = 0.0_rp
+    this%avg_u = 0.0_rp
     do i = 1, fld_data3D%size()
        call copy(this%old_u%x,fields3D(i)%ptr%x,n)
        call perform_local_summation(this%u,this%old_u, this%el_heights, this%domain_height, &
@@ -283,16 +295,16 @@ contains
        call copy(this%avg_u%x,this%u%x,n)
        call perform_global_summation(this%u, this%avg_u, this%old_u, this%map_1d%n_el_lvls, &
             this%map_1d%dir_el,this%coef%gs_h, this%coef%mult, this%msh%nelv, lx)
-       print *, 'hey2'
        call copy(fields3D(i)%ptr%x,this%u%x,n)
     end do
     call fld_data2D%get_list(fields2d,fld_data2D%size())
-    do i = 1, fld_data3D%size()
-       do j = 1, n_2d
-          fields2d(i)%ptr%x(j) = fields3D(i)%ptr%x(this%idx_2d(j))
+    if (this%nelv_2d .gt. 0) then
+       do i = 1, fld_data3D%size()
+          do j = 1, n_2d
+             fields2d(i)%ptr%x(j) = fields3D(i)%ptr%x(this%idx_2d(j))
+          end do
        end do
-    end do
-
+    end if
   end subroutine map_2d_average
  
   subroutine perform_global_summation(u, avg_u, old_u, n_levels, hom_dir_el, gs_h, mult, nelv,lx)
@@ -312,12 +324,11 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) &
             call device_memcpy(u%x, u%x_d, n, &
                                HOST_TO_DEVICE, sync=.true.)
-       print *, 'hey1'
        call gs_h%op(u,GS_OP_ADD)
-       print *, 'hey3'
        if (NEKO_BCKND_DEVICE .eq. 1) &
             call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST, sync=.true.)
        call col2(u%x,mult,n)
+       !Assumes sugarcube I think
        do e = 1, nelv
           temp_el = 2.0*u%x(:,:,:,e)-old_u%x(:,:,:,e)
           if (hom_dir_el(e) .eq. 1) then
