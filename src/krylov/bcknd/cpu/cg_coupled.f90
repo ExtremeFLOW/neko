@@ -100,9 +100,9 @@ contains
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
     else
        call this%ksp_init(max_iter)
     end if
@@ -170,8 +170,9 @@ contains
     nullify(this%M)
 
   end subroutine cg_cpld_free
-  
-  function cg_cpld_nop(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+
+  function cg_cpld_nop(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
     class(cg_cpld_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
@@ -202,7 +203,7 @@ contains
     type(bc_list_t), intent(inout) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
-    integer, optional, intent(in) :: niter    
+    integer, optional, intent(in) :: niter
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp), parameter :: zero = 0.0
     integer :: i, iter, max_iter
@@ -237,14 +238,14 @@ contains
          r3(i) = fz(i)
          tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
       end do
-      
+
       rtr = glsc3(tmp, coef%mult, coef%binv, n)
       rnorm = sqrt(rtr*norm_fac)
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(rnorm .eq. zero) return
-      
+      if (rnorm .eq. zero) return
+
       do iter = 1, max_iter
          call this%M%solve(z1, this%r1, n)
          call this%M%solve(z2, this%r2, n)
@@ -256,15 +257,15 @@ contains
                         + z2(i) * r2(i) &
                         + z3(i) * r3(i)
          end do
-         
+
          rtz1 = glsc2(tmp, coef%mult, n)
-         
+
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = zero
          call add2s1(p1, z1, beta, n)
          call add2s1(p2, z2, beta, n)
          call add2s1(p3, z3, beta, n)
-         
+
          call Ax%compute_vector(w1, w2, w3, p1, p2, p3, coef, x%msh, x%Xh)
          call gs_h%op(w1, n, GS_OP_ADD)
          call gs_h%op(w2, n, GS_OP_ADD)
@@ -272,7 +273,7 @@ contains
          call bc_list_apply(blstx, w1, n)
          call bc_list_apply(blsty, w2, n)
          call bc_list_apply(blstz, w3, n)
-         
+
          do i = 1, n
             tmp(i) = w1(i) * p1(i) &
                    + w2(i) * p2(i) &
@@ -280,7 +281,7 @@ contains
          end do
 
          pap = glsc2(tmp, coef%mult, n)
-         
+
          alpha = rtz1 / pap
          alphm = -alpha
          do i = 1, n
@@ -306,5 +307,3 @@ contains
   end function cg_cpld_solve
 
 end module cg_cpld
-
-
