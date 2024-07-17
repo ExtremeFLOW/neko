@@ -100,7 +100,7 @@ contains
   !> Copy a vector \f$ a = b \f$
   subroutine field_copy(a, b, n)
     integer, intent(in) :: n
-    type(field_t), intent(in) :: b
+    type(field_t), intent(inout) :: b
     type(field_t), intent(inout) :: a
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -166,9 +166,9 @@ contains
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine field_vdot3(dot, u1, u2, u3, v1, v2, v3, n)
     integer, intent(in) :: n
-    type(field_t), intent(in) :: u1, u2, u3
-    type(field_t), intent(in) :: v1, v2, v3
-    type(field_t), intent(out) :: dot
+    type(field_t), intent(inout) :: u1, u2, u3
+    type(field_t), intent(inout) :: v1, v2, v3
+    type(field_t), intent(inout) :: dot
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_vdot3(dot%x_d, u1%x_d, u2%x_d, u3%x_d, v1%x_d, v2%x_d, v3%x_d, n)
@@ -182,7 +182,7 @@ contains
   subroutine field_add2(a, b, n)
     integer, intent(in) :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
+    type(field_t), intent(inout) :: b
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(a%x_d, b%x_d, n)
@@ -258,7 +258,7 @@ contains
   subroutine field_addsqr2s2(a, b, c1, n)
     integer, intent(in) :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
+    type(field_t), intent(inout) :: b
     real(kind=rp), intent(in) :: c1
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -273,7 +273,7 @@ contains
   subroutine field_cmult2(a, b, c, n)
     integer, intent(in) :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
+    type(field_t), intent(inout) :: b
     real(kind=rp), intent(in) :: c
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -288,7 +288,7 @@ contains
   subroutine field_invcol2(a, b, n)
     integer, intent(in) :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
+    type(field_t), intent(inout) :: b
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol2(a%x_d, b%x_d, n)
@@ -303,7 +303,7 @@ contains
   subroutine field_col2(a, b, n)
     integer, intent(in) :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
+    type(field_t), intent(inout) :: b
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(a%x_d, b%x_d, n)
@@ -317,8 +317,8 @@ contains
   subroutine field_col3(a, b, c, n)
     integer, intent(in) :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
-    type(field_t), intent(in) :: c
+    type(field_t), intent(inout) :: b
+    type(field_t), intent(inout) :: c
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col3(a%x_d, b%x_d, c%x_d, n)
@@ -332,8 +332,8 @@ contains
   subroutine field_subcol3(a, b, c, n)
     integer, intent(in) :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
-    type(field_t), intent(in) :: c
+    type(field_t), intent(inout) :: b
+    type(field_t), intent(inout) :: c
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_subcol3(a%x_d, b%x_d, c%x_d, n)
@@ -347,8 +347,8 @@ contains
   subroutine field_add3s2(a, b, c, c1, c2 ,n)
     integer, intent(in) :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
-    type(field_t), intent(in) :: c
+    type(field_t), intent(inout) :: b
+    type(field_t), intent(inout) :: c
     real(kind=rp), intent(in) :: c1, c2
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -363,8 +363,8 @@ contains
   subroutine field_addcol3(a, b, c, n)
     integer, intent(in) :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
-    type(field_t), intent(in) :: c
+    type(field_t), intent(inout) :: b
+    type(field_t), intent(inout) :: c
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_addcol3(a%x_d, b%x_d, c%x_d, n)
@@ -378,9 +378,9 @@ contains
   subroutine field_addcol4(a, b, c, d, n)
     integer, intent(in) :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
-    type(field_t), intent(in) :: c
-    type(field_t), intent(in) :: d
+    type(field_t), intent(inout) :: b
+    type(field_t), intent(inout) :: c
+    type(field_t), intent(inout) :: d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_addcol4(a%x_d, b%x_d, c%x_d, d%x_d, n)
