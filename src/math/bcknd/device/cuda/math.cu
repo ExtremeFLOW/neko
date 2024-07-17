@@ -592,4 +592,20 @@ extern "C" {
     return bufred[0];
   }
 
+  /** 
+   * Fortran wrapper absval
+   * Sum a vector of length n
+   */
+  void cuda_absval(void *a, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue; 
+
+    absval_kernel<real>
+    <<<nblcks, nthrds,0, stream>>>((real *) a, * nx);  
+    CUDA_CHECK(cudaGetLastError());
+    
+  }
+
 }

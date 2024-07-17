@@ -50,6 +50,7 @@ module gradient_jump_penalty
   use gather_scatter, only : gs_t
   use device
   use device_math
+  use device_gradient_jump_penalty
 
   implicit none
   private
@@ -99,16 +100,17 @@ module gradient_jump_penalty
      type(c_ptr) :: n1_d = C_NULL_PTR
      type(c_ptr) :: n2_d = C_NULL_PTR
      type(c_ptr) :: n3_d = C_NULL_PTR
-     !> Facet factor: collect polynomials and integral weights on facets
+     !> Facet factor: quantities in the integrant fix with time stepping
      real(kind=rp), allocatable, dimension(:, :, :, :) :: facet_factor
      type(c_ptr) :: facet_factor_d = C_NULL_PTR
      !> Number of facet in elements and its maximum
      integer, allocatable :: n_facet(:)
      integer :: n_facet_max
      !> Length scale for element regarding a facet
-     real(kind=rp), allocatable :: h(:, :)
+     real(kind=rp), allocatable, dimension(:, :, :, :) :: h2
      !> The first derivative of polynomial at two ends of the interval
      real(kind=rp), allocatable :: dphidxi(:, :)
+     type(c_ptr) :: dphidxi_d = C_NULL_PTR
      !> gather-scattering operation related variables
      type(space_t) :: Xh_GJP !< needed to init gs
      type(dofmap_t) :: dm_GJP !< needed to init gs
@@ -171,18 +173,20 @@ contains
     end do
     this%n_facet_max = maxval(this%n_facet)
 
-    allocate(this%h(this%n_facet_max, this%coef%msh%nelv))
+    allocate(this%h2(this%lx + 2, this%lx + 2, &
+                        this%lx + 2, this%coef%msh%nelv))
+
     do i = 1, this%coef%msh%nelv
        ep => this%coef%msh%elements(i)%e
        select type (ep)
        type is (hex_t)
-          call eval_h_hex(this%h(:, i), ep)
+          call eval_h2_hex(this%h2(:, :, :, i), this%lx, ep)
        type is (quad_t)
           call neko_error("Gradient jump penalty error: mesh size &
                             &evaluation is not supported for quad_t")
        end select
     end do
-    
+
     allocate(zg(this%lx))
     allocate(this%dphidxi(this%lx, this%lx))
 
@@ -265,8 +269,10 @@ contains
     this%dm_GJP = dofmap_t(this%coef%msh, this%Xh_GJP)
     call this%gs_GJP%init(this%dm_GJP)
 
-    ! Initialize pointers for GPU
+    ! Initialize pointers for device
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%dphidxi, this%dphidxi_d, &
+                       this%lx * this%lx)
        call device_map(this%penalty, this%penalty_d, this%n)
        call device_map(this%grad1, this%grad1_d, this%n)
        call device_map(this%grad2, this%grad2_d, this%n)
@@ -288,6 +294,9 @@ contains
        call device_map(this%n3, this%n3_d, this%n_large)
        call device_map(this%facet_factor, this%facet_factor_d, this%n_large)
 
+       call device_memcpy(this%dphidxi, this%dphidxi_d, &
+                       this%lx * this%lx, &
+                       HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%n1, this%n1_d, this%n_large, &
                           HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%n2, this%n2_d, this%n_large, &
@@ -301,11 +310,12 @@ contains
 
   end subroutine gradient_jump_penalty_init
   
-  !> Evaluate h for each element for hexahedral mesh
-  !! @param h_el The length scale of an element
+  !> Evaluate h^2 for each element for hexahedral mesh
+  !! @param h2_el The sqaure of the length scale of an element
   !! @param ep The pointer to the element
-  subroutine eval_h_hex(h_el, ep)
-    real(kind=rp), intent(inout) :: h_el(6)
+  subroutine eval_h2_hex(h2_el, n, ep)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: h2_el(n + 2, n + 2, n + 2)
     type(hex_t), pointer, intent(in) :: ep
     
     integer :: i
@@ -319,51 +329,57 @@ contains
     p6 => ep%p(6)
     p7 => ep%p(7)
     p8 => ep%p(8)
-    h_el(:) = 0.0_rp
+    h2_el = 0.0_rp
     
-    h_el(1) = dist_facets_hex(p1, p5, p7, p3, p2, p6, p8, p4)
-    h_el(2) = h_el(1)
-    h_el(3) = dist_facets_hex(p1, p2, p6, p5, p3, p4, p8, p7)
-    h_el(4) = h_el(3)
-    h_el(5) = dist_facets_hex(p1, p2, p4, p3, p5, p6, p8, p7)
-    h_el(6) = h_el(5)
+    h2_el(1, 2 : n + 1, 2 : n + 1) = dist2_facets_hex(p1, p5, p7, p3, &
+                                                     p2, p6, p8, p4)
+    h2_el(n + 2, 2 : n + 1, 2 : n + 1) = h2_el(1, 2, 2)
 
-  end subroutine eval_h_hex
+    h2_el(2 : n + 1, 1, 2 : n + 1) = dist2_facets_hex(p1, p2, p6, p5, &
+                                                     p3, p4, p8, p7)
+    h2_el(2 : n + 1, n + 2, 2 : n + 1) = h2_el(2, 1, 2)
+
+    h2_el(2 : n + 1, 2 : n + 1, 1) = dist2_facets_hex(p1, p2, p4, p3, &
+                                                     p5, p6, p8, p7)
+    h2_el(2 : n + 1, 2 : n + 1, n + 2) = h2_el(2, 2, 1)
+
+  end subroutine eval_h2_hex
 
   !> "Distrance" of two facets of a hexahedral element
   !! @param p11, p12, p13, p14 Vertices defining facet 1
   !! @param p21, p22, p23, p24 Vertices defining facet 2
-  function dist_facets_hex(p11, p12, p13, p14, &
-                           p21, p22, p23, p24) result(dist)
+  function dist2_facets_hex(p11, p12, p13, p14, &
+                           p21, p22, p23, p24) result(dist2)
   type(point_t), intent(in) :: p11, p12, p13, p14
   type(point_t), intent(in) :: p21, p22, p23, p24
-  real(kind=rp) :: dist
+  real(kind=rp) :: dist2
 
-  dist = 0.0_rp
+  dist2 = 0.0_rp
 
-  dist = dist + dist_vertex_to_plane_3d(p11, p21, p22, p23)
-  dist = dist + dist_vertex_to_plane_3d(p11, p21, p22, p24)
-  dist = dist + dist_vertex_to_plane_3d(p11, p21, p23, p24)
-  dist = dist + dist_vertex_to_plane_3d(p11, p22, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p21, p22, p23)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p21, p22, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p21, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p22, p23, p24)
 
-  dist = dist + dist_vertex_to_plane_3d(p12, p21, p22, p23)
-  dist = dist + dist_vertex_to_plane_3d(p12, p21, p22, p24)
-  dist = dist + dist_vertex_to_plane_3d(p12, p21, p23, p24)
-  dist = dist + dist_vertex_to_plane_3d(p12, p22, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p21, p22, p23)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p21, p22, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p21, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p22, p23, p24)
 
-  dist = dist + dist_vertex_to_plane_3d(p13, p21, p22, p23)
-  dist = dist + dist_vertex_to_plane_3d(p13, p21, p22, p24)
-  dist = dist + dist_vertex_to_plane_3d(p13, p21, p23, p24)
-  dist = dist + dist_vertex_to_plane_3d(p13, p22, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p21, p22, p23)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p21, p22, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p21, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p22, p23, p24)
 
-  dist = dist + dist_vertex_to_plane_3d(p14, p21, p22, p23)
-  dist = dist + dist_vertex_to_plane_3d(p14, p21, p22, p24)
-  dist = dist + dist_vertex_to_plane_3d(p14, p21, p23, p24)
-  dist = dist + dist_vertex_to_plane_3d(p14, p22, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p21, p22, p23)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p21, p22, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p21, p23, p24)
+  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p22, p23, p24)
 
-  dist = dist / 16.0_rp
+  dist2 = dist2 / 16.0_rp
+  dist2 = dist2 * dist2
 
-  end function dist_facets_hex
+  end function dist2_facets_hex
 
   !> Distance from a vertex to a plane in a 3d space
   !! @param pv The vertex
@@ -420,7 +436,9 @@ contains
     associate(facet_factor => this%facet_factor, &
               lx => this%lx, area => this%coef%area, &
               nelv => this%coef%msh%nelv, &
-              jacinv => this%coef%jacinv, n => this%n)
+              jacinv => this%coef%jacinv, n => this%n, &
+              n_large => this%n_large, h2 => this%h2, &
+              tau => this%tau)
     
     ! Assemble facet_factor for facet 1 and 2
     call add4(wa, this%coef%drdx, this%coef%drdy, this%coef%drdz, n)
@@ -439,6 +457,10 @@ contains
     call col2(wa, jacinv, n)
     facet_factor(2: lx + 1, 2: lx + 1, 1, :) = -1.0_rp * wa(:, :, 1, :)
     facet_factor(2: lx + 1, 2: lx + 1, lx + 2, :) = wa(:, :, lx, :)
+
+    ! Multiplied by h^2 * tau
+    call col2(facet_factor, h2, n_large)
+    call cmult(facet_factor, tau, this%n_large)
 
     ! Multiplied by the quadrant weight
     call col2(facet_factor(1, 2: lx + 1, 2: lx + 1, :), &
@@ -461,7 +483,10 @@ contains
   subroutine gradient_jump_penalty_free(this)
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
-
+    
+    if (c_associated(this%dphidxi_d)) then
+       call device_free(this%dphidxi_d)
+    end if
     if (c_associated(this%penalty_d)) then
        call device_free(this%penalty_d)
     end if
@@ -526,8 +551,8 @@ contains
     if (allocated(this%grad3)) then
        deallocate(this%grad3)
     end if
-    if (allocated(this%h)) then
-       deallocate(this%h)
+    if (allocated(this%h2)) then
+       deallocate(this%h2)
     end if
     if (allocated(this%n_facet)) then
        deallocate(this%n_facet)
@@ -601,32 +626,16 @@ contains
        call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, &
                         this%n_large)
        call device_col2(this%penalty_facet_d, this%facet_factor_d, this%n_large)
-       call device_cmult(this%penalty_facet_d, this%tau, this%n_large)
+       call device_gradient_jump_penalty_finalize(this%penalty_d, &
+                                           this%penalty_facet_d, &
+                                           this%dphidxi_d, &
+                                           this%lx, this%coef%msh%nelv)
     else
        call col3(this%penalty_facet, this%absvolflux, this%G, this%n_large)
        call col2(this%penalty_facet, this%facet_factor, this%n_large)
-       call cmult(this%penalty_facet, this%tau, this%n_large)
-    end if
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%penalty_facet, this%penalty_facet_d, &
-                          this%n_large, DEVICE_TO_HOST, sync = .true.)
-    end if
-
-    do i = 1, this%coef%msh%nelv
-       ep => this%coef%msh%elements(i)%e
-       select type (ep)
-       type is (hex_t)
-          call gradient_jump_penalty_compute_hex_el(this, &
-                                    this%penalty_facet, u, v, w, s, i)
-       type is (quad_t)
-          call neko_error("Only Hexahedral element is supported &
-                                       &now for gradient jump penalty")
-       end select
-    end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%penalty, this%penalty_d, this%n, &
-                          HOST_TO_DEVICE, sync = .true.)
+       call gradient_jump_penalty_finalize(this%penalty, this%penalty_facet, &
+                                           this%dphidxi, &
+                                           this%lx, this%coef%msh%nelv)
     end if
 
   end subroutine gradient_jump_penalty_compute
@@ -645,51 +654,59 @@ contains
 
   end subroutine gradient_jump_penalty_perform
 
-  !> Compute the gradient jump penalty term for a single hexatedral element.
+  !> Interface of finalizing the gradient jump penalty term.
   !> <tau * h^2 * absvolflux * G * phij * phik * dphi_idxi * dxidn>
-  !! @param wa work array containing tau * absvolflux * G * dxidn
-  !! @param u x-velocity
-  !! @param v y-velocity
-  !! @param w z-velocity
-  !! @param s The quantity of interest
-  !! @param i_el The index of the element
-  subroutine gradient_jump_penalty_compute_hex_el(this, wa, u, v, w, s, i_el)
-    class(gradient_jump_penalty_t), intent(inout) :: this
-    type(field_t), intent(in) :: u, v, w, s
-    integer, intent(in) :: i_el
-    real(kind=rp), intent(in) :: wa(this%lx + 2, this%lx + 2, &
-                        this%lx + 2, this%coef%msh%nelv)
+  !! @param penalty Gradient Jump Penalty array
+  !! @param wa Work array containing tau * absvolflux * G * dxidn
+  !! @param dphidxi The first derivative of polynomial
+  !! @param lx Order of polynomial plus one
+  !! @param nelv Number of elements 
+  subroutine gradient_jump_penalty_finalize(penalty, wa, dphidxi, lx, nelv)
+    integer, intent(in) :: lx, nelv
+    real(kind=rp), intent(inout) :: penalty(lx, lx, lx, nelv)
+    real(kind=rp), intent(in) :: wa(lx + 2, lx + 2, lx + 2, nelv)
+    real(kind=rp), intent(in) :: dphidxi(lx, lx)
+
+    call gradient_jump_penalty_finalize_hex(penalty, wa, dphidxi, lx, nelv)
+
+  end subroutine gradient_jump_penalty_finalize
+
+  !> Finalizinge the gradient jump penalty term for hexahedral elements.
+  !> <tau * h^2 * absvolflux * G * phij * phik * dphi_idxi * dxidn>
+  !! @param penalty Gradient Jump Penalty array
+  !! @param wa Work array containing tau * absvolflux * G * dxidn
+  !! @param dphidxi The first derivative of polynomial
+  !! @param lx Order of polynomial plus one
+  !! @param nelv Number of elements
+  subroutine gradient_jump_penalty_finalize_hex(penalty, wa, dphidxi, lx, nelv)
+    real(kind=rp), intent(inout) :: penalty(lx, lx, lx, nelv)
+    integer, intent(in) :: lx, nelv
+    real(kind=rp), intent(in) :: wa(lx + 2, lx + 2, lx + 2, nelv)
+    real(kind=rp), intent(in) :: dphidxi(lx, lx)
 
     integer :: i, j, k
-
-    associate(lx => this%lx, nelv => this%coef%msh%nelv, &
-              absvolflux => this%absvolflux, G => this%G, &
-              facet_factor => this%facet_factor, tau => this%tau, &
-              penalty => this%penalty, dphidxi => this%dphidxi, &
-              h => this%h)
 
     do i = 1, lx
        do j = 1, lx
           do k = 1, lx
-             penalty(i, j, k, i_el) = & 
-               wa(1, j + 1, k + 1, i_el) * &
-                  dphidxi(1, i) * h(1, i_el) ** 2 + &
-               wa(lx + 2, j + 1, k + 1, i_el) * &
-                  dphidxi(lx, i) * h(2, i_el) ** 2 + &
-               wa(i + 1, 1, k + 1, i_el) * &
-                  dphidxi(1, j) * h(3, i_el) ** 2 + &
-               wa(i + 1, lx + 2, k + 1, i_el) * &
-                  dphidxi(lx, j) * h(4, i_el) ** 2 + &
-               wa(i + 1, j + 1, 1, i_el) * &
-                  dphidxi(1, k) * h(5, i_el) ** 2 + &
-               wa(i + 1, j + 1, lx + 2, i_el) * &
-                  dphidxi(lx, k) * h(6, i_el) ** 2
+             penalty(i, j, k, :) = & 
+               wa(1, j + 1, k + 1, :) * &
+                  dphidxi(1, i) + &
+               wa(lx + 2, j + 1, k + 1, :) * &
+                  dphidxi(lx, i) + &
+               wa(i + 1, 1, k + 1, :) * &
+                  dphidxi(1, j) + &
+               wa(i + 1, lx + 2, k + 1, :) * &
+                  dphidxi(lx, j) + &
+               wa(i + 1, j + 1, 1, :) * &
+                  dphidxi(1, k) + &
+               wa(i + 1, j + 1, lx + 2, :) * &
+                  dphidxi(lx, k)
           end do
        end do
     end do
 
-    end associate
-  end subroutine gradient_jump_penalty_compute_hex_el
+  end subroutine gradient_jump_penalty_finalize_hex
 
   !> Compute the average of the flux over facets
   !! @param s The quantity of interest
@@ -705,31 +722,12 @@ contains
                 this%coef%dsdz, this%coef%dtdz, this%coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%grad1, this%grad1_d, this%n, &
-                          DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(this%grad2, this%grad2_d, this%n, &
-                          DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(this%grad3, this%grad3_d, this%n, &
-                          DEVICE_TO_HOST, sync = .true.)
-    end if
-
-    call pick_facet_value_hex(this%flux1, this%grad1, &
-                              this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux2, this%grad2, &
-                              this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%flux3, this%grad3, &
-                              this%lx, this%coef%msh%nelv)
-    
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%flux1, this%flux1_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%flux2, this%flux2_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%flux3, this%flux3_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .true.)
-    end if
-     
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pick_facet_value_hex(this%flux1_d, this%grad1_d, &
+                                 this%lx, this%coef%msh%nelv)
+       call device_pick_facet_value_hex(this%flux2_d, this%grad2_d, &
+                                 this%lx, this%coef%msh%nelv)
+       call device_pick_facet_value_hex(this%flux3_d, this%grad3_d, &
+                                 this%lx, this%coef%msh%nelv)
        call device_col2(this%flux1_d, this%n1_d, this%n_large)
        call device_col2(this%flux2_d, this%n2_d, this%n_large)
        call device_col2(this%flux3_d, this%n3_d, this%n_large)
@@ -737,13 +735,19 @@ contains
                           1.0_rp, 1.0_rp, this%n_large)
        call device_add2(this%G_d, this%flux3_d, this%n_large)
     else
+       call pick_facet_value_hex(this%flux1, this%grad1, &
+                                 this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%flux2, this%grad2, &
+                                 this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%flux3, this%grad3, &
+                                 this%lx, this%coef%msh%nelv)
        call col2(this%flux1, this%n1, this%n_large)
        call col2(this%flux2, this%n2, this%n_large)
        call col2(this%flux3, this%n3, this%n_large)
        call add3(this%G, this%flux1, this%flux2, this%n_large)
        call add2(this%G, this%flux3, this%n_large)
     end if
-    
+
     call this%gs_GJP%op(this%G, this%n_large, GS_OP_ADD)
 
   end subroutine G_compute
@@ -757,45 +761,31 @@ contains
     type(field_t), intent(in) :: u, v, w
 
     integer :: i
-    
-    call pick_facet_value_hex(this%volflux1, u%x, this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
-    call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%volflux1, this%volflux1_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%volflux2, this%volflux2_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%volflux3, this%volflux3_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .true.)
-    end if
-    
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pick_facet_value_hex(this%volflux1_d, u%x_d, this%lx, &
+                                        this%coef%msh%nelv)
+       call device_pick_facet_value_hex(this%volflux2_d, v%x_d, this%lx, &
+                                        this%coef%msh%nelv)
+       call device_pick_facet_value_hex(this%volflux3_d, w%x_d, this%lx, &
+                                        this%coef%msh%nelv)
        call device_col2(this%volflux1_d, this%n1_d, this%n_large)
        call device_col2(this%volflux2_d, this%n2_d, this%n_large)
        call device_col2(this%volflux3_d, this%n3_d, this%n_large)
        call device_add3s2(this%absvolflux_d, this%volflux1_d, this%volflux2_d, &
                           1.0_rp, 1.0_rp, this%n_large)
        call device_add2(this%absvolflux_d, this%volflux3_d, this%n_large)
+       call device_absval(this%absvolflux_d, this%n_large)
     else
+       call pick_facet_value_hex(this%volflux1, u%x, this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
        call col2(this%volflux1, this%n1, this%n_large)
        call col2(this%volflux2, this%n2, this%n_large)
        call col2(this%volflux3, this%n3, this%n_large)
        call add3(this%absvolflux, this%volflux1, this%volflux2, this%n_large)
        call add2(this%absvolflux, this%volflux3, this%n_large)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
-                          DEVICE_TO_HOST, sync = .true.)
-    end if
-    do i = 1, this%n_large
-       this%absvolflux(i, 1, 1, 1) = abs(this%absvolflux(i, 1, 1, 1))
-    end do
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .true.)
+       call absval(this%absvolflux, this%n_large)
     end if
 
   end subroutine absvolflux_compute
