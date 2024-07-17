@@ -711,11 +711,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_pick_facet_value_hex(this%flux1_d, this%grad1_d, &
-                                 this%lx, this%coef%msh%nelv)
+                                 this%lx, this%coef%msh%nelv, aux_cmd_queue)
        call device_pick_facet_value_hex(this%flux2_d, this%grad2_d, &
-                                 this%lx, this%coef%msh%nelv)
+                                 this%lx, this%coef%msh%nelv, aux_cmd_queue)
        call device_pick_facet_value_hex(this%flux3_d, this%grad3_d, &
-                                 this%lx, this%coef%msh%nelv)
+                                 this%lx, this%coef%msh%nelv, aux_cmd_queue)
     else
        call pick_facet_value_hex(this%flux1, this%grad1, &
                                  this%lx, this%coef%msh%nelv)
@@ -755,9 +755,12 @@ contains
     integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_pick_facet_value_hex(this%volflux1_d, u%x_d, this%lx, this%coef%msh%nelv)
-       call device_pick_facet_value_hex(this%volflux2_d, v%x_d, this%lx, this%coef%msh%nelv)
-       call device_pick_facet_value_hex(this%volflux3_d, w%x_d, this%lx, this%coef%msh%nelv)
+       call device_pick_facet_value_hex(this%volflux1_d, u%x_d, this%lx, &
+                                        this%coef%msh%nelv, aux_cmd_queue)
+       call device_pick_facet_value_hex(this%volflux2_d, v%x_d, this%lx, &
+                                        this%coef%msh%nelv, aux_cmd_queue)
+       call device_pick_facet_value_hex(this%volflux3_d, w%x_d, this%lx, &
+                                        this%coef%msh%nelv, aux_cmd_queue)
     else
        call pick_facet_value_hex(this%volflux1, u%x, this%lx, this%coef%msh%nelv)
        call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
@@ -780,18 +783,22 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
-                          DEVICE_TO_HOST, sync = .true.)
-    end if
-    do i = 1, this%n_large
-       this%absvolflux(i, 1, 1, 1) = abs(this%absvolflux(i, 1, 1, 1))
-    end do
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%absvolflux, this%absvolflux_d, this%n_large, &
-                          HOST_TO_DEVICE, sync = .true.)
+       call device_abs_value(this%absvolflux_d, this%n_large, aux_cmd_queue)
+    else
+       call abs_value(this%absvolflux, this%n_large)
     end if
 
   end subroutine absvolflux_compute
+
+  !> Take the absolute value of an array
+  subroutine abs_value(a, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer :: i
+    do i = 1, n
+       a(i) = abs(a(i))
+    end do
+  end subroutine abs_value
 
   !> Pick facet values of a field
   !! @param f_facet The data on facets
