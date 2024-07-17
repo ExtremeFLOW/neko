@@ -48,17 +48,6 @@ extern "C" {
     pick_facet_value_hex_kernel<real>
     <<<nblcks, nthrds,0, stream>>>((real *) b,(real *) a, * nx);  
     CUDA_CHECK(cudaGetLastError());
-  } 
-
-  void cuda_abs_value(void *a, int *n) {
-
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-
-    abs_value_kernel<real>
-    <<<nblcks, nthrds,0, stream>>>((real *) a, * nx);  
-    CUDA_CHECK(cudaGetLastError());
-    
   }
 
   void cuda_gradient_jump_penalty_finalize(void * penalty_d,
@@ -74,6 +63,6 @@ extern "C" {
                                        (real *) dphidxi_d,
                                        * nx);
     HIP_CHECK(hipGetLastError());
-  } 
+  }
 
 }

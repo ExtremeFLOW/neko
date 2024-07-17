@@ -102,7 +102,7 @@ module math
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2
+       swap, reord, flipv, absval, cadd2
 
 contains
 
@@ -1126,5 +1126,17 @@ contains
        ind(i) = tempind(i)
     end do
   end subroutine flipvi4
+
+  !> Take the absolute value of an array
+  !! @param[inout]   a     vector to be manipulated
+  !! @param[in]      n     array size
+  subroutine absval(a, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer :: i
+    do i = 1, n
+       a(i) = abs(a(i))
+    end do
+  end subroutine absval
 
 end module math

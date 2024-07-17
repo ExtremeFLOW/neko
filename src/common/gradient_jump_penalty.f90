@@ -800,22 +800,12 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_abs_value(this%absvolflux_d, this%n_large, aux_cmd_queue)
+       call device_absval(this%absvolflux_d, this%n_large)
     else
-       call abs_value(this%absvolflux, this%n_large)
+       call absval(this%absvolflux, this%n_large)
     end if
 
   end subroutine absvolflux_compute
-
-  !> Take the absolute value of an array
-  subroutine abs_value(a, n)
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    integer :: i
-    do i = 1, n
-       a(i) = abs(a(i))
-    end do
-  end subroutine abs_value
 
   !> Pick facet values of a field
   !! @param f_facet The data on facets
