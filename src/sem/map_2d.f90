@@ -298,13 +298,11 @@ contains
        call copy(fields3D(i)%ptr%x,this%u%x,n)
     end do
     call fld_data2D%get_list(fields2d,fld_data2D%size())
-    if (this%nelv_2d .gt. 0) then
-       do i = 1, fld_data3D%size()
-          do j = 1, n_2d
-             fields2d(i)%ptr%x(j) = fields3D(i)%ptr%x(this%idx_2d(j))
-          end do
+    do i = 1, fld_data3D%size()
+       do j = 1, n_2d
+          fields2d(i)%ptr%x(j) = fields3D(i)%ptr%x(this%idx_2d(j))
        end do
-    end if
+    end do
   end subroutine map_2d_average
  
   subroutine perform_global_summation(u, avg_u, old_u, n_levels, hom_dir_el, gs_h, mult, nelv,lx)
