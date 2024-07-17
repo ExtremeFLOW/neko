@@ -772,14 +772,17 @@ contains
        call device_col2(this%volflux1_d, this%n1_d, this%n_large)
        call device_col2(this%volflux2_d, this%n2_d, this%n_large)
        call device_col2(this%volflux3_d, this%n3_d, this%n_large)
-       call device_add3s2(this%absvolflux_d, this%volflux1_d, this%volflux2_d, &
-                          1.0_rp, 1.0_rp, this%n_large)
+       call device_add3s2(this%absvolflux_d, this%volflux1_d, &
+                          this%volflux2_d, 1.0_rp, 1.0_rp, this%n_large)
        call device_add2(this%absvolflux_d, this%volflux3_d, this%n_large)
        call device_absval(this%absvolflux_d, this%n_large)
     else
-       call pick_facet_value_hex(this%volflux1, u%x, this%lx, this%coef%msh%nelv)
-       call pick_facet_value_hex(this%volflux2, v%x, this%lx, this%coef%msh%nelv)
-       call pick_facet_value_hex(this%volflux3, w%x, this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%volflux1, u%x, &
+                                 this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%volflux2, v%x, &
+                                 this%lx, this%coef%msh%nelv)
+       call pick_facet_value_hex(this%volflux3, w%x, &
+                                 this%lx, this%coef%msh%nelv)
        call col2(this%volflux1, this%n1, this%n_large)
        call col2(this%volflux2, this%n2, this%n_large)
        call col2(this%volflux3, this%n3, this%n_large)
