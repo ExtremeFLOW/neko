@@ -467,9 +467,9 @@ contains
     do j= m%nrows, 1, -1
        if (indr(j) .ne. indc(j)) then
           do i = 1, m%nrows
-             tmp            = m%x(i,indr(j))
-             m%x(i,indr(j)) = m%x(i,indc(j))
-             m%x(i,indc(j)) = tmp
+             tmp            = m%x(i, indr(j))
+             m%x(i, indr(j)) = m%x(i, indc(j))
+             m%x(i, indc(j)) = tmp
           end do
        end if
     end do
