@@ -603,7 +603,7 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue; 
 
     absval_kernel<real>
-    <<<nblcks, nthrds,0, stream>>>((real *) a, * nx);  
+    <<<nblcks, nthrds,0, stream>>>((real *) a, * n);  
     CUDA_CHECK(cudaGetLastError());
     
   }
