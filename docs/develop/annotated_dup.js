@@ -92,11 +92,11 @@ var annotated_dup =
     [ "cg", "d9/df6/namespacecg.html", [
       [ "cg_t", "db/d98/structcg_1_1cg__t.html", "db/d98/structcg_1_1cg__t" ]
     ] ],
+    [ "cg_cpld", "da/d8d/namespacecg__cpld.html", [
+      [ "cg_cpld_t", "d7/d45/structcg__cpld_1_1cg__cpld__t.html", "d7/d45/structcg__cpld_1_1cg__cpld__t" ]
+    ] ],
     [ "cg_device", "d6/d60/namespacecg__device.html", [
       [ "cg_device_t", "dd/d8e/structcg__device_1_1cg__device__t.html", "dd/d8e/structcg__device_1_1cg__device__t" ]
-    ] ],
-    [ "cg_stress", "df/de3/namespacecg__stress.html", [
-      [ "cg_stress_t", "d3/da1/structcg__stress_1_1cg__stress__t.html", "d3/da1/structcg__stress_1_1cg__stress__t" ]
     ] ],
     [ "cg_sx", "d4/d31/namespacecg__sx.html", [
       [ "sx_cg_t", "d5/d34/structcg__sx_1_1sx__cg__t.html", "d5/d34/structcg__sx_1_1sx__cg__t" ]

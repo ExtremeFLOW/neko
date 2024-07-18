@@ -1,7 +1,5 @@
 var NAVTREEINDEX31 =
 {
-"db/d7a/namespacerhs__maker__sx.html#abac8e76c0e56462a2ac6749ce3cbad6d":[3,0,217,5],
-"db/d7a/namespacerhs__maker__sx.html#aec348bd6eb6b3870c64262cd533ee3f9":[3,0,217,7],
 "db/d7a/structcase_1_1case__t.html":[4,0,22,0],
 "db/d7a/structcase_1_1case__t.html#a0217c67492188605dee5b11e3409edbd":[4,0,22,0,13],
 "db/d7a/structcase_1_1case__t.html#a0cec46707c2d83ee1f9e1cedfc8ea63e":[4,0,22,0,12],
@@ -249,5 +247,7 @@ var NAVTREEINDEX31 =
 "db/dd7/namespacerhs__maker__cpu.html#a1badd81fd90b551cf3a7922cb50a49e0":[3,0,214,5],
 "db/dd7/namespacerhs__maker__cpu.html#aa4d9ea87a27a6ba2817e24a5199c6fc0":[3,0,214,3],
 "db/dd7/namespacerhs__maker__cpu.html#ad48f1e002d6a2bf01f37c9c26ae09ae1":[3,0,214,6],
-"db/dd7/namespacerhs__maker__cpu.html#afea79337d03455b3113007bdb0a7329e":[3,0,214,4]
+"db/dd7/namespacerhs__maker__cpu.html#afea79337d03455b3113007bdb0a7329e":[3,0,214,4],
+"db/dde/structadv__dealias_1_1adv__dealias__t.html":[4,0,3,0],
+"db/dde/structadv__dealias_1_1adv__dealias__t.html#a0d22802de0a10c387dd791ccd387677b":[4,0,3,0,19]
 };

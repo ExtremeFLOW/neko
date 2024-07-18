@@ -1,0 +1,28 @@
+var structcg__cpld_1_1cg__cpld__t =
+[
+    [ "free", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a068812138b7590f851b78f495288fc29", null ],
+    [ "init", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#ad11f285ac52fca995df645005310d3e0", null ],
+    [ "ksp_free", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#aa2507024b78f504511edbf410b7b9388", null ],
+    [ "ksp_init", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
+    [ "set_pc", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#ac8461060f257f28e50083521e7079adc", null ],
+    [ "solve", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a2d40480ef6ea8919939664dc20cc718b", null ],
+    [ "solve_coupled", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#ae0b65f5203fe39cd996e56c666937758", null ],
+    [ "abs_tol", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
+    [ "m", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a919f46cedba40962024d26a886ab31f9", null ],
+    [ "m_ident", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#aeec0dc845eecbf135d94945f24a937dd", null ],
+    [ "max_iter", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a0604caa64f407001658d0678f200e426", null ],
+    [ "p1", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a9d455cc5334d6e5841ed318d72147e0d", null ],
+    [ "p2", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a97629bb67ea69e4c0a61bc943439ee3b", null ],
+    [ "p3", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#af8126c2b603044b170a22004682107e1", null ],
+    [ "r1", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#aa74974d28dfd94d3b543b5eb24e9115c", null ],
+    [ "r2", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#abfcebfa0e8a68065355ddf6102384887", null ],
+    [ "r3", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a59d9b359bb3cf11ba7b214525bce15b0", null ],
+    [ "rel_tol", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a7e02bc45055956c25f0825ca6322051f", null ],
+    [ "tmp", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a613ac225343a1b13db8623714672c78b", null ],
+    [ "w1", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a84eff3752ffcdc9d8028774a427e2c84", null ],
+    [ "w2", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#ad59b5d1ddce914006f04f00d0e872482", null ],
+    [ "w3", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#ad58de7acf97f78c801ab5f3a859805b1", null ],
+    [ "z1", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#ab832cfa7f6d4ee67186ddcc8c2c560e9", null ],
+    [ "z2", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a4feabc6ad1bc7ec6403d3669f00a61fd", null ],
+    [ "z3", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a564b4c87ab9f4f829fac5082ab65d920", null ]
+];

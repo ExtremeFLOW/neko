@@ -3,8 +3,8 @@
 <area shape="rect" id="node2" href="$dc/dd5/structbicgstab_1_1bicgstab__t.html" title="Standard preconditioned Bi&#45;Conjugate Gradient Stabilized method." alt="" coords="174,5,326,32"/>
 <area shape="rect" id="node3" href="$de/d56/structcacg_1_1cacg__t.html" title="S&#45;step communication avoiding preconditioned conjugate gradient method." alt="" coords="199,56,301,83"/>
 <area shape="rect" id="node4" href="$db/d98/structcg_1_1cg__t.html" title="Standard preconditioned conjugate gradient method." alt="" coords="214,107,286,133"/>
-<area shape="rect" id="node5" href="$dd/d8e/structcg__device_1_1cg__device__t.html" title="Device based preconditioned conjugate gradient method." alt="" coords="164,157,336,184"/>
-<area shape="rect" id="node6" href="$d3/da1/structcg__stress_1_1cg__stress__t.html" title="Standard preconditioned conjugate gradient method." alt="" coords="168,208,332,235"/>
+<area shape="rect" id="node5" href="$d7/d45/structcg__cpld_1_1cg__cpld__t.html" title="Coupled preconditioned conjugate gradient method." alt="" coords="180,157,320,184"/>
+<area shape="rect" id="node6" href="$dd/d8e/structcg__device_1_1cg__device__t.html" title="Device based preconditioned conjugate gradient method." alt="" coords="164,208,336,235"/>
 <area shape="rect" id="node7" href="$d5/d34/structcg__sx_1_1sx__cg__t.html" title="Standard preconditioned conjugate gradient method (SX version)" alt="" coords="192,259,308,285"/>
 <area shape="rect" id="node8" href="$d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html" title="Fused preconditioned conjugate gradient method." alt="" coords="161,310,339,351"/>
 <area shape="rect" id="node9" href="$dc/d03/structfusedcg__device_1_1fusedcg__device__t.html" title="Fused preconditioned conjugate gradient method." alt="" coords="159,375,341,417"/>

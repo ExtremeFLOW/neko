@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Neko: cg_stress Module Reference</title>
+<title>Neko: cg_cpld Module Reference</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -72,7 +72,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(document).ready(function(){initNavTree('df/de3/namespacecg__stress.html','../../'); initResizable(); });
+$(document).ready(function(){initNavTree('da/d8d/namespacecg__cpld.html','../../'); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -95,35 +95,36 @@ $(document).ready(function(){initNavTree('df/de3/namespacecg__stress.html','../.
 <a href="#nested-classes">Data Types</a> &#124;
 <a href="#func-members">Functions/Subroutines</a>  </div>
   <div class="headertitle">
-<div class="title">cg_stress Module Reference</div>  </div>
+<div class="title">cg_cpld Module Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Defines various Conjugate Gradient methods.  
+<p>Defines a coupled Conjugate Gradient methods.  
 </p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Types</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da1/structcg__stress_1_1cg__stress__t.html">cg_stress_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standard preconditioned conjugate gradient method.  <a href="../../d3/da1/structcg__stress_1_1cg__stress__t.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d45/structcg__cpld_1_1cg__cpld__t.html">cg_cpld_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coupled preconditioned conjugate gradient method.  <a href="../../d7/d45/structcg__cpld_1_1cg__cpld__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a6e4290591db3eb5fd59b28966176d758"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/de3/namespacecg__stress.html#a6e4290591db3eb5fd59b28966176d758">cg_stress_init</a> (this, n, max_iter, M, rel_tol, abs_tol)</td></tr>
-<tr class="memdesc:a6e4290591db3eb5fd59b28966176d758"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a standard PCG solver.  <a href="../../df/de3/namespacecg__stress.html#a6e4290591db3eb5fd59b28966176d758">More...</a><br /></td></tr>
-<tr class="separator:a6e4290591db3eb5fd59b28966176d758"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac5f85327bf57fdba5a6a4b8b91f8d53"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/de3/namespacecg__stress.html#aac5f85327bf57fdba5a6a4b8b91f8d53">cg_stress_free</a> (this)</td></tr>
-<tr class="memdesc:aac5f85327bf57fdba5a6a4b8b91f8d53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a standard PCG solver.  <a href="../../df/de3/namespacecg__stress.html#aac5f85327bf57fdba5a6a4b8b91f8d53">More...</a><br /></td></tr>
-<tr class="separator:aac5f85327bf57fdba5a6a4b8b91f8d53"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3fed5cb1502ec86ce67499d4683e3e3a"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/de3/namespacecg__stress.html#a3fed5cb1502ec86ce67499d4683e3e3a">cg_stress_nop</a> (this, Ax, x, f, n, coef, blst, gs_h, niter)</td></tr>
-<tr class="separator:a3fed5cb1502ec86ce67499d4683e3e3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af906996bacd1e533213d934e5dc9b61a"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/de3/namespacecg__stress.html#af906996bacd1e533213d934e5dc9b61a">cg_stress_solve</a> (this, Ax, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter)</td></tr>
-<tr class="separator:af906996bacd1e533213d934e5dc9b61a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ca74731fee5bedca7f1636b72e705d9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d8d/namespacecg__cpld.html#a6ca74731fee5bedca7f1636b72e705d9">cg_cpld_init</a> (this, n, max_iter, M, rel_tol, abs_tol)</td></tr>
+<tr class="memdesc:a6ca74731fee5bedca7f1636b72e705d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a coupled PCG solver.  <a href="../../da/d8d/namespacecg__cpld.html#a6ca74731fee5bedca7f1636b72e705d9">More...</a><br /></td></tr>
+<tr class="separator:a6ca74731fee5bedca7f1636b72e705d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5a1e54f99edb11e604f4895f4962c56"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d8d/namespacecg__cpld.html#aa5a1e54f99edb11e604f4895f4962c56">cg_cpld_free</a> (this)</td></tr>
+<tr class="memdesc:aa5a1e54f99edb11e604f4895f4962c56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a coupled PCG solver.  <a href="../../da/d8d/namespacecg__cpld.html#aa5a1e54f99edb11e604f4895f4962c56">More...</a><br /></td></tr>
+<tr class="separator:aa5a1e54f99edb11e604f4895f4962c56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d77397963cfbdb121de2e404205213e"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d8d/namespacecg__cpld.html#a8d77397963cfbdb121de2e404205213e">cg_cpld_nop</a> (this, Ax, x, f, n, coef, blst, gs_h, niter)</td></tr>
+<tr class="separator:a8d77397963cfbdb121de2e404205213e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cbc473539584098cbe97de250680149"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) function, dimension(3)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d8d/namespacecg__cpld.html#a2cbc473539584098cbe97de250680149">cg_cpld_solve</a> (this, Ax, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter)</td></tr>
+<tr class="memdesc:a2cbc473539584098cbe97de250680149"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coupled PCG solve.  <a href="../../da/d8d/namespacecg__cpld.html#a2cbc473539584098cbe97de250680149">More...</a><br /></td></tr>
+<tr class="separator:a2cbc473539584098cbe97de250680149"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="aac5f85327bf57fdba5a6a4b8b91f8d53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aac5f85327bf57fdba5a6a4b8b91f8d53">&#9670;&nbsp;</a></span>cg_stress_free()</h2>
+<a id="aa5a1e54f99edb11e604f4895f4962c56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa5a1e54f99edb11e604f4895f4962c56">&#9670;&nbsp;</a></span>cg_cpld_free()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -132,9 +133,9 @@ Functions/Subroutines</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">subroutine cg_stress::cg_stress_free </td>
+          <td class="memname">subroutine cg_cpld::cg_cpld_free </td>
           <td>(</td>
-          <td class="paramtype">class(<a class="el" href="../../d3/da1/structcg__stress_1_1cg__stress__t.html">cg_stress_t</a>), intent(inout)&#160;</td>
+          <td class="paramtype">class(<a class="el" href="../../d7/d45/structcg__cpld_1_1cg__cpld__t.html">cg_cpld_t</a>), intent(inout)&#160;</td>
           <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
         </tr>
@@ -146,20 +147,20 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d4e/cg__stress_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d8/d4e/cg__stress_8f90_source.html">cg_stress.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00114">114</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
 
 </div>
 </div>
-<a id="a6e4290591db3eb5fd59b28966176d758"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6e4290591db3eb5fd59b28966176d758">&#9670;&nbsp;</a></span>cg_stress_init()</h2>
+<a id="a6ca74731fee5bedca7f1636b72e705d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ca74731fee5bedca7f1636b72e705d9">&#9670;&nbsp;</a></span>cg_cpld_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">subroutine cg_stress::cg_stress_init </td>
+          <td class="memname">subroutine cg_cpld::cg_cpld_init </td>
           <td>(</td>
-          <td class="paramtype">class(<a class="el" href="../../d3/da1/structcg__stress_1_1cg__stress__t.html">cg_stress_t</a>), intent(inout)&#160;</td>
+          <td class="paramtype">class(<a class="el" href="../../d7/d45/structcg__cpld_1_1cg__cpld__t.html">cg_cpld_t</a>), intent(inout)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
@@ -200,12 +201,12 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d4e/cg__stress_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d8/d4e/cg__stress_8f90_source.html">cg_stress.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00073">73</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
 
 </div>
 </div>
-<a id="a3fed5cb1502ec86ce67499d4683e3e3a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3fed5cb1502ec86ce67499d4683e3e3a">&#9670;&nbsp;</a></span>cg_stress_nop()</h2>
+<a id="a8d77397963cfbdb121de2e404205213e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d77397963cfbdb121de2e404205213e">&#9670;&nbsp;</a></span>cg_cpld_nop()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -214,9 +215,9 @@ Functions/Subroutines</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) function cg_stress::cg_stress_nop </td>
+          <td class="memname">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) function cg_cpld::cg_cpld_nop </td>
           <td>(</td>
-          <td class="paramtype">class(<a class="el" href="../../d3/da1/structcg__stress_1_1cg__stress__t.html">cg_stress_t</a>), intent(inout)&#160;</td>
+          <td class="paramtype">class(<a class="el" href="../../d7/d45/structcg__cpld_1_1cg__cpld__t.html">cg_cpld_t</a>), intent(inout)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
@@ -280,12 +281,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d4e/cg__stress_8f90_source.html#l00174">174</a> of file <a class="el" href="../../d8/d4e/cg__stress_8f90_source.html">cg_stress.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00175">175</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
 
 </div>
 </div>
-<a id="af906996bacd1e533213d934e5dc9b61a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af906996bacd1e533213d934e5dc9b61a">&#9670;&nbsp;</a></span>cg_stress_solve()</h2>
+<a id="a2cbc473539584098cbe97de250680149"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2cbc473539584098cbe97de250680149">&#9670;&nbsp;</a></span>cg_cpld_solve()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -294,9 +295,9 @@ Functions/Subroutines</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) function cg_stress::cg_stress_solve </td>
+          <td class="memname">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) function, dimension(3) cg_cpld::cg_cpld_solve </td>
           <td>(</td>
-          <td class="paramtype">class(<a class="el" href="../../d3/da1/structcg__stress_1_1cg__stress__t.html">cg_stress_t</a>), intent(inout)&#160;</td>
+          <td class="paramtype">class(<a class="el" href="../../d7/d45/structcg__cpld_1_1cg__cpld__t.html">cg_cpld_t</a>), intent(inout)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
@@ -396,16 +397,16 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d4e/cg__stress_8f90_source.html#l00188">188</a> of file <a class="el" href="../../d8/d4e/cg__stress_8f90_source.html">cg_stress.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00196">196</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../df/de3/namespacecg__stress_af906996bacd1e533213d934e5dc9b61a_cgraph.png" border="0" usemap="#adf/de3/namespacecg__stress_af906996bacd1e533213d934e5dc9b61a_cgraph" alt=""/></div>
-<map name="adf/de3/namespacecg__stress_af906996bacd1e533213d934e5dc9b61a_cgraph" id="adf/de3/namespacecg__stress_af906996bacd1e533213d934e5dc9b61a_cgraph">
-<area shape="rect" title=" " alt="" coords="5,49,157,90"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a60f5dff321be727d37884a696c2ffc96" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="205,5,316,32"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed" title="Weighted inner product ." alt="" coords="211,56,310,83"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="211,107,310,133"/>
+<div class="center"><img src="../../da/d8d/namespacecg__cpld_a2cbc473539584098cbe97de250680149_cgraph.png" border="0" usemap="#ada/d8d/namespacecg__cpld_a2cbc473539584098cbe97de250680149_cgraph" alt=""/></div>
+<map name="ada/d8d/namespacecg__cpld_a2cbc473539584098cbe97de250680149_cgraph" id="ada/d8d/namespacecg__cpld_a2cbc473539584098cbe97de250680149_cgraph">
+<area shape="rect" title="Coupled PCG solve." alt="" coords="5,56,176,83"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a60f5dff321be727d37884a696c2ffc96" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="224,5,335,32"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed" title="Weighted inner product ." alt="" coords="230,56,329,83"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="230,107,329,133"/>
 </map>
 </div>
 
@@ -416,8 +417,8 @@ Here is the call graph for this function:</div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="../../df/de3/namespacecg__stress.html">cg_stress</a></li>
-    <li class="footer">Generated on Wed Jul 17 2024 03:34:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="navelem"><a class="el" href="../../da/d8d/namespacecg__cpld.html">cg_cpld</a></li>
+    <li class="footer">Generated on Thu Jul 18 2024 03:36:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

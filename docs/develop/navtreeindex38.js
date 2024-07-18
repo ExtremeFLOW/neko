@@ -1,7 +1,5 @@
 var NAVTREEINDEX38 =
 {
-"dd/da6/ax__helm__cpu_8f90.html#ab3918202afa427b37a99ec8b7a6eb045":[5,0,2,12,0,0,0,7],
-"dd/da6/ax__helm__cpu_8f90.html#ad2138c72c03c1c346fdbd95431ed6bc7":[5,0,2,12,0,0,0,14],
 "dd/da6/ax__helm__cpu_8f90_source.html":[5,0,2,12,0,0,0],
 "dd/da7/scratch__registry_8f90.html":[5,0,2,6,7],
 "dd/da7/scratch__registry_8f90.html#a00c9fda51af4a2bdadf34817bc3c8194":[5,0,2,6,7,3],
@@ -62,6 +60,12 @@ var NAVTREEINDEX38 =
 "dd/db8/structgather__scatter_1_1gs__t.html#ae77fc31af02d7c6f70a0168059f774ea":[4,0,93,0,12],
 "dd/db8/structgather__scatter_1_1gs__t.html#af89e1f5b39d2095e5b303217d8134876":[4,0,93,0,0],
 "dd/db8/structgather__scatter_1_1gs__t.html#af97aa8dc90892cb0b9a20a741d3417b0":[4,0,93,0,21],
+"dd/dbf/cg__coupled_8f90.html":[5,0,2,10,0,0,3],
+"dd/dbf/cg__coupled_8f90.html#a2cbc473539584098cbe97de250680149":[5,0,2,10,0,0,3,4],
+"dd/dbf/cg__coupled_8f90.html#a6ca74731fee5bedca7f1636b72e705d9":[5,0,2,10,0,0,3,2],
+"dd/dbf/cg__coupled_8f90.html#a8d77397963cfbdb121de2e404205213e":[5,0,2,10,0,0,3,3],
+"dd/dbf/cg__coupled_8f90.html#aa5a1e54f99edb11e604f4895f4962c56":[5,0,2,10,0,0,3,1],
+"dd/dbf/cg__coupled_8f90_source.html":[5,0,2,10,0,0,3],
 "dd/dbf/operators_8f90.html":[5,0,2,12,11],
 "dd/dbf/operators_8f90.html#a0567ee7595ffc5b3ad3e1cf7359b112b":[5,0,2,12,11,0],
 "dd/dbf/operators_8f90.html#a3bb0b2a911e0cd08e32a255510d65c84":[5,0,2,12,11,8],
@@ -245,9 +249,5 @@ var NAVTREEINDEX38 =
 "dd/def/rea__file_8f90.html#abdab578a1e08e2acaa0bf94653ccb897":[5,0,2,9,19,4],
 "dd/def/rea__file_8f90.html#ad0cd761d57fe23c91fc477b2f7a4fe6a":[5,0,2,9,19,2],
 "dd/def/rea__file_8f90_source.html":[5,0,2,9,19],
-"dd/df0/namespacespeclib.html":[3,0,250],
-"dd/df0/namespacespeclib.html#a0c8e13cf445167798ffba39b31becd5c":[3,0,250,26],
-"dd/df0/namespacespeclib.html#a179445887767b2f79644d8831c0aaa4a":[3,0,250,32],
-"dd/df0/namespacespeclib.html#a2bc7fce76bcabd1bc0ed408a25d8a368":[3,0,250,25],
-"dd/df0/namespacespeclib.html#a43e2131bb1a410b8154ffcdb66d75b1f":[3,0,250,11]
+"dd/df0/namespacespeclib.html":[3,0,250]
 };

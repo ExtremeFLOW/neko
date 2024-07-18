@@ -1,0 +1,6 @@
+<map id="cg_cpld::cg_cpld_solve" name="cg_cpld::cg_cpld_solve">
+<area shape="rect" id="node1" title="Coupled PCG solve." alt="" coords="5,56,176,83"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a60f5dff321be727d37884a696c2ffc96" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="224,5,335,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed" title="Weighted inner product ." alt="" coords="230,56,329,83"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="230,107,329,133"/>
+</map>
