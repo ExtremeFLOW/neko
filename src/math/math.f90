@@ -272,7 +272,6 @@ contains
 
   end subroutine cfill_mask
 
-
   !> Multiplication by constant c \f$ a = c \cdot a \f$
   subroutine cmult(a, c, n)
     integer, intent(in) :: n
@@ -285,7 +284,7 @@ contains
     end do
   end subroutine cmult
 
-  !> Add a scalar to vector \f$ a = \sum a_i + s \f$
+  !> Add a scalar to vector \f$ a = a + s \f$
   subroutine cadd(a, s, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
@@ -322,7 +321,7 @@ contains
     end do
   end subroutine cfill
 
-  !>Sum a vector of length n
+  !> Sum a vector of length n
   function glsum(a, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n) :: a
@@ -832,7 +831,7 @@ contains
 
   end subroutine x_update
 
-  !> Weighted inner product \f$ a^T b c \f$
+  !> Weighted inner product \f$ a^T b \f$
   function glsc2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: a

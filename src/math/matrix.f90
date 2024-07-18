@@ -33,7 +33,7 @@
 !> Defines a matrix
 module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: cadd, cfill, sub3, copy, chsign, add3, cmult, cmult2
+  use math, only: cadd, cfill, sub3, copy, chsign, add3, cmult, cmult2, cadd2
   use num_types, only: rp
   use device, only: device_map, device_free, c_ptr, C_NULL_PTR
   use device_mathops, only: device_opchsign
@@ -317,7 +317,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cadd2(v%x_d, m%x_d, -1.0_rp*c, v%n)
     else
-       call cadd2(v%x, m%x, -1.0_rp*c, a%n)
+       call cadd2(v%x, m%x, -1.0_rp*c, m%n)
     end if
 
   end function matrix_sub_scalar_left
