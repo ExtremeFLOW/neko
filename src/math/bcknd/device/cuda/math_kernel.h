@@ -56,7 +56,7 @@ __global__ void cmult_kernel(T * __restrict__ a,
 template< typename T >
 __global__ void masked_copy_kernel(T * __restrict__ a,
                                    T * __restrict__ b,
-                                   int * __restrict__ mask,                    
+                                   int * __restrict__ mask,
                                    const int n,
                                    const int m) {
 
@@ -89,7 +89,7 @@ __global__ void cfill_mask_kernel(T* __restrict__ a,
  */
 template< typename T >
 __global__ void cmult2_kernel(T * __restrict__ a,
-                 T * __restrict__ b, 
+                 T * __restrict__ b,
                              const T c,
                              const int n) {
 
@@ -268,13 +268,13 @@ __global__ void invcol2_kernel(T * __restrict__ a,
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-  
+
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] / b[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for col2
  */
 template< typename T >
@@ -287,10 +287,10 @@ __global__ void col2_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] * b[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for col3
  */
 template< typename T >
@@ -304,10 +304,10 @@ __global__ void col3_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = b[i] * c[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for subcol3
  */
 template< typename T >
@@ -321,10 +321,10 @@ __global__ void subcol3_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] - b[i] * c[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for sub2
  */
 template< typename T >
@@ -337,10 +337,10 @@ __global__ void sub2_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] - b[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for sub3
  */
 template< typename T >
@@ -354,7 +354,7 @@ __global__ void sub3_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = b[i] - c[i];
-  }  
+  }
 }
 
 /**
@@ -371,8 +371,8 @@ __global__ void addcol3_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] + b[i] * c[i];
-  }  
-  
+  }
+
 }
 
 /**
@@ -390,8 +390,8 @@ __global__ void addcol4_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] + b[i] * c[i] * d[i];
-  }  
- 
+  }
+
 }
 
 /**
@@ -412,8 +412,8 @@ __global__ void vdot3_kernel(T * __restrict__ dot,
 
   for (int i = idx; i < n; i += str) {
     dot[i] = u1[i] * v1[i]  + u2[i] * v2[i] + u3[i] * v3[i];
-  }  
-  
+  }
+
 }
 
 /**
@@ -434,11 +434,11 @@ __inline__ __device__ T reduce_warp(T val) {
  */
 template< typename T >
 __global__ void reduce_kernel(T * bufred, const int n) {
-                
+
   T sum = 0;
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-  for (int i = idx; i<n ; i += str) 
+  for (int i = idx; i<n ; i += str)
   {
     sum += bufred[i];
   }
@@ -511,8 +511,8 @@ __global__ void glsc3_kernel(const T * a,
 
   const unsigned int lane = threadIdx.x % warpSize;
   const unsigned int wid = threadIdx.x / warpSize;
-  
-  __shared__ T shared[32];  
+
+  __shared__ T shared[32];
   T sum = 0.0;
   for (int i = idx; i < n; i+= str) {
     sum += a[i] * b[i] * c[i];
@@ -553,10 +553,10 @@ __global__ void glsc3_many_kernel(const T * a,
       tmp += a[i] * b[threadIdx.x][i] * c[i];
     }
   }
-  
+
   buf[threadIdx.y*blockDim.x+y] = tmp;
   __syncthreads();
-  
+
   int i = blockDim.y>>1;
   while (i != 0) {
     if (threadIdx.y < i) {
@@ -586,8 +586,8 @@ __global__ void glsc2_kernel(const T * a,
 
   const unsigned int lane = threadIdx.x % warpSize;
   const unsigned int wid = threadIdx.x / warpSize;
-  
-  __shared__ T shared[32];  
+
+  __shared__ T shared[32];
   T sum = 0.0;
   for (int i = idx; i < n; i+= str) {
     sum += a[i] * b[i];
@@ -604,7 +604,7 @@ __global__ void glsc2_kernel(const T * a,
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
-  
+
 }
 
 /**
@@ -620,10 +620,10 @@ __global__ void glsum_kernel(const T * a,
 
   const unsigned int lane = threadIdx.x % warpSize;
   const unsigned int wid = threadIdx.x / warpSize;
-  
+
   __shared__ T shared[32];
-  T sum = 0;    
-  for (int i = idx; i<n ; i += str) 
+  T sum = 0;
+  for (int i = idx; i<n ; i += str)
   {
     sum += a[i];
   }
@@ -639,7 +639,7 @@ __global__ void glsum_kernel(const T * a,
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
-  
+
 }
 
 /**
