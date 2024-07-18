@@ -578,8 +578,6 @@ contains
     call neko_log%message(log_buf)
 
     call neko_log%message("xyz-coordinates:", lvl = NEKO_LOG_DEBUG)
-
-    ! Show the other half of the probes
     do i = 1, this%n_local_probes
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
        call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
