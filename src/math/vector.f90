@@ -140,6 +140,10 @@ contains
     class(vector_t), intent(inout) :: v
     type(vector_t), intent(in) :: w
 
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
     if (.not. allocated(v%x)) then
 
        v%n = w%n
@@ -148,9 +152,7 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-    else
-       if (v%n .ne. w%n) call neko_error("Cannot assign vectors that do not &
-&have the same length!")
+
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
