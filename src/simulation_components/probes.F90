@@ -59,6 +59,8 @@ module probes
   implicit none
   private
 
+  integer, parameter :: NEKO_MAX_LOG_PROBES = 20
+
   type, public, extends(simulation_component_t) :: probes_t
      !> Number of output fields
      integer :: n_fields = 0
@@ -577,7 +579,8 @@ contains
     write(log_buf, '(A,I6)') "Number of probes: ", this%n_global_probes
     call neko_log%message(log_buf)
     call neko_log%message("xyz-coordinates:")
-    do i=1,this%n_local_probes
+
+    do i = 1, this%n_local_probes
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
        call neko_log%message(log_buf)
     end do
