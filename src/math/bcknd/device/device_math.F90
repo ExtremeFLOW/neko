@@ -1176,11 +1176,11 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: n
 #ifdef HAVE_HIP
-    call hip_cadd(a_d, b_d, c, n)
+    call hip_cadd2(a_d, b_d, c, n)
 #elif HAVE_CUDA
-    call cuda_cadd(a_d, b_d, c, n)
+    call cuda_cadd2(a_d, b_d, c, n)
 #elif HAVE_OPENCL
-    call opencl_cadd(a_d, b_d, c, n)
+    call opencl_cadd2(a_d, b_d, c, n)
 #else
     call neko_error('No device backend configured')
 #endif
