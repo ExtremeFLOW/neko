@@ -33,7 +33,7 @@
 !> Defines a vector
 module vector
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: sub3, chsign, add3, cmult2, cadd2
+  use math, only: sub3, chsign, add3, cmult2, cadd2, cfill, copy
   use num_types, only: rp
   use device, only: device_map, device_free, c_ptr, C_NULL_PTR
   use device_math, only: device_copy, device_cfill, device_cmult, &
@@ -140,10 +140,6 @@ contains
     class(vector_t), intent(inout) :: v
     type(vector_t), intent(in) :: w
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
     if (.not. allocated(v%x)) then
 
        v%n = w%n
@@ -152,13 +148,15 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-
+    else
+       if (v%n .ne. w%n) call neko_error("Cannot assign vectors that do not &
+&have the same length!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(v%x_d, w%x_d, v%n)
     else
-       v%x = w%x
+       call copy(v%x, w%x, v%n)
     end if
 
   end subroutine vector_assign_vector
@@ -175,7 +173,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(v%x_d, s, v%n)
     else
-       v%x = s
+       call cfill(v%x, s, v%n)
     end if
 
   end subroutine vector_assign_scalar
@@ -187,10 +185,6 @@ contains
 
     if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
     if (.not. allocated(v%x)) then
 
        v%n = a%n
@@ -199,7 +193,9 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-
+    else
+       if (v%n .ne. a%n) call neko_error("Cannot assign vectors that do not &
+&have the same length!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -218,10 +214,6 @@ contains
 
     integer :: i
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
     if (.not. allocated(v%x)) then
 
        v%n = a%n
@@ -230,7 +222,9 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-
+    else
+       if (v%n .ne. a%n) call neko_error("Cannot assign vectors that do not &
+&have the same length!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -258,10 +252,6 @@ contains
 
     if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
     if (.not. allocated(v%x)) then
 
        v%n = a%n
@@ -271,6 +261,9 @@ contains
           call device_map(v%x, v%x_d, v%n)
        end if
 
+    else
+       if (v%n .ne. a%n) call neko_error("Cannot assign vectors that do not &
+&have the same length!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -287,10 +280,6 @@ contains
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
     if (.not. allocated(v%x)) then
 
        v%n = a%n
@@ -299,7 +288,9 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-
+    else
+       if (v%n .ne. a%n) call neko_error("Cannot assign vectors that do not &
+&have the same length!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -332,10 +323,6 @@ contains
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
     if (.not. allocated(v%x)) then
 
        v%n = a%n
@@ -344,7 +331,9 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-
+    else
+       if (v%n .ne. a%n) call neko_error("Cannot assign vectors that do not &
+&have the same length!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

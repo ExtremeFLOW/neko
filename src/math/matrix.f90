@@ -33,7 +33,7 @@
 !> Defines a matrix
 module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: sub3, chsign, add3, cmult2, cadd2
+  use math, only: sub3, chsign, add3, cmult2, cadd2, copy
   use num_types, only: rp
   use device, only: device_map, device_free, c_ptr, C_NULL_PTR
   use device_math, only: device_copy, device_cfill, device_cmult, &
@@ -143,10 +143,6 @@ contains
     class(matrix_t), intent(inout) :: m
     type(matrix_t), intent(in) :: w
 
-    if (allocated(m%x)) then
-       call m%free()
-    end if
-
     if (.not. allocated(m%x)) then
 
        m%nrows = w%nrows
@@ -157,13 +153,15 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(m%x, m%x_d, m%n)
        end if
-
+    else
+       if (m%n .ne. w%n) call neko_error("Cannot assign matrices that do not &
+&have the same size!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(m%x_d, w%x_d, m%n)
     else
-       m%x = w%x
+       call copy(m%x, w%x, m%n)
     end if
 
   end subroutine matrix_assign_matrix
@@ -190,11 +188,7 @@ contains
     class(matrix_t), intent(in) :: m, b
     type(matrix_t) :: v
 
-    if (m%n .ne. b%n) call neko_error("matrices must be the same length!")
-
-    if (allocated(v%x)) then
-       call v%free()
-    end if
+    if (m%n .ne. b%n) call neko_error("Matrices must be the same size!")
 
     if (.not. allocated(v%x)) then
 
@@ -206,7 +200,9 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-
+    else
+       if (v%n .ne. b%n) call neko_error("Cannot assign matrices that do not &
+&have the same size!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -223,10 +219,6 @@ contains
     real(kind=rp), intent(in) :: c
     type(matrix_t) :: v
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
     if (.not. allocated(v%x)) then
 
        v%n = m%n
@@ -237,7 +229,9 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-
+    else
+       if (v%n .ne. m%n) call neko_error("Cannot assign matrices that do not &
+&have the same size!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -263,11 +257,7 @@ contains
     class(matrix_t), intent(in) :: m, b
     type(matrix_t) :: v
 
-    if (m%n .ne. b%n) call neko_error("matrices must be the same length!")
-
-    if (allocated(v%x)) then
-       call v%free()
-    end if
+    if (m%n .ne. b%n) call neko_error("Matrices must be the same size!")
 
     if (.not. allocated(v%x)) then
 
@@ -279,7 +269,9 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-
+    else
+       if (v%n .ne. m%n) call neko_error("Cannot assign matrices that do not &
+&have the same size!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -296,10 +288,6 @@ contains
     real(kind=rp), intent(in) :: c
     type(matrix_t) :: v
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
     if (.not. allocated(v%x)) then
 
        v%n = m%n
@@ -310,7 +298,9 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-
+    else
+       if (v%n .ne. m%n) call neko_error("Cannot assign matrices that do not &
+&have the same size!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -343,10 +333,6 @@ contains
     real(kind=rp), intent(in) :: c
     type(matrix_t) :: v
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
     if (.not. allocated(v%x)) then
 
        v%n = m%n
@@ -357,7 +343,9 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(v%x, v%x_d, v%n)
        end if
-
+    else
+       if (v%n .ne. m%n) call neko_error("Cannot assign matrices that do not &
+&have the same size!")
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
