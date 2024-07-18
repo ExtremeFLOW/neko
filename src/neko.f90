@@ -128,15 +128,15 @@ contains
     call neko_field_registry%init()
 
     if (pe_rank .eq. 0) then
-       write(*,*) ''
-       write(*,*) '   _  __  ____  __ __  ____ '
-       write(*,*) '  / |/ / / __/ / //_/ / __ \'
-       write(*,*) ' /    / / _/  / ,<   / /_/ /'
-       write(*,*) '/_/|_/ /___/ /_/|_|  \____/ '
-       write(*,*) ''
-       write(*,*) '(version: ', trim(NEKO_VERSION),')'
-       write(*,*) trim(NEKO_BUILD_INFO)
-       write(*,*) ''
+       write(*, '(A)') ''
+       write(*, '(A)') '   _  __  ____  __ __  ____ '
+       write(*, '(A)') '  / |/ / / __/ / //_/ / __ \'
+       write(*, '(A)') ' /    / / _/  / ,<   / /_/ /'
+       write(*, '(A)') '/_/|_/ /___/ /_/|_|  \____/ '
+       write(*, '(A)') ''
+       write(*, '(A)') '(version: ', trim(NEKO_VERSION),')'
+       write(*, '(A)') trim(NEKO_BUILD_INFO)
+       write(*, '(A)') ''
     end if
 
     if (present(C)) then
