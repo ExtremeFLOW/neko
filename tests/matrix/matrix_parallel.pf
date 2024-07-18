@@ -1,4 +1,4 @@
-module vector_parallel
+module matrix_parallel
   use mpi
   use pfunit
   use neko_config
