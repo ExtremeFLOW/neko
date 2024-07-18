@@ -362,8 +362,8 @@ contains
     ! two different meshes have the same dimension and same # of elements
     ! but this should be enough to cover the most obvious cases.
     !
-    if ( ((fld_data%gdim .ne. u%msh%gdim) .or. &
-         (fld_data%glb_nelv .ne. u%msh%glb_nelv)) .and. &
+    if ( ((fld_data%gdim .ne. s%msh%gdim) .or. &
+         (fld_data%glb_nelv .ne. s%msh%glb_nelv)) .and. &
          (.not. interpolate)) then
        call neko_error("The fld file must match the current mesh! &
 &Use 'interpolate': 'true' to enable interpolation.")
