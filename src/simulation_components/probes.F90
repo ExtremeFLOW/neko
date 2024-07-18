@@ -572,7 +572,7 @@ contains
   subroutine probes_show(this)
     class(probes_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf ! For logging status
-    integer :: i, n_show, leading_space_pos, n_skip_probes
+    integer :: i, n_show, leading_space_pos
     character(len=80) :: char_n_skip_probes
 
     ! Probes summary
