@@ -144,7 +144,7 @@ contains
        argc = command_argument_count()
 
        if ((argc .lt. 1) .or. (argc .gt. 1)) then
-          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko <case file>'
+          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko < case file >'
           stop
        end if
 
