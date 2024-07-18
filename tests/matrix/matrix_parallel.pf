@@ -165,8 +165,8 @@ contains
     @assertEqual(u%n, w%n)
     @assertEqual(u%nrows, v%nrows)
     @assertEqual(u%nrows, w%nrows)
-    @assertEqual(u%cols, v%cols)
-    @assertEqual(u%cols, w%cols)
+    @assertEqual(u%ncols, v%ncols)
+    @assertEqual(u%ncols, w%ncols)
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -187,7 +187,7 @@ contains
     integer, parameter :: n = 4711, m = 42
     real(kind=rp), parameter :: s =42.0_rp
     type(matrix_t) :: v, u
-    integer :: i
+    integer :: i, j
 
     call v%init(n, m)
     v = 2.0_rp
@@ -206,7 +206,7 @@ contains
     u = v + s
     @assertEqual(u%n, v%n)
     @assertEqual(u%nrows, v%nrows)
-    @assertEqual(u%cols, v%cols)
+    @assertEqual(u%ncols, v%ncols)
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -226,9 +226,9 @@ contains
     class (test_matrix), intent(inout) :: this
     integer, parameter :: n = 42, m = 37
     type(matrix_t) :: u, v, w
-    integer :: i
+    integer :: i, j
 
-    call w%init(n)
+    call w%init(n, m)
     call v%init(n, m)
 
     v = 3.0_rp
@@ -251,8 +251,8 @@ contains
     @assertEqual(u%n, w%n)
     @assertEqual(u%nrows, v%nrows)
     @assertEqual(u%nrows, w%nrows)
-    @assertEqual(u%cols, v%cols)
-    @assertEqual(u%cols, w%cols)
+    @assertEqual(u%ncols, v%ncols)
+    @assertEqual(u%ncols, w%ncols)
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -273,7 +273,7 @@ contains
     integer, parameter :: n = 4711, m = 42
     real(kind=rp), parameter :: s =42.0_rp
     type(matrix_t) :: v, u
-    integer :: i
+    integer :: i, j
 
     call v%init(n, m)
     v = 2.0_rp
@@ -292,7 +292,7 @@ contains
     u = v - s
     @assertEqual(u%n, v%n)
     @assertEqual(u%nrows, v%nrows)
-    @assertEqual(u%cols, v%cols)
+    @assertEqual(u%ncols, v%ncols)
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -313,7 +313,7 @@ contains
     integer, parameter :: n = 4711, m = 42
     real(kind=rp), parameter :: s =42.0_rp
     type(matrix_t) :: v, u
-    integer :: i
+    integer :: i, j
 
     call v%init(n, m)
     v = 2.0_rp
@@ -332,7 +332,7 @@ contains
     u = s*v
     @assertEqual(u%n, v%n)
     @assertEqual(u%nrows, v%nrows)
-    @assertEqual(u%cols, v%cols)
+    @assertEqual(u%ncols, v%ncols)
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
