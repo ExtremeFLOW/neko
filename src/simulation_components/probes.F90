@@ -579,13 +579,13 @@ contains
     call neko_log%section('Probes')
     write(log_buf, '(A,I6)') "Number of probes: ", this%n_global_probes
     call neko_log%message(log_buf)
-    call neko_log%message("xyz-coordinates:")
 
     ! Number of probes to show
     n_show = min(this%n_local_probes, NEKO_MAX_LOG_PROBES)
 
     ! Output the first half of the probes (with special treatment for the loop
     ! in case number of probes is = 1)
+    call neko_log%message("xyz-coordinates:", lvl = NEKO_LOG_DEBUG)
     do i = 1, max(1, n_show/2)
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
        call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
