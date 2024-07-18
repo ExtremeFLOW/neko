@@ -139,8 +139,8 @@ module opencl_intf
 
   interface
      type (c_ptr) function clCreateContext(properties, num_devices, devices, &
-                                           pfn_notify, user_data, ierr)
-       & bind(c, name='clCreateContext')
+                                           pfn_notify, user_data, ierr) &
+       bind(c, name='clCreateContext')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: properties
