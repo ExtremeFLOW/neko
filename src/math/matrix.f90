@@ -154,7 +154,8 @@ contains
           call device_map(m%x, m%x_d, m%n)
        end if
     else
-       if (m%n .ne. w%n) call neko_error("Cannot assign matrices that do not &
+       if (m%nrows .ne. w%nrows .or. m%ncols .ne. w%ncols) &
+            call neko_error("Cannot assign matrices that do not &
 &have the same size!")
     end if
 
@@ -188,7 +189,8 @@ contains
     class(matrix_t), intent(in) :: m, b
     type(matrix_t) :: v
 
-    if (m%n .ne. b%n) call neko_error("Matrices must be the same size!")
+    if (m%nrows .ne. b%nrows .or. m%ncols .ne. b%ncols) &
+         call neko_error("Matrices must be the same size!")
 
     if (.not. allocated(v%x)) then
 
@@ -201,7 +203,8 @@ contains
           call device_map(v%x, v%x_d, v%n)
        end if
     else
-       if (v%n .ne. b%n) call neko_error("Cannot assign matrices that do not &
+       if (v%nrows .ne. b%nrows .or. v%ncols .ne. b%ncols) &
+            call neko_error("Cannot assign matrices that do not &
 &have the same size!")
     end if
 
@@ -230,7 +233,8 @@ contains
           call device_map(v%x, v%x_d, v%n)
        end if
     else
-       if (v%n .ne. m%n) call neko_error("Cannot assign matrices that do not &
+       if (v%nrows .ne. m%nrows .or. v%ncols .ne. m%ncols) &
+            call neko_error("Cannot assign matrices that do not &
 &have the same size!")
     end if
 
@@ -257,7 +261,8 @@ contains
     class(matrix_t), intent(in) :: m, b
     type(matrix_t) :: v
 
-    if (m%n .ne. b%n) call neko_error("Matrices must be the same size!")
+    if (m%nrows .ne. b%nrows .or. m%ncols .ne. b%ncols) &
+         call neko_error("Matrices must be the same size!")
 
     if (.not. allocated(v%x)) then
 
@@ -270,7 +275,8 @@ contains
           call device_map(v%x, v%x_d, v%n)
        end if
     else
-       if (v%n .ne. m%n) call neko_error("Cannot assign matrices that do not &
+       if (v%nrows .ne. m%nrows .or. v%ncols .ne. m%ncols) &
+            call neko_error("Cannot assign matrices that do not &
 &have the same size!")
     end if
 
@@ -299,7 +305,8 @@ contains
           call device_map(v%x, v%x_d, v%n)
        end if
     else
-       if (v%n .ne. m%n) call neko_error("Cannot assign matrices that do not &
+       if (v%nrows .ne. m%nrows .or. v%ncols .ne. m%ncols) &
+            call neko_error("Cannot assign matrices that do not &
 &have the same size!")
     end if
 
@@ -344,7 +351,8 @@ contains
           call device_map(v%x, v%x_d, v%n)
        end if
     else
-       if (v%n .ne. m%n) call neko_error("Cannot assign matrices that do not &
+       if (v%nrows .ne. m%nrows .or. v%ncols .ne. m%ncols) &
+            call neko_error("Cannot assign matrices that do not &
 &have the same size!")
     end if
 
