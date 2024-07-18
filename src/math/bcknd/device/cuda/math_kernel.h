@@ -118,6 +118,23 @@ __global__ void cadd_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for cadd2
+ */
+template< typename T >
+__global__ void cadd2_kernel(T * __restrict__ a,
+                             T * __restrict__ b,
+                             const T c,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i] + c;
+  }
+}
+
+/**
  * Device kernel for cfill
  */
 template< typename T >

@@ -104,6 +104,18 @@ module device_math
   end interface
 
   interface
+     subroutine hip_cadd2(a_d, b_d, c, n) &
+          bind(c, name='hip_cadd2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine hip_cadd2
+  end interface
+
+  interface
      subroutine hip_cfill(a_d, c, n) &
           bind(c, name='hip_cfill')
        use, intrinsic :: iso_c_binding
@@ -412,7 +424,6 @@ module device_math
      end subroutine cuda_cmult2
   end interface
 
-
   interface
      subroutine cuda_cadd(a_d, c, n) &
           bind(c, name='cuda_cadd')
@@ -422,6 +433,18 @@ module device_math
        real(c_rp) :: c
        integer(c_int) :: n
      end subroutine cuda_cadd
+  end interface
+
+  interface
+     subroutine cuda_cadd2(a_d, b_d, c, n) &
+          bind(c, name='cuda_cadd2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine cuda_cadd2
   end interface
 
   interface
@@ -742,6 +765,18 @@ module device_math
        real(c_rp) :: c
        integer(c_int) :: n
      end subroutine opencl_cadd
+  end interface
+
+  interface
+     subroutine opencl_cadd2(a_d, b_d, c, n) &
+          bind(c, name='opencl_cadd2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cadd2
   end interface
 
   interface

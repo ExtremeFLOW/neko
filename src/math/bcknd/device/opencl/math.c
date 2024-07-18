@@ -214,6 +214,32 @@ void opencl_cadd(void *a, real *c, int *n) {
                                   0, NULL, NULL));
 }
 
+/** Fortran wrapper for cadd
+ * Add a scalar to vector \f$ a = b + s \f$
+ */
+void opencl_cadd2(void *a, void *b, real *c, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "cadd2_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
 /** Fortran wrapper for cfill
  * Fill all elements to a constant c \f$ a = c  \f$
  */
@@ -267,7 +293,7 @@ void opencl_add2(void *a, void *b, int *n) {
 
 /**
  * Fortran wrapper for add3
- * Vector subtraction \f$ a = b - c \f$
+ * Vector addition \f$ a = b + c \f$
  */
 void opencl_add3(void *a, void *b, void *c, int *n) {
   cl_int err;

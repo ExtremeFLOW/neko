@@ -102,7 +102,7 @@ module math
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv
+       swap, reord, flipv, cadd2
 
 contains
 
@@ -296,6 +296,19 @@ contains
        a(i) = a(i) + s
     end do
   end subroutine cadd
+
+  !> Add a scalar to vector \f$ a = b + s \f$
+  subroutine cadd2(a, b, s, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: s
+    integer :: i
+
+    do i = 1, n
+       a(i) = b(i) + s
+    end do
+  end subroutine cadd2
 
   !> Set all elements to a constant c \f$ a = c \f$
   subroutine cfill(a, c, n)

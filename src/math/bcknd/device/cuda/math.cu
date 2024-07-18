@@ -161,7 +161,7 @@ extern "C" {
 
   /**
    * Fortran wrapper for add3
-   * Vector subtraction \f$ a = b + c \f$
+   * Vector addition \f$ a = b + c \f$
    */
   void cuda_add3(void *a, void *b, void *c, int *n) {
 
