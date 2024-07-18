@@ -65,7 +65,7 @@ extern "C" {
                                        (real *) penalty_facet_d,
                                        (real *) dphidxi_d,
                                        * nx);
-    HIP_CHECK(hipGetLastError());
+    CUDA_CHECK(cudaGetLastError());
   }
 
 }
