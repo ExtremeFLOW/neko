@@ -59,8 +59,6 @@ module probes
   implicit none
   private
 
-  integer, parameter :: NEKO_MAX_LOG_PROBES = 20
-
   type, public, extends(simulation_component_t) :: probes_t
      !> Number of output fields
      integer :: n_fields = 0
@@ -572,40 +570,17 @@ contains
   subroutine probes_show(this)
     class(probes_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf ! For logging status
-    integer :: i, n_show, leading_space_pos
-    character(len=80) :: char_n_skip_probes
+    integer :: i
 
     ! Probes summary
     call neko_log%section('Probes')
     write(log_buf, '(A,I6)') "Number of probes: ", this%n_global_probes
     call neko_log%message(log_buf)
 
-    ! Number of probes to show
-    n_show = min(this%n_local_probes, NEKO_MAX_LOG_PROBES)
-
-    ! Output the first half of the probes (with special treatment for the loop
-    ! in case number of probes is = 1)
     call neko_log%message("xyz-coordinates:", lvl = NEKO_LOG_DEBUG)
-    do i = 1, max(1, n_show/2)
-       write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
-       call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
-    end do
-
-    ! If we have too many probes, show how many we are skipping
-    if (this%n_local_probes .gt. NEKO_MAX_LOG_PROBES) then
-
-       ! We do this to print the number of probes to skip in a nice way
-       write (char_n_skip_probes, *) this%n_local_probes - NEKO_MAX_LOG_PROBES
-       leading_space_pos = scan(trim(char_n_skip_probes), " ", back = .true.)
-       char_n_skip_probes = trim(char_n_skip_probes(leading_space_pos + 1:))
-
-       write (log_buf, '(A,A,A)') "... skipping ", trim(char_n_skip_probes),&
-            " probes"
-       call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
-    end if
 
     ! Show the other half of the probes
-    do i = this%n_local_probes - n_show/2 + 1, this%n_local_probes
+    do i = 1, this%n_local_probes
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
        call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     end do
