@@ -115,7 +115,7 @@ contains
 
     if (pe_rank .eq. 0) then
        do i = 1, this%indent_
-          write(*,'(A)', advance='no') ' '
+          write(*,'(A)', advance = 'no') ' '
        end do
     end if
 
@@ -194,12 +194,12 @@ contains
        write(*,*) ' '
        call this%indent()
        do i = 1, pre
-          write(*,'(A)', advance='no') '-'
+          write(*,'(A)', advance = 'no') '-'
        end do
 
-       write(*,'(A)', advance='no') trim(msg)
+       write(*,'(A)', advance = 'no') trim(msg)
        do i = 1, 30 - (len_trim(msg) + pre)
-          write(*,'(A)', advance='no') '-'
+          write(*,'(A)', advance = 'no') '-'
        end do
        write(*,*) ' '
     end if
@@ -233,14 +233,16 @@ contains
 
     t_prog = 100d0 * t / T_end
 
-    call this%message('----------------------------------------------------------------', &
-                      NEKO_LOG_QUIET)
+    call this%message( &
+      & '----------------------------------------------------------------', &
+      & NEKO_LOG_QUIET)
     write(log_buf, '(A,E15.7,A,F6.2,A)') &
-    't = ', t, '                                  [ ',t_prog,'% ]'
+      't = ', t, '                                  [ ', t_prog, '% ]'
 
     call this%message(log_buf, NEKO_LOG_QUIET)
-    call this%message('----------------------------------------------------------------', &
-                      NEKO_LOG_QUIET)
+    call this%message( &
+      & '----------------------------------------------------------------', &
+      & NEKO_LOG_QUIET)
   end subroutine log_status
 
   !
@@ -249,7 +251,7 @@ contains
 
   !> Write a message to a log (from C)
   !! @note This assumes the global log stream @a neko_log
-  subroutine log_message_c(c_msg) bind(c, name='log_message')
+  subroutine log_message_c(c_msg) bind(c, name = 'log_message')
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
@@ -271,7 +273,7 @@ contains
 
   !> Write an error message to a log (from C)
   !! @note This assumes the global log stream @a neko_log
-  subroutine log_error_c(c_msg) bind(c, name="log_error")
+  subroutine log_error_c(c_msg) bind(c, name = "log_error")
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
@@ -286,14 +288,14 @@ contains
        end do
 
        call neko_log%indent()
-       write(*, '(A,A,A)') '*** ERROR: ',trim(msg(1:len)),'  ***'
+       write(*, '(A,A,A)') '*** ERROR: ', trim(msg(1:len)),'  ***'
     end if
 
   end subroutine log_error_c
 
   !> Write a warning message to a log (from C)
   !! @note This assumes the global log stream @a neko_log
-  subroutine log_warning_c(c_msg) bind(c, name="log_warning")
+  subroutine log_warning_c(c_msg) bind(c, name = "log_warning")
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
@@ -308,14 +310,14 @@ contains
        end do
 
        call neko_log%indent()
-       write(*, '(A,A,A)') '*** WARNING: ',trim(msg(1:len)),'  ***'
+       write(*, '(A,A,A)') '*** WARNING: ', trim(msg(1:len)),'  ***'
     end if
 
   end subroutine log_warning_c
 
   !> Begin a new log section (from C)
   !! @note This assumes the global log stream @a neko_log
-  subroutine log_section_c(c_msg) bind(c, name="log_section")
+  subroutine log_section_c(c_msg) bind(c, name = "log_section")
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
@@ -336,7 +338,7 @@ contains
 
   !> End a log section (from C)
   !! @note This assumes the global log stream @a neko_log
-  subroutine log_end_section_c() bind(c, name="log_end_section")
+  subroutine log_end_section_c() bind(c, name = "log_end_section")
 
     call neko_log%end_section()
 
