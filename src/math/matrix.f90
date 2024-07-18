@@ -143,6 +143,10 @@ contains
     class(matrix_t), intent(inout) :: m
     type(matrix_t), intent(in) :: w
 
+    if (allocated(m%x)) then
+       call m%free()
+    end if
+
     if (.not. allocated(m%x)) then
 
        m%nrows = w%nrows
@@ -153,10 +157,7 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(m%x, m%x_d, m%n)
        end if
-    else
-       if (m%nrows .ne. w%nrows .or. m%ncols .ne. w%ncols) &
-            call neko_error("Cannot assign matrices that do not &
-&have the same size!")
+
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
