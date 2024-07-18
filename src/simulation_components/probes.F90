@@ -572,7 +572,8 @@ contains
   subroutine probes_show(this)
     class(probes_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf ! For logging status
-    integer :: i, n_show
+    integer :: i, n_show, leading_space_pos
+    character(len=80) :: char_n_skip_probes
 
     ! Probes summary
     call neko_log%section('Probes')
@@ -589,9 +590,15 @@ contains
     end do
 
     ! If we have too many probes, show how many we are skipping
-    if (this%n_local_probes .lt. NEKO_MAX_LOG_PROBES) then
-       write (log_buf, '(A,I9,A)') "(Skipping ", &
-            this%n_local_probes - NEKO_MAX_LOG_PROBES ," probes)"
+    if (this%n_local_probes .gt. NEKO_MAX_LOG_PROBES) then
+
+       ! We do this to print the number of probes to skip in a nice way
+       write (char_n_skip_probes, *) this%n_local_probes - NEKO_MAX_LOG_PROBES
+       leading_space_pos = scan(trim(char_n_skip_probes), " ", back = .true.)
+       char_n_skip_probes = trim(char_n_skip_probes(leading_space_pos + 1:))
+
+       write (log_buf, '(A,A,A)') "... skipping ", trim(char_n_skip_probes),&
+            " probes"
        call neko_log%message(log_buf)
     end if
 
