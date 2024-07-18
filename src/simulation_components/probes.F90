@@ -572,7 +572,7 @@ contains
   subroutine probes_show(this)
     class(probes_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf ! For logging status
-    integer :: i
+    integer :: i, n_show
 
     ! Probes summary
     call neko_log%section('Probes')
@@ -580,10 +580,28 @@ contains
     call neko_log%message(log_buf)
     call neko_log%message("xyz-coordinates:")
 
-    do i = 1, this%n_local_probes
+    n_show = min(this%n_local_probes, NEKO_MAX_LOG_PROBES)
+
+    ! Output the first half of the probes
+    do i = 1, n_show/2
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
        call neko_log%message(log_buf)
     end do
+
+    ! If we have too many probes, show how many we are skipping
+    if (this%n_local_probes .lt. NEKO_MAX_LOG_PROBES) then
+       write (log_buf, '(A,I9,A)') "(Skipping ", &
+            this%n_local_probes - NEKO_MAX_LOG_PROBES ," probes)"
+       call neko_log%message(log_buf)
+    end if
+
+    ! Show the other half of the probes, with special care for the lower
+    ! bound of the loop in case there is only 1 probe to show
+    do i = max(1, n_show/2), n_show
+       write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
+       call neko_log%message(log_buf)
+    end do
+
     ! Field summary
     write(log_buf, '(A,I6)') "Number of fields: ", this%n_fields
     call neko_log%message(log_buf)
