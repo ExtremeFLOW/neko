@@ -33,7 +33,7 @@
 !> Defines a vector
 module vector
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: cadd, cfill, sub3, copy, chsign, add3, cmult, cmult2
+  use math, only: cadd, cfill, sub3, copy, chsign, add3, cmult, cmult2, cadd2
   use num_types, only: rp
   use device, only: device_map, device_free, c_ptr, C_NULL_PTR
   use device_mathops, only: device_opchsign
@@ -217,6 +217,8 @@ contains
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
+    integer :: i
+
     if (allocated(v%x)) then
        call v%free()
     end if
@@ -232,11 +234,11 @@ contains
 
     end if
 
-    v = a
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_copy(v%x_d, a%x_d, v%n)
        call device_cadd(v%x_d, c, v%n)
     else
-       call cadd(v%x, c, a%n)
+       call cadd2(v%x, a%x, c, v%n)
     end if
 
   end function vector_add_scalar_left
