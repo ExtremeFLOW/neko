@@ -60,11 +60,10 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue; 
 
     gradient_jump_penalty_finalize_kernel<real>
-     <<<nblcks, nthrds,0, stream>>>(nblcks, nthrds, 0, stream,
-                                       (real *) penalty_d,
-                                       (real *) penalty_facet_d,
-                                       (real *) dphidxi_d,
-                                       * nx);
+     <<<nblcks, nthrds,0, stream>>>((real *) penalty_d,
+                                    (real *) penalty_facet_d,
+                                    (real *) dphidxi_d,
+                                    * nx);
     CUDA_CHECK(cudaGetLastError());
   }
 
