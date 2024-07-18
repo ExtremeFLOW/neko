@@ -572,7 +572,7 @@ contains
   subroutine probes_show(this)
     class(probes_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf ! For logging status
-    integer :: i, n_show, leading_space_pos
+    integer :: i, n_show, leading_space_pos, n_skip_probes
     character(len=80) :: char_n_skip_probes
 
     ! Probes summary
@@ -581,10 +581,12 @@ contains
     call neko_log%message(log_buf)
     call neko_log%message("xyz-coordinates:")
 
+    ! Number of probes to show
     n_show = min(this%n_local_probes, NEKO_MAX_LOG_PROBES)
 
-    ! Output the first half of the probes
-    do i = 1, n_show/2
+    ! Output the first half of the probes (with special treatment for the loop
+    ! in case number of probes is = 1)
+    do i = 1, max(1, n_show/2)
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
        call neko_log%message(log_buf)
     end do
@@ -602,9 +604,8 @@ contains
        call neko_log%message(log_buf)
     end if
 
-    ! Show the other half of the probes, with special care for the lower
-    ! bound of the loop in case there is only 1 probe to show
-    do i = max(1, n_show/2), n_show
+    ! Show the other half of the probes
+    do i = this%n_local_probes - n_show/2 + 1, this%n_local_probes
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
        call neko_log%message(log_buf)
     end do
