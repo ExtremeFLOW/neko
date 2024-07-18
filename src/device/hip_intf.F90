@@ -235,7 +235,7 @@ contains
 
   subroutine hip_init
     if (hip_device_count() .ne. 1) then
-       call neko_error('Only one device is supported per MPI node')
+       call neko_error('Only one device is supported per MPI rank')
     end if
 
     if (hipDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
