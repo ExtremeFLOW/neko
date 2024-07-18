@@ -37,7 +37,7 @@
 module probes
   use num_types, only: rp
   use matrix, only: matrix_t
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use utils, only: neko_error, nonlinear_index
   use field_list, only: field_list_t
   use simulation_component
@@ -588,7 +588,7 @@ contains
     ! in case number of probes is = 1)
     do i = 1, max(1, n_show/2)
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     end do
 
     ! If we have too many probes, show how many we are skipping
@@ -601,13 +601,13 @@ contains
 
        write (log_buf, '(A,A,A)') "... skipping ", trim(char_n_skip_probes),&
             " probes"
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     end if
 
     ! Show the other half of the probes
     do i = this%n_local_probes - n_show/2 + 1, this%n_local_probes
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     end do
 
     ! Field summary
@@ -615,7 +615,7 @@ contains
     call neko_log%message(log_buf)
     do i=1,this%n_fields
        write(log_buf, '(A,I6, A ,A)') "Field: ", i, " ", trim(this%which_fields(i))
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     end do
     call neko_log%end_section()
     call neko_log%newline()
