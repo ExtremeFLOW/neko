@@ -679,8 +679,8 @@ contains
   !! @param lx Order of polynomial plus one
   !! @param nelv Number of elements
   subroutine gradient_jump_penalty_finalize_hex(penalty, wa, dphidxi, lx, nelv)
-    real(kind=rp), intent(inout) :: penalty(lx, lx, lx, nelv)
     integer, intent(in) :: lx, nelv
+    real(kind=rp), intent(inout) :: penalty(lx, lx, lx, nelv)
     real(kind=rp), intent(in) :: wa(lx + 2, lx + 2, lx + 2, nelv)
     real(kind=rp), intent(in) :: dphidxi(lx, lx)
 
