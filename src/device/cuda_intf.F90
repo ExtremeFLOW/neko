@@ -288,7 +288,6 @@ contains
   subroutine cuda_init
     integer(c_int) :: device_id
     integer :: nthrds = 1
-    integer(c_int) :: num_devices
 
     !$omp parallel
     !$omp master
@@ -296,12 +295,8 @@ contains
     !$omp end master
     !$omp end parallel
 
-    if (cudaGetDeviceCount(num_devices) .ne. cudaSuccess) then
-       call neko_error('Error retrieving device count')
-    end if
-
-    if (num_devices .ne. 1) then
-       call neko_error('Only one device is supported per MPI node')
+    if (cuda_device_count() .ne. 1) then
+       call neko_error('Only one device is supported per MPI rank')
     end if
 
     ! Ensure that all threads are assigned to the same device
