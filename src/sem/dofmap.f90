@@ -74,10 +74,51 @@ module dofmap
   end type dofmap_t
 
   interface dofmap_t
-     module procedure dofmap_init
+     module procedure dofmap_init, dofmap_init_from_coords
   end interface dofmap_t
 
 contains
+
+  !> Initialize a stripped-down version of a dofmap object, with only
+  !! x,y,z coordinates.
+  function dofmap_init_from_coords(x, y, z, nelv, lx, ly, lz) result(this)
+    real(kind=rp), intent(in) :: x(nelv*lx*ly*lz)
+    real(kind=rp), intent(in) :: y(nelv*lx*ly*lz)
+    real(kind=rp), intent(in) :: z(nelv*lx*ly*lz)
+    integer, intent(in) :: nelv
+    integer, intent(in) :: lx
+    integer, intent(in) :: ly
+    integer, intent(in) :: lz
+    type(dofmap_t) :: this
+
+    integer :: n
+
+    call dofmap_free(this)
+
+    this%ntot = lx * ly * lz * nelv
+
+    allocate(this%x(lx, ly, lz, nelv))
+    allocate(this%y(lx, ly, lz, nelv))
+    allocate(this%z(lx, ly, lz, nelv))
+
+    call copy(this%x, x, this%ntot)
+    call copy(this%y, y, this%ntot)
+    call copy(this%z, z, this%ntot)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%x, this%x_d, this%ntot)
+       call device_map(this%y, this%y_d, this%ntot)
+       call device_map(this%z, this%z_d, this%ntot)
+
+       call device_memcpy(this%x, this%x_d, this%ntot, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%y, this%y_d, this%ntot, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%z, this%z_d, this%ntot, &
+                          HOST_TO_DEVICE, sync=.false.)
+    end if
+
+  end function dofmap_init_from_coords
 
   function dofmap_init(msh, Xh) result(this)
     type(mesh_t), target, intent(inout) :: msh !< Mesh

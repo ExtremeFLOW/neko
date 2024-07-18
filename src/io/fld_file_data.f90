@@ -8,6 +8,12 @@ module fld_file_data
   use num_types, only : rp
   use math, only: cmult, add2
   use vector, only : vector_t, vector_ptr_t
+  use field, only: field_t
+  use dofmap, only: dofmap_t
+  use space, only: space_t, GLL
+  use global_interpolation, only: global_interpolation_t
+  use utils, only: neko_error
+  use mesh, only: mesh_t
   implicit none
   private
 
@@ -42,7 +48,10 @@ module fld_file_data
      procedure, pass(this) :: scale => fld_file_data_scale
      procedure, pass(this) :: add => fld_file_data_add
      procedure, pass(this) :: size => fld_file_data_size
-     procedure, pass(this) :: get_list => fld_file_get_list
+     procedure, pass(this) :: get_list => fld_file_data_get_list
+     !> Generates a global_interpolation object to interpolate the fld data.
+     procedure, pass(this) :: generate_interpolator => &
+          fld_file_data_generate_interpolator
   end type fld_file_data_t
 
 contains
@@ -51,6 +60,7 @@ contains
   subroutine fld_file_data_init(this, nelv, offset_el)
     class(fld_file_data_t), intent(inout) :: this
     integer, intent(in), optional :: nelv, offset_el
+
     call this%free()
     if (present(nelv)) this%nelv = nelv
     if (present(offset_el)) this%offset_el = offset_el
@@ -71,7 +81,7 @@ contains
   end function fld_file_data_size
 
   !> Get a list with pointers to the fields in the fld file
-  subroutine fld_file_get_list(this, ptr_list, n)
+  subroutine fld_file_data_get_list(this, ptr_list, n)
     class(fld_file_data_t), target, intent(in) :: this
     integer, intent(in) :: n
     integer :: i, j
@@ -102,7 +112,7 @@ contains
        i = i +1
     end do
 
-  end subroutine fld_file_get_list
+  end subroutine fld_file_data_get_list
 
 
 
@@ -170,5 +180,103 @@ contains
     this%meta_nsamples = 0
     this%meta_start_counter = 0
   end subroutine fld_file_data_free
+
+  !> Generates a global_interpolation object to interpolate the fld data.
+  !! @param to_dof Dofmap on which to interpolate.
+  !! @param to_msh Mesh on which to interpolate.
+  !! @param tolerance Tolerance for the newton iterations.
+  function fld_file_data_generate_interpolator(this, to_dof, &
+       to_msh, tolerance) result(global_interp)
+    class(fld_file_data_t), intent(in) :: this
+    type(dofmap_t), intent(in), target :: to_dof
+    type(mesh_t), intent(in), target :: to_msh
+    real(kind=rp), intent(in), optional :: tolerance
+
+    type(global_interpolation_t) :: global_interp
+
+    ! --- variables for interpolation
+    type(dofmap_t) :: fld_dof
+    type(space_t) :: fld_Xh
+    type(mesh_t) :: fld_empty_mesh
+    real(kind=rp), allocatable :: x_coords(:,:,:,:), y_coords(:,:,:,:), &
+         z_coords(:,:,:,:)
+    real(kind=rp) :: center_x, center_y, center_z
+    integer :: e, i
+    real(kind=rp) :: tol
+    ! ---
+
+    type(space_t), pointer :: to_Xh
+    to_Xh => to_dof%Xh
+
+    ! Safeguard in case we didn't read mesh information
+    if (.not. allocated(this%x%x) .or. &
+         .not. allocated(this%y%x) .or. &
+         .not. allocated(this%z%x)) call neko_error("Unable to retrieve &
+&mesh information from fld data.")
+
+    ! Same tolerance as for chkp
+    tol = 1d-6
+    if (present(tolerance)) tol = tolerance
+
+    ! Create a space based on the fld data
+    call fld_Xh%init(GLL, this%lx, this%ly, this%lz)
+
+    ! Initialize an "empty" mesh and construct a "stripped down"
+    ! dofmap that only has x,y,z coordinates. This is because
+    ! global_interpolator needs a dofmap in its init but in practice
+    ! only uses dof%x, dof%y, dof%z
+    call fld_empty_mesh%init(this%gdim, this%nelv)
+    fld_dof = dofmap_t(this%x%x, this%y%x, this%z%x, &
+         this%nelv, this%lx, this%ly, this%lz)
+
+    ! These are the coordinates of our current dofmap
+    ! that we use for the interpolation
+    allocate(x_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
+    allocate(y_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
+    allocate(z_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
+
+    !> To ensure that each point is within an element
+    !! Remedies issue with points on the boundary
+    !! Technically gives each point a slightly different value
+    !! but still within the specified tolerance
+    do e = 1, to_msh%nelv
+       center_x = 0d0
+       center_y = 0d0
+       center_z = 0d0
+       do i = 1, to_Xh%lxyz
+          center_x = center_x + to_dof%x(i, 1, 1, e)
+          center_y = center_y + to_dof%y(i, 1, 1, e)
+          center_z = center_z + to_dof%z(i, 1, 1, e)
+       end do
+       center_x = center_x / to_Xh%lxyz
+       center_y = center_y / to_Xh%lxyz
+       center_z = center_z / to_Xh%lxyz
+       do i = 1, to_Xh%lxyz
+          x_coords(i, 1, 1, e) = to_dof%x(i, 1, 1, e) - &
+               tol * (to_dof%x(i, 1, 1, e) - center_x)
+          y_coords(i, 1, 1, e) = to_dof%y(i, 1, 1, e) - &
+               tol*(to_dof%y(i, 1, 1, e)-center_y)
+          z_coords(i, 1, 1, e) = to_dof%z(i, 1, 1, e) - &
+               tol*(to_dof%z(i, 1, 1, e)-center_z)
+       end do
+    end do
+
+    ! The initialization is done based on the variables created from
+    ! fld data
+    call global_interp%init(fld_dof, tol = tol, Xh = fld_Xh, &
+         msh = fld_empty_mesh)
+
+    ! Note that to_dof%size() should be equal to
+    ! to_msh%nelv * to_Xh%lxyz
+    if (to_dof%size() .ne. to_msh%nelv*to_Xh%lxyz) &
+         call neko_error("something weird happening")
+    call global_interp%find_points(x_coords, y_coords, z_coords, &
+         to_dof%size())
+
+    deallocate(x_coords)
+    deallocate(y_coords)
+    deallocate(z_coords)
+
+  end function fld_file_data_generate_interpolator
 
 end module fld_file_data

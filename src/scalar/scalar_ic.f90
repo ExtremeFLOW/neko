@@ -51,6 +51,9 @@ module scalar_ic
   use fld_file_data, only: fld_file_data_t
   use checkpoint, only: chkp_t
   use file, only: file_t
+  use global_interpolation, only: global_interpolation_t
+  use interpolation, only: interpolator_t
+  use space, only: space_t, GLL
   implicit none
   private
 
@@ -83,8 +86,8 @@ contains
     character(len=:), allocatable :: read_str, prev_mesh
     character(len=80) :: suffix
     real(kind=rp) :: zone_value, tol
-    logical :: found
-    integer :: sample_idx, fpos
+    logical :: found, found_previous_mesh, interpolate
+    integer :: sample_idx, fpos, sample_mesh_idx
     character(len=LOG_SIZE) :: log_buf
 
     if (trim(type) .eq. 'uniform') then
@@ -121,26 +124,21 @@ contains
 
        if (trim(suffix) .eq. "chkp") then
 
+          ! Look for parameters for interpolation
           call params%get("case.scalar.initial_condition.previous_mesh", &
-               prev_mesh, found)
+               prev_mesh, found_previous_mesh)
+          call neko_log%message("Previous mesh: " // trim(prev_mesh))
 
-          if (found) then
+          if (found_previous_mesh) then
+             call json_get_or_default(params, &
+                  'case.scalar.initial_condition.tolerance', tol, 1d-6)
+             write (log_buf, '(A,F10.6)') "Tolerance    : ", tol
+             call neko_log%message(log_buf)
 
-             call neko_log%message("Previous mesh: " // trim(prev_mesh))
-             call params%get('case.scalar.initial_condition.tolerance', tol, &
-                  found)
-
-             if (found) then
-                write (log_buf, '(A,F10.6)') "Tolerance    : ", tol
-                call neko_log%message(log_buf)
-                call set_scalar_ic_chkp(s, read_str, prev_mesh, tol)
-             else
-                call set_scalar_ic_chkp(s, read_str, prev_mesh)
-             end if
-
-             ! In this case no mesh interpolation but potential for
-             ! interpolation between different polynomial orders
+             call set_scalar_ic_chkp(s, read_str, prev_mesh, tol)
           else
+             ! In this case no mesh interpolation but potential for interpolation
+             ! between different polynomial orders
              call set_scalar_ic_chkp(s, read_str)
           end if
 
@@ -172,8 +170,31 @@ contains
 
           end if
 
-          call set_scalar_ic_fld(s, read_str, sample_idx)
+          ! Check if we want to interpolate our field, default is no
+          call json_get_or_default(params, &
+               'case.scalar.initial_condition.interpolate', interpolate, &
+               .false.)
+
+          if (interpolate) then
+
+             call json_get_or_default(params, &
+                  'case.scalar.initial_condition.tolerance', tol, 1d-6)
+             write (log_buf, '(A,F10.6)') "Tolerance   : ", tol
+             call neko_log%message(log_buf)
+
+             ! Get the index of the file that contains the mesh
+             call json_get_or_default(params, &
+                  'case.scalar.initial_condition.sample_mesh_index', &
+                  sample_mesh_idx, 0)
+
+             call set_scalar_ic_fld(s, read_str, sample_idx, &
+                  interpolate, tol, sample_mesh_idx)
+          else
+             call set_scalar_ic_fld(s, read_str, sample_idx, &
+                  interpolate)
+          end if
        end if
+
     else
        call neko_error('Invalid initial condition')
     end if
@@ -279,51 +300,100 @@ contains
   !! @param file_name The name of the "fld" file series.
   !! @param sample_idx index of the field file .f000* to read, default is
   !! -1..
-  subroutine set_scalar_ic_fld(s, file_name, sample_idx)
+  subroutine set_scalar_ic_fld(s, file_name, sample_idx, &
+       interpolate, tolerance, sample_mesh_idx)
     type(field_t), intent(inout) :: s
     character(len=*), intent(in) :: file_name
     integer, intent(in) :: sample_idx
+    logical, intent(in) :: interpolate
+    real(kind=rp), intent(in), optional :: tolerance
+    integer, intent(in), optional :: sample_mesh_idx
 
     type(fld_file_data_t) :: fld_data
     type(file_t) :: f
 
-    ! Should this init be init(u%msh%nelv, u%msh%offset_el)?
-    call fld_data%init
+    ! ---- For the mesh to mesh interpolation
+    type(global_interpolation_t) :: global_interp
+    ! -----
 
+    ! ---- For space to space interpolation
+    type(space_t) :: prev_Xh
+    type(interpolator_t) :: space_interp
+    ! ----
+
+    call fld_data%init
     f = file_t(trim(file_name))
 
-    ! Set the counter if not the default value
-    if (sample_idx .ne. -1) then
-       call f%set_counter(sample_idx)
-       call f%read(fld_data)
-    else
-       ! If we default to the last file of the series we need to call
-       ! read once to get the # of samples etc
+    ! If no sample is specified, we read as a classic fld series
+    ! with the mesh located at index 0
+    if (sample_idx .eq. -1) then
+
+       ! Read one time to get all information about the fld series
+       ! and read the first file in the series.
        call f%read(fld_data)
 
-       if (fld_data%meta_nsamples .gt. 0) then
+       ! If there is more than one file, read the last one in the series.
+       if (fld_data%meta_nsamples .gt. 1) then
           call f%set_counter(fld_data%meta_nsamples + &
                fld_data%meta_start_counter - 1)
           call f%read(fld_data)
        end if
-    end if
+
+    else
+       ! in this case we specify an fld file to read, so we
+       ! read only that file except if we need to interpolate.
+       ! Interpolation requires to first read the file that contains
+       ! x,y,z values, which is assumed to be the file with index 0
+       ! unless specified. The existence of x,y,z coordinates will
+       ! be checked later anyways as a safeguard.
+       if (interpolate .and. sample_mesh_idx .ne. sample_idx) then
+          call f%set_counter(sample_mesh_idx)
+          call f%read(fld_data)
+       end if
+
+       call f%set_counter(sample_idx)
+       call f%read(fld_data)
+
+    end if ! sample_idx .eq. -1
 
     !
     ! Check if the data in the fld file matches the current case.
     ! Note that this is a safeguard and there are corner cases where
-    ! two different meshes have the same dimension, same # of elements
-    ! and same polynomial orders but this should be enough to cover most cases.
+    ! two different meshes have the same dimension and same # of elements
+    ! but this should be enough to cover the most obvious cases.
     !
-    if ( (fld_data%gdim .ne. s%msh%gdim) .or. &
-         (fld_data%glb_nelv .ne. s%msh%glb_nelv) .or. &
-         (fld_data%lx .ne. s%dof%Xh%lx) .or. &
-         (fld_data%ly .ne. s%dof%Xh%ly) .or. &
-         (fld_data%lz .ne. s%dof%Xh%lz)) then
-       call neko_error("The fld file must match the current mesh")
+    if ( ((fld_data%gdim .ne. u%msh%gdim) .or. &
+         (fld_data%glb_nelv .ne. u%msh%glb_nelv)) .and. &
+         (.not. interpolate)) then
+       call neko_error("The fld file must match the current mesh! &
+&Use 'interpolate': 'true' to enable interpolation.")
+    else if (interpolate) then
+       call neko_log%warning("You have activated interpolation but you may &
+&still be using the same mesh.")
+       call neko_log%message("(do not take this into account if this &
+&was done on purpose)")
     end if
 
-    ! Note: we do not copy on the GPU since `set_flow_ic_common` does the copy for us
-    call copy(s%x, fld_data%t%x, s%dof%size())
+    ! Mesh interpolation if specified
+    if (interpolate) then
+
+       global_interp = fld_data%generate_interpolator(s%dof, s%msh, tolerance)
+
+       ! Evaluate scalar
+       call global_interp%evaluate(s%x, fld_data%t%x)
+       call global_interp%free
+
+    else ! No interpolation
+
+       ! Build a space_t object from the data in the fld file
+       call prev_Xh%init(GLL, fld_data%lx, fld_data%ly, fld_data%lz)
+       call space_interp%init(s%Xh, prev_Xh)
+
+       call space_interp%map_host(s%x, fld_data%t%x, fld_data%nelv, s%Xh)
+
+       call space_interp%free
+
+    end if
 
     call fld_data%free
 

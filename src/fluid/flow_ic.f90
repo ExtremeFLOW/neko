@@ -52,8 +52,6 @@ module flow_ic
   use fld_file_data, only: fld_file_data_t
   use checkpoint, only: chkp_t
   use file, only: file_t
-  use mesh, only: mesh_t
-  use dofmap, only: dofmap_t
   use global_interpolation, only: global_interpolation_t
   use interpolation, only: interpolator_t
   use space, only: space_t, GLL
@@ -200,6 +198,11 @@ contains
                .false.)
 
           if (interpolate) then
+
+             call json_get_or_default(params, &
+                  'case.fluid.initial_condition.tolerance', tol, 1d-6)
+             write (log_buf, '(A,F10.6)') "Tolerance   : ", tol
+             call neko_log%message(log_buf)
 
              ! Get the index of the file that contains the mesh
              call json_get_or_default(params, &
@@ -390,7 +393,7 @@ contains
   !! @param sample_idx index of the field file .f000* to read, default is
   !! -1..
   subroutine set_flow_ic_fld(u, v, w, p, file_name, sample_idx, &
-       interpolate, previous_mesh_fname, tolerance, sample_mesh_idx)
+       interpolate, tolerance, sample_mesh_idx)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
@@ -398,141 +401,104 @@ contains
     character(len=*), intent(in) :: file_name
     integer, intent(in) :: sample_idx
     logical, intent(in) :: interpolate
-    character(len=*), intent(in), optional :: previous_mesh_fname
     real(kind=rp), intent(in), optional :: tolerance
     integer, intent(in), optional :: sample_mesh_idx
 
     type(fld_file_data_t) :: fld_data
-    type(file_t) :: f, meshf
-    type(dofmap_t) :: dof
-    real(kind=rp) :: tol
+    type(file_t) :: f
 
     ! ---- For the mesh to mesh interpolation
-    integer :: e, i
-    type(mesh_t) :: prev_mesh
-    type(space_t) :: prev_Xh
-    real(kind=rp) :: center_x, center_y, center_z
-    real(kind=rp), allocatable :: x_coords(:,:,:,:), y_coords(:,:,:,:), &
-         z_coords(:,:,:,:)
     type(global_interpolation_t) :: global_interp
     ! -----
 
     ! ---- For space to space interpolation
+    type(space_t) :: prev_Xh
     type(interpolator_t) :: space_interp
     ! ----
 
-    ! Should this init be init(u%msh%nelv, u%msh%offset_el)?
     call fld_data%init
-
     f = file_t(trim(file_name))
 
-    ! Set the counter if not the default value
-    if (sample_idx .ne. -1) then
-       call f%set_counter(sample_idx)
-       call f%read(fld_data)
-    else
-       ! If we default to the last file of the series we need to call
-       ! read once to get the # of samples etc
+    ! If no sample is specified, we read as a classic fld series
+    ! with the mesh located at index 0
+    if (sample_idx .eq. -1) then
+
+       ! Read one time to get all information about the fld series
+       ! and read the first file in the series.
        call f%read(fld_data)
 
-       if (fld_data%meta_nsamples .gt. 0) then
+       ! If there is more than one file, read the last one in the series.
+       if (fld_data%meta_nsamples .gt. 1) then
           call f%set_counter(fld_data%meta_nsamples + &
                fld_data%meta_start_counter - 1)
           call f%read(fld_data)
        end if
-    end if
+
+    else
+       ! in this case we specify an fld file to read, so we
+       ! read only that file except if we need to interpolate.
+       ! Interpolation requires to first read the file that contains
+       ! x,y,z values, which is assumed to be the file with index 0
+       ! unless specified. The existence of x,y,z coordinates will
+       ! be checked later anyways as a safeguard.
+       if (interpolate .and. sample_mesh_idx .ne. sample_idx) then
+          call f%set_counter(sample_mesh_idx)
+          call f%read(fld_data)
+       end if
+
+       call f%set_counter(sample_idx)
+       call f%read(fld_data)
+
+    end if ! sample_idx .eq. -1
 
     !
     ! Check if the data in the fld file matches the current case.
     ! Note that this is a safeguard and there are corner cases where
-    ! two different meshes have the same dimension, same # of elements
-    ! and same polynomial orders but this should be enough to cover most cases.
+    ! two different meshes have the same dimension and same # of elements
+    ! but this should be enough to cover the most obvious cases.
     !
-    if ( (fld_data%gdim .ne. u%msh%gdim) .or. &
-         (fld_data%glb_nelv .ne. u%msh%glb_nelv) .or. &
-         (fld_data%lx .ne. u%dof%Xh%lx) .or. &
-         (fld_data%ly .ne. u%dof%Xh%ly) .or. &
-         (fld_data%lz .ne. u%dof%Xh%lz) .and. &
+    if ( ((fld_data%gdim .ne. u%msh%gdim) .or. &
+         (fld_data%glb_nelv .ne. u%msh%glb_nelv)) .and. &
          (.not. interpolate)) then
        call neko_error("The fld file must match the current mesh! &
 &Use 'interpolate': 'true' to enable interpolation.")
+    else if (interpolate) then
+       call neko_log%warning("You have activated interpolation but you may &
+&still be using the same mesh.")
+       call neko_log%message("(do not take this into account if this &
+&was done on purpose)")
     end if
 
     ! Mesh interpolation if specified
     if (interpolate) then
 
-       tol = 1d-6
-       if (present(tolerance)) tol = tolerance
+       global_interp = fld_data%generate_interpolator(u%dof, u%msh, tolerance)
 
-       ! These are the coordinates of our current mesh
-       ! that we use for the interpolation
-       allocate(x_coords(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
-       allocate(y_coords(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
-       allocate(z_coords(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
+       ! Evaluate velocities and pressure
+       call global_interp%evaluate(u%x, fld_data%u%x)
+       call global_interp%evaluate(v%x, fld_data%v%x)
+       call global_interp%evaluate(w%x, fld_data%w%x)
+       call global_interp%evaluate(p%x, fld_data%p%x)
 
-       if (present(previous_mesh_fname)) then ! Interpolate based on previous mesh
-
-          ! Initialize an "empty" mesh and construct a dof object based on that
-          call prev_mesh%init(fld_data%gdim, fld_data%nelv)
-          call prev_Xh%init(GLL, fld_data%lx, fld_data%ly, fld_data%lz)
-          dof = dofmap_t(prev_mesh, prev_Xh)
-
-          !> To ensure that each point is within an element
-          !! Remedies issue with points on the boundary
-          !! Technically gives each point a slightly different value
-          !! but still within the specified tolerance
-          do e = 1, u%dof%msh%nelv
-             center_x = 0d0
-             center_y = 0d0
-             center_z = 0d0
-             do i = 1,u%dof%Xh%lxyz
-                center_x = center_x + u%dof%x(i,1,1,e)
-                center_y = center_y + u%dof%y(i,1,1,e)
-                center_z = center_z + u%dof%z(i,1,1,e)
-             end do
-             center_x = center_x/u%Xh%lxyz
-             center_y = center_y/u%Xh%lxyz
-             center_z = center_z/u%Xh%lxyz
-             do i = 1,u%dof%Xh%lxyz
-                x_coords(i,1,1,e) = u%dof%x(i,1,1,e) - tol*(u%dof%x(i,1,1,e)-center_x)
-                y_coords(i,1,1,e) = u%dof%y(i,1,1,e) - tol*(u%dof%y(i,1,1,e)-center_y)
-                z_coords(i,1,1,e) = u%dof%z(i,1,1,e) - tol*(u%dof%z(i,1,1,e)-center_z)
-             end do
-          end do
-          call global_interp%init(dof,tol=tol)
-          call global_interp%find_points(x_coords,y_coords,z_coords,u%dof%size())
-
-          call global_interp%evaluate(u%x, fld_data%u%x)
-          call global_interp%evaluate(v%x, fld_data%v%x)
-          call global_interp%evaluate(w%x, fld_data%w%x)
-          call global_interp%evaluate(p%x, fld_data%p%x)
-
-       else ! Interpolate based on the points in the fld file
-
-          call neko_error("Interp based on fld file is not supported yet")
-
-       end if
-
-       deallocate(x_coords)
-       deallocate(y_coords)
-       deallocate(z_coords)
        call global_interp%free
 
     else ! No interpolation
 
-       !call space_interp%init(u%Xh, Yh)
+       ! Build a space_t object from the data in the fld file
+       call prev_Xh%init(GLL, fld_data%lx, fld_data%ly, fld_data%lz)
+       call space_interp%init(u%Xh, prev_Xh)
 
-       ! Note: we do not copy on the GPU since `set_flow_ic_common` does the
-       ! copy for us, except for the pressure
-       call copy(u%x, fld_data%u%x, u%dof%size())
-       call copy(v%x, fld_data%v%x, v%dof%size())
-       call copy(w%x, fld_data%w%x, w%dof%size())
-       call copy(p%x, fld_data%p%x, p%dof%size())
+       call space_interp%map_host(u%x, fld_data%u%x, fld_data%nelv, u%Xh)
+       call space_interp%map_host(v%x, fld_data%v%x, fld_data%nelv, u%Xh)
+       call space_interp%map_host(w%x, fld_data%w%x, fld_data%nelv, u%Xh)
+       call space_interp%map_host(p%x, fld_data%p%x, fld_data%nelv, u%Xh)
 
-       !call space_interp%free
+       call space_interp%free
 
     end if
 
+    ! Note: we do not copy on the GPU since `set_flow_ic_common` does the
+    ! copy for us, except for the pressure
     if (NEKO_BCKND_DEVICE .eq. 1) call device_memcpy(p%x, p%x_d, p%dof%size(), &
          HOST_TO_DEVICE, sync = .false.)
 
