@@ -37,7 +37,7 @@
 module probes
   use num_types, only: rp
   use matrix, only: matrix_t
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use utils, only: neko_error, nonlinear_index
   use field_list, only: field_list_t
   use simulation_component
@@ -576,17 +576,19 @@ contains
     call neko_log%section('Probes')
     write(log_buf, '(A,I6)') "Number of probes: ", this%n_global_probes
     call neko_log%message(log_buf)
-    call neko_log%message("xyz-coordinates:")
-    do i=1,this%n_local_probes
+
+    call neko_log%message("xyz-coordinates:", lvl = NEKO_LOG_DEBUG)
+    do i = 1, this%n_local_probes
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     end do
+
     ! Field summary
     write(log_buf, '(A,I6)') "Number of fields: ", this%n_fields
     call neko_log%message(log_buf)
     do i=1,this%n_fields
        write(log_buf, '(A,I6, A ,A)') "Field: ", i, " ", trim(this%which_fields(i))
-       call neko_log%message(log_buf)
+       call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     end do
     call neko_log%end_section()
     call neko_log%newline()
