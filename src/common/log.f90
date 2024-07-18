@@ -76,7 +76,7 @@ contains
     character(len=255) :: log_level
     integer :: envvar_len
 
-    this%indent_ = 1
+    this%indent_ = 0
     this%section_id_ = 0
 
     call get_environment_variable("NEKO_LOG_LEVEL", log_level, envvar_len)
