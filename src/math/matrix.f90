@@ -241,11 +241,10 @@ contains
 
     end if
 
-    v = m
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd(v%x_d, c, v%n)
+       call device_cadd2(v%x_d, m%x_d, c, v%n)
     else
-       call cadd(v%x, c, m%n)
+       call cadd2(v%x, m%x, c, v%n)
     end if
 
   end function matrix_add_scalar_left
@@ -315,11 +314,10 @@ contains
 
     end if
 
-    v = m
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd(v%x_d, -1.0_rp*c, v%n)
+       call device_cadd2(v%x_d, m%x_d, -1.0_rp*c, v%n)
     else
-       call cadd(v%x, -1.0_rp*c, m%n)
+       call cadd2(v%x, m%x, -1.0_rp*c, a%n)
     end if
 
   end function matrix_sub_scalar_left
@@ -368,7 +366,6 @@ contains
     else
        call cmult2(v%x, m%x, c, v%n)
     end if
-
 
   end function matrix_cmult_left
 

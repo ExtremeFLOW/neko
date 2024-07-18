@@ -38,7 +38,7 @@ module vector
   use device, only: device_map, device_free, c_ptr, C_NULL_PTR
   use device_mathops, only: device_opchsign
   use device_math, only: device_copy, device_cfill, device_cadd, device_add2, &
-       device_cmult, device_sub3, device_add2s1, device_cmult2, device_add3
+       device_cmult, device_sub3, device_add2s1, device_cmult2, device_add3, device_cadd2
   use utils, only: neko_error
   use, intrinsic :: iso_c_binding
   implicit none
@@ -235,8 +235,7 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(v%x_d, a%x_d, v%n)
-       call device_cadd(v%x_d, c, v%n)
+       call device_cadd2(v%x_d, a%x_d, c, v%n)
     else
        call cadd2(v%x, a%x, c, v%n)
     end if
@@ -304,11 +303,10 @@ contains
 
     end if
 
-    v = a
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd(v%x_d, -1.0_rp*c, v%n)
+       call device_cadd2(v%x_d, a%x_d, -1.0_rp*c, v%n)
     else
-       call cadd(v%x, -1.0_rp*c, a%n)
+       call cadd2(v%x, a%x, -1.0_rp*c, a%n)
     end if
 
   end function vector_sub_scalar_left
