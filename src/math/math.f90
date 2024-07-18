@@ -284,7 +284,7 @@ contains
     end do
   end subroutine cmult
 
-  !> Add a scalar to vector \f$ a = a + s \f$
+  !> Add a scalar to vector \f$ a_i = a_i + s \f$
   subroutine cadd(a, s, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
@@ -296,7 +296,7 @@ contains
     end do
   end subroutine cadd
 
-  !> Add a scalar to vector \f$ a = b + s \f$
+  !> Add a scalar to vector \f$ a_i = b_i + s \f$
   subroutine cadd2(a, b, s, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
