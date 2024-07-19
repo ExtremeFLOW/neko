@@ -20,7 +20,9 @@ program genmeshbox
   integer :: argc, gdim = 3
   integer :: el_idx, p_el_idx, pt_idx
   integer :: i, zone_id, e_x, e_y, e_z, ix, iy, iz, e_id
-  
+  character(len=50) :: log_fname
+  logical :: file_exists
+
   argc = command_argument_count()
 
   if ((argc .lt. 9) .or. (argc .gt. 12)) then
@@ -65,6 +67,43 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
      read(inputchar, *) period_y
      call get_command_argument(12, inputchar) 
      read(inputchar, *) period_z
+  end if
+
+  log_fname = "genmeshbox.log"
+
+  ! Write a log of what parameters we used with genmeshbox
+  if (pe_rank .eq. 0) then
+
+     do i = 1, 1000
+
+        inquire(file=trim(log_fname), exist=file_exists)
+        if (.not. file_exists) then
+
+           open(unit=10, file=trim(log_fname), status='new', action='write')
+           write (10, '(A,2(F10.6," "),I4,L2)') "xmin, xmax, Nel, periodic:", x0, x1, &
+                nelx, period_x
+           write (10, '(A,2(F10.6," "),I4,L2)') "ymin, ymax, Nel, periodic:", y0, y1, &
+                nely, period_y
+           write (10, '(A,2(F10.6," "),I4,L2)') "zmin, zmax, Nel, periodic:", z0, z1, &
+                nelz, period_z
+           close(10)
+           exit
+
+        end if
+
+        ! if the original genmeshbox.log does not exist, we create new
+        ! files with genmeshbox.log.1, .2, .3, etc
+        if (i .lt. 10) then
+           write(log_fname,'(A,I1)') "genmeshbox.log.", i
+        else if (i .lt. 100) then
+           write(log_fname,'(A,I2)') "genmeshbox.log.", i
+        else if (i .lt. 1000) then
+           write(log_fname,'(A,I3)') "genmeshbox.log.", i
+        else
+           write(log_fname,'(A,I4)') "genmeshbox.log.", i
+        end if
+
+     end do
   end if
 
   nel = nelx*nely*nelz
