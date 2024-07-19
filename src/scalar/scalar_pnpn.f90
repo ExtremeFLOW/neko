@@ -324,6 +324,12 @@ contains
          call col2(f_Xh%x, c_Xh%B, n)
       end if
 
+      ! Compute the grandient jump penalty term
+      if (this%if_gradient_jump_penalty .eqv. .true.) then
+         call this%gradient_jump_penalty%compute(u, v, w, s)
+         call this%gradient_jump_penalty%perform(f_Xh)
+      end if
+
       ! Apply Neumann boundary conditions
       call bc_list_apply_scalar(this%bclst_neumann, this%f_Xh%x, dm_Xh%size())
 
@@ -351,12 +357,6 @@ contains
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, &
                                 this%dm_Xh%size())
-
-      ! Compute the grandient jump penalty term
-      if (this%if_gradient_jump_penalty .eqv. .true.) then
-         call this%gradient_jump_penalty%compute(u, v, w, s)
-         call this%gradient_jump_penalty%perform(f_Xh)
-      end if
 
       ! Update material properties if necessary
       call this%update_material_properties()
