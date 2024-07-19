@@ -1,5 +1,7 @@
 var NAVTREEINDEX40 =
 {
+"de/d2d/cuda_2lambda2__kernel_8h.html#a03e30e9c5cbed7d795086c5d88b560e4":[5,0,2,12,0,1,0,8,24],
+"de/d2d/cuda_2lambda2__kernel_8h.html#a0824b714478122899aee4fcee3a96177":[5,0,2,12,0,1,0,8,8],
 "de/d2d/cuda_2lambda2__kernel_8h.html#a0ddead817000b289b68570d6d5cd60db":[5,0,2,12,0,1,0,8,9],
 "de/d2d/cuda_2lambda2__kernel_8h.html#a0ef5396565efb00c0cc8ef74c8b9cd96":[5,0,2,12,0,1,0,8,4],
 "de/d2d/cuda_2lambda2__kernel_8h.html#a10e2c6bac6fb9462debc04b2f82f33b5":[5,0,2,12,0,1,0,8,10],
@@ -247,7 +249,5 @@ var NAVTREEINDEX40 =
 "de/d7e/pc__jacobi__sx_8f90_source.html":[5,0,2,10,0,2,2],
 "de/d7f/fdm_8hip.html":[5,0,2,12,0,1,1,6],
 "de/d7f/fdm_8hip.html#ad4e70dfe7a27f9912db93f6093cc2b9e":[5,0,2,12,0,1,1,6,0],
-"de/d7f/fdm_8hip.html#afb4bf1f08657776c4e8a11412e48808e":[5,0,2,12,0,1,1,6,1],
-"de/d7f/fdm_8hip_source.html":[5,0,2,12,0,1,1,6],
-"de/d80/interfaceopencl__intf_1_1clGetPlatformIDs.html":[4,0,143,0]
+"de/d7f/fdm_8hip.html#afb4bf1f08657776c4e8a11412e48808e":[5,0,2,12,0,1,1,6,1]
 };

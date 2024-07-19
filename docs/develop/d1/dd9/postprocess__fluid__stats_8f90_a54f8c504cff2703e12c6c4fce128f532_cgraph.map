@@ -21,29 +21,30 @@
 <area shape="rect" id="node19" href="$d7/dd4/namespaceneko__mpi__types.html#a6492ffb373546d8836d2aa2a03339eb6" title="Deallocate STL triangle derived MPI type." alt="" coords="693,761,863,802"/>
 <area shape="rect" id="node21" href="$d3/d8f/namespacecomm.html#afae3434add6b83dcb318017c7c70664a" title=" " alt="" coords="453,877,593,904"/>
 <area shape="rect" id="node22" href="$d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="451,928,595,955"/>
-<area shape="rect" id="node26" href="$d0/dbe/namespacedevice.html#aacdc0ad29b09298498fc06f3106fe4f4" title=" " alt="" coords="443,1059,603,1085"/>
-<area shape="rect" id="node30" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="443,1128,602,1155"/>
-<area shape="rect" id="node32" href="$d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841" title="Initialize jobctrl." alt="" coords="453,1227,593,1253"/>
-<area shape="rect" id="node36" href="$d7/dd4/namespaceneko__mpi__types.html#a119aebb71e9f7bc6fff6105784ecac3b" title="Define all MPI derived types." alt="" coords="439,1594,606,1635"/>
-<area shape="rect" id="node47" href="$d5/d81/namespacesystem.html#a35841ee3fbe6882a5d4c8507984d9904" title="Retrieve the system&#39;s CPU name (type)" alt="" coords="423,1660,623,1687"/>
+<area shape="rect" id="node27" href="$d0/dbe/namespacedevice.html#aacdc0ad29b09298498fc06f3106fe4f4" title=" " alt="" coords="443,1059,603,1085"/>
+<area shape="rect" id="node31" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="443,1128,602,1155"/>
+<area shape="rect" id="node33" href="$d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841" title="Initialize jobctrl." alt="" coords="453,1227,593,1253"/>
+<area shape="rect" id="node37" href="$d7/dd4/namespaceneko__mpi__types.html#a119aebb71e9f7bc6fff6105784ecac3b" title="Define all MPI derived types." alt="" coords="439,1594,606,1635"/>
+<area shape="rect" id="node48" href="$d5/d81/namespacesystem.html#a35841ee3fbe6882a5d4c8507984d9904" title="Retrieve the system&#39;s CPU name (type)" alt="" coords="423,1660,623,1687"/>
 <area shape="rect" id="node23" href="$db/d9a/namespacecuda__intf.html#a27da6bd58a4b66b6c2be1908922c18d1" title=" " alt="" coords="704,827,852,853"/>
 <area shape="rect" id="node24" href="$d0/d4e/namespacehip__intf.html#a1fe3302af910fad64b1e7c2ba5b29d3e" title=" " alt="" coords="715,877,841,904"/>
-<area shape="rect" id="node25" href="$d3/d3b/namespaceopencl__intf.html#a4f119f6561e368585603573f2c8b5041" title=" " alt="" coords="692,928,864,955"/>
-<area shape="rect" id="node27" href="$db/d9a/namespacecuda__intf.html#a05388b77b2bea0507b51694ea4bceb1f" title=" " alt="" coords="671,979,885,1005"/>
-<area shape="rect" id="node28" href="$d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93" title=" " alt="" coords="682,1029,874,1056"/>
-<area shape="rect" id="node29" href="$d3/d3b/namespaceopencl__intf.html#a07ec4ed5818678cf793c11b2b44543ca" title=" " alt="" coords="706,1081,850,1122"/>
-<area shape="rect" id="node31" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="684,1147,872,1173"/>
-<area shape="rect" id="node33" href="$d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f" title="Returns a job&#39;s time in seconds relative to the first call." alt="" coords="693,1197,863,1224"/>
-<area shape="rect" id="node34" href="$d1/daf/namespacesignal.html#adbf88cfbdc7991b88f2ddcc67304f05f" title="Initialize signal handler to trap SIGXCPU." alt="" coords="707,1249,849,1290"/>
-<area shape="rect" id="node35" href="$d1/daf/namespacesignal.html#a4b575d7f80b06fdb51ca6a8c7486d825" title="Initialize signal handler to trap SIGUSR1 and SIGUSR2." alt="" coords="694,1315,862,1341"/>
-<area shape="rect" id="node37" href="$d7/dd4/namespaceneko__mpi__types.html#a19e534d22e0873bb1fc4e4255ee5dd14" title="Define a MPI derived type for a nmsh curved element." alt="" coords="692,1366,864,1407"/>
-<area shape="rect" id="node38" href="$d7/dd4/namespaceneko__mpi__types.html#a493d894ba2476b7133f84584baf6ee39" title="Define a MPI derived type for a 3d nmsh hex." alt="" coords="697,1431,859,1473"/>
-<area shape="rect" id="node39" href="$d7/dd4/namespaceneko__mpi__types.html#a08d4bce14d80ce9956cf3b8555324bd6" title="Define a MPI derived type for a 2d nmsh quad." alt="" coords="694,1497,862,1538"/>
-<area shape="rect" id="node40" href="$d7/dd4/namespaceneko__mpi__types.html#a3aa0dcbfe591954955a65ac8cabfd832" title="Define a MPI derived type for a nmsh zone." alt="" coords="695,1562,861,1603"/>
-<area shape="rect" id="node41" href="$d7/dd4/namespaceneko__mpi__types.html#a9b0a9d3c3e4cf3a2c654d16638c129dc" title="Define a MPI derived type for re2 bc data." alt="" coords="697,1627,859,1669"/>
-<area shape="rect" id="node42" href="$d7/dd4/namespaceneko__mpi__types.html#a6db42947561a610ff314927baf3518d8" title="Define a MPI derived type for re2 cv data." alt="" coords="697,1693,859,1734"/>
-<area shape="rect" id="node43" href="$d7/dd4/namespaceneko__mpi__types.html#abdd7089722ec1da503ebc0bf3fd5b666" title="Define a MPI derived type for a 2d re2 data." alt="" coords="697,1758,859,1799"/>
-<area shape="rect" id="node44" href="$d7/dd4/namespaceneko__mpi__types.html#ac4a4ed902f6de403063346d52120f97c" title="Define a MPI derived type for a 3d re2 data." alt="" coords="697,1823,859,1865"/>
-<area shape="rect" id="node45" href="$d7/dd4/namespaceneko__mpi__types.html#a145a40499bcab0b08fb996f110328d30" title="Define a MPI dervied type for a STL header." alt="" coords="697,1889,859,1930"/>
-<area shape="rect" id="node46" href="$d7/dd4/namespaceneko__mpi__types.html#a42574c77310686e48827dfff24bd55c0" title="Define a MPI derived type for a STL triangle." alt="" coords="695,1954,861,1995"/>
+<area shape="rect" id="node26" href="$d3/d3b/namespaceopencl__intf.html#a4f119f6561e368585603573f2c8b5041" title=" " alt="" coords="692,928,864,955"/>
+<area shape="rect" id="node25" href="$d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d" title="Return the number of available HIP devices." alt="" coords="933,870,1081,911"/>
+<area shape="rect" id="node28" href="$db/d9a/namespacecuda__intf.html#a05388b77b2bea0507b51694ea4bceb1f" title=" " alt="" coords="671,979,885,1005"/>
+<area shape="rect" id="node29" href="$d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93" title=" " alt="" coords="682,1029,874,1056"/>
+<area shape="rect" id="node30" href="$d3/d3b/namespaceopencl__intf.html#a07ec4ed5818678cf793c11b2b44543ca" title=" " alt="" coords="706,1081,850,1122"/>
+<area shape="rect" id="node32" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="684,1147,872,1173"/>
+<area shape="rect" id="node34" href="$d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f" title="Returns a job&#39;s time in seconds relative to the first call." alt="" coords="693,1197,863,1224"/>
+<area shape="rect" id="node35" href="$d1/daf/namespacesignal.html#adbf88cfbdc7991b88f2ddcc67304f05f" title="Initialize signal handler to trap SIGXCPU." alt="" coords="707,1249,849,1290"/>
+<area shape="rect" id="node36" href="$d1/daf/namespacesignal.html#a4b575d7f80b06fdb51ca6a8c7486d825" title="Initialize signal handler to trap SIGUSR1 and SIGUSR2." alt="" coords="694,1315,862,1341"/>
+<area shape="rect" id="node38" href="$d7/dd4/namespaceneko__mpi__types.html#a19e534d22e0873bb1fc4e4255ee5dd14" title="Define a MPI derived type for a nmsh curved element." alt="" coords="692,1366,864,1407"/>
+<area shape="rect" id="node39" href="$d7/dd4/namespaceneko__mpi__types.html#a493d894ba2476b7133f84584baf6ee39" title="Define a MPI derived type for a 3d nmsh hex." alt="" coords="697,1431,859,1473"/>
+<area shape="rect" id="node40" href="$d7/dd4/namespaceneko__mpi__types.html#a08d4bce14d80ce9956cf3b8555324bd6" title="Define a MPI derived type for a 2d nmsh quad." alt="" coords="694,1497,862,1538"/>
+<area shape="rect" id="node41" href="$d7/dd4/namespaceneko__mpi__types.html#a3aa0dcbfe591954955a65ac8cabfd832" title="Define a MPI derived type for a nmsh zone." alt="" coords="695,1562,861,1603"/>
+<area shape="rect" id="node42" href="$d7/dd4/namespaceneko__mpi__types.html#a9b0a9d3c3e4cf3a2c654d16638c129dc" title="Define a MPI derived type for re2 bc data." alt="" coords="697,1627,859,1669"/>
+<area shape="rect" id="node43" href="$d7/dd4/namespaceneko__mpi__types.html#a6db42947561a610ff314927baf3518d8" title="Define a MPI derived type for re2 cv data." alt="" coords="697,1693,859,1734"/>
+<area shape="rect" id="node44" href="$d7/dd4/namespaceneko__mpi__types.html#abdd7089722ec1da503ebc0bf3fd5b666" title="Define a MPI derived type for a 2d re2 data." alt="" coords="697,1758,859,1799"/>
+<area shape="rect" id="node45" href="$d7/dd4/namespaceneko__mpi__types.html#ac4a4ed902f6de403063346d52120f97c" title="Define a MPI derived type for a 3d re2 data." alt="" coords="697,1823,859,1865"/>
+<area shape="rect" id="node46" href="$d7/dd4/namespaceneko__mpi__types.html#a145a40499bcab0b08fb996f110328d30" title="Define a MPI dervied type for a STL header." alt="" coords="697,1889,859,1930"/>
+<area shape="rect" id="node47" href="$d7/dd4/namespaceneko__mpi__types.html#a42574c77310686e48827dfff24bd55c0" title="Define a MPI derived type for a STL triangle." alt="" coords="695,1954,861,1995"/>
 </map>

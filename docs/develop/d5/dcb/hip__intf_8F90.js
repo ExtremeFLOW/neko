@@ -19,6 +19,7 @@ var hip__intf_8F90 =
     [ "hipEventCreateWithFlags", "d1/d50/interfacehip__intf_1_1hipEventCreateWithFlags.html", "d1/d50/interfacehip__intf_1_1hipEventCreateWithFlags" ],
     [ "hipEventRecord", "d2/d17/interfacehip__intf_1_1hipEventRecord.html", "d2/d17/interfacehip__intf_1_1hipEventRecord" ],
     [ "hipEventSynchronize", "dd/dfb/interfacehip__intf_1_1hipEventSynchronize.html", "dd/dfb/interfacehip__intf_1_1hipEventSynchronize" ],
+    [ "hip_device_count", "d5/dcb/hip__intf_8F90.html#ae76e470dcd046e7ef62b0273edd6c56d", null ],
     [ "hip_device_name", "d5/dcb/hip__intf_8F90.html#a1c8e3cf5e89ffe1b50253b6b38e45a93", null ],
     [ "hip_finalize", "d5/dcb/hip__intf_8F90.html#a46ebe304218d34d01b56a41e65488e1f", null ],
     [ "hip_init", "d5/dcb/hip__intf_8F90.html#a1fe3302af910fad64b1e7c2ba5b29d3e", null ],

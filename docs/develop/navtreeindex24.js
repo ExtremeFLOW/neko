@@ -1,5 +1,7 @@
 var NAVTREEINDEX24 =
 {
+"d9/d30/namespacestack.html#a450c7cf318a461ff9b653321e3f9f036":[3,0,253,43],
+"d9/d30/namespacestack.html#a48847c813469361b6b8f1fe4ae32866f":[3,0,253,45],
 "d9/d30/namespacestack.html#a5a4b7c3014d679799f549d996d9cb6f3":[3,0,253,26],
 "d9/d30/namespacestack.html#a6d4c956c5558f537dba735e6123cbedf":[3,0,253,31],
 "d9/d30/namespacestack.html#a79cec106f53a59b8b61f9202fe3ed592":[3,0,253,42],
@@ -247,7 +249,5 @@ var NAVTREEINDEX24 =
 "d9/d88/structcheckpoint_1_1chkp__t.html":[4,0,27,0],
 "d9/d88/structcheckpoint_1_1chkp__t.html#a098eab33bbbb3dff74e739813c27bb19":[4,0,27,0,3],
 "d9/d88/structcheckpoint_1_1chkp__t.html#a0d202474ee7f62ed0dfb28b94b6d01ca":[4,0,27,0,23],
-"d9/d88/structcheckpoint_1_1chkp__t.html#a1771158e352d6ad3929e93218dd1a560":[4,0,27,0,0],
-"d9/d88/structcheckpoint_1_1chkp__t.html#a1c109d2aa55ea8f4aef2fe3c02bdc12e":[4,0,27,0,7],
-"d9/d88/structcheckpoint_1_1chkp__t.html#a2a59a920e42b1bb2c904ee48aca04636":[4,0,27,0,4]
+"d9/d88/structcheckpoint_1_1chkp__t.html#a1771158e352d6ad3929e93218dd1a560":[4,0,27,0,0]
 };

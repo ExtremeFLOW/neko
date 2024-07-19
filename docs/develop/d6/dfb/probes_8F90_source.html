@@ -130,7 +130,7 @@ $(document).ready(function(){initNavTree('d6/dfb/probes_8F90_source.html','../..
 <div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html">   37</a></span>&#160;<span class="keyword">module</span> <a class="code" href="../../d2/d4d/namespaceprobes.html">probes</a></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span>: <a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d0/de4/namespacematrix.html">matrix</a>, <span class="keywordtype">only</span>: <a class="code" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d8/da0/namespacelogger.html">logger</a>, <span class="keywordtype">only</span>: <a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>, <a class="code" href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">log_size</a></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d8/da0/namespacelogger.html">logger</a>, <span class="keywordtype">only</span>: <a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>, <a class="code" href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">log_size</a>, <a class="code" href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">neko_log_debug</a></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span>: <a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>, <a class="code" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148">nonlinear_index</a></div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/d2b/namespacefield__list.html">field_list</a>, <span class="keywordtype">only</span>: <a class="code" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a></div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d2/def/namespacesimulation__component.html">simulation_component</a></div>
@@ -607,150 +607,152 @@ $(document).ready(function(){initNavTree('d6/dfb/probes_8F90_source.html','../..
 <div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;    <span class="keyword">call </span>neko_log%section(<span class="stringliteral">&#39;Probes&#39;</span>)</div>
 <div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,I6)&#39;</span>) <span class="stringliteral">&quot;Number of probes: &quot;</span>, this%n_global_probes</div>
 <div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;    <span class="keyword">call </span>neko_log%message(log_buf)</div>
-<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;    <span class="keyword">call </span>neko_log%message(<span class="stringliteral">&quot;xyz-coordinates:&quot;</span>)</div>
-<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;    <span class="keywordflow">do</span> i=1,this%n_local_probes</div>
-<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(&quot;(&quot;,F10.6,&quot;,&quot;,F10.6,&quot;,&quot;,F10.6,&quot;)&quot;)&#39;</span>) this%xyz(:,i)</div>
-<div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
-<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;    <span class="comment">! Field summary</span></div>
-<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,I6)&#39;</span>) <span class="stringliteral">&quot;Number of fields: &quot;</span>, this%n_fields</div>
-<div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;    <span class="keyword">call </span>neko_log%message(log_buf)</div>
-<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;    <span class="keywordflow">do</span> i=1,this%n_fields</div>
-<div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,I6, A ,A)&#39;</span>) <span class="stringliteral">&quot;Field: &quot;</span>, i, <span class="stringliteral">&quot; &quot;</span>, trim(this%which_fields(i))</div>
-<div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
-<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;    <span class="keyword">call </span>neko_log%end_section()</div>
-<div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;    <span class="keyword">call </span>neko_log%newline()</div>
-<div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160; </div>
-<div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#a75970ed841060318618a648c631f38dc">probes_show</a></div>
+<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160; </div>
+<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;    <span class="keyword">call </span>neko_log%message(<span class="stringliteral">&quot;xyz-coordinates:&quot;</span>, lvl = neko_log_debug)</div>
+<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;    <span class="keywordflow">do</span> i = 1, this%n_local_probes</div>
+<div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(&quot;(&quot;,F10.6,&quot;,&quot;,F10.6,&quot;,&quot;,F10.6,&quot;)&quot;)&#39;</span>) this%xyz(:,i)</div>
+<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf, lvl = neko_log_debug)</div>
+<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160; </div>
+<div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;    <span class="comment">! Field summary</span></div>
+<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,I6)&#39;</span>) <span class="stringliteral">&quot;Number of fields: &quot;</span>, this%n_fields</div>
+<div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;    <span class="keyword">call </span>neko_log%message(log_buf)</div>
+<div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;    <span class="keywordflow">do</span> i=1,this%n_fields</div>
+<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,I6, A ,A)&#39;</span>) <span class="stringliteral">&quot;Field: &quot;</span>, i, <span class="stringliteral">&quot; &quot;</span>, trim(this%which_fields(i))</div>
+<div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf, lvl = neko_log_debug)</div>
+<div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160;    <span class="keyword">call </span>neko_log%end_section()</div>
+<div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160;    <span class="keyword">call </span>neko_log%newline()</div>
 <div class="line"><a name="l00595"></a><span class="lineno">  595</span>&#160; </div>
-<div class="line"><a name="l00597"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">  597</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">probes_debug</a>(this)</div>
-<div class="line"><a name="l00598"></a><span class="lineno">  598</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dd3/structprobes_1_1probes__t.html">probes_t</a>) :: this</div>
-<div class="line"><a name="l00599"></a><span class="lineno">  599</span>&#160; </div>
-<div class="line"><a name="l00600"></a><span class="lineno">  600</span>&#160;    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf <span class="comment">! For logging status</span></div>
-<div class="line"><a name="l00601"></a><span class="lineno">  601</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a name="l00602"></a><span class="lineno">  602</span>&#160; </div>
-<div class="line"><a name="l00603"></a><span class="lineno">  603</span>&#160;    <span class="keywordflow">do</span> i = 1, this%n_local_probes</div>
-<div class="line"><a name="l00604"></a><span class="lineno">  604</span>&#160;       <span class="keyword">write</span> (log_buf, *) pe_rank, <span class="stringliteral">&quot;/&quot;</span>, this%global_interp%proc_owner(i), <span class="stringliteral">&quot;/&quot;</span> ,&amp;</div>
-<div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;         this%global_interp%el_owner(i), <span class="stringliteral">&quot;/&quot;</span>,this%global_interp%error_code(i)</div>
-<div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
-<div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A5,&quot;(&quot;,F10.6,&quot;,&quot;,F10.6,&quot;,&quot;,F10.6,&quot;)&quot;)&#39;</span>) <span class="stringliteral">&quot;rst: &quot;</span>, this%global_interp%rst(:,i)</div>
+<div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#a75970ed841060318618a648c631f38dc">probes_show</a></div>
+<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160; </div>
+<div class="line"><a name="l00599"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">  599</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">probes_debug</a>(this)</div>
+<div class="line"><a name="l00600"></a><span class="lineno">  600</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dd3/structprobes_1_1probes__t.html">probes_t</a>) :: this</div>
+<div class="line"><a name="l00601"></a><span class="lineno">  601</span>&#160; </div>
+<div class="line"><a name="l00602"></a><span class="lineno">  602</span>&#160;    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf <span class="comment">! For logging status</span></div>
+<div class="line"><a name="l00603"></a><span class="lineno">  603</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a name="l00604"></a><span class="lineno">  604</span>&#160; </div>
+<div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;    <span class="keywordflow">do</span> i = 1, this%n_local_probes</div>
+<div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;       <span class="keyword">write</span> (log_buf, *) pe_rank, <span class="stringliteral">&quot;/&quot;</span>, this%global_interp%proc_owner(i), <span class="stringliteral">&quot;/&quot;</span> ,&amp;</div>
+<div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;         this%global_interp%el_owner(i), <span class="stringliteral">&quot;/&quot;</span>,this%global_interp%error_code(i)</div>
 <div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
-<div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">probes_debug</a></div>
-<div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160; </div>
-<div class="line"><a name="l00613"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">  613</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">probes_setup_offset</a>(this)</div>
-<div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dd3/structprobes_1_1probes__t.html">probes_t</a>) :: this</div>
-<div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;    <span class="keywordtype">integer</span> :: ierr</div>
-<div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;    this%n_local_probes_tot = 0</div>
-<div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160;    this%n_local_probes_tot_offset = 0</div>
-<div class="line"><a name="l00618"></a><span class="lineno">  618</span>&#160;    this%n_probes_offset = 0</div>
-<div class="line"><a name="l00619"></a><span class="lineno">  619</span>&#160;    <span class="keyword">call </span>mpi_gather(this%n_local_probes, 1, mpi_integer,&amp;</div>
-<div class="line"><a name="l00620"></a><span class="lineno">  620</span>&#160;                    this%n_local_probes_tot, 1, mpi_integer,&amp;</div>
-<div class="line"><a name="l00621"></a><span class="lineno">  621</span>&#160;                    0, neko_comm, ierr)</div>
-<div class="line"><a name="l00622"></a><span class="lineno">  622</span>&#160; </div>
-<div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;    <span class="keyword">call </span>mpi_exscan(this%n_local_probes, this%n_probes_offset, 1, &amp;</div>
-<div class="line"><a name="l00624"></a><span class="lineno">  624</span>&#160;                    mpi_integer, mpi_sum, neko_comm, ierr)</div>
-<div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160;    <span class="keyword">call </span>mpi_gather(this%n_probes_offset, 1, mpi_integer,&amp;</div>
-<div class="line"><a name="l00626"></a><span class="lineno">  626</span>&#160;                    this%n_local_probes_tot_offset, 1, mpi_integer,&amp;</div>
-<div class="line"><a name="l00627"></a><span class="lineno">  627</span>&#160;                    0, neko_comm, ierr)</div>
-<div class="line"><a name="l00628"></a><span class="lineno">  628</span>&#160; </div>
-<div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160; </div>
+<div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A5,&quot;(&quot;,F10.6,&quot;,&quot;,F10.6,&quot;,&quot;,F10.6,&quot;)&quot;)&#39;</span>) <span class="stringliteral">&quot;rst: &quot;</span>, this%global_interp%rst(:,i)</div>
+<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;       <span class="keyword">call </span>neko_log%message(log_buf)</div>
+<div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">probes_debug</a></div>
+<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160; </div>
+<div class="line"><a name="l00615"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">  615</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">probes_setup_offset</a>(this)</div>
+<div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dd3/structprobes_1_1probes__t.html">probes_t</a>) :: this</div>
+<div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160;    <span class="keywordtype">integer</span> :: ierr</div>
+<div class="line"><a name="l00618"></a><span class="lineno">  618</span>&#160;    this%n_local_probes_tot = 0</div>
+<div class="line"><a name="l00619"></a><span class="lineno">  619</span>&#160;    this%n_local_probes_tot_offset = 0</div>
+<div class="line"><a name="l00620"></a><span class="lineno">  620</span>&#160;    this%n_probes_offset = 0</div>
+<div class="line"><a name="l00621"></a><span class="lineno">  621</span>&#160;    <span class="keyword">call </span>mpi_gather(this%n_local_probes, 1, mpi_integer,&amp;</div>
+<div class="line"><a name="l00622"></a><span class="lineno">  622</span>&#160;                    this%n_local_probes_tot, 1, mpi_integer,&amp;</div>
+<div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;                    0, neko_comm, ierr)</div>
+<div class="line"><a name="l00624"></a><span class="lineno">  624</span>&#160; </div>
+<div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160;    <span class="keyword">call </span>mpi_exscan(this%n_local_probes, this%n_probes_offset, 1, &amp;</div>
+<div class="line"><a name="l00626"></a><span class="lineno">  626</span>&#160;                    mpi_integer, mpi_sum, neko_comm, ierr)</div>
+<div class="line"><a name="l00627"></a><span class="lineno">  627</span>&#160;    <span class="keyword">call </span>mpi_gather(this%n_probes_offset, 1, mpi_integer,&amp;</div>
+<div class="line"><a name="l00628"></a><span class="lineno">  628</span>&#160;                    this%n_local_probes_tot_offset, 1, mpi_integer,&amp;</div>
+<div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;                    0, neko_comm, ierr)</div>
 <div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160; </div>
-<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">probes_setup_offset</a></div>
+<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160; </div>
 <div class="line"><a name="l00632"></a><span class="lineno">  632</span>&#160; </div>
-<div class="line"><a name="l00637"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">  637</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">probes_evaluate_and_write</a>(this, t, tstep)</div>
-<div class="line"><a name="l00638"></a><span class="lineno">  638</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dd3/structprobes_1_1probes__t.html">probes_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l00639"></a><span class="lineno">  639</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;    <span class="keywordtype">integer</span> :: i, ierr</div>
-<div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160; </div>
-<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;    <span class="keywordflow">do</span> i = 1,this%n_fields</div>
-<div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;       <span class="keyword">call </span>this%global_interp%evaluate(this%out_values(:,i), &amp;</div>
-<div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;                                        this%sampled_fields%items(i)%ptr%x)</div>
-<div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160; </div>
-<div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;       <span class="keywordflow">do</span> i = 1, this%n_fields</div>
-<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;          <span class="keyword">call </span>device_memcpy(this%out_values(:,i),this%out_values_d(i),&amp;</div>
-<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;                             this%n_local_probes, device_to_host, sync=.true.)</div>
-<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160; </div>
-<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;    <span class="keywordflow">if</span> (this%output_controller%check(t, tstep)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;       <span class="comment">! Gather all values to rank 0</span></div>
-<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;       <span class="comment">! If io is only done at root</span></div>
-<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;       <span class="keywordflow">if</span> (this%seq_io) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;          <span class="keyword">call </span>trsp(this%out_vals_trsp, this%n_fields, &amp;</div>
-<div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160;                    this%out_values,this%n_local_probes)</div>
-<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;          <span class="keyword">call </span>mpi_gatherv(this%out_vals_trsp, this%n_fields*this%n_local_probes,&amp;</div>
-<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;                           mpi_double_precision, this%global_output_values,&amp;</div>
-<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;                           this%n_fields*this%n_local_probes_tot,&amp;</div>
-<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;                           this%n_fields*this%n_local_probes_tot_offset,&amp;</div>
-<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;                           mpi_double_precision, 0, neko_comm, ierr)</div>
-<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;          <span class="keywordflow">if</span> (pe_rank .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;             <span class="keyword">call </span>trsp(this%mat_out%x, this%n_global_probes, &amp;</div>
-<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;                       this%global_output_values, this%n_fields)</div>
-<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;             <span class="keyword">call </span>this%fout%write(this%mat_out, t)</div>
-<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;<span class="keywordflow">          end if</span></div>
-<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;       <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;          <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;probes sim comp, parallel io need implementation&#39;</span>)</div>
-<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160; </div>
-<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;       <span class="comment">!! Register the execution of the activity</span></div>
-<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160;       <span class="keyword">call </span>this%output_controller%register_execution()</div>
-<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160; </div>
-<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">probes_evaluate_and_write</a></div>
+<div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">probes_setup_offset</a></div>
+<div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160; </div>
+<div class="line"><a name="l00639"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">  639</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">probes_evaluate_and_write</a>(this, t, tstep)</div>
+<div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dd3/structprobes_1_1probes__t.html">probes_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
+<div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
+<div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;    <span class="keywordtype">integer</span> :: i, ierr</div>
+<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160; </div>
+<div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;    <span class="keywordflow">do</span> i = 1,this%n_fields</div>
+<div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;       <span class="keyword">call </span>this%global_interp%evaluate(this%out_values(:,i), &amp;</div>
+<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;                                        this%sampled_fields%items(i)%ptr%x)</div>
+<div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160; </div>
+<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;       <span class="keywordflow">do</span> i = 1, this%n_fields</div>
+<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;          <span class="keyword">call </span>device_memcpy(this%out_values(:,i),this%out_values_d(i),&amp;</div>
+<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;                             this%n_local_probes, device_to_host, sync=.true.)</div>
+<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;<span class="keywordflow">       end do</span></div>
+<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160; </div>
+<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;    <span class="keywordflow">if</span> (this%output_controller%check(t, tstep)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;       <span class="comment">! Gather all values to rank 0</span></div>
+<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;       <span class="comment">! If io is only done at root</span></div>
+<div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160;       <span class="keywordflow">if</span> (this%seq_io) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;          <span class="keyword">call </span>trsp(this%out_vals_trsp, this%n_fields, &amp;</div>
+<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;                    this%out_values,this%n_local_probes)</div>
+<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;          <span class="keyword">call </span>mpi_gatherv(this%out_vals_trsp, this%n_fields*this%n_local_probes,&amp;</div>
+<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;                           mpi_double_precision, this%global_output_values,&amp;</div>
+<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;                           this%n_fields*this%n_local_probes_tot,&amp;</div>
+<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;                           this%n_fields*this%n_local_probes_tot_offset,&amp;</div>
+<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;                           mpi_double_precision, 0, neko_comm, ierr)</div>
+<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;          <span class="keywordflow">if</span> (pe_rank .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;             <span class="keyword">call </span>trsp(this%mat_out%x, this%n_global_probes, &amp;</div>
+<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;                       this%global_output_values, this%n_fields)</div>
+<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;             <span class="keyword">call </span>this%fout%write(this%mat_out, t)</div>
+<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;<span class="keywordflow">          end if</span></div>
+<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;       <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;          <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;probes sim comp, parallel io need implementation&#39;</span>)</div>
+<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160; </div>
+<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;       <span class="comment">!! Register the execution of the activity</span></div>
+<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;       <span class="keyword">call </span>this%output_controller%register_execution()</div>
+<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;<span class="keywordflow">    end if</span></div>
 <div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160; </div>
-<div class="line"><a name="l00684"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">  684</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">read_probe_locations</a>(this, xyz, n_local_probes, n_global_probes, points_file)</div>
-<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dd3/structprobes_1_1probes__t.html">probes_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: points_file</div>
-<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: xyz(:,:)</div>
-<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: n_local_probes, n_global_probes</div>
-<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160; </div>
-<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;    <span class="keywordtype">type</span>(file_t) :: file_in</div>
-<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160; </div>
-<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;    file_in = file_t(trim(points_file))</div>
-<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;    <span class="keywordflow">select type</span>(ft =&gt; file_in%file_type)</div>
-<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;<span class="keywordflow">      type is</span> (csv_file_t)</div>
-<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">read_xyz_from_csv</a>(xyz, n_local_probes, n_global_probes, ft)</div>
-<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;       this%seq_io = .true.</div>
-<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;<span class="keywordflow">      class default</span></div>
-<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;       <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;Invalid data. Expected csv_file_t.&quot;</span>)</div>
-<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;<span class="keywordflow">    end select</span></div>
-<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160; </div>
-<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;    <span class="keyword">call </span>file_free(file_in)</div>
-<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160; </div>
-<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">read_probe_locations</a></div>
+<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">probes_evaluate_and_write</a></div>
+<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160; </div>
+<div class="line"><a name="l00686"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">  686</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">read_probe_locations</a>(this, xyz, n_local_probes, n_global_probes, points_file)</div>
+<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/dd3/structprobes_1_1probes__t.html">probes_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: points_file</div>
+<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: xyz(:,:)</div>
+<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: n_local_probes, n_global_probes</div>
+<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160; </div>
+<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;    <span class="keywordtype">type</span>(file_t) :: file_in</div>
+<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160; </div>
+<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;    file_in = file_t(trim(points_file))</div>
+<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;    <span class="keywordflow">select type</span>(ft =&gt; file_in%file_type)</div>
+<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;<span class="keywordflow">      type is</span> (csv_file_t)</div>
+<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">read_xyz_from_csv</a>(xyz, n_local_probes, n_global_probes, ft)</div>
+<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;       this%seq_io = .true.</div>
+<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;<span class="keywordflow">      class default</span></div>
+<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160;       <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;Invalid data. Expected csv_file_t.&quot;</span>)</div>
+<div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160;<span class="keywordflow">    end select</span></div>
+<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160; </div>
+<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;    <span class="keyword">call </span>file_free(file_in)</div>
 <div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160; </div>
-<div class="line"><a name="l00713"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">  713</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">read_xyz_from_csv</a>(xyz, n_local_probes, n_global_probes, f)</div>
-<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;    <span class="keywordtype">type</span>(csv_file_t), <span class="keywordtype">intent(inout)</span> :: f</div>
-<div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: xyz(:,:)</div>
-<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: n_local_probes, n_global_probes</div>
-<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;    <span class="keywordtype">type</span>(matrix_t) :: mat_in, mat_in2</div>
-<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;    <span class="keywordtype">integer</span> :: n_lines</div>
-<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160; </div>
-<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;    n_lines = f%count_lines()</div>
+<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">read_probe_locations</a></div>
+<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160; </div>
+<div class="line"><a name="l00715"></a><span class="lineno"><a class="line" href="../../d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">  715</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">read_xyz_from_csv</a>(xyz, n_local_probes, n_global_probes, f)</div>
+<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;    <span class="keywordtype">type</span>(csv_file_t), <span class="keywordtype">intent(inout)</span> :: f</div>
+<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: xyz(:,:)</div>
+<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: n_local_probes, n_global_probes</div>
+<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;    <span class="keywordtype">type</span>(matrix_t) :: mat_in, mat_in2</div>
+<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;    <span class="keywordtype">integer</span> :: n_lines</div>
 <div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160; </div>
-<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;    <span class="comment">! Update the number of probes</span></div>
-<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;    n_global_probes = n_lines</div>
-<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160; </div>
-<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;    <span class="comment">! Initialize the temporal array</span></div>
-<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;    <span class="keywordflow">if</span> (pe_rank .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160;       n_local_probes = n_global_probes</div>
-<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;       <span class="keyword">allocate</span>(xyz(3,n_local_probes))</div>
-<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;       <span class="keyword">call </span>mat_in%init(n_global_probes,3)</div>
-<div class="line"><a name="l00730"></a><span class="lineno">  730</span>&#160;       <span class="keyword">call </span>mat_in2%init(3,n_global_probes)</div>
-<div class="line"><a name="l00731"></a><span class="lineno">  731</span>&#160;       <span class="keyword">call </span>f%read(mat_in)</div>
-<div class="line"><a name="l00732"></a><span class="lineno">  732</span>&#160;       <span class="keyword">call </span>trsp(xyz, 3, mat_in%x, n_global_probes)</div>
-<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160;    <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;       n_local_probes = 0</div>
-<div class="line"><a name="l00735"></a><span class="lineno">  735</span>&#160;       <span class="keyword">allocate</span>(xyz(3,n_local_probes))</div>
-<div class="line"><a name="l00736"></a><span class="lineno">  736</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00737"></a><span class="lineno">  737</span>&#160; </div>
-<div class="line"><a name="l00738"></a><span class="lineno">  738</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">read_xyz_from_csv</a></div>
-<div class="line"><a name="l00739"></a><span class="lineno">  739</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d2/d4d/namespaceprobes.html">probes</a></div>
+<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;    n_lines = f%count_lines()</div>
+<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160; </div>
+<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;    <span class="comment">! Update the number of probes</span></div>
+<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;    n_global_probes = n_lines</div>
+<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160; </div>
+<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160;    <span class="comment">! Initialize the temporal array</span></div>
+<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;    <span class="keywordflow">if</span> (pe_rank .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;       n_local_probes = n_global_probes</div>
+<div class="line"><a name="l00730"></a><span class="lineno">  730</span>&#160;       <span class="keyword">allocate</span>(xyz(3,n_local_probes))</div>
+<div class="line"><a name="l00731"></a><span class="lineno">  731</span>&#160;       <span class="keyword">call </span>mat_in%init(n_global_probes,3)</div>
+<div class="line"><a name="l00732"></a><span class="lineno">  732</span>&#160;       <span class="keyword">call </span>mat_in2%init(3,n_global_probes)</div>
+<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160;       <span class="keyword">call </span>f%read(mat_in)</div>
+<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;       <span class="keyword">call </span>trsp(xyz, 3, mat_in%x, n_global_probes)</div>
+<div class="line"><a name="l00735"></a><span class="lineno">  735</span>&#160;    <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00736"></a><span class="lineno">  736</span>&#160;       n_local_probes = 0</div>
+<div class="line"><a name="l00737"></a><span class="lineno">  737</span>&#160;       <span class="keyword">allocate</span>(xyz(3,n_local_probes))</div>
+<div class="line"><a name="l00738"></a><span class="lineno">  738</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00739"></a><span class="lineno">  739</span>&#160; </div>
+<div class="line"><a name="l00740"></a><span class="lineno">  740</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">read_xyz_from_csv</a></div>
+<div class="line"><a name="l00741"></a><span class="lineno">  741</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d2/d4d/namespaceprobes.html">probes</a></div>
 <div class="ttc" id="acuda_2facet__normal__kernel_8h_html_a255d8d741e1fc6cd080ba11e14dc7148"><div class="ttname"><a href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148">nonlinear_index</a></div><div class="ttdeci">__device__ void nonlinear_index(const int idx, const int lx, int *index)</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d57/cuda_2facet__normal__kernel_8h_source.html#l00051">facet_normal_kernel.h:51</a></div></div>
 <div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00053">json_utils.f90:53</a></div></div>
@@ -771,6 +773,7 @@ $(document).ready(function(){initNavTree('d6/dfb/probes_8F90_source.html','../..
 <div class="ttc" id="anamespacejson__utils_html"><div class="ttname"><a href="../../d8/da8/namespacejson__utils.html">json_utils</a></div><div class="ttdoc">Utilities for retrieving parameters from the case files.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00034">json_utils.f90:34</a></div></div>
 <div class="ttc" id="anamespacejson__utils_html_a404867bed8c9c4d90f419dfa5f7d3a0e"><div class="ttname"><a href="../../d8/da8/namespacejson__utils.html#a404867bed8c9c4d90f419dfa5f7d3a0e">json_utils::json_extract_item</a></div><div class="ttdeci">subroutine, public json_extract_item(core, array, i, item)</div><div class="ttdoc">Extract ith item from a JSON array as a separate JSON object.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00363">json_utils.f90:364</a></div></div>
 <div class="ttc" id="anamespacelogger_html"><div class="ttname"><a href="../../d8/da0/namespacelogger.html">logger</a></div><div class="ttdoc">Logging routines.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d53/log_8f90_source.html#l00034">log.f90:34</a></div></div>
+<div class="ttc" id="anamespacelogger_html_acda43c0334eca9fb3a0b3d5e23615f7c"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">logger::neko_log_debug</a></div><div class="ttdeci">integer, parameter, public neko_log_debug</div><div class="ttdoc">Debug log level.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d53/log_8f90_source.html#l00069">log.f90:69</a></div></div>
 <div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d53/log_8f90_source.html#l00061">log.f90:61</a></div></div>
 <div class="ttc" id="anamespacelogger_html_ade757cfc4235350ea17397117ea3c4a6"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">logger::log_size</a></div><div class="ttdeci">integer, parameter, public log_size</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d53/log_8f90_source.html#l00040">log.f90:40</a></div></div>
 <div class="ttc" id="anamespacematrix_html"><div class="ttname"><a href="../../d0/de4/namespacematrix.html">matrix</a></div><div class="ttdoc">Defines a matrix.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00034">matrix.f90:34</a></div></div>
@@ -785,15 +788,15 @@ $(document).ready(function(){initNavTree('d6/dfb/probes_8F90_source.html','../..
 <div class="ttc" id="anamespaceprobes_html_a27da5032a894e076ade6b945085a2164"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#a27da5032a894e076ade6b945085a2164">probes::add_points</a></div><div class="ttdeci">subroutine add_points(this, new_points)</div><div class="ttdoc">Append a new list of points to the exsiting list.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00431">probes.F90:432</a></div></div>
 <div class="ttc" id="anamespaceprobes_html_a2c6791ea3573725c137b0b001be7b135"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#a2c6791ea3573725c137b0b001be7b135">probes::probes_init_from_attributes</a></div><div class="ttdeci">subroutine probes_init_from_attributes(this, dof, output_file)</div><div class="ttdoc">Initialize without json things.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00463">probes.F90:464</a></div></div>
 <div class="ttc" id="anamespaceprobes_html_a3af93f98e2492041a133b2cf422bff88"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#a3af93f98e2492041a133b2cf422bff88">probes::read_line</a></div><div class="ttdeci">subroutine read_line(this, json)</div><div class="ttdoc">Construct a list of points from a line.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00270">probes.F90:271</a></div></div>
-<div class="ttc" id="anamespaceprobes_html_a4b34e65d345a973280a5c70b385752ad"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">probes::read_probe_locations</a></div><div class="ttdeci">subroutine read_probe_locations(this, xyz, n_local_probes, n_global_probes, points_file)</div><div class="ttdoc">Initialize the physical coordinates from a csv input file.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00684">probes.F90:685</a></div></div>
+<div class="ttc" id="anamespaceprobes_html_a4b34e65d345a973280a5c70b385752ad"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#a4b34e65d345a973280a5c70b385752ad">probes::read_probe_locations</a></div><div class="ttdeci">subroutine read_probe_locations(this, xyz, n_local_probes, n_global_probes, points_file)</div><div class="ttdoc">Initialize the physical coordinates from a csv input file.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00686">probes.F90:687</a></div></div>
 <div class="ttc" id="anamespaceprobes_html_a5462478e6624df1873966855425ffdea"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#a5462478e6624df1873966855425ffdea">probes::read_point</a></div><div class="ttdeci">subroutine read_point(this, json)</div><div class="ttdoc">Read a list of points from the json file.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00239">probes.F90:240</a></div></div>
 <div class="ttc" id="anamespaceprobes_html_a75970ed841060318618a648c631f38dc"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#a75970ed841060318618a648c631f38dc">probes::probes_show</a></div><div class="ttdeci">subroutine probes_show(this)</div><div class="ttdoc">Print current probe status, with number of probes and coordinates.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00570">probes.F90:571</a></div></div>
 <div class="ttc" id="anamespaceprobes_html_a7718a4200ee572a7357b0ceb910c42a9"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#a7718a4200ee572a7357b0ceb910c42a9">probes::probes_free</a></div><div class="ttdeci">subroutine probes_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00536">probes.F90:537</a></div></div>
-<div class="ttc" id="anamespaceprobes_html_a9a5fe480805cf73f0ed8ec0c532de369"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">probes::probes_debug</a></div><div class="ttdeci">subroutine probes_debug(this)</div><div class="ttdoc">Show the status of processor/element owner and error code for each point.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00597">probes.F90:598</a></div></div>
-<div class="ttc" id="anamespaceprobes_html_ac550f5297c326f7c18d84029598f907e"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">probes::probes_setup_offset</a></div><div class="ttdeci">subroutine probes_setup_offset(this)</div><div class="ttdoc">Setup offset for rank 0.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00613">probes.F90:614</a></div></div>
-<div class="ttc" id="anamespaceprobes_html_ac8103306b5d86eb1da82c66855f449a9"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">probes::probes_evaluate_and_write</a></div><div class="ttdeci">subroutine probes_evaluate_and_write(this, t, tstep)</div><div class="ttdoc">Interpolate each probe from its r,s,t coordinates.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00637">probes.F90:638</a></div></div>
+<div class="ttc" id="anamespaceprobes_html_a9a5fe480805cf73f0ed8ec0c532de369"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#a9a5fe480805cf73f0ed8ec0c532de369">probes::probes_debug</a></div><div class="ttdeci">subroutine probes_debug(this)</div><div class="ttdoc">Show the status of processor/element owner and error code for each point.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00599">probes.F90:600</a></div></div>
+<div class="ttc" id="anamespaceprobes_html_ac550f5297c326f7c18d84029598f907e"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e">probes::probes_setup_offset</a></div><div class="ttdeci">subroutine probes_setup_offset(this)</div><div class="ttdoc">Setup offset for rank 0.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00615">probes.F90:616</a></div></div>
+<div class="ttc" id="anamespaceprobes_html_ac8103306b5d86eb1da82c66855f449a9"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#ac8103306b5d86eb1da82c66855f449a9">probes::probes_evaluate_and_write</a></div><div class="ttdeci">subroutine probes_evaluate_and_write(this, t, tstep)</div><div class="ttdoc">Interpolate each probe from its r,s,t coordinates.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00639">probes.F90:640</a></div></div>
 <div class="ttc" id="anamespaceprobes_html_aeef5d580976fae5fc3e83e23562a1996"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#aeef5d580976fae5fc3e83e23562a1996">probes::read_file</a></div><div class="ttdeci">subroutine read_file(this, json)</div><div class="ttdoc">Read a list of points from a csv file.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00218">probes.F90:219</a></div></div>
-<div class="ttc" id="anamespaceprobes_html_af7a450bd62c2b6a1ed7175e31c4edd67"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">probes::read_xyz_from_csv</a></div><div class="ttdeci">subroutine read_xyz_from_csv(xyz, n_local_probes, n_global_probes, f)</div><div class="ttdoc">Read and initialize the number of probes from a csv input file.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00713">probes.F90:714</a></div></div>
+<div class="ttc" id="anamespaceprobes_html_af7a450bd62c2b6a1ed7175e31c4edd67"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67">probes::read_xyz_from_csv</a></div><div class="ttdeci">subroutine read_xyz_from_csv(xyz, n_local_probes, n_global_probes, f)</div><div class="ttdoc">Read and initialize the number of probes from a csv input file.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00715">probes.F90:716</a></div></div>
 <div class="ttc" id="anamespaceprobes_html_afb0ca751eadf5869b849ac2eef557885"><div class="ttname"><a href="../../d2/d4d/namespaceprobes.html#afb0ca751eadf5869b849ac2eef557885">probes::probes_init_from_json</a></div><div class="ttdeci">subroutine probes_init_from_json(this, json, case)</div><div class="ttdoc">Constructor from json.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dfb/probes_8F90_source.html#l00124">probes.F90:125</a></div></div>
 <div class="ttc" id="anamespacesimulation__component_html"><div class="ttname"><a href="../../d2/def/namespacesimulation__component.html">simulation_component</a></div><div class="ttdoc">Simulation components are objects that encapsulate functionality that can be fit to a particular comp...</div><div class="ttdef"><b>Definition:</b> <a href="../../d9/d55/simulation__component_8f90_source.html#l00038">simulation_component.f90:38</a></div></div>
 <div class="ttc" id="anamespacesimulation__component_html_ab6302d6af13da1480e89bfe47299feb1"><div class="ttname"><a href="../../d2/def/namespacesimulation__component.html#ab6302d6af13da1480e89bfe47299feb1">simulation_component::compute_</a></div><div class="ttdeci">subroutine compute_(this, t, tstep)</div><div class="ttdoc">Dummy compute function.</div><div class="ttdef"><b>Definition:</b> <a href="../../d9/d55/simulation__component_8f90_source.html#l00221">simulation_component.f90:222</a></div></div>
@@ -815,7 +818,7 @@ $(document).ready(function(){initNavTree('d6/dfb/probes_8F90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_702567638a028346607c31c39047d6bd.html">simulation_components</a></li><li class="navelem"><a class="el" href="../../d6/dfb/probes_8F90.html">probes.F90</a></li>
-    <li class="footer">Generated on Thu Jul 18 2024 03:36:15 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Jul 19 2024 03:35:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

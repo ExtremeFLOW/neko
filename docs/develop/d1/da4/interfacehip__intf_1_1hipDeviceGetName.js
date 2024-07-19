@@ -1,4 +1,4 @@
 var interfacehip__intf_1_1hipDeviceGetName =
 [
-    [ "hipdevicegetname", "d1/da4/interfacehip__intf_1_1hipDeviceGetName.html#ac6a258164a9a42f46c61c02b8a55aa1b", null ]
+    [ "hipdevicegetname", "d1/da4/interfacehip__intf_1_1hipDeviceGetName.html#ae4ad48c2e10ba11db1d020092a83f8b1", null ]
 ];
