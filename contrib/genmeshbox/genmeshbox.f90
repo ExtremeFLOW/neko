@@ -27,12 +27,15 @@ program genmeshbox
 
   if ((argc .lt. 9) .or. (argc .gt. 12)) then
      write(*,*) 'Usage: ./genmeshbox x0 x1 y0 y1 z0 z1 nel_x nel_y nel_z'
-     write(*,*) '**optional** periodic in x? (.true./.false.) y? (.true./.false.) z? (.true./.false.)'
+     write(*,*) '**optional** periodic in x? (.true./.false.) y? (.true./&
+&.false.) z? (.true./.false.)'
      write(*,*)
-     write(*,*) 'Example command: ./genmeshbox 0 1 0 1 0 1 8 8 8 .true. .true. .false.'
-write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and with',&
-           ' 8 elements in each spatial direction and periodic  boundaries in x-y.'
-       write(*,*) 'BCs for face 5,6 (z zones) can then be set by setting bc_labels(5), bc_labels(6) in the parameter file'
+     write(*,*) 'Example command: ./genmeshbox 0 1 0 1 0 1 8 8 8 .true. &
+&.true. .false.'
+write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and &
+&with 8 elements in each spatial direction and periodic  boundaries in x-y.'
+       write(*,*) 'BCs for face 5,6 (z zones) can then be set by setting &
+&bc_labels(5), bc_labels(6) in the parameter file'
      stop
   end if
   
@@ -80,12 +83,12 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
         if (.not. file_exists) then
 
            open(unit=10, file=trim(log_fname), status='new', action='write')
-           write (10, '(A,2(F10.6," "),I4,L2)') "xmin, xmax, Nel, periodic:", x0, x1, &
-                nelx, period_x
-           write (10, '(A,2(F10.6," "),I4,L2)') "ymin, ymax, Nel, periodic:", y0, y1, &
-                nely, period_y
-           write (10, '(A,2(F10.6," "),I4,L2)') "zmin, zmax, Nel, periodic:", z0, z1, &
-                nelz, period_z
+           write (10, '(A,2(F10.6," "),I4,L2)') "xmin, xmax, Nel, periodic:", &
+                x0, x1, nelx, period_x
+           write (10, '(A,2(F10.6," "),I4,L2)') "ymin, ymax, Nel, periodic:", &
+                y0, y1, nely, period_y
+           write (10, '(A,2(F10.6," "),I4,L2)') "zmin, zmax, Nel, periodic:", &
+                z0, z1, nelz, period_z
            close(10)
            exit
 
@@ -123,7 +126,8 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
                     coord(1) = x0 + (ix+e_x)*el_len_x
                     coord(2) = y0 + (iy+e_y)*el_len_y
                     coord(3) = z0 + (iz+e_z)*el_len_z
-                    pt_idx = 1 + (ix+e_x) + (iy+e_y)*(nelx+1) + (iz+e_z)*(nelx+1)*(nely+1)
+                    pt_idx = 1 + (ix+e_x) + (iy+e_y)*(nelx+1) + (iz+e_z)*&
+                         (nelx+1)*(nely+1)
                     p(ix+1, iy+1, iz+1) = point_t(coord, pt_idx)
                  end do
               end do
