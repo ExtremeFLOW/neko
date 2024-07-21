@@ -126,7 +126,7 @@ regexp-rules:
 
   missing-spaces-around-=:
     message: Missing spaces around "="
-    regexp: (?<!(\(kind|.\(len))=(\w|\(|\.|\+|-|\'|")
+    regexp: (?<!(\(kind|.\(len)|...\'d|...\'n)=(\w|\(|\.|\+|-|\'|")
     replacement: ' = \2'
     active: true
 
