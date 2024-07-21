@@ -193,20 +193,13 @@ contains
     if (m%nrows .ne. b%nrows .or. m%ncols .ne. b%ncols) &
          call neko_error("Matrices must be the same size!")
 
-    if (.not. allocated(v%x)) then
+    v%n = m%n
+    v%nrows = m%nrows
+    v%ncols = m%ncols
+    allocate(v%x(v%nrows, v%ncols))
 
-       v%n = m%n
-       v%nrows = m%nrows
-       v%ncols = m%ncols
-       allocate(v%x(v%nrows, v%ncols))
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(v%x, v%x_d, v%n)
-       end if
-    else
-       if (v%nrows .ne. b%nrows .or. v%ncols .ne. b%ncols) &
-            call neko_error("Cannot assign matrices that do not &
-&have the same size!")
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(v%x, v%x_d, v%n)
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -223,20 +216,13 @@ contains
     real(kind=rp), intent(in) :: c
     type(matrix_t) :: v
 
-    if (.not. allocated(v%x)) then
+    v%n = m%n
+    v%nrows = m%nrows
+    v%ncols = m%ncols
+    allocate(v%x(v%nrows, v%ncols))
 
-       v%n = m%n
-       v%nrows = m%nrows
-       v%ncols = m%ncols
-       allocate(v%x(v%nrows, v%ncols))
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(v%x, v%x_d, v%n)
-       end if
-    else
-       if (v%nrows .ne. m%nrows .or. v%ncols .ne. m%ncols) &
-            call neko_error("Cannot assign matrices that do not &
-&have the same size!")
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(v%x, v%x_d, v%n)
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -265,20 +251,13 @@ contains
     if (m%nrows .ne. b%nrows .or. m%ncols .ne. b%ncols) &
          call neko_error("Matrices must be the same size!")
 
-    if (.not. allocated(v%x)) then
+    v%n = m%n
+    v%nrows = m%nrows
+    v%ncols = m%ncols
+    allocate(v%x(v%nrows, v%ncols))
 
-       v%n = m%n
-       v%nrows = m%nrows
-       v%ncols = m%ncols
-       allocate(v%x(v%nrows, v%ncols))
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(v%x, v%x_d, v%n)
-       end if
-    else
-       if (v%nrows .ne. m%nrows .or. v%ncols .ne. m%ncols) &
-            call neko_error("Cannot assign matrices that do not &
-&have the same size!")
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(v%x, v%x_d, v%n)
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -295,20 +274,13 @@ contains
     real(kind=rp), intent(in) :: c
     type(matrix_t) :: v
 
-    if (.not. allocated(v%x)) then
+    v%n = m%n
+    v%nrows = m%nrows
+    v%ncols = m%ncols
+    allocate(v%x(v%nrows, v%ncols))
 
-       v%n = m%n
-       v%nrows = m%nrows
-       v%ncols = m%ncols
-       allocate(v%x(v%nrows, v%ncols))
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(v%x, v%x_d, v%n)
-       end if
-    else
-       if (v%nrows .ne. m%nrows .or. v%ncols .ne. m%ncols) &
-            call neko_error("Cannot assign matrices that do not &
-&have the same size!")
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(v%x, v%x_d, v%n)
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -341,20 +313,13 @@ contains
     real(kind=rp), intent(in) :: c
     type(matrix_t) :: v
 
-    if (.not. allocated(v%x)) then
+    v%n = m%n
+    v%nrows = m%nrows
+    v%ncols = m%ncols
+    allocate(v%x(v%nrows, v%ncols))
 
-       v%n = m%n
-       v%nrows = m%nrows
-       v%ncols = m%ncols
-       allocate(v%x(v%nrows, v%ncols))
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(v%x, v%x_d, v%n)
-       end if
-    else
-       if (v%nrows .ne. m%nrows .or. v%ncols .ne. m%ncols) &
-            call neko_error("Cannot assign matrices that do not &
-&have the same size!")
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(v%x, v%x_d, v%n)
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
