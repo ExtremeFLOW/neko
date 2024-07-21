@@ -106,20 +106,35 @@ module global_interpolation
      !> Evaluate only local points
   end type global_interpolation_t
 
-
 contains
-  !> Initialize user defined variables.
+
+  !> Initialize the global interpolation object on a dofmap.
   !! @param dof Dofmap on which the interpolation is to be carried out.
   !! @param tol Tolerance for Newton iterations.
-  subroutine global_interpolation_init(this, dof, tol)
+  !! @param Xh Space on which to interpolate.
+  !! @param msh Mesh on which to interp
+  subroutine global_interpolation_init(this, dof, tol, Xh, msh)
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
     real(kind=rp), optional :: tol
+    type(space_t), intent(in), target, optional :: Xh
+    type(mesh_t), intent(in), target, optional :: msh
     integer :: lx, ly, lz, nelv, max_pts_per_iter
 
     this%dof => dof
-    this%Xh => dof%Xh
-    this%mesh => dof%msh
+
+    if (present(Xh)) then
+       this%Xh => Xh
+    else
+       this%Xh => dof%Xh
+    end if
+
+    if (present(msh)) then
+       this%mesh => msh
+    else
+       this%mesh => dof%msh
+    end if
+
     if(present(tol)) this%tol = tol
 
 #ifdef HAVE_GSLIB
