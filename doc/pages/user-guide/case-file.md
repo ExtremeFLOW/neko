@@ -398,6 +398,7 @@ The following keywords are used, with the corresponding options.
   - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
   - `cacg`, a communication-avoiding conjugate gradient solver.
+  - `cpldcg`, a coupled conjugate gradient solver.
   - `gmres`, a GMRES solver. Typically used for pressure.
   - `fusedcg`, a conjugate gradient solver optimised for accelerators using kernel fusion.
   - `fcpldcg`, a coupled conjugate gradient solver optimised for accelerators using kernel fusion.

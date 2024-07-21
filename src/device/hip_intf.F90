@@ -87,180 +87,144 @@ module hip_intf
   end enum
 
   interface
-     integer (c_int) function hipMalloc(ptr_d, s) &
-          bind(c, name='hipMalloc')
+     integer(c_int) function hipMalloc(ptr_d, s) &
+       bind(c, name='hipMalloc')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: ptr_d
        integer(c_size_t), value :: s
      end function hipMalloc
-  end interface
 
-  interface
-     integer (c_int) function hipFree(ptr_d) &
-          bind(c, name='hipFree')
+     integer(c_int) function hipFree(ptr_d) &
+       bind(c, name='hipFree')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: ptr_d
      end function hipFree
-  end interface
 
-  interface
-     integer (c_int) function hipMemcpy(ptr_dst, ptr_src, s, dir) &
-          bind(c, name='hipMemcpy')
+     integer(c_int) function hipMemcpy(ptr_dst, ptr_src, s, dir) &
+       bind(c, name='hipMemcpy')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: ptr_dst, ptr_src
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function hipMemcpy
-  end interface
 
-  interface
-     integer (c_int) function hipMemcpyAsync(ptr_dst, ptr_src, s, dir, stream) &
-          bind(c, name='hipMemcpyAsync')
+     integer(c_int) function hipMemcpyAsync(ptr_dst, ptr_src, s, dir, stream) &
+       bind(c, name='hipMemcpyAsync')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: ptr_dst, ptr_src, stream
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function hipMemcpyAsync
-  end interface
 
-  interface
-     integer (c_int) function hipDeviceSynchronize() &
-          bind(c, name='hipDeviceSynchronize')
+     integer(c_int) function hipDeviceSynchronize() &
+       bind(c, name='hipDeviceSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
      end function hipDeviceSynchronize
-  end interface
 
-  interface
-     integer (c_int) function hipDeviceGetName(name, len, device) &
-          bind(c, name='hipDeviceGetName')
+     integer(c_int) function hipDeviceGetName(name, len, device) &
+       bind(c, name='hipDeviceGetName')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: name
        integer(c_int), value :: len
        integer(c_int), value :: device
      end function hipDeviceGetName
-  end interface
 
-  interface
-     integer (c_int) function hipGetDeviceCount(count) &
-          bind(c, name='hipGetDeviceCount')
+     integer(c_int) function hipGetDeviceCount(amount) &
+       bind(c, name='hipGetDeviceCount')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: count
+       integer(c_int) :: amount
      end function hipGetDeviceCount
-  end interface
 
-  interface
-     integer (c_int) function hipStreamCreate(stream) &
-          bind(c, name='hipStreamCreate')
+     integer(c_int) function hipStreamCreate(stream) &
+       bind(c, name='hipStreamCreate')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: stream
      end function hipStreamCreate
-  end interface
 
-  interface
-     integer (c_int) function hipStreamCreateWithFlags(stream, flags) &
-          bind(c, name='hipStreamCreateWithFlags')
+     integer(c_int) function hipStreamCreateWithFlags(stream, flags) &
+       bind(c, name='hipStreamCreateWithFlags')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: stream
        integer(c_int), value :: flags
      end function hipStreamCreateWithFlags
-  end interface
 
-  interface
-     integer (c_int) function hipStreamCreateWithPriority(stream, flags, prio) &
-          bind(c, name='hipStreamCreateWithPriority')
+     integer(c_int) function hipStreamCreateWithPriority(stream, flags, prio) &
+       bind(c, name='hipStreamCreateWithPriority')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: stream
        integer(c_int), value :: flags, prio
      end function hipStreamCreateWithPriority
-  end interface
 
-  interface
-     integer (c_int) function hipStreamDestroy(steam) &
-          bind(c, name='hipStreamDestroy')
+     integer(c_int) function hipStreamDestroy(steam) &
+       bind(c, name='hipStreamDestroy')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: steam
      end function hipStreamDestroy
-  end interface
 
-  interface
-     integer (c_int) function hipStreamSynchronize(stream) &
-          bind(c, name='hipStreamSynchronize')
+     integer(c_int) function hipStreamSynchronize(stream) &
+       bind(c, name='hipStreamSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: stream
      end function hipStreamSynchronize
-  end interface
 
-  interface
-     integer (c_int) function hipStreamWaitEvent(stream, event, flags) &
-          bind(c, name='hipStreamWaitEvent')
+     integer(c_int) function hipStreamWaitEvent(stream, event, flags) &
+       bind(c, name='hipStreamWaitEvent')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: stream, event
        integer(c_int), value :: flags
      end function hipStreamWaitEvent
-  end interface
 
-  interface
-     integer (c_int) function hipDeviceGetStreamPriorityRange(low_prio, high_prio) &
-          bind(c, name='hipDeviceGetStreamPriorityRange')
+     integer(c_int) function hipDeviceGetStreamPriorityRange(low_prio, high_prio) &
+       bind(c, name='hipDeviceGetStreamPriorityRange')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: low_prio, high_prio
      end function hipDeviceGetStreamPriorityRange
-  end interface
 
-  interface
-     integer (c_int) function hipEventCreate(event) &
-          bind(c, name='hipEventCreate')
+     integer(c_int) function hipEventCreate(event) &
+       bind(c, name='hipEventCreate')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: event
      end function hipEventCreate
-  end interface
 
-  interface
-     integer (c_int) function hipEventDestroy(event) &
-          bind(c, name='hipEventDestroy')
+     integer(c_int) function hipEventDestroy(event) &
+       bind(c, name='hipEventDestroy')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event
      end function hipEventDestroy
-  end interface
 
-  interface
-     integer (c_int) function hipEventCreateWithFlags(event, flags) &
-          bind(c, name='hipEventCreateWithFlags')
+     integer(c_int) function hipEventCreateWithFlags(event, flags) &
+       bind(c, name='hipEventCreateWithFlags')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: event
        integer(c_int), value :: flags
      end function hipEventCreateWithFlags
-  end interface
 
-  interface
-     integer (c_int) function hipEventRecord(event, stream) &
-          bind(c, name='hipEventRecord')
+     integer(c_int) function hipEventRecord(event, stream) &
+       bind(c, name='hipEventRecord')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event, stream
      end function hipEventRecord
-  end interface
 
-  interface
-     integer (c_int) function hipEventSynchronize(event) &
-          bind(c, name='hipEventSynchronize')
+     integer(c_int) function hipEventSynchronize(event) &
+       bind(c, name='hipEventSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event
@@ -270,28 +234,22 @@ module hip_intf
 contains
 
   subroutine hip_init
-    integer(c_int) :: num_devices
-
-    if (hipGetDeviceCount(num_devices) .ne. hipSuccess) then
-       call neko_error('Failed to query device count')
-    end if
-
-    if (num_devices .ne. 1) then
-        call neko_error('Only one device is supported per MPI node')
+    if (hip_device_count() .ne. 1) then
+       call neko_error('Only one device is supported per MPI rank')
     end if
 
     if (hipDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
-         .ne. hipSuccess) then
+        .ne. hipSuccess) then
        call neko_error('Error retrieving stream priority range')
     end if
 
     if (hipStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO) &
-         .ne. hipSuccess) then
+        .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
 
     if (hipStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
-         .ne. hipSuccess) then
+        .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
   end subroutine hip_init
@@ -321,6 +279,18 @@ contains
     endif
 
   end subroutine hip_device_name
+
+  !> Return the number of available HIP devices
+  integer function hip_device_count()
+    type(c_ptr) :: hip_count_ptr
+    integer :: amount
+
+    if (hipGetDeviceCount(amount) .ne. hipSuccess) then
+       call neko_error('Failed to query device count')
+    end if
+
+    hip_device_count = amount
+  end function hip_device_count
 
 #endif
 
