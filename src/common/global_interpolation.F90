@@ -116,7 +116,7 @@ contains
   subroutine global_interpolation_init(this, dof, tol, Xh, msh)
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
-    real(kind=rp), optional :: tol
+    real(kind=rp), intent(in), optional :: tol
     type(space_t), intent(in), target, optional :: Xh
     type(mesh_t), intent(in), target, optional :: msh
     integer :: lx, ly, lz, nelv, max_pts_per_iter

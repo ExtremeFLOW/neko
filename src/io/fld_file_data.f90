@@ -190,7 +190,7 @@ contains
     class(fld_file_data_t), intent(in) :: this
     type(dofmap_t), intent(in), target :: to_dof
     type(mesh_t), intent(in), target :: to_msh
-    real(kind=rp), intent(in), optional :: tolerance
+    real(kind=rp), intent(in) :: tolerance
 
     type(global_interpolation_t) :: global_interp
 
@@ -202,7 +202,6 @@ contains
          z_coords(:,:,:,:)
     real(kind=rp) :: center_x, center_y, center_z
     integer :: e, i
-    real(kind=rp) :: tol
     ! ---
 
     type(space_t), pointer :: to_Xh
@@ -213,10 +212,6 @@ contains
          .not. allocated(this%y%x) .or. &
          .not. allocated(this%z%x)) call neko_error("Unable to retrieve &
 &mesh information from fld data.")
-
-    ! Same tolerance as for chkp
-    tol = 1d-6
-    if (present(tolerance)) tol = tolerance
 
     ! Create a space based on the fld data
     call fld_Xh%init(GLL, this%lx, this%ly, this%lz)
@@ -253,17 +248,17 @@ contains
        center_z = center_z / to_Xh%lxyz
        do i = 1, to_Xh%lxyz
           x_coords(i, 1, 1, e) = to_dof%x(i, 1, 1, e) - &
-               tol * (to_dof%x(i, 1, 1, e) - center_x)
+               tolerance * (to_dof%x(i, 1, 1, e) - center_x)
           y_coords(i, 1, 1, e) = to_dof%y(i, 1, 1, e) - &
-               tol*(to_dof%y(i, 1, 1, e)-center_y)
+               tolerance*(to_dof%y(i, 1, 1, e)-center_y)
           z_coords(i, 1, 1, e) = to_dof%z(i, 1, 1, e) - &
-               tol*(to_dof%z(i, 1, 1, e)-center_z)
+               tolerance*(to_dof%z(i, 1, 1, e)-center_z)
        end do
     end do
 
     ! The initialization is done based on the variables created from
     ! fld data
-    call global_interp%init(fld_dof, tol = tol, Xh = fld_Xh, &
+    call global_interp%init(fld_dof, tol = tolerance, Xh = fld_Xh, &
          msh = fld_empty_mesh)
 
     ! Note that to_dof%size() should be equal to
