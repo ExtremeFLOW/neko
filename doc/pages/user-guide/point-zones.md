@@ -80,7 +80,7 @@ on the geometrical parameters of each sub point zone. The mask will not contain
 any duplicate points in case the subset point zones overlap.
 
 The combination will be performed according to a specified operator, which can
-take the values `"OR"`, `"AND"` or `"XOR"`. The default setting is `"XOR"`. 
+take the values `"OR"`, `"AND"` or `"XOR"`. The default setting is `"OR"`. 
 For example, if you try to combine two point zones `p1` and `p2`:
 - The operator `OR` will select all the points that are both in `p1` 
 **or** `p2`,

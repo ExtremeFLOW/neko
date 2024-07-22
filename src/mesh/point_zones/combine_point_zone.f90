@@ -135,7 +135,7 @@ contains
 
     end do
 
-    call json_get_or_default(json, "operator", this%operator, "XOR")
+    call json_get_or_default(json, "operator", this%operator, "OR")
     select case (trim(this%operator))
     case ("OR")
     case ("AND")
