@@ -75,9 +75,8 @@ The rules are as follows:
 - Lines may not exceed 80 characters.
 - Do loop specification must have spaces `do i = 1, 10`.
 - Logical operators must have spaces around them `a .eq. b`.
-- The separator `::` must have a spaces around it, unless it is a type
-  qualifier.
-- Punctuations must have spaces after them `foo(b, c)`
+- The separator `::` must have a spaces around it.
+- Punctuations must have spaces after them `foo(b, c)`.
 - Context blocks must have a space before the parenthesis `if (a .eq. b)`.
 - Usage of OpenMP should be prepended with `!$`.
 - Indentation should be done with spaces, not tabs.
@@ -90,6 +89,7 @@ The rules are as follows:
 - Assignment operators must have spaces around them `a = b`. However, we do
   allow kind and len assignment to be used without spaces.
 - Trailing white spaces is not allowed.
+- Double spaces are not allowed.
 - Precision of real numbers should be specified using `sp`, `dp` or `qp`.
 - Array declaration should use brackets instead of parentheses.
 - Should use `use mpi_f08` instead (or `use mpi` if not available).
@@ -98,6 +98,15 @@ The rules are as follows:
 - The use of the `goto` statement is not allowed.
 - The use of the `pause` statement is not allowed.
 - The use of the `include` statement is not allowed.
+
+However, there are some exceptions to these rules:
+
+- The separator `::` may not have spaces around it in the case of a type
+  declaration.
+- Spaces after the comma in a list of arguments or array indices may be omitted
+  for single letter variable names and 2 digit numbers. For example, `foo(a,b)`
+  and `foo(a,10)` are allowed, but `foo(a,bb)` and `foo(a,100)` are not.
+- Spaces after the comma is not required in format specifiers.
 
 ## Tools
 
