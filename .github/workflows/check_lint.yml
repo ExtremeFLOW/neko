@@ -107,7 +107,7 @@ jobs:
 
           printf "Detected fortran changes:\n"
           for file in $changes; do
-            if [[ ${file: -4} != ".f90" || ${file: -4} != ".F90" ]]; then
+            if [[ ${file: -4} != ".f90" && ${file: -4} != ".F90" ]]; then
               continue
             fi
             printf "\t- $file"
