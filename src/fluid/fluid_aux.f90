@@ -67,7 +67,7 @@ contains
     !> Prints for pressure and velocity the following:
   !! Number of iterations, start residual, end residual
   subroutine fluid_step_info_stress(step, t, dt, ksp_results)
-    type(ksp_monitor_t), intent(in) :: ksp_results(2)
+    type(ksp_monitor_t), intent(in) :: ksp_results(4)
     integer, intent(in) :: step
     real(kind=rp), intent(in) :: t, dt
     character(len=LOG_SIZE) :: log_buf

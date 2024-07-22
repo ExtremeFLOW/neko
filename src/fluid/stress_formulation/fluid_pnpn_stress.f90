@@ -59,7 +59,7 @@ module fluid_pnpn_stress
   use advection_fctry, only : advection_factory
   use advection, only : advection_t
   use profiler, only : profiler_start_region, profiler_end_region
-  use cg_stress
+  use cg_cpld, only : cg_cpld_t
   use json_utils, only : json_get
   use json_module, only : json_file
   use shear_stress, only : shear_stress_t
@@ -86,7 +86,7 @@ module fluid_pnpn_stress
      type(field_t) :: dp, du, dv, dw
 
      ! Variable material properties
-     type(field_t) :: mu_field, rho_field
+     type(field_t) :: rho_field
 
      ! Coupled Helmholz operator for velocity
      class(ax_t), allocatable :: Ax_vel
@@ -140,7 +140,7 @@ module fluid_pnpn_stress
      type(fluid_volflow_t) :: vol_flow
 
      !> The coupled CG solver for the velocity.
-     type(cg_stress_t) :: ksp_stress
+     type(cg_cpld_t) :: ksp_stress
 
      !> The wall model boundary condition.
      type(wall_model_bc_t) :: wm
@@ -618,7 +618,7 @@ contains
     ! number of degrees of freedom
     integer :: n
     ! Solver results monitors (pressure + velocity)
-    type(ksp_monitor_t) :: ksp_results(2)
+    type(ksp_monitor_t) :: ksp_results(4)
     ! Extrapolated velocity for the pressure residual
     type(field_t), pointer :: u_e, v_e, w_e
     ! Indices for tracking temporary fields
@@ -764,7 +764,7 @@ contains
 
       call profiler_start_region("Velocity solve", 4)
 
-      ksp_results(2) = this%ksp_stress%solve_stress(Ax_vel, du, dv, dw, &
+      ksp_results(2:) = this%ksp_stress%solve_coupled(Ax_vel, du, dv, dw, &
            u_res%x, v_res%x, w_res%x, &
            n, c_Xh, this%bclst_du, this%bclst_dv, this%bclst_dw, &
            gs_Xh, this%ksp_vel%max_iter)
