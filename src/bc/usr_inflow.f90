@@ -44,7 +44,6 @@ module usr_inflow
 
   !> User defined dirichlet condition for inlet (vector valued)
   type, public, extends(bc_t) :: usr_inflow_t
-     type(coef_t), pointer :: c => null()
      procedure(usr_inflow_eval), nopass, pointer :: eval => null()
      type(c_ptr), private :: usr_x_d = C_NULL_PTR
      type(c_ptr), private :: usr_y_d = C_NULL_PTR
@@ -53,7 +52,6 @@ module usr_inflow
      procedure, pass(this) :: apply_scalar => usr_inflow_apply_scalar
      procedure, pass(this) :: apply_vector => usr_inflow_apply_vector
      procedure, pass(this) :: validate => usr_inflow_validate
-     procedure, pass(this) :: set_coef => usr_inflow_set_coef
      procedure, pass(this) :: set_eval => usr_inflow_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_inflow_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_inflow_apply_scalar_dev
@@ -164,16 +162,17 @@ contains
        tstep_ = 1
     end if
 
-    associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
-         nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
-         lx => this%c%Xh%lx)
+    associate(&
+         xc => this%coef%dof%x, yc => this%coef%dof%y, zc => this%coef%dof%z, &
+         nx => this%coef%nx, ny => this%coef%ny, nz => this%coef%nz, &
+         lx => this%coef%Xh%lx)
       m = this%msk(0)
       do i = 1, m
          k = this%msk(i)
          facet = this%facet(i)
          idx = nonlinear_index(k, lx, lx, lx)
-         select case(facet)
-         case(1,2)
+         select case (facet)
+         case (1,2)
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -183,7 +182,7 @@ contains
                  nz(idx(2), idx(3), facet, idx(4)), &
                  idx(1), idx(2), idx(3), idx(4), &
                  t_, tstep_)
-         case(3,4)
+         case (3,4)
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -193,7 +192,7 @@ contains
                  nz(idx(1), idx(3), facet, idx(4)), &
                  idx(1), idx(2), idx(3), idx(4), &
                  t_, tstep_)
-         case(5,6)
+         case (5,6)
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -235,10 +234,11 @@ contains
        tstep_ = 1
     end if
 
-    associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
-         nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
-         lx => this%c%Xh%lx, usr_x_d => this%usr_x_d, usr_y_d => this%usr_y_d, &
-         usr_z_d => this%usr_z_d)
+    associate(&
+         xc => this%coef%dof%x, yc => this%coef%dof%y, zc => this%coef%dof%z, &
+         nx => this%coef%nx, ny => this%coef%ny, nz => this%coef%nz, &
+         lx => this%coef%Xh%lx, usr_x_d => this%usr_x_d, &
+         usr_y_d => this%usr_y_d, usr_z_d => this%usr_z_d)
 
       m = this%msk(0)
 
@@ -253,15 +253,16 @@ contains
          call device_alloc(usr_y_d, s)
          call device_alloc(usr_z_d, s)
 
-         associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
-                   nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
-                   lx => this%c%Xh%lx)
+         associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
+              zc => this%coef%dof%z, &
+              nx => this%coef%nx, ny => this%coef%ny, nz => this%coef%nz, &
+              lx => this%coef%Xh%lx)
            do i = 1, m
               k = this%msk(i)
               facet = this%facet(i)
               idx = nonlinear_index(k, lx, lx, lx)
-              select case(facet)
-              case(1,2)
+              select case (facet)
+              case (1,2)
                  call this%eval(x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -271,7 +272,7 @@ contains
                       nz(idx(2), idx(3), facet, idx(4)), &
                       idx(1), idx(2), idx(3), idx(4), &
                       t_, tstep_)
-              case(3,4)
+              case (3,4)
                  call this%eval(x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -281,7 +282,7 @@ contains
                       nz(idx(1), idx(3), facet, idx(4)), &
                       idx(1), idx(2), idx(3), idx(4), &
                       t_, tstep_)
-              case(5,6)
+              case (5,6)
                  call this%eval(x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -295,9 +296,9 @@ contains
            end do
          end associate
 
-         call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE, sync=.true.)
+         call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE, sync = .true.)
 
          deallocate(x, y, z)
       end if
@@ -308,13 +309,6 @@ contains
     end associate
 
   end subroutine usr_inflow_apply_vector_dev
-
-  !> Assign coefficients (facet normals etc)
-  subroutine usr_inflow_set_coef(this, c)
-    class(usr_inflow_t), intent(inout) :: this
-    type(coef_t), target, intent(inout) :: c
-    this%c => c
-  end subroutine usr_inflow_set_coef
 
   !> Assign user provided eval function
   !! @param user_eval User specified boundary condition for u,v,w (vector)
@@ -330,7 +324,7 @@ contains
     logical :: valid
 
     valid = .true. ! Assert it's going to be ok...
-    if (.not. associated(this%c)) then
+    if (.not. associated(this%coef)) then
        call neko_warning('Missing coefficients')
        valid = .false.
     end if

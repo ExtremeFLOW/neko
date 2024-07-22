@@ -8,15 +8,17 @@
     "checkpoint_control": "simulationtime",
     "checkpoint_value": 100,
     "end_time": 200.0,
-    "timestep": 0.003,
+    "variable_timestep": true,
+    "target_cfl": 0.5,
+    "max_timestep": 1e-1,
     "numerics": {
         "time_order": 3,
-        "polynomial_order": 7,
+        "polynomial_order": 5,
         "dealias": true
     },
     "fluid": {
-        "scheme": "pnpn_stress",
-        "Re": 2860,
+        "scheme": "pnpn",
+        "Re": 2800,
         "initial_condition": {
             "type": "user"
         },
@@ -24,14 +26,14 @@
             "type": "cg",
             "preconditioner": "jacobi",
             "projection_space_size": 5,
-            "absolute_tolerance": 1e-7,
+            "absolute_tolerance": 1e-4,
             "max_iterations": 800
         },
         "pressure_solver": {
             "type": "gmres",
             "preconditioner": "hsmg",
             "projection_space_size": 20,
-            "absolute_tolerance": 1e-5,
+            "absolute_tolerance": 1e-3,
             "max_iterations": 800
         },
         "flow_rate_force": {
@@ -41,7 +43,7 @@
         },
         "boundary_types": ["", "", "sh=-0.00406", "sh=-0.00406"],
         "output_control": "simulationtime",
-        "output_value": 20
+        "output_value": 1.0
     },
     "statistics": {
         "enabled": true,
