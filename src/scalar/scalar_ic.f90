@@ -127,18 +127,20 @@ contains
           ! Look for parameters for interpolation
           call params%get("case.scalar.initial_condition.previous_mesh", &
                prev_mesh, found_previous_mesh)
-          call neko_log%message("Previous mesh: " // trim(prev_mesh))
+          ! Get tolerance for potential interpolation
+          call json_get_or_default(params, &
+               'case.scalar.initial_condition.tolerance', tol, 1d-6)
 
           if (found_previous_mesh) then
-             call json_get_or_default(params, &
-                  'case.scalar.initial_condition.tolerance', tol, 1d-6)
-             write (log_buf, '(A,F10.6)') "Tolerance    : ", tol
+             call neko_log%message(       "Previous mesh: " // trim(prev_mesh))
+             write (log_buf, '(A,E15.7)') "Tolerance    : ", tol
              call neko_log%message(log_buf)
+          end if
 
-             call set_scalar_ic_chkp(s, read_str, prev_mesh, tol)
+          if (found_previous_mesh) then
+             call set_scalar_ic_chkp(s, read_str, &
+                  previous_mesh_fname = prev_mesh, tol = tol)
           else
-             ! In this case no mesh interpolation but potential for interpolation
-             ! between different polynomial orders
              call set_scalar_ic_chkp(s, read_str)
           end if
 
@@ -149,7 +151,7 @@ contains
                'case.scalar.initial_condition.sample_index', sample_idx, -1)
 
           if (sample_idx .ne. -1) then
-             write (log_buf, '(A,I5.5)') "Sample index: ", sample_idx
+             write (log_buf, '(A,I5)') "Sample index: ", sample_idx
              call neko_log%message(log_buf)
           end if
 
@@ -175,25 +177,29 @@ contains
                'case.scalar.initial_condition.interpolate', interpolate, &
                .false.)
 
+          ! Get the tolerance for potential interpolationm defaults to
+          ! the same value as for interpolation in chkp_t
+          call json_get_or_default(params, &
+               'case.scalar.initial_condition.tolerance', tol, 1d-6)
+
+          ! Get the index of the file that contains the mesh
+          call json_get_or_default(params, &
+               'case.scalar.initial_condition.sample_mesh_index', &
+               sample_mesh_idx, 0)
+
           if (interpolate) then
-
-             call json_get_or_default(params, &
-                  'case.scalar.initial_condition.tolerance', tol, 1d-6)
-             write (log_buf, '(A,F10.6)') "Tolerance   : ", tol
+             call neko_log%message(       "Interpolation    : yes")
+             write (log_buf, '(A,E15.7)') "Tolerance        : ", tol
              call neko_log%message(log_buf)
-
-             ! Get the index of the file that contains the mesh
-             call json_get_or_default(params, &
-                  'case.scalar.initial_condition.sample_mesh_index', &
-                  sample_mesh_idx, 0)
-
-             call set_scalar_ic_fld(s, read_str, sample_idx, &
-                  interpolate, tol, sample_mesh_idx)
-          else
-             call set_scalar_ic_fld(s, read_str, sample_idx, &
-                  interpolate)
+             write (log_buf, '(A,I5)')    "Mesh sample index: ", &
+                  sample_mesh_idx
+             call neko_log%message(log_buf)
           end if
-       end if
+
+          call set_scalar_ic_fld(s, read_str, sample_idx, interpolate, &
+               tolerance=tol, sample_mesh_idx=sample_mesh_idx)
+
+       end if ! if suffix .eq. chkp
 
     else
        call neko_error('Invalid initial condition')
@@ -362,9 +368,8 @@ contains
     ! two different meshes have the same dimension and same # of elements
     ! but this should be enough to cover the most obvious cases.
     !
-    if ( ((fld_data%gdim .ne. s%msh%gdim) .or. &
-         (fld_data%glb_nelv .ne. s%msh%glb_nelv)) .and. &
-         (.not. interpolate)) then
+    if ( fld_data%glb_nelv .ne. s%msh%glb_nelv .and. &
+         .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
 &Use 'interpolate': 'true' to enable interpolation.")
     else if (interpolate) then
@@ -377,7 +382,11 @@ contains
     ! Mesh interpolation if specified
     if (interpolate) then
 
-       global_interp = fld_data%generate_interpolator(s%dof, s%msh, tolerance)
+       if (present(tolerance)) then
+          global_interp = fld_data%generate_interpolator(s%dof, s%msh, tolerance)
+       else
+          global_interp = fld_data%generate_interpolator(s%dof, s%msh, 1d-6)
+       end if
 
        ! Evaluate scalar
        call global_interp%evaluate(s%x, fld_data%t%x)
@@ -407,10 +416,10 @@ contains
   !! @param previous_mesh If specified, the name of the previouos mesh from
   !! which to interpolate.
   !! @param tol If specified, tolerance to use for the mesh interpolation.
-  subroutine set_scalar_ic_chkp(s, file_name, previous_mesh, tol)
+  subroutine set_scalar_ic_chkp(s, file_name, previous_mesh_fname, tol)
     type(field_t), intent(inout) :: s
     character(len=*), intent(in) :: file_name
-    character(len=*), intent(in), optional :: previous_mesh
+    character(len=*), intent(in), optional :: previous_mesh_fname
     real(kind=rp), intent(in), optional :: tol
 
     type(field_t), pointer :: u,v,w,p
@@ -427,8 +436,8 @@ contains
     call chkp_data%add_scalar(s)
 
     ! Mesh interpolation if specified
-    if (present(previous_mesh)) then
-       meshf = file_t(trim(previous_mesh))
+    if (present(previous_mesh_fname)) then
+       meshf = file_t(trim(previous_mesh_fname))
        call meshf%read(chkp_data%previous_mesh)
     end if
 

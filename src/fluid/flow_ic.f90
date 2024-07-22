@@ -480,7 +480,7 @@ contains
        if (present(tolerance)) then
           global_interp = fld_data%generate_interpolator(u%dof, u%msh, tolerance)
        else
-          global_interp = fld_data%generate_interpolator(u%dof, u%msh, 1d-6)
+          call neko_error("No tolerance provided for interpolation!")
        end if
 
        ! Evaluate velocities and pressure
