@@ -81,8 +81,7 @@ The rules are as follows:
 - Usage of OpenMP should be prepended with `!$`.
 - Indentation should be done with spaces, not tabs.
 - Use new syntax `type(kind)` instead of `type*8`.
-- Comment operator `!` must have a space before and after them, if they are not
-  a doxygen comment `! This is a comment`.
+- Comment operator `!` must have a space before and after them `! This is a comment`.
 - Lines may not be terminated with a semicolon.
 - End statement should have a context block `end if`.
 - End statement should have a space before context specification `end if`.
