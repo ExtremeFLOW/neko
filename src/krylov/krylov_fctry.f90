@@ -146,7 +146,7 @@ contains
        type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
                                           .true.)
        call neko_error("Unknown Krylov solver type: " &
-                       // trim(type_name) // ".  Known types are: " &
+                       // trim(type_name) // ". Known types are: " &
                        // type_string)
     end if
 

@@ -150,7 +150,7 @@ contains
   subroutine les_model_compute_delta(this)
     class(les_model_t), intent(inout) :: this
     integer :: e, i, j, k
-    integer ::  im, ip, jm, jp, km, kp
+    integer :: im, ip, jm, jp, km, kp
     real(kind=rp) :: di, dj, dk, ndim_inv
     integer :: lx_half, ly_half, lz_half
 

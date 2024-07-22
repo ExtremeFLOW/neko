@@ -38,7 +38,7 @@ module pnpn_res_stress_device
      subroutine pnpn_prs_res_part1_hip(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, mu, rho, n) &
-          bind(c, name='pnpn_prs_res_part1_hip')
+          bind(c, name = 'pnpn_prs_res_part1_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -53,7 +53,7 @@ module pnpn_res_stress_device
 
   interface
      subroutine pnpn_prs_res_part2_hip(p_res_d, wa1_d, wa2_d, wa3_d, n) &
-          bind(c, name='pnpn_prs_res_part2_hip')
+          bind(c, name = 'pnpn_prs_res_part2_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
@@ -63,7 +63,7 @@ module pnpn_res_stress_device
 
   interface
      subroutine pnpn_prs_res_part3_hip(p_res_d, ta1_d, ta2_d, ta3_d, dtbd, n) &
-          bind(c, name='pnpn_prs_res_part3_hip')
+          bind(c, name = 'pnpn_prs_res_part3_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -76,7 +76,7 @@ module pnpn_res_stress_device
   interface
      subroutine pnpn_vel_res_update_hip(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
-          bind(c, name='pnpn_vel_res_update_hip')
+          bind(c, name = 'pnpn_vel_res_update_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
@@ -90,7 +90,7 @@ module pnpn_res_stress_device
      subroutine pnpn_prs_stress_res_part1_cuda(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, rho_d, n) &
-          bind(c, name='pnpn_prs_stress_res_part1_cuda')
+          bind(c, name = 'pnpn_prs_stress_res_part1_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -104,7 +104,7 @@ module pnpn_res_stress_device
 
   interface
      subroutine pnpn_prs_res_part2_cuda(p_res_d, wa1_d, wa2_d, wa3_d, n) &
-          bind(c, name='pnpn_prs_res_part2_cuda')
+          bind(c, name = 'pnpn_prs_res_part2_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
@@ -115,7 +115,7 @@ module pnpn_res_stress_device
   interface
      subroutine pnpn_prs_stress_res_part3_cuda(p_res_d, ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, dtbd, n) &
-          bind(c, name='pnpn_prs_stress_res_part3_cuda')
+          bind(c, name = 'pnpn_prs_stress_res_part3_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -129,7 +129,7 @@ module pnpn_res_stress_device
   interface
      subroutine pnpn_vel_res_update_cuda(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
-          bind(c, name='pnpn_vel_res_update_cuda')
+          bind(c, name = 'pnpn_vel_res_update_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
@@ -143,7 +143,7 @@ module pnpn_res_stress_device
      subroutine pnpn_prs_res_part1_opencl(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, mu, rho, n) &
-          bind(c, name='pnpn_prs_res_part1_opencl')
+          bind(c, name = 'pnpn_prs_res_part1_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -158,7 +158,7 @@ module pnpn_res_stress_device
 
   interface
      subroutine pnpn_prs_res_part2_opencl(p_res_d, wa1_d, wa2_d, wa3_d, n) &
-          bind(c, name='pnpn_prs_res_part2_opencl')
+          bind(c, name = 'pnpn_prs_res_part2_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
@@ -169,7 +169,7 @@ module pnpn_res_stress_device
   interface
      subroutine pnpn_prs_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, dtbd, n) &
-          bind(c, name='pnpn_prs_res_part3_opencl')
+          bind(c, name = 'pnpn_prs_res_part3_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -183,7 +183,7 @@ module pnpn_res_stress_device
   interface
      subroutine pnpn_vel_res_update_opencl(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
-          bind(c, name='pnpn_vel_res_update_opencl')
+          bind(c, name = 'pnpn_vel_res_update_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
@@ -196,8 +196,9 @@ module pnpn_res_stress_device
 
 contains
 
-  subroutine pnpn_prs_res_stress_device_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_x, &
-       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface,bc_sym_surface, Ax, bd, dt, mu, rho)
+  subroutine pnpn_prs_res_stress_device_compute(p, p_res, u, v, w, u_e, v_e,&
+       w_e, f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd,&
+       dt, mu, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -313,11 +314,11 @@ contains
     call Ax%compute(p_res%x, p%x, c_Xh, p%msh, p%Xh)
 
 #ifdef HAVE_HIP
-    call pnpn_prs_res_part2_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
+    call pnpn_prs_res_part2_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #elif HAVE_CUDA
-    call pnpn_prs_res_part2_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
+    call pnpn_prs_res_part2_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #elif HAVE_OPENCL
-    call pnpn_prs_res_part2_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
+    call pnpn_prs_res_part2_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #endif
 
     !
@@ -349,8 +350,8 @@ contains
 
   end subroutine pnpn_prs_res_stress_device_compute
 
-  subroutine pnpn_vel_res_stress_device_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
+  subroutine pnpn_vel_res_stress_device_compute(Ax, u, v, w, u_res, v_res, &
+       w_res, p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh

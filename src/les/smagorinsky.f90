@@ -55,7 +55,8 @@ module smagorinsky
      !> Constructor from JSON.
      procedure, pass(this) :: init => smagorinsky_init
      !> Constructor from components.
-     procedure, pass(this) :: init_from_components => smagorinsky_init_from_components
+     procedure, pass(this) :: init_from_components => &
+          smagorinsky_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => smagorinsky_free
      !> Compute eddy viscosity.
@@ -80,7 +81,8 @@ contains
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_s", c_s, 0.17_rp)
 
-    call smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name, delta_type)
+    call smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name, &
+          delta_type)
   end subroutine smagorinsky_init
 
   !> Constructor from components.
@@ -88,7 +90,8 @@ contains
   !! @param coef SEM coefficients.
   !! @param c_s The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name, delta_type)
+  subroutine smagorinsky_init_from_components(this, dofmap, coef, c_s, &
+       nut_name, delta_type)
     class(smagorinsky_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef

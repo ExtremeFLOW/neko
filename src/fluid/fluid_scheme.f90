@@ -104,8 +104,8 @@ module fluid_scheme
      type(field_t), pointer :: f_y => null()
      !> Z-component of the right-hand side.
      type(field_t), pointer :: f_z => null()
-     class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
-     class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
+     class(ksp_t), allocatable :: ksp_vel     !< Krylov solver for velocity
+     class(ksp_t), allocatable :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
      class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
      integer :: vel_projection_dim         !< Size of the projection space for ksp_vel
@@ -615,7 +615,7 @@ contains
     call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
-    if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
+    if (integer_val .gt. 0) call this%user_field_bc_prs%init_field('d_pres')
     call bc_list_add(this%bclst_prs, this%user_field_bc_prs)
     call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_prs)
 

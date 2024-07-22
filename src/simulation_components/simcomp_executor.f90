@@ -33,7 +33,8 @@
 !> Contains the `simcomp_executor_t` type.
 module simcomp_executor
   use num_types, only : rp
-  use simulation_component, only : simulation_component_t, simulation_component_wrapper_t
+  use simulation_component, only : simulation_component_t, &
+       simulation_component_wrapper_t
   use simulation_component_fctry, only : simulation_component_factory
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
@@ -117,7 +118,7 @@ contains
     call neko_log%section('Initialize simcomp')
 
     ! Set the number of simcomps and allocate the arrays
-    call case%params%info(root_name, n_children=n_simcomps)
+    call case%params%info(root_name, n_children = n_simcomps)
     this%n_simcomps = n_simcomps
     allocate(this%simcomps(n_simcomps))
     allocate(order(n_simcomps))
@@ -154,7 +155,7 @@ contains
     ! Searches for the location of the min value, each time masking out the
     ! found location prior to the next search.
     do i = 1, n_simcomps
-       loc = minloc(read_order, mask=mask)
+       loc = minloc(read_order, mask = mask)
        order(i) = loc(1)
        mask(loc) = .false.
     end do
@@ -334,7 +335,7 @@ contains
     integer :: i
 
     if (allocated(this%simcomps)) then
-       do i=1, size(this%simcomps)
+       do i = 1, size(this%simcomps)
           call this%simcomps(i)%simcomp%preprocess(t, tstep)
        end do
     end if

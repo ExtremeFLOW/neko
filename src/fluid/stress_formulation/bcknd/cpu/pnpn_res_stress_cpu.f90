@@ -31,8 +31,9 @@ module pnpn_res_stress_cpu
 
 contains
 
-  subroutine pnpn_prs_res_stress_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_x, &
-       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
+  subroutine pnpn_prs_res_stress_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e,&
+       f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt,&
+       mu, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -105,18 +106,21 @@ contains
     call cmult(ta3%x, 2.0_rp, n)
 
     ! S^T grad \mu
-    do e=1, nelv
+    do e = 1, nelv
        call vdot3(work1%x(:, :, :, e), &
                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
-                  s11%x(:, :, :, e), s12%x(:, :, :, e), s13%x(:, :, :, e), lxyz)
+                  s11%x(:, :, :, e), s12%x(:, :, :, e), s13%x(:, :, :, e), &
+                  lxyz)
 
        call vdot3 (work2%x(:, :, :, e), &
-                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :,  e), &
-                   s12%x(:, :, :, e), s22%x(:, :, :, e), s23%x(:, :, :, e), lxyz)
+                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
+                   s12%x(:, :, :, e), s22%x(:, :, :, e), s23%x(:, :, :, e), &
+                   lxyz)
 
        call vdot3 (work3%x(:, :, :, e), &
-                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :,  e), &
-                   s13%x(:, :, :, e), s23%x(:, :, :, e), s33%x(:, :, :, e), lxyz)
+                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
+                   s13%x(:, :, :, e), s23%x(:, :, :, e), s33%x(:, :, :, e), &
+                   lxyz)
     end do
 
     ! Subtract the two terms of the viscous stress to get
@@ -168,7 +172,8 @@ contains
        wa3%x(i,1,1,1) = 0.0_rp
     end do
 
-    call bc_sym_surface%apply_surfvec(wa1%x,wa2%x,wa3%x,ta1%x, ta2%x, ta3%x, n)
+    call bc_sym_surface%apply_surfvec(wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x,&
+                                      n)
 
     dtbd = bd / dt
     do i = 1, n

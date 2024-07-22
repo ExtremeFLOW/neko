@@ -319,8 +319,8 @@ contains
 
     if (this%variable_material_properties .and. &
           this%vel_projection_dim .gt. 0) then
-       call neko_error("Velocity projection not available for full stress&
-             & formulation")
+       call neko_error("Velocity projection not available for full stress &
+             &formulation")
     end if
 
 
@@ -654,7 +654,7 @@ contains
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
       ksp_results(1) = &
-         this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh)
+         this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
 
       call profiler_end_region
 
@@ -688,7 +688,7 @@ contains
          call this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)
       else
          call this%bc_field_dirichlet_u%apply_scalar(u_res%x, n, t, tstep)
-         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, n,  t, tstep)
+         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, n, t, tstep)
          call this%bc_field_dirichlet_w%apply_scalar(w_res%x, n, t, tstep)
       end if
 

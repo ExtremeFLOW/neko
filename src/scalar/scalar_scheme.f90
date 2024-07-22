@@ -40,7 +40,7 @@ module scalar_scheme
   use field, only : field_t
   use field_list, only: field_list_t
   use space, only : space_t
-  use dofmap, only :  dofmap_t
+  use dofmap, only : dofmap_t
   use krylov, only : ksp_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
@@ -94,13 +94,13 @@ module scalar_scheme
      !> Gather-scatter associated with \f$ X_h \f$.
      type(gs_t), pointer :: gs_Xh
      !> Coefficients associated with \f$ X_h \f$.
-     type(coef_t), pointer  :: c_Xh
+     type(coef_t), pointer :: c_Xh
      !> Right-hand side.
      type(field_t), pointer :: f_Xh => null()
      !> The source term for equation.
      type(scalar_source_term_t) :: source_term
      !> Krylov solver.
-     class(ksp_t), allocatable  :: ksp
+     class(ksp_t), allocatable :: ksp
      !> Max iterations in the Krylov solver.
      integer :: ksp_maxiter
      !> Projection space size.
@@ -213,7 +213,8 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
+     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, &
+          dt_controller)
        import scalar_scheme_t
        import time_scheme_controller_t
        import time_step_controller_t
@@ -289,7 +290,7 @@ contains
 
     ! Create list with just Neumann bcs
     call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
-    do i=1, this%n_neumann_bcs
+    do i = 1, this%n_neumann_bcs
        call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
     end do
 
@@ -311,7 +312,7 @@ contains
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), target,  intent(inout) :: material_properties
+    type(material_properties_t), target, intent(inout) :: material_properties
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
@@ -415,7 +416,7 @@ contains
     ! Setup right-hand side field.
     !
     allocate(this%f_Xh)
-    call this%f_Xh%init(this%dm_Xh, fld_name="scalar_rhs")
+    call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
     call this%source_term%init(params, this%f_Xh, this%c_Xh, user)
@@ -448,12 +449,13 @@ contains
     !
     this%field_dir_bc%update => user%user_dirichlet_update
 
-    call bc_list_init(this%field_dirichlet_bcs, size=1)
+    call bc_list_init(this%field_dirichlet_bcs, size = 1)
     call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
 
 
     ! todo parameter file ksp tol should be added
-    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
+    call json_get_or_default(params, &
+                             'case.fluid.velocity_solver.max_iterations', &
                              integer_val, 800)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol)
@@ -572,14 +574,14 @@ contains
 
     call precon_factory(pc, pctype)
 
-    select type(pcp => pc)
-    type is(jacobi_t)
+    select type (pcp => pc)
+    type is (jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
-    type is(hsmg_t)
+    type is (hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
              call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &

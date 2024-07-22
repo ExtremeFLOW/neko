@@ -35,7 +35,8 @@ module pnpn_res_stress_fctry
   use neko_config
   use utils
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use pnpn_res_stress_cpu, only : pnpn_prs_res_stress_cpu_t, pnpn_vel_res_stress_cpu_t
+  use pnpn_res_stress_cpu, only : pnpn_prs_res_stress_cpu_t, &
+                                  pnpn_vel_res_stress_cpu_t
   use pnpn_res_stress_device, only : pnpn_prs_res_stress_device_t, &
                                      pnpn_vel_res_stress_device_t
 
