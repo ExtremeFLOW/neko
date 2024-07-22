@@ -60,13 +60,15 @@ contains
     real(kind=rp) :: ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D
 
     ! data reading
-    open(unit=10, file='TSwave_cheb_2D.bin', form='unformatted', access='stream')
+    open(unit=10, file='TSwave_cheb_2D.bin', form = 'unformatted', &
+                  access = 'stream')
        read(10) data_mode_cheb_2D
     close(10)
     y_GLC = data_mode_cheb_2D(:,1)
     TS2D_GLC = data_mode_cheb_2D(:,2:num_columns)
 
-    open(unit=10, file='TSwave_cheb_3D.bin', form='unformatted', access='stream')
+    open(unit=10, file='TSwave_cheb_3D.bin', form = 'unformatted', &
+                  access = 'stream')
        read(10) data_mode_cheb_3D
     close(10)
     TS3D_GLC = data_mode_cheb_3D(:,2:num_columns)
@@ -210,8 +212,8 @@ contains
     ub = 1.0_rp-y*y
 
     uvw(1)  = ub + u_pert_TS_2D + u_pert_TS_3D
-    uvw(2)  =      v_pert_TS_2D + v_pert_TS_3D
-    uvw(3)  =                     w_pert_TS_3D
+    uvw(2)  = v_pert_TS_2D + v_pert_TS_3D
+    uvw(3)  = w_pert_TS_3D
 
   end function channel_ic
 
