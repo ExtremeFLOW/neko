@@ -49,6 +49,7 @@ module les_simcomp
   use device_math, only : device_addcol3, device_add2s2, device_cfill
   use neko_config, only : NEKO_BCKND_DEVICE
   use fld_file_output, only : fld_file_output_t
+  use field_writer, only : field_writer_t
   implicit none
   private
 
@@ -57,14 +58,10 @@ module les_simcomp
    type, public, extends(simulation_component_t) :: les_simcomp_t
      !> The LES model.
      class(les_model_t), allocatable :: les_model
-     !> Density field
-     type(field_t), pointer :: rho => null()
-     !> Variable dynamic viscosity fields.
-     type(field_t), pointer :: mu_field => null()
-     !> Molecular dynamic visocity.
-     real(kind=rp) :: mu = 0.0
      !> Output writer.
      type(fld_file_output_t), private :: output
+     !> Output writer.
+     type(field_writer_t) :: writer
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => les_simcomp_init_from_json
@@ -82,46 +79,26 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: name
-    character(len=:), allocatable :: filename
-    character(len=:), allocatable :: precision
+    character(len=:), allocatable :: nut_field
+    character(len=20) :: fields(2)
 
     call this%free()
 
-    call this%free()
+    ! Add fields keyword to the json so that the field_writer picks it up.
+    ! Will also add fields to the registry if missing.
+    call json_get(json, "nut_field", nut_field)
+    fields(1) = "les_delta"
+    fields(2) = nut_field
+
+    call json%add("fields", fields)
+
+    call this%init_base(json, case)
+    call this%writer%init(json, case)
 
     call json_get(json, "model", name)
 
-    call this%init_base(json, case)
-
     call les_model_factory(this%les_model, name, case%fluid%dm_Xh,&
                            case%fluid%c_Xh, json)
-
-    select type(f => case%fluid)
-    type is(fluid_pnpn_stress_t)
-      this%rho => f%rho_field
-      this%mu_field => f%mu_field
-      this%mu = f%mu
-    end select
-
-    ! Configure output for delta and nut
-    if (json%valid_path("output_filename")) then
-       call json_get(json, "output_filename", filename)
-       if (json%valid_path("output_precision")) then
-           call json_get(json, "output_precision", precision)
-           if (precision == "double") then
-              call this%output%init(dp, filename, 2)
-           end if
-       else
-           call this%output%init(sp, filename, 2)
-       end if
-       this%output%fields%items(1)%ptr => this%les_model%nut
-       this%output%fields%items(2)%ptr => this%les_model%delta
-       call this%case%s%add(this%output, this%output_controller%control_value, &
-                            this%output_controller%control_mode)
-    else
-       call this%case%f_out%fluid%append(this%les_model%nut)
-       call this%case%f_out%fluid%append(this%les_model%delta)
-    end if
 
   end subroutine les_simcomp_init_from_json
 
@@ -129,8 +106,7 @@ contains
   subroutine les_simcomp_free(this)
     class(les_simcomp_t), intent(inout) :: this
     call this%free_base()
-    nullify(this%rho)
-    nullify(this%mu_field)
+    call this%writer%free()
 
     if (allocated(this%les_model)) then
       call this%les_model%free()
@@ -147,14 +123,6 @@ contains
     integer, intent(in) :: tstep
 
     call this%les_model%compute(t, tstep)
-    this%mu_field = this%mu
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-        call device_addcol3(this%mu_field%x_d, this%rho%x_d, &
-                            this%les_model%nut%x_d, this%rho%dof%size())
-    else
-        call addcol3(this%mu_field%x, this%rho%x, this%les_model%nut%x, &
-                     this%rho%dof%size())
-    end if
   end subroutine les_simcomp_compute
 
 end module les_simcomp

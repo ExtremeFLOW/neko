@@ -702,6 +702,9 @@ contains
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
 
+      ! Update material properties if necessary
+      call this%update_material_properties()
+
       ! Compute pressure.
       call profiler_start_region('Pressure residual', 18)
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
