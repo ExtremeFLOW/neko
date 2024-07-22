@@ -85,7 +85,7 @@ module global_interpolation
      !> Error code for each point, needed for gslib
      integer, allocatable :: error_code(:)
      !> Tolerance for distance squared between original and interpolated point
-     real(kind=rp) :: tol = 5e-13
+     real(kind=rp) :: tol = 5d-13
    contains
      !> Initialize the global interpolation object on a dofmap.
      procedure, pass(this) :: init => global_interpolation_init
@@ -276,7 +276,6 @@ contains
                              this%proc_owner, 1, this%el_owner, 1, &
                              this%rst, this%mesh%gdim, &
                              this%n_points, this%dof%z)
-
 
     do i=1,this%n_points
 
