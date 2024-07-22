@@ -56,13 +56,14 @@ module krylov_fctry
   public :: krylov_solver_factory, krylov_solver_destroy
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(6) = [character(len=20) :: &
+  character(len=20) :: KNOWN_TYPES(7) = [character(len=20) :: &
      "cg", &
      "pipecg", &
      "fusedcg", &
      "cacg", &
      "gmres", &
-     "bicgstab"]
+     "bicgstab", &
+     "cpldcg"]
 
 contains
 

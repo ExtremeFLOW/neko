@@ -35,6 +35,8 @@ module fluid_pnpn
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use pnpn_res_fctry, only : pnpn_prs_res_factory, pnpn_vel_res_factory
+  use pnpn_res_stress_fctry, only : pnpn_prs_res_stress_factory, &
+       pnpn_vel_res_stress_factory
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use ax_helm_fctry, only : ax_helm_factory
   use rhs_maker_fctry, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
@@ -82,7 +84,10 @@ module fluid_pnpn
 
      type(field_t) :: dp, du, dv, dw
 
-     class(ax_t), allocatable :: Ax
+     ! Coupled Helmholz operator for velocity
+     class(ax_t), allocatable :: Ax_vel
+     ! Helmholz operator for pressure
+     class(ax_t), allocatable :: Ax_prs
 
      type(projection_t) :: proj_prs
      type(projection_t) :: proj_u
@@ -152,17 +157,28 @@ contains
                           material_properties)
 
     if (this%variable_material_properties .eqv. .true.) then
-       call neko_error("Variable material properties not supported.")
+       ! Setup backend dependent Ax routines
+       call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
+
+       ! Setup backend dependent prs residual routines
+       call pnpn_prs_res_stress_factory(this%prs_res)
+
+       ! Setup backend dependent vel residual routines
+       call pnpn_vel_res_stress_factory(this%vel_res)
+    else
+       ! Setup backend dependent Ax routines
+       call ax_helm_factory(this%Ax_vel, full_formulation = .false.)
+
+       ! Setup backend dependent prs residual routines
+       call pnpn_prs_res_factory(this%prs_res)
+
+       ! Setup backend dependent vel residual routines
+       call pnpn_vel_res_factory(this%vel_res)
     end if
 
-    ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax, full_formulation = .false.)
+    ! Setup Ax for the pressure
+    call ax_helm_factory(this%Ax_prs, full_formulation = .false.)
 
-    ! Setup backend dependent prs residual routines
-    call pnpn_prs_res_factory(this%prs_res)
-
-    ! Setup backend dependent vel residual routines
-    call pnpn_vel_res_factory(this%vel_res)
 
     ! Setup backend dependent summation of AB/BDF
     call rhs_maker_sumab_fctry(this%sumab)
@@ -300,6 +316,14 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
 
     !Intialize projection space thingy
+
+    if (this%variable_material_properties .and. &
+          this%vel_projection_dim .gt. 0) then
+       call neko_error("Velocity projection not available for full stress&
+             & formulation")
+    end if
+
+
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
                               this%pr_projection_activ_step)
 
@@ -479,8 +503,12 @@ contains
     call this%aby2%free()
     call this%abz2%free()
 
-    if (allocated(this%Ax)) then
-       deallocate(this%Ax)
+    if (allocated(this%Ax_vel)) then
+       deallocate(this%Ax_vel)
+    end if
+
+    if (allocated(this%Ax_prs)) then
+       deallocate(this%Ax_prs)
     end if
 
     if (allocated(this%prs_res)) then
@@ -537,7 +565,8 @@ contains
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
-         p_res => this%p_res, Ax => this%Ax, Xh => this%Xh, &
+         p_res => this%p_res, Ax_vel => this%Ax_vel, Ax_prs => this%Ax_prs, &
+         Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          msh => this%msh, prs_res => this%prs_res, &
@@ -601,6 +630,9 @@ contains
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
 
+      ! Update material properties if necessary
+      call this%update_material_properties()
+
       ! Compute pressure.
       call profiler_start_region('Pressure residual', 18)
       call prs_res%compute(p, p_res,&
@@ -609,7 +641,7 @@ contains
                            f_x, f_y, f_z, &
                            c_Xh, gs_Xh, &
                            this%bc_prs_surface, this%bc_sym_surface,&
-                           Ax, ext_bdf%diffusion_coeffs(1), dt, &
+                           Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
@@ -622,18 +654,18 @@ contains
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
       ksp_results(1) = &
-         this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh)
+         this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh)
 
       call profiler_end_region
 
-      call this%proj_prs%post_solving(dp%x, Ax, c_Xh, &
+      call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       call field_add2(p, dp, n)
 
       ! Compute velocity.
       call profiler_start_region('Velocity residual', 19)
-      call vel_res%compute(Ax, u, v, w, &
+      call vel_res%compute(Ax_vel, u, v, w, &
                            u_res, v_res, w_res, &
                            p, &
                            f_x, f_y, f_z, &
@@ -669,16 +701,16 @@ contains
       call this%pc_vel%update()
 
       call profiler_start_region("Velocity solve", 4)
-      ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax, du, dv, dw, &
+      ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
            u_res%x, v_res%x, w_res%x, n, c_Xh, &
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh)
       call profiler_end_region
 
-      call this%proj_u%post_solving(du%x, Ax, c_Xh, &
+      call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &
                                  this%bclst_du, gs_Xh, n, tstep, dt_controller)
-      call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
+      call this%proj_v%post_solving(dv%x, Ax_vel, c_Xh, &
                                  this%bclst_dv, gs_Xh, n, tstep, dt_controller)
-      call this%proj_w%post_solving(dw%x, Ax, c_Xh, &
+      call this%proj_w%post_solving(dw%x, Ax_vel, c_Xh, &
                                  this%bclst_dw, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -692,7 +724,7 @@ contains
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho, mu,&
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
-              this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
+              this%bclst_dw, this%bclst_vel_res, Ax_vel, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
       end if
