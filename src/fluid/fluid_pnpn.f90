@@ -300,6 +300,16 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
 
     !Intialize projection space thingy
+    call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
+                              this%pr_projection_activ_step)
+
+    call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+    call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+    call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
+                              this%vel_projection_activ_step)
+
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
