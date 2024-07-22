@@ -250,9 +250,9 @@ contains
           x_coords(i, 1, 1, e) = to_dof%x(i, 1, 1, e) - &
                tolerance * (to_dof%x(i, 1, 1, e) - center_x)
           y_coords(i, 1, 1, e) = to_dof%y(i, 1, 1, e) - &
-               tolerance*(to_dof%y(i, 1, 1, e)-center_y)
+               tolerance * (to_dof%y(i, 1, 1, e) - center_y)
           z_coords(i, 1, 1, e) = to_dof%z(i, 1, 1, e) - &
-               tolerance*(to_dof%z(i, 1, 1, e)-center_z)
+               tolerance * (to_dof%z(i, 1, 1, e) - center_z)
        end do
     end do
 
