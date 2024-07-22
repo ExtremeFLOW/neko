@@ -51,9 +51,7 @@ contains
     real(kind=rp) :: y_GLC(num_rows)
     real(kind=rp) :: TS2D_GLC(num_rows, num_columns-1)
     real(kind=rp) :: TS3D_GLC(num_rows, num_columns-1)
-    integer :: ios
 
-    real(kind=rp) :: x_fixed, z_fixed
     real(kind=rp), dimension(num_ygll) :: y_GLL
     real(kind=rp) :: TS2D_GLL(num_ygll, num_columns-1)
     real(kind=rp) :: TS3D_GLL(num_ygll, num_columns-1)
@@ -62,35 +60,19 @@ contains
     real(kind=rp) :: ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D
 
     ! data reading
-    open(unit = 10, file = 'TSwave_cheb_2D.csv', status = 'old', &
-                  action = 'read', iostat = ios)
-       if (ios /= 0) then
-          print *, "2D TS wave: Error opening the file!"
-          stop
-       end if
-       do i = 1, num_rows
-          read(10,*) (data_mode_cheb_2D(i, j), j = 1, num_columns)
-       end do
+    open(unit=10, file='TSwave_cheb_2D.bin', form='unformatted', access='stream')
+       read(10) data_mode_cheb_2D
     close(10)
     y_GLC = data_mode_cheb_2D(:,1)
     TS2D_GLC = data_mode_cheb_2D(:,2:num_columns)
 
-    open(unit = 10, file = 'TSwave_cheb_3D.csv', status = 'old', &
-                  action = 'read', iostat = ios)
-       if (ios /= 0) then
-          print *, "3D TS wave: Error opening the file!"
-          stop
-       end if
-       do i = 1, num_rows
-          read(10,*) (data_mode_cheb_3D(i, j), j = 1, num_columns)
-       end do
+    open(unit=10, file='TSwave_cheb_3D.bin', form='unformatted', access='stream')
+       read(10) data_mode_cheb_3D
     close(10)
     TS3D_GLC = data_mode_cheb_3D(:,2:num_columns)
 
     ! alternative of point zone
     i_y = 1
-    x_fixed = u%dof%x(1,1,1,1)
-    z_fixed = u%dof%z(1,1,1,1)
     
     ! initialize y_GLL
     do i = 1, num_ygll
