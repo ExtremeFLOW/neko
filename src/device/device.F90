@@ -45,42 +45,42 @@ module device
 !  private
 
   integer, public, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2, &
-    DEVICE_TO_DEVICE = 3
+       DEVICE_TO_DEVICE = 3
 
   !> Copy data between host and device (or device and device)
   interface device_memcpy
      module procedure device_memcpy_r1, device_memcpy_r2, &
-       device_memcpy_r3, device_memcpy_r4, device_memcpy_cptr
+          device_memcpy_r3, device_memcpy_r4, device_memcpy_cptr
   end interface device_memcpy
 
   !> Map a Fortran array to a device (allocate and associate)
   interface device_map
      module procedure device_map_r1, device_map_r2, &
-       device_map_r3, device_map_r4
+          device_map_r3, device_map_r4
   end interface device_map
 
   !> Associate a Fortran array to a (allocated) device pointer
   interface device_associate
      module procedure device_associate_r1, device_associate_r2, &
-       device_associate_r3, device_associate_r4
+          device_associate_r3, device_associate_r4
   end interface device_associate
 
   !> Check if a Fortran array is assoicated with a device pointer
   interface device_associated
      module procedure device_associated_r1, device_associated_r2, &
-       device_associated_r3, device_associated_r4
+          device_associated_r3, device_associated_r4
   end interface device_associated
 
   !> Deassociate a Fortran array from a device pointer
   interface device_deassociate
      module procedure device_deassociate_r1, device_deassociate_r2, &
-       device_deassociate_r3, device_deassociate_r4
+          device_deassociate_r3, device_deassociate_r4
   end interface device_deassociate
 
   !> Return the device pointer for an associated Fortran array
   interface device_get_ptr
      module procedure device_get_ptr_r1, device_get_ptr_r2, &
-       device_get_ptr_r3, device_get_ptr_r4
+          device_get_ptr_r3, device_get_ptr_r4
   end interface device_get_ptr
 
   !> Synchronize a device or stream
@@ -92,12 +92,12 @@ module device
   type(htable_cptr_t), private :: device_addrtbl
 
   public :: device_memcpy, device_map, device_associate, device_associated, &
-    device_deassociate, device_get_ptr, device_sync, device_free, &
-    device_sync_stream, device_stream_create, device_stream_destroy, &
-    device_profiler_start, device_profiler_stop, device_alloc, &
-    device_init, device_name, device_event_create, device_event_destroy, &
-    device_event_record, device_event_sync, device_finalize, &
-    device_stream_wait_event
+       device_deassociate, device_get_ptr, device_sync, device_free, &
+       device_sync_stream, device_stream_create, device_stream_destroy, &
+       device_profiler_start, device_profiler_stop, device_alloc, &
+       device_init, device_name, device_event_create, device_event_destroy, &
+       device_event_record, device_event_sync, device_finalize, &
+       device_stream_wait_event
 
   private :: device_memcpy_common
 
