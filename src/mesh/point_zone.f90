@@ -240,7 +240,7 @@ contains
        iz = nlindex(3)
        ie = nlindex(4)
 
-       if (this%criterion(x, y, z, ix, iy, iz, ie)) then
+       if (this%inverse .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) then
           idx = i
           call this%add(idx)
        end if
