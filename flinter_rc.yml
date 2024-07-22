@@ -96,7 +96,7 @@ regexp-rules:
 
   one-space-after-comment:
     message: Exactly one space after comment
-    regexp: (\!)(?!\!)(\S+)
+    regexp: (\!)(?![\!\'])(\S+)
     replacement: '\1 \2'
     active: true
 
