@@ -138,10 +138,10 @@ contains
           end if
 
           if (found_previous_mesh) then
-             call set_flow_ic_chkp(s, read_str, &
+             call set_scalar_ic_chkp(s, read_str, &
                   previous_mesh_fname = prev_mesh, tol = tol)
           else
-             call set_flow_ic_chkp(s, read_str)
+             call set_scalar_ic_chkp(s, read_str)
           end if
 
        else !if it's not a chkp we assume it's a fld file
@@ -368,7 +368,7 @@ contains
     ! two different meshes have the same dimension and same # of elements
     ! but this should be enough to cover the most obvious cases.
     !
-    if ( fld_data%glb_nelv .ne. u%msh%glb_nelv .and. &
+    if ( fld_data%glb_nelv .ne. s%msh%glb_nelv .and. &
          .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
 &Use 'interpolate': 'true' to enable interpolation.")
@@ -383,9 +383,9 @@ contains
     if (interpolate) then
 
        if (present(tolerance)) then
-          global_interp = fld_data%generate_interpolator(u%dof, u%msh, tolerance)
+          global_interp = fld_data%generate_interpolator(s%dof, s%msh, tolerance)
        else
-          global_interp = fld_data%generate_interpolator(u%dof, u%msh, 1d-6)
+          global_interp = fld_data%generate_interpolator(s%dof, s%msh, 1d-6)
        end if
 
        ! Evaluate scalar
@@ -416,10 +416,10 @@ contains
   !! @param previous_mesh If specified, the name of the previouos mesh from
   !! which to interpolate.
   !! @param tol If specified, tolerance to use for the mesh interpolation.
-  subroutine set_scalar_ic_chkp(s, file_name, previous_mesh, tol)
+  subroutine set_scalar_ic_chkp(s, file_name, previous_mesh_fname, tol)
     type(field_t), intent(inout) :: s
     character(len=*), intent(in) :: file_name
-    character(len=*), intent(in), optional :: previous_mesh
+    character(len=*), intent(in), optional :: previous_mesh_fname
     real(kind=rp), intent(in), optional :: tol
 
     type(field_t), pointer :: u,v,w,p
@@ -436,8 +436,8 @@ contains
     call chkp_data%add_scalar(s)
 
     ! Mesh interpolation if specified
-    if (present(previous_mesh)) then
-       meshf = file_t(trim(previous_mesh))
+    if (present(previous_mesh_fname)) then
+       meshf = file_t(trim(previous_mesh_fname))
        call meshf%read(chkp_data%previous_mesh)
     end if
 
