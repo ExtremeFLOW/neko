@@ -37,6 +37,7 @@ module point_zone_fctry
   use box_point_zone, only: box_point_zone_t
   use sphere_point_zone, only: sphere_point_zone_t
   use cylinder_point_zone, only: cylinder_point_zone_t
+  use combine_point_zone, only: combine_point_zone_t
   use json_module, only: json_file
   use json_utils, only: json_get
   use dofmap, only: dofmap_t
@@ -47,10 +48,11 @@ module point_zone_fctry
   public :: point_zone_factory
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(3) = [character(len=20) :: &
+  character(len=20) :: KNOWN_TYPES(4) = [character(len=20) :: &
      "box", &
      "sphere", &
-     "cylinder"]
+     "cylinder", &
+     "combine"]
 
 contains
 
@@ -66,7 +68,6 @@ contains
     character(len=:), allocatable :: type_name
     character(len=:), allocatable :: type_string
 
-
     call json_get(json, "geometry", type_name)
 
     if (trim(type_name) .eq. "box") then
@@ -75,6 +76,8 @@ contains
        allocate(sphere_point_zone_t::object)
     else if (trim(type_name) .eq. "cylinder") then
        allocate(cylinder_point_zone_t::object)
+    else if (trim(type_name) .eq. "combine") then
+       allocate(combine_point_zone_t::object)
     else
        type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
                                           .true.)

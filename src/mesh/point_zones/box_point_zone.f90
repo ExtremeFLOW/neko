@@ -34,7 +34,7 @@
 module box_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_default
   use json_module, only: json_file
   use math, only: abscmp
   implicit none
@@ -84,6 +84,8 @@ contains
     zmin = values(1)
     zmax = values(2)
     call json_get(json, "name", str_read)
+
+    call json_get_or_default(json, "invert", this%inverse, .false.)
 
     call box_point_zone_init_common(this, size, trim(str_read), xmin, &
          xmax, ymin, ymax, zmin, zmax)

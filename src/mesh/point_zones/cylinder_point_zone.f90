@@ -34,7 +34,7 @@
 module cylinder_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_default
   use json_module, only: json_file
   use utils, only: neko_error
   implicit none
@@ -89,6 +89,8 @@ contains
     if (radius .lt. 0.0_rp) then
        call neko_error("Cylinder point zone: invalid radius")
     end if
+
+    call json_get_or_default(json, "invert", this%inverse, .false.)
 
     call cylinder_point_zone_init_common(this, size, trim(name), p0, p1, &
                                          radius)

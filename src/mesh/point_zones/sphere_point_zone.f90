@@ -34,7 +34,7 @@
 module sphere_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_default
   use json_module, only: json_file
   use math, only: abscmp
   implicit none
@@ -80,6 +80,8 @@ contains
     call json_get(json, "radius", value)
     radius = value
     call json_get(json, "name", str_read)
+
+    call json_get_or_default(json, "invert", this%inverse, .false.)
 
     call sphere_point_zone_init_common(this, size, trim(str_read), x0, &
          y0, z0, radius)

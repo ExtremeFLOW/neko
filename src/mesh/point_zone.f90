@@ -58,6 +58,8 @@ module point_zone
      logical, private :: finalized = .false.
      !> Name of the point zone (used for retrieval in the point_zone_registry).
      character(len=80) :: name
+     !> If select the inverse of the criterion or not
+     logical :: inverse = .false.
    contains
      !> Constructor for the point_zone_t base type.
      procedure, pass(this) :: init_base => point_zone_init_base
