@@ -35,7 +35,6 @@ module case
   use num_types, only : rp, sp, dp
   use fluid_fctry, only : fluid_scheme_factory
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_pnpn_stress, only : fluid_pnpn_stress_t
   use fluid_scheme, only : fluid_scheme_t
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
@@ -215,19 +214,12 @@ contains
     call fluid_scheme_factory(C%fluid, trim(string_val))
 
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
-    lx = lx + 1 ! add 1 to get poly order
+    lx = lx + 1 ! add 1 to get number of gll points
     call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
     C%fluid%chkp%tlag => C%tlag
     C%fluid%chkp%dtlag => C%dtlag
     select type(f => C%fluid)
     type is(fluid_pnpn_t)
-       f%chkp%abx1 => f%abx1
-       f%chkp%abx2 => f%abx2
-       f%chkp%aby1 => f%aby1
-       f%chkp%aby2 => f%aby2
-       f%chkp%abz1 => f%abz1
-       f%chkp%abz2 => f%abz2
-    type is(fluid_pnpn_stress_t)
        f%chkp%abx1 => f%abx1
        f%chkp%abx2 => f%abx2
        f%chkp%aby1 => f%aby1

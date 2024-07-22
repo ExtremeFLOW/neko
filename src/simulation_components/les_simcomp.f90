@@ -34,7 +34,7 @@
 !> Implements the `les_simcomp_t` type.
 
 module les_simcomp
-  use num_types, only : rp, dp, sp
+  use num_types, only : rp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
@@ -44,7 +44,6 @@ module les_simcomp
   use les_model, only : les_model_t
   use les_model_fctry, only : les_model_factory
   use json_utils, only : json_get
-  use fluid_pnpn_stress, only : fluid_pnpn_stress_t
   use math, only : addcol3, add2s2, cfill
   use device_math, only : device_addcol3, device_add2s2, device_cfill
   use neko_config, only : NEKO_BCKND_DEVICE

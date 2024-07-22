@@ -6,7 +6,6 @@ module pnpn_res_stress_cpu
   use ax_product, only : ax_t
   use coefs, only : coef_t
   use facet_normal, only : facet_normal_t
-  use pnpn_residual_stress, only : pnpn_prs_res_stress_t, pnpn_vel_res_stress_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use scratch_registry, only: neko_scratch_registry
   use mesh, only : mesh_t
