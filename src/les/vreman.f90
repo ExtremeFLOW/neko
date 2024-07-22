@@ -76,7 +76,7 @@ contains
     real(kind=rp) :: c
     character(len=:), allocatable :: delta_type
 
-    call json_get(json, "nut_field", nut_name)
+    call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on the Smagorinsky Cs = 0.17.
     call json_get_or_default(json, "c", c, 0.07_rp)

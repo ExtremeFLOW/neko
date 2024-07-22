@@ -91,7 +91,7 @@ contains
     integer :: i
     character(len=:), allocatable :: delta_type
 
-    call json_get(json, "nut_field", nut_name)
+    call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
 
     call this%free()

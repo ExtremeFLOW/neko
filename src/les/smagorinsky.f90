@@ -76,7 +76,7 @@ contains
     real(kind=rp) :: c_s
     character(len=:), allocatable :: delta_type
 
-    call json_get(json, "nut_field", nut_name)
+    call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_s", c_s, 0.17_rp)
 
