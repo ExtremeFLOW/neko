@@ -41,19 +41,19 @@ __kernel void prs_res_part1_kernel(__global real * __restrict__ ta1,
                                    __global const real * __restrict__ f_w,
                                    __global const real * __restrict__ B,
                                    __global real * __restrict__ h1,
-                                   const real mu,
-                                   const real rho,
+                                   __global const real * __restrict__ mu,
+                                   __global const real * __restrict__ rho,
                                    const int n) {
-  
+
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
   const real inv_rho = 1.0 / rho;
-  
+
   for (int i = idx; i < n; i += str) {
     h1[i] = inv_rho;
-    ta1[i] = (f_u[i] / rho) - ((wa1[i] * (mu / rho)) * B[i]);
-    ta2[i] = (f_v[i] / rho) - ((wa2[i] * (mu / rho)) * B[i]);
-    ta3[i] = (f_w[i] / rho) - ((wa3[i] * (mu / rho)) * B[i]);
+    ta1[i] = (f_u[i] / rho[i]) - ((wa1[i] * (mu[i] / rho[i])) * B[i]);
+    ta2[i] = (f_v[i] / rho[i]) - ((wa2[i] * (mu[i] / rho[i])) * B[i]);
+    ta3[i] = (f_w[i] / rho[i]) - ((wa3[i] * (mu[i] / rho[i])) * B[i]);
   }
 
 }
@@ -67,7 +67,7 @@ __kernel void prs_res_part2_kernel(__global real * __restrict__ p_res,
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
-  
+
   for (int i = idx; i < n; i += str) {
     p_res[i] = (-p_res[i]) + (wa1[i] + wa2[i] + wa3[i]);
   }
@@ -83,7 +83,7 @@ __kernel void prs_res_part3_kernel(__global real * __restrict__ p_res,
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
-  
+
   for (int i = idx; i < n; i += str) {
     p_res[i] = p_res[i] - (dtbd * (ta1[i] + ta2[i] + ta3[i]));
   }
