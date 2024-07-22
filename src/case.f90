@@ -294,8 +294,8 @@ contains
     end if
 
     ! Add initial conditions to BDF scheme (if present)
-    select type(f => C%fluid)
-    type is(fluid_pnpn_t)
+    select type( f => C%fluid)
+    type is (fluid_pnpn_t)
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
@@ -453,25 +453,10 @@ contains
           call C%q%add(C%fluid%stats)
 
           C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
-            stats_start_time, path=output_directory)
+            stats_start_time, path = output_directory)
           call C%s%add(C%f_stats_output, stats_output_val, string_val)
        end if
     end if
-
-!    if (C%params%stats_mean_sqr_flow) then
-!       call C%q%add(C%fluid%mean_sqr%uu)
-!       call C%q%add(C%fluid%mean_sqr%vv)
-!       call C%q%add(C%fluid%mean_sqr%ww)
-!       call C%q%add(C%fluid%mean_sqr%pp)
-
-!       if (C%params%output_mean_sqr_flow) then
-!          C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
-!                                             C%params%stats_begin, &
-!                                             path=output_directory)
-!          call C%s%add(C%f_msqrf, C%params%stats_write_par, &
-!               C%params%stats_write_control)
-!       end if
-!    end if
 
     !
     ! Setup joblimit
