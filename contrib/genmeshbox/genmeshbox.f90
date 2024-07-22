@@ -97,13 +97,13 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and &
         ! if the original genmeshbox.log does not exist, we create new
         ! files with genmeshbox.log.1, .2, .3, etc
         if (i .lt. 10) then
-           write(log_fname,'(A,I1)') "genmeshbox.log.", i
+           write(log_fname,'(A,I1,A)') "genmeshbox_", i, ".log"
         else if (i .lt. 100) then
-           write(log_fname,'(A,I2)') "genmeshbox.log.", i
+           write(log_fname,'(A,I2,A)') "genmeshbox_", i, ".log"
         else if (i .lt. 1000) then
-           write(log_fname,'(A,I3)') "genmeshbox.log.", i
+           write(log_fname,'(A,I3,A)') "genmeshbox_", i, ".log"
         else
-           write(log_fname,'(A,I4)') "genmeshbox.log.", i
+           write(log_fname,'(A,I4,A)') "genmeshbox_", i, ".log"
         end if
 
      end do
