@@ -37,17 +37,10 @@ module les_simcomp
   use num_types, only : rp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
-  use field, only : field_t
-  use operators, only : curl
   use case, only : case_t
   use les_model, only : les_model_t
   use les_model_fctry, only : les_model_factory
   use json_utils, only : json_get
-  use math, only : addcol3, add2s2, cfill
-  use device_math, only : device_addcol3, device_add2s2, device_cfill
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use fld_file_output, only : fld_file_output_t
   use field_writer, only : field_writer_t
   implicit none
   private
@@ -57,8 +50,6 @@ module les_simcomp
    type, public, extends(simulation_component_t) :: les_simcomp_t
      !> The LES model.
      class(les_model_t), allocatable :: les_model
-     !> Output writer.
-     type(fld_file_output_t), private :: output
      !> Output writer.
      type(field_writer_t) :: writer
    contains
