@@ -96,8 +96,8 @@ regexp-rules:
 
   one-space-after-comment:
     message: Exactly one space after comment
-    regexp: \!(\w)
-    replacement: '! \1'
+    regexp: (\!)(?!\!)(\S+)
+    replacement: '\1 \2'
     active: true
 
   useless-eol-semicolon:
