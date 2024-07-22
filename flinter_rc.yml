@@ -77,7 +77,7 @@ regexp-rules:
 
   double-spacing:
     message: Double spacing
-    regexp: \S+\s\s\S+
+    regexp: \S+\s{{2,}}\S+
     replacement: \n
     active: true
 
