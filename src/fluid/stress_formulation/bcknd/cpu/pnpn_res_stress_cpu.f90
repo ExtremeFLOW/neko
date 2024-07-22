@@ -7,6 +7,7 @@ module pnpn_res_stress_cpu
   use coefs, only : coef_t
   use facet_normal, only : facet_normal_t
   use pnpn_residual_stress, only : pnpn_prs_res_stress_t, pnpn_vel_res_stress_t
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use scratch_registry, only: neko_scratch_registry
   use mesh, only : mesh_t
   use num_types, only : rp
@@ -17,14 +18,14 @@ module pnpn_res_stress_cpu
 
   !> CPU implementation of the pressure residual for the PnPn fluid with
   !! full viscous stress formulation.
-  type, public, extends(pnpn_prs_res_stress_t) :: pnpn_prs_res_stress_cpu_t
+  type, public, extends(pnpn_prs_res_t) :: pnpn_prs_res_stress_cpu_t
    contains
      procedure, nopass :: compute => pnpn_prs_res_stress_cpu_compute
   end type pnpn_prs_res_stress_cpu_t
 
   !> CPU implementation of the velocity residual for the PnPn fluid with
   !! full viscous stress formulation.
-  type, public, extends(pnpn_vel_res_stress_t) :: pnpn_vel_res_stress_cpu_t
+  type, public, extends(pnpn_vel_res_t) :: pnpn_vel_res_stress_cpu_t
    contains
      procedure, nopass :: compute => pnpn_vel_res_stress_cpu_compute
   end type pnpn_vel_res_stress_cpu_t
@@ -127,7 +128,7 @@ contains
     call sub2(wa2%x, work2%x, n)
     call sub2(wa3%x, work3%x, n)
 
-    do i = 1, n
+    do concurrent (i = 1:n)
         ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho%x(i,1,1,1) &
              - ((wa1%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
         ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho%x(i,1,1,1) &

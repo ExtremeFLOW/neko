@@ -62,7 +62,7 @@ module pnpn_res_device
   interface
      subroutine pnpn_prs_res_part1_hip(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, mu, rho, n) &
+          B_d, h1_d, mu_d, rho_d, n) &
           bind(c, name='pnpn_prs_res_part1_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -71,7 +71,7 @@ module pnpn_res_device
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
        type(c_ptr), value :: B_d, h1_d
-       real(c_rp) :: mu, rho
+       type(c_ptr), value :: mu_d, rho_d
        integer(c_int) :: n
      end subroutine pnpn_prs_res_part1_hip
   end interface
@@ -114,7 +114,7 @@ module pnpn_res_device
   interface
      subroutine pnpn_prs_res_part1_cuda(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, mu, rho, n) &
+          B_d, h1_d, mu_d, rho_d, n) &
           bind(c, name='pnpn_prs_res_part1_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -123,7 +123,7 @@ module pnpn_res_device
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
        type(c_ptr), value :: B_d, h1_d
-       real(c_rp) :: mu, rho
+       type(c_ptr), value :: mu_d, rho_d
        integer(c_int) :: n
      end subroutine pnpn_prs_res_part1_cuda
   end interface
@@ -166,7 +166,7 @@ module pnpn_res_device
   interface
      subroutine pnpn_prs_res_part1_opencl(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, mu, rho, n) &
+          B_d, h1_d, mu_d, rho_d, n) &
           bind(c, name='pnpn_prs_res_part1_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -175,7 +175,7 @@ module pnpn_res_device
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
        type(c_ptr), value :: B_d, h1_d
-       real(c_rp) :: mu, rho
+       type(c_ptr), value :: mu_d, rho_d
        integer(c_int) :: n
      end subroutine pnpn_prs_res_part1_opencl
   end interface
@@ -233,8 +233,8 @@ contains
     class(Ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), intent(in) :: mu
-    real(kind=rp), intent(in) :: rho
+    type(field_t), intent(in) :: mu
+    type(field_t), intent(in) :: rho
     real(kind=rp) :: dtbd
     integer :: n, gdim
     type(field_t), pointer :: ta1, ta2, ta3, wa1, wa2, wa3, work1, work2
@@ -259,19 +259,20 @@ contains
 #ifdef HAVE_HIP
     call pnpn_prs_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, mu, rho, n)
+         c_Xh%B_d, c_Xh%h1_d, mu%x_d, rho%x_d, n)
 
 #elif HAVE_CUDA
     call pnpn_prs_res_part1_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, mu, rho, n)
+         c_Xh%B_d, c_Xh%h1_d, mu%x_d, rho%x_d, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_z%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, mu, rho, n)
+         c_Xh%B_d, c_Xh%h1_d, mu%x_d, rho%x_d, n)
 #endif
     c_Xh%ifh2 = .false.
-    call device_cfill(c_Xh%h1_d,1.0_rp / rho,n)
+    call device_copy(c_Xh%h1_d, rho%x_d, n)
+    call device_invcol1(c_Xh%h1_d, n)
 
     call gs_Xh%op(ta1, GS_OP_ADD)
     call gs_Xh%op(ta2, GS_OP_ADD)
@@ -340,16 +341,16 @@ contains
     type(field_t), intent(inout) :: u_res, v_res, w_res
     type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: mu
-    real(kind=rp), intent(in) :: rho
+    type(field_t), intent(in) :: mu
+    type(field_t), intent(in) :: rho
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
     integer :: temp_indices(3)
     type(field_t), pointer :: ta1, ta2, ta3
 
-    call device_cfill(c_Xh%h1_d, mu, n)
-    call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
+    call device_copy(c_Xh%h1_d, mu%x_d, n)
+    call device_cmult2(c_Xh%h2_d, rho%x_d, bd / dt, n)
     c_Xh%ifh2 = .true.
 
     call Ax%compute_vector(u_res%x, v_res%x, w_res%x, &

@@ -76,8 +76,8 @@ module pnpn_residual
        class(Ax_t), intent(inout) :: Ax
        real(kind=rp), intent(inout) :: bd
        real(kind=rp), intent(in) :: dt
-       real(kind=rp), intent(in) :: mu
-       real(kind=rp), intent(in) :: rho
+       type(field_t), intent(in) :: mu
+       type(field_t), intent(in) :: rho
      end subroutine prs_res
   end interface
 
@@ -99,8 +99,8 @@ module pnpn_residual
        type(field_t), intent(inout) :: u_res, v_res, w_res
        type(field_t), intent(inout) :: f_x, f_y, f_z
        type(coef_t), intent(inout) :: c_Xh
-       real(kind=rp), intent(in) :: mu
-       real(kind=rp), intent(in) :: rho
+       type(field_t), intent(in) :: mu
+       type(field_t), intent(in) :: rho
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
        integer, intent(in) :: n

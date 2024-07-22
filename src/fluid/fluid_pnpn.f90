@@ -547,6 +547,7 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          rho => this%rho, mu => this%mu, &
+         rho_field => this%rho_field, mu_field => this%mu_field, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          if_variable_dt => dt_controller%if_variable_dt, &
          dt_last_change => dt_controller%dt_last_change)
@@ -609,7 +610,7 @@ contains
                            c_Xh, gs_Xh, &
                            this%bc_prs_surface, this%bc_sym_surface,&
                            Ax, ext_bdf%diffusion_coeffs(1), dt, &
-                           mu, rho)
+                           mu_field, rho_field)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
@@ -637,7 +638,7 @@ contains
                            p, &
                            f_x, f_y, f_z, &
                            c_Xh, msh, Xh, &
-                           mu, rho, ext_bdf%diffusion_coeffs(1), &
+                           mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD)

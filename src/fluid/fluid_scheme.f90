@@ -142,6 +142,8 @@ module fluid_scheme
      logical :: variable_material_properties = .false.
      !> Density
      real(kind=rp), pointer :: rho => null()
+     !> The variable density field
+     type(field_t) :: rho_field
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
@@ -295,10 +297,12 @@ contains
        this%nut_field_name = ""
     end if
 
-    ! Fill mu field with the physical value
+    ! Fill mu and rho field with the physical value
 
     call this%mu_field%init(this%dm_Xh, "mu")
+    call this%rho_field%init(this%dm_Xh, "mu")
     call field_cfill(this%mu_field, this%mu, this%mu_field%size())
+    call field_cfill(this%rho_field, this%rho, this%mu_field%size())
 
 
     ! Projection spaces

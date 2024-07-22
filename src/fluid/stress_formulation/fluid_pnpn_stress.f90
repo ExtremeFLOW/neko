@@ -85,9 +85,6 @@ module fluid_pnpn_stress
 
      type(field_t) :: dp, du, dv, dw
 
-     ! Variable material properties
-     type(field_t) :: rho_field
-
      ! Coupled Helmholz operator for velocity
      class(ax_t), allocatable :: Ax_vel
      ! Helmholz operator for pressure
@@ -120,12 +117,10 @@ module fluid_pnpn_stress
      type(field_t) :: abx2, aby2, abz2
 
      !> Pressure residual
-     class(pnpn_prs_res_stress_t), allocatable :: prs_res
-     !class(pnpn_prs_res_t), allocatable :: prs_res
+     class(pnpn_prs_res_t), allocatable :: prs_res
 
      !> Velocity residual
-     class(pnpn_vel_res_stress_t), allocatable :: vel_res
-!     class(pnpn_vel_res_t), allocatable :: vel_res
+     class(pnpn_vel_res_t), allocatable :: vel_res
 
      !> Summation of AB/BDF contributions
      class(rhs_maker_sumab_t), allocatable :: sumab
@@ -185,11 +180,9 @@ contains
 
     ! Setup backend dependent prs residual routines
     call pnpn_prs_res_stress_factory(this%prs_res)
-    !call pnpn_prs_res_factory(this%prs_res)
 
     ! Setup backend dependent vel residual routines
     call pnpn_vel_res_stress_factory(this%vel_res)
-    !call pnpn_vel_res_factory(this%vel_res)
 
     ! Setup backend dependent summation of AB/BDF
     call rhs_maker_sumab_fctry(this%sumab)
@@ -227,9 +220,7 @@ contains
       call this%dp%init(dm_Xh, 'dp')
 
       call this%mu_field%init(dm_Xh, "mu")
-      call this%rho_field%init(dm_Xh, "rho")
       this%mu_field = this%mu
-      this%rho_field = this%rho
 
 
     end associate
@@ -568,7 +559,6 @@ contains
     call this%abz2%free()
 
     call this%mu_field%free()
-    call this%rho_field%free()
 
     if (allocated(this%Ax_vel)) then
        deallocate(this%Ax_vel)

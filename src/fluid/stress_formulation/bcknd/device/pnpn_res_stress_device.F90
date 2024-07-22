@@ -7,7 +7,7 @@ module pnpn_res_stress_device
   use ax_product, only : ax_t
   use coefs, only : coef_t
   use facet_normal, only : facet_normal_t
-  use pnpn_residual_stress, only : pnpn_prs_res_stress_t, pnpn_vel_res_stress_t
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use scratch_registry, only: neko_scratch_registry
   use mesh, only : mesh_t
   use num_types, only : rp, c_rp
@@ -21,14 +21,14 @@ module pnpn_res_stress_device
 
   !> Device implementation of the pressure residual for the PnPn fluid with
   !! full viscous stress formulation.
-  type, public, extends(pnpn_prs_res_stress_t) :: pnpn_prs_res_stress_device_t
+  type, public, extends(pnpn_prs_res_t) :: pnpn_prs_res_stress_device_t
    contains
      procedure, nopass :: compute => pnpn_prs_res_stress_device_compute
   end type pnpn_prs_res_stress_device_t
 
   !> Device implementation of the velocity residual for the PnPn fluid with
   !! full viscous stress formulation.
-  type, public, extends(pnpn_vel_res_stress_t) :: pnpn_vel_res_stress_device_t
+  type, public, extends(pnpn_vel_res_t) :: pnpn_vel_res_stress_device_t
    contains
      procedure, nopass :: compute => pnpn_vel_res_stress_device_compute
   end type pnpn_vel_res_stress_device_t
