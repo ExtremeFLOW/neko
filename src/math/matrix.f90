@@ -163,7 +163,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(m%x_d, w%x_d, m%n)
     else
-       call copy(m%x, w%x, m%n)
+       m%x = w%x
     end if
 
   end subroutine matrix_assign_matrix

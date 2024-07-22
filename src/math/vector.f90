@@ -158,7 +158,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(v%x_d, w%x_d, v%n)
     else
-       call copy(v%x, w%x, v%n)
+       v%x = w%x
     end if
 
   end subroutine vector_assign_vector
