@@ -96,7 +96,7 @@ For example, if you try to combine two point zones `p1` and `p2`:
     {
         "name": "combined_box_and_sphere",
         "geometry": "combine",
-        "operator": "XOR",
+        "operator": "OR",
         "subsets":
         [
             {
@@ -106,7 +106,7 @@ For example, if you try to combine two point zones `p1` and `p2`:
                 "radius": 0.01
             },
             {
-                "name": mybox,
+                "name": "mybox",
                 "geometry": "box",
                 "x_bounds": [-1.0, 1.0],
                 "y_bounds": [-1.0, 1.0],
