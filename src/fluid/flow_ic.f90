@@ -93,7 +93,8 @@ contains
 
        call json_get(params, 'case.fluid.initial_condition.value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
-       write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", uinf(1), uinf(2), uinf(3)
+       write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", uinf(1), &
+            uinf(2), uinf(3)
        call neko_log%message(log_buf)
 
     !
@@ -108,8 +109,9 @@ contains
 
        write (log_buf, '(A,F10.6)') "delta       : ", delta
        call neko_log%message(log_buf)
-       call neko_log%message(      "Approximation: " // trim(read_str))
-       write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", uinf(1), uinf(2), uinf(3)
+       call neko_log%message("Approximation: " // trim(read_str))
+       write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", uinf(1), &
+            uinf(2), uinf(3)
        call neko_log%message(log_buf)
 
        call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
@@ -127,7 +129,7 @@ contains
 
        write (log_buf, '(A,F10.6)') "Base value: ", uinf
        call neko_log%message(log_buf)
-       call neko_log%message(      "Zone name : " // trim(read_str))
+       call neko_log%message("Zone name : " // trim(read_str))
        write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", &
             zone_value(1), zone_value(2), zone_value(3)
        call neko_log%message(log_buf)
@@ -154,7 +156,7 @@ contains
                'case.fluid.initial_condition.tolerance', tol, 1d-6)
 
           if (found_previous_mesh) then
-             call neko_log%message(       "Previous mesh: " // trim(prev_mesh))
+             call neko_log%message("Previous mesh: " // trim(prev_mesh))
              write (log_buf, '(A,E15.7)') "Tolerance    : ", tol
              call neko_log%message(log_buf)
           end if
@@ -186,7 +188,7 @@ contains
              fpos = scan(suffix, 'f')
              if (fpos .eq. 1) then
                 if (sample_idx .ne. -1) &
-                     call neko_warning("Overwriting sample index!")
+                     call neko_warning("Overwriting sample index")
                 read (suffix(2:), "(I5.5)") sample_idx
              end if
 
@@ -210,16 +212,16 @@ contains
                sample_mesh_idx, 0)
 
           if (interpolate) then
-             call neko_log%message(       "Interpolation    : yes")
+             call neko_log%message("Interpolation    : yes")
              write (log_buf, '(A,E15.7)') "Tolerance        : ", tol
              call neko_log%message(log_buf)
-             write (log_buf, '(A,I5)')    "Mesh sample index: ", &
+             write (log_buf, '(A,I5)') "Mesh sample index: ", &
                   sample_mesh_idx
              call neko_log%message(log_buf)
           end if
 
           call set_flow_ic_fld(u, v, w, p, read_str, sample_idx, interpolate, &
-               tolerance=tol, sample_mesh_idx=sample_mesh_idx)
+               tolerance = tol, sample_mesh_idx = sample_mesh_idx)
 
        end if ! if suffix .eq. chkp
 
@@ -261,11 +263,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(v%x, v%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(w%x, w%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -316,16 +318,16 @@ contains
     procedure(blasius_profile), pointer :: bla => null()
     integer :: i
 
-    select case(trim(type))
-    case('linear')
+    select case (trim(type))
+    case ('linear')
        bla => blasius_linear
-    case('quadratic')
+    case ('quadratic')
        bla => blasius_quadratic
-    case('cubic')
+    case ('cubic')
        bla => blasius_cubic
-    case('quartic')
+    case ('quartic')
        bla => blasius_quartic
-    case('sin')
+    case ('sin')
        bla => blasius_sin
     case default
        call neko_error('Invalid Blasius approximation')
@@ -478,9 +480,10 @@ contains
     if (interpolate) then
 
        if (present(tolerance)) then
-          global_interp = fld_data%generate_interpolator(u%dof, u%msh, tolerance)
+          global_interp = fld_data%generate_interpolator(u%dof, u%msh, &
+               tolerance)
        else
-          call neko_error("No tolerance provided for interpolation!")
+          call neko_error("No tolerance provided for interpolation.")
        end if
 
        ! Evaluate velocities and pressure

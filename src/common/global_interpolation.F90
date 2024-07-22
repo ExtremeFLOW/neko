@@ -98,7 +98,8 @@ module global_interpolation
      !> Finds the process owner, global element number,
      !! and local rst coordinates for each point.
      !! Sets up correct values to be able to evalute the points
-     procedure, pass(this) :: find_points_coords => global_interpolation_find_coords
+     procedure, pass(this) :: find_points_coords => &
+          global_interpolation_find_coords
      procedure, pass(this) :: find_points_xyz => global_interpolation_find_xyz
      generic :: find_points => find_points_xyz, find_points_coords
      !> Evaluate the value of the field in each point.
@@ -135,7 +136,7 @@ contains
        this%mesh => dof%msh
     end if
 
-    if(present(tol)) this%tol = tol
+    if (present(tol)) this%tol = tol
 
 #ifdef HAVE_GSLIB
 
@@ -189,11 +190,11 @@ contains
     this%n_points = 0
     this%all_points_local = .false.
 
-    if (allocated(this%xyz))        deallocate(this%xyz)
-    if (allocated(this%rst))        deallocate(this%rst)
+    if (allocated(this%xyz)) deallocate(this%xyz)
+    if (allocated(this%rst)) deallocate(this%rst)
     if (allocated(this%proc_owner)) deallocate(this%proc_owner)
-    if (allocated(this%el_owner))   deallocate(this%el_owner)
-    if (allocated(this%dist2))       deallocate(this%dist2)
+    if (allocated(this%el_owner)) deallocate(this%el_owner)
+    if (allocated(this%dist2)) deallocate(this%dist2)
     if (allocated(this%error_code)) deallocate(this%error_code)
 
     if (c_associated(this%el_owner_d)) then
@@ -228,7 +229,7 @@ contains
          this%xyz(2,1), this%mesh%gdim, &
          this%xyz(3,1), this%mesh%gdim, this%n_points)
 
-    do i=1,this%n_points
+    do i = 1 , this%n_points
 
        !
        ! Check validity of points
@@ -251,7 +252,8 @@ contains
                 ' Interpolation on these points will return 0.0. dist2: ', &
                 this%dist2(i),&
                 'el_owner, rst coords, pe: ',&
-                this%el_owner(i), this%rst(1,i), this%rst(2,i), this%rst(3,i), pe_rank
+                this%el_owner(i), this%rst(1,i), this%rst(2,i), &
+                this%rst(3,i), pe_rank
 
     end do
 
@@ -277,7 +279,7 @@ contains
                              this%rst, this%mesh%gdim, &
                              this%n_points, this%dof%z)
 
-    do i=1,this%n_points
+    do i = 1 , this%n_points
 
        !
        ! Check validity of points
@@ -291,11 +293,11 @@ contains
        if ( zdiff .gt. this%tol) isdiff = .true.
 
        if (isdiff) then
-          write(*,*) 'Points with coords: ',&
-                this%xyz(1,i),this%xyz(2,i),this%xyz(3,i), &
-                'Differ from interpolated coords: ',&
-                x_check(i), y_check(i), z_check(i),&
-                'Distance squared: ',&
+          write(*,*) 'Points with coords: ', &
+                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
+                'Differ from interpolated coords: ', &
+                x_check(i), y_check(i), z_check(i), &
+                'Distance squared: ', &
                 xdiff, ydiff, zdiff
        end if
 
@@ -344,9 +346,9 @@ contains
     call global_interpolation_init_point_arrays(this)
 
     do i = 1, n_points
-       this%xyz(1,i) = x(i,1,1,1)
-       this%xyz(2,i) = y(i,1,1,1)
-       this%xyz(3,i) = z(i,1,1,1)
+       this%xyz(1, i) = x(i,1,1,1)
+       this%xyz(2, i) = y(i,1,1,1)
+       this%xyz(3, i) = z(i,1,1,1)
     end do
 
     call global_interpolation_find_common(this)
@@ -356,15 +358,15 @@ contains
   subroutine global_interpolation_init_point_arrays(this)
     class(global_interpolation_t) :: this
 
-    allocate(this%xyz(3,this%n_points))
-    allocate(this%rst(3,this%n_points))
+    allocate(this%xyz(3, this%n_points))
+    allocate(this%rst(3, this%n_points))
     allocate(this%proc_owner(this%n_points))
     allocate(this%el_owner(this%n_points))
     allocate(this%dist2(this%n_points))
     allocate(this%error_code(this%n_points))
 
     if (NEKO_BCKND_DEVICE .eq. 1) &
-       call device_map(this%el_owner, this%el_owner_d,this%n_points)
+       call device_map(this%el_owner, this%el_owner_d, this%n_points)
 
   end subroutine global_interpolation_init_point_arrays
 
@@ -382,7 +384,7 @@ contains
     class(global_interpolation_t), intent(inout) :: this
     integer, intent(in) :: n_points
     !!Perhaps this should be kind dp
-    real(kind=rp), intent(inout) :: xyz(3,n_points)
+    real(kind=rp), intent(inout) :: xyz(3, n_points)
 
 
     call this%free_points()
@@ -392,7 +394,7 @@ contains
     call global_interpolation_init_point_arrays(this)
 
     !> make deep copy incase xyz goes out of scope or deallocated
-    call copy(this%xyz,xyz,3*n_points)
+    call copy(this%xyz, xyz, 3 * n_points)
 
     call global_interpolation_find_common(this)
 
@@ -422,7 +424,7 @@ contains
     call global_interpolation_init_point_arrays(this)
 
     !> make deep copy incase xyz goes out of scope or deallocated
-    call copy(this%xyz,xyz,3*n_points)
+    call copy(this%xyz, xyz, 3 * n_points)
 
     call global_interpolation_find_common(this)
     !> Sets new points and redistributes them
@@ -431,17 +433,17 @@ contains
 
     do i = 1, this%n_points
        if (this%proc_owner(i) .ne. pe_rank) then
-          write(*,*) 'Redistribution failed on rank: ', pe_rank,&
+          write(*,*) 'Redistribution failed on rank: ', pe_rank, &
                      'for point with coord: ', &
-                     this%xyz(1,i),this%xyz(2,i),this%xyz(3,i)
+                     this%xyz(1, i), this%xyz(2, i), this%xyz(3, i)
           exit
        end if
     end do
 
     n_points = this%n_points
     deallocate(xyz)
-    allocate(xyz(3,n_points))
-    call copy(xyz,this%xyz,3*n_points)
+    allocate(xyz(3, n_points))
+    call copy(xyz, this%xyz, 3*n_points)
 
     call this%local_interp%init(this%Xh, this%rst(1,:),&
                                 this%rst(2,:), this%rst(3,:), n_points)
@@ -466,28 +468,30 @@ contains
     n_points_per_pe = 0
     n_points_from_pe = 0
     !> Calculate which processes this proc has points on
-    do i = 1,this%n_points
-       n_points_per_pe(this%proc_owner(i)) = n_points_per_pe(this%proc_owner(i)) + 1
+    do i = 1, this%n_points
+       n_points_per_pe(this%proc_owner(i)) = &
+            n_points_per_pe(this%proc_owner(i)) + 1
     end do
     !> Sum number of points on all pes to compute n_new_points
     !! Store how many points to receive from each pe
-    do i = 0,(pe_size-1)
-       call MPI_Reduce(n_points_per_pe(i),n_new_points,1,MPI_INTEGER,MPI_SUM, i, NEKO_COMM, ierr)
+    do i = 0, (pe_size - 1)
+       call MPI_Reduce(n_points_per_pe(i), n_new_points, 1, MPI_INTEGER, &
+            MPI_SUM, i, NEKO_COMM, ierr)
        call MPI_Gather(n_points_per_pe(i), 1, MPI_INTEGER,&
                       n_points_from_pe, 1, MPI_INTEGER, i, NEKO_COMM, ierr)
     end do
 
     allocate(n_point_offset_from_pe(0:(pe_size-1)))
     n_point_offset_from_pe(0) = 0
-    do i = 1,(pe_size-1)
+    do i = 1, (pe_size - 1)
        n_point_offset_from_pe(i) = n_points_from_pe(i-1)&
                                  + n_point_offset_from_pe(i-1)
     end do
 
-    allocate(new_xyz(3,n_new_points))
+    allocate(new_xyz(3, n_new_points))
     max_n_points_to_send = maxval(n_points_per_pe)
-    allocate(xyz_send_to_pe(3,max_n_points_to_send))
-    do i = 0, (pe_size-1)
+    allocate(xyz_send_to_pe(3, max_n_points_to_send))
+    do i = 0, (pe_size - 1)
        !> This could be avoided by adding all indices to a list
        k = 0
        do j = 1, this%n_points
@@ -513,7 +517,7 @@ contains
 
     this%n_points = n_new_points
     call global_interpolation_init_point_arrays(this)
-    call copy(this%xyz,new_xyz,3*n_new_points)
+    call copy(this%xyz, new_xyz, 3 * n_new_points)
 
     deallocate(n_point_offset_from_pe)
     deallocate(n_points_from_pe)
