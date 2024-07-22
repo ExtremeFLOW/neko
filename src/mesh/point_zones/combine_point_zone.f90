@@ -55,7 +55,7 @@ module combine_point_zone
      !> List of sub-zones to construct.
      type(point_zone_wrapper_t), allocatable :: internal_zones(:)
      !> Number of zones to construct.
-     integer :: n_int_zones = 0
+     integer :: n_zones = 0
      !> Operator with which to combine the point zones (AND, OR, XOR)
      character(len=:), allocatable :: operator
    contains
@@ -89,7 +89,7 @@ contains
     character(len=:), allocatable :: type_string
 
     character(len=:), allocatable :: str_read
-    integer :: i, n_int_zones
+    integer :: i, n_zones
     logical :: found
 
     call json_get(json, "name", str_read)
@@ -100,13 +100,13 @@ contains
 
     if (.not. found) call neko_error("No subsets found")
 
-    n_int_zones = core%count(source_object)
-    this%n_int_zones = n_int_zones
+    n_zones = core%count(source_object)
+    this%n_zones = n_zones
 
     ! Allocate arrays if we found things
-    if (n_int_zones .gt. 0) allocate(this%internal_zones(n_int_zones))
+    if (n_zones .gt. 0) allocate(this%internal_zones(n_zones))
 
-    do i = 1, n_int_zones
+    do i = 1, n_zones
 
        ! Create a new json containing just the subdict for this source.
        call core%get_child(source_object, i, source_pointer, found)
@@ -135,6 +135,7 @@ contains
 
     end do
 
+    ! Chcek that we got the proper operator
     call json_get_or_default(json, "operator", this%operator, "OR")
     select case (trim(this%operator))
     case ("OR")
@@ -155,13 +156,13 @@ contains
     integer :: i
 
     if (allocated(this%internal_zones)) then
-       do i = 1, this%n_int_zones
+       do i = 1, this%n_zones
           call this%internal_zones(i)%pz%free
        end do
        deallocate(this%internal_zones)
     end if
 
-    this%n_int_zones = 0
+    this%n_zones = 0
     call this%free_base()
 
   end subroutine combine_point_zone_free
@@ -191,7 +192,7 @@ contains
     is_inside = this%internal_zones(1)%pz%criterion(x, &
                y, z, j, k, l, e) .neqv. this%internal_zones(1)%pz%inverse
 
-    do i = 2, this%n_int_zones
+    do i = 2, this%n_zones
        select case (trim(this%operator))
        case ("OR")
           is_inside = is_inside .or. (this%internal_zones(i)%pz%criterion(x, &
