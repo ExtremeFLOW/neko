@@ -109,7 +109,7 @@ contains
 
        write (log_buf, '(A,F10.6)') "Base value: ", ic_value
        call neko_log%message(log_buf)
-       call neko_log%message(       "Zone name : " // trim(read_str))
+       call neko_log%message("Zone name : " // trim(read_str))
        write (log_buf, '(A,F10.6)') "Zone value: ", zone_value
        call neko_log%message(log_buf)
 
@@ -132,7 +132,7 @@ contains
                'case.scalar.initial_condition.tolerance', tol, 1d-6)
 
           if (found_previous_mesh) then
-             call neko_log%message(       "Previous mesh: " // trim(prev_mesh))
+             call neko_log%message("Previous mesh: " // trim(prev_mesh))
              write (log_buf, '(A,E15.7)') "Tolerance    : ", tol
              call neko_log%message(log_buf)
           end if
@@ -164,7 +164,7 @@ contains
              fpos = scan(suffix, 'f')
              if (fpos .eq. 1) then
                 if (sample_idx .ne. -1) &
-                     call neko_warning("Overwriting sample index!")
+                     call neko_warning("Overwriting sample index.")
                 read (suffix(2:), "(I5.5)") sample_idx
              end if
 
@@ -188,16 +188,16 @@ contains
                sample_mesh_idx, 0)
 
           if (interpolate) then
-             call neko_log%message(       "Interpolation    : yes")
+             call neko_log%message("Interpolation    : yes")
              write (log_buf, '(A,E15.7)') "Tolerance        : ", tol
              call neko_log%message(log_buf)
-             write (log_buf, '(A,I5)')    "Mesh sample index: ", &
+             write (log_buf, '(A,I5)') "Mesh sample index: ", &
                   sample_mesh_idx
              call neko_log%message(log_buf)
           end if
 
           call set_scalar_ic_fld(s, read_str, sample_idx, interpolate, &
-               tolerance=tol, sample_mesh_idx=sample_mesh_idx)
+               tolerance = tol, sample_mesh_idx = sample_mesh_idx)
 
        end if ! if suffix .eq. chkp
 
@@ -244,7 +244,7 @@ contains
     n = s%dof%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x, s%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -283,7 +283,7 @@ contains
   !! @param zone_value Desired value of the scalar field in the point zone.
   subroutine set_scalar_ic_point_zone(s, base_value, zone_name, zone_value)
     type(field_t), intent(inout) :: s
-    real(kind=rp), intent(in):: base_value
+    real(kind=rp), intent(in) :: base_value
     character(len=*), intent(in) :: zone_name
     real(kind=rp), intent(in) :: zone_value
 
@@ -385,7 +385,7 @@ contains
        if (present(tolerance)) then
           global_interp = fld_data%generate_interpolator(s%dof, s%msh, tolerance)
        else
-          global_interp = fld_data%generate_interpolator(s%dof, s%msh, 1d-6)
+          call neko_error("No tolerance provided for the interpolation.")
        end if
 
        ! Evaluate scalar

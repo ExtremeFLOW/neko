@@ -51,12 +51,12 @@ module dofmap
   private
 
   type, public :: dofmap_t
-     integer(kind=i8), allocatable :: dof(:,:,:,:)  !< Mapping to unique dof
-     logical, allocatable :: shared_dof(:,:,:,:)    !< True if the dof is shared
-     real(kind=rp), allocatable :: x(:,:,:,:)       !< Mapping to x-coordinates
-     real(kind=rp), allocatable :: y(:,:,:,:)       !< Mapping to y-coordinates
-     real(kind=rp), allocatable :: z(:,:,:,:)       !< Mapping to z-coordinates
-     integer, private :: ntot                       !< Total number of dofs
+     integer(kind=i8), allocatable :: dof(:, :, :, :) !< Mapping to unique dof
+     logical, allocatable :: shared_dof(:, :, :, :) !< True if the dof is shared
+     real(kind=rp), allocatable :: x(:, :, :, :) !< Mapping to x-coordinates
+     real(kind=rp), allocatable :: y(:, :, :, :) !< Mapping to y-coordinates
+     real(kind=rp), allocatable :: z(:, :, :, :) !< Mapping to z-coordinates
+     integer, private :: ntot !< Total number of dofs
 
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
@@ -82,9 +82,9 @@ contains
   !> Initialize a stripped-down version of a dofmap object, with only
   !! x,y,z coordinates.
   function dofmap_init_from_coords(x, y, z, nelv, lx, ly, lz) result(this)
-    real(kind=rp), intent(in) :: x(nelv*lx*ly*lz)
-    real(kind=rp), intent(in) :: y(nelv*lx*ly*lz)
-    real(kind=rp), intent(in) :: z(nelv*lx*ly*lz)
+    real(kind=rp), intent(in) :: x(nelv * lx * ly * lz)
+    real(kind=rp), intent(in) :: y(nelv * lx * ly * lz)
+    real(kind=rp), intent(in) :: z(nelv * lx * ly * lz)
     integer, intent(in) :: nelv
     integer, intent(in) :: lx
     integer, intent(in) :: ly
@@ -111,11 +111,11 @@ contains
        call device_map(this%z, this%z_d, this%ntot)
 
        call device_memcpy(this%x, this%x_d, this%ntot, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%y, this%y_d, this%ntot, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%z, this%z_d, this%ntot, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
   end function dofmap_init_from_coords
@@ -179,11 +179,11 @@ contains
        call device_map(this%z, this%z_d, this%ntot)
 
        call device_memcpy(this%x, this%x_d, this%ntot, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%y, this%y_d, this%ntot, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%z, this%z_d, this%ntot, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
   end function dofmap_init
@@ -696,7 +696,7 @@ contains
        call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, this%x(1,1,1,i), &
                           this%y(1,1,1,i), this%z(1,1,1,i))
     end do
-    do i =1, msh%curve%size
+    do i = 1, msh%curve%size
        midpoint = .false.
        el_idx = msh%curve%curve_el(i)%el_idx
        curve_type = msh%curve%curve_el(i)%curve_type
@@ -712,7 +712,7 @@ contains
                               this%z(1,1,1,el_idx),curve_type, curve_data_tot)
        end if
     end do
-    do i =1, msh%curve%size
+    do i = 1, msh%curve%size
        el_idx = msh%curve%curve_el(i)%el_idx
        do j = 1, 8
           if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
@@ -854,7 +854,7 @@ contains
        call gh_face_extend_2d(x3,zg,3,2,w(1,1),w(1,2)) ! 2 --> edge extend
        call gh_face_extend_2d(y3,zg,3,2,w(1,1),w(1,2))
     end if
-    k =1
+    k = 1
     do j = 1, Xh%lx
        call fd_weights_full(Xh%zg(j,1),zquad,2,0,jxt(k))
        call fd_weights_full(Xh%zg(j,2),zquad,2,0,jyt(k))
@@ -1044,7 +1044,7 @@ contains
 
     !Build vertex interpolant
 
-    ntot=n*n
+    ntot = n * n
     call rzero(v,ntot)
     do jj = 1, n, n-1
        do ii = 1, n, n-1
@@ -1148,9 +1148,9 @@ contains
     isid1 = mod(isid+4-1, 4)+1
     call compute_h(h, Xh%zg, gdim, Xh%lx)
     if (radius < 0.0) dtheta = -dtheta
-    do ix=1,Xh%lx
-       ixt=ix
-       if (isid1.gt.2) ixt=Xh%lx+1-ix
+    do ix = 1, Xh%lx
+       ixt = ix
+       if (isid1.gt.2) ixt = Xh%lx + 1 - ix
        r=Xh%zg(ix,1)
        xcrved(ixt) = xcenn + abs(radius) * cos(theta0 + r*dtheta) &
                            - ( h(ix,1,1)*pt1x + h(ix,1,2)*pt2x )
