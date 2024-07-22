@@ -80,21 +80,20 @@ The rules are as follows:
 - Context blocks must have a space before the parenthesis `if (a .eq. b)`.
 - Usage of OpenMP should be prepended with `!$`.
 - Indentation should be done with spaces, not tabs.
-- Use new syntax TYPE(kind)
+- Use new syntax `type(kind)` instead of `type*8`.
 - Comment operator `!` must have a space before and after them, if they are not
   a doxygen comment `! This is a comment`.
 - Lines may not be terminated with a semicolon.
 - End statement should have a context block `end if`.
 - End statement should have a space before context specification `end if`.
-- Assignment operators must have spaces around them `a = b`. However, we do
-  allow kind and len assignment to be used without spaces.
+- Assignment operators must have spaces around them `a = b`.
 - Trailing white spaces is not allowed.
 - Double spaces are not allowed.
 - Precision of real numbers should be specified using `sp`, `dp` or `qp`.
 - Array declaration should use brackets instead of parentheses.
 - Should use `use mpi_f08` instead (or `use mpi` if not available).
 - Bare stop statement not allowed.
-- The use of the `exit` statement is not allowed.
+- The use of bare `exit` statement is not allowed.
 - The use of the `goto` statement is not allowed.
 - The use of the `pause` statement is not allowed.
 - The use of the `include` statement is not allowed.
@@ -107,6 +106,7 @@ However, there are some exceptions to these rules:
   for single letter variable names and 2 digit numbers. For example, `foo(a,b)`
   and `foo(a,10)` are allowed, but `foo(a,bb)` and `foo(a,100)` are not.
 - Spaces after the comma is not required in format specifiers.
+- Spaces around the `=` operator is not required in type declarations.
 
 ## Tools
 
