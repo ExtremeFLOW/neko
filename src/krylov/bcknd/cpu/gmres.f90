@@ -298,7 +298,7 @@ contains
                exit
             end if
 
-            lr = sqrt(h(j,j) * h(j,j) + alpha**2)
+            lr = sqrt(h(j,j) * h(j,j) + alpha2)
             temp = 1.0_rp / lr
             c(j) = h(j,j) * temp
             s(j) = alpha  * temp
