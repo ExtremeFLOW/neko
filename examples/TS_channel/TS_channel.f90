@@ -4,9 +4,9 @@ module user
 
   implicit none
 
-  integer, parameter :: num_rows = 1500 ! resolution of TS wave in Cheb points
+  integer, parameter :: num_rows = 128 ! resolution of TS wave in Cheb points
   integer, parameter :: num_columns = 7 ! y, real and imag part of TS wave in Cheb points
-  integer, parameter :: num_ygll = 8*8 ! number of GLL points in the y direction
+  integer, parameter :: num_ygll = 8 * 8 ! number of GLL points in the y direction
   real (kind=rp) :: Re = 5000.0_rp
   real (kind=rp), parameter :: pi_rp = 4.0_rp * atan (1.0_rp)
 contains
@@ -29,8 +29,9 @@ contains
     integer :: i
 
     do i = 1, size(msh%points)
-       msh%points(i)%x(1) = pi_rp*msh%points(i)%x(1)/1.12_rp
-       msh%points(i)%x(3) = pi_rp*msh%points(i)%x(3)*2.0_rp/2.1_rp
+       msh%points(i)%x(1) = pi_rp * msh%points(i)%x(1) / 1.12_rp
+       msh%points(i)%x(3) = pi_rp * (msh%points(i)%x(3) - 0.5_rp) &
+                                  * 2.0_rp / 2.1_rp
     end do
 
   end subroutine user_mesh_scale
@@ -50,9 +51,7 @@ contains
     real(kind=rp) :: y_GLC(num_rows)
     real(kind=rp) :: TS2D_GLC(num_rows, num_columns-1)
     real(kind=rp) :: TS3D_GLC(num_rows, num_columns-1)
-    integer :: ios
 
-    real(kind=rp) :: x_fixed, z_fixed
     real(kind=rp), dimension(num_ygll) :: y_GLL
     real(kind=rp) :: TS2D_GLL(num_ygll, num_columns-1)
     real(kind=rp) :: TS3D_GLL(num_ygll, num_columns-1)
@@ -61,35 +60,21 @@ contains
     real(kind=rp) :: ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D
 
     ! data reading
-    open(unit=10, file='TSwave_cheb_2D.csv', status='old', &
-                  action='read', iostat=ios)
-       if (ios /= 0) then
-          print *, "2D TS wave: Error opening the file!"
-          stop
-       end if
-       do i = 1, num_rows
-          read(10,*) (data_mode_cheb_2D(i, j), j = 1, num_columns)
-       end do
+    open(unit = 10, file = 'TSwave_cheb_2D.bin', form = 'unformatted', &
+                  access = 'stream')
+       read(10) data_mode_cheb_2D
     close(10)
     y_GLC = data_mode_cheb_2D(:,1)
     TS2D_GLC = data_mode_cheb_2D(:,2:num_columns)
 
-    open(unit=10, file='TSwave_cheb_3D.csv', status='old', &
-                  action='read', iostat=ios)
-       if (ios /= 0) then
-          print *, "3D TS wave: Error opening the file!"
-          stop
-       end if
-       do i = 1, num_rows
-          read(10,*) (data_mode_cheb_3D(i, j), j = 1, num_columns)
-       end do
+    open(unit = 10, file = 'TSwave_cheb_3D.bin', form = 'unformatted', &
+                  access = 'stream')
+       read(10) data_mode_cheb_3D
     close(10)
     TS3D_GLC = data_mode_cheb_3D(:,2:num_columns)
 
     ! alternative of point zone
     i_y = 1
-    x_fixed = u%dof%x(1,1,1,1)
-    z_fixed = u%dof%z(1,1,1,1)
     
     ! initialize y_GLL
     do i = 1, num_ygll
@@ -161,7 +146,7 @@ contains
     found = .false.
     dist = 100
     do i = 1, num_ygll
-       if (relcmp(y_target,y_source(i),tol)) then
+       if (relcmp(y_target, y_source(i), tol)) then
           Pt_target = Pt_source(i)
           dist = abs(y_target-y_source(i))
        end if
@@ -169,7 +154,7 @@ contains
     if ( dist .le. tol ) found = .true.
     
     if (.not. found) then
-       write (*,*) 'tolerence too small for picking points! dist:', dist
+       write (*,*) 'tolerence too small for picking points. dist:', dist
     end if
 
   end function pick_pt
@@ -226,9 +211,9 @@ contains
 
     ub = 1.0_rp-y*y
 
-    uvw(1)  = ub + u_pert_TS_2D + u_pert_TS_3D
-    uvw(2)  =      v_pert_TS_2D + v_pert_TS_3D
-    uvw(3)  =                     w_pert_TS_3D
+    uvw(1) = ub + u_pert_TS_2D + u_pert_TS_3D
+    uvw(2) = v_pert_TS_2D + v_pert_TS_3D
+    uvw(3) = w_pert_TS_3D
 
   end function channel_ic
 
