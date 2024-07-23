@@ -50,6 +50,7 @@ module flow_ic
   use point_zone, only: point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
   use fld_file_data, only: fld_file_data_t
+  use fld_file, only: fld_file_t
   use checkpoint, only: chkp_t
   use file, only: file_t
   use global_interpolation, only: global_interpolation_t
@@ -472,12 +473,24 @@ contains
     else if (interpolate) then
        call neko_log%warning("You have activated interpolation but you may &
 &still be using the same mesh.")
-       call neko_log%message("(do not take this into account if this &
-&was done on purpose)")
+       call neko_log%message("(disregard if this was done on purpose)")
     end if
 
     ! Mesh interpolation if specified
     if (interpolate) then
+
+       ! Issue a warning if the mesh is in single precision
+       select type (ft => f%file_type)
+       type is (fld_file_t)
+          if (.not. ft%dp_precision) then
+             call neko_warning("Your mesh is in single precision.")
+             call neko_log%message("It is recommended to use a mesh in double &
+                  &precision for better interpolation results.")
+             call neko_log%message("Reduce the tolerance if the interpolation &
+                  &does not work.")
+          end if
+       class default
+       end select
 
        if (present(tolerance)) then
           global_interp = fld_data%generate_interpolator(u%dof, u%msh, &

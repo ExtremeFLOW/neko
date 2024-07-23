@@ -230,10 +230,23 @@ The means of prescribing the values are controlled via the `type` keyword:
    - `.f*****` which refers to a single `field0.f*****` file. In this case 
    the sample index will be extracted from the file extension, e.g. `f00012`
    means a sample index of `12`.
+   - Interpolation is supported for both `chkp` and `fld` files:
+     - To activate interpolation for `chkp` files, you must provide the path to 
+     the mesh from which to interpolate with the keyword `previous_mesh`.
+     - To ativate interpolation for `chkp` files, you must set 
+     `interpolate: true`.
+     - The default tolerance for the interpolation is `1e-6` for both file 
+     types.
    
-@note Currently interpolation is only supported with `chkp` files. `fld` files
-that are loaded must match with the mesh that you are using.
-
+@note When interpolating, it is recommended to use files in double precision,
+which includes any `chkp` file or `fld` files that were written in double
+precision.
+@note To check if your `fld` file was written in double precision, run
+the command `head -1 field0.f00000`. `#std 4 ...` indicates single precision, 
+whereas `#std 8 ...` indicates double precision.
+@note To write your files in double precision, set `case.output_precision` to
+`"double"`.
+   
 ### Blasius profile
 The `blasius` object is used to specify the Blasius profile that can be used for the
 initial and inflow condition.
