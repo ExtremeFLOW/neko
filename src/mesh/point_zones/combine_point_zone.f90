@@ -123,8 +123,8 @@ contains
        else if (trim(type_name) .eq. "cylinder") then
           allocate(cylinder_point_zone_t::this%internal_zones(i)%pz)
        else
-          type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-               .true.)
+          type_string = concat_string_array(KNOWN_TYPES, &
+               NEW_LINE('A') // "-  ", .true.)
           call neko_error("Unknown point zone type: " &
                // trim(type_name) // ".  Known types are: " &
                // type_string)
