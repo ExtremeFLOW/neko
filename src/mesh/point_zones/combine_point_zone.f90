@@ -63,7 +63,8 @@ module combine_point_zone
      procedure, pass(this) :: init => combine_point_zone_init_from_json
      !> Destructor.
      procedure, pass(this) :: free => combine_point_zone_free
-     !> Defines the criterion of selection of a GLL point in the combine point zone.
+     !> Defines the criterion of selection of a GLL point in the combine point 
+     !! zone.
      procedure, pass(this) :: criterion => combine_point_zone_criterion
   end type combine_point_zone_t
 
