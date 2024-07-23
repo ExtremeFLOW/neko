@@ -630,8 +630,7 @@ contains
 
        if (this%nodes(node_index)%aabb%overlaps(object_box)) then
           if (this%nodes(node_index)%is_leaf()) then
-             if (.not. &
-                  this%nodes(node_index)%object_index == object_index) then
+             if (this%nodes(node_index)%object_index .ne. object_index) then
                 overlaps = [this%nodes(node_index)%object_index, overlaps]
              end if
           else
