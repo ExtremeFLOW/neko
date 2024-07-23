@@ -600,6 +600,7 @@ contains
     object_box = get_aabb(object)
     root_index = this%get_root_index()
 
+    call simple_stack%init()
     call simple_stack%push(root_index)
 
     do while (.not. simple_stack%is_empty())
