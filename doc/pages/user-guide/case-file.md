@@ -217,35 +217,39 @@ The means of prescribing the values are controlled via the `type` keyword:
 5. `field`, where the initial condition is retrieved from an output field file
    provided by the `file_name` keyword. Supported
    file types are:
-   - `.chkp`, with mesh to mesh interpolation where the mesh from which to
-   interpolate is given by the `previous_mesh` keyword (and tolerance for 
-   interpolation by the keyword `tolerance`).
+   - `.chkp` files. To interpolate a `chkp` file, use the `previous_mesh`
+   keyword to provide the mesh from which to interpolate.
    - `.fld`, `.nek5000` that refer to a series of `.f*****` files, where the 
-   index of the file to use is provided by the `sample_index` keyword. For
-   example, in a series of 3 files `field0.f00000, field0.f00001, 
-   field0.f00002`, `sample_index` can take values `0`,`1` or `2`. In this 
-   case we would set `"file_name" = "field0.fld"`. If no `sample_index` is
-   provided, and a `field0.nek5000` file exists, the last field file in the
-   series will be used by default.
+   index of the file to use is provided by the `sample_index` keyword. 
+       - For example, in a series of 3 files `field0.f00000, field0.f00001, 
+       field0.f00002`, `sample_index` can take values `0`,`1` or `2`. In this 
+       case we would set `"file_name" = "field0.fld"`. 
+       - If no `sample_index` is
+       provided, and a `field0.nek5000` file exists, the last field file in the
+       series will be used by default.
    - `.f*****` which refers to a single `field0.f*****` file. In this case 
    the sample index will be extracted from the file extension, e.g. `f00012`
    means a sample index of `12`.
-   - Interpolation is supported for both `chkp` and `fld` files:
-     - To activate interpolation for `chkp` files, you must provide the path to 
-     the mesh from which to interpolate with the keyword `previous_mesh`.
-     - To ativate interpolation for `chkp` files, you must set 
-     `interpolate: true`.
-     - The default tolerance for the interpolation is `1e-6` for both file 
-     types.
-   
-@note When interpolating, it is recommended to use files in double precision,
-which includes any `chkp` file or `fld` files that were written in double
-precision.
-@note To check if your `fld` file was written in double precision, run
-the command `head -1 field0.f00000`. `#std 4 ...` indicates single precision, 
-whereas `#std 8 ...` indicates double precision.
-@note To write your files in double precision, set `case.output_precision` to
-`"double"`.
+   - **Interpolation** for `fld`, `nek5000` and `f*****` files is activated by
+   setting the keyword `interpolate` to `true`. 
+       - Note that the tolerance
+       for interpolation defaults to `1e-6`, but can otherwise be changed by the
+       keyword `tolerance`. 
+       - The coordinates are retrieved by default from the first file in the 
+       `fld` series. If the coordinates are located in another file, you can
+       indicate the path to that file with `mesh_file_name`. If the coordinates
+       are located at a different index in the `fld` series, you can indicate
+       that index with `sample_mesh_index`. Note that `mesh_file_name` takes
+       precedence over `sample_mesh_index`.
+  
+   @note When interpolating, it is recommended to use files in double precision,
+   which includes any `chkp` file or `fld` files that were written in double
+   precision. To check if your `fld` file was written in double precision, run
+   the command `head -1 field0.f00000`. `#std 4 ...` indicates single precision, 
+   whereas `#std 8 ...` indicates double precision.
+   @attention Neko write single precision `fld` files by default. To write your 
+   files in double precision, set `case.output_precision` to
+   `"double"`. 
    
 ### Blasius profile
 The `blasius` object is used to specify the Blasius profile that can be used for the
