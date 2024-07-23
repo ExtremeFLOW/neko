@@ -32,7 +32,7 @@
 !
 ! Implements a geometry subset that combines different zones.
 module combine_point_zone
-  use point_zone, only: point_zone_t, point_zone_wrapper_t
+  use point_zone, only: point_zone_t, point_zone_pointer_t
   use box_point_zone, only: box_point_zone_t
   use sphere_point_zone, only: sphere_point_zone_t
   use cylinder_point_zone, only: cylinder_point_zone_t
@@ -53,7 +53,7 @@ module combine_point_zone
   !> A point zone that combines different point zones.
   type, public, extends(point_zone_t) :: combine_point_zone_t
      !> List of sub-zones to construct.
-     type(point_zone_wrapper_t), allocatable :: internal_zones(:)
+     type(point_zone_pointer_t), allocatable :: internal_zones(:)
      !> List of the names of the sub-zones to construct.
      character(len=80), allocatable :: names(:)
      !> Number of zones to construct.
@@ -121,6 +121,7 @@ contains
 
        call json_get(source_subdict, "name", type_name)
        this%names(i) = trim(type_name)
+       print *, trim(this%names(i))
 
     end do
 

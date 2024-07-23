@@ -85,6 +85,11 @@ module point_zone
      class(point_zone_t), allocatable :: pz
   end type point_zone_wrapper_t
 
+  !> A helper type to build a list of pointers to point_zones
+  type, public :: point_zone_pointer_t
+     class(point_zone_t), pointer :: pz => null()
+  end type point_zone_pointer_t
+
   abstract interface
      !> Defines the criterion of selection of a GLL point to the point_zone.
      !! @param x x-coordinate of the GLL point.

@@ -107,8 +107,7 @@ contains
     ! A single source term as its own json_file.
     type(json_file) :: source_subdict
     logical :: found
-    integer :: n_zones, i, izone, n_primitive_zones
-    type(combine_point_zone_t), pointer :: cpz
+    integer :: n_zones, i, izone
     character(len=:), allocatable :: type_name
 
     ! Parameters used to setup the GLL space.
@@ -152,7 +151,6 @@ contains
 
        ! Initialize all the primitive zones
        izone = 1
-       n_primitive_zones = 0
        do i = 1, n_zones
 
           ! Create a new json containing just the subdict for this source.
@@ -165,7 +163,6 @@ contains
              call point_zone_factory(this%point_zones(izone)%pz, source_subdict, &
                   dof)
              izone = izone + 1
-             n_primitive_zones = n_primitive_zones + 1
           end if
        end do
 
@@ -179,39 +176,51 @@ contains
 
           call json_get(source_subdict, "geometry", type_name)
           if (trim(type_name) .eq. "combine") then
-
-             associate( pz => this%point_zones(izone)%pz)
-
-               allocate(combine_point_zone_t::pz)
-
-               ! Here we initialize all the names of the zones to combine
-               call pz%init(source_subdict, dof%size())
-
-               select type (pz)
-               type is (combine_point_zone_t)
-                  cpz => pz
-               class default
-               end select
-
-               ! Load the zones in the combine zone array
-               do j = 1, n_primitive_zones
-                  cpz%internal_zones(j)%pz => &
-                       neko_point_zone_registry%get_point_zone(cpz%names(j))
-               end do
-
-               call pz%map(dof)
-               call pz%finalize()
-
-             end associate
-
+             call build_combine_point_zone(this%point_zones(izone)%pz, &
+                  source_subdict, dof)
              izone = izone + 1
-
           end if
        end do
 
     end if
 
   end subroutine point_zone_registry_init
+
+  !> Constructs a combine_point_zone_t object.
+  !! @param object Object to allocate.
+  !! @param json Json object initializing the point zone.
+  !! @param dof Dofmap from which to map to point zone.
+  !! @param n_allocated_zones Number of previously found and allocated zones
+  !! in the registry.
+  subroutine build_combine_point_zone(object, json, dof)
+    class(point_zone_t), allocatable, target, intent(inout) :: object
+    type(json_file), intent(inout) :: json
+    type(dofmap_t), intent(inout) :: dof
+
+    type(combine_point_zone_t), pointer :: cpz
+    integer :: i
+
+    allocate(combine_point_zone_t::object)
+
+    ! Here we initialize all the names of the zones to combine
+    call object%init(json, dof%size())
+
+    select type (object)
+    type is (combine_point_zone_t)
+       cpz => object
+    class default
+    end select
+
+    ! Load the zones in the combine zone array
+    do i = 1, cpz%n_zones
+       cpz%internal_zones(i)%pz => &
+            neko_point_zone_registry%get_point_zone(cpz%names(i))
+    end do
+
+    call object%map(dof)
+    call object%finalize()
+
+  end subroutine build_combine_point_zone
 
   !> Destructor.
   subroutine point_zone_registry_free(this)
