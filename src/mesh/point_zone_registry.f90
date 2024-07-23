@@ -75,7 +75,8 @@ module point_zone_registry
      procedure, pass(this) :: get_size
      !> Checks if a point zone exists in the registry.
      procedure, pass(this) :: point_zone_exists
-     generic :: get_point_zone => get_point_zone_by_index, get_point_zone_by_name
+     generic :: get_point_zone => get_point_zone_by_index, &
+          get_point_zone_by_name
      generic :: add_point_zone => add_point_zone_from_json
   end type point_zone_registry_t
 
@@ -93,7 +94,7 @@ contains
   !! point_zones that are not defined in that way will need to be added
   !! using the `add_point_zone` subroutine.
   subroutine point_zone_registry_init(this, json, msh, expansion_size)
-    class(point_zone_registry_t), intent(inout):: this
+    class(point_zone_registry_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(mesh_t), target, intent(inout) :: msh
     integer, optional, intent(in) :: expansion_size
@@ -139,7 +140,7 @@ contains
     !
     ! Count if there are any point zones defined in the json
     !
-    if(json%valid_path('case.point_zones')) then
+    if (json%valid_path('case.point_zones')) then
 
        call json%get_core(core)
        call json%get('case.point_zones', source_object, found)
@@ -160,8 +161,8 @@ contains
 
           call json_get(source_subdict, "geometry", type_name)
           if (trim(type_name) .ne. "combine") then
-             call point_zone_factory(this%point_zones(izone)%pz, source_subdict, &
-                  dof)
+             call point_zone_factory(this%point_zones(izone)%pz, &
+                  source_subdict, dof)
              izone = izone + 1
           end if
        end do
@@ -224,12 +225,12 @@ contains
 
   !> Destructor.
   subroutine point_zone_registry_free(this)
-    class(point_zone_registry_t), intent(inout):: this
+    class(point_zone_registry_t), intent(inout) :: this
     integer :: i
 
     if (allocated(this%point_zones)) then
 
-       do i=1, this%n_point_zones()
+       do i = 1, this%n_point_zones()
           call this%point_zones(i)%pz%free()
        end do
 
@@ -340,7 +341,7 @@ contains
        call neko_error("Field index must be > 1")
     else if (i > this%n_point_zones()) then
        call neko_error("Field index exceeds number of stored point_zones")
-    endif
+    end if
 
     pz => this%point_zones(i)%pz
   end function get_point_zone_by_index
@@ -355,7 +356,7 @@ contains
     integer :: i
 
     found = .false.
-    do i=1, this%n_point_zones()
+    do i = 1, this%n_point_zones()
        if (trim(this%point_zones(i)%pz%name) .eq. trim(name)) then
           pz => this%point_zones(i)%pz
           found = .true.
@@ -378,7 +379,7 @@ contains
     integer :: i
 
     found = .false.
-    do i=1, this%n_point_zones()
+    do i = 1, this%n_point_zones()
        if (trim(this%point_zones(i)%pz%name) .eq. trim(name)) then
           found = .true.
           exit
