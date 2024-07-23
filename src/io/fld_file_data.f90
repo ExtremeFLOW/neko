@@ -262,10 +262,6 @@ contains
     call global_interp%init(fld_dof, tol = tolerance, Xh = fld_Xh, &
          msh = fld_empty_mesh)
 
-    ! Note that to_dof%size() should be equal to
-    ! to_msh%nelv * to_Xh%lxyz
-    if (to_dof%size() .ne. to_msh%nelv*to_Xh%lxyz) &
-         call neko_error("something weird happening")
     call global_interp%find_points(x_coords, y_coords, z_coords, &
          to_dof%size())
 
