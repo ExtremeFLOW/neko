@@ -4,7 +4,7 @@ module user
 
   implicit none
 
-  integer, parameter :: num_rows = 128 ! resolution of TS wave in Cheb points
+  integer, parameter :: num_rows = 161 ! resolution of TS wave in Cheb points
   integer, parameter :: num_columns = 7 ! y, real and imag part of TS wave in Cheb points
   integer, parameter :: num_ygll = 8 * 8 ! number of GLL points in the y direction
   real (kind=rp) :: Re = 5000.0_rp
