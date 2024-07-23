@@ -422,7 +422,7 @@ contains
             lr = sqrt(h(j,j) * h(j,j) + alpha2)
             temp = 1.0_rp / lr
             c(j) = h(j,j) * temp
-            s(j) = alpha  * temp
+            s(j) = alpha * temp
             h(j,j) = lr
             call device_memcpy(h(:,j), h_d(j), j, &
                                 HOST_TO_DEVICE, sync = .false.)
