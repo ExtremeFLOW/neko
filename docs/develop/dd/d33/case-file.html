@@ -96,33 +96,33 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md23">High-level structure</a></li>
-<li class="level1"><a href="#autotoc_md24">Output frequency control</a></li>
-<li class="level1"><a href="#autotoc_md25">The case object</a></li>
-<li class="level1"><a href="#autotoc_md26">Numerics</a></li>
-<li class="level1"><a href="#autotoc_md27">Fluid</a><ul><li class="level2"><a href="#autotoc_md28">Material properties</a></li>
+<ul><li class="level1"><a href="#autotoc_md25">High-level structure</a></li>
+<li class="level1"><a href="#autotoc_md26">Output frequency control</a></li>
+<li class="level1"><a href="#autotoc_md27">The case object</a></li>
+<li class="level1"><a href="#autotoc_md28">Numerics</a></li>
+<li class="level1"><a href="#autotoc_md29">Fluid</a><ul><li class="level2"><a href="#autotoc_md30">Material properties</a></li>
 <li class="level2"><a href="#case-file_boundary-types">Boundary types</a></li>
 <li class="level2"><a href="#case-file_fluid-if">Inflow boundary conditions</a></li>
 <li class="level2"><a href="#case-file_fluid-ic">Initial conditions</a></li>
-<li class="level2"><a href="#autotoc_md29">Blasius profile</a></li>
-<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md30">Brinkman</a></li>
+<li class="level2"><a href="#autotoc_md31">Blasius profile</a></li>
+<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md32">Brinkman</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md31">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md32">Flow rate forcing</a></li>
-<li class="level2"><a href="#autotoc_md33">Full parameter table</a></li>
+<li class="level1"><a href="#autotoc_md33">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md34">Flow rate forcing</a></li>
+<li class="level2"><a href="#autotoc_md35">Full parameter table</a></li>
 </ul>
 </li>
 <li class="level1"><a href="#case-file_scalar">Scalar</a></li>
-<li class="level1"><a href="#autotoc_md34">Statistics</a></li>
-<li class="level1"><a href="#autotoc_md35">Simulation components</a></li>
-<li class="level1"><a href="#autotoc_md36">Point zones</a></li>
+<li class="level1"><a href="#autotoc_md36">Statistics</a></li>
+<li class="level1"><a href="#autotoc_md37">Simulation components</a></li>
+<li class="level1"><a href="#autotoc_md38">Point zones</a></li>
 </ul>
 </div>
 <div class="textblock"><p><a class="anchor" id="md_pages_user_guide_case_file"></a></p>
 <p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is heirarchical and, and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
-<h1><a class="anchor" id="autotoc_md23"></a>
+<h1><a class="anchor" id="autotoc_md25"></a>
 High-level structure</h1>
 <p>The current high-level structure of the case file is shown below.</p>
 <div class="fragment"><div class="line">{</div>
@@ -137,7 +137,7 @@ High-level structure</h1>
 <div class="line">    }</div>
 <div class="line">}</div>
 </div><!-- fragment --><p> The <code>version</code> keywords is reserved to track changes in the format of the file. The the subsections below we list all the configuration options for each of the high-level objects. Some parameters will have default values, and are therefore optional.</p>
-<h1><a class="anchor" id="autotoc_md24"></a>
+<h1><a class="anchor" id="autotoc_md26"></a>
 Output frequency control</h1>
 <p>A common scheme for controlling the output frequency is applied for various outputs. It is described already now in order to clarify the meaning of several parameters found in the tables below.</p>
 <p>The frequency is controlled by two paramters, ending with <code>_control</code> and <code>_value</code>, respectively. The latter name is perhaps not ideal, but it is somewhat difficult to come up with a good one, suggestions are welcome.</p>
@@ -147,7 +147,7 @@ Output frequency control</h1>
 <li><code>nsamples</code>, then <code>_value</code> is the total number of outputs that will be performed in the course of the simulation.</li>
 <li><code>never</code>, then <code>_value</code> is ignored and output is never performed.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md25"></a>
+<h1><a class="anchor" id="autotoc_md27"></a>
 The case object</h1>
 <p>This object is mostly used as a high-level container for all the other objects, but also defines several parameters that pertain to the simulation as a whole.</p>
 <table class="markdownTable">
@@ -207,7 +207,7 @@ The case object</h1>
 <li>A periodic boundary.</li>
 </ol>
 <p>Note that the boundary conditions can be both prescribed via the labels in the case file or built into the mesh via conversion from a <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code> file. Both types will be picked up and marked in the field produced by <code>output_boundary</code>.</p>
-<h1><a class="anchor" id="autotoc_md26"></a>
+<h1><a class="anchor" id="autotoc_md28"></a>
 Numerics</h1>
 <p>Used to define the properties of the numerical discretization.</p>
 <table class="markdownTable">
@@ -222,10 +222,10 @@ Numerics</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>dealiased_polynomial order</code>   </td><td class="markdownTableBodyNone">The polynomial order in the higher-order space used in the dealising.   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>3/2(polynomial_order + 1) - 1</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md27"></a>
+<h1><a class="anchor" id="autotoc_md29"></a>
 Fluid</h1>
 <p>The configuration of the fluid solver and the flow problem. Contains multiple subobjects for various parts of the setup.</p>
-<h2><a class="anchor" id="autotoc_md28"></a>
+<h2><a class="anchor" id="autotoc_md30"></a>
 Material properties</h2>
 <p>As per the governing equations, Neko requires the value of the density and dynamic viscosity to define the flow problem. These can be provided as <code>rho</code> and <code>mu</code> in the case file.</p>
 <p>Alternatively, one may opt to provide the Reynolds number, <code>Re</code>, which corresponds to a non-dimensional formulation of the Navier-Stokes equations. This formulation can effectively be obtained by setting \( \rho = 1 \) and \( \mu = 1/Re \). This is exactly what Neko does under the hood, when <code>Re</code> is provided in the case file.</p>
@@ -270,7 +270,7 @@ Initial conditions</h2>
 <li><code>blasius</code>, a Blasius profile is prescribed. Its properties are looked up in the <code>case.fluid.blasius</code> object, see below.</li>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about point zones <a class="el" href="../../d2/dfb/point-zones_8md.html">point-zones.md</a>.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md29"></a>
+<h2><a class="anchor" id="autotoc_md31"></a>
 Blasius profile</h2>
 <p>The <code>blasius</code> object is used to specify the Blasius profile that can be used for the initial and inflow condition. The boundary cannot be tilted with respect to the coordinate axes. It requires the following parameters:</p>
 <ol type="1">
@@ -306,7 +306,7 @@ Source terms</h2>
 <ol type="1">
 <li><code>brinkman</code>, Brinkman permeability forcing inside a pre-defined region.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md30"></a>
+<h3><a class="anchor" id="autotoc_md32"></a>
 Brinkman</h3>
 <p>The Brinkman source term introduces regions of resistance in the fluid domain. The volume force \( f_i \) applied in the selected regions are proportional to the fluid velocity component \( u_i \).</p>
 <p class="formulaDsp">
@@ -381,7 +381,7 @@ Brinkman</h3>
 <div class="line">      }</div>
 <div class="line">   }</div>
 <div class="line">]</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md31"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md33"></a>
 Linear solver configuration</h1>
 <p>The mandatory <code>velocity_solver</code> and <code>pressure_solver</code> objects are used to configure the solvers for the momentum and pressure-Poisson equation. The following keywords are used, with the corresponding options.</p>
 <ul>
@@ -407,7 +407,7 @@ Linear solver configuration</h1>
 <li><code>projection_space_size</code>, size of the vector space used for accelerating the solution procedure. If 0, then the projection space is not used. More important for the pressure equation.</li>
 <li><code>projection_hold_steps</code>, steps for which the simulation does not use projection after starting or time step changes. E.g. if 5, then the projection space will start to update at the 6th time step and the space will be utilized at the 7th time step.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md32"></a>
+<h2><a class="anchor" id="autotoc_md34"></a>
 Flow rate forcing</h2>
 <p>The optional <code>flow_rate_force</code> object can be used to force a particular flow rate through the domain. Useful for channel and pipe flows. The configuration uses the following parameters:</p>
 <ul>
@@ -415,7 +415,7 @@ Flow rate forcing</h2>
 <li><code>value</code>, the desired flow rate.</li>
 <li><code>use_averaged_flow</code>, whether <code>value</code> specifies the domain-averaged (bulk) velocity or the volume flow rate.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md33"></a>
+<h2><a class="anchor" id="autotoc_md35"></a>
 Full parameter table</h2>
 <p>All the parameters are summarized in the table below. This includes all the subobjects discussed above, as well as keyword parameters that can be described concisely directly in the table.</p>
 <table class="markdownTable">
@@ -515,7 +515,7 @@ Scalar</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>source_terms</code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining additional source terms.   </td><td class="markdownTableBodyNone">See list of source terms above   </td><td class="markdownTableBodyNone">-   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md34"></a>
+<h1><a class="anchor" id="autotoc_md36"></a>
 Statistics</h1>
 <p>This object adds the collection of statistics for the fluid fields. For additional details on the workflow, see the <a class="el" href="../../df/d8f/statistics-guide.html">corresponding page</a> in the user manual.</p>
 <table class="markdownTable">
@@ -528,11 +528,11 @@ Statistics</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>sampling_interval</code>   </td><td class="markdownTableBodyNone">Interval, in timesteps, for sampling the flow fields for statistics.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">10   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md35"></a>
+<h1><a class="anchor" id="autotoc_md37"></a>
 Simulation components</h1>
 <p>Simulation components enable the user to perform various additional operations, which are not strictly necessary to run the solver. An example could be computing and output of additional fields, e.g. vorticity.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../d3/d84/simcomps.html#md_pages_user_guide_simcomps">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md36"></a>
+<h1><a class="anchor" id="autotoc_md38"></a>
 Point zones</h1>
 <p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.</p>
 <p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
@@ -544,7 +544,7 @@ Point zones</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Jul 22 2024 03:34:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 23 2024 03:36:39 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

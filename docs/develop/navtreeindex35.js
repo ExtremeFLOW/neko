@@ -1,5 +1,7 @@
 var NAVTREEINDEX35 =
 {
+"dc/dd2/cuda_2tensor__kernel_8h.html#a1f97732f83d6dc71736a4bf933d7ca95":[5,0,2,12,0,1,0,23,1],
+"dc/dd2/cuda_2tensor__kernel_8h.html#a9e950172cd4bc675c830b16fef1eca16":[5,0,2,12,0,1,0,23,2],
 "dc/dd2/cuda_2tensor__kernel_8h_source.html":[5,0,2,12,0,1,0,23],
 "dc/dd5/structbicgstab_1_1bicgstab__t.html":[4,0,16,0],
 "dc/dd5/structbicgstab_1_1bicgstab__t.html#a0604caa64f407001658d0678f200e426":[4,0,16,0,10],
@@ -247,7 +249,5 @@ var NAVTREEINDEX35 =
 "dd/d1b/structhsmg_1_1multigrid__t.html#a179158013d49352f23deb36739cbfcdb":[4,0,109,0,5],
 "dd/d1b/structhsmg_1_1multigrid__t.html#a2fca618716aa271714b9f6fe96bcfbe4":[4,0,109,0,2],
 "dd/d1b/structhsmg_1_1multigrid__t.html#a371d1b944f8a710324ae6e01e3afb33e":[4,0,109,0,3],
-"dd/d1b/structhsmg_1_1multigrid__t.html#a3a99b4ffee9862ac4948601db79b4195":[4,0,109,0,1],
-"dd/d1b/structhsmg_1_1multigrid__t.html#a6e227a897010259d7b8ab81e2f4b3ccc":[4,0,109,0,4],
-"dd/d1b/structhsmg_1_1multigrid__t.html#a787951f5a0f89f0a892c0d2629f40fab":[4,0,109,0,6]
+"dd/d1b/structhsmg_1_1multigrid__t.html#a3a99b4ffee9862ac4948601db79b4195":[4,0,109,0,1]
 };

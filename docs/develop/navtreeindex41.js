@@ -1,5 +1,7 @@
 var NAVTREEINDEX41 =
 {
+"de/d7f/fdm_8hip.html#ad4e70dfe7a27f9912db93f6093cc2b9e":[5,0,2,12,0,1,1,6,0],
+"de/d7f/fdm_8hip.html#afb4bf1f08657776c4e8a11412e48808e":[5,0,2,12,0,1,1,6,1],
 "de/d7f/fdm_8hip_source.html":[5,0,2,12,0,1,1,6],
 "de/d80/interfaceopencl__intf_1_1clGetPlatformIDs.html":[4,0,143,0],
 "de/d80/interfaceopencl__intf_1_1clGetPlatformIDs.html#a4b2dd6b071a20fe329bed8d83884b06e":[4,0,143,0,0],
@@ -247,7 +249,5 @@ var NAVTREEINDEX41 =
 "de/de8/structsampler_1_1sampler__t.html#a1924de0252db32abeb7b986987773163":[4,0,174,1,9],
 "de/de8/structsampler_1_1sampler__t.html#a2e8ec3b0a56c51732df9255476184ecc":[4,0,174,1,8],
 "de/de8/structsampler_1_1sampler__t.html#a44001b1d12cfdb501b19aa4a985ce806":[4,0,174,1,0],
-"de/de8/structsampler_1_1sampler__t.html#a6453e75ba0b8ee9f44d97139e864dad3":[4,0,174,1,2],
-"de/de8/structsampler_1_1sampler__t.html#a693612b8e841288baf1901152f9e0d22":[4,0,174,1,6],
-"de/de8/structsampler_1_1sampler__t.html#a6b13312ddd2c0a1d3dc345653ff2c572":[4,0,174,1,7]
+"de/de8/structsampler_1_1sampler__t.html#a6453e75ba0b8ee9f44d97139e864dad3":[4,0,174,1,2]
 };

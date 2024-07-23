@@ -96,13 +96,13 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md59">What are simulation components?</a></li>
-<li class="level1"><a href="#autotoc_md60">Adding simulation components to the case</a></li>
-<li class="level1"><a href="#autotoc_md61">List of simulation components</a></li>
-<li class="level1"><a href="#autotoc_md62">Controling execution and file output</a><ul><li class="level2"><a href="#simcomp_vorticity">vorticity</a></li>
+<ul><li class="level1"><a href="#autotoc_md61">What are simulation components?</a></li>
+<li class="level1"><a href="#autotoc_md62">Adding simulation components to the case</a></li>
+<li class="level1"><a href="#autotoc_md63">List of simulation components</a></li>
+<li class="level1"><a href="#autotoc_md64">Controling execution and file output</a><ul><li class="level2"><a href="#simcomp_vorticity">vorticity</a></li>
 <li class="level2"><a href="#simcomp_lambda2">lambda2</a></li>
-<li class="level2"><a href="#simcomp_probes">probes</a><ul><li class="level3"><a href="#autotoc_md63">Supported types:</a></li>
-<li class="level3"><a href="#autotoc_md64">Example usage:</a></li>
+<li class="level2"><a href="#simcomp_probes">probes</a><ul><li class="level3"><a href="#autotoc_md65">Supported types:</a></li>
+<li class="level3"><a href="#autotoc_md66">Example usage:</a></li>
 </ul>
 </li>
 <li class="level2"><a href="#simcomp_field_writer">field_writer</a></li>
@@ -113,14 +113,14 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 </ul>
 </div>
 <div class="textblock"><p><a class="anchor" id="md_pages_user_guide_simcomps"></a></p>
-<h1><a class="anchor" id="autotoc_md59"></a>
+<h1><a class="anchor" id="autotoc_md61"></a>
 What are simulation components?</h1>
 <p>Simulation components, or simcomps fo short, incapsulate additional functionality that may be useful for certain cases but not necessary to run the solver. This can include computation and output of additional fields, in-situ post-processing operations, data sampling, etc.</p>
 <p>By design, simulation components can tap into every aspect of the simulation, so they can be quite powerful. As the code grows, we expect to add more and more simcomps to the code.</p>
-<h1><a class="anchor" id="autotoc_md60"></a>
+<h1><a class="anchor" id="autotoc_md62"></a>
 Adding simulation components to the case</h1>
 <p>Each simcomp is defined as a single JSON object at are added to an array of objects called <code>simulation_components</code>, which resides directly under the <code>case</code> object.</p>
-<h1><a class="anchor" id="autotoc_md61"></a>
+<h1><a class="anchor" id="autotoc_md63"></a>
 List of simulation components</h1>
 <p>The following is a list of simulation components that are currently available in Neko. The list will be updated as new simcomps are added.</p>
 <ul>
@@ -132,7 +132,7 @@ List of simulation components</h1>
 <li>Computation of the weak gradient of a field <a class="el" href="../../d3/d84/simcomps.html#simcomp_weak_grad">weak_grad</a></li>
 <li>User defined components <a class="el" href="../../d6/def/user-file.html#user-file_simcomps">User defined simulation components</a></li>
 </ul>
-<h1><a class="anchor" id="autotoc_md62"></a>
+<h1><a class="anchor" id="autotoc_md64"></a>
 Controling execution and file output</h1>
 <p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <code>compute_control</code> and <code>compute_value</code> parameters for the computation and the <code>output_control and</code> and <code>output_value</code> for the output to disk. The parameters for the <code>_control</code> values are the same as for the fluid and checkpointing. Additionally, one can set <code>output_control</code> to <code>global</code> and <code>never</code>. The former will sync the <code>output_</code> parameter to that of the fluid. Choosing <code>never</code> will suppress output all together. If no parameters for the <code>output_</code> parameters are provided, they are set to be the same as for <code>compute_</code>.</p>
 <p>For simcomps that compute 3D fields, the output can be either added to the main <code>.fld</code> file, containing velocity and pressure, or saved to a separate file. For the latter, the <code>output_filename</code> keyword should be provided. One can additionally provide the <code>precision</code> keyword, which can be set to either <code>single</code> or <code>double</code> to control the precision of the written data.</p>
@@ -150,7 +150,7 @@ lambda2</h2>
 <h2><a class="anchor" id="simcomp_probes"></a>
 probes</h2>
 <p>Probes selected solution fields at a list of points. This list of points can be generated in a variety of ways, but the most common is to use the <code>csv</code> type.</p>
-<h3><a class="anchor" id="autotoc_md63"></a>
+<h3><a class="anchor" id="autotoc_md65"></a>
 Supported types:</h3>
 <ul>
 <li><code>csv</code>: Reads a list of points from a CSV file. The file should have the following format: <div class="fragment"><div class="line">x_0, y_0, z_0</div>
@@ -191,7 +191,7 @@ Supported types:</h3>
 <div class="line">0.0, -1.0, 0.0</div>
 </div><!-- fragment --></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md64"></a>
+<h3><a class="anchor" id="autotoc_md66"></a>
 Example usage:</h3>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;probes&quot;,</div>
@@ -256,7 +256,7 @@ weak_grad</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Jul 22 2024 03:34:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 23 2024 03:36:39 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
