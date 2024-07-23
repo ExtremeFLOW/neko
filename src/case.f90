@@ -294,7 +294,7 @@ contains
     end if
 
     ! Add initial conditions to BDF scheme (if present)
-    select type( f => C%fluid)
+    select type (f => C%fluid)
     type is (fluid_pnpn_t)
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)

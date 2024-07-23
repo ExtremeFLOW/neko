@@ -30,7 +30,6 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!
 !> Implements `dynamic_smagorinsky_t`.
 module dynamic_smagorinsky
   use num_types, only : rp
