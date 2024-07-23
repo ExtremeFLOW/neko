@@ -290,10 +290,11 @@ contains
 
     if (scalar) then
 
+       call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
+
        call neko_log%section("Scalar initial condition ")
        call neko_log%message("Type: " // trim(string_val))
 
-       call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
