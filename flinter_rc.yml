@@ -138,7 +138,7 @@ regexp-rules:
 
   recommended-use-of-brackets:
     message: You should use "[]" instead
-    regexp: \(\\([^\)]*)\\\)
+    regexp: (\(\/)|(\/\))
     replacement: '[\1]'
     active: true
 
