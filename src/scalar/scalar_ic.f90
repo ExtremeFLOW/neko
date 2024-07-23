@@ -422,17 +422,10 @@ contains
     character(len=*), intent(in), optional :: previous_mesh_fname
     real(kind=rp), intent(in), optional :: tol
 
-    type(field_t), pointer :: u,v,w,p
     type(chkp_t) :: chkp_data
     type(file_t) :: f, meshf
 
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
-    p => neko_field_registry%get_field("p")
-
-    ! Could we also init with chkp_data%init(s,s,s,s) for simplicity?
-    call chkp_data%init(u,v,w,p)
+    call chkp_data%init(s,s,s,s)
     call chkp_data%add_scalar(s)
 
     ! Mesh interpolation if specified
@@ -447,8 +440,6 @@ contains
     ! Read the chkp and perform interpolation
     f = file_t(trim(file_name))
     call f%read(chkp_data)
-
-    call copy(s%x, chkp_data%s%x, s%dof%size())
 
   end subroutine set_scalar_ic_chkp
 
