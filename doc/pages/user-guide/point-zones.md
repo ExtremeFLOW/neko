@@ -88,12 +88,37 @@ select all the points **but** those inside the point zone.
 ### Combination
 
 It is possible to combine predefined shapes into a single point zone. This is
-achieved by the `combine_point_zone_t` type and constructs a point zone based 
-on the geometrical parameters of each sub point zone. The mask will not contain
-any duplicate points in case the subset point zones overlap.
+achieved by the `combine_point_zone_t` type which can construct a point zone based 
+on the geometrical parameters of each sub point zone or refer to already existing 
+point zones. The mask of a combined point zone will not contain any duplicate 
+points in case the subset point zones overlap.
+
+Specifying which point zones to combine is done through the `subsets` array. 
+In that array, you can specify:
+- a reference to an already existing point zone, or
+- an internal point zone.
+
+@note
+The first method is useful for creating a new
+point zone out of a combination of already existing point zones. If you
+are referencing zones `p1` and `p2`, you will get a new point zone `p3`. All 
+three of those will be accessible in the registry. 
+The second method is useful if you want to create only one point zone using the
+geometric criteria of the internal ones. This means that if you create zone 
+`p3` out of internal zones `p1` and `p2`, only `p3` will be created. 
+This is useful if you do not explicitly need `p1` and `p2`, which will not
+be accessible in the registry. Use this method if you are using very large 
+point zones and want to save memory.
+
+In the code snippet below, the combine point zone named 
+`"combined_box_and_sphere"` uses a subset of two zones: 
+- `"mysphere"` is a reference to the external point zone above, and
+- `"mybox"` is built internally. 
+This means that `"mysphere"` will be accessible in the registry,
+whereas `"mybox"` will not.
 
 The combination will be performed according to a specified operator, which can
-take the values `"OR"`, `"AND"` or `"XOR"`. The default setting is `"OR"`. 
+take the values `"OR"`, `"AND"` or `"XOR"`. 
 For example, if you try to combine two point zones `p1` and `p2`:
 - The operator `OR` will select all the points that are both in `p1` 
 **or** `p2`,
@@ -103,7 +128,7 @@ For example, if you try to combine two point zones `p1` and `p2`:
 `p1` **or** in `p2`, but not both at the same time.
 
 @note You can also invert a `combine` point zone.
-@note You can combine other `combine` point zones as long as they are in the
+@attention You can combine other `combine` point zones as long as they are in the
 correct order in the case file, as demonstrated in the code snippet below.
 
 ~~~~~~~~~~~~~~~{.json}
@@ -114,13 +139,6 @@ correct order in the case file, as demonstrated in the code snippet below.
         "center": [0.0, 0.0, 0.0],
         "radius": 0.01
     },
-    {
-        "name": "mybox",
-        "geometry": "box",
-        "x_bounds": [-1.0, 1.0],
-        "y_bounds": [-1.0, 1.0],
-        "z_bounds": [-1.0, 1.0]
-    },
 
     {
         "name": "combined_box_and_sphere",
@@ -128,8 +146,17 @@ correct order in the case file, as demonstrated in the code snippet below.
         "operator": "OR",
         "subsets":
         [
-            {"name": "mysphere"},
-            {"name": "mybox"},
+            {
+                "name": "mysphere"
+            },
+            {
+                "name": "mybox",
+                "geometry": "box",
+                "x_bounds": [-1.0, 1.0],
+                "y_bounds": [-1.0, 1.0],
+                "z_bounds": [-1.0, 1.0]
+            },
+
         ],
     },
     {
