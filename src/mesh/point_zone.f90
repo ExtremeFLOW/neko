@@ -185,21 +185,30 @@ contains
 
     if (.not. this%finalized) then
 
-       allocate(this%mask(this%scratch%size()))
+       if (this%scratch%size() .ne. 0) then
 
-       tp => this%scratch%array()
-       do i = 1, this%scratch%size()
-          this%mask(i) = tp(i)
-       end do
+          allocate(this%mask(this%scratch%size()))
 
-       this%size = this%scratch%size()
+          tp => this%scratch%array()
+          do i = 1, this%scratch%size()
+             this%mask(i) = tp(i)
+          end do
 
-       call this%scratch%clear()
+          this%size = this%scratch%size()
 
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(this%mask, this%mask_d, this%size)
-          call device_memcpy(this%mask, this%mask_d, this%size, &
-                             HOST_TO_DEVICE, sync = .false.)
+          call this%scratch%clear()
+
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_map(this%mask, this%mask_d, this%size)
+             call device_memcpy(this%mask, this%mask_d, this%size, &
+                  HOST_TO_DEVICE, sync = .false.)
+          end if
+
+       else
+
+          this%size = 0
+          call this%scratch%clear()
+
        end if
 
        this%finalized = .true.

@@ -199,7 +199,7 @@ contains
     type(dofmap_t), intent(inout) :: dof
 
     type(combine_point_zone_t), pointer :: cpz
-    integer :: i
+    integer :: i, i_external
 
     allocate(combine_point_zone_t::object)
 
@@ -212,10 +212,11 @@ contains
     class default
     end select
 
-    ! Load the zones in the combine zone array
-    do i = 1, cpz%n_zones
-       cpz%internal_zones(i)%pz => &
-            neko_point_zone_registry%get_point_zone(cpz%names(i))
+    i_external = 1
+    ! Load the external zones in the combine zone array
+    do i = cpz%n_internal_zones + 1, cpz%n_zones
+       cpz%zones(i)%pz => &
+            neko_point_zone_registry%get_point_zone(cpz%names(i_external))
     end do
 
     call object%map(dof)

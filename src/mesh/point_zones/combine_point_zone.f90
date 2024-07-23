@@ -32,7 +32,7 @@
 !
 ! Implements a geometry subset that combines different zones.
 module combine_point_zone
-  use point_zone, only: point_zone_t, point_zone_pointer_t
+  use point_zone, only: point_zone_t, point_zone_pointer_t, point_zone_wrapper_t
   use box_point_zone, only: box_point_zone_t
   use sphere_point_zone, only: sphere_point_zone_t
   use cylinder_point_zone, only: cylinder_point_zone_t
@@ -41,6 +41,7 @@ module combine_point_zone
   use json_module, only: json_file, json_core, json_value
   use utils, only: neko_error, concat_string_array
   use logger, only: neko_log
+  use point_zone_fctry, only: point_zone_factory
   implicit none
   private
 
@@ -52,12 +53,19 @@ module combine_point_zone
 
   !> A point zone that combines different point zones.
   type, public, extends(point_zone_t) :: combine_point_zone_t
-     !> List of sub-zones to construct.
-     type(point_zone_pointer_t), allocatable :: internal_zones(:)
+     !> List of all the sub zones.
+     type(point_zone_pointer_t), allocatable :: zones(:)
+     !> List of the sub-zones to be created internally
+     type(point_zone_wrapper_t), allocatable :: internal_zones(:)
      !> List of the names of the sub-zones to construct.
      character(len=80), allocatable :: names(:)
-     !> Number of zones to construct.
+     !> Number of total zones.
      integer :: n_zones = 0
+     !> Number of external zones to be filled by the registry.
+     integer :: n_external_zones = 0
+     !> Number of internal zone, to be created inside init.
+     integer :: n_internal_zones = 0
+
      !> Operator with which to combine the point zones (AND, OR, XOR)
      character(len=:), allocatable :: operator
    contains
@@ -92,7 +100,7 @@ contains
     character(len=:), allocatable :: type_string
 
     character(len=:), allocatable :: str_read
-    integer :: i, n_zones
+    integer :: i, n_zones, i_internal, i_external
     logical :: found
 
     call json_get(json, "name", str_read)
@@ -103,25 +111,54 @@ contains
 
     if (.not. found) call neko_error("No subsets found")
 
-    n_zones = core%count(source_object)
-    this%n_zones = n_zones
+    this%n_zones = core%count(source_object)
 
     ! Allocate arrays if we found things
-    if (n_zones .gt. 0) then
-       allocate(this%names(n_zones))
-       allocate(this%internal_zones(n_zones))
+    if (this%n_zones .gt. 0) then
+       allocate(this%zones(this%n_zones))
     end if
 
-    do i = 1, n_zones
+    ! First, count how many external zones we have (external = only "name",
+    ! to be retrieved by the register later).
+    do i = 1, this%n_zones
+       ! Create a new json containing just the subdict for this source.
+       call core%get_child(source_object, i, source_pointer, found)
+       call core%print_to_string(source_pointer, buffer)
+       call source_subdict%load_from_string(buffer)
+
+       if (.not. source_subdict%valid_path("geometry")) then
+          this%n_external_zones = this%n_external_zones + 1
+       end if
+    end do
+
+    this%n_internal_zones = this%n_zones - this%n_external_zones
+    if (this%n_external_zones .gt. 0) &
+         allocate(this%names(this%n_external_zones))
+    if (this%n_internal_zones .gt. 0) &
+         allocate(this%internal_zones(this%n_internal_zones))
+
+    i_internal = 1
+    i_external = 1
+
+    ! now go through everything again and either construct a point zone or
+    ! save its name for the registry to fill it in later
+    do i = 1, this%n_zones
 
        ! Create a new json containing just the subdict for this source.
        call core%get_child(source_object, i, source_pointer, found)
        call core%print_to_string(source_pointer, buffer)
        call source_subdict%load_from_string(buffer)
 
-       call json_get(source_subdict, "name", type_name)
-       this%names(i) = trim(type_name)
-       print *, trim(this%names(i))
+       if (source_subdict%valid_path("geometry")) then
+          call point_zone_factory(this%internal_zones(i_internal)%pz, source_subdict)
+          call assign_point_zone(this%zones(i_internal)%pz, &
+               this%internal_zones(i_internal)%pz)
+          i_internal = i_internal + 1
+       else
+          call json_get(source_subdict, "name", type_name)
+          this%names(i_external) = trim(type_name)
+          i_external = i_external + 1
+       end if
 
     end do
 
@@ -139,14 +176,29 @@ contains
 
   end subroutine combine_point_zone_init_from_json
 
+  subroutine assign_point_zone(pt, tgt)
+    class(point_zone_t), intent(inout), pointer :: pt
+    class(point_zone_t), intent(inout), target :: tgt
+
+    pt => tgt
+
+  end subroutine assign_point_zone
+
   !> Destructor.
   subroutine combine_point_zone_free(this)
     class(combine_point_zone_t), intent(inout) :: this
 
     integer :: i
 
-    if (allocated(this%internal_zones)) then
+    if (allocated(this%zones)) then
        do i = 1, this%n_zones
+          nullify(this%zones(i)%pz)
+       end do
+       deallocate(this%zones)
+    end if
+
+    if (allocated(this%internal_zones)) then
+       do i = 1, this%n_internal_zones
           call this%internal_zones(i)%pz%free
        end do
        deallocate(this%internal_zones)
@@ -155,6 +207,8 @@ contains
     if (allocated(this%names)) deallocate(this%names)
 
     this%n_zones = 0
+    this%n_internal_zones = 0
+    this%n_external_zones = 0
     call this%free_base()
 
   end subroutine combine_point_zone_free
@@ -182,22 +236,22 @@ contains
 
     integer :: i
 
-    is_inside = this%internal_zones(1)%pz%criterion(x, &
-               y, z, j, k, l, e) .neqv. this%internal_zones(1)%pz%inverse
+    is_inside = this%zones(1)%pz%criterion(x, &
+               y, z, j, k, l, e) .neqv. this%zones(1)%pz%inverse
 
     do i = 2, this%n_zones
        select case (trim(this%operator))
        case ("OR")
-          is_inside = is_inside .or. (this%internal_zones(i)%pz%criterion(x, &
-               y, z, j, k, l, e) .neqv. this%internal_zones(i)%pz%inverse)
+          is_inside = is_inside .or. (this%zones(i)%pz%criterion(x, &
+               y, z, j, k, l, e) .neqv. this%zones(i)%pz%inverse)
 
        case ("AND")
-          is_inside = is_inside .and. (this%internal_zones(i)%pz%criterion(x, &
-               y, z, j, k, l, e) .neqv. this%internal_zones(i)%pz%inverse)
+          is_inside = is_inside .and. (this%zones(i)%pz%criterion(x, &
+               y, z, j, k, l, e) .neqv. this%zones(i)%pz%inverse)
 
        case ("XOR")
-          is_inside = is_inside .neqv. (this%internal_zones(i)%pz%criterion(x, &
-               y, z, j, k, l, e).neqv. this%internal_zones(i)%pz%inverse)
+          is_inside = is_inside .neqv. (this%zones(i)%pz%criterion(x, &
+               y, z, j, k, l, e).neqv. this%zones(i)%pz%inverse)
 
        case default
        end select
