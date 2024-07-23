@@ -100,7 +100,7 @@ contains
     allocate(this%z(n, this%lgmres))
     allocate(this%v(n, this%lgmres))
 
-    allocate(this%h(this%lgmres,this%lgmres))
+    allocate(this%h(this%lgmres, this%lgmres))
 
 
     if (present(rel_tol) .and. present(abs_tol)) then
@@ -257,7 +257,7 @@ contains
             call copy(h(1,j), wk1, j)
 
             alpha2 = 0.0_rp
-            do i = 0,n,NEKO_BLK_SIZE
+            do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do k = 1, NEKO_BLK_SIZE
                      w_plus(k) = 0.0_rp
