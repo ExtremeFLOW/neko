@@ -7,7 +7,7 @@ module fluid_aux
   implicit none
   private
 
-  public :: fluid_step_info, fluid_step_info_stress
+  public :: fluid_step_info
 
 contains
 
