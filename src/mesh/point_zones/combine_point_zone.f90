@@ -150,7 +150,8 @@ contains
        call source_subdict%load_from_string(buffer)
 
        if (source_subdict%valid_path("geometry")) then
-          call point_zone_factory(this%internal_zones(i_internal)%pz, source_subdict)
+          call point_zone_factory(this%internal_zones(i_internal)%pz, &
+               source_subdict)
           call assign_point_zone(this%zones(i_internal)%pz, &
                this%internal_zones(i_internal)%pz)
           i_internal = i_internal + 1
