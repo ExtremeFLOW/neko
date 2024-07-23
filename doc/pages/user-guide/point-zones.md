@@ -72,6 +72,19 @@ A cylinder is defined by its end points and its radius.
 By setting the keyword `invert` to `true`, you can indicate that you want to 
 select all the points **but** those inside the point zone.
 
+~~~~~~~~~~~~~~~{.json}
+[
+    {
+        "name": "mycylinder",
+        "geometry": "cylinder",
+        "start": [0.0, 0.0, 0.0],
+        "end": [0.0, 0.0, 1.0],
+        "radius": 0.01
+        "invert": true,
+    },
+]
+~~~~~~~~~~~~~~~
+
 ### Combination
 
 It is possible to combine predefined shapes into a single point zone. This is
@@ -90,31 +103,46 @@ For example, if you try to combine two point zones `p1` and `p2`:
 `p1` **or** in `p2`, but not both at the same time.
 
 @note You can also invert a `combine` point zone.
+@note You can combine other `combine` point zones as long as they are in the
+correct order in the case file, as demonstrated in the code snippet below.
 
 ~~~~~~~~~~~~~~~{.json}
 [
+    {
+        "name": "mysphere",
+        "geometry": "sphere",
+        "center": [0.0, 0.0, 0.0],
+        "radius": 0.01
+    },
+    {
+        "name": "mybox",
+        "geometry": "box",
+        "x_bounds": [-1.0, 1.0],
+        "y_bounds": [-1.0, 1.0],
+        "z_bounds": [-1.0, 1.0]
+    },
+
     {
         "name": "combined_box_and_sphere",
         "geometry": "combine",
         "operator": "OR",
         "subsets":
         [
-            {
-                "name": "mysphere",
-                "geometry": "sphere",
-                "center": [0.0, 0.0, 0.0],
-                "radius": 0.01
-            },
-            {
-                "name": "mybox",
-                "geometry": "box",
-                "x_bounds": [-1.0, 1.0],
-                "y_bounds": [-1.0, 1.0],
-                "z_bounds": [-1.0, 1.0]
-            },
+            {"name": "mysphere"},
+            {"name": "mybox"},
         ],
-
     },
+    {
+        "name": "inverted_combination",
+        "geometry": "combine",
+        "operator": "OR",
+        "invert": true,
+        "subsets":
+        [
+            {"name": "combined_box_and_sphere"},
+        ],
+    },
+
 ]
 ~~~~~~~~~~~~~~~
 
