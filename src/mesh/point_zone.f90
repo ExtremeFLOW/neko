@@ -94,7 +94,8 @@ module point_zone
      !! @param k 2nd nonlinear index of the GLL point.
      !! @param l 3rd nonlinear index of the GLL point.
      !! @param e element index of the GLL point.
-     pure function point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
+     pure function point_zone_criterion(this, x, y, z, j, k, l, e) &
+          result(is_inside)
        import :: point_zone_t
        import :: rp
        class(point_zone_t), intent(in) :: this
@@ -193,7 +194,7 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(this%mask, this%mask_d, this%size)
           call device_memcpy(this%mask, this%mask_d, this%size, &
-                             HOST_TO_DEVICE, sync=.false.)
+                             HOST_TO_DEVICE, sync = .false.)
        end if
 
        this%finalized = .true.

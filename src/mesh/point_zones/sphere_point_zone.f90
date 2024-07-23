@@ -54,7 +54,8 @@ module sphere_point_zone
      procedure, pass(this) :: init => sphere_point_zone_init_from_json
      !> Destructor.
      procedure, pass(this) :: free => sphere_point_zone_free
-     !> Defines the criterion of selection of a GLL point in the sphere point zone.
+     !> Defines the criterion of selection of a GLL point in the sphere point
+     !! zone.
      procedure, pass(this) :: criterion => sphere_point_zone_criterion
   end type sphere_point_zone_t
 
@@ -127,12 +128,13 @@ contains
   end subroutine sphere_point_zone_free
 
   !> Defines the criterion of selection of a GLL point in the sphere point zone.
-  !! A GLL point of coordinates \f$ \vec{X} = (x, y, z) \f$ is considered as being
-  !! inside the zone if:
+  !! A GLL point of coordinates \f$ \vec{X} = (x, y, z) \f$ is considered as
+  !! being inside the zone if:
   !! \f{eqnarray*}{
   !!    |\vec{X} - \vec{X_0}|^2 \le r
   !! \f}
-  !! Where \f$ r \f$ is the radius of the sphere and \f$ \vec{X_0} = (x_0, y_0, z_0) \f$
+  !! Where \f$ r \f$ is the radius of the sphere and
+  !! \f$ \vec{X_0} = (x_0, y_0, z_0) \f$
   !! the coordinates of its center.
   !! @param x x-coordinate of the GLL point.
   !! @param y y-coordinate of the GLL point.
@@ -141,7 +143,8 @@ contains
   !! @param k 2nd nonlinear index of the GLL point.
   !! @param l 3rd nonlinear index of the GLL point.
   !! @param e element index of the GLL point.
-  pure function sphere_point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
+  pure function sphere_point_zone_criterion(this, x, y, z, j, k, l, e) &
+       result(is_inside)
     class(sphere_point_zone_t), intent(in) :: this
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -154,7 +157,8 @@ contains
 
     real(kind=rp) :: dist_from_center
 
-    dist_from_center = sqrt( (x - this%x0)**2 + (y - this%y0)**2 + (z - this%z0)**2 )
+    dist_from_center = sqrt( &
+         (x - this%x0)**2 + (y - this%y0)**2 + (z - this%z0)**2)
 
     ! Inside if distance from center <= radius
     is_inside = (dist_from_center .lt. this%radius .or. &

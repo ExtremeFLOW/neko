@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,8 @@ module combine_point_zone
      procedure, pass(this) :: init => combine_point_zone_init_from_json
      !> Destructor.
      procedure, pass(this) :: free => combine_point_zone_free
-     !> Defines the criterion of selection of a GLL point in the combine point zone.
+     !> Defines the criterion of selection of a GLL point in the combine point 
+     !! zone.
      procedure, pass(this) :: criterion => combine_point_zone_criterion
   end type combine_point_zone_t
 
@@ -164,7 +165,8 @@ contains
   !! @param k 2nd nonlinear index of the GLL point.
   !! @param l 3rd nonlinear index of the GLL point.
   !! @param e element index of the GLL point.
-  pure function combine_point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
+  pure function combine_point_zone_criterion(this, x, y, z, j, k, l, e) &
+       result(is_inside)
     class(combine_point_zone_t), intent(in) :: this
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
