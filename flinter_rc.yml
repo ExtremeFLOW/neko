@@ -106,12 +106,6 @@ regexp-rules:
     replacement: \n
     active: true
 
-  nospace-endif:
-    message: Missing space after `end'
-    regexp: \#endif
-    replacement: null
-    active: false
-
   nospace-end:
     message: Missing space after `end'
     regexp: (?<!\#)end(if|do|subroutine|function)
