@@ -79,7 +79,7 @@ regexp-rules:
     message: Double spacing
     regexp: \S+\s{{2,}}\S+
     replacement: \n
-    active: true
+    active: false
 
   use-new-syntax-type:
     message: Use new syntax TYPE(kind)
