@@ -97,8 +97,8 @@ contains
     allocate(this%s(this%lgmres))
     allocate(this%gam(this%lgmres + 1))
 
-    allocate(this%z(n,this%lgmres))
-    allocate(this%v(n,this%lgmres))
+    allocate(this%z(n, this%lgmres))
+    allocate(this%v(n, this%lgmres))
 
     allocate(this%h(this%lgmres,this%lgmres))
 
@@ -201,7 +201,7 @@ contains
       call rzero(h, this%lgmres * this%lgmres)
       do while (.not. conv .and. iter .lt. max_iter)
 
-         if(iter .eq. 0) then
+         if (iter .eq. 0) then
             call copy(r, f, n)
          else
             call copy(r, f, n)
@@ -212,7 +212,7 @@ contains
          end if
 
          gam(1) = sqrt(glsc3(r, r, coef%mult, n))
-         if(iter .eq. 0) then
+         if (iter .eq. 0) then
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
@@ -302,7 +302,7 @@ contains
             lr = sqrt(h(j,j) * h(j,j) + alpha2)
             temp = 1.0_rp / lr
             c(j) = h(j,j) * temp
-            s(j) = alpha  * temp
+            s(j) = alpha * temp
             h(j,j) = lr
             gam(j+1) = -s(j) * gam(j)
             gam(j) = c(j) * gam(j)
