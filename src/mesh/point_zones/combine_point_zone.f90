@@ -152,6 +152,13 @@ contains
        deallocate(this%internal_zones)
     end if
 
+    if (allocated(this%names)) then
+       do i = 1, this%n_zones
+          call this%names(i)%pz%free
+       end do
+       deallocate(this%names)
+    end if
+
     this%n_zones = 0
     call this%free_base()
 
