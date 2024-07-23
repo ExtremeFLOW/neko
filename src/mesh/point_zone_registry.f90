@@ -34,6 +34,7 @@
 module point_zone_registry
   use point_zone, only: point_zone_t, point_zone_wrapper_t
   use point_zone_fctry, only: point_zone_factory
+  use combine_point_zone, only: combine_point_zone_t
   use dofmap, only: dofmap_t
   use mesh, only: mesh_t
   use space, only: space_t, GLL
@@ -106,7 +107,9 @@ contains
     ! A single source term as its own json_file.
     type(json_file) :: source_subdict
     logical :: found
-    integer :: n_zones, i
+    integer :: n_zones, i, izone, n_primitive_zones
+    type(combine_point_zone_t), pointer :: cpz
+    character(len=:), allocatable :: type_name
 
     ! Parameters used to setup the GLL space.
     integer :: order
@@ -147,15 +150,65 @@ contains
 
        allocate(this%point_zones(n_zones))
 
-       ! Initialize every point zone
+       ! Initialize all the primitive zones
+       izone = 1
+       n_primitive_zones = 0
        do i = 1, n_zones
+
           ! Create a new json containing just the subdict for this source.
           call core%get_child(source_object, i, source_pointer, found)
           call core%print_to_string(source_pointer, buffer)
           call source_subdict%load_from_string(buffer)
 
-          call point_zone_factory(this%point_zones(i)%pz, source_subdict, dof)
+          call json_get(source_subdict, "geometry", type_name)
+          if (trim(type_name) .ne. "combine") then
+             call point_zone_factory(this%point_zones(izone)%pz, source_subdict, &
+                  dof)
+             izone = izone + 1
+             n_primitive_zones = n_primitive_zones + 1
+          end if
        end do
+
+       ! Now initialize the combine zones
+       do i = 1, n_zones
+
+          ! Create a new json containing just the subdict for this source.
+          call core%get_child(source_object, i, source_pointer, found)
+          call core%print_to_string(source_pointer, buffer)
+          call source_subdict%load_from_string(buffer)
+
+          call json_get(source_subdict, "geometry", type_name)
+          if (trim(type_name) .eq. "combine") then
+
+             associate( pz => this%point_zones(izone)%pz)
+
+               allocate(combine_point_zone_t::pz)
+
+               ! Here we initialize all the names of the zones to combine
+               call pz%init(source_subdict, dof%size())
+
+               select type (pz)
+               type is (combine_point_zone_t)
+                  cpz => pz
+               class default
+               end select
+
+               ! Load the zones in the combine zone array
+               do j = 1, n_primitive_zones
+                  cpz%internal_zones(j)%pz => &
+                       neko_point_zone_registry%get_point_zone(cpz%names(j))
+               end do
+
+               call pz%map(dof)
+               call pz%finalize()
+
+             end associate
+
+             izone = izone + 1
+
+          end if
+       end do
+
     end if
 
   end subroutine point_zone_registry_init

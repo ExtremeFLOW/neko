@@ -54,6 +54,8 @@ module combine_point_zone
   type, public, extends(point_zone_t) :: combine_point_zone_t
      !> List of sub-zones to construct.
      type(point_zone_wrapper_t), allocatable :: internal_zones(:)
+     !> List of the names of the sub-zones to construct.
+     character(len=80), allocatable :: names(:)
      !> Number of zones to construct.
      integer :: n_zones = 0
      !> Operator with which to combine the point zones (AND, OR, XOR)
@@ -104,7 +106,10 @@ contains
     this%n_zones = n_zones
 
     ! Allocate arrays if we found things
-    if (n_zones .gt. 0) allocate(this%internal_zones(n_zones))
+    if (n_zones .gt. 0) then
+       allocate(this%names(n_zones))
+       allocate(this%internal_zones(n_zones))
+    end if
 
     do i = 1, n_zones
 
@@ -113,30 +118,13 @@ contains
        call core%print_to_string(source_pointer, buffer)
        call source_subdict%load_from_string(buffer)
 
-       call json_get(source_subdict, "geometry", type_name)
-
-       if (trim(type_name) .eq. "box") then
-          allocate(box_point_zone_t::this%internal_zones(i)%pz)
-       else if (trim(type_name) .eq. "sphere") then
-          allocate(sphere_point_zone_t::this%internal_zones(i)%pz)
-       else if (trim(type_name) .eq. "cylinder") then
-          allocate(cylinder_point_zone_t::this%internal_zones(i)%pz)
-       else
-          type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-               .true.)
-          call neko_error("Unknown point zone type: " &
-               // trim(type_name) // ".  Known types are: " &
-               // type_string)
-       end if
-
-       ! Initialize the sub-point zone but do not map anything, here we
-       ! initialize the stack with just size 1.
-       call this%internal_zones(i)%pz%init(source_subdict, 1)
+       call json_get(source_subdict, "name", type_name)
+       this%names(i) = trim(type_name)
 
     end do
 
     ! Chcek that we got the proper operator
-    call json_get_or_default(json, "operator", this%operator, "OR")
+    call json_get(json, "operator", this%operator)
     select case (trim(this%operator))
     case ("OR")
     case ("AND")
