@@ -177,7 +177,8 @@ contains
   !! @param k 2nd nonlinear index of the GLL point.
   !! @param l 3rd nonlinear index of the GLL point.
   !! @param e element index of the GLL point.
-  pure function combine_point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
+  pure function combine_point_zone_criterion(this, x, y, z, j, k, l, e) &
+       result(is_inside)
     class(combine_point_zone_t), intent(in) :: this
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
