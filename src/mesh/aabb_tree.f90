@@ -382,7 +382,8 @@ contains
        do i = start_layer, end_layer - 1, 2
           i_node = this%allocate_node()
 
-          this%nodes(i_node)%aabb = merge(this%nodes(i)%aabb, this%nodes(i + 1)%aabb)
+          this%nodes(i_node)%aabb = merge(this%nodes(i)%aabb, &
+               this%nodes(i + 1)%aabb)
 
           this%nodes(i_node)%left_node_index = i
           this%nodes(i_node)%right_node_index = i + 1
@@ -756,7 +757,8 @@ contains
 
        if (right_node%is_leaf()) then
           new_right_aabb = merge(leaf_node%aabb, right_node%aabb)
-          cost_right = new_right_aabb%get_surface_area() + minimum_push_down_cost
+          cost_right = new_right_aabb%get_surface_area() + &
+               minimum_push_down_cost
        else
           new_right_aabb = merge(leaf_node%aabb, right_node%aabb)
           cost_right = ( &
@@ -768,7 +770,8 @@ contains
        ! if the cost of creating a new parent node here is less than descending
        ! in either direction then we know we need to create a new parent node,
        ! errrr, here and attach the leaf to that
-       if (new_parent_node_cost < cost_left .and. new_parent_node_cost < cost_right) then
+       if (new_parent_node_cost < cost_left .and. &
+            new_parent_node_cost < cost_right) then
           exit
        end if
 
@@ -916,7 +919,8 @@ contains
 
        write(*, *) "i = ", current_index
        write(*, *) "  Parent  : ", this%get_parent_index(current_index)
-       write(*, *) "  Children: ", this%get_left_index(current_index), this%get_right_index(current_index)
+       write(*, *) "  Children: ", this%get_left_index(current_index), &
+            this%get_right_index(current_index)
 
        write(*, *) "  object_index = ", this%nodes(current_index)%object_index
     end do
