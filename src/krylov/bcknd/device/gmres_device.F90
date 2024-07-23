@@ -83,7 +83,7 @@ module gmres_device
 #ifdef HAVE_HIP
   interface
      real(c_rp) function hip_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n) &
-          bind(c, name='hip_gmres_part2')
+          bind(c, name = 'hip_gmres_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -95,7 +95,7 @@ module gmres_device
 
   interface
      real(c_rp) function cuda_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n) &
-          bind(c, name='cuda_gmres_part2')
+          bind(c, name = 'cuda_gmres_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -356,7 +356,7 @@ contains
 !       end do
       do while (.not. conv .and. iter .lt. max_iter)
 
-         if (iter.eq.0) then
+         if (iter .eq. 0) then
             call device_copy(r_d, f_d, n)
          else
             call device_copy(r_d, f_d, n)
@@ -368,7 +368,7 @@ contains
          end if
 
          gam(1) = sqrt(device_glsc3(r_d, r_d, coef%mult_d, n))
-         if (iter.eq.0) then
+         if (iter .eq. 0) then
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
@@ -490,9 +490,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function gmres_device_solve_coupled
 
