@@ -114,7 +114,7 @@ regexp-rules:
 
   nospace-end:
     message: Missing space after `end'
-    regexp: end(if|do|subroutine|function)
+    regexp: (?<!\#)end(if|do|subroutine|function)
     replacement: end \1
     active: true
 
