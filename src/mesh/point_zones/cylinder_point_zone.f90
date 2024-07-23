@@ -54,7 +54,8 @@ module cylinder_point_zone
      procedure, pass(this) :: init => cylinder_point_zone_init_from_json
      !> Destructor.
      procedure, pass(this) :: free => cylinder_point_zone_free
-     !> Defines the criterion of selection of a GLL point in the sphere point zone.
+     !> Defines the criterion of selection of a GLL point in the sphere point
+     !! zone.
      procedure, pass(this) :: criterion => cylinder_point_zone_criterion
   end type cylinder_point_zone_t
 
@@ -154,7 +155,8 @@ contains
   !! @param k 2nd nonlinear index of the GLL point.
   !! @param l 3rd nonlinear index of the GLL point.
   !! @param e element index of the GLL point.
-  pure function cylinder_point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
+  pure function cylinder_point_zone_criterion(this, x, y, z, j, k, l, e) &
+       result(is_inside)
     class(cylinder_point_zone_t), intent(in) :: this
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
