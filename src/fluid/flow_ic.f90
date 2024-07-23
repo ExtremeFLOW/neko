@@ -556,11 +556,6 @@ contains
     f = file_t(trim(file_name))
     call f%read(chkp_data)
 
-    call copy(u%x, chkp_data%u%x, u%dof%size())
-    call copy(v%x, chkp_data%v%x, v%dof%size())
-    call copy(w%x, chkp_data%w%x, w%dof%size())
-    call copy(p%x, chkp_data%p%x, p%dof%size())
-
     if (NEKO_BCKND_DEVICE .eq. 1) call device_memcpy(p%x, p%x_d, p%dof%size(), &
          HOST_TO_DEVICE, sync = .false.)
 
