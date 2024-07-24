@@ -60,8 +60,10 @@ contains
 
     n = c_Xh%dof%size()
 
-    call invers2(c_Xh%h1, rho%x, n)
-    call rzero(c_Xh%h2, n)
+    do i = 1, n
+      c_Xh%h1(i,1,1,1) = 1 / rho%x(i,1,1,1)
+      c_Xh%h2(i,1,1,1) = 0.0_rp
+    end do
     c_Xh%ifh2 = .false.
 
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
@@ -150,8 +152,10 @@ contains
     integer, intent(in) :: n
     integer :: i
 
-    call copy(c_Xh%h1, mu%x, n)
-    call cmult2(c_Xh%h2, rho%x, bd / dt, n)
+    do i = 1, n
+      c_Xh%h1(i,1,1,1) = mu%x(i,1,1,1)
+      c_Xh%h2(i,1,1,1) = rho%x(i,1,1,1) * bd / dt
+    end do
     c_Xh%ifh2 = .true.
 
     call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)

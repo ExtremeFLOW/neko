@@ -63,7 +63,7 @@ module pnpn_res_device
      subroutine pnpn_prs_res_part1_hip(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, mu, rho, n) &
-          bind(c, name='pnpn_prs_res_part1_hip')
+          bind(c, name = 'pnpn_prs_res_part1_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -78,7 +78,7 @@ module pnpn_res_device
 
   interface
      subroutine pnpn_prs_res_part2_hip(p_res_d, wa1_d, wa2_d, wa3_d, n) &
-          bind(c, name='pnpn_prs_res_part2_hip')
+          bind(c, name = 'pnpn_prs_res_part2_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
@@ -88,7 +88,7 @@ module pnpn_res_device
 
   interface
      subroutine pnpn_prs_res_part3_hip(p_res_d, ta1_d, ta2_d, ta3_d, dtbd, n) &
-          bind(c, name='pnpn_prs_res_part3_hip')
+          bind(c, name = 'pnpn_prs_res_part3_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -101,7 +101,7 @@ module pnpn_res_device
   interface
      subroutine pnpn_vel_res_update_hip(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
-          bind(c, name='pnpn_vel_res_update_hip')
+          bind(c, name = 'pnpn_vel_res_update_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
@@ -115,7 +115,7 @@ module pnpn_res_device
      subroutine pnpn_prs_res_part1_cuda(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, mu, rho, n) &
-          bind(c, name='pnpn_prs_res_part1_cuda')
+          bind(c, name = 'pnpn_prs_res_part1_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -130,7 +130,7 @@ module pnpn_res_device
 
   interface
      subroutine pnpn_prs_res_part2_cuda(p_res_d, wa1_d, wa2_d, wa3_d, n) &
-          bind(c, name='pnpn_prs_res_part2_cuda')
+          bind(c, name = 'pnpn_prs_res_part2_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
@@ -140,7 +140,7 @@ module pnpn_res_device
 
   interface
      subroutine pnpn_prs_res_part3_cuda(p_res_d, ta1_d, ta2_d, ta3_d, dtbd, n) &
-          bind(c, name='pnpn_prs_res_part3_cuda')
+          bind(c, name = 'pnpn_prs_res_part3_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -153,7 +153,7 @@ module pnpn_res_device
   interface
      subroutine pnpn_vel_res_update_cuda(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
-          bind(c, name='pnpn_vel_res_update_cuda')
+          bind(c, name = 'pnpn_vel_res_update_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
@@ -167,7 +167,7 @@ module pnpn_res_device
      subroutine pnpn_prs_res_part1_opencl(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, mu, rho, n) &
-          bind(c, name='pnpn_prs_res_part1_opencl')
+          bind(c, name = 'pnpn_prs_res_part1_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -182,7 +182,7 @@ module pnpn_res_device
 
   interface
      subroutine pnpn_prs_res_part2_opencl(p_res_d, wa1_d, wa2_d, wa3_d, n) &
-          bind(c, name='pnpn_prs_res_part2_opencl')
+          bind(c, name = 'pnpn_prs_res_part2_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
@@ -191,8 +191,9 @@ module pnpn_res_device
   end interface
 
   interface
-     subroutine pnpn_prs_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, dtbd, n) &
-          bind(c, name='pnpn_prs_res_part3_opencl')
+     subroutine pnpn_prs_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, dtbd,&
+          n)
+          bind(c, name = 'pnpn_prs_res_part3_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -205,7 +206,7 @@ module pnpn_res_device
   interface
      subroutine pnpn_vel_res_update_opencl(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
-          bind(c, name='pnpn_vel_res_update_opencl')
+          bind(c, name = 'pnpn_vel_res_update_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
@@ -289,7 +290,7 @@ contains
     call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     call cdtp(wa3%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
 
-    call Ax%compute(p_res%x,p%x,c_Xh,p%msh,p%Xh)
+    call Ax%compute(p_res%x, p%x, c_Xh, p%msh, p%Xh)
 
 #ifdef HAVE_HIP
     call pnpn_prs_res_part2_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
@@ -306,14 +307,16 @@ contains
     call device_rzero(wa3%x_d, n)
     dtbd = 1.0_rp
 
-    call bc_sym_surface%apply_surfvec_dev(wa1%x_d, wa2%x_d, wa3%x_d, ta1%x_d, ta2%x_d, ta3%x_d)
+    call bc_sym_surface%apply_surfvec_dev(wa1%x_d, wa2%x_d, wa3%x_d, ta1%x_d, &
+          ta2%x_d, ta3%x_d)
 
 #ifdef HAVE_HIP
     call pnpn_prs_res_part3_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_CUDA
     call pnpn_prs_res_part3_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_OPENCL
-    call pnpn_prs_res_part3_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+    call pnpn_prs_res_part3_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, &
+          n)
 #endif
     !
     dtbd = bd / dt
@@ -330,7 +333,8 @@ contains
 #elif HAVE_CUDA
     call pnpn_prs_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n)
 #elif HAVE_OPENCL
-    call pnpn_prs_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n)
+    call pnpn_prs_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd,&
+          n)
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
