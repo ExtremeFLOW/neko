@@ -709,13 +709,13 @@ contains
 
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
-                            'case.fluid.gradient_jump_penalty',&
+                            'case.fluid.gradient_jump_penalty.enabled',&
                             this%if_gradient_jump_penalty, .false.)
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%gradient_jump_penalty_u%init(this%dm_Xh, this%c_Xh)
-       call this%gradient_jump_penalty_v%init(this%dm_Xh, this%c_Xh)
-       call this%gradient_jump_penalty_w%init(this%dm_Xh, this%c_Xh)
+       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh)
+       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh)
+       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh)
     end if
 
     call neko_log%end_section()
