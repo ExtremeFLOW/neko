@@ -191,9 +191,8 @@ module pnpn_res_device
   end interface
 
   interface
-     subroutine pnpn_prs_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, dtbd,&
-          n)
-          bind(c, name = 'pnpn_prs_res_part3_opencl')
+     subroutine pnpn_prs_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, dtbd, &
+          n) bind(c, name = 'pnpn_prs_res_part3_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
