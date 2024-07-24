@@ -53,7 +53,7 @@ regexp-rules:
   # without spaces.
   missing-spaces-after-punctuation:
     message: Missing space after punctuation
-    regexp: (?<!'\()(,)([a-zA-Z]\w{{1,}}|\d{{3,}})(?!.*\)')
+    regexp: (?<![\'\"]\()(,)([a-zA-Z]\w{{1,}}|\d{{3,}})(?!.*\)[\'\"])
     replacement: \1 \2
     active: true
 
