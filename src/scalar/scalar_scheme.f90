@@ -469,11 +469,11 @@ contains
    
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
-                            'case.scalar.gradient_jump_penalty',&
+                            'case.scalar.gradient_jump_penalty.enabled',&
                             this%if_gradient_jump_penalty, .false.)
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%gradient_jump_penalty%init(this%dm_Xh, this%c_Xh)
+       call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh)
     end if
 
     call neko_log%end_section()

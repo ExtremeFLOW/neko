@@ -35,6 +35,8 @@
 module gradient_jump_penalty
   use num_types, only : rp
   use utils, only : neko_error
+  use json_utils, only : json_get_or_default
+  use json_module, only : json_file 
   use math
   use point, only : point_t
   use field, only : field_t
@@ -136,13 +138,15 @@ contains
   !> Constructor.
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
-  subroutine gradient_jump_penalty_init(this, dofmap, coef)
+  subroutine gradient_jump_penalty_init(this, params, dofmap, coef)
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
+    type(json_file), target, intent(inout) :: params
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), target, intent(in) :: coef
 
     class(element_t), pointer :: ep
+    real(kind=rp) :: a, b
     integer :: i, j
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
 
@@ -150,10 +154,20 @@ contains
 
     this%p = dofmap%xh%lx - 1
     this%lx = dofmap%xh%lx
+
     if (this%p .gt. 1) then
-       this%tau = -0.8_rp * (this%p + 1) ** (-4.0_rp)
+       call json_get_or_default(params, &
+                            'case.scalar.gradient_jump_penalty.scaling_factor',&
+                            a, 0.8_rp)
+       call json_get_or_default(params, &
+                            'case.scalar.gradient_jump_penalty.scaling_exponent',&
+                            b, 4.0_rp)
+       this%tau = -a * (this%p + 1) ** (-b)
     else
-       this%tau = -0.02_rp
+       call json_get_or_default(params, &
+                            'case.scalar.gradient_jump_penalty.tau',&
+                            a, 0.02_rp)
+       this%tau = -a
     end if
 
     this%coef => coef
