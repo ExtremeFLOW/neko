@@ -47,18 +47,19 @@ __global__ void prs_res_part1_kernel(T * __restrict__ ta1,
                                      const T * __restrict__ f_w,
                                      const T * __restrict__ B,
                                      T * __restrict__ h1,
-                                     const T * __restrict__  mu,
-                                     const T * __restrict__ rho,
+                                     const T mu,
+                                     const T rho,
                                      const int n) {
-
+  
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-
+  const T inv_rho = 1.0 / rho;
+  
   for (int i = idx; i < n; i += str) {
-    h1[i] = 1 / rho[i];
-    ta1[i] = (f_u[i] / rho[i]) - ((wa1[i] * (mu[i] / rho[i])) * B[i]);
-    ta2[i] = (f_v[i] / rho[i]) - ((wa2[i] * (mu[i] / rho[i])) * B[i]);
-    ta3[i] = (f_w[i] / rho[i]) - ((wa3[i] * (mu[i] / rho[i])) * B[i]);
+    h1[i] = inv_rho;
+    ta1[i] = (f_u[i] / rho) - ((wa1[i] * (mu / rho)) * B[i]);
+    ta2[i] = (f_v[i] / rho) - ((wa2[i] * (mu / rho)) * B[i]);
+    ta3[i] = (f_w[i] / rho) - ((wa3[i] * (mu / rho)) * B[i]);
   }
 
 }
@@ -73,7 +74,7 @@ __global__ void prs_res_part2_kernel(T * __restrict__ p_res,
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-
+  
   for (int i = idx; i < n; i += str) {
     p_res[i] = (-p_res[i]) + (wa1[i] + wa2[i] + wa3[i]);
   }
@@ -89,7 +90,7 @@ __global__ void prs_res_part3_kernel(T * __restrict__ p_res,
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-
+  
   for (int i = idx; i < n; i += str) {
     p_res[i] = p_res[i] - (dtbd * (ta1[i] + ta2[i] + ta3[i]));
   }

@@ -41,21 +41,21 @@
 
 extern "C" {
 
-  void pnpn_prs_res_part1_hip(void *ta1, void *ta2, void *ta3,
+  void pnpn_prs_res_part1_hip(void *ta1, void *ta2, void *ta3, 
                                void *wa1, void *wa2, void *wa3,
                                void *f_u, void *f_v, void *f_w,
-                               void *B, void *h1, void *mu,
-                               void *rho, int *n) {
+                               void *B, void *h1, real *mu,
+                               real *rho, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( prs_res_part1_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) ta1, (real *) ta2, (real *) ta3,
+                       (real *) ta1, (real *) ta2, (real *) ta3, 
                        (real *) wa1, (real *) wa2, (real *) wa3,
                        (real *) f_u, (real *) f_v, (real *) f_w,
-                       (real *) B, (real *) h1, (real *) mu, (real *) rho, *n);
+                       (real *) B, (real *) h1, *mu, *rho, *n);
     HIP_CHECK(hipGetLastError());
   }
 
@@ -70,7 +70,7 @@ extern "C" {
                        (real *) p_res, (real *) wa1, (real *) wa2,
                        (real *) wa3, *n);
     HIP_CHECK(hipGetLastError());
-
+    
   }
 
   void pnpn_prs_res_part3_hip(void *p_res, void *ta1, void *ta2,
@@ -84,9 +84,9 @@ extern "C" {
                        (real *) p_res, (real *) ta1, (real *) ta2,
                        (real *) ta3, *dtbd, *n);
     HIP_CHECK(hipGetLastError());
-
+    
   }
-
+  
   void pnpn_vel_res_update_hip(void *u_res, void *v_res, void *w_res,
                                void *ta1, void *ta2, void *ta3,
                                void *f_u, void *f_v, void *f_w, int *n) {
@@ -101,6 +101,6 @@ extern "C" {
                        (real *) f_u, (real *) f_v, (real *) f_w, *n);
     HIP_CHECK(hipGetLastError());
   }
-
+    
 }
 
