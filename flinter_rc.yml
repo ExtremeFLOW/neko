@@ -14,7 +14,7 @@ regexp-rules:
 
   missing-spaces-on-do:
     message: Missing spaces
-    regexp: do (\w+)=(\S+),(\S+)
+    regexp: do (\w+) = (\S+), (\S+)
     replacement: do \1 = \2, \3
     active: true
 
@@ -36,15 +36,15 @@ regexp-rules:
     replacement: \1 \2
     active: true
 
-  missing-spaces-before-separator:
-    message: Missing space before separator
-    regexp: '(?<!_t|.\s)(::)'
+  incorrect-spaces-before-separator:
+    message: Incorrect space before separator
+    regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*(?<=\s)::|(?(2).*(?<=\S)::|\0))
     replacement: '\1 ::'
     active: true
 
-  missing-spaces-after-separator:
-    message: Missing space after separator
-    regexp: (?<!_t)(::)(?!\s)
+  incorrect-spaces-after-separator:
+    message: Incorrect space after separator
+    regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*::(?=\s)|(?(2).*::(?=\S)|\0))
     replacement: ':: \1'
     active: true
 
