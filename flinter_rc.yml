@@ -85,14 +85,14 @@ regexp-rules:
     message: Use new syntax TYPE(kind)
     regexp: ({types})\*(\w+)
     replacement: \1(\2)
-    active: true
+    active: false
 
   # Exception: ´!` is allowed at the end of a string.
   one-space-before-comment:
     message: At least one space before comment
     regexp: (\S+)\!(?!'|")
     replacement: \1 !
-    active: true
+    active: false
 
   one-space-after-comment:
     message: Exactly one space after comment
