@@ -136,17 +136,19 @@ module gradient_jump_penalty
 
 contains
   !> Constructor.
+  !! @param params The case parameter file in json.
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
-  subroutine gradient_jump_penalty_init(this, params, dofmap, coef)
+  !! @param a, b Coefficients to determine tau
+  subroutine gradient_jump_penalty_init(this, params, dofmap, coef, a, b)
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(json_file), target, intent(inout) :: params
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), target, intent(in) :: coef
+    real(kind=rp), intent(in) :: a, b
 
     class(element_t), pointer :: ep
-    real(kind=rp) :: a, b
     integer :: i, j
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
 
@@ -156,17 +158,8 @@ contains
     this%lx = dofmap%xh%lx
 
     if (this%p .gt. 1) then
-       call json_get_or_default(params, &
-                            'case.scalar.gradient_jump_penalty.scaling_factor',&
-                            a, 0.8_rp)
-       call json_get_or_default(params, &
-                            'case.scalar.gradient_jump_penalty.scaling_exponent',&
-                            b, 4.0_rp)
        this%tau = -a * (this%p + 1) ** (-b)
     else
-       call json_get_or_default(params, &
-                            'case.scalar.gradient_jump_penalty.tau',&
-                            a, 0.02_rp)
        this%tau = -a
     end if
 

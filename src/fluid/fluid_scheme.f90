@@ -592,6 +592,7 @@ contains
     integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, precon_type
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: GJP_param_a, GJP_param_b
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
                                   material_properties, kspv_init)
@@ -675,9 +676,25 @@ contains
                             this%if_gradient_jump_penalty, .false.)
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh)
-       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh)
-       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh)
+       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
+          call json_get_or_default(params, &
+                            'case.fluid.gradient_jump_penalty.tau',&
+                            GJP_param_a, 0.02_rp)
+          GJP_param_b = 0.0_rp
+       else
+          call json_get_or_default(params, &
+                        'case.fluid.gradient_jump_penalty.scaling_factor',&
+                            GJP_param_a, 0.8_rp)
+          call json_get_or_default(params, &
+                        'case.fluid.gradient_jump_penalty.scaling_exponent',&
+                            GJP_param_b, 4.0_rp)
+       end if
+       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
     end if
 
     call neko_log%end_section()
