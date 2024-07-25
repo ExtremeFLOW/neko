@@ -6,17 +6,17 @@
 ! Anti-Test: Indentation
 program main
   call subroutine
-end program main
+end program
 
 ! Anti-Test: Spaces inside strings
 print *, "This  is a test"
 print *, 'This  is a test'
 
 ! Tests
-call foo(a, b)
-write (*, '(A,A)') "some  string"
-write (*, '(A,A)') "some  string"
-write (*, '(A,A)') 'some  string'
-write (*, '(A,A)') 'some  string'
-write (*, '(A,A)') 'some  string' "test"
+call foo(a,  b)
+  write (*,  '(A,A)') "some  string"
+  write (*, '(A,A)')  "some  string"
+  write (*,  '(A,A)') 'some  string'
+  write (*, '(A,A)')  'some  string'
+  write (*, '(A,A)') 'some  string'  "test"
 
