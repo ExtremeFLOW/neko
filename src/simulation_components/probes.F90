@@ -44,17 +44,19 @@ module probes
   use field_registry, only : neko_field_registry
   use dofmap, only: dofmap_t
   use json_module, only : json_file, json_value, json_core
-  use json_utils, only : json_get, json_extract_item
+  use json_utils, only : json_get, json_extract_item, json_get_or_default
   use global_interpolation, only: global_interpolation_t
   use tensor, only: trsp
   use point_zone, only: point_zone_t
+  use space, only: space_t
   use point_zone_registry, only: neko_point_zone_registry
   use comm
   use device
   use file
   use csv_file
-  use case
+  use case, only: case_t
   use device
+  use vector, only: vector_t, vector_ptr_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -77,6 +79,8 @@ module probes
      integer :: n_local_probes
      !> Fields to be probed
      type(field_list_t) :: sampled_fields
+
+     type(vector_ptr_t), allocatable :: sampled_fld_data(:)
      character(len=20), allocatable :: which_fields(:)
      !> Allocated on rank 0
      integer, allocatable :: n_local_probes_tot_offset(:)
@@ -88,6 +92,8 @@ module probes
      type(file_t) :: fout
      type(matrix_t) :: mat_out
    contains
+     !> Initialize from json
+     procedure, pass(this) :: init_post => probes_init_for_postprocessing
      !> Initialize from json
      procedure, pass(this) :: init => probes_init_from_json
      ! Actual constructor
@@ -119,6 +125,111 @@ module probes
   end type probes_t
 
 contains
+
+ !> Constructor from json.
+  subroutine probes_init_for_postprocessing(this, json, case, dof, Xh, u, v, w, &
+       p, t)
+    class(probes_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    class(case_t), intent(inout), target :: case
+    type(dofmap_t), intent(in) :: dof
+    type(space_t), intent(in) :: Xh
+    type(vector_t), intent(in), target :: u,v,w,p,t
+    character(len=:), allocatable :: output_file
+    character(len=:), allocatable :: input_file
+    integer :: i, ierr
+
+    ! JSON variables
+    character(len=:), allocatable :: point_type
+    type(json_value), pointer :: json_point_list
+    type(json_file) :: json_point
+    type(json_core) :: core
+    integer :: idx, n_point_children
+
+    ! Initialize the base class
+    call this%free()
+    call this%init_base(json, case)
+
+    !> Read from case file
+    call json%info('fields', n_children=this%n_fields)
+    call json_get(json, 'fields', this%which_fields)
+    call json_get(json, 'output_file', output_file)
+
+    allocate(this%sampled_fld_data(this%n_fields))
+    do i = 1, this%n_fields
+
+       select case (trim(this%which_fields(i)))
+       case('u')
+          this%sampled_fld_data(i)%ptr => u
+       case('v')
+          this%sampled_fld_data(i)%ptr => v
+       case('w')
+          this%sampled_fld_data(i)%ptr => w
+       case('p')
+          this%sampled_fld_data(i)%ptr => p
+       case('t')
+          this%sampled_fld_data(i)%ptr => t
+       case default
+          call neko_error(trim(this%which_fields(i)) // ": field unavailable.")
+       end select
+       end do
+
+    ! Setup the required arrays and initialize variables.
+    this%n_local_probes = 0
+    this%n_global_probes = 0
+
+    ! Read the legacy point specification from the points file.
+    if (json%valid_path('points_file')) then
+
+       ! Todo: We should add a deprecation notice here
+       call json_get(json, 'points_file', input_file)
+
+       ! This is distributed as to make it similar to parallel file
+       ! formats later, Reads all into rank 0
+       call read_probe_locations(this, this%xyz, this%n_local_probes, &
+                                 this%n_global_probes, input_file)
+    end if
+
+    ! Go through the points list and construct the probe list
+    call json%get('points', json_point_list)
+    call json%info('points', n_children=n_point_children)
+
+    do idx = 1, n_point_children
+       call json_extract_item(core, json_point_list, idx, json_point)
+
+       call json_get_or_default(json_point, 'type', point_type, 'none')
+       select case (point_type)
+
+         case ('file')
+          call this%read_file(json_point)
+         case ('point')
+          call this%read_point(json_point)
+         case ('line')
+          call this%read_line(json_point)
+         case ('plane')
+          call neko_error('Plane probes not implemented yet.')
+         case ('circle')
+          call this%read_circle(json_point)
+
+         case ('point_zone')
+          call this%read_point_zone(json_point, dof)
+
+         case ('none')
+          call json_point%print()
+          call neko_error('No point type specified.')
+         case default
+          call neko_error('Unknown region type ' // point_type)
+       end select
+    end do
+
+    call mpi_allreduce(this%n_local_probes, this%n_global_probes, 1, &
+                       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    call probes_show(this)
+    call this%init_from_attributes(dof, output_file)
+
+  end subroutine probes_init_for_postprocessing
+
 
   !> Constructor from json.
   subroutine probes_init_from_json(this, json, case)
@@ -536,6 +647,8 @@ contains
   subroutine probes_free(this)
     class(probes_t), intent(inout) :: this
 
+    integer :: i
+
     if (allocated(this%xyz)) then
        deallocate(this%xyz)
     end if
@@ -548,7 +661,13 @@ contains
        deallocate(this%out_vals_trsp)
     end if
 
-    call this%sampled_fields%free()
+    if (allocated(this%sampled_fields%items)) call this%sampled_fields%free()
+    if (allocated(this%sampled_fld_data)) then
+       do i = 1, this%n_fields
+          nullify(this%sampled_fld_data(i)%ptr)
+       end do
+        deallocate(this%sampled_fld_data)
+    end if
 
     if (allocated(this%n_local_probes_tot)) then
        deallocate(this%n_local_probes_tot)
@@ -642,11 +761,23 @@ contains
     integer, intent(in) :: tstep
     integer :: i, ierr
 
-    !> Check controller to determine if we must write
-    do i = 1,this%n_fields
-       call this%global_interp%evaluate(this%out_values(:,i), &
-                                        this%sampled_fields%items(i)%ptr%x)
-    end do
+    if (allocated(this%sampled_fields%items)) then
+
+       do i = 1,this%n_fields
+          call this%global_interp%evaluate(this%out_values(:,i), &
+               this%sampled_fields%items(i)%ptr%x)
+       end do
+
+    else if (allocated(this%sampled_fld_data)) then
+
+       do i = 1,this%n_fields
+          call this%global_interp%evaluate(this%out_values(:,i), &
+               this%sampled_fld_data(i)%ptr%x)
+       end do
+
+    else
+       call neko_error("sampled_fields or sampled_fld_data must be initialized")
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, this%n_fields
