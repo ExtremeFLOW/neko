@@ -12,12 +12,6 @@ regexp-rules:
     replacement: null
     active: true
 
-  missing-spaces-on-do:
-    message: Missing spaces
-    regexp: do (\w+) = (\S+), (\S+)
-    replacement: do \1 = \2, \3
-    active: true
-
   missing-spaces-around-operator:
     message: Missing spaces around operator
     regexp: (\w|\))({operators})(\w|\()
