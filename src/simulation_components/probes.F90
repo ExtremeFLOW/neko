@@ -494,6 +494,8 @@ contains
     select type(ft => this%fout%file_type)
       type is (csv_file_t)
 
+       this%seq_io = .true.
+
        ! Build the header
        write(header_line, '(I0,A,I0)') this%n_global_probes, ",", this%n_fields
        do i = 1, this%n_fields
