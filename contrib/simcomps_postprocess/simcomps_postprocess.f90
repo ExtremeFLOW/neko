@@ -43,6 +43,7 @@ program simcomps_postprocess
   argc = command_argument_count()
 
   if ((argc .le. 1) .or. (argc .gt. 2)) then
+     call usage()
      stop
   end if
 
@@ -128,5 +129,17 @@ program simcomps_postprocess
   call neko_finalize
 
 contains
+
+  subroutine usage()
+  call neko_log%message("simcomps_postprocess <case file> <field series>")
+  call neko_log%message("This script will read from the case file and execute")
+  call neko_log%message("the simulation components using input from the")
+  call neko_log%message("field files provided. Currently supported simcomps:")
+  call neko_log%message(" - probes")
+  call neko_log%message("")
+  call neko_log%message("Example:")
+  call neko_log%message("---------------------------------------------------")
+  call neko_log%message("   simcomps_postprocess postprocess.case field0.fld")
+  end subroutine usage
 
 end program
