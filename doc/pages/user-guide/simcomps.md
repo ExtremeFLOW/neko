@@ -75,7 +75,8 @@ generated in a variety of ways, but the most common is to use the `csv` type.
 
 #### Supported types:
 
- - `csv`: Reads a list of points from a CSV file. The file should have the
+ - `file`: Reads a list of points from a CSV file. The name of the file is
+   provided with the `file_name` keyword. The CSV file should have the
    following format:
    ~~~~~~~~~~~~~~~{.csv}
    x_0, y_0, z_0
@@ -141,12 +142,12 @@ generated in a variety of ways, but the most common is to use the `csv` type.
    "type": "probes",
    "compute_control": "simulationtime",
    "compute_value"    : 1,
-   "fields": ["w","s"]
+   "fields": ["w","s"],
    "output_file":  "output.csv",
    "points": [
       {
-        "type": "csv",
-        "filename": "points.csv"
+        "type": "file",
+        "file_name": "points.csv"
       }
     ],
  }
