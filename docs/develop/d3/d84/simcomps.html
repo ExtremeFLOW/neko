@@ -153,7 +153,7 @@ probes</h2>
 <h3><a class="anchor" id="autotoc_md65"></a>
 Supported types:</h3>
 <ul>
-<li><code>csv</code>: Reads a list of points from a CSV file. The file should have the following format: <div class="fragment"><div class="line">x_0, y_0, z_0</div>
+<li><code>file</code>: Reads a list of points from a CSV file. The name of the file is provided with the <code>file_name</code> keyword. The CSV file should have the following format: <div class="fragment"><div class="line">x_0, y_0, z_0</div>
 <div class="line">x_1, y_1, z_1</div>
 <div class="line">...</div>
 <div class="line">x_N, y_N, z_N</div>
@@ -197,12 +197,12 @@ Example usage:</h3>
 <div class="line">  &quot;type&quot;: &quot;probes&quot;,</div>
 <div class="line">  &quot;compute_control&quot;: &quot;simulationtime&quot;,</div>
 <div class="line">  &quot;compute_value&quot;    : 1,</div>
-<div class="line">  &quot;fields&quot;: [&quot;w&quot;,&quot;s&quot;]</div>
+<div class="line">  &quot;fields&quot;: [&quot;w&quot;,&quot;s&quot;],</div>
 <div class="line">  &quot;output_file&quot;:  &quot;output.csv&quot;,</div>
 <div class="line">  &quot;points&quot;: [</div>
 <div class="line">     {</div>
-<div class="line">       &quot;type&quot;: &quot;csv&quot;,</div>
-<div class="line">       &quot;filename&quot;: &quot;points.csv&quot;</div>
+<div class="line">       &quot;type&quot;: &quot;file&quot;,</div>
+<div class="line">       &quot;file_name&quot;: &quot;points.csv&quot;</div>
 <div class="line">     }</div>
 <div class="line">   ],</div>
 <div class="line">}</div>
@@ -256,7 +256,7 @@ weak_grad</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Jul 26 2024 03:34:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jul 27 2024 03:34:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
