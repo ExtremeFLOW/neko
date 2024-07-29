@@ -57,6 +57,7 @@ module probes
   use case, only: case_t
   use device
   use vector, only: vector_t, vector_ptr_t
+  use fld_file_data, only: fld_file_data_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -127,14 +128,13 @@ module probes
 contains
 
  !> Constructor from json.
-  subroutine probes_init_for_postprocessing(this, json, case, dof, Xh, u, v, w, &
-       p, t)
+  subroutine probes_init_for_postprocessing(this, json, case, dof, Xh, fld_data)
     class(probes_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     type(dofmap_t), intent(in) :: dof
     type(space_t), intent(in) :: Xh
-    type(vector_t), intent(in), target :: u,v,w,p,t
+    type(fld_file_data_t), intent(in) :: fld_data
     character(len=:), allocatable :: output_file
     character(len=:), allocatable :: input_file
     integer :: i, ierr
@@ -160,15 +160,15 @@ contains
 
        select case (trim(this%which_fields(i)))
        case('u')
-          this%sampled_fld_data(i)%ptr => u
+          call assign_vector_ptr(this%sampled_fld_data(i)%ptr, fld_data%u)
        case('v')
-          this%sampled_fld_data(i)%ptr => v
+          call assign_vector_ptr(this%sampled_fld_data(i)%ptr, fld_data%v)
        case('w')
-          this%sampled_fld_data(i)%ptr => w
+          call assign_vector_ptr(this%sampled_fld_data(i)%ptr, fld_data%w)
        case('p')
-          this%sampled_fld_data(i)%ptr => p
+          call assign_vector_ptr(this%sampled_fld_data(i)%ptr, fld_data%p)
        case('t')
-          this%sampled_fld_data(i)%ptr => t
+          call assign_vector_ptr(this%sampled_fld_data(i)%ptr, fld_data%t)
        case default
           call neko_error(trim(this%which_fields(i)) // ": field unavailable.")
        end select
@@ -230,6 +230,11 @@ contains
 
   end subroutine probes_init_for_postprocessing
 
+  subroutine assign_vector_ptr(a, b)
+    type(vector_t), intent(inout), pointer :: a
+    type(vector_t), intent(in), target :: b
+    a => b
+  end subroutine assign_vector_ptr
 
   !> Constructor from json.
   subroutine probes_init_from_json(this, json, case)
@@ -579,8 +584,7 @@ contains
     type(matrix_t) :: mat_coords
 
     !> Init interpolator
-    call this%global_interp%init(dof%x(:,1,1,1), dof%y(:,1,1,1), &
-         dof%z(:,1,1,1), dof%msh%gdim, dof%msh%nelv, dof%Xh)
+    call this%global_interp%init(dof)
 
     !> find probes and redistribute them
     call this%global_interp%find_points_and_redist(this%xyz, &

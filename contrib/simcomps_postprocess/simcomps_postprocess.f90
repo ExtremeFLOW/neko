@@ -103,8 +103,7 @@ program simcomps_postprocess
 
   select type (s => simcomp)
   type is (probes_t)
-     call s%init_post(comp_subdict, empty_case, dof, Xh, fld_data%u, &
-          fld_data%v, fld_data%w, fld_data%p, fld_data%t)
+     call s%init_post(comp_subdict, empty_case, dof, Xh, fld_data)
   class default
      call neko_error("Problem")
   end select
