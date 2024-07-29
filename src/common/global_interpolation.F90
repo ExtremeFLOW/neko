@@ -149,6 +149,8 @@ contains
     !Number of points to iterate on simultaneosuly
     max_pts_per_iter = 128
 
+    print *, this%nelv, this%gdim, lx, ly, lz
+
     call fgslib_findpts_setup(this%gs_handle, &
          NEKO_COMM, pe_size, &
          dof%msh%gdim, &
