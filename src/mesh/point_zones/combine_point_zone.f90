@@ -231,21 +231,21 @@ contains
     integer :: i
 
     is_inside = this%zones(1)%pz%criterion(x, &
-               y, z, j, k, l, e) .neqv. this%zones(1)%pz%inverse
+               y, z, j, k, l, e) .neqv. this%zones(1)%pz%invert
 
     do i = 2, this%n_zones
        select case (trim(this%operator))
        case ("OR")
           is_inside = is_inside .or. (this%zones(i)%pz%criterion(x, &
-               y, z, j, k, l, e) .neqv. this%zones(i)%pz%inverse)
+               y, z, j, k, l, e) .neqv. this%zones(i)%pz%invert)
 
        case ("AND")
           is_inside = is_inside .and. (this%zones(i)%pz%criterion(x, &
-               y, z, j, k, l, e) .neqv. this%zones(i)%pz%inverse)
+               y, z, j, k, l, e) .neqv. this%zones(i)%pz%invert)
 
        case ("XOR")
           is_inside = is_inside .neqv. (this%zones(i)%pz%criterion(x, &
-               y, z, j, k, l, e).neqv. this%zones(i)%pz%inverse)
+               y, z, j, k, l, e).neqv. this%zones(i)%pz%invert)
 
        case default
        end select
