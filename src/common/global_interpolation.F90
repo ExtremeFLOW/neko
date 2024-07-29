@@ -129,41 +129,9 @@ contains
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
     real(kind=rp), optional :: tol
-    integer :: lx, ly, lz, nelv, max_pts_per_iter
 
-
-#ifdef HAVE_GSLIB
-
-    this%x%ptr => dof%x(:,1,1,1)
-    this%y%ptr => dof%y(:,1,1,1)
-    this%z%ptr => dof%z(:,1,1,1)
-
-    this%Xh => dof%Xh
-    if(present(tol)) this%tol = tol
-
-    lx = this%Xh%lx
-    ly = this%Xh%ly
-    lz = this%Xh%lz
-    this%gdim = dof%msh%gdim
-    this%nelv = dof%msh%nelv
-    !Number of points to iterate on simultaneosuly
-    max_pts_per_iter = 128
-
-    print *, this%nelv, this%gdim, lx, ly, lz
-
-    call fgslib_findpts_setup(this%gs_handle, &
-         NEKO_COMM, pe_size, &
-         dof%msh%gdim, &
-         dof%x, dof%y, dof%z, & ! Physical nodal values
-         lx, ly, lz, nelv, & ! Mesh dimensions
-         2*lx, 2*ly, 2*lz, & ! Mesh size for bounding box computation
-         0.01, & ! relative size to expand bounding boxes by
-         lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
-         max_pts_per_iter, this%tol)
-    this%gs_init = .true.
-#else
-    call neko_error('Neko needs to be built with GSLIB support')
-#endif
+    call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
+         dof%msh%gdim, dof%msh%nelv, dof%Xh, tol=tol)
 
   end subroutine global_interpolation_init_dof
 
