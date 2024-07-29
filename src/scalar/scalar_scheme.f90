@@ -72,6 +72,7 @@ module scalar_scheme
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series
+  use gradient_jump_penalty
   use time_step_controller, only : time_step_controller_t
   implicit none
 
@@ -149,6 +150,9 @@ module scalar_scheme
      logical :: variable_material_properties = .false.
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
+     !> Gradient jump panelty
+     logical :: if_gradient_jump_penalty
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -213,7 +217,8 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
+     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, &
+                                         dt_controller)
        import scalar_scheme_t
        import time_scheme_controller_t
        import time_step_controller_t
@@ -289,7 +294,7 @@ contains
 
     ! Create list with just Neumann bcs
     call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
-    do i=1, this%n_neumann_bcs
+    do i = 1, this%n_neumann_bcs
        call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
     end do
 
@@ -415,7 +420,7 @@ contains
     ! Setup right-hand side field.
     !
     allocate(this%f_Xh)
-    call this%f_Xh%init(this%dm_Xh, fld_name="scalar_rhs")
+    call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
     call this%source_term%init(params, this%f_Xh, this%c_Xh, user)
@@ -448,17 +453,28 @@ contains
     !
     this%field_dir_bc%update => user%user_dirichlet_update
 
-    call bc_list_init(this%field_dirichlet_bcs, size=1)
+    call bc_list_init(this%field_dirichlet_bcs, size = 1)
     call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
 
 
     ! todo parameter file ksp tol should be added
-    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
+    call json_get_or_default(params, &
+                             'case.fluid.velocity_solver.max_iterations', &
                              integer_val, 800)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_dirichlet, solver_precon)
+                                      this%c_Xh, this%dm_Xh, this%gs_Xh, &
+                                      this%bclst_dirichlet, solver_precon)
+   
+    ! Initiate gradient jump penalty
+    call json_get_or_default(params, &
+                            'case.scalar.gradient_jump_penalty',&
+                            this%if_gradient_jump_penalty, .false.)
+
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty%init(this%dm_Xh, this%c_Xh)
+    end if
 
     call neko_log%end_section()
 
@@ -500,6 +516,11 @@ contains
     ! Free everything related to field dirichlet BCs
     call bc_list_free(this%field_dirichlet_bcs)
     call this%field_dir_bc%free()
+
+    ! Free gradient jump penalty
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty%free()
+    end if
 
   end subroutine scalar_scheme_free
 
@@ -572,14 +593,14 @@ contains
 
     call precon_factory(pc, pctype)
 
-    select type(pcp => pc)
-    type is(jacobi_t)
+    select type (pcp => pc)
+    type is (jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
-    type is(hsmg_t)
+    type is (hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
              call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &

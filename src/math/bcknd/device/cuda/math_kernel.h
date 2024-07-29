@@ -642,4 +642,19 @@ __global__ void glsum_kernel(const T * a,
   
 }
 
+/**
+ * Device kernel for abs_value
+ */
+template< typename T >
+__global__ void absval_kernel(T * __restrict__ a,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = fabs(a[i]);
+  }
+}
+
 #endif // __MATH_MATH_KERNEL_H__
