@@ -88,6 +88,8 @@ module checkpoint
      final :: chkp_free
   end type chkp_t
 
+  public :: chkp_free
+
 contains
 
   !> Initialize checkpoint structure with mandatory data
