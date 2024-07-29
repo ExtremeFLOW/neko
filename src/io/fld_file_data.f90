@@ -196,9 +196,7 @@ contains
     type(global_interpolation_t) :: global_interp
 
     ! --- variables for interpolation
-    type(dofmap_t) :: fld_dof
     type(space_t) :: fld_Xh
-    type(mesh_t) :: fld_empty_mesh
     real(kind=rp), allocatable :: x_coords(:,:,:,:), y_coords(:,:,:,:), &
          z_coords(:,:,:,:)
     real(kind=rp) :: center_x,  center_y, center_z
@@ -216,14 +214,6 @@ contains
 
     ! Create a space based on the fld data
     call fld_Xh%init(GLL, this%lx,  this%ly, this%lz)
-
-    ! Initialize an "empty" mesh and construct a "stripped down"
-    ! dofmap that only has x, y,z coordinates. This is because
-    ! global_interpolator needs a dofmap in its init but in practice
-    ! only uses dof%x,  dof%y, dof%z
-    call fld_empty_mesh%init(this%gdim, this%nelv)
-    fld_dof = dofmap_t(this%x%x,  this%y%x,  this%z%x,  &
-         this%nelv, this%lx,  this%ly, this%lz)
 
     ! These are the coordinates of our current dofmap
     ! that we use for the interpolation
@@ -259,9 +249,8 @@ contains
 
     ! The initialization is done based on the variables created from
     ! fld data
-    call global_interp%init(fld_dof, tol = tolerance, Xh = fld_Xh, &
-         msh = fld_empty_mesh)
-
+    call global_interp%init(this%x%x, this%y%x, this%z%x, this%gdim, &
+         this%nelv, fld_Xh, tol = tolerance)
     call global_interp%find_points(x_coords, y_coords, z_coords, &
          to_dof%size())
 
