@@ -189,9 +189,11 @@ contains
        call this%scratch%clear()
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
+          this%mask = this%mask -1 !< Devices are 0-based
           call device_map(this%mask, this%mask_d, this%size)
           call device_memcpy(this%mask, this%mask_d, this%size, &
                              HOST_TO_DEVICE, sync=.false.)
+          this%mask = this%mask +1 !< Restore 1-based indexing
        end if
 
        this%finalized = .true.
