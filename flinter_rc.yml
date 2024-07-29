@@ -79,7 +79,7 @@ regexp-rules:
     message: Double spacing
     regexp: \S+\s{{2,}}\S+
     replacement: \n
-    active: true
+    active: false
 
   use-new-syntax-type:
     message: Use new syntax TYPE(kind)
@@ -114,7 +114,7 @@ regexp-rules:
 
   nospace-end:
     message: Missing space after `end'
-    regexp: end(if|do|subroutine|function)
+    regexp: (?<!\#)end(if|do|subroutine|function)
     replacement: end \1
     active: true
 

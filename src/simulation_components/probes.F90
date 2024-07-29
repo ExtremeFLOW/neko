@@ -92,7 +92,7 @@ module probes
      procedure, pass(this) :: init => probes_init_from_json
      ! Actual constructor
      procedure, pass(this) :: init_from_attributes => &
-       probes_init_from_attributes
+          probes_init_from_attributes
      !> Destructor
      procedure, pass(this) :: free => probes_free
      !> Setup offset for I/O when using sequential write/read from rank 0
@@ -141,7 +141,7 @@ contains
     call this%init_base(json, case)
 
     !> Read from case file
-    call json%info('fields', n_children=this%n_fields)
+    call json%info('fields', n_children = this%n_fields)
     call json_get(json, 'fields', this%which_fields)
     call json_get(json, 'output_file', output_file)
 
@@ -149,7 +149,7 @@ contains
     do i = 1, this%n_fields
 
        call this%sampled_fields%assign(i, &
-         & neko_field_registry%get_field(trim(this%which_fields(i))))
+            & neko_field_registry%get_field(trim(this%which_fields(i))))
     end do
 
     ! Setup the required arrays and initialize variables.
@@ -170,7 +170,7 @@ contains
 
     ! Go through the points list and construct the probe list
     call json%get('points', json_point_list)
-    call json%info('points', n_children=n_point_children)
+    call json%info('points', n_children = n_point_children)
 
     do idx = 1, n_point_children
        call json_extract_item(core, json_point_list, idx, json_point)
@@ -295,7 +295,7 @@ contains
     ! Calculate the direction vector
     direction = end - start
     do i = 1, n_points
-       t = real(i - 1, kind=rp) / real(n_points - 1, kind=rp)
+       t = real(i - 1, kind = rp) / real(n_points - 1, kind = rp)
        point_list(:, i) = start + direction * t
     end do
 
@@ -373,7 +373,7 @@ contains
 
     ! Calculate the points
     do i = 1, n_points
-       angle = 2.0_rp * pi * real(i - 1, kind=rp) / real(n_points, kind=rp)
+       angle = 2.0_rp * pi * real(i - 1, kind = rp) / real(n_points, kind = rp)
        temp = cos(angle) * zero_line + sin(angle) * cross_line
 
        point_list(:, i) = center + radius * temp
@@ -474,17 +474,18 @@ contains
          dof%z(:,1,1,1), dof%msh%gdim, dof%msh%nelv, dof%Xh)
 
     !> find probes and redistribute them
-    call this%global_interp%find_points_and_redist(this%xyz, this%n_local_probes)
+    call this%global_interp%find_points_and_redist(this%xyz, &
+                                                   this%n_local_probes)
 
     !> Allocate output array
-    allocate(this%out_values(this%n_local_probes,this%n_fields))
+    allocate(this%out_values(this%n_local_probes, this%n_fields))
     allocate(this%out_values_d(this%n_fields))
-    allocate(this%out_vals_trsp(this%n_fields,this%n_local_probes))
+    allocate(this%out_vals_trsp(this%n_fields, this%n_local_probes))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, this%n_fields
           this%out_values_d(i) = c_null_ptr
-          call device_map(this%out_values(:,i), this%out_values_d(i),&
+          call device_map(this%out_values(:,i), this%out_values_d(i), &
                           this%n_local_probes)
        end do
     end if
@@ -492,8 +493,10 @@ contains
     !> Initialize the output file
     this%fout = file_t(trim(output_file))
 
-    select type(ft => this%fout%file_type)
+    select type (ft => this%fout%file_type)
       type is (csv_file_t)
+
+       this%seq_io = .true.
 
        ! Build the header
        write(header_line, '(I0,A,I0)') this%n_global_probes, ",", this%n_fields
@@ -509,20 +512,19 @@ contains
        allocate(this%n_local_probes_tot_offset(pe_size))
        call this%setup_offset()
        if (pe_rank .eq. 0) then
-          allocate(global_output_coords(3,&
-                                        this%n_global_probes))
+          allocate(global_output_coords(3, this%n_global_probes))
           call this%mat_out%init(this%n_global_probes, this%n_fields)
-          allocate(this%global_output_values(this%n_fields,&
+          allocate(this%global_output_values(this%n_fields, &
                                              this%n_global_probes))
           call mat_coords%init(this%n_global_probes,3)
        end if
-       call MPI_Gatherv(this%xyz, 3*this%n_local_probes,&
-                        MPI_DOUBLE_PRECISION, global_output_coords,&
-                        3*this%n_local_probes_tot,&
-                        3*this%n_local_probes_tot_offset,&
+       call MPI_Gatherv(this%xyz, 3*this%n_local_probes, &
+                        MPI_DOUBLE_PRECISION, global_output_coords, &
+                        3*this%n_local_probes_tot, &
+                        3*this%n_local_probes_tot_offset, &
                         MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
        if (pe_rank .eq. 0) then
-          call trsp(mat_coords%x, this%n_global_probes,&
+          call trsp(mat_coords%x, this%n_global_probes, &
                     global_output_coords, 3)
           !! Write the data to the file
           call this%fout%write(mat_coords)
@@ -587,8 +589,9 @@ contains
     ! Field summary
     write(log_buf, '(A,I6)') "Number of fields: ", this%n_fields
     call neko_log%message(log_buf)
-    do i=1,this%n_fields
-       write(log_buf, '(A,I6, A ,A)') "Field: ", i, " ", trim(this%which_fields(i))
+    do i = 1, this%n_fields
+       write(log_buf, '(A,I6, A ,A)') &
+            "Field: ", i, " ", trim(this%which_fields(i))
        call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     end do
     call neko_log%end_section()
@@ -604,10 +607,12 @@ contains
     integer :: i
 
     do i = 1, this%n_local_probes
-       write (log_buf, *) pe_rank, "/", this%global_interp%proc_owner(i), "/" ,&
-         this%global_interp%el_owner(i), "/",this%global_interp%error_code(i)
+       write (log_buf, *) pe_rank, "/", this%global_interp%proc_owner(i), &
+            "/" , this%global_interp%el_owner(i), &
+            "/", this%global_interp%error_code(i)
        call neko_log%message(log_buf)
-       write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') "rst: ", this%global_interp%rst(:,i)
+       write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') &
+            "rst: ", this%global_interp%rst(:,i)
        call neko_log%message(log_buf)
     end do
   end subroutine probes_debug
@@ -619,14 +624,14 @@ contains
     this%n_local_probes_tot = 0
     this%n_local_probes_tot_offset = 0
     this%n_probes_offset = 0
-    call MPI_Gather(this%n_local_probes, 1, MPI_INTEGER,&
-                    this%n_local_probes_tot, 1, MPI_INTEGER,&
+    call MPI_Gather(this%n_local_probes, 1, MPI_INTEGER, &
+                    this%n_local_probes_tot, 1, MPI_INTEGER, &
                     0, NEKO_COMM, ierr)
 
     call MPI_Exscan(this%n_local_probes, this%n_probes_offset, 1, &
                     MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Gather(this%n_probes_offset, 1, MPI_INTEGER,&
-                    this%n_local_probes_tot_offset, 1, MPI_INTEGER,&
+    call MPI_Gather(this%n_probes_offset, 1, MPI_INTEGER, &
+                    this%n_local_probes_tot_offset, 1, MPI_INTEGER, &
                     0, NEKO_COMM, ierr)
 
 
@@ -644,15 +649,15 @@ contains
     integer :: i, ierr
 
     !> Check controller to determine if we must write
-    do i = 1,this%n_fields
+    do i = 1, this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
                                         this%sampled_fields%items(i)%ptr%x)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, this%n_fields
-          call device_memcpy(this%out_values(:,i),this%out_values_d(i),&
-                             this%n_local_probes, DEVICE_TO_HOST, sync=.true.)
+          call device_memcpy(this%out_values(:,i), this%out_values_d(i), &
+                             this%n_local_probes, DEVICE_TO_HOST, sync = .true.)
        end do
     end if
 
@@ -661,11 +666,12 @@ contains
        ! If io is only done at root
        if (this%seq_io) then
           call trsp(this%out_vals_trsp, this%n_fields, &
-                    this%out_values,this%n_local_probes)
-          call MPI_Gatherv(this%out_vals_trsp, this%n_fields*this%n_local_probes,&
-                           MPI_DOUBLE_PRECISION, this%global_output_values,&
-                           this%n_fields*this%n_local_probes_tot,&
-                           this%n_fields*this%n_local_probes_tot_offset,&
+                    this%out_values, this%n_local_probes)
+          call MPI_Gatherv(this%out_vals_trsp, &
+                           this%n_fields*this%n_local_probes, &
+                           MPI_DOUBLE_PRECISION, this%global_output_values, &
+                           this%n_fields*this%n_local_probes_tot, &
+                           this%n_fields*this%n_local_probes_tot_offset, &
                            MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
           if (pe_rank .eq. 0) then
              call trsp(this%mat_out%x, this%n_global_probes, &
@@ -684,7 +690,8 @@ contains
 
   !> Initialize the physical coordinates from a `csv` input file
   !! @param points_file A csv file containing probes.
-  subroutine read_probe_locations(this, xyz, n_local_probes, n_global_probes, points_file)
+  subroutine read_probe_locations(this, xyz, n_local_probes, n_global_probes, &
+                                  points_file)
     class(probes_t), intent(inout) :: this
     character(len=:), allocatable :: points_file
     real(kind=rp), allocatable :: xyz(:,:)
@@ -695,7 +702,7 @@ contains
 
     file_in = file_t(trim(points_file))
     !> Reads on rank 0 and distributes the probes across the different ranks
-    select type(ft => file_in%file_type)
+    select type (ft => file_in%file_type)
       type is (csv_file_t)
        call read_xyz_from_csv(xyz, n_local_probes, n_global_probes, ft)
        this%seq_io = .true.
@@ -728,14 +735,14 @@ contains
     ! Initialize the temporal array
     if (pe_rank .eq. 0) then
        n_local_probes = n_global_probes
-       allocate(xyz(3,n_local_probes))
+       allocate(xyz(3, n_local_probes))
        call mat_in%init(n_global_probes,3)
-       call mat_in2%init(3,n_global_probes)
+       call mat_in2%init(3, n_global_probes)
        call f%read(mat_in)
        call trsp(xyz, 3, mat_in%x, n_global_probes)
     else
        n_local_probes = 0
-       allocate(xyz(3,n_local_probes))
+       allocate(xyz(3, n_local_probes))
     end if
 
   end subroutine read_xyz_from_csv
