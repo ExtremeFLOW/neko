@@ -42,6 +42,8 @@ module global_interpolation
   use utils, only: neko_error, neko_warning
   use local_interpolation
   use comm
+  use dofmap, only: dofmap_t
+  use mesh, only: mesh_t
   use math, only: copy
   use neko_mpi_types
   use structs, only: array_ptr_t
@@ -60,7 +62,7 @@ module global_interpolation
      integer :: gdim
      !> Number of elements
      integer :: nelv
-     !> Space from which to interpolate
+     !> Space
      type(space_t), pointer :: Xh
      !> Interpolator for local points
      type(local_interpolator_t) :: local_interp
@@ -93,7 +95,8 @@ module global_interpolation
      real(kind=rp) :: tol = 5d-13
    contains
      !> Initialize the global interpolation object on a dofmap.
-     procedure, pass(this) :: init => global_interpolation_init
+     procedure, pass(this) :: init_xyz => global_interpolation_init_xyz
+     procedure, pass(this) :: init_dof => global_interpolation_init_dof
      !> Destructor
      procedure, pass(this) :: free => global_interpolation_free
      !> Destructor for arrays related to evaluation points
@@ -109,7 +112,10 @@ module global_interpolation
      generic :: find_points => find_points_xyz, find_points_coords
      !> Evaluate the value of the field in each point.
      procedure, pass(this) :: evaluate => global_interpolation_evaluate
-     !> Evaluate only local points
+
+     !> Generic constructor
+     generic :: init => init_dof, init_xyz
+
   end type global_interpolation_t
 
 contains
@@ -119,7 +125,55 @@ contains
   !! @param tol Tolerance for Newton iterations.
   !! @param Xh Space on which to interpolate.
   !! @param msh Mesh on which to interp
-  subroutine global_interpolation_init(this, x, y, z, gdim, nelv, Xh, tol)
+  subroutine global_interpolation_init_dof(this, dof, tol)
+    class(global_interpolation_t), intent(inout) :: this
+    type(dofmap_t), target :: dof
+    real(kind=rp), optional :: tol
+    integer :: lx, ly, lz, nelv, max_pts_per_iter
+
+
+#ifdef HAVE_GSLIB
+
+    this%x%ptr => dof%x(:,1,1,1)
+    this%y%ptr => dof%y(:,1,1,1)
+    this%z%ptr => dof%z(:,1,1,1)
+
+    this%Xh => dof%Xh
+    if(present(tol)) this%tol = tol
+
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
+    this%gdim = dof%msh%gdim
+    this%nelv = dof%msh%nelv
+    !Number of points to iterate on simultaneosuly
+    max_pts_per_iter = 128
+
+    call fgslib_findpts_setup(this%gs_handle, &
+         NEKO_COMM, pe_size, &
+         dof%msh%gdim, &
+         dof%x, dof%y, dof%z, & ! Physical nodal values
+         lx, ly, lz, nelv, & ! Mesh dimensions
+         2*lx, 2*ly, 2*lz, & ! Mesh size for bounding box computation
+         0.01, & ! relative size to expand bounding boxes by
+         lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
+         max_pts_per_iter, this%tol)
+    this%gs_init = .true.
+#else
+    call neko_error('Neko needs to be built with GSLIB support')
+#endif
+
+  end subroutine global_interpolation_init_dof
+
+  !> Initialize the global interpolation object on a set of coordinates.
+  !! @param x x-coordinates.
+  !! @param y y-coordinates.
+  !! @param z z-coordinates.
+  !! @param gdim Geometric dimension.
+  !! @param nelv Number of elements.
+  !! @param Xh Space on which to interpolate.
+  !! @param tol Tolerance for Newton iterations.
+  subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, tol)
     class(global_interpolation_t), intent(inout) :: this
     real(kind=rp), intent(in), target :: x(:)
     real(kind=rp), intent(in), target :: y(:)
@@ -160,7 +214,7 @@ contains
     call neko_error('Neko needs to be built with GSLIB support')
 #endif
 
-  end subroutine global_interpolation_init
+  end subroutine global_interpolation_init_xyz
 
 
   !> Destructor

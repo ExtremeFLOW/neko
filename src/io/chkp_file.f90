@@ -507,8 +507,7 @@ contains
                   center_z)
           end do
        end do
-       call this%global_interp%init(dof%x(:,1,1,1), dof%y(:,1,1,1), &
-            dof%z(:,1,1,1), dof%msh%gdim, dof%msh%nelv, dof%Xh, tol=tol)
+       call this%global_interp%init(dof, tol = tol)
        call this%global_interp%find_points(x_coord,y_coord,z_coord,u%dof%size())
        deallocate(x_coord)
        deallocate(y_coord)
