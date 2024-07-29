@@ -470,7 +470,8 @@ contains
     type(matrix_t) :: mat_coords
 
     !> Init interpolator
-    call this%global_interp%init(dof)
+    call this%global_interp%init(dof%x(:,1,1,1), dof%y(:,1,1,1), &
+         dof%z(:,1,1,1), dof%msh%gdim, dof%msh%nelv, dof%Xh)
 
     !> find probes and redistribute them
     call this%global_interp%find_points_and_redist(this%xyz, this%n_local_probes)
