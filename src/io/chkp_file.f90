@@ -373,7 +373,7 @@ contains
     logical :: read_lag, read_scalar, read_dtlag, read_abvel, read_scalarlag
     real(kind=rp) :: tol
     real(kind=rp) :: center_x, center_y, center_z
-    integer :: i, e
+    integer :: i, e, size_lag
     type(dofmap_t) :: dof
    
     call this%check_exists()
@@ -499,12 +499,15 @@ contains
           center_y = center_y/u%Xh%lxyz
           center_z = center_z/u%Xh%lxyz
           do i = 1,u%dof%Xh%lxyz
-             x_coord(i,1,1,e) = u%dof%x(i,1,1,e) - tol*(u%dof%x(i,1,1,e)-center_x)
-             y_coord(i,1,1,e) = u%dof%y(i,1,1,e) - tol*(u%dof%y(i,1,1,e)-center_y)
-             z_coord(i,1,1,e) = u%dof%z(i,1,1,e) - tol*(u%dof%z(i,1,1,e)-center_z)
+             x_coord(i,1,1,e) = u%dof%x(i,1,1,e) - tol * (u%dof%x(i,1,1,e) - &
+                  center_x)
+             y_coord(i,1,1,e) = u%dof%y(i,1,1,e) - tol * (u%dof%y(i,1,1,e) - &
+                  center_y)
+             z_coord(i,1,1,e) = u%dof%z(i,1,1,e) - tol * (u%dof%z(i,1,1,e) - &
+                  center_z)
           end do
        end do
-       call this%global_interp%init(dof,tol=tol)
+       call this%global_interp%init(dof, tol = tol)
        call this%global_interp%find_points(x_coord,y_coord,z_coord,u%dof%size())
        deallocate(x_coord)
        deallocate(y_coord)
@@ -519,11 +522,13 @@ contains
     ! Read mandatory checkpoint data
     !
 
-    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + &
+         int(MPI_DOUBLE_PRECISION_SIZE,i8)
     byte_offset = byte_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
     call this%read_field(fh, byte_offset, u%x, nel)
-    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + &
+         int(MPI_DOUBLE_PRECISION_SIZE,i8)
     mpi_offset = mpi_offset +&
          n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
@@ -545,26 +550,41 @@ contains
     !
     ! Read optional payload
     !
+    if (have_lag .eq. 1) then
 
-    if (read_lag) then
-       do i = 1, ulag%size()
+       ! If we have a lag, use its size, otherwise guess the size from
+       ! how it is currently initialized in `fluid`
+       if (read_lag) size_lag = ulag%size()
+       size_lag = 2
+
+       do i = 1, size_lag
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call this%read_field(fh, byte_offset, ulag%lf(i)%x, nel)
+          if (read_lag) call this%read_field(fh, byte_offset, ulag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
 
-       do i = 1, vlag%size()
+       ! If we have a lag, use its size, otherwise guess the size from
+       ! how it is currently initialized in `fluid`
+       if (read_lag) size_lag = vlag%size()
+       size_lag = 2
+
+       do i = 1, size_lag
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call this%read_field(fh, byte_offset, vlag%lf(i)%x, nel)
+          if (read_lag) call this%read_field(fh, byte_offset, vlag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
 
-       do i = 1, wlag%size()
+       ! If we have a lag, use its size, otherwise guess the size from
+       ! how it is currently initialized in `fluid`
+       if (read_lag) size_lag = wlag%size()
+       size_lag = 2
+
+       do i = 1, size_lag
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call this%read_field(fh, byte_offset, wlag%lf(i)%x, nel)
+          if (read_lag) call this%read_field(fh, byte_offset, wlag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
     end if
@@ -577,9 +597,11 @@ contains
     end if
 
     if (read_dtlag .and. have_dtlag .eq. 1) then
-       call MPI_File_read_at_all(fh, mpi_offset, tlag, 10, MPI_REAL_PRECISION, status, ierr)
+       call MPI_File_read_at_all(fh, mpi_offset, tlag, 10, &
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + 10_i8 * int(MPI_REAL_PREC_SIZE, i8)
-       call MPI_File_read_at_all(fh, mpi_offset, dtlag, 10, MPI_REAL_PRECISION, status, ierr)
+       call MPI_File_read_at_all(fh, mpi_offset, dtlag, 10, &
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + 10_i8 * int(MPI_REAL_PREC_SIZE, i8)
     end if
 

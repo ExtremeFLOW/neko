@@ -55,7 +55,7 @@ module case
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
-  use jobctrl, only :  jobctrl_set_time_limit
+  use jobctrl, only : jobctrl_set_time_limit
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
   use json_module, only : json_file, json_core, json_value
@@ -83,7 +83,7 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
-     type(material_properties_t):: material_properties
+     type(material_properties_t) :: material_properties
   end type case_t
 
   interface case_init
@@ -106,13 +106,13 @@ contains
                           NEKO_LOG_QUIET)
 
     if (pe_rank .eq. 0) then
-       call C%params%load_file(filename=trim(case_file))
+       call C%params%load_file(filename = trim(case_file))
        call C%params%print_to_string(json_buffer)
        integer_val = len(json_buffer)
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-    if (pe_rank .ne. 0) allocate(character(len=integer_val)::json_buffer)
+    if (pe_rank .ne. 0) allocate(character(len = integer_val) :: json_buffer)
     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
     call C%params%load_from_string(json_buffer)
 
@@ -139,7 +139,7 @@ contains
   !> Initialize a case from its (loaded) params object
   subroutine case_init_common(C)
     type(case_t), target, intent(inout) :: C
-    character(len=:), allocatable :: output_directory
+    character(len = :), allocatable :: output_directory
     integer :: lx = 0
     logical :: scalar = .false.
     type(file_t) :: msh_file, bdry_file, part_file
@@ -147,9 +147,9 @@ contains
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
-    character(len=:), allocatable :: string_val
+    character(len = :), allocatable :: string_val
     real(kind=rp) :: stats_start_time, stats_output_val
-    integer ::  stats_sampling_interval
+    integer :: stats_sampling_interval
     integer :: output_dir_len
     integer :: precision
 
@@ -218,8 +218,8 @@ contains
     call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
     C%fluid%chkp%tlag => C%tlag
     C%fluid%chkp%dtlag => C%dtlag
-    select type(f => C%fluid)
-    type is(fluid_pnpn_t)
+    select type (f => C%fluid)
+    type is (fluid_pnpn_t)
        f%chkp%abx1 => f%abx1
        f%chkp%abx2 => f%abx2
        f%chkp%aby1 => f%aby1
@@ -274,6 +274,10 @@ contains
     !
     call json_get(C%params, 'case.fluid.initial_condition.type',&
                   string_val)
+
+    call neko_log%section("Fluid initial condition ")
+    call neko_log%message("Type: " // trim(string_val))
+
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
             C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
@@ -282,8 +286,15 @@ contains
             C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
     end if
 
+    call neko_log%end_section()
+
     if (scalar) then
+
        call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
+
+       call neko_log%section("Scalar initial condition ")
+       call neko_log%message("Type: " // trim(string_val))
+
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
@@ -291,11 +302,14 @@ contains
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
        end if
+
+       call neko_log%end_section()
+
     end if
 
     ! Add initial conditions to BDF scheme (if present)
-    select type(f => C%fluid)
-    type is(fluid_pnpn_t)
+    select type (f => C%fluid)
+    type is (fluid_pnpn_t)
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
@@ -374,10 +388,10 @@ contains
     call C%s%init(C%end_time)
     if (scalar) then
        C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
-            path=trim(output_directory))
+            path = trim(output_directory))
     else
        C%f_out = fluid_output_t(precision, C%fluid, &
-            path=trim(output_directory))
+            path = trim(output_directory))
     end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
@@ -405,7 +419,7 @@ contains
     if (logical_val) then
        call json_get_or_default(C%params, 'case.checkpoint_format', &
             string_val, "chkp")
-       C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory, &
+       C%f_chkp = chkp_output_t(C%fluid%chkp, path = output_directory, &
             fmt=trim(string_val))
        call json_get_or_default(C%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
@@ -442,7 +456,7 @@ contains
           call C%q%add(C%fluid%mean%p)
 
           C%f_mf = mean_flow_output_t(C%fluid%mean, stats_start_time, &
-                                      path=output_directory)
+                                      path = output_directory)
 
           call json_get(C%params, 'case.statistics.output_control', &
                         string_val)
@@ -453,7 +467,7 @@ contains
           call C%q%add(C%fluid%stats)
 
           C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
-            stats_start_time, path=output_directory)
+            stats_start_time, path = output_directory)
           call C%s%add(C%f_stats_output, stats_output_val, string_val)
        end if
     end if
@@ -467,7 +481,7 @@ contains
 !       if (C%params%output_mean_sqr_flow) then
 !          C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
 !                                             C%params%stats_begin, &
-!                                             path=output_directory)
+!                                             path = output_directory)
 !          call C%s%add(C%f_msqrf, C%params%stats_write_par, &
 !               C%params%stats_write_control)
 !       end if

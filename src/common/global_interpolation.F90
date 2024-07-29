@@ -38,23 +38,30 @@
 module global_interpolation
   use num_types, only: rp
   use space, only: space_t
-  use dofmap, only: dofmap_t
-  use mesh, only: mesh_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
   use local_interpolation
   use comm
+  use dofmap, only: dofmap_t
+  use mesh, only: mesh_t
   use math, only: copy
   use neko_mpi_types
+  use structs, only: array_ptr_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
-     !> Dofmap from which we interpolate the points
-     type(dofmap_t), pointer :: dof
-     !> Mesh on which we interpolate
-     type(mesh_t), pointer :: mesh
+     !> X coordinates from which to interpolate
+     type(array_ptr_t) :: x
+     !> Y coordinates from which to interpolate
+     type(array_ptr_t) :: y
+     !> Z coordinates from which to interpolate
+     type(array_ptr_t) :: z
+     !> Geometric dimension of the simulation
+     integer :: gdim
+     !> Number of elements
+     integer :: nelv
      !> Space
      type(space_t), pointer :: Xh
      !> Interpolator for local points
@@ -85,10 +92,11 @@ module global_interpolation
      !> Error code for each point, needed for gslib
      integer, allocatable :: error_code(:)
      !> Tolerance for distance squared between original and interpolated point
-     real(kind=rp) :: tol = 5e-13
+     real(kind=rp) :: tol = 5d-13
    contains
      !> Initialize the global interpolation object on a dofmap.
-     procedure, pass(this) :: init => global_interpolation_init
+     procedure, pass(this) :: init_xyz => global_interpolation_init_xyz
+     procedure, pass(this) :: init_dof => global_interpolation_init_dof
      !> Destructor
      procedure, pass(this) :: free => global_interpolation_free
      !> Destructor for arrays related to evaluation points
@@ -98,42 +106,52 @@ module global_interpolation
      !> Finds the process owner, global element number,
      !! and local rst coordinates for each point.
      !! Sets up correct values to be able to evalute the points
-     procedure, pass(this) :: find_points_coords => global_interpolation_find_coords
+     procedure, pass(this) :: find_points_coords => &
+          global_interpolation_find_coords
      procedure, pass(this) :: find_points_xyz => global_interpolation_find_xyz
      generic :: find_points => find_points_xyz, find_points_coords
      !> Evaluate the value of the field in each point.
      procedure, pass(this) :: evaluate => global_interpolation_evaluate
-     !> Evaluate only local points
+
+     !> Generic constructor
+     generic :: init => init_dof, init_xyz
+
   end type global_interpolation_t
 
-
 contains
-  !> Initialize user defined variables.
+
+  !> Initialize the global interpolation object on a dofmap.
   !! @param dof Dofmap on which the interpolation is to be carried out.
   !! @param tol Tolerance for Newton iterations.
-  subroutine global_interpolation_init(this, dof, tol)
+  !! @param Xh Space on which to interpolate.
+  !! @param msh Mesh on which to interp
+  subroutine global_interpolation_init_dof(this, dof, tol)
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
     real(kind=rp), optional :: tol
     integer :: lx, ly, lz, nelv, max_pts_per_iter
 
-    this%dof => dof
-    this%Xh => dof%Xh
-    this%mesh => dof%msh
-    if(present(tol)) this%tol = tol
 
 #ifdef HAVE_GSLIB
+
+    this%x%ptr => dof%x(:,1,1,1)
+    this%y%ptr => dof%y(:,1,1,1)
+    this%z%ptr => dof%z(:,1,1,1)
+
+    this%Xh => dof%Xh
+    if(present(tol)) this%tol = tol
 
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
-    nelv = this%mesh%nelv
+    this%gdim = dof%msh%gdim
+    this%nelv = dof%msh%nelv
     !Number of points to iterate on simultaneosuly
     max_pts_per_iter = 128
 
     call fgslib_findpts_setup(this%gs_handle, &
          NEKO_COMM, pe_size, &
-         this%mesh%gdim, &
+         dof%msh%gdim, &
          dof%x, dof%y, dof%z, & ! Physical nodal values
          lx, ly, lz, nelv, & ! Mesh dimensions
          2*lx, 2*ly, 2*lz, & ! Mesh size for bounding box computation
@@ -145,16 +163,71 @@ contains
     call neko_error('Neko needs to be built with GSLIB support')
 #endif
 
-  end subroutine global_interpolation_init
+  end subroutine global_interpolation_init_dof
+
+  !> Initialize the global interpolation object on a set of coordinates.
+  !! @param x x-coordinates.
+  !! @param y y-coordinates.
+  !! @param z z-coordinates.
+  !! @param gdim Geometric dimension.
+  !! @param nelv Number of elements.
+  !! @param Xh Space on which to interpolate.
+  !! @param tol Tolerance for Newton iterations.
+  subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, tol)
+    class(global_interpolation_t), intent(inout) :: this
+    real(kind=rp), intent(in), target :: x(:)
+    real(kind=rp), intent(in), target :: y(:)
+    real(kind=rp), intent(in), target :: z(:)
+    integer, intent(in) :: gdim
+    integer, intent(in) :: nelv
+    type(space_t), intent(in), target :: Xh
+    real(kind=rp), intent(in), optional :: tol
+    integer :: lx, ly, lz, max_pts_per_iter
+
+#ifdef HAVE_GSLIB
+
+    this%x%ptr => x
+    this%y%ptr => y
+    this%z%ptr => z
+    this%gdim = gdim
+    this%nelv = nelv
+    this%Xh => Xh
+    if (present(tol)) this%tol = tol
+
+    ! Number of points to iterate on simultaneosuly
+    max_pts_per_iter = 128
+    lx = Xh%lx
+    ly = Xh%ly
+    lz = Xh%lz
+
+    call fgslib_findpts_setup(this%gs_handle, &
+         NEKO_COMM, pe_size, &
+         this%gdim, &
+         this%x%ptr, this%y%ptr, this%z%ptr, & ! Physical nodal values
+         lx, ly, lz, nelv, & ! Mesh dimensions
+         2*lx, 2*ly, 2*lz, & ! Mesh size for bounding box computation
+         0.01, & ! relative size to expand bounding boxes by
+         lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
+         max_pts_per_iter, this%tol)
+    this%gs_init = .true.
+#else
+    call neko_error('Neko needs to be built with GSLIB support')
+#endif
+
+  end subroutine global_interpolation_init_xyz
 
 
   !> Destructor
   subroutine global_interpolation_free(this)
     class(global_interpolation_t), intent(inout) :: this
 
-    nullify(this%mesh)
-    nullify(this%dof)
+    nullify(this%x%ptr)
+    nullify(this%y%ptr)
+    nullify(this%z%ptr)
     nullify(this%Xh)
+
+    this%nelv = 0
+    this%gdim = 0
 
     call this%free_points()
 
@@ -174,11 +247,11 @@ contains
     this%n_points = 0
     this%all_points_local = .false.
 
-    if (allocated(this%xyz))        deallocate(this%xyz)
-    if (allocated(this%rst))        deallocate(this%rst)
+    if (allocated(this%xyz)) deallocate(this%xyz)
+    if (allocated(this%rst)) deallocate(this%rst)
     if (allocated(this%proc_owner)) deallocate(this%proc_owner)
-    if (allocated(this%el_owner))   deallocate(this%el_owner)
-    if (allocated(this%dist2))       deallocate(this%dist2)
+    if (allocated(this%el_owner)) deallocate(this%el_owner)
+    if (allocated(this%dist2)) deallocate(this%dist2)
     if (allocated(this%error_code)) deallocate(this%error_code)
 
     if (c_associated(this%el_owner_d)) then
@@ -207,13 +280,13 @@ contains
          this%error_code, 1, &
          this%proc_owner, 1, &
          this%el_owner, 1, &
-         this%rst, this%mesh%gdim, &
+         this%rst, this%gdim, &
          this%dist2, 1, &
-         this%xyz(1,1), this%mesh%gdim, &
-         this%xyz(2,1), this%mesh%gdim, &
-         this%xyz(3,1), this%mesh%gdim, this%n_points)
+         this%xyz(1,1), this%gdim, &
+         this%xyz(2,1), this%gdim, &
+         this%xyz(3,1), this%gdim, this%n_points)
 
-    do i=1,this%n_points
+    do i = 1 , this%n_points
 
        !
        ! Check validity of points
@@ -236,7 +309,8 @@ contains
                 ' Interpolation on these points will return 0.0. dist2: ', &
                 this%dist2(i),&
                 'el_owner, rst coords, pe: ',&
-                this%el_owner(i), this%rst(1,i), this%rst(2,i), this%rst(3,i), pe_rank
+                this%el_owner(i), this%rst(1,i), this%rst(2,i), &
+                this%rst(3,i), pe_rank
 
     end do
 
@@ -247,23 +321,22 @@ contains
     call fgslib_findpts_eval(this%gs_handle, x_check, &
                              1, this%error_code, 1, &
                              this%proc_owner, 1, this%el_owner, 1, &
-                             this%rst, this%mesh%gdim, &
-                             this%n_points, this%dof%x)
+                             this%rst, this%gdim, &
+                             this%n_points, this%x%ptr)
 
     call fgslib_findpts_eval(this%gs_handle, y_check, &
                              1, this%error_code, 1, &
                              this%proc_owner, 1, this%el_owner, 1, &
-                             this%rst, this%mesh%gdim, &
-                             this%n_points, this%dof%y)
+                             this%rst, this%gdim, &
+                             this%n_points, this%y%ptr)
 
     call fgslib_findpts_eval(this%gs_handle, z_check, &
                              1, this%error_code, 1, &
                              this%proc_owner, 1, this%el_owner, 1, &
-                             this%rst, this%mesh%gdim, &
-                             this%n_points, this%dof%z)
+                             this%rst, this%gdim, &
+                             this%n_points, this%z%ptr)
 
-
-    do i=1,this%n_points
+    do i = 1 , this%n_points
 
        !
        ! Check validity of points
@@ -277,11 +350,11 @@ contains
        if ( zdiff .gt. this%tol) isdiff = .true.
 
        if (isdiff) then
-          write(*,*) 'Points with coords: ',&
-                this%xyz(1,i),this%xyz(2,i),this%xyz(3,i), &
-                'Differ from interpolated coords: ',&
-                x_check(i), y_check(i), z_check(i),&
-                'Distance squared: ',&
+          write(*,*) 'Points with coords: ', &
+                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
+                'Differ from interpolated coords: ', &
+                x_check(i), y_check(i), z_check(i), &
+                'Distance squared: ', &
                 xdiff, ydiff, zdiff
        end if
 
@@ -330,9 +403,9 @@ contains
     call global_interpolation_init_point_arrays(this)
 
     do i = 1, n_points
-       this%xyz(1,i) = x(i,1,1,1)
-       this%xyz(2,i) = y(i,1,1,1)
-       this%xyz(3,i) = z(i,1,1,1)
+       this%xyz(1, i) = x(i,1,1,1)
+       this%xyz(2, i) = y(i,1,1,1)
+       this%xyz(3, i) = z(i,1,1,1)
     end do
 
     call global_interpolation_find_common(this)
@@ -342,15 +415,15 @@ contains
   subroutine global_interpolation_init_point_arrays(this)
     class(global_interpolation_t) :: this
 
-    allocate(this%xyz(3,this%n_points))
-    allocate(this%rst(3,this%n_points))
+    allocate(this%xyz(3, this%n_points))
+    allocate(this%rst(3, this%n_points))
     allocate(this%proc_owner(this%n_points))
     allocate(this%el_owner(this%n_points))
     allocate(this%dist2(this%n_points))
     allocate(this%error_code(this%n_points))
 
     if (NEKO_BCKND_DEVICE .eq. 1) &
-       call device_map(this%el_owner, this%el_owner_d,this%n_points)
+       call device_map(this%el_owner, this%el_owner_d, this%n_points)
 
   end subroutine global_interpolation_init_point_arrays
 
@@ -368,7 +441,7 @@ contains
     class(global_interpolation_t), intent(inout) :: this
     integer, intent(in) :: n_points
     !!Perhaps this should be kind dp
-    real(kind=rp), intent(inout) :: xyz(3,n_points)
+    real(kind=rp), intent(inout) :: xyz(3, n_points)
 
 
     call this%free_points()
@@ -378,7 +451,7 @@ contains
     call global_interpolation_init_point_arrays(this)
 
     !> make deep copy incase xyz goes out of scope or deallocated
-    call copy(this%xyz,xyz,3*n_points)
+    call copy(this%xyz, xyz, 3 * n_points)
 
     call global_interpolation_find_common(this)
 
@@ -408,7 +481,7 @@ contains
     call global_interpolation_init_point_arrays(this)
 
     !> make deep copy incase xyz goes out of scope or deallocated
-    call copy(this%xyz,xyz,3*n_points)
+    call copy(this%xyz, xyz, 3 * n_points)
 
     call global_interpolation_find_common(this)
     !> Sets new points and redistributes them
@@ -417,17 +490,17 @@ contains
 
     do i = 1, this%n_points
        if (this%proc_owner(i) .ne. pe_rank) then
-          write(*,*) 'Redistribution failed on rank: ', pe_rank,&
+          write(*,*) 'Redistribution failed on rank: ', pe_rank, &
                      'for point with coord: ', &
-                     this%xyz(1,i),this%xyz(2,i),this%xyz(3,i)
+                     this%xyz(1, i), this%xyz(2, i), this%xyz(3, i)
           exit
        end if
     end do
 
     n_points = this%n_points
     deallocate(xyz)
-    allocate(xyz(3,n_points))
-    call copy(xyz,this%xyz,3*n_points)
+    allocate(xyz(3, n_points))
+    call copy(xyz, this%xyz, 3*n_points)
 
     call this%local_interp%init(this%Xh, this%rst(1,:),&
                                 this%rst(2,:), this%rst(3,:), n_points)
@@ -452,28 +525,30 @@ contains
     n_points_per_pe = 0
     n_points_from_pe = 0
     !> Calculate which processes this proc has points on
-    do i = 1,this%n_points
-       n_points_per_pe(this%proc_owner(i)) = n_points_per_pe(this%proc_owner(i)) + 1
+    do i = 1, this%n_points
+       n_points_per_pe(this%proc_owner(i)) = &
+            n_points_per_pe(this%proc_owner(i)) + 1
     end do
     !> Sum number of points on all pes to compute n_new_points
     !! Store how many points to receive from each pe
-    do i = 0,(pe_size-1)
-       call MPI_Reduce(n_points_per_pe(i),n_new_points,1,MPI_INTEGER,MPI_SUM, i, NEKO_COMM, ierr)
+    do i = 0, (pe_size - 1)
+       call MPI_Reduce(n_points_per_pe(i), n_new_points, 1, MPI_INTEGER, &
+            MPI_SUM, i, NEKO_COMM, ierr)
        call MPI_Gather(n_points_per_pe(i), 1, MPI_INTEGER,&
                       n_points_from_pe, 1, MPI_INTEGER, i, NEKO_COMM, ierr)
     end do
 
     allocate(n_point_offset_from_pe(0:(pe_size-1)))
     n_point_offset_from_pe(0) = 0
-    do i = 1,(pe_size-1)
+    do i = 1, (pe_size - 1)
        n_point_offset_from_pe(i) = n_points_from_pe(i-1)&
                                  + n_point_offset_from_pe(i-1)
     end do
 
-    allocate(new_xyz(3,n_new_points))
+    allocate(new_xyz(3, n_new_points))
     max_n_points_to_send = maxval(n_points_per_pe)
-    allocate(xyz_send_to_pe(3,max_n_points_to_send))
-    do i = 0, (pe_size-1)
+    allocate(xyz_send_to_pe(3, max_n_points_to_send))
+    do i = 0, (pe_size - 1)
        !> This could be avoided by adding all indices to a list
        k = 0
        do j = 1, this%n_points
@@ -499,7 +574,7 @@ contains
 
     this%n_points = n_new_points
     call global_interpolation_init_point_arrays(this)
-    call copy(this%xyz,new_xyz,3*n_new_points)
+    call copy(this%xyz, new_xyz, 3 * n_new_points)
 
     deallocate(n_point_offset_from_pe)
     deallocate(n_points_from_pe)
@@ -516,19 +591,19 @@ contains
   subroutine global_interpolation_evaluate(this, interp_values, field)
     class(global_interpolation_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: interp_values(this%n_points)
-    real(kind=rp), intent(inout) :: field(this%dof%size())
+    real(kind=rp), intent(inout) :: field(this%nelv*this%Xh%lxyz)
 
 #ifdef HAVE_GSLIB
     if (.not. this%all_points_local) then
        call fgslib_findpts_eval(this%gs_handle, interp_values, &
                                 1, this%error_code, 1, &
                                 this%proc_owner, 1, this%el_owner, 1, &
-                                this%rst, this%mesh%gdim, &
+                                this%rst, this%gdim, &
                                 this%n_points, field)
     else
        if (this%n_points .gt. 0) &
           call this%local_interp%evaluate(interp_values, this%el_owner,&
-                                          field, this%mesh%nelv)
+                                          field, this%nelv)
     end if
 #else
     call neko_error('Neko needs to be built with GSLIB support')

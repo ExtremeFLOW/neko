@@ -33,21 +33,30 @@
 !> Initial flow condition
 module flow_ic
   use num_types, only : rp
+  use logger, only: neko_log, LOG_SIZE
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
     blasius_quadratic, blasius_quartic, blasius_sin
   use device, only: device_memcpy, HOST_TO_DEVICE
   use field, only : field_t
-  use utils, only : neko_error
+  use utils, only : neko_error, filename_suffix, filename_chsuffix, &
+       neko_warning, NEKO_FNAME_LEN
   use coefs, only : coef_t
-  use math, only : col2, cfill, cfill_mask
+  use math, only : col2, cfill, cfill_mask, copy
   use device_math, only : device_col2, device_cfill, device_cfill_mask
   use user_intf, only : useric
   use json_module, only : json_file
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_default
   use point_zone, only: point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
+  use fld_file_data, only: fld_file_data_t
+  use fld_file, only: fld_file_t
+  use checkpoint, only: chkp_t
+  use file, only: file_t
+  use global_interpolation, only: global_interpolation_t
+  use interpolation, only: interpolator_t
+  use space, only: space_t, GLL
   implicit none
   private
 
@@ -69,28 +78,187 @@ contains
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
     type(json_file), intent(inout) :: params
-    real(kind=rp) :: delta
+    real(kind=rp) :: delta, tol
     real(kind=rp), allocatable :: uinf(:)
     real(kind=rp), allocatable :: zone_value(:)
-    character(len=:), allocatable :: blasius_approximation
-    character(len=:), allocatable :: zone_name
+    character(len=:), allocatable :: read_str
+    character(len=80) :: suffix
+    character(len=NEKO_FNAME_LEN) :: fname, prev_mesh
+    integer :: sample_idx, fpos, sample_mesh_idx
+    logical :: found_previous_mesh, interpolate
+    character(len=LOG_SIZE) :: log_buf
 
+    !
+    ! Uniform (Uinf, Vinf, Winf)
+    !
     if (trim(type) .eq. 'uniform') then
+
        call json_get(params, 'case.fluid.initial_condition.value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
+       write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", uinf(1), &
+            uinf(2), uinf(3)
+       call neko_log%message(log_buf)
+
+    !
+    ! Blasius boundary layer
+    !
     else if (trim(type) .eq. 'blasius') then
+
        call json_get(params, 'case.fluid.blasius.delta', delta)
        call json_get(params, 'case.fluid.blasius.approximation', &
-                     blasius_approximation)
+                     read_str)
        call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
-       call set_flow_ic_blasius(u, v, w, delta, uinf, blasius_approximation)
+
+       write (log_buf, '(A,F10.6)') "delta       : ", delta
+       call neko_log%message(log_buf)
+       call neko_log%message("Approximation: " // trim(read_str))
+       write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", uinf(1), &
+            uinf(2), uinf(3)
+       call neko_log%message(log_buf)
+
+       call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
+
+    !
+    ! Point zone initial condition
+    !
     else if (trim(type) .eq. 'point_zone') then
+
        call json_get(params, 'case.fluid.initial_condition.base_value', uinf)
        call json_get(params, 'case.fluid.initial_condition.zone_name', &
-                     zone_name)
+                     read_str)
        call json_get(params, 'case.fluid.initial_condition.zone_value', &
-                     zone_value)
-       call set_flow_ic_point_zone(u, v, w, uinf, zone_name, zone_value)
+            zone_value)
+
+       write (log_buf, '(A,F10.6)') "Base value: ", uinf
+       call neko_log%message(log_buf)
+       call neko_log%message("Zone name : " // trim(read_str))
+       write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", &
+            zone_value(1), zone_value(2), zone_value(3)
+       call neko_log%message(log_buf)
+
+       call set_flow_ic_point_zone(u, v, w, uinf, read_str, zone_value)
+
+    !
+    ! Field initial condition (from chkp or fld file)
+    !
+    else if (trim(type) .eq. 'field') then
+
+       call json_get(params, 'case.fluid.initial_condition.file_name', &
+            read_str)
+       fname = trim(read_str)
+       call filename_suffix(fname, suffix)
+       call neko_log%message("File name: " // trim(fname))
+
+       if (trim(suffix) .eq. "chkp") then
+
+          ! Look for parameters for interpolation
+          call params%get("case.fluid.initial_condition.previous_mesh", &
+               read_str, found_previous_mesh)
+
+          ! Get tolerance for potential interpolation
+          call json_get_or_default(params, &
+               'case.fluid.initial_condition.tolerance', tol, 1d-6)
+
+          if (found_previous_mesh) then
+             prev_mesh = trim(read_str)
+             call neko_log%message("Previous mesh: " // trim(prev_mesh))
+             write (log_buf, '(A,E15.7)') "Tolerance    : ", tol
+             call neko_log%message(log_buf)
+          end if
+
+          if (found_previous_mesh) then
+             call set_flow_ic_chkp(u, v, w, p, fname, &
+                  previous_mesh_fname = prev_mesh, tol = tol)
+          else
+             call set_flow_ic_chkp(u, v, w, p, fname)
+          end if
+
+       else !if it's not a chkp we assume it's a fld file
+
+          ! Get the index of the file to sample
+          call json_get_or_default(params, &
+               'case.fluid.initial_condition.sample_index', sample_idx, -1)
+
+          if (sample_idx .ne. -1) then
+             write (log_buf, '(A,I5)') "Sample index: ", sample_idx
+             call neko_log%message(log_buf)
+          end if
+
+          ! If it's not chkp or fld assume it's either .nek5000 or .f00*
+          if (trim(suffix) .ne. "fld") then
+
+             ! Check if the suffix is of type "f000*", and if so extract
+             ! the index e.g. "f00035" --> 35
+             ! NOTE: overwrites whatever is in sampled_index
+             fpos = scan(suffix, 'f')
+             if (fpos .eq. 1) then
+                if (sample_idx .ne. -1) &
+                     call neko_warning("Overwriting sample index")
+                read (suffix(2:), "(I5.5)") sample_idx
+             end if
+
+             call filename_chsuffix(fname, fname, 'fld')
+
+          end if
+
+          ! Check if we want to interpolate our field, default is no
+          call json_get_or_default(params, &
+               'case.fluid.initial_condition.interpolate', interpolate, &
+               .false.)
+
+          ! Get the tolerance for potential interpolationm defaults to
+          ! the same value as for interpolation in chkp_t
+          call json_get_or_default(params, &
+               'case.fluid.initial_condition.tolerance', tol, 1d-6)
+
+          ! Attempt to find a path to where the coordinates are written
+          call json_get_or_default(params, &
+               'case.fluid.initial_condition.mesh_file_name', read_str, &
+               "none")
+
+          if (trim(read_str) .eq. "none") then
+             ! If no mesh file is provided, try to get the index of the
+             ! file that contains the mesh
+             call json_get_or_default(params, &
+                  'case.fluid.initial_condition.sample_mesh_index', &
+                  sample_mesh_idx, 0)
+
+             prev_mesh = trim(fname)
+
+          else
+
+             prev_mesh = trim(read_str)
+
+             ! If we gave a mesh file, we extract the sample index
+             call filename_suffix(prev_mesh, suffix)
+             if (trim(suffix) .eq. "fld" .or. trim(suffix) .eq. "nek5000") &
+                  call neko_error("The field file with the mesh must be in &
+&the format .f*****")
+
+             fpos = scan(suffix, 'f')
+             if (fpos .eq. 1) then
+                read (suffix(2:), "(I5.5)") sample_mesh_idx
+             else
+                call neko_error("The mesh file must be of type .f*****")
+             end if
+
+             call filename_chsuffix(prev_mesh, prev_mesh, 'fld')
+          end if
+
+          if (interpolate) then
+             call neko_log%message("Interpolation   : yes")
+             write (log_buf, '(A,E15.7)') "Tolerance       : ", tol
+             call neko_log%message(log_buf)
+             call neko_log%message("Coordinates file : " // &
+                  trim(prev_mesh))
+          end if
+
+          call set_flow_ic_fld(u, v, w, p, fname, sample_idx, interpolate, &
+               tolerance = tol, sample_mesh_idx = sample_mesh_idx, &
+               previous_mesh_file_name = prev_mesh)
+
+       end if ! if suffix .eq. chkp
+
     else
        call neko_error('Invalid initial condition')
     end if
@@ -129,11 +297,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(v%x, v%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(w%x, w%x_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -184,16 +352,16 @@ contains
     procedure(blasius_profile), pointer :: bla => null()
     integer :: i
 
-    select case(trim(type))
-    case('linear')
+    select case (trim(type))
+    case ('linear')
        bla => blasius_linear
-    case('quadratic')
+    case ('quadratic')
        bla => blasius_quadratic
-    case('cubic')
+    case ('cubic')
        bla => blasius_cubic
-    case('quartic')
+    case ('quartic')
        bla => blasius_quartic
-    case('sin')
+    case ('sin')
        bla => blasius_sin
     case default
        call neko_error('Invalid Blasius approximation')
@@ -255,5 +423,194 @@ contains
     call cfill_mask(w%x, zone_value(3), size, zone%mask, zone%size)
 
   end subroutine set_flow_ic_point_zone
+
+  !> Set the initial condition of the flow based on a point zone.
+  !! @details The initial condition is set to the base value and then the
+  !! zone is filled with the zone value.
+  !! @param u The x-component of the velocity field.
+  !! @param v The y-component of the velocity field.
+  !! @param w The z-component of the velocity field.
+  !! @param p The pressure field.
+  !! @param file_name The name of the "fld" file series.
+  !! @param sample_idx index of the field file .f000* to read, default is
+  !! -1..
+  subroutine set_flow_ic_fld(u, v, w, p, file_name, sample_idx, &
+       interpolate, tolerance, sample_mesh_idx, previous_mesh_file_name)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    character(len=*), intent(in) :: file_name
+    integer, intent(in) :: sample_idx
+    logical, intent(in) :: interpolate
+    real(kind=rp), intent(in), optional :: tolerance
+    integer, intent(in), optional :: sample_mesh_idx
+    character(len=*), intent(in), optional :: previous_mesh_file_name
+
+    type(fld_file_data_t) :: fld_data
+    type(file_t) :: f
+
+    ! ---- For the mesh to mesh interpolation
+    type(global_interpolation_t) :: global_interp
+    ! -----
+
+    ! ---- For space to space interpolation
+    type(space_t) :: prev_Xh
+    type(interpolator_t) :: space_interp
+    ! ----
+
+    call fld_data%init
+    f = file_t(trim(file_name))
+
+    ! If no sample is specified, we read as a classic fld series
+    ! with the mesh located at index 0
+    if (sample_idx .eq. -1) then
+
+       ! Read one time to get all information about the fld series
+       ! and read the first file in the series.
+       call f%read(fld_data)
+
+       ! If there is more than one file, read the last one in the series.
+       if (fld_data%meta_nsamples .gt. 1) then
+          call f%set_counter(fld_data%meta_nsamples + &
+               fld_data%meta_start_counter - 1)
+          call f%read(fld_data)
+       end if
+
+    else
+
+       if (interpolate) then
+
+          f = file_t(trim(previous_mesh_file_name))
+
+          ! Only set the counter if its not the exact same file, this
+          ! is to prevent reading the same file twice
+          if (trim(previous_mesh_file_name) .eq. trim(file_name) .and. &
+               sample_mesh_idx .ne. sample_idx) &
+               call f%set_counter(sample_mesh_idx)
+
+          call f%read(fld_data)
+          f = file_t(trim(file_name))
+       end if
+
+       call f%set_counter(sample_idx)
+       call f%read(fld_data)
+
+    end if ! sample_idx .eq. -1
+
+    !
+    ! Check if the data in the fld file matches the current case.
+    ! Note that this is a safeguard and there are corner cases where
+    ! two different meshes have the same dimension and same # of elements
+    ! but this should be enough to cover the most obvious cases.
+    !
+    if ( fld_data%glb_nelv .ne. u%msh%glb_nelv .and. &
+         .not. interpolate) then
+       call neko_error("The fld file must match the current mesh! &
+&Use 'interpolate': 'true' to enable interpolation.")
+    else if (interpolate) then
+       call neko_log%warning("You have activated interpolation but you may &
+&still be using the same mesh.")
+       call neko_log%message("(disregard if this was done on purpose)")
+    end if
+
+    ! Mesh interpolation if specified
+    if (interpolate) then
+
+       ! Issue a warning if the mesh is in single precision
+       select type (ft => f%file_type)
+       type is (fld_file_t)
+          if (.not. ft%dp_precision) then
+             call neko_warning("The coordinates read from the field file are &
+&in single precision.")
+             call neko_log%message("It is recommended to use a mesh in double &
+                  &precision for better interpolation results.")
+             call neko_log%message("Reduce the tolerance if the interpolation &
+                  &does not work.")
+          end if
+       class default
+       end select
+
+       if (present(tolerance)) then
+          global_interp = fld_data%generate_interpolator(u%dof, u%msh, &
+               tolerance)
+       else
+          call neko_error("No tolerance provided for interpolation.")
+       end if
+
+       ! Evaluate velocities and pressure
+       call global_interp%evaluate(u%x, fld_data%u%x)
+       call global_interp%evaluate(v%x, fld_data%v%x)
+       call global_interp%evaluate(w%x, fld_data%w%x)
+       call global_interp%evaluate(p%x, fld_data%p%x)
+
+       call global_interp%free
+
+    else ! No interpolation
+
+       ! Build a space_t object from the data in the fld file
+       call prev_Xh%init(GLL, fld_data%lx, fld_data%ly, fld_data%lz)
+       call space_interp%init(u%Xh, prev_Xh)
+
+       call space_interp%map_host(u%x, fld_data%u%x, fld_data%nelv, u%Xh)
+       call space_interp%map_host(v%x, fld_data%v%x, fld_data%nelv, u%Xh)
+       call space_interp%map_host(w%x, fld_data%w%x, fld_data%nelv, u%Xh)
+       call space_interp%map_host(p%x, fld_data%p%x, fld_data%nelv, u%Xh)
+
+       call space_interp%free
+
+    end if
+
+    ! Note: we do not copy on the GPU since `set_flow_ic_common` does the
+    ! copy for us, except for the pressure
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_memcpy(p%x, p%x_d, p%dof%size(), &
+         HOST_TO_DEVICE, sync = .false.)
+
+    call fld_data%free
+
+  end subroutine set_flow_ic_fld
+
+  !> Set the initial condition of the flow based on a point zone.
+  !! @details The initial condition is set to the base value and then the
+  !! zone is filled with the zone value.
+  !! @param u The x-component of the velocity field.
+  !! @param v The y-component of the velocity field.
+  !! @param w The z-component of the velocity field.
+  !! @param p The pressure field.
+  !! @param file_name The name of the checkpoint file.
+  !! @param previous_mesh_fname If specified, the name of the previouos mesh from
+  !! which to interpolate.
+  !! @param tol If specified, tolerance to use for the mesh interpolation.
+  subroutine set_flow_ic_chkp(u, v, w, p, file_name, previous_mesh_fname, tol)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    character(len=*), intent(in) :: file_name
+    character(len=*), intent(in), optional :: previous_mesh_fname
+    real(kind=rp), intent(in), optional :: tol
+
+    type(chkp_t) :: chkp_data
+    type(file_t) :: f, meshf
+
+    call chkp_data%init(u, v, w, p)
+
+    ! Mesh interpolation if specified
+    if (present(previous_mesh_fname)) then
+       meshf = file_t(trim(previous_mesh_fname))
+       call meshf%read(chkp_data%previous_mesh)
+    end if
+
+    ! Tolerance is by default 1d-6
+    if (present(tol)) chkp_data%mesh2mesh_tol = tol
+
+    ! Read the chkp and perform interpolation
+    f = file_t(trim(file_name))
+    call f%read(chkp_data)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_memcpy(p%x, p%x_d, p%dof%size(), &
+         HOST_TO_DEVICE, sync = .false.)
+
+  end subroutine set_flow_ic_chkp
 
 end module flow_ic
