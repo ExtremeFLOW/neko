@@ -61,7 +61,7 @@ contains
     n = c_Xh%dof%size()
 
     do i = 1, n
-      c_Xh%h1(i,1,1,1) = 1 / rho%x(i,1,1,1)
+      c_Xh%h1(i,1,1,1) = 1.0_rp / rho%x(i,1,1,1)
       c_Xh%h2(i,1,1,1) = 0.0_rp
     end do
     c_Xh%ifh2 = .false.
