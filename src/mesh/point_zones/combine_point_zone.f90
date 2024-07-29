@@ -45,12 +45,6 @@ module combine_point_zone
   implicit none
   private
 
-  ! List of all possible types that one can combine
-  character(len=20) :: KNOWN_TYPES(3) = [character(len=20) :: &
-       "box", &
-       "sphere", &
-       "cylinder"]
-
   !> A point zone that combines different point zones.
   type, public, extends(point_zone_t) :: combine_point_zone_t
      !> List of all the sub zones.
@@ -90,7 +84,7 @@ contains
 
     ! Json low-level manipulator.
     type(json_core) :: core
-    ! Pointer to the source_terms JSON object and the individual sources.
+    ! Pointer to the point_zones JSON object and the individual sources.
     type(json_value), pointer :: source_object, source_pointer
     ! Buffer for serializing the json.
     character(len=:), allocatable :: buffer
@@ -101,10 +95,11 @@ contains
 
     character(len=:), allocatable :: str_read
     integer :: i, n_zones, i_internal, i_external
-    logical :: found
+    logical :: found, invert
 
     call json_get(json, "name", str_read)
-    call this%init_base(size, trim(str_read))
+    call json_get_or_default(json, "invert", invert, .false.)
+    call this%init_base(size, trim(str_read), invert)
 
     call json%get_core(core)
     call json%get('subsets', source_object, found)
@@ -172,8 +167,6 @@ contains
     case default
        call neko_error("Unknown operator " // trim(this%operator))
     end select
-
-    call json_get_or_default(json, "invert", this%inverse, .false.)
 
   end subroutine combine_point_zone_init_from_json
 

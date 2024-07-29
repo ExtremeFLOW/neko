@@ -72,6 +72,7 @@ contains
     character(len=:), allocatable :: name
     real(kind=rp), dimension(:), allocatable :: p0, p1
     real(kind=rp) :: radius
+    logical :: invert
 
     call json_get(json, "name", name)
     call json_get(json, "start", p0)
@@ -91,10 +92,10 @@ contains
        call neko_error("Cylinder point zone: invalid radius")
     end if
 
-    call json_get_or_default(json, "invert", this%inverse, .false.)
+    call json_get_or_default(json, "invert", invert, .false.)
 
-    call cylinder_point_zone_init_common(this, size, trim(name), p0, p1, &
-                                         radius)
+    call cylinder_point_zone_init_common(this, size, trim(name), invert, &
+         p0, p1, radius)
 
   end subroutine cylinder_point_zone_init_from_json
 
@@ -104,15 +105,17 @@ contains
   !! @param p0 Coordinates of the first endpoint.
   !! @param p1 Coordinates of the second endpoint.
   !! @param radius Sphere radius.
-  subroutine cylinder_point_zone_init_common(this, size, name, p0, p1, radius)
+  subroutine cylinder_point_zone_init_common(this, size, name, invert, &
+       p0, p1, radius)
     class(cylinder_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
+    logical, intent(in) :: invert
     real(kind=rp), intent(in), dimension(3) :: p0
     real(kind=rp), intent(in), dimension(3) :: p1
     real(kind=rp), intent(in) :: radius
 
-    call this%init_base(size, name)
+    call this%init_base(size, name, invert)
 
     this%p0 = p0
     this%p1 = p1

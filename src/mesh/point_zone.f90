@@ -58,8 +58,8 @@ module point_zone
      logical, private :: finalized = .false.
      !> Name of the point zone (used for retrieval in the point_zone_registry).
      character(len=80) :: name
-     !> If select the inverse of the criterion or not
-     logical :: inverse = .false.
+     !> If we select the inverse of the criterion or not
+     logical :: invert = .false.
    contains
      !> Constructor for the point_zone_t base type.
      procedure, pass(this) :: init_base => point_zone_init_base
@@ -142,10 +142,13 @@ contains
   !> Constructor for the point_zone_t base type.
   !! @param size Size of the scratch stack.
   !! @param name Name of the point zone.
-  subroutine point_zone_init_base(this, size, name)
+  !! @param invert Flag to indicate wether or not to invert the selection
+  !! of points.
+  subroutine point_zone_init_base(this, size, name, invert)
     class(point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
+    logical, intent(in) :: invert
 
     call point_zone_free_base(this)
 
@@ -156,6 +159,7 @@ contains
     end if
 
     this%name = trim(name)
+    this%invert = invert
 
   end subroutine point_zone_init_base
 
@@ -255,7 +259,7 @@ contains
        iz = nlindex(3)
        ie = nlindex(4)
 
-       if (this%inverse .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) then
+       if (this%invert .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) then
           idx = i
           call this%add(idx)
        end if
