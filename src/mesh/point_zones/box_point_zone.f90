@@ -34,7 +34,7 @@
 module box_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_default
   use json_module, only: json_file
   use math, only: abscmp
   implicit none
@@ -73,6 +73,7 @@ contains
     character(len=:), allocatable :: str_read
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: xmin, xmax, ymin, ymax, zmin, zmax
+    logical :: invert
 
     call json_get(json, "x_bounds", values)
     xmin = values(1)
@@ -85,8 +86,11 @@ contains
     zmax = values(2)
     call json_get(json, "name", str_read)
 
-    call box_point_zone_init_common(this, size, trim(str_read), xmin, &
-         xmax, ymin, ymax, zmin, zmax)
+    call json_get(json, "name", str_read)
+    call json_get_or_default(json, "invert", invert, .false.)
+
+    call box_point_zone_init_common(this, size, trim(str_read), invert, &
+         xmin, xmax, ymin, ymax, zmin, zmax)
 
   end subroutine box_point_zone_init_from_json
 
@@ -99,11 +103,12 @@ contains
   !! @param ymax Upper y-bound of the box coordinates.
   !! @param zmin Lower z-bound of the box coordinates.
   !! @param zmax Upper z-bound of the box coordinates.
-  subroutine box_point_zone_init_common(this, size, name, xmin, xmax, ymin, ymax, &
-       zmin, zmax)
+  subroutine box_point_zone_init_common(this, size, name, invert, xmin, xmax, &
+                                        ymin, ymax, zmin, zmax)
     class(box_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
+    logical, intent(in) :: invert
     real(kind=rp), intent(in) :: xmin
     real(kind=rp), intent(in) :: xmax
     real(kind=rp), intent(in) :: ymin
@@ -111,7 +116,7 @@ contains
     real(kind=rp), intent(in) :: zmin
     real(kind=rp), intent(in) :: zmax
 
-    call this%init_base(size, name)
+    call this%init_base(size, name, invert)
 
     this%xmin = xmin
     this%xmax = xmax
@@ -152,7 +157,8 @@ contains
   !! @param k 2nd nonlinear index of the GLL point.
   !! @param l 3rd nonlinear index of the GLL point.
   !! @param e element index of the GLL point.
-  pure function box_point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
+  pure function box_point_zone_criterion(this, x, y, z, j, k, l, e) &
+       result(is_inside)
     class(box_point_zone_t), intent(in) :: this
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -166,15 +172,15 @@ contains
 
     ! inside x if xmin <= x <= xmax
     in_x = ( (x .gt. this%xmin .and. x .lt. this%xmax) .or. &
-             (abscmp(x, this%xmin) .or. abscmp(x, this%xmax)))
+           (abscmp(x, this%xmin) .or. abscmp(x, this%xmax)))
 
     ! inside y if ymin <= y <= ymax
     in_y = ( (y .gt. this%ymin .and. y .lt. this%ymax) .or. &
-             (abscmp(y, this%ymin) .or. abscmp(y, this%ymax)))
+           (abscmp(y, this%ymin) .or. abscmp(y, this%ymax)))
 
     ! inside z if zmin <= z <= zmax
     in_z = ( (z .gt. this%zmin .and. z .lt. this%zmax) .or. &
-             (abscmp(z, this%zmin) .or. abscmp(z, this%zmax)))
+           (abscmp(z, this%zmin) .or. abscmp(z, this%zmax)))
 
     is_inside = in_x .and. in_y .and. in_z
   end function box_point_zone_criterion
