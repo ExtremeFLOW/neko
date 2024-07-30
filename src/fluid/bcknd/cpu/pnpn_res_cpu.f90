@@ -76,7 +76,7 @@ contains
     do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho_val &
              - ((wa1%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
-        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho &
+        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho_val &
              - ((wa2%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
         ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho_val &
              - ((wa3%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
