@@ -443,9 +443,11 @@ var hierarchy =
     [ "point_zone::point_zone_criterion", "d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html", null ],
     [ "point_zone::point_zone_free", "dc/d4e/interfacepoint__zone_1_1point__zone__free.html", null ],
     [ "point_zone::point_zone_init", "d3/d1e/interfacepoint__zone_1_1point__zone__init.html", null ],
+    [ "point_zone::point_zone_pointer_t", "dd/dae/structpoint__zone_1_1point__zone__pointer__t.html", null ],
     [ "point_zone_registry::point_zone_registry_t", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html", null ],
     [ "point_zone::point_zone_t", "d6/d13/structpoint__zone_1_1point__zone__t.html", [
       [ "box_point_zone::box_point_zone_t", "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html", null ],
+      [ "combine_point_zone::combine_point_zone_t", "d9/d38/structcombine__point__zone_1_1combine__point__zone__t.html", null ],
       [ "cylinder_point_zone::cylinder_point_zone_t", "d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html", null ],
       [ "sphere_point_zone::sphere_point_zone_t", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html", null ]
     ] ],

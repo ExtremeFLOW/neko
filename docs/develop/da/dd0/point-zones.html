@@ -102,7 +102,11 @@ $(document).ready(function(){initNavTree('da/dd0/point-zones.html','../../'); in
 <li class="level2"><a href="#autotoc_md59">Cylinder</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md60">User-defined geometrical shapes</a></li>
+<li class="level1"><a href="#autotoc_md60">Operations on point zones</a><ul><li class="level2"><a href="#autotoc_md61">Inversion</a></li>
+<li class="level2"><a href="#autotoc_md62">Combination</a></li>
+</ul>
+</li>
+<li class="level1"><a href="#autotoc_md63">User-defined geometrical shapes</a></li>
 <li class="level1"><a href="#point-zones_using-point-zones">Using point zones</a></li>
 </ul>
 </div>
@@ -149,11 +153,85 @@ Cylinder</h2>
 <div class="line">    },</div>
 <div class="line">]</div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md60"></a>
+Operations on point zones</h1>
+<h2><a class="anchor" id="autotoc_md61"></a>
+Inversion</h2>
+<p>By setting the keyword <code>invert</code> to <code>true</code>, you can indicate that you want to select all the points <b>but</b> those inside the point zone.</p>
+<div class="fragment"><div class="line">[</div>
+<div class="line">    {</div>
+<div class="line">        &quot;name&quot;: &quot;mycylinder&quot;,</div>
+<div class="line">        &quot;geometry&quot;: &quot;cylinder&quot;,</div>
+<div class="line">        &quot;start&quot;: [0.0, 0.0, 0.0],</div>
+<div class="line">        &quot;end&quot;: [0.0, 0.0, 1.0],</div>
+<div class="line">        &quot;radius&quot;: 0.01</div>
+<div class="line">        &quot;invert&quot;: true,</div>
+<div class="line">    },</div>
+<div class="line">]</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md62"></a>
+Combination</h2>
+<p>It is possible to combine predefined shapes into a single point zone. This is achieved by the <code>combine_point_zone_t</code> type which can construct a point zone based on the geometrical parameters of each sub point zone or refer to already existing point zones. The mask of a combined point zone will not contain any duplicate points in case the subset point zones overlap.</p>
+<p>Specifying which point zones to combine is done through the <code>subsets</code> array. In that array, you can specify:</p><ul>
+<li>a reference to an already existing point zone, or</li>
+<li>an internal point zone.</li>
+</ul>
+<dl class="section note"><dt>Note</dt><dd>The first method is useful for creating a new point zone out of a combination of already existing point zones. If you are referencing zones <code>p1</code> and <code>p2</code>, you will get a new point zone <code>p3</code>. All three of those will be accessible in the registry. The second method is useful if you want to create only one point zone using the geometric criteria of the internal ones. This means that if you create zone <code>p3</code> out of internal zones <code>p1</code> and <code>p2</code>, only <code>p3</code> will be created. This is useful if you do not explicitly need <code>p1</code> and <code>p2</code>, which will not be accessible in the registry. Use this method if you are using very large point zones and want to save memory.</dd></dl>
+<p>In the code snippet below, the combine point zone named <code>"combined_box_and_sphere"</code> uses a subset of two zones:</p><ul>
+<li><code>"mysphere"</code> is a reference to the external point zone above, and</li>
+<li><code>"mybox"</code> is built internally. This means that <code>"mysphere"</code> will be accessible in the registry, whereas <code>"mybox"</code> will not.</li>
+</ul>
+<p>The combination will be performed according to a specified operator, which can take the values <code>"OR"</code>, <code>"AND"</code> or <code>"XOR"</code>. For example, if you try to combine two point zones <code>p1</code> and <code>p2</code>:</p><ul>
+<li>The operator <code>OR</code> will select all the points that are both in <code>p1</code> <b>or</b> <code>p2</code>,</li>
+<li>The operator <code>AND</code> will select all the points that are both in <code>p1</code> <b>and</b> <code>p2</code>,</li>
+<li>The operator <code>XOR</code> (exclusive OR) will select all the points that are <b>either</b> in <code>p1</code> <b>or</b> in <code>p2</code>, but not both at the same time.</li>
+</ul>
+<dl class="section note"><dt>Note</dt><dd>You can also invert a <code>combine</code> point zone. </dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>You can combine other <code>combine</code> point zones as long as they are in the correct order in the case file, as demonstrated in the code snippet below.</dd></dl>
+<div class="fragment"><div class="line">[</div>
+<div class="line">    {</div>
+<div class="line">        &quot;name&quot;: &quot;mysphere&quot;,</div>
+<div class="line">        &quot;geometry&quot;: &quot;sphere&quot;,</div>
+<div class="line">        &quot;center&quot;: [0.0, 0.0, 0.0],</div>
+<div class="line">        &quot;radius&quot;: 0.01</div>
+<div class="line">    },</div>
+<div class="line"> </div>
+<div class="line">    {</div>
+<div class="line">        &quot;name&quot;: &quot;combined_box_and_sphere&quot;,</div>
+<div class="line">        &quot;geometry&quot;: &quot;combine&quot;,</div>
+<div class="line">        &quot;operator&quot;: &quot;OR&quot;,</div>
+<div class="line">        &quot;subsets&quot;:</div>
+<div class="line">        [</div>
+<div class="line">            {</div>
+<div class="line">                &quot;name&quot;: &quot;mysphere&quot;</div>
+<div class="line">            },</div>
+<div class="line">            {</div>
+<div class="line">                &quot;name&quot;: &quot;mybox&quot;,</div>
+<div class="line">                &quot;geometry&quot;: &quot;box&quot;,</div>
+<div class="line">                &quot;x_bounds&quot;: [-1.0, 1.0],</div>
+<div class="line">                &quot;y_bounds&quot;: [-1.0, 1.0],</div>
+<div class="line">                &quot;z_bounds&quot;: [-1.0, 1.0]</div>
+<div class="line">            },</div>
+<div class="line"> </div>
+<div class="line">        ],</div>
+<div class="line">    },</div>
+<div class="line">    {</div>
+<div class="line">        &quot;name&quot;: &quot;inverted_combination&quot;,</div>
+<div class="line">        &quot;geometry&quot;: &quot;combine&quot;,</div>
+<div class="line">        &quot;operator&quot;: &quot;OR&quot;,</div>
+<div class="line">        &quot;invert&quot;: true,</div>
+<div class="line">        &quot;subsets&quot;:</div>
+<div class="line">        [</div>
+<div class="line">            {&quot;name&quot;: &quot;combined_box_and_sphere&quot;},</div>
+<div class="line">        ],</div>
+<div class="line">    },</div>
+<div class="line"> </div>
+<div class="line">]</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md63"></a>
 User-defined geometrical shapes</h1>
 <p>The current version of Neko does not support user-defined shapes from the case file. That said, shapes can be defined manually into new types by extending <code>point_zone_t</code> and implementing the abstract <code>criterion</code> interface.</p>
 <h1><a class="anchor" id="point-zones_using-point-zones"></a>
 Using point zones</h1>
-<p>Point zones defined in the case file are stored in a point zone registry, <code>neko_point_zone_registry</code>. The point zone registry allows for the retrieval of any <code>point_zone_t</code> object when needed. Once a <code>point_zone_t</code> object is retrieved, it can be used for e.g. applying a source term to a localized zone, as demonstrated below: </p><div class="fragment"><div class="line"><span class="keyword">subroutine </span>forcing(f,t)</div>
+<p>Point zones defined in the case file are stored in a point zone registry, <code>neko_point_zone_registry</code>. The point zone registry allows for the retrieval of any <code>point_zone_t</code> object when needed. Once a <code>point_zone_t</code> object is retrieved, it can be used for e.g. applying a source term to a localized zone, as demonstrated below:</p>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span>forcing(f,t)</div>
 <div class="line">  <span class="keywordtype">class</span>(fluid_user_source_term_t), <span class="keywordtype">intent(inout)</span> :: f</div>
 <div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
 <div class="line"> </div>
@@ -175,7 +253,7 @@ Using point zones</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Jul 29 2024 03:34:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 30 2024 03:35:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

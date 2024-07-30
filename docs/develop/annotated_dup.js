@@ -113,6 +113,9 @@ var annotated_dup =
     [ "coefs", "d6/dbe/namespacecoefs.html", [
       [ "coef_t", "d0/dea/structcoefs_1_1coef__t.html", "d0/dea/structcoefs_1_1coef__t" ]
     ] ],
+    [ "combine_point_zone", "db/dc1/namespacecombine__point__zone.html", [
+      [ "combine_point_zone_t", "d9/d38/structcombine__point__zone_1_1combine__point__zone__t.html", "d9/d38/structcombine__point__zone_1_1combine__point__zone__t" ]
+    ] ],
     [ "comm", "d3/d8f/namespacecomm.html", [
       [ "neko_comm_wrapper_init", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init.html", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init" ]
     ] ],
@@ -732,6 +735,7 @@ var annotated_dup =
     [ "point_zone", "dc/d5f/namespacepoint__zone.html", [
       [ "point_zone_t", "d6/d13/structpoint__zone_1_1point__zone__t.html", "d6/d13/structpoint__zone_1_1point__zone__t" ],
       [ "point_zone_wrapper_t", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t" ],
+      [ "point_zone_pointer_t", "dd/dae/structpoint__zone_1_1point__zone__pointer__t.html", "dd/dae/structpoint__zone_1_1point__zone__pointer__t" ],
       [ "point_zone_criterion", "d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html", "d7/dc6/interfacepoint__zone_1_1point__zone__criterion" ],
       [ "point_zone_init", "d3/d1e/interfacepoint__zone_1_1point__zone__init.html", "d3/d1e/interfacepoint__zone_1_1point__zone__init" ],
       [ "point_zone_free", "dc/d4e/interfacepoint__zone_1_1point__zone__free.html", "dc/d4e/interfacepoint__zone_1_1point__zone__free" ]

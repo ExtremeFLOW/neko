@@ -96,9 +96,9 @@ $(document).ready(function(){initNavTree('d6/def/user-file.html','../../'); init
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md71">Compiling and running</a></li>
-<li class="level1"><a href="#autotoc_md72">High-level structure</a></li>
-<li class="level1"><a href="#autotoc_md73">Default user functions</a><ul><li class="level2"><a href="#user-file_init-and-final">Initializing and finalizing</a></li>
+<ul><li class="level1"><a href="#autotoc_md74">Compiling and running</a></li>
+<li class="level1"><a href="#autotoc_md75">High-level structure</a></li>
+<li class="level1"><a href="#autotoc_md76">Default user functions</a><ul><li class="level2"><a href="#user-file_init-and-final">Initializing and finalizing</a></li>
 <li class="level2"><a href="#user-file_user-check">Computing at every time step</a></li>
 <li class="level2"><a href="#user-file_mat-prop">Setting material properties</a></li>
 <li class="level2"><a href="#user-file_user-mesh-setup">Runtime mesh deformation</a></li>
@@ -106,13 +106,13 @@ $(document).ready(function(){initNavTree('d6/def/user-file.html','../../'); init
 <li class="level2"><a href="#user-file_simcomps">User defined simulation components</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md74">Case-specific user functions</a><ul><li class="level2"><a href="#user-file_user-ic">Fluid and Scalar initial conditions</a></li>
+<li class="level1"><a href="#autotoc_md77">Case-specific user functions</a><ul><li class="level2"><a href="#user-file_user-ic">Fluid and Scalar initial conditions</a></li>
 <li class="level2"><a href="#user-file_fluid-user-if">Fluid inflow condition</a></li>
 <li class="level2"><a href="#user-file_user-f">Fluid and scalar source terms</a></li>
 <li class="level2"><a href="#user-file_field-dirichlet-update">Complex fluid and/or scalar boundary conditions</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md75">Additional remarks and tips</a><ul><li class="level2"><a href="#user-file_tips_running-on-gpus">Running on GPUs</a></li>
+<li class="level1"><a href="#autotoc_md78">Additional remarks and tips</a><ul><li class="level2"><a href="#user-file_tips_running-on-gpus">Running on GPUs</a></li>
 <li class="level2"><a href="#user-file_tips_registries">Registries</a></li>
 </ul>
 </li>
@@ -120,7 +120,7 @@ $(document).ready(function(){initNavTree('d6/def/user-file.html','../../'); init
 </div>
 <div class="textblock"><p><a class="anchor" id="md_pages_user_guide_user_file"></a></p>
 <p>The user file is a fortran file where the user can implement their own functions to extend the capabilities of the default Neko executable. The user file can be used for setting advanced initial/boundary conditions, source terms, I/O operations, and interactions with the Neko framework.</p>
-<h1><a class="anchor" id="autotoc_md71"></a>
+<h1><a class="anchor" id="autotoc_md74"></a>
 Compiling and running</h1>
 <p>The user file is a regular Fortran <code>.f90</code> file that needs to be compiled with <code>makeneko</code>, located in the <code>bin</code> folder of your neko installation. To compile a user file <code>user.f90</code>, run:</p>
 <div class="fragment"><div class="line">makeneko user.f90</div>
@@ -133,7 +133,7 @@ Compiling and running</h1>
 <div class="fragment"><div class="line">./neko user.case</div>
 </div><!-- fragment --><p>Or in parallel using MPI:</p>
 <div class="fragment"><div class="line">mpirun -n 8 ./neko user.case</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md72"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md75"></a>
 High-level structure</h1>
 <p>The current high-level structure of the user file is shown below.</p>
 <div class="fragment"><div class="line"><span class="keyword">module</span> user</div>
@@ -153,7 +153,7 @@ High-level structure</h1>
 <div class="ttc" id="anamespaceneko_html"><div class="ttname"><a href="../../dd/d62/namespaceneko.html">neko</a></div><div class="ttdoc">Master module.</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/d1f/neko_8f90_source.html#l00034">neko.f90:34</a></div></div>
 </div><!-- fragment --><p>The user file implements the <code>user</code> module. The <code>user</code> modules contains a subroutine named <code>user_setup</code>, which we use to interface the internal procedures defined in <code><a class="el" href="../../d7/d30/user__intf_8f90.html">src/common/user_intf.f90</a></code> with the subroutines that you will implement in your user file. Each user subroutine should be implemented under the <code>contains</code> statement, below <code>user_setup</code>.</p>
 <dl class="section note"><dt>Note</dt><dd>The above code snippet is the most basic code structure for the user file. Compiling it and running it would be equivalent to running the "vanilla" neko executable <code>bin/neko</code> in your local neko installation folder.</dd></dl>
-<h1><a class="anchor" id="autotoc_md73"></a>
+<h1><a class="anchor" id="autotoc_md76"></a>
 Default user functions</h1>
 <p>The following user functions, if defined in the user file, will always be executed, regardless of what is set in the case file:</p>
 <ul>
@@ -307,7 +307,7 @@ User defined simulation components</h2>
 </div><!-- fragment --><p>In the example above, the subroutine <code>user_simcomp</code> contains the actual implementation, and needs to be registered by adding:</p>
 <div class="fragment"><div class="line">u%init_user_simcomp =&gt; user_simcomp</div>
 </div><!-- fragment --><p>A full example of a user-defined simulation component can be found in the examples.</p>
-<h1><a class="anchor" id="autotoc_md74"></a>
+<h1><a class="anchor" id="autotoc_md77"></a>
 Case-specific user functions</h1>
 <p>As explained in the <a class="el" href="../../dd/d33/case-file.html#md_pages_user_guide_case_file">case file</a> page, certain components of the simulation can be set to be user defined. These components and their associated user functions are:</p>
 <table class="markdownTable">
@@ -661,7 +661,7 @@ Complex fluid and/or scalar boundary conditions</h2>
 <p>Note that we are only applying our boundary values at the first timestep, which is done simply with the line <code>if (tstep .ne. 1) return</code>. This is a trick that can be used for time independent boundary profiles that require some kind of time consuming operation like interpolation or reading from a file, which would add overhead if executed at every time step.</p>
 <p>Observe that we always check if the fields are allocated before manipulating them. This is to prevent accidental memory access if only part of the velocity components or pressure are given in <code>case.fluid.boundary_types</code>. Fields in the lists are only allocated if they are present in the case file.For example, if we removed the <code>d_pres</code> condition in the JSON case file code snippet above, the pressure field for our boundary condition would not be allocated ( in the example above, <code>allocated(p%x)</code> would never be <code>true</code>). <code>"boundary_types": ["d_vel_u", "d_vel_v"]</code> will allocate the two first fields in <code>field_bc_list</code>, which is the same behaviour as <code>"boundary_types": ["d_vel_u/d_vel_v", ""]</code>.</p>
 <dl class="section attention"><dt>Attention</dt><dd>All the rules for <a class="el" href="../../d6/def/user-file.html#user-file_tips_running-on-gpus">Running on GPUs</a> apply when working on field arrays. Use <code>device_memcpy</code> to make sure the device arrays are also updated.</dd></dl>
-<h1><a class="anchor" id="autotoc_md75"></a>
+<h1><a class="anchor" id="autotoc_md78"></a>
 Additional remarks and tips</h1>
 <h2><a class="anchor" id="user-file_tips_running-on-gpus"></a>
 Running on GPUs</h2>
@@ -731,7 +731,7 @@ Registries</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Jul 29 2024 03:34:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 30 2024 03:35:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

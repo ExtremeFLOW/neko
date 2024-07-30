@@ -9,6 +9,7 @@ var structcylinder__point__zone_1_1cylinder__point__zone__t =
     [ "init_base", "d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html#a5021e105153a9bcb6d0fb042bf618815", null ],
     [ "map", "d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html#a3f71ceff0808643e0dd97ed94642fdba", null ],
     [ "finalized", "d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html#acb0a0f6391614fc59fe0cf302d513993", null ],
+    [ "invert", "d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html#aad3ba8338f7108d775b528b93eb92810", null ],
     [ "mask", "d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html#a6dc1abafb1a38fae4a9b8914868c4450", null ],
     [ "mask_d", "d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html#a9f0d1102c0d7c62b237bafd28d004d07", null ],
     [ "name", "d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html#aa485a77f2a223a2249231cfe6ef19c8a", null ],

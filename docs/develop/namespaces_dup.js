@@ -43,6 +43,7 @@ var namespaces_dup =
     [ "chkp_file", "dc/dcb/namespacechkp__file.html", "dc/dcb/namespacechkp__file" ],
     [ "chkp_output", "dc/d4e/namespacechkp__output.html", "dc/d4e/namespacechkp__output" ],
     [ "coefs", "d6/dbe/namespacecoefs.html", "d6/dbe/namespacecoefs" ],
+    [ "combine_point_zone", "db/dc1/namespacecombine__point__zone.html", "db/dc1/namespacecombine__point__zone" ],
     [ "comm", "d3/d8f/namespacecomm.html", "d3/d8f/namespacecomm" ],
     [ "const_source_term", "d0/dd2/namespaceconst__source__term.html", "d0/dd2/namespaceconst__source__term" ],
     [ "const_source_term_cpu", "d5/d67/namespaceconst__source__term__cpu.html", [

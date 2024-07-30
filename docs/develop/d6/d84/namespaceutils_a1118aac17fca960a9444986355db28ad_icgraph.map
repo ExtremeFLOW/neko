@@ -1,31 +1,32 @@
 <map id="utils::concat_string_array" name="utils::concat_string_array">
-<area shape="rect" id="node1" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="1168,483,1313,524"/>
-<area shape="rect" id="node2" href="$d8/dc8/namespacefluid__fctry.html#ac6eab94317bfcad7f92bbd155d8ffd5e" title="Initialise a fluid scheme." alt="" coords="946,132,1079,173"/>
-<area shape="rect" id="node6" href="$d9/d77/namespacekrylov__fctry.html#afbaa64cc1a8ad32e985748ce4e32f7d2" title="Factory for Krylov solvers. Both creates and initializes the object." alt="" coords="939,257,1087,299"/>
-<area shape="rect" id="node15" href="$d0/d3e/namespaceles__model__fctry.html#abcc2ed685bd6cf611d08c3e3683713a0" title="LES model factory. Both constructs and initializes the object." alt="" coords="937,449,1089,491"/>
-<area shape="rect" id="node17" href="$df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401" title="Point zone factory. Constructs, initializes, and maps the point zone object." alt="" coords="927,515,1098,556"/>
-<area shape="rect" id="node21" href="$dc/d51/namespaceprecon__fctry.html#a0aefd281124542ca1d4fb7468c1958d5" title="Create a preconditioner." alt="" coords="935,384,1090,425"/>
-<area shape="rect" id="node24" href="$d0/d8e/namespacesimulation__component__fctry.html#aa53c26cd517ee64cb5af95132301431c" title="Simulation component factory. Both constructs and initializes the object." alt="" coords="905,605,1120,661"/>
-<area shape="rect" id="node26" href="$d6/d25/namespacesource__term__fctry.html#af64a689adda82d24422dfcf69c7b8201" title="Source term factory. Both constructs and initializes the object." alt="" coords="935,699,1091,740"/>
-<area shape="rect" id="node29" href="$d5/da6/namespacewall__model__fctry.html#abc1dc41ea22e3ed243e7739f951cd7dc" title="Wall model factory. Both constructs and initializes the object." alt="" coords="929,764,1097,805"/>
-<area shape="rect" id="node3" href="$dd/da8/namespacecase.html#ae8960a3867b359b819ddafa169747832" title="Initialize a case from its (loaded) params object." alt="" coords="659,78,842,105"/>
+<area shape="rect" id="node1" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="1168,468,1313,509"/>
+<area shape="rect" id="node2" href="$d8/dc8/namespacefluid__fctry.html#ac6eab94317bfcad7f92bbd155d8ffd5e" title="Initialise a fluid scheme." alt="" coords="946,100,1079,141"/>
+<area shape="rect" id="node6" href="$d9/d77/namespacekrylov__fctry.html#afbaa64cc1a8ad32e985748ce4e32f7d2" title="Factory for Krylov solvers. Both creates and initializes the object." alt="" coords="939,220,1087,261"/>
+<area shape="rect" id="node15" href="$d0/d3e/namespaceles__model__fctry.html#abcc2ed685bd6cf611d08c3e3683713a0" title="LES model factory. Both constructs and initializes the object." alt="" coords="937,451,1089,492"/>
+<area shape="rect" id="node17" href="$df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401" title="Point zone factory. Constructs, initializes, and maps the point zone object." alt="" coords="927,537,1098,579"/>
+<area shape="rect" id="node22" href="$dc/d51/namespaceprecon__fctry.html#a0aefd281124542ca1d4fb7468c1958d5" title="Create a preconditioner." alt="" coords="935,351,1090,392"/>
+<area shape="rect" id="node25" href="$d0/d8e/namespacesimulation__component__fctry.html#aa53c26cd517ee64cb5af95132301431c" title="Simulation component factory. Both constructs and initializes the object." alt="" coords="905,618,1120,674"/>
+<area shape="rect" id="node27" href="$d6/d25/namespacesource__term__fctry.html#af64a689adda82d24422dfcf69c7b8201" title="Source term factory. Both constructs and initializes the object." alt="" coords="935,727,1091,768"/>
+<area shape="rect" id="node30" href="$d5/da6/namespacewall__model__fctry.html#abc1dc41ea22e3ed243e7739f951cd7dc" title="Wall model factory. Both constructs and initializes the object." alt="" coords="929,792,1097,833"/>
+<area shape="rect" id="node3" href="$dd/da8/namespacecase.html#ae8960a3867b359b819ddafa169747832" title="Initialize a case from its (loaded) params object." alt="" coords="659,53,842,79"/>
 <area shape="rect" id="node4" href="$d8/d36/interfacecase_1_1case__init.html#a96fd088f5a85b607a614f31a86b826e6" title="Initialize a case from an input file case_file." alt="" coords="432,5,588,47"/>
 <area shape="rect" id="node5" href="$d8/d36/interfacecase_1_1case__init.html#a3fe242ef6c179c5b11d1004ac20f043e" title="Initialize a case from a JSON object describing a case." alt="" coords="432,71,588,112"/>
-<area shape="rect" id="node7" href="$d8/d09/namespacefluid__scheme.html#a5fb59358d3639df4c60c471642d27e1f" title="Initialize a linear solver." alt="" coords="661,136,841,177"/>
-<area shape="rect" id="node12" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="685,202,816,229"/>
-<area shape="rect" id="node13" href="$da/de3/namespacescalar__scheme.html#ab1f435e3dbdfe423434dc4428b89553c" title="Initialize a linear solver." alt="" coords="661,319,841,360"/>
-<area shape="rect" id="node8" href="$d6/d78/namespacefluid__plan1.html#ab1fb9c5e6fea5145cee2e111f6ce9404" title=" " alt="" coords="445,253,575,295"/>
-<area shape="rect" id="node9" href="$d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="232,159,376,200"/>
-<area shape="rect" id="node11" href="$d8/d09/namespacefluid__scheme.html#ab8289185c523ab7039d9076f81d2c2cc" title="Initialize common data for the current scheme." alt="" coords="424,188,596,229"/>
-<area shape="rect" id="node10" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a7e2136dedddf80e7660284a3feec1bc2" title=" " alt="" coords="5,188,184,229"/>
-<area shape="rect" id="node14" href="$da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="427,377,593,419"/>
-<area shape="rect" id="node16" href="$d0/d0d/namespaceles__simcomp.html#a478e5e4de3ffd11e574722f60ac43739" title="Constructor from json." alt="" coords="649,449,852,491"/>
-<area shape="rect" id="node18" href="$d9/dac/namespacepoint__zone__registry.html#ac000af656c591a6a7a133c1290416264" title="Adds a point zone object to the registry from a json object." alt="" coords="649,515,853,556"/>
-<area shape="rect" id="node20" href="$d9/dac/namespacepoint__zone__registry.html#a5dd04944419ba6b206c8f633e70e5ab7" title="Constructor, reading from json point zones." alt="" coords="657,580,844,621"/>
-<area shape="rect" id="node19" href="$dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html#a2d81276e1d36258ad45ef621369f5876" title=" " alt="" coords="431,507,589,563"/>
-<area shape="rect" id="node22" href="$d8/d09/namespacefluid__scheme.html#ae118e3aebe30e81422421926063456d0" title="Initialize a Krylov preconditioner." alt="" coords="659,253,843,295"/>
-<area shape="rect" id="node23" href="$da/de3/namespacescalar__scheme.html#a9ab0bf4dfdd4312aef79f94f07faa1f8" title="Initialize a Krylov preconditioner." alt="" coords="659,384,843,425"/>
-<area shape="rect" id="node25" href="$d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e" title="Constructor." alt="" coords="644,645,857,687"/>
-<area shape="rect" id="node27" href="$df/d09/namespacefluid__source__term.html#a2bff2545dd7e4920fdb0ee95f24dcc83" title="Costructor." alt="" coords="667,711,834,752"/>
-<area shape="rect" id="node28" href="$d9/d13/namespacescalar__source__term.html#a145172bb122d0e3f12e859181bb126f4" title="Constructor." alt="" coords="658,776,843,817"/>
+<area shape="rect" id="node7" href="$d8/d09/namespacefluid__scheme.html#a5fb59358d3639df4c60c471642d27e1f" title="Initialize a linear solver." alt="" coords="661,285,841,327"/>
+<area shape="rect" id="node12" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="685,103,816,130"/>
+<area shape="rect" id="node13" href="$da/de3/namespacescalar__scheme.html#ab1f435e3dbdfe423434dc4428b89553c" title="Initialize a linear solver." alt="" coords="661,155,841,196"/>
+<area shape="rect" id="node8" href="$d6/d78/namespacefluid__plan1.html#ab1fb9c5e6fea5145cee2e111f6ce9404" title=" " alt="" coords="445,351,575,392"/>
+<area shape="rect" id="node9" href="$d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="232,256,376,297"/>
+<area shape="rect" id="node11" href="$d8/d09/namespacefluid__scheme.html#ab8289185c523ab7039d9076f81d2c2cc" title="Initialize common data for the current scheme." alt="" coords="424,285,596,327"/>
+<area shape="rect" id="node10" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a7e2136dedddf80e7660284a3feec1bc2" title=" " alt="" coords="5,285,184,327"/>
+<area shape="rect" id="node14" href="$da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="427,161,593,203"/>
+<area shape="rect" id="node16" href="$d0/d0d/namespaceles__simcomp.html#a478e5e4de3ffd11e574722f60ac43739" title="Constructor from json." alt="" coords="649,416,852,457"/>
+<area shape="rect" id="node18" href="$d9/dac/namespacepoint__zone__registry.html#ac000af656c591a6a7a133c1290416264" title="Adds a point zone object to the registry from a json object." alt="" coords="649,481,853,523"/>
+<area shape="rect" id="node20" href="$db/dc1/namespacecombine__point__zone.html#a3a9fa776d873aef5d6ac0fb6e1c5b05a" title="Constructor from json object file. Reads." alt="" coords="669,547,833,603"/>
+<area shape="rect" id="node21" href="$d9/dac/namespacepoint__zone__registry.html#a5dd04944419ba6b206c8f633e70e5ab7" title="Constructor, reading from json point zones." alt="" coords="657,628,844,669"/>
+<area shape="rect" id="node19" href="$dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html#a2d81276e1d36258ad45ef621369f5876" title=" " alt="" coords="431,474,589,530"/>
+<area shape="rect" id="node23" href="$d8/d09/namespacefluid__scheme.html#ae118e3aebe30e81422421926063456d0" title="Initialize a Krylov preconditioner." alt="" coords="659,351,843,392"/>
+<area shape="rect" id="node24" href="$da/de3/namespacescalar__scheme.html#a9ab0bf4dfdd4312aef79f94f07faa1f8" title="Initialize a Krylov preconditioner." alt="" coords="659,220,843,261"/>
+<area shape="rect" id="node26" href="$d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e" title="Constructor." alt="" coords="644,693,857,735"/>
+<area shape="rect" id="node28" href="$df/d09/namespacefluid__source__term.html#a2bff2545dd7e4920fdb0ee95f24dcc83" title="Costructor." alt="" coords="667,824,834,865"/>
+<area shape="rect" id="node29" href="$d9/d13/namespacescalar__source__term.html#a145172bb122d0e3f12e859181bb126f4" title="Constructor." alt="" coords="658,759,843,800"/>
 </map>

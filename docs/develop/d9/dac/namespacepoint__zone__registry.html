@@ -110,6 +110,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a5dd04944419ba6b206c8f633e70e5ab7"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dac/namespacepoint__zone__registry.html#a5dd04944419ba6b206c8f633e70e5ab7">point_zone_registry_init</a> (this, json, msh, expansion_size)</td></tr>
 <tr class="memdesc:a5dd04944419ba6b206c8f633e70e5ab7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor, reading from json point zones.  <a href="../../d9/dac/namespacepoint__zone__registry.html#a5dd04944419ba6b206c8f633e70e5ab7">More...</a><br /></td></tr>
 <tr class="separator:a5dd04944419ba6b206c8f633e70e5ab7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07b62ba2ea24a84336d5ada586b6402f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dac/namespacepoint__zone__registry.html#a07b62ba2ea24a84336d5ada586b6402f">build_combine_point_zone</a> (object, json, dof)</td></tr>
+<tr class="memdesc:a07b62ba2ea24a84336d5ada586b6402f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a combine_point_zone_t object.  <a href="../../d9/dac/namespacepoint__zone__registry.html#a07b62ba2ea24a84336d5ada586b6402f">More...</a><br /></td></tr>
+<tr class="separator:a07b62ba2ea24a84336d5ada586b6402f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a30384502cfcbf3c59fddda61672d7795"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dac/namespacepoint__zone__registry.html#a30384502cfcbf3c59fddda61672d7795">point_zone_registry_free</a> (this)</td></tr>
 <tr class="memdesc:a30384502cfcbf3c59fddda61672d7795"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d9/dac/namespacepoint__zone__registry.html#a30384502cfcbf3c59fddda61672d7795">More...</a><br /></td></tr>
 <tr class="separator:a30384502cfcbf3c59fddda61672d7795"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -192,7 +195,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00197">197</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00261">261</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -210,6 +213,68 @@ Here is the caller graph for this function:</div>
 <map name="ad9/dac/namespacepoint__zone__registry_ac000af656c591a6a7a133c1290416264_icgraph" id="ad9/dac/namespacepoint__zone__registry_ac000af656c591a6a7a133c1290416264_icgraph">
 <area shape="rect" title="Adds a point zone object to the registry from a json object." alt="" coords="212,13,416,54"/>
 <area shape="rect" href="../../dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html#a2d81276e1d36258ad45ef621369f5876" title=" " alt="" coords="5,5,164,61"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a07b62ba2ea24a84336d5ada586b6402f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07b62ba2ea24a84336d5ada586b6402f">&#9670;&nbsp;</a></span>build_combine_point_zone()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine point_zone_registry::build_combine_point_zone </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), intent(inout), allocatable, target&#160;</td>
+          <td class="paramname"><em>object</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), intent(inout)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>dof</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">object</td><td>Object to allocate. </td></tr>
+    <tr><td class="paramname">json</td><td>Json object initializing the point zone. </td></tr>
+    <tr><td class="paramname">dof</td><td>Dofmap from which to map to point zone. </td></tr>
+    <tr><td class="paramname">n_allocated_zones</td><td>Number of previously found and allocated zones in the registry. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00196">196</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/dac/namespacepoint__zone__registry_a07b62ba2ea24a84336d5ada586b6402f_icgraph.png" border="0" usemap="#ad9/dac/namespacepoint__zone__registry_a07b62ba2ea24a84336d5ada586b6402f_icgraph" alt=""/></div>
+<map name="ad9/dac/namespacepoint__zone__registry_a07b62ba2ea24a84336d5ada586b6402f_icgraph" id="ad9/dac/namespacepoint__zone__registry_a07b62ba2ea24a84336d5ada586b6402f_icgraph">
+<area shape="rect" title="Constructs a combine_point_zone_t object." alt="" coords="240,5,443,47"/>
+<area shape="rect" href="../../d9/dac/namespacepoint__zone__registry.html#a5dd04944419ba6b206c8f633e70e5ab7" title="Constructor, reading from json point zones." alt="" coords="5,5,192,47"/>
 </map>
 </div>
 
@@ -239,7 +304,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00183">183</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00247">247</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -267,7 +332,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00262">262</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00326">326</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -311,7 +376,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00272">272</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00336">336</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -364,7 +429,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00288">288</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00352">352</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -402,7 +467,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Use <code><a class="el" href="../../d9/dac/namespacepoint__zone__registry.html#a3f09cb833950cb28d5f83154c8055e31" title="Returns the number of point zones in the registry.">n_point_zones()</a></code> to retrieve the actual number of point zones in the registry. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00253">253</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00317">317</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -430,7 +495,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00242">242</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00306">306</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -474,7 +539,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00312">312</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00376">376</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -502,7 +567,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00164">164</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00228">228</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -562,15 +627,16 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>At this stage, the <a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a> registry is only allocated if we find anything in the <code>case.point_zones</code> json path. Any point_zones that are not defined in that way will need to be added using the <code>add_point_zone</code> subroutine. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/dac/namespacepoint__zone__registry_a5dd04944419ba6b206c8f633e70e5ab7_cgraph.png" border="0" usemap="#ad9/dac/namespacepoint__zone__registry_a5dd04944419ba6b206c8f633e70e5ab7_cgraph" alt=""/></div>
 <map name="ad9/dac/namespacepoint__zone__registry_a5dd04944419ba6b206c8f633e70e5ab7_cgraph" id="ad9/dac/namespacepoint__zone__registry_a5dd04944419ba6b206c8f633e70e5ab7_cgraph">
-<area shape="rect" title="Constructor, reading from json point zones." alt="" coords="5,5,192,47"/>
-<area shape="rect" href="../../df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401" title="Point zone factory. Constructs, initializes, and maps the point zone object." alt="" coords="240,5,411,47"/>
-<area shape="rect" href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="459,5,604,47"/>
+<area shape="rect" title="Constructor, reading from json point zones." alt="" coords="5,39,192,80"/>
+<area shape="rect" href="../../d9/dac/namespacepoint__zone__registry.html#a07b62ba2ea24a84336d5ada586b6402f" title="Constructs a combine_point_zone_t object." alt="" coords="240,5,443,47"/>
+<area shape="rect" href="../../df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401" title="Point zone factory. Constructs, initializes, and maps the point zone object." alt="" coords="256,71,427,112"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="491,71,636,112"/>
 </map>
 </div>
 
@@ -589,7 +655,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d6/d9f/point__zone__registry_8f90_source.html">point_zone_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -599,7 +665,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/dac/namespacepoint__zone__registry.html">point_zone_registry</a></li>
-    <li class="footer">Generated on Mon Jul 29 2024 03:34:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 30 2024 03:35:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

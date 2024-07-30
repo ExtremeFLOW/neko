@@ -110,9 +110,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a5dd7ec1f15f8f73e4cf9fa505e389862"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfe/namespacesphere__point__zone.html#a5dd7ec1f15f8f73e4cf9fa505e389862">sphere_point_zone_init_from_json</a> (this, json, size)</td></tr>
 <tr class="memdesc:a5dd7ec1f15f8f73e4cf9fa505e389862"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from json object file.  <a href="../../d9/dfe/namespacesphere__point__zone.html#a5dd7ec1f15f8f73e4cf9fa505e389862">More...</a><br /></td></tr>
 <tr class="separator:a5dd7ec1f15f8f73e4cf9fa505e389862"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba1c99043bbe4ecdeffdf403a9feab1d"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfe/namespacesphere__point__zone.html#aba1c99043bbe4ecdeffdf403a9feab1d">sphere_point_zone_init_common</a> (this, size, name, x0, y0, z0, radius)</td></tr>
-<tr class="memdesc:aba1c99043bbe4ecdeffdf403a9feab1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a sphere point zone from its center coordinates and radius.  <a href="../../d9/dfe/namespacesphere__point__zone.html#aba1c99043bbe4ecdeffdf403a9feab1d">More...</a><br /></td></tr>
-<tr class="separator:aba1c99043bbe4ecdeffdf403a9feab1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9173988189aef82be86c553f1f90f0ec"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfe/namespacesphere__point__zone.html#a9173988189aef82be86c553f1f90f0ec">sphere_point_zone_init_common</a> (this, size, name, invert, x0, y0, z0, radius)</td></tr>
+<tr class="memdesc:a9173988189aef82be86c553f1f90f0ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a sphere point zone from its center coordinates and radius.  <a href="../../d9/dfe/namespacesphere__point__zone.html#a9173988189aef82be86c553f1f90f0ec">More...</a><br /></td></tr>
+<tr class="separator:a9173988189aef82be86c553f1f90f0ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4d81bf06284f7de62824fe70334f3276"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dfe/namespacesphere__point__zone.html#a4d81bf06284f7de62824fe70334f3276">sphere_point_zone_free</a> (this)</td></tr>
 <tr class="memdesc:a4d81bf06284f7de62824fe70334f3276"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d9/dfe/namespacesphere__point__zone.html#a4d81bf06284f7de62824fe70334f3276">More...</a><br /></td></tr>
 <tr class="separator:a4d81bf06284f7de62824fe70334f3276"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -206,7 +206,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html#l00142">142</a> of file <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html">sphere_point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html#l00149">149</a> of file <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html">sphere_point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -234,12 +234,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html#l00115">115</a> of file <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html">sphere_point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html#l00121">121</a> of file <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html">sphere_point_zone.f90</a>.</p>
 
 </div>
 </div>
-<a id="aba1c99043bbe4ecdeffdf403a9feab1d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba1c99043bbe4ecdeffdf403a9feab1d">&#9670;&nbsp;</a></span>sphere_point_zone_init_common()</h2>
+<a id="a9173988189aef82be86c553f1f90f0ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9173988189aef82be86c553f1f90f0ec">&#9670;&nbsp;</a></span>sphere_point_zone_init_common()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -264,6 +264,12 @@ Functions/Subroutines</h2></td></tr>
           <td></td>
           <td class="paramtype">character(len=*), intent(in)&#160;</td>
           <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">logical, intent(in)&#160;</td>
+          <td class="paramname"><em>invert</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -313,12 +319,12 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html">sphere_point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html">sphere_point_zone.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d9/dfe/namespacesphere__point__zone_aba1c99043bbe4ecdeffdf403a9feab1d_icgraph.png" border="0" usemap="#ad9/dfe/namespacesphere__point__zone_aba1c99043bbe4ecdeffdf403a9feab1d_icgraph" alt=""/></div>
-<map name="ad9/dfe/namespacesphere__point__zone_aba1c99043bbe4ecdeffdf403a9feab1d_icgraph" id="ad9/dfe/namespacesphere__point__zone_aba1c99043bbe4ecdeffdf403a9feab1d_icgraph">
+<div class="center"><img src="../../d9/dfe/namespacesphere__point__zone_a9173988189aef82be86c553f1f90f0ec_icgraph.png" border="0" usemap="#ad9/dfe/namespacesphere__point__zone_a9173988189aef82be86c553f1f90f0ec_icgraph" alt=""/></div>
+<map name="ad9/dfe/namespacesphere__point__zone_a9173988189aef82be86c553f1f90f0ec_icgraph" id="ad9/dfe/namespacesphere__point__zone_a9173988189aef82be86c553f1f90f0ec_icgraph">
 <area shape="rect" title="Initializes a sphere point zone from its center coordinates and radius." alt="" coords="225,5,397,61"/>
 <area shape="rect" href="../../d9/dfe/namespacesphere__point__zone.html#a5dd7ec1f15f8f73e4cf9fa505e389862" title="Constructor from json object file." alt="" coords="5,5,177,61"/>
 </map>
@@ -365,14 +371,14 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html">sphere_point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d0/dba/sphere__point__zone_8f90_source.html">sphere_point_zone.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/dfe/namespacesphere__point__zone_a5dd7ec1f15f8f73e4cf9fa505e389862_cgraph.png" border="0" usemap="#ad9/dfe/namespacesphere__point__zone_a5dd7ec1f15f8f73e4cf9fa505e389862_cgraph" alt=""/></div>
 <map name="ad9/dfe/namespacesphere__point__zone_a5dd7ec1f15f8f73e4cf9fa505e389862_cgraph" id="ad9/dfe/namespacesphere__point__zone_a5dd7ec1f15f8f73e4cf9fa505e389862_cgraph">
 <area shape="rect" title="Constructor from json object file." alt="" coords="5,5,177,61"/>
-<area shape="rect" href="../../d9/dfe/namespacesphere__point__zone.html#aba1c99043bbe4ecdeffdf403a9feab1d" title="Initializes a sphere point zone from its center coordinates and radius." alt="" coords="225,5,397,61"/>
+<area shape="rect" href="../../d9/dfe/namespacesphere__point__zone.html#a9173988189aef82be86c553f1f90f0ec" title="Initializes a sphere point zone from its center coordinates and radius." alt="" coords="225,5,397,61"/>
 </map>
 </div>
 
@@ -384,7 +390,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/dfe/namespacesphere__point__zone.html">sphere_point_zone</a></li>
-    <li class="footer">Generated on Mon Jul 29 2024 03:34:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 30 2024 03:35:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

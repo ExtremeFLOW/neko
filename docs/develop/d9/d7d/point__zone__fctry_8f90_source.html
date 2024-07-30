@@ -153,34 +153,41 @@ $(document).ready(function(){initNavTree('d9/d7d/point__zone__fctry_8f90_source.
 <div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="../../df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401">   62</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401">point_zone_factory</a>(object, json, dof)</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <span class="keywordtype">intent(inout)</span> :: dof</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: dof</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: type_name</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: type_string</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(json, <span class="stringliteral">&quot;geometry&quot;</span>, type_name)</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&quot;box&quot;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;       <span class="keyword">allocate</span>(<a class="code" href="../../d4/d0c/structbox__point__zone_1_1box__point__zone__t.html">box_point_zone_t</a>::object)</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&quot;sphere&quot;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;       <span class="keyword">allocate</span>(<a class="code" href="../../d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html">sphere_point_zone_t</a>::object)</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&quot;cylinder&quot;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;       <span class="keyword">allocate</span>(<a class="code" href="../../d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html">cylinder_point_zone_t</a>::object)</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;       type_string =  <a class="code" href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">concat_string_array</a>(<a class="code" href="../../df/deb/namespacepoint__zone__fctry.html#ae077a3d6749897b13e856769d70c4e1b">known_types</a>, new_line(<span class="stringliteral">&#39;A&#39;</span>) // <span class="stringliteral">&quot;-  &quot;</span>, &amp;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;                                          .true.)</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Unknown point zone type: &quot;</span> &amp;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                       // trim(type_name) // <span class="stringliteral">&quot;.  Known types are: &quot;</span> &amp;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;                       // type_string)</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keyword">call </span>object%init(json, dof%size())</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keyword">call </span>object%map(dof)</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keyword">call </span>object%finalize()</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401">point_zone_factory</a></div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160; </div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="keyword">end module </span><a class="code" href="../../df/deb/namespacepoint__zone__fctry.html">point_zone_fctry</a></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(json, <span class="stringliteral">&quot;geometry&quot;</span>, type_name)</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&quot;box&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;       <span class="keyword">allocate</span>(<a class="code" href="../../d4/d0c/structbox__point__zone_1_1box__point__zone__t.html">box_point_zone_t</a>::object)</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&quot;sphere&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;       <span class="keyword">allocate</span>(<a class="code" href="../../d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html">sphere_point_zone_t</a>::object)</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&quot;cylinder&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;       <span class="keyword">allocate</span>(<a class="code" href="../../d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html">cylinder_point_zone_t</a>::object)</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;       type_string =  <a class="code" href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">concat_string_array</a>(<a class="code" href="../../df/deb/namespacepoint__zone__fctry.html#ae077a3d6749897b13e856769d70c4e1b">known_types</a>, new_line(<span class="stringliteral">&#39;A&#39;</span>) // <span class="stringliteral">&quot;-  &quot;</span>, &amp;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;                                          .true.)</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Unknown point zone type: &quot;</span> &amp;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;                       // trim(type_name) // <span class="stringliteral">&quot;.  Known types are: &quot;</span> &amp;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                       // type_string)</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordflow">if</span> (<span class="keyword">present</span>(dof)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;       <span class="keyword">call </span>object%init(json, dof%size())</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;       <span class="keyword">call </span>object%map(dof)</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;       <span class="keyword">call </span>object%finalize()</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;       <span class="comment">! This is for initializing zones inside a combine point zone,</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;       <span class="comment">! as they don&#39;t need to be mapped</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;       <span class="keyword">call </span>object%init(json, 1)</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;       <span class="keyword">call </span>object%finalize()</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401">point_zone_factory</a></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="keyword">end module </span><a class="code" href="../../df/deb/namespacepoint__zone__fctry.html">point_zone_fctry</a></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00044">json_utils.f90:44</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00041">utils.f90:41</a></div></div>
 <div class="ttc" id="anamespacebox__point__zone_html"><div class="ttname"><a href="../../d0/d03/namespacebox__point__zone.html">box_point_zone</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d79/box__point__zone_8f90_source.html#l00034">box_point_zone.f90:34</a></div></div>
@@ -205,7 +212,7 @@ $(document).ready(function(){initNavTree('d9/d7d/point__zone__fctry_8f90_source.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../d9/d7d/point__zone__fctry_8f90.html">point_zone_fctry.f90</a></li>
-    <li class="footer">Generated on Mon Jul 29 2024 03:34:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 30 2024 03:35:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

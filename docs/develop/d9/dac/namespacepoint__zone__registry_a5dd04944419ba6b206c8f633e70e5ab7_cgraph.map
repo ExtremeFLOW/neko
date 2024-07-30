@@ -1,5 +1,6 @@
 <map id="point_zone_registry::point_zone_registry_init" name="point_zone_registry::point_zone_registry_init">
-<area shape="rect" id="node1" title="Constructor, reading from json point zones." alt="" coords="5,5,192,47"/>
-<area shape="rect" id="node2" href="$df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401" title="Point zone factory. Constructs, initializes, and maps the point zone object." alt="" coords="240,5,411,47"/>
-<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="459,5,604,47"/>
+<area shape="rect" id="node1" title="Constructor, reading from json point zones." alt="" coords="5,39,192,80"/>
+<area shape="rect" id="node2" href="$d9/dac/namespacepoint__zone__registry.html#a07b62ba2ea24a84336d5ada586b6402f" title="Constructs a combine_point_zone_t object." alt="" coords="240,5,443,47"/>
+<area shape="rect" id="node3" href="$df/deb/namespacepoint__zone__fctry.html#ae04b4d981709ba8573ac8a8421c0d401" title="Point zone factory. Constructs, initializes, and maps the point zone object." alt="" coords="256,71,427,112"/>
+<area shape="rect" id="node4" href="$d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad" title="Concatenate an array of strings into one string with array items separated by spaces." alt="" coords="491,71,636,112"/>
 </map>

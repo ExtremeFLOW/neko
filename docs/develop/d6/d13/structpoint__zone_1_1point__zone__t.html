@@ -108,10 +108,11 @@ Inheritance diagram for point_zone::point_zone_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/dd9/structpoint__zone_1_1point__zone__t__inherit__graph.png" border="0" usemap="#apoint__zone_1_1point__zone__t_inherit__map" alt="Inheritance graph"/></div>
 <map name="apoint__zone_1_1point__zone__t_inherit__map" id="apoint__zone_1_1point__zone__t_inherit__map">
-<area shape="rect" title="Base abstract type for point zones." alt="" coords="5,78,189,105"/>
-<area shape="rect" href="../../d4/d0c/structbox__point__zone_1_1box__point__zone__t.html" title="A box&#45;shaped point zone." alt="" coords="245,5,401,47"/>
-<area shape="rect" href="../../d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html" title="A cylindrical point zone." alt="" coords="237,71,409,112"/>
-<area shape="rect" href="../../d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html" title="A sphere&#45;shaped point zone." alt="" coords="245,136,401,177"/>
+<area shape="rect" title="Base abstract type for point zones." alt="" coords="5,111,189,138"/>
+<area shape="rect" href="../../d4/d0c/structbox__point__zone_1_1box__point__zone__t.html" title="A box&#45;shaped point zone." alt="" coords="247,5,403,47"/>
+<area shape="rect" href="../../d9/d38/structcombine__point__zone_1_1combine__point__zone__t.html" title="A point zone that combines different point zones." alt="" coords="237,71,413,112"/>
+<area shape="rect" href="../../d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html" title="A cylindrical point zone." alt="" coords="239,136,411,177"/>
+<area shape="rect" href="../../d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html" title="A sphere&#45;shaped point zone." alt="" coords="247,201,403,243"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -128,7 +129,7 @@ Collaboration diagram for point_zone::point_zone_t:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5021e105153a9bcb6d0fb042bf618815"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a5021e105153a9bcb6d0fb042bf618815">init_base</a> =&gt; <a class="el" href="../../dc/d5f/namespacepoint__zone.html#a507936f9e00dbcb59306833ca04a718d">point_zone_init_base</a></td></tr>
+<tr class="memitem:a5021e105153a9bcb6d0fb042bf618815"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a5021e105153a9bcb6d0fb042bf618815">init_base</a> =&gt; <a class="el" href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">point_zone_init_base</a></td></tr>
 <tr class="memdesc:a5021e105153a9bcb6d0fb042bf618815"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for the <a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones.">point_zone_t</a> base type.  <a href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a5021e105153a9bcb6d0fb042bf618815">More...</a><br /></td></tr>
 <tr class="separator:a5021e105153a9bcb6d0fb042bf618815"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a035190aec191434d9f5e527f1c8e39e0"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a035190aec191434d9f5e527f1c8e39e0">free_base</a> =&gt; <a class="el" href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">point_zone_free_base</a></td></tr>
@@ -167,6 +168,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:aa485a77f2a223a2249231cfe6ef19c8a"><td class="memItemLeft" align="right" valign="top">character(len=80)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#aa485a77f2a223a2249231cfe6ef19c8a">name</a></td></tr>
 <tr class="memdesc:aa485a77f2a223a2249231cfe6ef19c8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of the point zone (used for retrieval in the <a class="el" href="../../d9/dac/namespacepoint__zone__registry.html">point_zone_registry</a>).  <a href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#aa485a77f2a223a2249231cfe6ef19c8a">More...</a><br /></td></tr>
 <tr class="separator:aa485a77f2a223a2249231cfe6ef19c8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad3ba8338f7108d775b528b93eb92810"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#aad3ba8338f7108d775b528b93eb92810">invert</a> = .false.</td></tr>
+<tr class="memdesc:aad3ba8338f7108d775b528b93eb92810"><td class="mdescLeft">&#160;</td><td class="mdescRight">If we select the inverse of the criterion or not.  <a href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#aad3ba8338f7108d775b528b93eb92810">More...</a><br /></td></tr>
+<tr class="separator:aad3ba8338f7108d775b528b93eb92810"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -193,7 +197,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -209,7 +213,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -225,7 +229,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -241,7 +245,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -257,7 +261,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -273,7 +277,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -289,7 +293,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -305,7 +309,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -331,6 +335,22 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+
+</div>
+</div>
+<a id="aad3ba8338f7108d775b528b93eb92810"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad3ba8338f7108d775b528b93eb92810">&#9670;&nbsp;</a></span>invert</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">logical point_zone::point_zone_t::invert = .false.</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -431,7 +451,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></li><li class="navelem"><a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></li>
-    <li class="footer">Generated on Mon Jul 29 2024 03:34:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 30 2024 03:35:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

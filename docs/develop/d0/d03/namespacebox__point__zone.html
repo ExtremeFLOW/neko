@@ -110,9 +110,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a0452627b76cd7a1a8744b8e829e8ea18"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d03/namespacebox__point__zone.html#a0452627b76cd7a1a8744b8e829e8ea18">box_point_zone_init_from_json</a> (this, json, size)</td></tr>
 <tr class="memdesc:a0452627b76cd7a1a8744b8e829e8ea18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from json object file.  <a href="../../d0/d03/namespacebox__point__zone.html#a0452627b76cd7a1a8744b8e829e8ea18">More...</a><br /></td></tr>
 <tr class="separator:a0452627b76cd7a1a8744b8e829e8ea18"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42f62cb739724ed1cd169233a56e3b3b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d03/namespacebox__point__zone.html#a42f62cb739724ed1cd169233a56e3b3b">box_point_zone_init_common</a> (this, size, name, xmin, xmax, ymin, ymax, zmin, zmax)</td></tr>
-<tr class="memdesc:a42f62cb739724ed1cd169233a56e3b3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a box point zone from its coordinates.  <a href="../../d0/d03/namespacebox__point__zone.html#a42f62cb739724ed1cd169233a56e3b3b">More...</a><br /></td></tr>
-<tr class="separator:a42f62cb739724ed1cd169233a56e3b3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a043d3402781ab3db5b2481bc1321a075"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d03/namespacebox__point__zone.html#a043d3402781ab3db5b2481bc1321a075">box_point_zone_init_common</a> (this, size, name, invert, xmin, xmax, ymin, ymax, zmin, zmax)</td></tr>
+<tr class="memdesc:a043d3402781ab3db5b2481bc1321a075"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a box point zone from its coordinates.  <a href="../../d0/d03/namespacebox__point__zone.html#a043d3402781ab3db5b2481bc1321a075">More...</a><br /></td></tr>
+<tr class="separator:a043d3402781ab3db5b2481bc1321a075"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5abf2d9cea881fbfbe2379ac765ba6f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d03/namespacebox__point__zone.html#ac5abf2d9cea881fbfbe2379ac765ba6f">box_point_zone_free</a> (this)</td></tr>
 <tr class="memdesc:ac5abf2d9cea881fbfbe2379ac765ba6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d0/d03/namespacebox__point__zone.html#ac5abf2d9cea881fbfbe2379ac765ba6f">More...</a><br /></td></tr>
 <tr class="separator:ac5abf2d9cea881fbfbe2379ac765ba6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -206,7 +206,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html#l00155">155</a> of file <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html">box_point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html#l00160">160</a> of file <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html">box_point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -234,12 +234,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html#l00126">126</a> of file <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html">box_point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html#l00131">131</a> of file <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html">box_point_zone.f90</a>.</p>
 
 </div>
 </div>
-<a id="a42f62cb739724ed1cd169233a56e3b3b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a42f62cb739724ed1cd169233a56e3b3b">&#9670;&nbsp;</a></span>box_point_zone_init_common()</h2>
+<a id="a043d3402781ab3db5b2481bc1321a075"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a043d3402781ab3db5b2481bc1321a075">&#9670;&nbsp;</a></span>box_point_zone_init_common()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -264,6 +264,12 @@ Functions/Subroutines</h2></td></tr>
           <td></td>
           <td class="paramtype">character(len=*), intent(in)&#160;</td>
           <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">logical, intent(in)&#160;</td>
+          <td class="paramname"><em>invert</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -327,12 +333,12 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html">box_point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html#l00106">106</a> of file <a class="el" href="../../d8/d79/box__point__zone_8f90_source.html">box_point_zone.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d0/d03/namespacebox__point__zone_a42f62cb739724ed1cd169233a56e3b3b_icgraph.png" border="0" usemap="#ad0/d03/namespacebox__point__zone_a42f62cb739724ed1cd169233a56e3b3b_icgraph" alt=""/></div>
-<map name="ad0/d03/namespacebox__point__zone_a42f62cb739724ed1cd169233a56e3b3b_icgraph" id="ad0/d03/namespacebox__point__zone_a42f62cb739724ed1cd169233a56e3b3b_icgraph">
+<div class="center"><img src="../../d0/d03/namespacebox__point__zone_a043d3402781ab3db5b2481bc1321a075_icgraph.png" border="0" usemap="#ad0/d03/namespacebox__point__zone_a043d3402781ab3db5b2481bc1321a075_icgraph" alt=""/></div>
+<map name="ad0/d03/namespacebox__point__zone_a043d3402781ab3db5b2481bc1321a075_icgraph" id="ad0/d03/namespacebox__point__zone_a043d3402781ab3db5b2481bc1321a075_icgraph">
 <area shape="rect" title="Initializes a box point zone from its coordinates." alt="" coords="253,5,445,47"/>
 <area shape="rect" href="../../d0/d03/namespacebox__point__zone.html#a0452627b76cd7a1a8744b8e829e8ea18" title="Constructor from json object file." alt="" coords="5,5,205,47"/>
 </map>
@@ -386,7 +392,7 @@ Here is the call graph for this function:</div>
 <div class="center"><img src="../../d0/d03/namespacebox__point__zone_a0452627b76cd7a1a8744b8e829e8ea18_cgraph.png" border="0" usemap="#ad0/d03/namespacebox__point__zone_a0452627b76cd7a1a8744b8e829e8ea18_cgraph" alt=""/></div>
 <map name="ad0/d03/namespacebox__point__zone_a0452627b76cd7a1a8744b8e829e8ea18_cgraph" id="ad0/d03/namespacebox__point__zone_a0452627b76cd7a1a8744b8e829e8ea18_cgraph">
 <area shape="rect" title="Constructor from json object file." alt="" coords="5,5,205,47"/>
-<area shape="rect" href="../../d0/d03/namespacebox__point__zone.html#a42f62cb739724ed1cd169233a56e3b3b" title="Initializes a box point zone from its coordinates." alt="" coords="253,5,445,47"/>
+<area shape="rect" href="../../d0/d03/namespacebox__point__zone.html#a043d3402781ab3db5b2481bc1321a075" title="Initializes a box point zone from its coordinates." alt="" coords="253,5,445,47"/>
 </map>
 </div>
 
@@ -398,7 +404,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d03/namespacebox__point__zone.html">box_point_zone</a></li>
-    <li class="footer">Generated on Mon Jul 29 2024 03:34:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 30 2024 03:35:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

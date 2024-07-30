@@ -107,6 +107,9 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html">point_zone_wrapper_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A helper type to build a list of polymorphic point_zones.  <a href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html">point_zone_pointer_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A helper type to build a list of pointers to point_zones.  <a href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html">point_zone_criterion</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the criterion of selection of a GLL point to the <a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a>.  <a href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -119,9 +122,9 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a507936f9e00dbcb59306833ca04a718d"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#a507936f9e00dbcb59306833ca04a718d">point_zone_init_base</a> (this, size, name)</td></tr>
-<tr class="memdesc:a507936f9e00dbcb59306833ca04a718d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for the <a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones.">point_zone_t</a> base type.  <a href="../../dc/d5f/namespacepoint__zone.html#a507936f9e00dbcb59306833ca04a718d">More...</a><br /></td></tr>
-<tr class="separator:a507936f9e00dbcb59306833ca04a718d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9f5b565f64e8e144b00ef2d3e215bac"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">point_zone_init_base</a> (this, size, name, invert)</td></tr>
+<tr class="memdesc:ab9f5b565f64e8e144b00ef2d3e215bac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for the <a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones.">point_zone_t</a> base type.  <a href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">More...</a><br /></td></tr>
+<tr class="separator:ab9f5b565f64e8e144b00ef2d3e215bac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a05bf36dcccbd83cbef9c36d017579093"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">point_zone_free_base</a> (this)</td></tr>
 <tr class="memdesc:a05bf36dcccbd83cbef9c36d017579093"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for the <a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones.">point_zone_t</a> base type.  <a href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">More...</a><br /></td></tr>
 <tr class="separator:a05bf36dcccbd83cbef9c36d017579093"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -177,7 +180,7 @@ Functions/Subroutines</h2></td></tr>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>The linear index of a point <code>(j,k,l,e)</code> can be retrieved using the subroutine <code>linear_index(j,k,l,e,lx)</code> in the <code>utils</code> module. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00207">207</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00228">228</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -205,7 +208,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00173">173</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00185">185</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -233,7 +236,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00155">155</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -249,14 +252,14 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../dc/d5f/namespacepoint__zone_a05bf36dcccbd83cbef9c36d017579093_icgraph.png" border="0" usemap="#adc/d5f/namespacepoint__zone_a05bf36dcccbd83cbef9c36d017579093_icgraph" alt=""/></div>
 <map name="adc/d5f/namespacepoint__zone_a05bf36dcccbd83cbef9c36d017579093_icgraph" id="adc/d5f/namespacepoint__zone_a05bf36dcccbd83cbef9c36d017579093_icgraph">
 <area shape="rect" title="Destructor for the point_zone_t base type." alt="" coords="225,5,397,47"/>
-<area shape="rect" href="../../dc/d5f/namespacepoint__zone.html#a507936f9e00dbcb59306833ca04a718d" title="Constructor for the point_zone_t base type." alt="" coords="5,5,177,47"/>
+<area shape="rect" href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac" title="Constructor for the point_zone_t base type." alt="" coords="5,5,177,47"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a507936f9e00dbcb59306833ca04a718d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a507936f9e00dbcb59306833ca04a718d">&#9670;&nbsp;</a></span>point_zone_init_base()</h2>
+<a id="ab9f5b565f64e8e144b00ef2d3e215bac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9f5b565f64e8e144b00ef2d3e215bac">&#9670;&nbsp;</a></span>point_zone_init_base()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -280,7 +283,13 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">character(len=*), intent(in)&#160;</td>
-          <td class="paramname"><em>name</em>&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">logical, intent(in)&#160;</td>
+          <td class="paramname"><em>invert</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -298,16 +307,17 @@ Here is the caller graph for this function:</div>
   <table class="params">
     <tr><td class="paramname">size</td><td>Size of the scratch stack. </td></tr>
     <tr><td class="paramname">name</td><td>Name of the point zone. </td></tr>
+    <tr><td class="paramname">invert</td><td>Flag to indicate wether or not to invert the selection of points. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00137">137</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00147">147</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dc/d5f/namespacepoint__zone_a507936f9e00dbcb59306833ca04a718d_cgraph.png" border="0" usemap="#adc/d5f/namespacepoint__zone_a507936f9e00dbcb59306833ca04a718d_cgraph" alt=""/></div>
-<map name="adc/d5f/namespacepoint__zone_a507936f9e00dbcb59306833ca04a718d_cgraph" id="adc/d5f/namespacepoint__zone_a507936f9e00dbcb59306833ca04a718d_cgraph">
+<div class="center"><img src="../../dc/d5f/namespacepoint__zone_ab9f5b565f64e8e144b00ef2d3e215bac_cgraph.png" border="0" usemap="#adc/d5f/namespacepoint__zone_ab9f5b565f64e8e144b00ef2d3e215bac_cgraph" alt=""/></div>
+<map name="adc/d5f/namespacepoint__zone_ab9f5b565f64e8e144b00ef2d3e215bac_cgraph" id="adc/d5f/namespacepoint__zone_ab9f5b565f64e8e144b00ef2d3e215bac_cgraph">
 <area shape="rect" title="Constructor for the point_zone_t base type." alt="" coords="5,5,177,47"/>
 <area shape="rect" href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093" title="Destructor for the point_zone_t base type." alt="" coords="225,5,397,47"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="445,13,595,39"/>
@@ -356,7 +366,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00222">222</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00243">243</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -375,7 +385,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></li>
-    <li class="footer">Generated on Mon Jul 29 2024 03:34:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Jul 30 2024 03:35:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
