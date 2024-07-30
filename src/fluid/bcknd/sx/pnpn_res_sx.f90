@@ -43,7 +43,7 @@ contains
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
-    real(kind=rp) :: dtbd
+    real(kind=rp) :: dtbd, rho_val, mu_val
     integer :: n
     integer :: i
     type(field_t), pointer :: ta1, ta2, ta3, wa1, wa2, wa3, work1, work2
