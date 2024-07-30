@@ -133,6 +133,7 @@ neko_fortran_SOURCES = \
 	bc/bc.f90\
 	bc/dirichlet.f90\
 	bc/neumann.f90\
+	bc/shear_stress.f90\
 	bc/dong_outflow.f90\
 	bc/wall.f90\
 	bc/inflow.f90\
@@ -144,7 +145,6 @@ neko_fortran_SOURCES = \
 	bc/symmetry.f90\
 	bc/non_normal.f90\
 	bc/blasius.f90\
-	bc/shear_stress.f90\
 	bc/wall_model_bc.f90\
 	krylov/precon.f90\
 	krylov/krylov.f90\
@@ -188,6 +188,9 @@ neko_fortran_SOURCES = \
 	config/neko_config.f90\
 	case.f90\
 	common/user_intf.f90\
+	fluid/stress_formulation/pnpn_res_stress_fctry.f90\
+	fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90\
+	fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90\
 	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
 	fluid/fluid_pnpn.f90\
@@ -209,10 +212,6 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/device/pnpn_res_device.F90\
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
-	fluid/stress_formulation/pnpn_res_stress_fctry.f90\
-	fluid/stress_formulation/pnpn_res_stress.f90\
-	fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90\
-	fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90\
 	common/time_step_controller.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
@@ -294,9 +293,9 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/elementwise_filter_cpu.f90\
 	les/sigma.f90\
 	les/bcknd/cpu/sigma_cpu.f90\
+	wall_models/wall_model.f90\
 	wall_models/rough_log_law.f90\
 	wall_models/spalding.f90\
-	wall_models/wall_model.f90\
 	wall_models/wall_model_fctry.f90\
 	neko.f90
 
