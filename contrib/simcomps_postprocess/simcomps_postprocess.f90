@@ -75,13 +75,7 @@ program simcomps_postprocess
 
   ! --- Create empty objects with just what is necessary
   empty_case%end_time = 999999.0_rp
-  call mesh%init(fld_data%gdim, fld_data%nelv)
-  dof = dofmap_t(fld_data%x%x, fld_data%y%x, fld_data%z%x, &
-       fld_data%nelv, fld_data%lx, fld_data%ly, fld_data%lz)
   call Xh%init(GLL, fld_data%lx, fld_data%ly, lz=fld_data%lz)
-
-  dof%Xh => Xh
-  dof%msh => mesh
   ! --------------
 
   ! ----- Serch for simulation components
@@ -103,7 +97,7 @@ program simcomps_postprocess
 
   select type (s => simcomp)
   type is (probes_t)
-     call s%init_post(comp_subdict, empty_case, dof, Xh, fld_data)
+     call s%init_post(comp_subdict, empty_case, Xh, fld_data)
   class default
      call neko_error("Problem")
   end select

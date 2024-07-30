@@ -128,11 +128,10 @@ module probes
 contains
 
  !> Constructor from json.
-  subroutine probes_init_for_postprocessing(this, json, case, dof, Xh, fld_data)
+  subroutine probes_init_for_postprocessing(this, json, case, Xh, fld_data)
     class(probes_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    type(dofmap_t), intent(in) :: dof
     type(space_t), intent(in) :: Xh
     type(fld_file_data_t), intent(in) :: fld_data
     character(len=:), allocatable :: output_file
@@ -202,7 +201,7 @@ contains
 
          case ('file')
           call this%read_file(json_point)
-         case ('point')
+         case ('points')
           call this%read_point(json_point)
          case ('line')
           call this%read_line(json_point)
@@ -212,7 +211,8 @@ contains
           call this%read_circle(json_point)
 
          case ('point_zone')
-          call this%read_point_zone(json_point, dof)
+          call this%read_point_zone(json_point, fld_data%x%x, fld_data%y%x, &
+               fld_data%z%x, fld_data%x%n)
 
          case ('none')
           call json_point%print()
@@ -226,7 +226,12 @@ contains
                        MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
-    call this%init_from_attributes(dof, output_file)
+
+    !> Init interpolator
+    call this%global_interp%init(fld_data%x%x, fld_data%y%x, fld_data%z%x, &
+         fld_data%gdim, fld_data%nelv, Xh)
+
+    call this%init_from_attributes(output_file)
 
   end subroutine probes_init_for_postprocessing
 
@@ -305,7 +310,8 @@ contains
          case ('circle')
           call this%read_circle(json_point)
          case ('point_zone')
-          call this%read_point_zone(json_point, case%fluid%dm_Xh)
+          call this%read_point_zone(json_point, case%fluid%dm_Xh%x, &
+               case%fluid%dm_Xh%y, case%fluid%dm_Xh%z, case%fluid%dm_Xh%size())
          case ('none')
           call json_point%print()
           call neko_error('No point type specified.')
@@ -318,7 +324,11 @@ contains
                        MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
-    call this%init_from_attributes(case%fluid%dm_Xh, output_file)
+
+    !> Init interpolator
+    call this%global_interp%init(case%fluid%dm_Xh)
+
+    call this%init_from_attributes(output_file)
 
   end subroutine probes_init_from_json
 
@@ -501,10 +511,13 @@ contains
   !! probe list.
   !! @param[inout] this The probes object.
   !! @param[inout] json The json file object.
-  subroutine read_point_zone(this, json, dof)
+  subroutine read_point_zone(this, json, dof_x, dof_y, dof_z, n)
     class(probes_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(dofmap_t), intent(in) :: dof
+    real(kind=rp), intent(in), dimension(n) :: dof_x
+    real(kind=rp), intent(in), dimension(n) :: dof_y
+    real(kind=rp), intent(in), dimension(n) :: dof_z
+    integer, intent(in) :: n
 
     real(kind=rp), dimension(:,:), allocatable :: point_list
     character(len=:), allocatable :: point_zone_name
@@ -521,14 +534,12 @@ contains
     ! Allocate list of points and reshape the input array
     allocate(point_list(3, zone%size))
 
-    lx = dof%Xh%lx
     do i = 1, zone%size
        idx = zone%mask(i)
 
-       nlindex = nonlinear_index(idx, lx, lx, lx)
-       x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
-       y = dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
-       z = dof%z(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+       x = dof_x(idx)
+       y = dof_y(idx)
+       z = dof_z(idx)
 
        point_list(:, i) = [x, y, z]
     end do
@@ -574,17 +585,13 @@ contains
   !> Initialize without json things
   !! @param dof Dofmap to probe
   !! @output_file Name of output file, current must be CSV
-  subroutine probes_init_from_attributes(this, dof, output_file)
+  subroutine probes_init_from_attributes(this, output_file)
     class(probes_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout) :: output_file
     character(len=1024) :: header_line
     real(kind=rp), allocatable :: global_output_coords(:,:)
     integer :: i, ierr
     type(matrix_t) :: mat_coords
-
-    !> Init interpolator
-    call this%global_interp%init(dof)
 
     !> find probes and redistribute them
     call this%global_interp%find_points_and_redist(this%xyz, &
