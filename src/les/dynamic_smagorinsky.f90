@@ -98,6 +98,7 @@ contains
     this%test_filter_type = "nonBoyd"
     ! Filter assumes lx = ly = lz
     call this%test_filter%init(dofmap%xh%lx, this%test_filter_type)
+    call set_ds_filt(this%test_filter)
 
     call this%c_dyn%init(dofmap, "ds_c_dyn")
     call this%num%init(dofmap, "ds_num")
@@ -134,8 +135,6 @@ contains
     class(dynamic_smagorinsky_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-
-    call set_ds_filt(this%test_filter)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
         call neko_error("Dynamic Smagorinsky model not implemented on &
