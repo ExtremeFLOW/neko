@@ -825,7 +825,7 @@ contains
        call fd_weights_full(Xh%zg(j,1), zquad,2,0, jxt(k))
        call fd_weights_full(Xh%zg(j,2), zquad,2,0, jyt(k))
        if (msh%gdim .gt. 2) then
-          call fd_weights_full(Xh%zg(j,3), zquad,2,0,jzt(k))
+          call fd_weights_full(Xh%zg(j,3), zquad,2,0, jzt(k))
        end if
        k = k + 3
     end do
