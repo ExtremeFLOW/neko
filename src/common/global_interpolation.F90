@@ -131,7 +131,7 @@ contains
     real(kind=rp), optional :: tol
 
     call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
-         dof%msh%gdim, dof%msh%nelv, dof%Xh, tol=tol)
+         dof%msh%gdim, dof%msh%nelv, dof%Xh, tol = tol)
 
   end subroutine global_interpolation_init_dof
 

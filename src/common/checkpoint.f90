@@ -141,58 +141,62 @@ contains
     class(chkp_t), intent(inout) :: this
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       associate(u=>this%u, v=>this%v, w=>this%w, &
-            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag, &
-            p=>this%p)
+       associate(u => this%u, v => this%v, w => this%w, &
+            ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
+            p => this%p)
 
          if (associated(this%u) .and. associated(this%v) .and. &
               associated(this%w) .and. associated(this%p)) then
-            call device_memcpy(u%x, u%x_d, u%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(v%x, v%x_d, v%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(w%x, w%x_d, w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(p%x, p%x_d, p%dof%size(), DEVICE_TO_HOST, sync=.false.)
+            call device_memcpy(u%x, u%x_d, u%size(), DEVICE_TO_HOST, &
+                               sync = .false.)
+            call device_memcpy(v%x, v%x_d, v%size(), DEVICE_TO_HOST, &
+                               sync = .false.)
+            call device_memcpy(w%x, w%x_d, w%size(), DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(p%x, p%x_d, p%size(), DEVICE_TO_HOST, &
+                               sync = .false.)
          end if
 
          if (associated(this%ulag) .and. associated(this%vlag) .and. &
               associated(this%wlag)) then
             call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
-                               u%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               u%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
-                               u%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               u%size(), DEVICE_TO_HOST, sync = .false.)
 
             call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
-                               v%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               v%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
-                               v%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               v%size(), DEVICE_TO_HOST, sync = .false.)
 
             call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
-                               w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               w%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
-                               w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               w%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                               w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               w%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                               w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               w%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%aby1%x, this%aby1%x_d, &
-                               w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               w%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%aby2%x, this%aby2%x_d, &
-                               w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               w%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abz1%x, this%abz1%x_d, &
-                               w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               w%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abz2%x, this%abz2%x_d, &
-                               w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               w%size(), DEVICE_TO_HOST, sync = .false.)
          end if
          if (associated(this%s)) then
             call device_memcpy(this%s%x, this%s%x_d, &
-                               this%s%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               this%s%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                               this%s%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               this%s%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                               this%s%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               this%s%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abs1%x, this%abs1%x_d, &
-                               w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               w%size(), DEVICE_TO_HOST, sync = .false.)
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
-                               w%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                               w%size(), DEVICE_TO_HOST, sync = .false.)
          end if
        end associate
        call device_sync(glb_cmd_queue)
@@ -211,45 +215,45 @@ contains
 
          if (associated(this%u) .and. associated(this%v) .and. &
               associated(this%w)) then
-            call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(p%x, p%x_d, p%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(u%x, u%x_d, u%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
+            call device_memcpy(v%x, v%x_d, v%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
+            call device_memcpy(w%x, w%x_d, w%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
+            call device_memcpy(p%x, p%x_d, p%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
          end if
 
          if (associated(this%ulag) .and. associated(this%vlag) .and. &
               associated(this%wlag)) then
-            call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, u%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, u%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, u%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
+            call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, u%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
 
-            call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, v%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, v%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, v%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
+            call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, v%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
 
-            call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, w%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, w%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, w%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
+            call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, w%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
          end if
          if (associated(this%s)) then
-            call device_memcpy(this%s%x, this%s%x_d, this%s%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(this%s%x, this%s%x_d, this%s%size(), &
+                               HOST_TO_DEVICE, sync = .false.)
 
             call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                               this%s%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                               this%s%size(), HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                               this%s%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                               this%s%size(), HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(this%abs1%x, this%abs1%x_d, &
-                               w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                               w%size(), HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
-                               w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                               w%size(), HOST_TO_DEVICE, sync = .false.)
          end if
        end associate
     end if

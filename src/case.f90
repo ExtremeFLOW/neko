@@ -420,7 +420,7 @@ contains
        call json_get_or_default(C%params, 'case.checkpoint_format', &
             string_val, "chkp")
        C%f_chkp = chkp_output_t(C%fluid%chkp, path = output_directory, &
-            fmt=trim(string_val))
+            fmt = trim(string_val))
        call json_get_or_default(C%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
        call json_get_or_default(C%params, 'case.checkpoint_value', real_val,&

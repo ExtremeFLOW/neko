@@ -520,7 +520,7 @@ contains
         buffer(j + 0) = real(vlmin(z(1, el), lxyz), sp)
         buffer(j + 1) = real(vlmax(z(1, el), lxyz), sp)
         j = j + 2
-     enddo
+     end do
 
      ! write out data
      nout = 2*gdim*nelv
@@ -546,7 +546,7 @@ contains
         buffer(j + 0) = real(vlmin(x(1, el), lxyz), sp)
         buffer(j + 1) = real(vlmax(x(1, el), lxyz), sp)
         j = j + 2
-     enddo
+     end do
 
      ! write out data
      nout = 2 * nelv
@@ -735,7 +735,7 @@ contains
        call MPI_File_read_all(fh, hdr, 132, MPI_CHARACTER,  status, ierr)
        !This read can prorbably be done wihtout the temp variables,temp_str,i,j
 
-       read(hdr, 1) temp_str,FLD_DATA_SIZE, lx, ly, lz, glb_nelv, glb_nelv,&
+       read(hdr, 1) temp_str, FLD_DATA_SIZE, lx, ly, lz, glb_nelv, glb_nelv,&
           time, counter, i, j, (rdcode(i), i = 1, 10)
 1      format(4a, 1x, i1, 1x, i2, 1x, i2, 1x, i2, 1x, i10, 1x, i10, 1x, &
             e20.13, 1x, i9, 1x, i6, 1x, i6, 1x, 10a)
