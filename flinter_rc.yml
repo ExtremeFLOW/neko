@@ -106,9 +106,15 @@ regexp-rules:
     replacement: end \1
     active: true
 
-  missing-spaces-around-=:
-    message: Missing spaces around "="
-    regexp: (?<!(\(kind|.\(len)|...\'d|...\'n)=(\w|\(|\.|\+|-|\'|")
+  missing-spaces-before-=:
+    message: Missing spaces before "="
+    regexp: ([^ \=\n]+)(?<!(kind|.len|..\'d|..\'n))=
+    replacement: ' = \2'
+    active: true
+
+  missing-spaces-after-=:
+    message: Missing spaces after "="
+    regexp: (?<!(kind|.len|..\'d|..\'n))=(?![=<>])([^ ]\S*)
     replacement: ' = \2'
     active: true
 
