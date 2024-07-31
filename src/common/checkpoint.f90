@@ -209,9 +209,9 @@ contains
     class(chkp_t), intent(inout) :: this
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       associate(u=>this%u, v=>this%v, w=>this%w, &
-            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag,&
-            p=>this%p)
+       associate(u => this%u, v => this%v, w => this%w, &
+            ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
+            p => this%p)
 
          if (associated(this%u) .and. associated(this%v) .and. &
               associated(this%w)) then
