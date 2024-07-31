@@ -303,7 +303,7 @@ var namespaces_dup =
     [ "krylov_fctry", "d9/d77/namespacekrylov__fctry.html", [
       [ "krylov_solver_destroy", "d9/d77/namespacekrylov__fctry.html#a6aeb41860ae6067054a60c5ae6262d5f", null ],
       [ "krylov_solver_factory", "d9/d77/namespacekrylov__fctry.html#afbaa64cc1a8ad32e985748ce4e32f7d2", null ],
-      [ "known_types", "d9/d77/namespacekrylov__fctry.html#ae1db5f1863ffc5f544e8d1427eb804ff", null ]
+      [ "known_types", "d9/d77/namespacekrylov__fctry.html#a5510070e099791b8657c849cf6a0fb49", null ]
     ] ],
     [ "lambda2", "d0/d66/namespacelambda2.html", "d0/d66/namespacelambda2" ],
     [ "les_model", "dd/dfc/namespaceles__model.html", "dd/dfc/namespaceles__model" ],
@@ -504,7 +504,6 @@ var namespaces_dup =
     ] ],
     [ "pnpn_res_sx", "d4/da3/namespacepnpn__res__sx.html", "d4/da3/namespacepnpn__res__sx" ],
     [ "pnpn_residual", "db/dea/namespacepnpn__residual.html", "db/dea/namespacepnpn__residual" ],
-    [ "pnpn_residual_stress", "d0/d56/namespacepnpn__residual__stress.html", "d0/d56/namespacepnpn__residual__stress" ],
     [ "point", "d8/dbc/namespacepoint.html", "d8/dbc/namespacepoint" ],
     [ "point_interpolator", "df/d77/namespacepoint__interpolator.html", "df/d77/namespacepoint__interpolator" ],
     [ "point_zone", "dc/d5f/namespacepoint__zone.html", "dc/d5f/namespacepoint__zone" ],

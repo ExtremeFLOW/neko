@@ -14,5 +14,6 @@ var structles__simcomp_1_1les__simcomp__t =
     [ "les_model", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#a75f569a7cb752acd969250778b075c8b", null ],
     [ "order", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#a94c0ad573141501bb354fd8c3f93a830", null ],
     [ "output_controller", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#acc0e9937091f7dbbb6bc1e1c8b0b2c9f", null ],
-    [ "preprocess_controller", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#ae51a7cdb03cda7e4460ee4bc645aef01", null ]
+    [ "preprocess_controller", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#ae51a7cdb03cda7e4460ee4bc645aef01", null ],
+    [ "writer", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#af734386abe27f7fd9861dc72b4daa75f", null ]
 ];

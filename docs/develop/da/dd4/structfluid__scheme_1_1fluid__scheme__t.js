@@ -48,6 +48,7 @@ var structfluid__scheme_1_1fluid__scheme__t =
     [ "pr_projection_activ_step", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a7d6fa4f5cfca4b3bc99a66d93c95a488", null ],
     [ "pr_projection_dim", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#abe694e73371e34a2327302731dc51806", null ],
     [ "rho", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ae46a1d877119413b14c1951e1a56093a", null ],
+    [ "rho_field", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#adff2dfca0487f909e46c219463fa652e", null ],
     [ "scratch", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a12cfc524116d1dcd5e9a6506f7fbc2d7", null ],
     [ "source_term", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aac122a8841f951d2c5fe011b15371324", null ],
     [ "stats", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ab4d83ffb539b98cd5f3dc0ba3490af30", null ],

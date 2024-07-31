@@ -1,7 +1,6 @@
 <map id="dynamic_smagorinsky::dynamic_smagorinsky_compute" name="dynamic_smagorinsky::dynamic_smagorinsky_compute">
-<area shape="rect" id="node1" title="Compute eddy viscosity." alt="" coords="5,865,181,921"/>
+<area shape="rect" id="node1" title="Compute eddy viscosity." alt="" coords="5,828,181,884"/>
 <area shape="rect" id="node2" href="$da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6" title="Compute eddy viscosity on the CPU." alt="" coords="229,828,436,884"/>
-<area shape="rect" id="node50" href="$d4/d9c/namespacedynamic__smagorinsky.html#a4c40cba54e7e67a0749532f45d134520" title="Set up the test filter." alt="" coords="249,908,417,950"/>
 <area shape="rect" id="node3" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="1469,372,1559,398"/>
 <area shape="rect" id="node4" href="$da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78" title="Compute Germano Identity on the CPU." alt="" coords="507,835,675,876"/>
 <area shape="rect" id="node7" href="$da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376" title="Compute M_ij on the CPU." alt="" coords="504,900,679,942"/>

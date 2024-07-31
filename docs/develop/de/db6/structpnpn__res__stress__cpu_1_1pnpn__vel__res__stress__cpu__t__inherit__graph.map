@@ -1,4 +1,4 @@
 <map id="pnpn_res_stress_cpu::pnpn_vel_res_stress_cpu_t" name="pnpn_res_stress_cpu::pnpn_vel_res_stress_cpu_t">
 <area shape="rect" id="node1" title="CPU implementation of the velocity residual for the PnPn fluid with full viscous stress formulation." alt="" coords="5,95,209,136"/>
-<area shape="rect" id="node2" href="$d4/de6/structpnpn__residual__stress_1_1pnpn__vel__res__stress__t.html" title="Abstract type to compute the velocity residual for the PnPn fluid with full viscous stress formulatio..." alt="" coords="20,5,195,47"/>
+<area shape="rect" id="node2" href="$d9/d51/structpnpn__residual_1_1pnpn__vel__res__t.html" title="Abstract type to compute velocity residual." alt="" coords="31,5,184,47"/>
 </map>

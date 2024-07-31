@@ -1,4 +1,4 @@
 <map id="dynamic_smagorinsky::set_ds_filt" name="dynamic_smagorinsky::set_ds_filt">
-<area shape="rect" id="node1" title="Set up the test filter." alt="" coords="229,13,397,54"/>
-<area shape="rect" id="node2" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="5,5,181,61"/>
+<area shape="rect" id="node1" title="Set up the test filter." alt="" coords="257,5,425,47"/>
+<area shape="rect" id="node2" href="$d4/d9c/namespacedynamic__smagorinsky.html#a5152e038f85bd0cc3cc13d4b1963eacc" title="Constructor." alt="" coords="5,5,209,47"/>
 </map>

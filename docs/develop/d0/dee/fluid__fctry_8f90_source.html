@@ -147,20 +147,19 @@ $(document).ready(function(){initNavTree('d0/dee/fluid__fctry_8f90_source.html',
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">character(len=*)</span> :: type_name</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: type_string</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&#39;pnpn&#39;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;       <span class="keyword">allocate</span>(<a class="code" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>::object)</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;       type_string =  <a class="code" href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">concat_string_array</a>(<a class="code" href="../../d8/dc8/namespacefluid__fctry.html#ac60020919bdcaa21575ddaf5f45fdd4f">known_types</a>, new_line(<span class="stringliteral">&#39;A&#39;</span>) // <span class="stringliteral">&quot;-  &quot;</span>, &amp;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;                                          .true.)</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Unknown fluid scheme type: &quot;</span> &amp;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                       // trim(type_name) // <span class="stringliteral">&quot;.  Known types are: &quot;</span> &amp;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                       // type_string)</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d8/dc8/namespacefluid__fctry.html#ac6eab94317bfcad7f92bbd155d8ffd5e">fluid_scheme_factory</a></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d8/dc8/namespacefluid__fctry.html">fluid_fctry</a></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&#39;pnpn&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;       <span class="keyword">allocate</span>(<a class="code" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>::object)</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;       type_string = <a class="code" href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">concat_string_array</a>(<a class="code" href="../../d8/dc8/namespacefluid__fctry.html#ac60020919bdcaa21575ddaf5f45fdd4f">known_types</a>, new_line(<span class="stringliteral">&#39;A&#39;</span>) // <span class="stringliteral">&quot;-  &quot;</span>, &amp;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;                                          .true.)</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Unknown fluid scheme type: &quot;</span> &amp;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;                       // trim(type_name) // <span class="stringliteral">&quot;. Known types are: &quot;</span> &amp;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                       // type_string)</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d8/dc8/namespacefluid__fctry.html#ac6eab94317bfcad7f92bbd155d8ffd5e">fluid_scheme_factory</a></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d8/dc8/namespacefluid__fctry.html">fluid_fctry</a></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00041">utils.f90:41</a></div></div>
 <div class="ttc" id="anamespacefluid__fctry_html"><div class="ttname"><a href="../../d8/dc8/namespacefluid__fctry.html">fluid_fctry</a></div><div class="ttdoc">Factory for all fluid schemes.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/dee/fluid__fctry_8f90_source.html#l00034">fluid_fctry.f90:34</a></div></div>
 <div class="ttc" id="anamespacefluid__fctry_html_ac60020919bdcaa21575ddaf5f45fdd4f"><div class="ttname"><a href="../../d8/dc8/namespacefluid__fctry.html#ac60020919bdcaa21575ddaf5f45fdd4f">fluid_fctry::known_types</a></div><div class="ttdeci">character(len=20), dimension(1) known_types</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/dee/fluid__fctry_8f90_source.html#l00044">fluid_fctry.f90:44</a></div></div>
@@ -169,7 +168,7 @@ $(document).ready(function(){initNavTree('d0/dee/fluid__fctry_8f90_source.html',
 <div class="ttc" id="anamespacefluid__scheme_html"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html">fluid_scheme</a></div><div class="ttdoc">Fluid formulations.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00034">fluid_scheme.f90:34</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
 <div class="ttc" id="anamespaceutils_html_a1118aac17fca960a9444986355db28ad"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">utils::concat_string_array</a></div><div class="ttdeci">character(:) function, allocatable, public concat_string_array(array, sep, prepend)</div><div class="ttdoc">Concatenate an array of strings into one string with array items separated by spaces.</div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00207">utils.f90:208</a></div></div>
-<div class="ttc" id="astructfluid__pnpn_1_1fluid__pnpn__t_html"><div class="ttname"><a href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn::fluid_pnpn_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d7/db9/fluid__pnpn_8f90_source.html#l00080">fluid_pnpn.f90:80</a></div></div>
+<div class="ttc" id="astructfluid__pnpn_1_1fluid__pnpn__t_html"><div class="ttname"><a href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn::fluid_pnpn_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d7/db9/fluid__pnpn_8f90_source.html#l00082">fluid_pnpn.f90:82</a></div></div>
 <div class="ttc" id="astructfluid__scheme_1_1fluid__scheme__t_html"><div class="ttname"><a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html">fluid_scheme::fluid_scheme_t</a></div><div class="ttdoc">Base type of all fluid formulations.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00089">fluid_scheme.f90:89</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -177,7 +176,7 @@ $(document).ready(function(){initNavTree('d0/dee/fluid__fctry_8f90_source.html',
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d0/dee/fluid__fctry_8f90.html">fluid_fctry.f90</a></li>
-    <li class="footer">Generated on Tue Jul 30 2024 03:35:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 31 2024 03:34:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -137,7 +137,7 @@ $(document).ready(function(){initNavTree('d4/dc2/pnpn__stress__res_8cu_source.ht
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="../../d4/dc2/pnpn__stress__res_8cu.html#a57e46ed7a1dacddeb1661f90ed485ed9">   43</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="../../d4/dc2/pnpn__stress__res_8cu.html#a57e46ed7a1dacddeb1661f90ed485ed9">pnpn_prs_stress_res_part1_cuda</a>(<span class="keywordtype">void</span> *ta1, <span class="keywordtype">void</span> *ta2, <span class="keywordtype">void</span> *ta3, </div>
+<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="../../d4/dc2/pnpn__stress__res_8cu.html#a57e46ed7a1dacddeb1661f90ed485ed9">   43</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="../../d4/dc2/pnpn__stress__res_8cu.html#a57e46ed7a1dacddeb1661f90ed485ed9">pnpn_prs_stress_res_part1_cuda</a>(<span class="keywordtype">void</span> *ta1, <span class="keywordtype">void</span> *ta2, <span class="keywordtype">void</span> *ta3,</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;                                      <span class="keywordtype">void</span> *wa1, <span class="keywordtype">void</span> *wa2, <span class="keywordtype">void</span> *wa3,</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;                                      <span class="keywordtype">void</span> *f_u, <span class="keywordtype">void</span> *f_v, <span class="keywordtype">void</span> *f_w,</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;                                      <span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a4c76a0e1c606287bbc11b730675dd3b0">B</a>, <span class="keywordtype">void</span> *<a class="code" href="../../d6/da8/hip_2ax__helm__kernel_8h.html#aeec1fbbab01c6ab2ed4fa664230071c5">h1</a>, <span class="keywordtype">void</span> *rho, <span class="keywordtype">int</span> *n) {</div>
@@ -145,7 +145,7 @@ $(document).ready(function(){initNavTree('d4/dc2/pnpn__stress__res_8cu_source.ht
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keyword">const</span> dim3 nthrds(1024, 1, 1);</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keyword">const</span> dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keyword">const</span> cudaStream_t stream = (cudaStream_t) <a class="code" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    prs_stress_res_part1_kernel&lt;real&gt;</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;      &lt;&lt;&lt;nblcks, nthrds, 0, stream&gt;&gt;&gt;((<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) ta1, (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) ta2,</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                                      (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) ta3, (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) wa1,</div>
@@ -170,9 +170,9 @@ $(document).ready(function(){initNavTree('d4/dc2/pnpn__stress__res_8cu_source.ht
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;                                      (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) wa1, (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) wa2,</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;                                      (<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) wa3, *dtbd, *n);</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;     <a class="code" href="../../d5/d08/cuda_2check_8h.html#a8e448e02bd4547864857b4de87a9deda">CUDA_CHECK</a>(cudaGetLastError());</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    </div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  }</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;}</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_a4c76a0e1c606287bbc11b730675dd3b0"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a4c76a0e1c606287bbc11b730675dd3b0">B</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ B</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00116">cdtp_kernel.h:116</a></div></div>
@@ -191,7 +191,7 @@ $(document).ready(function(){initNavTree('d4/dc2/pnpn__stress__res_8cu_source.ht
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../dir_e89cd453da7b2ecbcc42802e174538f2.html">stress_formulation</a></li><li class="navelem"><a class="el" href="../../dir_b6e6b21ef077b04e9cc7ddeb86a87640.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_14e5e89387c72d70bd8d90b6d4488670.html">device</a></li><li class="navelem"><a class="el" href="../../dir_1d10a4f4cb5e3a72875c8690a3dd30be.html">cuda</a></li><li class="navelem"><a class="el" href="../../d4/dc2/pnpn__stress__res_8cu.html">pnpn_stress_res.cu</a></li>
-    <li class="footer">Generated on Tue Jul 30 2024 03:35:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Jul 31 2024 03:34:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

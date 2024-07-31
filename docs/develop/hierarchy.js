@@ -418,22 +418,18 @@ var hierarchy =
     [ "pnpn_res_stress_device::pnpn_prs_res_part2_hip", "d5/d4c/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part2__hip.html", null ],
     [ "pnpn_res_device::pnpn_prs_res_part3_hip", "dd/d12/interfacepnpn__res__device_1_1pnpn__prs__res__part3__hip.html", null ],
     [ "pnpn_res_stress_device::pnpn_prs_res_part3_hip", "d8/d2b/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part3__hip.html", null ],
-    [ "pnpn_residual_stress::pnpn_prs_res_stress_t", "db/d04/structpnpn__residual__stress_1_1pnpn__prs__res__stress__t.html", [
-      [ "pnpn_res_stress_cpu::pnpn_prs_res_stress_cpu_t", "d2/d9c/structpnpn__res__stress__cpu_1_1pnpn__prs__res__stress__cpu__t.html", null ],
-      [ "pnpn_res_stress_device::pnpn_prs_res_stress_device_t", "de/d52/structpnpn__res__stress__device_1_1pnpn__prs__res__stress__device__t.html", null ]
-    ] ],
     [ "pnpn_residual::pnpn_prs_res_t", "d2/dc3/structpnpn__residual_1_1pnpn__prs__res__t.html", [
       [ "pnpn_res_cpu::pnpn_prs_res_cpu_t", "dc/d63/structpnpn__res__cpu_1_1pnpn__prs__res__cpu__t.html", null ],
       [ "pnpn_res_device::pnpn_prs_res_device_t", "dd/dd2/structpnpn__res__device_1_1pnpn__prs__res__device__t.html", null ],
+      [ "pnpn_res_stress_cpu::pnpn_prs_res_stress_cpu_t", "d2/d9c/structpnpn__res__stress__cpu_1_1pnpn__prs__res__stress__cpu__t.html", null ],
+      [ "pnpn_res_stress_device::pnpn_prs_res_stress_device_t", "de/d52/structpnpn__res__stress__device_1_1pnpn__prs__res__stress__device__t.html", null ],
       [ "pnpn_res_sx::pnpn_prs_res_sx_t", "dd/d92/structpnpn__res__sx_1_1pnpn__prs__res__sx__t.html", null ]
-    ] ],
-    [ "pnpn_residual_stress::pnpn_vel_res_stress_t", "d4/de6/structpnpn__residual__stress_1_1pnpn__vel__res__stress__t.html", [
-      [ "pnpn_res_stress_cpu::pnpn_vel_res_stress_cpu_t", "dd/db5/structpnpn__res__stress__cpu_1_1pnpn__vel__res__stress__cpu__t.html", null ],
-      [ "pnpn_res_stress_device::pnpn_vel_res_stress_device_t", "d1/d0c/structpnpn__res__stress__device_1_1pnpn__vel__res__stress__device__t.html", null ]
     ] ],
     [ "pnpn_residual::pnpn_vel_res_t", "d9/d51/structpnpn__residual_1_1pnpn__vel__res__t.html", [
       [ "pnpn_res_cpu::pnpn_vel_res_cpu_t", "d6/d0d/structpnpn__res__cpu_1_1pnpn__vel__res__cpu__t.html", null ],
       [ "pnpn_res_device::pnpn_vel_res_device_t", "d0/d22/structpnpn__res__device_1_1pnpn__vel__res__device__t.html", null ],
+      [ "pnpn_res_stress_cpu::pnpn_vel_res_stress_cpu_t", "dd/db5/structpnpn__res__stress__cpu_1_1pnpn__vel__res__stress__cpu__t.html", null ],
+      [ "pnpn_res_stress_device::pnpn_vel_res_stress_device_t", "d1/d0c/structpnpn__res__stress__device_1_1pnpn__vel__res__stress__device__t.html", null ],
       [ "pnpn_res_sx::pnpn_vel_res_sx_t", "d0/d28/structpnpn__res__sx_1_1pnpn__vel__res__sx__t.html", null ]
     ] ],
     [ "pnpn_res_device::pnpn_vel_res_update_hip", "d1/d79/interfacepnpn__res__device_1_1pnpn__vel__res__update__hip.html", null ],
@@ -454,7 +450,6 @@ var hierarchy =
     [ "point_zone::point_zone_wrapper_t", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html", null ],
     [ "projection::projection_t", "d5/dcf/structprojection_1_1projection__t.html", null ],
     [ "pnpn_residual::prs_res", "dc/d18/interfacepnpn__residual_1_1prs__res.html", null ],
-    [ "pnpn_residual_stress::prs_res_stress", "d1/dd1/interfacepnpn__residual__stress_1_1prs__res__stress.html", null ],
     [ "stats::quantp_t", "d3/de2/structstats_1_1quantp__t.html", null ],
     [ "re2::re2v1_bc_t", "db/db1/structre2_1_1re2v1__bc__t.html", null ],
     [ "re2::re2v1_curve_t", "de/db0/structre2_1_1re2v1__curve__t.html", null ],
@@ -635,7 +630,6 @@ var hierarchy =
     [ "vector::vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", null ],
     [ "vector::vector_t", "d3/d5b/structvector_1_1vector__t.html", null ],
     [ "pnpn_residual::vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", null ],
-    [ "pnpn_residual_stress::vel_res_stress", "df/d83/interfacepnpn__residual__stress_1_1vel__res__stress.html", null ],
     [ "wall_model::wall_model_compute", "dc/dae/interfacewall__model_1_1wall__model__compute.html", null ],
     [ "wall_model::wall_model_free", "dd/d3e/interfacewall__model_1_1wall__model__free.html", null ],
     [ "wall_model::wall_model_init", "d5/db1/interfacewall__model_1_1wall__model__init.html", null ],
