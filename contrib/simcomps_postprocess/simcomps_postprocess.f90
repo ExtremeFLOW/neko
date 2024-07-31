@@ -122,7 +122,11 @@ program simcomps_postprocess
 
   ! --- Loop through all the fld files and compute probes
   do i = 2, fld_data%meta_nsamples
+     ts = MPI_Wtime()
      call fld_file%read(fld_data)
+     te = MPI_Wtime()
+     write (log_buf, *) "Total time reading: ", te - ts
+     call neko_log%message(log_buf)
      ts = MPI_Wtime()
      call simcomp%compute_(fld_data%time, i)
      te = MPI_Wtime()
@@ -131,6 +135,7 @@ program simcomps_postprocess
   end do
   ! ------------------
 
+  call neko_log%message("Done.")
   call simcomp%free()
   call Xh%free()
   call dofmap_free(dof)
