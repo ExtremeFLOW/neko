@@ -166,7 +166,7 @@ contains
           call assign_vector_ptr(this%sampled_fld_data(i)%ptr, fld_data%w)
        case('p')
           call assign_vector_ptr(this%sampled_fld_data(i)%ptr, fld_data%p)
-       case('t')
+       case('s')
           call assign_vector_ptr(this%sampled_fld_data(i)%ptr, fld_data%t)
        case default
           call neko_error(trim(this%which_fields(i)) // ": field unavailable.")
@@ -209,11 +209,9 @@ contains
           call neko_error('Plane probes not implemented yet.')
          case ('circle')
           call this%read_circle(json_point)
-
          case ('point_zone')
           call this%read_point_zone(json_point, fld_data%x%x, fld_data%y%x, &
                fld_data%z%x, fld_data%x%n)
-
          case ('none')
           call json_point%print()
           call neko_error('No point type specified.')
