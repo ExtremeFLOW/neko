@@ -92,7 +92,7 @@ regexp-rules:
     message: Exactly one space after comment
     regexp: (\!)(?![\!\'])(\S+)
     replacement: '\1 \2'
-    active: true
+    active: false
 
   useless-eol-semicolon:
     message: Useless ";" at end of line
