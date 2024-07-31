@@ -112,7 +112,7 @@ contains
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-    if (pe_rank .ne. 0) allocate(character(len = integer_val) :: json_buffer)
+    if (pe_rank .ne. 0) allocate(character(len=integer_val) :: json_buffer)
     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
     call C%params%load_from_string(json_buffer)
 
@@ -214,7 +214,7 @@ contains
     call fluid_scheme_factory(C%fluid, trim(string_val))
 
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
-    lx = lx + 1 ! add 1 to get poly order
+    lx = lx + 1 ! add 1 to get number of gll points
     call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
     C%fluid%chkp%tlag => C%tlag
     C%fluid%chkp%dtlag => C%dtlag
@@ -471,21 +471,6 @@ contains
           call C%s%add(C%f_stats_output, stats_output_val, string_val)
        end if
     end if
-
-!    if (C%params%stats_mean_sqr_flow) then
-!       call C%q%add(C%fluid%mean_sqr%uu)
-!       call C%q%add(C%fluid%mean_sqr%vv)
-!       call C%q%add(C%fluid%mean_sqr%ww)
-!       call C%q%add(C%fluid%mean_sqr%pp)
-
-!       if (C%params%output_mean_sqr_flow) then
-!          C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
-!                                             C%params%stats_begin, &
-!                                             path = output_directory)
-!          call C%s%add(C%f_msqrf, C%params%stats_write_par, &
-!               C%params%stats_write_control)
-!       end if
-!    end if
 
     !
     ! Setup joblimit

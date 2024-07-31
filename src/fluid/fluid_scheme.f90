@@ -104,8 +104,8 @@ module fluid_scheme
      type(field_t), pointer :: f_y => null()
      !> Z-component of the right-hand side.
      type(field_t), pointer :: f_z => null()
-     class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
-     class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
+     class(ksp_t), allocatable :: ksp_vel     !< Krylov solver for velocity
+     class(ksp_t), allocatable :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
      class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
      integer :: vel_projection_dim         !< Size of the projection space for ksp_vel
@@ -142,6 +142,8 @@ module fluid_scheme
      logical :: variable_material_properties = .false.
      !> Density
      real(kind=rp), pointer :: rho => null()
+     !> The variable density field
+     type(field_t) :: rho_field
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
@@ -295,10 +297,12 @@ contains
        this%nut_field_name = ""
     end if
 
-    ! Fill mu field with the physical value
+    ! Fill mu and rho field with the physical value
 
     call this%mu_field%init(this%dm_Xh, "mu")
+    call this%rho_field%init(this%dm_Xh, "mu")
     call field_cfill(this%mu_field, this%mu, this%mu_field%size())
+    call field_cfill(this%rho_field, this%rho, this%mu_field%size())
 
 
     ! Projection spaces
@@ -611,7 +615,7 @@ contains
     call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
-    if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
+    if (integer_val .gt. 0) call this%user_field_bc_prs%init_field('d_pres')
     call bc_list_add(this%bclst_prs, this%user_field_bc_prs)
     call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_prs)
 
