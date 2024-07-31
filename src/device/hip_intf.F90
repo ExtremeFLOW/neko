@@ -187,7 +187,8 @@ module hip_intf
        integer(c_int), value :: flags
      end function hipStreamWaitEvent
 
-     integer(c_int) function hipDeviceGetStreamPriorityRange(low_prio, high_prio) &
+     integer(c_int) function hipDeviceGetStreamPriorityRange(low_prio, &
+                                                             high_prio) &
           bind(c, name='hipDeviceGetStreamPriorityRange')
        use, intrinsic :: iso_c_binding
        implicit none

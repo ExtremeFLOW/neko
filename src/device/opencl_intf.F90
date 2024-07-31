@@ -211,7 +211,8 @@ module opencl_intf
   interface
      integer(c_int) function clEnqueueWriteBuffer(queue, buffer, &
                                                   blocking_write, offset, &
-                                                  size, ptr, num_events_in_wait_list, &
+                                                  size, ptr, &
+                                                  num_events_in_wait_list, &
                                                   event_wait_list, event) &
           bind(c, name='clEnqueueWriteBuffer')
        use, intrinsic :: iso_c_binding
