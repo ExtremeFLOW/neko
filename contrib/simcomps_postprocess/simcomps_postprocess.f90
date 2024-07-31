@@ -73,7 +73,11 @@ program simcomps_postprocess
   call get_command_argument(2, fld_fname)
   fld_file = file_t(trim(fld_fname), precision = dp)
   call fld_data%init
+  ts = MPI_Wtime()
   call fld_file%read(fld_data)
+  te = MPI_Wtime()
+  write (log_buf, *) "Total time reading: ", te - ts
+  call neko_log%message(log_buf)
   n = fld_data%u%n
   ! --------------------
 
@@ -99,13 +103,12 @@ program simcomps_postprocess
      call neko_warning(trim(comp_type) // " is not postprocessable! Skipping.")
   end select
 
-
   select type (s => simcomp)
   type is (probes_t)
      ts = MPI_Wtime()
      call s%init_post(comp_subdict, empty_case, Xh, fld_data)
      te = MPI_Wtime()
-     write (log_buf, *) "Total time init: ", te - ts
+     write (log_buf, *) "Total time initializing probes: ", te - ts
      call neko_log%message(log_buf)
   class default
      call neko_error("Problem")
