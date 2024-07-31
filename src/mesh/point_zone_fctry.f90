@@ -62,10 +62,9 @@ contains
   subroutine point_zone_factory(object, json, dof)
     class(point_zone_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
-    type(dofmap_t), intent(inout) :: dof
+    type(dofmap_t), intent(inout), optional :: dof
     character(len=:), allocatable :: type_name
     character(len=:), allocatable :: type_string
-
 
     call json_get(json, "geometry", type_name)
 
@@ -76,16 +75,24 @@ contains
     else if (trim(type_name) .eq. "cylinder") then
        allocate(cylinder_point_zone_t::object)
     else
-       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
+       type_string =  concat_string_array(KNOWN_TYPES, new_line('A') // "-  ", &
                                           .true.)
        call neko_error("Unknown point zone type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)
     end if
 
-    call object%init(json, dof%size())
-    call object%map(dof)
-    call object%finalize()
+    if (present(dof)) then
+       call object%init(json, dof%size())
+       call object%map(dof)
+       call object%finalize()
+    else
+       ! This is for initializing zones inside a combine point zone,
+       ! as they don't need to be mapped
+       call object%init(json, 1)
+       call object%finalize()
+    end if
+
 
   end subroutine point_zone_factory
 

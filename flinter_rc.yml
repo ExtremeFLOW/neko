@@ -49,19 +49,13 @@ regexp-rules:
     active: true
 
   # Look through the list of punctuation, but skip if inside format string '()'
-  # However, we do allow a single letter variable to be used without spaces.
+  # However, we do allow a single letter variable or 2 digit number to be used
+  # without spaces.
   missing-spaces-after-punctuation:
     message: Missing space after punctuation
-    regexp: (?<!'\([.*])(,)(\w\w)(?!.*\)')
+    regexp: (?<!'\()(,)([a-zA-Z]\w{{1,}}|\d{{3,}})(?!.*\)')
     replacement: \1 \2
     active: true
-
-  # Todo: This rule is not working as expected.
-  types-should-be-lowercased:
-    message: Types should be lowercased
-    regexp: \b({types_upper})\b
-    replacement: null
-    active: false
 
   missing-space-before-parenthesis:
     message: Missing space before parenthesis
@@ -75,17 +69,17 @@ regexp-rules:
     replacement: '\1!$ use omp_lib'
     active: true
 
-  # line-too-long:
-  #   message: Line length > {linelen} characters
-  #   regexp: ^.{linelen_re}.+$
-  #   replacement: null
-  #   active: true
-
   tabulation-instead-of-two-spaces:
     message: Should use 2 spaces instead of tabulation
     regexp: \t
     replacement: "  "
     active: true
+
+  double-spacing:
+    message: Double spacing
+    regexp: \S+\s{{2,}}\S+
+    replacement: \n
+    active: false
 
   use-new-syntax-type:
     message: Use new syntax TYPE(kind)
@@ -102,8 +96,8 @@ regexp-rules:
 
   one-space-after-comment:
     message: Exactly one space after comment
-    regexp: \!(\w)
-    replacement: '! \1'
+    regexp: (\!)(?![\!\'])(\S+)
+    replacement: '\1 \2'
     active: true
 
   useless-eol-semicolon:
@@ -120,7 +114,7 @@ regexp-rules:
 
   nospace-end:
     message: Missing space after `end'
-    regexp: end(if|do|subroutine|function)
+    regexp: (?<!\#)end(if|do|subroutine|function)
     replacement: end \1
     active: true
 
@@ -195,25 +189,6 @@ regexp-rules:
     regexp: ^include.*$
     replacement: null
     active: true
-
-  # AD : I did not understood what was tried there
-  problem-kind:
-    message: null
-    regexp: (\(kind|\(len)=
-    replacement: null
-    active: false
-
-  problem-write:
-    message: null
-    regexp: write\(.*\)
-    replacement: null
-    active: false
-
-  problem-open:
-    message: null
-    regexp: open *\([^\)]+\)
-    replacement: null
-    active: false
 
 # These are rules that span over multiple lines, not accessible by regexp
 # You you want to edit these rules or add your own, two options:
