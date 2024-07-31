@@ -117,7 +117,7 @@ contains
     character(8) :: date
     integer :: argc, nthrds, rw, sw, num_devices
 
-    call date_and_time(time=time, date=date)
+    call date_and_time(time = time, date = date)
 
     call comm_init
     call neko_mpi_types_init
@@ -134,7 +134,7 @@ contains
        write(*,*) ' /    / / _/  / ,<   / /_/ / '
        write(*,*) '/_/|_/ /___/ /_/|_|  \____/  '
        write(*,*) ''
-       write(*,*) '(version: ', trim(NEKO_VERSION),')'
+       write(*,*) '(version: ', trim(NEKO_VERSION), ')'
        write(*,*) trim(NEKO_BUILD_INFO)
        write(*,*) ''
     end if
@@ -144,7 +144,7 @@ contains
        argc = command_argument_count()
 
        if ((argc .lt. 1) .or. (argc .gt. 1)) then
-          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko <case file>'
+          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko < case file >'
           stop
        end if
 
@@ -169,7 +169,8 @@ contains
        !
        call neko_log%section("Job Information")
        write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
-            time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
+            time(1:2),':', time(3:4), &
+            '/', date(1:4), '-', date(5:6), '-', date(7:8)
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
        write(log_buf, '(a)') 'Running on: '
        sw = 10
