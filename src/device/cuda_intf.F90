@@ -295,10 +295,6 @@ contains
     !$omp end master
     !$omp end parallel
 
-    if (cuda_device_count() .ne. 1) then
-       call neko_error('Only one device is supported per MPI rank')
-    end if
-
     ! Ensure that all threads are assigned to the same device
     if (nthrds .gt. 1) then
        if (cudaGetDevice(device_id) .ne. cudaSuccess) then

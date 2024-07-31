@@ -115,7 +115,7 @@ contains
     character(len=10) :: suffix
     character(10) :: time
     character(8) :: date
-    integer :: argc, nthrds, rw, sw
+    integer :: argc, nthrds, rw, sw, num_devices
 
     call date_and_time(time=time, date=date)
 
@@ -156,12 +156,20 @@ contains
           call neko_error('Invalid case file')
        end if
 
+       ! Check the device count against the number of MPI ranks
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_count(num_devices)
+          if (num_devices .ne. 1) then
+             call neko_error('Only one device is supported per MPI rank')
+          end if
+       end if
+
        !
        ! Job information
        !
        call neko_log%section("Job Information")
        write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
-         time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
+            time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
        write(log_buf, '(a)') 'Running on: '
        sw = 10
@@ -201,16 +209,16 @@ contains
        if (nthrds .gt. 1) then
           if (nthrds .lt. 1e1) then
              write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
-               nthrds, ' thrds each'
+                  nthrds, ' thrds each'
           else if (nthrds .lt. 1e2) then
              write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
-               nthrds, ' thrds each'
+                  nthrds, ' thrds each'
           else if (nthrds .lt. 1e3) then
              write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
-               nthrds, ' thrds each'
+                  nthrds, ' thrds each'
           else if (nthrds .lt. 1e4) then
              write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
-               nthrds, ' thrds each'
+                  nthrds, ' thrds each'
           end if
        end if
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
