@@ -35,6 +35,10 @@ program simcomps_postprocess
   ! other
   integer :: ierr, argc, i
 
+  ! For profilin
+  real(kind=dp) :: ts, te
+  character(len=LOG_SIZE) :: log_buf
+
   call neko_init
 
   !
@@ -95,22 +99,35 @@ program simcomps_postprocess
      call neko_warning(trim(comp_type) // " is not postprocessable! Skipping.")
   end select
 
+
   select type (s => simcomp)
   type is (probes_t)
+     ts = MPI_Wtime()
      call s%init_post(comp_subdict, empty_case, Xh, fld_data)
+     te = MPI_Wtime()
+     write (log_buf, *) "Total time init: ", te - ts
+     call neko_log%message(log_buf)
   class default
      call neko_error("Problem")
   end select
   ! -------------------
 
   ! --- Do a first interpolation
+  ts = MPI_Wtime()
   call simcomp%compute_(fld_data%time, 1)
+  te = MPI_Wtime()
+  write (log_buf, *) "Total time compute: ", te - ts
+  call neko_log%message(log_buf)
   ! -------------------
 
   ! --- Loop through all the fld files and compute probes
   do i = 2, fld_data%meta_nsamples
      call fld_file%read(fld_data)
-  call simcomp%compute_(fld_data%time, i)
+     ts = MPI_Wtime()
+     call simcomp%compute_(fld_data%time, i)
+     te = MPI_Wtime()
+     write (log_buf, *) "Total time compute: ", te - ts
+     call neko_log%message(log_buf)
   end do
   ! ------------------
 
