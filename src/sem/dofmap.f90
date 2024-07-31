@@ -675,7 +675,7 @@ contains
        if (midpoint .and. Xh%lx .gt. 2) then
           call dofmap_xyzquad(Xh, msh, msh%elements(el_idx)%e, &
                               this%x(1,1,1, el_idx), this%y(1,1,1, el_idx),&
-                              this%z(1,1,1, el_idx),curve_type, curve_data_tot)
+                              this%z(1,1,1, el_idx), curve_type, curve_data_tot)
        end if
     end do
     do i = 1, msh%curve%size
@@ -787,9 +787,9 @@ contains
     real(kind=rp) :: jxt(Xh%lx*3), jyt(Xh%lx*3), jzt(Xh%lx*3)
     real(kind=rp) :: w(4*Xh%lxyz,2)
     integer :: j, k, n_edges
-    eindx = (/2 ,  6 ,  8 ,  4, &
-              20 , 24 , 26 , 22, &
-              10 , 12 , 18 , 16 /)
+    eindx = (/ 2,  6,  8,  4, &
+              20, 24, 26, 22, &
+              10, 12, 18, 16 /)
 
     w = 0d0
     if (msh%gdim .eq. 3) then
@@ -822,8 +822,8 @@ contains
     end if
     k = 1
     do j = 1, Xh%lx
-       call fd_weights_full(Xh%zg(j,1), zquad,2,0,jxt(k))
-       call fd_weights_full(Xh%zg(j,2), zquad,2,0,jyt(k))
+       call fd_weights_full(Xh%zg(j,1), zquad,2,0, jxt(k))
+       call fd_weights_full(Xh%zg(j,2), zquad,2,0, jyt(k))
        if (msh%gdim .gt. 2) then
           call fd_weights_full(Xh%zg(j,3), zquad,2,0,jzt(k))
        end if
@@ -979,7 +979,7 @@ contains
 !
 !  z-edges
 !
-    do kk= 1 , n, n-1
+    do kk= 1, n, n-1
        do k = 1, n
           do j = 1, n
              do i = 1, n
@@ -991,7 +991,7 @@ contains
     end do
 
     call add2(v, e, ntot)
-    call copy(x, v ,ntot)
+    call copy(x, v, ntot)
 
   end subroutine gh_face_extend_3d
 
@@ -1005,13 +1005,13 @@ contains
     real(kind=rp), intent(inout) :: e(n, n)
     real(kind=rp), intent(inout) :: v(n, n)
     integer, intent(in) :: gh_type
-    integer :: i,j , jj, ii, ntot
+    integer :: i,j, jj, ii, ntot
     real(kind=rp) :: si, sj, hi, hj
 
     !Build vertex interpolant
 
     ntot = n * n
-    call rzero(v,ntot)
+    call rzero(v, ntot)
     do jj = 1, n, n-1
        do ii = 1, n, n-1
           do j = 1, n
@@ -1024,12 +1024,12 @@ contains
        end do
     end do
     if (gh_type .eq. 1) then
-       call copy(x,v,ntot)
+       call copy(x,v, ntot)
        return
     end if
 
     !Extend 4 edges
-    call rzero(e,ntot)
+    call rzero(e, ntot)
 
     !x-edges
 
@@ -1134,14 +1134,14 @@ contains
     iyt = isid1-2
     ixt = isid1
     if (isid1 .le. 2) then
-       call addtnsr(x, h(1,1,ixt), xcrved, h(1,3,izt), Xh%lx, Xh%ly, Xh%lz)
-       call addtnsr(y, h(1,1,ixt), ycrved, h(1,3,izt), Xh%lx, Xh%ly, Xh%lz)
+       call addtnsr(x, h(1,1, ixt), xcrved, h(1,3, izt), Xh%lx, Xh%ly, Xh%lz)
+       call addtnsr(y, h(1,1, ixt), ycrved, h(1,3, izt), Xh%lx, Xh%ly, Xh%lz)
     else
-       call addtnsr(x, xcrved, h(1,2,iyt), h(1,3,izt), Xh%lx, Xh%ly, Xh%lz)
-       call addtnsr(y, ycrved, h(1,2,iyt), h(1,3,izt), Xh%lx, Xh%ly, Xh%lz)
+       call addtnsr(x, xcrved, h(1,2, iyt), h(1,3, izt), Xh%lx, Xh%ly, Xh%lz)
+       call addtnsr(y, ycrved, h(1,2, iyt), h(1,3, izt), Xh%lx, Xh%ly, Xh%lz)
     end if
   end subroutine arc_surface
-
+,
   subroutine compute_h(h, zgml, gdim, lx)
     integer, intent(in) :: lx, gdim
     real(kind=rp), intent(inout) ::  h(lx, 3, 2)
