@@ -120,7 +120,7 @@ regexp-rules:
 
   trailing-white-spaces:
     message: Trailing white-spaces
-    regexp: ([\t ]+)$
+    regexp: ((\S+[\t ]+$)|(^[\t ]+$))
     replacement: ""
     active: true
 
