@@ -56,7 +56,6 @@ module gmres
      real(kind=rp), allocatable :: v(:,:)
      real(kind=rp), allocatable :: s(:)
      real(kind=rp), allocatable :: gam(:)
-     real(kind=rp), allocatable :: wk1(:)
    contains
      procedure, pass(this) :: init => gmres_init
      procedure, pass(this) :: free => gmres_free
@@ -91,7 +90,6 @@ contains
 
     allocate(this%w(n))
     allocate(this%r(n))
-    allocate(this%wk1(n))
 
     allocate(this%c(this%lgmres))
     allocate(this%s(this%lgmres))
@@ -154,10 +152,6 @@ contains
        deallocate(this%gam)
     end if
 
-    if (allocated(this%wk1)) then
-       deallocate(this%wk1)
-    end if
-
     nullify(this%M)
 
   end subroutine gmres_free
@@ -191,7 +185,7 @@ contains
     end if
 
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-          v => this%v, s => this%s, gam => this%gam, wk1 => this%wk1)
+          v => this%v, s => this%s, gam => this%gam)
 
       norm_fac = 1.0_rp / sqrt(coef%volume)
       call rzero(x%x, n)
@@ -252,9 +246,8 @@ contains
                end if
             end do
 
-            call MPI_Allreduce(h(1,j), wk1, j, &
+            call MPI_Allreduce(MPI_IN_PLACE, h(1,j), j, &
                   MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-            call copy(h(1,j), wk1, j)
 
             alpha2 = 0.0_rp
             do i = 0, n, NEKO_BLK_SIZE
