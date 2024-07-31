@@ -35,6 +35,10 @@ program simcomps_postprocess
   ! other
   integer :: ierr, argc, i
 
+  ! For profilin
+  real(kind=dp) :: ts, te
+  character(len=LOG_SIZE) :: log_buf
+
   call neko_init
 
   !
@@ -69,7 +73,11 @@ program simcomps_postprocess
   call get_command_argument(2, fld_fname)
   fld_file = file_t(trim(fld_fname), precision = dp)
   call fld_data%init
+  ts = MPI_Wtime()
   call fld_file%read(fld_data)
+  te = MPI_Wtime()
+  write (log_buf, *) "Total time reading: ", te - ts
+  call neko_log%message(log_buf)
   n = fld_data%u%n
   ! --------------------
 
@@ -97,23 +105,40 @@ program simcomps_postprocess
 
   select type (s => simcomp)
   type is (probes_t)
+     ts = MPI_Wtime()
      call s%init_post(comp_subdict, empty_case, Xh, fld_data)
+     te = MPI_Wtime()
+     write (log_buf, *) "Total time initializing probes: ", te - ts
+     call neko_log%message(log_buf)
   class default
      call neko_error("Problem")
   end select
   ! -------------------
 
   ! --- Do a first interpolation
+  ts = MPI_Wtime()
   call simcomp%compute_(fld_data%time, 1)
+  te = MPI_Wtime()
+  write (log_buf, *) "Total time compute: ", te - ts
+  call neko_log%message(log_buf)
   ! -------------------
 
   ! --- Loop through all the fld files and compute probes
   do i = 2, fld_data%meta_nsamples
+     ts = MPI_Wtime()
      call fld_file%read(fld_data)
-  call simcomp%compute_(fld_data%time, i)
+     te = MPI_Wtime()
+     write (log_buf, *) "Total time reading: ", te - ts
+     call neko_log%message(log_buf)
+     ts = MPI_Wtime()
+     call simcomp%compute_(fld_data%time, i)
+     te = MPI_Wtime()
+     write (log_buf, *) "Total time compute: ", te - ts
+     call neko_log%message(log_buf)
   end do
   ! ------------------
 
+  call neko_log%message("Done.")
   call simcomp%free()
   call Xh%free()
   call dofmap_free(dof)
