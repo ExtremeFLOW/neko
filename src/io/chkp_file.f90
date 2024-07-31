@@ -54,15 +54,15 @@ module chkp_file
   !> Interface for Neko checkpoint files
   type, public, extends(generic_file_t) :: chkp_file_t
      !> Function space in the loaded checkpoint file
-     type(space_t) :: chkp_Xh 
+     type(space_t) :: chkp_Xh
      !> Function space used in the simulation
-     type(space_t), pointer :: sim_Xh 
+     type(space_t), pointer :: sim_Xh
      !> Interpolation when only changing lx
-     type(interpolator_t) :: space_interp 
+     type(interpolator_t) :: space_interp
      !> Interpolation for different meshes
-     type(global_interpolation_t) :: global_interp 
+     type(global_interpolation_t) :: global_interp
      !> Flag if previous mesh difers from current.
-     logical :: mesh2mesh 
+     logical :: mesh2mesh
    contains
      procedure :: read => chkp_file_read
      procedure :: read_field => chkp_read_field
