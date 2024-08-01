@@ -48,7 +48,7 @@ regexp-rules:
     message: Trailing white-spaces
     regexp: ([ ]+|\t+)\n
     replacement: ""
-    active: false
+    active: true
     include-comments: true
 
   excessive-use-of-space:
@@ -60,13 +60,13 @@ regexp-rules:
     message: Double spacing
     regexp: \S+\s{{2,}}\S+
     replacement: \n
-    active: false
+    active: true
 
   tabulation-instead-of-two-spaces:
     message: Should use 2 spaces instead of tabulation
     regexp: \t
     replacement: "  "
-    active: false
+    active: true
 
   # -------------------------------------------------------------------------- #
   # Types and intrinsic rules
