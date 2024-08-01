@@ -1,7 +1,5 @@
 # Flinter configuration file.
 
-extension: f\d*
-
 # These are all the regexp rules
 
 # Set active to false is you want to skip  rule
@@ -55,6 +53,7 @@ regexp-rules:
     message: Except for indentation, single spaces are sufficient
     regexp: '(?<=\S)  +(?=[^\s!])'
     replacement: " "
+    active: true
 
   double-spacing:
     message: Double spacing
@@ -274,10 +273,12 @@ fortran-syntax:
     - '\.or\.'
 
   structs:
-    - if
-    - select
-    - case
-    - while
+    - "if"
+    - "select"
+    - "case"
+    - "while"
+    - "is"
+    - "select type"
 
   punctuations:
     - ","
@@ -285,8 +286,8 @@ fortran-syntax:
     - ";"
 
   namespace_blocks:
-    - program
-    - module
+    - "program"
+    - "module"
 
   context_blocks:
     - function
