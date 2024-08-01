@@ -49,6 +49,11 @@ jobs:
         run: |
           score=$(awk '$1==0{print $3}' flint.txt)
 
+          if [ -z "$score" ]; then
+            echo "No score found, check flint.txt"
+            exit 1
+          fi
+
           printf "Current score: $score\n"
           printf "Minimum score: $global_min\n"
           if (( $(echo "$score < $global_min" | bc -l) )); then
