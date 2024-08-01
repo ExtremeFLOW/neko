@@ -47,7 +47,7 @@ regexp-rules:
     regexp: (?:[ ]+|\t+)\n
     replacement: ""
     active: true
-    include-comments: true
+    # include-comments: true
 
   excessive-use-of-space:
     message: Except for indentation, single spaces are sufficient
